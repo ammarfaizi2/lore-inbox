@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965443AbWJCH2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWJCHcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965443AbWJCH2T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 03:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965451AbWJCH2T
+	id S1030204AbWJCHcU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 03:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWJCHcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 03:28:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:58284 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965443AbWJCH2S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 03:28:18 -0400
-Subject: Re: [PATCH 5/6] From: Andrew Morton <akpm@osdl.org>
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Tue, 3 Oct 2006 03:32:19 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:28488 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1030204AbWJCHcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 03:32:19 -0400
+Subject: Re: [RFC][PATCH 0/2] Swap token re-tuned
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20061003002014.321f68b6.akpm@osdl.org>
-References: <20061003010842.438670755@goop.org>
-	 <20061003010933.392428107@goop.org>
-	 <17697.58794.113796.925995@cargo.ozlabs.ibm.com>
-	 <20061002213347.8229b6fc.akpm@osdl.org>
-	 <17697.62198.476469.265990@cargo.ozlabs.ibm.com>
-	 <20061002225053.46be0324.akpm@osdl.org>
-	 <17698.2424.528747.211313@cargo.ozlabs.ibm.com>
-	 <20061003002014.321f68b6.akpm@osdl.org>
+Cc: ashwin.chaugule@celunite.com, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@redhat.com>
+In-Reply-To: <20061002005905.a97a7b90.akpm@osdl.org>
+References: <1159555312.2141.13.camel@localhost.localdomain>
+	 <20061001155608.0a464d4c.akpm@osdl.org> <1159774552.13651.80.camel@lappy>
+	 <20061002005905.a97a7b90.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 03 Oct 2006 17:25:51 +1000
-Message-Id: <1159860351.5482.49.camel@localhost.localdomain>
+Date: Tue, 03 Oct 2006 09:32:02 +0200
+Message-Id: <1159860723.13651.95.camel@lappy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-10-02 at 00:59 -0700, Andrew Morton wrote:
 
-> yup, that fixed it.  xmon apparently doesn't know where fbcon's output
-> cursor is, but the characters are now readable.
+> IOW: does the patch help mem=96M;make -j5??
 
-The low level text engine used by xmon (and my some early console/debug
-stuff on powerpc as well) really doesn't have any link to fbcon... doing
-that would be hard and ugly and take the risk of making it fragile,
-which isn't what we want to do... usually, when you fall into xmon, you
-don't care about your console cursor :) (In fact, that stuff can even
-blast on top of X if the later has the UseFBDev option).
+Its hardly swapping; I'll go back to mem=64M; make -j5
+that got some decent swapping and still ~50% cpu.
 
-Ben.
+-vanilla:
 
+        Command being timed: "make -j5"
+        User time (seconds): 2557.12
+        System time (seconds): 1239.14
+        Percent of CPU this job got: 87%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:12:36
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 0
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 50920
+        Minor (reclaiming a frame) page faults: 8988166
+        Voluntary context switches: 129759
+        Involuntary context switches: 146431
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 0
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
+
+-swap-token:
+
+        Command being timed: "make -j5"
+        User time (seconds): 2557.20
+        System time (seconds): 1122.35
+        Percent of CPU this job got: 86%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:10:54
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 0
+        Average resident set size (kbytes): 0
+        Major (requiring I/O) page faults: 56116
+        Minor (reclaiming a frame) page faults: 8985073
+        Voluntary context switches: 135533
+        Involuntary context switches: 145494
+        Swaps: 0
+        File system inputs: 0
+        File system outputs: 0
+        Socket messages sent: 0
+        Socket messages received: 0
+        Signals delivered: 0
+        Page size (bytes): 4096
+        Exit status: 0
 

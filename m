@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWJCHcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWJCIDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWJCHcU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 03:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWJCHcT
+	id S964981AbWJCIDH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbWJCIDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 03:32:19 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:28488 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030204AbWJCHcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 03:32:19 -0400
-Subject: Re: [RFC][PATCH 0/2] Swap token re-tuned
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ashwin.chaugule@celunite.com, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>
-In-Reply-To: <20061002005905.a97a7b90.akpm@osdl.org>
-References: <1159555312.2141.13.camel@localhost.localdomain>
-	 <20061001155608.0a464d4c.akpm@osdl.org> <1159774552.13651.80.camel@lappy>
-	 <20061002005905.a97a7b90.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 09:32:02 +0200
-Message-Id: <1159860723.13651.95.camel@lappy>
+	Tue, 3 Oct 2006 04:03:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39819 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964981AbWJCIDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 04:03:05 -0400
+Date: Tue, 3 Oct 2006 18:02:02 +1000
+From: Greg Banks <gnb@sgi.com>
+To: Neil Brown <neilb@suse.de>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support of	rsize/wsize of up to 1MB, over TCP.
+Message-ID: <20061003080202.GM28796@sgi.com>
+References: <20060824162917.3600.patches@notabene> <1060824063711.5008@suse.de> <20060925154316.GA17465@fieldses.org> <17697.48800.933642.581926@cse.unsw.edu.au> <20061003021304.GB12867@fieldses.org> <17697.63511.32591.797058@cse.unsw.edu.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17697.63511.32591.797058@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 00:59 -0700, Andrew Morton wrote:
+On Tue, Oct 03, 2006 at 03:41:43PM +1000, Neil Brown wrote:
+> Comments on the below?
 
-> IOW: does the patch help mem=96M;make -j5??
+Looks ok, except...
 
-Its hardly swapping; I'll go back to mem=64M; make -j5
-that got some decent swapping and still ~50% cpu.
+> @@ -57,7 +57,8 @@ struct svc_serv {
+>  	struct svc_stat *	sv_stats;	/* RPC statistics */
+>  	spinlock_t		sv_lock;
+>  	unsigned int		sv_nrthreads;	/* # of server threads */
+> -	unsigned int		sv_bufsz;	/* datagram buffer size */
+> +	unsigned int		sv_max_payload;	/* datagram payload size */
+> +	unsigned int		sv_max_mesg;	/* bufsz + 1 page for overheads */
 
--vanilla:
+Presumably the comment should read "max_payload + 1 page..." ?
 
-        Command being timed: "make -j5"
-        User time (seconds): 2557.12
-        System time (seconds): 1239.14
-        Percent of CPU this job got: 87%
-        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:12:36
-        Average shared text size (kbytes): 0
-        Average unshared data size (kbytes): 0
-        Average stack size (kbytes): 0
-        Average total size (kbytes): 0
-        Maximum resident set size (kbytes): 0
-        Average resident set size (kbytes): 0
-        Major (requiring I/O) page faults: 50920
-        Minor (reclaiming a frame) page faults: 8988166
-        Voluntary context switches: 129759
-        Involuntary context switches: 146431
-        Swaps: 0
-        File system inputs: 0
-        File system outputs: 0
-        Socket messages sent: 0
-        Socket messages received: 0
-        Signals delivered: 0
-        Page size (bytes): 4096
-        Exit status: 0
+> @@ -414,9 +415,11 @@ svc_init_buffer(struct svc_rqst *rqstp, 
+>  	int pages;
+>  	int arghi;
+>  	
+> -	if (size > RPCSVC_MAXPAYLOAD)
+> -		size = RPCSVC_MAXPAYLOAD;
+> -	pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
+> +	if (size > RPCSVC_MAXPAYLOAD + PAGE_SIZE)
+> +		size = RPCSVC_MAXPAYLOAD + PAGE_SIZE;
+> +	pages = size + PAGE_SIZE; /* extra page as we hold both request and reply.
+> +				   * We assume one is at most one page
+> +				   */
 
--swap-token:
+Isn't there a divide by PAGE_SIZE missing here?  Looks
+like we'll be allocating a *lot* of pages ;-)
 
-        Command being timed: "make -j5"
-        User time (seconds): 2557.20
-        System time (seconds): 1122.35
-        Percent of CPU this job got: 86%
-        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:10:54
-        Average shared text size (kbytes): 0
-        Average unshared data size (kbytes): 0
-        Average stack size (kbytes): 0
-        Average total size (kbytes): 0
-        Maximum resident set size (kbytes): 0
-        Average resident set size (kbytes): 0
-        Major (requiring I/O) page faults: 56116
-        Minor (reclaiming a frame) page faults: 8985073
-        Voluntary context switches: 135533
-        Involuntary context switches: 145494
-        Swaps: 0
-        File system inputs: 0
-        File system outputs: 0
-        Socket messages sent: 0
-        Socket messages received: 0
-        Signals delivered: 0
-        Page size (bytes): 4096
-        Exit status: 0
-
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

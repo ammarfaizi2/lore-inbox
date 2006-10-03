@@ -1,108 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWJBXyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWJCAJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbWJBXyK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 19:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965534AbWJBXyK
+	id S965110AbWJCAJG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 20:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965538AbWJCAJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 19:54:10 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:11276 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965117AbWJBXyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 19:54:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ecbp3/slqoKZN9id4LwmkiqmDIaEyB42OG+W9yBdWKRciFs22Ichn2HlPw9IaIE2+/CipsIZHcO1hgIQc6IYF2Jhp/XTHnG/qa3J4yZhkb+RSuEvGwOP7OFQQK7HeDnttKUKMryHPCjXsRWke762Vg/KsmWw0eoHVwzZFl6kckg=
-Message-ID: <21d7e9970610021654j6f443feay67a11121d1d8a716@mail.gmail.com>
-Date: Tue, 3 Oct 2006 09:54:07 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Frederik Deweerdt" <deweerdt@free.fr>
-Subject: Re: [RFC PATCH] move drm to pci_request_irq
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Matthew Wilcox" <matthew@wil.cx>, linux-scsi@vger.kernel.org,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Andrew Morton" <akpm@osdl.org>,
-       "Jeff Garzik" <jeff@garzik.org>
-In-Reply-To: <20061002201229.GF3003@slug>
+	Mon, 2 Oct 2006 20:09:06 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34000 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965110AbWJCAJF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 20:09:05 -0400
+From: Neil Brown <neilb@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Date: Tue, 3 Oct 2006 10:08:43 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1159550143.13029.36.camel@localhost.localdomain>
-	 <1159573404.13029.96.camel@localhost.localdomain>
-	 <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org>
-	 <20061001142807.GD16272@parisc-linux.org>
-	 <1159729523.2891.408.camel@laptopd505.fenrus.org>
-	 <20061001193616.GF16272@parisc-linux.org>
-	 <1159755141.2891.434.camel@laptopd505.fenrus.org>
-	 <20061002200048.GC3003@slug> <20061002201229.GF3003@slug>
+Message-ID: <17697.43531.490273.284884@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, "David M. Grimes" <dgrimes@navisite.com>,
+       Atal Shargorodsky <atal@codefidence.com>,
+       Gilad Ben-Yossef <gilad@codefidence.com>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 001 of 8] knfsd: Add nfs-export support to tmpfs
+In-Reply-To: message from Hugh Dickins on Friday September 29
+References: <20060929130518.23919.patches@notabene>
+	<1060929030839.24024@suse.de>
+	<20060928232953.6da08f19.akpm@osdl.org>
+	<17692.49605.248998.607609@cse.unsw.edu.au>
+	<Pine.LNX.4.64.0609292014160.23046@blonde.wat.veritas.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/06, Frederik Deweerdt <deweerdt@free.fr> wrote:
-> Hi,
->
-> This proof-of-concept patch converts the drm driver to use the
-> pci_request_irq() function.
+On Friday September 29, hugh@veritas.com wrote:
+> 
+> But one anxiety, regarding i_ino.  That's an unsigned long originating
+> from last_inode in fs/inode.c, isn't it?  Here getting cast to a __u32
+> to make up one part of the file handle, which will then be cast back
+> to an unsigned long for ilookup later.
 
-NAK.
-Wow nice CC'list and no DRM maintainer in sight :-)
+Good point.  Another __u32 in the filehandle is called for.  It will
+always be 0 on 32bit arches, but that's not big deal (it will almost
+always be 0 on 64bit to...)
 
-This will break framebuffer drivers, the DRM is not a proper PCI
-device driver as we don't have PCI device sharing, take a look at the
-gpu-2.6.git tree on kernel.org for the "correct" solution, which needs
-more attention before merging..
+> Then there's the lesser but more tiresome problem, of i_ino collisions
+> on 32-bit arches.  tmpfs hasn't worried about that to date, just taken
+> whatever new_inode() has given it from last_inode: but perhaps these
+> file handles now make that more of a concern?
 
-Dave.
->
-> Regards,
-> Frederik
->
->
->
-> diff --git a/drivers/char/drm/drm_drv.c b/drivers/char/drm/drm_drv.c
-> index b366c5b..5b000cd 100644
-> --- a/drivers/char/drm/drm_drv.c
-> +++ b/drivers/char/drm/drm_drv.c
-> @@ -234,6 +234,8 @@ int drm_lastclose(drm_device_t * dev)
->         }
->         mutex_unlock(&dev->struct_mutex);
->
-> +       pci_set_drvdata(dev, NULL);
-> +
->         DRM_DEBUG("lastclose completed\n");
->         return 0;
->  }
-> diff --git a/drivers/char/drm/drm_irq.c b/drivers/char/drm/drm_irq.c
-> index 4553a3a..5dd12cb 100644
-> --- a/drivers/char/drm/drm_irq.c
-> +++ b/drivers/char/drm/drm_irq.c
-> @@ -132,8 +132,10 @@ static int drm_irq_install(drm_device_t
->         if (drm_core_check_feature(dev, DRIVER_IRQ_SHARED))
->                 sh_flags = IRQF_SHARED;
->
-> -       ret = request_irq(dev->irq, dev->driver->irq_handler,
-> -                         sh_flags, dev->devname, dev);
-> +       pci_set_drvdata(dev->pdev, dev);
-> +
-> +       ret = pci_request_irq(dev->pdev, dev->driver->irq_handler,
-> +                         sh_flags, dev->devname);
->         if (ret < 0) {
->                 mutex_lock(&dev->struct_mutex);
->                 dev->irq_enabled = 0;
-> @@ -173,7 +175,7 @@ int drm_irq_uninstall(drm_device_t * dev
->
->         dev->driver->irq_uninstall(dev);
->
-> -       free_irq(dev->irq, dev);
-> +       pci_free_irq(dev->pdev);
->
->         return 0;
->  }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Yes.....
+The i_generation will still be different so we wont get to files with
+the same filehandle.  But once an inum is reused, the previous one
+won't be visible in the hash table any more.  This is easily fixed by
+using ilookup5 and testing the i_generation.
+
+There is still the fact that the duplicate inode numbers will be
+visible on the client.  I don't think this will upset the NFS client
+code as it uses the full filehandle to differentiate files.  I could
+confuse usespace, but no worse than tmpfs already could confuse
+userspace.  So I think this can be considered to be a non-problem.
+
+So: this patch extends the filehandle to store 64bits of inode number
+(high word, then low word, each in host-endian) and uses ilookup5 to
+ensure that inum reuse doesn't confuse the server.
+
+It even compiles and appear to work!
+
+Thanks,
+NeilBrown
+
+----------------
+
+Fix issues with nfs exporting of tmpfs
+
+Two particular problem:
+ i_ino can be 64bit, so use 64 bits in filehandle to store it.
+
+ i_ino can be reused, so use ilookup5 and i_generation to avoid any
+  possible confusion.
+
+Cc: Hugh Dickins <hugh@veritas.com>
+Cc: "David M. Grimes" <dgrimes@navisite.com>
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./mm/shmem.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
+
+diff .prev/mm/shmem.c ./mm/shmem.c
+--- .prev/mm/shmem.c	2006-09-29 11:52:44.000000000 +1000
++++ ./mm/shmem.c	2006-10-03 09:54:11.000000000 +1000
+@@ -1962,16 +1962,25 @@ static struct dentry *shmem_get_parent(s
+ 	return ERR_PTR(-ESTALE);
+ }
+ 
++static int shmem_match(struct inode *ino, void *vfh)
++{
++	__u32 *fh = vfh;
++	__u64 inum = fh[2];
++	inum = (inum << 32) | fh[1];
++	return ino->i_ino == inum && fh[0] == ino->i_generation;
++}
++
+ static struct dentry *shmem_get_dentry(struct super_block *sb, void *vfh)
+ {
+ 	struct dentry *de = NULL;
+ 	struct inode *inode;
+ 	__u32 *fh = vfh;
++	__u64 inum = fh[2];
++	inum = (inum << 32) | fh[1];
+ 
+-	inode = ilookup(sb, (unsigned long)fh[0]);
++	inode = ilookup5(sb, (unsigned long)(inum+fh[0]), shmem_match, vfh);
+ 	if (inode) {
+-		if (inode->i_generation == fh[1])
+-			de = d_find_alias(inode);
++		de = d_find_alias(inode);
+ 		iput(inode);
+ 	}
+ 
+@@ -1982,7 +1991,7 @@ static struct dentry *shmem_decode_fh(st
+ 				      int (*acceptable)(void *context, struct dentry *de),
+ 				      void *context)
+ {
+-	if (len < 2)
++	if (len < 3)
+ 		return ERR_PTR(-ESTALE);
+ 
+ 	return sb->s_export_op->find_exported_dentry(sb, fh, NULL, acceptable, context);
+@@ -1992,7 +2001,7 @@ static int shmem_encode_fh(struct dentry
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 
+-	if (*len < 2)
++	if (*len < 3)
+ 		return 255;
+ 
+ 	if (hlist_unhashed(&inode->i_hash)) {
+@@ -2004,14 +2013,16 @@ static int shmem_encode_fh(struct dentry
+ 		static DEFINE_SPINLOCK(lock);
+ 		spin_lock(&lock);
+ 		if (hlist_unhashed(&inode->i_hash))
+-			insert_inode_hash(inode);
++			__insert_inode_hash(inode,
++					    inode->i_ino + inode->i_generation);
+ 		spin_unlock(&lock);
+ 	}
+ 
+-	fh[0] = inode->i_ino;
+-	fh[1] = inode->i_generation;
++	fh[0] = inode->i_generation;
++	fh[1] = inode->i_ino;
++	fh[2] = ((__u64)inode->i_ino) >> 32;
+ 
+-	*len = 2;
++	*len = 3;
+ 	return 1;
+ }
+ 

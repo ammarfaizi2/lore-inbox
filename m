@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWJCOlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWJCOse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWJCOlB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 10:41:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWJCOlB
+	id S964777AbWJCOse (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 10:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWJCOse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 10:41:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56192 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932247AbWJCOlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 10:41:00 -0400
-Subject: Re: BIOS THRM-Throttling and driver timings
-From: Arjan van de Ven <arjan@infradead.org>
-To: Keith Chew <keith.chew@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com>
-References: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 03 Oct 2006 16:40:36 +0200
-Message-Id: <1159886437.2891.532.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 3 Oct 2006 10:48:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29619 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964777AbWJCOsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 10:48:33 -0400
+Date: Tue, 3 Oct 2006 07:48:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Randy Dunlap <rdunlap@xenotime.net>, akpm <akpm@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] Math-emu kills the kernel on Athlon64 X2 II -- it's
+ terminally broken
+In-Reply-To: <200610031211.46168.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0610030746260.3952@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+ <Pine.LNX.4.64.0610021932080.3952@g5.osdl.org> <20061002202426.aa3ecb4f.rdunlap@xenotime.net>
+ <200610031211.46168.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-04 at 03:29 +1300, Keith Chew wrote:
-> Hi
+
+
+On Tue, 3 Oct 2006, Andi Kleen wrote:
 > 
-> We have a motherboard that has Thermal Throttling in the BIOS (which
-> we cannot disable). This causes the CPU usage to go up and down when
-> the CPU temperature reaches (and stays around) the Throttling
-> temperature point.
-> 
-> What we would like to know is whether this will affect the timings in
-> drivers, eg the wireless drivers we are using. What can we check in
-> drivers' code that will tell us that its operations may be affected
-> the throttling?
-> 
-> In the past few days, we noticed that some of the linux units we
-> deployed freezes after deveral hours of operation, we are now trying
-> to reproduce the problem in our test environment. Some insight on the
-> affect of throttling will help us narrow down the search.
+> Actually I looked at the code more closely. It looks like kernel math
+> emulation is much more broken. e.g. kernel_fpu_begin() is missing
+> code and lots of other paths in i387 that need to check HAVE_HWFP don't.
 
+No it's not.
 
-Hi,
+kernel_fpu_begin() has the _one_ test that matters:
 
-in general linux should be ok with this happening. However for specific
-cases... you'll need to provide more information; you're not mentioning
-which drivers you are using for example. Or even which versions of the
-kernel etc etc....
+	if (thread->status & TS_USEDFPU) {
 
-(also: if you actually HIT throttling, there is something very very
-wrong; you're not supposed to hit that unless the fan is defective, but
-never in "normal" healthy operation. If you do hit it without hardware
-defects then there is most likely a fundamental airflow problem you'll
-want to fix urgently)
+since if software emulation is on, nobody will ever have the TS_USEDFPU 
+flag set.
 
+> Fixing it properly would be much more work.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+No. It's all fixed properly already.
 
+The bug is simply on the newer FXSR paths - marking the FPU emulation 
+broken is just stupid. 
+
+		Linus

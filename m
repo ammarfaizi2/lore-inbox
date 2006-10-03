@@ -1,71 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWJCR2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWJCRag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWJCR2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWJCR2M
+	id S1030346AbWJCRag (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWJCRag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:28:12 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:41198 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1030291AbWJCR2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 13:28:08 -0400
-Date: Tue, 3 Oct 2006 10:23:27 -0700
-To: Theodore Tso <tytso@mit.edu>, "John W. Linville" <linville@tuxdriver.com>,
-       Dan Williams <dcbw@redhat.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
-       Andrew Morton <akpm@osdl.org>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003172327.GA17443@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org>
+	Tue, 3 Oct 2006 13:30:36 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:33422 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030346AbWJCRae
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:30:34 -0400
+Date: Tue, 3 Oct 2006 13:24:01 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, maneesh@in.ibm.com
+Subject: [PATCH 11/12] i386: Implement CONFIG_PHYSICAL_ALIGN
+Message-ID: <20061003172401.GK3164@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061003170032.GA30036@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003133845.GG2930@thunk.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+In-Reply-To: <20061003170032.GA30036@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 09:38:45AM -0400, Theodore Tso wrote:
-> 
-> There is a fundamental question hiding here, which is whether or not
-> it is acceptable to break users who are running some large set of
-> mainline distro's, such as RHEL 4, SLES/SLED 10, Ubuntu Dapper,
-> et. al, but who want to upgrade to a newer 2.6 kernel?
-> 
-> Many users have moved to Ubuntu Dapper, or RHEL 4, or SLES/SLED 10
-> because they don't want to deal with a constantly changing/breaking
-> GNOME/X world, where packages are constantly being updated and
-> possibly breaking their desktop.
 
-	In the past, I personally tried to upgrade Red-Hat Workstation
-4 with a pristine 2.6 kernel. This was far from trivial, as Red-Hat
-did compile their kernel with some weird options/patches, and
-userspace (libc) were expecting those.
-	On the other hand, I've been personally running the latest
-2.6.X kernels on Debian stable for as long as 2.6.X was
-available. And, things *do* break, in the past I had trouble with
-module tools, I can't run devfs or udev, Pcmcia is on the verge of
-breaking, etc...
 
-	In other words, running a bleeding edge kernel with a
-super-stable distro has never been for the casual user. And, I wonder
-what's the wisdom of it for the casual user, has he certainly can't
-use the advanced features of the new kernel unless he updates his
-userspace.
-	My main box is Debian stable with a 2.4.X kernel. For that
-box, I don't see the point of going to the latest 2.6.X kernel, it
-would give me more trouble than benefits.
+o Now CONFIG_PHYSICAL_START is being replaced with CONFIG_PHYSICAL_ALIGN.
+  Hardcoding the kernel physical start value creates a problem in relocatable
+  kernel context due to boot loader limitations. For ex, if somebody
+  compiles a relocatable kernel to be run from address 4MB, but this kernel
+  will run from location 1MB as grub loads the kernel at physical address
+  1MB. Kernel thinks that I am a relocatable kernel and I should run from
+  the address I have been loaded at. So somebody wanting to run kernel
+  from 4MB alignment location (for improved performance regions) can't do
+  that.
 
-	Just for kicks. Today, a new Slackware was released. And guess
-what, it has Wireless Tools 28 ;-)
+o Hence, Eric proposed that probably CONFIG_PHYSICAL_ALIGN will make
+  more sense in relocatable kernel context. At run time kernel will move
+  itself to a physical addr location which meets user specified alignment
+  restrictions.
 
-	Jean
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/i386/Kconfig                |   33 ++++++++++++++++++---------------
+ arch/i386/boot/compressed/head.S |   26 ++++++++++++++------------
+ arch/i386/boot/compressed/misc.c |    7 ++++---
+ arch/i386/kernel/vmlinux.lds.S   |    3 ++-
+ include/asm-i386/boot.h          |    6 +++++-
+ 5 files changed, 43 insertions(+), 32 deletions(-)
+
+diff -puN arch/i386/Kconfig~i386-implement-config-physical-align-option arch/i386/Kconfig
+--- linux-2.6.18-git17/arch/i386/Kconfig~i386-implement-config-physical-align-option	2006-10-02 14:21:56.000000000 -0400
++++ linux-2.6.18-git17-root/arch/i386/Kconfig	2006-10-02 14:21:56.000000000 -0400
+@@ -785,23 +785,26 @@ config RELOCATABLE
+           must live at a different physical address than the primary
+           kernel.
+ 
+-config PHYSICAL_START
+-	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
+-
+-	default "0x1000000" if CRASH_DUMP
++config PHYSICAL_ALIGN
++	hex "Alignment value to which kernel should be aligned"
+ 	default "0x100000"
++	range 0x2000 0x400000
+ 	help
+-	  This gives the physical address where the kernel is loaded. Normally
+-	  for regular kernels this value is 0x100000 (1MB). But in the case
+-	  of kexec on panic the fail safe kernel needs to run at a different
+-	  address than the panic-ed kernel. This option is used to set the load
+-	  address for kernels used to capture crash dump on being kexec'ed
+-	  after panic. The default value for crash dump kernels is
+-	  0x1000000 (16MB). This can also be set based on the "X" value as
+-	  specified in the "crashkernel=YM@XM" command line boot parameter
+-	  passed to the panic-ed kernel. Typically this parameter is set as
+-	  crashkernel=64M@16M. Please take a look at
+-	  Documentation/kdump/kdump.txt for more details about crash dumps.
++	  This value puts the alignment restrictions on physical address
++ 	  where kernel is loaded and run from. Kernel is compiled for an
++ 	  address which meets above alignment restriction.
++
++ 	  If bootloader loads the kernel at a non-aligned address and
++ 	  CONFIG_RELOCATABLE is set, kernel will move itself to nearest
++ 	  address aligned to above value and run from there.
++
++ 	  If bootloader loads the kernel at a non-aligned address and
++ 	  CONFIG_RELOCATABLE is not set, kernel will ignore the run time
++ 	  load address and decompress itself to the address it has been
++ 	  compiled for and run from there. The address for which kernel is
++ 	  compiled already meets above alignment restrictions. Hence the
++ 	  end result is that kernel runs from a physical address meeting
++	  above alignment restrictions.
+ 
+ 	  Don't change this unless you know what you are doing.
+ 
+diff -puN include/asm-i386/boot.h~i386-implement-config-physical-align-option include/asm-i386/boot.h
+--- linux-2.6.18-git17/include/asm-i386/boot.h~i386-implement-config-physical-align-option	2006-10-02 14:21:56.000000000 -0400
++++ linux-2.6.18-git17-root/include/asm-i386/boot.h	2006-10-02 14:21:56.000000000 -0400
+@@ -12,4 +12,8 @@
+ #define EXTENDED_VGA	0xfffe		/* 80x50 mode */
+ #define ASK_VGA		0xfffd		/* ask for it at bootup */
+ 
+-#endif
++/* Physical address where kenrel should be loaded. */
++#define LOAD_PHYSICAL_ADDR ((0x100000 + CONFIG_PHYSICAL_ALIGN - 1) \
++				& ~(CONFIG_PHYSICAL_ALIGN - 1))
++
++#endif /* _LINUX_BOOT_H */
+diff -puN arch/i386/kernel/vmlinux.lds.S~i386-implement-config-physical-align-option arch/i386/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/i386/kernel/vmlinux.lds.S~i386-implement-config-physical-align-option	2006-10-02 14:21:56.000000000 -0400
++++ linux-2.6.18-git17-root/arch/i386/kernel/vmlinux.lds.S	2006-10-02 14:21:56.000000000 -0400
+@@ -9,6 +9,7 @@
+ #include <asm/thread_info.h>
+ #include <asm/page.h>
+ #include <asm/cache.h>
++#include <asm/boot.h>
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+@@ -22,7 +23,7 @@ PHDRS {
+ }
+ SECTIONS
+ {
+-  . = LOAD_OFFSET + CONFIG_PHYSICAL_START;
++  . = LOAD_OFFSET + LOAD_PHYSICAL_ADDR;
+   phys_startup_32 = startup_32 - LOAD_OFFSET;
+   /* read-only */
+   .text : AT(ADDR(.text) - LOAD_OFFSET) {
+diff -puN arch/i386/boot/compressed/head.S~i386-implement-config-physical-align-option arch/i386/boot/compressed/head.S
+--- linux-2.6.18-git17/arch/i386/boot/compressed/head.S~i386-implement-config-physical-align-option	2006-10-02 14:21:56.000000000 -0400
++++ linux-2.6.18-git17-root/arch/i386/boot/compressed/head.S	2006-10-02 14:21:56.000000000 -0400
+@@ -26,6 +26,7 @@
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
+ #include <asm/page.h>
++#include <asm/boot.h>
+ 
+ .section ".text.head"
+ 	.globl startup_32
+@@ -52,17 +53,17 @@ startup_32:
+ 1:	popl %ebp
+ 	subl $1b, %ebp
+ 
+-/* Compute the delta between where we were compiled to run at
+- * and where the code will actually run at.
++/* %ebp contains the address we are loaded at by the boot loader and %ebx
++ * contains the address where we should move the kernel image temporarily
++ * for safe in-place decompression.
+  */
+-	/* Start with the delta to where the kernel will run at.  If we are
+-	 * a relocatable kernel this is the delta to our load address otherwise
+-	 * this is the delta to CONFIG_PHYSICAL start.
+-	 */
++
+ #ifdef CONFIG_RELOCATABLE
+-	movl %ebp, %ebx
++	movl 	%ebp, %ebx
++	addl    $(CONFIG_PHYSICAL_ALIGN - 1), %ebx
++	andl    $(~(CONFIG_PHYSICAL_ALIGN - 1)), %ebx
+ #else
+-	movl $(CONFIG_PHYSICAL_START - startup_32), %ebx
++	movl $LOAD_PHYSICAL_ADDR, %ebx
+ #endif
+ 
+ 	/* Replace the compressed data size with the uncompressed size */
+@@ -94,9 +95,10 @@ startup_32:
+ /* Compute the kernel start address.
+  */
+ #ifdef CONFIG_RELOCATABLE
+-	leal	startup_32(%ebp), %ebp
++	addl    $(CONFIG_PHYSICAL_ALIGN - 1), %ebp
++	andl    $(~(CONFIG_PHYSICAL_ALIGN - 1)), %ebp
+ #else
+-	movl	$CONFIG_PHYSICAL_START, %ebp
++	movl	$LOAD_PHYSICAL_ADDR, %ebp
+ #endif
+ 
+ /*
+@@ -150,8 +152,8 @@ relocated:
+  * and where it was actually loaded.
+  */
+ 	movl %ebp, %ebx
+-	subl $CONFIG_PHYSICAL_START, %ebx
+-
++	subl $LOAD_PHYSICAL_ADDR, %ebx
++	jz   2f		/* Nothing to be done if loaded at compiled addr. */
+ /*
+  * Process relocations.
+  */
+diff -puN arch/i386/boot/compressed/misc.c~i386-implement-config-physical-align-option arch/i386/boot/compressed/misc.c
+--- linux-2.6.18-git17/arch/i386/boot/compressed/misc.c~i386-implement-config-physical-align-option	2006-10-02 14:21:56.000000000 -0400
++++ linux-2.6.18-git17-root/arch/i386/boot/compressed/misc.c	2006-10-02 14:21:56.000000000 -0400
+@@ -15,6 +15,7 @@
+ #include <linux/screen_info.h>
+ #include <asm/io.h>
+ #include <asm/page.h>
++#include <asm/boot.h>
+ 
+ /* WARNING!!
+  * This code is compiled with -fPIC and it is relocated dynamically
+@@ -361,12 +362,12 @@ asmlinkage void decompress_kernel(void *
+ 	insize = input_len;
+ 	inptr  = 0;
+ 
+-	if (((u32)output - CONFIG_PHYSICAL_START) & 0x3fffff)
+-		error("Destination address not 4M aligned");
++	if ((u32)output & (CONFIG_PHYSICAL_ALIGN -1))
++		error("Destination address not CONFIG_PHYSICAL_ALIGN aligned");
+ 	if (end > ((-__PAGE_OFFSET-(512 <<20)-1) & 0x7fffffff))
+ 		error("Destination address too large");
+ #ifndef CONFIG_RELOCATABLE
+-	if ((u32)output != CONFIG_PHYSICAL_START)
++	if ((u32)output != LOAD_PHYSICAL_ADDR)
+ 		error("Wrong destination address");
+ #endif
+ 
+_

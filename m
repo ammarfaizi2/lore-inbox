@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWJCI56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbWJCJDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWJCI56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWJCI56
+	id S965312AbWJCJDN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 05:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWJCJDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:57:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33213 "EHLO
+	Tue, 3 Oct 2006 05:03:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27023 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932547AbWJCI55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:57:57 -0400
-Subject: Re: [PATCH] namespaces: utsname: implement utsname namespaces
+	id S932563AbWJCJDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 05:03:12 -0400
+Subject: Re: [PATCH] IPC namespace core
 From: David Woodhouse <dwmw2@infradead.org>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Serge Hallyn <serue@us.ibm.com>, Kirill Korotaev <dev@openvz.org>,
+Cc: Kirill Korotaev <dev@openvz.org>, Pavel Emelianov <xemul@openvz.org>,
+       Cedric Le Goater <clg@fr.ibm.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
-       Herbert Poetzl <herbert@13thfloor.at>, Andrey Savochkin <saw@sw.ru>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200610021601.k92G10p6003499@hera.kernel.org>
-References: <200610021601.k92G10p6003499@hera.kernel.org>
+In-Reply-To: <200610021601.k92G13mT003934@hera.kernel.org>
+References: <200610021601.k92G13mT003934@hera.kernel.org>
 Content-Type: text/plain
-Date: Tue, 03 Oct 2006 09:57:50 +0100
-Message-Id: <1159865871.3438.60.camel@pmac.infradead.org>
+Date: Tue, 03 Oct 2006 10:02:54 +0100
+Message-Id: <1159866174.3438.66.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.0 (2.8.0-6.fc6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -30,42 +30,53 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 2006-10-02 at 16:01 +0000, Linux Kernel Mailing List wrote:
-> commit 4865ecf1315b450ab3317a745a6678c04d311e40
-> tree 6cf5d3028f8642eba2a8094eb413db080cc9219c
-> parent 96b644bdec977b97a45133e5b4466ba47a7a5e65
-> author Serge E. Hallyn <serue@us.ibm.com> 1159780694 -0700
-> committer Linus Torvalds <torvalds@g5.osdl.org> 1159801041 -0700
+> commit 25b21cb2f6d69b0475b134e0a3e8e269137270fa
+> tree cd9c3966408c0ca5903249437c35ff35961de544
+> parent c0b2fc316599d6cd875b6b8cafa67f03b9512b4d
+> author Kirill Korotaev <dev@openvz.org> 1159780699 -0700
+> committer Linus Torvalds <torvalds@g5.osdl.org> 1159801042 -0700
 > 
-> [PATCH] namespaces: utsname: implement utsname namespaces
+> [PATCH] IPC namespace core
 > 
-> This patch defines the uts namespace and some manipulators.
-> Adds the uts namespace to task_struct, and initializes a
-> system-wide init namespace.
+> This patch set allows to unshare IPCs and have a private set of IPC objects
+> (sem, shm, msg) inside namespace.  Basically, it is another building block of
+> containers functionality.
 > 
-> It leaves a #define for system_utsname so sysctl will compile.
-> This define will be removed in a separate patch.
+> This patch implements core IPC namespace changes:
+> - ipc_namespace structure
+> - new config option CONFIG_IPC_NS
+> - adds CLONE_NEWIPC flag
+> - unshare support
+> 
+> [clg@fr.ibm.com: small fix for unshare of ipc namespace]
+> [akpm@osdl.org: build fix]
+> Signed-off-by: Pavel Emelianov <xemul@openvz.org>
+> Signed-off-by: Kirill Korotaev <dev@openvz.org>
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-> --- a/include/linux/utsname.h
-> +++ b/include/linux/utsname.h
-> @@ -1,6 +1,11 @@
->  #ifndef _LINUX_UTSNAME_H
->  #define _LINUX_UTSNAME_H
+> --- a/include/linux/ipc.h
+> +++ b/include/linux/ipc.h
+> @@ -2,6 +2,7 @@ #ifndef _LINUX_IPC_H
+>  #define _LINUX_IPC_H
 >  
-> +#include <linux/sched.h>
+>  #include <linux/types.h>
 > +#include <linux/kref.h>
-> +#include <linux/nsproxy.h>
-> +#include <asm/atomic.h>
-> +
->  #define __OLD_UTS_LEN 8
+>  
+>  #define IPC_PRIVATE ((__kernel_key_t) 0)  
+>  
 
-This patch was not tested with 'make headers_check':
+You need to move the #include down the file by about 50 lines so it
+lands inside the existing #ifdef __KERNEL__.
 
-usr/include/linux/utsname.h requires linux/kref.h, which does not exist in exported headers
-usr/include/linux/utsname.h requires linux/nsproxy.h, which does not exist in exported headers
-usr/include/linux/utsname.h requires asm/atomic.h, which does not exist in exported headers
+All those signed-off-bys and _none_ of you managed to notice that
+<linux/kref.h> doesn't exist in the headers we export to userspace,
+despite the fact that just running 'make headers_check' would have
+shouted at you about it?
 
-Please protect stuff with #ifdef __KERNEL__ as appropriate, and remember
-to run 'make headers_check' before submitting patches.
+Bad hacker. No biscuit.
 
 -- 
 dwmw2

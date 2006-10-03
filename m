@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWJCFvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWJCGIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965265AbWJCFvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 01:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965267AbWJCFvP
+	id S932355AbWJCGIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 02:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWJCGId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 01:51:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965265AbWJCFvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 01:51:14 -0400
-Date: Mon, 2 Oct 2006 22:50:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 5/6] From: Andrew Morton <akpm@osdl.org>
-Message-Id: <20061002225053.46be0324.akpm@osdl.org>
-In-Reply-To: <17697.62198.476469.265990@cargo.ozlabs.ibm.com>
-References: <20061003010842.438670755@goop.org>
-	<20061003010933.392428107@goop.org>
-	<17697.58794.113796.925995@cargo.ozlabs.ibm.com>
-	<20061002213347.8229b6fc.akpm@osdl.org>
-	<17697.62198.476469.265990@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Tue, 3 Oct 2006 02:08:33 -0400
+Received: from web80829.mail.yahoo.com ([66.163.170.120]:40616 "HELO
+	web80829.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932355AbWJCGId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 02:08:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=sbcglobal.net;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=qTHQ/qL++MvhlIs1WzxSQ3zBt2k3rexpoBGT+VnxKVl2ncvyoRQ/AkNrbFsM779soBuCofqbM7z9l8HgHLFbiqNREiPP6GCIg73Kj5y52d7foCs+I/Hb93328a50fLfcNE/1arHskJRzLa8wC/6dyymsoc4qri1kF2fq3EiIHNs=  ;
+Message-ID: <20061003060829.16536.qmail@web80829.mail.yahoo.com>
+Date: Mon, 2 Oct 2006 23:08:29 -0700 (PDT)
+From: Paul Zimmerman <paul-zimmerman@sbcglobal.net>
+Subject: Re: Spam, bogofilter, etc
+To: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Oct 2006 15:19:50 +1000
-Paul Mackerras <paulus@samba.org> wrote:
+Oh _come on_! Do you guys mean to say that none of
+these Bogofilter/Spamassasin/MX do-hickies can figure
+out that a message titled "Youngest pleasantly
+Schoolgirls fuckedd by oldman" is probably spam?
+That's ridiculous! Run a spell-checker on the title,
+and then filter it. How hard could that be?
 
-> --- a/arch/powerpc/xmon/xmon.c
-> +++ b/arch/powerpc/xmon/xmon.c
-> @@ -503,7 +503,7 @@ #endif
->  
->  	mtmsr(msr);		/* restore interrupt enable */
->  
-> -	return cmd != 'X';
-> +	return cmd != 'X' && cmd != EOF;
->  }
->  
->  int xmon(struct pt_regs *excp)
+--
+Paul Z.
 
-That fixes it.
-
-I still get crap all over the screen when xmon is tring to print something
-(at least, I assume that's what causes it).  See
-http://userweb.kernel.org/~akpm/s5000334.jpg
 

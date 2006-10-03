@@ -1,108 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWJCUyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbWJCU5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbWJCUyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 16:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWJCUyK
+	id S1030407AbWJCU5d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 16:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbWJCU5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 16:54:10 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:25487 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1030389AbWJCUyI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 16:54:08 -0400
-Date: Tue, 3 Oct 2006 22:54:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.linux.org.uk>
-Cc: git-commits-head@vger.kernel.org
-Subject: Re: kbuild: make modpost processing configurable
-Message-ID: <20061003205407.GD720@uranus.ravnborg.org>
-References: <200610031659.k93GxIOi011555@hera.kernel.org>
-Mime-Version: 1.0
+	Tue, 3 Oct 2006 16:57:33 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:53162 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030407AbWJCU5b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 16:57:31 -0400
+Date: Tue, 3 Oct 2006 15:57:29 -0500
+To: akpm@osdl.org, jeff@garzik.org
+Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH 1/4]: Spidernet stop queue when queue is full
+Message-ID: <20061003205729.GF4381@austin.ibm.com>
+References: <20061003205240.GE4381@austin.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610031659.k93GxIOi011555@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061003205240.GE4381@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al.
 
-This is the requested funtionality so you can make modpost errors
-warnings instead.
-And as bonus the possibility to skip the last-time consuming part of a
-kernel build.
+Subject: [PATCH 1/4]: Spidernet stop queue when queue is full.
 
-Let me know if this does not satisfy your original request.
+This patch adds a call to netif_stop_queue() when there is
+no more room for more packets on the transmit queue.
 
-	Sam
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: James K Lewis <jklewis@us.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
 
-On Tue, Oct 03, 2006 at 04:59:18PM +0000, Linux Kernel Mailing List wrote:
-> commit ea837f1c050344c3f884531a195c6e339b1a54e8
-> tree 269e1188358452e7f4fda5052ab6363d7e5b5b87
-> parent e94c5bde703f2f9f86d098b6bf8275c64fab10eb
-> author Sam Ravnborg <sam@neptun.ravnborg.org> 1159695324 +0200
-> committer Sam Ravnborg <sam@neptun.ravnborg.org> 1159695324 +0200
-> 
-> kbuild: make modpost processing configurable
-> 
-> On request from Al Viro make modpost processing configurable.
-> 
-> KBUILD_MODPOST_WARN can be set to make modpost warn instead of
-> error out in case on unresolved symbols in final module link.
-> 
-> KBUILD_MODPOST_NOFINAL can be set to avoid the final and timeconsuming
-> .c file generation and link of .ko files. This is solely useful for
-> speeding up when doing compile checks with for example allmodconfig
-> 
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> 
->  scripts/Makefile.modpost |   11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
-> 
-> diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
-> index 4b2721c..6c5469b 100644
-> --- a/scripts/Makefile.modpost
-> +++ b/scripts/Makefile.modpost
-> @@ -32,6 +32,10 @@ #     - See include/linux/module.h for m
->  # Step 4 is solely used to allow module versioning in external modules,
->  # where the CRC of each module is retrieved from the Module.symers file.
->  
-> +# KBUILD_MODPOST_WARN can be set to avoid error out in case of undefined
-> +# symbols in the final module linking stage
-> +# KBUILD_MODPOST_NOFINAL can be set to skip the final link of modules.
-> +# This is solely usefull to speed up test compiles
->  PHONY := _modpost
->  _modpost: __modpost
->  
-> @@ -46,7 +50,8 @@ # Step 1), find all modules listed in $(
->  __modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
->  modules   := $(patsubst %.o,%.ko, $(wildcard $(__modules:.ko=.o)))
->  
-> -_modpost: $(modules)
-> +# Stop after building .o files if NOFINAL is set. Makes compile tests quicker
-> +_modpost: $(if $(KBUILD_MODPOST_NOFINAL), $(modules:.ko:.o),$(modules))
->  
->  
->  # Step 2), invoke modpost
-> @@ -58,7 +63,7 @@ quiet_cmd_modpost = MODPOST $(words $(fi
->  	$(if $(KBUILD_EXTMOD),-i,-o) $(kernelsymfile) \
->  	$(if $(KBUILD_EXTMOD),-I $(modulesymfile)) \
->  	$(if $(KBUILD_EXTMOD),-o $(modulesymfile)) \
-> -	$(if $(KBUILD_EXTMOD),-w) \
-> +	$(if $(KBUILD_EXTMOD)$(KBUILD_MODPOST_WARN),-w) \
->  	$(wildcard vmlinux) $(filter-out FORCE,$^)
->  
->  PHONY += __modpost
-> @@ -92,7 +97,7 @@ targets += $(modules:.ko=.mod.o)
->  
->  # Step 6), final link of the modules
->  quiet_cmd_ld_ko_o = LD [M]  $@
-> -      cmd_ld_ko_o = $(LD) $(LDFLAGS) $(LDFLAGS_MODULE) -o $@ 		\
-> +      cmd_ld_ko_o = $(LD) $(LDFLAGS) $(LDFLAGS_MODULE) -o $@		\
->  			  $(filter-out FORCE,$^)
->  
->  $(modules): %.ko :%.o %.mod.o FORCE
-> -
-> To unsubscribe from this list: send the line "unsubscribe git-commits-head" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+----
+ drivers/net/spider_net.c |   19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+Index: linux-2.6.18-mm2/drivers/net/spider_net.c
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-10-02 12:12:56.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-10-02 18:59:43.000000000 -0500
+@@ -686,6 +686,7 @@ spider_net_prepare_tx_descr(struct spide
+ 	/* Chain the bus address, so that the DMA engine finds this descr. */
+ 	descr->prev->next_descr_addr = descr->bus_addr;
+ 
++	card->netdev->trans_start = jiffies;
+ 	return 0;
+ }
+ 
+@@ -857,29 +858,23 @@ spider_net_xmit(struct sk_buff *skb, str
+ 
+ 	spider_net_release_tx_chain(card, 0);
+ 
+-	if (chain->head->next == chain->tail->prev) {
+-		card->netdev_stats.tx_dropped++;
+-		result = NETDEV_TX_LOCKED;
+-		goto out;
+-	}
+-
+-	if (spider_net_get_descr_status(descr) != SPIDER_NET_DESCR_NOT_IN_USE) {
+-		card->netdev_stats.tx_dropped++;
++	if ((chain->head->next == chain->tail->prev) ||
++	   (spider_net_get_descr_status(descr) != SPIDER_NET_DESCR_NOT_IN_USE)) {
+ 		result = NETDEV_TX_LOCKED;
+ 		goto out;
+ 	}
+ 
+ 	if (spider_net_prepare_tx_descr(card, skb) != 0) {
+-		card->netdev_stats.tx_dropped++;
+ 		result = NETDEV_TX_BUSY;
+ 		goto out;
+ 	}
+ 
+-	result = NETDEV_TX_OK;
+ 	spider_net_kick_tx_dma(card);
++	return NETDEV_TX_OK;
+ 
+ out:
+-	netif_wake_queue(netdev);
++	card->netdev_stats.tx_dropped++;
++	netif_stop_queue(netdev);
+ 	return result;
+ }
+ 
+@@ -898,6 +893,8 @@ spider_net_cleanup_tx_ring(struct spider
+ 	if ((spider_net_release_tx_chain(card, 0) != 0) &&
+ 	    (card->netdev->flags & IFF_UP))
+ 		spider_net_kick_tx_dma(card);
++
++	netif_wake_queue(card->netdev);
+ }
+ 
+ /**

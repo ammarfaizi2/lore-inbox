@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWJCAcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965546AbWJCAg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWJCAcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 20:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965542AbWJCAcZ
+	id S965546AbWJCAg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 20:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965548AbWJCAg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 20:32:25 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:3019 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965115AbWJCAcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 20:32:24 -0400
-Message-ID: <4521AF8D.4050209@garzik.org>
-Date: Mon, 02 Oct 2006 20:32:13 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 2 Oct 2006 20:36:58 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:34121 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965546AbWJCAg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 20:36:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gqFUcpeSeZW3vC7RbiOyUqFOiTpqIMtZUQ8Y4AdfUuIJTr4vD8XVcOyVadIvb5sPvF/dhkQJiqucNy9AP3oG1s+LWfhGDf/ZjISwR233YaOi5rqvTWDUecoseQQWRdyH4tJParWsNneUyxZVpm1YlE0jMQF+qowX/GOu2t+EB3k=
+Message-ID: <21d7e9970610021736s2335a04ap42f3b5bf961cb704@mail.gmail.com>
+Date: Tue, 3 Oct 2006 10:36:53 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
+       "David Howells" <dhowells@redhat.com>,
+       "Thomas Gleixner" <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, "Dmitry Torokhov" <dtor@mail.ru>,
+       "Greg KH" <greg@kroah.com>, "David Brownell" <david-b@pacbell.net>,
+       "Alan Stern" <stern@rowland.harvard.edu>
+In-Reply-To: <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Moore, Eric" <Eric.Moore@lsil.com>, Martin Bligh <mbligh@google.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Panic from mptspi_dv_renegotiate_work in 2.6.18-mm2
-References: <664A4EBB07F29743873A87CF62C26D703507DA@NAMAIL4.ad.lsil.com> <20061002163733.610a3c1f.akpm@osdl.org>
-In-Reply-To: <20061002163733.610a3c1f.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	 <20061002132116.2663d7a3.akpm@osdl.org>
+	 <20061002201836.GB31365@elte.hu>
+	 <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 2 Oct 2006 17:21:08 -0600
-> "Moore, Eric" <Eric.Moore@lsil.com> wrote:
-> 
->> On Monday, October 02, 2006 2:40 PM, Andrew Morton wrote: 
->>
->>> Yeah, Bryce@osdl is hitting this.  Apparently it can be worked around
->>> by compiling the driver as a module.
->>>
->> What I saw in Bryces trace was the driver was not receiving interrupts
->> for
->> the first command sent after interrutps were enabled.  This was a config
->> page
->> for spi port pages.  Since this command timed out, an internal timeout
->> handler was called,
->> and we issued an internal host reset.  The host reset called each
->> driver,
->> such as mptspi, mptfc, mptsas,  callback handers.  That ended with
->> as pacin in mptspi, due to we assume ioc->hd to be a valid pointer.  
->> We don't allocate ioc->hd to well after mpt_attach, which is where the
->> config
->> page that timed out.    We could prevent the panic in mptspi, but that 
->> doesn't fix the problem why we are not getting interrupts.   
->>
->> I have a 2.6.18 gold kernel, and that works fine with modules.  
->> There are no changes in mpt stack since 2.6.18 that would effect
->> interrupts.  
->> Do you know of any changes in kernel effecting interrupts?   I suspect
->> that
->> modules versus linked drivers into kernel would matter, or would it?
-> 
-> There are lots and lots of interrupt changes, some now in mainline, some
-> not.
-> 
-> There's a known-problematic PCI resource allocation bug now in mainline
-> too.  It appears that this can cause devices to not get assigned an
-> interrupt.
-> 
-> So yes, this is probably the trigger.  But as a secondary thing, it appears
-> that the driver will crash if something goes wrong with the interrupt
-> setup?
+>
+> Things like the kernel graphics direct-rendering code, for example -
+> mostly maintained in X.org trees that then want to compile with other
+> kernels too.
 
-FWIW, I am seeing precisely this problem, in the latest -git.
+Well in the DRM case we don't worry about that too much, the external
+DRM git tree has all the compat code hidden away and I've got lots of
+version check macros, so one more won't make a difference, the in-tree
+version has none of the that stuff anyways....
 
-	Jeff
+Now it might break nvidia and ATI but that is all code that is in
+their "public" source...
 
-
-
+Dave.

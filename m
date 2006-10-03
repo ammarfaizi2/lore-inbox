@@ -1,36 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWJCPWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWJCPYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWJCPWx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 11:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWJCPWx
+	id S1030191AbWJCPYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 11:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWJCPYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 11:22:53 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:44709 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030186AbWJCPWw (ORCPT
+	Tue, 3 Oct 2006 11:24:31 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:51643 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1030191AbWJCPYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 11:22:52 -0400
-Message-ID: <452280EB.4000300@pathscale.com>
-Date: Tue, 03 Oct 2006 08:25:31 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 3 Oct 2006 11:24:30 -0400
+Date: Tue, 03 Oct 2006 17:25:22 +0200
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4/11] 2.6.18-mm3 pktcdvd: reusability of procfs functions
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Cc: "petero2@telia.com" <petero2@telia.com>, "akpm@osdl.org" <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary=----------lWKBolSCgLc9TSl2wiDVDz
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org,
-       olson@pathscale.com
-Subject: Re: [PATCH 0 of 28] ipath patches for 2.6.19
-References: <patchbomb.1159459196@eng-12.pathscale.com>	<m1irj6gph2.fsf@ebiederm.dsl.xmission.com>	<452156F4.4050004@pathscale.com> <m1zmce6vmw.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1zmce6vmw.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <op.tgupfqpgiudtyh@master>
+User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+------------lWKBolSCgLc9TSl2wiDVDz
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-> Sure.  I talked to Dave Olson about this a while ago, and I couldn't
-> get anything happening.
+Hello,
 
-Driver authors tend to find imminent breakage quite stimulating, in my 
-experience :-)
+this patch makes some of the procfs functions reusable (for
+coming sysfs patch e.g.):
+pkt_setup_dev()
+pkt_remove_dev()
+...
 
-	<b
+http://people.freenet.de/BalaGi/download/pktcdvd-4-modify-procfs_2.6.18.patch
+
+Signed-off-by: Thomas Maier<balagi@justmail.de>
+
+-Thomas Maier
+------------lWKBolSCgLc9TSl2wiDVDz
+Content-Disposition: attachment; filename=pktcdvd-4-modify-procfs_2.6.18.patch
+Content-Type: application/octet-stream; name=pktcdvd-4-modify-procfs_2.6.18.patch
+Content-Transfer-Encoding: Base64
+
+ZGlmZiAtdXJwTiAzLXV0aWwtcGt0X2ZpbmRfZGV2L2RyaXZlcnMvYmxvY2svcGt0
+Y2R2ZC5jIDQtbW9kaWZ5LXByb2Nmcy9kcml2ZXJzL2Jsb2NrL3BrdGNkdmQuYwot
+LS0gMy11dGlsLXBrdF9maW5kX2Rldi9kcml2ZXJzL2Jsb2NrL3BrdGNkdmQuYwky
+MDA2LTEwLTAzIDExOjQ1OjE3LjAwMDAwMDAwMCArMDIwMAorKysgNC1tb2RpZnkt
+cHJvY2ZzL2RyaXZlcnMvYmxvY2svcGt0Y2R2ZC5jCTIwMDYtMTAtMDMgMTE6NDU6
+NTYuMDAwMDAwMDAwICswMjAwCkBAIC0yNDY0LDM2ICsyNDY0LDMzIEBAIHN0YXRp
+YyBzdHJ1Y3QgYmxvY2tfZGV2aWNlX29wZXJhdGlvbnMgcGsKIC8qCiAgKiBTZXQg
+dXAgbWFwcGluZyBmcm9tIHBrdGNkdmQgZGV2aWNlIHRvIENELVJPTSBkZXZpY2Uu
+CiAgKi8KLXN0YXRpYyBpbnQgcGt0X3NldHVwX2RldihzdHJ1Y3QgcGt0X2N0cmxf
+Y29tbWFuZCAqY3RybF9jbWQpCitzdGF0aWMgaW50IHBrdF9zZXR1cF9kZXYoZGV2
+X3QgZGV2LCBkZXZfdCogcGt0X2RldikKIHsKIAlpbnQgaWR4OwogCWludCByZXQg
+PSAtRU5PTUVNOwogCXN0cnVjdCBwa3RjZHZkX2RldmljZSAqcGQ7CiAJc3RydWN0
+IGdlbmRpc2sgKmRpc2s7Ci0JZGV2X3QgZGV2ID0gbmV3X2RlY29kZV9kZXYoY3Ry
+bF9jbWQtPmRldik7CisKKwltdXRleF9sb2NrX25lc3RlZCgmY3RsX211dGV4LCBT
+SU5HTEVfREVQVEhfTkVTVElORyk7CiAKIAlmb3IgKGlkeCA9IDA7IGlkeCA8IE1B
+WF9XUklURVJTOyBpZHgrKykKIAkJaWYgKCFwa3RfZGV2c1tpZHhdKQogCQkJYnJl
+YWs7CiAJaWYgKGlkeCA9PSBNQVhfV1JJVEVSUykgewogCQlwcmludGsoRFJJVkVS
+X05BTUUiOiBtYXggJWQgd3JpdGVycyBzdXBwb3J0ZWRcbiIsIE1BWF9XUklURVJT
+KTsKLQkJcmV0dXJuIC1FQlVTWTsKKwkJcmV0ID0gLUVCVVNZOworCQlnb3RvIG91
+dF9tdXRleDsKIAl9CiAKIAlwZCA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBwa3Rj
+ZHZkX2RldmljZSksIEdGUF9LRVJORUwpOwogCWlmICghcGQpCi0JCXJldHVybiBy
+ZXQ7CisJCWdvdG8gb3V0X211dGV4OwogCiAJcGQtPnJiX3Bvb2wgPSBtZW1wb29s
+X2NyZWF0ZV9rbWFsbG9jX3Bvb2woUEtUX1JCX1BPT0xfU0laRSwKIAkJCQkJCSAg
+c2l6ZW9mKHN0cnVjdCBwa3RfcmJfbm9kZSkpOwogCWlmICghcGQtPnJiX3Bvb2wp
+CiAJCWdvdG8gb3V0X21lbTsKIAotCWRpc2sgPSBhbGxvY19kaXNrKDEpOwotCWlm
+ICghZGlzaykKLQkJZ290byBvdXRfbWVtOwotCXBkLT5kaXNrID0gZGlzazsKLQog
+CUlOSVRfTElTVF9IRUFEKCZwZC0+Y2Rydy5wa3RfZnJlZV9saXN0KTsKIAlJTklU
+X0xJU1RfSEVBRCgmcGQtPmNkcncucGt0X2FjdGl2ZV9saXN0KTsKIAlzcGluX2xv
+Y2tfaW5pdCgmcGQtPmNkcncuYWN0aXZlX2xpc3RfbG9jayk7CkBAIC0yNTA0LDEx
+ICsyNTAxLDE1IEBAIHN0YXRpYyBpbnQgcGt0X3NldHVwX2RldihzdHJ1Y3QgcGt0
+X2N0cmwKIAlpbml0X3dhaXRxdWV1ZV9oZWFkKCZwZC0+d3F1ZXVlKTsKIAlwZC0+
+YmlvX3F1ZXVlID0gUkJfUk9PVDsKIAorCWRpc2sgPSBhbGxvY19kaXNrKDEpOwor
+CWlmICghZGlzaykKKwkJZ290byBvdXRfbWVtOworCXBkLT5kaXNrID0gZGlzazsK
+IAlkaXNrLT5tYWpvciA9IHBrdGRldl9tYWpvcjsKIAlkaXNrLT5maXJzdF9taW5v
+ciA9IGlkeDsKIAlkaXNrLT5mb3BzID0gJnBrdGNkdmRfb3BzOwogCWRpc2stPmZs
+YWdzID0gR0VOSERfRkxfUkVNT1ZBQkxFOwotCXNwcmludGYoZGlzay0+ZGlza19u
+YW1lLCBEUklWRVJfTkFNRSIlZCIsIGlkeCk7CisJc3RyY3B5KGRpc2stPmRpc2tf
+bmFtZSwgcGQtPm5hbWUpOwogCWRpc2stPnByaXZhdGVfZGF0YSA9IHBkOwogCWRp
+c2stPnF1ZXVlID0gYmxrX2FsbG9jX3F1ZXVlKEdGUF9LRVJORUwpOwogCWlmICgh
+ZGlzay0+cXVldWUpCkBAIC0yNTIwLDggKzI1MjEsMTIgQEAgc3RhdGljIGludCBw
+a3Rfc2V0dXBfZGV2KHN0cnVjdCBwa3RfY3RybAogCQlnb3RvIG91dF9uZXdfZGV2
+OwogCiAJYWRkX2Rpc2soZGlzayk7CisKIAlwa3RfZGV2c1tpZHhdID0gcGQ7Ci0J
+Y3RybF9jbWQtPnBrdF9kZXYgPSBuZXdfZW5jb2RlX2RldihwZC0+cGt0X2Rldik7
+CisJaWYgKHBrdF9kZXYpCisJCSpwa3RfZGV2ID0gcGQtPnBrdF9kZXY7CisKKwlt
+dXRleF91bmxvY2soJmN0bF9tdXRleCk7CiAJcmV0dXJuIDA7CiAKIG91dF9uZXdf
+ZGV2OgpAQCAtMjUzMiwxNyArMjUzNywyMiBAQCBvdXRfbWVtOgogCWlmIChwZC0+
+cmJfcG9vbCkKIAkJbWVtcG9vbF9kZXN0cm95KHBkLT5yYl9wb29sKTsKIAlrZnJl
+ZShwZCk7CitvdXRfbXV0ZXg6CisJbXV0ZXhfdW5sb2NrKCZjdGxfbXV0ZXgpOwor
+CXByaW50ayhEUklWRVJfTkFNRSI6IHNldHVwIG9mIHBrdGNkdmQgZGV2aWNlIGZh
+aWxlZFxuIik7CiAJcmV0dXJuIHJldDsKIH0KIAogLyoKICAqIFRlYXIgZG93biBt
+YXBwaW5nIGZyb20gcGt0Y2R2ZCBkZXZpY2UgdG8gQ0QtUk9NIGRldmljZS4KICAq
+Lwotc3RhdGljIGludCBwa3RfcmVtb3ZlX2RldihzdHJ1Y3QgcGt0X2N0cmxfY29t
+bWFuZCAqY3RybF9jbWQpCitzdGF0aWMgaW50IHBrdF9yZW1vdmVfZGV2KGRldl90
+IHBrdF9kZXYpCiB7CiAJc3RydWN0IHBrdGNkdmRfZGV2aWNlICpwZDsKIAlpbnQg
+aWR4OwotCWRldl90IHBrdF9kZXYgPSBuZXdfZGVjb2RlX2RldihjdHJsX2NtZC0+
+cGt0X2Rldik7CisJaW50IHJldCA9IDA7CisKKwltdXRleF9sb2NrX25lc3RlZCgm
+Y3RsX211dGV4LCBTSU5HTEVfREVQVEhfTkVTVElORyk7CiAKIAlwZCA9IHBrdF9m
+aW5kX2Rldihwa3RfZGV2LCAwLCAmaWR4KTsKIAlpZiAoIXBkKSB7CkBAIC0yNTUw
+LDEzICsyNTYwLDE1IEBAIHN0YXRpYyBpbnQgcGt0X3JlbW92ZV9kZXYoc3RydWN0
+IHBrdF9jdHIKIAkJcGQgPSBwa3RfZmluZF9kZXYocGt0X2RldiwgMSwgJmlkeCk7
+CiAJCWlmICghcGQpIHsKIAkJCURQUklOVEsoRFJJVkVSX05BTUUiOiBkZXYgbm90
+IHNldHVwXG4iKTsKLQkJCXJldHVybiAtRU5YSU87CisJCQlyZXQgPSAtRU5YSU87
+CisJCQlnb3RvIG91dDsKIAkJfQogCX0KIAotCWlmIChwZC0+cmVmY250ID4gMCkK
+LQkJcmV0dXJuIC1FQlVTWTsKLQorCWlmIChwZC0+cmVmY250ID4gMCkgeworCQly
+ZXQgPSAtRUJVU1k7CisJCWdvdG8gb3V0OworCX0KIAlpZiAoIUlTX0VSUihwZC0+
+Y2Rydy50aHJlYWQpKQogCQlrdGhyZWFkX3N0b3AocGQtPmNkcncudGhyZWFkKTsK
+IApAQCAtMjU3NSwxMiArMjU4NywxOSBAQCBzdGF0aWMgaW50IHBrdF9yZW1vdmVf
+ZGV2KHN0cnVjdCBwa3RfY3RyCiAKIAkvKiBUaGlzIGlzIHNhZmU6IG9wZW4oKSBp
+cyBzdGlsbCBob2xkaW5nIGEgcmVmZXJlbmNlLiAqLwogCW1vZHVsZV9wdXQoVEhJ
+U19NT0RVTEUpOwotCXJldHVybiAwOworCQorb3V0OgorCW11dGV4X3VubG9jaygm
+Y3RsX211dGV4KTsKKwlyZXR1cm4gcmV0OwogfQogCiBzdGF0aWMgdm9pZCBwa3Rf
+Z2V0X3N0YXR1cyhzdHJ1Y3QgcGt0X2N0cmxfY29tbWFuZCAqY3RybF9jbWQpCiB7
+Ci0Jc3RydWN0IHBrdGNkdmRfZGV2aWNlICpwZCA9IHBrdF9maW5kX2Rldl9mcm9t
+X21pbm9yKGN0cmxfY21kLT5kZXZfaW5kZXgpOworCXN0cnVjdCBwa3RjZHZkX2Rl
+dmljZSAqcGQ7CisJCisJbXV0ZXhfbG9ja19uZXN0ZWQoJmN0bF9tdXRleCwgU0lO
+R0xFX0RFUFRIX05FU1RJTkcpOworCQorCXBkID0gcGt0X2ZpbmRfZGV2X2Zyb21f
+bWlub3IoY3RybF9jbWQtPmRldl9pbmRleCk7CiAJaWYgKHBkKSB7CiAJCWN0cmxf
+Y21kLT5kZXYgPSBuZXdfZW5jb2RlX2RldihwZC0+YmRldi0+YmRfZGV2KTsKIAkJ
+Y3RybF9jbWQtPnBrdF9kZXYgPSBuZXdfZW5jb2RlX2RldihwZC0+cGt0X2Rldik7
+CkBAIC0yNTg5LDYgKzI2MDgsOCBAQCBzdGF0aWMgdm9pZCBwa3RfZ2V0X3N0YXR1
+cyhzdHJ1Y3QgcGt0X2N0CiAJCWN0cmxfY21kLT5wa3RfZGV2ID0gMDsKIAl9CiAJ
+Y3RybF9jbWQtPm51bV9kZXZpY2VzID0gTUFYX1dSSVRFUlM7CisJCisJbXV0ZXhf
+dW5sb2NrKCZjdGxfbXV0ZXgpOwogfQogCiBzdGF0aWMgaW50IHBrdF9jdGxfaW9j
+dGwoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbGUsIHVuc2ln
+bmVkIGludCBjbWQsIHVuc2lnbmVkIGxvbmcgYXJnKQpAQCAtMjU5Niw2ICsyNjE3
+LDcgQEAgc3RhdGljIGludCBwa3RfY3RsX2lvY3RsKHN0cnVjdCBpbm9kZSAqaQog
+CXZvaWQgX191c2VyICphcmdwID0gKHZvaWQgX191c2VyICopYXJnOwogCXN0cnVj
+dCBwa3RfY3RybF9jb21tYW5kIGN0cmxfY21kOwogCWludCByZXQgPSAwOworCWRl
+dl90IHBrdF9kZXYgPSAwOwogCiAJaWYgKGNtZCAhPSBQQUNLRVRfQ1RSTF9DTUQp
+CiAJCXJldHVybiAtRU5PVFRZOwpAQCAtMjYwNywyMSArMjYyOSwxNiBAQCBzdGF0
+aWMgaW50IHBrdF9jdGxfaW9jdGwoc3RydWN0IGlub2RlICppCiAJY2FzZSBQS1Rf
+Q1RSTF9DTURfU0VUVVA6CiAJCWlmICghY2FwYWJsZShDQVBfU1lTX0FETUlOKSkK
+IAkJCXJldHVybiAtRVBFUk07Ci0JCW11dGV4X2xvY2tfbmVzdGVkKCZjdGxfbXV0
+ZXgsIFNJTkdMRV9ERVBUSF9ORVNUSU5HKTsKLQkJcmV0ID0gcGt0X3NldHVwX2Rl
+digmY3RybF9jbWQpOwotCQltdXRleF91bmxvY2soJmN0bF9tdXRleCk7CisJCXJl
+dCA9IHBrdF9zZXR1cF9kZXYobmV3X2RlY29kZV9kZXYoY3RybF9jbWQuZGV2KSwg
+JnBrdF9kZXYpOworCQljdHJsX2NtZC5wa3RfZGV2ID0gbmV3X2VuY29kZV9kZXYo
+cGt0X2Rldik7CiAJCWJyZWFrOwogCWNhc2UgUEtUX0NUUkxfQ01EX1RFQVJET1dO
+OgogCQlpZiAoIWNhcGFibGUoQ0FQX1NZU19BRE1JTikpCiAJCQlyZXR1cm4gLUVQ
+RVJNOwotCQltdXRleF9sb2NrX25lc3RlZCgmY3RsX211dGV4LCBTSU5HTEVfREVQ
+VEhfTkVTVElORyk7Ci0JCXJldCA9IHBrdF9yZW1vdmVfZGV2KCZjdHJsX2NtZCk7
+Ci0JCW11dGV4X3VubG9jaygmY3RsX211dGV4KTsKKwkJcmV0ID0gcGt0X3JlbW92
+ZV9kZXYobmV3X2RlY29kZV9kZXYoY3RybF9jbWQucGt0X2RldikpOwogCQlicmVh
+azsKIAljYXNlIFBLVF9DVFJMX0NNRF9TVEFUVVM6Ci0JCW11dGV4X2xvY2tfbmVz
+dGVkKCZjdGxfbXV0ZXgsIFNJTkdMRV9ERVBUSF9ORVNUSU5HKTsKIAkJcGt0X2dl
+dF9zdGF0dXMoJmN0cmxfY21kKTsKLQkJbXV0ZXhfdW5sb2NrKCZjdGxfbXV0ZXgp
+OwogCQlicmVhazsKIAlkZWZhdWx0OgogCQlyZXR1cm4gLUVOT1RUWTsK
+------------lWKBolSCgLc9TSl2wiDVDz--
+

@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWJCOSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWJCOUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWJCOSF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 10:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWJCOSF
+	id S932230AbWJCOUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 10:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWJCOUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 10:18:05 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:32776 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750883AbWJCOSD convert rfc822-to-8bit (ORCPT
+	Tue, 3 Oct 2006 10:20:09 -0400
+Received: from cweiske.de ([80.237.146.62]:63910 "EHLO mail.cweiske.de")
+	by vger.kernel.org with ESMTP id S932230AbWJCOUH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 10:18:03 -0400
+	Tue, 3 Oct 2006 10:20:07 -0400
+Message-ID: <452271BA.5040105@cweiske.de>
+Date: Tue, 03 Oct 2006 16:20:42 +0200
+From: Christian Weiske <cweiske@cweiske.de>
+User-Agent: My own hands[TM] Mnenhy/0.7.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 03 Oct 2006 14:17:59.0875 (UTC) FILETIME=[BAE80930:01C6E6F6]
-Content-class: urn:content-classes:message
-Subject: Re: error to be returned while suspended
-Date: Tue, 3 Oct 2006 10:17:59 -0400
-Message-ID: <Pine.LNX.4.61.0610031014070.21369@chaos.analogic.com>
-In-Reply-To: <200610031502.33545.oliver@neukum.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: error to be returned while suspended
-thread-index: Acbm9rsJV8T3X37jRAic51PaJ2oe+A==
-References: <200610031323.00547.oliver@neukum.org> <Pine.LNX.4.61.0610030846040.21211@chaos.analogic.com> <200610031502.33545.oliver@neukum.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Oliver Neukum" <oliver@neukum.org>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Christian Weiske <cweiske@cweiske.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference
+ at virtual address 000,0000a
+References: <45155915.7080107@cweiske.de>	<20060923134244.e7b73826.akpm@osdl.org>	<451677FE.2070409@cweiske.de>	<20060924095029.0262a2c8.akpm@osdl.org>	<4516C4B9.5010509@cweiske.de>	<451821C9.6020602@cweiske.de> <20060925142630.fb39a613.akpm@osdl.org> <452145D0.5000308@cweiske.de>
+In-Reply-To: <452145D0.5000308@cweiske.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF6A8B0E0E83470AC79F03A39"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF6A8B0E0E83470AC79F03A39
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 3 Oct 2006, Oliver Neukum wrote:
+Hello all,
 
-> Am Dienstag, 3. Oktober 2006 14:51 schrieb linux-os (Dick Johnson):
->>
->> On Tue, 3 Oct 2006, Oliver Neukum wrote:
->>
->>> Hi,
->>>
->>> which error should a character device return if a read/write cannot be
->>> serviced because the device is suspended? Shouldn't there be an error
->>> code specific to that?
->>>
->>> 	Regards
->>> 		Oliver
->>
->> The de-facto error codes were created long before one could "suspend"
->> a device, so there isn't a ESUSP code. However, I suggest EIO or EBUSY
->
-> CUPS chokes on these. Is it acceptable to say that you should know
-> what you're doing when suspending?
->
+>> Is it?  I don't recall us having established that.  Does the machine r=
+un
+>> any earlier kernel without failing?
+> I am now trying to get a small disk that is not accessed via the pci id=
+e
+> card, perhaps that brings more info.
 
-Well, you need to look at the CUPS documentation and find out
-what return code would be non-fatal and tell it to buffer stuff
-to try later (such as the return code you get when the printer
-if off-line).
+So, after testing two more days I can say the following:
+I mirrored the partitions from the 300gb drive to a 6gb one.
+The error does not occur on the small disk, neither when directly
+connected to the motherboard's ide channel, nor when used through the
+pci card (which was my hope). And although SMART says everything is ok,
+it seems to me as if the harddrive is broken somehow. Great.
 
- 	http://www.cups.org/documentation.php
+Thanks for all your help!
 
->> unless you want to define an ESUSP and get it accepted by the POSIX
->> committee.
->
+--=20
+Regards/MfG,
+Christian Weiske
 
-Even if you did that, CUPS would have to be modified to accept
-the new error code. There should be a current error code that
-will allow CUPS to continue.
 
-> This would be the cleanest solution. How does one do that?
->
-> 	Regards
-> 		Oliver
->
+--------------enigF6A8B0E0E83470AC79F03A39
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+iD8DBQFFInG9FMhaCCTq+CMRAisuAJ9AwJYCXggsdk9/g4/A/5rMJjI8SgCfbmZq
+w4DXG3dTqiNbH/gF2APAHpg=
+=nlXL
+-----END PGP SIGNATURE-----
 
-Thank you.
+--------------enigF6A8B0E0E83470AC79F03A39--

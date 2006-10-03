@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWJCQjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWJCQkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWJCQjI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 12:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWJCQjH
+	id S932263AbWJCQkw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 12:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWJCQkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 12:39:07 -0400
-Received: from the.earth.li ([193.201.200.66]:21671 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S932261AbWJCQjD (ORCPT
+	Tue, 3 Oct 2006 12:40:52 -0400
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:38159 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S932261AbWJCQkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 12:39:03 -0400
-Date: Tue, 3 Oct 2006 17:39:02 +0100
-From: Jonathan McDowell <noodles@earth.li>
-To: linux-pcmcia@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Export soc_common_drv_pcmcia_remove to allow modular PCMCIA.
-Message-ID: <20061003163902.GC29608@earth.li>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Oct 2006 12:40:51 -0400
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Subject: Re: Spam, bogofilter, etc
+Date: Tue, 3 Oct 2006 18:42:35 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org>
+In-Reply-To: <20061002100302.GS16047@mea-ext.zmailer.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610031842.35636.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below allows me to build and modprobe a modular sa1100_cs.
-Searching around finds others who've had the same problem. Exporting
-soc_common_drv_pcmcia_remove solves the problem for me allowing a
-modular PCMCIA build.
+Hi, 
 
-Signed-Off-By: Jonathan McDowell <noodles@earth.li>
+> Yes, the thing is NOT 100% perfect.
+> Especially very short spams are prone to leak thru it,
+> and those hams that do get block do tend to be longish, and
+> never before seen.  (It all comes from Bayes Statistics.)
 
------
-Index: linux-2.6.18/drivers/pcmcia/soc_common.c
-===================================================================
---- linux-2.6.18.orig/drivers/pcmcia/soc_common.c	2006-10-03 11:32:17.000000000 +0100
-+++ linux-2.6.18/drivers/pcmcia/soc_common.c	2006-10-03 11:32:24.000000000 +0100
-@@ -824,3 +824,4 @@
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(soc_common_drv_pcmcia_remove);
------
+If I can suggest something. Please run latest p0f and match the output against 
+vger incoming traffic (or even only against the messages that leak trough the 
+filters used now). I bet you'll see an obvious and very descriptive pattern. 
+Now what you will or will not do with that knowledge is the other story.
 
-J.
-
--- 
-Purple alert! Purple alert! - Holly
+	Mariusz

@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWJCOiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWJCOlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWJCOiG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 10:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWJCOiG
+	id S932247AbWJCOlB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 10:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWJCOlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 10:38:06 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:27657 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932269AbWJCOiD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 10:38:03 -0400
-Date: Tue, 3 Oct 2006 10:30:18 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Dan Williams <dcbw@redhat.com>
-Cc: Theodore Tso <tytso@mit.edu>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
-       Andrew Morton <akpm@osdl.org>, Norbert Preining <preining@logic.at>,
-       hostap@shmoo.com, linux-kernel@vger.kernel.org,
-       ipw3945-devel@lists.sourceforge.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003143012.GC23912@tuxdriver.com>
-References: <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org> <1159884779.2855.18.camel@localhost.localdomain>
+	Tue, 3 Oct 2006 10:41:01 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56192 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932247AbWJCOlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 10:41:00 -0400
+Subject: Re: BIOS THRM-Throttling and driver timings
+From: Arjan van de Ven <arjan@infradead.org>
+To: Keith Chew <keith.chew@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com>
+References: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 03 Oct 2006 16:40:36 +0200
+Message-Id: <1159886437.2891.532.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159884779.2855.18.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 10:12:59AM -0400, Dan Williams wrote:
-> On Tue, 2006-10-03 at 09:38 -0400, Theodore Tso wrote:
-
-> > John, has the wireless community considered creating a new interface
-> > which *is* carefully designed, and supporting both the new and the
-> > legacy interface for 2-3 years until all of the mainstream
+On Wed, 2006-10-04 at 03:29 +1300, Keith Chew wrote:
+> Hi
 > 
-> Yes, nl80211/cfg80211 (sent to netdev@ last week) is the likely
-> successor.  Please, if you have suggestions for ABI/API-proofability,
-> review the patch and post suggestions!  We all know a carefully designed
-> is not just about the code, but about the semantics, structures, etc as
-> well.  It would be quite valuable to have everyone's input to make sure
-> it's as future-proof as possible.
+> We have a motherboard that has Thermal Throttling in the BIOS (which
+> we cannot disable). This causes the CPU usage to go up and down when
+> the CPU temperature reaches (and stays around) the Throttling
+> temperature point.
+> 
+> What we would like to know is whether this will affect the timings in
+> drivers, eg the wireless drivers we are using. What can we check in
+> drivers' code that will tell us that its operations may be affected
+> the throttling?
+> 
+> In the past few days, we noticed that some of the linux units we
+> deployed freezes after deveral hours of operation, we are now trying
+> to reproduce the problem in our test environment. Some insight on the
+> affect of throttling will help us narrow down the search.
 
-Dan is quick on his keyboard today! :-)
 
-As Dan points-out, there is serious work underway on the next
-generation wireless management A[BP]I.  That work is (perhaps
-unfortunately) closely linked to the new wireless stack work currently
-underway.
+Hi,
 
-John
+in general linux should be ok with this happening. However for specific
+cases... you'll need to provide more information; you're not mentioning
+which drivers you are using for example. Or even which versions of the
+kernel etc etc....
 
-P.S.  Ted, thanks for your calm and respectful communications!
+(also: if you actually HIT throttling, there is something very very
+wrong; you're not supposed to hit that unless the fan is defective, but
+never in "normal" healthy operation. If you do hit it without hardware
+defects then there is most likely a fundamental airflow problem you'll
+want to fix urgently)
+
+
 -- 
-John W. Linville
-linville@tuxdriver.com
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWJCW3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030629AbWJCW3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030627AbWJCW3K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWJCW3J
+	id S1030629AbWJCW3c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWJCW3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:29:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31885 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030625AbWJCW3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:29:06 -0400
-Subject: Re: =?ISO-8859-1?Q?Registration=A0Weakness=A0?=
-	=?ISO-8859-1?Q?in=A0Linux=A0Kernel's=A0Bin?= =?ISO-8859-1?Q?ary=A0formats?=
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: SHELLCODE Security Research <GoodFellas@shellcode.com.ar>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610031645340.3514@turbotaz.ourhouse>
-References: <1159902785.2855.34.camel@goku.staff.locallan>
-	 <Pine.LNX.4.64.0610031645340.3514@turbotaz.ourhouse>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Oct 2006 23:54:14 +0100
-Message-Id: <1159916054.17553.92.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 3 Oct 2006 18:29:31 -0400
+Received: from hu-out-0506.google.com ([72.14.214.227]:28188 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030631AbWJCW3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:29:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=Uqq82aEa1UDxFC61ppq30PfVaybG5n2QLvtMc/cTQne5f16QrvQ403G3C0iAyUPzv3PeHbLVG+RxUYP9mBK1gGUXUu6rEGqoKqCKIUQmFtTTF4HogtiLQqtN3AAnzheyFFenYnTGUowaYsNlZ42dQ8Dy7FILE6TrnkEUEOEQ9oU=
+Date: Tue, 3 Oct 2006 22:29:10 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, matthew@wil.cx,
+       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
+       gregkh@suse.de
+Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #2
+Message-ID: <20061003222910.GJ2785@slug>
+References: <20061003220732.GE2785@slug> <4522E0E0.9020404@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4522E0E0.9020404@garzik.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-03 am 16:48 -0500, ysgrifennodd Chase Venters:
-> So the problem you find is that newly registered binfmts are inserted into 
-> the front of the binfmt list instead of the rear, and this means that a 
-> binfmt handler can slip in at runtime at run quietly before any other 
-> handler?
-
-This is a feature as anyone trying to debug versions of the elf loader
-could would find out quite fast.
-
+> >Index: 2.6.18-mm3/include/linux/interrupt.h
+> >===================================================================
+> >--- 2.6.18-mm3.orig/include/linux/interrupt.h
+> >+++ 2.6.18-mm3/include/linux/interrupt.h
+> >@@ -75,6 +75,13 @@ struct irqaction {
+> > 	struct proc_dir_entry *dir;
+> > };
+> > +#ifndef ARCH_VALIDATE_PCI_IRQ
+> >+static inline int is_irq_valid(unsigned int irq)
+> >+{
+> >+	return irq ? 1 : 0;
+> >+}
+> >+#endif /* ARCH_VALIDATE_PCI_IRQ */
 > 
-> I'm not sure I see this as a real problem. If you can load a module into 
-> kernel space and access arbitrary symbols (not to mention run in ring 0) I 
-> think you can do a lot more than just hide out on the binfmt list.
+> It's not appropriate to have PCI IRQ stuff in linux/interrupt.h.
 > 
-> Am I missing something?
+> This is precisely why I passed 'struct pci_dev *' to a PCI-specific irq validation function, and prototyped it in linux/pci.h.
+> 
+My bad, I've mixed your proposal and Matthew's, isn't this just a
+matter of:
+s/ARCH_VALIDATE_PCI_IRQ/ARCH_VALIDATE_IRQ/ ?
 
-Don't think so. At the point you can load code into the kernel you can
-replace any code anyway.
+I'll look if there's some non-PCI code that might check the irq's value
+and thus might benefit from this.
 
-NOTABUG
-
-Alan
-
+Regards,
+Frederik

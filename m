@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWJCDp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWJCDqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWJCDp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 23:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWJCDp2
+	id S932459AbWJCDqA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 23:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWJCDqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 23:45:28 -0400
-Received: from ozlabs.org ([203.10.76.45]:39075 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932341AbWJCDp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 23:45:27 -0400
-Date: Tue, 3 Oct 2006 13:45:13 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Fix spurious error on TAGS target when missing defconfig
-Message-ID: <20061003034513.GA24053@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 2 Oct 2006 23:46:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20898 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932449AbWJCDp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 23:45:59 -0400
+Subject: Re: [RFC PATCH] move aic7xxx to pci_request_irq
+From: Arjan van de Ven <arjan@infradead.org>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+In-Reply-To: <20061002200703.GD3003@slug>
+References: <1159550143.13029.36.camel@localhost.localdomain>
+	 <20060929235054.GB2020@slug>
+	 <1159573404.13029.96.camel@localhost.localdomain>
+	 <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org>
+	 <20061001142807.GD16272@parisc-linux.org>
+	 <1159729523.2891.408.camel@laptopd505.fenrus.org>
+	 <20061001193616.GF16272@parisc-linux.org>
+	 <1159755141.2891.434.camel@laptopd505.fenrus.org>
+	 <20061002200048.GC3003@slug>  <20061002200703.GD3003@slug>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 03 Oct 2006 05:45:05 +0200
+Message-Id: <1159847105.2891.505.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+On Mon, 2006-10-02 at 20:07 +0000, Frederik Deweerdt wrote:
+> Hi,
+> 
+> This proof-of-concept patch converts the aic7xxx drivers to use the
+> pci_request_irq() function.
+> 
+> Regards,
+> Frederik
+> 
+> 
+> diff --git a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+> index 2001fe8..c934f30 100644
+> --- a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+> +++ b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+> @@ -341,12 +341,12 @@ ahd_pci_map_int(struct ahd_softc *ahd)
+>  {
+>  	int error;
+>  
+> -	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
+> -			    IRQF_SHARED, "aic79xx", ahd);
+> +	error = pci_request_irq(ahd->dev_softc, ahd_linux_isr,
+> +			    IRQF_SHARED, "aic79xx");
+>  	if (!error)
+>  		ahd->platform_data->irq = ahd->dev_softc->irq;
+>  	
+> -	return (-error);
+> +	return error;
+>  }
 
-Not all architectures have a file named 'defconfig' (e.g. powerpc).
-However the make TAGS and make tags targets search such files for
-tags, causing an error message when they don't exist.  This patch
-addresses the problem by instructing xargs not to run the tags program
-if there are no matching files.
+might as well kill this entire wrapper...
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-Index: working-2.6/Makefile
-===================================================================
---- working-2.6.orig/Makefile	2006-10-03 13:35:19.000000000 +1000
-+++ working-2.6/Makefile	2006-10-03 13:41:08.000000000 +1000
-@@ -1321,7 +1321,7 @@ define xtags
- 		--langdef=kconfig \
- 		--language-force=kconfig \
- 		--regex-kconfig='/^[[:blank:]]*config[[:blank:]]+([[:alnum:]_]+)/\1/'; \
--	    $(all-defconfigs) | xargs $1 -a \
-+	    $(all-defconfigs) | xargs -r $1 -a \
- 		--langdef=dotconfig \
- 		--language-force=dotconfig \
- 		--regex-dotconfig='/^#?[[:blank:]]*(CONFIG_[[:alnum:]_]+)/\1/'; \
-@@ -1329,7 +1329,7 @@ define xtags
- 	    $(all-sources) | xargs $1 -a; \
- 	    $(all-kconfigs) | xargs $1 -a \
- 		--regex='/^[ \t]*config[ \t]+\([a-zA-Z0-9_]+\)/\1/'; \
--	    $(all-defconfigs) | xargs $1 -a \
-+	    $(all-defconfigs) | xargs -r $1 -a \
- 		--regex='/^#?[ \t]?\(CONFIG_[a-zA-Z0-9_]+\)/\1/'; \
- 	else \
- 	    $(all-sources) | xargs $1 -a; \
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson

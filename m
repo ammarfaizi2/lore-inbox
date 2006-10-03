@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965259AbWJCFmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWJCFnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965259AbWJCFmo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 01:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWJCFmo
+	id S965258AbWJCFnE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 01:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWJCFnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 01:42:44 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2055 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965259AbWJCFmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 01:42:43 -0400
-Date: Tue, 3 Oct 2006 07:42:42 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Eric Sandeen <sandeen@sandeen.net>
-Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-1.2689.fc6PAE: oops in ext3_clear_inode+0x52/0x8b
-Message-ID: <20061003054242.GK3278@stusta.de>
-References: <451C33B2.5000007@goop.org> <20060928142313.8848cec9.akpm@osdl.org> <4521F5DE.7070302@sandeen.net>
+	Tue, 3 Oct 2006 01:43:04 -0400
+Received: from sandeen.net ([209.173.210.139]:4408 "EHLO sandeen.net")
+	by vger.kernel.org with ESMTP id S965258AbWJCFnB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 01:43:01 -0400
+Message-ID: <4521F865.6060400@sandeen.net>
+Date: Tue, 03 Oct 2006 00:43:01 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4521F5DE.7070302@sandeen.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       esandeen@redhat.com
+Subject: Re: 2.6.18 ext3 panic.
+References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com>
+In-Reply-To: <20061003052219.GA15563@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 12:32:14AM -0500, Eric Sandeen wrote:
-> Andrew Morton wrote:
-> >On Thu, 28 Sep 2006 13:42:26 -0700
-> >Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> >
-> >>I just filed this in the Redhat bugzilla, since its from the FC6 distro 
-> >>kernel.  But since its fairly close to current kernel.org kernels, I 
-> >>thought it might be relevent.
-> >>
-> >>The bug is https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=208488
-> >>
-> >>Unfortunately this isn't a very useful report since it was a once-off, 
-> >>and there's a P-tainting module in there.  But if anyone sees anything 
-> >>else like this, it's interesting.
-> >>
-> >>The oops is:
-> >>
-> >>BUG: unable to handle kernel paging request at virtual address 756e6547
-> >
-> >756e6547 -> uneG.   Matches "GenuineIntel".
-> >
-> >That'll get written into a temporary page by the /proc/cpuinfo handler, so
-> >it might just be a use-uninitialised.
+Dave Jones wrote:
+
+> So I managed to reproduce it with an 'fsx foo' and a
+> 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
+> a vanilla 2.6.18 with none of the Fedora patches..
 > 
-> But strangely enough, it's the second report we've seen with this exact 
-> backtrace, and the same "Genu" ascii string where the i_default_acl should 
-> be.
+> I'll give 2.6.18-git a try next.
 > 
-> Both boxes had been through a suspend-to-ram recently, just in case that 
-> might matter.
+> 		Dave
 > 
-> Seems like something more than random chance...
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at fs/buffer.c:2791
 
-Can you give a pointer to the other report?
+I had thought/hoped that this was fixed by Jan's patch at 
+http://lkml.org/lkml/2006/9/7/236 from the thread started at 
+http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
+first by going through that new codepath....
 
-> -Eric
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Eric

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWJCPBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWJCPKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWJCPBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 11:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWJCPBs
+	id S964811AbWJCPKR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 11:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWJCPKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 11:01:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13201 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964809AbWJCPBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 11:01:47 -0400
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
-In-Reply-To: <451E3C0C.10105@aknet.ru>
-References: <45150CD7.4010708@aknet.ru>
-	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
-	 <451555CB.5010006@aknet.ru>
-	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
-	 <1159037913.24572.62.camel@localhost.localdomain>
-	 <45162BE5.2020100@aknet.ru>
-	 <1159106032.11049.12.camel@localhost.localdomain>
-	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>
-	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
-	 <45198395.4050008@aknet.ru>
-	 <1159396436.3086.51.camel@laptopd505.fenrus.org>  <451E3C0C.10105@aknet.ru>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 03 Oct 2006 17:01:22 +0200
-Message-Id: <1159887682.2891.537.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 3 Oct 2006 11:10:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964811AbWJCPKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 11:10:15 -0400
+Date: Tue, 3 Oct 2006 08:10:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Randy Dunlap <rdunlap@xenotime.net>
+cc: akpm <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] Math-emu kills the kernel on Athlon64 X2
+In-Reply-To: <20061002213809.7a3f995f.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.64.0610030805490.3952@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+ <p73venk2sjw.fsf@verdi.suse.de> <9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
+ <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org> <20061002191638.093fde85.rdunlap@xenotime.net>
+ <Pine.LNX.4.64.0610021932080.3952@g5.osdl.org> <20061002213809.7a3f995f.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-30 at 13:42 +0400, Stas Sergeev wrote:
-> Hello.
+
+
+On Mon, 2 Oct 2006, Randy Dunlap wrote:
 > 
-> Arjan van de Ven wrote:
-> >>/ wants to be able to mark more partitions as noexec,/
-> > .... and then execute from them!
-> > that's what is bothering me most about all of this.
-> Do you mean "execute with ld.so", or "execute with PROT_EXEC mmap"?
+> OK, how about something more direct and less obtrusive, like this?
 
-no what bothers me that on the one hand you want no execute from the
-partition, and AT THE SAME TIME want stuff to execute from there (being
-libraries or binaries, same thing to me). That duality feels strange to
-me, I could understand if you wanted noexec to be MORE strict; I fail to
-understand why you want it LESS strict!
-What breaks?
+I think this is fine, but I also think it's a bit hacky.
 
+Wouldn't it make more sense to make the whole "nofxsr" thing just clear 
+the capability, ie just a diff like the appended...
 
+Does that work for you? If so, we should _also_ make sure that "no387" 
+calls this function too, so that you don't have to do _both_ no387 and 
+nofxsr, which is clearly silly. Once you do no387, the kernel should do 
+the nofxsr for you, methinks..
+
+		Linus
+
+---
+diff --git a/arch/i386/kernel/cpu/common.c b/arch/i386/kernel/cpu/common.c
+index 2799baa..7ac3c9e 100644
+--- a/arch/i386/kernel/cpu/common.c
++++ b/arch/i386/kernel/cpu/common.c
+@@ -185,6 +185,7 @@ static void __cpuinit get_cpu_vendor(str
+ static int __init x86_fxsr_setup(char * s)
+ {
+ 	disable_x86_fxsr = 1;
++	clear_bit(X86_FEATURE_FXSR, boot_cpu_data.x86_capability);
+ 	return 1;
+ }
+ __setup("nofxsr", x86_fxsr_setup);

@@ -1,104 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWJCRiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWJCRka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbWJCRiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWJCRiE
+	id S1030366AbWJCRka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWJCRka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:38:04 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:2433 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030355AbWJCRiA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 13:38:00 -0400
-Subject: Re: 2.6.18-mm3
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061003001115.e898b8cb.akpm@osdl.org>
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 10:37:31 -0700
-Message-Id: <1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 3 Oct 2006 13:40:30 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:25231 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030366AbWJCRk3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:40:29 -0400
+Message-ID: <4522A08A.7000107@drzeus.cx>
+Date: Tue, 03 Oct 2006 19:40:26 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+MIME-Version: 1.0
+To: philipl@overt.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 1/2] mmc: Add structure definition for mmc v4 EXT_CSD
+References: <45200340.9080306@overt.org> <45201116.2080601@drzeus.cx> <15141.67.169.45.37.1159744412.squirrel@overt.org>
+In-Reply-To: <15141.67.169.45.37.1159744412.squirrel@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 00:11 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm3/
-> 
-> - Added Jeff's make-bogus-warnings-go-away tree to the -mm lineup, as
->   git-gccbug.patch
-> 
-> - Francois Romieu is doing some qlogic driver maintenance - added his
->   git-qla3xxx.patch to the -mm lineup.
-> 
-> - Some wireless-related crashes are hopefully fixed.  But if there are still
->   wireless problems, be sure that you have the latest userspace tools.
-> 
-> - The recent spate of IRQ-allocation-related crashes on x86_64 is hopefully
->   fixed.
-> 
-> - As far as we know, the MSI handling in -mm is now rock-solid.
+First, I just want to note that these patches are not ready for merging
+until they are part of a bigger set that actually uses these new features.
 
+philipl@overt.org wrote:
+> +struct mmc_ext_csd {
+> +	unsigned char		cmd_set_rev;
+> +	unsigned char		ext_csd_rev;
+> +	unsigned char		csd_structure;
+> +
+> +	unsigned char		card_type;
+> +
+> +	/*
+> +	 * Each power class defines MAX RMS Current
+> +	 * and Max Peak Current in mA.
+> +	 * Each category is of the form:
+> +	 *   pwr_cl_<speed/MHz>_<voltage/V>
+> +	 *
+> +	 * Each category encodes the power class for 4
+> +	 * bit transfers in [3:0] and 8 bit transfers
+> +	 * in [7:4]. Use mmc_get_4bit_pwr_cl() and
+> +	 * mmc_get_8bit_pwr_cl() to decode these.
+> +	 */
+> +	unsigned char		pwr_cl_52_195;
+> +	unsigned char		pwr_cl_26_195;
+> +
+> +	unsigned char		pwr_cl_52_360;
+> +	unsigned char		pwr_cl_26_360;
+> +
+> +	/*
+> +	 * Performance classes describe the minimum
+> +	 * transfer speed the card claims to support
+> +	 * for the given bus widths and speeds.
+> +	 */
+> +	unsigned char		min_perf_r_4_26;
+> +	unsigned char		min_perf_w_4_26;
+> +	unsigned char		min_perf_r_8_26_4_52;
+> +	unsigned char		min_perf_w_8_26_4_52;
+> +	unsigned char		min_perf_r_8_52;
+> +	unsigned char		min_perf_w_8_52;
+> +
+> +	unsigned char		s_cmd_set;
+> +};
+>   
 
-Not having any luck with it :(
+Do we need all of these? As this structure is present in all cards, we
+shouldn't keep more stuff in it than we actually need.
 
-Thanks,
-Badari
+> @@ -62,11 +106,13 @@
+>  #define MMC_STATE_BAD		(1<<2)		/* unrecognised device */
+>  #define MMC_STATE_SDCARD	(1<<3)		/* is an SD card */
+>  #define MMC_STATE_READONLY	(1<<4)		/* card is read-only */
+> +#define MMC_STATE_HIGHSPEED	(1<<5)		/* card is in mmc4 highspeed mode */
+>   
 
-Kernel command line: root=/dev/hda2 vga=0x314  selinux=0   console=tty0
-console=ttyS0,38400 resume=/dev/hda1 resume=/dev/hda1  splash=silent
-showopts
-Initializing CPU#0
-PID hash table entries: 4096 (order: 12, 32768 bytes)
-Console: colour dummy device 80x25
-Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
-Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
-Checking aperture...
-CPU 0: aperture @ 0 size 32 MB
-No AGP bridge found
-Your BIOS doesn't leave a aperture memory hole
-Please enable the IOMMU option in the BIOS setup
-This costs you 64 MB of RAM
-Mapping aperture over 65536 KB of RAM @ 4000000
-Memory: 7147724k/7864320k available (2924k kernel code, 191856k
-reserved, 1697k data, 360k init)
-------------[ cut here ]------------
-kernel BUG in init_list at mm/slab.c:1334!
-invalid opcode: 0000 [1] SMP
-last sysfs file:
-CPU 0
-Modules linked in:
-Pid: 0, comm: swapper Not tainted 2.6.18-mm3 #1
-RIP: 0010:[<ffffffff8027bd5b>]  [<ffffffff8027bd5b>] init_list
-+0x2b/0x120
-RSP: 0018:ffffffff806d9f18  EFLAGS: 00010212
-RAX: 000000000000003f RBX: 0000000000000001 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffffffff8072b0a8 RDI: ffff81017a800040
-RBP: ffffffff806d9f48 R08: 0000000000000001 R09: 0000000000000003
-R10: 0000000000000000 R11: ffffffff8072cac8 R12: 0000000000000001
-R13: ffff81017a800040 R14: ffffffff8072b0a8 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffffffff80684000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000000000 CR3: 0000000000201000 CR4: 00000000000006a0
-Process swapper (pid: 0, threadinfo ffffffff806d8000, task
-ffffffff805f7bc0)
-Stack:  ffffffff806d9f48 0000000100000286 0000000000000001
-ffffffff8072b0a8
- 0000000000000040 0000000000000000 ffffffff806d9f98 ffffffff806fdc69
- 0000000000000168 0000000000000240 0000000100000001 0000000000090000
-Call Trace:
- [<ffffffff806fdc69>] kmem_cache_init+0x3b9/0x490
- [<ffffffff806e36ef>] start_kernel+0x18f/0x220
- [<ffffffff806e3176>] _sinittext+0x176/0x180
+Please add this in the patch that actually needs the flag.
 
+> +/*
+> + * EXT_CSD fields
+> + */
+> +#define EXT_CSD_BUS_WIDTH		183	/* WO  */
+> +#define EXT_CSD_HS_TIMING		185	/* R/W */
+> +#define EXT_CSD_POWER_CLASS		187	/* R/W */
+> +#define EXT_CSD_CMD_SET_REV		189	/* RO  */
+> +#define EXT_CSD_CMD_SET		191	/* R/W */
+> +#define EXT_CSD_EXT_CSD_REV		192	/* RO  */
+> +#define EXT_CSD_CSD_STRUCTURE		194	/* RO  */
+> +#define EXT_CSD_CARD_TYPE		196	/* RO  */
+> +#define EXT_CSD_PWR_CL_52_195		200	/* RO  */
+> +#define EXT_CSD_PWR_CL_26_195		201	/* RO  */
+> +#define EXT_CSD_PWR_CL_52_360		202	/* RO  */
+> +#define EXT_CSD_PWR_CL_26_360		203	/* RO  */
+> +#define EXT_CSD_MIN_PERF_R_4_26	205	/* RO  */
+> +#define EXT_CSD_MIN_PERF_W_4_26	206	/* RO  */
+> +#define EXT_CSD_MIN_PERF_R_8_26_4_52	207	/* RO  */
+> +#define EXT_CSD_MIN_PERF_W_8_26_4_52	208	/* RO  */
+> +#define EXT_CSD_MIN_PERF_R_8_52	209	/* RO  */
+> +#define EXT_CSD_MIN_PERF_W_8_52	210	/* RO  */
+> +#define EXT_CSD_S_CMD_SET		504	/* RO  */
+> +
+>   
 
-Code: 0f 0b 66 66 90 48 8b 3d b1 ae 38 00 be d0 00 00 00 e8 0f ff
-RIP  [<ffffffff8027bd5b>] init_list+0x2b/0x120
- RSP <ffffffff806d9f18>
- <0>Kernel panic - not syncing: Attempted to kill the idle task!
+Please remove these and used fixed values in the decoding routine.
+That's the way we do it for CID and CSD today.
 
-
+Rgds
+Pierre
 

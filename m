@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWJCKXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWJCK3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWJCKXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 06:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWJCKXN
+	id S964872AbWJCK3f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 06:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWJCK3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 06:23:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40380 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964855AbWJCKXL (ORCPT
+	Tue, 3 Oct 2006 06:29:35 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:31962 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964872AbWJCK3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 06:23:11 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org> 
-References: <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>  <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org> <20061002201836.GB31365@elte.hu> 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 03 Oct 2006 11:21:21 +0100
-Message-ID: <10735.1159870881@warthog.cambridge.redhat.com>
+	Tue, 3 Oct 2006 06:29:34 -0400
+Date: Tue, 3 Oct 2006 12:28:41 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Willy Tarreau <w@1wt.eu>
+cc: Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Smaller compressed kernel source tarballs?
+In-Reply-To: <20061002033531.GA5050@1wt.eu>
+Message-ID: <Pine.LNX.4.61.0610031227420.32633@yvahk01.tjqt.qr>
+References: <20061002033511.GB12695@zimmer> <20061002033531.GA5050@1wt.eu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
 
-> So far, when this has come up, the gains it gives have not been worth the 
-> pain. I don't quite see why FRV is so broken that it would matter 20% 
-> worth, and I suspect that number was somehow really not real, but more a 
-> matter of "this small code snippet that is part of the irq delivery and 
-> isn't really measurable improves by 20%", which is a different thing.
+>> ppmd, also in Debian had better compression than lzma. PAQ8i has even
+>> better compression, but isn't in Debian. See the maximumcompression web
+>> site or other archive comparison tests.
+>
+>Interesting. But I suspect that you have not checked the compression time.
+>PAQ8I for instance is between 100 and 300 times SLOWER than bzip2 to achieve
+>about 30% smaller ! Given that the kernel already takes a very long time to
+>compress with bzip2, it would take several hours to compress it with such
+>tools. While they're very interesting proofs of concept for compression
+>research, they're not suited to any real world usage !
 
-What appears to make up the difference is the loop in handle_IRQ_event().
-That has to resurrect the arguments for the IRQ handler after calling the
-previous IRQ handler.
+There are lots of obscure compression formats that achieve somewhat 
+better compression at the cost of MUCH more time (neglecting they are 
+not too open), such as MS CAB and ACE.
 
-FRV is just the easiest place for me to measure things like this.  Trying to
-do so on i386 would be tricky, and Xen wouldn't help as it could affect the
-measurement of time - though it might permit me to count the intructions
-instead.  I might be able to do so on my power5 box, I suppose, but again,
-like Xen, that's virtualised, and I'm not sure what affect that'd have.
 
-So, I'm sure this will affect other archs, but it's much harder for me to
-measure those.
-
-But, you're also right: this is a statistic, and I'm sure you know the old
-saying about those...
-
-David
+Jan Engelhardt
+-- 

@@ -1,120 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWJCO5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWJCO7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWJCO5B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 10:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWJCO46
+	id S964808AbWJCO7I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 10:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWJCO7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 10:56:58 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7899 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964788AbWJCO44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 10:56:56 -0400
-From: John Keller <jpk@sgi.com>
-To: akpm@osdl.org
-Cc: linux-ia64@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       ayoung@sgi.com, John Keller <jpk@sgi.com>
-Date: Tue, 03 Oct 2006 09:56:50 -0500
-Message-Id: <20061003145650.14047.22841.sendpatchset@attica.americas.sgi.com>
-Subject: [PATCH 2/3] - Altix: Add initial ACPI IO support
+	Tue, 3 Oct 2006 10:59:07 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:65174 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964808AbWJCO7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 10:59:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ns9T+ArtN17lwaaWzqz+hsZ+lBnY02JTjBA7qm8+EYpFnQFFmIFK9n4lKinIBaw4JhhxjIjQV/nRdS3zXzvpYm/XcHuoSAqG1e67JxF5c/Vwx0eGr+mk4kQjn2vFAo21PHcE7N0l5evtGw1TJ+/Zs6FrqVBJhoydujGc3pviFJ4=
+Message-ID: <d4e708d60610030759h23a037aega70acb44bff1b524@mail.gmail.com>
+Date: Tue, 3 Oct 2006 16:59:00 +0200
+From: "koos vriezen" <koos.vriezen@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.18 break scratchbox
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SN ACPI hotplug support.
-
-A few minor changes to the way slot/device fixup is done.
-
-No need to be calling sn_pci_controller_fixup(), as
-a root bus cannot be hotplugged.
-
-Signed-off-by: John Keller <jpk@sgi.com>
-
----
-
- drivers/pci/hotplug/sgi_hotplug.c |   35 ++++++++++------------------
- 1 file changed, 13 insertions(+), 22 deletions(-)
-
-
-Index: linux-2.6/drivers/pci/hotplug/sgi_hotplug.c
-===================================================================
---- linux-2.6.orig/drivers/pci/hotplug/sgi_hotplug.c	2006-10-02 14:16:22.106965281 -0500
-+++ linux-2.6/drivers/pci/hotplug/sgi_hotplug.c	2006-10-03 08:36:46.537029248 -0500
-@@ -205,21 +205,6 @@ static struct hotplug_slot * sn_hp_destr
- 	return bss_hotplug_slot;
- }
- 
--static void sn_bus_alloc_data(struct pci_dev *dev)
--{
--	struct pci_bus *subordinate_bus;
--	struct pci_dev *child;
--
--	sn_pci_fixup_slot(dev);
--
--	/* Recursively sets up the sn_irq_info structs */
--	if (dev->subordinate) {
--		subordinate_bus = dev->subordinate;
--		list_for_each_entry(child, &subordinate_bus->devices, bus_list)
--			sn_bus_alloc_data(child);
--	}
--}
--
- static void sn_bus_free_data(struct pci_dev *dev)
- {
- 	struct pci_bus *subordinate_bus;
-@@ -337,6 +322,11 @@ static int sn_slot_disable(struct hotplu
- 	return rc;
- }
- 
-+/*
-+ * Power up and configure the slot via a SAL call to PROM.
-+ * Scan slot (and any children), do any platform specific fixup,
-+ * and find device driver.
-+ */
- static int enable_slot(struct hotplug_slot *bss_hotplug_slot)
- {
- 	struct slot *slot = bss_hotplug_slot->private;
-@@ -345,6 +335,7 @@ static int enable_slot(struct hotplug_sl
- 	int func, num_funcs;
- 	int new_ppb = 0;
- 	int rc;
-+	void pcibios_fixup_device_resources(struct pci_dev *);
- 
- 	/* Serialize the Linux PCI infrastructure */
- 	mutex_lock(&sn_hotplug_mutex);
-@@ -367,9 +358,6 @@ static int enable_slot(struct hotplug_sl
- 		return -ENODEV;
- 	}
- 
--	sn_pci_controller_fixup(pci_domain_nr(slot->pci_bus),
--				slot->pci_bus->number,
--				slot->pci_bus);
- 	/*
- 	 * Map SN resources for all functions on the card
- 	 * to the Linux PCI interface and tell the drivers
-@@ -380,6 +368,13 @@ static int enable_slot(struct hotplug_sl
- 				   PCI_DEVFN(slot->device_num + 1,
- 					     PCI_FUNC(func)));
- 		if (dev) {
-+			/* Need to do slot fixup on PPB before fixup of children
-+			 * (PPB's pcidev_info needs to be in pcidev_info list
-+			 * before child's SN_PCIDEV_INFO() call to setup
-+			 * pdi_host_pcidev_info).
-+			 */
-+			pcibios_fixup_device_resources(dev);
-+			sn_pci_fixup_slot(dev);
- 			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
- 				unsigned char sec_bus;
- 				pci_read_config_byte(dev, PCI_SECONDARY_BUS,
-@@ -387,12 +382,8 @@ static int enable_slot(struct hotplug_sl
- 				new_bus = pci_add_new_bus(dev->bus, dev,
- 							  sec_bus);
- 				pci_scan_child_bus(new_bus);
--				sn_pci_controller_fixup(pci_domain_nr(new_bus),
--							new_bus->number,
--							new_bus);
- 				new_ppb = 1;
- 			}
--			sn_bus_alloc_data(dev);
- 			pci_dev_put(dev);
- 		}
- 	}
+Hi,
+Hit by http://bugzilla.scratchbox.org/bugzilla/show_bug.cgi?id=279 I
+wondered why such
+a change that could break existing setups entered 2.6.18.
+Now I can peek through '/proc/<pid of process outside chroot env w/ my
+UID>/root' into the
+box's root (and that's why scratchbox is broken now).
+Regards,
+Koos

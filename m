@@ -1,28 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWJCKnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWJCKvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWJCKnz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 06:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWJCKnz
+	id S1030292AbWJCKvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 06:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWJCKvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 06:43:55 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60304 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030286AbWJCKny (ORCPT
+	Tue, 3 Oct 2006 06:51:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:25783 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030288AbWJCKvj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 06:43:54 -0400
-Date: Tue, 3 Oct 2006 12:35:03 +0200
+	Tue, 3 Oct 2006 06:51:39 -0400
+Date: Tue, 3 Oct 2006 12:43:16 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch] clockevents: drivers for i386, fix #2
-Message-ID: <20061003103503.GA6350@elte.hu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de> <20061002210053.16e5d23c.akpm@osdl.org> <20061003084729.GA24961@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Message-ID: <20061003104316.GA6830@elte.hu>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org> <20061002201836.GB31365@elte.hu> <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org> <20061002140121.f588b463.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003084729.GA24961@elte.hu>
+In-Reply-To: <20061002140121.f588b463.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
@@ -38,47 +39,32 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> yeah, i suspect it works again if you disable:
+> > I don't personally mind the patch, I just wanted to bring that issue 
+> > up.
 > 
->  CONFIG_X86_UP_APIC=y
->  CONFIG_X86_UP_IOAPIC=y
->  CONFIG_X86_LOCAL_APIC=y
->  CONFIG_X86_IO_APIC=y
+> yup.  Perhaps we could add
 > 
-> as the slowdown has the feeling of a runaway lapic timer irq.
+> #define IRQ_HANDLERS_DONT_USE_PTREGS
 > 
-> from code review so far we can only see an udelay(10) difference in 
-> the initialization sequence of the PIT - we'll send a fix for that but 
-> i dont think that's the cause of the bug.
+> so that out-of-tree drivers can reliably do their ifdefing.
 
-the patch below fixes that particular bug. But ... the symptoms you are 
-describing have the feeling of being apic related.
+i'd suggest we do something like:
+
+ #define __PT_REGS
+
+so that backportable drivers can do:
+
+  static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
+
+instead of an #ifdef jungle. Older kernel bases can define __PT_REGS in 
+their interrupt.h (or in the backported driver's header, in one place)
+
+ #ifndef __PT_REGS
+ # define __PT_REGS , struct pt_regs *regs
+ #endif
+
+this would minimize the direct impact in the source-code.
 
 	Ingo
-
--------------------->
-Subject: clockevents: drivers for i386, fix #2
-From: Ingo Molnar <mingo@elte.hu>
-
-add back a mistakenly removed udelay(10) to the PIT initialization
-sequence.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/i386/kernel/i8253.c |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: linux/arch/i386/kernel/i8253.c
-===================================================================
---- linux.orig/arch/i386/kernel/i8253.c
-+++ linux/arch/i386/kernel/i8253.c
-@@ -45,6 +45,7 @@ static void init_pit_timer(enum clock_ev
- 		outb_p(0x34, PIT_MODE);
- 		udelay(10);
- 		outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
-+		udelay(10);
- 		outb(LATCH >> 8 , PIT_CH0);	/* MSB */
- 		break;
- 

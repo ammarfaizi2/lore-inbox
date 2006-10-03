@@ -1,107 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbWJCWYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030619AbWJCWXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030622AbWJCWYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWJCWYH
+	id S1030619AbWJCWXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030622AbWJCWXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:24:07 -0400
-Received: from hu-out-0506.google.com ([72.14.214.232]:13080 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030622AbWJCWYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:24:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=eywMXdOskuUTYL+hlVBK0k0ct+6Mqfs5KOnml5N7+ZAuf1IVzx6wCXj+6Nvy65jN6tzHLIsvhy6sHvm9RTslYbdNEMOhcGqxPCd1Zp8Qa/eg1OcPi+jIDIMX4iC4AUI0F4YNopZR00UA6JBRodnteXsf4DiYJ3txPRQcd2sxOFY=
-Date: Tue, 3 Oct 2006 22:23:45 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
-       jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
-Subject: [RFC PATCH] move e1000 to pci_request_irq
-Message-ID: <20061003222345.GI2785@slug>
-References: <20061003220732.GE2785@slug>
-MIME-Version: 1.0
+	Tue, 3 Oct 2006 18:23:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49822 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030619AbWJCWXu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:23:50 -0400
+Date: Wed, 4 Oct 2006 08:22:56 +1000
+From: David Chinner <dgc@sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: David Chinner <dgc@sgi.com>, xfs-dev@sgi.com, xfs@oss.sgi.com,
+       dhowells@redhat.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/3] Convert XFS inode hashes to radix trees
+Message-ID: <20061003222256.GW4695059@melbourne.sgi.com>
+References: <20061003060610.GV3024@melbourne.sgi.com> <20061003212335.GA13120@tuatara.stupidest.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003220732.GE2785@slug>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <20061003212335.GA13120@tuatara.stupidest.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 03, 2006 at 02:23:35PM -0700, Chris Wedgwood wrote:
+> On Tue, Oct 03, 2006 at 04:06:10PM +1000, David Chinner wrote:
+> > Overall, the patchset removes more than 200 lines of code from the
+> > xfs inode caching and lookup code and provides more consistent
+> > scalability for large numbers of cached inodes. The only down side
+> > is that it limits us to 32 bit inode numbers of 32 bit platforms due
+> > to the way the radix tree uses unsigned longs for it's indexes
+> 
+>     commit afefdbb28a0a2af689926c30b94a14aea6036719
+>     tree 6ee500575cac928cd90045bcf5b691cf2b8daa09
+>     parent 1d32849b14bc8792e6f35ab27dd990d74b16126c
+>     author David Howells <dhowells@redhat.com> 1159863226 -0700
+>     committer Linus Torvalds <torvalds@g5.osdl.org> 1159887820 -0700
+> 
+>     [PATCH] VFS: Make filldir_t and struct kstat deal in 64-bit inode numbers
+> 
+>     These patches make the kernel pass 64-bit inode numbers internally when
+>     communicating to userspace, even on a 32-bit system.  They are required
+>     because some filesystems have intrinsic 64-bit inode numbers: NFS3+ and XFS
+>     for example.  The 64-bit inode numbers are then propagated to userspace
+>     automatically where the arch supports it.
+>     [...]
+> 
+> Doing this will mean XFS won't be able to support 32-bit inodes on
+> 32-bit platforms the above (merged) patch --- though given that cheap
+> 64-bit systems are now abundant does anyone really care?
 
-This proof-of-concept patch converts the e1000 driver to use the
-pci_request_irq() function.
+That's a good question. In a recent thread on linux-fsdevel about
+these patches Christoph Hellwig pointed out that 32bit user space is
+not ready for 64 bit inodes, so it's probably going to be a while
+before the second half of this mod is ready (which exports 64 bit
+inodes ito userspace on 32bit platforms).
 
-Please note that I'm not submitting the driver changes, they're there
-only for illustration purposes. I'll CC the appropriate maintainers
-when/if an API is agreed upon.
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=115946211808497&w=2
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=115948836023569&w=2
 
-Regards,
-Frederik 
+ISTR someone else also menitoning that 64bit inodes on 32-bit machines
+also breaks the dynamic linker, but I can't find a reference to that
+atm.
 
+As it stands, there's still a few barriers to getting 64 bit inodes
+on 32 bit platforms and I can't see them going away quickly. Right
+now I see little reason in moving to 64 bit inodes for 32 bit
+platforms for XFS because of the 16TB filesystem size limit (that
+only needs 33-36 bit inodes depending on the inode size) and no
+32bit platform is currently able to repair a filesystem of that
+size.
 
-diff --git a/drivers/net/e1000/e1000_ethtool.c b/drivers/net/e1000/e1000_ethtool.c
-index 778ede3..8b7be73 100644
-Index: 2.6.18-mm3/drivers/net/e1000/e1000_ethtool.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/net/e1000/e1000_ethtool.c
-+++ 2.6.18-mm3/drivers/net/e1000/e1000_ethtool.c
-@@ -899,17 +899,16 @@ e1000_intr_test(struct e1000_adapter *ad
- {
- 	struct net_device *netdev = adapter->netdev;
- 	uint32_t mask, i=0, shared_int = TRUE;
--	uint32_t irq = adapter->pdev->irq;
- 
- 	*data = 0;
- 
- 	/* NOTE: we don't test MSI interrupts here, yet */
- 	/* Hook up test interrupt handler just for this test */
--	if (!request_irq(irq, &e1000_test_intr, IRQF_PROBE_SHARED,
--			 netdev->name, netdev))
-+	if (!pci_request_irq(adapter->pdev, &e1000_test_intr, IRQF_PROBE_SHARED,
-+			    netdev->name))
- 		shared_int = FALSE;
--	else if (request_irq(irq, &e1000_test_intr, IRQF_SHARED,
--			      netdev->name, netdev)) {
-+	else if (pci_request_irq(adapter->pdev, &e1000_test_intr, IRQF_SHARED,
-+		 		 netdev->name)) {
- 		*data = 1;
- 		return -1;
- 	}
-@@ -986,7 +985,7 @@ e1000_intr_test(struct e1000_adapter *ad
- 	msleep(10);
- 
- 	/* Unhook test interrupt handler */
--	free_irq(irq, netdev);
-+	pci_free_irq(adapter->pdev);
- 
- 	return *data;
- }
-Index: 2.6.18-mm3/drivers/net/e1000/e1000_main.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/net/e1000/e1000_main.c
-+++ 2.6.18-mm3/drivers/net/e1000/e1000_main.c
-@@ -296,19 +296,13 @@ static int e1000_request_irq(struct e100
- 	if (adapter->have_msi)
- 		flags &= ~IRQF_SHARED;
- #endif
--	if ((err = request_irq(adapter->pdev->irq, &e1000_intr, flags,
--	                       netdev->name, netdev)))
--		DPRINTK(PROBE, ERR,
--		        "Unable to allocate interrupt Error: %d\n", err);
--
-+	err = pci_request_irq(adapter->pdev, &e1000_intr, flags, netdev->name);
- 	return err;
- }
- 
- static void e1000_free_irq(struct e1000_adapter *adapter)
- {
--	struct net_device *netdev = adapter->netdev;
--
--	free_irq(adapter->pdev->irq, netdev);
-+	pci_free_irq(adapter->pdev);
- 
- #ifdef CONFIG_PCI_MSI
- 	if (adapter->have_msi)
+And yes, 64 bit systems are cheap, cheap, cheap so IMO this
+functionality is really irrelevant moving forward. If it had come
+along a couple of years ago then it would be different, but I think
+mainstream technology is finally catching up with XFS so it's not a
+critical issue anymore... ;)
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

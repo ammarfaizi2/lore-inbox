@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030672AbWJCXSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030678AbWJCXXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030672AbWJCXSN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 19:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030675AbWJCXSN
+	id S1030678AbWJCXXd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 19:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030679AbWJCXXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 19:18:13 -0400
-Received: from thunk.org ([69.25.196.29]:65252 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030674AbWJCXSI (ORCPT
+	Tue, 3 Oct 2006 19:23:33 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:1455 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030677AbWJCXXc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 19:18:08 -0400
-Date: Tue, 3 Oct 2006 19:16:48 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: Jeff Garzik <jeff@garzik.org>, jt@hpl.hp.com,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003231648.GB26351@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	"John W. Linville" <linville@tuxdriver.com>,
-	Jeff Garzik <jeff@garzik.org>, jt@hpl.hp.com,
-	Linus Torvalds <torvalds@osdl.org>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Alessandro Suardi <alessandro.suardi@gmail.com>,
-	Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-	ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-References: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com>
+	Tue, 3 Oct 2006 19:23:32 -0400
+Message-ID: <4522F0F2.3030206@oracle.com>
+Date: Tue, 03 Oct 2006 16:23:30 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061003214038.GE23912@tuxdriver.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [PATCH take2 3/5] dio: formalize bio counters as a dio reference
+ count
+References: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net>	<20061002232135.18827.28686.sendpatchset@tetsuo.zabbo.net> <20061003154449.daab5dbd.akpm@osdl.org>
+In-Reply-To: <20061003154449.daab5dbd.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 05:40:44PM -0400, John W. Linville wrote:
-> Unfortunately, I don't see any way to "fix" WE-21 without similarly
-> breaking wireless-tools 29 and other "WE-21 aware" apps.  And since
-> I'll bet that the various WE-aware apps have checks like "if WE >
-> 20" for managing ESSID length settings, we may have painted ourselves
-> into a korner (sic).
 
-OK, I'm going to ask a stupid question.  Why is the kernel<->wireless
-driver interface have to be tied to the userspace<->wireless
-interface?  The first is internal to the kernel and is free to change,
-and if it breaks out-of-tree drivers, I'll complain to Intel about why
-the !@#@ the ipw3945 driver hasn't been merged, but we've never made
-any guarantees about break out-of-tree drivers, so I wouldn't have the
-right to complain to anyone else.
+>> +static int wait_for_more_bios(struct dio *dio)
+>> +{
+>> +	assert_spin_locked(&dio->bio_lock);
+>> +
+>> +	return (atomic_read(&dio->refcount) > 1) && (dio->bio_list == NULL);
+>> +}
+> 
+> This function isn't well-named.
 
-The second is an external userspace ABI, and that should remain
-constant.  It sounds like right now one gets pushed straight out to
-the other, but what if the wireless infrastructure layer in the kernel
-provided "interface glue" so you can translate between multiple
-interface versions --- and then force the userspace (or at least new
-versions of the userspace) to declare to the kernel what version of
-the interface they are expecting?  
+Sure, I'll try harder.
 
-That's what we do with the stat system call.  Userspace tells the
-kernel whether they want the v1, v2, v3, v4, or v5 version of the stat
-structure, and we have interface glue to support all of the old versions.  
+> 
+>> @@ -1103,7 +1088,11 @@ direct_io_worker(int rw, struct kiocb *i
+>>  		}
+>>  		if (ret == 0)
+>>  			ret = dio->result;
+>> -		finished_one_bio(dio);		/* This can free the dio */
+>> +
+>> +		/* this can free the dio */
+>> +		if (atomic_dec_and_test(&dio->refcount))
+>> +			dio_complete_aio(dio);
+> 
+> So...  how come it's legitimate to touch *dio if it can be freed by now? 
 
-Is there some reason why this would be too hard to do with the current
-interface?  Or is the arguement that if you're going to invest that
-much energy in fixing the userspace interface code, you would rather
-go to d80211/nl80211?
+Indeed!  This point in the patchset is retaining the existing behaviour
+where the 'should_wait' direct_io_worker() path and the
+finished_one_bio() path very carefully keep their tests in sync so that
+only one of them ends up freeing the dio.
 
-Regards,
+This particular patch doesn't change this part of the behaviour, it's
+just bringing the dec and complete that was previously hidden in
+finished_one_bio() up into its caller.  So I kept the comment.
 
-						- Ted
+This mess is replaced with a proper
+
+	if (dec_and_test(dio->refcount))
+		kfree(dio)
+
+construct in the final patch.  I hope that means we don't need to patch
+in some comments that we later remove.
+
+- z

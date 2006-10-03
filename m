@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWJCKcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbWJCKd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWJCKcF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 06:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWJCKcF
+	id S1030250AbWJCKd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 06:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWJCKd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 06:32:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10945 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030220AbWJCKcC (ORCPT
+	Tue, 3 Oct 2006 06:33:29 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:7406 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030250AbWJCKd2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 06:32:02 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <10243.1159869674@warthog.cambridge.redhat.com> 
-References: <10243.1159869674@warthog.cambridge.redhat.com>  <20061002201836.GB31365@elte.hu> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org> 
-To: David Howells <dhowells@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 03 Oct 2006 11:30:04 +0100
-Message-ID: <10922.1159871404@warthog.cambridge.redhat.com>
+	Tue, 3 Oct 2006 06:33:28 -0400
+Date: Tue, 3 Oct 2006 12:31:25 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Marc Perkel <marc@perkel.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Maybe it's time to fork the GPL License - create the Linux
+ license?
+In-Reply-To: <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0610031230120.32633@yvahk01.tjqt.qr>
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de> 
+ <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com> 
+ <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>  <4520D40F.8080500@perkel.com>
+ <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
 
-> I wish.  No, it's not simple enough to script.  All the usages of struct
-> pt_regs have to be eyeballed and have to be poked with the compiler.  The
-> problem is when an interrupt handler passes regs down to someone else - that I
-> can't find.
+>> The idea of the new license is as follows. It would be backwards
+>> compatible with GPL2. It's would eliminate the "or later" clause because
+>> we have already seen the potential for abuse there.
+>
+> The "or later" clause is not part of the actual license. It's part of
+> the preamble.
 
-Can't find with grep, I mean.
+It's mentioned in the preamble, but it is actually a part of the license 
+tag you put in your code. </nitpick>
 
-David
+
+Jan Engelhardt
+-- 

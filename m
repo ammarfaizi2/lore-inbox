@@ -1,70 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWJCQyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWJCRB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWJCQyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 12:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWJCQyj
+	id S1030329AbWJCRB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbWJCRB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 12:54:39 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:30963 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932272AbWJCQyi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 12:54:38 -0400
-Date: Tue, 3 Oct 2006 09:52:14 -0700
-To: Theodore Tso <tytso@mit.edu>, "John W. Linville" <linville@tuxdriver.com>,
-       Dan Williams <dcbw@redhat.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
-       Andrew Morton <akpm@osdl.org>, Norbert Preining <preining@logic.at>,
-       hostap@shmoo.com, linux-kernel@vger.kernel.org,
-       ipw3945-devel@lists.sourceforge.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003165214.GD17252@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org>
+	Tue, 3 Oct 2006 13:01:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35306 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030329AbWJCRB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:01:58 -0400
+Date: Tue, 3 Oct 2006 10:01:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: linux/compat.h includes asm/signal.h causing problems
+Message-Id: <20061003100136.e38553ff.akpm@osdl.org>
+In-Reply-To: <12989.1159878079@warthog.cambridge.redhat.com>
+References: <20061003105435.GG29920@ftp.linux.org.uk>
+	<20061002.141850.18280315.davem@davemloft.net>
+	<20061002.131414.74728780.davem@davemloft.net>
+	<20061002135036.7bd1f76b.akpm@osdl.org>
+	<20061002.140437.78732307.davem@davemloft.net>
+	<9802.1159868725@warthog.cambridge.redhat.com>
+	<12989.1159878079@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061003133845.GG2930@thunk.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 09:38:45AM -0400, Theodore Tso wrote:
+On Tue, 03 Oct 2006 13:21:19 +0100
+David Howells <dhowells@redhat.com> wrote:
+
+> Al Viro <viro@ftp.linux.org.uk> wrote:
 > 
-> John, has the wireless community considered creating a new interface
-> which *is* carefully designed, and supporting both the new and the
-> legacy interface for 2-3 years until all of the mainstream
-> distributions have had a chance to cycle?  It would be hard, I know,
-> but would it be harder than some of the alternatives, and would it be
-> worth it?
-
-	No API is guaranteed to be stable forever. And I think the
-overall track record of stability for the Wireless Extensions is
-pretty good.
-	On top of that, the tools themselves *WARNS YOU* when there is
-an API incompatibility, giving the user the change to correct the
-issue. There is not many API having such feature...
-
-	In my mind, the whole point of the GIT and RC process is to
-test changes before setting them in stone, so that we have the time to
-correct our mistakes. I definitely think the process is working
-properly.
-	If you think I jumped the gun, consider that both FC and
-Mandriva which have the right userspace bits are in RC phase
-(FC6-test3 and 2007-rc2), and therefore will ship about the same time
-2.6.19 hits final. And Debian with the right userspace bits is
-supposed to be released in december (no comment).
-
-> Regards,
+> > I do, it's not a problem...
 > 
-> 						- Ted
+> Actually, I was asking for myself.  Can I grab a copy?
+> 
 
-	Have fun...
+x86 binaries:
 
-	Jean
+http://userweb.kernel.org/~akpm/sparc-cross.tar.bz2
+http://userweb.kernel.org/~akpm/sparc64-cross.tar.bz2
+
+script to run them:
+
+
+
+#!/bin/sh
+
+if [ x$ARCH == x ]
+then
+	echo '$ARCH' unset
+	exit 1
+fi
+
+if [ x$J == x ]
+then
+	J=256
+fi
+
+if [ x"$DISTCC_HOSTS" != x ]
+then
+	DISTCC="distcc"
+fi
+
+XARCH="$ARCH-unknown-linux-gnu"
+I=vmlinux
+
+[ $ARCH = alpha ] &&	CT=gcc-4.1.0-glibc-2.3.6
+[ $ARCH = arm ] &&	CT=gcc-3.4.5-glibc-2.3.6
+[ $ARCH = i386 ] &&	CT=gcc-4.1.0-glibc-2.3.6 && XARCH=i686-unknown-linux-gnu && I=bzImage
+[ $ARCH = ia64 ] &&	CT=gcc-3.4.5-glibc-2.3.6
+[ $ARCH = m68k ] &&	CT=gcc-4.1.0-glibc-2.3.6
+[ $ARCH = mips ] &&	CT=gcc-3.4.5-glibc-2.3.6
+[ $ARCH = powerpc ] &&	CT=gcc-4.1.0-glibc-2.3.6 && XARCH=powerpc-405-linux-gnu
+[ $ARCH = s390 ] &&	CT=gcc-4.1.0-glibc-2.3.6
+[ $ARCH = sh ] &&	CT=gcc-3.4.5-glibc-2.3.6 && XARCH=sh4-unknown-linux-gnu
+[ $ARCH = sparc ] &&	CT=gcc-4.1.0-glibc-2.3.6
+[ $ARCH = sparc64 ] &&	CT=gcc-3.4.5-glibc-2.3.6
+[ $ARCH = x86_64 ] &&	CT=gcc-4.0.2-glibc-2.3.6 && I=bzImage
+[ $ARCH = parisc ] &&	CT=gcc-4.0.2-glibc-2.3.6 && I=bzImage
+
+if [ $# -eq 0 ]
+then
+	WHAT="$I modules"
+else
+	WHAT="$*"
+fi
+
+PATH=$PATH:/opt/crosstool/$CT/$XARCH/bin export PATH
+
+export CROSS_COMPILE=/opt/crosstool/$CT/$XARCH/bin/$XARCH-
+
+export CC="$DISTCC /opt/crosstool/$CT/$XARCH/bin/$XARCH-gcc"
+
+if [ "$ECHO" != "" ]
+then
+	echo CROSS_COMPILE=$CROSS_COMPILE CC=\"$CC\" make -j$J $* CC=\"$CC\" $WHAT
+else
+	nice -20 make -j$J $* CC="$CC" $WHAT 2>/tmp/log-$ARCH || FAILED=1
+fi
+
+cat /tmp/log-$ARCH
+[ "$FAILED" != "" ] && echo "**FAILED**"
+

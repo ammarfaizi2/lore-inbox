@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWJCIPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965575AbWJCIf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbWJCIPK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWJCIPK
+	id S965575AbWJCIf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965574AbWJCIf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:15:10 -0400
-Received: from main.gmane.org ([80.91.229.2]:27861 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030260AbWJCIPH (ORCPT
+	Tue, 3 Oct 2006 04:35:56 -0400
+Received: from www.osadl.org ([213.239.205.134]:8395 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S965575AbWJCIfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:15:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: John Graham-Cumming <antispam@jgc.org>
-Subject: Re: Spam, bogofilter, etc
-Date: Tue, 3 Oct 2006 08:08:56 +0000 (UTC)
-Message-ID: <loom.20061003T100646-668@post.gmane.org>
-References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+	Tue, 3 Oct 2006 04:35:55 -0400
+Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <20061002210053.16e5d23c.akpm@osdl.org>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+	 <20061002210053.16e5d23c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 03 Oct 2006 10:38:01 +0200
+Message-Id: <1159864681.1386.90.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 82.216.33.146 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051111 Firefox/1.5 Mnenhy/0.6.0.104)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds <at> osdl.org> writes:
-> I'm sorry, but spam-filtering is simply harder than the bayesian 
-> word-count weenies think it is. I even used to _know_ something about 
-> bayesian filtering, since it was one of the projects I worked on at uni, 
-> and dammit, it's not a good approach, as shown by the fact that it's 
-> trivial to get around.
+On Mon, 2006-10-02 at 21:00 -0700, Andrew Morton wrote:
+> These patches make my Vaio run really really slowly.  Maybe a quarter of
+> the normal speed or lower.  Bisection shows that the bug is introduced by
+> clockevents-drivers-for-i386.patch+clockevents-drivers-for-i386-fix.patch
+> 
+> With all patches applied, the slowdown happens with
+> CONFIG_HIGH_RES_TIMERS=n and also with CONFIG_HIGH_RES_TIMERS=y &&
+> CONFIG_NO_HZ=y.  So something got collaterally damaged.
+> 
+> I put various helpful stuff at http://userweb.kernel.org/~akpm/x/
 
-Have you actually followed any of the research into Bayesian (and similar
-machine learning based) anti-spam filtering, and attacks on such filters?  Are
-you making a claim that these filters are 'trivial to get around' based on a
-project you did at University over 10 years ago?
+> I uploaded all the patches I was using to
+> http://userweb.kernel.org/~akpm/x/patches/
 
-John.
+That's basically the same set I have here +/- the fixups
+
+> It doesn't seem to be a cpufreq thing: cpuinfo_min_freq=800kHz,
+> cpuinfo_max_freq=2GHz and cpuinfo_cur_freq goes up to 2GHz under load. 
+> Wall time is increasing at one second per second.
+
+I retest on my Vaio.
+
+	tglx
 
 

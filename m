@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965256AbWJCFlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965259AbWJCFmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965256AbWJCFlg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 01:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbWJCFlg
+	id S965259AbWJCFmo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 01:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWJCFmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 01:41:36 -0400
-Received: from outmx019.isp.belgacom.be ([195.238.4.200]:60562 "EHLO
-	outmx019.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S965256AbWJCFlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 01:41:35 -0400
-Date: Tue, 3 Oct 2006 07:41:18 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, Samuel Tardieu <sam@rfc1149.net>,
-       Ben Dooks <ben-linux@fluff.org>, Vitaly Wool <vitalywool@gmail.com>,
-       Jiri Slaby <jirislaby@gmail.com>, Alan Cox <alan@redhat.com>
-Subject: Re: [WATCHDOG] v2.6.19 watchdog patches
-Message-ID: <20061003054118.GA2405@infomag.infomag.iguana.be>
-References: <20061002212753.GA9556@infomag.infomag.iguana.be> <20061002143625.2143e4e4.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 3 Oct 2006 01:42:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2055 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965259AbWJCFmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 01:42:43 -0400
+Date: Tue, 3 Oct 2006 07:42:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Eric Sandeen <sandeen@sandeen.net>
+Cc: Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-1.2689.fc6PAE: oops in ext3_clear_inode+0x52/0x8b
+Message-ID: <20061003054242.GK3278@stusta.de>
+References: <451C33B2.5000007@goop.org> <20060928142313.8848cec9.akpm@osdl.org> <4521F5DE.7070302@sandeen.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061002143625.2143e4e4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <4521F5DE.7070302@sandeen.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-> OK by me.
+On Tue, Oct 03, 2006 at 12:32:14AM -0500, Eric Sandeen wrote:
+> Andrew Morton wrote:
+> >On Thu, 28 Sep 2006 13:42:26 -0700
+> >Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> >
+> >>I just filed this in the Redhat bugzilla, since its from the FC6 distro 
+> >>kernel.  But since its fairly close to current kernel.org kernels, I 
+> >>thought it might be relevent.
+> >>
+> >>The bug is https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=208488
+> >>
+> >>Unfortunately this isn't a very useful report since it was a once-off, 
+> >>and there's a P-tainting module in there.  But if anyone sees anything 
+> >>else like this, it's interesting.
+> >>
+> >>The oops is:
+> >>
+> >>BUG: unable to handle kernel paging request at virtual address 756e6547
+> >
+> >756e6547 -> uneG.   Matches "GenuineIntel".
+> >
+> >That'll get written into a temporary page by the /proc/cpuinfo handler, so
+> >it might just be a use-uninitialised.
 > 
-> I notice that you're holding back a couple of drivers:
-> drivers/char/watchdog/iTCO_wdt.c and
-> drivers/char/watchdog/smsc37b787_wdt.c.  Not ready yet?
+> But strangely enough, it's the second report we've seen with this exact 
+> backtrace, and the same "Genu" ascii string where the i_default_acl should 
+> be.
+> 
+> Both boxes had been through a suspend-to-ram recently, just in case that 
+> might matter.
+> 
+> Seems like something more than random chance...
 
-I'm awaiting feedback om the smsc37b787_wdt.c driver
-from Sven (about the spin_lock's, just to be sure that
-we didn't make any mistakes).
+Can you give a pointer to the other report?
 
-Also w83697hf_wdt should be added, Sam and Marcus
-wrote their drivers at almost the same moment.
-Sam tested the latest version, but I'm going to ask
-Marcus also to test the latest driver.
+> -Eric
 
-The iTCO_wdt driver will probably follow this evening.
+cu
+Adrian
 
-Greetings,
-Wim.
+-- 
 
-Note: I will also rebuild the -mm tree tonight so that
-it's back in sync with linus' tree.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

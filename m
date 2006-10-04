@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWJDX0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWJDX17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWJDX0y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 19:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJDX0c
+	id S1751223AbWJDX17 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 19:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWJDX0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 19:26:32 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:22913 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751226AbWJDX0a (ORCPT
+	Wed, 4 Oct 2006 19:26:52 -0400
+Received: from mail.suse.de ([195.135.220.2]:11198 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751228AbWJDX0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 19:26:30 -0400
-Message-Id: <20061004232454.688507000@linux-m68k.org>
-References: <20061004232414.730831000@linux-m68k.org>
-User-Agent: quilt/0.45-1
-Date: Thu, 05 Oct 2006 01:24:15 +0200
-From: zippel@linux-m68k.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] provide tickadj define
-Content-Disposition: inline; filename=tickadj_define
+	Wed, 4 Oct 2006 19:26:47 -0400
+Date: Wed, 4 Oct 2006 16:26:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: ecashin@coraid.com, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drivers/block/aoe: handle sysfs errors
+Message-ID: <20061004232648.GA16204@kroah.com>
+References: <20061004135819.GA29526@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061004135819.GA29526@havoc.gtf.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provide a tickadj compatibility define for archs still using it.
+On Wed, Oct 04, 2006 at 09:58:19AM -0400, Jeff Garzik wrote:
+> 
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Heh, I fixed this in my tree last night already :)
 
----
- include/linux/timex.h |    3 +++
- 1 file changed, 3 insertions(+)
+thanks though,
 
-Index: linux-2.6/include/linux/timex.h
-===================================================================
---- linux-2.6.orig/include/linux/timex.h
-+++ linux-2.6/include/linux/timex.h
-@@ -293,6 +293,9 @@ extern void second_overflow(void);
- extern void update_ntp_one_tick(void);
- extern int do_adjtimex(struct timex *);
- 
-+/* Don't use! Compatibility define for existing users. */
-+#define tickadj	(500/HZ ? : 1)
-+
- #endif /* KERNEL */
- 
- #endif /* LINUX_TIMEX_H */
-
---
-
+greg k-h

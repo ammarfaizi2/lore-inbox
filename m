@@ -1,41 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWJDVMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWJDVOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWJDVMH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 17:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWJDVMG
+	id S1751137AbWJDVOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 17:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWJDVOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 17:12:06 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2792 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751124AbWJDVME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 17:12:04 -0400
-Subject: Re: Industrial device driver uio/uio_*
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: tglx@linutronix.de
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <1159990345.1386.277.camel@localhost.localdomain>
-References: <1157995334.23085.188.camel@localhost.localdomain>
-	 <1159988394.25772.97.camel@localhost.localdomain>
-	 <20061004121835.bb155afe.akpm@osdl.org>
-	 <1159990345.1386.277.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 22:37:20 +0100
-Message-Id: <1159997840.25772.104.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 4 Oct 2006 17:14:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64013 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751137AbWJDVOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 17:14:31 -0400
+Date: Wed, 4 Oct 2006 23:14:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: removed sysctl system call - documentation and timeline
+Message-ID: <20061004211428.GB16812@stusta.de>
+References: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-04 am 21:32 +0200, ysgrifennodd Thomas Gleixner:
-> I have no objections, if you pull it from -mm for now. The list of flaws
-> is accepted and we'll work on this in foreseeable time, _IF_ there is
-> some basic consensus about the idea itself not being fundamentaly wrong.
+On Wed, Oct 04, 2006 at 10:35:01PM +0200, Jesper Juhl wrote:
+> Hi,
+> 
+> With recent kernels I'm getting a lot of warnings about programs using
+> the removed sysctl syscal.
+> 
+> Examples (after 5 min of uptime here) :
+> root@dragon:/home/juhl# dmesg | grep "used the removed sysctl system
+> call" | sort | uniq
+> warning: process `dd' used the removed sysctl system call
+> warning: process `ls' used the removed sysctl system call
+> warning: process `touch' used the removed sysctl system call
+> 
+> and more can be found...
+> 
+> 
+> I'm not, as such, opposed to removing sysctl (and yes, I know what it
+> is and what it does). What I am a little opposed to is that it is
+> being removed on such short notice (unless I missed the memo) and that
+> it is hidden inside EMBEDDED.
+> 
+> I would like to propose that, at least for 2.6.19, it be default on
+> (as it is now), not hide it in EMBEDDED where people usually don't go,
 
-The device stuff seems ok, the class stuff seems to me overconvoluted
-but I'd rather someone who knew the class stuff well (Greg thats you)
-made that decision.
+This abuse of EMBEDDED is nonsense.
 
-Alan
+SYSCTL_SYSCALL should be moved above EMBEDDED (for not breaking the 
+menu), and the "if EMBEDDED" removed.
+
+> some huge deprecation warnings be added, and that it then gets the
+> usual 6-12months before being removed (did it already get that and I'm
+> just slow?)...  ohhh, and correct the help text; it currently says
+
+It seems you are slow...
+
+It's entry in Documentation/feature-removal-schedule.txt fulfills the
+6 months.
+
+> "...Nothing has been using the binary sysctl interface for some time
+> now so nothing should break if you disable sysctl syscall support" -
+> that's obviously false as demonstrated by the above extract from my
+> dmesg...
+
+What did actually break (a dmesg message is not a breakage)?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030694AbWJDBhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030692AbWJDBoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030694AbWJDBhd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 21:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030693AbWJDBhd
+	id S1030692AbWJDBoN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 21:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030693AbWJDBoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 21:37:33 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:64552 "EHLO
-	asav09.insightbb.com") by vger.kernel.org with ESMTP
-	id S1030385AbWJDBhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 21:37:32 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AR4FAGOsIkWBTg
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Lennart Poettering <mzxreary@0pointer.de>
-Subject: Re: [PATCH] misc,acpi,backlight: MSI S270 Laptop support
-Date: Tue, 3 Oct 2006 21:37:29 -0400
-User-Agent: KMail/1.9.3
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <20061003011056.GA28731@ecstasy.ring2.lan> <200610022227.10087.dtor@insightbb.com> <20061004012832.GA5171@tango.0pointer.de>
-In-Reply-To: <20061004012832.GA5171@tango.0pointer.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 21:44:13 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33212 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030692AbWJDBoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 21:44:11 -0400
+Date: Wed, 4 Oct 2006 11:43:34 +1000
+From: David Chinner <dgc@sgi.com>
+To: David Chinner <dgc@sgi.com>
+Cc: Chris Wedgwood <cw@f00f.org>, xfs-dev@sgi.com, xfs@oss.sgi.com,
+       dhowells@redhat.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/3] Convert XFS inode hashes to radix trees
+Message-ID: <20061004014334.GZ4695059@melbourne.sgi.com>
+References: <20061003060610.GV3024@melbourne.sgi.com> <20061003212335.GA13120@tuatara.stupidest.org> <20061003222256.GW4695059@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610032137.29844.dtor@insightbb.com>
+In-Reply-To: <20061003222256.GW4695059@melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 October 2006 21:28, Lennart Poettering wrote:
-> On Mon, 02.10.06 22:27, Dmitry Torokhov (dtor@insightbb.com) wrote:
-> 
-> > > +        ret = sysfs_create_group(&msipf_device->dev.kobj, &msipf_attribute_group);
-> > > +        if (ret)
-> > > +                goto fail_platform_device;
-> > > +
-> > > +
-> > > +        /* Enable automatic brightness control again */
-> > > +        if (auto_brightness != 2)
-> > > +                set_auto_brightness(1);     
-> > > +
+On Wed, Oct 04, 2006 at 08:22:56AM +1000, David Chinner wrote:
+> On Tue, Oct 03, 2006 at 02:23:35PM -0700, Chris Wedgwood wrote:
+> > On Tue, Oct 03, 2006 at 04:06:10PM +1000, David Chinner wrote:
+> > > Overall, the patchset removes more than 200 lines of code from the
+> > > xfs inode caching and lookup code and provides more consistent
+> > > scalability for large numbers of cached inodes. The only down side
+> > > is that it limits us to 32 bit inode numbers of 32 bit platforms due
+> > > to the way the radix tree uses unsigned longs for it's indexes
 > > 
-> > What happens if auto_brightness is 2 but userspace messed up with it
-> > through device's sysfs attribute? 
+> >     commit afefdbb28a0a2af689926c30b94a14aea6036719
+> >     tree 6ee500575cac928cd90045bcf5b691cf2b8daa09
+> >     parent 1d32849b14bc8792e6f35ab27dd990d74b16126c
+> >     author David Howells <dhowells@redhat.com> 1159863226 -0700
+> >     committer Linus Torvalds <torvalds@g5.osdl.org> 1159887820 -0700
+> > 
+> >     [PATCH] VFS: Make filldir_t and struct kstat deal in 64-bit inode numbers
+> > 
+> >     These patches make the kernel pass 64-bit inode numbers internally when
+> >     communicating to userspace, even on a 32-bit system.  They are required
+> >     because some filesystems have intrinsic 64-bit inode numbers: NFS3+ and XFS
+> >     for example.  The 64-bit inode numbers are then propagated to userspace
+> >     automatically where the arch supports it.
+> >     [...]
+> > 
+> > Doing this will mean XFS won't be able to support 32-bit inodes on
+> > 32-bit platforms the above (merged) patch --- though given that cheap
+> > 64-bit systems are now abundant does anyone really care?
 > 
-> If auto_brightness is 2 we assume that the user doesn't want the
-> module to fiddle with the automatic brightness control
-> automatically. So we don't do it, neither when loading nor when
-> unloading the module. However, if the user wants to fiddle with the
-> setting through sysfs he may do so and we will not reset his changes
-> when unloading the module. This allows the user to do something like
-> this to disable the brightness control without having the the driver
-> loaded the whole time:
-> 
->   modprobe msi-laptop auto_brightness=2 && echo 0 > /sys/devices/platform/msi-laptop-pf/auto_brightness && modprobe -r msi-laptop
-> 
-> If auto_brightness is 1 or 0, we do as requested but reset the control
-> to the bootup default when unloading. (i.e. enable it again)
+> That's a good question. In a recent thread on linux-fsdevel about
+> these patches Christoph Hellwig pointed out that 32bit user space is
+> not ready for 64 bit inodes, so it's probably going to be a while
+> before the second half of this mod is ready (which exports 64 bit
+> inodes ito userspace on 32bit platforms).
 
-Normally drivers clean up after themselves as if they were never loaded,
-taht is why I questioned partial cleanup.
+Ahhh.... I think I misread what Chris wrote here - _32_ bit inodes on
+32 bit platforms not working? I can't see how this would be the
+case with the mods I posted given that they are entirely internal to
+XFS and don't change any external inode number interfaces. And the
+above commit shouldn't break XFS either.
 
+Cheers,
+
+Dave.
 -- 
-Dmitry
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

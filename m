@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWJDUKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWJDUP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWJDUKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWJDUKu
+	id S1751058AbWJDUP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWJDUP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:10:50 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:48337 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751033AbWJDUKt (ORCPT
+	Wed, 4 Oct 2006 16:15:29 -0400
+Received: from gw.goop.org ([64.81.55.164]:5767 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751058AbWJDUP3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:10:49 -0400
-Date: Wed, 4 Oct 2006 22:09:02 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Neil Brown <neilb@suse.de>
-cc: Marc Perkel <marc@perkel.com>, Ivan Dimitrov <madcat@pzforum.net>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: It's not GNU/Linux - it's jusy LINUX
-In-Reply-To: <17698.55554.717774.723696@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.61.0610042207390.28405@yvahk01.tjqt.qr>
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
- <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
- <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE> <4520D40F.8080500@perkel.com>
- <4522CF20.9070501@pzforum.net> <4522D36B.10100@perkel.com>
- <17698.55554.717774.723696@cse.unsw.edu.au>
+	Wed, 4 Oct 2006 16:15:29 -0400
+Message-ID: <45241659.301@goop.org>
+Date: Wed, 04 Oct 2006 13:15:21 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Judith Lebzelter <judith@osdl.org>
+CC: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] use-generic-bug-for-ppc
+References: <20061004184927.GH665@shell0.pdx.osdl.net>
+In-Reply-To: <20061004184927.GH665@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->"Linux" is an operating system kernel.  By itself it is pretty
->useless.
-
-I have to object.
-
-Linux (kernel) plus a static standalone userspace binary -- 'enough' for 
-embedded applications. It does not need GNU in it (with the exception 
-of the kernel's license, GPL, of course).
-
->A thing which is Linux plus lots of libraries and utilities and maybe
->a windowing system and a "desktop" is a lot more than "Linux".
-
-	-`J'
--- 
+Judith Lebzelter wrote:
+> Index: linux/arch/ppc/kernel/traps.c
+> ===================================================================
+> --- linux.orig/arch/ppc/kernel/traps.c	2006-10-03 16:11:26.461653713 -0700
+> +++ linux/arch/ppc/kernel/traps.c	2006-10-04 10:00:21.198907987 -0700
+> @@ -28,6 +28,7 @@
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/prctl.h>
+> +#include <linux/bug.h>
+>  
+>  #include <asm/pgtable.h>
+>  #include <asm/uaccess.h>
+> @@ -568,55 +569,9 @@
+>   */
+>  extern struct bug_entry __start___bug_table[], __stop___bug_table[];
+>  
+> -#ifndef CONFIG_MODULES
+> -#define module_find_bug(x)	NULL
+> -#endif
+>   
+Looks like you need to delete a bit more here - the extern struct 
+bug_entry, and the comment above.
+    J

@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWJDNTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWJDN0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWJDNTv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWJDNTv
+	id S932415AbWJDN0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWJDN0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:19:51 -0400
-Received: from mga01.intel.com ([192.55.52.88]:54418 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S932406AbWJDNTu convert rfc822-to-8bit
+	Wed, 4 Oct 2006 09:26:35 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:2528 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932415AbWJDN0f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:19:50 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,255,1157353200"; 
-   d="scan'208"; a="1353757:sNHT19845036"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] Cache miss eliminating in WARN_ON_ONCE
-Date: Wed, 4 Oct 2006 17:19:42 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC3F3F28@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Cache miss eliminating in WARN_ON_ONCE
-Thread-Index: AcbnZcdscLygcBP3ReW7v5cZrINmwwAO5BAg
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, <andrew.j.wade@gmail.com>
-Cc: <tim.c.chen@linux.intel.com>, <herbert@gondor.apana.org.au>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Oct 2006 13:19:47.0599 (UTC) FILETIME=[C3C2C1F0:01C6E7B7]
+	Wed, 4 Oct 2006 09:26:35 -0400
+Date: Wed, 4 Oct 2006 14:26:34 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: zippel@linux-m68k.org, akpm@osdl.org
+Subject: [PATCH] m68k dma_alloc_coherent() has gfp_t as the last argument
+Message-ID: <20061004132634.GK29920@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The static variable __warn_once was "never" read (until there is no bug)
-before patch "Let WARN_ON/WARN_ON_ONCE return the condition"
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commi
-t;h=684f978347deb42d180373ac4c427f82ef963171
- in WARN_ON_ONCE's line 
-- if (unlikely((condition) && __warn_once)) { \
-because 'condition' is false. There was no cache miss as a result.
+annotate, fix the bogus argument of vmap() in it.
 
-Cache miss for __warn_once is happened in new lines
-+ if (likely(__warn_once)) \
-+ if (WARN_ON(__ret_warn_once)) \
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ arch/m68k/kernel/dma.c         |    4 ++--
+ include/asm-m68k/dma-mapping.h |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Proposed patch is tested by tbench.
+diff --git a/arch/m68k/kernel/dma.c b/arch/m68k/kernel/dma.c
+index fc449f8..9d4e4b5 100644
+--- a/arch/m68k/kernel/dma.c
++++ b/arch/m68k/kernel/dma.c
+@@ -15,7 +15,7 @@ #include <asm/pgalloc.h>
+ #include <asm/scatterlist.h>
+ 
+ void *dma_alloc_coherent(struct device *dev, size_t size,
+-			 dma_addr_t *handle, int flag)
++			 dma_addr_t *handle, gfp_t flag)
+ {
+ 	struct page *page, **map;
+ 	pgprot_t pgprot;
+@@ -51,7 +51,7 @@ void *dma_alloc_coherent(struct device *
+ 		pgprot_val(pgprot) |= _PAGE_GLOBAL040 | _PAGE_NOCACHE_S;
+ 	else
+ 		pgprot_val(pgprot) |= _PAGE_NOCACHE030;
+-	addr = vmap(map, size, flag, pgprot);
++	addr = vmap(map, size, VM_MAP, pgprot);
+ 	kfree(map);
+ 
+ 	return addr;
+diff --git a/include/asm-m68k/dma-mapping.h b/include/asm-m68k/dma-mapping.h
+index cebbb03..c1299c3 100644
+--- a/include/asm-m68k/dma-mapping.h
++++ b/include/asm-m68k/dma-mapping.h
+@@ -26,7 +26,7 @@ static inline int dma_is_consistent(dma_
+ }
+ 
+ extern void *dma_alloc_coherent(struct device *, size_t,
+-				dma_addr_t *, int);
++				dma_addr_t *, gfp_t);
+ extern void dma_free_coherent(struct device *, size_t,
+ 			      void *, dma_addr_t);
+ 
+-- 
+1.4.2.GIT
 
->From Leonid Ananiev
-
-Cache miss eliminating in WARN_ON_ONCE  by testing expression value
-before static variable value.
-
-Signed-off-by: Leonid Ananiev <leonid.i.ananiev@intel.com>
---- linux-2.6.18-git14/include/asm-generic/bug.h
-+++ linux-2.6.18-git14b/include/asm-generic/bug.h
-@@ -45,9 +45,12 @@
-        static int __warn_once = 1;                     \
-        typeof(condition) __ret_warn_once = (condition);\
-                                                        \
--       if (likely(__warn_once))                        \
--               if (WARN_ON(__ret_warn_once))           \
-+       /* check 'condition' first to avoid cache miss with __warn_once
-*/\
-+       if (unlikely(__ret_warn_once))                  \
-+               if (__warn_once) {                      \
-                        __warn_once = 0;                \
-+                       WARN_ON(1);                     \
-+               }                                       \
-        unlikely(__ret_warn_once);                      \
- })

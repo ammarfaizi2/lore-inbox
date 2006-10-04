@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWJDHEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbWJDHLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWJDHEq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWJDHEq
+	id S1161096AbWJDHLs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWJDHLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:04:46 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:63433
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932395AbWJDHEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:04:45 -0400
-Message-Id: <45237973.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 04 Oct 2006 08:05:55 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Ingo Molnar" <mingo@elte.hu>, "Andi Kleen" <ak@suse.de>
-Cc: <tilman@imap.cc>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, "Randy Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [2.6.18-rc7-mm1] slow boot
-References: <4516B966.3010909@imap.cc>
- <20060924145337.ae152efd.akpm@osdl.org> <451BFFA9.4030000@imap.cc>
- <200609281912.01858.ak@suse.de> <451C58AC.5060601@imap.cc>
- <20060928163046.055b3ce0.rdunlap@xenotime.net>
- <20060928163046.055b3ce0.rdunlap@xenotime.net> <451C65A0.1080002@imap.cc>
- <451CE2F0.76E4.0078.0@novell.com> <p73lko2ircn.fsf@verdi.suse.de>
- <20060929183959.GA13991@elte.hu>
-In-Reply-To: <20060929183959.GA13991@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 03:11:48 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:36709 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030456AbWJDHLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 03:11:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UCK91Bao8vIA2CVVrWnLnx4lge6b8MyY73b7surBGSVAqk5aNIbliIaAG0YNDmnQUYlXo2B7T1JBFfI3MDIHZvLnuyzRYfi2KWqPh92/Xi2nGC7oiiZJ5mvFkclGCqSwqxpmtjHezsQqQc02jiAyOa9tSsLkP6TiU0vRJHIrhRI=
+Message-ID: <73d8d0290610040011v190ea16er8cef746f824819dc@mail.gmail.com>
+Date: Wed, 4 Oct 2006 08:11:46 +0100
+From: "Peter Read" <peter.read@gmail.com>
+To: "Kyle Moffett" <mrmacman_g4@mac.com>
+Subject: Re: Registration Weakness in Linux Kernel's Binary formats
+Cc: "Julio Auto" <mindvortex@gmail.com>,
+       "Chase Venters" <chase.venters@clientec.com>,
+       goodfellas@shellcode.com.ar,
+       "Linux kernel" <linux-kernel@vger.kernel.org>,
+       endrazine <endrazine@gmail.com>,
+       "Stephen Hemminger" <shemminger@osdl.org>, Valdis.Kletnieks@vt.edu,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1E56E1B6-9C2C-4D84-94D6-42B5A87B5739@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <18d709710610032108w52d69b17mfa585e40ad2ae72c@mail.gmail.com>
+	 <1E56E1B6-9C2C-4D84-94D6-42B5A87B5739@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Ingo Molnar <mingo@elte.hu> 29.09.06 20:39 >>>
->
->* Andi Kleen <ak@suse.de> wrote:
->
->> "Jan Beulich" <jbeulich@novell.com> writes:
->> 
->> > There's nothing stack trace/unwind related among the functions listed at all afaics.
->> > I don't know much about how profiling works, is it perhaps just missing something?
->> 
->> Perhaps lockdep calls them with interrupts off? The old profiler 
->> doesn't support profiling with interrupts off. oprofile does, but it 
->> cannot be used at early boot.
->
->Yes, lockdep does everything that changes the dependency graph(s) with 
->irqs off. Jan, i bounced you the mail with the function traces included, 
->that should show you the overhead points.
+I'm thinking of starting a 'security research' firm and pointing out
+that if you can physically swap the boot device on a machine and
+reboot you can run 'arbitrary code'.
 
-Okay, makes sense then. I'll get to addressing the (already identified) cause
-as soon as I can.
+I might also point out the new boot device could have NetBSD on it,
+and gloss over the hundreds of other things that would be both
+possible and expectedly so...
 
-Jan
+On 04/10/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> On Oct 04, 2006, at 00:08:57, Julio Auto wrote:
+> > I sincerely think you're all missing the point here.
+>
+> No, _you're_ missing the point.
+>
+> > The observation is in fact something that can be used by rootkit
+> > writers or developers of other forms of malware.
+>
+> This attack relies on being able to load an arbitrary attacker-
+> defined kernel module.  Full Stop.  If you can load code into
+> privileged mode it's game over regardless of what other designs and
+> restrictions are in place.  The "default" security model is that only
+> root can load kernel code, but using SELinux or other methods it's
+> possible to entirely prevent anything from being loaded after system
+> boot or written to the kernel or bootloader images.
+>
+> If the attacker gains kernel code access, it doesn't matter what
+> "simply linked list" or whatever other garbage is being used, they
+> can just overwrite the existing ELF loader with their shellcode if
+> they want.  Or they could insert a filesystem patch which always
+> loads a virus into any ELF binary at load.  Or they could just fork a
+> kernel thread and run their shellcode there.  Or they could load a
+> copy of Windows from the CD drive and boot into that from Linux.
+>
+> Kernel-level access implies ultimate trust and security, and
+> *nothing* is going to change that.
+>
+> Cheers,
+> Kyle Moffett
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

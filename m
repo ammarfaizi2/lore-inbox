@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWJDSLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161901AbWJDSMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbWJDSLM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 14:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161930AbWJDSLM
+	id S1161901AbWJDSMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 14:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161546AbWJDSMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 14:11:12 -0400
-Received: from hera.kernel.org ([140.211.167.34]:59350 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1161113AbWJDSLK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 14:11:10 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: ip_conntrack_core - possible memory leak in 2.4
-Date: Wed, 4 Oct 2006 11:09:57 -0700
-Organization: OSDL
-Message-ID: <20061004110957.032ac75e@freekitty>
-References: <20061004180201.GA18386@nomi.cz>
+	Wed, 4 Oct 2006 14:12:10 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:54729 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1161901AbWJDSMI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 14:12:08 -0400
+Date: Wed, 4 Oct 2006 11:10:32 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>, Jeff Garzik <jeff@garzik.org>,
+       jt@hpl.hp.com, Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061004181032.GA4272@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1159985397 30702 10.8.0.54 (4 Oct 2006 18:09:57 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 4 Oct 2006 18:09:57 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.5; i486-pc-linux-gnu)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 20:02:01 +0200
-onovy@nomi.cz wrote:
-
-> hi,
+On Tue, Oct 03, 2006 at 02:59:16PM -0700, Linus Torvalds wrote:
 > 
-> i have there MontaVista based router, with 2.4.17_mvl21-malta-mips_fp_le
-> kernel. I think, there is memory leak in ip_conntrack code. There are
-> eta 500 conntrack connection all the time. But after some day i get
-> "ip_conntrack: table full" in kmsg.
-> /proc/sys/net/ipv4/netfilter/ip_conntrack_max have 3072 value.
-> grep ip_conntrack /proc/slabinfo
-> ip_conntrack        3006   3250    384  319  325    1
-> ^^ there are 3006 allocated conntracks
-> cat /proc/net/ip_conntrack | wc -l
-> 30
-> ^^ in table are only 30 lines.
 > 
-> Acording to this:
-> http://lists.netfilter.org/pipermail/netfilter-devel/2004-May/015628.html
-> i don't think, this is fixed in 2.4 tree, but i can't test it with newer
-> version.
+> On Tue, 3 Oct 2006, John W. Linville wrote:
+> >
+> > I.E.  With "WE-21 aware" tools already in the wild, it isn't now clear
+> > to me how WE can evolve any further than WE-20.
 > 
-> Thanks
+> Well, if you get a WE-22 out soon enough, the situation will be one where 
+> people who are fast at updating will have a fixed version quickly, and the 
+> ones that aren't quick at updating will never have even seen the broken 
+> case.
 
-You paid for an expensive vendor kernel. Use their support, and
-make them fix it.
+	Linus,
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+	You can't froze kernel userspace API forever. That is simply
+not workable, it will lead to stagnation and obsolescence. This is
+especially unfair because some other kernel userspace API are allow to
+change whenever their maintainers feels like.
+
+	Just to give you an example why we sometime need to
+change. The first two generations of 802.11 hardware were using the
+ESSID as a C-string (no NUL char), so the API was also using a
+C-string (no NUL char). New 802.11 hardware do accept NUL in the
+ESSID, therefore the API need to evolve away from C-string to offer
+this new feature to userspace. Especially that new WPA standard may
+use that in the future (cf. Jouni's e-mail).
+
+	In the past, kernel userspace API changes were done during the
+devel series, but we don't have this option anymore. What I would like
+people to discuss is what are the best practice to perform kernel
+userspace API changes in 2.6.X.
+	I personally thought that I went beyond the usual practice by
+waiting 6 months, auditing all userspace and making sure the bits had
+propagated to distro. And let's not forget that the tools warn users
+about API mismatch.
+	If you feel we need 1 more month, that's perfectly ok with all
+of us. If your target is that some specific distros ship with
+compatible userspace, I can personally monitor that and report. You
+may want to be a bit more explicit in your standards, that would help
+all of us doing a better job.
+
+	Have fun...
+
+	Jean

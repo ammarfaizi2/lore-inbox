@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161931AbWJDRls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWJDRmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161931AbWJDRls (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 13:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWJDRhv
+	id S1422640AbWJDRmb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 13:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWJDRmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:37:51 -0400
-Received: from www.osadl.org ([213.239.205.134]:1765 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161154AbWJDRht (ORCPT
+	Wed, 4 Oct 2006 13:42:08 -0400
+Received: from www.osadl.org ([213.239.205.134]:8421 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161154AbWJDRhw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:37:49 -0400
-Message-Id: <20061004172222.085685000@cruncher.tec.linutronix.de>
+	Wed, 4 Oct 2006 13:37:52 -0400
+Message-Id: <20061004172222.440991000@cruncher.tec.linutronix.de>
 References: <20061004172217.092570000@cruncher.tec.linutronix.de>
-Date: Wed, 04 Oct 2006 17:31:32 -0000
+Date: Wed, 04 Oct 2006 17:31:35 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
@@ -20,164 +20,93 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
        David Woodhouse <dwmw2@infradead.org>, Jim Gettys <jg@laptop.org>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 02/22] GTOD: persistent clock support, core
-Content-Disposition: inline; filename=gtod-persistent-clock-support-core.patch
+Subject: [patch 05/22] time: fix msecs_to_jiffies() bug
+Content-Disposition: inline; filename=time-fix-msecs_to_jiffies-bug.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: John Stultz <johnstul@us.ibm.com>
+From: Ingo Molnar <mingo@elte.hu>
 
-Persistent clock support: do proper timekeeping across suspend/resume.
+Fix multiple conversion bugs in msecs_to_jiffies().
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+The main problem is that this condition:
+
+	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
+
+overflows if HZ is smaller than 1000!
+
+This change is user-visible: for HZ=250 SUS-compliant poll()-timeout value of
+-20 is mistakenly converted to 'immediate timeout'.
+
+(The new dyntick code also triggered this, as it frequently creates 'lagging
+timer wheel' scenarios.)
+
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
- include/linux/hrtimer.h |    3 +++
- include/linux/time.h    |    1 +
- kernel/hrtimer.c        |    8 ++++++++
- kernel/timer.c          |   40 +++++++++++++++++++++++++++++++++++++++-
- 4 files changed, 51 insertions(+), 1 deletion(-)
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+ kernel/time.c |   43 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.18-mm3/include/linux/hrtimer.h
+Index: linux-2.6.18-mm3/kernel/time.c
 ===================================================================
---- linux-2.6.18-mm3.orig/include/linux/hrtimer.h	2006-10-04 18:13:53.000000000 +0200
-+++ linux-2.6.18-mm3/include/linux/hrtimer.h	2006-10-04 18:13:54.000000000 +0200
-@@ -146,6 +146,9 @@ extern void hrtimer_init_sleeper(struct 
- /* Soft interrupt function to run the hrtimer queues: */
- extern void hrtimer_run_queues(void);
+--- linux-2.6.18-mm3.orig/kernel/time.c	2006-10-04 18:13:54.000000000 +0200
++++ linux-2.6.18-mm3/kernel/time.c	2006-10-04 18:13:54.000000000 +0200
+@@ -500,15 +500,56 @@ unsigned int jiffies_to_usecs(const unsi
+ }
+ EXPORT_SYMBOL(jiffies_to_usecs);
  
-+/* Resume notification */
-+void hrtimer_notify_resume(void);
-+
- /* Bootup initialization: */
- extern void __init hrtimers_init(void);
- 
-Index: linux-2.6.18-mm3/include/linux/time.h
-===================================================================
---- linux-2.6.18-mm3.orig/include/linux/time.h	2006-10-04 18:13:53.000000000 +0200
-+++ linux-2.6.18-mm3/include/linux/time.h	2006-10-04 18:13:54.000000000 +0200
-@@ -92,6 +92,7 @@ extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
- extern seqlock_t xtime_lock;
- 
-+extern unsigned long read_persistent_clock(void);
- void timekeeping_init(void);
- 
- static inline unsigned long get_seconds(void)
-Index: linux-2.6.18-mm3/kernel/hrtimer.c
-===================================================================
---- linux-2.6.18-mm3.orig/kernel/hrtimer.c	2006-10-04 18:13:53.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/hrtimer.c	2006-10-04 18:13:54.000000000 +0200
-@@ -287,6 +287,14 @@ static unsigned long ktime_divns(const k
- #endif /* BITS_PER_LONG >= 64 */
- 
- /*
-+ * Timekeeping resumed notification
-+ */
-+void hrtimer_notify_resume(void)
-+{
-+	clock_was_set();
-+}
-+
 +/*
-  * Counterpart to lock_timer_base above:
-  */
- static inline
-Index: linux-2.6.18-mm3/kernel/timer.c
-===================================================================
---- linux-2.6.18-mm3.orig/kernel/timer.c	2006-10-04 18:13:53.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/timer.c	2006-10-04 18:13:54.000000000 +0200
-@@ -41,6 +41,9 @@
- #include <asm/timex.h>
- #include <asm/io.h>
- 
-+/* jiffies at the most recent update of wall time */
-+unsigned long wall_jiffies = INITIAL_JIFFIES;
-+
- u64 jiffies_64 __cacheline_aligned_in_smp = INITIAL_JIFFIES;
- 
- EXPORT_SYMBOL(jiffies_64);
-@@ -743,12 +746,27 @@ int timekeeping_is_continuous(void)
- 	return ret;
- }
- 
-+/**
-+ * read_persistent_clock -  Return time in seconds from the persistent clock.
++ * When we convert to jiffies then we interpret incoming values
++ * the following way:
 + *
-+ * Weak dummy function for arches that do not yet support it.
-+ * Returns seconds from epoch using the battery backed persistent clock.
-+ * Returns zero if unsupported.
++ * - negative values mean 'infinite timeout' (MAX_JIFFY_OFFSET)
 + *
-+ *  XXX - Do be sure to remove it once all arches implement it.
++ * - 'too large' values [that would result in larger than
++ *   MAX_JIFFY_OFFSET values] mean 'infinite timeout' too.
++ *
++ * - all other values are converted to jiffies by either multiplying
++ *   the input value by a factor or dividing it with a factor
++ *
++ * We must also be careful about 32-bit overflows.
 + */
-+unsigned long __attribute__((weak)) read_persistent_clock(void)
-+{
-+	return 0;
-+}
-+
- /*
-  * timekeeping_init - Initializes the clocksource and common timekeeping values
-  */
- void __init timekeeping_init(void)
+ unsigned long msecs_to_jiffies(const unsigned int m)
  {
- 	unsigned long flags;
-+	unsigned long sec = read_persistent_clock();
- 
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 
-@@ -758,11 +776,20 @@ void __init timekeeping_init(void)
- 	clocksource_calculate_interval(clock, tick_nsec);
- 	clock->cycle_last = clocksource_read(clock);
- 
-+	xtime.tv_sec = sec;
-+	xtime.tv_nsec = 0;
-+	set_normalized_timespec(&wall_to_monotonic,
-+		-xtime.tv_sec, -xtime.tv_nsec);
+-	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++	/*
++	 * Negative value, means infinite timeout:
++	 */
++	if ((int)m < 0)
+ 		return MAX_JIFFY_OFFSET;
 +
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- }
- 
- 
-+/* flag for if timekeeping is suspended */
- static int timekeeping_suspended;
-+/* time in seconds when suspend began */
-+static unsigned long timekeeping_suspend_time;
+ #if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
++	/*
++	 * HZ is equal to or smaller than 1000, and 1000 is a nice
++	 * round multiple of HZ, divide with the factor between them,
++	 * but round upwards:
++	 */
+ 	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
+ #elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
++	/*
++	 * HZ is larger than 1000, and HZ is a nice round multiple of
++	 * 1000 - simply multiply with the factor between them.
++	 *
++	 * But first make sure the multiplication result cannot
++	 * overflow:
++	 */
++	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++		return MAX_JIFFY_OFFSET;
 +
- /**
-  * timekeeping_resume - Resumes the generic timekeeping subsystem.
-  * @dev:	unused
-@@ -774,13 +801,23 @@ static int timekeeping_suspended;
- static int timekeeping_resume(struct sys_device *dev)
- {
- 	unsigned long flags;
-+	unsigned long now = read_persistent_clock();
- 
- 	write_seqlock_irqsave(&xtime_lock, flags);
--	/* restart the last cycle value */
+ 	return m * (HZ / MSEC_PER_SEC);
+ #else
++	/*
++	 * Generic case - multiply, round and divide. But first
++	 * check that if we are doing a net multiplication, that
++	 * we wouldnt overflow:
++	 */
++	if (HZ > MSEC_PER_SEC && m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++		return MAX_JIFFY_OFFSET;
 +
-+	if (now && (now > timekeeping_suspend_time)) {
-+		unsigned long sleep_length = now - timekeeping_suspend_time;
-+		xtime.tv_sec += sleep_length;
-+		jiffies_64 += (u64)sleep_length * HZ;
-+	}
-+	/* re-base the last cycle value */
- 	clock->cycle_last = clocksource_read(clock);
- 	clock->error = 0;
- 	timekeeping_suspended = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+
-+	hrtimer_notify_resume();
-+
- 	return 0;
- }
- 
-@@ -790,6 +827,7 @@ static int timekeeping_suspend(struct sy
- 
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	timekeeping_suspended = 1;
-+	timekeeping_suspend_time = read_persistent_clock();
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	return 0;
+ 	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
+ #endif
  }
 
 --

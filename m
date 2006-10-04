@@ -1,119 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030795AbWJDKTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030794AbWJDKV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030795AbWJDKTU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 06:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030788AbWJDKTU
+	id S1030794AbWJDKV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 06:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030797AbWJDKV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 06:19:20 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:48007 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030542AbWJDKTT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 06:19:19 -0400
-Date: Wed, 4 Oct 2006 06:19:18 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-scsi@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SCSI aic94xx: handle sysfs errors
-Message-ID: <20061004101918.GA17841@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 4 Oct 2006 06:21:57 -0400
+Received: from wx-out-0506.google.com ([66.249.82.236]:56098 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030794AbWJDKV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 06:21:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index:message-id;
+        b=St/fO0A+GDt97eojXF8i25mWENs4lYDT5UXkkjqCRvmnuhf21YlzCSrp5i7EfEE3oXskqRrKC7W4bB2I3gy4bmXnNIHVS+nXcj/mNa4t+ZBB33i7KFrZTeHjjLX069/oKIiAFXjj6gAOAqC8vnINkxlsDfk6QimW3uvsyz69fv8=
+From: "Chris Lee" <labmonkey42@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, "'Ju, Seokmann'" <Seokmann.Ju@lsil.com>,
+       <linux-scsi@vger.kernel.org>, <Neela.Kolli@engenio.com>
+Subject: RE: Problem with legacy megaraid
+Date: Wed, 4 Oct 2006 05:21:55 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+Thread-Index: AcblH0H1o/3Jk+L5TPSSVpEakJV4UwABL70gAJ6ay2A=
+Message-ID: <45238b42.596f8da9.6d92.ffff908d@mx.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > > 
+> > > > > Distro: Gentoo Linux
+> > > > > Kernel: 2.6.17-gentoo-r7
+> > > > > 
+> > > > > Hardware:
+> > > > > Motherboard: Tyan Thunder i7501 Pro (S2721-533)
+> > > > > CPUs: Dual 2.8Ghz P4 HT Xeons
+> > > > > RAM: 4GB registered (3/1 split, flat model)
+> > > > > RAID: Dell PERC2/DC (AMI Megaraid 467)
+> > > > > SCSI: Adaptec AHA-2940U2/U2W PCI
+> > > > > NICs: onboard e100 and dual onboard e1000
+> > > > > 
+> > 
+> > Did it work correctly under any earlier kernel version?  If 
+> > so, which?
+> 
+> I've recently built the system and the problem was present 
+> with both 2.6.16-gentoo-r4 and now 2.6.17-gentoo-r7.  I've 
+> not used any earlier kernel versions in this system.
 
-Handle and unwind from errors returned by driver model functions.
+To update... I've rolled back to 2.6.{12,11,9} and can still reproduce the
+problem on all of them.  I'm out of ideas as to where I can look for the
+cause.  If anyone (LSI, Dell people maybe?) has any ideas please let me
+know.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Thanks,
+Chris  
 
----
-
- drivers/scsi/aic94xx/aic94xx_init.c |   41 ++++++++++++++++++++++++++++--------
- 1 files changed, 33 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
-index ee2ccad..418e789 100644
---- a/drivers/scsi/aic94xx/aic94xx_init.c
-+++ b/drivers/scsi/aic94xx/aic94xx_init.c
-@@ -310,11 +310,29 @@ static ssize_t asd_show_dev_pcba_sn(stru
- }
- static DEVICE_ATTR(pcba_sn, S_IRUGO, asd_show_dev_pcba_sn, NULL);
- 
--static void asd_create_dev_attrs(struct asd_ha_struct *asd_ha)
-+static int asd_create_dev_attrs(struct asd_ha_struct *asd_ha)
- {
--	device_create_file(&asd_ha->pcidev->dev, &dev_attr_revision);
--	device_create_file(&asd_ha->pcidev->dev, &dev_attr_bios_build);
--	device_create_file(&asd_ha->pcidev->dev, &dev_attr_pcba_sn);
-+	int err;
-+
-+	err = device_create_file(&asd_ha->pcidev->dev, &dev_attr_revision);
-+	if (err)
-+		return err;
-+
-+	err = device_create_file(&asd_ha->pcidev->dev, &dev_attr_bios_build);
-+	if (err)
-+		goto err_rev;
-+
-+	err = device_create_file(&asd_ha->pcidev->dev, &dev_attr_pcba_sn);
-+	if (err)
-+		goto err_biosb;
-+	
-+	return 0;
-+
-+err_biosb:
-+	device_remove_file(&asd_ha->pcidev->dev, &dev_attr_bios_build);
-+err_rev:
-+	device_remove_file(&asd_ha->pcidev->dev, &dev_attr_revision);
-+	return err;
- }
- 
- static void asd_remove_dev_attrs(struct asd_ha_struct *asd_ha)
-@@ -646,7 +664,9 @@ static int __devinit asd_pci_probe(struc
- 	}
- 	ASD_DPRINTK("escbs posted\n");
- 
--	asd_create_dev_attrs(asd_ha);
-+	err = asd_create_dev_attrs(asd_ha);
-+	if (err)
-+		goto Err_dev_attrs;
- 
- 	err = asd_register_sas_ha(asd_ha);
- 	if (err)
-@@ -669,6 +689,7 @@ Err_en_phys:
- 	asd_unregister_sas_ha(asd_ha);
- Err_reg_sas:
- 	asd_remove_dev_attrs(asd_ha);
-+Err_dev_attrs:
- Err_escbs:
- 	asd_disable_ints(asd_ha);
- 	free_irq(dev->irq, asd_ha);
-@@ -755,9 +776,9 @@ static ssize_t asd_version_show(struct d
- }
- static DRIVER_ATTR(version, S_IRUGO, asd_version_show, NULL);
- 
--static void asd_create_driver_attrs(struct device_driver *driver)
-+static int asd_create_driver_attrs(struct device_driver *driver)
- {
--	driver_create_file(driver, &driver_attr_version);
-+	return driver_create_file(driver, &driver_attr_version);
- }
- 
- static void asd_remove_driver_attrs(struct device_driver *driver)
-@@ -835,10 +856,14 @@ static int __init aic94xx_init(void)
- 	if (err)
- 		goto out_release_transport;
- 
--	asd_create_driver_attrs(&aic94xx_pci_driver.driver);
-+	err = asd_create_driver_attrs(&aic94xx_pci_driver.driver);
-+	if (err)
-+		goto out_unregister_pcidrv;
- 
- 	return err;
- 
-+ out_unregister_pcidrv:
-+	pci_unregister_driver(&aic94xx_pci_driver);
-  out_release_transport:
- 	sas_release_transport(aic94xx_transport_template);
-  out_destroy_caches:

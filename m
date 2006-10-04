@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030692AbWJDBoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030693AbWJDBq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030692AbWJDBoN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 21:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030693AbWJDBoN
+	id S1030693AbWJDBq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 21:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030695AbWJDBq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 21:44:13 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33212 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030692AbWJDBoL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 21:44:11 -0400
-Date: Wed, 4 Oct 2006 11:43:34 +1000
-From: David Chinner <dgc@sgi.com>
-To: David Chinner <dgc@sgi.com>
-Cc: Chris Wedgwood <cw@f00f.org>, xfs-dev@sgi.com, xfs@oss.sgi.com,
-       dhowells@redhat.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/3] Convert XFS inode hashes to radix trees
-Message-ID: <20061004014334.GZ4695059@melbourne.sgi.com>
-References: <20061003060610.GV3024@melbourne.sgi.com> <20061003212335.GA13120@tuatara.stupidest.org> <20061003222256.GW4695059@melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061003222256.GW4695059@melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 3 Oct 2006 21:46:57 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:22870 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030693AbWJDBq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 21:46:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=QPCFFufW/77zMqlfzsEazJzNpB05K/3KbXbnr3PCyFI5SyLpqO3rGA7sugjZ4EJqM5gqb2ECa2Gco/8yxrsRhfwxuWCM7ElyCd0JmPJD8hoeTQmrfHslU8VGVFldplxkAbpsSG2lX4pDlAFiJK+GGEAZtk454jAsmShl1aa8wqU=  ;
+Message-ID: <45231299.1000601@yahoo.com.au>
+Date: Wed, 04 Oct 2006 11:47:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+References: <1159916644.8035.35.camel@localhost.localdomain>	<20061003170705.6a75f4dd.akpm@osdl.org>	<1159920569.8035.71.camel@localhost.localdomain> <20061003181452.778291fb.akpm@osdl.org>
+In-Reply-To: <20061003181452.778291fb.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 08:22:56AM +1000, David Chinner wrote:
-> On Tue, Oct 03, 2006 at 02:23:35PM -0700, Chris Wedgwood wrote:
-> > On Tue, Oct 03, 2006 at 04:06:10PM +1000, David Chinner wrote:
-> > > Overall, the patchset removes more than 200 lines of code from the
-> > > xfs inode caching and lookup code and provides more consistent
-> > > scalability for large numbers of cached inodes. The only down side
-> > > is that it limits us to 32 bit inode numbers of 32 bit platforms due
-> > > to the way the radix tree uses unsigned longs for it's indexes
-> > 
-> >     commit afefdbb28a0a2af689926c30b94a14aea6036719
-> >     tree 6ee500575cac928cd90045bcf5b691cf2b8daa09
-> >     parent 1d32849b14bc8792e6f35ab27dd990d74b16126c
-> >     author David Howells <dhowells@redhat.com> 1159863226 -0700
-> >     committer Linus Torvalds <torvalds@g5.osdl.org> 1159887820 -0700
-> > 
-> >     [PATCH] VFS: Make filldir_t and struct kstat deal in 64-bit inode numbers
-> > 
-> >     These patches make the kernel pass 64-bit inode numbers internally when
-> >     communicating to userspace, even on a 32-bit system.  They are required
-> >     because some filesystems have intrinsic 64-bit inode numbers: NFS3+ and XFS
-> >     for example.  The 64-bit inode numbers are then propagated to userspace
-> >     automatically where the arch supports it.
-> >     [...]
-> > 
-> > Doing this will mean XFS won't be able to support 32-bit inodes on
-> > 32-bit platforms the above (merged) patch --- though given that cheap
-> > 64-bit systems are now abundant does anyone really care?
+Andrew Morton wrote:
+> On Tue, 03 Oct 2006 17:09:29 -0700
+> Tim Chen <tim.c.chen@linux.intel.com> wrote:
 > 
-> That's a good question. In a recent thread on linux-fsdevel about
-> these patches Christoph Hellwig pointed out that 32bit user space is
-> not ready for 64 bit inodes, so it's probably going to be a while
-> before the second half of this mod is ready (which exports 64 bit
-> inodes ito userspace on 32bit platforms).
+> 
+>>On Tue, 2006-10-03 at 17:07 -0700, Andrew Morton wrote:
+>>
+>>
+>>>Perhaps the `static int __warn_once' is getting put in the same cacheline
+>>>as some frequently-modified thing.   Perhaps try marking that as __read_mostly?
+>>>
+>>
+>>I've tried marking static int __warn_once as __read_mostly.  However, it
+>>did not help with reducing the cache miss :(
+>>
+>>So I would suggest reversing the "Let WARN_ON/WARN_ON_ONCE return the
+>>condition" patch.  It has just been added 3 days ago so reversing it
+>>should not be a problem.
+>>
+> 
+> 
+> Not yet, please.  This is presently a mystery, and we need to work out
+> what's going on.
 
-Ahhh.... I think I misread what Chris wrote here - _32_ bit inodes on
-32 bit platforms not working? I can't see how this would be the
-case with the mods I posted given that they are entirely internal to
-XFS and don't change any external inode number interfaces. And the
-above commit shouldn't break XFS either.
+Still, it seems kind of odd to add this IMO. Especially the WARN_ON_ONCE
+makes the if statement less readable.
 
-Cheers,
+   if (WARN_ON_ONCE(blah)) {
+   }
 
-Dave.
+What does that mean? Without looking at the implementation, that says
+the condition is true at most once, when the warning is printed.
+
+What's wrong with adding WARN and WARN_ONCE, and eating the single extra
+line? You're always telling people to do that with assignments (which I
+agree with, but are _more_ readable than this WARN_ON_ONCE thing).
+
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

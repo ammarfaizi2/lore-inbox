@@ -1,542 +1,306 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030710AbWJDCtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030723AbWJDC5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030710AbWJDCtf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030715AbWJDCtf
+	id S1030723AbWJDC5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030726AbWJDC5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:49:35 -0400
-Received: from tango.0pointer.de ([217.160.223.3]:5395 "EHLO tango.0pointer.de")
-	by vger.kernel.org with ESMTP id S1030710AbWJDCtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:49:33 -0400
-Date: Wed, 4 Oct 2006 04:49:27 +0200
-From: Lennart Poettering <mzxreary@0pointer.de>
-To: len.brown@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       dtor@insightbb.com, akpm@osdl.org
-Subject: [PATCH] misc,acpi,backlight: MSI S270 Laptop support, fifth try
-Message-ID: <20061004024927.GA27716@ecstasy.ring2.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: .phi.
-X-Campaign-1: ()  ASCII Ribbon Campaign
-X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
-X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
-X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
-X-Disclaimer-3: keiner Unterschrift.
-User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
+	Tue, 3 Oct 2006 22:57:16 -0400
+Received: from hentges.net ([81.169.178.128]:41367 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1030723AbWJDC5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:57:14 -0400
+Subject: Re: sky2 (was Re: 2.6.18-mm2)
+From: Matthias Hentges <oe@hentges.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <20060928161956.5262e5d3@freekitty>
+References: <20060928155053.7d8567ae.akpm@osdl.org>
+	 <451C5599.80402@garzik.org>  <20060928161956.5262e5d3@freekitty>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6Ehl40AvaUWvso+2YNWW"
+Date: Wed, 04 Oct 2006 04:57:08 +0200
+Message-Id: <1159930628.16765.9.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Lennart Poettering <mzxreary@0pointer.de>
 
-A driver for the special features of MSI S270 laptops (and maybe other
-MSI laptops). This driver implements a backlight device for
-controlling LCD brightness (/sys/class/backlight/msi-laptop-bl/).  In
-addition it allows access to the WLAN and Bluetooth states through a
-platform driver (/sys/devices/platform/msi-laptop-pf/).
-
-Signed-off-by: Lennart Poettering <mzxreary@0pointer.de>
----
-
-This is the fifth version of this driver. Changes to the previous
-version are mostly cosmetics: on request of Andrew Morton I replaced
-indentation with spaces by tabs (by passing it through "unexpand"). 
-
-On request of Dmitry Torokhov I replaced
-calls to platform_device_register_simple() by
-platform_device_alloc()/platform_device_add().
-
-Applies to Len Brown's current linux-acpi tree.
-
-Len, please merge!
-
-Thanks,
-        Lennart
-
- MAINTAINERS               |    7 +
- drivers/acpi/ec.c         |    2 
- drivers/misc/Kconfig      |   19 ++
- drivers/misc/Makefile     |    1 
- drivers/misc/msi-laptop.c |  395 +++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 424 insertions(+), 0 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 23348c0..0d99de9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1978,6 +1978,13 @@ M:	rubini@ipvvis.unipv.it
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
-+MSI LAPTOP SUPPORT
-+P:	Lennart Poettering
-+M:	mzxreary@0pointer.de
-+L:	https://tango.0pointer.de/mailman/listinfo/s270-linux
-+W:	http://0pointer.de/lennart/tchibo.html
-+S:	Maintained
-+
- MTRR AND SIMILAR SUPPORT [i386]
- P:	Richard Gooch
- M:	rgooch@atnf.csiro.au
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index ae05e8c..e6d4b08 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -384,6 +384,8 @@ extern int ec_transaction(u8 command,
- 				   wdata_len, rdata, rdata_len);
- }
- 
-+EXPORT_SYMBOL(ec_transaction);
-+
- static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
- {
- 	int result;
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 7fc692a..d25b0db 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -28,5 +28,24 @@ config IBM_ASM
- 
- 	  If unsure, say N.
- 
-+config MSI_LAPTOP
-+        tristate "MSI Laptop Extras"
-+        depends on X86
-+        depends on ACPI_EC
-+        depends on BACKLIGHT_CLASS_DEVICE
-+        ---help---
-+          This is a driver for laptops built by MSI (MICRO-STAR 
-+	  INTERNATIONAL):
-+	      
-+	      MSI MegaBook S270 (MS-1013)
-+	      Cytron/TCM/Medion/Tchibo MD96100/SAM2000
-+	   
-+	  It adds support for Bluetooth, WLAN and LCD brightness control.
-+
-+          More information about this driver is available at
-+          <http://0pointer.de/lennart/tchibo.html>.
-+
-+          If you have an MSI S270 laptop, say Y or M here.
-+
- endmenu
- 
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 19c2b85..1328c5f 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -5,3 +5,4 @@ obj- := misc.o	# Dummy rule to force bui
- 
- obj-$(CONFIG_IBM_ASM)	+= ibmasm/
- obj-$(CONFIG_HDPU_FEATURES)	+= hdpuftrs/
-+obj-$(CONFIG_MSI_LAPTOP)     += msi-laptop.o
-diff --git a/drivers/misc/msi-laptop.c b/drivers/misc/msi-laptop.c
-new file mode 100644
-index 0000000..1f5938a
---- /dev/null
-+++ b/drivers/misc/msi-laptop.c
-@@ -0,0 +1,395 @@
-+/*-*-linux-c-*-*/
-+
-+/***
-+  Copyright (C) 2006 Lennart Poettering <mzxreary (at) 0pointer (dot) de>
-+
-+  This program is free software; you can redistribute it and/or modify
-+  it under the terms of the GNU General Public License as published by
-+  the Free Software Foundation; either version 2 of the License, or
-+  (at your option) any later version.
-+
-+  This program is distributed in the hope that it will be useful, but
-+  WITHOUT ANY WARRANTY; without even the implied warranty of
-+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+  General Public License for more details.
-+
-+  You should have received a copy of the GNU General Public License
-+  along with this program; if not, write to the Free Software
-+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+  02110-1301, USA.
-+***/
-+
-+/*
-+ * msi-laptop.c - MSI S270 laptop support. This laptop is sold under
-+ * various brands, including "Cytron/TCM/Medion/Tchibo MD96100".
-+ *
-+ * This driver exports a few files in /sys/devices/platform/msi-laptop-pf/:
-+ *
-+ *   lcd_level - Screen brightness: contains a single integer in the
-+ *   range 0..8. (rw)
-+ * 
-+ *   auto_brightness - Enable automatic brightness control: contains
-+ *   either 0 or 1. If set to 1 the hardware adjusts the screen
-+ *   brightness automatically when the power cord is
-+ *   plugged/unplugged. (rw)
-+ *
-+ *   wlan - WLAN subsystem enabled: contains either 0 or 1. (ro)
-+ *
-+ *   bluetooth - Bluetooth subsystem enabled: contains either 0 or 1
-+ *   Please note that this file is constantly 0 if no Bluetooth
-+ *   hardware is available. (ro)
-+ *
-+ * In addition to these platform device attributes the driver
-+ * registers itself in the Linux backlight control subsystem and is
-+ * available to userspace under /sys/class/backlight/msi-laptop-bl/.
-+ *
-+ * This driver might work on other laptops produced by MSI. If you
-+ * want to try it you can pass force=1 as argument to the module which
-+ * will force it to load even when the DMI data doesn't identify the
-+ * laptop as MSI S270. YMMV.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/acpi.h>
-+#include <linux/dmi.h>
-+#include <linux/backlight.h>
-+#include <linux/platform_device.h>
-+#include <linux/autoconf.h>
-+
-+#define MSI_DRIVER_VERSION "0.5"
-+
-+#define MSI_LCD_LEVEL_MAX 9
-+
-+#define MSI_EC_COMMAND_WIRELESS 0x10
-+#define MSI_EC_COMMAND_LCD_LEVEL 0x11
-+
-+static int force;
-+module_param(force, bool, 0);
-+MODULE_PARM_DESC(force, "Force driver load, ignore DMI data");
-+
-+static int auto_brightness;
-+module_param(auto_brightness, int, 0);
-+MODULE_PARM_DESC(auto_brightness, "Enable automatic brightness control (0: disabled; 1: enabled; 2: don't touch)");
-+
-+/* Hardware access */
-+
-+static int set_lcd_level(int level)
-+{
-+	u8 buf[2];
-+	
-+	if (level < 0 || level >= MSI_LCD_LEVEL_MAX)
-+		return -EINVAL;
-+	
-+	buf[0] = 0x80;
-+	buf[1] = (u8) (level*31);
-+	
-+	return ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, buf, sizeof(buf), NULL, 0);
-+}
-+
-+static int get_lcd_level(void)
-+{
-+	u8 wdata = 0, rdata;
-+	int result;
-+
-+	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1);
-+	if (result < 0)
-+		return result;
-+
-+	return (int) rdata / 31;
-+}
-+
-+static int get_auto_brightness(void)
-+{
-+	u8 wdata = 4, rdata;
-+	int result;
-+
-+	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1);
-+	if (result < 0)
-+		return result;
-+
-+	return !!(rdata & 8);
-+}
-+
-+static int set_auto_brightness(int enable)
-+{
-+	u8 wdata[2], rdata;
-+	int result;
-+	
-+	wdata[0] = 4;
-+
-+	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, wdata, 1, &rdata, 1);
-+	if (result < 0)
-+		return result;
-+	    
-+	wdata[0] = 0x84;
-+	wdata[1] = (rdata & 0xF7) | (enable ? 8 : 0);
-+
-+	return ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, wdata, 2, NULL, 0);
-+}
-+
-+static int get_wireless_state(int *wlan, int *bluetooth)
-+{
-+	u8 wdata = 0, rdata;
-+	int result;
-+
-+	result = ec_transaction(MSI_EC_COMMAND_WIRELESS, &wdata, 1, &rdata, 1);
-+	if (result < 0)
-+		return -1;
-+
-+	if (wlan)
-+		*wlan = !!(rdata & 8);
-+
-+	if (bluetooth)
-+		*bluetooth = !!(rdata & 128);
-+	
-+	return 0;
-+}
-+
-+/* Backlight device stuff */
-+
-+static int bl_get_brightness(struct backlight_device *b)
-+{
-+	return get_lcd_level();
-+}
-+
-+
-+static int bl_update_status(struct backlight_device *b)
-+{
-+	return set_lcd_level(b->props->brightness);
-+}
-+
-+static struct backlight_properties msibl_props = {
-+	.owner		= THIS_MODULE,
-+	.get_brightness = bl_get_brightness,
-+	.update_status  = bl_update_status,
-+	.max_brightness = MSI_LCD_LEVEL_MAX-1,
-+};
-+
-+static struct backlight_device *msibl_device;
-+
-+/* Platform device */
-+
-+static ssize_t show_wlan(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+
-+	int ret, enabled;
-+
-+	ret = get_wireless_state(&enabled, NULL);
-+	if (ret < 0)
-+		return ret;
-+
-+	return sprintf(buf, "%i\n", enabled);
-+}
-+
-+static ssize_t show_bluetooth(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+
-+	int ret, enabled;
-+
-+	ret = get_wireless_state(NULL, &enabled);
-+	if (ret < 0)
-+		return ret;
-+
-+	return sprintf(buf, "%i\n", enabled);
-+}
-+
-+static ssize_t show_lcd_level(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+
-+	int ret;
-+
-+	ret = get_lcd_level();
-+	if (ret < 0)
-+		return ret;
-+	
-+	return sprintf(buf, "%i\n", ret);
-+}
-+
-+static ssize_t store_lcd_level(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	
-+	int level, ret;
-+
-+	if (sscanf(buf, "%i", &level) != 1 || (level < 0 || level >= MSI_LCD_LEVEL_MAX))
-+		return -EINVAL;
-+
-+	ret = set_lcd_level(level);
-+	if (ret < 0)
-+		return ret;
-+	
-+	return count;
-+}
-+
-+static ssize_t show_auto_brightness(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+
-+	int ret;
-+
-+	ret = get_auto_brightness();
-+	if (ret < 0)
-+		return ret;
-+	
-+	return sprintf(buf, "%i\n", ret);
-+}
-+
-+static ssize_t store_auto_brightness(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	
-+	int enable, ret;
-+
-+	if (sscanf(buf, "%i", &enable) != 1 || (enable != (enable & 1)))
-+		return -EINVAL;
-+
-+	ret = set_auto_brightness(enable);
-+	if (ret < 0)
-+		return ret;
-+	
-+	return count;
-+}
-+
-+static DEVICE_ATTR(lcd_level, 0644, show_lcd_level, store_lcd_level);
-+static DEVICE_ATTR(auto_brightness, 0644, show_auto_brightness, store_auto_brightness);
-+static DEVICE_ATTR(bluetooth, 0444, show_bluetooth, NULL);
-+static DEVICE_ATTR(wlan, 0444, show_wlan, NULL);
-+
-+static struct attribute *msipf_attributes[] = {
-+	&dev_attr_lcd_level.attr,
-+	&dev_attr_auto_brightness.attr,
-+	&dev_attr_bluetooth.attr,
-+	&dev_attr_wlan.attr,
-+	NULL
-+};
-+
-+static struct attribute_group msipf_attribute_group = {
-+	.attrs = msipf_attributes
-+};
-+
-+static struct platform_driver msipf_driver = {
-+	.driver = {
-+		.name = "msi-laptop-pf",
-+		.owner = THIS_MODULE,
-+	}
-+};
-+
-+static struct platform_device *msipf_device;
-+
-+/* Initialization */
-+
-+static struct dmi_system_id __initdata msi_dmi_table[] = {
-+	{
-+		.ident = "MSI S270",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
-+		}
-+	},
-+	{
-+		.ident = "Medion MD96100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
-+		}
-+	},
-+	{ }
-+};
-+
-+
-+static int __init msi_init(void)
-+{
-+	int ret;
-+
-+	if (acpi_disabled)
-+		return -ENODEV;
-+
-+	if (!force && !dmi_check_system(msi_dmi_table))
-+		return -ENODEV;
-+
-+	if (auto_brightness < 0 || auto_brightness > 2)
-+		return -EINVAL;
-+
-+	/* Register backlight stuff */
-+	
-+	msibl_device = backlight_device_register("msi-laptop-bl", NULL, &msibl_props);
-+	if (IS_ERR(msibl_device))
-+		return PTR_ERR(msibl_device);
-+
-+	ret = platform_driver_register(&msipf_driver);
-+	if (ret)
-+		goto fail_backlight;
-+
-+	/* Register platform stuff */
-+	
-+	msipf_device = platform_device_alloc("msi-laptop-pf", -1);
-+	if (!msipf_device) {
-+		ret = -ENOMEM;
-+		goto fail_platform_driver;
-+	}
-+
-+	ret = platform_device_add(msipf_device);
-+	if (ret)
-+		goto fail_platform_device1;
-+
-+	ret = sysfs_create_group(&msipf_device->dev.kobj, &msipf_attribute_group);
-+	if (ret)
-+		goto fail_platform_device2;
-+
-+	/* Disable automatic brightness control by default because
-+	 * this module was probably loaded to do brightness control in
-+	 * software. */
-+
-+	if (auto_brightness != 2)
-+		set_auto_brightness(auto_brightness);
-+	
-+	printk(KERN_INFO "msi-laptop: driver "MSI_DRIVER_VERSION" successfully loaded.\n");
-+	
-+	return 0;
-+
-+fail_platform_device2:
-+	
-+	platform_device_del(msipf_device);
-+
-+fail_platform_device1:
-+	
-+	platform_device_put(msipf_device);
-+	
-+fail_platform_driver:
-+
-+	platform_driver_unregister(&msipf_driver);
-+	
-+fail_backlight:
-+
-+	backlight_device_unregister(msibl_device);
-+	
-+	return ret;
-+}
-+
-+static void __exit msi_cleanup(void)
-+{
-+
-+	sysfs_remove_group(&msipf_device->dev.kobj, &msipf_attribute_group);
-+	platform_device_unregister(msipf_device);
-+	platform_driver_unregister(&msipf_driver);
-+	backlight_device_unregister(msibl_device);
-+
-+	/* Enable automatic brightness control again */
-+	if (auto_brightness != 2)
-+		set_auto_brightness(1);     
-+
-+	printk(KERN_INFO "msi-laptop: driver unloaded.\n");
-+}
-+
-+module_init(msi_init);
-+module_exit(msi_cleanup);
-+
-+MODULE_AUTHOR("Lennart Poettering");
-+MODULE_DESCRIPTION("MSI Laptop Support");
-+MODULE_VERSION(MSI_DRIVER_VERSION);
-+MODULE_LICENSE("GPL");
--- 
-1.4.1.1
+--=-6Ehl40AvaUWvso+2YNWW
+Content-Type: multipart/mixed; boundary="=-+/UvUxX3IrowdoRyOsCq"
 
 
--- 
-Lennart Poettering; lennart [at] poettering [dot] net
-ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/
-     
+--=-+/UvUxX3IrowdoRyOsCq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hello Stephen,
+
+Am Donnerstag, den 28.09.2006, 16:19 -0700 schrieb Stephen Hemminger:
+
+> Here is the debug patch I sent to the first reporter of the problem.
+> I know what the offset is supposed to be, so if the PCI subsystem is
+> wrong, this will show.=20
+>=20
+> --- sky2.orig/drivers/net/sky2.c	2006-09-28 08:45:27.000000000 -0700
+> +++ sky2/drivers/net/sky2.c	2006-09-28 08:51:24.000000000 -0700
+> @@ -2463,6 +2463,7 @@
+> =20
+>  	sky2_write8(hw, B0_CTST, CS_MRST_CLR);
+> =20
+> +#define PEX_UNC_ERR_STAT 0x104		/* PCI extended error capablity */
+>  	/* clear any PEX errors */
+>  	if (pci_find_capability(hw->pdev, PCI_CAP_ID_EXP)) {
+>  		hw->err_cap =3D pci_find_ext_capability(hw->pdev, PCI_EXT_CAP_ID_ERR);
+> @@ -2470,6 +2471,15 @@
+>  			sky2_pci_write32(hw,
+>  					 hw->err_cap + PCI_ERR_UNCOR_STATUS,
+>  					 0xffffffffUL);
+> +		else
+> +			printk(KERN_ERR PFX "pci express found but not extended error support=
+?\n");
+> +	=09
+> +		if (hw->err_cap + PCI_ERR_UNCOR_STATUS !=3D PEX_UNC_ERR_STAT) {
+> +		=09
+> +			printk(KERN_ERR PFX "pci express error status register fixed from %#x=
+ to %#x\n",
+> +			       hw->err_cap, PEX_UNC_ERR_STAT - PCI_ERR_UNCOR_STATUS);
+> +			hw->err_cap =3D PEX_UNC_ERR_STAT - PCI_ERR_UNCOR_STATUS;
+> +		}
+>  	}
+> =20
+>  	hw->pmd_type =3D sky2_read8(hw, B2_PMD_TYP);
+
+while the above patch indeed removes the error messages from my previous
+mail, I have since seen random but reproduceable  freezes of the box in
+question. I believe they are sky2 related since the freeze can be
+triggered by continuous network traffic (like playing a movie over NFS
+etc.).
+
+The freezes only happen with 2.6.18-mm2 and 2.6.18-mm3. 2.6.18-mm1 works
+perfectly fine.
+I've hooked up the box to my laptop via a serial cable and captured all
+kernel messages from booting up the machine to the freeze. You'll note
+that the last messages are from the sky2 driver ;)
+
+Once frozen the network is dead, the screen won't wake up from suspend
+and CAPSLOCK can not be toggled. SYSRQ (sp?) still works tho.
+
+Any help in debugging this problem would be appreciated =3D)
+--=20
+Matthias 'CoreDump' Hentges=20
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-+/UvUxX3IrowdoRyOsCq
+Content-Disposition: attachment; filename=p5w-freeze_2.6.18-mm3.cap.gz
+Content-Type: application/x-gzip; name=p5w-freeze_2.6.18-mm3.cap.gz
+Content-Transfer-Encoding: base64
+
+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
+gkPdSIMAAK==
+
+
+--=-+/UvUxX3IrowdoRyOsCq--
+
+--=-6Ehl40AvaUWvso+2YNWW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFIyMDAq2P5eLUP5IRAvngAJ4qO+uFLyRxUWyQPGArvLnJkaU0ugCg8N47
+gJgYokkaKOdxpAloESF9Ls4=
+=B9d5
+-----END PGP SIGNATURE-----
+
+--=-6Ehl40AvaUWvso+2YNWW--
+

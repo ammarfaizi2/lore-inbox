@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWJDRmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWJDRok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWJDRmb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 13:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbWJDRmI
+	id S1422632AbWJDRok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 13:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422631AbWJDRlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:42:08 -0400
-Received: from www.osadl.org ([213.239.205.134]:8421 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161154AbWJDRhw (ORCPT
+	Wed, 4 Oct 2006 13:41:50 -0400
+Received: from www.osadl.org ([213.239.205.134]:24037 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161907AbWJDRh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:37:52 -0400
-Message-Id: <20061004172222.440991000@cruncher.tec.linutronix.de>
+	Wed, 4 Oct 2006 13:37:58 -0400
+Message-Id: <20061004172223.123504000@cruncher.tec.linutronix.de>
 References: <20061004172217.092570000@cruncher.tec.linutronix.de>
-Date: Wed, 04 Oct 2006 17:31:35 -0000
+Date: Wed, 04 Oct 2006 17:31:41 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
@@ -20,94 +20,185 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
        David Woodhouse <dwmw2@infradead.org>, Jim Gettys <jg@laptop.org>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 05/22] time: fix msecs_to_jiffies() bug
-Content-Disposition: inline; filename=time-fix-msecs_to_jiffies-bug.patch
+Subject: [patch 11/22] hrtimers: state tracking
+Content-Disposition: inline; filename=hrtimers-state-tracking.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Fix multiple conversion bugs in msecs_to_jiffies().
+Reintroduce ktimers feature "optimized away" by the ktimers review process:
+multiple hrtimer states to enable the running of hrtimers without holding the
+cpu-base-lock.
 
-The main problem is that this condition:
+(The "optimized" rbtree hack carried only 2 states worth of information and we
+need 4 for high resolution timers and dynamic ticks.)
 
-	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
+Build-fixes-from: Andrew Morton <akpm@osdl.org>
 
-overflows if HZ is smaller than 1000!
-
-This change is user-visible: for HZ=250 SUS-compliant poll()-timeout value of
--20 is mistakenly converted to 'immediate timeout'.
-
-(The new dyntick code also triggered this, as it frequently creates 'lagging
-timer wheel' scenarios.)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
- kernel/time.c |   43 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+ include/linux/hrtimer.h |   36 +++++++++++++++++++++++++++++++++++-
+ kernel/hrtimer.c        |   21 ++++++++++++++-------
+ 2 files changed, 49 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.18-mm3/kernel/time.c
+Index: linux-2.6.18-mm3/include/linux/hrtimer.h
 ===================================================================
---- linux-2.6.18-mm3.orig/kernel/time.c	2006-10-04 18:13:54.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/time.c	2006-10-04 18:13:54.000000000 +0200
-@@ -500,15 +500,56 @@ unsigned int jiffies_to_usecs(const unsi
- }
- EXPORT_SYMBOL(jiffies_to_usecs);
+--- linux-2.6.18-mm3.orig/include/linux/hrtimer.h	2006-10-04 18:13:56.000000000 +0200
++++ linux-2.6.18-mm3/include/linux/hrtimer.h	2006-10-04 18:13:56.000000000 +0200
+@@ -40,6 +40,34 @@ enum hrtimer_restart {
+ 	HRTIMER_RESTART,	/* Timer must be restarted */
+ };
  
 +/*
-+ * When we convert to jiffies then we interpret incoming values
-+ * the following way:
++ * Bit values to track state of the timer
 + *
-+ * - negative values mean 'infinite timeout' (MAX_JIFFY_OFFSET)
++ * Possible states:
 + *
-+ * - 'too large' values [that would result in larger than
-+ *   MAX_JIFFY_OFFSET values] mean 'infinite timeout' too.
++ * 0x00		inactive
++ * 0x01		enqueued into rbtree
++ * 0x02		callback function running
++ * 0x03		callback function running and enqueued
++ *		(was requeued on another CPU)
 + *
-+ * - all other values are converted to jiffies by either multiplying
-+ *   the input value by a factor or dividing it with a factor
++ * The "callback function running and enqueued" status is only possible on
++ * SMP. It happens for example when a posix timer expired and the callback
++ * queued a signal. Between dropping the lock which protects the posix timer
++ * and reacquiring the base lock of the hrtimer, another CPU can deliver the
++ * signal and rearm the timer. We have to preserve the callback running state,
++ * as otherwise the timer could be removed before the softirq code finishes the
++ * the handling of the timer.
 + *
-+ * We must also be careful about 32-bit overflows.
++ * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
++ * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
++ *
++ * All state transitions are protected by cpu_base->lock.
 + */
- unsigned long msecs_to_jiffies(const unsigned int m)
- {
--	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+	/*
-+	 * Negative value, means infinite timeout:
-+	 */
-+	if ((int)m < 0)
- 		return MAX_JIFFY_OFFSET;
++#define HRTIMER_STATE_INACTIVE	0x00
++#define HRTIMER_STATE_ENQUEUED	0x01
++#define HRTIMER_STATE_CALLBACK	0x02
 +
- #if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-+	/*
-+	 * HZ is equal to or smaller than 1000, and 1000 is a nice
-+	 * round multiple of HZ, divide with the factor between them,
-+	 * but round upwards:
-+	 */
- 	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
- #elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
-+	/*
-+	 * HZ is larger than 1000, and HZ is a nice round multiple of
-+	 * 1000 - simply multiply with the factor between them.
-+	 *
-+	 * But first make sure the multiplication result cannot
-+	 * overflow:
-+	 */
-+	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+
- 	return m * (HZ / MSEC_PER_SEC);
- #else
-+	/*
-+	 * Generic case - multiply, round and divide. But first
-+	 * check that if we are doing a net multiplication, that
-+	 * we wouldnt overflow:
-+	 */
-+	if (HZ > MSEC_PER_SEC && m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+
- 	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
+ /**
+  * struct hrtimer - the basic hrtimer structure
+  * @node:	red black tree node for time ordered insertion
+@@ -48,6 +76,7 @@ enum hrtimer_restart {
+  *		which the timer is based.
+  * @function:	timer expiry callback function
+  * @base:	pointer to the timer base (per cpu and per clock)
++ * @state:	state information (See bit values above)
+  *
+  * The hrtimer structure must be initialized by init_hrtimer_#CLOCKTYPE()
+  */
+@@ -56,6 +85,7 @@ struct hrtimer {
+ 	ktime_t				expires;
+ 	enum hrtimer_restart		(*function)(struct hrtimer *);
+ 	struct hrtimer_clock_base	*base;
++	unsigned long			state;
+ };
+ 
+ /**
+@@ -141,9 +171,13 @@ extern int hrtimer_get_res(const clockid
+ extern ktime_t hrtimer_get_next_event(void);
  #endif
+ 
++/*
++ * A timer is active, when it is enqueued into the rbtree or the callback
++ * function is running.
++ */
+ static inline int hrtimer_active(const struct hrtimer *timer)
+ {
+-	return rb_parent(&timer->node) != &timer->node;
++	return timer->state != HRTIMER_STATE_INACTIVE;
  }
+ 
+ /* Forward a hrtimer so it expires after now: */
+Index: linux-2.6.18-mm3/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.18-mm3.orig/kernel/hrtimer.c	2006-10-04 18:13:56.000000000 +0200
++++ linux-2.6.18-mm3/kernel/hrtimer.c	2006-10-04 18:13:56.000000000 +0200
+@@ -385,6 +385,11 @@ static void enqueue_hrtimer(struct hrtim
+ 	 */
+ 	rb_link_node(&timer->node, parent, link);
+ 	rb_insert_color(&timer->node, &base->active);
++	/*
++	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
++	 * state of a possibly running callback.
++	 */
++	timer->state |= HRTIMER_STATE_ENQUEUED;
+ 
+ 	if (!base->first || timer->expires.tv64 <
+ 	    rb_entry(base->first, struct hrtimer, node)->expires.tv64)
+@@ -397,7 +402,8 @@ static void enqueue_hrtimer(struct hrtim
+  * Caller must hold the base lock.
+  */
+ static void __remove_hrtimer(struct hrtimer *timer,
+-			     struct hrtimer_clock_base *base)
++			     struct hrtimer_clock_base *base,
++			     unsigned long newstate)
+ {
+ 	/*
+ 	 * Remove the timer from the rbtree and replace the
+@@ -406,7 +412,7 @@ static void __remove_hrtimer(struct hrti
+ 	if (base->first == &timer->node)
+ 		base->first = rb_next(&timer->node);
+ 	rb_erase(&timer->node, &base->active);
+-	rb_set_parent(&timer->node, &timer->node);
++	timer->state = newstate;
+ }
+ 
+ /*
+@@ -416,7 +422,7 @@ static inline int
+ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base)
+ {
+ 	if (hrtimer_active(timer)) {
+-		__remove_hrtimer(timer, base);
++		__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE);
+ 		return 1;
+ 	}
+ 	return 0;
+@@ -488,7 +494,7 @@ int hrtimer_try_to_cancel(struct hrtimer
+ 
+ 	base = lock_hrtimer_base(timer, &flags);
+ 
+-	if (base->cpu_base->curr_timer != timer)
++	if (!(timer->state & HRTIMER_STATE_CALLBACK))
+ 		ret = remove_hrtimer(timer, base);
+ 
+ 	unlock_hrtimer_base(timer, &flags);
+@@ -593,7 +599,6 @@ void hrtimer_init(struct hrtimer *timer,
+ 		clock_id = CLOCK_MONOTONIC;
+ 
+ 	timer->base = &cpu_base->clock_base[clock_id];
+-	rb_set_parent(&timer->node, &timer->node);
+ }
+ EXPORT_SYMBOL_GPL(hrtimer_init);
+ 
+@@ -644,13 +649,14 @@ static inline void run_hrtimer_queue(str
+ 
+ 		fn = timer->function;
+ 		set_curr_timer(cpu_base, timer);
+-		__remove_hrtimer(timer, base);
++		__remove_hrtimer(timer, base, HRTIMER_STATE_CALLBACK);
+ 		spin_unlock_irq(&cpu_base->lock);
+ 
+ 		restart = fn(timer);
+ 
+ 		spin_lock_irq(&cpu_base->lock);
+ 
++		timer->state &= ~HRTIMER_STATE_CALLBACK;
+ 		if (restart != HRTIMER_NORESTART) {
+ 			BUG_ON(hrtimer_active(timer));
+ 			enqueue_hrtimer(timer, base);
+@@ -821,7 +827,8 @@ static void migrate_hrtimer_list(struct 
+ 
+ 	while ((node = rb_first(&old_base->active))) {
+ 		timer = rb_entry(node, struct hrtimer, node);
+-		__remove_hrtimer(timer, old_base);
++		BUG_ON(timer->state & HRTIMER_STATE_CALLBACK);
++		__remove_hrtimer(timer, old_base, HRTIMER_STATE_INACTIVE);
+ 		timer->base = new_base;
+ 		enqueue_hrtimer(timer, new_base);
+ 	}
 
 --
 

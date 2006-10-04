@@ -1,98 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030734AbWJDCfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030737AbWJDCfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030734AbWJDCfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030737AbWJDCfL
+	id S1030737AbWJDCfS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030738AbWJDCfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:35:11 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:55285 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030734AbWJDCfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:35:08 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=bO9u0Ev2Q7eS5de6rEabRVO87nhayddF3Rw8LtT5EJvvNGtFXgkdqELKgO4ZGy24b
-	n4+YdKGMLO6kGYNNIVXEg==
-Message-ID: <6599ad830610031934s41994158o59f1a2e58b1cb45e@mail.gmail.com>
-Date: Tue, 3 Oct 2006 19:34:55 -0700
-From: "Paul Menage" <menage@google.com>
-To: sekharan@us.ibm.com
-Subject: Re: [RFC][PATCH 0/4] Generic container system
-Cc: pj@sgi.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, winget@google.com, mbligh@google.com,
-       rohitseth@google.com, jlan@sgi.com
-In-Reply-To: <1159925752.24266.22.camel@linuxchandra>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 22:35:18 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:19946 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030737AbWJDCfP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:35:15 -0400
+Message-Id: <200610040233.k942Xk1v004859@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: tglx@linutronix.de
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch] dynticks core: Fix idle time accounting
+In-Reply-To: Your message of "Tue, 03 Oct 2006 22:02:30 +0200."
+             <1159905750.1386.215.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <20061001225720.115967000@cruncher.tec.linutronix.de> <200610021302.k92D23W1003320@turing-police.cc.vt.edu> <1159796582.1386.9.camel@localhost.localdomain> <200610021825.k92IPSnd008215@turing-police.cc.vt.edu> <1159814606.1386.52.camel@localhost.localdomain> <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu> <1159824158.1386.77.camel@localhost.localdomain> <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
+            <1159905750.1386.215.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1159929225_3990P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061002095319.865614000@menage.corp.google.com>
-	 <1159925752.24266.22.camel@linuxchandra>
+Date: Tue, 03 Oct 2006 22:33:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
->
-> Hi Paul,
->
-> Thanks for doing the exercise of removing the container part of cpuset
-> to provide some process aggregation.
->
-> With this model, I think I agree with you that RG can be split into
-> individual controllers (need to look at it closely).
->
-> I have few questions/concerns w.r.t this implementation:
->
-> - Since we are re-implementing anyways, why not use configfs instead of
->   having our own filesystem ?
+--==_Exmh_1159929225_3990P
+Content-Type: text/plain; charset=us-ascii
 
-The filesystem was lifted straight from cpuset.c, and hence isn't a
-reimplementation, it's a migration of code already in the tree. Wasn't
-there also a problem with the maximum output size of a configfs file,
-which would cause problems e.g. listing the task members in a
-container?
+On Tue, 03 Oct 2006 22:02:30 +0200, Thomas Gleixner said:
 
-> - I am little nervous about notify_on_release, as RG would want
->   classes/RGs to be available even when there are no tasks or sub-
->   classes. (Documentation says that the user level program can rmdir
->   the container, which would be a problem). Can the user level program
->   be _not_ called when there are other subsystems registered ? Also,
->   shouldn't it be cpuset specific, instead of global ?
+> I found a way to fix my thinkos. I put up a queue with all fixes to:
+> 
+> http://www.tglx.de/projects/hrtimers/2.6.18-mm3/patch-2.6.18-mm3-hrt-dyntick1.patches.tar.bz2
+> 
+> Can you please verify if it makes your problem go away ?
 
-This again is taken straight from cpusets. The idea is that if you
-don't have some kind of middleware polling the
-container/cpuset/res_group directories to see if they're empty, you
-can instead ask the kernel to call you back (via
-"container_release_agent") at a point when a container is empty and
-hence removable. I don't think there's any guarantee that the
-container will still be empty by the time the userspace agent runs.
+Was -dyntick3 by the time I got there.
 
-> - Export of the locks: These locks protect container data structures.
->   But, most of the usages in cpuset.c are to protect the cpuset data
->   structure itself. Shouldn't the cpuset subsystem have its own locks ?
->   IMO, these locks should be used by subsystem only when they want data
->   integrity in the container data structure itself (like walking thru
->   the sibling list).
+The user/system/idle/wait numbers now look sane, with one caveat:
 
-It would certainly be possible to have finer-grained locking. But the
-cpuset code seems pretty happy with coarse-grained locking (only one
-writer at any one time) and having just the two global locks does make
-the whole synchronization an awful lot simpler. There's nothing to
-stop you having additional analogues of the callback_mutex to protect
-specific data in a particular resource controller's private data.
+static const ktime_t nsec_per_hz = { .tv64 = NSEC_PER_SEC / HZ };
+...
+                if (unlikely(delta.tv64 >= nsec_per_hz.tv64)) {
+                        s64 incr = ktime_to_ns(nsec_per_hz);
+                        ticks = ktime_divns(delta, incr);
 
-My inclination would be to find a situation where generic fine-grained
-locking is really required before forcing it on all container
-subsystems. The locking model in RG is certainly finer-grained than in
-cpusets, but don't a lot of the operations end up taking the
-root_group->group_lock anyway as their first action?
+Even though I have CONFIG_HZ=1000, this ends up generating a synthetic
+count that works out to 100 per second.  gkrellm and vmstat are happy with
+that state of affairs, but I'm not sure why it came out to 100/sec rather
+than 1000/sec.
 
-> - Tight coupling of subsystems: I like your idea (you mentioned in a
->   reply to the previous thread) of having an array of containers in task
->   structure than the current implementation.
+% cat /proc/stat /proc/uptime
+cpu  28224 4688 9159 168290 9143 283 256 0
+cpu0 28224 4688 9159 168290 9143 283 256 0
+intr 818891 627337 3466 0 4 4 6459 3 7 1 1 4 160328 115 0 21162 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ctxt 971441
+btime 1159926408
+processes 4544
+procs_running 1
+procs_blocked 0
+nohz total I:367986 S:302473 T:1737.640072 A:0.005744 E: 625327
+2176.02 1775.11
 
-Can you suggest some scenarios that require this?
+Also, it still disagrees with speedstep - it isn't noticing the TSC has
+gone slow and drop back to the PM timer.
 
-Paul
+All in all, we're making progress. ;)
+
+--==_Exmh_1159929225_3990P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFIx2JcC3lWbTT17ARAsNuAKC1yguHkX1Cc8/5xZNiLFRhYSxYZACbBlkj
+ZWHNRZBX3H0p5vE4W+Sdm3A=
+=N3Xv
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159929225_3990P--

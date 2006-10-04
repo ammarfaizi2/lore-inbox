@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbWJDHv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030644AbWJDIB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161137AbWJDHv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWJDHv6
+	id S1030644AbWJDIB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 04:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWJDIB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:51:58 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:26372 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161137AbWJDHv5 (ORCPT
+	Wed, 4 Oct 2006 04:01:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3249 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030644AbWJDIB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:51:57 -0400
-Message-ID: <452367C7.70302@sw.ru>
-Date: Wed, 04 Oct 2006 11:50:31 +0400
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060725)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Stephen Tweedie <sct@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ext4@vger.kernel.org, devel@openvz.org, cmm@us.ibm.com
-CC: Kirill Korotaev <dev@openvz.org>, Dmitry Mishin <dim@openvz.org>,
-       Eric Sandeen <sandeen@sandeen.net>
-Subject: [PATCH 2.6.18] ext3: errors behaviour fix
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 4 Oct 2006 04:01:58 -0400
+Date: Wed, 4 Oct 2006 01:01:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch] clockevents: drivers for i386, fix #2
+Message-Id: <20061004010137.f0cc9531.akpm@osdl.org>
+In-Reply-To: <20061004074142.GA29332@elte.hu>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+	<20061002210053.16e5d23c.akpm@osdl.org>
+	<20061003084729.GA24961@elte.hu>
+	<20061003103503.GA6350@elte.hu>
+	<20061003203620.d85df9c6.akpm@osdl.org>
+	<20061004064620.GA22364@elte.hu>
+	<20061004003228.98ec3b39.akpm@osdl.org>
+	<20061004074142.GA29332@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dmitry Mishin <dim@openvz.org>
+On Wed, 4 Oct 2006 09:41:42 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-EXT3_ERRORS_CONTINUE should be taken from the superblock as default value for
-error behaviour.
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Yet initscripts take a long time (especially applying the ipfilter 
+> > firewall rues for some reason), and `startx' takes a long time, etc.  
+> > This kernel takes 112 seconds to boot to a login prompt - other 
+> > kernels take 56 seconds (interesting ratio..)
+> 
+> you are still using the non-hres config, correct? (so this is still 
+> collateral damage on vanilla kernel functionality)
+> 
 
-Signed-off-by:	Dmitry Mishin <dim@openvz.org>
-Acked-by:	Vasily Averin <vvs@sw.ru>
-Acked-by: 	Kirill Korotaev <dev@openvz.org>
-
---- linux-2.6.18/fs/ext3/super.c.e3erop	2006-09-20 07:42:06.000000000 +0400
-+++ linux-2.6.18/fs/ext3/super.c	2006-10-03 15:51:44.000000000 +0400
-@@ -1466,6 +1466,8 @@ static int ext3_fill_super (struct super
- 		set_opt(sbi->s_mount_opt, ERRORS_PANIC);
- 	else if (le16_to_cpu(sbi->s_es->s_errors) == EXT3_ERRORS_RO)
- 		set_opt(sbi->s_mount_opt, ERRORS_RO);
-+	else
-+		set_opt(sbi->s_mount_opt, ERRORS_CONT);
-
- 	sbi->s_resuid = le16_to_cpu(es->s_def_resuid);
- 	sbi->s_resgid = le16_to_cpu(es->s_def_resgid);
+yup.

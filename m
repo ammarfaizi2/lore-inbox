@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030812AbWJDKvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030810AbWJDKx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030812AbWJDKvt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 06:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWJDKvt
+	id S1030810AbWJDKx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 06:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWJDKx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 06:51:49 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40636 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030806AbWJDKvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 06:51:48 -0400
-Subject: Re: PCI/IDE generic IDE driver + bus master DMA logic errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: girish <girishvg@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <28EE04D1-1645-4D2C-9D8B-FB4877779223@gmail.com>
-References: <28EE04D1-1645-4D2C-9D8B-FB4877779223@gmail.com>
-Content-Type: text/plain
+	Wed, 4 Oct 2006 06:53:58 -0400
+Received: from mail.suse.de ([195.135.220.2]:18095 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030810AbWJDKx6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 06:53:58 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+Date: Wed, 4 Oct 2006 12:52:48 +0200
+User-Agent: KMail/1.9.3
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Eric Rannaud" <eric.rannaud@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Chandra Seetharaman" <sekharan@us.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       nagar@watson.ibm.com
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com> <200609302230.24070.ak@suse.de> <45239A38.76E4.0078.0@novell.com>
+In-Reply-To: <45239A38.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 12:17:25 +0100
-Message-Id: <1159960645.25772.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610041252.48721.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-04 am 19:07 +0900, ysgrifennodd girish:
-> our hardware guys are designing an pci/ide controller which has  
-> interrupt wrapper such that the ide & bus master interrupts are  
-> packaged & delivered together.
 
-All the SFF8038i/D1510 style devices have a single interrupt line for
-IDE and for bus mastering interrupts. If your device behaves in
-accordance to D1510 the default code ought to work.
+> >> > [  138.751306]  [<ffffffff8021ecc0>] search_extable+0x40/0x70
+> >
+> >After here the unwinder seems to become a bit and it shouldn't print
+> >multiple entries. Jan any ideas why?
+> 
+> Not without raw stack contents.
 
-Alan
+I suppose those are lost in time. 
 
+Unfortunately lockdep doesn't even print stack contents because it doesn't
+save them.
+ 
+> >Proposed patch appended. Jan, what do you think?
+> 
+> As said above - I thought we added zero-termination already.
+
+For head.S but not for kernel_thread I think. At least I can't
+find any existing code for kernel_thread().
+
+-Andi

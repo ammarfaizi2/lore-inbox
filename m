@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbWJDBZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWJDB2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbWJDBZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 21:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWJDBZ4
+	id S1030383AbWJDB2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 21:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbWJDB2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 21:25:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:57548 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030380AbWJDBZz
+	Tue, 3 Oct 2006 21:28:35 -0400
+Received: from tango.0pointer.de ([217.160.223.3]:23560 "EHLO
+	tango.0pointer.de") by vger.kernel.org with ESMTP id S1030383AbWJDB2e
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 21:25:55 -0400
-Subject: [PATCH 1/1]  i383 numa: fix numaq/summit apicid conflict
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: torvalds@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>, andrew <akpm@osdl.org>,
-       apw@shadowen.org
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Tue, 03 Oct 2006 18:25:52 -0700
-Message-Id: <1159925153.6512.11.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 21:28:34 -0400
+Date: Wed, 4 Oct 2006 03:28:32 +0200
+From: Lennart Poettering <mzxreary@0pointer.de>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] misc,acpi,backlight: MSI S270 Laptop support
+Message-ID: <20061004012832.GA5171@tango.0pointer.de>
+References: <20061003011056.GA28731@ecstasy.ring2.lan> <200610022227.10087.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610022227.10087.dtor@insightbb.com>
+Organization: .phi.
+X-Campaign-1: ()  ASCII Ribbon Campaign
+X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
+X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
+X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
+X-Disclaimer-3: keiner Unterschrift.
+User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keith Mannthey <kmannth@us.ibm.com> 
+On Mon, 02.10.06 22:27, Dmitry Torokhov (dtor@insightbb.com) wrote:
 
-  This patch allows numaq to properly align cpus to their given node
-during boot. Pass logical apicid to apicid_to_node and allow the summit
-sub-arch to use physical apicid (hard_smp_processor_id()). 
-  Tested against numaq and summit based systems with no issues. against
-2.6.18-git18. 
+> > +        ret = sysfs_create_group(&msipf_device->dev.kobj, &msipf_attribute_group);
+> > +        if (ret)
+> > +                goto fail_platform_device;
+> > +
+> > +
+> > +        /* Enable automatic brightness control again */
+> > +        if (auto_brightness != 2)
+> > +                set_auto_brightness(1);     
+> > +
+> 
+> What happens if auto_brightness is 2 but userspace messed up with it
+> through device's sysfs attribute? 
 
-Signed-off-by: Keith Mannthey  <kmannth@us.ibm.com>
----
- arch/i386/kernel/smpboot.c               |    2 +-
- include/asm-i386/mach-summit/mach_apic.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+If auto_brightness is 2 we assume that the user doesn't want the
+module to fiddle with the automatic brightness control
+automatically. So we don't do it, neither when loading nor when
+unloading the module. However, if the user wants to fiddle with the
+setting through sysfs he may do so and we will not reset his changes
+when unloading the module. This allows the user to do something like
+this to disable the brightness control without having the the driver
+loaded the whole time:
 
-diff -urN linux-2.6.18/arch/i386/kernel/smpboot.c linux-2.6.18-git18/arch/i386/kernel/smpboot.c
---- linux-2.6.18/arch/i386/kernel/smpboot.c	2006-10-02 02:59:49.000000000 -0700
-+++ linux-2.6.18-git18/arch/i386/kernel/smpboot.c	2006-10-02 00:36:52.000000000 -0700
-@@ -648,7 +648,7 @@
- {
- 	int cpu = smp_processor_id();
- 	int apicid = logical_smp_processor_id();
--	int node = apicid_to_node(hard_smp_processor_id());
-+	int node = apicid_to_node(apicid);
- 
- 	if (!node_online(node))
- 		node = first_online_node;
-diff -urN linux-2.6.18/include/asm-i386/mach-summit/mach_apic.h linux-2.6.18-git18/include/asm-i386/mach-summit/mach_apic.h
---- linux-2.6.18/include/asm-i386/mach-summit/mach_apic.h	2006-10-02 02:59:54.000000000 -0700
-+++ linux-2.6.18-git18/include/asm-i386/mach-summit/mach_apic.h	2006-10-02 00:51:24.000000000 -0700
-@@ -88,7 +88,7 @@
- 
- static inline int apicid_to_node(int logical_apicid)
- {
--	return apicid_2_node[logical_apicid];
-+	return apicid_2_node[hard_smp_processor_id()];
- }
- 
- /* Mapping from cpu number to logical apicid */
+  modprobe msi-laptop auto_brightness=2 && echo 0 > /sys/devices/platform/msi-laptop-pf/auto_brightness && modprobe -r msi-laptop
 
+If auto_brightness is 1 or 0, we do as requested but reset the control
+to the bootup default when unloading. (i.e. enable it again)
 
+Sounds like a reasonable policy to me, doesn't it to you?
+
+> Overall brightness controll interface (module vs. per-device) needs
+> to be tightened up.
+
+Hmm, I am sorry? I don't understand what you mean? 
+
+There's only a single device of this type available in a system at
+maximum. Hence "per-device" and "per-module" is mostly the same here.
+
+Lennart
+
+-- 
+Lennart Poettering; lennart [at] poettering [dot] net
+ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/

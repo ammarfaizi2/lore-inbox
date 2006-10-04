@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWJDDj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWJDDrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWJDDj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 23:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWJDDj4
+	id S1751089AbWJDDrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 23:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWJDDrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 23:39:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7380 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751061AbWJDDjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 23:39:55 -0400
-Date: Tue, 3 Oct 2006 20:36:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] clockevents: drivers for i386, fix #2
-Message-Id: <20061003203620.d85df9c6.akpm@osdl.org>
-In-Reply-To: <20061003103503.GA6350@elte.hu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	<20061002210053.16e5d23c.akpm@osdl.org>
-	<20061003084729.GA24961@elte.hu>
-	<20061003103503.GA6350@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 3 Oct 2006 23:47:00 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48258 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751089AbWJDDq7 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 23:46:59 -0400
+Message-Id: <200610040346.k943kvwM006684@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Steven Truong <midair77@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kexec / kdump kernel panic
+In-Reply-To: Your message of "Tue, 03 Oct 2006 17:18:21 PDT."
+             <28bb77d30610031718r51dfb003ge22c082d3b4cacb@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <28bb77d30610031718r51dfb003ge22c082d3b4cacb@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1159933617_3990P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 03 Oct 2006 23:46:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Oct 2006 12:35:03 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+--==_Exmh_1159933617_3990P
+Content-Type: text/plain; charset=us-ascii
 
-> 
-> add back a mistakenly removed udelay(10) to the PIT initialization
-> sequence.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  arch/i386/kernel/i8253.c |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> Index: linux/arch/i386/kernel/i8253.c
-> ===================================================================
-> --- linux.orig/arch/i386/kernel/i8253.c
-> +++ linux/arch/i386/kernel/i8253.c
-> @@ -45,6 +45,7 @@ static void init_pit_timer(enum clock_ev
->  		outb_p(0x34, PIT_MODE);
->  		udelay(10);
->  		outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
-> +		udelay(10);
->  		outb(LATCH >> 8 , PIT_CH0);	/* MSB */
->  		break;
->  
+On Tue, 03 Oct 2006 17:18:21 PDT, Steven Truong said:
 
-Doesn't help.
+> /usr/sbin/kexec -p /boot/vmlinux
+> --initrd=/boot/initrd-2.6.18-kdump.img --args-linux
+> --append="root=/dev/sda3  irqpoll init 1"
 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > yeah, i suspect it works again if you disable:
-> > 
-> >  CONFIG_X86_UP_APIC=y
-> >  CONFIG_X86_UP_IOAPIC=y
-> >  CONFIG_X86_LOCAL_APIC=y
-> >  CONFIG_X86_IO_APIC=y
-> > 
-> > as the slowdown has the feeling of a runaway lapic timer irq.
-> > 
+If the /boot/vmlinux is the one you usually use to boot, that won't work.
 
-Disabling IO_APIC doesn't fix the slowdown.
+Your usual vmlinux is almost certainly linked to load at the 1M line,
+and you need a kernel linked to load at the 16M line (as set in crashkernel=).
 
-Disabling LOCAL_APIC does fix it.
+See the CONFIG_PHYSICAL_START config option, and there's other details
+in Documentation/kdump/kdump.txt - it looks like you have most of it right,
+except you need to build *TWO* specially configured kernels (your production
+one with KEXEC support and a few other things, and then the dump kernel
+with a different PHYSICAL_START and a few settings).
+
+--==_Exmh_1159933617_3990P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFIy6xcC3lWbTT17ARAj6NAJ99YRx2xKN2RS8gkYFq0TMB4X+YHQCePO38
+wXS6Jk/CG0bbyx6KveJK3lM=
+=mvgd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159933617_3990P--

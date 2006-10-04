@@ -1,122 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWJDQQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030615AbWJDQSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbWJDQQO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 12:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWJDQQO
+	id S1030615AbWJDQSG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 12:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbWJDQSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 12:16:14 -0400
-Received: from ml-g19.proxad.net ([212.27.60.41]:13536 "EHLO ml.free.fr")
-	by vger.kernel.org with ESMTP id S1030422AbWJDQQM (ORCPT
+	Wed, 4 Oct 2006 12:18:06 -0400
+Received: from www.osadl.org ([213.239.205.134]:40931 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030615AbWJDQSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 12:16:12 -0400
-Date: Wed, 04 Oct 2006 18:16:11 +0200 (CEST)
-From: Listar <aikido.dinard-request@ml.free.fr>
-To: linux-kernel@vger.kernel.org
-Message-ID: <listar-10042006181611.15678.1@ml-g19>
-X-listar-antiloop: ml-g19
+	Wed, 4 Oct 2006 12:18:02 -0400
+Subject: Re: [patch] clockevents: drivers for i386, fix #2
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <20061004090205.9c29f5bf.akpm@osdl.org>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+	 <20061002210053.16e5d23c.akpm@osdl.org> <20061003084729.GA24961@elte.hu>
+	 <20061003103503.GA6350@elte.hu> <20061003203620.d85df9c6.akpm@osdl.org>
+	 <20061004064620.GA22364@elte.hu> <20061004003228.98ec3b39.akpm@osdl.org>
+	 <20061004075540.GA31415@elte.hu> <20061004011544.d49308de.akpm@osdl.org>
+	 <20061004105315.GA24940@elte.hu>
+	 <1159960776.1386.244.camel@localhost.localdomain>
+	 <20061004090205.9c29f5bf.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 04 Oct 2006 18:20:15 +0200
+Message-Id: <1159978815.1386.252.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Expiry-Date: Thu, 05 Oct 2006 18:16:11 +0200 (CEST)
-Subject: Listar command results: -- Binary/unsupported file stripped by Listar --
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Request received for list 'aikido.dinard' via request address.
+On Wed, 2006-10-04 at 09:02 -0700, Andrew Morton wrote:
+> On Wed, 04 Oct 2006 13:19:35 +0200
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> 
+> > On Wed, 2006-10-04 at 12:53 +0200, Ingo Molnar wrote:
+> > > there's one material difference we just found: in the !hres case we'll 
+> > > do the timer IRQ handling mostly from the lapic vector - while in 
+> > > mainline we do it from the irq0 vector. So, how does your 
+> > > /proc/interrupts look like? How frequently does LOC increase, and how 
+> > > frequently does IRQ 0 increase?
+> 
+> sony:/home/akpm> cat /proc/interrupts ; sleep 1 ; cat /proc/interrupts
+>            CPU0       
+>   0:      39256   IO-APIC-edge      timer
+> LOC:       3131 
 
->> :(ØCQ‹¶ã:'¯«!7Ï¬Æ:nÜâæÆ²Û  Z>]"µ
-Unknown command.
+>   0:      39519   IO-APIC-edge      timer
+> LOC:       3134 
 
->> ìêŒ(5Šá˜rc¨¼ğ¥}¨¢ZÅ{I5;¼VğŸµ<u¬3McéQüHXœÉÄ©E38-¿l»r×*ê¦ÖôàyİE;§ÚhãÕX‘—¾pÂ8İ„±š7êˆ{òCLŒ£†Ïo'É£Î(¶Â
-Unknown command.
+delta IRQ == 263
+delta LOC == 3
 
->> BEZ0[æã,ÇÚT–’3PüRXïdZ!¾(™¬üÔD7~n¥Ô!_&Ç½C°F³°Nô%z|BúË­3OŸÈİóH¥ììë”
->> ğŒèìØ"RTjPí»òjË©Õ
-Unknown command.
+That explains the problem. The lapic frequency seems to be way off. I
+have no good idea offhand how to detect such lapic brokeness.
 
->> ºkâòÍ±Ööæ¢(|Ãïík}kğrûı µ¨ãR6jfP~!ªñ«’’
-Unknown command.
+> >  static struct clock_event_device lapic_clockevent = {
+> >  	.name = "lapic",
+> >  	.capabilities = CLOCK_CAP_NEXTEVT | CLOCK_CAP_PROFILE
+> > +#ifdef CONFIG_SMP
+> >  			| CLOCK_CAP_UPDATE,
+> > +#endif
+> >  	.shift = 32,
+> >  	.set_mode = lapic_timer_setup,
+> >  	.set_next_event = lapic_next_event,
+> 
+> that (after a tweak to make it compile) fixes it.   What's it do?
 
->> ãw¹hh|fúÎrN *’„ã.ĞM0&/;òt
-Unknown command.
+It brings update_process_times() back into IRQ0. On systems with a
+working lapic, it would not matter. SMP moves update_process_times() to
+lapic too. That's why I asked whether a SMP=y kernel has the same
+problems on this box.
 
->> PÚ¡¼^WË- µ£j¨Óhö,‡]Y™O;V÷mèÏgÕQ§'ì‡
-Unknown command.
+	tglx
 
->> ülj/îaÄ†İ-|>PÌ5èPØ„2<¬ª¬uğ—úú$_IJeqÁ)”éld¸™¤Sü(Pi_~Z½J˜Ê'EÇ¹ºÆ¹•†c•nZRG‰}Gô³
->> ª]ñF®À…;;7ş¦ÃaÆoêrx‡¹ää±
-Unknown command.
-
->> ™ô,èÅ9,3«›ğkQşUßABDÍ^µJÔÑaûÂ‚¡†B
-Unknown command.
-
->> ‚|´/naòl_ü­¬Hôu4jê†ä§-•Çşc·$¤¦Ù?ş…ø‰ID
-Unknown command.
-
->> Ÿòñ™è·¸í°".q4S2¶Öİ”ïõğ2ğw¯po­ò‹7.¥AWç·õN^Úï¡<ÚZÎôF„‡¤'°|ØTsæ–æ¤ªf%·"îĞÄĞú•Ì‚„˜ïá^Y²UÀ¥–0Î«Û’ê—afpÛèrQíÄî”zÄxL¶Ñ1¨)‚Ê×²V8¤óÕàü×¨›Š™.^Êµ³Ô$³ì"f”ÏÎ«ó
->> —×šlˆ¶4
-Unknown command.
-
->> ©rFÅÃKf‡ı[Næ„Ì‹u#¾3î`ëß®‡ô°Q¦7®‹)]ZL©2áOd?Á(‰8_OOøamı0Ö ç})ı¹rL¨›IÒõŸğˆÆiÄLI·óé¤oä¢Sw`öŒğÔ­umâOK!½};:¡°¬(“1ëÈÎ&0‡¿ÕéÑsÎs«ÕÌMµ×
-Unknown command.
-
->> Ä©5ûIˆ¶Êò­ï¸|6»«å«İå[aIm_IŸ?âùµvZÊ#Nã!ÖwîìÅèäSÚ£¹k®ÍâU•H—éuô‘mi—¤¯¢¨_à³ıi¦¸
->> 0an„bß0“{İñŞéÓ–¢:²—¨½å
-Unknown command.
-
->> q'ï´í$jo÷É·AdpìTèò"øT¡3Ù¬¢n¶¨mâ4QÜÄğïoX°»ì¬ı~ed’Öa6à´Xo‹Ü:lêiè!‹G¹–¬
-Unknown command.
-
->> ·öeÃÏ_>ø÷¤c¦mí,İÂR„â[ci­ğ¡pk'0`ÇyO·¼Š6‚üğ
-Unknown command.
-
->> üTêXó *î2CßÎgûMMãú|bü×Ì‡oôWäÊï4Æ,ı!Í:¸ Ä<Æ"â÷6•
-Unknown command.
-
->> Í”`¦_¯gÌ
-Unknown command.
-
->> ŞCrØûPÀ>$}Ÿ“wÒiòßóÇÊj)TŒ‚ÊdäÚúóæ~î“R.ˆ¼­t×6DGtrMİ;ûıÕ”o¹:pØˆ¨ïu0‚s"s‚hJĞ|oŸ•
-Unknown command.
-
->> ŸëÀgˆ‡.ò²m:É¡“‡Y ‹kÔ‚¶‡ÈŠì«ûdÔ~.<½
-Unknown command.
-
->> |õ<ƒ¤ü,3ï*¡|Ì«·#'İÇCªÎ±z…6èh‘RyØXa_´±‰ °ßÙø¡
-Unknown command.
-
->> 3x ·µÏÓÖÜ^úk…®29¤h¨íÆµ`VèèPƒj³$ªƒİùë‚b®/ÎüÒÒ¡Ã.àÄCšşş»ŸKONnP˜™u6¦ğWG–!OV±‰<Ağ5,MÛévhw>$4Bì©â„AìŠÛRFn_.¯í#…9ú9V{ZÇrS>»ÙÌÄŞ—|YKj ç‘Ê”>‰·‹“‘.ja
->> I“îíÖcE`§²‰Õf/ëûMzŞ9CÄ%—wÜhÖ
-Unknown command.
-
->> äXLgnô³çËË
-Unknown command.
-
->> ?İÕ¶‰Í/¬ˆ`¥
-Unknown command.
-
->> ¾¢ş^ğfÚE„ª´ õ5ßÜ˜IdÏ>À)ß5Kˆ[qÄ}«2Ñ¢² [?ç7¨ß
-Unknown command.
-
->> Oa·â¸Hw}×¢ûaó”icA˜jQØ,´®¦–Pé‚(â6™°LN°·Œ%Ğ%NÍ^ÙK–Z’Äw¶½sÍ,ÖM<îsÕ#4Ïú‚»‹`D0E Øl­æÏ×ä`zºMã
-Unknown command.
-
->> U²[V>;•uT’ÕRn[—}J:°†ùË‹0`òô¸-§A/Ãa2š’v£B
-Unknown command.
-
->> W"1vm
-Unknown command.
-
->> dONú¡¬ğ¿}¶aëwÊ–ëœiÁ‘eúÅQ•Lc…
-Unknown command.
-
->> I‘’ŠqÏŠœC¸ÀŠ·‰0lÃXİ
-Unknown command.
-
->> ‚‹›-òCÙGÉÏ¯ê´™y1¡‘3s÷ßàq^©|÷£;âm®°Ë¬“óJ‡¬œ/ı‰¬rÈ«´?vïÜçŒáËÂH(ğÁc>î¤P°Qé2§(ÕœH!O¨Œ÷3´<[9şßÂYxXé‘<Ô±òµ“Ğl™êÉ
->> V47!fvg /m~¢±^Ğ3>ÓÄHïXFtã·ß®²o `<íaõqœWV¾¬B¿ª"Èá¡ÂÎÊ"z}ÃÍ˜_OéúQÈ/5[¶­—lèË"³©W¨¯Dòšï¸!ÔÇŞÜ$4>QçÚû#ã¾í`Ñ6Ìûıá“Kû®bôT2gœe’û—íó¼wkØç’-zÛ•gš"÷„¨Ú·)hº‡6(ÄßYR¿"ÀÕ·Ù¾¯º"n¸Œ‡x«R
-Unknown command.
-
----
-Gestionnaire de liste Listar/0.42 - fin de traitement/job execution complete.
 

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161913AbWJDRjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161908AbWJDRjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161913AbWJDRjS (ORCPT <rfc822;willy@w.ods.org>);
+	id S1161908AbWJDRjS (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 4 Oct 2006 13:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161931AbWJDRih
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161913AbWJDRil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:38:37 -0400
-Received: from www.osadl.org ([213.239.205.134]:31973 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161913AbWJDRiC (ORCPT
+	Wed, 4 Oct 2006 13:38:41 -0400
+Received: from www.osadl.org ([213.239.205.134]:50405 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161927AbWJDRiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:38:02 -0400
-Message-Id: <20061004172223.463246000@cruncher.tec.linutronix.de>
+	Wed, 4 Oct 2006 13:38:11 -0400
+Message-Id: <20061004172224.378807000@cruncher.tec.linutronix.de>
 References: <20061004172217.092570000@cruncher.tec.linutronix.de>
-Date: Wed, 04 Oct 2006 17:31:44 -0000
+Date: Wed, 04 Oct 2006 17:31:53 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
@@ -20,829 +20,768 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
        David Woodhouse <dwmw2@infradead.org>, Jim Gettys <jg@laptop.org>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 14/22] clockevents: core
-Content-Disposition: inline; filename=clockevents-core.patch
+Subject: [patch 22/22] debugging feature: timer stats
+Content-Disposition: inline; filename=debugging-feature-timer-stats.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-Add a framework to manage clock event devices.
+Add /proc/timer_stats support: debugging feature to profile timer expiration. 
+Both the starting site, process/PID and the expiration function is captured. 
+This allows the quick identification of timer event sources in a system.
 
-We have two types of clock event devices:
-- global events (one device per system)
-- local events (one device per cpu)
+Sample output:
 
-We assign the various time(r) related interrupts to those devices:
-
-- global tick (advances jiffies)
-- update process times (per cpu)
-- profiling (per cpu)
-- next timer events (per cpu)
-
-Architectures register their clock event devices, with specific capability
-bits set, and the framework code assigns the appropriate event handler to the
-event device.  The functionality is assigned via an event handler to avoid
-runtime evalutation of the assigned function bits.
-
-This allows to control the clock event devices without the architectures
-having to worry about the details of function assignment.  This is also a
-preliminary for high resolution timers and dynamic ticks to allow the core
-code to control the clock functionality without intrusive changes to the
-architecture code.
-
-When high resolution timers and dynamic ticks are disabled, there is no change
-in the behaviour of the system.
+ # echo 1 > /proc/tstats
+ # cat /proc/tstats
+ Timerstats sample period: 3.888770 s
+   12,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
+   15,     1 swapper          hcd_submit_urb (rh_timer_func)
+    4,   959 kedac            schedule_timeout (process_timeout)
+    1,     0 swapper          page_writeback_init (wb_timer_fn)
+   28,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
+   22,  2948 IRQ 4            tty_flip_buffer_push (delayed_work_timer_fn)
+    3,  3100 bash             schedule_timeout (process_timeout)
+    1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
+    1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
+    1,     1 swapper          neigh_table_init_no_netlink (neigh_periodic_timer)
+    1,  2292 ip               __netdev_watchdog_up (dev_watchdog)
+    1,    23 events/1         do_cache_clean (delayed_work_timer_fn)
+ 90 total events, 30.0 events/sec
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
- include/linux/clockchips.h |  122 +++++++++
- include/linux/hrtimer.h    |    3 
- init/main.c                |    2 
- kernel/hrtimer.c           |    6 
- kernel/time/Makefile       |    2 
- kernel/time/clockevents.c  |  567 +++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 700 insertions(+), 2 deletions(-)
+ Documentation/hrtimer/timer_stats.txt |   68 +++++++++
+ include/linux/hrtimer.h               |   53 +++++++
+ include/linux/timer.h                 |   49 ++++++
+ kernel/hrtimer.c                      |   26 +++
+ kernel/time/Makefile                  |    3 
+ kernel/time/timer_stats.c             |  244 ++++++++++++++++++++++++++++++++++
+ kernel/timer.c                        |   29 +++-
+ kernel/workqueue.c                    |    6 
+ lib/Kconfig.debug                     |   11 +
+ 9 files changed, 483 insertions(+), 6 deletions(-)
 
-Index: linux-2.6.18-mm3/include/linux/clockchips.h
+Index: linux-2.6.18-mm3/Documentation/hrtimer/timer_stats.txt
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-mm3/include/linux/clockchips.h	2006-10-04 18:13:57.000000000 +0200
-@@ -0,0 +1,122 @@
-+/*  linux/include/linux/clockchips.h
-+ *
-+ *  This file contains the structure definitions for clockchips.
-+ *
-+ *  If you are not a clockchip, or the time of day code, you should
-+ *  not be including this file!
-+ */
-+#ifndef _LINUX_CLOCKCHIPS_H
-+#define _LINUX_CLOCKCHIPS_H
++++ linux-2.6.18-mm3/Documentation/hrtimer/timer_stats.txt	2006-10-04 18:13:59.000000000 +0200
+@@ -0,0 +1,68 @@
++timer_stats - timer usage statistics
++------------------------------------
 +
-+#ifdef CONFIG_GENERIC_CLOCKEVENTS
++timer_stats is a debugging facility to make the timer (ab)usage in a Linux
++system visible to kernel and userspace developers. It is not intended for
++production usage as it adds significant overhead to the (hr)timer code and the
++(hr)timer data structures.
 +
-+#include <linux/clocksource.h>
-+#include <linux/interrupt.h>
++timer_stats should be used by kernel and userspace developers to verify that
++their code does not make unduly use of timers. This helps to avoid unnecessary
++wakeups, which should be avoided to optimize power consumption.
 +
-+struct clock_event_device;
++It can be enabled by CONFIG_TIMER_STATS in the "Kernel hacking" configuration
++section.
 +
-+/* Clock event mode commands */
-+enum clock_event_mode {
-+	CLOCK_EVT_PERIODIC,
-+	CLOCK_EVT_ONESHOT,
-+	CLOCK_EVT_SHUTDOWN,
-+};
++timer_stats collects information about the timer events which are fired in a
++Linux system over a sample period:
 +
-+/*
-+ * Clock event capability flags:
-+ *
-+ * CAP_TICK:	The event source should be used for the periodic tick
-+ * CAP_UPDATE:	The event source handler should call update_process_times()
-+ * CAP_PROFILE: The event source handler should call profile_tick()
-+ * CAP_NEXTEVT:	The event source can be reprogrammed in oneshot mode and is
-+ *		a per cpu event source.
-+ *
-+ * The capability flags are used to select the appropriate handler for an event
-+ * source. On an i386 UP system the PIT can serve all of the functionalities,
-+ * while on a SMP system the PIT is solely used for the periodic tick and the
-+ * local APIC timers are used for UPDATE / PROFILE / NEXTEVT. To avoid the run
-+ * time query of those flags, the clock events layer assigns the appropriate
-+ * event handler function, which contains only the selected calls, to the
-+ * event.
-+ */
-+#define CLOCK_CAP_TICK		0x000001
-+#define CLOCK_CAP_UPDATE	0x000002
-+#define CLOCK_CAP_PROFILE	0x000004
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+# define CLOCK_CAP_NEXTEVT	0x000008
-+#else
-+# define CLOCK_CAP_NEXTEVT	0x000000
-+#endif
++- the pid of the task(process) which initialized the timer
++- the name of the process which initialized the timer
++- the function where the timer was intialized
++- the callback function which is associated to the timer
++- the number of events (callbacks)
 +
-+#define CLOCK_BASE_CAPS_MASK	(CLOCK_CAP_TICK | CLOCK_CAP_PROFILE | \
-+				 CLOCK_CAP_UPDATE)
-+#define CLOCK_CAPS_MASK		(CLOCK_BASE_CAPS_MASK | CLOCK_CAP_NEXTEVT)
++timer_stats adds an entry to /proc: /proc/timer_stats
 +
-+/**
-+ * struct clock_event_device - clock event descriptor
-+ *
-+ * @name:		ptr to clock event name
-+ * @capabilities:	capabilities of the event chip
-+ * @max_delta_ns:	maximum delta value in ns
-+ * @min_delta_ns:	minimum delta value in ns
-+ * @mult:		nanosecond to cycles multiplier
-+ * @shift:		nanoseconds to cycles divisor (power of two)
-+ * @set_next_event:	set next event
-+ * @set_mode:		set mode function
-+ * @suspend:		suspend function (optional)
-+ * @resume:		resume function (optional)
-+ * @evthandler:		Assigned by the framework to be called by the low
-+ *			level handler of the event source
-+ */
-+struct clock_event_device {
-+	const char	*name;
-+	unsigned int	capabilities;
-+	unsigned long	max_delta_ns;
-+	unsigned long	min_delta_ns;
-+	unsigned long	mult;
-+	int		shift;
-+	void		(*set_next_event)(unsigned long evt,
-+					  struct clock_event_device *);
-+	void		(*set_mode)(enum clock_event_mode mode,
-+				    struct clock_event_device *);
-+	void		(*event_handler)(struct pt_regs *regs);
-+};
++This entry is used to control the statistics functionality and to read out the
++sampled information.
 +
-+/*
-+ * Calculate a multiplication factor for scaled math, which is used to convert
-+ * nanoseconds based values to clock ticks:
-+ *
-+ * clock_ticks = (nanoseconds * factor) >> shift.
-+ *
-+ * div_sc is the rearranged equation to calculate a factor from a given clock
-+ * ticks / nanoseconds ratio:
-+ *
-+ * factor = (clock_ticks << shift) / nanoseconds
-+ */
-+static inline unsigned long div_sc(unsigned long ticks, unsigned long nsec,
-+				   int shift)
-+{
-+	uint64_t tmp = ((uint64_t)ticks) << shift;
++The timer_stats functionality is inactive on bootup.
 +
-+	do_div(tmp, nsec);
-+	return (unsigned long) tmp;
-+}
++To activate a sample period issue:
++# echo 1 >/proc/timer_stats
 +
-+/* Clock event layer functions */
-+extern int register_local_clockevent(struct clock_event_device *);
-+extern int register_global_clockevent(struct clock_event_device *);
-+extern unsigned long clockevent_delta2ns(unsigned long latch,
-+					 struct clock_event_device *evt);
-+extern void clockevents_init(void);
++To stop a sample period issue:
++# echo 0 >/proc/timer_stats
 +
-+extern int clockevents_init_next_event(void);
-+extern int clockevents_set_next_event(ktime_t expires, int force);
-+extern int clockevents_next_event_available(void);
-+extern void clockevents_resume_events(void);
++The statistics can be retrieved by:
++# cat /proc/timer_stats
 +
-+#else
-+# define clockevents_init()		do { } while(0)
-+# define clockevents_resume_events()	do { } while(0)
-+#endif
++The readout of /proc/timer_stats automatically disables sampling. The sampled
++information is kept until a new sample period is started. This allows multiple
++readouts.
 +
-+#endif
++Sample output of /proc/timer_stats:
++
++Timerstats sample period: 3.888770 s
++  12,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
++  15,     1 swapper          hcd_submit_urb (rh_timer_func)
++   4,   959 kedac            schedule_timeout (process_timeout)
++   1,     0 swapper          page_writeback_init (wb_timer_fn)
++  28,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
++  22,  2948 IRQ 4            tty_flip_buffer_push (delayed_work_timer_fn)
++   3,  3100 bash             schedule_timeout (process_timeout)
++   1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
++   1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
++   1,     1 swapper          neigh_table_init_no_netlink (neigh_periodic_timer)
++   1,  2292 ip               __netdev_watchdog_up (dev_watchdog)
++   1,    23 events/1         do_cache_clean (delayed_work_timer_fn)
++90 total events, 30.0 events/sec
++
++The first column is the number of events, the second column the pid, the third
++column is the name of the process. The forth column shows the function which
++initialized the timer and in parantheses the callback function which was
++executed on expiry.
++
++    Thomas, Ingo
++
 Index: linux-2.6.18-mm3/include/linux/hrtimer.h
 ===================================================================
---- linux-2.6.18-mm3.orig/include/linux/hrtimer.h	2006-10-04 18:13:56.000000000 +0200
-+++ linux-2.6.18-mm3/include/linux/hrtimer.h	2006-10-04 18:13:57.000000000 +0200
-@@ -144,6 +144,9 @@ struct hrtimer_cpu_base {
-  * is expired in the next softirq when the clock was advanced.
+--- linux-2.6.18-mm3.orig/include/linux/hrtimer.h	2006-10-04 18:13:58.000000000 +0200
++++ linux-2.6.18-mm3/include/linux/hrtimer.h	2006-10-04 18:13:59.000000000 +0200
+@@ -101,8 +101,14 @@ enum hrtimer_cb_mode {
+  * @cb_mode:	high resolution timer feature to select the callback execution
+  *		 mode
+  * @cb_entry:	list head to enqueue an expired timer into the callback list
++ * @start_site:	timer statistics field to store the site where the timer
++ *		was started
++ * @start_comm: timer statistics field to store the name of the process which
++ *		started the timer
++ * @start_pid: timer statistics field to store the pid of the task which
++ *		started the timer
+  *
+- * The hrtimer structure must be initialized by init_hrtimer_#CLOCKTYPE()
++ * The hrtimer structure must be initialized by hrtimer_init()
   */
- #define clock_was_set()		do { } while (0)
-+#define hrtimer_clock_notify()	do { } while (0)
-+extern ktime_t ktime_get(void);
-+extern ktime_t ktime_get_real(void);
+ struct hrtimer {
+ 	struct rb_node			node;
+@@ -114,6 +120,11 @@ struct hrtimer {
+ 	enum hrtimer_cb_mode		cb_mode;
+ 	struct list_head		cb_entry;
+ #endif
++#ifdef CONFIG_TIMER_STATS
++	void				*start_site;
++	char				start_comm[16];
++	int				start_pid;
++#endif
+ };
  
- /* Exported timer functions: */
+ /**
+@@ -335,4 +346,44 @@ static inline void show_no_hz_stats(stru
+ /* Bootup initialization: */
+ extern void __init hrtimers_init(void);
  
-Index: linux-2.6.18-mm3/init/main.c
++/*
++ * Timer-statistics info:
++ */
++#ifdef CONFIG_TIMER_STATS
++
++extern void timer_stats_update_stats(void *timer, pid_t pid, void *startf,
++				     void *timerf, char * comm);
++
++static inline void timer_stats_account_hrtimer(struct hrtimer *timer)
++{
++	timer_stats_update_stats(timer, timer->start_pid, timer->start_site,
++				 timer->function, timer->start_comm);
++}
++
++extern void __timer_stats_hrtimer_set_start_info(struct hrtimer *timer,
++						 void *addr);
++
++static inline void timer_stats_hrtimer_set_start_info(struct hrtimer *timer)
++{
++	__timer_stats_hrtimer_set_start_info(timer, __builtin_return_address(0));
++}
++
++static inline void timer_stats_hrtimer_clear_start_info(struct hrtimer *timer)
++{
++	timer->start_site = NULL;
++}
++#else
++static inline void timer_stats_account_hrtimer(struct hrtimer *timer)
++{
++}
++
++static inline void timer_stats_hrtimer_set_start_info(struct hrtimer *timer)
++{
++}
++
++static inline void timer_stats_hrtimer_clear_start_info(struct hrtimer *timer)
++{
++}
++#endif
++
+ #endif
+Index: linux-2.6.18-mm3/include/linux/timer.h
 ===================================================================
---- linux-2.6.18-mm3.orig/init/main.c	2006-10-04 18:13:50.000000000 +0200
-+++ linux-2.6.18-mm3/init/main.c	2006-10-04 18:13:57.000000000 +0200
-@@ -36,6 +36,7 @@
- #include <linux/moduleparam.h>
- #include <linux/kallsyms.h>
- #include <linux/writeback.h>
-+#include <linux/clockchips.h>
- #include <linux/cpu.h>
- #include <linux/cpuset.h>
- #include <linux/efi.h>
-@@ -529,6 +530,7 @@ asmlinkage void __init start_kernel(void
- 	rcu_init();
- 	init_IRQ();
- 	pidhash_init();
-+	clockevents_init();
- 	init_timers();
- 	hrtimers_init();
- 	softirq_init();
+--- linux-2.6.18-mm3.orig/include/linux/timer.h	2006-10-04 18:13:55.000000000 +0200
++++ linux-2.6.18-mm3/include/linux/timer.h	2006-10-04 18:13:59.000000000 +0200
+@@ -2,6 +2,7 @@
+ #define _LINUX_TIMER_H
+ 
+ #include <linux/list.h>
++#include <linux/ktime.h>
+ #include <linux/spinlock.h>
+ #include <linux/stddef.h>
+ 
+@@ -15,6 +16,11 @@ struct timer_list {
+ 	unsigned long data;
+ 
+ 	struct tvec_t_base_s *base;
++#ifdef CONFIG_TIMER_STATS
++	void *start_site;
++	char start_comm[16];
++	int start_pid;
++#endif
+ };
+ 
+ extern struct tvec_t_base_s boot_tvec_bases;
+@@ -73,6 +79,49 @@ extern unsigned long next_timer_interrup
+  */
+ extern unsigned long get_next_timer_interrupt(unsigned long now);
+ 
++/*
++ * Timer-statistics info:
++ */
++#ifdef CONFIG_TIMER_STATS
++
++extern void timer_stats_update_stats(void *timer, pid_t pid, void *startf,
++				     void *timerf, char * comm);
++
++static inline void timer_stats_account_timer(struct timer_list *timer)
++{
++	timer_stats_update_stats(timer, timer->start_pid, timer->start_site,
++				 timer->function, timer->start_comm);
++}
++
++extern void __timer_stats_timer_set_start_info(struct timer_list *timer,
++					       void *addr);
++
++static inline void timer_stats_timer_set_start_info(struct timer_list *timer)
++{
++	__timer_stats_timer_set_start_info(timer, __builtin_return_address(0));
++}
++
++static inline void timer_stats_timer_clear_start_info(struct timer_list *timer)
++{
++	timer->start_site = NULL;
++}
++#else
++static inline void timer_stats_account_timer(struct timer_list *timer)
++{
++}
++
++static inline void timer_stats_timer_set_start_info(struct timer_list *timer)
++{
++}
++
++static inline void timer_stats_timer_clear_start_info(struct timer_list *timer)
++{
++}
++#endif
++
++extern void delayed_work_timer_fn(unsigned long __data);
++
++
+ /***
+  * add_timer - start a timer
+  * @timer: the timer to be added
 Index: linux-2.6.18-mm3/kernel/hrtimer.c
 ===================================================================
---- linux-2.6.18-mm3.orig/kernel/hrtimer.c	2006-10-04 18:13:56.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/hrtimer.c	2006-10-04 18:13:57.000000000 +0200
-@@ -31,6 +31,7 @@
-  *  For licencing details see kernel-base/COPYING
-  */
+--- linux-2.6.18-mm3.orig/kernel/hrtimer.c	2006-10-04 18:13:58.000000000 +0200
++++ linux-2.6.18-mm3/kernel/hrtimer.c	2006-10-04 18:13:59.000000000 +0200
+@@ -965,6 +965,18 @@ static inline void hrtimer_resume_jiffy_
  
-+#include <linux/clockchips.h>
- #include <linux/cpu.h>
- #include <linux/module.h>
- #include <linux/percpu.h>
-@@ -46,7 +47,7 @@
-  *
-  * returns the time in ktime_t format
-  */
--static ktime_t ktime_get(void)
-+ktime_t ktime_get(void)
- {
- 	struct timespec now;
+ #endif /* CONFIG_HIGH_RES_TIMERS */
  
-@@ -60,7 +61,7 @@ static ktime_t ktime_get(void)
-  *
-  * returns the time in ktime_t format
-  */
--static ktime_t ktime_get_real(void)
-+ktime_t ktime_get_real(void)
- {
- 	struct timespec now;
- 
-@@ -293,6 +294,7 @@ static unsigned long ktime_divns(const k
-  */
- void hrtimer_notify_resume(void)
- {
-+	clockevents_resume_events();
- 	clock_was_set();
- }
- 
-Index: linux-2.6.18-mm3/kernel/time/Makefile
-===================================================================
---- linux-2.6.18-mm3.orig/kernel/time/Makefile	2006-10-04 18:13:50.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/time/Makefile	2006-10-04 18:13:57.000000000 +0200
-@@ -1 +1,3 @@
- obj-y += ntp.o clocksource.o jiffies.o
-+
-+obj-$(CONFIG_GENERIC_CLOCKEVENTS) += clockevents.o
-Index: linux-2.6.18-mm3/kernel/time/clockevents.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-mm3/kernel/time/clockevents.c	2006-10-04 18:13:57.000000000 +0200
-@@ -0,0 +1,567 @@
-+/*
-+ * linux/kernel/time/clockevents.c
-+ *
-+ * This file contains functions which manage clock event drivers.
-+ *
-+ * Copyright(C) 2005-2006, Thomas Gleixner <tglx@linutronix.de>
-+ * Copyright(C) 2005-2006, Red Hat, Inc., Ingo Molnar
-+ *
-+ * We have two types of clock event devices:
-+ * - global events (one device per system)
-+ * - local events (one device per cpu)
-+ *
-+ * We assign the various time(r) related interrupts to those devices
-+ *
-+ * - global tick
-+ * - profiling (per cpu)
-+ * - next timer events (per cpu)
-+ *
-+ * TODO:
-+ * - implement variable frequency profiling
-+ *
-+ * This code is licenced under the GPL version 2. For details see
-+ * kernel-base/COPYING.
-+ */
-+
-+#include <linux/clockchips.h>
-+#include <linux/cpu.h>
-+#include <linux/irq.h>
-+#include <linux/init.h>
-+#include <linux/notifier.h>
-+#include <linux/module.h>
-+#include <linux/percpu.h>
-+#include <linux/profile.h>
-+#include <linux/sysdev.h>
-+#include <linux/hrtimer.h>
-+
-+#define MAX_CLOCK_EVENTS	4
-+#define GLOBAL_CLOCK_EVENT	MAX_CLOCK_EVENTS
-+
-+struct event_descr {
-+	struct clock_event_device *event;
-+	unsigned int mode;
-+	unsigned int real_caps;
-+	struct irqaction action;
-+};
-+
-+struct local_events {
-+	int installed;
-+	struct event_descr events[MAX_CLOCK_EVENTS];
-+	struct clock_event_device *nextevt;
-+};
-+
-+/* Variables related to the global event device */
-+static __read_mostly struct event_descr global_eventdevice;
-+
-+/*
-+ * Lock to protect the above.
-+ *
-+ * Only the public management functions have to take this lock. The fast path
-+ * of the framework, e.g. reprogramming the next event device is lockless as
-+ * it is per cpu.
-+ */
-+static DEFINE_SPINLOCK(events_lock);
-+
-+/* Variables related to the per cpu local event devices */
-+static DEFINE_PER_CPU(struct local_events, local_eventdevices);
-+
-+/*
-+ * Math helper. Convert a latch value (device ticks) to nanoseconds
-+ */
-+unsigned long clockevent_delta2ns(unsigned long latch,
-+				  struct clock_event_device *evt)
++#ifdef CONFIG_TIMER_STATS
++void __timer_stats_hrtimer_set_start_info(struct hrtimer *timer, void *addr)
 +{
-+	u64 clc = ((u64) latch << evt->shift);
-+
-+	do_div(clc, evt->mult);
-+	if (clc < KTIME_MONOTONIC_RES.tv64)
-+		clc = KTIME_MONOTONIC_RES.tv64;
-+	if (clc > LONG_MAX)
-+		clc = LONG_MAX;
-+
-+	return (unsigned long) clc;
-+}
-+
-+/*
-+ * Bootup and lowres handler: ticks only
-+ */
-+static void handle_tick(struct pt_regs *regs)
-+{
-+	write_seqlock(&xtime_lock);
-+	do_timer(1);
-+	write_sequnlock(&xtime_lock);
-+}
-+
-+/*
-+ * Bootup and lowres handler: ticks and update_process_times
-+ */
-+static void handle_tick_update(struct pt_regs *regs)
-+{
-+	write_seqlock(&xtime_lock);
-+	do_timer(1);
-+	write_sequnlock(&xtime_lock);
-+
-+	update_process_times(user_mode(regs));
-+}
-+
-+/*
-+ * Bootup and lowres handler: ticks and profileing
-+ */
-+static void handle_tick_profile(struct pt_regs *regs)
-+{
-+	write_seqlock(&xtime_lock);
-+	do_timer(1);
-+	write_sequnlock(&xtime_lock);
-+
-+	profile_tick(CPU_PROFILING, regs);
-+}
-+
-+/*
-+ * Bootup and lowres handler: ticks, update_process_times and profiling
-+ */
-+static void handle_tick_update_profile(struct pt_regs *regs)
-+{
-+	write_seqlock(&xtime_lock);
-+	do_timer(1);
-+	write_sequnlock(&xtime_lock);
-+
-+	update_process_times(user_mode(regs));
-+	profile_tick(CPU_PROFILING, regs);
-+}
-+
-+/*
-+ * Bootup and lowres handler: update_process_times
-+ */
-+static void handle_update(struct pt_regs *regs)
-+{
-+	update_process_times(user_mode(regs));
-+}
-+
-+/*
-+ * Bootup and lowres handler: update_process_times and profiling
-+ */
-+static void handle_update_profile(struct pt_regs *regs)
-+{
-+	update_process_times(user_mode(regs));
-+	profile_tick(CPU_PROFILING, regs);
-+}
-+
-+/*
-+ * Bootup and lowres handler: profiling
-+ */
-+static void handle_profile(struct pt_regs *regs)
-+{
-+	profile_tick(CPU_PROFILING, regs);
-+}
-+
-+/*
-+ * Noop handler when we shut down an event device
-+ */
-+static void handle_noop(struct pt_regs *regs)
-+{
-+}
-+
-+/*
-+ * Lookup table for bootup and lowres event assignment
-+ *
-+ * The event handler is choosen by the capability flags of the clock event
-+ * device.
-+ */
-+static void __read_mostly *event_handlers[] = {
-+	handle_noop,			/* 0: No capability selected */
-+	handle_tick,			/* 1: Tick only	*/
-+	handle_update,			/* 2: Update process times */
-+	handle_tick_update,		/* 3: Tick + update process times */
-+	handle_profile,			/* 4: Profiling int */
-+	handle_tick_profile,		/* 5: Tick + Profiling int */
-+	handle_update_profile,		/* 6: Update process times +
-+					      profiling */
-+	handle_tick_update_profile,	/* 7: Tick + update process times +
-+					      profiling */
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+	hrtimer_interrupt,		/* 8: Reprogrammable event device */
-+#endif
-+};
-+
-+/*
-+ * Start up an event device
-+ */
-+static void startup_event(struct clock_event_device *evt, unsigned int caps)
-+{
-+	int mode;
-+
-+	if (caps == CLOCK_CAP_NEXTEVT)
-+		mode = CLOCK_EVT_ONESHOT;
-+	else
-+		mode = CLOCK_EVT_PERIODIC;
-+
-+	evt->set_mode(mode, evt);
-+}
-+
-+/*
-+ * Setup an event device. Assign an handler and start it up
-+ */
-+static void setup_event(struct event_descr *descr,
-+			struct clock_event_device *evt, unsigned int caps)
-+{
-+	void *handler = event_handlers[caps];
-+
-+	/* Set the event handler */
-+	evt->event_handler = handler;
-+
-+	/* Store all relevant information */
-+	descr->real_caps = caps;
-+
-+	startup_event(evt, caps);
-+
-+	printk(KERN_INFO "Clock event device %s configured with caps set: "
-+	       "%02x\n", evt->name, descr->real_caps);
-+}
-+
-+/**
-+ * register_global_clockevent - register the device which generates
-+ *			     global clock events
-+ * @evt:	The device which generates global clock events (ticks)
-+ *
-+ * This can be a device which is only necessary for bootup. On UP systems this
-+ * might be the only event device which is used for everything including
-+ * high resolution events.
-+ *
-+ * When a cpu local event device is installed the global event device is
-+ * switched off in the high resolution timer / tickless mode.
-+ */
-+int __init register_global_clockevent(struct clock_event_device *evt)
-+{
-+	/* Already installed? */
-+	if (global_eventdevice.event) {
-+		printk(KERN_ERR "Global clock event device already installed: "
-+		       "%s. Ignoring new global eventsoruce %s\n",
-+		       global_eventdevice.event->name,
-+		       evt->name);
-+		return -EBUSY;
-+	}
-+
-+	/* Preset the handler in any case */
-+	evt->event_handler = handle_noop;
-+
-+	/*
-+	 * Check, whether it is a valid global event device
-+	 */
-+	if (!(evt->capabilities & CLOCK_BASE_CAPS_MASK)) {
-+		printk(KERN_ERR "Unsupported clock event device %s\n",
-+		       evt->name);
-+		return -EINVAL;
-+	}
-+
-+#ifdef CONFIG_SMP
-+	/*
-+	 * On UP systems the global clock event device can be used as the next
-+	 * event device. On SMP this is disabled because the next event device
-+	 * must be per CPU.
-+	 */
-+	evt->capabilities &= ~CLOCK_CAP_NEXTEVT;
-+#endif
-+
-+	/* Mask out high resolution capabilities for now */
-+	global_eventdevice.event = evt;
-+	setup_event(&global_eventdevice, evt,
-+		    evt->capabilities & CLOCK_BASE_CAPS_MASK);
-+	return 0;
-+}
-+
-+/*
-+ * Mask out the functionality which is covered by the new event device
-+ * and assign a new event handler.
-+ */
-+static void recalc_active_event(struct event_descr *descr,
-+				unsigned int newcaps)
-+{
-+	unsigned int caps;
-+
-+	if (!descr->real_caps)
++	if (timer->start_site)
 +		return;
 +
-+	/* Mask the overlapping bits */
-+	caps = descr->real_caps & ~newcaps;
-+
-+	/* Assign the new event handler */
-+	if (caps) {
-+		descr->event->event_handler = event_handlers[caps];
-+		printk(KERN_INFO "Clock event device %s new caps set: %02x\n" ,
-+		       descr->event->name, caps);
-+	} else {
-+		descr->event->event_handler = handle_noop;
-+
-+		if (descr->event->set_mode)
-+			descr->event->set_mode(CLOCK_EVT_SHUTDOWN,
-+					       descr->event);
-+
-+		printk(KERN_INFO "Clock event device %s disabled\n" ,
-+		       descr->event->name);
-+	}
-+	descr->real_caps = caps;
++	timer->start_site = addr;
++	memcpy(timer->start_comm, current->comm, TASK_COMM_LEN);
++	timer->start_pid = current->pid;
 +}
-+
-+/*
-+ * Recalc the events and reassign the handlers if necessary
-+ *
-+ * Called with event_lock held to protect the global event device.
-+ */
-+static int recalc_events(struct local_events *devices,
-+			 struct clock_event_device *evt, unsigned int caps,
-+			 int new)
-+{
-+	int i;
-+
-+	if (new && devices->installed == MAX_CLOCK_EVENTS)
-+		return -ENOSPC;
-+
-+	/*
-+	 * If there is no handler and this is not a next-event capable
-+	 * event device, refuse to handle it
-+	 */
-+	if ((!evt->capabilities & CLOCK_CAP_NEXTEVT) && !event_handlers[caps]) {
-+		printk(KERN_ERR "Unsupported clock event device %s\n",
-+		       evt->name);
-+		return -EINVAL;
-+	}
-+
-+	if (caps && global_eventdevice.event && global_eventdevice.event != evt)
-+		recalc_active_event(&global_eventdevice, caps);
-+
-+	for (i = 0; i < devices->installed; i++) {
-+		if (devices->events[i].event != evt)
-+			recalc_active_event(&devices->events[i], caps);
-+	}
-+
-+	if (new)
-+		devices->events[devices->installed++].event = evt;
-+
-+	if (caps) {
-+		/* Is next_event event device going to be installed? */
-+		if (caps & CLOCK_CAP_NEXTEVT)
-+			caps = CLOCK_CAP_NEXTEVT;
-+
-+		setup_event(&devices->events[devices->installed],
-+			    evt, caps);
-+	} else
-+		printk(KERN_INFO "Inactive clock event device %s registered\n",
-+		       evt->name);
-+
-+	return 0;
-+}
-+
-+/**
-+ * register_local_clockevent - Set up a cpu local clock event device
-+ * @evt:	event device to be registered
-+ */
-+int register_local_clockevent(struct clock_event_device *evt)
-+{
-+	struct local_events *devices = &__get_cpu_var(local_eventdevices);
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&events_lock, flags);
-+
-+	/* Preset the handler in any case */
-+	evt->event_handler = handle_noop;
-+
-+	/* Recalc event devices and maybe reassign handlers */
-+	ret = recalc_events(devices, evt,
-+			    evt->capabilities & CLOCK_BASE_CAPS_MASK, 1);
-+
-+	spin_unlock_irqrestore(&events_lock, flags);
-+
-+	/*
-+	 * Trigger hrtimers, when the event device is next-event
-+	 * capable
-+	 */
-+	if (!ret && (evt->capabilities & CLOCK_CAP_NEXTEVT))
-+		hrtimer_clock_notify();
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(register_local_clockevent);
-+
-+/*
-+ * Find a next-event capable event device
-+ *
-+ * Called with event_lock held to protect the global event device.
-+ */
-+static int get_next_event_device(void)
-+{
-+	struct local_events *devices = &__get_cpu_var(local_eventdevices);
-+	int i;
-+
-+	for (i = 0; i < devices->installed; i++) {
-+		struct clock_event_device *evt;
-+
-+		evt = devices->events[i].event;
-+		if (evt->capabilities & CLOCK_CAP_NEXTEVT)
-+			return i;
-+	}
-+
-+	if (global_eventdevice.event->capabilities & CLOCK_CAP_NEXTEVT)
-+		return GLOBAL_CLOCK_EVENT;
-+
-+	return -ENODEV;
-+}
-+
-+/**
-+ * clockevents_next_event_available - Check for a installed next-event device
-+ *
-+ * Returns 1, when such a device exists, otherwise 0
-+ */
-+int clockevents_next_event_available(void)
-+{
-+	unsigned long flags;
-+	int idx;
-+
-+	spin_lock_irqsave(&events_lock, flags);
-+	idx = get_next_event_device();
-+	spin_unlock_irqrestore(&events_lock, flags);
-+
-+	return IS_ERR_VALUE(idx) ? 0 : 1;
-+}
-+
-+/**
-+ * clockevents_init_next_event - switch to next event (oneshot) mode
-+ *
-+ * Switch to one shot mode. On SMP systems the global event (tick) device is
-+ * switched off. It is replaced by a hrtimer. On UP systems the global event
-+ * device might be the only one and can be used as the next event device too.
-+ *
-+ * Returns 0 on success, otherwise an error code.
-+ */
-+int clockevents_init_next_event(void)
-+{
-+	struct local_events *devices = &__get_cpu_var(local_eventdevices);
-+	struct clock_event_device *nextevt;
-+	unsigned long flags;
-+	int idx, ret = -ENODEV;
-+
-+	if (devices->nextevt)
-+		return -EBUSY;
-+
-+	spin_lock_irqsave(&events_lock, flags);
-+
-+	idx = get_next_event_device();
-+	if (idx < 0)
-+		goto out_unlock;
-+
-+	if (idx == GLOBAL_CLOCK_EVENT)
-+		nextevt = global_eventdevice.event;
-+	else
-+		nextevt = devices->events[idx].event;
-+
-+	ret = recalc_events(devices, nextevt, CLOCK_CAPS_MASK, 0);
-+	if (!ret)
-+		devices->nextevt = nextevt;
-+ out_unlock:
-+	spin_unlock_irqrestore(&events_lock, flags);
-+
-+	return ret;
-+}
-+
-+/**
-+ * clockevents_set_next_event - Reprogram the clock event device.
-+ * @expires:	absolute expiry time (monotonic clock)
-+ * @force:	when set, enforce reprogramming, even if the event is in the
-+ *		past
-+ *
-+ * Returns 0 on success, -ETIME when the event is in the past and force is not
-+ * set.
-+ */
-+int clockevents_set_next_event(ktime_t expires, int force)
-+{
-+	struct local_events *devices = &__get_cpu_var(local_eventdevices);
-+	int64_t delta = ktime_to_ns(ktime_sub(expires, ktime_get()));
-+	struct clock_event_device *nextevt = devices->nextevt;
-+	unsigned long long clc;
-+
-+	if (delta <= 0 && !force)
-+		return -ETIME;
-+
-+	if (delta > nextevt->max_delta_ns)
-+		delta = nextevt->max_delta_ns;
-+	if (delta < nextevt->min_delta_ns)
-+		delta = nextevt->min_delta_ns;
-+
-+	clc = delta * nextevt->mult;
-+	clc >>= nextevt->shift;
-+	nextevt->set_next_event((unsigned long)clc, devices->nextevt);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Resume the cpu local clock events
-+ */
-+static void clockevents_resume_local_events(void *arg)
-+{
-+	struct local_events *devices = &__get_cpu_var(local_eventdevices);
-+	int i;
-+
-+	for (i = 0; i < devices->installed; i++) {
-+		if (devices->events[i].real_caps)
-+			startup_event(devices->events[i].event,
-+				      devices->events[i].real_caps);
-+	}
-+	touch_softlockup_watchdog();
-+}
-+
-+/**
-+ * clockevents_resume_events - resume the active clock devices
-+ *
-+ * Called after timekeeping is functional again
-+ */
-+void clockevents_resume_events(void)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+
-+	/* Resume global event device */
-+	if (global_eventdevice.real_caps)
-+		startup_event(global_eventdevice.event,
-+			      global_eventdevice.real_caps);
-+
-+	local_irq_restore(flags);
-+
-+	/* Restart the CPU local events everywhere */
-+	on_each_cpu(clockevents_resume_local_events, NULL, 0, 1);
-+}
-+
-+/*
-+ * Functions related to initialization and hotplug
-+ */
-+static int clockevents_cpu_notify(struct notifier_block *self,
-+				  unsigned long action, void *hcpu)
-+{
-+	switch(action) {
-+	case CPU_UP_PREPARE:
-+		break;
-+#ifdef CONFIG_HOTPLUG_CPU
-+	case CPU_DEAD:
-+		/*
-+		 * Do something sensible here !
-+		 * Disable the cpu local clock event devices ???
-+		 */
-+		break;
 +#endif
-+	default:
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
 +
-+static struct notifier_block __devinitdata clockevents_nb = {
-+	.notifier_call	= clockevents_cpu_notify,
+ /*
+  * Timekeeping resumed notification
+  */
+@@ -1133,6 +1145,7 @@ remove_hrtimer(struct hrtimer *timer, st
+ 		 * reprogramming happens in the interrupt handler. This is a
+ 		 * rare case and less expensive than a smp call.
+ 		 */
++		timer_stats_hrtimer_clear_start_info(timer);
+ 		reprogram = base->cpu_base == &__get_cpu_var(hrtimer_bases);
+ 		__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE,
+ 				 reprogram);
+@@ -1181,6 +1194,8 @@ hrtimer_start(struct hrtimer *timer, kti
+ 	}
+ 	timer->expires = tim;
+ 
++	timer_stats_hrtimer_set_start_info(timer);
++
+ 	enqueue_hrtimer(timer, new_base, base == new_base);
+ 
+ 	unlock_hrtimer_base(timer, &flags);
+@@ -1313,6 +1328,12 @@ void hrtimer_init(struct hrtimer *timer,
+ 
+ 	timer->base = &cpu_base->clock_base[clock_id];
+ 	hrtimer_init_timer_hres(timer);
++
++#ifdef CONFIG_TIMER_STATS
++	timer->start_site = NULL;
++	timer->start_pid = -1;
++	memset(timer->start_comm, 0, TASK_COMM_LEN);
++#endif
+ }
+ EXPORT_SYMBOL_GPL(hrtimer_init);
+ 
+@@ -1395,6 +1416,7 @@ void hrtimer_interrupt(struct pt_regs *r
+ 
+ 			__remove_hrtimer(timer, base,
+ 					 HRTIMER_STATE_CALLBACK, 0);
++			timer_stats_account_hrtimer(timer);
+ 
+ 			if (timer->function(timer) != HRTIMER_NORESTART) {
+ 				BUG_ON(timer->state != HRTIMER_STATE_CALLBACK);
+@@ -1440,6 +1462,8 @@ static void run_hrtimer_softirq(struct s
+ 		timer = list_entry(cpu_base->cb_pending.next,
+ 				   struct hrtimer, cb_entry);
+ 
++		timer_stats_account_hrtimer(timer);
++
+ 		fn = timer->function;
+ 		__remove_hrtimer(timer, timer->base, HRTIMER_STATE_CALLBACK, 0);
+ 		spin_unlock_irq(&cpu_base->lock);
+@@ -1496,6 +1520,8 @@ static inline void run_hrtimer_queue(str
+ 		if (base->softirq_time.tv64 <= timer->expires.tv64)
+ 			break;
+ 
++		timer_stats_account_hrtimer(timer);
++
+ 		fn = timer->function;
+ 		__remove_hrtimer(timer, base, HRTIMER_STATE_CALLBACK, 0);
+ 		spin_unlock_irq(&cpu_base->lock);
+Index: linux-2.6.18-mm3/kernel/time/Makefile
+===================================================================
+--- linux-2.6.18-mm3.orig/kernel/time/Makefile	2006-10-04 18:13:57.000000000 +0200
++++ linux-2.6.18-mm3/kernel/time/Makefile	2006-10-04 18:13:59.000000000 +0200
+@@ -1,3 +1,4 @@
+ obj-y += ntp.o clocksource.o jiffies.o
+ 
+-obj-$(CONFIG_GENERIC_CLOCKEVENTS) += clockevents.o
++obj-$(CONFIG_GENERIC_CLOCKEVENTS)	+= clockevents.o
++obj-$(CONFIG_TIMER_STATS)		+= timer_stats.o
+Index: linux-2.6.18-mm3/kernel/time/timer_stats.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.18-mm3/kernel/time/timer_stats.c	2006-10-04 18:13:59.000000000 +0200
+@@ -0,0 +1,244 @@
++/*
++ * kernel/time/timer_stats.c
++ *
++ * Collect timer usage statistics.
++ *
++ * Copyright(C) 2006, Red Hat, Inc., Ingo Molnar
++ * Copyright(C) 2006 Timesys Corp., Thomas Gleixner <tglx@timesys.com>
++ *
++ * timer_stats is based on timer_top, a similar functionality which was part of
++ * Con Kolivas dyntick patch set. It was developed by Daniel Petrini at the
++ * Instituto Nokia de Tecnologia - INdT - Manaus. timer_top's design was based
++ * on dynamic allocation of the statistics entries rather than the static array
++ * which is used by timer_stats. It was written for the pre hrtimer kernel code
++ * and therefor did not take hrtimers into account. Nevertheless it provided
++ * the base for the timer_stats implementation and was a helpful source of
++ * inspiration in the first place. Kudos to Daniel and the Nokia folks for this
++ * effort.
++ *
++ * timer_top.c is
++ *	Copyright (C) 2005 Instituto Nokia de Tecnologia - INdT - Manaus
++ *	Written by Daniel Petrini <d.pensator@gmail.com>
++ *	timer_top.c was released under the GNU General Public License version 2
++ *
++ * We export the addresses and counting of timer functions being called,
++ * the pid and cmdline from the owner process if applicable.
++ *
++ * Start/stop data collection:
++ * # echo 1[0] >/proc/timer_stats
++ *
++ * Display the collected information:
++ * # cat /proc/timer_stats
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/list.h>
++#include <linux/proc_fs.h>
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/sched.h>
++#include <linux/seq_file.h>
++#include <linux/kallsyms.h>
++
++#include <asm/uaccess.h>
++
++enum tstats_stat {
++	TSTATS_INACTIVE,
++	TSTATS_ACTIVE,
++	TSTATS_READOUT,
++	TSTATS_RESET,
 +};
 +
-+void __init clockevents_init(void)
++struct tstats_entry {
++	void			*timer;
++	void			*start_func;
++	void			*expire_func;
++	unsigned long		counter;
++	pid_t			pid;
++	char			comm[TASK_COMM_LEN + 1];
++};
++
++#define TSTATS_MAX_ENTRIES	1024
++
++static struct tstats_entry tstats[TSTATS_MAX_ENTRIES];
++static DEFINE_SPINLOCK(tstats_lock);
++static enum tstats_stat tstats_status;
++static ktime_t tstats_time;
++
++/**
++ * timer_stats_update_stats - Update the statistics for a timer.
++ * @timer:	pointer to either a timer_list or a hrtimer
++ * @pid:	the pid of the task which set up the timer
++ * @startf:	pointer to the function which did the timer setup
++ * @timerf:	pointer to the timer callback function of the timer
++ * @comm:	name of the process which set up the timer
++ *
++ * When the timer is already registered, then the event counter is
++ * incremented. Otherwise the timer is registered in a free slot.
++ */
++void timer_stats_update_stats(void *timer, pid_t pid, void *startf,
++			      void *timerf, char * comm)
 +{
-+	clockevents_cpu_notify(&clockevents_nb, (unsigned long)CPU_UP_PREPARE,
-+				(void *)(long)smp_processor_id());
-+	register_cpu_notifier(&clockevents_nb);
++	struct tstats_entry *entry = tstats;
++	unsigned long flags;
++	int i;
++
++	spin_lock_irqsave(&tstats_lock, flags);
++	if (tstats_status != TSTATS_ACTIVE)
++		goto out_unlock;
++
++	for (i = 0; i < TSTATS_MAX_ENTRIES; i++, entry++) {
++		if (entry->timer == timer &&
++		    entry->start_func == startf &&
++		    entry->expire_func == timerf &&
++		    entry->pid == pid) {
++
++			entry->counter++;
++			break;
++		}
++		if (!entry->timer) {
++			entry->timer = timer;
++			entry->start_func = startf;
++			entry->expire_func = timerf;
++			entry->counter = 1;
++			entry->pid = pid;
++			memcpy(entry->comm, comm, TASK_COMM_LEN);
++			entry->comm[TASK_COMM_LEN] = 0;
++			break;
++		}
++	}
++
++ out_unlock:
++	spin_unlock_irqrestore(&tstats_lock, flags);
 +}
++
++static void print_name_offset(struct seq_file *m, unsigned long addr)
++{
++	char namebuf[KSYM_NAME_LEN+1];
++	unsigned long size, offset;
++	const char *sym_name;
++	char *modname;
++
++	sym_name = kallsyms_lookup(addr, &size, &offset, &modname, namebuf);
++	if (sym_name)
++		seq_printf(m, "%s", sym_name);
++	else
++		seq_printf(m, "<%p>", (void *)addr);
++}
++
++static int tstats_show(struct seq_file *m, void *v)
++{
++	struct tstats_entry *entry = tstats;
++	struct timespec period;
++	unsigned long ms;
++	long events = 0;
++	int i;
++
++	spin_lock_irq(&tstats_lock);
++	switch(tstats_status) {
++	case TSTATS_ACTIVE:
++		tstats_time = ktime_sub(ktime_get(), tstats_time);
++	case TSTATS_INACTIVE:
++		tstats_status = TSTATS_READOUT;
++		break;
++	default:
++		spin_unlock_irq(&tstats_lock);
++		return -EBUSY;
++	}
++	spin_unlock_irq(&tstats_lock);
++
++	period = ktime_to_timespec(tstats_time);
++	ms = period.tv_nsec % 1000000;
++
++	seq_printf(m, "Timerstats sample period: %ld.%3ld s\n",
++		   period.tv_sec, ms);
++
++	for (i = 0; i < TSTATS_MAX_ENTRIES && entry->timer; i++, entry++) {
++		seq_printf(m, "%4lu, %5d %-16s ", entry->counter, entry->pid,
++			   entry->comm);
++
++		print_name_offset(m, (unsigned long)entry->start_func);
++		seq_puts(m, " (");
++		print_name_offset(m, (unsigned long)entry->expire_func);
++		seq_puts(m, ")\n");
++		events += entry->counter;
++	}
++
++	ms += period.tv_sec * 1000;
++	if (events && period.tv_sec)
++		seq_printf(m, "%ld total events, %ld.%ld events/sec\n", events,
++			   events / period.tv_sec, events * 1000 / ms);
++	else
++		seq_printf(m, "%ld total events\n", events);
++
++	tstats_status = TSTATS_INACTIVE;
++	return 0;
++}
++
++static ssize_t tstats_write(struct file *file, const char __user *buf,
++			    size_t count, loff_t *offs)
++{
++	char ctl[2];
++
++	if (count != 2 || *offs)
++		return -EINVAL;
++
++	if (copy_from_user(ctl, buf, count))
++		return -EFAULT;
++
++	switch (ctl[0]) {
++	case '0':
++		spin_lock_irq(&tstats_lock);
++		if (tstats_status == TSTATS_ACTIVE) {
++			tstats_status = TSTATS_INACTIVE;
++			tstats_time = ktime_sub(ktime_get(), tstats_time);
++		}
++		spin_unlock_irq(&tstats_lock);
++		break;
++	case '1':
++		spin_lock_irq(&tstats_lock);
++		if (tstats_status == TSTATS_INACTIVE) {
++			tstats_status = TSTATS_RESET;
++			memset(tstats, 0, sizeof(tstats));
++			tstats_time = ktime_get();
++			tstats_status = TSTATS_ACTIVE;
++		}
++		spin_unlock_irq(&tstats_lock);
++		break;
++	default:
++		count = -EINVAL;
++	}
++
++	return count;
++}
++
++static int tstats_open(struct inode *inode, struct file *filp)
++{
++	return single_open(filp, tstats_show, NULL);
++}
++
++static struct file_operations tstats_fops = {
++	.open		= tstats_open,
++	.read		= seq_read,
++	.write		= tstats_write,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
++};
++
++static int __init init_tstats(void)
++{
++	struct proc_dir_entry *pe;
++
++	pe = create_proc_entry("timer_stats", 0666, NULL);
++
++	if (!pe)
++		return -ENOMEM;
++
++	pe->proc_fops = &tstats_fops;
++
++	return 0;
++}
++module_init(init_tstats);
+Index: linux-2.6.18-mm3/kernel/timer.c
+===================================================================
+--- linux-2.6.18-mm3.orig/kernel/timer.c	2006-10-04 18:13:58.000000000 +0200
++++ linux-2.6.18-mm3/kernel/timer.c	2006-10-04 18:13:59.000000000 +0200
+@@ -34,6 +34,7 @@
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
+ #include <linux/delay.h>
++#include <linux/kallsyms.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -133,6 +134,18 @@ static void internal_add_timer(tvec_base
+ 	list_add_tail(&timer->entry, vec);
+ }
+ 
++#ifdef CONFIG_TIMER_STATS
++void __timer_stats_timer_set_start_info(struct timer_list *timer, void *addr)
++{
++	if (timer->start_site)
++		return;
++
++	timer->start_site = addr;
++	memcpy(timer->start_comm, current->comm, TASK_COMM_LEN);
++	timer->start_pid = current->pid;
++}
++#endif
++
+ /**
+  * init_timer - initialize a timer.
+  * @timer: the timer to be initialized
+@@ -144,11 +157,16 @@ void fastcall init_timer(struct timer_li
+ {
+ 	timer->entry.next = NULL;
+ 	timer->base = __raw_get_cpu_var(tvec_bases);
++#ifdef CONFIG_TIMER_STATS
++	timer->start_site = NULL;
++	timer->start_pid = -1;
++	memset(timer->start_comm, 0, TASK_COMM_LEN);
++#endif
+ }
+ EXPORT_SYMBOL(init_timer);
+ 
+ static inline void detach_timer(struct timer_list *timer,
+-					int clear_pending)
++				int clear_pending)
+ {
+ 	struct list_head *entry = &timer->entry;
+ 
+@@ -195,6 +213,7 @@ int __mod_timer(struct timer_list *timer
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
++	timer_stats_timer_set_start_info(timer);
+ 	BUG_ON(!timer->function);
+ 
+ 	base = lock_timer_base(timer, &flags);
+@@ -245,6 +264,7 @@ void add_timer_on(struct timer_list *tim
+ 	tvec_base_t *base = per_cpu(tvec_bases, cpu);
+   	unsigned long flags;
+ 
++	timer_stats_timer_set_start_info(timer);
+   	BUG_ON(timer_pending(timer) || !timer->function);
+ 	spin_lock_irqsave(&base->lock, flags);
+ 	timer->base = base;
+@@ -277,6 +297,7 @@ int mod_timer(struct timer_list *timer, 
+ {
+ 	BUG_ON(!timer->function);
+ 
++	timer_stats_timer_set_start_info(timer);
+ 	/*
+ 	 * This is a common optimization triggered by the
+ 	 * networking code - if the timer is re-modified
+@@ -307,6 +328,7 @@ int del_timer(struct timer_list *timer)
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
++	timer_stats_timer_clear_start_info(timer);
+ 	if (timer_pending(timer)) {
+ 		base = lock_timer_base(timer, &flags);
+ 		if (timer_pending(timer)) {
+@@ -440,6 +462,8 @@ static inline void __run_timers(tvec_bas
+  			fn = timer->function;
+  			data = timer->data;
+ 
++			timer_stats_account_timer(timer);
++
+ 			set_running_timer(base, timer);
+ 			detach_timer(timer, 1);
+ 			spin_unlock_irq(&base->lock);
+@@ -1129,7 +1153,8 @@ static void run_timer_softirq(struct sof
+ {
+ 	tvec_base_t *base = __get_cpu_var(tvec_bases);
+ 
+- 	hrtimer_run_queues();
++	hrtimer_run_queues();
++
+ 	if (time_after_eq(jiffies, base->timer_jiffies))
+ 		__run_timers(base);
+ }
+Index: linux-2.6.18-mm3/kernel/workqueue.c
+===================================================================
+--- linux-2.6.18-mm3.orig/kernel/workqueue.c	2006-10-04 18:13:48.000000000 +0200
++++ linux-2.6.18-mm3/kernel/workqueue.c	2006-10-04 18:13:59.000000000 +0200
+@@ -119,7 +119,7 @@ int fastcall queue_work(struct workqueue
+ }
+ EXPORT_SYMBOL_GPL(queue_work);
+ 
+-static void delayed_work_timer_fn(unsigned long __data)
++void delayed_work_timer_fn(unsigned long __data)
+ {
+ 	struct work_struct *work = (struct work_struct *)__data;
+ 	struct workqueue_struct *wq = work->wq_data;
+@@ -140,11 +140,12 @@ static void delayed_work_timer_fn(unsign
+  * Returns non-zero if it was successfully added.
+  */
+ int fastcall queue_delayed_work(struct workqueue_struct *wq,
+-			struct work_struct *work, unsigned long delay)
++				struct work_struct *work, unsigned long delay)
+ {
+ 	int ret = 0;
+ 	struct timer_list *timer = &work->timer;
+ 
++	timer_stats_timer_set_start_info(&work->timer);
+ 	if (!test_and_set_bit(0, &work->pending)) {
+ 		BUG_ON(timer_pending(timer));
+ 		BUG_ON(!list_empty(&work->entry));
+@@ -469,6 +470,7 @@ EXPORT_SYMBOL(schedule_work);
+  */
+ int fastcall schedule_delayed_work(struct work_struct *work, unsigned long delay)
+ {
++	timer_stats_timer_set_start_info(&work->timer);
+ 	return queue_delayed_work(keventd_wq, work, delay);
+ }
+ EXPORT_SYMBOL(schedule_delayed_work);
+Index: linux-2.6.18-mm3/lib/Kconfig.debug
+===================================================================
+--- linux-2.6.18-mm3.orig/lib/Kconfig.debug	2006-10-04 18:13:48.000000000 +0200
++++ linux-2.6.18-mm3/lib/Kconfig.debug	2006-10-04 18:13:59.000000000 +0200
+@@ -109,6 +109,17 @@ config SCHEDSTATS
+ 	  application, you can say N to avoid the very slight overhead
+ 	  this adds.
+ 
++config TIMER_STATS
++	bool "Collect kernel timers statistics"
++	depends on DEBUG_KERNEL && PROC_FS
++	help
++	  If you say Y here, additional code will be inserted into the
++	  timer routines to collect statistics about kernel timers being
++	  reprogrammed. The statistics can be read from /proc/tstats.
++	  The statistics collection is started by writing 1 to /proc/tstats,
++	  writing 0 stops it. This feature is useful to collect information
++	  about timer usage patterns in kernel and userspace.
++
+ config DEBUG_SLAB
+ 	bool "Debug slab memory allocations"
+ 	depends on DEBUG_KERNEL && SLAB
 
 --
 

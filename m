@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030808AbWJDKpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030812AbWJDKvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030808AbWJDKpk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 06:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030809AbWJDKpk
+	id S1030812AbWJDKvt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 06:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWJDKvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 06:45:40 -0400
-Received: from smtp5-g19.free.fr ([212.27.42.35]:64421 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1030808AbWJDKpj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 06:45:39 -0400
-From: Dominique Dumont <domi.dumont@free.fr>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       alsa-user <alsa-user@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	<20060925143838.GQ13641@csclub.uwaterloo.ca>
-	<1159195859.2899.72.camel@mindpipe>
-Date: Wed, 04 Oct 2006 12:45:35 +0200
-In-Reply-To: <1159195859.2899.72.camel@mindpipe> (Lee Revell's message of
-	"Mon, 25 Sep 2006 10:50:59 -0400")
-Message-ID: <87hcyk4awg.fsf@gandalf.hd.free.fr>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: domi.dumont@free.fr
-X-SA-Exim-Scanned: No (on gandalf.hd.free.fr); SAEximRunCond expanded to false
+	Wed, 4 Oct 2006 06:51:49 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40636 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030806AbWJDKvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 06:51:48 -0400
+Subject: Re: PCI/IDE generic IDE driver + bus master DMA logic errors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: girish <girishvg@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <28EE04D1-1645-4D2C-9D8B-FB4877779223@gmail.com>
+References: <28EE04D1-1645-4D2C-9D8B-FB4877779223@gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 04 Oct 2006 12:17:25 +0100
+Message-Id: <1159960645.25772.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
+Ar Mer, 2006-10-04 am 19:07 +0900, ysgrifennodd girish:
+> our hardware guys are designing an pci/ide controller which has  
+> interrupt wrapper such that the ide & bus master interrupts are  
+> packaged & delivered together.
 
-> It might not be interrupt related, it could be DMA starvation.  This has
-> been observed with some SATA controllers while testing the -rt patches.
-> The symptom is that the latency traces show the machine going in "slow
-> motion".
->
-> Dominique: try the -rt kernel, enable latency tracing and post the
-> output.
+All the SFF8038i/D1510 style devices have a single interrupt line for
+IDE and for bus mastering interrupts. If your device behaves in
+accordance to D1510 the default code ought to work.
 
-Done. I've tried with 2.6.18-rt5. CONFIG_LATENCY_TRACE is enabled.
+Alan
 
-Here are the results (still with running "ac3dec -C " and "md5sum *"
-on a SATA drive): 
-- I get no more ALSA xrun.
-- /proc/latency_trace is empty
-- dolby digital output is still considerably chopped.
-
-Note that the dolby digital output works fine when:
-- No I/O is done 
-- heavy I/O on pata HDD (md5sum *)
-- heavy I/O on DVD reader (md5sum *)
-
-Did I miss something with the latency_trace ?
-
-Cheers

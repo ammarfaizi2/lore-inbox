@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWJDPG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWJDPHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161168AbWJDPG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 11:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWJDPG6
+	id S1161166AbWJDPHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 11:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWJDPHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 11:06:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62907 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161168AbWJDPG5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 11:06:57 -0400
-Date: Wed, 4 Oct 2006 08:06:37 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: akpm@osdl.org, reinette.chatre@linux.intel.com,
-       linux-kernel@vger.kernel.org, inaky@linux.intel.com
-Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of a
- user buffer
-Message-Id: <20061004080637.0bd19042.pj@sgi.com>
-In-Reply-To: <20061004145524.GA24335@tsunami.ccur.com>
-References: <200610030816.27941.reinette.chatre@linux.intel.com>
-	<20061003163936.d8e26629.akpm@osdl.org>
-	<20061004141405.GA22833@tsunami.ccur.com>
-	<20061004072746.8e4b97a0.pj@sgi.com>
-	<20061004145524.GA24335@tsunami.ccur.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Wed, 4 Oct 2006 11:07:50 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:46485 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1161166AbWJDPHs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 11:07:48 -0400
+Date: Wed, 4 Oct 2006 09:07:47 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Vasily Averin <vvs@sw.ru>, Theodore Tso <tytso@mit.edu>,
+       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ext4@vger.kernel.org, devel@openvz.org, cmm@us.ibm.com,
+       Eric Sandeen <sandeen@sandeen.net>, Kirill Korotaev <dev@openvz.org>
+Subject: Re: ext2/ext3 errors behaviour fixes
+Message-ID: <20061004150747.GC22010@schatzie.adilger.int>
+Mail-Followup-To: Vasily Averin <vvs@sw.ru>,
+	Theodore Tso <tytso@mit.edu>, Stephen Tweedie <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-ext4@vger.kernel.org, devel@openvz.org, cmm@us.ibm.com,
+	Eric Sandeen <sandeen@sandeen.net>, Kirill Korotaev <dev@openvz.org>
+References: <452367A8.3010405@sw.ru> <20061004150236.GB22010@schatzie.adilger.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061004150236.GB22010@schatzie.adilger.int>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe wrote:
-> I guess I am a sucker for no-transient-buffer (bufferless?)
+On Oct 04, 2006  09:02 -0600, Andreas Dilger wrote:
+> On Oct 04, 2006  11:50 +0400, Vasily Averin wrote:
+> > However EXT3_ERRORS_CONTINUE is not read from the superblock, and thus
+> > ERRORS_CONT is not saved on the sbi->s_mount_opt. It leads to the incorrect
+> > handle of errors on ext3.
+> > 
+> > The following patches fix this.
+> 
+> {patch is missing}
 
-Ah - that explains Joe's preference for putting the actual implementing
-code in the user version - it gets to pull in the user string one
-char at a time, avoiding a malloc'd buffer.
+Sorry, nm.
 
-I tend to make more coding mistakes that way, so have gotten in the
-habit of keeping my scanning code separate from any code required to
-get a nice safe local copy of the input that is to be scanned.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-I agree with Joe - either way can be made to work - author's
-discretion.  Just be sure to impose that sanity limit.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

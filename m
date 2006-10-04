@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWJDT3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWJDT3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWJDT3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 15:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWJDT3Q
+	id S1750890AbWJDT3e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 15:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWJDT3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 15:29:16 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:65288 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1750865AbWJDT3P (ORCPT
+	Wed, 4 Oct 2006 15:29:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750884AbWJDT3c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 15:29:15 -0400
-Message-ID: <45240BF0.4050400@aknet.ru>
-Date: Wed, 04 Oct 2006 23:30:56 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Wed, 4 Oct 2006 15:29:32 -0400
+Date: Wed, 4 Oct 2006 12:21:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+cc: "John W. Linville" <linville@tuxdriver.com>, Jeff Garzik <jeff@garzik.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+In-Reply-To: <20061004185903.GA4386@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.4.64.0610041216510.3952@g5.osdl.org>
+References: <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
+ <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
+ <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org>
+ <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
+ <20061004181032.GA4272@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org>
+ <20061004185903.GA4386@bougret.hpl.hp.com>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru> <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru> <1159887682.2891.537.camel@laptopd505.fenrus.org> <45229A99.6060703@aknet.ru> <1159899820.2891.542.camel@laptopd505.fenrus.org> <4522AEA1.5060304@aknet.ru> <1159900934.2891.548.camel@laptopd505.fenrus.org> <4522B4F9.8000301@aknet.ru> <20061003210037.GO20982@devserv.devel.redhat.com>
-In-Reply-To: <20061003210037.GO20982@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-David Wagner wrote:
->>/That's obviously possible, but I'd feel safer having/
->>/"noexec" on *every* user-writable partition./
-> But why would you "feel" safer?  And why should the Linux kernel care
-> about how people "feel"?
-I am more wondering why should I answer this,
-esp. since you do not even care to CC me.
 
-> What threat, exactly, are you trying to
-> defend against?  What's your threat model?
-Am I supposed to explain why I want to prevent an
-attacker from executing the exploit he happened to
-copy to one of the user-writable mounts of mine?
+On Wed, 4 Oct 2006, Jean Tourrilhes wrote:
+> > 
+> > It's not what we have ever done. We've _extended_ the API. But we don't 
+> > break old ones.
+> 
+> 	Old APIs get deprecated, and people are forced to the new API,
+> which is exactly the same as far as userspace is concerned. This
+> transition is exactly the same as what you propose, both kernel API
+> coexist for some time, except it happens in userspace instead of in
+> kernel, which is an implementation detail.
+> 	So, my question is when can I remove the old ESSID API.
 
-> so you say it is not a library and not a binary.  So what is it that you
-> are maping in as executable, and why do you think it is reasonable to
-> ask the Linux kernel to allow you to execute it, if it lives on a noexec
-> partition?
-Quick answer is: because not having the exec permission
-(chmod -x file) doesn't prevent you from mapping that
-file "noexec", and that's correct, not bug. The more
-detailed discussion have already happened, and I'd like
-to leave MAP_SHARED aside for a time.
-Please tell me how your logic applies to MAP_PRIVATE instead,
-because right now MAP_PRIVATE is affected the same way the
-MAP_SHARED is.
+That isn't the question here. 
 
+The current situation seems to be designed to add the new one and removing 
+the old one as a single step. THAT IS BROKEN.
+
+The new one and the old one needs to work at the same time, exactly so 
+that there's a transition mechanism.
+
+That's the part you seem to now have understood. There should be no "flag 
+day" when people have to switch over.
+
+> 	The Wireless people (Jouni, Dan) decided to change the
+> *userspace* API. We could translate the new *userspace* API to the old
+> kernel API, but I don't see the point.
+
+You do not indeed see the point.
+
+The point is, we can switch internal kernel ABI's - new or old - at any 
+point. But user-level ABI's should never require a one-way update.
+
+> 	That's exactly what it hinges on. What is your criteria for
+> removing the old ESSID API. My understanding was 6 months.
+
+But we didn't have 6 months of the new API, did we? People complained. 
+
+The person you merged through explicitly said that if he had realized what 
+you did, he wouldn't have merged.
+
+That should tell you something. Why are you ignoring this?
+
+			Linus

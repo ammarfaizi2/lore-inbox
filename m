@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWJDUdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWJDUfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWJDUdn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWJDUdn
+	id S1751091AbWJDUfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWJDUfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:33:43 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:41114 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1751087AbWJDUdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:33:42 -0400
-Message-ID: <45241AA2.8020702@tlinx.org>
-Date: Wed, 04 Oct 2006 13:33:38 -0700
-From: "Linda W." <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Wed, 4 Oct 2006 16:35:04 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:38155 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751091AbWJDUfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 16:35:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=CyDhJ2+MjJOL804etlZL76MgAtDhMnSsZrKGJdzOIUiBkH12A8Gi/ZNQYtXMxVtJhNSkjSAjlDo7/Z/q2kzOZ03+yvxk0CHGNIaaRSFeBy43MLPE5AvSWDdcRr/hIoaFds76NXxmO2vgrmtxJWRsJLzZUezonJIPfKo0diqwBDg=
+Message-ID: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
+Date: Wed, 4 Oct 2006 22:35:01 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: removed sysctl system call - documentation and timeline
 MIME-Version: 1.0
-To: Frank Sorenson <frank@tuxrocks.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Keyboard Stuttering (OS independant?)
-References: <4523FA41.90805@tuxrocks.com>
-In-Reply-To: <4523FA41.90805@tuxrocks.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Sorenson wrote:
-> I'm experiencing some severe keyboard stuttering on my laptop.  The 
-> problem is particularly bad in X, and I believe it also occurs at the 
-> console, though I'm having a difficult time verifying that.  The 
-> problem  shows up as repeated characters (not regular 
-> key-repeat-related), and sometimes dropped key presses.
->
-> I'm running the 2.6.18 x86_64 kernel on a Core 2 Duo.
----
-    Just a "datapoint", I noticed similar symptoms on a new Core-Duo
-laptop running WinXP-SP2.  It appeared to drop "scancodes". 
-Sometimes dropped the activation, down-stroke, sometimes dropped the
-release-scan-code.  Was so bad it was bothering my wrists on the
-laptop -- this was using an external, PS/2 keyboard.  Mouse also lost
-appeared to lose interrupts, but results were not so noticeable.
+Hi,
 
-    Finally returned laptop (Dell M90) because I couldn't spend
-time debugging it as I was debugging other problems on a desk-side
-Core-2 Duo.  I have noticed a similar problem on the Core-2 Deskside
-(Dell 690) (running XP2) BUT with far less frequency.  Yet I still
-notice it -- they keys seem to more likely lose a scan-code action
-when I'm pressing multiple key combinations.  Result will be some
-key acts like it is being held down.  Simply repressing the affected
-key will stop the repeat, i.e. it seems to catch the release
-scan-code if I press they key a 2nd time.  It's almost unnoticeable
-on the desk-side Core-2 Duo (is at least rare enough to not be
-able to reliably repeat), BUT on "Core-Duo" laptop (not core-2 duo),
-it was very bad.
+With recent kernels I'm getting a lot of warnings about programs using
+the removed sysctl syscal.
 
-    Having just been "forced" into upgrading to SP2 (it came with the
-new machine, SP1 won't install -- blue-screens, linux doesn't even
-detect SAS-5 Hard Drive), I didn't know whether it was a hardware
-or software problem).  Sorry don't have more linux stats now, but
-have been trying to get out from under SP2 bugs (greatly incompatible
-with my old SP1-compat apps), and my linux version(s) don't seem to like
-the newer hardware.
+Examples (after 5 min of uptime here) :
+root@dragon:/home/juhl# dmesg | grep "used the removed sysctl system
+call" | sort | uniq
+warning: process `dd' used the removed sysctl system call
+warning: process `ls' used the removed sysctl system call
+warning: process `touch' used the removed sysctl system call
 
-    Anyone know much about differences in Serial-Attached-SCSI (SAS)
-vs. SCSI?  I've heard that one of the Serial -HD controllers can handle
-disks of the other type (SAS handling SATA or SATA handling SAS; likely
-former, but source of comment was "theoretical", not in practice...).
-
-    Anyway -- wanted to chime in on your keyboard symptom -- some of
-the legacy keyboard/mouse stuff on some of the newer Core-Duo compat
-motherboards /may/ be cross-OS flakey...  could be relevant datapoint.
-
-    Good luck in chasing...
-
--l
+and more can be found...
 
 
+I'm not, as such, opposed to removing sysctl (and yes, I know what it
+is and what it does). What I am a little opposed to is that it is
+being removed on such short notice (unless I missed the memo) and that
+it is hidden inside EMBEDDED.
+
+I would like to propose that, at least for 2.6.19, it be default on
+(as it is now), not hide it in EMBEDDED where people usually don't go,
+some huge deprecation warnings be added, and that it then gets the
+usual 6-12months before being removed (did it already get that and I'm
+just slow?)...  ohhh, and correct the help text; it currently says
+"...Nothing has been using the binary sysctl interface for some time
+now so nothing should break if you disable sysctl syscall support" -
+that's obviously false as demonstrated by the above extract from my
+dmesg...
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

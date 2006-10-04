@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030576AbWJDLFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030822AbWJDLGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030576AbWJDLFO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 07:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030821AbWJDLFO
+	id S1030822AbWJDLGU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 07:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030823AbWJDLGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 07:05:14 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:30088 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030576AbWJDLFM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 07:05:12 -0400
-Date: Wed, 4 Oct 2006 07:05:11 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-scsi@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] raid class: handle component-add errors
-Message-ID: <20061004110511.GA19666@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 4 Oct 2006 07:06:19 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:50506 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030821AbWJDLGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 07:06:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
+        b=GFQdeyTkFR7dZ/abkzSRGeE88fKrbfCrMZcx3js49tjkIBUunMYh0mjYt+CM/FvJV5HudcJdJQ8SF42fa/LLBYkSeYpXWJpx17KZuZu3psqG5ODVUFMdaQt4xL9aN0cetE5a31cWVGShqghZ0XDZuBCccJDcm5RoQ0uFxlJPyXk=
+In-Reply-To: <1159960645.25772.7.camel@localhost.localdomain>
+References: <28EE04D1-1645-4D2C-9D8B-FB4877779223@gmail.com> <1159960645.25772.7.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v749)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F31D7E0B-1FCD-4A86-8160-4025B13CFE0E@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: girish <girishvg@gmail.com>
+Subject: Re: PCI/IDE generic IDE driver + bus master DMA logic errors
+Date: Wed, 4 Oct 2006 20:06:11 +0900
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Apple Mail (2.749)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+On Oct 4, 2006, at 8:17 PM, Alan Cox wrote:
 
----
+> Ar Mer, 2006-10-04 am 19:07 +0900, ysgrifennodd girish:
+>> our hardware guys are designing an pci/ide controller which has
+>> interrupt wrapper such that the ide & bus master interrupts are
+>> packaged & delivered together.
+>
+> All the SFF8038i/D1510 style devices have a single interrupt line for
+> IDE and for bus mastering interrupts. If your device behaves in
+> accordance to D1510 the default code ought to work.
+>
+> Alan
 
- drivers/scsi/raid_class.c  |   20 ++++++++++++++++----
- include/linux/raid_class.h |    5 +++--
- 2 files changed, 19 insertions(+), 6 deletions(-)
+thanks alan. i will have look into it.
 
-diff --git a/drivers/scsi/raid_class.c b/drivers/scsi/raid_class.c
-index 327b33a..e79f3d9 100644
---- a/drivers/scsi/raid_class.c
-+++ b/drivers/scsi/raid_class.c
-@@ -215,18 +215,19 @@ static void raid_component_release(struc
- 	kfree(rc);
- }
- 
--void raid_component_add(struct raid_template *r,struct device *raid_dev,
--			struct device *component_dev)
-+int raid_component_add(struct raid_template *r,struct device *raid_dev,
-+		       struct device *component_dev)
- {
- 	struct class_device *cdev =
- 		attribute_container_find_class_device(&r->raid_attrs.ac,
- 						      raid_dev);
- 	struct raid_component *rc;
- 	struct raid_data *rd = class_get_devdata(cdev);
-+	int err;
- 
- 	rc = kzalloc(sizeof(*rc), GFP_KERNEL);
- 	if (!rc)
--		return;
-+		return -ENOMEM;
- 
- 	INIT_LIST_HEAD(&rc->node);
- 	class_device_initialize(&rc->cdev);
-@@ -239,7 +240,18 @@ void raid_component_add(struct raid_temp
- 	list_add_tail(&rc->node, &rd->component_list);
- 	rc->cdev.parent = cdev;
- 	rc->cdev.class = &raid_class.class;
--	class_device_add(&rc->cdev);
-+	err = class_device_add(&rc->cdev);
-+	if (err)
-+		goto err_out;
-+	
-+	return 0;
-+
-+err_out:
-+	list_del(&rc->node);
-+	rd->component_count--;
-+	put_device(component_dev);
-+	kfree(rc);
-+	return err;
- }
- EXPORT_SYMBOL(raid_component_add);
- 
-diff --git a/include/linux/raid_class.h b/include/linux/raid_class.h
-index d0dd38b..d22ad39 100644
---- a/include/linux/raid_class.h
-+++ b/include/linux/raid_class.h
-@@ -77,5 +77,6 @@ DEFINE_RAID_ATTRIBUTE(enum raid_state, s
- struct raid_template *raid_class_attach(struct raid_function_template *);
- void raid_class_release(struct raid_template *);
- 
--void raid_component_add(struct raid_template *, struct device *,
--			struct device *);
-+int __must_check raid_component_add(struct raid_template *, struct device *,
-+				    struct device *);
-+
+one more question - we are planning two channel bus-mastering design.  
+whether linux ide sub-system will support simultaneous dma kick  
+sequences?
+
+
+

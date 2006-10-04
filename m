@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWJDDLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWJDDOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbWJDDLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 23:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWJDDLz
+	id S1161068AbWJDDOW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 23:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbWJDDOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 23:11:55 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:17831 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S1161067AbWJDDLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 23:11:54 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-Date: Wed, 4 Oct 2006 03:11:40 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <efv8pc$31o$1@taverner.cs.berkeley.edu>
-References: <45150CD7.4010708@aknet.ru> <45229C8E.6080503@redhat.com> <4522A691.7070700@aknet.ru> <4522B7CD.4040206@redhat.com>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1159931500 3128 128.32.168.222 (4 Oct 2006 03:11:40 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Wed, 4 Oct 2006 03:11:40 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Tue, 3 Oct 2006 23:14:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28878 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161068AbWJDDOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 23:14:20 -0400
+Date: Tue, 3 Oct 2006 20:13:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+Message-Id: <20061003201340.afa7bfce.akpm@osdl.org>
+In-Reply-To: <20061003172511.GL3164@in.ibm.com>
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper  wrote:
->noexec mounts the way _you_ want them are completely, utterly useless.
->nonexec mounts as they are today plus an upcoming mprotect patch give
->fine grained control.
+On Tue, 3 Oct 2006 13:25:11 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-Are you familiar with the mmap(PROT_EXEC, MAP_ANONYMOUS) loophole?
+> Increasingly the cobbled together boot protocol that
+> is bzImage does not have the flexibility to deal
+> with booting in new situations.
+> 
+> Now that we no longer support the bootsector loader
+> we have 512 bytes at the very start of a bzImage that
+> we can use for other things.
+> 
+> Placing an ELF header there allows us to retain
+> a single binary for all of x86 while at the same
+> time describing things that bzImage does not allow
+> us to describe.
 
-Even with the upcoming mprotect patch, it will still be straightforward
-to circumvent the noexec protections.
-
->You have to use additional mechanism like SELinux
->to fill in all the holes but that's OK.
-
-Is it even possible to use SELinux to fill in all the holes?  Can you
-point me to the SELinux policy that fills in all the holes (including,
-for instance, addressing mmap(PROT_EXEC, MAP_ANONYMOUS))?
+Seems that the entire kernel effort is an ongoing plot to make my poor
+little Vaio stop working.  This patch turns it into a black-screened rock
+as soon as it does grub -> linux.  Stock-standard FC5 install, config at
+http://userweb.kernel.org/~akpm/config-sony.txt.

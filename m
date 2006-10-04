@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160996AbWJDN7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWJDOJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160996AbWJDN7G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030846AbWJDN7G
+	id S964873AbWJDOJK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 10:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWJDOJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:59:06 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:9357 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030834AbWJDN7D (ORCPT
+	Wed, 4 Oct 2006 10:09:10 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:30605 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964873AbWJDOJI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:59:03 -0400
-Date: Wed, 4 Oct 2006 09:58:19 -0400
+	Wed, 4 Oct 2006 10:09:08 -0400
+Date: Wed, 4 Oct 2006 10:09:07 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: Greg KH <greg@kroah.com>, ecashin@coraid.com
+To: airlied@linux.ie
 Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] drivers/block/aoe: handle sysfs errors
-Message-ID: <20061004135819.GA29526@havoc.gtf.org>
+Subject: [PATCH] drm: fix error returns, sysfs error handling
+Message-ID: <20061004140907.GA30208@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,117 +23,90 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+- callers of drm_sysfs_create() and drm_sysfs_device_add() looked for
+  errors using IS_ERR(), but the functions themselves only ever returned
+  NULL on error.  Fixed.
+
+- unwind from, and propagate sysfs errors
+
 Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/block/aoe/aoeblk.c |   64 +++++++++++++++++++++++++++++++++------------
- 1 files changed, 47 insertions(+), 17 deletions(-)
+ drivers/char/drm/drm_sysfs.c |   43 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 35 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
-index 393b86a..04f9b03 100644
---- a/drivers/block/aoe/aoeblk.c
-+++ b/drivers/block/aoe/aoeblk.c
-@@ -64,13 +64,36 @@ static struct disk_attribute disk_attr_f
- 	.show = aoedisk_show_fwver
- };
- 
--static void
-+static int
- aoedisk_add_sysfs(struct aoedev *d)
+diff --git a/drivers/char/drm/drm_sysfs.c b/drivers/char/drm/drm_sysfs.c
+index 51ad98c..ba4b8de 100644
+--- a/drivers/char/drm/drm_sysfs.c
++++ b/drivers/char/drm/drm_sysfs.c
+@@ -42,13 +42,24 @@ static CLASS_ATTR(version, S_IRUGO, vers
+ struct class *drm_sysfs_create(struct module *owner, char *name)
  {
--	sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
--	sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
--	sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
--	sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
+ 	struct class *class;
 +	int err;
-+
-+	err = sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
-+	if (err)
-+		return err;
-+
-+	err = sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
-+	if (err)
-+		goto err_out_state;
-+
-+	err = sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
-+	if (err)
-+		goto err_out_mac;
-+
-+	err = sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
-+	if (err)
-+		goto err_out_netif;
-+
-+	return 0;
-+
-+err_out_netif:
-+	sysfs_remove_link(&d->gd->kobj, "netif");
-+err_out_mac:
-+	sysfs_remove_link(&d->gd->kobj, "mac");
-+err_out_state:
-+	sysfs_remove_link(&d->gd->kobj, "state");
-+	return err;
- }
- void
- aoedisk_rm_sysfs(struct aoedev *d)
-@@ -205,24 +228,18 @@ aoeblk_gdalloc(void *vp)
- 	if (gd == NULL) {
- 		printk(KERN_ERR "aoe: aoeblk_gdalloc: cannot allocate disk "
- 			"structure for %ld.%ld\n", d->aoemajor, d->aoeminor);
--		spin_lock_irqsave(&d->lock, flags);
--		d->flags &= ~DEVFL_GDALLOC;
--		spin_unlock_irqrestore(&d->lock, flags);
--		return;
+ 
+ 	class = class_create(owner, name);
+-	if (!class)
+-		return class;
++	if (!class) {
++		err = -ENOMEM;
 +		goto err_out;
- 	}
++	}
++
++	err = class_create_file(class, &class_attr_version);
++	if (err)
++		goto err_out_class;
  
- 	d->bufpool = mempool_create_slab_pool(MIN_BUFS, buf_pool_cache);
- 	if (d->bufpool == NULL) {
- 		printk(KERN_ERR "aoe: aoeblk_gdalloc: cannot allocate bufpool "
- 			"for %ld.%ld\n", d->aoemajor, d->aoeminor);
--		put_disk(gd);
--		spin_lock_irqsave(&d->lock, flags);
--		d->flags &= ~DEVFL_GDALLOC;
--		spin_unlock_irqrestore(&d->lock, flags);
--		return;
-+		goto err_out_put;
- 	}
- 
- 	spin_lock_irqsave(&d->lock, flags);
+-	class_create_file(class, &class_attr_version);
+ 	return class;
 +
- 	blk_queue_make_request(&d->blkq, aoeblk_make_request);
- 	gd->major = AOE_MAJOR;
- 	gd->first_minor = d->sysminor * AOE_PARTITIONS;
-@@ -231,16 +248,29 @@ aoeblk_gdalloc(void *vp)
- 	gd->capacity = d->ssize;
- 	snprintf(gd->disk_name, sizeof gd->disk_name, "etherd/e%ld.%ld",
- 		d->aoemajor, d->aoeminor);
--
- 	gd->queue = &d->blkq;
-+
-+	spin_unlock_irqrestore(&d->lock, flags);
-+
-+	if (aoedisk_add_sysfs(d))
-+		goto err_out_put;
-+
-+	spin_lock_irqsave(&d->lock, flags);
- 	d->gd = gd;
- 	d->flags &= ~DEVFL_GDALLOC;
- 	d->flags |= DEVFL_UP;
--
- 	spin_unlock_irqrestore(&d->lock, flags);
- 
- 	add_disk(gd);
--	aoedisk_add_sysfs(d);
-+
-+	return;
-+
-+err_out_put:
-+	put_disk(gd);
++err_out_class:
++	class_destroy(class);
 +err_out:
-+	spin_lock_irqsave(&d->lock, flags);
-+	d->flags &= ~DEVFL_GDALLOC;
-+	spin_unlock_irqrestore(&d->lock, flags);
++	return ERR_PTR(err);
  }
  
- void
+ /**
+@@ -96,20 +107,36 @@ static struct class_device_attribute cla
+ struct class_device *drm_sysfs_device_add(struct class *cs, drm_head_t *head)
+ {
+ 	struct class_device *class_dev;
+-	int i;
++	int i, j, err;
+ 
+ 	class_dev = class_device_create(cs, NULL,
+ 					MKDEV(DRM_MAJOR, head->minor),
+ 					&(head->dev->pdev)->dev,
+ 					"card%d", head->minor);
+-	if (!class_dev)
+-		return NULL;
++	if (!class_dev) {
++		err = -ENOMEM;
++		goto err_out;
++	}
+ 
+ 	class_set_devdata(class_dev, head);
+ 
+-	for (i = 0; i < ARRAY_SIZE(class_device_attrs); i++)
+-		class_device_create_file(class_dev, &class_device_attrs[i]);
++	for (i = 0; i < ARRAY_SIZE(class_device_attrs); i++) {
++		err = class_device_create_file(class_dev,
++					       &class_device_attrs[i]);
++		if (err)
++			goto err_out_files;
++	}
++
+ 	return class_dev;
++
++err_out_files:
++	if (i > 0)
++		for (j = 0; j < i; j++)
++			class_device_remove_file(class_dev,
++						 &class_device_attrs[i]);
++	class_device_unregister(class_dev);
++err_out:
++	return ERR_PTR(err);
+ }
+ 
+ /**

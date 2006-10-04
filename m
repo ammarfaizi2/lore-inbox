@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030730AbWJDC5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030732AbWJDC72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030730AbWJDC5z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030733AbWJDC5z
+	id S1030732AbWJDC72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030733AbWJDC72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:57:55 -0400
-Received: from usul.saidi.cx ([204.11.33.34]:53655 "EHLO usul.overt.org")
-	by vger.kernel.org with ESMTP id S1030729AbWJDC5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:57:54 -0400
-Message-ID: <45232302.1050007@overt.org>
-Date: Tue, 03 Oct 2006 19:57:06 -0700
-From: Philip Langdale <philipl@overt.org>
-Reply-To: philipl@alumni.utexas.net
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Tue, 3 Oct 2006 22:59:28 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:64919 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1030732AbWJDC71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:59:27 -0400
+Date: Tue, 3 Oct 2006 20:59:26 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       rdunlap@xenotime.net, gregkh@suse.de
+Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #2
+Message-ID: <20061004025925.GA28596@parisc-linux.org>
+References: <20061003220732.GE2785@slug> <4522E0E0.9020404@garzik.org> <20061003222910.GJ2785@slug> <4522E618.2070004@garzik.org>
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 2/2] mmc: Read mmc v4 EXT_CSD
-References: <15151.67.169.45.37.1159744878.squirrel@overt.org> <4522A2DD.9080803@drzeus.cx>
-In-Reply-To: <4522A2DD.9080803@drzeus.cx>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4522E618.2070004@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre,
-
-I will reorganise these patches into a series that detects and sets up
-high-speed support. This is pretty simple. Wide-bus is harder because
-you have to run their weird test pattern and check all the power class
-stuff. Hopefully I'll have that done this week.
-
-Pierre Ossman wrote:
-> philipl@overt.org wrote:
->> +	list_for_each_entry(card, &host->cards, node) {
->> +		if (card->state & (MMC_STATE_DEAD|MMC_STATE_PRESENT))
->> +			continue;
->>   
+On Tue, Oct 03, 2006 at 06:37:12PM -0400, Jeff Garzik wrote:
+> Frederik Deweerdt wrote:
+> >My bad, I've mixed your proposal and Matthew's, isn't this just a
+> >matter of:
+> >s/ARCH_VALIDATE_PCI_IRQ/ARCH_VALIDATE_IRQ/ ?
+> >
+> >I'll look if there's some non-PCI code that might check the irq's value
+> >and thus might benefit from this.
 > 
-> Please use the macros.
+> The irq value comes from the PCI subsystem...  The PCI subsystem should 
+> validate it.
 
-I'm confused: mmc_read_scrs and mmc_read_csds use this exact same
-construction in 2.6.18 and Linus' current tree. Should I be checking
-another tree?
-
-Will address all other comments.
-
-Thanks,
-
---phil
+That's not true.  The value in the pci_dev->irq field has been changed
+by the architecture.  See, for example, pci_read_irq_line() in
+arch/powerpc/kernel/pci_32.c.  It's a Linux IRQ number, not a PCI IRQ
+number.

@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWJDFig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWJDFhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbWJDFig (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 01:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWJDFig
+	id S964886AbWJDFhx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 01:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWJDFhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 01:38:36 -0400
-Received: from mx.go2.pl ([193.17.41.41]:46518 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1161006AbWJDFif (ORCPT
+	Wed, 4 Oct 2006 01:37:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52098 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964886AbWJDFhw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 01:38:35 -0400
-Date: Wed, 4 Oct 2006 07:43:08 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: "Axel C\. Voigt" <Axel.Voigt@qosmotec.com>
-Cc: linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: Problems with hard irq? (inconsistent lock state)
-Message-ID: <20061004054308.GA994@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	"Axel C. Voigt" <Axel.Voigt@qosmotec.com>,
-	linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>,
-	Greg Kroah-Hartman <gregkh@suse.de>
+	Wed, 4 Oct 2006 01:37:52 -0400
+Date: Tue, 3 Oct 2006 22:37:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+Message-Id: <20061003223720.94c54581.akpm@osdl.org>
+In-Reply-To: <20061004042850.GA27149@in.ibm.com>
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<20061004042850.GA27149@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <46E81D405FFAC240826E54028B3B02953B13@aixlac.qosmotec.com>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29-09-2006 13:45, Axel C. Voigt wrote:
->  
-> Hello all,
+On Wed, 4 Oct 2006 00:28:50 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
+
+> > Seems that the entire kernel effort is an ongoing plot to make my poor
+> > little Vaio stop working.  This patch turns it into a black-screened rock
+> > as soon as it does grub -> linux.  Stock-standard FC5 install, config at
+> > http://userweb.kernel.org/~akpm/config-sony.txt.
 > 
-> today I received the following stack backtrace using debian-2.6.18 with our communications driver accessing a ACM device. This happened when removing (powering off and/or on) the mobile phone (nokia 6630) at /dev/ttyACMx
+> Hi Andrew,
 > 
-> Are someone able to get a hint for me?
+> Right now I don't have access to my test machine.  Tomorrow morning,
+> very first thing I am going to try it out with your config file.
 > 
-> --schnipp--
-> Sep 29 13:29:53 mcs70 kernel:
-> Sep 29 13:29:53 mcs70 kernel: =================================
-> Sep 29 13:29:53 mcs70 kernel: [ INFO: inconsistent lock state ]
-> Sep 29 13:29:53 mcs70 kernel: ---------------------------------
-> Sep 29 13:29:53 mcs70 kernel: inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
-> Sep 29 13:29:53 mcs70 kernel: startDV24/3864 [HC1[1]:SC0[0]:HE0:SE1] takes:
-> Sep 29 13:29:53 mcs70 kernel: (&acm->read_lock){++..}, at: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
-> Sep 29 13:29:53 mcs70 kernel: {hardirq-on-W} state was registered at:
-> Sep 29 13:29:53 mcs70 kernel: [<c01321f3>] lock_acquire+0x56/0x73
-> Sep 29 13:29:53 mcs70 kernel: [<c02ce42a>] _spin_lock+0x1a/0x25
-> Sep 29 13:29:53 mcs70 kernel: [<e08953a8>] acm_rx_tasklet+0x52/0x2be [cdc_acm]
-> Sep 29 13:29:53 mcs70 kernel: [<c011f868>] tasklet_action+0x6d/0xd7
-> Sep 29 13:29:53 mcs70 kernel: [<c011f526>] __do_softirq+0x79/0xf2
-...
-> Sep 29 13:29:53 mcs70 kernel: stack backtrace:
-> Sep 29 13:29:53 mcs70 kernel: [<c010376e>] show_trace+0x16/0x18
-> Sep 29 13:29:53 mcs70 kernel: [<c010383c>] dump_stack+0x19/0x1b
-> Sep 29 13:29:53 mcs70 kernel: [<c0130ad8>] print_usage_bug+0x1e1/0x1eb
-> Sep 29 13:29:53 mcs70 kernel: [<c0130b86>] mark_lock+0xa4/0x4d9
-> Sep 29 13:29:53 mcs70 kernel: [<c0131823>] __lock_acquire+0x41a/0x841
-> Sep 29 13:29:53 mcs70 kernel: [<c01321f3>] lock_acquire+0x56/0x73
-> Sep 29 13:29:53 mcs70 kernel: [<c02ce42a>] _spin_lock+0x1a/0x25
-> Sep 29 13:29:53 mcs70 kernel: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
-...
-> Sep 29 13:29:53 mcs70 kernel: [<c0104b26>] do_IRQ+0x4e/0x5f
-> Sep 29 13:29:53 mcs70 kernel: [<c0103339>] common_interrupt+0x25/0x2c
-... 
+> This patch just adds and ELF header to bzImage which is not even used
+> by grub.
+> 
+> So without this patch you are able to boot the kernel on your laptop?
 
-It looks in drivers/usb/class/cdc-acm.c acm_rx_tasklet could be preempted
-with acm->read_lock by acm_read_bulk which uses the same lock from hardirq
-context.
+With your other 11 patches applied and not this one, it boots OK.
 
-So probably spin_lock_irqsave is needed.  
+With this patch applied and not the other eleven applied: no-compile.
 
-> Mit freundlichen Grüssen/ with kind regards,
->  
-> Axel C. Voigt
-
-Serdecznie pozdrawiam/ cheers,
-
-Jarek P.
->  
+With all 12 applied: crash.

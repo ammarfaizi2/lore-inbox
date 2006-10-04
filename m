@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWJDU6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWJDU7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWJDU6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWJDU6o
+	id S1751123AbWJDU7F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWJDU7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:58:44 -0400
-Received: from mail.impinj.com ([206.169.229.170]:16279 "EHLO earth.impinj.com")
-	by vger.kernel.org with ESMTP id S1751118AbWJDU6n (ORCPT
+	Wed, 4 Oct 2006 16:59:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48608 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751123AbWJDU7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:58:43 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Must check what?
-Date: Wed, 4 Oct 2006 13:58:36 -0700
-User-Agent: KMail/1.9.1
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
-References: <20061004183752.GG28596@parisc-linux.org> <20061004192537.GH28596@parisc-linux.org> <20061004124310.10c9939b.akpm@osdl.org>
-In-Reply-To: <20061004124310.10c9939b.akpm@osdl.org>
+	Wed, 4 Oct 2006 16:59:01 -0400
+Date: Wed, 4 Oct 2006 22:58:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -fix] swsusp: Make userland suspend work on SMP again
+Message-ID: <20061004205854.GG8440@elf.ucw.cz>
+References: <200610042226.43833.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610041358.36515.vlobanov@speakeasy.net>
+In-Reply-To: <200610042226.43833.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 October 2006 12:43, Andrew Morton wrote:
-> > > It should have a slot for documenting caller-provided locking
-> > > requirements too.  And for permissible calling-contexts.  They're all
-> > > part of the caller-provided environment, and these two tend to be a
-> > > heck of a lot more subtle than the function's formal arguments.
-> >
-> > Indeed.  And reference count assumptions.  It's almost like we want a
-> > pre-condition assertion ...
->
-> We have might_sleep(), assert_spin_locked(), BUG_ON(!irqs_disabled()), etc.
->
-> I like assertions personally.  If we had something like:
->
-> void foo(args)
-> {
-> 	locals;
->
-> 	assert_irqs_enabled();
-> 	assert_spin_locked(some_lock);
-> 	assert_in_atomic();
-> 	assert_mutex_locked(some_mutex);
->
-> then we get documentation which is (optionally) checked at runtime - best
-> of both worlds.  Better than doing it in kernel-doc.  Automatically
-> self-updating (otherwise kernels go BUG).
+On Wed 2006-10-04 22:26:42, Rafael J. Wysocki wrote:
+> Unfortunately one of the recent changes in swsusp has broken the userland
+> suspend on SMP.  Fix it.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+ACK.
+									Pavel
 
-Uhoh! How much is that going to hurt runtime? :) It actually seems to me like 
-this should be doable by static code analysis tools without terribly much 
-pain (in the relative sense of the term). Or am I wrong on this thought?
-
-> And we still need to document those return values in English.
-
-Definitely.
-
--- Vadim Lobanov
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

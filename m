@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161537AbWJDQIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161538AbWJDQK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161537AbWJDQIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 12:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161539AbWJDQIQ
+	id S1161538AbWJDQK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 12:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161539AbWJDQK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 12:08:16 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:61402 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1161537AbWJDQIP (ORCPT
+	Wed, 4 Oct 2006 12:10:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64907 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161538AbWJDQK0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 12:08:15 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [Ops] 2.6.18
-Date: Wed, 4 Oct 2006 19:08:14 +0300
-User-Agent: KMail/1.9.4
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <200610010332.52509.caglar@pardus.org.tr> <200610041638.25955.caglar@pardus.org.tr> <20061004144736.GA67993@muc.de>
-In-Reply-To: <20061004144736.GA67993@muc.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3299234.vbUYLaJZvQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 4 Oct 2006 12:10:26 -0400
+Date: Wed, 4 Oct 2006 09:09:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com, "H. J. Lu" <hjl@lucon.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 3/12] i386: Force section size to be non-zero to prevent
+ a symbol becoming absolute
+Message-Id: <20061004090946.5ab000e5.akpm@osdl.org>
+In-Reply-To: <20061003170908.GC3164@in.ibm.com>
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003170908.GC3164@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610041908.20822.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3299234.vbUYLaJZvQ
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 3 Oct 2006 13:09:08 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-04 Eki 2006 =C3=87ar 17:47 tarihinde, Andi Kleen =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> > For every 10 reboots first one occurs at least 6 times, 3 times second
-> > one occurs and for last it boots :)
->
-> I assume it must be something specific to your configuration
-> or setup.
->
-> If plain 2.6.18 was that unstable we would be flooded in reports.
-> But that's not the case.  I also definitely don't see it on any of my
-> systems (except that if you use PIT time source on a multi core system
-> things break on i386)
+> o Relocation patches for i386, moved the symbols in vmlinux.lds.S inside
+>   sections so that these symbols become section relative and are no more
+>   absolute. If these symbols become absolute, its bad as they are not
+>   relocated if kernel is not loaded at the address it has been compiled
+>   for.
+> 
+> o Ironically, just moving the symbols inside the section does not 
+>   gurantee that symbols inside will not become absolute. Recent 
+>   versions of linkers, do some optimization, and if section size is
+>   zero, it gets rid of the section and makes any defined symbol as absolute.
+> 
+> o This leads to a failure while second kernel is booting.
+>   arch/i386/alternative.c frees any pages present between __smp_alt_begin
+>   and __smp_alt_end. In my case size of section .smp_altinstructions is 
+>   zero and symbol __smpt_alt_begin becomes absolute and is not relocated
+>   and system crashes while it is trying to free the memory starting
+>   from __smp_alt_begin.
+> 
+> o This issue is being fixed by the linker guys and they are making sure
+>   that linker does not get rid of an empty section if there is any
+>   section relative symbol defined in it. But we need to fix it at
+>   kernel level too so that people using the linker version without fix,
+>   are not affected.
+> 
+> o One of the possible solutions is that force the section size to be
+>   non zero to make sure these symbols don't become absolute. This 
+>   patch implements that.
 
-I think you misunderstand me or i cant explain well :(, plain 2.6.18 boots =
-on=20
-these system without a problem but same kernel in vmware oopses. Of course=
-=20
-this can be a just a vmware problem but i can reproduce this behaviour (sam=
-e=20
-kernel boots real system but oopes in vmware with same output) with 3=20
-different normal desktop PC's and two different vmware server version.
-
-> Perhaps you list your setup and your configuration and a boot log
-> for the working case?=20
-
-Ok, I'll send all configurations and logs
-
-> I also I would really recommend to do the make=20
-> distclean ; recompile step I mentioned earlier.
-
-Ok, I'll listen you and will recompile asap:)
-
-Cherrs
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
-
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart3299234.vbUYLaJZvQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFI9x0y7E6i0LKo6YRAgjwAJ4oT4y4D4qs9+LlgKaseeX85AswlACfe5Ei
-MwlP6yJPajcQmlm9Xj0VisM=
-=CaAn
------END PGP SIGNATURE-----
-
---nextPart3299234.vbUYLaJZvQ--
+Would it be reasonable to omit this patch and require that the small number
+of people who want to build relocatable kernels install binutils
+2.17.50.0.5 or later?

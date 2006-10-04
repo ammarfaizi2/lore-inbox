@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWJDEGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWJDEGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWJDEGg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 00:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWJDEGg
+	id S964883AbWJDEGo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 00:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWJDEGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 00:06:36 -0400
+	Wed, 4 Oct 2006 00:06:37 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:20120 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932339AbWJDEGe (ORCPT
+	by vger.kernel.org with ESMTP id S932339AbWJDEGg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 00:06:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=MbRgpyIsBtXxmPQTp6LbpIKC4GzXzbodIjOcFEEBgG9kqUIWon5tgoC2fLHG0ZorjY7H7IhxMfLq+Q5W15k9ysM3CzBFyXe8xWx07VUjNJII6ZuCkQtZOyUtaqQwty0ODvJDDD97kqDyaD9xzFoN/zpNTLn+7g49ZELDScmGatE=
-Reply-To: andrew.j.wade@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Date: Tue, 3 Oct 2006 23:24:27 -0400
-User-Agent: KMail/1.9.1
-Cc: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
-References: <1159916644.8035.35.camel@localhost.localdomain> <1159920569.8035.71.camel@localhost.localdomain> <20061003181452.778291fb.akpm@osdl.org>
-In-Reply-To: <20061003181452.778291fb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610032324.29454.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+	Wed, 4 Oct 2006 00:06:36 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Date: Wed, 4 Oct 2006 03:17:59 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <efv957$31o$2@taverner.cs.berkeley.edu>
+References: <45150CD7.4010708@aknet.ru> <451E3C0C.10105@aknet.ru> <1159887682.2891.537.camel@laptopd505.fenrus.org> <45229A99.6060703@aknet.ru>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1159931879 3128 128.32.168.222 (4 Oct 2006 03:17:59 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Wed, 4 Oct 2006 03:17:59 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 October 2006 21:14, Andrew Morton wrote:
-> There are changes here: in the old code we'll avoid reading the static
-> variable.  In the new code we'll read the static variable, but we'll avoid
-> evaluating the condition.
+Stas Sergeev  wrote:
+>Arjan van de Ven wrote:
+>> no what bothers me that on the one hand you want no execute from the
+>> partition, and AT THE SAME TIME want stuff to execute from there (being
+>> libraries or binaries, same thing to me).
+>
+>The original problem came from "noexec" on /dev/shm
+>mount. There is no library and no binary there, but
+>the programs do shm_open(), ftruncate() and
+>mmap(MAP_SHARED, PROT_EXEC) to get some shared memory
+>with an exec perm. That fails.
 
-Tim Chen's patch goes back to the old behaviour. I suspect the cache
-misses on __warn_once is what he is measuring. If so, the (untested)
-patch below should reduce the cache misses back to those of the old
-code.
+To be honest, I still don't think you've answered Arjan's question.  Ok,
+so you say it is not a library and not a binary.  So what is it that you
+are maping in as executable, and why do you think it is reasonable to
+ask the Linux kernel to allow you to execute it, if it lives on a noexec
+partition?  Whatever it is, you are executing it, and the goal of noexec
+is to prevent execution of code that lives on a noexec partition, so
+what you want to do seems in direct opposition to the goal of noexec.
 
-signed-off-by: Andrew Wade <andrew.j.wade@gmail.com>
-diff -rupN a/include/asm-generic/bug.h b/include/asm-generic/bug.h
---- a/include/asm-generic/bug.h	2006-10-03 13:58:40.000000000 -0400
-+++ b/include/asm-generic/bug.h	2006-10-03 23:17:37.000000000 -0400
-@@ -45,9 +45,10 @@
- 	static int __warn_once = 1;			\
- 	typeof(condition) __ret_warn_once = (condition);\
- 							\
--	if (likely(__warn_once))			\
--		if (WARN_ON(__ret_warn_once)) 		\
-+	if (unlikely(__ret_warn_once) && __warn_once) {	\
- 			__warn_once = 0;		\
-+			WARN_ON(1);			\
-+	};						\
- 	unlikely(__ret_warn_once);			\
- })
+Arjan's point is that what you want to do is take code that lives on a
+noexec partition and execute it.  Isn't that exactly against the whole
+point of noexec?
+
+Or, to put it another way, if you want to execute code off of some
+partition, why do you want to be able to mark it as noexec?  What is
+the point of marking it noexec, when you're going to be executing code
+off of it?  Why not just mark it exec and be done with it?  What are
+your goals here?  Or, to put it yet another way, what problem are you
+trying to solve (and why isn't marking the partition exec a satisfactory
+solution to that problem)?
+
+I think Arjan's question is a fair one and I think he deserves a straight
+answer to his question.  I don't think he should have to ask it three
+times.

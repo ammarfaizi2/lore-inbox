@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWJDNJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWJDNKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWJDNJg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWJDNJg
+	id S932411AbWJDNKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWJDNKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:09:36 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:34297 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932282AbWJDNJf (ORCPT
+	Wed, 4 Oct 2006 09:10:09 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:5033 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932411AbWJDNKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:09:35 -0400
-Date: Wed, 4 Oct 2006 15:09:32 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Suzuki Kp <suzuki@in.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] PATCH to fix rescan_partitions to return errors properly
-Message-ID: <20061004130932.GC18800@harddisk-recovery.com>
-References: <452307B4.3050006@in.ibm.com>
+	Wed, 4 Oct 2006 09:10:07 -0400
+Message-ID: <4523B2A8.6030509@garzik.org>
+Date: Wed, 04 Oct 2006 09:10:00 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452307B4.3050006@in.ibm.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs/partitions/check: add sysfs error handling
+References: <20061004121900.GA23988@havoc.gtf.org> <20061004122631.GJ29920@ftp.linux.org.uk>
+In-Reply-To: <20061004122631.GJ29920@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 06:00:36PM -0700, Suzuki Kp wrote:
-> Currently the rescan_partition returns 0 (success), even if it is unable
-> to rescan the partition information ( may be due to disks offline, I/O
-> error reading the table or unknown partition ). This would make ioctl()
-> calls succeed for BLKRRPART requests even if partitions were not scanned
-> properly, which is not a good thing to do.
+Al Viro wrote:
+> On Wed, Oct 04, 2006 at 08:19:00AM -0400, Jeff Garzik wrote:
+>> Handle errors thrown in disk_sysfs_symlinks(), and propagate back
+>> to caller.
+>>
+>> The callers and associated functions don't do a real good job
+>> of handling kobject errors anyway (add_partition, register_disk,
+>> rescan_partitions), so this should do until something better comes
+>> along.
 > 
-> Attached here is patch to fix the issue. The patch makes
-> rescan_partition to return -EINVAL for unknown partitions and -EIO for
-> disk I/O errors ( or when disks are offline ).
+> I'm not sure that failure to create these symlinks should be fatal,
+> to be honest...
 
-I don't think it's a good idea to return an error when there's an
-unknown partition table. How do you differentiate between a device that
-isn't partitioned at all and a device with an unknown partition table?
-Better return 0 on an unknown partition table.
+Fair enough, though FWIW the failure is almost always -EFAULT or 
+-ENOMEM, i.e. -ESYSTEMINTROUBLE...
+
+	Jeff
 
 
-Erik
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422781AbWJDSqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422825AbWJDSs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422781AbWJDSqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 14:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422782AbWJDSqm
+	id S1422825AbWJDSs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 14:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422815AbWJDSs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 14:46:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14794 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422781AbWJDSql (ORCPT
+	Wed, 4 Oct 2006 14:48:26 -0400
+Received: from rtr.ca ([64.26.128.89]:40453 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1422825AbWJDSsZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 14:46:41 -0400
-Date: Wed, 4 Oct 2006 11:38:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jean Tourrilhes <jt@hpl.hp.com>
-cc: "John W. Linville" <linville@tuxdriver.com>, Jeff Garzik <jeff@garzik.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-In-Reply-To: <20061004181032.GA4272@bougret.hpl.hp.com>
-Message-ID: <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org>
-References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com>
- <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
- <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
- <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org>
- <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
- <20061004181032.GA4272@bougret.hpl.hp.com>
+	Wed, 4 Oct 2006 14:48:25 -0400
+Message-ID: <452401F8.5000004@rtr.ca>
+Date: Wed, 04 Oct 2006 14:48:24 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: What's in libata-dev.git
+References: <20060911132250.GA5178@havoc.gtf.org> <45056627.7030202@ru.mvista.com> <4523F602.6070608@rtr.ca> <4523F77B.1030908@ru.mvista.com>
+In-Reply-To: <4523F77B.1030908@ru.mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 4 Oct 2006, Jean Tourrilhes wrote:
+Sergei Shtylyov wrote:
+>..
+>> I suspect Sergei simply had a bad controller card at the time.
 > 
-> 	You can't froze kernel userspace API forever. That is simply
-> not workable
+>    I can hardly imagine the reason why a PCI IDE controller (that was 
+> something like VT82C586 I think) would need to mess with the sector 
+> count reg. in PIO mode and return "command aborted" in the error reg... 
+> That was the exact sympthom IIRC.
 
-Stop arguing this way.
+Ahh.. well, if it just returned command aborted, then Jeff's original
+change would present no real danger --> any occurances would be detected.
 
-It's not what we have ever done. We've _extended_ the API. But we don't 
-break old ones.
+But to answer the imaginative question, the *reason* why a PCI (or VLB) IDE
+controller would mess with the registers, is because the makers have this
+nasty habit of wanting to do data prefetching (and posting) to speed up
+transfers, particularly PIO transfers.  And the only way they can do the
+prefetching/posting "safely", is to snoop the taskfile registers and have
+the contoller "know" their meanings.
 
-I don't even see why you argue. Even the people directly involved with 
-this thing seem to say that it should have some simple translation layer 
-and do the internal format thing. We've had major subsystem that do that, 
-and I don't see why you think wireless is so different, and so special in 
-this respect.
+This has lead to all kinds of lunacies, like the RZ1000, CMD640, and other
+memorable disasters of mis-implementation.
 
-The whole _point_ of a kernel is to act as a abstraction layer and 
-resource management between user programs and hardware/outside world. 
-That's why kernels _exist_. Breaking user-land API's is thus by definition 
-something totally idiotic.
-
-If you need to break something, you create a new interface, and try to 
-translate between the two, and maybe you deprecate the old one so that it 
-can be removed once it's not in use any more. If you can't see that this 
-is how a kernel should work, you're missing the point of having a kernel 
-in the first place.
-
-Also, I don't want to hear about how this makes things harder and more 
-complicated. The fact is, we're programmers, and we should care about the 
-_users_. If we don't, we're just masturbating. There's a whole other side 
-to this "create software" than just the "me, me, me" side, and if you lose 
-sight of that side, that's a really bad thing.
-
-			Linus
+Cheers!

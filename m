@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030829AbWJDL5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030831AbWJDL5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030829AbWJDL5U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 07:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030831AbWJDL5U
+	id S1030831AbWJDL5s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 07:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWJDL5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 07:57:20 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:37001 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030829AbWJDL5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 07:57:19 -0400
-Date: Wed, 4 Oct 2006 07:57:18 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: dwmw2@infradead.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/jffs2: kill warning RE debug-only variables
-Message-ID: <20061004115718.GA22386@havoc.gtf.org>
+	Wed, 4 Oct 2006 07:57:47 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:1250 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1030831AbWJDL5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 07:57:46 -0400
+Message-Id: <4523BE20.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Wed, 04 Oct 2006 13:58:56 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Eric Rannaud" <eric.rannaud@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Chandra Seetharaman" <sekharan@us.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <nagar@watson.ibm.com>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
+ <200609302230.24070.ak@suse.de> <45239A38.76E4.0078.0@novell.com>
+ <200610041252.48721.ak@suse.de>
+In-Reply-To: <200610041252.48721.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> >Proposed patch appended. Jan, what do you think?
+>> 
+>> As said above - I thought we added zero-termination already.
+>
+>For head.S but not for kernel_thread I think. At least I can't
+>find any existing code for kernel_thread().
 
-gcc emits the following warning on a 'allmodconfig' build:
+2.6.18-git11 (i386) already has an annotated version of
+kernel_thread_helper() in entry.S, including the pushing of a
+fake (zero) return address. x86-64 has child_rip with the
+added push even in original 2.6.18.
 
-fs/jffs2/xattr.c: In function ‘unrefer_xattr_datum’:
-fs/jffs2/xattr.c:402: warning: unused variable ‘version’
-fs/jffs2/xattr.c:402: warning: unused variable ‘xid’
-
-Given that these variables are only used in the debug printk, and they
-merely remove a deref, we can easily kill the warning by adding the
-derefs to the debug printk.
-
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
----
-
- fs/jffs2/xattr.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/fs/jffs2/xattr.c b/fs/jffs2/xattr.c
-index 4da09ce..4bb3f18 100644
---- a/fs/jffs2/xattr.c
-+++ b/fs/jffs2/xattr.c
-@@ -399,8 +399,6 @@ static void unrefer_xattr_datum(struct j
- {
- 	/* must be called under down_write(xattr_sem) */
- 	if (atomic_dec_and_lock(&xd->refcnt, &c->erase_completion_lock)) {
--		uint32_t xid = xd->xid, version = xd->version;
--
- 		unload_xattr_datum(c, xd);
- 		xd->flags |= JFFS2_XFLAGS_DEAD;
- 		if (xd->node == (void *)xd) {
-@@ -411,7 +409,8 @@ static void unrefer_xattr_datum(struct j
- 		}
- 		spin_unlock(&c->erase_completion_lock);
- 
--		dbg_xattr("xdatum(xid=%u, version=%u) was removed.\n", xid, version);
-+		dbg_xattr("xdatum(xid=%u, version=%u) was removed.\n",
-+			  xd->xid, xd->version);
- 	}
- }
- 
+Jan

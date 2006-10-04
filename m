@@ -1,273 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030549AbWJDBNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030539AbWJDBPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030549AbWJDBNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 21:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWJDBNv
+	id S1030539AbWJDBPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 21:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWJDBPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 21:13:51 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:46581 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1030549AbWJDBNt (ORCPT
+	Tue, 3 Oct 2006 21:15:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35502 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030539AbWJDBPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 21:13:49 -0400
-Subject: [Patch 5/6] megaraid_sas: adds tasklet for cmd completion
-From: Sumant Patro <sumantp@lsil.com>
-To: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Cc: akpm@osdl.org, hch@lst.de, linux-kernel@vger.kernel.org,
-       Neela.Kolli@lsil.com, boy@lsil.com
-Content-Type: multipart/mixed; boundary="=-imzQ5rEI40TFdaDhLSXU"
-Date: Tue, 03 Oct 2006 13:13:18 -0700
-Message-Id: <1159906398.5618.33.camel@dumbo>
+	Tue, 3 Oct 2006 21:15:18 -0400
+Date: Tue, 3 Oct 2006 18:14:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: tim.c.chen@linux.intel.com
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061003181452.778291fb.akpm@osdl.org>
+In-Reply-To: <1159920569.8035.71.camel@localhost.localdomain>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	<20061003170705.6a75f4dd.akpm@osdl.org>
+	<1159920569.8035.71.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 03 Oct 2006 17:09:29 -0700
+Tim Chen <tim.c.chen@linux.intel.com> wrote:
 
---=-imzQ5rEI40TFdaDhLSXU
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On Tue, 2006-10-03 at 17:07 -0700, Andrew Morton wrote:
+> 
+> > 
+> > Perhaps the `static int __warn_once' is getting put in the same cacheline
+> > as some frequently-modified thing.   Perhaps try marking that as __read_mostly?
+> > 
+> 
+> I've tried marking static int __warn_once as __read_mostly.  However, it
+> did not help with reducing the cache miss :(
+> 
+> So I would suggest reversing the "Let WARN_ON/WARN_ON_ONCE return the
+> condition" patch.  It has just been added 3 days ago so reversing it
+> should not be a problem.
+> 
 
-This patch adds a tasklet for command completion.
+Not yet, please.  This is presently a mystery, and we need to work out
+what's going on.
 
-Signed-off-by: Sumant Patro <Sumant.Patro@lsil.com>
+First up, is it due to WARN_ON, or WARN_ON_ONCE?  Please try reverting each
+one separately.
 
-diff -uprN linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.c linux2.6/drivers/scsi/megaraid/megaraid_sas.c
---- linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.c 2006-10-02 11:17:11.000000000 -0700
-+++ linux2.6/drivers/scsi/megaraid/megaraid_sas.c 2006-10-02 11:18:07.000000000 -0700
-@@ -1271,11 +1271,6 @@ megasas_complete_cmd(struct megasas_inst
- static int
- megasas_deplete_reply_queue(struct megasas_instance *instance, u8 alt_status)
- {
-- u32 producer;
-- u32 consumer;
-- u32 context;
-- struct megasas_cmd *cmd;
--
-  /*
-   * Check if it is our interrupt
-   * Clear the interrupt 
-@@ -1283,23 +1278,10 @@ megasas_deplete_reply_queue(struct megas
-  if(instance->instancet->clear_intr(instance->reg_set))
-   return IRQ_NONE;
- 
-- producer = *instance->producer;
-- consumer = *instance->consumer;
--
-- while (consumer != producer) {
--  context = instance->reply_queue[consumer];
--
--		cmd = instance->cmd_list[context];
--
--		megasas_complete_cmd(instance, cmd, alt_status);
--
--		consumer++;
--		if (consumer == (instance->max_fw_cmds + 1)) {
--			consumer = 0;
--		}
--	}
--
--	*instance->consumer = producer;
-+        /* 
-+	* Schedule the tasklet for cmd completion 
-+	*/
-+	tasklet_schedule(&instance->isr_tasklet);
- 
- 	return IRQ_HANDLED;
- }
-@@ -1742,6 +1724,39 @@ megasas_get_ctrl_info(struct megasas_ins
- }
- 
- /**
-+ * megasas_complete_cmd_dpc	 -	Returns FW's controller structure
-+ * @instance_addr:			Address of adapter soft state
-+ *
-+ * Tasklet to complete cmds
-+ */
-+void megasas_complete_cmd_dpc(unsigned long instance_addr)
-+{
-+	u32 producer;
-+	u32 consumer;
-+	u32 context;
-+	struct megasas_cmd *cmd;
-+	struct megasas_instance *instance = (struct megasas_instance *)instance_addr;
-+
-+	producer = *instance->producer;
-+	consumer = *instance->consumer;
-+
-+	while (consumer != producer) {
-+		context = instance->reply_queue[consumer];
-+
-+		cmd = instance->cmd_list[context];
-+
-+		megasas_complete_cmd(instance, cmd, DID_OK);
-+
-+		consumer++;
-+		if (consumer == (instance->max_fw_cmds + 1)) {
-+			consumer = 0;
-+		}
-+	}
-+
-+	*instance->consumer = producer;
-+}
-+
-+/**
-  * megasas_init_mfi -	Initializes the FW
-  * @instance:		Adapter soft state
-  *
-@@ -1911,6 +1926,12 @@ static int megasas_init_mfi(struct megas
- 
- 	kfree(ctrl_info);
- 
-+        /*
-+	* Setup tasklet for cmd completion
-+	*/
-+
-+        tasklet_init(&instance->isr_tasklet, megasas_complete_cmd_dpc,
-+                        (unsigned long)instance);
- 	return 0;
- 
-       fail_fw_init:
-@@ -2470,6 +2491,7 @@ static void megasas_detach_one(struct pc
- 	scsi_remove_host(instance->host);
- 	megasas_flush_cache(instance);
- 	megasas_shutdown_controller(instance);
-+	tasklet_kill(&instance->isr_tasklet);
- 
- 	/*
- 	 * Take the instance off the instance array. Note that we will not
-diff -uprN linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.h linux2.6/drivers/scsi/megaraid/megaraid_sas.h
---- linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.h	2006-10-02 11:17:11.000000000 -0700
-+++ linux2.6/drivers/scsi/megaraid/megaraid_sas.h	2006-10-02 11:18:07.000000000 -0700
-@@ -1102,6 +1102,7 @@ struct megasas_instance {
- 	u32 hw_crit_error;
- 
-  struct megasas_instance_template *instancet;
-+ struct tasklet_struct isr_tasklet;
- };
- 
- #define MEGASAS_IS_LOGICAL(scp)						\
+Let's look at WARN_ON.
+
+Before:
+
+#define WARN_ON(condition) do { \
+	if (unlikely((condition)!=0)) { \
+		printk("BUG: warning at %s:%d/%s()\n", __FILE__, __LINE__, __FUNCTION__); \
+		dump_stack(); \
+	} \
+} while (0)
+
+After:
+
+#define WARN_ON(condition) ({						\
+	typeof(condition) __ret_warn_on = (condition);			\
+	if (unlikely(__ret_warn_on)) {					\
+		printk("BUG: warning at %s:%d/%s()\n", __FILE__,	\
+			__LINE__, __FUNCTION__);			\
+		dump_stack();						\
+	}								\
+	unlikely(__ret_warn_on);					\
+})
+
+There's no difference, except we return the temporary. 
 
 
---=-imzQ5rEI40TFdaDhLSXU
-Content-Disposition: attachment; filename=tasklet-p5.patch
-Content-Type: text/x-patch; name=tasklet-p5.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+And WARN_ON_ONCE.
 
-diff -uprN linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.c linux2.6/drivers/scsi/megaraid/megaraid_sas.c
---- linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.c	2006-10-02 11:17:11.000000000 -0700
-+++ linux2.6/drivers/scsi/megaraid/megaraid_sas.c	2006-10-02 11:18:07.000000000 -0700
-@@ -1271,11 +1271,6 @@ megasas_complete_cmd(struct megasas_inst
- static int
- megasas_deplete_reply_queue(struct megasas_instance *instance, u8 alt_status)
- {
--	u32 producer;
--	u32 consumer;
--	u32 context;
--	struct megasas_cmd *cmd;
--
- 	/*
- 	 * Check if it is our interrupt
- 	 * Clear the interrupt 
-@@ -1283,23 +1278,10 @@ megasas_deplete_reply_queue(struct megas
- 	if(instance->instancet->clear_intr(instance->reg_set))
- 		return IRQ_NONE;
- 
--	producer = *instance->producer;
--	consumer = *instance->consumer;
--
--	while (consumer != producer) {
--		context = instance->reply_queue[consumer];
--
--		cmd = instance->cmd_list[context];
--
--		megasas_complete_cmd(instance, cmd, alt_status);
--
--		consumer++;
--		if (consumer == (instance->max_fw_cmds + 1)) {
--			consumer = 0;
--		}
--	}
--
--	*instance->consumer = producer;
-+        /* 
-+	* Schedule the tasklet for cmd completion 
-+	*/
-+	tasklet_schedule(&instance->isr_tasklet);
- 
- 	return IRQ_HANDLED;
- }
-@@ -1742,6 +1724,39 @@ megasas_get_ctrl_info(struct megasas_ins
- }
- 
- /**
-+ * megasas_complete_cmd_dpc	 -	Returns FW's controller structure
-+ * @instance_addr:			Address of adapter soft state
-+ *
-+ * Tasklet to complete cmds
-+ */
-+void megasas_complete_cmd_dpc(unsigned long instance_addr)
-+{
-+	u32 producer;
-+	u32 consumer;
-+	u32 context;
-+	struct megasas_cmd *cmd;
-+	struct megasas_instance *instance = (struct megasas_instance *)instance_addr;
-+
-+	producer = *instance->producer;
-+	consumer = *instance->consumer;
-+
-+	while (consumer != producer) {
-+		context = instance->reply_queue[consumer];
-+
-+		cmd = instance->cmd_list[context];
-+
-+		megasas_complete_cmd(instance, cmd, DID_OK);
-+
-+		consumer++;
-+		if (consumer == (instance->max_fw_cmds + 1)) {
-+			consumer = 0;
-+		}
-+	}
-+
-+	*instance->consumer = producer;
-+}
-+
-+/**
-  * megasas_init_mfi -	Initializes the FW
-  * @instance:		Adapter soft state
-  *
-@@ -1911,6 +1926,12 @@ static int megasas_init_mfi(struct megas
- 
- 	kfree(ctrl_info);
- 
-+        /*
-+	* Setup tasklet for cmd completion
-+	*/
-+
-+        tasklet_init(&instance->isr_tasklet, megasas_complete_cmd_dpc,
-+                        (unsigned long)instance);
- 	return 0;
- 
-       fail_fw_init:
-@@ -2470,6 +2491,7 @@ static void megasas_detach_one(struct pc
- 	scsi_remove_host(instance->host);
- 	megasas_flush_cache(instance);
- 	megasas_shutdown_controller(instance);
-+	tasklet_kill(&instance->isr_tasklet);
- 
- 	/*
- 	 * Take the instance off the instance array. Note that we will not
-diff -uprN linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.h linux2.6/drivers/scsi/megaraid/megaraid_sas.h
---- linux2.6-orig/drivers/scsi/megaraid/megaraid_sas.h	2006-10-02 11:17:11.000000000 -0700
-+++ linux2.6/drivers/scsi/megaraid/megaraid_sas.h	2006-10-02 11:18:07.000000000 -0700
-@@ -1102,6 +1102,7 @@ struct megasas_instance {
- 	u32 hw_crit_error;
- 
- 	struct megasas_instance_template *instancet;
-+	struct tasklet_struct isr_tasklet;
- };
- 
- #define MEGASAS_IS_LOGICAL(scp)						\
+Before:
 
---=-imzQ5rEI40TFdaDhLSXU--
+#define WARN_ON_ONCE(condition)				\
+({							\
+	static int __warn_once = 1;			\
+	int __ret = 0;					\
+							\
+	if (unlikely((condition) && __warn_once)) {	\
+		__warn_once = 0;			\
+		WARN_ON(1);				\
+		__ret = 1;				\
+	}						\
+	__ret;						\
+})
 
+After:
+
+#define WARN_ON_ONCE(condition)	({			\
+	static int __warn_once = 1;			\
+	typeof(condition) __ret_warn_once = (condition);\
+							\
+	if (likely(__warn_once))			\
+		if (WARN_ON(__ret_warn_once)) 		\
+			__warn_once = 0;		\
+	unlikely(__ret_warn_once);			\
+})
+
+There are changes here: in the old code we'll avoid reading the static
+variable.  In the new code we'll read the static variable, but we'll avoid
+evaluating the condition.
+
+Why would that make a measurable difference?
+
+Do you know which WARN_ON (or is it WARN_ON_ONCE?) callsite is causing a
+problem?

@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWJDR2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWJDRaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWJDR2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 13:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWJDR2X
+	id S964900AbWJDRaw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 13:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWJDRav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:28:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1709 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964900AbWJDR2X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:28:23 -0400
-Date: Wed, 4 Oct 2006 10:28:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: <tim.c.chen@linux.intel.com>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
-       <herbert@gondor.apana.org.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Message-Id: <20061004102812.5f3b22d2.akpm@osdl.org>
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC3F3FAD@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC3F3FAD@mssmsx411>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 13:30:51 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:17480 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964900AbWJDRav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 13:30:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sZ5E9R3ZYhFfnD6fa5DC4MtgHwfRRwhT0zTkShmbhPM7UO+mBc9kROESHSg0UEqEWploLhcsleARRxpowABK7wFNVdqwmcnY0S3Z2JkOSz2OBpLv81zvEGbIlGF8jWdJdO5p1tYj105j+DTl71SUG4335c19VB4QoYrN1sWItCg=
+Message-ID: <a36005b50610041030k1ca54065v90a5f6d54b5b9254@mail.gmail.com>
+Date: Wed, 4 Oct 2006 10:30:48 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <efvcs7$526$1@taverner.cs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <45150CD7.4010708@aknet.ru> <4522B7CD.4040206@redhat.com>
+	 <efv8pc$31o$1@taverner.cs.berkeley.edu>
+	 <a36005b50610032051h64609d51kf1e5211d1bf07370@mail.gmail.com>
+	 <efvcs7$526$1@taverner.cs.berkeley.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 20:57:57 +0400
-"Ananiev, Leonid I" <leonid.i.ananiev@intel.com> wrote:
+On 10/3/06, David Wagner <daw@cs.berkeley.edu> wrote:
+> I wonder whether it is feasible to run with allow_exec{heap,mem,mod,stack}
+> all set to false, on a real system.  Is there any example of a fully
+> worked out SELinux policy that has these set to false?  FC5 has
+> allow_execheap set to false and all others set to true in its default
+> SELinux policy,
 
-> >Guys.  Please.  Help us out here.  None of this makes sense, and it's
-> > possible that we have an underlying problem in there which we need to
-> know
-> > about.
->  This is explantion:
-> 
-> The static variable __warn_once was "never" read (until there is no bug)
-> before patch "Let WARN_ON/WARN_ON_ONCE return the condition"
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commi
-> t;h=684f978347deb42d180373ac4c427f82ef963171
->  in WARN_ON_ONCE's line 
-> - if (unlikely((condition) && __warn_once)) { \
-> because 'condition' is false. There was no cache miss as a result.
-> 
-> Cache miss for __warn_once is happened in new lines
-> + if (likely(__warn_once)) \
-> + if (WARN_ON(__ret_warn_once)) \
-> 
+This is the default setting to minimize breakage.  And it has been set
+like this (in the FC6 devel cycle) only in the last minute.  For most
+of the devel cycle all were off.  For the distribution as a hole there
+is simply too much of a chance for something to break and make the
+system appear unusable.  This is mostly code in 3rd party apps.
+Reason enough, unfortunately, for us to default on the safe side.
 
-That's one cache miss.  One.  For the remainder of the benchmark,
-__warn_once is in cache and there are no more misses.  That's how caches
-work ;)
-
-But it appears this isn't happening.  Why?
+But I run my machines with everything turned off.  We cleaned up the
+code we ship so that this is possible.

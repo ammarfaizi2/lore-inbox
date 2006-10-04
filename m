@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030752AbWJDIW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030745AbWJDIZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030752AbWJDIW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 04:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030754AbWJDIW2
+	id S1030745AbWJDIZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 04:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030760AbWJDIZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 04:22:28 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:27843 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1030753AbWJDIW1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 04:22:27 -0400
-Subject: Re: debugfs oddity
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Greg KH <gregkh@suse.de>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Joel Becker <Joel.Becker@oracle.com>, Michael Buesch <mb@bu3sch.de>
-In-Reply-To: <20061004081213.GA3477@suse.de>
-References: <1159781104.2655.47.camel@ux156>
-	 <20061003052839.GA18989@suse.de> <1159946446.2817.2.camel@ux156>
-	 <20061004081213.GA3477@suse.de>
-Content-Type: text/plain
+	Wed, 4 Oct 2006 04:25:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:3284 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030745AbWJDIZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 04:25:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=CiSaNa0/4wFO1z0iPqv8CkALhaAwPvUd8tj+cPxYXtDPShDzMrfnY4e5bQQq9ZVKeDMRfIPRFYCbZai0waRu+K5WU7l9lqXQOE3Ngx79SAyZHK9SfA8kiV5BK5DizdJidpgnf5SdFCp9hPgVldpmIYKzGod/S4y1yHcKmrHa5oY=
+Message-ID: <45237044.8090805@innova-card.com>
+Date: Wed, 04 Oct 2006 10:26:44 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: vgoyal@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/12] i386: define __pa_symbol()
+References: <20061003170032.GA30036@in.ibm.com> <20061003171055.GD3164@in.ibm.com>
+In-Reply-To: <20061003171055.GD3164@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 10:23:19 +0200
-Message-Id: <1159950200.2817.34.camel@ux156>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
-X-sips-origin: local
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-04 at 01:12 -0700, Greg KH wrote:
+hi,
 
-> I don't understand.  Does ramfs have the same issues you feel debugfs
-> has?  Or does it work like a disk based file system?
+Sorry for the late feedback...
 
-It works like tmpfs and disk based filesystems and allows re-creating a
-removed directory.
+Vivek Goyal wrote:
+> 
+> On x86_64 we have to be careful with calculating the physical
+> address of kernel symbols.  Both because of compiler odditities
+> and because the symbols live in a different range of the virtual
+> address space.
+> 
 
-johannes
+[snip]
+
+> +#define __pa_symbol(x)          \
+> +	({unsigned long v;  \
+> +	  asm("" : "=r" (v) : "0" (x)); \
+> +	  __pa(v); })
+
+Why not simply reusing RELOC_HIDE  like this ?
+
+	#define __pa_symbol(x)	__pa(RELOC_HIDE(x,0))
+
+thanks
+		Franck

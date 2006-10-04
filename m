@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWJDFKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWJDFig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWJDFKX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 01:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWJDFKX
+	id S1161006AbWJDFig (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 01:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWJDFig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 01:10:23 -0400
-Received: from mx1.suse.de ([195.135.220.2]:5248 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030190AbWJDFKV (ORCPT
+	Wed, 4 Oct 2006 01:38:36 -0400
+Received: from mx.go2.pl ([193.17.41.41]:46518 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1161006AbWJDFif (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 01:10:21 -0400
-Date: Tue, 3 Oct 2006 22:10:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: [-mm patch] missing class_dev to dev conversions
-Message-ID: <20061004051023.GA15801@kroah.com>
-References: <20060919012848.4482666d.akpm@osdl.org> <20060919173902.GB751@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Oct 2006 01:38:35 -0400
+Date: Wed, 4 Oct 2006 07:43:08 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: "Axel C\. Voigt" <Axel.Voigt@qosmotec.com>
+Cc: linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: Problems with hard irq? (inconsistent lock state)
+Message-ID: <20061004054308.GA994@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	"Axel C. Voigt" <Axel.Voigt@qosmotec.com>,
+	linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>,
+	Greg Kroah-Hartman <gregkh@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060919173902.GB751@slug>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <46E81D405FFAC240826E54028B3B02953B13@aixlac.qosmotec.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 19, 2006 at 05:39:03PM +0000, Frederik Deweerdt wrote:
-> On Tue, Sep 19, 2006 at 01:28:48AM -0700, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
-> > 
-> Greg,
+On 29-09-2006 13:45, Axel C. Voigt wrote:
+>  
+> Hello all,
 > 
-> There are some net drivers that didn't get their class_device converted to
-> device, as introduced by the gregkh-driver-network-class_device-to-device
-> patch.
-> The arm defconfig build thus fails with the following message:
+> today I received the following stack backtrace using debian-2.6.18 with our communications driver accessing a ACM device. This happened when removing (powering off and/or on) the mobile phone (nokia 6630) at /dev/ttyACMx
 > 
-> drivers/net/smc91x.c: In function `smc_ethtool_getdrvinfo':
-> drivers/net/smc91x.c:1713: error: structure has no member named
-> `class_dev'
-> make[2]: *** [drivers/net/smc91x.o] Error 1
-> make[1]: *** [drivers/net] Error 2
-> make: *** [drivers] Error 2
+> Are someone able to get a hint for me?
 > 
-> The following patch fixes at91_ether.c, etherh.c, smc911x.c and smc91x.c.
+> --schnipp--
+> Sep 29 13:29:53 mcs70 kernel:
+> Sep 29 13:29:53 mcs70 kernel: =================================
+> Sep 29 13:29:53 mcs70 kernel: [ INFO: inconsistent lock state ]
+> Sep 29 13:29:53 mcs70 kernel: ---------------------------------
+> Sep 29 13:29:53 mcs70 kernel: inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
+> Sep 29 13:29:53 mcs70 kernel: startDV24/3864 [HC1[1]:SC0[0]:HE0:SE1] takes:
+> Sep 29 13:29:53 mcs70 kernel: (&acm->read_lock){++..}, at: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
+> Sep 29 13:29:53 mcs70 kernel: {hardirq-on-W} state was registered at:
+> Sep 29 13:29:53 mcs70 kernel: [<c01321f3>] lock_acquire+0x56/0x73
+> Sep 29 13:29:53 mcs70 kernel: [<c02ce42a>] _spin_lock+0x1a/0x25
+> Sep 29 13:29:53 mcs70 kernel: [<e08953a8>] acm_rx_tasklet+0x52/0x2be [cdc_acm]
+> Sep 29 13:29:53 mcs70 kernel: [<c011f868>] tasklet_action+0x6d/0xd7
+> Sep 29 13:29:53 mcs70 kernel: [<c011f526>] __do_softirq+0x79/0xf2
+...
+> Sep 29 13:29:53 mcs70 kernel: stack backtrace:
+> Sep 29 13:29:53 mcs70 kernel: [<c010376e>] show_trace+0x16/0x18
+> Sep 29 13:29:53 mcs70 kernel: [<c010383c>] dump_stack+0x19/0x1b
+> Sep 29 13:29:53 mcs70 kernel: [<c0130ad8>] print_usage_bug+0x1e1/0x1eb
+> Sep 29 13:29:53 mcs70 kernel: [<c0130b86>] mark_lock+0xa4/0x4d9
+> Sep 29 13:29:53 mcs70 kernel: [<c0131823>] __lock_acquire+0x41a/0x841
+> Sep 29 13:29:53 mcs70 kernel: [<c01321f3>] lock_acquire+0x56/0x73
+> Sep 29 13:29:53 mcs70 kernel: [<c02ce42a>] _spin_lock+0x1a/0x25
+> Sep 29 13:29:53 mcs70 kernel: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
+...
+> Sep 29 13:29:53 mcs70 kernel: [<c0104b26>] do_IRQ+0x4e/0x5f
+> Sep 29 13:29:53 mcs70 kernel: [<c0103339>] common_interrupt+0x25/0x2c
+... 
 
-Thanks a lot, I've merged this in with the original patch that caused
-this problem.
+It looks in drivers/usb/class/cdc-acm.c acm_rx_tasklet could be preempted
+with acm->read_lock by acm_read_bulk which uses the same lock from hardirq
+context.
 
-greg k-h
+So probably spin_lock_irqsave is needed.  
+
+> Mit freundlichen Grüssen/ with kind regards,
+>  
+> Axel C. Voigt
+
+Serdecznie pozdrawiam/ cheers,
+
+Jarek P.
+>  

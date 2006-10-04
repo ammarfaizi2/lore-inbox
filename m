@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbWJDOwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWJDOzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161151AbWJDOwh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 10:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWJDOwg
+	id S1161147AbWJDOzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 10:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161162AbWJDOzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 10:52:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6067 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161151AbWJDOwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 10:52:36 -0400
-Subject: Re: [v4l-dvb-maintainer] DVB Kconfig warning in latest kernel
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       v4l-dvb-maintainer@linuxtv.org
-In-Reply-To: <45235137.4040604@garzik.org>
-References: <45235137.4040604@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 04 Oct 2006 11:52:04 -0300
-Message-Id: <1159973524.12965.29.camel@praia>
+	Wed, 4 Oct 2006 10:55:53 -0400
+Received: from users.ccur.com ([66.10.65.2]:54979 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S1161147AbWJDOzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 10:55:52 -0400
+Date: Wed, 4 Oct 2006 10:55:24 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, reinette.chatre@linux.intel.com,
+       linux-kernel@vger.kernel.org, inaky@linux.intel.com
+Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of a user buffer
+Message-ID: <20061004145524.GA24335@tsunami.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <200610030816.27941.reinette.chatre@linux.intel.com> <20061003163936.d8e26629.akpm@osdl.org> <20061004141405.GA22833@tsunami.ccur.com> <20061004072746.8e4b97a0.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061004072746.8e4b97a0.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Wed, Oct 04, 2006 at 07:27:46AM -0700, Paul Jackson wrote:
 
-Em Qua, 2006-10-04 às 02:14 -0400, Jeff Garzik escreveu:
-> When doing 'make allyesconfig && make -sj4' on x86_64:
+> Perhaps I should have my coffee first, but I don't see where the
+> order in which we wrap these affects the need to impose a crude
+> upper limit on what the user can ask for.
 > 
-> drivers/media/dvb/dvb-usb/Kconfig:72:warning: 'select' used by config 
-> symbol 'DVB_USB_DIB0700' refer to undefined symbol 'DVB_DIB7000M'
+> Off hand, I'd expect the kernel version to be the actual implementing
+> code, and the user version to be the wrapper and also to impose the
+> crude upper limit.
 
-The fix is already at my -git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commitdiff;h=39666962a3c598f221bc99e835d9d6046a700d85
+I guess I am a sucker for no-transient-buffer (bufferless?)
+implementations, as with them there is an intrinsic
+simplicity that automatically avoids problems.  The price
+in this case, though, is the use of the more expensive
+get_user() where, for kernel buffers, it is not needed.
 
-It is due to the decision of postponing DiB7000m support to 2.6.20.
+I have no objection though, and in either case we should
+impose a sanity check on 'count'.
 
-Cheers, 
-Mauro.
-
+Joe

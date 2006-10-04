@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161061AbWJDEz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWJDFKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161061AbWJDEz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 00:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbWJDEz6
+	id S1030190AbWJDFKX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 01:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWJDFKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 00:55:58 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41947 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1160996AbWJDEz5 (ORCPT
+	Wed, 4 Oct 2006 01:10:23 -0400
+Received: from mx1.suse.de ([195.135.220.2]:5248 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030190AbWJDFKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 00:55:57 -0400
-Date: Wed, 4 Oct 2006 08:55:27 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20061004045527.GB32267@2ka.mipt.ru>
-References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 4 Oct 2006 01:10:21 -0400
+Date: Tue, 3 Oct 2006 22:10:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [-mm patch] missing class_dev to dev conversions
+Message-ID: <20061004051023.GA15801@kroah.com>
+References: <20060919012848.4482666d.akpm@osdl.org> <20060919173902.GB751@slug>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 04 Oct 2006 08:55:28 +0400 (MSD)
+In-Reply-To: <20060919173902.GB751@slug>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 09:50:09PM -0700, Ulrich Drepper (drepper@gmail.com) wrote:
-> On 9/27/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> \> I have been told in private what is signal masks about - just to wait
-> >until either signal or given condition is ready, but in that case just
-> >add additional kevent user like AIO complete or netwrok notification
-> >and wait until either requested events are ready or signal is triggered.
+On Tue, Sep 19, 2006 at 05:39:03PM +0000, Frederik Deweerdt wrote:
+> On Tue, Sep 19, 2006 at 01:28:48AM -0700, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
+> > 
+> Greg,
 > 
-> No, this won't work.  Yes, I want signal notification as part of the
-> event handling.  But there are situations when this is not suitable.
-> Only if the signal is expected in the same code using the event
-> handling can you do this.  But this is not always possible.
-> Especially when the signal handling code is used in other parts of the
-> code than the event handling.  E.g., signal handling in a library,
-> event handling in the main code.  You cannot assume that all the code
-> is completely integrated.
+> There are some net drivers that didn't get their class_device converted to
+> device, as introduced by the gregkh-driver-network-class_device-to-device
+> patch.
+> The arm defconfig build thus fails with the following message:
+> 
+> drivers/net/smc91x.c: In function `smc_ethtool_getdrvinfo':
+> drivers/net/smc91x.c:1713: error: structure has no member named
+> `class_dev'
+> make[2]: *** [drivers/net/smc91x.o] Error 1
+> make[1]: *** [drivers/net] Error 2
+> make: *** [drivers] Error 2
+> 
+> The following patch fixes at91_ether.c, etherh.c, smc911x.c and smc91x.c.
 
-Signals still can be delivered in usual way too.
+Thanks a lot, I've merged this in with the original patch that caused
+this problem.
 
-When we enter sys_ppoll() we specify needed signals as syscall
-parameter, with kevents we will add them into the queue.
-
--- 
-	Evgeniy Polyakov
+greg k-h

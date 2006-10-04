@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWJDN2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWJDNbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWJDN2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWJDN2x
+	id S932424AbWJDNbm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWJDNbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:28:53 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39341 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932417AbWJDN2x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:28:53 -0400
-Date: Wed, 4 Oct 2006 14:28:52 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: sammy@sammy.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] m68k/kernel/dma.c assumes !MMU_SUN3
-Message-ID: <20061004132851.GL29920@ftp.linux.org.uk>
+	Wed, 4 Oct 2006 09:31:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49031 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932424AbWJDNbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 09:31:41 -0400
+Subject: Re: [PATCH] fs/jffs2: kill warning RE debug-only variables
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061004115718.GA22386@havoc.gtf.org>
+References: <20061004115718.GA22386@havoc.gtf.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 04 Oct 2006 14:31:28 +0100
+Message-Id: <1159968688.20586.18.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.1) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- arch/m68k/kernel/Makefile      |    3 ++-
- include/asm-m68k/dma-mapping.h |    5 +++++
- 2 files changed, 7 insertions(+), 1 deletions(-)
+On Wed, 2006-10-04 at 07:57 -0400, Jeff Garzik wrote:
+> build:
+> 
+> fs/jffs2/xattr.c: In function ‘unrefer_xattr_datum’:
+> fs/jffs2/xattr.c:402: warning: unused variable ‘version’
+> fs/jffs2/xattr.c:402: warning: unused variable ‘xid’
+> 
+> Given that these variables are only used in the debug printk, and they
+> merely remove a deref, we can easily kill the warning by adding the
+> derefs to the debug printk.
+> 
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-diff --git a/arch/m68k/kernel/Makefile b/arch/m68k/kernel/Makefile
-index dae6097..1c9ecaa 100644
---- a/arch/m68k/kernel/Makefile
-+++ b/arch/m68k/kernel/Makefile
-@@ -9,10 +9,11 @@ else
- endif
- extra-y	+= vmlinux.lds
- 
--obj-y	:= entry.o process.o traps.o ints.o dma.o signal.o ptrace.o \
-+obj-y	:= entry.o process.o traps.o ints.o signal.o ptrace.o \
- 	   sys_m68k.o time.o semaphore.o setup.o m68k_ksyms.o
- 
- obj-$(CONFIG_PCI)	+= bios32.o
- obj-$(CONFIG_MODULES)	+= module.o
-+obj-y$(CONFIG_MMU_SUN3) += dma.o	# no, it's not a typo
- 
- EXTRA_AFLAGS := -traditional
-diff --git a/include/asm-m68k/dma-mapping.h b/include/asm-m68k/dma-mapping.h
-index cebbb03..ad33e57 100644
---- a/include/asm-m68k/dma-mapping.h
-+++ b/include/asm-m68k/dma-mapping.h
-@@ -5,6 +5,7 @@ #include <asm/cache.h>
- 
- struct scatterlist;
- 
-+#ifndef CONFIG_MMU_SUN3
- static inline int dma_supported(struct device *dev, u64 mask)
- {
- 	return 1;
-@@ -88,4 +89,8 @@ static inline int dma_mapping_error(dma_
- 	return 0;
- }
- 
-+#else
-+#include <asm-generic/dma-mapping-broken.h>
-+#endif
-+
- #endif  /* _M68K_DMA_MAPPING_H */
+Applied; thanks.
+
 -- 
-1.4.2.GIT
-
+dwmw2
 

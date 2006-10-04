@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWJDOq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWJDOrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbWJDOq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 10:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWJDOq0
+	id S1161152AbWJDOrn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 10:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWJDOrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 10:46:26 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:4533 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161148AbWJDOqZ (ORCPT
+	Wed, 4 Oct 2006 10:47:43 -0400
+Received: from colin.muc.de ([193.149.48.1]:27656 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1161149AbWJDOrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 10:46:25 -0400
-Date: Wed, 4 Oct 2006 10:45:51 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, akpm@osdl.org,
-       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 3/12] i386: Force section size to be non-zero to prevent a symbol becoming absolute
-Message-ID: <20061004144551.GB16218@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061003170032.GA30036@in.ibm.com> <20061003170908.GC3164@in.ibm.com> <200610041302.46672.ak@suse.de> <m1fye4cgyf.fsf@ebiederm.dsl.xmission.com>
+	Wed, 4 Oct 2006 10:47:42 -0400
+Date: 4 Oct 2006 16:47:36 +0200
+Date: Wed, 4 Oct 2006 16:47:36 +0200
+From: Andi Kleen <ak@muc.de>
+To: "S.??a??lar Onur" <caglar@pardus.org.tr>
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Ops] 2.6.18
+Message-ID: <20061004144736.GA67993@muc.de>
+References: <200610010332.52509.caglar@pardus.org.tr> <1159810605.5873.4.camel@localhost.localdomain> <200610041638.25955.caglar@pardus.org.tr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1fye4cgyf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200610041638.25955.caglar@pardus.org.tr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 08:07:36AM -0600, Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
-> 
-> >>    /* writeable */
-> >> @@ -64,6 +66,7 @@ SECTIONS
-> >>  	*(.data.nosave)
-> >>    	. = ALIGN(4096);
-> >>    	__nosave_end = .;
-> >> +	LONG(0)
-> >>    }
-> >>  
-> >>    . = ALIGN(4096);
+On Wed, Oct 04, 2006 at 04:38:25PM +0300, S.??a??lar Onur wrote:
+> 02 Eki 2006 Pts 20:36 tarihinde, john stultz ??unlar?? yazm????t??: 
+> > On Sun, 2006-10-01 at 03:32 +0300, S.??a??lar Onur wrote:
+> > > Hi;
+> > >
+> > > Here [1] are the two different panics with 2.6.18 on vmware, its
+> > > reproducable on every 4-5 reboot [same config/kernel in "2.6.18 Nasty
+> > > Lockup" thread, so i CC'd to that thread's posters also]
+> > >
+> > > [1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/
 > >
-> > You're wasting one full page once for each of these LONG(0)s because
-> > of the following 4096 alignment.
+> > Hmmm.. That first oops looks interesting to me.
 > >
-> > Isn't there some way to do this less wastefull?
+> > When you say they're reproducible every 4-5 reboots, which one do you
+> > mean?
 > 
-> So the problem is that we have sections that don't get relocated which
-> confuses things.  If the first that happened was that the size was
-> check to see if it was non-zero before we did anything I think we
-> wouldn't care if the linker messed up in this way.
-> 
+> For every 10 reboots first one occurs at least 6 times, 3 times second one 
+> occurs and for last it boots :)
 
-Actually in this case if section size is zero, linker does not even
-output that section and simply gets rid of it. What is left behind is
-just the symbols (which were supposed to be section relative) and linker
-just makes those symbols as absolute symbols. Absolute symbols are not 
-to be relocated so patch just filters out those symbols and they don't
-get relocated. So I am not sure where can I check the section size?
+I assume it must be something specific to your configuration
+or setup.
 
-One other possible solution is that kernel code is written carefully 
-so that we don't run into such problems even if absolute symbols don't
-get relocated. For example, if there are two symbols A and B denoting
-section start and end, always check if (A<B) before doing anything. Also
-make sure that one is not trying to handle multiple sections at the same
-time. For example, if A and B represents start and end for section 1
-and C and D represent start and end for section 2 then one wants to 
-free memory between A and D , then it should be done in two steps.
+If plain 2.6.18 was that unstable we would be flooded in reports.
+But that's not the case.  I also definitely don't see it on any of my systems
+(except that if you use PIT time source on a multi core system 
+things break on i386) 
 
-if (A<B)
-	free_memory(A,B)
-if (C<D)
-	free_memory(C,D)
+Perhaps you list your setup and your configuration and a boot log
+for the working case? I also I would really recommend to do the make 
+distclean ; recompile step I mentioned earlier.
 
-So this code will become safe even if symbols for empty sections become
-absolute.  
-
-But this looks to be very awkward solution.
-
-Thanks
-Vivek
+-Andi

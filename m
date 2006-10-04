@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWJDWhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWJDWl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWJDWhj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 18:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWJDWhj
+	id S1751199AbWJDWl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 18:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWJDWl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 18:37:39 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:238 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751196AbWJDWhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 18:37:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CWkGvpb+2YSppCneXrNHmof79U0cMKYH3QcukvrZre2wWBZ9ytxmKI1sMavhMr1hWdALrVA/fq4FcoJAglF+e0Dz8iM0zsv4zH6eK1YDLI2bINMK+VpsXm+qB4uZjsO2kA+MFZy29LeF+uLkdAomgbjStY3qTqRFVm9GAZidcpU=
-Message-ID: <a762e240610041537n6a2ffd1cja3c18ce99b714b0f@mail.gmail.com>
-Date: Wed, 4 Oct 2006 15:37:36 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Steven Truong" <midair77@gmail.com>
-Subject: Re: kexec / kdump kernel panic
-Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <28bb77d30610041438r3c3dfd8ejc7344761704747fd@mail.gmail.com>
+	Wed, 4 Oct 2006 18:41:57 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48910 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751199AbWJDWl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 18:41:56 -0400
+Date: Thu, 5 Oct 2006 00:41:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+Message-ID: <20061004224154.GC16812@stusta.de>
+References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain> <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <28bb77d30610031718r51dfb003ge22c082d3b4cacb@mail.gmail.com>
-	 <200610040346.k943kvwM006684@turing-police.cc.vt.edu>
-	 <28bb77d30610041438r3c3dfd8ejc7344761704747fd@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/06, Steven Truong <midair77@gmail.com> wrote:
-> Hi, Valdis.  No, I actually used 2 different kernels for this:  one
-> for system kernel and the other for captured/crash kernel.
->
-<snip >
-> CONFIG_PHYSICAL_START=0x1000000
-<snip>
-> CONFIG_PHYSICAL_START=0x1000000
->
+On Mon, Oct 02, 2006 at 11:02:36AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 2 Oct 2006, Alan Cox wrote:
+> >
+> > Ar Llu, 2006-10-02 am 09:40 -0700, ysgrifennodd Linus Torvalds:
+> > > If you want a yes/no kind of thing, do it on real hard issues, like not 
+> > > accepting email from machines that aren't registered MX gateways. Sure, 
+> > > that will mean that people who just set up their local sendmail thing and 
+> > > connect directly to port 25 will just not be able to email, but let's face 
+> > > it, that's why we have ISP's and DNS in the first place.
+> > 
+> > Except most of the ISPs are incompetent and many people have to run
+> > their own mail system in order to get mail that actually *works*. I've
+> > had that experience several times, although thankfully I now have a sane
+> > ISP.
+> 
+> Sure. I kind of agree - I'm just saying that if you have a _hard_ 
+> decision, you should base in on _hard_ data. 
+>...
 
-if both cases you have the same CONFIG_PHYSICAL_START?  I thought the
-kexec kernel needed to start at a diffrent location then the original
-kernel?
+My personal hard data is:
+- if you are sending emails to me, the fourth-last mail server in the
+  path (the one that actually receives the emails from the Internet)
+  does greylisting, IOW much spam that can be trivially determined is
+  already eliminated when bogofilter gets the emails
+- much spam I'm getting cames through lists like linux-kernel that
+  have already filtered out the easy to determine spam
+- despite these points, bogofilter catches 90% of the arriving spam
+- one false positive every 1-2 years (sic)
+- I can (and do) train bogofilter myself
 
-Thanks,
- Keith
+It might have it's weaknesses and might therefore not work well forever,
+but at least during the last years bogofilter served me well. 
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWJDOJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWJDOKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWJDOJg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 10:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWJDOJg
+	id S964888AbWJDOKk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 10:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWJDOKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 10:09:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27310 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964791AbWJDOJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 10:09:35 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, horms@verge.net.au, lace@jankratochvil.net,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 3/12] i386: Force section size to be non-zero to prevent a symbol becoming absolute
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003170908.GC3164@in.ibm.com> <200610041302.46672.ak@suse.de>
-Date: Wed, 04 Oct 2006 08:07:36 -0600
-In-Reply-To: <200610041302.46672.ak@suse.de> (Andi Kleen's message of "Wed, 4
-	Oct 2006 13:02:46 +0200")
-Message-ID: <m1fye4cgyf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Oct 2006 10:10:40 -0400
+Received: from mga07.intel.com ([143.182.124.22]:18066 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S964888AbWJDOKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 10:10:39 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,256,1157353200"; 
+   d="scan'208"; a="126809486:sNHT118982864"
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: herbert@gondor.apana.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       leonid.i.ananiev@intel.com
+In-Reply-To: <45233B1E.3010100@goop.org>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	 <4522FB04.1080001@goop.org>
+	 <1159919263.8035.65.camel@localhost.localdomain>
+	 <45233B1E.3010100@goop.org>
+Content-Type: text/plain
+Organization: Intel
+Date: Wed, 04 Oct 2006 06:21:35 -0700
+Message-Id: <1159968095.8035.76.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, 2006-10-03 at 21:39 -0700, Jeremy Fitzhardinge wrote:
 
->>    /* writeable */
->> @@ -64,6 +66,7 @@ SECTIONS
->>  	*(.data.nosave)
->>    	. = ALIGN(4096);
->>    	__nosave_end = .;
->> +	LONG(0)
->>    }
->>  
->>    . = ALIGN(4096);
->
-> You're wasting one full page once for each of these LONG(0)s because
-> of the following 4096 alignment.
->
-> Isn't there some way to do this less wastefull?
+> 
+> I don't think you've proved your case here.  Do you *know* there are 
+> extra cache misses (ie, measuring them), or is it just your theory to 
+> explain a performance regression?
+> 
 
-So the problem is that we have sections that don't get relocated which
-confuses things.  If the first that happened was that the size was
-check to see if it was non-zero before we did anything I think we
-wouldn't care if the linker messed up in this way.
+I have measured the cache miss with tool.  So it is not just my theory.
 
-But I may be wrong on that point.
-
-Eric
-
+Tim

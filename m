@@ -1,76 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWJDNi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWJDNmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030388AbWJDNi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWJDNi0
+	id S1030429AbWJDNmd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJDNmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:38:26 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:49582 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1030388AbWJDNiZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:38:25 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [Ops] 2.6.18
-Date: Wed, 4 Oct 2006 16:38:25 +0300
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-References: <200610010332.52509.caglar@pardus.org.tr> <1159810605.5873.4.camel@localhost.localdomain>
-In-Reply-To: <1159810605.5873.4.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4364652.Y2UUrnJvcz";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 4 Oct 2006 09:42:32 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:35519 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030429AbWJDNmb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 09:42:31 -0400
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+From: Steve Fox <drfickle@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20060928140124.5f7154e3.akpm@osdl.org>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <efh217$8au$1@sea.gmane.org>  <20060928140124.5f7154e3.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610041638.25955.caglar@pardus.org.tr>
+Date: Wed, 04 Oct 2006 08:42:28 -0500
+Message-Id: <1159969349.28106.64.camel@flooterbu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4364652.Y2UUrnJvcz
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2006-09-28 at 14:01 -0700, Andrew Morton wrote:
+> On Thu, 28 Sep 2006 17:50:31 +0000 (UTC)
+> "Steve Fox" <drfickle@us.ibm.com> wrote:
+> 
+> > On Thu, 28 Sep 2006 01:46:23 -0700, Andrew Morton wrote:
+> > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
+> > 
+> > Panic on boot. This machine booted 2.6.18-mm1 fine. em64t machine.
+> > 
+> > TCP bic registered
+> > TCP westwood registered
+> > TCP htcp registered
+> > NET: Registered protocol family 1
+> > NET: Registered protocol family 17
+> > Unable to handle kernel paging request at ffffffffffffffff RIP: 
+> >  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
+> > PGD 203027 PUD 2b031067 PMD 0 
+> > Oops: 0000 [1] SMP 
+> > last sysfs file: 
+> > CPU 0 
+> > Modules linked in:
+> > Pid: 1, comm: swapper Not tainted 2.6.18-mm2-autokern1 #1
+> > RIP: 0010:[<ffffffff8047ef93>]  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
+> > RSP: 0000:ffff810bffcbde90  EFLAGS: 00010286
+> > RAX: 0000000000000000 RBX: ffff810bff4a1000 RCX: 2222222222222222
+> > RDX: ffff810bff4a1000 RSI: 0000000000000005 RDI: ffffffff8055f5e0
+> > RBP: ffffffffffffffff R08: 0000000000007616 R09: 000000000000000e
+> > R10: 0000000000000006 R11: ffffffff803373f0 R12: 0000000000000000
+> > R13: 0000000000000005 R14: ffff810bff4a1000 R15: 0000000000000000
+> > FS:  0000000000000000(0000) GS:ffffffff805d8000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> > CR2: ffffffffffffffff CR3: 0000000000201000 CR4: 00000000000006e0
+> > Process swapper (pid: 1, threadinfo ffff810bffcbc000, task ffff810bffcbb510)
+> > Stack:  ffff810bff4a1000 ffffffff8055f4c0 0000000000000000 ffff810bffcbdef0
+> >  0000000000000000 ffffffff8042736e 0000000000000000 0000000000000000
+> >  0000000000000000 ffffffff8061c68d ffffffff806260f0 ffffffff80207182
+> > Call Trace:
+> >  [<ffffffff8042736e>] register_netdevice_notifier+0x3e/0x70
+> >  [<ffffffff8061c68d>] packet_init+0x2d/0x53
+> >  [<ffffffff80207182>] init+0x162/0x330
+> >  [<ffffffff8020a9d8>] child_rip+0xa/0x12
+> >  [<ffffffff8033c2a2>] acpi_ds_init_one_object+0x0/0x82
+> >  [<ffffffff80207020>] init+0x0/0x330
+> >  [<ffffffff8020a9ce>] child_rip+0x0/0x12
+> > 
+> > 
+> > Code: 48 8b 45 00 0f 18 08 49 83 fd 02 4c 8d 65 f8 0f 84 f8 fe ff 
+> > RIP  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
+> >  RSP <ffff810bffcbde90>
+> > CR2: ffffffffffffffff
+> >  <0>Kernel panic - not syncing: Attempted to kill init!
+> > 
+> 
+> I'm really struggling to work out what went wrong there.  Comparing your
+> miserable 20 bytes of code to my object code makes me think that this:
+> 
+> 		struct packet_sock *po = pkt_sk(sk);
+> 
+> returned -1, perhaps in %ebp.  But it's all very crude.
+> 
+> Perhaps you could compile that kernel with CONFIG_DEBUG_INFO, rerun it (the
+> addresses might change) then have a poke around with `gdb vmlinux' (or
+> maybe just addr2line) to work out where it's really oopsing?
+> 
+> I don't see much which has changed in that area recently.
 
-02 Eki 2006 Pts 20:36 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=B1=
-=C5=9Ft=C4=B1:=20
-> On Sun, 2006-10-01 at 03:32 +0300, S.=C3=87a=C4=9Flar Onur wrote:
-> > Hi;
-> >
-> > Here [1] are the two different panics with 2.6.18 on vmware, its
-> > reproducable on every 4-5 reboot [same config/kernel in "2.6.18 Nasty
-> > Lockup" thread, so i CC'd to that thread's posters also]
-> >
-> > [1] http://cekirdek.pardus.org.tr/~caglar/2.6.18/
->
-> Hmmm.. That first oops looks interesting to me.
->
-> When you say they're reproducible every 4-5 reboots, which one do you
-> mean?
+Sorry for the delay. I was finally able to perform a bisect on this. It
+turns out the patch that causes this is
+x86_64-mm-re-positioning-the-bss-segment.patch, which seems like a
+strange candidate, but sure enough I can boot to login: right up until
+that patch is applied.
 
-=46or every 10 reboots first one occurs at least 6 times, 3 times second on=
-e=20
-occurs and for last it boots :)
+P.S. I had to comment usb-hubc-build-fix.patch out of the series file
+because it would not apply cleanly and caused quilt (0.45) to simply
+abort its 'push' operation.
 
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+-- 
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart4364652.Y2UUrnJvcz
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFI7lRy7E6i0LKo6YRAt4GAKC4ZKxRdhU0k4DG+yu7oeRMVc7qtwCfWR+i
-fU0YkgC5xnVgLM8Gjyo0BI4=
-=FjpB
------END PGP SIGNATURE-----
-
---nextPart4364652.Y2UUrnJvcz--
+Steve Fox
+IBM Linux Technology Center

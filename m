@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWJDAhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWJDAkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWJDAhG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 20:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWJDAhG
+	id S1161030AbWJDAkT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 20:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbWJDAkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 20:37:06 -0400
-Received: from mga09.intel.com ([134.134.136.24]:7940 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1161022AbWJDAhB (ORCPT
+	Tue, 3 Oct 2006 20:40:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54961 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161030AbWJDAkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 20:37:01 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,252,1157353200"; 
-   d="scan'208"; a="140061607:sNHT3731652393"
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: herbert@gondor.apana.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       leonid.i.ananiev@intel.com
-In-Reply-To: <4522FB04.1080001@goop.org>
-References: <1159916644.8035.35.camel@localhost.localdomain>
-	 <4522FB04.1080001@goop.org>
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 03 Oct 2006 16:47:43 -0700
-Message-Id: <1159919263.8035.65.camel@localhost.localdomain>
+	Tue, 3 Oct 2006 20:40:17 -0400
+Date: Tue, 3 Oct 2006 20:40:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: FSX on NFS blew up.
+Message-ID: <20061004004009.GA20459@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>
+References: <20061003164905.GD23492@redhat.com> <1159922084.9569.24.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159922084.9569.24.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 17:06 -0700, Jeremy Fitzhardinge wrote:
+On Tue, Oct 03, 2006 at 05:34:44PM -0700, Badari Pulavarty wrote:
+ > On Tue, 2006-10-03 at 12:49 -0400, Dave Jones wrote:
+ > > Took ~8hrs to hit this on an NFSv3 mount. (2.6.18+Jan Kara's jbd patch)
+ > > 
+ > > http://www.codemonkey.org.uk/junk/fsx-nfs.txt
+ > 
+ > I was seeing *similar* problem on NFS mounted filesystem (while running
+ > fsx), but later realized that filesystem is full - when it happend.
+ > 
+ > Could be fsx error handling problem ? Can you check yours ?
 
-> How does the generated code change?  Doesn't evaluating the condition 
-> multiple times have the potential to cause problems?
-> 
+It's running low, but there's no way it ran out. (It's down to about 4GB free).
 
-I think if the condition changes between two evaluations, we do have a
-problem with my fix.  I don't have a better idea to avoid using a local
-variable to store the condition.  I think we should at least reverse the
-WARN_ON/WARN_ON_ONCE patch if a better way cannot be found.
-
-Tim
+	Dave 
+ 
+-- 
+http://www.codemonkey.org.uk

@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWJDEJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWJDEVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWJDEJB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 00:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWJDEJA
+	id S932365AbWJDEVo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 00:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWJDEVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 00:09:00 -0400
-Received: from qb-out-0506.google.com ([72.14.204.237]:18448 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932339AbWJDEI7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 00:08:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=q9VLNWZhuCiOAkfZpQzIW97FLFsMGKNLKJyoPj/ZnDMxuW5sG96WlS+Ugxhc9YKwkhKIb05G33NP+9RoAguDfqXu1OZ2yvS29LOJWxLfxJUHX5EOhF6sNkhCgXZVJf5spgJch5BNZlD5Vpk5IlVTZ7otSVTRWQ9OdqDytyUmYPQ=
-Message-ID: <18d709710610032108w52d69b17mfa585e40ad2ae72c@mail.gmail.com>
-Date: Wed, 4 Oct 2006 01:08:57 -0300
-From: "Julio Auto" <mindvortex@gmail.com>
-To: "Chase Venters" <chase.venters@clientec.com>
-Subject: Re: Registration Weakness in Linux Kernel's Binary formats
-Cc: goodfellas@shellcode.com.ar, "Linux kernel" <linux-kernel@vger.kernel.org>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>, endrazine <endrazine@gmail.com>,
-       "Stephen Hemminger" <shemminger@osdl.org>, Valdis.Kletnieks@vt.edu,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Wed, 4 Oct 2006 00:21:44 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:37022 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S932365AbWJDEVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 00:21:43 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Date: Wed, 4 Oct 2006 04:21:27 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <efvcs7$526$1@taverner.cs.berkeley.edu>
+References: <45150CD7.4010708@aknet.ru> <4522B7CD.4040206@redhat.com> <efv8pc$31o$1@taverner.cs.berkeley.edu> <a36005b50610032051h64609d51kf1e5211d1bf07370@mail.gmail.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1159935687 5190 128.32.168.222 (4 Oct 2006 04:21:27 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Wed, 4 Oct 2006 04:21:27 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sincerely think you're all missing the point here.
-
-The observation is in fact something that can be used by rootkit
-writers or developers of other forms of malware. Meaning that this is
-always something else that people who work to make Linux a safer
-environment will have to watch and look for (think of rootkit
-detectors, for an example). I'm glad they've reported it, as someone
-might be using it already for God knows how long. All very stealthy.
-All I can think is that this is a very good opportunity for us to
-rethink some designs and see if a little bit of effort wouldn't be
-worth the advantages a patch might bring.
-
-Don't get me wrong. I truly appreciate the freedom that Linux
-provides, but this "well, root should be able to do anything, anyway"
-mentality won't get this OS anywhere security-wise. If everyone
-thought like that, then I'd guess that sys_call_table would be an
-exported symbol until now, linux-gate wouldn't be randomized, and so
-on.
-
-Just a thought.
-
-Cheers,
-
-    Julio Auto
-
-On 10/4/06, Chase Venters <chase.venters@clientec.com> wrote:
-> On Tuesday 03 October 2006 14:12, SHELLCODE Security Research wrote:
-> > Hello,
-> > The present document aims to demonstrate a design weakness found in the
-> > handling of simply
-> > linked   lists   used   to   register   binary   formats   handled   by
-> > Linux   kernel,   and   affects   all   the   kernel families
-> > (2.0/2.2/2.4/2.6), allowing the insertion of infection modules in
-> > kernel­ space that can be used by malicious users to create infection
-> > tools, for example rootkits.
+Ulrich Drepper wrote:
+>On 10/3/06, David Wagner <daw@cs.berkeley.edu> wrote:
+>> Are you familiar with the mmap(PROT_EXEC, MAP_ANONYMOUS) loophole?
 >
-> Yay, you've been Slashdotted!
+>Another person who doesn't know about SELinux.  Read
 >
-> Question: Why did you personally submit this to Slashdot when it is absolutely
-> clear that the observation is akin to figuring out a process can call fork()
-> and exec() and become "/bin/rm" with an argv of "/bin/rm", "-rf", and "*"?
->
-> Is this what you call good marketing?
->
-> > POC, details and proposed solution at:
-> > English version: http://www.shellcode.com.ar/docz/binfmt-en.pdf
-> > Spanish version: http://www.shellcode.com.ar/docz/binfmt-es.pdf
-> >
->
-> Thanks,
-> Chase
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>http://people.redhat.com/drepper/selinux-mem.html
+
+You're right, I didn't know about that one.  Thanks for the
+education and for taking the time to respond.
+
+I wonder whether it is feasible to run with allow_exec{heap,mem,mod,stack}
+all set to false, on a real system.  Is there any example of a fully
+worked out SELinux policy that has these set to false?  FC5 has
+allow_execheap set to false and all others set to true in its default
+SELinux policy, so it looks like the mmap(PROT_EXEC, MAP_ANONYMOUS)
+loophole remains open in FC5 by default.  My concern would be that setting
+all of the exec-related booleans to false might break so much code that
+setting them all to false wouldn't be feasible in practice.  If so,
+the theoretical possibility to close the mmap(PROT_EXEC, MAP_ANONYMOUS)
+loophole may be one of these things that is possible in theory but not
+in practice.

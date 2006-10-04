@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWJDVlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWJDVm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWJDVlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 17:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWJDVlM
+	id S1751165AbWJDVm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 17:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWJDVmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 17:41:12 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29165 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751162AbWJDVlK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 17:41:10 -0400
-Date: Wed, 4 Oct 2006 23:41:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Java Zombies
-Message-ID: <20061004214103.GB8667@elf.ucw.cz>
-References: <20061004120432.GA5170@gimli>
+	Wed, 4 Oct 2006 17:42:55 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:33593 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751165AbWJDVmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 17:42:54 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=fOH26ObU8duXHaK62xj3ZrbDPA2UTXdC1SvRdJ7yGgaOV7W3opcmq9IdYtNDxsvl2
+	32A9XopLXka7u3jGSeo6w==
+Message-ID: <6599ad830610041442t14b627bbs7b37c98b1e10852c@mail.gmail.com>
+Date: Wed, 4 Oct 2006 14:42:39 -0700
+From: "Paul Menage" <menage@google.com>
+To: sekharan@us.ibm.com
+Subject: Re: [RFC][PATCH 0/4] Generic container system
+Cc: "Martin Bligh" <mbligh@google.com>, pj@sgi.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       winget@google.com, rohitseth@google.com, jlan@sgi.com,
+       Joel.Becker@oracle.com, Simon.Derr@bull.net
+In-Reply-To: <1159997821.24266.62.camel@linuxchandra>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061004120432.GA5170@gimli>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20061002095319.865614000@menage.corp.google.com>
+	 <1159925752.24266.22.camel@linuxchandra>
+	 <6599ad830610031934s41994158o59f1a2e58b1cb45e@mail.gmail.com>
+	 <1159988217.24266.60.camel@linuxchandra> <45240D20.3080202@google.com>
+	 <1159997821.24266.62.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 10/4/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> > All of this (and the rest of the snipped email with suggested
+> > improvements) makes pretty good sense. But would it not be better
+> > to do this in stages?
+> >
+> > 1) Split the code out from cpusets
+>
+> Paul (Menage) is already work on this.
 
-Nice subject ;-).
+The split out is done - right now I'm tidying up an example of RG
+moved over the container API - basically dumping the group membership
+code (since container.c supplies that) and migrating the shares/stats
+file model to containerfs rather than configfs. I'll try to send it
+out today.
 
-> Another strange behaviour...
-> 
-> I just got back into my java code and experienced really strange things:
-> 
-> I run a java app for a while, stop it, start it, do things with it
-> (development tasks...) and suddenly java becomes defunct.
-> 
-> all running java processes are zombies and no trick will kill them. java gui
-> stays onscreen but doesen't refresh.
-> 
-> and, even more strange: while CPUs stay at about 2 to 8% activity load
-> increases. it's at 7 now after around 2 minutes
-> 
->  
-> I attach some info about my system (X60s 1702-55G)
-> 
-> oops: cat /proc/cpuinfo hangs!!
-> 
-> ...after that I could not even shutdown cleanly.
-> I had to use SysRq keys to halt the system
-
-Well, does it also happen when you reboot the machine?
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Paul

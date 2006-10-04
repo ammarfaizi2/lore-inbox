@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030714AbWJDCWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030734AbWJDCfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030714AbWJDCWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030716AbWJDCWp
+	id S1030734AbWJDCfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030737AbWJDCfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:22:45 -0400
-Received: from mail2.genealogia.fi ([194.100.116.229]:385 "EHLO
-	mail2.genealogia.fi") by vger.kernel.org with ESMTP
-	id S1030714AbWJDCWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:22:44 -0400
-Date: Tue, 3 Oct 2006 19:21:00 -0700
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: Jean Tourrilhes <jt@hpl.hp.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeff Garzik <jeff@garzik.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061004022100.GC6110@jm.kir.nu>
-Mail-Followup-To: Jean Tourrilhes <jt@hpl.hp.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jeff Garzik <jeff@garzik.org>,
-	"John W. Linville" <linville@tuxdriver.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Alessandro Suardi <alessandro.suardi@gmail.com>,
-	Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-	ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-References: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <d120d5000610031208i4a204b2es8de8d424a573acf4@mail.gmail.com> <20061003194957.GB17855@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Oct 2006 22:35:11 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:55285 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1030734AbWJDCfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:35:08 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=bO9u0Ev2Q7eS5de6rEabRVO87nhayddF3Rw8LtT5EJvvNGtFXgkdqELKgO4ZGy24b
+	n4+YdKGMLO6kGYNNIVXEg==
+Message-ID: <6599ad830610031934s41994158o59f1a2e58b1cb45e@mail.gmail.com>
+Date: Tue, 3 Oct 2006 19:34:55 -0700
+From: "Paul Menage" <menage@google.com>
+To: sekharan@us.ibm.com
+Subject: Re: [RFC][PATCH 0/4] Generic container system
+Cc: pj@sgi.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, winget@google.com, mbligh@google.com,
+       rohitseth@google.com, jlan@sgi.com
+In-Reply-To: <1159925752.24266.22.camel@linuxchandra>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061003194957.GB17855@bougret.hpl.hp.com>
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.6 (--)
+References: <20061002095319.865614000@menage.corp.google.com>
+	 <1159925752.24266.22.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 12:49:57PM -0700, Jean Tourrilhes wrote:
+On 10/3/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+>
+> Hi Paul,
+>
+> Thanks for doing the exercise of removing the container part of cpuset
+> to provide some process aggregation.
+>
+> With this model, I think I agree with you that RG can be split into
+> individual controllers (need to look at it closely).
+>
+> I have few questions/concerns w.r.t this implementation:
+>
+> - Since we are re-implementing anyways, why not use configfs instead of
+>   having our own filesystem ?
 
-> 	No, it's not. But as soon as *some part* of WE-21 appears in
-> the kernel, the userspace expect the ESSID change. If we want to have
-> WE-21 without the ESSID change, we need to fix userspace.
+The filesystem was lifted straight from cpuset.c, and hence isn't a
+reimplementation, it's a migration of code already in the tree. Wasn't
+there also a problem with the maximum output size of a configfs file,
+which would cause problems e.g. listing the task members in a
+container?
 
-Or leave WIRELESS_EXT at 20 and come up with a new way of versioning any
-future changes in WE.. Yes, having two different mechanisms for version
-number is ugly, but it could prevent userspace breakage.
+> - I am little nervous about notify_on_release, as RG would want
+>   classes/RGs to be available even when there are no tasks or sub-
+>   classes. (Documentation says that the user level program can rmdir
+>   the container, which would be a problem). Can the user level program
+>   be _not_ called when there are other subsystems registered ? Also,
+>   shouldn't it be cpuset specific, instead of global ?
 
-(And based on the other messages in this thread, it might be useful to
-include the userspace program's idea of the version in those new
-commands to allow multiple interface versions to be supported by the
-kernel).
+This again is taken straight from cpusets. The idea is that if you
+don't have some kind of middleware polling the
+container/cpuset/res_group directories to see if they're empty, you
+can instead ask the kernel to call you back (via
+"container_release_agent") at a point when a container is empty and
+hence removable. I don't think there's any guarantee that the
+container will still be empty by the time the userspace agent runs.
 
--- 
-Jouni Malinen                                            PGP id EFC895FA
+> - Export of the locks: These locks protect container data structures.
+>   But, most of the usages in cpuset.c are to protect the cpuset data
+>   structure itself. Shouldn't the cpuset subsystem have its own locks ?
+>   IMO, these locks should be used by subsystem only when they want data
+>   integrity in the container data structure itself (like walking thru
+>   the sibling list).
+
+It would certainly be possible to have finer-grained locking. But the
+cpuset code seems pretty happy with coarse-grained locking (only one
+writer at any one time) and having just the two global locks does make
+the whole synchronization an awful lot simpler. There's nothing to
+stop you having additional analogues of the callback_mutex to protect
+specific data in a particular resource controller's private data.
+
+My inclination would be to find a situation where generic fine-grained
+locking is really required before forcing it on all container
+subsystems. The locking model in RG is certainly finer-grained than in
+cpusets, but don't a lot of the operations end up taking the
+root_group->group_lock anyway as their first action?
+
+> - Tight coupling of subsystems: I like your idea (you mentioned in a
+>   reply to the previous thread) of having an array of containers in task
+>   structure than the current implementation.
+
+Can you suggest some scenarios that require this?
+
+Paul

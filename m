@@ -1,72 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWJDQOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWJDQQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWJDQOu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 12:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWJDQOu
+	id S1030422AbWJDQQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 12:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030615AbWJDQQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 12:14:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:16101 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964789AbWJDQOt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 12:14:49 -0400
-Date: Wed, 4 Oct 2006 12:14:17 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. J. Lu" <hjl@lucon.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 3/12] i386: Force section size to be non-zero to prevent a symbol becoming absolute
-Message-ID: <20061004161417.GD16218@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061003170032.GA30036@in.ibm.com> <20061003170908.GC3164@in.ibm.com> <20061004090946.5ab000e5.akpm@osdl.org>
+	Wed, 4 Oct 2006 12:16:14 -0400
+Received: from ml-g19.proxad.net ([212.27.60.41]:13536 "EHLO ml.free.fr")
+	by vger.kernel.org with ESMTP id S1030422AbWJDQQM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 12:16:12 -0400
+Date: Wed, 04 Oct 2006 18:16:11 +0200 (CEST)
+From: Listar <aikido.dinard-request@ml.free.fr>
+To: linux-kernel@vger.kernel.org
+Message-ID: <listar-10042006181611.15678.1@ml-g19>
+X-listar-antiloop: ml-g19
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061004090946.5ab000e5.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Expiry-Date: Thu, 05 Oct 2006 18:16:11 +0200 (CEST)
+Subject: Listar command results: -- Binary/unsupported file stripped by Listar --
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 09:09:46AM -0700, Andrew Morton wrote:
-> On Tue, 3 Oct 2006 13:09:08 -0400
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> 
-> > o Relocation patches for i386, moved the symbols in vmlinux.lds.S inside
-> >   sections so that these symbols become section relative and are no more
-> >   absolute. If these symbols become absolute, its bad as they are not
-> >   relocated if kernel is not loaded at the address it has been compiled
-> >   for.
-> > 
-> > o Ironically, just moving the symbols inside the section does not 
-> >   gurantee that symbols inside will not become absolute. Recent 
-> >   versions of linkers, do some optimization, and if section size is
-> >   zero, it gets rid of the section and makes any defined symbol as absolute.
-> > 
-> > o This leads to a failure while second kernel is booting.
-> >   arch/i386/alternative.c frees any pages present between __smp_alt_begin
-> >   and __smp_alt_end. In my case size of section .smp_altinstructions is 
-> >   zero and symbol __smpt_alt_begin becomes absolute and is not relocated
-> >   and system crashes while it is trying to free the memory starting
-> >   from __smp_alt_begin.
-> > 
-> > o This issue is being fixed by the linker guys and they are making sure
-> >   that linker does not get rid of an empty section if there is any
-> >   section relative symbol defined in it. But we need to fix it at
-> >   kernel level too so that people using the linker version without fix,
-> >   are not affected.
-> > 
-> > o One of the possible solutions is that force the section size to be
-> >   non zero to make sure these symbols don't become absolute. This 
-> >   patch implements that.
-> 
-> Would it be reasonable to omit this patch and require that the small number
-> of people who want to build relocatable kernels install binutils
-> 2.17.50.0.5 or later?
+Request received for list 'aikido.dinard' via request address.
 
-I think that's a reasonable thing to do for now.
+>> :(ØCQ‹¶ã:'¯«!7Ï¬Æ:nÜâæÆ²Û  Z>]"µ
+Unknown command.
 
-Thanks
-Vivek
+>> ìêŒ(5Šá˜rc¨¼ğ¥}¨¢ZÅ{I5;¼VğŸµ<u¬3McéQüHXœÉÄ©E38-¿l»r×*ê¦ÖôàyİE;§ÚhãÕX‘—¾pÂ8İ„±š7êˆ{òCLŒ£†Ïo'É£Î(¶Â
+Unknown command.
+
+>> BEZ0[æã,ÇÚT–’3PüRXïdZ!¾(™¬üÔD7~n¥Ô!_&Ç½C°F³°Nô%z|BúË­3OŸÈİóH¥ììë”
+>> ğŒèìØ"RTjPí»òjË©Õ
+Unknown command.
+
+>> ºkâòÍ±Ööæ¢(|Ãïík}kğrûı µ¨ãR6jfP~!ªñ«’’
+Unknown command.
+
+>> ãw¹hh|fúÎrN *’„ã.ĞM0&/;òt
+Unknown command.
+
+>> PÚ¡¼^WË- µ£j¨Óhö,‡]Y™O;V÷mèÏgÕQ§'ì‡
+Unknown command.
+
+>> ülj/îaÄ†İ-|>PÌ5èPØ„2<¬ª¬uğ—úú$_IJeqÁ)”éld¸™¤Sü(Pi_~Z½J˜Ê'EÇ¹ºÆ¹•†c•nZRG‰}Gô³
+>> ª]ñF®À…;;7ş¦ÃaÆoêrx‡¹ää±
+Unknown command.
+
+>> ™ô,èÅ9,3«›ğkQşUßABDÍ^µJÔÑaûÂ‚¡†B
+Unknown command.
+
+>> ‚|´/naòl_ü­¬Hôu4jê†ä§-•Çşc·$¤¦Ù?ş…ø‰ID
+Unknown command.
+
+>> Ÿòñ™è·¸í°".q4S2¶Öİ”ïõğ2ğw¯po­ò‹7.¥AWç·õN^Úï¡<ÚZÎôF„‡¤'°|ØTsæ–æ¤ªf%·"îĞÄĞú•Ì‚„˜ïá^Y²UÀ¥–0Î«Û’ê—afpÛèrQíÄî”zÄxL¶Ñ1¨)‚Ê×²V8¤óÕàü×¨›Š™.^Êµ³Ô$³ì"f”ÏÎ«ó
+>> —×šlˆ¶4
+Unknown command.
+
+>> ©rFÅÃKf‡ı[Næ„Ì‹u#¾3î`ëß®‡ô°Q¦7®‹)]ZL©2áOd?Á(‰8_OOøamı0Ö ç})ı¹rL¨›IÒõŸğˆÆiÄLI·óé¤oä¢Sw`öŒğÔ­umâOK!½};:¡°¬(“1ëÈÎ&0‡¿ÕéÑsÎs«ÕÌMµ×
+Unknown command.
+
+>> Ä©5ûIˆ¶Êò­ï¸|6»«å«İå[aIm_IŸ?âùµvZÊ#Nã!ÖwîìÅèäSÚ£¹k®ÍâU•H—éuô‘mi—¤¯¢¨_à³ıi¦¸
+>> 0an„bß0“{İñŞéÓ–¢:²—¨½å
+Unknown command.
+
+>> q'ï´í$jo÷É·AdpìTèò"øT¡3Ù¬¢n¶¨mâ4QÜÄğïoX°»ì¬ı~ed’Öa6à´Xo‹Ü:lêiè!‹G¹–¬
+Unknown command.
+
+>> ·öeÃÏ_>ø÷¤c¦mí,İÂR„â[ci­ğ¡pk'0`ÇyO·¼Š6‚üğ
+Unknown command.
+
+>> üTêXó *î2CßÎgûMMãú|bü×Ì‡oôWäÊï4Æ,ı!Í:¸ Ä<Æ"â÷6•
+Unknown command.
+
+>> Í”`¦_¯gÌ
+Unknown command.
+
+>> ŞCrØûPÀ>$}Ÿ“wÒiòßóÇÊj)TŒ‚ÊdäÚúóæ~î“R.ˆ¼­t×6DGtrMİ;ûıÕ”o¹:pØˆ¨ïu0‚s"s‚hJĞ|oŸ•
+Unknown command.
+
+>> ŸëÀgˆ‡.ò²m:É¡“‡Y ‹kÔ‚¶‡ÈŠì«ûdÔ~.<½
+Unknown command.
+
+>> |õ<ƒ¤ü,3ï*¡|Ì«·#'İÇCªÎ±z…6èh‘RyØXa_´±‰ °ßÙø¡
+Unknown command.
+
+>> 3x ·µÏÓÖÜ^úk…®29¤h¨íÆµ`VèèPƒj³$ªƒİùë‚b®/ÎüÒÒ¡Ã.àÄCšşş»ŸKONnP˜™u6¦ğWG–!OV±‰<Ağ5,MÛévhw>$4Bì©â„AìŠÛRFn_.¯í#…9ú9V{ZÇrS>»ÙÌÄŞ—|YKj ç‘Ê”>‰·‹“‘.ja
+>> I“îíÖcE`§²‰Õf/ëûMzŞ9CÄ%—wÜhÖ
+Unknown command.
+
+>> äXLgnô³çËË
+Unknown command.
+
+>> ?İÕ¶‰Í/¬ˆ`¥
+Unknown command.
+
+>> ¾¢ş^ğfÚE„ª´ õ5ßÜ˜IdÏ>À)ß5Kˆ[qÄ}«2Ñ¢² [?ç7¨ß
+Unknown command.
+
+>> Oa·â¸Hw}×¢ûaó”icA˜jQØ,´®¦–Pé‚(â6™°LN°·Œ%Ğ%NÍ^ÙK–Z’Äw¶½sÍ,ÖM<îsÕ#4Ïú‚»‹`D0E Øl­æÏ×ä`zºMã
+Unknown command.
+
+>> U²[V>;•uT’ÕRn[—}J:°†ùË‹0`òô¸-§A/Ãa2š’v£B
+Unknown command.
+
+>> W"1vm
+Unknown command.
+
+>> dONú¡¬ğ¿}¶aëwÊ–ëœiÁ‘eúÅQ•Lc…
+Unknown command.
+
+>> I‘’ŠqÏŠœC¸ÀŠ·‰0lÃXİ
+Unknown command.
+
+>> ‚‹›-òCÙGÉÏ¯ê´™y1¡‘3s÷ßàq^©|÷£;âm®°Ë¬“óJ‡¬œ/ı‰¬rÈ«´?vïÜçŒáËÂH(ğÁc>î¤P°Qé2§(ÕœH!O¨Œ÷3´<[9şßÂYxXé‘<Ô±òµ“Ğl™êÉ
+>> V47!fvg /m~¢±^Ğ3>ÓÄHïXFtã·ß®²o `<íaõqœWV¾¬B¿ª"Èá¡ÂÎÊ"z}ÃÍ˜_OéúQÈ/5[¶­—lèË"³©W¨¯Dòšï¸!ÔÇŞÜ$4>QçÚû#ã¾í`Ñ6Ìûıá“Kû®bôT2gœe’û—íó¼wkØç’-zÛ•gš"÷„¨Ú·)hº‡6(ÄßYR¿"ÀÕ·Ù¾¯º"n¸Œ‡x«R
+Unknown command.
+
+---
+Gestionnaire de liste Listar/0.42 - fin de traitement/job execution complete.
+

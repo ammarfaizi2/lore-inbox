@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWJDOzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161165AbWJDPCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161147AbWJDOzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 10:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161162AbWJDOzx
+	id S1161165AbWJDPCj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 11:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWJDPCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 10:55:53 -0400
-Received: from users.ccur.com ([66.10.65.2]:54979 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S1161147AbWJDOzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 10:55:52 -0400
-Date: Wed, 4 Oct 2006 10:55:24 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, reinette.chatre@linux.intel.com,
-       linux-kernel@vger.kernel.org, inaky@linux.intel.com
-Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of a user buffer
-Message-ID: <20061004145524.GA24335@tsunami.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <200610030816.27941.reinette.chatre@linux.intel.com> <20061003163936.d8e26629.akpm@osdl.org> <20061004141405.GA22833@tsunami.ccur.com> <20061004072746.8e4b97a0.pj@sgi.com>
+	Wed, 4 Oct 2006 11:02:39 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:40357 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1161161AbWJDPCi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 11:02:38 -0400
+Date: Wed, 4 Oct 2006 09:02:36 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Vasily Averin <vvs@sw.ru>
+Cc: Theodore Tso <tytso@mit.edu>, Stephen Tweedie <sct@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ext4@vger.kernel.org, devel@openvz.org, cmm@us.ibm.com,
+       Eric Sandeen <sandeen@sandeen.net>, Kirill Korotaev <dev@openvz.org>
+Subject: Re: ext2/ext3 errors behaviour fixes
+Message-ID: <20061004150236.GB22010@schatzie.adilger.int>
+Mail-Followup-To: Vasily Averin <vvs@sw.ru>,
+	Theodore Tso <tytso@mit.edu>, Stephen Tweedie <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-ext4@vger.kernel.org, devel@openvz.org, cmm@us.ibm.com,
+	Eric Sandeen <sandeen@sandeen.net>, Kirill Korotaev <dev@openvz.org>
+References: <452367A8.3010405@sw.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061004072746.8e4b97a0.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <452367A8.3010405@sw.ru>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 07:27:46AM -0700, Paul Jackson wrote:
-
-> Perhaps I should have my coffee first, but I don't see where the
-> order in which we wrap these affects the need to impose a crude
-> upper limit on what the user can ask for.
+On Oct 04, 2006  11:50 +0400, Vasily Averin wrote:
+> However EXT3_ERRORS_CONTINUE is not read from the superblock, and thus
+> ERRORS_CONT is not saved on the sbi->s_mount_opt. It leads to the incorrect
+> handle of errors on ext3.
 > 
-> Off hand, I'd expect the kernel version to be the actual implementing
-> code, and the user version to be the wrapper and also to impose the
-> crude upper limit.
+> The following patches fix this.
 
-I guess I am a sucker for no-transient-buffer (bufferless?)
-implementations, as with them there is an intrinsic
-simplicity that automatically avoids problems.  The price
-in this case, though, is the use of the more expensive
-get_user() where, for kernel buffers, it is not needed.
+{patch is missing}
 
-I have no objection though, and in either case we should
-impose a sanity check on 'count'.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-Joe

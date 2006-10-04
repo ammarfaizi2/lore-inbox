@@ -1,99 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030767AbWJDImB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWJDIwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030767AbWJDImB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 04:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030770AbWJDImB
+	id S964901AbWJDIwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 04:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWJDIwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 04:42:01 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:55941 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030767AbWJDImA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 04:42:00 -0400
-Date: Wed, 4 Oct 2006 04:41:53 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, david-b@pacbell.net,
-       a.zummo@towertech.it
-Subject: [PATCH] RTC: build fixes
-Message-ID: <20061004084153.GA12618@havoc.gtf.org>
+	Wed, 4 Oct 2006 04:52:19 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:32523
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S964901AbWJDIwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 04:52:18 -0400
+Message-Id: <452392AA.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Wed, 04 Oct 2006 09:53:30 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
+Cc: <rgooch@atnf.csiro.au>, "Kurt Garloff" <garloff@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] fix buggy MTRR address checks
+References: <20061003125553.GA3648@rhlx01.fht-esslingen.de>
+In-Reply-To: <20061003125553.GA3648@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ack
 
-Fix obvious build breakage revealed by 'make allyesconfig'
-in current -git.
+>>> Andreas Mohr <andi@rhlx01.fht-esslingen.de> 03.10.06 14:55 >>>
+Fix checks that failed to realize that values are 4-kB-unit-sized
+(note the format strings in this same diff context which *do* realize the
+unit size, via appended "000"!).
+Also fix an incorrect below-1MB area check (as gathered from Jan Beulich's
+unapplied patch at
+http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/1378.html )
+Update mtrr_add_page() docu to make 4-kB-sized calculation more obvious.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
----
 
- drivers/rtc/rtc-ds1307.c  |    6 +++---
- drivers/rtc/rtc-ds1672.c  |    4 ++--
- drivers/rtc/rtc-rs5c372.c |    4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+Given several further items mentioned in Jan's patch mail, all in all
+MTRR code seems surprisingly buggy, for a surprisingly long period of time
+(many years). Further work/investigation would be useful.
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index cc5032b..3f0f7b8 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -141,9 +141,9 @@ static int ds1307_set_time(struct device
- 
- 	dev_dbg(dev, "%s secs=%d, mins=%d, "
- 		"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
--		"write", dt->tm_sec, dt->tm_min,
--		dt->tm_hour, dt->tm_mday,
--		dt->tm_mon, dt->tm_year, dt->tm_wday);
-+		"write", t->tm_sec, t->tm_min,
-+		t->tm_hour, t->tm_mday,
-+		t->tm_mon, t->tm_year, t->tm_wday);
- 
- 	*buf++ = 0;		/* first register addr */
- 	buf[DS1307_REG_SECS] = BIN2BCD(t->tm_sec);
-diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index 9c68ec9..67e816a 100644
---- a/drivers/rtc/rtc-ds1672.c
-+++ b/drivers/rtc/rtc-ds1672.c
-@@ -55,7 +55,7 @@ static int ds1672_get_datetime(struct i2
+Note that my patch is pretty much UNTESTED, since I can only verify that
+it successfully boots my machine, but I cannot test against actual buggy
+hardware which would require these (formerly broken) checks.
+Long -mm simmering would make sense, especially since these now-working
+checks might turn out to have adverse effects on unaffected hardware.
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c
+linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 11:59:45.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 12:04:37.000000000 +0200
+@@ -366,7 +366,7 @@
+ 			printk(KERN_WARNING "mtrr: base(0x%lx000) is not 4 MiB aligned\n", base);
+ 			return -EINVAL;
+ 		}
+-		if (!(base + size < 0x70000000 || base > 0x7003FFFF) &&
++		if (!(base + size < 0x70000 || base > 0x7003F) &&
+ 		    (type == MTRR_TYPE_WRCOMB
+ 		     || type == MTRR_TYPE_WRBACK)) {
+ 			printk(KERN_WARNING "mtrr: writable mtrr between 0x70000000 and 0x7003FFFF may hang the
+CPU.\n");
+@@ -374,7 +374,7 @@
+ 		}
  	}
  
- 	dev_dbg(&client->dev,
--		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n"
-+		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
- 		__FUNCTION__, buf[0], buf[1], buf[2], buf[3]);
+-	if (base + size < 0x100) {
++	if (base < 0x100) {
+ 		printk(KERN_WARNING "mtrr: cannot set region below 1 MiB (0x%lx000,0x%lx000)\n",
+ 		       base, size);
+ 		return -EINVAL;
+diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c	2006-08-18 20:03:00.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c	2006-10-11 12:04:37.000000000 +0200
+@@ -263,8 +263,8 @@
  
- 	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-@@ -96,7 +96,7 @@ static int ds1672_set_datetime(struct i2
- 	unsigned long secs;
- 
- 	dev_dbg(&client->dev,
--		"%s: secs=%d, mins=%d, hours=%d, ",
-+		"%s: secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n",
- 		__FUNCTION__,
- 		tm->tm_sec, tm->tm_min, tm->tm_hour,
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index bbdad09..2a86632 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -91,7 +91,7 @@ static int rs5c372_set_datetime(struct i
- 	unsigned char buf[8] = { RS5C372_REG_BASE };
- 
- 	dev_dbg(&client->dev,
--		"%s: secs=%d, mins=%d, hours=%d ",
-+		"%s: secs=%d, mins=%d, hours=%d "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n",
- 		__FUNCTION__, tm->tm_sec, tm->tm_min, tm->tm_hour,
- 		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-@@ -126,7 +126,7 @@ static int rs5c372_get_trim(struct i2c_c
- 		return -EIO;
- 	}
- 
--	dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, trim);
-+	dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, *trim);
- 
- 	if (osc)
- 		*osc = (buf & RS5C372_TRIM_XSL) ? 32000 : 32768;
+ /**
+  *	mtrr_add_page - Add a memory type region
+- *	@base: Physical base address of region in pages (4 KB)
+- *	@size: Physical size of region in pages (4 KB)
++ *	@base: Physical base address of region in pages (in units of 4 kB!)
++ *	@size: Physical size of region in pages (4 kB)
+  *	@type: Type of MTRR desired
+  *	@increment: If this is true do usage counting on the region
+  *

@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWJDVdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWJDVen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWJDVdw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 17:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWJDVdw
+	id S1751153AbWJDVen (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 17:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWJDVen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 17:33:52 -0400
-Received: from mail.gmx.de ([213.165.64.20]:17134 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751151AbWJDVdv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 17:33:51 -0400
-X-Authenticated: #31060655
-Message-ID: <452428E0.8050003@gmx.net>
-Date: Wed, 04 Oct 2006 23:34:24 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 SUSE/1.0.5-1.1 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: netdev@vger.kernel.org, lartc@mailman.ds9a.nl,
-       linux-kernel@vger.kernel.org, Julian Anastasov <ja@ssi.bg>
-Subject: Re: [LARTC] [ANNOUNCE] iproute2-2.6.18-061002
-References: <20061002135552.4acb6892@freekitty>
-In-Reply-To: <20061002135552.4acb6892@freekitty>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 4 Oct 2006 17:34:43 -0400
+Received: from mail125.messagelabs.com ([85.158.136.35]:45844 "HELO
+	mail125.messagelabs.com") by vger.kernel.org with SMTP
+	id S1751153AbWJDVem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 17:34:42 -0400
+X-VirusChecked: Checked
+X-Env-Sender: preece@urbana.css.mot.com
+X-Msg-Ref: server-4.tower-125.messagelabs.com!1159997669!11119996!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [129.188.136.8]
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+       unless indicated otherwise in the message.
+Date: Wed, 4 Oct 2006 16:33:46 -0500 (CDT)
+Message-Id: <200610042133.k94LXkDq016761@olwen.urbana.css.mot.com>
+From: "Scott E. Preece" <preece@motorola.com>
+To: pavel@ucw.cz
+CC: shd@zakalwe.fi, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ext-Tuukka.Tikkanen@nokia.com
+In-reply-to: Pavel Machek's message of Wed, 4 Oct 2006 23:25:45 +0200
+Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> This is a much delayed update to the iproute2 command set.
-> It can be downloaded from:
->   http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.18-061002.tar.gz
 
-Thanks!
+| From: Pavel Machek<pavel@ucw.cz>
+| 
+| Hi!
+| 
+| > | > > > +static long 
+| > | > > > +get_vtg(const char *vdomain)
+| > | > > > +{
+| > | > > > +	long ret = 0;
+| > | > > 
+| > | > > Unnecessary initialisation.
+| > | > 
+| > | > No, sorry.
+| > | 
+| > | In get_vtg(), if VOLTAGE_FRAMEWORK is defined then
+| > | 
+| > | 	ret = vtg_get_voltage(v);
+| > | 
+| > | is the first user. If VOLTAGE_FRAMEWORK is not defined, the first user is:
+| > | 
+| > | 	ret = vtg_get_voltage(&vhandle);
+| > | 
+| > | Then "return ret;" follows. I cannot see a path where 
+| > | pre-initialisation of ret does anything useful. If someone removed the
+| > | #else part, the compiler would bark.
+| > ---
+| > 
+| > True, but a good compiler should remove the dead initialization...
+| 
+| True, but efficient code is only one of constraints. Code should be
+| easy to read, too.
+| 								Pavel
+| -- 
+| (english) http://www.livejournal.com/~pavelmachek
+| (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
 
-Are there any plans to merge the "ip arp" patches at
-http://www.ssi.bg/~ja/#iparp ? Apologies if this has already
-been rejected before. Searching the archives I couldn't find
-such a discussion.
+[Ironically, I was going to say "I think this dead horse has been
+sufficiently beaten, but then I saw the picture reference in Pavel's
+signature and decided that would be rude!]
 
+I agree - the initialization is unneeded. However, it's also mostly
+harmless...
 
-Regards,
-Carl-Daniel
-
+scott
 
 -- 
-http://www.hailfinger.org/
+scott preece
+motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
+e-mail:	preece@motorola.com	fax:	+1-217-384-8550
+phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+
+

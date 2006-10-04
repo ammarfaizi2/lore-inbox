@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWJDEGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWJDEGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWJDEGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 00:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWJDEGZ
+	id S932350AbWJDEGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 00:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWJDEGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 00:06:25 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:16280 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932285AbWJDEGY (ORCPT
+	Wed, 4 Oct 2006 00:06:36 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:20120 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932339AbWJDEGe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 00:06:24 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-Date: Wed, 4 Oct 2006 03:20:10 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <efv99a$31o$3@taverner.cs.berkeley.edu>
-References: <45150CD7.4010708@aknet.ru> <4522AEA1.5060304@aknet.ru> <1159900934.2891.548.camel@laptopd505.fenrus.org> <4522B4F9.8000301@aknet.ru>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1159932010 3128 128.32.168.222 (4 Oct 2006 03:20:10 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Wed, 4 Oct 2006 03:20:10 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Wed, 4 Oct 2006 00:06:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=MbRgpyIsBtXxmPQTp6LbpIKC4GzXzbodIjOcFEEBgG9kqUIWon5tgoC2fLHG0ZorjY7H7IhxMfLq+Q5W15k9ysM3CzBFyXe8xWx07VUjNJII6ZuCkQtZOyUtaqQwty0ODvJDDD97kqDyaD9xzFoN/zpNTLn+7g49ZELDScmGatE=
+Reply-To: andrew.j.wade@gmail.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Date: Tue, 3 Oct 2006 23:24:27 -0400
+User-Agent: KMail/1.9.1
+Cc: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+References: <1159916644.8035.35.camel@localhost.localdomain> <1159920569.8035.71.camel@localhost.localdomain> <20061003181452.778291fb.akpm@osdl.org>
+In-Reply-To: <20061003181452.778291fb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610032324.29454.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev  wrote:
->Arjan van de Ven wrote:
->> then don't put noexec on /dev/shm.
->
->That's obviously possible, but I'd feel safer having
->"noexec" on *every* user-writable partition.
+On Tuesday 03 October 2006 21:14, Andrew Morton wrote:
+> There are changes here: in the old code we'll avoid reading the static
+> variable.  In the new code we'll read the static variable, but we'll avoid
+> evaluating the condition.
 
-But why would you "feel" safer?  And why should the Linux kernel care
-about how people "feel"?  The purpose of these mechanisms is not to make
-people feel safer; it is to make them actually be safer.  If it isn't
-actually making people safer -- if it is just to provide "warm fuzzies"
-and a perception of safety -- then I don't see what business it has
-going into the Linux kernel.  What threat, exactly, are you trying to
-defend against?  What's your threat model?
+Tim Chen's patch goes back to the old behaviour. I suspect the cache
+misses on __warn_once is what he is measuring. If so, the (untested)
+patch below should reduce the cache misses back to those of the old
+code.
+
+signed-off-by: Andrew Wade <andrew.j.wade@gmail.com>
+diff -rupN a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+--- a/include/asm-generic/bug.h	2006-10-03 13:58:40.000000000 -0400
++++ b/include/asm-generic/bug.h	2006-10-03 23:17:37.000000000 -0400
+@@ -45,9 +45,10 @@
+ 	static int __warn_once = 1;			\
+ 	typeof(condition) __ret_warn_once = (condition);\
+ 							\
+-	if (likely(__warn_once))			\
+-		if (WARN_ON(__ret_warn_once)) 		\
++	if (unlikely(__ret_warn_once) && __warn_once) {	\
+ 			__warn_once = 0;		\
++			WARN_ON(1);			\
++	};						\
+ 	unlikely(__ret_warn_once);			\
+ })

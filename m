@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161905AbWJDSAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161239AbWJDSCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161905AbWJDSAE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 14:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161546AbWJDR71
+	id S1161239AbWJDSCr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 14:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWJDSCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:59:27 -0400
-Received: from mail.suse.de ([195.135.220.2]:59274 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161239AbWJDR7T (ORCPT
+	Wed, 4 Oct 2006 14:02:13 -0400
+Received: from ackle.nomi.cz ([81.31.33.35]:16011 "EHLO ackle.nomi.cz")
+	by vger.kernel.org with ESMTP id S1161901AbWJDSCE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:59:19 -0400
-To: David Chinner <dgc@sgi.com>
-Cc: xfs-dev@sgi.com, xfs@oss.sgi.com, dhowells@redhat.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/3] Convert XFS inode hashes to radix trees
-References: <20061003060610.GV3024@melbourne.sgi.com>
-	<20061003212335.GA13120@tuatara.stupidest.org>
-	<20061003222256.GW4695059__33273.3314754025$1159914338$gmane$org@melbourne.sgi.com>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Oct 2006 19:59:15 +0200
-In-Reply-To: <20061003222256.GW4695059__33273.3314754025$1159914338$gmane$org@melbourne.sgi.com>
-Message-ID: <p73y7rwynbg.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 4 Oct 2006 14:02:04 -0400
+Date: Wed, 4 Oct 2006 20:02:01 +0200
+From: onovy@nomi.cz
+To: linux-kernel@vger.kernel.org
+Subject: ip_conntrack_core - possible memory leak in 2.4
+Message-ID: <20061004180201.GA18386@nomi.cz>
+Reply-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner <dgc@sgi.com> writes:
-> 
-> And yes, 64 bit systems are cheap, cheap, cheap so IMO this
-> functionality is really irrelevant moving forward. If it had come
-> along a couple of years ago then it would be different, but I think
-> mainstream technology is finally catching up with XFS so it's not a
-> critical issue anymore... ;)
+hi,
 
-One issue is that people often still run a lot of 32bit userland
-even with 64bit kernels. The compat layer will just truncate
-the inodes I think. But so far I haven't heard of anybody
-complaining on x86-64.
+i have there MontaVista based router, with 2.4.17_mvl21-malta-mips_fp_le
+kernel. I think, there is memory leak in ip_conntrack code. There are
+eta 500 conntrack connection all the time. But after some day i get
+"ip_conntrack: table full" in kmsg.
+/proc/sys/net/ipv4/netfilter/ip_conntrack_max have 3072 value.
+grep ip_conntrack /proc/slabinfo
+ip_conntrack        3006   3250    384  319  325    1
+^^ there are 3006 allocated conntracks
+cat /proc/net/ip_conntrack | wc -l
+30
+^^ in table are only 30 lines.
 
--Andi
+Acording to this:
+http://lists.netfilter.org/pipermail/netfilter-devel/2004-May/015628.html
+i don't think, this is fixed in 2.4 tree, but i can't test it with newer
+version.
+
+Thanks
+-- 
+S pozdravem/Best regards
+ Ondrej Novy
+ 
+Email: onovy@nomi.cz
+Jabber: onovy@njs.netlab.cz
+ICQ: 115-674-713
+MSN: onovy@hotmail.com
+Yahoo ID: novy_ondrej
+Tel/Cell: +420 777 963 207

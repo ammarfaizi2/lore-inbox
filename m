@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWJDPRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWJDPTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161221AbWJDPRF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 11:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161223AbWJDPRE
+	id S1161233AbWJDPTL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 11:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161232AbWJDPTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 11:17:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:51247 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161222AbWJDPRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 11:17:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=csCW0ZGS56giZKjKXsE8LVJS6FkY5u1ZHjAkpWsLR3XOudYUxeNlGT7qGB2bhFIp1/02L0aXxC+FP3GoBqe3Oe01viC8B+3uAwClwtL+Sns4ghm0sEm/4whLfn6eAxm/XK+nQ4jao+G49bOkOknKB9U4FYjTqwtsbbMVK4Ns0a8=
-Message-ID: <6981e08b0610040816k169a3ac4ne35c62c472044d5@mail.gmail.com>
-Date: Wed, 4 Oct 2006 10:16:59 -0500
-From: "Patrick Draper" <pdraper@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: It's not GNU/Linux - it's jusy LINUX
-In-Reply-To: <200610032206.09284.diablod3@gmail.com>
+	Wed, 4 Oct 2006 11:19:11 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:31180 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161231AbWJDPTH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 11:19:07 -0400
+Message-ID: <4523D0AF.5000907@zytor.com>
+Date: Wed, 04 Oct 2006 08:18:07 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>	<20061003172511.GL3164@in.ibm.com>	<20061003201340.afa7bfce.akpm@osdl.org>	<20061004042850.GA27149@in.ibm.com> <45233B58.1050208@zytor.com> <m1sli4cxr2.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1sli4cxr2.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4522DA72.7070908@perkel.com>
-	 <008101c6e737$672c4590$6721100a@nuitysystems.com>
-	 <6981e08b0610031817r69c0e923ueac036b65014b196@mail.gmail.com>
-	 <200610032206.09284.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/06, Patrick McFarland <diablod3@gmail.com> wrote:
-> > Let's call it Alexander Graham Bell's Mom.
->
-> Wow, this may be the first "yo momma" insult ever told on the LKML.
+Eric W. Biederman wrote:
+> 
+>> The entrypoint is going to be a major headache, since the standard kernel is
+>> entered in real mode, whereas an ELF file will typically be entered in protected
+>> mode, quite possibly using the C calling convention to pass the command line as
+>> (argc, argv).  God only knows how they're going to deal with an initrd.
+>>
+>> It may very well be that the ELF magic number has to be obfuscated.
+> 
+> The entry point that is exported is the kernels protected mode entry point
+> that is used after the real mode code has been run.  This is to allow
+> bootloaders like kexec where running the real-mode code is insane or
+> impossible to be used.  
+> 
+> The calling conventions though are not changed, this is just formalizing
+> something that various groups have been doing for years.  Since it is
+> all in the bzImage we still only have a single file format to support,
+> so any bootloader that can load a standard bzImage and run the kernels
+> real mode code should still do it that way but.  If you can't the
+> rest of the information is available.
+> 
 
-Not intended as an insult, just my lame attempt at humor...
+Well, it doesn't help if what you end up with for some bootloader is a 
+nonfunctioning kernel.
 
--- 
-Patrick Draper --- pdraper@gmail.com
-Austin, Texas --- http://www.pdrap.org
+	-hpa

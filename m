@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWJDFhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWJDFij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWJDFhx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 01:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWJDFhx
+	id S1161008AbWJDFij (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 01:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWJDFij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 01:37:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964886AbWJDFhw (ORCPT
+	Wed, 4 Oct 2006 01:38:39 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:56721 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161008AbWJDFii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 01:37:52 -0400
-Date: Tue, 3 Oct 2006 22:37:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-Message-Id: <20061003223720.94c54581.akpm@osdl.org>
-In-Reply-To: <20061004042850.GA27149@in.ibm.com>
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003172511.GL3164@in.ibm.com>
-	<20061003201340.afa7bfce.akpm@osdl.org>
-	<20061004042850.GA27149@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 01:38:38 -0400
+Message-ID: <452348D7.7020205@garzik.org>
+Date: Wed, 04 Oct 2006 01:38:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Frederik Deweerdt <deweerdt@free.fr>
+CC: linux-kernel@vger.kernel.org, arjan@infradead.org, matthew@wil.cx,
+       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
+       gregkh@suse.de
+Subject: Re: [RFC PATCH] move tg3 to pci_request_irq
+References: <20061003220732.GE2785@slug> <20061003222223.GH2785@slug> <4522E637.9090103@garzik.org> <20061003224146.GK2785@slug>
+In-Reply-To: <20061003224146.GK2785@slug>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 00:28:50 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+Frederik Deweerdt wrote:
+> On Tue, Oct 03, 2006 at 06:37:43PM -0400, Jeff Garzik wrote:
+>> Frederik Deweerdt wrote:
+>>> Hi,
+>>> This proof-of-concept patch converts the tg3 driver to use the
+>>> pci_request_irq() function.
+>>> Please note that I'm not submitting the driver changes, they're there
+>>> only for illustration purposes. I'll CC the appropriate maintainers
+>>> when/if an API is agreed upon.
+>>> Regards,
+>>> Frederik diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
+>>> index c25ba27..23660c6 100644
+>>> Index: 2.6.18-mm3/drivers/net/tg3.c
+>>> ===================================================================
+>>> --- 2.6.18-mm3.orig/drivers/net/tg3.c
+>>> +++ 2.6.18-mm3/drivers/net/tg3.c
+>>> @@ -6853,7 +6853,7 @@ static int tg3_request_irq(struct tg3 *t
+>>> 			fn = tg3_interrupt_tagged;
+>>> 		flags = IRQF_SHARED | IRQF_SAMPLE_RANDOM;
+>>> 	}
+>>> -	return (request_irq(tp->pdev->irq, fn, flags, dev->name, dev));
+>>> +	return pci_request_irq(tp->pdev, fn, flags, dev->name);
+>>> }
+>>>  static int tg3_test_interrupt(struct tg3 *tp)
+>>> @@ -6866,10 +6866,10 @@ static int tg3_test_interrupt(struct tg3
+>>>  	tg3_disable_ints(tp);
+>>> -	free_irq(tp->pdev->irq, dev);
+>>> +	pci_free_irq(tp->pdev);
+>>> -	err = request_irq(tp->pdev->irq, tg3_test_isr,
+>>> -			  IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name, dev);
+>>> +	err = pci_request_irq(tp->pdev, tg3_test_isr,
+>>> +			      IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name);
+>> IRQF_SHARED flags are still left hanging around...
+> I did it on purpose (see parent post): some parts of tg3 for example
+> don't pass IRQF_SHARED, so I though it wasn't a good idea to enforce
+> IRQF_SHARED in all cases. Did I miss something?
 
-> > Seems that the entire kernel effort is an ongoing plot to make my poor
-> > little Vaio stop working.  This patch turns it into a black-screened rock
-> > as soon as it does grub -> linux.  Stock-standard FC5 install, config at
-> > http://userweb.kernel.org/~akpm/config-sony.txt.
-> 
-> Hi Andrew,
-> 
-> Right now I don't have access to my test machine.  Tomorrow morning,
-> very first thing I am going to try it out with your config file.
-> 
-> This patch just adds and ELF header to bzImage which is not even used
-> by grub.
-> 
-> So without this patch you are able to boot the kernel on your laptop?
+When it's hardcoded into the definition of pci_request_irq(), then 
+setting the flag in the above code is logically superfluous.
 
-With your other 11 patches applied and not this one, it boots OK.
+As for why the flag may be missing -- PCI MSI interrupts are never 
+shared.  However, it won't _hurt_ anything to set the flag needlessly, 
+AFAIK.
 
-With this patch applied and not the other eleven applied: no-compile.
+	Jeff
 
-With all 12 applied: crash.
+
+

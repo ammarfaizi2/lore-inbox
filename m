@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWJDAmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWJDAoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWJDAmx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 20:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWJDAmx
+	id S1161038AbWJDAoj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 20:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWJDAoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 20:42:53 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:30586 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1161036AbWJDAmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 20:42:53 -0400
-Subject: Re: hrtimers bug message on 2.6.18-rt4
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: john stultz <johnstul@us.ibm.com>
-Cc: Clark Williams <williams@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1159922315.14866.2.camel@localhost>
-References: <45214EDC.6060706@redhat.com>
-	 <1159811130.5873.5.camel@localhost.localdomain>
-	 <1159921845.1979.9.camel@dwalker1.mvista.com>
-	 <1159922315.14866.2.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 17:42:51 -0700
-Message-Id: <1159922571.1979.11.camel@dwalker1.mvista.com>
+	Tue, 3 Oct 2006 20:44:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20148 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161040AbWJDAoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 20:44:38 -0400
+Date: Tue, 3 Oct 2006 20:43:14 -0400
+From: Dave Jones <davej@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: FSX on NFS blew up.
+Message-ID: <20061004004314.GA21677@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>
+References: <20061003164905.GD23492@redhat.com> <1159922084.9569.24.camel@dyn9047017100.beaverton.ibm.com> <20061004004009.GA20459@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061004004009.GA20459@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 17:38 -0700, john stultz wrote:
+On Tue, Oct 03, 2006 at 08:40:09PM -0400, Dave Jones wrote:
+ > On Tue, Oct 03, 2006 at 05:34:44PM -0700, Badari Pulavarty wrote:
+ >  > On Tue, 2006-10-03 at 12:49 -0400, Dave Jones wrote:
+ >  > > Took ~8hrs to hit this on an NFSv3 mount. (2.6.18+Jan Kara's jbd patch)
+ >  > > 
+ >  > > http://www.codemonkey.org.uk/junk/fsx-nfs.txt
+ >  > 
+ >  > I was seeing *similar* problem on NFS mounted filesystem (while running
+ >  > fsx), but later realized that filesystem is full - when it happend.
+ >  > 
+ >  > Could be fsx error handling problem ? Can you check yours ?
+ > 
+ > It's running low, but there's no way it ran out. (It's down to about 4GB free).
 
-> > With ltpstess . It has a settimeofday test which can trigger it. It gets
-> > called with wild values.
-> 
-> Hmmm... That sounds like a false positive, where Ingo's time warp
-> checking code isn't resetting on settimeofday() calls.
-> 
+I just noticed the fsxlog that got dumped in that dir contains
+some slightly different info to what got dumped to stdout.
 
-Yeah, I think it is, but I figured I'd report it anyway ..
+I've pasted it onto the end of the file in the URL above.
 
-Daniel
+	Dave
 
+-- 
+http://www.codemonkey.org.uk

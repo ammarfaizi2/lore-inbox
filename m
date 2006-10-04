@@ -1,108 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWJDNmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWJDNoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030429AbWJDNmd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 09:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJDNmc
+	id S1030436AbWJDNoS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbWJDNoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 09:42:32 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:35519 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030429AbWJDNmb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 09:42:31 -0400
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-From: Steve Fox <drfickle@us.ibm.com>
+	Wed, 4 Oct 2006 09:44:18 -0400
+Received: from mo30.po.2iij.net ([210.128.50.53]:52746 "EHLO mo30.po.2iij.net")
+	by vger.kernel.org with ESMTP id S1030436AbWJDNoR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 09:44:17 -0400
+Date: Wed, 4 Oct 2006 22:44:06 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060928140124.5f7154e3.akpm@osdl.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <efh217$8au$1@sea.gmane.org>  <20060928140124.5f7154e3.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 08:42:28 -0500
-Message-Id: <1159969349.28106.64.camel@flooterbu>
+Cc: yoichi_yuasa@tripeaks.co.jp, linux-kernel@vger.kernel.org
+Subject: [-mm PATCH] fixed PCMCIA au1000_generic.c
+Message-Id: <20061004224406.46a9d05c.yoichi_yuasa@tripeaks.co.jp>
+In-Reply-To: <20061003001115.e898b8cb.akpm@osdl.org>
+References: <20061003001115.e898b8cb.akpm@osdl.org>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-28 at 14:01 -0700, Andrew Morton wrote:
-> On Thu, 28 Sep 2006 17:50:31 +0000 (UTC)
-> "Steve Fox" <drfickle@us.ibm.com> wrote:
-> 
-> > On Thu, 28 Sep 2006 01:46:23 -0700, Andrew Morton wrote:
-> > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
-> > 
-> > Panic on boot. This machine booted 2.6.18-mm1 fine. em64t machine.
-> > 
-> > TCP bic registered
-> > TCP westwood registered
-> > TCP htcp registered
-> > NET: Registered protocol family 1
-> > NET: Registered protocol family 17
-> > Unable to handle kernel paging request at ffffffffffffffff RIP: 
-> >  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > PGD 203027 PUD 2b031067 PMD 0 
-> > Oops: 0000 [1] SMP 
-> > last sysfs file: 
-> > CPU 0 
-> > Modules linked in:
-> > Pid: 1, comm: swapper Not tainted 2.6.18-mm2-autokern1 #1
-> > RIP: 0010:[<ffffffff8047ef93>]  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > RSP: 0000:ffff810bffcbde90  EFLAGS: 00010286
-> > RAX: 0000000000000000 RBX: ffff810bff4a1000 RCX: 2222222222222222
-> > RDX: ffff810bff4a1000 RSI: 0000000000000005 RDI: ffffffff8055f5e0
-> > RBP: ffffffffffffffff R08: 0000000000007616 R09: 000000000000000e
-> > R10: 0000000000000006 R11: ffffffff803373f0 R12: 0000000000000000
-> > R13: 0000000000000005 R14: ffff810bff4a1000 R15: 0000000000000000
-> > FS:  0000000000000000(0000) GS:ffffffff805d8000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: ffffffffffffffff CR3: 0000000000201000 CR4: 00000000000006e0
-> > Process swapper (pid: 1, threadinfo ffff810bffcbc000, task ffff810bffcbb510)
-> > Stack:  ffff810bff4a1000 ffffffff8055f4c0 0000000000000000 ffff810bffcbdef0
-> >  0000000000000000 ffffffff8042736e 0000000000000000 0000000000000000
-> >  0000000000000000 ffffffff8061c68d ffffffff806260f0 ffffffff80207182
-> > Call Trace:
-> >  [<ffffffff8042736e>] register_netdevice_notifier+0x3e/0x70
-> >  [<ffffffff8061c68d>] packet_init+0x2d/0x53
-> >  [<ffffffff80207182>] init+0x162/0x330
-> >  [<ffffffff8020a9d8>] child_rip+0xa/0x12
-> >  [<ffffffff8033c2a2>] acpi_ds_init_one_object+0x0/0x82
-> >  [<ffffffff80207020>] init+0x0/0x330
-> >  [<ffffffff8020a9ce>] child_rip+0x0/0x12
-> > 
-> > 
-> > Code: 48 8b 45 00 0f 18 08 49 83 fd 02 4c 8d 65 f8 0f 84 f8 fe ff 
-> > RIP  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> >  RSP <ffff810bffcbde90>
-> > CR2: ffffffffffffffff
-> >  <0>Kernel panic - not syncing: Attempted to kill init!
-> > 
-> 
-> I'm really struggling to work out what went wrong there.  Comparing your
-> miserable 20 bytes of code to my object code makes me think that this:
-> 
-> 		struct packet_sock *po = pkt_sk(sk);
-> 
-> returned -1, perhaps in %ebp.  But it's all very crude.
-> 
-> Perhaps you could compile that kernel with CONFIG_DEBUG_INFO, rerun it (the
-> addresses might change) then have a poke around with `gdb vmlinux' (or
-> maybe just addr2line) to work out where it's really oopsing?
-> 
-> I don't see much which has changed in that area recently.
+Hi,
 
-Sorry for the delay. I was finally able to perform a bisect on this. It
-turns out the patch that causes this is
-x86_64-mm-re-positioning-the-bss-segment.patch, which seems like a
-strange candidate, but sure enough I can boot to login: right up until
-that patch is applied.
+pcmcia-au1000_generic-fix.patch has a problem.
+It needs more fix.
+ops->shutdown(skt), skt is out of definition scope.
 
-P.S. I had to comment usb-hubc-build-fix.patch out of the series file
-because it would not apply cleanly and caused quilt (0.45) to simply
-abort its 'push' operation.
+Yoichi
 
--- 
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 
-Steve Fox
-IBM Linux Technology Center
+diff -pruN -X linux-2.6.18-mm3/Documentation/dontdiff linux-2.6.18-mm3-orig/drivers/pcmcia/au1000_generic.c linux-2.6.18-mm3/drivers/pcmcia/au1000_generic.c
+--- linux-2.6.18-mm3-orig/drivers/pcmcia/au1000_generic.c	2006-10-04 11:24:33.017136250 +0900
++++ linux-2.6.18-mm3/drivers/pcmcia/au1000_generic.c	2006-10-04 22:32:21.806060500 +0900
+@@ -351,6 +351,7 @@ struct skt_dev_info {
+ int au1x00_pcmcia_socket_probe(struct device *dev, struct pcmcia_low_level *ops, int first, int nr)
+ {
+ 	struct skt_dev_info *sinfo;
++	struct au1000_pcmcia_socket *skt;
+ 	int ret, i;
+ 
+ 	sinfo = kzalloc(sizeof(struct skt_dev_info), GFP_KERNEL);
+@@ -365,7 +366,7 @@ int au1x00_pcmcia_socket_probe(struct de
+ 	 * Initialise the per-socket structure.
+ 	 */
+ 	for (i = 0; i < nr; i++) {
+-		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
++		skt = PCMCIA_SOCKET(i);
+ 		memset(skt, 0, sizeof(*skt));
+ 
+ 		skt->socket.resource_ops = &pccard_static_ops;
+@@ -442,7 +443,7 @@ out_err:
+ 	flush_scheduled_work();
+ 	ops->hw_shutdown(skt);
+ 	while (i-- > 0) {
+-		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
++		skt = PCMCIA_SOCKET(i);
+ 		del_timer_sync(&skt->poll_timer);
+ 		pcmcia_unregister_socket(&skt->socket);
+ 		flush_scheduled_work();

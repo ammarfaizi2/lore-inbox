@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWJDCKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030706AbWJDCMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161064AbWJDCKp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030707AbWJDCKp
+	id S1030706AbWJDCMo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030707AbWJDCMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:10:45 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:23748 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1030706AbWJDCKo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:10:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=bumCm8GH+y4TeD70hlmh5RdC5v8ZiJgb/GS5/oxzRUyOE0rqhTGSlLtLAv6NbARH+Mn8//kNLt5ume6UR06XIeI0sY3MpDRK8tydyxlO/kS86XKfkYX1ezAVPGdZed5LfsQilhNpoZc6j9V7ayctF7mQMb3SFXoxRLAv689mmSc=
-From: Patrick McFarland <diablod3@gmail.com>
-To: "Patrick Draper" <pdraper@gmail.com>
-Subject: Re: It's not GNU/Linux - it's jusy LINUX
-Date: Tue, 3 Oct 2006 22:06:09 -0400
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <4522DA72.7070908@perkel.com> <008101c6e737$672c4590$6721100a@nuitysystems.com> <6981e08b0610031817r69c0e923ueac036b65014b196@mail.gmail.com>
-In-Reply-To: <6981e08b0610031817r69c0e923ueac036b65014b196@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 22:12:44 -0400
+Received: from mail2.genealogia.fi ([194.100.116.229]:41856 "EHLO
+	mail2.genealogia.fi") by vger.kernel.org with ESMTP
+	id S1030706AbWJDCMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:12:43 -0400
+Date: Tue, 3 Oct 2006 19:10:20 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Jeff Garzik <jeff@garzik.org>, "John W. Linville" <linville@tuxdriver.com>,
+       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061004021020.GB6110@jm.kir.nu>
+Mail-Followup-To: Jean Tourrilhes <jt@hpl.hp.com>,
+	Jeff Garzik <jeff@garzik.org>,
+	"John W. Linville" <linville@tuxdriver.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Alessandro Suardi <alessandro.suardi@gmail.com>,
+	Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	johannes@sipsolutions.net
+References: <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <4522DA9B.6050207@garzik.org> <20061003222707.GB1790@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610032206.09284.diablod3@gmail.com>
+In-Reply-To: <20061003222707.GB1790@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.6 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 October 2006 21:17, Patrick Draper wrote:
-> On 10/3/06, Hua Zhong <hzhong@gmail.com> wrote:
-> > Since we've got to this point, let's call it AT&T/Unix.
->
-> Neither would exist without Alexander Graham Bell, and even had a mother.
->
-> Let's call it Alexander Graham Bell's Mom.
+On Tue, Oct 03, 2006 at 03:27:07PM -0700, Jean Tourrilhes wrote:
 
-Wow, this may be the first "yo momma" insult ever told on the LKML.
+> 	Let's not make a mountain of this molehill. If you want to use
+> old versions of Wireless Tools and wpa_supplicant with WE-21, what you
+> need is just to add a dummy character at the end of your ESSID. And
+> everything will be fine.
+
+Nope, everything won't be fine with WPA-PSK which is using SSID as part
+of the key derivation. In other words, you cannot add a dummy character
+in the end of the SSID in wpa_supplicant configuration for a WPA-PSK
+network and expect everything to work.
 
 -- 
-Patrick McFarland || http://AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
-
+Jouni Malinen                                            PGP id EFC895FA

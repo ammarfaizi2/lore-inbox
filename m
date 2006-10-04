@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161097AbWJDHL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWJDHRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161097AbWJDHL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWJDHL4
+	id S1161104AbWJDHRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbWJDHRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:11:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27809 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030456AbWJDHLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:11:55 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: vgoyal@in.ibm.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003172511.GL3164@in.ibm.com>
-Date: Wed, 04 Oct 2006 01:08:56 -0600
-In-Reply-To: <20061003172511.GL3164@in.ibm.com> (Vivek Goyal's message of
-	"Tue, 3 Oct 2006 13:25:11 -0400")
-Message-ID: <m11wpoeewn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Oct 2006 03:17:53 -0400
+Received: from aa011msr.fastwebnet.it ([85.18.95.71]:26801 "EHLO
+	aa011msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1161104AbWJDHRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 03:17:53 -0400
+Date: Wed, 4 Oct 2006 09:16:58 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Arkadiusz =?UTF-8?B?SmHFgm93?= =?UTF-8?B?aWVj?= 
+	<ajalowiec@interia.pl>,
+       <linux-kernel@vger.kernel.org>, <linux-usb-users@lists.sourceforge.net>
+Subject: Re: [Linux-usb-users] PROBLEM: Kernel 2.6.x freeze
+Message-ID: <20061004091658.618037d7@localhost>
+In-Reply-To: <20061004091419.455f4185@localhost>
+References: <20061003215200.0d1047db@localhost>
+	<Pine.LNX.4.44L0.0610031629310.5817-100000@iolanthe.rowland.org>
+	<20061004091419.455f4185@localhost>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+On Wed, 4 Oct 2006 09:14:19 +0200
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-> Increasingly the cobbled together boot protocol that
-> is bzImage does not have the flexibility to deal
-> with booting in new situations.
->
-> Now that we no longer support the bootsector loader
-> we have 512 bytes at the very start of a bzImage that
-> we can use for other things.
->
-> Placing an ELF header there allows us to retain
-> a single binary for all of x86 while at the same
-> time describing things that bzImage does not allow
-> us to describe.
->
-> The existing bugger off code for warning if we attempt to
-> boot from the bootsector is kept but the error message is
-> made more terse so we have a little more room to play with.
+> So one obvious test that Arkadiusz can make is to try to crash 2.6.18
+> without using his modem: just detach the USB cable before boot so the
+> driver isn't loaded (and even if it's loaded by a "modprobe" in
+> init scripts, it can't do much).
 
-Vivek for this first round can we please take out the ELF
-note processing.  Now that vmlinux has ELF notes of interest
-to the bootloader we really should be getting the ELF notes
-from there.
+Note for Arkadiusz: you don't have to stay on the textual console to
+capture another Oops. Do whatever you want and just tell if it crash or
+not.
 
-So the generation of the ELF notes needs to move into the
-vmlinux and then we need to copy them to ELF header.
-
-If we just remove the ELF note munging code from this patch
-that should be a good first step in getting the ELF notes correct.
-
-Eric
+-- 
+	Paolo Ornati
+	Linux 2.6.18 on x86_64

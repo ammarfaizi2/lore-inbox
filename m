@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWJDUfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWJDUkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWJDUfF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWJDUfE
+	id S1751101AbWJDUkG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWJDUkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:35:04 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:38155 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751091AbWJDUfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:35:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=CyDhJ2+MjJOL804etlZL76MgAtDhMnSsZrKGJdzOIUiBkH12A8Gi/ZNQYtXMxVtJhNSkjSAjlDo7/Z/q2kzOZ03+yvxk0CHGNIaaRSFeBy43MLPE5AvSWDdcRr/hIoaFds76NXxmO2vgrmtxJWRsJLzZUezonJIPfKo0diqwBDg=
-Message-ID: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
-Date: Wed, 4 Oct 2006 22:35:01 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: removed sysctl system call - documentation and timeline
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Oct 2006 16:40:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23236 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751101AbWJDUkE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 16:40:04 -0400
+Date: Wed, 4 Oct 2006 16:39:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Andre Noll <maan@systemlinux.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, andrea@suse.de,
+       riel@redhat.com
+Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
+Message-ID: <20061004203935.GB32161@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	Andre Noll <maan@systemlinux.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, andrea@suse.de, riel@redhat.com
+References: <20061004104018.GB22487@skl-net.de> <4523BE45.5050205@yahoo.com.au> <20061004154227.GD22487@skl-net.de> <1159976940.27331.0.camel@twins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1159976940.27331.0.camel@twins>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 04, 2006 at 05:49:00PM +0200, Peter Zijlstra wrote:
 
-With recent kernels I'm getting a lot of warnings about programs using
-the removed sysctl syscal.
+ > > > It is also nice if we can work out where the page actually came from. The
+ > > > following attached patch should help out a bit with that, if you could
+ > > > run with it?
+ > > Okay. I'll reboot with your patch and let you know if it crashes again.
+ > enable CONFIG_DEBUG_VM to get that.
 
-Examples (after 5 min of uptime here) :
-root@dragon:/home/juhl# dmesg | grep "used the removed sysctl system
-call" | sort | uniq
-warning: process `dd' used the removed sysctl system call
-warning: process `ls' used the removed sysctl system call
-warning: process `touch' used the removed sysctl system call
+Given this warnings still pops up from time to time, I question whether
+putting that check under DEBUG_VM was such a good idea.  It's not as
+if it's a major performance impact.  This has potential for us to lose
+valuable debugging info for a few nanoseconds performance increase in
+an already costly path.
 
-and more can be found...
+This patch brings it back unconditionally, and moves the BUG()
+into the if arm.
 
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-I'm not, as such, opposed to removing sysctl (and yes, I know what it
-is and what it does). What I am a little opposed to is that it is
-being removed on such short notice (unless I missed the memo) and that
-it is hidden inside EMBEDDED.
-
-I would like to propose that, at least for 2.6.19, it be default on
-(as it is now), not hide it in EMBEDDED where people usually don't go,
-some huge deprecation warnings be added, and that it then gets the
-usual 6-12months before being removed (did it already get that and I'm
-just slow?)...  ohhh, and correct the help text; it currently says
-"...Nothing has been using the binary sysctl interface for some time
-now so nothing should break if you disable sysctl syscall support" -
-that's obviously false as demonstrated by the above extract from my
-dmesg...
-
+--- local-git/mm/rmap.c~	2006-10-04 16:38:06.000000000 -0400
++++ local-git/mm/rmap.c	2006-10-04 16:38:24.000000000 -0400
+@@ -576,15 +576,14 @@ void page_add_file_rmap(struct page *pag
+ void page_remove_rmap(struct page *page)
+ {
+ 	if (atomic_add_negative(-1, &page->_mapcount)) {
+-#ifdef CONFIG_DEBUG_VM
+ 		if (unlikely(page_mapcount(page) < 0)) {
+ 			printk (KERN_EMERG "Eeek! page_mapcount(page) went negative! (%d)\n", page_mapcount(page));
+ 			printk (KERN_EMERG "  page->flags = %lx\n", page->flags);
+ 			printk (KERN_EMERG "  page->count = %x\n", page_count(page));
+ 			printk (KERN_EMERG "  page->mapping = %p\n", page->mapping);
++			BUG();
+ 		}
+-#endif
+-		BUG_ON(page_mapcount(page) < 0);
++
+ 		/*
+ 		 * It would be tidy to reset the PageAnon mapping here,
+ 		 * but that might overwrite a racing page_add_anon_rmap
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+http://www.codemonkey.org.uk

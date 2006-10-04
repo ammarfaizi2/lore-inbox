@@ -1,89 +1,542 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030737AbWJDCfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030710AbWJDCtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030737AbWJDCfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030738AbWJDCfS
+	id S1030710AbWJDCtf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030715AbWJDCtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:35:18 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:19946 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030737AbWJDCfP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:35:15 -0400
-Message-Id: <200610040233.k942Xk1v004859@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: tglx@linutronix.de
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] dynticks core: Fix idle time accounting
-In-Reply-To: Your message of "Tue, 03 Oct 2006 22:02:30 +0200."
-             <1159905750.1386.215.camel@localhost.localdomain>
-From: Valdis.Kletnieks@vt.edu
-References: <20061001225720.115967000@cruncher.tec.linutronix.de> <200610021302.k92D23W1003320@turing-police.cc.vt.edu> <1159796582.1386.9.camel@localhost.localdomain> <200610021825.k92IPSnd008215@turing-police.cc.vt.edu> <1159814606.1386.52.camel@localhost.localdomain> <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu> <1159824158.1386.77.camel@localhost.localdomain> <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
-            <1159905750.1386.215.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159929225_3990P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Oct 2006 22:33:46 -0400
+	Tue, 3 Oct 2006 22:49:35 -0400
+Received: from tango.0pointer.de ([217.160.223.3]:5395 "EHLO tango.0pointer.de")
+	by vger.kernel.org with ESMTP id S1030710AbWJDCtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 22:49:33 -0400
+Date: Wed, 4 Oct 2006 04:49:27 +0200
+From: Lennart Poettering <mzxreary@0pointer.de>
+To: len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       dtor@insightbb.com, akpm@osdl.org
+Subject: [PATCH] misc,acpi,backlight: MSI S270 Laptop support, fifth try
+Message-ID: <20061004024927.GA27716@ecstasy.ring2.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: .phi.
+X-Campaign-1: ()  ASCII Ribbon Campaign
+X-Campaign-2: /  Against HTML Email & vCards - Against Microsoft Attachments
+X-Disclaimer-1: Diese Nachricht wurde mit einer elektronischen 
+X-Disclaimer-2: Datenverarbeitungsanlage erstellt und bedarf daher 
+X-Disclaimer-3: keiner Unterschrift.
+User-Agent: Leviathan/19.8.0 [zh] (Cray 3; I; Solaris 4.711; Console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159929225_3990P
-Content-Type: text/plain; charset=us-ascii
+From: Lennart Poettering <mzxreary@0pointer.de>
 
-On Tue, 03 Oct 2006 22:02:30 +0200, Thomas Gleixner said:
+A driver for the special features of MSI S270 laptops (and maybe other
+MSI laptops). This driver implements a backlight device for
+controlling LCD brightness (/sys/class/backlight/msi-laptop-bl/).  In
+addition it allows access to the WLAN and Bluetooth states through a
+platform driver (/sys/devices/platform/msi-laptop-pf/).
 
-> I found a way to fix my thinkos. I put up a queue with all fixes to:
-> 
-> http://www.tglx.de/projects/hrtimers/2.6.18-mm3/patch-2.6.18-mm3-hrt-dyntick1.patches.tar.bz2
-> 
-> Can you please verify if it makes your problem go away ?
+Signed-off-by: Lennart Poettering <mzxreary@0pointer.de>
+---
 
-Was -dyntick3 by the time I got there.
+This is the fifth version of this driver. Changes to the previous
+version are mostly cosmetics: on request of Andrew Morton I replaced
+indentation with spaces by tabs (by passing it through "unexpand"). 
 
-The user/system/idle/wait numbers now look sane, with one caveat:
+On request of Dmitry Torokhov I replaced
+calls to platform_device_register_simple() by
+platform_device_alloc()/platform_device_add().
 
-static const ktime_t nsec_per_hz = { .tv64 = NSEC_PER_SEC / HZ };
-...
-                if (unlikely(delta.tv64 >= nsec_per_hz.tv64)) {
-                        s64 incr = ktime_to_ns(nsec_per_hz);
-                        ticks = ktime_divns(delta, incr);
+Applies to Len Brown's current linux-acpi tree.
 
-Even though I have CONFIG_HZ=1000, this ends up generating a synthetic
-count that works out to 100 per second.  gkrellm and vmstat are happy with
-that state of affairs, but I'm not sure why it came out to 100/sec rather
-than 1000/sec.
+Len, please merge!
 
-% cat /proc/stat /proc/uptime
-cpu  28224 4688 9159 168290 9143 283 256 0
-cpu0 28224 4688 9159 168290 9143 283 256 0
-intr 818891 627337 3466 0 4 4 6459 3 7 1 1 4 160328 115 0 21162 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-ctxt 971441
-btime 1159926408
-processes 4544
-procs_running 1
-procs_blocked 0
-nohz total I:367986 S:302473 T:1737.640072 A:0.005744 E: 625327
-2176.02 1775.11
+Thanks,
+        Lennart
 
-Also, it still disagrees with speedstep - it isn't noticing the TSC has
-gone slow and drop back to the PM timer.
+ MAINTAINERS               |    7 +
+ drivers/acpi/ec.c         |    2 
+ drivers/misc/Kconfig      |   19 ++
+ drivers/misc/Makefile     |    1 
+ drivers/misc/msi-laptop.c |  395 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 424 insertions(+), 0 deletions(-)
 
-All in all, we're making progress. ;)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 23348c0..0d99de9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1978,6 +1978,13 @@ M:	rubini@ipvvis.unipv.it
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++MSI LAPTOP SUPPORT
++P:	Lennart Poettering
++M:	mzxreary@0pointer.de
++L:	https://tango.0pointer.de/mailman/listinfo/s270-linux
++W:	http://0pointer.de/lennart/tchibo.html
++S:	Maintained
++
+ MTRR AND SIMILAR SUPPORT [i386]
+ P:	Richard Gooch
+ M:	rgooch@atnf.csiro.au
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index ae05e8c..e6d4b08 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -384,6 +384,8 @@ extern int ec_transaction(u8 command,
+ 				   wdata_len, rdata, rdata_len);
+ }
+ 
++EXPORT_SYMBOL(ec_transaction);
++
+ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
+ {
+ 	int result;
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 7fc692a..d25b0db 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -28,5 +28,24 @@ config IBM_ASM
+ 
+ 	  If unsure, say N.
+ 
++config MSI_LAPTOP
++        tristate "MSI Laptop Extras"
++        depends on X86
++        depends on ACPI_EC
++        depends on BACKLIGHT_CLASS_DEVICE
++        ---help---
++          This is a driver for laptops built by MSI (MICRO-STAR 
++	  INTERNATIONAL):
++	      
++	      MSI MegaBook S270 (MS-1013)
++	      Cytron/TCM/Medion/Tchibo MD96100/SAM2000
++	   
++	  It adds support for Bluetooth, WLAN and LCD brightness control.
++
++          More information about this driver is available at
++          <http://0pointer.de/lennart/tchibo.html>.
++
++          If you have an MSI S270 laptop, say Y or M here.
++
+ endmenu
+ 
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 19c2b85..1328c5f 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -5,3 +5,4 @@ obj- := misc.o	# Dummy rule to force bui
+ 
+ obj-$(CONFIG_IBM_ASM)	+= ibmasm/
+ obj-$(CONFIG_HDPU_FEATURES)	+= hdpuftrs/
++obj-$(CONFIG_MSI_LAPTOP)     += msi-laptop.o
+diff --git a/drivers/misc/msi-laptop.c b/drivers/misc/msi-laptop.c
+new file mode 100644
+index 0000000..1f5938a
+--- /dev/null
++++ b/drivers/misc/msi-laptop.c
+@@ -0,0 +1,395 @@
++/*-*-linux-c-*-*/
++
++/***
++  Copyright (C) 2006 Lennart Poettering <mzxreary (at) 0pointer (dot) de>
++
++  This program is free software; you can redistribute it and/or modify
++  it under the terms of the GNU General Public License as published by
++  the Free Software Foundation; either version 2 of the License, or
++  (at your option) any later version.
++
++  This program is distributed in the hope that it will be useful, but
++  WITHOUT ANY WARRANTY; without even the implied warranty of
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++  General Public License for more details.
++
++  You should have received a copy of the GNU General Public License
++  along with this program; if not, write to the Free Software
++  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++  02110-1301, USA.
++***/
++
++/*
++ * msi-laptop.c - MSI S270 laptop support. This laptop is sold under
++ * various brands, including "Cytron/TCM/Medion/Tchibo MD96100".
++ *
++ * This driver exports a few files in /sys/devices/platform/msi-laptop-pf/:
++ *
++ *   lcd_level - Screen brightness: contains a single integer in the
++ *   range 0..8. (rw)
++ * 
++ *   auto_brightness - Enable automatic brightness control: contains
++ *   either 0 or 1. If set to 1 the hardware adjusts the screen
++ *   brightness automatically when the power cord is
++ *   plugged/unplugged. (rw)
++ *
++ *   wlan - WLAN subsystem enabled: contains either 0 or 1. (ro)
++ *
++ *   bluetooth - Bluetooth subsystem enabled: contains either 0 or 1
++ *   Please note that this file is constantly 0 if no Bluetooth
++ *   hardware is available. (ro)
++ *
++ * In addition to these platform device attributes the driver
++ * registers itself in the Linux backlight control subsystem and is
++ * available to userspace under /sys/class/backlight/msi-laptop-bl/.
++ *
++ * This driver might work on other laptops produced by MSI. If you
++ * want to try it you can pass force=1 as argument to the module which
++ * will force it to load even when the DMI data doesn't identify the
++ * laptop as MSI S270. YMMV.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/acpi.h>
++#include <linux/dmi.h>
++#include <linux/backlight.h>
++#include <linux/platform_device.h>
++#include <linux/autoconf.h>
++
++#define MSI_DRIVER_VERSION "0.5"
++
++#define MSI_LCD_LEVEL_MAX 9
++
++#define MSI_EC_COMMAND_WIRELESS 0x10
++#define MSI_EC_COMMAND_LCD_LEVEL 0x11
++
++static int force;
++module_param(force, bool, 0);
++MODULE_PARM_DESC(force, "Force driver load, ignore DMI data");
++
++static int auto_brightness;
++module_param(auto_brightness, int, 0);
++MODULE_PARM_DESC(auto_brightness, "Enable automatic brightness control (0: disabled; 1: enabled; 2: don't touch)");
++
++/* Hardware access */
++
++static int set_lcd_level(int level)
++{
++	u8 buf[2];
++	
++	if (level < 0 || level >= MSI_LCD_LEVEL_MAX)
++		return -EINVAL;
++	
++	buf[0] = 0x80;
++	buf[1] = (u8) (level*31);
++	
++	return ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, buf, sizeof(buf), NULL, 0);
++}
++
++static int get_lcd_level(void)
++{
++	u8 wdata = 0, rdata;
++	int result;
++
++	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1);
++	if (result < 0)
++		return result;
++
++	return (int) rdata / 31;
++}
++
++static int get_auto_brightness(void)
++{
++	u8 wdata = 4, rdata;
++	int result;
++
++	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, &wdata, 1, &rdata, 1);
++	if (result < 0)
++		return result;
++
++	return !!(rdata & 8);
++}
++
++static int set_auto_brightness(int enable)
++{
++	u8 wdata[2], rdata;
++	int result;
++	
++	wdata[0] = 4;
++
++	result = ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, wdata, 1, &rdata, 1);
++	if (result < 0)
++		return result;
++	    
++	wdata[0] = 0x84;
++	wdata[1] = (rdata & 0xF7) | (enable ? 8 : 0);
++
++	return ec_transaction(MSI_EC_COMMAND_LCD_LEVEL, wdata, 2, NULL, 0);
++}
++
++static int get_wireless_state(int *wlan, int *bluetooth)
++{
++	u8 wdata = 0, rdata;
++	int result;
++
++	result = ec_transaction(MSI_EC_COMMAND_WIRELESS, &wdata, 1, &rdata, 1);
++	if (result < 0)
++		return -1;
++
++	if (wlan)
++		*wlan = !!(rdata & 8);
++
++	if (bluetooth)
++		*bluetooth = !!(rdata & 128);
++	
++	return 0;
++}
++
++/* Backlight device stuff */
++
++static int bl_get_brightness(struct backlight_device *b)
++{
++	return get_lcd_level();
++}
++
++
++static int bl_update_status(struct backlight_device *b)
++{
++	return set_lcd_level(b->props->brightness);
++}
++
++static struct backlight_properties msibl_props = {
++	.owner		= THIS_MODULE,
++	.get_brightness = bl_get_brightness,
++	.update_status  = bl_update_status,
++	.max_brightness = MSI_LCD_LEVEL_MAX-1,
++};
++
++static struct backlight_device *msibl_device;
++
++/* Platform device */
++
++static ssize_t show_wlan(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++
++	int ret, enabled;
++
++	ret = get_wireless_state(&enabled, NULL);
++	if (ret < 0)
++		return ret;
++
++	return sprintf(buf, "%i\n", enabled);
++}
++
++static ssize_t show_bluetooth(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++
++	int ret, enabled;
++
++	ret = get_wireless_state(NULL, &enabled);
++	if (ret < 0)
++		return ret;
++
++	return sprintf(buf, "%i\n", enabled);
++}
++
++static ssize_t show_lcd_level(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++
++	int ret;
++
++	ret = get_lcd_level();
++	if (ret < 0)
++		return ret;
++	
++	return sprintf(buf, "%i\n", ret);
++}
++
++static ssize_t store_lcd_level(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	
++	int level, ret;
++
++	if (sscanf(buf, "%i", &level) != 1 || (level < 0 || level >= MSI_LCD_LEVEL_MAX))
++		return -EINVAL;
++
++	ret = set_lcd_level(level);
++	if (ret < 0)
++		return ret;
++	
++	return count;
++}
++
++static ssize_t show_auto_brightness(struct device *dev,
++	struct device_attribute *attr, char *buf)
++{
++
++	int ret;
++
++	ret = get_auto_brightness();
++	if (ret < 0)
++		return ret;
++	
++	return sprintf(buf, "%i\n", ret);
++}
++
++static ssize_t store_auto_brightness(struct device *dev,
++	struct device_attribute *attr, const char *buf, size_t count)
++{
++	
++	int enable, ret;
++
++	if (sscanf(buf, "%i", &enable) != 1 || (enable != (enable & 1)))
++		return -EINVAL;
++
++	ret = set_auto_brightness(enable);
++	if (ret < 0)
++		return ret;
++	
++	return count;
++}
++
++static DEVICE_ATTR(lcd_level, 0644, show_lcd_level, store_lcd_level);
++static DEVICE_ATTR(auto_brightness, 0644, show_auto_brightness, store_auto_brightness);
++static DEVICE_ATTR(bluetooth, 0444, show_bluetooth, NULL);
++static DEVICE_ATTR(wlan, 0444, show_wlan, NULL);
++
++static struct attribute *msipf_attributes[] = {
++	&dev_attr_lcd_level.attr,
++	&dev_attr_auto_brightness.attr,
++	&dev_attr_bluetooth.attr,
++	&dev_attr_wlan.attr,
++	NULL
++};
++
++static struct attribute_group msipf_attribute_group = {
++	.attrs = msipf_attributes
++};
++
++static struct platform_driver msipf_driver = {
++	.driver = {
++		.name = "msi-laptop-pf",
++		.owner = THIS_MODULE,
++	}
++};
++
++static struct platform_device *msipf_device;
++
++/* Initialization */
++
++static struct dmi_system_id __initdata msi_dmi_table[] = {
++	{
++		.ident = "MSI S270",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1013"),
++		}
++	},
++	{
++		.ident = "Medion MD96100",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "NOTEBOOK"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "SAM2000"),
++		}
++	},
++	{ }
++};
++
++
++static int __init msi_init(void)
++{
++	int ret;
++
++	if (acpi_disabled)
++		return -ENODEV;
++
++	if (!force && !dmi_check_system(msi_dmi_table))
++		return -ENODEV;
++
++	if (auto_brightness < 0 || auto_brightness > 2)
++		return -EINVAL;
++
++	/* Register backlight stuff */
++	
++	msibl_device = backlight_device_register("msi-laptop-bl", NULL, &msibl_props);
++	if (IS_ERR(msibl_device))
++		return PTR_ERR(msibl_device);
++
++	ret = platform_driver_register(&msipf_driver);
++	if (ret)
++		goto fail_backlight;
++
++	/* Register platform stuff */
++	
++	msipf_device = platform_device_alloc("msi-laptop-pf", -1);
++	if (!msipf_device) {
++		ret = -ENOMEM;
++		goto fail_platform_driver;
++	}
++
++	ret = platform_device_add(msipf_device);
++	if (ret)
++		goto fail_platform_device1;
++
++	ret = sysfs_create_group(&msipf_device->dev.kobj, &msipf_attribute_group);
++	if (ret)
++		goto fail_platform_device2;
++
++	/* Disable automatic brightness control by default because
++	 * this module was probably loaded to do brightness control in
++	 * software. */
++
++	if (auto_brightness != 2)
++		set_auto_brightness(auto_brightness);
++	
++	printk(KERN_INFO "msi-laptop: driver "MSI_DRIVER_VERSION" successfully loaded.\n");
++	
++	return 0;
++
++fail_platform_device2:
++	
++	platform_device_del(msipf_device);
++
++fail_platform_device1:
++	
++	platform_device_put(msipf_device);
++	
++fail_platform_driver:
++
++	platform_driver_unregister(&msipf_driver);
++	
++fail_backlight:
++
++	backlight_device_unregister(msibl_device);
++	
++	return ret;
++}
++
++static void __exit msi_cleanup(void)
++{
++
++	sysfs_remove_group(&msipf_device->dev.kobj, &msipf_attribute_group);
++	platform_device_unregister(msipf_device);
++	platform_driver_unregister(&msipf_driver);
++	backlight_device_unregister(msibl_device);
++
++	/* Enable automatic brightness control again */
++	if (auto_brightness != 2)
++		set_auto_brightness(1);     
++
++	printk(KERN_INFO "msi-laptop: driver unloaded.\n");
++}
++
++module_init(msi_init);
++module_exit(msi_cleanup);
++
++MODULE_AUTHOR("Lennart Poettering");
++MODULE_DESCRIPTION("MSI Laptop Support");
++MODULE_VERSION(MSI_DRIVER_VERSION);
++MODULE_LICENSE("GPL");
+-- 
+1.4.1.1
 
---==_Exmh_1159929225_3990P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFIx2JcC3lWbTT17ARAsNuAKC1yguHkX1Cc8/5xZNiLFRhYSxYZACbBlkj
-ZWHNRZBX3H0p5vE4W+Sdm3A=
-=N3Xv
------END PGP SIGNATURE-----
-
---==_Exmh_1159929225_3990P--
+-- 
+Lennart Poettering; lennart [at] poettering [dot] net
+ICQ# 11060553; GPG 0x1A015CC4; http://0pointer.net/lennart/
+     

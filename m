@@ -1,60 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWJDWFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWJDWGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWJDWFz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 18:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWJDWFy
+	id S1751185AbWJDWGl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 18:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWJDWGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 18:05:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53142 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751186AbWJDWFy (ORCPT
+	Wed, 4 Oct 2006 18:06:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4770 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751185AbWJDWGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 18:05:54 -0400
-Date: Thu, 5 Oct 2006 00:05:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, usbatm@lists.infradead.org,
-       linux-usb-devel@lists.sourceforge.net, ueagle <ueagleatm-dev@gna.org>
-Subject: Re: [PATCH 1/3] UEAGLE : be suspend friendly
-Message-ID: <20061004220548.GC8667@elf.ucw.cz>
-References: <4522BE19.1070103@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4522BE19.1070103@free.fr>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 4 Oct 2006 18:06:40 -0400
+Date: Wed, 4 Oct 2006 15:06:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andrew.j.wade@gmail.com
+Cc: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061004150631.65e8953f.akpm@osdl.org>
+In-Reply-To: <200610041251.26166.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	<200610032324.29454.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061003203244.9edd94b9.akpm@osdl.org>
+	<200610041251.26166.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 4 Oct 2006 12:47:00 -0400
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-You marked all the patches as 1/3, btw.
+> On Tuesday 03 October 2006 23:32, Andrew Morton wrote:
+> 
+> > It might help, but we still don't know what's going on (I think).
+> > 
+> > I mean, if cache misses against __warn_once were sufficiently high for it
+> > to affect performance, then __warn_once would be, err, in cache?
+> 
+> Yes, of course. I'm embarrassed.
+> 
+> I took a look at the generated code, and GCC is having difficulty
+> optimizing WARN_ON_ONCE. Here is the start of __local_bh_enable:
+> 
+> 00000130 <__local_bh_enable>:
+>  130:   83 ec 10                sub    $0x10,%esp
+>  133:   8b 15 04 00 00 00       mov    0x4,%edx         <-+
+>  139:   89 e0                   mov    %esp,%eax          |
+>  13b:   25 00 e0 ff ff          and    $0xffffe000,%eax   | !!!
+>  140:   8b 40 14                mov    0x14(%eax),%eax    |
+>  143:   25 00 00 ff 0f          and    $0xfff0000,%eax    |
 
-> this patch avoid that the kernel thread block the suspend process.
-> Some work is still need to recover after a resume.
-> 
-> Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-> 
-> 
+This is the evaluation of in_irq(): calculate `current', grab
+current->thread_info->preempt_count.
 
-> this patch avoid that the kernel thread block the suspend process.
-> Some work is still need to recover after a resume.
-> 
-> Signed-off-by: matthieu castet <castet.matthieu@free.fr>
-> Index: linux/drivers/usb/atm/ueagle-atm.c
-> ===================================================================
-> --- linux.orig/drivers/usb/atm/ueagle-atm.c	2006-09-22 21:39:56.000000000 +0200
-> +++ linux/drivers/usb/atm/ueagle-atm.c	2006-09-22 21:40:45.000000000 +0200
-> @@ -1177,6 +1177,9 @@
->  			ret = uea_stat(sc);
->  		if (ret != -EAGAIN)
->  			msleep(1000);
-> + 		if (try_to_freeze())
-> +			uea_err(INS_TO_USBDEV(sc), "suspend/resume not supported, "
-> +				"please unplug/replug your modem\n");
+Normally gcc does manage to CSE the value of current.
 
-Plug/unplug should be easy enough to simulate from usb driver, no?
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>  148:   85 d2                   test   %edx,%edx        <-+
+>  14a:   74 04                   je     150 <__local_bh_enable+0x20>
+>  14c:   85 c0                   test   %eax,%eax
+>  14e:   75 35                   jne    185 <__local_bh_enable+0x55>
+>  150:   89 e0                   mov    %esp,%eax
+>  152:   8b 0d 00 00 00 00       mov    0x0,%ecx         <-+
+>  158:   25 00 e0 ff ff          and    $0xffffe000,%eax   |
+
+but this time it went and reevaluated it.
+
+>  15d:   8b 40 14                mov    0x14(%eax),%eax    | !!!
+>  160:   25 00 ff 00 00          and    $0xff00,%eax       |
+>  165:   3d 00 01 00 00          cmp    $0x100,%eax        |
+>  16a:   0f 94 c0                sete   %al                |
+>  16d:   85 c9                   test   %ecx,%ecx        <-+
+>  16f:   0f b6 c0                movzbl %al,%eax
+>  172:   74 04                   je     178 <__local_bh_enable+0x48>
+>  174:   85 c0                   test   %eax,%eax
+>  176:   75 42                   jne    1ba <__local_bh_enable+0x8a>
+>  178:   b8 00 01 00 00          mov    $0x100,%eax
+>  17d:   83 c4 10                add    $0x10,%esp
+>  180:   e9 fc ff ff ff          jmp    181 <__local_bh_enable+0x51>
+>  185:   c7 44 24 0c 3e 00 00    movl   $0x3e,0xc(%esp)
+>  ...
+> 
+> WARN_ON is better, but still has problems:
+> 
+> 000011a0 <do_exit>:
+>     11a0:       55                      push   %ebp
+>     11a1:       57                      push   %edi
+>     11a2:       56                      push   %esi
+>     11a3:       53                      push   %ebx
+>     11a4:       83 ec 30                sub    $0x30,%esp
+>     11a7:       89 44 24 18             mov    %eax,0x18(%esp)
+>     11ab:       89 e0                   mov    %esp,%eax
+>     11ad:       25 00 e0 ff ff          and    $0xffffe000,%eax
+>     11b2:       8b 30                   mov    (%eax),%esi
+>     11b4:       8b 86 58 0a 00 00       mov    0xa58(%esi),%eax
+>     11ba:       89 44 24 2c             mov    %eax,0x2c(%esp)      <-+
+>     11be:       8b 44 24 2c             mov    0x2c(%esp),%eax      <-+
+>     11c2:       85 c0                   test   %eax,%eax              | !!!
+>     11c4:       0f 85 65 07 00 00       jne    192f <do_exit+0x78f>   |
+>     11ca:       8b 44 24 2c             mov    0x2c(%esp),%eax      <-+
+>     11ce:       89 e0                   mov    %esp,%eax
+>      ...
+
+No, that's pretty much the same.  In the __local_bh_enable case we have the
+evaluation of in_irq() as well as softirq_count().  do_exit() just has a
+single WARN_ON().
+
+
+> This is gcc (GCC) 4.0.3 (Ubuntu 4.0.3-1ubuntu5), -O2.
+> 
+> I don't know why this would show up as cache misses, but it does look
+> like a compiler bug is being tickled.
+
+The code could be better, but nope, there are no additional cache misses
+there.
+
+Still weird.

@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161164AbWJDIFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161173AbWJDIGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161164AbWJDIFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 04:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161162AbWJDIFI
+	id S1161173AbWJDIGp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 04:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161172AbWJDIGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 04:05:08 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7645 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161164AbWJDIFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 04:05:05 -0400
-Date: Wed, 4 Oct 2006 09:56:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Valdis.Kletnieks@vt.edu
-Cc: tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] dynticks core: Fix idle time accounting
-Message-ID: <20061004075657.GA31485@elte.hu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de> <200610021302.k92D23W1003320@turing-police.cc.vt.edu> <1159796582.1386.9.camel@localhost.localdomain> <200610021825.k92IPSnd008215@turing-police.cc.vt.edu> <1159814606.1386.52.camel@localhost.localdomain> <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu> <1159824158.1386.77.camel@localhost.localdomain> <200610022135.k92LZHCn008618@turing-police.cc.vt.edu> <1159905750.1386.215.camel@localhost.localdomain> <200610040233.k942Xk1v004859@turing-police.cc.vt.edu>
-Mime-Version: 1.0
+	Wed, 4 Oct 2006 04:06:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60041 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161173AbWJDIGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 04:06:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<20061004042850.GA27149@in.ibm.com> <45233B58.1050208@zytor.com>
+Date: Wed, 04 Oct 2006 02:04:49 -0600
+In-Reply-To: <45233B58.1050208@zytor.com> (H. Peter Anvin's message of "Tue,
+	03 Oct 2006 21:40:56 -0700")
+Message-ID: <m1sli4cxr2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610040233.k942Xk1v004859@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4926]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> Vivek Goyal wrote:
+>> Hi Andrew,
+>> Right now I don't have access to my test machine.  Tomorrow morning,
+>> very first thing I am going to try it out with your config file.
+>> This patch just adds and ELF header to bzImage which is not even used
+>> by grub.
+>>
+>
+> Oh yes, it will be.  See below.
+>
+>> So without this patch you are able to boot the kernel on your laptop?
+>
+> Danger, Will Robinson.  GRUB, Etherboot, and a whole bunch of other boot loaders
+> will recognize an ELF binary and load it as such.  They will typically load it
+> as an executable (not a relocatable object) -- I doubt many of them check that
+> appropriate part of the ELF header -- so unless your kernel can be safely loaded
+> *AND RUN* in that mode this is not going to work.
 
-> Even though I have CONFIG_HZ=1000, this ends up generating a synthetic 
-> count that works out to 100 per second.  gkrellm and vmstat are happy 
-> with that state of affairs, but I'm not sure why it came out to 
-> 100/sec rather than 1000/sec.
+The bzImage be safely loaded run in that mode.  The only question is one
+of arguments.  Because there are no standards.  For Etherboot we are good.
+For the insanity that is GRUB I haven't the faintest clue but we should
+be ok as we don't have a multiboot header.
 
-that's how it worked for quite some time: all userspace APIs are 
-HZ-independent and depend on USER_HZ (which is 100 even if HZ is 1000).
+> The entrypoint is going to be a major headache, since the standard kernel is
+> entered in real mode, whereas an ELF file will typically be entered in protected
+> mode, quite possibly using the C calling convention to pass the command line as
+> (argc, argv).  God only knows how they're going to deal with an initrd.
+>
+> It may very well be that the ELF magic number has to be obfuscated.
 
-	Ingo
+The entry point that is exported is the kernels protected mode entry point
+that is used after the real mode code has been run.  This is to allow
+bootloaders like kexec where running the real-mode code is insane or
+impossible to be used.  
+
+The calling conventions though are not changed, this is just formalizing
+something that various groups have been doing for years.  Since it is
+all in the bzImage we still only have a single file format to support,
+so any bootloader that can load a standard bzImage and run the kernels
+real mode code should still do it that way but.  If you can't the
+rest of the information is available.
+
+Eric

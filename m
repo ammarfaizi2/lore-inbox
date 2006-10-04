@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030732AbWJDC72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWJDDLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030732AbWJDC72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030733AbWJDC72
+	id S1161067AbWJDDLz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 23:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWJDDLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:59:28 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:64919 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1030732AbWJDC71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:59:27 -0400
-Date: Tue, 3 Oct 2006 20:59:26 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
-       rdunlap@xenotime.net, gregkh@suse.de
-Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #2
-Message-ID: <20061004025925.GA28596@parisc-linux.org>
-References: <20061003220732.GE2785@slug> <4522E0E0.9020404@garzik.org> <20061003222910.GJ2785@slug> <4522E618.2070004@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4522E618.2070004@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 3 Oct 2006 23:11:55 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:17831 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S1161067AbWJDDLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 23:11:54 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Date: Wed, 4 Oct 2006 03:11:40 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <efv8pc$31o$1@taverner.cs.berkeley.edu>
+References: <45150CD7.4010708@aknet.ru> <45229C8E.6080503@redhat.com> <4522A691.7070700@aknet.ru> <4522B7CD.4040206@redhat.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1159931500 3128 128.32.168.222 (4 Oct 2006 03:11:40 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Wed, 4 Oct 2006 03:11:40 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 06:37:12PM -0400, Jeff Garzik wrote:
-> Frederik Deweerdt wrote:
-> >My bad, I've mixed your proposal and Matthew's, isn't this just a
-> >matter of:
-> >s/ARCH_VALIDATE_PCI_IRQ/ARCH_VALIDATE_IRQ/ ?
-> >
-> >I'll look if there's some non-PCI code that might check the irq's value
-> >and thus might benefit from this.
-> 
-> The irq value comes from the PCI subsystem...  The PCI subsystem should 
-> validate it.
+Ulrich Drepper  wrote:
+>noexec mounts the way _you_ want them are completely, utterly useless.
+>nonexec mounts as they are today plus an upcoming mprotect patch give
+>fine grained control.
 
-That's not true.  The value in the pci_dev->irq field has been changed
-by the architecture.  See, for example, pci_read_irq_line() in
-arch/powerpc/kernel/pci_32.c.  It's a Linux IRQ number, not a PCI IRQ
-number.
+Are you familiar with the mmap(PROT_EXEC, MAP_ANONYMOUS) loophole?
+
+Even with the upcoming mprotect patch, it will still be straightforward
+to circumvent the noexec protections.
+
+>You have to use additional mechanism like SELinux
+>to fill in all the holes but that's OK.
+
+Is it even possible to use SELinux to fill in all the holes?  Can you
+point me to the SELinux policy that fills in all the holes (including,
+for instance, addressing mmap(PROT_EXEC, MAP_ANONYMOUS))?

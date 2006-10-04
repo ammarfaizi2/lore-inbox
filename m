@@ -1,113 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWJDTpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWJDTp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWJDTpU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 15:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWJDTpT
+	id S1750945AbWJDTp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 15:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWJDTp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 15:45:19 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:63277 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750945AbWJDTpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 15:45:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=G/1tTsSyY4sZjttr0zazGQ2WuDVDrLBlcnnr/ZK63ayJsSDlz0iKooN6MtY0uy/kGgw9KjJInevVOCnh+dHQ0Pq8M/HTKLXmE6fcjgu3PWCvsNicIFyLjt9102eOfSVvuS8i7mx4rcmM+1R4pJfJO1+B77x/Vkqgh3bhE06xT1E=
-Date: Wed, 4 Oct 2006 19:44:55 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
-       jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
-Subject: [RFC PATCH] move aic79xx to pci_request_irq
-Message-ID: <20061004194455.GC352@slug>
-References: <20061004193229.GA352@slug>
-MIME-Version: 1.0
+	Wed, 4 Oct 2006 15:45:27 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:57068 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750945AbWJDTpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 15:45:25 -0400
+Date: Wed, 4 Oct 2006 15:44:41 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Reloc Kernel List <fastboot@lists.osdl.org>,
+       ebiederm@xmission.com, akpm@osdl.org, ak@suse.de, horms@verge.net.au,
+       lace@jankratochvil.net, hpa@zytor.com, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 4/12] i386: define __pa_symbol()
+Message-ID: <20061004194441.GF16218@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061003170032.GA30036@in.ibm.com> <20061003171055.GD3164@in.ibm.com> <45237044.8090805@innova-card.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061004193229.GA352@slug>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <45237044.8090805@innova-card.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 04, 2006 at 10:26:44AM +0200, Franck Bui-Huu wrote:
+> hi,
+> 
+> Sorry for the late feedback...
+> 
+> Vivek Goyal wrote:
+> > 
+> > On x86_64 we have to be careful with calculating the physical
+> > address of kernel symbols.  Both because of compiler odditities
+> > and because the symbols live in a different range of the virtual
+> > address space.
+> > 
+> 
+> [snip]
+> 
+> > +#define __pa_symbol(x)          \
+> > +	({unsigned long v;  \
+> > +	  asm("" : "=r" (v) : "0" (x)); \
+> > +	  __pa(v); })
+> 
+> Why not simply reusing RELOC_HIDE  like this ?
+> 
+> 	#define __pa_symbol(x)	__pa(RELOC_HIDE(x,0))
+>
 
-This proof-of-concept patch converts the aic79xx driver to use the
-pci_request_irq() function.
+Thanks. Above did not work and compiler gave following warning message upon
+using __pa_symbol(_text)
 
-Please note that I'm not submitting the driver changes, they're there
-only for illustration purposes. I'll CC the appropriate maintainers
-when/if an API is agreed upon.
+error: cast specified array type
 
-Regards,
-Frederik
+Then I specifically typecasted x to unsigned long and it seems to be
+fine. 
 
+Regenerated patch is attached.
 
-
-diff --git a/drivers/scsi/aic7xxx/aic79xx_osm.h b/drivers/scsi/aic7xxx/aic79xx_osm.h
-index 448c39c..67897d4 100644
- drivers/scsi/aic7xxx/aic79xx_osm.h     |    1 -
- drivers/scsi/aic7xxx/aic79xx_osm_pci.c |   13 -------------
- drivers/scsi/aic7xxx/aic79xx_pci.c     |   12 ++++++++++--
- 3 files changed, 10 insertions(+), 16 deletions(-)
-
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm.h
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_osm.h
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm.h
-@@ -594,7 +594,6 @@ void ahd_power_state_change(struct ahd_s
- int			 ahd_linux_pci_init(void);
- void			 ahd_linux_pci_exit(void);
- int			 ahd_pci_map_registers(struct ahd_softc *ahd);
--int			 ahd_pci_map_int(struct ahd_softc *ahd);
  
- static __inline uint32_t ahd_pci_read_config(ahd_dev_softc_t pci,
- 					     int reg, int width);
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-@@ -336,19 +336,6 @@ ahd_pci_map_registers(struct ahd_softc *
- 	return (error);
- }
- 
--int
--ahd_pci_map_int(struct ahd_softc *ahd)
--{
--	int error;
--
--	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
--			    IRQF_SHARED, "aic79xx", ahd);
--	if (!error)
--		ahd->platform_data->irq = ahd->dev_softc->irq;
--	
--	return (-error);
--}
--
- void
- ahd_power_state_change(struct ahd_softc *ahd, ahd_power_state new_state)
- {
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_pci.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_pci.c
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_pci.c
-@@ -376,10 +376,18 @@ ahd_pci_config(struct ahd_softc *ahd, st
- 
- 	/*
- 	 * Allow interrupts now that we are completely setup.
-+	 *
-+	 * Note: pci_request_irq return value is negated due to aic79xx
-+	 * error handling style
- 	 */
--	error = ahd_pci_map_int(ahd);
--	if (!error)
-+
-+	error = -pci_request_irq(ahd->dev_softc, ahd_linux_isr,
-+				 0, "aic79xx");
-+	if (!error) {
-+		ahd->platform_data->irq = ahd->dev_softc->irq;
- 		ahd->init_level++;
-+	}
-+
- 	return error;
- }
+
+
+On x86_64 we have to be careful with calculating the physical
+address of kernel symbols.  Both because of compiler odditities
+and because the symbols live in a different range of the virtual
+address space.
+
+Having a defintition of __pa_symbol that works on both x86_64 and
+i386 simplifies writing code that works for both x86_64 and
+i386 that has these kinds of dependencies.
+
+So this patch adds the trivial i386 __pa_symbol definition.
+
+Added assembly magic similar to RELOC_HIDE as suggested by Andi Kleen.
+Just picked it up from x86_64.
+
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ include/asm-i386/page.h |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff -puN include/asm-i386/page.h~i386-define-__pa_symbol include/asm-i386/page.h
+--- linux-2.6.18-git17/include/asm-i386/page.h~i386-define-__pa_symbol	2006-10-02 14:39:18.000000000 -0400
++++ linux-2.6.18-git17-root/include/asm-i386/page.h	2006-10-04 14:48:54.000000000 -0400
+@@ -124,6 +124,9 @@ extern int page_is_ram(unsigned long pag
+ #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+ #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+ #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
++/* __pa_symbol should be used for C visible symbols.
++   This seems to be the official gcc blessed way to do such arithmetic. */
++#define __pa_symbol(x)          __pa(RELOC_HIDE((unsigned long)x,0))
+ #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+ #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+ #ifdef CONFIG_FLATMEM
+_
  

@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWJDPsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWJDPwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161247AbWJDPsF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 11:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbWJDPsF
+	id S1161254AbWJDPwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 11:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161259AbWJDPwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 11:48:05 -0400
-Received: from systemlinux.org ([83.151.29.59]:39597 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1161247AbWJDPsC (ORCPT
+	Wed, 4 Oct 2006 11:52:17 -0400
+Received: from mga09.intel.com ([134.134.136.24]:10 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1161254AbWJDPwQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 11:48:02 -0400
-Date: Wed, 4 Oct 2006 17:42:27 +0200
-From: Andre Noll <maan@systemlinux.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, andrea@suse.de,
-       riel@redhat.com
-Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
-Message-ID: <20061004154227.GD22487@skl-net.de>
-References: <20061004104018.GB22487@skl-net.de> <4523BE45.5050205@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kvUQC+jR9YzypDnK"
-Content-Disposition: inline
-In-Reply-To: <4523BE45.5050205@yahoo.com.au>
-User-Agent: Mutt/1.5.9i
+	Wed, 4 Oct 2006 11:52:16 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,256,1157353200"; 
+   d="scan'208"; a="140351738:sNHT45327415"
+Message-ID: <4082.10.24.212.168.1159977123.squirrel@linux.intel.com>
+In-Reply-To: <20061004080637.0bd19042.pj@sgi.com>
+References: <200610030816.27941.reinette.chatre@linux.intel.com>
+    <20061003163936.d8e26629.akpm@osdl.org>
+    <20061004141405.GA22833@tsunami.ccur.com>
+    <20061004072746.8e4b97a0.pj@sgi.com>
+    <20061004145524.GA24335@tsunami.ccur.com>
+    <20061004080637.0bd19042.pj@sgi.com>
+Date: Wed, 4 Oct 2006 08:52:03 -0700 (PDT)
+Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of 
+     a user buffer
+From: inaky@linux.intel.com
+To: "Paul Jackson" <pj@sgi.com>
+Cc: "Joe Korty" <joe.korty@ccur.com>, akpm@osdl.org,
+       reinette.chatre@linux.intel.com, linux-kernel@vger.kernel.org,
+       inaky@linux.intel.com
+User-Agent: SquirrelMail/1.4.6-7.el4.centos4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Joe wrote:
+>> I guess I am a sucker for no-transient-buffer (bufferless?)
+>
+> Ah - that explains Joe's preference for putting the actual implementing
+> code in the user version - it gets to pull in the user string one
+> char at a time, avoiding a malloc'd buffer.
 
---kvUQC+jR9YzypDnK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I tend to gree w/ Joe there.
 
-On 23:59, Nick Piggin wrote:
+I wonder if a hybrid would be ok, although I the pseudo impl
+I propose below is kind of dirty, but some people might find it
+justified enough:
 
-> Ah, this old thing. I hope it is repeatable?
+static
+__bitmap_parse(const void *_buf, size_t size, enum { KERNEL, USER } type,
+               unsigned long *dst, int nbits)
+{
+        const char __user *ubuf = _buf;
+        const char *buf = _buf;
+        ...
+        switch(type) {
+        case USER:
+                if (get_user(c, ubuf++))
+                        return -EFAULT;
+                break;
+        case KERNEL:
+                c = *buf++;
+                break;
+        default:
+                BUG();
+        ...
+}
 
-Well, it happened on both of the new machines we got last week. One
-of these is still up BTW and I'm able to ssh into it.
 
-> What we really want is the bit before this, the "Eeek! page_mapcount went
-> negative" part.
+int bitmap_parse(const char *buf, unsigned int buflen,
+                 unsigned long *maskp, int nmaskbits) {
+    return __bitmap_parse(buf, buflen, KERNEL, maskp, nmaskbits);
+}
 
-There's no such message in the log. The preceeding lines are just normal
-startup messages:
 
-	Adding 16779852k swap on /dev/sda1.  Priority:42 extents:1 across:16779852k
-	Adding 16779852k swap on /dev/sdb1.  Priority:42 extents:1 across:16779852k
-	process `syslogd' is using obsolete setsockopt SO_BSDCOMPAT
+int bitmap_parse_user(const char __user *buf, unsigned int buflen,
+                      unsigned long *maskp, int nmaskbits) {
+    return __bitmap_parse(buf, buflen, USER, maskp, nmaskbits);
+}
 
-> It is also nice if we can work out where the page actually came from. The
-> following attached patch should help out a bit with that, if you could
-> run with it?
 
-Okay. I'll reboot with your patch and let you know if it crashes again.
+[that or exposing __bitmap_user() as a extern / EXPORT and putting
+ bitmap_parse{,_user}() as an inline in the header file]
 
-Thanks for the quick response.
-Andre
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
+It's nitty-gritty, but it removes the kmalloc from the equation...
 
---kvUQC+jR9YzypDnK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFI9ZjWto1QDEAkw8RAoYvAKCNCPsMxYj0zqgOfpVGSrf6k8/qDACeNyBy
-a4j6F6rh6OhdW4AlYBKZ6GE=
-=k5xE
------END PGP SIGNATURE-----
-
---kvUQC+jR9YzypDnK--
+-- 
+Inaky

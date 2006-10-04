@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWJDRok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422679AbWJDRoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422632AbWJDRok (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 13:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422631AbWJDRlu
+	id S1422679AbWJDRoo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 13:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422677AbWJDRon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:41:50 -0400
-Received: from www.osadl.org ([213.239.205.134]:24037 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1161907AbWJDRh6 (ORCPT
+	Wed, 4 Oct 2006 13:44:43 -0400
+Received: from www.osadl.org ([213.239.205.134]:3557 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161239AbWJDRhu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:37:58 -0400
-Message-Id: <20061004172223.123504000@cruncher.tec.linutronix.de>
+	Wed, 4 Oct 2006 13:37:50 -0400
+Message-Id: <20061004172222.210435000@cruncher.tec.linutronix.de>
 References: <20061004172217.092570000@cruncher.tec.linutronix.de>
-Date: Wed, 04 Oct 2006 17:31:41 -0000
+Date: Wed, 04 Oct 2006 17:31:33 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
@@ -20,185 +20,235 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
        David Woodhouse <dwmw2@infradead.org>, Jim Gettys <jg@laptop.org>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 11/22] hrtimers: state tracking
-Content-Disposition: inline; filename=hrtimers-state-tracking.patch
+Subject: [patch 03/22] GTOD: persistent clock support, i386
+Content-Disposition: inline; filename=gtod-persistent-clock-support-i386.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: John Stultz <johnstul@us.ibm.com>
 
-Reintroduce ktimers feature "optimized away" by the ktimers review process:
-multiple hrtimer states to enable the running of hrtimers without holding the
-cpu-base-lock.
-
-(The "optimized" rbtree hack carried only 2 states worth of information and we
-need 4 for high resolution timers and dynamic ticks.)
+Persistent clock support: do proper timekeeping across suspend/resume, i386
+arch support.
 
 Build-fixes-from: Andrew Morton <akpm@osdl.org>
 
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
- include/linux/hrtimer.h |   36 +++++++++++++++++++++++++++++++++++-
- kernel/hrtimer.c        |   21 ++++++++++++++-------
- 2 files changed, 49 insertions(+), 8 deletions(-)
+ arch/i386/kernel/apm.c  |   44 --------------------------------------
+ arch/i386/kernel/time.c |   55 +-----------------------------------------------
+ 2 files changed, 2 insertions(+), 97 deletions(-)
 
-Index: linux-2.6.18-mm3/include/linux/hrtimer.h
+Index: linux-2.6.18-mm3/arch/i386/kernel/apm.c
 ===================================================================
---- linux-2.6.18-mm3.orig/include/linux/hrtimer.h	2006-10-04 18:13:56.000000000 +0200
-+++ linux-2.6.18-mm3/include/linux/hrtimer.h	2006-10-04 18:13:56.000000000 +0200
-@@ -40,6 +40,34 @@ enum hrtimer_restart {
- 	HRTIMER_RESTART,	/* Timer must be restarted */
- };
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/apm.c	2006-10-04 18:13:53.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/apm.c	2006-10-04 18:13:54.000000000 +0200
+@@ -234,7 +234,6 @@
  
-+/*
-+ * Bit values to track state of the timer
-+ *
-+ * Possible states:
-+ *
-+ * 0x00		inactive
-+ * 0x01		enqueued into rbtree
-+ * 0x02		callback function running
-+ * 0x03		callback function running and enqueued
-+ *		(was requeued on another CPU)
-+ *
-+ * The "callback function running and enqueued" status is only possible on
-+ * SMP. It happens for example when a posix timer expired and the callback
-+ * queued a signal. Between dropping the lock which protects the posix timer
-+ * and reacquiring the base lock of the hrtimer, another CPU can deliver the
-+ * signal and rearm the timer. We have to preserve the callback running state,
-+ * as otherwise the timer could be removed before the softirq code finishes the
-+ * the handling of the timer.
-+ *
-+ * The HRTIMER_STATE_ENQUEUE bit is always or'ed to the current state to
-+ * preserve the HRTIMER_STATE_CALLBACK bit in the above scenario.
-+ *
-+ * All state transitions are protected by cpu_base->lock.
-+ */
-+#define HRTIMER_STATE_INACTIVE	0x00
-+#define HRTIMER_STATE_ENQUEUED	0x01
-+#define HRTIMER_STATE_CALLBACK	0x02
-+
- /**
-  * struct hrtimer - the basic hrtimer structure
-  * @node:	red black tree node for time ordered insertion
-@@ -48,6 +76,7 @@ enum hrtimer_restart {
-  *		which the timer is based.
-  * @function:	timer expiry callback function
-  * @base:	pointer to the timer base (per cpu and per clock)
-+ * @state:	state information (See bit values above)
-  *
-  * The hrtimer structure must be initialized by init_hrtimer_#CLOCKTYPE()
-  */
-@@ -56,6 +85,7 @@ struct hrtimer {
- 	ktime_t				expires;
- 	enum hrtimer_restart		(*function)(struct hrtimer *);
- 	struct hrtimer_clock_base	*base;
-+	unsigned long			state;
- };
+ #include "io_ports.h"
  
- /**
-@@ -141,9 +171,13 @@ extern int hrtimer_get_res(const clockid
- extern ktime_t hrtimer_get_next_event(void);
+-extern unsigned long get_cmos_time(void);
+ extern void machine_real_restart(unsigned char *, int);
+ 
+ #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
+@@ -1153,28 +1152,6 @@ out:
+ 	spin_unlock(&user_list_lock);
+ }
+ 
+-static void set_time(void)
+-{
+-	struct timespec ts;
+-	if (got_clock_diff) {	/* Must know time zone in order to set clock */
+-		ts.tv_sec = get_cmos_time() + clock_cmos_diff;
+-		ts.tv_nsec = 0;
+-		do_settimeofday(&ts);
+-	} 
+-}
+-
+-static void get_time_diff(void)
+-{
+-#ifndef CONFIG_APM_RTC_IS_GMT
+-	/*
+-	 * Estimate time zone so that set_time can update the clock
+-	 */
+-	clock_cmos_diff = -get_cmos_time();
+-	clock_cmos_diff += get_seconds();
+-	got_clock_diff = 1;
+-#endif
+-}
+-
+ static void reinit_timer(void)
+ {
+ #ifdef INIT_TIMER_AFTER_SUSPEND
+@@ -1214,19 +1191,6 @@ static int suspend(int vetoable)
+ 	local_irq_disable();
+ 	device_power_down(PMSG_SUSPEND);
+ 
+-	/* serialize with the timer interrupt */
+-	write_seqlock(&xtime_lock);
+-
+-	/* protect against access to timer chip registers */
+-	spin_lock(&i8253_lock);
+-
+-	get_time_diff();
+-	/*
+-	 * Irq spinlock must be dropped around set_system_power_state.
+-	 * We'll undo any timer changes due to interrupts below.
+-	 */
+-	spin_unlock(&i8253_lock);
+-	write_sequnlock(&xtime_lock);
+ 	local_irq_enable();
+ 
+ 	save_processor_state();
+@@ -1235,7 +1199,6 @@ static int suspend(int vetoable)
+ 	restore_processor_state();
+ 
+ 	local_irq_disable();
+-	set_time();
+ 	reinit_timer();
+ 
+ 	if (err == APM_NO_ERROR)
+@@ -1265,11 +1228,6 @@ static void standby(void)
+ 
+ 	local_irq_disable();
+ 	device_power_down(PMSG_SUSPEND);
+-	/* serialize with the timer interrupt */
+-	write_seqlock(&xtime_lock);
+-	/* If needed, notify drivers here */
+-	get_time_diff();
+-	write_sequnlock(&xtime_lock);
+ 	local_irq_enable();
+ 
+ 	err = set_system_power_state(APM_STATE_STANDBY);
+@@ -1363,7 +1321,6 @@ static void check_events(void)
+ 			ignore_bounce = 1;
+ 			if ((event != APM_NORMAL_RESUME)
+ 			    || (ignore_normal_resume == 0)) {
+-				set_time();
+ 				device_resume();
+ 				pm_send_all(PM_RESUME, (void *)0);
+ 				queue_event(event, NULL);
+@@ -1379,7 +1336,6 @@ static void check_events(void)
+ 			break;
+ 
+ 		case APM_UPDATE_TIME:
+-			set_time();
+ 			break;
+ 
+ 		case APM_CRITICAL_SUSPEND:
+Index: linux-2.6.18-mm3/arch/i386/kernel/time.c
+===================================================================
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/time.c	2006-10-04 18:13:53.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/time.c	2006-10-04 18:13:54.000000000 +0200
+@@ -216,7 +216,7 @@ irqreturn_t timer_interrupt(int irq, voi
+ }
+ 
+ /* not static: needed by APM */
+-unsigned long get_cmos_time(void)
++unsigned long read_persistent_clock(void)
+ {
+ 	unsigned long retval;
+ 	unsigned long flags;
+@@ -232,7 +232,7 @@ unsigned long get_cmos_time(void)
+ 
+ 	return retval;
+ }
+-EXPORT_SYMBOL(get_cmos_time);
++EXPORT_SYMBOL(read_persistent_clock);
+ 
+ static void sync_cmos_clock(unsigned long dummy);
+ 
+@@ -283,58 +283,19 @@ void notify_arch_cmos_timer(void)
+ 	mod_timer(&sync_cmos_timer, jiffies + 1);
+ }
+ 
+-static long clock_cmos_diff;
+-static unsigned long sleep_start;
+-
+-static int timer_suspend(struct sys_device *dev, pm_message_t state)
+-{
+-	/*
+-	 * Estimate time zone so that set_time can update the clock
+-	 */
+-	unsigned long ctime =  get_cmos_time();
+-
+-	clock_cmos_diff = -ctime;
+-	clock_cmos_diff += get_seconds();
+-	sleep_start = ctime;
+-	return 0;
+-}
+-
+ static int timer_resume(struct sys_device *dev)
+ {
+-	unsigned long flags;
+-	unsigned long sec;
+-	unsigned long ctime = get_cmos_time();
+-	long sleep_length = (ctime - sleep_start) * HZ;
+-	struct timespec ts;
+-
+-	if (sleep_length < 0) {
+-		printk(KERN_WARNING "CMOS clock skew detected in timer resume!\n");
+-		/* The time after the resume must not be earlier than the time
+-		 * before the suspend or some nasty things will happen
+-		 */
+-		sleep_length = 0;
+-		ctime = sleep_start;
+-	}
+ #ifdef CONFIG_HPET_TIMER
+ 	if (is_hpet_enabled())
+ 		hpet_reenable();
  #endif
- 
-+/*
-+ * A timer is active, when it is enqueued into the rbtree or the callback
-+ * function is running.
-+ */
- static inline int hrtimer_active(const struct hrtimer *timer)
- {
--	return rb_parent(&timer->node) != &timer->node;
-+	return timer->state != HRTIMER_STATE_INACTIVE;
- }
- 
- /* Forward a hrtimer so it expires after now: */
-Index: linux-2.6.18-mm3/kernel/hrtimer.c
-===================================================================
---- linux-2.6.18-mm3.orig/kernel/hrtimer.c	2006-10-04 18:13:56.000000000 +0200
-+++ linux-2.6.18-mm3/kernel/hrtimer.c	2006-10-04 18:13:56.000000000 +0200
-@@ -385,6 +385,11 @@ static void enqueue_hrtimer(struct hrtim
- 	 */
- 	rb_link_node(&timer->node, parent, link);
- 	rb_insert_color(&timer->node, &base->active);
-+	/*
-+	 * HRTIMER_STATE_ENQUEUED is or'ed to the current state to preserve the
-+	 * state of a possibly running callback.
-+	 */
-+	timer->state |= HRTIMER_STATE_ENQUEUED;
- 
- 	if (!base->first || timer->expires.tv64 <
- 	    rb_entry(base->first, struct hrtimer, node)->expires.tv64)
-@@ -397,7 +402,8 @@ static void enqueue_hrtimer(struct hrtim
-  * Caller must hold the base lock.
-  */
- static void __remove_hrtimer(struct hrtimer *timer,
--			     struct hrtimer_clock_base *base)
-+			     struct hrtimer_clock_base *base,
-+			     unsigned long newstate)
- {
- 	/*
- 	 * Remove the timer from the rbtree and replace the
-@@ -406,7 +412,7 @@ static void __remove_hrtimer(struct hrti
- 	if (base->first == &timer->node)
- 		base->first = rb_next(&timer->node);
- 	rb_erase(&timer->node, &base->active);
--	rb_set_parent(&timer->node, &timer->node);
-+	timer->state = newstate;
- }
- 
- /*
-@@ -416,7 +422,7 @@ static inline int
- remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base)
- {
- 	if (hrtimer_active(timer)) {
--		__remove_hrtimer(timer, base);
-+		__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE);
- 		return 1;
- 	}
+ 	setup_pit_timer();
+-
+-	sec = ctime + clock_cmos_diff;
+-	ts.tv_sec = sec;
+-	ts.tv_nsec = 0;
+-	do_settimeofday(&ts);
+-	write_seqlock_irqsave(&xtime_lock, flags);
+-	jiffies_64 += sleep_length;
+-	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	touch_softlockup_watchdog();
  	return 0;
-@@ -488,7 +494,7 @@ int hrtimer_try_to_cancel(struct hrtimer
- 
- 	base = lock_hrtimer_base(timer, &flags);
- 
--	if (base->cpu_base->curr_timer != timer)
-+	if (!(timer->state & HRTIMER_STATE_CALLBACK))
- 		ret = remove_hrtimer(timer, base);
- 
- 	unlock_hrtimer_base(timer, &flags);
-@@ -593,7 +599,6 @@ void hrtimer_init(struct hrtimer *timer,
- 		clock_id = CLOCK_MONOTONIC;
- 
- 	timer->base = &cpu_base->clock_base[clock_id];
--	rb_set_parent(&timer->node, &timer->node);
  }
- EXPORT_SYMBOL_GPL(hrtimer_init);
  
-@@ -644,13 +649,14 @@ static inline void run_hrtimer_queue(str
+ static struct sysdev_class timer_sysclass = {
+ 	.resume = timer_resume,
+-	.suspend = timer_suspend,
+ 	set_kset_name("timer"),
+ };
  
- 		fn = timer->function;
- 		set_curr_timer(cpu_base, timer);
--		__remove_hrtimer(timer, base);
-+		__remove_hrtimer(timer, base, HRTIMER_STATE_CALLBACK);
- 		spin_unlock_irq(&cpu_base->lock);
- 
- 		restart = fn(timer);
- 
- 		spin_lock_irq(&cpu_base->lock);
- 
-+		timer->state &= ~HRTIMER_STATE_CALLBACK;
- 		if (restart != HRTIMER_NORESTART) {
- 			BUG_ON(hrtimer_active(timer));
- 			enqueue_hrtimer(timer, base);
-@@ -821,7 +827,8 @@ static void migrate_hrtimer_list(struct 
- 
- 	while ((node = rb_first(&old_base->active))) {
- 		timer = rb_entry(node, struct hrtimer, node);
--		__remove_hrtimer(timer, old_base);
-+		BUG_ON(timer->state & HRTIMER_STATE_CALLBACK);
-+		__remove_hrtimer(timer, old_base, HRTIMER_STATE_INACTIVE);
- 		timer->base = new_base;
- 		enqueue_hrtimer(timer, new_base);
+@@ -360,12 +321,6 @@ extern void (*late_time_init)(void);
+ /* Duplicate of time_init() below, with hpet_enable part added */
+ static void __init hpet_time_init(void)
+ {
+-	struct timespec ts;
+-	ts.tv_sec = get_cmos_time();
+-	ts.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+-
+-	do_settimeofday(&ts);
+-
+ 	if ((hpet_enable() >= 0) && hpet_use_timer) {
+ 		printk("Using HPET for base-timer\n");
  	}
+@@ -376,7 +331,6 @@ static void __init hpet_time_init(void)
+ 
+ void __init time_init(void)
+ {
+-	struct timespec ts;
+ #ifdef CONFIG_HPET_TIMER
+ 	if (is_hpet_capable()) {
+ 		/*
+@@ -387,10 +341,5 @@ void __init time_init(void)
+ 		return;
+ 	}
+ #endif
+-	ts.tv_sec = get_cmos_time();
+-	ts.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+-
+-	do_settimeofday(&ts);
+-
+ 	time_init_hook();
+ }
 
 --
 

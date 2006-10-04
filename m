@@ -1,119 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161511AbWJDQCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161431AbWJDQDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161511AbWJDQCd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 12:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161515AbWJDQCd
+	id S1161431AbWJDQDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 12:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161531AbWJDQDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 12:02:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51847 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161511AbWJDQCc (ORCPT
+	Wed, 4 Oct 2006 12:03:50 -0400
+Received: from av1.karneval.cz ([81.27.192.123]:24624 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161431AbWJDQDt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 12:02:32 -0400
-Date: Wed, 4 Oct 2006 09:02:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] clockevents: drivers for i386, fix #2
-Message-Id: <20061004090205.9c29f5bf.akpm@osdl.org>
-In-Reply-To: <1159960776.1386.244.camel@localhost.localdomain>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	<20061002210053.16e5d23c.akpm@osdl.org>
-	<20061003084729.GA24961@elte.hu>
-	<20061003103503.GA6350@elte.hu>
-	<20061003203620.d85df9c6.akpm@osdl.org>
-	<20061004064620.GA22364@elte.hu>
-	<20061004003228.98ec3b39.akpm@osdl.org>
-	<20061004075540.GA31415@elte.hu>
-	<20061004011544.d49308de.akpm@osdl.org>
-	<20061004105315.GA24940@elte.hu>
-	<1159960776.1386.244.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 12:03:49 -0400
+Message-ID: <4523DB59.7020600@gmail.com>
+Date: Wed, 04 Oct 2006 18:03:37 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       support@moxa.com.tw
+Subject: Re: [PATCH 3/4] Char: mxser_new, pci_request_region for pci regions
+References: <83721356982173@wsc.cz> <200610041545.22173.eike-kernel@sf-tec.de>
+In-Reply-To: <200610041545.22173.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Oct 2006 13:19:35 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
-
-> On Wed, 2006-10-04 at 12:53 +0200, Ingo Molnar wrote:
-> > there's one material difference we just found: in the !hres case we'll 
-> > do the timer IRQ handling mostly from the lapic vector - while in 
-> > mainline we do it from the irq0 vector. So, how does your 
-> > /proc/interrupts look like? How frequently does LOC increase, and how 
-> > frequently does IRQ 0 increase?
-
-sony:/home/akpm> cat /proc/interrupts ; sleep 1 ; cat /proc/interrupts
-           CPU0       
-  0:      39256   IO-APIC-edge      timer
-  1:          8   IO-APIC-edge      i8042
-  8:          1   IO-APIC-edge      rtc
-  9:        160   IO-APIC-fasteoi   acpi
- 11:          3   IO-APIC-edge      sonypi
- 12:        107   IO-APIC-edge      i8042
- 14:          5   IO-APIC-edge      libata
- 15:          0   IO-APIC-edge      libata
- 16:          1   IO-APIC-fasteoi   yenta, uhci_hcd:usb4
- 17:        246   IO-APIC-fasteoi   ohci1394, eth0
- 18:       5759   IO-APIC-fasteoi   libata
- 19:          3   IO-APIC-fasteoi   ipw2200
- 20:        710   IO-APIC-fasteoi   HDA Intel, uhci_hcd:usb3
- 21:          2   IO-APIC-fasteoi   ehci_hcd:usb1
- 22:          0   IO-APIC-fasteoi   uhci_hcd:usb2, uhci_hcd:usb5
-NMI:          0 
-LOC:       3131 
-ERR:          0
-MIS:          0
-           CPU0       
-  0:      39519   IO-APIC-edge      timer
-  1:          8   IO-APIC-edge      i8042
-  8:          1   IO-APIC-edge      rtc
-  9:        160   IO-APIC-fasteoi   acpi
- 11:          3   IO-APIC-edge      sonypi
- 12:        107   IO-APIC-edge      i8042
- 14:          5   IO-APIC-edge      libata
- 15:          0   IO-APIC-edge      libata
- 16:          1   IO-APIC-fasteoi   yenta, uhci_hcd:usb4
- 17:        248   IO-APIC-fasteoi   ohci1394, eth0
- 18:       5759   IO-APIC-fasteoi   libata
- 19:          3   IO-APIC-fasteoi   ipw2200
- 20:        715   IO-APIC-fasteoi   HDA Intel, uhci_hcd:usb3
- 21:          2   IO-APIC-fasteoi   ehci_hcd:usb1
- 22:          0   IO-APIC-fasteoi   uhci_hcd:usb2, uhci_hcd:usb5
-NMI:          0 
-LOC:       3134 
-ERR:          0
-MIS:          0
-
-> > (meanwhile we'll fix and restore things so that it matches mainline 
-> > behavior.)
+Rolf Eike Beer wrote:
+> Jiri Slaby wrote:
+>> mxser_new, pci_request_region for pci regions
+>>
+>> Use pci_request_region instead of standard request_region for pci device
+>> regions. More checking, simplier use.
+>>
+>> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+>>
+>> ---
+>> commit 1a717bdb06cef859dfbd426f46ea24a9c740e5c5
+>> tree 85460f01008e9fa2edea675a73b394c48139df4a
+>> parent d4f99406c592fb7ce2a65645d7c1f98ebe599238
+>> author Jiri Slaby <jirislaby@gmail.com> Sat, 30 Sep 2006 01:20:12 +0200
+>> committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 30 Sep 2006 01:20:12
+>> +0200
+>>
+>>  drivers/char/mxser_new.c |   10 ++++------
+>>  1 files changed, 4 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+>> index dfef9ce..c566cd0 100644
+>> --- a/drivers/char/mxser_new.c
+>> +++ b/drivers/char/mxser_new.c
+>> @@ -526,8 +526,8 @@ static void __exit mxser_module_exit(voi
+>>  			pdev = mxser_boards[i].pdev;
+>>  			free_irq(mxser_boards[i].irq, &mxser_boards[i]);
+>>  			if (pdev != NULL) {	/* PCI */
+>> -				release_region(pci_resource_start(pdev, 2), pci_resource_len(pdev,
+>> 2)); -				release_region(pci_resource_start(pdev, 3),
+>> pci_resource_len(pdev, 3)); +				pci_release_region(pdev, 2);
+>> +				pci_release_region(pdev, 3);
+>>  				pci_dev_put(pdev);
+>>  			} else {
+>>  				release_region(mxser_boards[i].ports[0].ioaddr, 8 *
+>> mxser_boards[i].nports);
+>> @@ -627,16 +627,14 @@ static int __init 
+>> mxser_get_PCI_conf(int
+>>  	brd->board_type = board_type;
+>>  	brd->nports = mxser_numports[board_type - 1];
+>>  	ioaddress = pci_resource_start(pdev, 2);
+>> -	request_region(pci_resource_start(pdev, 2), pci_resource_len(pdev, 2),
+>> -			"mxser(IO)");
+>> +	pci_request_region(pdev, 2, "mxser(IO)");
+>>
+>>  	for (i = 0; i < brd->nports; i++)
+>>  		brd->ports[i].ioaddr = ioaddress + 8 * i;
+>>
+>>  	/* vector */
+>>  	ioaddress = pci_resource_start(pdev, 3);
+>> -	request_region(pci_resource_start(pdev, 3), pci_resource_len(pdev, 3),
+>> -			"mxser(vector)");
+>> +	pci_request_region(pdev, 3, "mxser(vector)");
+>>  	brd->vector = ioaddress;
+>>
+>>  	/* irq */
 > 
-> Andrew, does the patch below fix your problem ?
-> 
-> You should see the same weird behaviour when you run a plain -mm3 with
-> CONFIG_SMP=y on that box. This moves update_process_times() to the lapic
-> too.
-> 	tglx
-> 
-> 
-> Index: linux-2.6.18-mm3/arch/i386/kernel/apic.c
-> ===================================================================
-> --- linux-2.6.18-mm3.orig/arch/i386/kernel/apic.c	2006-10-04 13:02:35.000000000 +0200
-> +++ linux-2.6.18-mm3/arch/i386/kernel/apic.c	2006-10-04 12:59:06.000000000 +0200
-> @@ -84,7 +84,9 @@ static void lapic_timer_setup(enum clock
->  static struct clock_event_device lapic_clockevent = {
->  	.name = "lapic",
->  	.capabilities = CLOCK_CAP_NEXTEVT | CLOCK_CAP_PROFILE
-> +#ifdef CONFIG_SMP
->  			| CLOCK_CAP_UPDATE,
-> +#endif
->  	.shift = 32,
->  	.set_mode = lapic_timer_setup,
->  	.set_next_event = lapic_next_event,
+> Correct me if I'm wrong, but that use of ioaddress looks totally wrong to me. 
+> Isn't there a pci_iomap() or something missing?
 
-that (after a tweak to make it compile) fixes it.   What's it do?
+Both brd->vector and brd->ports[i].ioaddr are used in inb and outb function 
+calls. They themselves remap a small range (one byte in these cases) and require 
+ulong addresses as a parameter, not pointer to virtual space, correct?
 
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWJDDfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWJDDfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWJDDfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 23:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750698AbWJDDfQ
+	id S1750900AbWJDDfO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 23:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750698AbWJDDfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 23:35:16 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:44261 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751026AbWJDDdg (ORCPT
+	Tue, 3 Oct 2006 23:35:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38354 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161069AbWJDDdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 23:33:36 -0400
-Date: Tue, 3 Oct 2006 20:26:43 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Matthias Hentges <oe@hentges.net>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: Re: sky2 (was Re: 2.6.18-mm2)
-Message-ID: <20061003202643.0e0ceab2@localhost.localdomain>
-In-Reply-To: <1159930628.16765.9.camel@mhcln03>
-References: <20060928155053.7d8567ae.akpm@osdl.org>
-	<451C5599.80402@garzik.org>
-	<20060928161956.5262e5d3@freekitty>
-	<1159930628.16765.9.camel@mhcln03>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Tue, 3 Oct 2006 23:33:37 -0400
+Date: Tue, 3 Oct 2006 20:32:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andrew.j.wade@gmail.com
+Cc: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061003203244.9edd94b9.akpm@osdl.org>
+In-Reply-To: <200610032324.29454.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	<1159920569.8035.71.camel@localhost.localdomain>
+	<20061003181452.778291fb.akpm@osdl.org>
+	<200610032324.29454.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Oct 2006 04:57:08 +0200
-Matthias Hentges <oe@hentges.net> wrote:
+On Tue, 3 Oct 2006 23:24:27 -0400
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-> Hello Stephen,
+> On Tuesday 03 October 2006 21:14, Andrew Morton wrote:
+> > There are changes here: in the old code we'll avoid reading the static
+> > variable.  In the new code we'll read the static variable, but we'll avoid
+> > evaluating the condition.
 > 
-> Am Donnerstag, den 28.09.2006, 16:19 -0700 schrieb Stephen Hemminger:
+> Tim Chen's patch goes back to the old behaviour. I suspect the cache
+> misses on __warn_once is what he is measuring. If so, the (untested)
+> patch below should reduce the cache misses back to those of the old
+> code.
 > 
-> > Here is the debug patch I sent to the first reporter of the problem.
-> > I know what the offset is supposed to be, so if the PCI subsystem is
-> > wrong, this will show. 
-> > 
-> > --- sky2.orig/drivers/net/sky2.c	2006-09-28 08:45:27.000000000 -0700
-> > +++ sky2/drivers/net/sky2.c	2006-09-28 08:51:24.000000000 -0700
-> > @@ -2463,6 +2463,7 @@
-> >  
-> >  	sky2_write8(hw, B0_CTST, CS_MRST_CLR);
-> >  
-> > +#define PEX_UNC_ERR_STAT 0x104		/* PCI extended error capablity */
-> >  	/* clear any PEX errors */
-> >  	if (pci_find_capability(hw->pdev, PCI_CAP_ID_EXP)) {
-> >  		hw->err_cap = pci_find_ext_capability(hw->pdev, PCI_EXT_CAP_ID_ERR);
-> > @@ -2470,6 +2471,15 @@
-> >  			sky2_pci_write32(hw,
-> >  					 hw->err_cap + PCI_ERR_UNCOR_STATUS,
-> >  					 0xffffffffUL);
-> > +		else
-> > +			printk(KERN_ERR PFX "pci express found but not extended error support?\n");
-> > +		
-> > +		if (hw->err_cap + PCI_ERR_UNCOR_STATUS != PEX_UNC_ERR_STAT) {
-> > +			
-> > +			printk(KERN_ERR PFX "pci express error status register fixed from %#x to %#x\n",
-> > +			       hw->err_cap, PEX_UNC_ERR_STAT - PCI_ERR_UNCOR_STATUS);
-> > +			hw->err_cap = PEX_UNC_ERR_STAT - PCI_ERR_UNCOR_STATUS;
-> > +		}
-> >  	}
-> >  
-> >  	hw->pmd_type = sky2_read8(hw, B2_PMD_TYP);
-> 
-> while the above patch indeed removes the error messages from my previous
-> mail, I have since seen random but reproduceable  freezes of the box in
-> question. I believe they are sky2 related since the freeze can be
-> triggered by continuous network traffic (like playing a movie over NFS
-> etc.).
+> signed-off-by: Andrew Wade <andrew.j.wade@gmail.com>
+> diff -rupN a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+> --- a/include/asm-generic/bug.h	2006-10-03 13:58:40.000000000 -0400
+> +++ b/include/asm-generic/bug.h	2006-10-03 23:17:37.000000000 -0400
+> @@ -45,9 +45,10 @@
+>  	static int __warn_once = 1;			\
+>  	typeof(condition) __ret_warn_once = (condition);\
+>  							\
+> -	if (likely(__warn_once))			\
+> -		if (WARN_ON(__ret_warn_once)) 		\
+> +	if (unlikely(__ret_warn_once) && __warn_once) {	\
+>  			__warn_once = 0;		\
+> +			WARN_ON(1);			\
+> +	};						\
+>  	unlikely(__ret_warn_once);			\
+>  })
 
-When it fixes what does the log say. I'm probably going to back out
-the PCI express extended error using the pci_XXX functions.
+It might help, but we still don't know what's going on (I think).
 
-> The freezes only happen with 2.6.18-mm2 and 2.6.18-mm3. 2.6.18-mm1 works
-> perfectly fine.
-> I've hooked up the box to my laptop via a serial cable and captured all
-> kernel messages from booting up the machine to the freeze. You'll note
-> that the last messages are from the sky2 driver ;)
-> 
-
-Does it still happen with linus git tree. If so, a git bisect might
-help. It might not be sky2 related at all, there has been lots of changes.
-
-> Once frozen the network is dead, the screen won't wake up from suspend
-> and CAPSLOCK can not be toggled. SYSRQ (sp?) still works tho.
-> 
-> Any help in debugging this problem would be appreciated =)
-
-The TX timeout is a symptom of a common bug still not fixed where
-the transmitter stops. I'm working on reproducing it on my hardware and switches,
-because without a reproducible test, its just shooting in the dark and
-that isn't working.
-
+I mean, if cache misses against __warn_once were sufficiently high for it
+to affect performance, then __warn_once would be, err, in cache?

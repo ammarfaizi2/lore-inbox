@@ -1,48 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbWJDA6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWJDBAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbWJDA6a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 20:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbWJDA6a
+	id S1161027AbWJDBAl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 21:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbWJDBAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 20:58:30 -0400
-Received: from mga07.intel.com ([143.182.124.22]:47886 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1161052AbWJDA63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 20:58:29 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,252,1157353200"; 
-   d="scan'208"; a="126538335:sNHT71994377"
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-       leonid.i.ananiev@intel.com
-In-Reply-To: <20061003170705.6a75f4dd.akpm@osdl.org>
-References: <1159916644.8035.35.camel@localhost.localdomain>
-	 <20061003170705.6a75f4dd.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 03 Oct 2006 17:09:29 -0700
-Message-Id: <1159920569.8035.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+	Tue, 3 Oct 2006 21:00:40 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:45513 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161027AbWJDBAj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 21:00:39 -0400
+Message-ID: <452307B4.3050006@in.ibm.com>
+Date: Tue, 03 Oct 2006 18:00:36 -0700
+From: Suzuki Kp <suzuki@in.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060413 Red Hat/1.7.13-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [RFC] PATCH to fix rescan_partitions to return errors properly
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 17:07 -0700, Andrew Morton wrote:
+[resending]
 
-> 
-> Perhaps the `static int __warn_once' is getting put in the same cacheline
-> as some frequently-modified thing.   Perhaps try marking that as __read_mostly?
-> 
+Hi,
 
-I've tried marking static int __warn_once as __read_mostly.  However, it
-did not help with reducing the cache miss :(
+Currently the rescan_partition returns 0 (success), even if it is unable
+to rescan the partition information ( may be due to disks offline, I/O
+error reading the table or unknown partition ). This would make ioctl()
+calls succeed for BLKRRPART requests even if partitions were not scanned
+properly, which is not a good thing to do.
 
-So I would suggest reversing the "Let WARN_ON/WARN_ON_ONCE return the
-condition" patch.  It has just been added 3 days ago so reversing it
-should not be a problem.
+Attached here is patch to fix the issue. The patch makes
+rescan_partition to return -EINVAL for unknown partitions and -EIO for
+disk I/O errors ( or when disks are offline ).
 
-Tim
+Comments ?
+
+Thanks,
+
+Suzuki K P <suzuki@in.ibm.com>
+Linux Technology Centre,
+IBM Systems & Technology Labs.
+
+
+
+
+* Fix recscan_partitions to return error when the partition is unknown
+or there is an I/O error reading the partition information.
+
+
+Signed Off by : Suzuki K P <suzuki@in.ibm.com>
+
+Index: linux-2.6.18/fs/partitions/check.c
+===================================================================
+--- linux-2.6.18.orig/fs/partitions/check.c     2006-09-26
+04:41:55.000000000 +0530
++++ linux-2.6.18/fs/partitions/check.c  2006-09-26 05:09:29.000000000 +0530
+@@ -177,7 +177,7 @@
+         else if (warn_no_part)
+                 printk(" unable to read partition table\n");
+         kfree(state);
+-       return NULL;
++       return ERR_PTR(res);
+  }
+
+  /*
+@@ -458,8 +458,13 @@
+                 delete_partition(disk, p);
+         if (disk->fops->revalidate_disk)
+                 disk->fops->revalidate_disk(disk);
+-       if (!get_capacity(disk) || !(state = check_partition(disk, bdev)))
+-               return 0;
++       if (!get_capacity(disk))
++               return -EINVAL;
++       state = check_partition(disk, bdev);
++       if (!state)
++               return -EINVAL;
++       if (IS_ERR(state))
++               return -EIO;
+         for (p = 1; p < state->limit; p++) {
+                 sector_t size = state->parts[p].size;
+                 sector_t from = state->parts[p].from;
+
+
+

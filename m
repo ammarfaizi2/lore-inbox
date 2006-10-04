@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWJDGyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWJDHEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWJDGyS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 02:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWJDGyS
+	id S932395AbWJDHEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWJDHEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 02:54:18 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:30136 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932184AbWJDGyR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 02:54:17 -0400
-Date: Wed, 4 Oct 2006 08:46:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch] clockevents: drivers for i386, fix #2
-Message-ID: <20061004064620.GA22364@elte.hu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de> <20061002210053.16e5d23c.akpm@osdl.org> <20061003084729.GA24961@elte.hu> <20061003103503.GA6350@elte.hu> <20061003203620.d85df9c6.akpm@osdl.org>
+	Wed, 4 Oct 2006 03:04:46 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:63433
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932395AbWJDHEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 03:04:45 -0400
+Message-Id: <45237973.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Wed, 04 Oct 2006 08:05:55 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Andi Kleen" <ak@suse.de>
+Cc: <tilman@imap.cc>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+References: <4516B966.3010909@imap.cc>
+ <20060924145337.ae152efd.akpm@osdl.org> <451BFFA9.4030000@imap.cc>
+ <200609281912.01858.ak@suse.de> <451C58AC.5060601@imap.cc>
+ <20060928163046.055b3ce0.rdunlap@xenotime.net>
+ <20060928163046.055b3ce0.rdunlap@xenotime.net> <451C65A0.1080002@imap.cc>
+ <451CE2F0.76E4.0078.0@novell.com> <p73lko2ircn.fsf@verdi.suse.de>
+ <20060929183959.GA13991@elte.hu>
+In-Reply-To: <20060929183959.GA13991@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061003203620.d85df9c6.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> Ingo Molnar <mingo@elte.hu> 29.09.06 20:39 >>>
+>
+>* Andi Kleen <ak@suse.de> wrote:
+>
+>> "Jan Beulich" <jbeulich@novell.com> writes:
+>> 
+>> > There's nothing stack trace/unwind related among the functions listed at all afaics.
+>> > I don't know much about how profiling works, is it perhaps just missing something?
+>> 
+>> Perhaps lockdep calls them with interrupts off? The old profiler 
+>> doesn't support profiling with interrupts off. oprofile does, but it 
+>> cannot be used at early boot.
+>
+>Yes, lockdep does everything that changes the dependency graph(s) with 
+>irqs off. Jan, i bounced you the mail with the function traces included, 
+>that should show you the overhead points.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Okay, makes sense then. I'll get to addressing the (already identified) cause
+as soon as I can.
 
-> Disabling LOCAL_APIC does fix it.
-
-thanks, that narrows it down quite a bit. (We've double-checked the 
-lapic path and it seemed all our changes are NOP, but obviously it isnt 
-and we'll check it all again.)
-
-(if you have that kernel still booted by any chance then do you see the 
-'LOC' IRQ count in /proc/interrupts or any other count in /proc/stats 
-increasing at an alarming rate? That would narrow it down to lapic timer 
-misprogramming.)
-
-	Ingo
+Jan

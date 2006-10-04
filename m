@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWJDUtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWJDUu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWJDUtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWJDUtR
+	id S1751109AbWJDUu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWJDUu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:49:17 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44930 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751099AbWJDUtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:49:16 -0400
-Date: Wed, 4 Oct 2006 16:48:29 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-Message-ID: <20061004204829.GB3629@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061003170032.GA30036@in.ibm.com> <20061003172511.GL3164@in.ibm.com> <20061003201340.afa7bfce.akpm@osdl.org> <20061004042850.GA27149@in.ibm.com> <45233B58.1050208@zytor.com> <20061004202244.GA3629@in.ibm.com> <45241945.2020105@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Oct 2006 16:50:28 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:45195 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751109AbWJDUu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 16:50:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=i/1GczeGaW/QgZTKw7pRaOLH6frb636aiwYNFSLtnX2WggjCxXI+v555GtshN+i5ZAABpbWPdfav/mAvLckB/vTC7FRZcJ3WNm9Bm8JHKoNth9AzZZNA7NIINvXyykMdvepwBnJ4N3q+ln/EaY7638odDR+Qa5FERObgEFyx3tQ=
+Message-ID: <5a4c581d0610041350m40fbf75dj724ef5d9e0d12025@mail.gmail.com>
+Date: Wed, 4 Oct 2006 22:50:26 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: removed sysctl system call - documentation and timeline
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45241945.2020105@zytor.com>
-User-Agent: Mutt/1.5.11
+References: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 01:27:49PM -0700, H. Peter Anvin wrote:
-> Vivek Goyal wrote:
-> >
-> >Eric/Peter,
-> >
-> >How about just extending bzImage format to include some info in real mode
-> >kernel header. Say protocol version 2.05. I think if we just include two
-> >more fields, is kernel relocatable and equivalent of ELF memsz, then 
-> >probably
-> >this information should be enough for kexec bzImage loader to load and run
-> >a relocatable kernel from a different address.
-> >
-> 
-> What would be the exact semantics of the "equivalent of ELF memsz"?  I 
-> have balked on that one in the past, because the proposed semantics were 
-> unsafe.
-> 
+On 10/4/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Hi,
+>
+> With recent kernels I'm getting a lot of warnings about programs using
+> the removed sysctl syscal.
+>
+> Examples (after 5 min of uptime here) :
+> root@dragon:/home/juhl# dmesg | grep "used the removed sysctl system
+> call" | sort | uniq
+> warning: process `dd' used the removed sysctl system call
+> warning: process `ls' used the removed sysctl system call
+> warning: process `touch' used the removed sysctl system call
+>
+> and more can be found...
+>
+>
+> I'm not, as such, opposed to removing sysctl (and yes, I know what it
+> is and what it does). What I am a little opposed to is that it is
+> being removed on such short notice (unless I missed the memo) and that
+> it is hidden inside EMBEDDED.
+>
+> I would like to propose that, at least for 2.6.19, it be default on
+> (as it is now), not hide it in EMBEDDED where people usually don't go,
+> some huge deprecation warnings be added, and that it then gets the
+> usual 6-12months before being removed (did it already get that and I'm
+> just slow?)...  ohhh, and correct the help text; it currently says
+> "...Nothing has been using the binary sysctl interface for some time
+> now so nothing should break if you disable sysctl syscall support" -
+> that's obviously false as demonstrated by the above extract from my
+> dmesg...
 
-memsz will contain the memory required to load the kernel image. And
-probably should also include the memory used by kernel in initial boot
-up code which is unaccounted and unbounded.
+Another data point then... this is FC5-uptodate:
 
-> I suspect we need at least one more piece of data, which is the required 
-> alignment of a relocated kernel.
+[asuardi@sandman incoming]$ dmesg | grep -i sysctl
+warning: process `date' used the removed sysctl system call
+warning: process `touch' used the removed sysctl system call
+warning: process `salsa' used the removed sysctl system call
 
-Now with the introduction of config option CONFIG_PHYSICAL_ALIGN, it
-should be easy to get.
+--alessandro
 
->  Either which way, it seems clear that 
-> there is some re-engineering that needs to be done, and I think we need 
-> to better understand *why* the proposed patch failed.
-> 
-> Can this failure be reproduced in a simulator?
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
 
-I will try to reproduce in a simulator. May be qemu? Any suggestions?
-
-Thanks
-Vivek
+     (Husker Du, 'She Floated Away')

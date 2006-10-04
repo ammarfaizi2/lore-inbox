@@ -1,175 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWJDHqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWJDHsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbWJDHqU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJDHqU
+	id S1161126AbWJDHsy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJDHsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:46:20 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:49822 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1030641AbWJDHqT (ORCPT
+	Wed, 4 Oct 2006 03:48:54 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:62617 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030532AbWJDHsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:46:19 -0400
-Date: Wed, 4 Oct 2006 16:45:36 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       rmk@arm.linux.org.uk, gregkh@suse.de, ysato@users.sourceforge.jp
-Subject: [PATCH] Generic platform device IDE driver
-Message-ID: <20061004074535.GA7180@localhost.hsdv.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Oct 2006 03:48:53 -0400
+Date: Wed, 4 Oct 2006 11:48:22 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061004074821.GA22688@2ka.mipt.ru>
+References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com> <20061004045527.GB32267@2ka.mipt.ru> <452363C5.1020505@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <452363C5.1020505@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 04 Oct 2006 11:48:24 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently the platforms that have very simplistic needs for IDE devices
-are forced to invent their own driver for adding the built-in devices.
-At the moment ARM is the in-tree user in this category, h8300 could be
-switched to something more generic, and SH is roughly in the same
-category as ARM.
+On Wed, Oct 04, 2006 at 12:33:25AM -0700, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> > When we enter sys_ppoll() we specify needed signals as syscall
+> > parameter, with kevents we will add them into the queue.
+> 
+> No, this is not sufficient as I said in the last mail.  Why do you
+> completely ignore what others say.  The code which depends on the signal
+> does not have to have access to the event queue.  If a library sets up
+> an interrupt handler then it expect the signal to be delivered this way.
+>  In such situations ppoll etc allow the signal to be generally blocked
+> and enabled only and *ATOMICALLY* around the delays.  This is not
+> possible with the current wait interface.  We need this signal mask
+> interfaces and the appropriate setup code.
+> 
+> Being able to get signal notifications does not mean this is always the
+> way it can and must happen.
 
-The only constant that really tends to change between these platforms
-are the I/O base and the IRQ, with everything else rather constant. The
-ctl base could also change, but everyone seems to keep it at 0x206, so
-it's debatable whether it's worth leaving this configurable or not.
+It is completely possible to do what you describe without special
+syscall parameters. Just add interesting signals to the queue (and
+optionally block them globally) and wait on that queue.
+When signal's event is generated and appropriate kevent is removed, that
+signal will be restored in global signal mask (there are appropriate
+enqueue/dequeue callbacks which can perform operations on signal mask
+for given process).
 
-I've hacked together a quick driver, 'ide-platform' (for lack of a
-better name), that allows for these specifics to be passed in via
-platform device resources (registering a device per-port) rather than
-having to add more of these things to drivers/ide.
+My main consern is to not add special cases for something in generic
+code, especially when gneric code can easily handle that situations.
 
-With this we can remove ide_arm (and the h8300 driver can likely be
-reworked to use this too), and I don't have to invent a new driver for
-SH that does effectively the same thing.
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+> 
 
-This is intended purely for the simple NO_DMA ide_generic case.. nothing
-complicated.
 
-What do people think about this, is there a better way to do this?
 
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-
---
-
- drivers/ide/Makefile       |    3 +-
- drivers/ide/ide-platform.c |   60 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/ide/ide.c          |    3 ++
- 3 files changed, 65 insertions(+), 1 deletion(-)
-
-commit f2da2c8c9b5e648ca9a43d9d3fed9bcd356f0efd
-Author: Paul Mundt <lethal@linux-sh.org>
-Date:   Wed Oct 4 16:41:21 2006 +0900
-
-    ide: Simple platform device IDE driver.
-    
-    This adds a trivial platform device IDE driver. Users are required to
-    register a couple of resources:
-    
-    	- I/O Base
-    	- CTL Base
-    	- IRQ
-    
-    Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-
-diff --git a/drivers/ide/Makefile b/drivers/ide/Makefile
-index 569fae7..24c9a0f 100644
---- a/drivers/ide/Makefile
-+++ b/drivers/ide/Makefile
-@@ -13,7 +13,8 @@ EXTRA_CFLAGS				+= -Idrivers/ide
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
- 
--ide-core-y += ide.o ide-io.o ide-iops.o ide-lib.o ide-probe.o ide-taskfile.o
-+ide-core-y += ide.o ide-io.o ide-iops.o ide-lib.o ide-probe.o ide-taskfile.o \
-+	      ide-platform.o
- 
- ide-core-$(CONFIG_BLK_DEV_CMD640)	+= pci/cmd640.o
- 
-diff --git a/drivers/ide/ide-platform.c b/drivers/ide/ide-platform.c
-new file mode 100644
-index 0000000..6d89878
---- /dev/null
-+++ b/drivers/ide/ide-platform.c
-@@ -0,0 +1,60 @@
-+/*
-+ * Generic IDE platform device driver
-+ *
-+ * Copyright (C) 2006  Paul Mundt
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ */
-+#include <linux/init.h>
-+#include <linux/ide.h>
-+#include <linux/platform_device.h>
-+
-+/*
-+ * Users use per-port registration with a simple set of 3 resources
-+ * per port:
-+ * 		- I/O Base (IORESOURCE_IO)
-+ * 		- CTL Base (IORESOURCE_IO)
-+ * 		- IRQ	   (IORESOURCE_IRQ)
-+ */
-+static int __devinit ide_platform_probe(struct platform_device *dev)
-+{
-+	struct resource *io_res, *ctl_res;
-+	hw_regs_t hw;
-+
-+	if (unlikely(dev->num_resources != 3)) {
-+		dev_err(&dev->dev, "invalid number of resources\n");
-+		return -EINVAL;
-+	}
-+
-+	io_res = platform_get_resource(dev, IORESOURCE_IO, 0);
-+	if (unlikely(io_res == NULL))
-+		return -EINVAL;
-+
-+	ctl_res = platform_get_resource(dev, IORESOURCE_IO, 1);
-+	if (unlikely(ctl_res == NULL))
-+		return -EINVAL;
-+
-+	memset(&hw, 0, sizeof(hw_regs_t));
-+	ide_std_init_ports(&hw, io_res->start, ctl_res->start);
-+
-+	hw.irq		= platform_get_irq(dev, 0);
-+	hw.chipset	= ide_generic;
-+
-+	return ide_register_hw(&hw, NULL);
-+}
-+
-+static struct platform_driver ide_platform_driver = {
-+	.probe		= ide_platform_probe,
-+	.driver		= {
-+		.name	= "ide-platform",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+void __init ide_platform_init(void)
-+{
-+	printk(KERN_INFO "ide-platform: platform device IDE interface\n");
-+	platform_driver_register(&ide_platform_driver);
-+}
-diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
-index 287a662..994cdd4 100644
---- a/drivers/ide/ide.c
-+++ b/drivers/ide/ide.c
-@@ -1782,6 +1782,7 @@ done:
- }
- 
- extern void pnpide_init(void);
-+extern void ide_platform_init(void);
- extern void h8300_ide_init(void);
- 
- /*
-@@ -1793,6 +1794,8 @@ #ifdef CONFIG_BLK_DEV_IDEPCI
- 	ide_scan_pcibus(ide_scan_direction);
- #endif /* CONFIG_BLK_DEV_IDEPCI */
- 
-+	ide_platform_init();
-+
- #ifdef CONFIG_ETRAX_IDE
- 	{
- 		extern void init_e100_ide(void);
+-- 
+	Evgeniy Polyakov

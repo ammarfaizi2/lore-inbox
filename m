@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWJDHg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWJDHj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbWJDHg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWJDHg0
+	id S1161120AbWJDHj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWJDHj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:36:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2964 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161117AbWJDHgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:36:25 -0400
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jouni Malinen <jkmaline@cc.hut.fi>
-Cc: Jean Tourrilhes <jt@hpl.hp.com>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Jeff Garzik <jeff@garzik.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-In-Reply-To: <20061004022100.GC6110@jm.kir.nu>
-References: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-	 <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com>
-	 <1159890876.20801.65.camel@mindpipe>
-	 <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
-	 <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
-	 <20061003183849.GA17635@bougret.hpl.hp.com>
-	 <d120d5000610031208i4a204b2es8de8d424a573acf4@mail.gmail.com>
-	 <20061003194957.GB17855@bougret.hpl.hp.com>
-	 <20061004022100.GC6110@jm.kir.nu>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 04 Oct 2006 09:33:23 +0200
-Message-Id: <1159947203.3000.4.camel@laptopd505.fenrus.org>
+	Wed, 4 Oct 2006 03:39:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44201 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030548AbWJDHj2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 03:39:28 -0400
+Date: Wed, 4 Oct 2006 00:32:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch] clockevents: drivers for i386, fix #2
+Message-Id: <20061004003228.98ec3b39.akpm@osdl.org>
+In-Reply-To: <20061004064620.GA22364@elte.hu>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+	<20061002210053.16e5d23c.akpm@osdl.org>
+	<20061003084729.GA24961@elte.hu>
+	<20061003103503.GA6350@elte.hu>
+	<20061003203620.d85df9c6.akpm@osdl.org>
+	<20061004064620.GA22364@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 19:21 -0700, Jouni Malinen wrote:
-> On Tue, Oct 03, 2006 at 12:49:57PM -0700, Jean Tourrilhes wrote:
+On Wed, 4 Oct 2006 08:46:20 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
+
 > 
-> > 	No, it's not. But as soon as *some part* of WE-21 appears in
-> > the kernel, the userspace expect the ESSID change. If we want to have
-> > WE-21 without the ESSID change, we need to fix userspace.
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> Or leave WIRELESS_EXT at 20 and come up with a new way of versioning any
-> future changes in WE.. Yes, having two different mechanisms for version
-> number is ugly, but it could prevent userspace breakage.
+> > Disabling LOCAL_APIC does fix it.
 > 
-> (And based on the other messages in this thread, it might be useful to
-> include the userspace program's idea of the version in those new
-> commands to allow multiple interface versions to be supported by the
-> kernel).
+> thanks, that narrows it down quite a bit. (We've double-checked the 
+> lapic path and it seemed all our changes are NOP, but obviously it isnt 
+> and we'll check it all again.)
+> 
+> (if you have that kernel still booted by any chance then do you see the 
+> 'LOC' IRQ count in /proc/interrupts or any other count in /proc/stats 
+> increasing at an alarming rate? That would narrow it down to lapic timer 
+> misprogramming.)
+> 
 
+None of the interrupts are doing anything wrong.  oprofile shows nothing
+alarming.
 
-or... don't use a NUMBER for this.
+Disabling cpufreq in config doesn't fix it.
 
-If you have a bitmap for supported features, it's much more powerful!
-That way you can even do this per driver/hardware, and you can
-add/retract individual capabilities rather than lumping everything into
-one big number.
+Userspace can count to a billion in 3.9 seconds when this problem is
+present, which is the same time as it takes on a non-slow kernel.
 
+`sleep 5' takes 5 seconds.
 
+Yet initscripts take a long time (especially applying the ipfilter firewall
+rues for some reason), and `startx' takes a long time, etc.  This kernel
+takes 112 seconds to boot to a login prompt - other kernels take 56 seconds
+(interesting ratio..)
+
+Weird.

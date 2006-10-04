@@ -1,98 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWJDQPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWJDQOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbWJDQPM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 12:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWJDQPL
+	id S964902AbWJDQOu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 12:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWJDQOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 12:15:11 -0400
-Received: from turak.kspei.com ([64.240.156.220]:65254 "EHLO mail.kspei.com")
-	by vger.kernel.org with ESMTP id S964887AbWJDQPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 12:15:05 -0400
-Date: Wed, 4 Oct 2006 11:15:02 -0500
-From: Steven Pritchard <steve@silug.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] TiVo partition support
-Message-ID: <20061004161502.GA14714@osiris.silug.org>
+	Wed, 4 Oct 2006 12:14:50 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:16101 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964789AbWJDQOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 12:14:49 -0400
+Date: Wed, 4 Oct 2006 12:14:17 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "H. J. Lu" <hjl@lucon.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 3/12] i386: Force section size to be non-zero to prevent a symbol becoming absolute
+Message-ID: <20061004161417.GD16218@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061003170032.GA30036@in.ibm.com> <20061003170908.GC3164@in.ibm.com> <20061004090946.5ab000e5.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061004090946.5ab000e5.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to work out a problem with my Series 2 TiVo, I noticed
-that recent kernels still don't have support for the modified Mac
-partition table the TiVos use.  Below is a lightly tested patch for
-2.6.17 (which applies cleanly to 2.6.18 also) that adds the support.
+On Wed, Oct 04, 2006 at 09:09:46AM -0700, Andrew Morton wrote:
+> On Tue, 3 Oct 2006 13:09:08 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> 
+> > o Relocation patches for i386, moved the symbols in vmlinux.lds.S inside
+> >   sections so that these symbols become section relative and are no more
+> >   absolute. If these symbols become absolute, its bad as they are not
+> >   relocated if kernel is not loaded at the address it has been compiled
+> >   for.
+> > 
+> > o Ironically, just moving the symbols inside the section does not 
+> >   gurantee that symbols inside will not become absolute. Recent 
+> >   versions of linkers, do some optimization, and if section size is
+> >   zero, it gets rid of the section and makes any defined symbol as absolute.
+> > 
+> > o This leads to a failure while second kernel is booting.
+> >   arch/i386/alternative.c frees any pages present between __smp_alt_begin
+> >   and __smp_alt_end. In my case size of section .smp_altinstructions is 
+> >   zero and symbol __smpt_alt_begin becomes absolute and is not relocated
+> >   and system crashes while it is trying to free the memory starting
+> >   from __smp_alt_begin.
+> > 
+> > o This issue is being fixed by the linker guys and they are making sure
+> >   that linker does not get rid of an empty section if there is any
+> >   section relative symbol defined in it. But we need to fix it at
+> >   kernel level too so that people using the linker version without fix,
+> >   are not affected.
+> > 
+> > o One of the possible solutions is that force the section size to be
+> >   non zero to make sure these symbols don't become absolute. This 
+> >   patch implements that.
+> 
+> Would it be reasonable to omit this patch and require that the small number
+> of people who want to build relocatable kernels install binutils
+> 2.17.50.0.5 or later?
 
-This isn't even remotely original work.  I adapted this from the patch
-I found here:
+I think that's a reasonable thing to do for now.
 
-  http://homepage.ntlworld.com/maxwells.daemon/tivo/downloads/tivo-partition-support-1.patch
-
-Pete Zaitcev has an equivalent patch here (which I found after I had
-already rebased the above patch):
-
-  http://people.redhat.com/zaitcev/linux/linux-2.6.16-rc5-tivo1.diff
-
-diff -ur linux-2.6.17.orig/fs/partitions/Kconfig linux-2.6.17/fs/partitions/Kconfig
---- linux-2.6.17.orig/fs/partitions/Kconfig	2006-06-17 20:49:35.000000000 -0500
-+++ linux-2.6.17/fs/partitions/Kconfig	2006-09-27 13:23:42.000000000 -0500
-@@ -104,6 +104,11 @@
- 	  Say Y here if you would like to use hard disks under Linux which
- 	  were partitioned on a Macintosh.
- 
-+config TIVO_PARTITION
-+	bool "TiVo partition map support" if MAC_PARTITION
-+	help
-+	  Say Y here if you would like to include support for TiVo partitions.
-+
- config MSDOS_PARTITION
- 	bool "PC BIOS (MSDOS partition tables) support" if PARTITION_ADVANCED
- 	default y
-diff -ur linux-2.6.17.orig/fs/partitions/mac.c linux-2.6.17/fs/partitions/mac.c
---- linux-2.6.17.orig/fs/partitions/mac.c	2006-06-17 20:49:35.000000000 -0500
-+++ linux-2.6.17/fs/partitions/mac.c	2006-09-27 13:25:21.000000000 -0500
-@@ -46,11 +46,26 @@
- 	md = (struct mac_driver_desc *) read_dev_sector(bdev, 0, &sect);
- 	if (!md)
- 		return -1;
--	if (be16_to_cpu(md->signature) != MAC_DRIVER_MAGIC) {
--		put_dev_sector(sect);
--		return 0;
-+
-+	switch(be16_to_cpu(md->signature)) {
-+		case MAC_DRIVER_MAGIC:
-+			secsize = be16_to_cpu(md->block_size);
-+			break;
-+
-+#ifdef CONFIG_TIVO_PARTITION
-+		case TIVO_DRIVER_MAGIC:
-+			/* The TiVo map does not have a valid Mac block 0
-+			 * fill in the block size.
-+			 */
-+			secsize = 512;
-+			break;
-+#endif
-+
-+		default:
-+			put_dev_sector(sect);
-+			return 0;
- 	}
--	secsize = be16_to_cpu(md->block_size);
-+
- 	put_dev_sector(sect);
- 	data = read_dev_sector(bdev, secsize/512, &sect);
- 	if (!data)
-diff -ur linux-2.6.17.orig/fs/partitions/mac.h linux-2.6.17/fs/partitions/mac.h
---- linux-2.6.17.orig/fs/partitions/mac.h	2006-06-17 20:49:35.000000000 -0500
-+++ linux-2.6.17/fs/partitions/mac.h	2006-09-27 13:26:30.000000000 -0500
-@@ -32,6 +32,7 @@
- #define MAC_STATUS_BOOTABLE	8	/* partition is bootable */
- 
- #define MAC_DRIVER_MAGIC	0x4552
-+#define TIVO_DRIVER_MAGIC	0x1492
- 
- /* Driver descriptor structure, in block 0 */
- struct mac_driver_desc {
+Thanks
+Vivek

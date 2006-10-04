@@ -1,77 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWJDTnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWJDTnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWJDTnN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 15:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWJDTnN
+	id S1750932AbWJDTnY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 15:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbWJDTnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 15:43:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13022 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750937AbWJDTnM (ORCPT
+	Wed, 4 Oct 2006 15:43:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16606 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750932AbWJDTnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 15:43:12 -0400
-Date: Wed, 4 Oct 2006 12:43:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Must check what?
-Message-Id: <20061004124310.10c9939b.akpm@osdl.org>
-In-Reply-To: <20061004192537.GH28596@parisc-linux.org>
-References: <20061004183752.GG28596@parisc-linux.org>
-	<20061004120242.319a47e4.akpm@osdl.org>
-	<20061004192537.GH28596@parisc-linux.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Oct 2006 15:43:23 -0400
+Date: Wed, 4 Oct 2006 12:43:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Randy Dunlap <rdunlap@xenotime.net>, akpm <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] Math-emu kills the kernel on Athlon64 X2
+In-Reply-To: <9a8748490610041224h7de321r6507a0d9e99ad015@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0610041235380.3952@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com> 
+ <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>  <20061002191638.093fde85.rdunlap@xenotime.net>
+  <Pine.LNX.4.64.0610021932080.3952@g5.osdl.org>  <20061002213809.7a3f995f.rdunlap@xenotime.net>
+  <Pine.LNX.4.64.0610030805490.3952@g5.osdl.org>  <20061003092339.999d0011.rdunlap@xenotime.net>
+  <Pine.LNX.4.64.0610030933250.3952@g5.osdl.org>  <20061003094926.0e99d13f.rdunlap@xenotime.net>
+  <Pine.LNX.4.64.0610030950230.3952@g5.osdl.org>
+ <9a8748490610041224h7de321r6507a0d9e99ad015@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 13:25:37 -0600
-Matthew Wilcox <matthew@wil.cx> wrote:
 
-> On Wed, Oct 04, 2006 at 12:02:42PM -0700, Andrew Morton wrote:
-> > I blame kernel-doc.  It should have a slot for documenting the return value,
-> > but it doesn't, so nobody documents return values.
+
+On Wed, 4 Oct 2006, Jesper Juhl wrote:
 > 
-> There's also the question about where the documentation should go.  By
-> the function prototype in the header?  That's the easy place for people
-> using the function to find it.  By the code?  That's the place where it
-> stands the most chance (about 10%) of somebody bothering to update it
-> when they change the code.
-
-yes, by the code, if it's C.  In .h if it's C++.
-
-> > It should have a slot for documenting caller-provided locking requirements
-> > too.  And for permissible calling-contexts.  They're all part of the
-> > caller-provided environment, and these two tend to be a heck of a lot more
-> > subtle than the function's formal arguments.
+> I just tested 2.6.18-git21 and here's a small status report :
 > 
-> Indeed.  And reference count assumptions.  It's almost like we want a
-> pre-condition assertion ...
+> The good news is: The kernel boots.
+> The bad news is: Userspace breaks left and right.
+> 
+> I'm booting with "no387 nofxsr"
+> 
+> On my first boot I just used the options above and the result was that
+> most of the bootup sequence looked quite normal until I got to the
+> point of starting sshd, then things started to go wrong. This is what
+> I got :
+> 
+> ...
+> /etc/rc.d/rc.sshd: line 4: 1491 Illegal instruction    /usr/sbin/sshd
 
-We have might_sleep(), assert_spin_locked(), BUG_ON(!irqs_disabled()), etc.
+Ok, I bet you have your sshd compiled to use MMX instructions 
+unconditionally.
 
-I like assertions personally.  If we had something like:
+> So that's great progress, but it could certainly work a lot better.
 
-void foo(args)
-{
-	locals;
+I don't think there is a whole lot we can do about it. There's really two 
+choices:
 
-	assert_irqs_enabled();
-	assert_spin_locked(some_lock);
-	assert_in_atomic();
-	assert_mutex_locked(some_mutex);
+ - make sure all user-space is able to function without MMX. This means, 
+   for example, that you must certainly never compile with some code that 
+   switches between MMX and non-MMX statically.
 
-then we get documentation which is (optionally) checked at runtime - best
-of both worlds.  Better than doing it in kernel-doc.  Automatically
-self-updating (otherwise kernels go BUG).
+   The most common cases you'd expect to use MMX is for encryption, but 
+   graphics and 3D certainly sounds very possible too..
 
-But we'd need to sell the idea ;)
+   This isn't really somethign _we_ can do a lot about, although 
+   distributions that care may of course try to test that their distro 
+   works with "no387 nofxsr". You didn't say what distro you used, maybe 
+   you can point it out to them.
 
-And we still need to document those return values in English.
+ - we could try to extend the math emulator to emulate the new 
+   instructions too.
 
-(Or we do
+   The thing is, it's probably not worth it. The only actual real usage 
+   would be if somebody wants to take a disk image and switch to a really 
+   old machine that lacked the MMX instruction, or for this particular 
+   test-case.
 
-	return assert_zero_or_errno(ret);
+so I suspect that in practice, the answer is "if the distro isn't compiled 
+for a generic x86 target, screw it".
 
-which is a bit ug, but gets us there)
+			Linus

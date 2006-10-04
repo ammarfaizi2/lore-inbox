@@ -1,60 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWJDGeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWJDGlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbWJDGeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 02:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWJDGeF
+	id S1030408AbWJDGlL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 02:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWJDGlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 02:34:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:16720 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161092AbWJDGeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 02:34:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z6Mw/ERpFX5h8vvo6pH0hZAaPa+GRQZj+wC6R+3QCOYoJrpF2RFA1dT+0zicfkq0/p8Ykl1z6u/OFoZ0ajWeDQ2Np0fHFsZ4r2OOowDZU/cbV3m9yGTclhQuGI2sdvb4vyMA0MgbeV396251fdk16qnx+4JAx2ByC/ge72zqyT4=
-Message-ID: <a36005b50610032334n50e66198rdfef30e4ccf545c8@mail.gmail.com>
-Date: Tue, 3 Oct 2006 23:34:02 -0700
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
-Subject: Re: [take19 1/4] kevent: Core files.
-Cc: lkml <linux-kernel@vger.kernel.org>, "David Miller" <davem@davemloft.net>,
-       "Ulrich Drepper" <drepper@redhat.com>, "Andrew Morton" <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, "Zach Brown" <zach.brown@oracle.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Chase Venters" <chase.venters@clientec.com>,
-       "Johann Borck" <johann.borck@densedata.com>
-In-Reply-To: <1158744950130@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Oct 2006 02:41:10 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:11172 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1030408AbWJDGlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 02:41:09 -0400
+Date: Wed, 4 Oct 2006 08:45:43 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Greg KH <gregkh@suse.de>
+Cc: "Axel C\. Voigt" <Axel.Voigt@qosmotec.com>, linux-kernel@vger.kernel.org,
+       David Kubicek <dave@awk.cz>
+Subject: Re: Problems with hard irq? (inconsistent lock state)
+Message-ID: <20061004064542.GA2649@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>, Greg KH <gregkh@suse.de>,
+	"Axel C. Voigt" <Axel.Voigt@qosmotec.com>,
+	linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>
+References: <46E81D405FFAC240826E54028B3B02953B13@aixlac.qosmotec.com> <20061004054308.GA994@ff.dom.local> <20061004054309.GA387@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <11587449471424@2ka.mipt.ru> <1158744950130@2ka.mipt.ru>
+In-Reply-To: <20061004054309.GA387@suse.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> This patch includes core kevent files:
-> [...]
+On Tue, Oct 03, 2006 at 10:43:09PM -0700, Greg KH wrote:
+> On Wed, Oct 04, 2006 at 07:43:08AM +0200, Jarek Poplawski wrote:
+> > On 29-09-2006 13:45, Axel C. Voigt wrote:
+...
+> > > Sep 29 13:29:53 mcs70 kernel: =================================
+> > > Sep 29 13:29:53 mcs70 kernel: [ INFO: inconsistent lock state ]
+> > > Sep 29 13:29:53 mcs70 kernel: ---------------------------------
+> > > Sep 29 13:29:53 mcs70 kernel: inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
+> > > Sep 29 13:29:53 mcs70 kernel: startDV24/3864 [HC1[1]:SC0[0]:HE0:SE1] takes:
+> > > Sep 29 13:29:53 mcs70 kernel: (&acm->read_lock){++..}, at: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
+> > > Sep 29 13:29:53 mcs70 kernel: {hardirq-on-W} state was registered at:
+...
+> > It looks in drivers/usb/class/cdc-acm.c acm_rx_tasklet could be preempted
+> > with acm->read_lock by acm_read_bulk which uses the same lock from hardirq
+> > context.
+> > 
+> > So probably spin_lock_irqsave is needed.  
+> 
+> Yup.  Care to send a patch?
 
-I tried to look at the example programs before and failed.  I tried
-again.  Where can I find up-to-date example code?
+If it could help?
 
-Some other points:
+Jarek P.
 
-- I really would prefer not to rush all this into the upstream kernel.
- The main problem is that the ring buffer interface is a shared data
-structure.  These are always tricky.  We need to find the right
-combination between size (as small as possible) and supporting all the
-interfaces.
 
-- so far only the timer and aio notification is speced out.  What
-about the rest?  Are we sure all aspects can be expressed?  I am not
-yet.
-
-- we need an interface to add an event from userlevel.  I.e., we need
-to be able to synthesize events.  There are events (like, for instance
-the async DNS functionality) which come from userlevel code.
-
-I would very much prefer we look at the other events before setting
-the data structures in stone.
+diff -Nurp linux-2.6-18-git20-/drivers/usb/class/cdc-acm.c linux-2.6-18-git20/drivers/usb/class/cdc-acm.c
+--- linux-2.6-18-git20-/drivers/usb/class/cdc-acm.c	2006-10-04 07:59:46.000000000 +0200
++++ linux-2.6-18-git20/drivers/usb/class/cdc-acm.c	2006-10-04 08:16:03.000000000 +0200
+@@ -325,7 +325,7 @@ static void acm_rx_tasklet(unsigned long
+ 	struct acm_rb *buf;
+ 	struct tty_struct *tty = acm->tty;
+ 	struct acm_ru *rcv;
+-	//unsigned long flags;
++	unsigned long flags;
+ 	int i = 0;
+ 	dbg("Entering acm_rx_tasklet");
+ 
+@@ -333,15 +333,15 @@ static void acm_rx_tasklet(unsigned long
+ 		return;
+ 
+ next_buffer:
+-	spin_lock(&acm->read_lock);
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	if (list_empty(&acm->filled_read_bufs)) {
+-		spin_unlock(&acm->read_lock);
++		spin_unlock_irqrestore(&acm->read_lock, flags);
+ 		goto urbs;
+ 	}
+ 	buf = list_entry(acm->filled_read_bufs.next,
+ 			 struct acm_rb, list);
+ 	list_del(&buf->list);
+-	spin_unlock(&acm->read_lock);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
+ 
+ 	dbg("acm_rx_tasklet: procesing buf 0x%p, size = %d", buf, buf->size);
+ 
+@@ -356,29 +356,29 @@ next_buffer:
+ 		memmove(buf->base, buf->base + i, buf->size - i);
+ 		buf->size -= i;
+ 		spin_unlock(&acm->throttle_lock);
+-		spin_lock(&acm->read_lock);
++		spin_lock_irqsave(&acm->read_lock, flags);
+ 		list_add(&buf->list, &acm->filled_read_bufs);
+-		spin_unlock(&acm->read_lock);
++		spin_unlock_irqrestore(&acm->read_lock, flags);
+ 		return;
+ 	}
+ 	spin_unlock(&acm->throttle_lock);
+ 
+-	spin_lock(&acm->read_lock);
++	spin_lock_irqsave(&acm->read_lock, flags);
+ 	list_add(&buf->list, &acm->spare_read_bufs);
+-	spin_unlock(&acm->read_lock);
++	spin_unlock_irqrestore(&acm->read_lock, flags);
+ 	goto next_buffer;
+ 
+ urbs:
+ 	while (!list_empty(&acm->spare_read_bufs)) {
+-		spin_lock(&acm->read_lock);
++		spin_lock_irqsave(&acm->read_lock, flags);
+ 		if (list_empty(&acm->spare_read_urbs)) {
+-			spin_unlock(&acm->read_lock);
++			spin_unlock_irqrestore(&acm->read_lock, flags);
+ 			return;
+ 		}
+ 		rcv = list_entry(acm->spare_read_urbs.next,
+ 				 struct acm_ru, list);
+ 		list_del(&rcv->list);
+-		spin_unlock(&acm->read_lock);
++		spin_unlock_irqrestore(&acm->read_lock, flags);
+ 
+ 		buf = list_entry(acm->spare_read_bufs.next,
+ 				 struct acm_rb, list);
+@@ -400,9 +400,9 @@ urbs:
+ 		   free-urbs-pool and resubmited ASAP */
+ 		if (usb_submit_urb(rcv->urb, GFP_ATOMIC) < 0) {
+ 			list_add(&buf->list, &acm->spare_read_bufs);
+-			spin_lock(&acm->read_lock);
++			spin_lock_irqsave(&acm->read_lock, flags);
+ 			list_add(&rcv->list, &acm->spare_read_urbs);
+-			spin_unlock(&acm->read_lock);
++			spin_unlock_irqrestore(&acm->read_lock, flags);
+ 			return;
+ 		}
+ 	}

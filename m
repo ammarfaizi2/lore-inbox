@@ -1,71 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWJDVTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWJDVW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWJDVTj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 17:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWJDVTj
+	id S1751140AbWJDVW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 17:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWJDVW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 17:19:39 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:53006 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751139AbWJDVTj (ORCPT
+	Wed, 4 Oct 2006 17:22:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56293 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751140AbWJDVW6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 17:19:39 -0400
-Date: Wed, 4 Oct 2006 17:08:18 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Jean Tourrilhes <jt@hpl.hp.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061004210813.GC9277@tuxdriver.com>
-References: <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org> <20061004181032.GA4272@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org> <20061004185903.GA4386@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041216510.3952@g5.osdl.org> <20061004195229.GA4459@bougret.hpl.hp.com>
-Mime-Version: 1.0
+	Wed, 4 Oct 2006 17:22:58 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] call truncate_inode_pages in the DIO fallback to buffered I/O path
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <x49zmcc6mhh.fsf@segfault.boston.devel.redhat.com>
+	<20061004102522.d58c00ef.akpm@osdl.org> <4523F486.1000604@oracle.com>
+	<x49mz8c6k83.fsf@segfault.boston.devel.redhat.com>
+	<20061004111603.20cdaa35.akpm@osdl.org> <45240034.2040704@oracle.com>
+	<20061004121645.fd2765e4.akpm@osdl.org>
+	<x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Wed, 04 Oct 2006 17:22:46 -0400
+In-Reply-To: <x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com> (Jeff Moyer's message of "Wed, 04 Oct 2006 16:53:53 -0400")
+Message-ID: <x494puj7p3t.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061004195229.GA4459@bougret.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 12:52:29PM -0700, Jean Tourrilhes wrote:
-> On Wed, Oct 04, 2006 at 12:21:46PM -0700, Linus Torvalds wrote:
+==> Regarding Re: [patch] call truncate_inode_pages in the DIO fallback to buffered I/O path; Jeff Moyer <jmoyer@redhat.com> adds:
+jmoyer> Again, sorry that I didn't include a better description.  I've
+jmoyer> attached my reproducer to this message.
 
-> > The person you merged through explicitly said that if he had realized what 
-> > you did, he wouldn't have merged.
-> 
-> 	I did not merge through Jeff.
+Oops, forgot to attach it.
 
-You did, just indirectly.  I was directly upstream from you.
+-Jeff
 
-For the record, I did not fully comprehend that we would be breaking
-existing tools (and their users) -- I certainly should have, but I
-did not.  I apologize both to you for being part of this scenario I
-inadvertantly allowed to unfold and to the users who experienced the
-resulting breakage.
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-This was the second time I took patches for extending WE, and I have
-received nothing but grief from either set of patches.  Even had
-things gone smoothly, WE was already hated near universally.  WE has
-survived based on being "good enough" for a long time.  But I think
-it is safe to say that if WE were not already in the kernel, it would
-have little chance of making it in today.
+int
+make_sparse(const char *filename, off_t len)
+{
+	int fd;
 
-All the legitimate options for extending WE now amount to forking a
-new API.  But work is already underway on a WE replacement.  I think
-the best option is to invest in that replacement, and a compatibility
-layer to support older WE-aware applications.  Please see the nl80211
-and cfg80211 currently on the netdev list.
+	fd = open(filename, O_WRONLY | O_CREAT, 0644);
+	if (fd < 0) {
+		perror("open");
+		return -1;
+	}
 
-I do not intend or expect to take any more WE enhancment patches.
-Only bug fixes to WE will be accepted from now onward.
+	if (ftruncate(fd, 0) != 0) {
+		perror("ftruncate");
+		return -1;
+	}
+	if (ftruncate(fd, len) != 0) {
+		perror("ftruncate");
+		return -1;
+	}
 
-Jean, I thank you for your long-running contributions.  I hope this
-will not discourage you from further participation.
+	close(fd);
+	return 0;
+}
 
-Thanks,
+int
+main(int argc, char **argv)
+{
+	int fd, i, nr_pages, ret;
+	off_t len;
+	int page_size = getpagesize();
+	char *buf;
+	char *pattern;
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+	if (argc < 3) {
+		printf("Usage: %s <filename> <size-in-megabytes>\n", argv[0]);
+		exit(1);
+	}
+
+	/* convert length to megabytes */
+	len = strtoul(argv[2], NULL, 10);
+	len <<= 20;
+
+	if (make_sparse(argv[1], len) < 0)
+		exit(4);
+
+	nr_pages = len / page_size;
+
+	if ((ret = posix_memalign((void **)&buf, 1024, page_size)) != 0) {
+		errno = ret;
+		perror("posix_memalign");
+		exit(2);
+	}
+
+
+	fd = open(argv[1], O_WRONLY | O_CREAT | O_DIRECT);
+	if (fd < 0) {
+		perror("open");
+		exit(3);
+	}
+
+	memset(buf, 'b', page_size);
+	for (i = 0; i < nr_pages; i++) {
+		ret = write(fd, buf, page_size);
+		if (ret < 0) {
+			perror("write");
+			exit(5);
+		}
+	}
+	close(fd);
+
+	/* now read the data back in and make sure it hit the disk! */
+	pattern = malloc(page_size);
+	if (!pattern) {
+		perror("malloc");
+		exit(1);
+	}
+	memset(pattern, 'b', page_size);
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd < 0) {
+		perror("open");
+		exit(1);
+	}
+
+	while (i < len) {
+		memset(buf, 0, sizeof(buf));
+		ret = read(fd, buf, page_size);
+		if (ret != page_size) {
+			if (ret < 0)
+				perror("read");
+			else
+				fprintf(stderr, "short read of %d\n", ret);
+			exit(1);
+		}
+		if (memcmp(buf, pattern, page_size)) {
+			fprintf(stderr, "Invalid Data!\n");
+			exit(1);
+		}
+		i += page_size;
+	}
+	
+	exit(0);
+}

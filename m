@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWJDOfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWJDOnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbWJDOfH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 10:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWJDOfH
+	id S1161145AbWJDOnn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 10:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbWJDOnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 10:35:07 -0400
-Received: from smtp13.orange.fr ([193.252.22.54]:31768 "EHLO
-	smtp-msa-out13.orange.fr") by vger.kernel.org with ESMTP
-	id S1161144AbWJDOfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 10:35:05 -0400
-X-ME-UUID: 20061004143504280.446ED70000A3@mwinf1301.orange.fr
-Subject: Re: Registration Weakness in Linux Kernel's Binary formats
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chase Venters <chase.venters@clientec.com>,
-       Julio Auto <mindvortex@gmail.com>, goodfellas@shellcode.com.ar,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>, endrazine <endrazine@gmail.com>,
-       Stephen Hemminger <shemminger@osdl.org>, Valdis.Kletnieks@vt.edu
-In-Reply-To: <1159973741.25772.45.camel@localhost.localdomain>
-References: <18d709710610032108w52d69b17mfa585e40ad2ae72c@mail.gmail.com>
-	 <200610032326.10710.chase.venters@clientec.com>
-	 <1159973741.25772.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 04 Oct 2006 16:34:38 +0200
-Message-Id: <1159972478.28605.183.camel@frg-rhel40-opt-02.anacadf.mentorg.com>
+	Wed, 4 Oct 2006 10:43:43 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:27953 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161145AbWJDOnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 10:43:42 -0400
+Date: Wed, 4 Oct 2006 16:44:13 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drivers/base: error handling fixes
+Message-ID: <20061004164413.3352df7d@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20061004130554.GA25974@havoc.gtf.org>
+References: <20061004130554.GA25974@havoc.gtf.org>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-04 at 15:55 +0100, Alan Cox wrote:
-> Ar Maw, 2006-10-03 am 23:25 -0500, ysgrifennodd Chase Venters:
-> > 	I think it's a little bit silly for a "security researcher" to simultaneously 
-> > publish stuff in the news and in a developer community, especially if the 
-> > threat is totally phony to begin with.
+On Wed, 4 Oct 2006 09:05:54 -0400,
+Jeff Garzik <jeff@garzik.org> wrote:
+
+> drivers/base/class:
+> - class_device_rename(): function basically shat itself if anything
+>   failed, leaving things in an indeterminant state.  If kmalloc() ever
+>   failed, it would dereference ERR_PTR(-ENOMEM).  Fix a bunch of bugs,
+>   over and above sysfs_create_link() error handling.
 > 
-> Given the way it was carefully fed to slashdot I suspect it may in fact
-> be someone with brains who wanted to make slashdot look stupid and spoof
-> them. If so they certainly scored 10/10 on that.
+> - class_device_add(): add missing sysfs_remove_link() [fix leak] to error path
+> - class_device_add(): handle sysfs_create_link() failure
+> 
+> drivers/base/dmapool:
+> - kmalloc() takes a GFP_xxx argument
+> - handle device_create_file() failure
+> 
+> drivers/base/platform:
+> - properly handle errors (fix leak-on-err) in platform_bus_init()
+> 
+> drivers/base/topology:
+> - return sysfs error via NOTIFY_BAD
 
-Brains are required to make slashdot look stupid ?
+Hm, I already did fixes for some of these which are in -mm / in Greg's
+tree. It would perhaps make sense if you rediffed against one of those
+trees.
 
-
-
+Cornelia

@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWJDUu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWJDUw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWJDUu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 16:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWJDUu2
+	id S1751112AbWJDUw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 16:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWJDUw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 16:50:28 -0400
-Received: from wx-out-0506.google.com ([66.249.82.225]:45195 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751109AbWJDUu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 16:50:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i/1GczeGaW/QgZTKw7pRaOLH6frb636aiwYNFSLtnX2WggjCxXI+v555GtshN+i5ZAABpbWPdfav/mAvLckB/vTC7FRZcJ3WNm9Bm8JHKoNth9AzZZNA7NIINvXyykMdvepwBnJ4N3q+ln/EaY7638odDR+Qa5FERObgEFyx3tQ=
-Message-ID: <5a4c581d0610041350m40fbf75dj724ef5d9e0d12025@mail.gmail.com>
-Date: Wed, 4 Oct 2006 22:50:26 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: removed sysctl system call - documentation and timeline
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Oct 2006 16:52:26 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:41178 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751112AbWJDUwZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 16:52:25 -0400
+Date: Wed, 4 Oct 2006 13:47:18 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>, Jeff Garzik <jeff@garzik.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061004204718.GA4599@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org> <20061004181032.GA4272@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org> <20061004185903.GA4386@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041216510.3952@g5.osdl.org> <20061004195229.GA4459@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041311420.3952@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490610041335t519678d1u61f5775293c061e4@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0610041311420.3952@g5.osdl.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> Hi,
->
-> With recent kernels I'm getting a lot of warnings about programs using
-> the removed sysctl syscal.
->
-> Examples (after 5 min of uptime here) :
-> root@dragon:/home/juhl# dmesg | grep "used the removed sysctl system
-> call" | sort | uniq
-> warning: process `dd' used the removed sysctl system call
-> warning: process `ls' used the removed sysctl system call
-> warning: process `touch' used the removed sysctl system call
->
-> and more can be found...
->
->
-> I'm not, as such, opposed to removing sysctl (and yes, I know what it
-> is and what it does). What I am a little opposed to is that it is
-> being removed on such short notice (unless I missed the memo) and that
-> it is hidden inside EMBEDDED.
->
-> I would like to propose that, at least for 2.6.19, it be default on
-> (as it is now), not hide it in EMBEDDED where people usually don't go,
-> some huge deprecation warnings be added, and that it then gets the
-> usual 6-12months before being removed (did it already get that and I'm
-> just slow?)...  ohhh, and correct the help text; it currently says
-> "...Nothing has been using the binary sysctl interface for some time
-> now so nothing should break if you disable sysctl syscall support" -
-> that's obviously false as demonstrated by the above extract from my
-> dmesg...
+On Wed, Oct 04, 2006 at 01:12:17PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 4 Oct 2006, Jean Tourrilhes wrote:
+> > 
+> > 	Yes, this is precisely what we have been doing, the two APIs
+> > have been working at the same time for more than 6 months.
+> 
+> In the kernel for any particular driver?
+> 
+> Or just in user-land?
+> 
+> There's a big difference.
 
-Another data point then... this is FC5-uptodate:
+	Both actually.
+	I've slightly simplified the situation, because you may not
+care for all the details, but if you want to know the gory details...
+	It's all started with some kernel drivers changing the way
+they handle ESSID. That was last January. So, in the kernel, you had
+half the drivers doing the old way (NUL terminated), and half doing
+the new way (not NUL terminated).
+	I immediately asked to revert to the old way. All the Wireless
+people were against me, and this mish-mash of API was kept (it was
+public on netdev). At this point, nobody cared that userspace API was
+broken and I was left cleaning up the mess.
+	Of course, some part of the Wireless Tools did broke on the
+new API (I had bug reports), so I had to push new version of Wireless
+Tools. And I took this opportunity to finish moving over the API to
+the new way.
 
-[asuardi@sandman incoming]$ dmesg | grep -i sysctl
-warning: process `date' used the removed sysctl system call
-warning: process `touch' used the removed sysctl system call
-warning: process `salsa' used the removed sysctl system call
+	Sometime breaking userspace APIs is perfectly OK, while
+sometimes it's not. You just have to make sure that Linus does not
+hear about it, I guess ;-)
 
---alessandro
+> 			Linus
 
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
+	Have fun...
 
-     (Husker Du, 'She Floated Away')
+	Jean

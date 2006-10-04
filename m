@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWJFDFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWJFDRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbWJFDFE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 23:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWJFDFD
+	id S1751739AbWJFDRX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 23:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751744AbWJFDRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 23:05:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:21088 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751080AbWJFDE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 23:04:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tizdRNL0dWeOCx1C/w4pBaj1VgVYVDOCcr2LShfOIigwTmC8pemCkKudVEtoGwayckVENAZ/rFhrG79QuqUHn3uAEN8Hj/k9/NGWWNMGKMFYbp/BRbMTE/EaHk2qcpUSLs0bkfuilxriiXooG/qC2LVWxrlbA9Vb9JmbkCCdHeQ=
-Message-ID: <9a0545880610052004o78433b52u24154e8ba1080bb3@mail.gmail.com>
-Date: Thu, 5 Oct 2006 20:04:56 -0700
-From: "Steve Hindle" <mech422@gmail.com>
-To: "David Chinner" <dgc@sgi.com>
-Subject: Re: PROBLEM: Hardlock with 2.6.18-mm3 on Abit AI7, ICH5 + EXT3/XFS, SATA under heavy I/O load
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+	Thu, 5 Oct 2006 23:17:23 -0400
+Received: from mail.tmr.com ([64.65.253.246]:54763 "EHLO roadwarrior3.tmr.com")
+	by vger.kernel.org with ESMTP id S1751739AbWJFDRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 23:17:23 -0400
+Message-ID: <45231A63.3020102@tmr.com>
+Date: Tue, 03 Oct 2006 22:20:19 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: dell poweredge 2400 harddisks going into offline mode when heavy
+ I/O occurs
+References: <20060928141923.GH9348@vanheusden.com> <20060928151257.GA18268@lists.us.dell.com>
+In-Reply-To: <20060928151257.GA18268@lists.us.dell.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I confirmed I get the exact same behavior with 2.6.18-mm3 and ext3..
-So I don't think XFS is the problem.
+Matt Domsch wrote:
+> On Thu, Sep 28, 2006 at 04:19:23PM +0200, Folkert van Heusden wrote:
+>> Hi,
+>>
+>> I have a Dell Poweredge 2400 with 6 scsi harddisks in (hw-) raid 5.
+>> 512MB ram, 2x P3.
+>> When heavy disk i/o occurs, the system puts the harddisks into offline
+>> mode causing the filesystems to be put in readonly. The current kernel
+>> is 2.6.8, with 2.4.27 this did not occure. Googling did not help. The
+>> disks all have green lights (there's a special led for each to indicate
+>> errors - that one is off).
+> 
+> [snip]
+>> Sep 28 16:05:12 kasparov kernel: aacraid: Host adapter reset request. SCSI hang ?
+>> Sep 28 16:06:12 kasparov kernel: aacraid: SCSI bus appears hung
+>> Sep 28 16:06:12 kasparov kernel: scsi: Device offlined - not ready after error recovery: host 1 channel 0 id 0 lun 0
+> 
+> Yes, this is familiar. See:
+> 
+> http://lists.us.dell.com/pipermail/linux-poweredge/2004-May/014694.html
+> 
+> In addition, please consider mounting your file systems with
+> 'noatime', as this reduces the number of small writes being sent to
+> the disks.
+> 
+> 2.6.x kernels have the ability to swamp the RAID controller firmware
+> with requests where 2.4.x kernels couldn't so easily.
 
-Its _really_ annoying that the box is more stable under windows then
-linux :-(  Is there anything I can do to help narrow it down?  The
-configs are the same as in the previous post, except this time I
-booted with 2.6.18-mm3.  I suspect a SATA problem, but I'm unsure what
-to test?  should I try booting with acpi=off? or maybe disabling
-(l?)apic stuff?  I don't have any idea what boot options are
-relavent...Given it only flakes under 'heavy' load, could it be
-interrupt related?
+Can you configure the controller as JBOD and use software raid. Would 
+the controller keep up with that?
+> 
+> Thanks,
+> Matt
+> 
 
-Steve
+

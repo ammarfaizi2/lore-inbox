@@ -1,185 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWJDXkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWJDXzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWJDXkk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 19:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJDXkk
+	id S1751241AbWJDXzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 19:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWJDXzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 19:40:40 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:32681 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1751198AbWJDXkj (ORCPT
+	Wed, 4 Oct 2006 19:55:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48832 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751241AbWJDXzY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 19:40:39 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH] Reset file->f_op in snd_card_file_remove(). Take 2
-Date: Thu, 5 Oct 2006 01:41:47 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       mingo@elte.hu
-References: <200609282228.02611.annabellesgarden@yahoo.de> <200610042201.53337.annabellesgarden@yahoo.de> <s5hvemzq1lg.wl%tiwai@suse.de>
-In-Reply-To: <s5hvemzq1lg.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 4 Oct 2006 19:55:24 -0400
+Date: Wed, 4 Oct 2006 16:55:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] call truncate_inode_pages in the DIO fallback to
+ buffered I/O path
+Message-Id: <20061004165504.c1dd3dd3.akpm@osdl.org>
+In-Reply-To: <x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
+References: <x49zmcc6mhh.fsf@segfault.boston.devel.redhat.com>
+	<20061004102522.d58c00ef.akpm@osdl.org>
+	<4523F486.1000604@oracle.com>
+	<x49mz8c6k83.fsf@segfault.boston.devel.redhat.com>
+	<20061004111603.20cdaa35.akpm@osdl.org>
+	<45240034.2040704@oracle.com>
+	<20061004121645.fd2765e4.akpm@osdl.org>
+	<x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610050141.47847.annabellesgarden@yahoo.de>
-X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 4. Oktober 2006 22:15 schrieb Takashi Iwai:
+On Wed, 04 Oct 2006 16:53:53 -0400
+Jeff Moyer <jmoyer@redhat.com> wrote:
+
+> The man page for open states:
 > 
-> This looks like a good optoin.  But one thing we have to be careful
-> about is the module counter since the owner is different between the
-> old f_op and disconnect_f_op...
+>        O_DIRECT
+>               Try to minimize cache effects of the I/O to and from this file.
 > 
-here is rc1, will test later.
-Feel free to pick it apart ;-)
+> I think that invalidating the page cache pages we use when falling back to
+> buffered I/O stays true to the above description.
 
------------------------------------------------
-/* virtual device
-   hides a real device's f_ops,
-   except for release
+What the manpage forgot to mention is "direct-io is synchronous".
 
- *  Copyright (c) by Karsten Wiese <fzu@wemgehoertderstaat.de>
- *
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
- *
- */
+Except it isn't, when we fall back to buffered-IO.  So yup, I think we
+could justify this (sort of) change on those grounds alone: preserving the
+synchronous semantics.
 
+I'd propose that we do this via
 
-#include <linux/fs.h>
-#include <linux/poll.h>
-#include <linux/module.h>
+	generic_file_buffered_write(...);
+	do_sync_file_range(..., SYNC_FILE_RANGE_WAIT_BEFORE|
+			SYNC_FILE_RANGE_WRITE|
+			SYNC_FILE_RANGE_WAIT_AFTER)
 
-struct snd_disconnected_file {
-	struct file *file;
-	int (*release) (struct inode *, struct file *);
-	struct snd_disconnected_file *next;
-};
+	invalidate_mapping_pages(...);
 
-static struct snd_disconnected_file *disconnecting_files;
-static struct file_operations snd_disconnect_f_ops;
-static DEFINE_MUTEX(mutex);
+There is a slight inefficiency here: generic_file_direct_IO() does
+invalidate_inode_pages2_range(), then we go and instantiate some pagecache,
+then we strip it away again with invalidate_mapping_pages().  That first
+invalidate_inode_pages2_range() was somewhat of a waste of cycles.
 
-void snd_disconnect_file(struct file *file, int (*release) (struct inode *, struct file *))
-{
-	struct snd_disconnected_file *df, **_dfs;
-	df = kmalloc(sizeof(struct snd_disconnected_file), GFP_ATOMIC);
-	if (df == NULL)
-		panic("Atomic allocation failed for snd_disconnected_file!");
+But we expect that the next call to generic_file_direct_IO() won't actually
+call invalidate_inode_pages2_range(), because mapping->nrpages is usually
+zero.
 
-	df->file = file;
-	df->release = release;
-	df->next = NULL;
+Well, it would have been, back in the days when we were invalidating the
+whole file.  Now are more efficient and we only invalidate the specific
+segment of that file.  So if there's a stray pagecache page somewhere at the
+far end ofthe file, we'll pointlessly call invalidate_inode_pages2_range() every
+time.  Oh well.
 
-	mutex_lock(&mutex);
-	_dfs = &disconnecting_files;
-	while (*_dfs != NULL)
-		_dfs = &(*_dfs)->next;
-	*_dfs = df;
-	mutex_unlock(&mutex);
-
-	{
-		const struct file_operations *old_f_op = file->f_op;
-		fops_get(&snd_disconnect_f_ops);
-		file->f_op = &snd_disconnect_f_ops;
-		fops_put(old_f_op);
-	}
-}
-EXPORT_SYMBOL(snd_disconnect_file);
-
-static loff_t snd_disconnect_llseek(struct file *file, loff_t offset, int orig)
-{
-	return -ENODEV;
-}
-
-static ssize_t snd_disconnect_read(struct file *file, char __user *buf,
-				   size_t count, loff_t *offset)
-{
-	return -ENODEV;
-}
-
-static ssize_t snd_disconnect_write(struct file *file, const char __user *buf,
-				    size_t count, loff_t *offset)
-{
-	return -ENODEV;
-}
-
-static int snd_disconnect_release(struct inode *inode, struct file *file)
-{
-	struct snd_disconnected_file *df, **_dfs, **__dfs;
-	int err = 0;
-	__dfs = _dfs = &disconnecting_files;
-
-	mutex_lock(&mutex);
-	while ((df = *_dfs))
-		if (df->file == file) {
-			*__dfs = df->next;
-			break;
-		} else {
-			__dfs = _dfs;
-			_dfs = &df->next;
-		}
-	mutex_unlock(&mutex);
-
-	if (df != NULL)	{
-		err = df->release(inode, file);
-		kfree(df);
-		return err;
-	}
-
-	panic("%s(%p, %p) failed!", __FUNCTION__, inode, file);
-}
-
-static unsigned int snd_disconnect_poll(struct file * file, poll_table * wait)
-{
-	return POLLERR | POLLNVAL;
-}
-
-static long snd_disconnect_ioctl(struct file *file,
-				 unsigned int cmd, unsigned long arg)
-{
-	return -ENODEV;
-}
-
-static int snd_disconnect_mmap(struct file *file, struct vm_area_struct *vma)
-{
-	return -ENODEV;
-}
-
-static int snd_disconnect_fasync(int fd, struct file *file, int on)
-{
-	return -ENODEV;
-}
-
-static struct file_operations snd_disconnect_f_ops =
-{
-	.owner = 	THIS_MODULE,
-	.llseek =	snd_disconnect_llseek,
-	.read = 	snd_disconnect_read,
-	.write =	snd_disconnect_write,
-	.release =	snd_disconnect_release,
-	.poll =		snd_disconnect_poll,
-	.unlocked_ioctl = snd_disconnect_ioctl,
-	.compat_ioctl = snd_disconnect_ioctl,
-	.mmap =		snd_disconnect_mmap,
-	.fasync =	snd_disconnect_fasync
-};
---------------------------------------------------------
-
-      Karsten

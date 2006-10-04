@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWJDHT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWJDHcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161108AbWJDHT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 03:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbWJDHT6
+	id S1161112AbWJDHcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 03:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWJDHcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 03:19:58 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:20429 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S1161108AbWJDHT6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 03:19:58 -0400
-Subject: Re: debugfs oddity
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Greg KH <gregkh@suse.de>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Joel Becker <Joel.Becker@oracle.com>, Michael Buesch <mb@bu3sch.de>
-In-Reply-To: <20061003052839.GA18989@suse.de>
-References: <1159781104.2655.47.camel@ux156>
-	 <20061003052839.GA18989@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 09:20:46 +0200
-Message-Id: <1159946446.2817.2.camel@ux156>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.92 
-X-sips-origin: local
+	Wed, 4 Oct 2006 03:32:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17379 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030548AbWJDHcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 03:32:10 -0400
+Message-ID: <452363C5.1020505@redhat.com>
+Date: Wed, 04 Oct 2006 00:33:25 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com> <20061004045527.GB32267@2ka.mipt.ru>
+In-Reply-To: <20061004045527.GB32267@2ka.mipt.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2C7F6BDD534D56E271BDC5B4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 22:28 -0700, Greg KH wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2C7F6BDD534D56E271BDC5B4
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> sysfs works much differently here, as does configfs.  debugfs just uses
-> the vfs layer's ramfs stack, so any potential problem here is probably
-> also present in ramfs.  Have you tried that out?
+Evgeniy Polyakov wrote:
+> When we enter sys_ppoll() we specify needed signals as syscall
+> parameter, with kevents we will add them into the queue.
 
-Just had a go -- ramfs works as expected, at least when I do the dance
-from userspace as I had in (a')-(d').
+No, this is not sufficient as I said in the last mail.  Why do you
+completely ignore what others say.  The code which depends on the signal
+does not have to have access to the event queue.  If a library sets up
+an interrupt handler then it expect the signal to be delivered this way.
+ In such situations ppoll etc allow the signal to be generally blocked
+and enabled only and *ATOMICALLY* around the delays.  This is not
+possible with the current wait interface.  We need this signal mask
+interfaces and the appropriate setup code.
 
-johannes
+Being able to get signal notifications does not mean this is always the
+way it can and must happen.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig2C7F6BDD534D56E271BDC5B4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFI2PF2ijCOnn/RHQRAk+TAKC6jf1yoYInqCZc7OZMeDj2oKptRACbBC7j
+rrtN99wYR8Iu9QQrqtd+aqg=
+=/HVc
+-----END PGP SIGNATURE-----
+
+--------------enig2C7F6BDD534D56E271BDC5B4--

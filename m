@@ -1,134 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030826AbWJDLsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbWJDLxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030826AbWJDLsI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 07:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030829AbWJDLsI
+	id S1030523AbWJDLxq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 07:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030820AbWJDLxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 07:48:08 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:29833 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030826AbWJDLsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 07:48:05 -0400
-Date: Wed, 4 Oct 2006 07:48:03 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] drivers/base/bus: remove indentation level
-Message-ID: <20061004114803.GA21740@havoc.gtf.org>
+	Wed, 4 Oct 2006 07:53:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42219 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030523AbWJDLxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 07:53:46 -0400
+Message-Id: <20061004114817.PS52864700000@infradead.org>
+Date: Wed, 04 Oct 2006 08:48:17 -0300
+From: mchehab@infradead.org
+To: torvalds@osdl.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 00/10] V4L/DVB fixes and trivial patches to 2.6.19
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-Before potentially fixing up these functions, this cosmetic change
-reduces the indentation level to make the code easier to read and
-maintain.
+Please pull these from master branch at:
+        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
 
-No functional changes at all.
+It contains the Kconfig fix and several small patches, mostly fixes:
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+   - Remove Kconfig item for DiB7000M support
+   - Saa713x audio fixes
+   - Fix: set antenna input for DVB-T for Asus P7131 Dual hybrid
+   - Add support for the ASUS EUROPA2 OEM board
+   - SAA713x: fixed compile warning in SECAM fixup
+   - Do not enable VIDEO_V4L2 unconditionally
+   - 4linux: complete conversion to hotplug safe PCI API
+   - Add tveeprom support for Philips FM1236/FM1216ME MK5
+   - Radio: No need to return void
+   - Fix warning when compiling on x86_i64
 
+Cheers,
+Mauro.
+
+V4L/DVB development is hosted at http://linuxtv.org
 ---
 
- drivers/base/bus.c |   77 +++++++++++++++++++++++++++--------------------------
- 1 files changed, 40 insertions(+), 37 deletions(-)
+ Documentation/video4linux/CARDLIST.saa7134    |    1 
+ drivers/media/Kconfig                         |    1 
+ drivers/media/dvb/dvb-usb/Kconfig             |    1 
+ drivers/media/dvb/dvb-usb/usb-urb.c           |    5 +
+ drivers/media/radio/radio-gemtek-pci.c        |    2 -
+ drivers/media/video/saa7134/saa7134-cards.c   |   35 +++++++++
+ drivers/media/video/saa7134/saa7134-dvb.c     |   44 +++++++++++-
+ drivers/media/video/saa7134/saa7134-tvaudio.c |   93 +++++++++++--------------
+ drivers/media/video/saa7134/saa7134-video.c   |   60 ++++++++++++++++
+ drivers/media/video/saa7134/saa7134.h         |    2 -
+ drivers/media/video/tveeprom.c                |    4 +
+ drivers/media/video/zoran_card.c              |   10 ++-
+ drivers/media/video/zr36120.c                 |   21 +++---
+ 13 files changed, 202 insertions(+), 77 deletions(-)
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index 12173d1..b1069c7 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -505,34 +505,36 @@ int bus_add_driver(struct device_driver 
- 	struct bus_type * bus = get_bus(drv->bus);
- 	int error = 0;
- 
--	if (bus) {
--		pr_debug("bus %s: add driver %s\n", bus->name, drv->name);
--		error = kobject_set_name(&drv->kobj, "%s", drv->name);
--		if (error)
--			goto out_put_bus;
--		drv->kobj.kset = &bus->drivers;
--		if ((error = kobject_register(&drv->kobj)))
--			goto out_put_bus;
--
--		error = driver_attach(drv);
--		if (error)
--			goto out_unregister;
--		klist_add_tail(&drv->knode_bus, &bus->klist_drivers);
--		module_add_driver(drv->owner, drv);
--
--		error = driver_add_attrs(bus, drv);
--		if (error) {
--			/* How the hell do we get out of this pickle? Give up */
--			printk(KERN_ERR "%s: driver_add_attrs(%s) failed\n",
--				__FUNCTION__, drv->name);
--		}
--		error = add_bind_files(drv);
--		if (error) {
--			/* Ditto */
--			printk(KERN_ERR "%s: add_bind_files(%s) failed\n",
--				__FUNCTION__, drv->name);
--		}
-+	if (!bus)
-+		return 0;
-+
-+	pr_debug("bus %s: add driver %s\n", bus->name, drv->name);
-+	error = kobject_set_name(&drv->kobj, "%s", drv->name);
-+	if (error)
-+		goto out_put_bus;
-+	drv->kobj.kset = &bus->drivers;
-+	if ((error = kobject_register(&drv->kobj)))
-+		goto out_put_bus;
-+
-+	error = driver_attach(drv);
-+	if (error)
-+		goto out_unregister;
-+	klist_add_tail(&drv->knode_bus, &bus->klist_drivers);
-+	module_add_driver(drv->owner, drv);
-+
-+	error = driver_add_attrs(bus, drv);
-+	if (error) {
-+		/* How the hell do we get out of this pickle? Give up */
-+		printk(KERN_ERR "%s: driver_add_attrs(%s) failed\n",
-+			__FUNCTION__, drv->name);
-+	}
-+	error = add_bind_files(drv);
-+	if (error) {
-+		/* Ditto */
-+		printk(KERN_ERR "%s: add_bind_files(%s) failed\n",
-+			__FUNCTION__, drv->name);
- 	}
-+
- 	return error;
- out_unregister:
- 	kobject_unregister(&drv->kobj);
-@@ -552,16 +554,17 @@ out_put_bus:
- 
- void bus_remove_driver(struct device_driver * drv)
- {
--	if (drv->bus) {
--		remove_bind_files(drv);
--		driver_remove_attrs(drv->bus, drv);
--		klist_remove(&drv->knode_bus);
--		pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
--		driver_detach(drv);
--		module_remove_driver(drv);
--		kobject_unregister(&drv->kobj);
--		put_bus(drv->bus);
--	}
-+	if (!drv->bus)
-+		return;
-+
-+	remove_bind_files(drv);
-+	driver_remove_attrs(drv->bus, drv);
-+	klist_remove(&drv->knode_bus);
-+	pr_debug("bus %s: remove driver %s\n", drv->bus->name, drv->name);
-+	driver_detach(drv);
-+	module_remove_driver(drv);
-+	kobject_unregister(&drv->kobj);
-+	put_bus(drv->bus);
- }
- 
- 

@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWJDMrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWJDNCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWJDMrk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 08:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWJDMrk
+	id S1030321AbWJDNCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 09:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWJDNCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 08:47:40 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:6928 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932340AbWJDMrj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 08:47:39 -0400
-Date: Wed, 4 Oct 2006 08:39:42 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jouni Malinen <jkmaline@cc.hut.fi>, Jean Tourrilhes <jt@hpl.hp.com>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Jeff Garzik <jeff@garzik.org>, Linus Torvalds <torvalds@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061004123935.GB9277@tuxdriver.com>
-References: <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <d120d5000610031208i4a204b2es8de8d424a573acf4@mail.gmail.com> <20061003194957.GB17855@bougret.hpl.hp.com> <20061004022100.GC6110@jm.kir.nu> <1159947203.3000.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159947203.3000.4.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 4 Oct 2006 09:02:04 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:42157 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S932409AbWJDNCB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 09:02:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Problem with legacy megaraid
+Date: Wed, 4 Oct 2006 07:01:55 -0600
+Message-ID: <9738BCBE884FDB42801FAD8A7769C265F8A982@NAMAIL1.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem with legacy megaraid
+Thread-Index: AcblH0H1o/3Jk+L5TPSSVpEakJV4UwABL70gAJ6ay2AABa5JIA==
+From: "Kolli, Neela" <Neela.Kolli@lsil.com>
+To: "Chris Lee" <labmonkey42@gmail.com>, <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Ju, Seokmann" <Seokmann.Ju@engenio.com>,
+       <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 04 Oct 2006 13:01:56.0093 (UTC) FILETIME=[4517EAD0:01C6E7B5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 09:33:23AM +0200, Arjan van de Ven wrote:
-> On Tue, 2006-10-03 at 19:21 -0700, Jouni Malinen wrote:
+Hi Chris,
+This being a "Dell controller", Dell customer service would be the
+starting point to handle this.
 
-> > (And based on the other messages in this thread, it might be useful to
-> > include the userspace program's idea of the version in those new
-> > commands to allow multiple interface versions to be supported by the
-> > kernel).
-> 
-> 
-> or... don't use a NUMBER for this.
-> 
-> If you have a bitmap for supported features, it's much more powerful!
-> That way you can even do this per driver/hardware, and you can
-> add/retract individual capabilities rather than lumping everything into
-> one big number.
+Thanks,
+Neela Syam Kolli.
 
-Arjan (as usual) makes a very good suggestion here...
 
--- 
-John W. Linville
-linville@tuxdriver.com
+-----Original Message-----
+From: Chris Lee [mailto:labmonkey42@gmail.com] 
+Sent: Wednesday, October 04, 2006 6:22 AM
+To: linux-kernel@vger.kernel.org
+Cc: 'Andrew Morton'; Ju, Seokmann; linux-scsi@vger.kernel.org; Kolli,
+Neela
+Subject: RE: Problem with legacy megaraid
+
+> > > > 
+> > > > > Distro: Gentoo Linux
+> > > > > Kernel: 2.6.17-gentoo-r7
+> > > > > 
+> > > > > Hardware:
+> > > > > Motherboard: Tyan Thunder i7501 Pro (S2721-533)
+> > > > > CPUs: Dual 2.8Ghz P4 HT Xeons
+> > > > > RAM: 4GB registered (3/1 split, flat model)
+> > > > > RAID: Dell PERC2/DC (AMI Megaraid 467)
+> > > > > SCSI: Adaptec AHA-2940U2/U2W PCI
+> > > > > NICs: onboard e100 and dual onboard e1000
+> > > > > 
+> > 
+> > Did it work correctly under any earlier kernel version?  If 
+> > so, which?
+> 
+> I've recently built the system and the problem was present 
+> with both 2.6.16-gentoo-r4 and now 2.6.17-gentoo-r7.  I've 
+> not used any earlier kernel versions in this system.
+
+To update... I've rolled back to 2.6.{12,11,9} and can still reproduce
+the
+problem on all of them.  I'm out of ideas as to where I can look for the
+cause.  If anyone (LSI, Dell people maybe?) has any ideas please let me
+know.
+
+Thanks,
+Chris  
+

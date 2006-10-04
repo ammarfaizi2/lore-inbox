@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030703AbWJDCDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWJDCKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030703AbWJDCDv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 22:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030704AbWJDCDv
+	id S1161064AbWJDCKp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 22:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030707AbWJDCKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 22:03:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57021 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030703AbWJDCDu (ORCPT
+	Tue, 3 Oct 2006 22:10:45 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:23748 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1030706AbWJDCKo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 22:03:50 -0400
-Date: Tue, 3 Oct 2006 19:03:41 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>, Joe Korty <joe.korty@ccur.com>
-Cc: reinette.chatre@linux.intel.com, linux-kernel@vger.kernel.org,
-       inaky@linux.intel.com
-Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of a
- user buffer
-Message-Id: <20061003190341.1f0d4601.pj@sgi.com>
-In-Reply-To: <20061003163936.d8e26629.akpm@osdl.org>
-References: <200610030816.27941.reinette.chatre@linux.intel.com>
-	<20061003163936.d8e26629.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Oct 2006 22:10:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=bumCm8GH+y4TeD70hlmh5RdC5v8ZiJgb/GS5/oxzRUyOE0rqhTGSlLtLAv6NbARH+Mn8//kNLt5ume6UR06XIeI0sY3MpDRK8tydyxlO/kS86XKfkYX1ezAVPGdZed5LfsQilhNpoZc6j9V7ayctF7mQMb3SFXoxRLAv689mmSc=
+From: Patrick McFarland <diablod3@gmail.com>
+To: "Patrick Draper" <pdraper@gmail.com>
+Subject: Re: It's not GNU/Linux - it's jusy LINUX
+Date: Tue, 3 Oct 2006 22:06:09 -0400
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <4522DA72.7070908@perkel.com> <008101c6e737$672c4590$6721100a@nuitysystems.com> <6981e08b0610031817r69c0e923ueac036b65014b196@mail.gmail.com>
+In-Reply-To: <6981e08b0610031817r69c0e923ueac036b65014b196@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610032206.09284.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that bitmap_parse() was contributed by Joe Korty.
+On Tuesday 03 October 2006 21:17, Patrick Draper wrote:
+> On 10/3/06, Hua Zhong <hzhong@gmail.com> wrote:
+> > Since we've got to this point, let's call it AT&T/Unix.
+>
+> Neither would exist without Alexander Graham Bell, and even had a mother.
+>
+> Let's call it Alexander Graham Bell's Mom.
 
-Let's add him to this cc list too.
+Wow, this may be the first "yo momma" insult ever told on the LKML.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Patrick McFarland || http://AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
+

@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWJDDrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWJDDth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWJDDrA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 23:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWJDDrA
+	id S1751093AbWJDDth (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 23:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWJDDth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 23:47:00 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:48258 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751089AbWJDDq7 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 23:46:59 -0400
-Message-Id: <200610040346.k943kvwM006684@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Steven Truong <midair77@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kexec / kdump kernel panic
-In-Reply-To: Your message of "Tue, 03 Oct 2006 17:18:21 PDT."
-             <28bb77d30610031718r51dfb003ge22c082d3b4cacb@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <28bb77d30610031718r51dfb003ge22c082d3b4cacb@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159933617_3990P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Oct 2006 23:46:57 -0400
+	Tue, 3 Oct 2006 23:49:37 -0400
+Received: from relay01.pair.com ([209.68.5.15]:25867 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S1751093AbWJDDtg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 23:49:36 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+To: goodfellas@shellcode.com.ar
+Subject: Re: =?utf-8?q?Registration=C2=A0Weakness=C2=A0in=C2=A0Linux=C2=A0Kernel=27?=
+ =?utf-8?q?s=C2=A0Binary=C2=A0formats?=
+Date: Tue, 3 Oct 2006 22:49:10 -0500
+User-Agent: KMail/1.9.4
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, endrazine <endrazine@gmail.com>,
+       Stephen Hemminger <shemminger@osdl.org>, Valdis.Kletnieks@vt.edu,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1159902785.2855.34.camel@goku.staff.locallan>
+In-Reply-To: <1159902785.2855.34.camel@goku.staff.locallan>
+Organization: Clientec, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610032249.33712.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159933617_3990P
-Content-Type: text/plain; charset=us-ascii
+On Tuesday 03 October 2006 14:12, SHELLCODE Security Research wrote:
+> Hello,
+> The present document aims to demonstrate a design weakness found in the
+> handling of simply
+> linked   lists   used   to   register   binary   formats   handled   by
+> Linux   kernel,   and   affects   all   the   kernel families
+> (2.0/2.2/2.4/2.6), allowing the insertion of infection modules in
+> kernel­ space that can be used by malicious users to create infection
+> tools, for example rootkits.
 
-On Tue, 03 Oct 2006 17:18:21 PDT, Steven Truong said:
+Yay, you've been Slashdotted!
 
-> /usr/sbin/kexec -p /boot/vmlinux
-> --initrd=/boot/initrd-2.6.18-kdump.img --args-linux
-> --append="root=/dev/sda3  irqpoll init 1"
+Question: Why did you personally submit this to Slashdot when it is absolutely 
+clear that the observation is akin to figuring out a process can call fork() 
+and exec() and become "/bin/rm" with an argv of "/bin/rm", "-rf", and "*"?
 
-If the /boot/vmlinux is the one you usually use to boot, that won't work.
+Is this what you call good marketing?
 
-Your usual vmlinux is almost certainly linked to load at the 1M line,
-and you need a kernel linked to load at the 16M line (as set in crashkernel=).
+> POC, details and proposed solution at:
+> English version: http://www.shellcode.com.ar/docz/binfmt-en.pdf
+> Spanish version: http://www.shellcode.com.ar/docz/binfmt-es.pdf
+>
 
-See the CONFIG_PHYSICAL_START config option, and there's other details
-in Documentation/kdump/kdump.txt - it looks like you have most of it right,
-except you need to build *TWO* specially configured kernels (your production
-one with KEXEC support and a few other things, and then the dump kernel
-with a different PHYSICAL_START and a few settings).
-
---==_Exmh_1159933617_3990P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFIy6xcC3lWbTT17ARAj6NAJ99YRx2xKN2RS8gkYFq0TMB4X+YHQCePO38
-wXS6Jk/CG0bbyx6KveJK3lM=
-=mvgd
------END PGP SIGNATURE-----
-
---==_Exmh_1159933617_3990P--
+Thanks,
+Chase

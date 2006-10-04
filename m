@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbWJDAGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbWJDAHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbWJDAGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 20:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbWJDAGX
+	id S1030418AbWJDAHp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 20:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWJDAHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 20:06:23 -0400
-Received: from gw.goop.org ([64.81.55.164]:62398 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030414AbWJDAGW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 20:06:22 -0400
-Message-ID: <4522FB04.1080001@goop.org>
-Date: Tue, 03 Oct 2006 17:06:28 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: tim.c.chen@linux.intel.com
-CC: herbert@gondor.apana.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       leonid.ananiev@intel.com
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-References: <1159916644.8035.35.camel@localhost.localdomain>
-In-Reply-To: <1159916644.8035.35.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Tue, 3 Oct 2006 20:07:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5870 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030418AbWJDAHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 20:07:43 -0400
+Subject: Re: System hang problem.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Manish Neema <Manish.Neema@synopsys.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
+References: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 04 Oct 2006 01:33:14 +0100
+Message-Id: <1159921995.17553.136.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Chen wrote:
-> Hi Herbet,
->
-> The patch "Let WARN_ON/WARN_ON_ONCE return the condition"
-> http://kernel.org/git/?
-> p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=684f978347deb42d180373ac4c427f82ef963171
->
-> introduced 40% more 2nd level cache miss to tbench workload
-> being run in a loop back mode on a Core 2 machine.  I think the
-> introduction of the local variables to WARN_ON and WARN_ON_ONCE
->
-> typeof(x) __ret_warn_on = (x);
-> typeof(condition) __ret_warn_once = (condition);
->
-> results in the extra cache misses.  In our test workload profile, we see
-> heavily used functions like do_softirq and local_bh_enable 
-> takes a lot longer to execute.  
->
-> The modification below helps fix the problem.  I made a slight
-> modification to sched.c to get around a gcc bug.
->   
+Ar Maw, 2006-10-03 am 15:07 -0700, ysgrifennodd Manish Neema:
+> RHEL3.0 U3 would generate an OOM kill "each and every time" it sensed
+> system hang but due to other bugs, we had to move away from it. RedHat
 
-How does the generated code change?  Doesn't evaluating the condition 
-multiple times have the potential to cause problems?
+And often when it didn't need too which for many users workloads is bad
 
-    J
+> Changing overcommit to 2 (and ratio to any where from 1 to 99) would
+> result in certain OS processes (automount daemon for e.g.) getting
+> killed when all the allowed memory is committed. What is the point in
+
+Killed and logging an OOM message ? That indicates a bug (well for ratio
+<= about 50% anyway). Killed because there is no memory and a memory
+allocation fails is expected.
+
+> reserving some memory if a random root process would get killed leaving
+> the system in a totally unknown state?
+
+If you run out of memory and someone asks for more something has to
+give. A properly configured system really shouldn't be running out of
+memory anyway for most sane workloads.
+
+It's like putting water in a bottle, at the point you have more water
+than bottle something has to spill, if it doesn't the box hangs.
+
+Alan
+

@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030548AbWJDJYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWJDJcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030548AbWJDJYd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 05:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030770AbWJDJYd
+	id S1161132AbWJDJcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 05:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbWJDJcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 05:24:33 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:2578
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030548AbWJDJYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 05:24:32 -0400
-Message-Id: <45239A38.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 04 Oct 2006 10:25:44 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Eric Rannaud" <eric.rannaud@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Chandra Seetharaman" <sekharan@us.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <nagar@watson.ibm.com>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org>
- <200609302230.24070.ak@suse.de>
-In-Reply-To: <200609302230.24070.ak@suse.de>
+	Wed, 4 Oct 2006 05:32:55 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:57734 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1161132AbWJDJcy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 05:32:54 -0400
+Date: Wed, 4 Oct 2006 05:32:54 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: linux-scsi@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] SCSI sd: fix module init/exit error handling
+Message-ID: <20061004093254.GA15585@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The lockdep warning in itself is probably valid, but the reason for the 
->> _hang_ is the
->> 
->> 	[  138.831385] Unable to handle kernel paging request at ffffffff82800000 RIP:
->> 	[  138.831439]  [<ffffffff8020b491>] show_trace+0x311/0x380  
->> 
->> and that code is just a total mess. 
->
->The code decides to do a fallback at the top of stack space for some reason.
->
->Hmm, i've seen this working on other kernel threads, but maybe 
->that was luck. Kernel threads don't end up in user space 
->so the normal check for that doesn't work.
->I guess we just need another termination for the kernel threads
->by pushing a 0 there explicitely. Jan, do you agree?
 
-I thought we had done this already.
+- Properly handle and unwind errors in init_sd().  Fixes leaks on error,
+  if class_register() or scsi_register_driver() failed.
 
->> > [  138.751306]  [<ffffffff8021ecc0>] search_extable+0x40/0x70
->
->After here the unwinder seems to become a bit and it shouldn't print
->multiple entries. Jan any ideas why?
+- Ensure that exit_sd() execution order is the perfect inverse of
+  initialization order.
 
-Not without raw stack contents.
+FIXME:  If some-but-not-all register_blkdev() calls fail, we wind up
+calling unregister_blkdev() for block devices we did not register.
+This was a pre-existing bug.
 
->Proposed patch appended. Jan, what do you think?
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-As said above - I thought we added zero-termination already.
+---
 
-Jan
+ drivers/scsi/sd.c |   23 ++++++++++++++++++-----
+ 1 files changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 10bc99c..d9a118e 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1794,7 +1794,7 @@ static void sd_shutdown(struct device *d
+  **/
+ static int __init init_sd(void)
+ {
+-	int majors = 0, i;
++	int majors = 0, i, err;
+ 
+ 	SCSI_LOG_HLQUEUE(3, printk("init_sd: sd driver entry point\n"));
+ 
+@@ -1805,9 +1805,22 @@ static int __init init_sd(void)
+ 	if (!majors)
+ 		return -ENODEV;
+ 
+-	class_register(&sd_disk_class);
++	err = class_register(&sd_disk_class);
++	if (err) 
++		goto err_out;
+ 
+-	return scsi_register_driver(&sd_template.gendrv);
++	err = scsi_register_driver(&sd_template.gendrv);
++	if (err)
++		goto err_out_class;
++	
++	return 0;
++
++err_out_class:
++	class_unregister(&sd_disk_class);
++err_out:
++	for (i = 0; i < SD_MAJORS; i++)
++		unregister_blkdev(sd_major(i), "sd");
++	return err;
+ }
+ 
+ /**
+@@ -1822,10 +1835,10 @@ static void __exit exit_sd(void)
+ 	SCSI_LOG_HLQUEUE(3, printk("exit_sd: exiting sd driver\n"));
+ 
+ 	scsi_unregister_driver(&sd_template.gendrv);
++	class_unregister(&sd_disk_class);
++
+ 	for (i = 0; i < SD_MAJORS; i++)
+ 		unregister_blkdev(sd_major(i), "sd");
+-
+-	class_unregister(&sd_disk_class);
+ }
+ 
+ module_init(init_sd);

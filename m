@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWJDPwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbWJDPw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161254AbWJDPwR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 11:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161259AbWJDPwR
+	id S1161259AbWJDPw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 11:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161260AbWJDPw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 11:52:17 -0400
-Received: from mga09.intel.com ([134.134.136.24]:10 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1161254AbWJDPwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 11:52:16 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,256,1157353200"; 
-   d="scan'208"; a="140351738:sNHT45327415"
-Message-ID: <4082.10.24.212.168.1159977123.squirrel@linux.intel.com>
-In-Reply-To: <20061004080637.0bd19042.pj@sgi.com>
-References: <200610030816.27941.reinette.chatre@linux.intel.com>
-    <20061003163936.d8e26629.akpm@osdl.org>
-    <20061004141405.GA22833@tsunami.ccur.com>
-    <20061004072746.8e4b97a0.pj@sgi.com>
-    <20061004145524.GA24335@tsunami.ccur.com>
-    <20061004080637.0bd19042.pj@sgi.com>
-Date: Wed, 4 Oct 2006 08:52:03 -0700 (PDT)
-Subject: Re: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of 
-     a user buffer
-From: inaky@linux.intel.com
-To: "Paul Jackson" <pj@sgi.com>
-Cc: "Joe Korty" <joe.korty@ccur.com>, akpm@osdl.org,
-       reinette.chatre@linux.intel.com, linux-kernel@vger.kernel.org,
-       inaky@linux.intel.com
-User-Agent: SquirrelMail/1.4.6-7.el4.centos4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Wed, 4 Oct 2006 11:52:26 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:18819 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1161259AbWJDPwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 11:52:25 -0400
+Date: Wed, 04 Oct 2006 11:51:55 -0400
+From: Eric Buddington <ebuddington@verizon.net>
+Subject: 2.6.18-mm1: true/false enum in linux/stddef.h fails glibc-2.4 compile
+To: linux-kernel@vger.kernel.org
+Reply-to: ebuddington@wesleyan.edu
+Message-id: <20061004155155.GD17660@pool-71-123-69-209.wma.east.verizon.net>
+Organization: ECS Labs
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Eric-conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Joe wrote:
->> I guess I am a sucker for no-transient-buffer (bufferless?)
->
-> Ah - that explains Joe's preference for putting the actual implementing
-> code in the user version - it gets to pull in the user string one
-> char at a time, avoiding a malloc'd buffer.
+There is an enum contained in some recent -mm versions of
+linux/stddef.h which seems to be horking my glibc-2.4 compile:
 
-I tend to gree w/ Joe there.
+enum {
+        false   = 0,
+        true    = 1
+};
 
-I wonder if a hybrid would be ok, although I the pseudo impl
-I propose below is kind of dirty, but some people might find it
-justified enough:
+One way or another (I can't find where), 'true' and 'false' are
+getting defined to 1 and 0, turning the above into enum { 0=0, 1=1 },
+which though undeniable is not compilable.
 
-static
-__bitmap_parse(const void *_buf, size_t size, enum { KERNEL, USER } type,
-               unsigned long *dst, int nbits)
-{
-        const char __user *ubuf = _buf;
-        const char *buf = _buf;
-        ...
-        switch(type) {
-        case USER:
-                if (get_user(c, ubuf++))
-                        return -EFAULT;
-                break;
-        case KERNEL:
-                c = *buf++;
-                break;
-        default:
-                BUG();
-        ...
-}
+This enum shows up in 2.6.18-rc5-mm1 and 2.6.18-mm1, but not in
+2.6.17-mm6.
 
+Whether this is the fault of glibc, gcc, or the kernel is a topic I
+wouldn't touch with a 3m pole, even if I had one. I've submitted the
+issue to the glibc bugzilla as well:
 
-int bitmap_parse(const char *buf, unsigned int buflen,
-                 unsigned long *maskp, int nmaskbits) {
-    return __bitmap_parse(buf, buflen, KERNEL, maskp, nmaskbits);
-}
+http://sources.redhat.com/bugzilla/show_bug.cgi?id=3301
 
+Any thoughts would be appreciated.
 
-int bitmap_parse_user(const char __user *buf, unsigned int buflen,
-                      unsigned long *maskp, int nmaskbits) {
-    return __bitmap_parse(buf, buflen, USER, maskp, nmaskbits);
-}
+Thanks,
 
-
-[that or exposing __bitmap_user() as a extern / EXPORT and putting
- bitmap_parse{,_user}() as an inline in the header file]
-
-It's nitty-gritty, but it removes the kmalloc from the equation...
-
--- 
-Inaky
+Eric

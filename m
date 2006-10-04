@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWJDRaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWJDReV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbWJDRaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 13:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWJDRav
+	id S1160999AbWJDReV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 13:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWJDReU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 13:30:51 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:17480 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964900AbWJDRav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 13:30:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sZ5E9R3ZYhFfnD6fa5DC4MtgHwfRRwhT0zTkShmbhPM7UO+mBc9kROESHSg0UEqEWploLhcsleARRxpowABK7wFNVdqwmcnY0S3Z2JkOSz2OBpLv81zvEGbIlGF8jWdJdO5p1tYj105j+DTl71SUG4335c19VB4QoYrN1sWItCg=
-Message-ID: <a36005b50610041030k1ca54065v90a5f6d54b5b9254@mail.gmail.com>
-Date: Wed, 4 Oct 2006 10:30:48 -0700
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "David Wagner" <daw-usenet@taverner.cs.berkeley.edu>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <efvcs7$526$1@taverner.cs.berkeley.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 4 Oct 2006 13:34:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41902 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964920AbWJDReU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 13:34:20 -0400
+Date: Wed, 4 Oct 2006 10:34:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: tim.c.chen@linux.intel.com
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061004103408.1a38b8ad.akpm@osdl.org>
+In-Reply-To: <1159978929.8035.109.camel@localhost.localdomain>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	<4522FB04.1080001@goop.org>
+	<1159919263.8035.65.camel@localhost.localdomain>
+	<45233B1E.3010100@goop.org>
+	<1159968095.8035.76.camel@localhost.localdomain>
+	<20061004093025.ab235eaa.akpm@osdl.org>
+	<1159978929.8035.109.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45150CD7.4010708@aknet.ru> <4522B7CD.4040206@redhat.com>
-	 <efv8pc$31o$1@taverner.cs.berkeley.edu>
-	 <a36005b50610032051h64609d51kf1e5211d1bf07370@mail.gmail.com>
-	 <efvcs7$526$1@taverner.cs.berkeley.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/06, David Wagner <daw@cs.berkeley.edu> wrote:
-> I wonder whether it is feasible to run with allow_exec{heap,mem,mod,stack}
-> all set to false, on a real system.  Is there any example of a fully
-> worked out SELinux policy that has these set to false?  FC5 has
-> allow_execheap set to false and all others set to true in its default
-> SELinux policy,
+On Wed, 04 Oct 2006 09:22:09 -0700
+Tim Chen <tim.c.chen@linux.intel.com> wrote:
 
-This is the default setting to minimize breakage.  And it has been set
-like this (in the FC6 devel cycle) only in the last minute.  For most
-of the devel cycle all were off.  For the distribution as a hole there
-is simply too much of a chance for something to break and make the
-system appear unusable.  This is mostly code in 3rd party apps.
-Reason enough, unfortunately, for us to default on the safe side.
+> On Wed, 2006-10-04 at 09:30 -0700, Andrew Morton wrote:
+> 
+> > > I have measured the cache miss with tool.  So it is not just my theory.
+> > > 
+> > 
+> > And what did that tool tell you?
+> 
+> I am using emon.  Measuring a 20 second stretch of tbench run saw the L2
+> cache miss go from 14 million to 25 million on each of the cpu core.
+> > 
+> > Please don't just ignore my questions.  *why* are we getting a cache miss
+> > rate on that integer which is causing measurable performance changes?  If
+> > we're reading it that frequently then the variable should be in cache(!).
+> > 
+> 
+> The point is valid, __warn_once should be in cache, unless something
+> evicts it. What I have found so far is with patch by Andrew and Leonid
+> that avoid looking up the __warn_once integer, the cache miss rate is
+> reduced to the level before.  
+> 
+> > Again: do you know which callsite is causing the problem?  I assume one of
+> > the ones in softirq.c?  Do you know what the cache miss frequency is?  etc.
+> > 
+> Unfortunately emon does not directly give the callsite.  Oprofile data
+> shows a marked increase in time spent in do_softirq and local_bh_enable.
+> What I could do is to individually turn off WARN_ON_ONCE at these sites
+> and see if they are responsible for the cache miss.  Will let you know
+> what I found.
 
-But I run my machines with everything turned off.  We cleaned up the
-code we ship so that this is possible.
+I see, thanks.  How very peculiar.
+
+I wonder if we just got unlucky and that particular benchmark with that
+particular kernel build just happens to reach the cache system's
+associativity threshold, and this one extra cacheline took it over the
+edge.  Or something.
+
+But if that was the case, one would expect even a small change to the
+kernel (say, a different compiler version, or different config) would
+improve things a lot, or would worsen things a lot.
+
+I think the change is right.  But, again, I worry that any teeny change we
+make in there in the future will bring the problem back.
+

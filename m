@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWJDXb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWJDXeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWJDXb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 19:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJDXb4
+	id S1751233AbWJDXeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 19:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWJDXeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 19:31:56 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:34004 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751232AbWJDXbz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 19:31:55 -0400
-Date: Wed, 4 Oct 2006 16:31:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: ecashin@coraid.com, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drivers/block/aoe: handle sysfs errors
-Message-ID: <20061004233159.GB16204@kroah.com>
-References: <20061004135819.GA29526@havoc.gtf.org>
+	Wed, 4 Oct 2006 19:34:10 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:49102 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751233AbWJDXeI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 19:34:08 -0400
+Message-ID: <452444EF.8050406@us.ibm.com>
+Date: Wed, 04 Oct 2006 16:34:07 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061004135819.GA29526@havoc.gtf.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Dave Jones <davej@redhat.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: FSX on NFS blew up.
+References: <20061003164905.GD23492@redhat.com> <1159922084.9569.24.camel@dyn9047017100.beaverton.ibm.com> <20061004004009.GA20459@redhat.com> <1159922770.9569.26.camel@dyn9047017100.beaverton.ibm.com> <20061004005125.GC21677@redhat.com>
+In-Reply-To: <20061004005125.GC21677@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 09:58:19AM -0400, Jeff Garzik wrote:
-> 
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
-> 
-> ---
-> 
->  drivers/block/aoe/aoeblk.c |   64 +++++++++++++++++++++++++++++++++------------
->  1 files changed, 47 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
-> index 393b86a..04f9b03 100644
-> --- a/drivers/block/aoe/aoeblk.c
-> +++ b/drivers/block/aoe/aoeblk.c
-> @@ -64,13 +64,36 @@ static struct disk_attribute disk_attr_f
->  	.show = aoedisk_show_fwver
->  };
->  
-> -static void
-> +static int
->  aoedisk_add_sysfs(struct aoedev *d)
->  {
-> -	sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
-> -	sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
-> -	sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
-> -	sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
-> +	int err;
-> +
-> +	err = sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
-> +	if (err)
-> +		return err;
-> +
-> +	err = sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
-> +	if (err)
-> +		goto err_out_state;
-> +
-> +	err = sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
-> +	if (err)
-> +		goto err_out_mac;
-> +
-> +	err = sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
-> +	if (err)
-> +		goto err_out_netif;
+Dave Jones wrote:
+> On Tue, Oct 03, 2006 at 05:46:10PM -0700, Badari Pulavarty wrote:
+>  > On Tue, 2006-10-03 at 20:40 -0400, Dave Jones wrote:
+>  > > On Tue, Oct 03, 2006 at 05:34:44PM -0700, Badari Pulavarty wrote:
+>  > >  > On Tue, 2006-10-03 at 12:49 -0400, Dave Jones wrote:
+>  > >  > > Took ~8hrs to hit this on an NFSv3 mount. (2.6.18+Jan Kara's jbd patch)
+>  > >  > > 
+>  > >  > > http://www.codemonkey.org.uk/junk/fsx-nfs.txt
+>  > >  > 
+>  > >  > I was seeing *similar* problem on NFS mounted filesystem (while running
+>  > >  > fsx), but later realized that filesystem is full - when it happend.
+>  > >  > 
+>  > >  > Could be fsx error handling problem ? Can you check yours ?
+>  > > 
+>  > > It's running low, but there's no way it ran out. (It's down to about 4GB free).
+>  > > 
+>  > > 	Dave 
+>  > >  
+>  > 
+>  > Okay... Looking at your log
+>  > 
+>  > > Size error: expected 0x2b804 stat 0x37000 seek 0x37000
+>  > 
+>  > filesize doesn't match. So wondering, if you have a write
+>  > failure or filesystem full case.
+>
+> The server didn't report anything nasty in its logs, and *touch wood*
+> hasn't had any hardware problems to date.
+>   
+FWIW, On 2.6.18-mm3 I ran (4-copies) fsx on NFS mount for 24 hours
+without any issues. I do see segfaults and errors when the filesystem is 
+full -
+those are mostly fsx error handling issues.
 
-Oh, and in the future, it's easier to use an attribute group for this
-kind of thing than backing out each and every attribute that is added.
-The function to add all files in the attribute group properly tears
-things down if there is an error along the way.
+Thanks,
+Badari
 
-thanks,
-
-greg k-h

@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWJEX4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWJEX6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWJEX4D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWJEX4D
+	id S932448AbWJEX6h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWJEX6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:56:03 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:15807 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S932436AbWJEX4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:56:00 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: Really good idea to allow mmap(0, FIXED)?
-Date: Thu, 5 Oct 2006 23:55:48 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <eg4624$be$1@taverner.cs.berkeley.edu>
-References: <200610052059.11714.mb@bu3sch.de>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1160092548 366 128.32.168.222 (5 Oct 2006 23:55:48 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Thu, 5 Oct 2006 23:55:48 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Thu, 5 Oct 2006 19:58:37 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:58584 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932443AbWJEX6f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 19:58:35 -0400
+Subject: Re: 2.6.18-mm2 boot failure on x86-64 II
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Andi Kleen <ak@suse.de>
+Cc: mel gorman <mel@csn.ul.ie>, Vivek goyal <vgoyal@in.ibm.com>,
+       Steve Fox <drfickle@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <200610060135.56134.ak@suse.de>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <200610060114.03466.ak@suse.de> <1160091179.5664.17.camel@keithlap>
+	 <200610060135.56134.ak@suse.de>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 05 Oct 2006 16:58:31 -0700
+Message-Id: <1160092711.5664.19.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch  wrote:
->Is is really a good idea to allow processes to remap something
->to address 0?
->I say no, because this can potentially be used to turn rather harmless
->kernel bugs into a security vulnerability.
+On Fri, 2006-10-06 at 01:35 +0200, Andi Kleen wrote:
+> > As of yet I haven't been able to recreate the hang.  I am running
+> > similar HW to Steve. 
 
-Let me see if I understand.  If the kernel does this somewhere:
+I ran into this with -mm3
 
-    struct s *foo;
-    foo->x->y = 0;
+Memory: 24150368k/26738688k available (1933k kernel code, 490260k
+reserved, 978k data, 308k init)
+------------[ cut here ]------------
+kernel BUG in init_list at mm/slab.c:1334!
+invalid opcode: 0000 [1] SMP
+last sysfs file:
+CPU 0
+Modules linked in:
+Pid: 0, comm: swapper Not tainted 2.6.18-mm3-smp #1
+RIP: 0010:[<ffffffff8027f8fa>]  [<ffffffff8027f8fa>] init_list+0x1d/0xfd
+RSP: 0018:ffffffff80577f48  EFLAGS: 00010212
+RAX: 0000000000000040 RBX: 0000000000000001 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffffffff805ba848 RDI: ffff810460700040
+RBP: 0000000000000001 R08: 0000000000000001 R09: 0000000000000003
+R10: 0000000000000000 R11: ffffffff805bc268 R12: ffff810460700040
+R13: ffffffff805ba848 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffffffff804d8000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000000 CR3: 0000000000201000 CR4: 00000000000006a0
+Process swapper (pid: 0, threadinfo ffffffff80576000, task
+ffffffff80455840)
+Stack:  0000000000000000 0000000000000000 0000000100000000
+0000000000000001
+ ffffffff805ba848 0000000000000000 0000000000000000 ffffffff80593aa8
+ 00000000000002c0 0000000100000001 000000000008ef00 000000000008c000
+Call Trace:
+ [<ffffffff80593aa8>] kmem_cache_init+0x344/0x406
+ [<ffffffff805805ef>] start_kernel+0x180/0x21b
+ [<ffffffff8058016a>] _sinittext+0x16a/0x16e
 
-and if there is some way that userland code can cause this to be
-executed with 'foo' set to a NULL pointer, then user-land code can
-do this:
 
-    mmap(0, 4096, PROT_READ|PROT_EXEC|PROT_WRITE,
-        MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
-    struct s *bar = 0;
-    bar->x = ... whatever ...;
+Code: 0f 0b 48 8b 3d 15 ab 1e 00 be d0 00 00 00 e8 c0 f5 ff ff 48
+RIP  [<ffffffff8027f8fa>] init_list+0x1d/0xfd
+ RSP <ffffffff80577f48>
+ <0>Kernel panic - not syncing: Attempted to kill the idle task!
 
-An attacker could execute this user-land code and then invoke the
-kernel in a way that causes the above kernel statement to be executed
-with foo==NULL.  The result will effectively be as though the kernel
-executed the statement '*whatever = 0;', where 'whatever' can be
-completely controlled by the attacker.
 
-In other words, the consequences of the buggy kernel code listed above
-is that an attacker can choose any location in memory (of his choice,
-including code that is within kernel space) and set it to zero.
+I am going to revert the patch and see if it works.  I ran -git22 just
+fine. 
 
-If this is correct so far, this sounds pretty dangerous.  For instance,
-the above hypothetical scenario would be enough to allow an attacker
-to set his euid to zero by overwriting the euid field in the process
-structure maintained by the kernel.  That would mean that a NULL pointer
-bug in the kernel might allow an attacker to gain root.  That would
-mean that every NULL pointer dereference bug is potentially security
-critical.  If so, we'd better be pretty darn careful to make sure we've
-eliminated all NULL pointer bugs in the kernel.
+Thanks,
+  Keith 
 
-Is this right?  Have I correctly understood the issue?

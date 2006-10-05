@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWJEUoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWJEUsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWJEUoq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWJEUoq
+	id S932175AbWJEUsw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWJEUsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:44:46 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26087 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932128AbWJEUop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:44:45 -0400
-Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dominique Dumont <domi.dumont@free.fr>
-Cc: Francesco Peeters <Francesco@FamPeeters.com>,
-       alsa-user <alsa-user@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <87y7rusddc.fsf@gandalf.hd.free.fr>
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	 <13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
-	 <87y7rusddc.fsf@gandalf.hd.free.fr>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 16:45:10 -0400
-Message-Id: <1160081110.2481.104.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 16:48:52 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:56848 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932175AbWJEUsv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 16:48:51 -0400
+Date: Thu, 5 Oct 2006 16:48:50 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Oliver Neukum <oliver@neukum.org>
+cc: Pavel Machek <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+In-Reply-To: <200610052044.00324.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 22:42 +0200, Dominique Dumont wrote:
-> "Francesco Peeters" <Francesco@FamPeeters.com> writes:
+On Thu, 5 Oct 2006, Oliver Neukum wrote:
+
+> [..]
+> > > In the general case the idea seems insufficient. If I close my laptop's lid
+> > > I want all input devices suspended, whether the corresponding files are
+> > > opened or not. In fact, if I have port level power control I might even
+> > > want to cut power to them.
+> > 
+> > That's a separate issue.  You were talking about runtime suspend, but 
+> > closing the laptop's lid is a system suspend.
 > 
-> > Have you tried using a different slot for the SB Live?
-> 
-> Yes. No change at all. (Sorry for the delay).
+> Why?
 
-This is going to be a problem with the SATA driver not ALSA.  I've heard
-that some motherboards do evil stuff like implementing legacy drive
-access modes using SMM which would cause dropouts without xruns
-reported.
+Normally people expect that shutting the lid on a laptop will cause it to 
+go to sleep.  If you want different behavior, that's okay too...
 
-Please report it on LKML.
+> If you freeze my batch jobs or make unavailable the servers
+> running on my laptop I'd be very unhappy.
+> But I want to make jostling a mouse or other input device safe. Thus
+> I want them to be suspended without autoresume. We need flexibility.
 
-Lee
+So you want a mode in which the input devices are suspended without remote 
+wakeup.  Remote wakeup settings are configurable via 
+/sys/devices/.../power/wakeup.  At this point nobody has settled on a
+new API for suspending the devices.  It's quite possible that different 
+drivers or different buses will use their own individual APIs.
+
+Alan Stern
 

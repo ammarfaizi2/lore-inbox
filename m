@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWJESju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWJESna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWJESju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWJESju
+	id S1750763AbWJESna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWJESna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:39:50 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:54208 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750789AbWJESjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:39:49 -0400
-Date: Thu, 5 Oct 2006 14:38:58 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Daniel Walker <dwalker@mvista.com>
-cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
-In-Reply-To: <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Message-ID: <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
-References: <1160025104.6504.30.camel@localhost.localdomain> 
- <20061005143133.GA400@Krystal>  <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
-  <20061005170132.GA11149@Krystal>  <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
- <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	Thu, 5 Oct 2006 14:43:30 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:33676 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1750763AbWJESn3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 14:43:29 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Thu, 5 Oct 2006 20:43:59 +0200
+User-Agent: KMail/1.8
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44L0.0610051418540.6897-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610051418540.6897-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610052044.00324.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Donnerstag, 5. Oktober 2006 20:24 schrieb Alan Stern:
+> On Thu, 5 Oct 2006, Oliver Neukum wrote:
+> 
+> > Am Donnerstag, 5. Oktober 2006 18:21 schrieb Alan Stern:
+> > > Currently we don't have any userspace APIs for such a daemon to use.  The 
+> > > only existing API is deprecated and will go away soon.
+> > 
+> > I trust it'll be replaced.
+> 
+> Yes.  I think Greg wants to wait until the old API is completely gone.
 
-On Thu, 5 Oct 2006, Daniel Walker wrote:
+I doubt it will. There's a potential need.
 
-> On Thu, 2006-10-05 at 14:09 -0400, Steven Rostedt wrote:
->
-> >
-> > My problem with using a timestamp, is that I ran logdev on too many archs.
-> > So I need to have a timestamp that I can get to that is always reliable.
-> > How does LTTng get the time for different archs?  Does it have separate
-> > code for each arch?
-> >
->
-> I just got done updating a patchset that exposes the clocksources from
-> generic time to take low level time stamps.. But even without that you
-> can just call gettimeofday() directly to get a timestamp .
->
+[..]
+> > In the general case the idea seems insufficient. If I close my laptop's lid
+> > I want all input devices suspended, whether the corresponding files are
+> > opened or not. In fact, if I have port level power control I might even
+> > want to cut power to them.
+> 
+> That's a separate issue.  You were talking about runtime suspend, but 
+> closing the laptop's lid is a system suspend.
 
-unless you're tracing something that his holding the xtime_lock ;-)
+Why? If you freeze my batch jobs or make unavailable the servers
+running on my laptop I'd be very unhappy.
+But I want to make jostling a mouse or other input device safe. Thus
+I want them to be suspended without autoresume. We need flexibility.
 
--- Steve
+[..]
+> P.S.: Cutting off port power is yet another issue.  It isn't a suspend in 
+> the strict sense, because it will break an existing power session.
 
+Yes, it is an additional more complicated option.
+
+	Regards
+		Oliver

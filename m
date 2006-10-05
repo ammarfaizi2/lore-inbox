@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWJEVnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWJEVmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWJEVnV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWJEVnM
+	id S932244AbWJEVmv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWJEVmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:43:12 -0400
-Received: from gw.goop.org ([64.81.55.164]:60113 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932271AbWJEVnE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:43:04 -0400
-Message-ID: <45257C65.3030600@goop.org>
-Date: Thu, 05 Oct 2006 14:43:01 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
+	Thu, 5 Oct 2006 17:42:16 -0400
+Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:10883 "HELO
+	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932255AbWJEVmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:42:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
+  b=tiutH5MwToPfsRB1DJ4z4kHSTca13I8Z2ajraKImkB8IHudVa2iS+gqYW1dHC0cbjGg6KbfLrPqaEqWUU/z3O26l5peCjvatFWTYnRvZoTbPKLSjgnqV0EW9e7TPHvHgT2TYrm8LFhKjEDJMncWVNn2hRx8ZlJZvDMpwKCFCU+A=  ;
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 10/14] uml: allow using again x86/x86_64 crypto code
+Date: Thu, 05 Oct 2006 23:39:06 +0200
 To: Andrew Morton <akpm@osdl.org>
-CC: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
-       tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-References: <B41635854730A14CA71C92B36EC22AAC3F3FBA@mssmsx411> <20061005143748.2f6594a2.akpm@osdl.org>
-In-Reply-To: <20061005143748.2f6594a2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Message-Id: <20061005213906.17268.44290.stgit@memento.home.lan>
+In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
+References: <20061005213212.17268.7409.stgit@memento.home.lan>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> So how's this look?
->   
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Looks fine to me.  Other than the general question of why WARN_ON* 
-returns a value at all, and if so, does the final unlikely() really do 
-anything.
+Enable compilation of x86_64 crypto code;, and add the needed constant to make
+the code compile again (that macro was added to i386 asm-offsets between 2.6.17
+and 2.6.18, in 6c2bb98bc33ae33c7a33a133a4cd5a06395fece5).
 
-> I worry a bit that someone's hardware might go and prefetch that static
-> variable even when we didn't ask it to.  Can that happen?
->   
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Sure, the CPU has the option, but if it goes around speculatively 
-polluting its caches with unused stuff, it isn't going to perform very 
-well in general.  So presumably the CPU won't do it unless it really 
-thinks it will help.
+ arch/um/Makefile-x86_64                        |    2 +-
+ arch/um/include/common-offsets.h               |    1 +
+ arch/um/include/sysdep-i386/kernel-offsets.h   |    1 +
+ arch/um/include/sysdep-x86_64/kernel-offsets.h |    1 +
+ 4 files changed, 4 insertions(+), 1 deletions(-)
 
-    J
+diff --git a/arch/um/Makefile-x86_64 b/arch/um/Makefile-x86_64
+index 87d6373..d278682 100644
+--- a/arch/um/Makefile-x86_64
++++ b/arch/um/Makefile-x86_64
+@@ -1,7 +1,7 @@
+ # Copyright 2003 - 2004 Pathscale, Inc
+ # Released under the GPL
+ 
+-core-y += arch/um/sys-x86_64/
++core-y += arch/um/sys-x86_64/ arch/x86_64/crypto/
+ START := 0x60000000
+ 
+ _extra_flags_ = -fno-builtin -m64
+diff --git a/arch/um/include/common-offsets.h b/arch/um/include/common-offsets.h
+index 356390d..39bb210 100644
+--- a/arch/um/include/common-offsets.h
++++ b/arch/um/include/common-offsets.h
+@@ -15,3 +15,4 @@ DEFINE_STR(UM_KERN_DEBUG, KERN_DEBUG);
+ DEFINE(UM_ELF_CLASS, ELF_CLASS);
+ DEFINE(UM_ELFCLASS32, ELFCLASS32);
+ DEFINE(UM_ELFCLASS64, ELFCLASS64);
++DEFINE(crypto_tfm_ctx_offset, offsetof(struct crypto_tfm, __crt_ctx));
+diff --git a/arch/um/include/sysdep-i386/kernel-offsets.h b/arch/um/include/sysdep-i386/kernel-offsets.h
+index 2c13de3..2e58c4c 100644
+--- a/arch/um/include/sysdep-i386/kernel-offsets.h
++++ b/arch/um/include/sysdep-i386/kernel-offsets.h
+@@ -1,6 +1,7 @@
+ #include <linux/stddef.h>
+ #include <linux/sched.h>
+ #include <linux/elf.h>
++#include <linux/crypto.h>
+ #include <asm/mman.h>
+ 
+ #define DEFINE(sym, val) \
+diff --git a/arch/um/include/sysdep-x86_64/kernel-offsets.h b/arch/um/include/sysdep-x86_64/kernel-offsets.h
+index 91d129f..4cbfbb9 100644
+--- a/arch/um/include/sysdep-x86_64/kernel-offsets.h
++++ b/arch/um/include/sysdep-x86_64/kernel-offsets.h
+@@ -2,6 +2,7 @@ #include <linux/stddef.h>
+ #include <linux/sched.h>
+ #include <linux/time.h>
+ #include <linux/elf.h>
++#include <linux/crypto.h>
+ #include <asm/page.h>
+ #include <asm/mman.h>
+ 
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

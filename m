@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWJEOar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWJEOen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWJEOar (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWJEOaq
+	id S932085AbWJEOen (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWJEOem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:30:46 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:62918 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932082AbWJEOaq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:30:46 -0400
-Message-ID: <45251714.4020006@gmail.com>
-Date: Thu, 05 Oct 2006 16:30:44 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 5 Oct 2006 10:34:42 -0400
+Received: from ns1.suse.de ([195.135.220.2]:22979 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932085AbWJEOem (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:34:42 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reenable SCSI=m
+References: <jemz8bvsnn.fsf@sykes.suse.de> <20061005130921.GF16812@stusta.de>
+X-Yow: I've gotta GO, now!!  I wanta tell you you're a GREAT bunch of guys
+ but you ought to CHANGE your UNDERWEAR more often!!
+Date: Thu, 05 Oct 2006 16:34:40 +0200
+In-Reply-To: <20061005130921.GF16812@stusta.de> (Adrian Bunk's message of
+	"Thu, 5 Oct 2006 15:09:21 +0200")
+Message-ID: <jebqoqx24f.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [question] rtc
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.51.75
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Adrian Bunk <bunk@stusta.de> writes:
 
-- can rtc class behave as a drivers/char/rtc.c. I implemented an interface for 
-myself, but it doesn't work, because there seems not to be an rtc driver to take 
-control of system rtc for sending events to the interface?
+> On Thu, Oct 05, 2006 at 02:44:28PM +0200, Andreas Schwab wrote:
+>
+>> Since CONFIG_SCSI (a tristate) now depends on CONFIG_BLOCK (a bool) it is
+>> no longer possible to set CONFIG_SCSI=m.
+>>...
+>
+> A tristate depending on a bool is a common case that works just fine and 
+> allows the modular setting.
 
-- if not, is there any easy way, how to get events from rtc in kernelspace?
+You are right.  My problem was that I said CONFIG_ATA=y when I meant
+CONFIG_ATA=m which forced CONFIG_SCSI=y behind by back.  It didn't occur
+to me that this was related.
 
-thanks,
+Andreas.
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

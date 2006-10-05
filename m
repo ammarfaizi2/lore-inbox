@@ -1,283 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWJETtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWJETus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWJETtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWJETtL
+	id S1751069AbWJETus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWJETus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:49:11 -0400
-Received: from mga06.intel.com ([134.134.136.21]:54315 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751053AbWJETtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:49:09 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,266,1157353200"; 
-   d="scan'208"; a="140974341:sNHT32399668"
-From: Reinette Chatre <reinette.chatre@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] bitmap: parse kernel and user buffers
-Date: Thu, 5 Oct 2006 12:49:07 -0700
-User-Agent: KMail/1.9.4
-Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>,
-       Joe Korty <joe.korty@ccur.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, reinette.chatre@linux.intel.com
-References: <200610041756.30528.reinette.chatre@linux.intel.com> <200610041833.40866.inaky@linux.intel.com> <20061004185747.4cb64048.akpm@osdl.org>
-In-Reply-To: <20061004185747.4cb64048.akpm@osdl.org>
+	Thu, 5 Oct 2006 15:50:48 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:29189 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751069AbWJETur convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:50:47 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610051249.07856.reinette.chatre@linux.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 05 Oct 2006 19:50:26.0894 (UTC) FILETIME=[811516E0:01C6E8B7]
+Content-class: urn:content-classes:message
+Subject: Re: Really good idea to allow mmap(0, FIXED)?
+Date: Thu, 5 Oct 2006 15:50:26 -0400
+Message-ID: <Pine.LNX.4.61.0610051535420.29755@chaos.analogic.com>
+In-Reply-To: <200610052059.11714.mb@bu3sch.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Really good idea to allow mmap(0, FIXED)?
+thread-index: Acbot4EcJCG2Ag5HSQ2T6jCNjkeNPg==
+References: <200610052059.11714.mb@bu3sch.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Michael Buesch" <mb@bu3sch.de>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lib/bitmap.c:bitmap_parse() is a library function that received as
-input a user buffer. This seemed to have originated from the way the
-write_proc function of the /proc filesystem operates.
 
-This has been reworked as follows:
-- don't use kmalloc
-- eliminates a lot of get_user overhead by performing one access_ok
-  before using __get_user
-- access kernel buffer using __get_user(kernel_address)
+On Thu, 5 Oct 2006, Michael Buesch wrote:
 
-This function will be useful for other uses as well; for example,
-taking input  for /sysfs instead of /proc, so it was changed to accept
-kernel buffers. We have this use for the Linux UWB project, as part as
-the upcoming bandwidth allocator code.
+> Hi,
+>
+> This question has already been discussed here in the past, but
+> we did not come to a good result. So I want to ask the question again:
 
-Only a few routines used this function and they were changed too.
+Meaning that you didn't get the result you wanted.
 
+> Is is really a good idea to allow processes to remap something
+> to address 0?
 
-Signed-off-by: Reinette Chatre <reinette.chatre@linux.intel.com>
+Of course you must be able to remap the physical address 0 (offset
+zero in the whole machine), and if your 'hint' to mmap() in
+user code is a 0, it can (it's allowed) to return a pointer
+initialized to zero --and it's your fault if it's incompatible
+with some 'C' runtime libraries.
 
----
-This is an updated version of patch 
-bitmap-bitmap_parse-takes-a-kernel-buffer-instead-of-a-user-buffer.patch 
+It is a perfectly good address and the fact that malloc() returns
+(void *)0 upon failure, does not qualify it as king or some other
+ruler. In fact, mmap() returns (void *)-1 upon failure.
 
-With the usage of access_ok() before __get_user(), is it still necessary
-to check the return code of __get_user? We currently do this.
+> I say no, because this can potentially be used to turn rather harmless
+> kernel bugs into a security vulnerability.
+>
 
- include/linux/bitmap.h   |    7 +++++--
- include/linux/cpumask.h  |   14 +++++++-------
- include/linux/nodemask.h |   14 +++++++-------
- kernel/irq/proc.c        |    2 +-
- kernel/profile.c         |    2 +-
- lib/bitmap.c             |   47 +++++++++++++++++++++++++++++++++++++++--------
- 6 files changed, 60 insertions(+), 26 deletions(-)
+Can't. The kernel doesn't check for NULL for user access, it
+simply traps if the address is bad. That's why we have copy/to/from_user()
+for user-mode access.
 
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/bitmap.h linux-2.6.hg/include/linux/bitmap.h
---- linux-2.6.hg.vanilla/include/linux/bitmap.h	2006-10-02 14:04:35.000000000 -0700
-+++ linux-2.6.hg/include/linux/bitmap.h	2006-10-05 11:35:51.000000000 -0700
-@@ -46,7 +46,8 @@
-  * bitmap_remap(dst, src, old, new, nbits)	*dst = map(old, new)(src)
-  * bitmap_bitremap(oldbit, old, new, nbits)	newbit = map(old, new)(oldbit)
-  * bitmap_scnprintf(buf, len, src, nbits)	Print bitmap src to buf
-- * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from user buf
-+ * bitmap_parse(buf, buflen, dst, nbits)	Parse bitmap dst from buf
-+ * bitmap_parse_user(ubuf, ulen, dst, nbits)	Parse bitmap dst from user buf
-  * bitmap_scnlistprintf(buf, len, src, nbits)	Print bitmap src as list to buf
-  * bitmap_parselist(buf, dst, nbits)		Parse bitmap dst from list
-  * bitmap_find_free_region(bitmap, bits, order)	Find and allocate bit region
-@@ -106,7 +107,9 @@ extern int __bitmap_weight(const unsigne
- 
- extern int bitmap_scnprintf(char *buf, unsigned int len,
- 			const unsigned long *src, int nbits);
--extern int bitmap_parse(const char __user *ubuf, unsigned int ulen,
-+extern int bitmap_parse(const char *buf, unsigned int buflen,
-+			unsigned long *dst, int nbits);
-+extern int bitmap_parse_user(const char __user *ubuf, unsigned int ulen,
- 			unsigned long *dst, int nbits);
- extern int bitmap_scnlistprintf(char *buf, unsigned int len,
- 			const unsigned long *src, int nbits);
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/lib/bitmap.c linux-2.6.hg/lib/bitmap.c
---- linux-2.6.hg.vanilla/lib/bitmap.c	2006-10-02 14:04:39.000000000 -0700
-+++ linux-2.6.hg/lib/bitmap.c	2006-10-05 11:40:40.000000000 -0700
-@@ -317,8 +317,8 @@ EXPORT_SYMBOL(bitmap_scnprintf);
- 
- /**
-  * bitmap_parse - convert an ASCII hex string into a bitmap.
-- * @ubuf: pointer to buffer in user space containing string.
-- * @ubuflen: buffer size in bytes.  If string is smaller than this
-+ * @buf: pointer to buffer containing string.
-+ * @buflen: buffer size in bytes.  If string is smaller than this
-  *    then it must be terminated with a \0.
-  * @maskp: pointer to bitmap array that will contain result.
-  * @nmaskbits: size of bitmap, in bits.
-@@ -329,9 +329,15 @@ EXPORT_SYMBOL(bitmap_scnprintf);
-  * then leading 0-bits are prepended.  %-EINVAL is returned for illegal
-  * characters and for grouping errors such as "1,,5", ",44", "," and "".
-  * Leading and trailing whitespace accepted, but not embedded whitespace.
-+ *
-+ * This function is used by a wrapper function (bitmap_parse_user())
-+ * that tests (using access_ok()) a user buffer before passing it here for
-+ * parsing. We need to use __get_user(). When provided with a kernel
-+ * buffer we are thus using __get_user(kernel_address), which works OK and
-+ * is used in several places in the core kernel.
-  */
--int bitmap_parse(const char __user *ubuf, unsigned int ubuflen,
--        unsigned long *maskp, int nmaskbits)
-+int bitmap_parse(const char *buf, unsigned int buflen,
-+		unsigned long *maskp, int nmaskbits)
- {
- 	int c, old_c, totaldigits, ndigits, nchunks, nbits;
- 	u32 chunk;
-@@ -343,11 +349,11 @@ int bitmap_parse(const char __user *ubuf
- 		chunk = ndigits = 0;
- 
- 		/* Get the next chunk of the bitmap */
--		while (ubuflen) {
-+		while (buflen) {
- 			old_c = c;
--			if (get_user(c, ubuf++))
-+			if (__get_user(c, buf++))
- 				return -EFAULT;
--			ubuflen--;
-+			buflen--;
- 			if (isspace(c))
- 				continue;
- 
-@@ -388,12 +394,37 @@ int bitmap_parse(const char __user *ubuf
- 		nbits += (nchunks == 1) ? nbits_to_hold_value(chunk) : CHUNKSZ;
- 		if (nbits > nmaskbits)
- 			return -EOVERFLOW;
--	} while (ubuflen && c == ',');
-+	} while (buflen && c == ',');
- 
- 	return 0;
- }
- EXPORT_SYMBOL(bitmap_parse);
- 
-+/**
-+ * bitmap_parse_user()
-+ *
-+ * @ubuf: pointer to user buffer containing string.
-+ * @ulen: buffer size in bytes.  If string is smaller than this
-+ *    then it must be terminated with a \0.
-+ * @maskp: pointer to bitmap array that will contain result.
-+ * @nmaskbits: size of bitmap, in bits.
-+ *
-+ * Wrapper for bitmap_parse(), providing it with user buffer.
-+ *
-+ * We cannot have this as an inline function in bitmap.h because it needs
-+ * linux/uaccess.h to get the access_ok() declaration and this causes
-+ * cyclic dependencies.
-+ */
-+int bitmap_parse_user(const char __user *ubuf,
-+			unsigned int ulen, unsigned long *maskp,
-+			int nmaskbits)
-+{
-+	if (!access_ok(VERIFY_READ, ubuf, ulen))
-+		return -EFAULT;
-+	return bitmap_parse((const char *)ubuf, ulen, maskp, nmaskbits);
-+}
-+EXPORT_SYMBOL(bitmap_parse_user);
-+
- /*
-  * bscnl_emit(buf, buflen, rbot, rtop, bp)
-  *
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/cpumask.h linux-2.6.hg/include/linux/cpumask.h
---- linux-2.6.hg.vanilla/include/linux/cpumask.h	2006-10-02 14:04:35.000000000 -0700
-+++ linux-2.6.hg/include/linux/cpumask.h	2006-10-04 09:07:47.000000000 -0700
-@@ -8,8 +8,8 @@
-  * See detailed comments in the file linux/bitmap.h describing the
-  * data type on which these cpumasks are based.
-  *
-- * For details of cpumask_scnprintf() and cpumask_parse(),
-- * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
-+ * For details of cpumask_scnprintf() and cpumask_parse_user(),
-+ * see bitmap_scnprintf() and bitmap_parse_user() in lib/bitmap.c.
-  * For details of cpulist_scnprintf() and cpulist_parse(), see
-  * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
-  * For details of cpu_remap(), see bitmap_bitremap in lib/bitmap.c
-@@ -49,7 +49,7 @@
-  * unsigned long *cpus_addr(mask)	Array of unsigned long's in mask
-  *
-  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
-- * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
-+ * int cpumask_parse_user(ubuf, ulen, mask)	Parse ascii string as cpumask
-  * int cpulist_scnprintf(buf, len, mask) Format cpumask as list for printing
-  * int cpulist_parse(buf, map)		Parse ascii string as cpulist
-  * int cpu_remap(oldbit, old, new)	newbit = map(old, new)(oldbit)
-@@ -273,12 +273,12 @@ static inline int __cpumask_scnprintf(ch
- 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
- }
- 
--#define cpumask_parse(ubuf, ulen, dst) \
--			__cpumask_parse((ubuf), (ulen), &(dst), NR_CPUS)
--static inline int __cpumask_parse(const char __user *buf, int len,
-+#define cpumask_parse_user(ubuf, ulen, dst) \
-+			__cpumask_parse_user((ubuf), (ulen), &(dst), NR_CPUS)
-+static inline int __cpumask_parse_user(const char __user *buf, int len,
- 					cpumask_t *dstp, int nbits)
- {
--	return bitmap_parse(buf, len, dstp->bits, nbits);
-+	return bitmap_parse_user(buf, len, dstp->bits, nbits);
- }
- 
- #define cpulist_scnprintf(buf, len, src) \
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/irq/proc.c linux-2.6.hg/kernel/irq/proc.c
---- linux-2.6.hg.vanilla/kernel/irq/proc.c	2006-10-02 14:04:38.000000000 -0700
-+++ linux-2.6.hg/kernel/irq/proc.c	2006-10-04 09:05:55.000000000 -0700
-@@ -57,7 +57,7 @@ static int irq_affinity_write_proc(struc
- 	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity)
- 		return -EIO;
- 
--	err = cpumask_parse(buffer, count, new_value);
-+	err = cpumask_parse_user(buffer, count, new_value);
- 	if (err)
- 		return err;
- 
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/profile.c linux-2.6.hg/kernel/profile.c
---- linux-2.6.hg.vanilla/kernel/profile.c	2006-10-02 14:04:38.000000000 -0700
-+++ linux-2.6.hg/kernel/profile.c	2006-10-04 09:45:01.000000000 -0700
-@@ -396,7 +396,7 @@ static int prof_cpu_mask_write_proc (str
- 	unsigned long full_count = count, err;
- 	cpumask_t new_value;
- 
--	err = cpumask_parse(buffer, count, new_value);
-+	err = cpumask_parse_user(buffer, count, new_value);
- 	if (err)
- 		return err;
- 
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/nodemask.h linux-2.6.hg/include/linux/nodemask.h
---- linux-2.6.hg.vanilla/include/linux/nodemask.h	2006-10-03 16:58:10.000000000 -0700
-+++ linux-2.6.hg/include/linux/nodemask.h	2006-10-04 09:19:52.000000000 -0700
-@@ -8,8 +8,8 @@
-  * See detailed comments in the file linux/bitmap.h describing the
-  * data type on which these nodemasks are based.
-  *
-- * For details of nodemask_scnprintf() and nodemask_parse(),
-- * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
-+ * For details of nodemask_scnprintf() and nodemask_parse_user(),
-+ * see bitmap_scnprintf() and bitmap_parse_user() in lib/bitmap.c.
-  * For details of nodelist_scnprintf() and nodelist_parse(), see
-  * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
-  * For details of node_remap(), see bitmap_bitremap in lib/bitmap.c.
-@@ -51,7 +51,7 @@
-  * unsigned long *nodes_addr(mask)	Array of unsigned long's in mask
-  *
-  * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
-- * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
-+ * int nodemask_parse_user(ubuf, ulen, mask)	Parse ascii string as nodemask
-  * int nodelist_scnprintf(buf, len, mask) Format nodemask as list for printing
-  * int nodelist_parse(buf, map)		Parse ascii string as nodelist
-  * int node_remap(oldbit, old, new)	newbit = map(old, new)(oldbit)
-@@ -288,12 +288,12 @@ static inline int __nodemask_scnprintf(c
- 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
- }
- 
--#define nodemask_parse(ubuf, ulen, dst) \
--			__nodemask_parse((ubuf), (ulen), &(dst), MAX_NUMNODES)
--static inline int __nodemask_parse(const char __user *buf, int len,
-+#define nodemask_parse_user(ubuf, ulen, dst) \
-+		__nodemask_parse_user((ubuf), (ulen), &(dst), MAX_NUMNODES)
-+static inline int __nodemask_parse_user(const char __user *buf, int len,
- 					nodemask_t *dstp, int nbits)
- {
--	return bitmap_parse(buf, len, dstp->bits, nbits);
-+	return bitmap_parse_user(buf, len, dstp->bits, nbits);
- }
- 
- #define nodelist_scnprintf(buf, len, src) \
+> Let's say we have some kernel NULL pointer dereference bug somewhere,
+> that's rather harmless, if it happens in process context and
+> does not leak any resources on segfaulting the triggering app.
+> So the worst thing that happens is a crashing app. Yeah, this bug must
+> be fixed. But my point is that this bug can probably be used to
+> manipulate the way the kernel works or even to inject code into
+> the kernel from userspace.
+>
 
+Can't.
+
+> Attached to this mail is an example. The kernel module represents
+> the actual "kernel-bug". Its whole purpose in this example is to
+> introduce a user-triggerable NULL pointer dereference.
+> Please stop typing now, if you are typing something like
+> "If you can load a kernel module, you have access to the kernel anyway".
+> This is different. We always _had_ and most likely _have_ NULL pointer
+> dereference bugs in the kernel.
+>
+> The example programm injects a magic value 0xB15B00B2 into the
+> kernel, which is printk'ed on success.
+
+Well this shows nothing interesting.
+
+>
+> In my opinion, this should be forbidden by disallowing mmapping
+> to address 0. A NULL pointer dereference is such a common bug, that
+> it is worth protecting against.
+> Besides that, I currently don't see a valid reason to mmap address 0.
+>
+
+That's where the real-mode BIOS table is. Who says that I can't
+look at any piece of physical memory I want. It's my machine.
+
+The whole concept of a NULL pointer is simply an artifact of
+incorrect engineering.
+
+> Comments?
+>
+> --
+> Greetings Michael.
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

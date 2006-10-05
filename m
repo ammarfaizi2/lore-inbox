@@ -1,50 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWJEVTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWJEVUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWJEVTF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWJEVTE
+	id S1751394AbWJEVUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWJEVUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:19:04 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:19075 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751389AbWJEVTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:19:02 -0400
-Date: Thu, 5 Oct 2006 23:18:53 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: keith mannthey <kmannth@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make mach-generic/summit.c compile on UP
-In-Reply-To: <1160080292.5664.9.camel@keithlap>
-Message-ID: <Pine.LNX.4.64.0610052308000.12556@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610051913010.12556@twin.jikos.cz>
- <1160080292.5664.9.camel@keithlap>
+	Thu, 5 Oct 2006 17:20:32 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16140 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751394AbWJEVUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:20:31 -0400
+Date: Thu, 5 Oct 2006 23:20:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: art@usfltd.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1 SMP x86_64 boot hungs up
+Message-ID: <20061005212029.GL16812@stusta.de>
+References: <20061005143237.xr08e3ew5b2ocgc8@69.222.0.225>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061005143237.xr08e3ew5b2ocgc8@69.222.0.225>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006, keith mannthey wrote:
+On Thu, Oct 05, 2006 at 02:32:37PM -0500, art@usfltd.com wrote:
 
-> > In file included from arch/i386/mach-generic/summit.c:17:
-> > include/asm/mach-summit/mach_apic.h: In function 'apicid_to_node':
-> > include/asm/mach-summit/mach_apic.h:91: error: 'apicid_2_node' undeclared (first use in this function)
-> > include/asm/mach-summit/mach_apic.h:91: error: (Each undeclared identifier is reported only once
-> > include/asm/mach-summit/mach_apic.h:91: error: for each function it appears in.)
-> > Is the patch below correct?
-> Well I guess it would fix the apicid_2_node build error but I can't
-> think of a single good reason to be in a config where you would need any
-> of the summit code in UP.  Perhaps a kconfig or makefile change in the
-> right spot would be better. 
+> 2.6.19-rc1 SMP x86_64 boot hungs up
+> 
+> boot hungs up !!!
+> last lines from screen at boot time:
+> 
+> ...
+> Uniform CD-ROM driver Revision: 3.20
+> ide-floppy driver 0.99.newide
+> usbcore: registered new driver libusual
+> usbcore: registered new driver hiddev
+> usbcore: registered new driver usbhid
+> drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+> PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 1
+> PNP: PS/2 controller doesn't have AUX irq; using default 12
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ hungs up here
+> next lines are from working 2.6.18-git6 looks like i8042 problem
+> 
+> PM: Adding info for platform:i8042
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> PM: Adding info for serio:serio0
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> PM: Adding info for serio:serio1
+> mice: PS/2 mouse device common for all mice
+> md: md driver 0.90.3 MAX_MD_DEVS=256, MD_SB_DISKS=27
+> md: bitmap version 4.39
+> TCP cubic registered
+> ...
+> 
+> last good is 2.6.18-git6
+> 2.6.18-git7 to 2.6.19-rc1 hungs up
 
-Yes, this was in fact a product of a random .config (but allowed by 
-Kconfig rules). There should definitely be a Kconfig rule not allowing 
-having this non-working .config settings.
 
-I guess that probably making CONFIG_X86_GENERIC dependent on CONFIG_SMP 
-would not be good, because the mach-default/ makes sense even on UP, am I 
-right?
+Thanks for the confirmation.
 
-Thanks,
+Can you try to find the guilty commit through git bisecting?
+
+IOW, please do:
+
+
+# install git and cogito on your computer
+
+# clone Linus' tree:
+cg-clone \ 
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+# start bisecting:
+cd linux-2.6
+git bisect start
+git bisect bad b278240839e20fa9384ea430df463b367b90e04e
+git bisect good dd77a4ee0f3981693d4229aa1d57cea9e526ff47
+
+# start round
+cp /path/to/.config .
+make oldconfig
+make
+# install kernel, check whether it's good or bad, then:
+git bisect [bad|good]
+# start next round
+
+
+After at about 8 reboots, you'll have found the guilty commit
+("...  is first bad commit").
+
+
+More information on git bisecting:
+  man git-bisect
+
+
+TIA
+Adrian
 
 -- 
-Jiri Kosina
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

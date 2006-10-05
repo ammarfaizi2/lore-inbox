@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWJEINI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWJEIP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWJEINI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 04:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWJEINI
+	id S1751221AbWJEIP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 04:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWJEIP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 04:13:08 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:30910 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1751211AbWJEINE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 04:13:04 -0400
-Date: Thu, 5 Oct 2006 17:12:47 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: Industrial device driver uio/uio_*
-Message-ID: <20061005081247.GA8218@localhost.hsdv.com>
-References: <1157995334.23085.188.camel@localhost.localdomain> <1159988394.25772.97.camel@localhost.localdomain> <20061004121835.bb155afe.akpm@osdl.org> <1159990345.1386.277.camel@localhost.localdomain>
+	Thu, 5 Oct 2006 04:15:56 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:16784 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751221AbWJEIPz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 04:15:55 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: __STRICT_ANSI__ checks in headers
+Date: Thu, 5 Oct 2006 11:16:11 +0300
+User-Agent: KMail/1.9.4
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, mchehab@infradead.org
+References: <200609150901.33644.ismail@pardus.org.tr> <200610011034.57158.ismail@pardus.org.tr> <20061001091411.GA9647@uranus.ravnborg.org>
+In-Reply-To: <20061001091411.GA9647@uranus.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1159990345.1386.277.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610051116.12726.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 09:32:25PM +0200, Thomas Gleixner wrote:
-> On Wed, 2006-10-04 at 12:18 -0700, Andrew Morton wrote:
-> > On Wed, 04 Oct 2006 19:59:54 +0100
-> > > I would just NAK it but want to be sure the guys saw the list of
-> > > problems
-> > > 
-> > 
-> > cc's added.
-> > 
-> > Thomas has been a bit tied up with timers and interrupts of late.
-> 
-> Yup. fork(tglx) still returns -ETOOMANYINSTANCES.
-> 
-> I have no objections, if you pull it from -mm for now. The list of flaws
-> is accepted and we'll work on this in foreseeable time, _IF_ there is
-> some basic consensus about the idea itself not being fundamentaly wrong.
-> 
-I've got a few cycles I can throw at this, it's a problem space we
-(Renesas) are interested in too..
+01 Eki 2006 Paz 12:14 tarihinde, Sam Ravnborg şunları yazmıştı: 
+> On Sun, Oct 01, 2006 at 10:34:56AM +0300, Ismail Donmez wrote:
+> > On Sunday 01 October 2006 08:20, Kyle Moffett wrote:
+[...]
+> > > Just thinking about it we probably also need to educate sparse about
+> > > __extension__ too.  Perhaps somebody could also add an sparse flag to
+> > > make it warn about nonportable constructs in exported header files.
+> > >
+> > > I'd submit a patch but my knowledge of kernel makefiles and depmod is
+> > > somewhere between zero and none, exclusive.
+> >
+> > Thanks, I will have a look at it.
+>
+> I assume you will same errors from the in-kernel modpost.
+> If you do not do so then there is some inconsistency between depmod
+> and modpost that ougth to be fixed.
 
-Alan, is your Sept. 11 list the extent of your issues with the current
-code, or was there more that you sent off-list?
+The problem shows itself in the modpost, somehow __extension__ clause seems to 
+foobar module CRC. I am not yet successfull on making modpost ignore 
+__extension__ .
 
-I'll toss up a quick git tree for this so we don't lose anything, and
-the fixes can trickle in to -mm that way, or it can just be pulled and
-added back later.
+Any ideas appreciated.
+
+Regards,
+ismail

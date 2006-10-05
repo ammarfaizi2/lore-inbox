@@ -1,39 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWJEFhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWJEGPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWJEFhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 01:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWJEFhO
+	id S1751043AbWJEGPK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 02:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWJEGPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 01:37:14 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:14123 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751490AbWJEFhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 01:37:13 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:
-	subject:content-type:content-transfer-encoding;
-	b=Xmv5lZMxprMzIWAmm3jssKGDHMLlbLW2y9HudijD3RXhjbk49EwYhKdFMQXubD/04
-	OJdEf9l0QKjBUJTT/7kzw==
-Message-ID: <452499AA.6060103@google.com>
-Date: Wed, 04 Oct 2006 22:35:38 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Thu, 5 Oct 2006 02:15:10 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57293 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751043AbWJEGPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 02:15:08 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
+	<20061004214403.e7d9f23b.akpm@osdl.org>
+Date: Thu, 05 Oct 2006 00:13:12 -0600
+In-Reply-To: <20061004214403.e7d9f23b.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 4 Oct 2006 21:44:03 -0700")
+Message-ID: <m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.18 LTP failures
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sched_setscheduler02    1  FAIL  :  sched_setscheduler(2) passed with 
-non root priveledges
-sysfs01     1  FAIL  :  sysfs(2) Failed for option 1 and set errno to 22
+Andrew Morton <akpm@osdl.org> writes:
 
+> I tested it with Vivek's fix (below) and it still dies immediately.
+>
+> The grub record is
+>
+> title new (2.6.19-rc1)
+>         root (hd0,5)
+>         kernel /boot/bzImage-2.6.19-rc1 ro root=LABEL=/ rhgb vga=0x263
+>         initrd /boot/initrd-2.6.19-rc1.img
+>
+> various binares are at http://userweb.kernel.org/~akpm/reloc/
 
-To be fair, I have no idea if these are failures in LTP itself or
-2.6.18, but thought I'd mention them. On the upside, we seem to have
-way less failures than we used too (mostly LTP problems, used to be)
-LTP version is 20060918
+Thanks.   
 
-M.
+The fix was actually to remove a conflict with the other ELF notes we
+are starting to generate (in the Xen context) so we can get our act
+together that way.  I had no reason to suspect it would have had any
+connection with your boot failure. 
+
+I examined your bzImage and it does not have a multiboot signature,
+in the first 8k.
+
+I pointed my grub at your bzImage and it booted as far as searching
+for init.  The only differences were I don't have video mode 0x263
+so when prompted for something supported I told it to use video mode
+0 instead.  My boot partition is (hd0,0) and is just boot, so
+I changed the grub configuration to:
+
+title Andrew
+         root (hd0,0)
+         kernel /bzImage-2.6.19-rc1 ro root=LABEL=/ rhgb vga=0x263
+         initrd /initrd-2.6.19-rc1.img
+
+So it feels like a subtle interaction with your hardware, or firmware.
+Do things work better if you don't specify a vga=xxx mode?
+
+This is a weird problem.
+
+Eric

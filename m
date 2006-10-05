@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWJEB5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWJECF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWJEB5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 21:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWJEB5z
+	id S1751330AbWJECF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 22:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWJECF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 21:57:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42464 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751320AbWJEB5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 21:57:54 -0400
-Date: Wed, 4 Oct 2006 18:57:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Inaky Perez-Gonzalez <inaky@linux.intel.com>
-Cc: Reinette Chatre <reinette.chatre@linux.intel.com>,
-       Joe Korty <joe.korty@ccur.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitmap: separate bitmap parsing for user buffer and
- kernel buffer
-Message-Id: <20061004185747.4cb64048.akpm@osdl.org>
-In-Reply-To: <200610041833.40866.inaky@linux.intel.com>
-References: <200610041756.30528.reinette.chatre@linux.intel.com>
-	<20061004181003.6dae6065.akpm@osdl.org>
-	<200610041833.40866.inaky@linux.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 22:05:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:30697 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751330AbWJECFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 22:05:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LLJfz0UgDflWQIJvXl/gGQWSljmsrcFuHJBxGdo3VFbwQdSXvQoYg1wqN8S/COAvOZ+stto3BXTJ3QS1dMG4cgwStdyveuSnaeW6wNPa7qpADC2ikvztlrfd3oQKwWhLuUkFKkH+rvbHIAno34E2EzfRgWhTGGe9N/fVt9XdD3s=
+Message-ID: <a762e240610041905w6722b4c1i786a99df3af0a16d@mail.gmail.com>
+Date: Wed, 4 Oct 2006 19:05:52 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Martin Bligh" <mbligh@mbligh.org>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Cc: "Andi Kleen" <ak@suse.de>, vgoyal@in.ibm.com,
+       "Andrew Morton" <akpm@osdl.org>, "Steve Fox" <drfickle@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       kmannth@us.ibm.com, "Andy Whitcroft" <apw@shadowen.org>
+In-Reply-To: <45245B03.2070803@mbligh.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <20061004170659.f3b089a8.akpm@osdl.org>
+	 <20061005005124.GA23408@in.ibm.com> <200610050257.53971.ak@suse.de>
+	 <45245B03.2070803@mbligh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 18:33:37 -0700
-Inaky Perez-Gonzalez <inaky@linux.intel.com> wrote:
-
-> On Wednesday 04 October 2006 18:10, Andrew Morton wrote:
-> > On Wed, 4 Oct 2006 17:56:30 -0700
-> > Reinette Chatre <reinette.chatre@linux.intel.com> wrote:
-> > > +			if (is_user) {
-> > > +				if (__get_user(c, buf++))
-> > > +					return -EFAULT;
-> > > +			}
-> > > +			else
-> > > +				c = *buf++;
+On 10/4/06, Martin Bligh <mbligh@mbligh.org> wrote:
+> Andi Kleen wrote:
+> >>I think most likely it would crash on 2.6.18. Keith mannthey had reported
+> >>a different crash on 2.6.18-rc4-mm2 when this patch was introduced first
+> >>time. Following is the link to the thread.
 > >
-> > Is this actually needed?  __get_user(kernel_address) works OK and (believe
-> > it or not, given all the stuff it involves) boils down to a single
-> > instruction.
-> 
-> We weren't too sure if that'd be true in all kinds of arches and
-> memory models. If it works for kernel space too, then we can fold
-> out a lot of code...
+> >
+> > Then maybe trying 2.6.17 + the patch and then bisect between that and -rc4?
+>
+> I think it's fixed already in -git22, or at least it is for the IBM box
+> reporting to test.kernel.org. You might want to try that one ...
 
-We use __get_user() in this fashion in several places in core kernel
-already, although it's usually to find out "will this address give me a
-fault", rather than to actually read a value.
+Fixed or hidden... hard to say at this point.   I think it could be a
+werid interaction between patches and or config options.  I will see
+tommorrow if I can recreate again.
 
-There's some precedent for the `is_user' approach as well - it has the
-advantage of being more sparse-friendly, and perhaps clearer to read.
+Thanks,
+  Keith

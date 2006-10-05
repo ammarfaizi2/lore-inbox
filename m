@@ -1,78 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWJEHHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWJEHJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWJEHHy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 03:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWJEHHy
+	id S1751178AbWJEHJc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 03:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWJEHJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 03:07:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:53647 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751175AbWJEHHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 03:07:53 -0400
-From: Neil Brown <neilb@suse.de>
-To: Greg Banks <gnb@sgi.com>
-Date: Thu, 5 Oct 2006 17:07:39 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 03:09:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50083 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751178AbWJEHJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 03:09:31 -0400
+Subject: [ANNOUNCE] linux-kernel-headers-2.6.19-rc1.tar.gz
+From: David Woodhouse <dwmw2@infradead.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 08:09:20 +0100
+Message-Id: <1160032160.26064.17.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17700.44859.590516.673084@cse.unsw.edu.au>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support
-	of	rsize/wsize of up to 1MB, over TCP.
-In-Reply-To: message from Greg Banks on Tuesday October 3
-References: <20060824162917.3600.patches@notabene>
-	<1060824063711.5008@suse.de>
-	<20060925154316.GA17465@fieldses.org>
-	<17697.48800.933642.581926@cse.unsw.edu.au>
-	<20061003021304.GB12867@fieldses.org>
-	<17697.63511.32591.797058@cse.unsw.edu.au>
-	<20061003080202.GM28796@sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 3, gnb@sgi.com wrote:
-> On Tue, Oct 03, 2006 at 03:41:43PM +1000, Neil Brown wrote:
-> > Comments on the below?
-> 
-> Looks ok, except...
-> 
-> > @@ -57,7 +57,8 @@ struct svc_serv {
-> >  	struct svc_stat *	sv_stats;	/* RPC statistics */
-> >  	spinlock_t		sv_lock;
-> >  	unsigned int		sv_nrthreads;	/* # of server threads */
-> > -	unsigned int		sv_bufsz;	/* datagram buffer size */
-> > +	unsigned int		sv_max_payload;	/* datagram payload size */
-> > +	unsigned int		sv_max_mesg;	/* bufsz + 1 page for overheads */
-> 
-> Presumably the comment should read "max_payload + 1 page..." ?
-> 
+A full set of user-visible kernel headers for all supported
+architectures, exported from the 2.6.19-rc1 kernel, has been uploaded
+to
+ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/kernel-headers/snapshot/
 
-Yes....
+I had planned to do this for 2.6.18 but it wasn't quite in good enough
+shape by then. This one should be fine -- you can build your C library
+against it and ship it in /usr/include. And tell me what breaks...
 
-> > @@ -414,9 +415,11 @@ svc_init_buffer(struct svc_rqst *rqstp, 
-> >  	int pages;
-> >  	int arghi;
-> >  	
-> > -	if (size > RPCSVC_MAXPAYLOAD)
-> > -		size = RPCSVC_MAXPAYLOAD;
-> > -	pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
-> > +	if (size > RPCSVC_MAXPAYLOAD + PAGE_SIZE)
-> > +		size = RPCSVC_MAXPAYLOAD + PAGE_SIZE;
-> > +	pages = size + PAGE_SIZE; /* extra page as we hold both request and reply.
-> > +				   * We assume one is at most one page
-> > +				   */
-> 
-> Isn't there a divide by PAGE_SIZE missing here?  Looks
-> like we'll be allocating a *lot* of pages ;-)
+I probably won't do tarballs corresponding to -rc releases very often
+but I'll do the proper releases.
 
-Better safe that sorry?  But yes, we would be very sorry if we tried
-to allocate that many pages.
+-- 
+dwmw2
 
-Thanks for the review.
-
-NeilBrown

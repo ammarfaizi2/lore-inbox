@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWJEQhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWJEQiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWJEQhY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 12:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWJEQhY
+	id S932166AbWJEQiE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 12:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWJEQiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 12:37:24 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64008 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932163AbWJEQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 12:37:23 -0400
-Date: Thu, 5 Oct 2006 18:37:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: make-bogus-warnings-go-away tree [was: 2.6.18-mm3]
-Message-ID: <20061005163721.GJ16812@stusta.de>
-References: <20061003001115.e898b8cb.akpm@osdl.org> <20061005083754.GA1060@elte.hu>
-MIME-Version: 1.0
+	Thu, 5 Oct 2006 12:38:04 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:237 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932091AbWJEQiA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 12:38:00 -0400
+Date: Thu, 5 Oct 2006 09:28:19 -0700
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Jeff Garzik <jeff@garzik.org>, Lee Revell <rlrevell@joe-job.com>,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061005162819.GA6510@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061004181032.GA4272@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org> <20061004185903.GA4386@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041216510.3952@g5.osdl.org> <20061004195229.GA4459@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041311420.3952@g5.osdl.org> <20061004204718.GA4599@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041522190.3952@g5.osdl.org> <20061005002637.GA5145@bougret.hpl.hp.com> <5a4c581d0610050820m11779c4er7a323cfec49cd39a@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061005083754.GA1060@elte.hu>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <5a4c581d0610050820m11779c4er7a323cfec49cd39a@mail.gmail.com>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 10:37:54AM +0200, Ingo Molnar wrote:
+On Thu, Oct 05, 2006 at 03:20:06PM +0000, Alessandro Suardi wrote:
+> On 10/5/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
+> >On Wed, Oct 04, 2006 at 03:26:09PM -0700, Linus Torvalds wrote:
+> >>
+> >> The very fact that this turned into a discussion is a sign that the ABI
+> >> breakage wasn't handled well enough. Usually, when we do something, 
+> >nobody
+> >> ever even notices.
+> >
+> >        There was the grand total of *ONE* user who was personally
+> >impacted by the userspace API change (the two other, one was hit by a
+> >bug, now fixed, one was hit because of kernel API change + external
+> >driver). And I immediately proposed to postpone the change to a later
+> >time.
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
+> And said user, being me, is currently running with upgraded userspace
+> without any issues (counting upgrading userspace as a non-issue).
 > 
-> > - Added Jeff's make-bogus-warnings-go-away tree to the -mm lineup, as
-> >   git-gccbug.patch
-> 
-> Jeff: very nice! (I did this myself on a much smaller scale for the -rt 
-> patch, because it's just so lethal if some serious warning gets lost in 
-> the myriads of 'possible use of uninitialized' messages.)
-> 
-> A small suggestion: to give GCC folks a chance to actually fix this, 
-> could we actively annotate these places instead of working them around?
-> 
-> I.e., instead of:
-> 
->         long cursor = 0;
->         int error = 0;
-> -       void *new_mc;
-> +       void *new_mc = NULL;
->         int cpu;
->         cpumask_t old;
-> 
-> couldnt we do:
-> 
-> 	void *new_mc __GCC_WARN_BUG;
-> 
-> and then do something like this in gcc.h:
-> 
->  #ifdef CONFIG_ELIMINATE_BOGUS_GCC_WARNINGS
->  # define __GCC_WARN_BUG = 0
->  #else
->  # define __GCC_WARN_BUG
->  #endif
-> 
-> this both gives an in-source incentive for GCC folks to get rid of these 
-> bogus warnings (or remain shamed for eternity),
+> I originally logged my report as I do for other things that break or look
+> different in new snapshots, in order to provide early feedback to the
+> kernel developers - I guess it's the actual point of having snapshots
+> from kernel.org...
 
-Not all of the false positives are gcc bugs.
+	Precisely. We are not omniscient. Based on your feedback, I
+decided to postpone WE-21.
+	Your feedback was useful and appreciated. I will never blame
+the messenger.
 
-There are cases where it's technically impossible for gcc to figure out 
-that a variable is always initialized.
-
-> and gives us the ability 
-> to control the presence of these workarounds (and the eventual ability 
-> to eliminate them in the future).
+> Thanks, ciao,
 > 
-> this would also mean we could merge your tree upstream without worrying 
-> about hiding gcc bugs.
+> --alessandro
 
-What we'd need would be some -Wno-may-be-used-uninitialized gcc option 
-that turns off the "may be may be used uninitialized" warnings but not 
-the "is used uninitialized" warnings.
+	Ciao...
 
-This would:
-- give us a way to silence these warnings
-- allow people to see the warnings if they want to
-- not increase the maintenance overhead
-
-> 	Ingo
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Jean

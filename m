@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWJEVvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWJEVwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWJEVvL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWJEVvK
+	id S932306AbWJEVwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWJEVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:51:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55983 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932302AbWJEVvF (ORCPT
+	Thu, 5 Oct 2006 17:52:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11952 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932306AbWJEVwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:51:05 -0400
-Date: Thu, 5 Oct 2006 14:50:42 -0700
+	Thu, 5 Oct 2006 17:52:34 -0400
+Date: Thu, 5 Oct 2006 14:52:13 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       adilger@clusterfs.com, ext2-devel@lists.sourceforge.net
-Subject: Re: 2.6.18-mm2: ext3 BUG?
-Message-Id: <20061005145042.fd62289a.akpm@osdl.org>
-In-Reply-To: <45257A6C.3060804@gmail.com>
-References: <45257A6C.3060804@gmail.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061005145213.f3eaaf7d.akpm@osdl.org>
+In-Reply-To: <45257C65.3030600@goop.org>
+References: <B41635854730A14CA71C92B36EC22AAC3F3FBA@mssmsx411>
+	<20061005143748.2f6594a2.akpm@osdl.org>
+	<45257C65.3030600@goop.org>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,23 +28,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 23:34:13 +0159
-Jiri Slaby <jirislaby@gmail.com> wrote:
+On Thu, 05 Oct 2006 14:43:01 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Hello,
+> Andrew Morton wrote:
+> > So how's this look?
+> >   
 > 
-> while yum update-ing, yum crashed and this appeared in log:
-> [ 2840.688718] EXT3-fs error (device hda2): ext3_free_blocks_sb: bit already 
-> cleared for block 747938
-> [ 2840.688732] Aborting journal on device hda2.
-> [ 2840.688858] ext3_abort called.
->
-> ...
->
-> I don't know how to reproduce it and really have no idea what version of -mm 
-> could introduce it (if any).
+> Looks fine to me.  Other than the general question of why WARN_ON* 
+> returns a value at all, and if so, does the final unlikely() really do 
+> anything.
 
-I don't necessarily see a bug in there.  The filesystem got a bit noisy but
-did appropriately detect and handle the metadata inconsistency.
-
-The next step would be to fsck that filesystem, see waht it says.
+Herbert had a good-sounding reason for wanting this feature, but afaict he
+hasn't proceeded to use it at this stage.  And he's hiding from us ;)

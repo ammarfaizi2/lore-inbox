@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWJEEMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWJEENx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWJEEMz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 00:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWJEEMz
+	id S1750753AbWJEENx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 00:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWJEENx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 00:12:55 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:28896 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750746AbWJEEMy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 00:12:54 -0400
-Message-ID: <4524862A.7080306@zytor.com>
-Date: Wed, 04 Oct 2006 21:12:26 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@osdl.org>, vgoyal@in.ibm.com,
+	Thu, 5 Oct 2006 00:13:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49796 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750753AbWJEENw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 00:13:52 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
        linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
        horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
 Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-References: <20061003170032.GA30036@in.ibm.com>	<20061003172511.GL3164@in.ibm.com>	<20061003201340.afa7bfce.akpm@osdl.org> <m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<20061004042850.GA27149@in.ibm.com> <45233B58.1050208@zytor.com>
+	<m1sli4cxr2.fsf@ebiederm.dsl.xmission.com>
+	<4523D0AF.5000907@zytor.com>
+Date: Wed, 04 Oct 2006 22:12:11 -0600
+In-Reply-To: <4523D0AF.5000907@zytor.com> (H. Peter Anvin's message of "Wed,
+	04 Oct 2006 08:18:07 -0700")
+Message-ID: <m1u02jbdus.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
-> Ugh.  I just tested this with a grub 0.97-5 from what I assume is a
-> standard FC5 install (I haven't touched it) and the kernel boots.
-> I only have a 64bit user space on that machine so init doesn't
-> start but I get the rest of the kernel messages.
-> 
-> There were several testers working at redhat so a pure redhat
-> incompatibility would be a surprise.
-> 
-> I don't think the formula is a simple grub+bzImage == death.
-> 
-> There is something more subtle going on here.  
-> 
-> I'm not certain where to start looking.  Andrew it might help if we
-> could get the dying binary just in case some weird compile or
-> processing problem caused insanely unlikely things like the multiboot
-> binary to show up in your grub install.  I don't think that is it,
-> but it should allow us to rule out that possibility.
-> 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-I would try running it in a more memory-constrained environment.
+> Well, it doesn't help if what you end up with for some bootloader is a
+> nonfunctioning kernel.
 
-	-hpa
+I agree.  We need to look at what is happening closely.  
+However just because we have some initial glitches doesn't mean we
+shouldn't give up.
+
+With grub you can say:
+kernel --type=biglinux /path/to/bzImage
+
+As I read the code it won't necessarily force the type of kernel image
+grub will use but it will refuse to boot if it doesn't recognize 
+the kernel as the type specified.
+
+The code for grub is in stage2/boot.c:load_image().  It tries a few
+other formats before it tests for the linux magic number but
+it won't recognize an ELF format executable unless it is a mutliboot
+or a BSD executable.
+
+Eric

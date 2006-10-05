@@ -1,33 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWJEKsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWJEKvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751659AbWJEKsz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 06:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWJEKsz
+	id S1751656AbWJEKvG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 06:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWJEKvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 06:48:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:51419 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751657AbWJEKsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 06:48:54 -0400
-Message-ID: <4524E302.1000106@garzik.org>
-Date: Thu, 05 Oct 2006 06:48:34 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 5 Oct 2006 06:51:06 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:35272 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751656AbWJEKvE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 06:51:04 -0400
+Date: Thu, 5 Oct 2006 12:52:50 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Machine reboot
+Message-ID: <20061005105250.GI2923@mail.muni.cz>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@linux.intel.com>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] forcedeth: hardirq lockdep warning
-References: <1158670522.3278.13.camel@taijtu>
-In-Reply-To: <1158670522.3278.13.camel@taijtu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Muni-Spam-TestIP: 147.251.54.96
+X-Muni-Envelope-From: xhejtman@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied to #upstream-fixes
+Hello,
 
+I'm facing troubles with machine restart. While sysrq-b restarts machine, reboot
+command does not. Using printk I found that kernel does not hang and issues
+reset properly but BIOS does not initiate boot sequence. Is there something
+I could do?
+
+-- 
+Luká¹ Hejtmánek

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWJEWET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWJEWGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWJEWET (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWJEWET
+	id S932329AbWJEWGY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWJEWGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:04:19 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:41732 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932326AbWJEWES
+	Thu, 5 Oct 2006 18:06:24 -0400
+Received: from c-71-197-74-6.hsd1.ca.comcast.net ([71.197.74.6]:17065 "EHLO
+	nofear.bounceme.net") by vger.kernel.org with ESMTP id S932329AbWJEWGX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:04:18 -0400
-Date: Fri, 6 Oct 2006 08:02:59 +1000
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
-       tim.c.chen@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Message-ID: <20061005220259.GA26202@gondor.apana.org.au>
-References: <B41635854730A14CA71C92B36EC22AAC3F3FBA@mssmsx411> <20061005143748.2f6594a2.akpm@osdl.org> <45257C65.3030600@goop.org> <20061005145213.f3eaaf7d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005145213.f3eaaf7d.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 5 Oct 2006 18:06:23 -0400
+Message-ID: <452581D7.5020907@syphir.sytes.net>
+Date: Thu, 05 Oct 2006 15:06:15 -0700
+From: "C.Y.M" <syphir@syphir.sytes.net>
+Reply-To: syphir@syphir.sytes.net
+Organization: CooLNeT
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: BUG: warning at fs/inotify.c:181 with linux-2.6.18
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 02:52:13PM -0700, Andrew Morton wrote:
->
-> Herbert had a good-sounding reason for wanting this feature, but afaict he
-> hasn't proceeded to use it at this stage.  And he's hiding from us ;)
+Since I updated to 2.6.18, I have had the following warnings in my syslog.  Is
+this a known problem? Better yet, is there a solution to this?  I am running on
+a i686 (Athlon XP) 32 bit cpu compiled under gcc-3.4.6.
 
-Well you guys had everything under control so I was happy to stay
-behind my rock :)
 
-The original reason for the return value is so you can do
+Oct  5 08:27:31 sid kernel: BUG: warning at
+fs/inotify.c:181/set_dentry_child_flags()
+Oct  5 08:27:31 sid kernel:  [<c0182a10>] set_dentry_child_flags+0x170/0x190
+Oct  5 08:27:31 sid kernel:  [<c0182adf>] remove_watch_no_event+0x5f/0x70
+Oct  5 08:27:31 sid kernel:  [<c0182b08>] inotify_remove_watch_locked+0x18/0x50
+Oct  5 08:27:31 sid kernel:  [<c01833dc>] inotify_rm_wd+0x6c/0xb0
+Oct  5 08:27:31 sid kernel:  [<c0183e98>] sys_inotify_rm_watch+0x38/0x60
+Oct  5 08:27:31 sid kernel:  [<c0102d8f>] syscall_call+0x7/0xb
 
-if (WARN_ON(impossible_condition)) {
-	attempt_to_continue;
-}
 
-instead of 
-
-if (unlikely(impossible_condition)) {
-	WARN_ON(1);
-	attempt_to_continue;
-}
-
-Oh and yes the unlikely does make a difference in a statement
-expression.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Best Regards.

@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWJETQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWJETSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWJETQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWJETQ1
+	id S1750866AbWJETSY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWJETSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:16:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:57216 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750731AbWJETQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:16:26 -0400
-Message-ID: <45255A02.2010308@garzik.org>
-Date: Thu, 05 Oct 2006 15:16:18 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 5 Oct 2006 15:18:24 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:42972 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1750826AbWJETSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:18:23 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Eric Sandeen <esandeen@redhat.com>
+Subject: Re: Merge window closed: v2.6.19-rc1
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 05 Oct 2006 21:17:50 +0200
+In-Reply-To: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+Message-ID: <m38xjuo9lt.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] scsi updates for post 2.6.18
-References: <1159995678.3437.80.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.60.0610052104330.6619@poirot.grange>
-In-Reply-To: <Pine.LNX.4.60.0610052104330.6619@poirot.grange>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> On Wed, 4 Oct 2006, James Bottomley wrote:
-> 
->> This is (hopefully) my final batch of updates before we go -rc1.  It's
->> mainly code cleanups, some driver updates and the new qla4xxx iScsi
->> driver.
-> 
-> James, is there a reason why you didn't include this one:
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=115974328128341&w=2
-> 
-> Do you think it can cause problems?
+Linus Torvalds <torvalds@osdl.org> writes:
 
-It would be nice to get it tested, based on your "don't know if it works 
-though" comment...
+> Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1 release.
+...
+> so please give it a good testing, and let's see if there are any 
+> regressions.
 
-	Jeff
+The UDF filesystem can't be mounted in read-write mode any more,
+because of forgotten braces.
 
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
+ fs/udf/super.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 1d3b5d2..1aea6a4 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -1621,9 +1621,10 @@ #endif
+ 		goto error_out;
+ 	}
+ 
+-	if (UDF_SB_PARTFLAGS(sb, UDF_SB_PARTITION(sb)) & UDF_PART_FLAG_READ_ONLY)
++	if (UDF_SB_PARTFLAGS(sb, UDF_SB_PARTITION(sb)) & UDF_PART_FLAG_READ_ONLY) {
+ 		printk("UDF-fs: Partition marked readonly; forcing readonly mount\n");
+ 		sb->s_flags |= MS_RDONLY;
++	}
+ 
+ 	if ( udf_find_fileset(sb, &fileset, &rootdir) )
+ 	{
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

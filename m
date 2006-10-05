@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWJEGmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWJEGtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWJEGmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 02:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWJEGmT
+	id S1751167AbWJEGtx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 02:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWJEGtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 02:42:19 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:32399 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751510AbWJEGmS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 02:42:18 -0400
-Message-ID: <4524A946.1040101@drzeus.cx>
-Date: Thu, 05 Oct 2006 08:42:14 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
+	Thu, 5 Oct 2006 02:49:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17339 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751167AbWJEGtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 02:49:52 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
 To: Andrew Morton <akpm@osdl.org>
-CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Multi sector write transfers
-References: <20061001124257.17012.78166.stgit@poseidon.drzeus.cx> <20061003151034.a7894df8.akpm@osdl.org>
-In-Reply-To: <20061003151034.a7894df8.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
+	<20061004214403.e7d9f23b.akpm@osdl.org>
+	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+	<20061004233137.97451b73.akpm@osdl.org>
+Date: Thu, 05 Oct 2006 00:48:10 -0600
+In-Reply-To: <20061004233137.97451b73.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 4 Oct 2006 23:31:37 -0700")
+Message-ID: <m1vemz9s2d.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Russell is moving away from mmc maintainership so we'll need to do
-> something different here.
-> 
-> The patches look good to my untrained eye, except...
-> 
-> On Sun, 01 Oct 2006 14:42:57 +0200
-> Pierre Ossman <drzeus@drzeus.cx> wrote:
-> 
->> SD cards extend the protocol by allowing the host to query a card how many
->> blocks were successfully stored on the medium. This allows us to safely write
->> chunks of blocks at once.
-> 
-> I recall Russell nacked multisector mmc-writing when it came up six or
-> twelve months ago.  I don't recall the exact details - lack of trust in
-> manufacturers supporting it correctly?
-> 
-> Is that concern relevant to this patch?
+Andrew Morton <akpm@osdl.org> writes:
 
-The concern then was that we enabled multi-sector writes across the
-board. Russell's concern was that some host controllers weren't properly
-reporting back how far they had gotten when a failure occurred. We now
-have two solutions to this:
+> On Thu, 05 Oct 2006 00:13:12 -0600
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+>> Do things work better if you don't specify a vga=xxx mode?
+>
+> yes, without vga=0x263 it boots.
 
- * Let the drivers set a flag, indicating that the controller properly
-reports the number of sent blocks, even when a fault occurs. Russell put
-together a patch for this and it is already in Linus' tree.
+Ok.  It will take some digging but I suspect the problem is
+that video.S is using a table or a variable placed over the original
+boot sector, and expecting it to be zero initialized. 
 
- * Ask the card, not the controller, how many blocks got there ok. This
-is only supported by SD though, so MMC still use only one block per
-write (except for the case above).
+Finding that in the pile of 2000 lines of assembly could take a
+little while.
 
-The only problem I see is if the card has decided to completely shut
-down so it's impossible to query the number of blocks written. In this
-case, reporting correctly to the upper layers might not be a big issue
-(as they can't take any action on the card anyway), so I do not see it
-as a problem in practice. I have yet to see any comments on the patch
-though (other than end users that like the speed boost).
+Now at least we have something other people can try and reproduce
+this problem with.
 
-Rgds
-Pierre
+Eric

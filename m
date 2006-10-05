@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWJESs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWJEStO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWJESs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWJESs2
+	id S1750829AbWJEStO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWJEStO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:48:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62912 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750793AbWJESs1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:48:27 -0400
-Date: Thu, 5 Oct 2006 11:05:44 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jarek Poplawski <jarkao2@o2.pl>, "Axel C. Voigt" <Axel.Voigt@qosmotec.com>,
-       linux-kernel@vger.kernel.org, David Kubicek <dave@awk.cz>
-Subject: Re: Problems with hard irq? (inconsistent lock state)
-Message-ID: <20061005180544.GC15199@suse.de>
-References: <46E81D405FFAC240826E54028B3B02953B13@aixlac.qosmotec.com> <20061004054308.GA994@ff.dom.local> <20061004054309.GA387@suse.de> <20061004064542.GA2649@ff.dom.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061004064542.GA2649@ff.dom.local>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 5 Oct 2006 14:49:14 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:58948 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750830AbWJEStL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 14:49:11 -0400
+Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
+       Tom Zanussi <zanussi@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
+References: <1160025104.6504.30.camel@localhost.localdomain>
+	 <20061005143133.GA400@Krystal>
+	 <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
+	 <20061005170132.GA11149@Krystal>
+	 <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
+	 <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 11:49:06 -0700
+Message-Id: <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 08:45:43AM +0200, Jarek Poplawski wrote:
-> On Tue, Oct 03, 2006 at 10:43:09PM -0700, Greg KH wrote:
-> > On Wed, Oct 04, 2006 at 07:43:08AM +0200, Jarek Poplawski wrote:
-> > > On 29-09-2006 13:45, Axel C. Voigt wrote:
-> ...
-> > > > Sep 29 13:29:53 mcs70 kernel: =================================
-> > > > Sep 29 13:29:53 mcs70 kernel: [ INFO: inconsistent lock state ]
-> > > > Sep 29 13:29:53 mcs70 kernel: ---------------------------------
-> > > > Sep 29 13:29:53 mcs70 kernel: inconsistent {hardirq-on-W} -> {in-hardirq-W} usage.
-> > > > Sep 29 13:29:53 mcs70 kernel: startDV24/3864 [HC1[1]:SC0[0]:HE0:SE1] takes:
-> > > > Sep 29 13:29:53 mcs70 kernel: (&acm->read_lock){++..}, at: [<e08952d8>] acm_read_bulk+0x60/0xde [cdc_acm]
-> > > > Sep 29 13:29:53 mcs70 kernel: {hardirq-on-W} state was registered at:
-> ...
-> > > It looks in drivers/usb/class/cdc-acm.c acm_rx_tasklet could be preempted
-> > > with acm->read_lock by acm_read_bulk which uses the same lock from hardirq
-> > > context.
-> > > 
-> > > So probably spin_lock_irqsave is needed.  
-> > 
-> > Yup.  Care to send a patch?
+On Thu, 2006-10-05 at 14:38 -0400, Steven Rostedt wrote:
+> On Thu, 5 Oct 2006, Daniel Walker wrote:
 > 
-> If it could help?
+> > On Thu, 2006-10-05 at 14:09 -0400, Steven Rostedt wrote:
+> >
+> > >
+> > > My problem with using a timestamp, is that I ran logdev on too many archs.
+> > > So I need to have a timestamp that I can get to that is always reliable.
+> > > How does LTTng get the time for different archs?  Does it have separate
+> > > code for each arch?
+> > >
+> >
+> > I just got done updating a patchset that exposes the clocksources from
+> > generic time to take low level time stamps.. But even without that you
+> > can just call gettimeofday() directly to get a timestamp .
+> >
+> 
+> unless you're tracing something that his holding the xtime_lock ;-)
 
-Great, care to resend this to me with a signed-off-by: line?
+That's part of the reason for the changes that I made to the clocksource
+API . It makes it so instrumentation, with other things, can generically
+read a low level cycle clock. Like on PPC you would read the
+decrementer, and on x86 you would read the TSC . However, the
+application has no idea what it's reading.
 
-thanks,
+I submitted one version to LKML already, but I'm planning to submit
+another version shortly.
 
-greg k-h
+Daniel
+

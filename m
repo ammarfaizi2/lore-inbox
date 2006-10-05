@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWJENqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWJENrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWJENqA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 09:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWJENqA
+	id S1750924AbWJENrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 09:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWJENrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 09:46:00 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:13952 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750916AbWJENp7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 09:45:59 -0400
-Date: Thu, 5 Oct 2006 09:45:22 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Horms <horms@verge.net.au>, Magnus Damm <magnus@valinux.co.jp>
-Subject: Re: 2.6.19-rc1: kexec broken on x86_64
-Message-ID: <20061005134522.GB20551@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <aec7e5c30610050328i2bf9e3b6qcacc1873231ece28@mail.gmail.com>
+	Thu, 5 Oct 2006 09:47:52 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:63867 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750924AbWJENrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 09:47:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=XI/zgaI1B+CXNIvn1liIdYsTtwhMhITHqlfP1jZ27fYSrFh3IfsqlP7XYbIuiBuPym4mVwrvtM/IgBbfdZ2lVN6LWH9ruHJPnG5tQIOFxL/1YVINSv2+PrBiJNFuP6q2YTmcHu8d/IlxRn83d0wtXgU8K/VI8baC5oq+lQaDODM=
+Date: Thu, 5 Oct 2006 17:47:34 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Dennis Heuer <dh@triple-media.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sunifdef instead of unifdef
+Message-ID: <20061005134734.GA5335@martell.zuzino.mipt.ru>
+References: <20061005150816.76ca18c2.dh@triple-media.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aec7e5c30610050328i2bf9e3b6qcacc1873231ece28@mail.gmail.com>
+In-Reply-To: <20061005150816.76ca18c2.dh@triple-media.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 07:28:35PM +0900, Magnus Damm wrote:
-> Kexec is broken on x86_64 under 2.6.19-rc1.
-> 
-> Or rather - kexec works ok under 2.6.19-rc1, but something related to
-> the vmlinux format has probably changed and kexec-tools fails to load
-> a vmlinux from 2.6.19-rc1.
-> 
-> Loading bzImage works as usual, but vmlinux does not load properly.
-> 
-> The kexec binary fails with the following message:
-> 
-> Overlapping memory segments at 0x351000
-> sort_segments failed
-> / #
-> 
+On Thu, Oct 05, 2006 at 03:08:16PM +0200, Dennis Heuer wrote:
+> unifdef is not only very old and unmaintained, the binary does not work
+> and the source does not compile on a pure x86_64 system. There is
+> another tool that worked for me--though it 'closed with remarks'--and
+> that was updated recently (several times this year). It is called
+> sunifdef, is under an equal (new) BSD license, and is proposed to be
+> the successor of unifdef. See the project page:
+>
+> http://www.sunifdef.strudl.org/
 
-Hi Magnus,
+What about posting compiler errors instead of suggesting something that
+is 10 times bigger?
 
-Can you please post the readelf -l output of the vmlinux you are trying
-to load. That's will give some indication if the segments are really
-overlapping in vmlinux or is it some processing bug at kexec-tools part.
-
-Thanks
-Vivek

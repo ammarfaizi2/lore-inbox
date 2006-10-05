@@ -1,96 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWJEIgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWJEIkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWJEIgp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 04:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWJEIgp
+	id S1751335AbWJEIkE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 04:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWJEIkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 04:36:45 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:39138 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751236AbWJEIgn (ORCPT
+	Thu, 5 Oct 2006 04:40:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751335AbWJEIkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 04:36:43 -0400
-Date: Thu, 5 Oct 2006 10:27:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Klaus Knopper <knopper@knopper.net>, Andi Kleen <ak@suse.de>,
-       Luca Tettamanti <kronos.it@gmail.com>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, discuss@x86-64.org,
-       Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Olaf Hering <olaf@aepfle.de>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [patch] x86, fix rwsem build bug on CONFIG_M386=y
-Message-ID: <20061005082757.GA27120@elte.hu>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061005042816.GD16812@stusta.de>
+	Thu, 5 Oct 2006 04:40:00 -0400
+Date: Thu, 5 Oct 2006 01:36:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andrew.j.wade@gmail.com
+Cc: tim.c.chen@linux.intel.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Message-Id: <20061005013635.e016bf2b.akpm@osdl.org>
+In-Reply-To: <200610050417.39518.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	<200610041251.26166.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	<20061004150631.65e8953f.akpm@osdl.org>
+	<200610050417.39518.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005042816.GD16812@stusta.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Oct 2006 04:13:07 -0400
+Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+> (from earlier)
+> > Perhaps the `static int __warn_once' is getting put in the same cacheline
+> > as some frequently-modified thing.
+> 
+> hmm:
+> 
+> 00000460 l     O .data  00000044 task_exit_notifier
+> 000004c0 l     O .data  0000002c task_free_notifier
+> 000004ec l     O .data  00000004 warnlimit.15904
+> 000004f0 l     O .data  00000004 firsttime.15774
+> 000004f4 l     O .data  00000004 __warn_once.15180
+> 000004f8 l     O .data  00000004 __warn_once.15174
+> 000004fc l     O .data  00000004 __warn_once.15213
+> 00000500 l     O .data  00000004 __warn_once.15207
+> 00000504 l     O .data  00000004 __warn_once.15145
+> 00000508 l     O .data  00000004 __warn_once.15309
+> 0000050c l     O .data  00000004 __warn_once.15256
+> 00000510 l     O .data  00000004 __warn_once.15250
+> 000005a0 l     O .data  0000006c proc_iomem_operations
+> (extracted from objdump -t kernel/built-in.o)
 
-> This email lists some known regressions in 2.6.19-rc1 compared to 
-> 2.6.18.
 
-thanks Adrian - this list is extremely useful in my opinion! Please keep 
-up the good work.
+That all looks OK (by sheer luck).
 
-> Subject    : CONFIG_M386=y rwsem compile error
-> References : http://lkml.org/lkml/2006/10/3/240
-> Submitter  : Klaus Knopper <knopper@knopper.net>
-> Guilty     : Andi Kleen <ak@suse.de>
->              commit add659bf8aa92f8b3f01a8c0220557c959507fb1
-> Status     : unknown
+Well.  What's the cache line size on that machine?  Every exit() will cause
+a down_read() on task_exit_notifier's lock which might affect things.  And
+I think you snipped the above list a bit short (depending on that line
+size).
 
-find the fix below.
 
--------------------->
-Subject: [patch] x86, fix rwsem build bug on CONFIG_M386=y
-From: Ingo Molnar <mingo@elte.hu>
+But still, we know that moving those things into __read_mostly didn't fix
+it, yes?
 
-CONFIG_M386 turns on spinlock-based generic rwsems - which surprises the 
-semaphore.S rwsem stubs. Tested both with and without CONFIG_M386.
-
-Reported-by: Klaus Knopper <knopper@knopper.net>
-Triaged-by: Adrian Bunk <bunk@stusta.de>
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/i386/lib/semaphore.S |    3 +++
- 1 file changed, 3 insertions(+)
-
-Index: linux/arch/i386/lib/semaphore.S
-===================================================================
---- linux.orig/arch/i386/lib/semaphore.S
-+++ linux/arch/i386/lib/semaphore.S
-@@ -152,6 +152,8 @@ ENTRY(__read_lock_failed)
- 
- #endif
- 
-+#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
-+
- /* Fix up special calling conventions */
- ENTRY(call_rwsem_down_read_failed)
- 	CFI_STARTPROC
-@@ -214,3 +216,4 @@ ENTRY(call_rwsem_downgrade_wake)
- 	CFI_ENDPROC
- 	END(call_rwsem_downgrade_wake)
- 
-+#endif

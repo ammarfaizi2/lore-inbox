@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWJELBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWJELQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751672AbWJELBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 07:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWJELBV
+	id S1750760AbWJELQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 07:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWJELQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 07:01:21 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:19434 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751672AbWJELBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 07:01:20 -0400
-Date: Thu, 05 Oct 2006 07:01:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.19-rc1: known regressions
-In-reply-to: <20061005063700.GH5170@kernel.dk>
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <jens.axboe@oracle.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>
-Message-id: <200610050701.15559.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
- <1160023503.22232.10.camel@localhost.localdomain>
- <20061005063700.GH5170@kernel.dk>
-User-Agent: KMail/1.7
+	Thu, 5 Oct 2006 07:16:27 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:6110 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750760AbWJELQ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 07:16:27 -0400
+Message-ID: <4524E983.6010208@garzik.org>
+Date: Thu, 05 Oct 2006 07:16:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Cornelia Huck <cornelia.huck@de.ibm.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ashok Raj <ashok.raj@intel.com>, Nathan Lynch <nathanl@austin.ibm.com>
+Subject: Re: [PATCH] drivers/base: error handling fixes
+References: <20061004130554.GA25974@havoc.gtf.org> <20061004172434.1a2ddb71@gondolin.boeblingen.de.ibm.com> <20061005081705.GA6920@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20061005081705.GA6920@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 02:37, Jens Axboe wrote:
->On Thu, Oct 05 2006, Benjamin Herrenschmidt wrote:
->> On Thu, 2006-10-05 at 06:28 +0200, Adrian Bunk wrote:
->> > Contrary to popular belief, there are people who test -rc kernels
->> > and report bugs.
->> >
->> > And there are even people who test -git kernels.
->> >
->> > This email lists some known regressions in 2.6.19-rc1 compared to
->> > 2.6.18.
->> >
->> > If you find your name in the Cc header, you are either submitter of
->> > one of the bugs, maintainer of an affectected subsystem or driver, a
->> > patch of you was declared guilty for a breakage or I'm considering
->> > you in any other way possibly involved with one or more of these
->> > issues.
->> >
->> > Due to the huge amount of recipients, please trim the Cc when
->> > answering.
+Heiko Carstens wrote:
+> On Wed, Oct 04, 2006 at 05:24:34PM +0200, Cornelia Huck wrote:
+>> On Wed, 4 Oct 2006 09:05:54 -0400,
+>> Jeff Garzik <jeff@garzik.org> wrote:
+>>
+>>>  static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+>>> @@ -112,17 +110,18 @@ static int __cpuinit topology_cpu_callba
+>>>  {
+>>>  	unsigned int cpu = (unsigned long)hcpu;
+>>>  	struct sys_device *sys_dev;
+>>> +	int rc = 0;
+>>>  
+>>>  	sys_dev = get_cpu_sysdev(cpu);
+>>>  	switch (action) {
+>>>  	case CPU_ONLINE:
+>>> -		topology_add_dev(sys_dev);
+>>> +		rc = topology_add_dev(sys_dev);
+>>>  		break;
+>>>  	case CPU_DEAD:
+>>>  		topology_remove_dev(sys_dev);
+>>>  		break;
+>>>  	}
+>>> -	return NOTIFY_OK;
+>>> +	return rc ? NOTIFY_BAD : NOTIFY_OK;
+>>>  }
+>> Wouldn't that also require that _cpu_up checked the return code when
+>> doing CPU_ONLINE notification (and clean up on error)?
+> 
+> After all code that gets a CPU_ONLINE notification is not supposed to fail.
+> For allocating resources while bringing up a cpu CPU_UP_PREPARE is supposed
+> to be used. That one is allowed to fail.
 
-No idea who to trim, sorry.
+It's a bug no matter how you look at it... I just lessen the impact.  :)
 
-It is possible to setup in kconfig, an initramfs system that won't boot, 
-giving the message as it locks up tight that there is not any initramfs 
-cpio magic.  I have it rebuilding now with the proper options turned on I 
-hope.
+If someone wants to provide a better fix, let's see the patch...
 
->> Add sleep/wakeup on powerbooks apparently busted. Haven't tracked down
->> yet.
->
->Let me know if it appears to be ide related, there's a chance it could
->be the same thing as:
->
->Subject    : DVD drive lost DVD capabilities
->References : http://lkml.org/lkml/2006/10/1/45
->Submitter  : Olaf Hering <olaf@aepfle.de>
->Guilty     : Jens Axboe <axboe@suse.de>
->             commit 4aff5e2333c9a1609662f2091f55c3f6fffdad36
->Handled-By : Jens Axboe <axboe@suse.de>
->Status     : Jens is working on a fix
+	Jeff
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+
+

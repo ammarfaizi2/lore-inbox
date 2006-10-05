@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJEUCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWJEUHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWJEUCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWJEUCI
+	id S1751125AbWJEUHI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWJEUHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:02:08 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:17026 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751145AbWJEUCH (ORCPT
+	Thu, 5 Oct 2006 16:07:08 -0400
+Received: from 1wt.eu ([62.212.114.60]:16132 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751125AbWJEUHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:02:07 -0400
-Message-ID: <452564B9.4010209@garzik.org>
-Date: Thu, 05 Oct 2006 16:02:01 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: discuss@x86-64.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de> <45255D34.804@garzik.org> <200610052142.29692.ak@suse.de>
-In-Reply-To: <200610052142.29692.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 5 Oct 2006 16:07:06 -0400
+Date: Thu, 5 Oct 2006 21:30:28 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: linux-kernel@vger.kernel.org
+Cc: netfilter-devel@lists.netfilter.org
+Subject: Re: ip_conntrack_core - possible memory leak in 2.4
+Message-ID: <20061005193028.GC5050@1wt.eu>
+References: <20061004180201.GA18386@nomi.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061004180201.GA18386@nomi.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> If the choice is between a secret NDA only card with dubious
-> functionality and booting on lots of modern boards I know what to 
-> choose.
 
-That's a strawman argument.  There is no need to choose.  You can 
-clearly boot on lots of modern boards with mmconfig just fine.  We just 
-need to narrow down which ones.
+[netfilter-devel list CC'd]
 
-	Jeff
+Hello,
 
+On Wed, Oct 04, 2006 at 08:02:01PM +0200, onovy@nomi.cz wrote:
+> hi,
+> 
+> i have there MontaVista based router, with 2.4.17_mvl21-malta-mips_fp_le
+> kernel. I think, there is memory leak in ip_conntrack code. There are
+> eta 500 conntrack connection all the time. But after some day i get
+> "ip_conntrack: table full" in kmsg.
+> /proc/sys/net/ipv4/netfilter/ip_conntrack_max have 3072 value.
+> grep ip_conntrack /proc/slabinfo
+> ip_conntrack        3006   3250    384  319  325    1
+> ^^ there are 3006 allocated conntracks
+> cat /proc/net/ip_conntrack | wc -l
+> 30
+> ^^ in table are only 30 lines.
+> 
+> Acording to this:
+> http://lists.netfilter.org/pipermail/netfilter-devel/2004-May/015628.html
+> i don't think, this is fixed in 2.4 tree, but i can't test it with newer
+> version.
+
+Well, I know several old 2.4 netfilter systems running around and which
+process between 100 and 200 millions of sessions a day with peak hours
+around 4000 sessions/s. They might have been rebooted twice in 3 years,
+and they still work without a glitch. So I clearly don't think that the
+problem mentionned above is present in plain 2.4. It might be a very
+old bug in you rather old kernel, or one specific to some patches in
+your distro's kernel (BTW, I would be surprized you wouldn't find
+anything more recent than 2.4.17).
+
+Best regards,
+Willy
 

@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWJEHGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWJEHHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751515AbWJEHGt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 03:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWJEHGt
+	id S1751175AbWJEHHy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 03:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWJEHHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 03:06:49 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:12180 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1751515AbWJEHGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 03:06:47 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: error to be returned while suspended
-Date: Thu, 5 Oct 2006 09:07:26 +0200
-User-Agent: KMail/1.8
-References: <200610031323.00547.oliver@neukum.org> <200610041834.57639.oliver@neukum.org> <20061004224448.GL8440@elf.ucw.cz>
-In-Reply-To: <20061004224448.GL8440@elf.ucw.cz>
+	Thu, 5 Oct 2006 03:07:54 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53647 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751175AbWJEHHx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 03:07:53 -0400
+From: Neil Brown <neilb@suse.de>
+To: Greg Banks <gnb@sgi.com>
+Date: Thu, 5 Oct 2006 17:07:39 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610050907.27035.oliver@neukum.org>
+Message-ID: <17700.44859.590516.673084@cse.unsw.edu.au>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support
+	of	rsize/wsize of up to 1MB, over TCP.
+In-Reply-To: message from Greg Banks on Tuesday October 3
+References: <20060824162917.3600.patches@notabene>
+	<1060824063711.5008@suse.de>
+	<20060925154316.GA17465@fieldses.org>
+	<17697.48800.933642.581926@cse.unsw.edu.au>
+	<20061003021304.GB12867@fieldses.org>
+	<17697.63511.32591.797058@cse.unsw.edu.au>
+	<20061003080202.GM28796@sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 5. Oktober 2006 00:44 schrieben Sie:
-> Hi!
+On Tuesday October 3, gnb@sgi.com wrote:
+> On Tue, Oct 03, 2006 at 03:41:43PM +1000, Neil Brown wrote:
+> > Comments on the below?
 > 
-> > > > which error should a character device return if a read/write cannot be
-> > > > serviced because the device is suspended? Shouldn't there be an error
-> > > > code specific to that?
-> > > 
-> > > If you are talking system suspend, then userspace should not run while
-> > > devices are suspended.
-> > > 
-> > > If you are talking runtime suspend, you should probably just wake the
-> > > device up on first access.
-> > 
-> > Do you really think a device driver should override an explicitely
-> > selected power state?
+> Looks ok, except...
 > 
-> (So we are talking runtime suspend?)
+> > @@ -57,7 +57,8 @@ struct svc_serv {
+> >  	struct svc_stat *	sv_stats;	/* RPC statistics */
+> >  	spinlock_t		sv_lock;
+> >  	unsigned int		sv_nrthreads;	/* # of server threads */
+> > -	unsigned int		sv_bufsz;	/* datagram buffer size */
+> > +	unsigned int		sv_max_payload;	/* datagram payload size */
+> > +	unsigned int		sv_max_mesg;	/* bufsz + 1 page for overheads */
+> 
+> Presumably the comment should read "max_payload + 1 page..." ?
+> 
 
-Yes. Otherwise the patch would have been ready two days ago.
-But if I am implenting this, I'll do a full implementation.
+Yes....
 
-> No, I do not know what the right interface is. I started to suspect
-> that drivers should suspend/resume devices automatically, without
-> userland help. Maybe having autosuspend_timeout in sysfs is enough.
+> > @@ -414,9 +415,11 @@ svc_init_buffer(struct svc_rqst *rqstp, 
+> >  	int pages;
+> >  	int arghi;
+> >  	
+> > -	if (size > RPCSVC_MAXPAYLOAD)
+> > -		size = RPCSVC_MAXPAYLOAD;
+> > -	pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
+> > +	if (size > RPCSVC_MAXPAYLOAD + PAGE_SIZE)
+> > +		size = RPCSVC_MAXPAYLOAD + PAGE_SIZE;
+> > +	pages = size + PAGE_SIZE; /* extra page as we hold both request and reply.
+> > +				   * We assume one is at most one page
+> > +				   */
+> 
+> Isn't there a divide by PAGE_SIZE missing here?  Looks
+> like we'll be allocating a *lot* of pages ;-)
 
-If you do this at kernel level, you'll screw up any demon implementing
-a power policy to stay within the budget.
+Better safe that sorry?  But yes, we would be very sorry if we tried
+to allocate that many pages.
 
-	Regards
-		Oliver
+Thanks for the review.
+
+NeilBrown

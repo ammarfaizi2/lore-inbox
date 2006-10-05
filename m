@@ -1,94 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWJEQIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWJEQMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWJEQIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 12:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWJEQIW
+	id S932171AbWJEQMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 12:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWJEQMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 12:08:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:3540 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932168AbWJEQIW (ORCPT
+	Thu, 5 Oct 2006 12:12:12 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:21473 "EHLO pasmtpA.tele.dk")
+	by vger.kernel.org with ESMTP id S932171AbWJEQMK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 12:08:22 -0400
-From: Andi Kleen <ak@suse.de>
-To: Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: sys_splice crashes in 2.6.19rc1 during autotest
-Date: Thu, 5 Oct 2006 18:08:16 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200610051725.53183.ak@suse.de> <20061005155844.GC5170@kernel.dk>
-In-Reply-To: <20061005155844.GC5170@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 12:12:10 -0400
+Date: Thu, 5 Oct 2006 18:12:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tony Finch <dot@dotat.at>
+Cc: David Woodhouse <dwmw2@infradead.org>, Dennis Heuer <dh@triple-media.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: sunifdef instead of unifdef
+Message-ID: <20061005161200.GA20099@uranus.ravnborg.org>
+References: <20061005150816.76ca18c2.dh@triple-media.com> <1160059253.26064.69.camel@pmac.infradead.org> <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610051808.16764.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 17:58, Jens Axboe wrote:
-> On Thu, Oct 05 2006, Andi Kleen wrote:
-> > 
-> > I was running autotest on 2.6.19rc1+x86_64 patchkit and I ended up with a BUG()
-> > below sys_splice while running some IO test there.
-> > 
-> > This was a debugging kernel with PREEMPTION and various other
-> > debugging options enabled.
-> > 
-> > The system ran out of disk space during the test so that
-> > might have been related and I ended up with a "fio" process
-> > in D. Also the system was confused afterwards with rm
-> > oopsing etc.
-> > 
-> > File system was reiserfs.
-> 
-> Can you pass me the fio job file you used?
+> I haven't received any contributions to unifdef in the last 18 months
+> which is why it hasn't changed.
+Reminds me - I did a small change to avoid dependency on strlcpy.
 
-I just ran autotest all_tests
+You can see it here:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=14a036d2dc304797f3624c06bd6d2a1e9b59e45a
 
-It seems to use
+I strongly preferred 8 simple codelines as replacement for carrying
+strlcpy in a seperate file. Feel free to include this in your unifdef
+as you whish.
 
-; fio-mixed.job for autotest
-
-[global]
-name=fio-sync
-;directory=tmpfiles
-rw=randrw
-rwmixread=67
-rwmixwrite=33
-bsrange=16K-256K
-direct=0
-end_fsync=1
-verify=crc32
-;ioscheduler=x
-numjobs=4
-
-[file1]
-size=100M
-ioengine=sync
-mem=malloc
-
-[file2]
-stonewall
-size=100M
-ioengine=aio
-mem=shm
-iodepth=4
-
-[file3]
-stonewall
-size=100M
-ioengine=mmap
-mem=mmap
-direct=1
-
-[file4]
-stonewall
-size=100M
-ioengine=splice
-mem=malloc
-direct=1
-
--Andi
-
-
+	Sam

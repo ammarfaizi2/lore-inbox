@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWJEJ43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWJEJ6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751581AbWJEJ43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 05:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWJEJ43
+	id S1751314AbWJEJ6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 05:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWJEJ6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 05:56:29 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:51167 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751576AbWJEJ42 (ORCPT
+	Thu, 5 Oct 2006 05:58:18 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:54742 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1751314AbWJEJ6R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 05:56:28 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take19 1/4] kevent: Core files.
-Date: Thu, 5 Oct 2006 11:56:24 +0200
-User-Agent: KMail/1.9.4
-Cc: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-References: <11587449471424@2ka.mipt.ru> <a36005b50610041057g67dcaf73wd48d9fef88187ec6@mail.gmail.com> <20061005085750.GA1015@2ka.mipt.ru>
-In-Reply-To: <20061005085750.GA1015@2ka.mipt.ru>
+	Thu, 5 Oct 2006 05:58:17 -0400
+Date: Thu, 5 Oct 2006 11:57:11 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Jaroslav Kysela <perex@suse.cz>
+cc: Castet Matthieu <castet.matthieu@free.fr>, Takashi Iwai <tiwai@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH] ALSA: fix kernel panic in initialization of mpu401 driver
+In-Reply-To: <Pine.LNX.4.61.0610050951570.9351@tm8103.perex-int.cz>
+Message-ID: <Pine.LNX.4.64.0610051155010.12556@twin.jikos.cz>
+References: <Pine.LNX.4.64.0610042216240.12556@twin.jikos.cz>
+ <Pine.LNX.4.61.0610050951570.9351@tm8103.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610051156.25036.dada1@cosmosbay.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 10:57, Evgeniy Polyakov wrote:
+On Thu, 5 Oct 2006, Jaroslav Kysela wrote:
 
-> Well, it is possible to create /sys/proc entry for that, and even now
-> userspace can grow mapping ring until it is forbiden by kernel, which
-> means limit is reached.
+> Unfortunately, I do not think that it's a proper solution. I think that 
+> platform device layer should play more nicely and if probe() fails for a 
+> reason and if platform_device_register_simple() does not set IS_ERR(), 
+> then platform_device_unregister() must be callable to free all 
+> resources.
 
-No need for yet another /sys/proc entry.
+I agree.
 
-Right now, I (for example) may have a use for Generic event handling, but for 
-a program that needs XXX.XXX handles, and about XX.XXX events per second.
+> I would reject this patch and fix drivers/base/bus.c. The problematic 
+> change is in commit f2eaae197f4590c4d96f31b09b0ee9067421a95c and this 
+> patch will probably fix it:
+> [PATCH] drivers/base - check if device is registered before removal
+> Without this fix platform_device_unregister() might oops.
+> Signed-off-by: Jaroslav Kysela <perex@suse.cz>
+> diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+> index 12173d1..daa2390 100644
+> --- a/drivers/base/bus.c
+> +++ b/drivers/base/bus.c
+> @@ -428,8 +428,10 @@ void bus_remove_device(struct device * d
+>  		sysfs_remove_link(&dev->kobj, "bus");
+>  		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+>  		device_remove_attrs(dev->bus, dev);
+> -		dev->is_registered = 0;
+> -		klist_del(&dev->knode_bus);
+> +		if (dev->is_registered) {
+> +			dev->is_registered = 0;
+> +			klist_del(&dev->knode_bus);
+> +		}
+>  		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
+>  		device_release_driver(dev);
+>  		put_bus(dev->bus);
 
-Right now, this program uses epoll, and reaches no limit at all, once you pass 
-the "ulimit -n", and other kernel wide tunes of course, not related to epoll.
+Yes, it (among other things) fixes the panic in MPU401 initialization.
 
-With your current kevent, I cannot switch to it, because of hardcoded limits.
+Acked-by: Jiri Kosina <jikos@jikos.cz>
 
-I may be wrong, but what is currently missing for me is :
-
-- No hardcoded limit on the max number of events. (A process that can open 
-XXX.XXX files should be allowed to open a kevent queue with at least XXX.XXX 
-events). Right now thats not clear what happens IF the current limit is 
-reached.
-
-- In order to avoid touching the whole ring buffer, it might be good to be 
-able to reset the indexes to the beginning when ring buffer is empty. (So if 
-the user land is responsive enough to consume events, only first pages of the 
-mapping would be used : that saves L1/L2 cpu caches)
-
-A plus would be
-
-- A working/usable mmap ring buffer implementation, but I think its not 
-mandatory. System calls are not that expensive, especially if you can batch 
-XX events per syscall (like epoll). Nice thing with a ring buffer is that we 
-touch less cache lines than say epoll that have lot of linked structures.
-
-About mmap, I think you might want a hybrid thing :
-
-One writable page where userland can write its index, (and hold one or more 
-futex shared by kernel) (with appropriate thread locking in case multiple 
-threads want to dequeue events). In fast path, no syscalls are needed to 
-maintain this user index.
-
-XXX readonly pages (for user, but r/w for kernel), where kernel write its own 
-index, and events of course.
-
-Using separate cache lines avoid false sharing : kernel can update its own 
-index and events without having to pay the price of cache line ping pongs.
-It could use futex infrastructure to wakeup one thread 'only' instead of all 
-threads waiting an event.
-
-
-Eric
+-- 
+Jiri Kosina

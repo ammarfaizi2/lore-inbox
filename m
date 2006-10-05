@@ -1,75 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWJEOgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWJEOhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWJEOgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWJEOgb
+	id S932099AbWJEOhB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWJEOhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:36:31 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:63983 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932098AbWJEOga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:36:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=p4bfkHsytPn3IM66AW6hgMYF2xGMlcvu2vjzgs2/Wzqab1HrDLKUztW2Ch0aOPIw5m2W9ugFkMo2garHK9i1c9KwN88lmDqJeDmMKvyHmxESe3J7yOgThMTJ6QVZls2/Cu6h4vO03d6ZU5ssMgX6U6HBCGEdOdqdTtC+geeIbV8=
-Date: Thu, 5 Oct 2006 14:36:07 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
-       gregkh@suse.de
-Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #3
-Message-ID: <20061005143607.GH352@slug>
-References: <20061004193229.GA352@slug> <4524106C.8010807@garzik.org> <20061004202938.GF352@slug> <20061004203311.GI28596@parisc-linux.org> <20061004212633.GG352@slug> <20061005135924.GB5335@martell.zuzino.mipt.ru>
-MIME-Version: 1.0
+	Thu, 5 Oct 2006 10:37:00 -0400
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:4062 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932099AbWJEOg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:36:59 -0400
+Date: Thu, 5 Oct 2006 10:31:33 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
+Message-ID: <20061005143133.GA400@Krystal>
+References: <1160025104.6504.30.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061005135924.GB5335@martell.zuzino.mipt.ru>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <1160025104.6504.30.camel@localhost.localdomain>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 10:14:06 up 43 days, 11:22,  5 users,  load average: 0.07, 0.20, 0.54
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 05:59:24PM +0400, Alexey Dobriyan wrote:
-> On Wed, Oct 04, 2006 at 09:26:33PM +0000, Frederik Deweerdt wrote:
-> > On Wed, Oct 04, 2006 at 02:33:11PM -0600, Matthew Wilcox wrote:
-> > > On Wed, Oct 04, 2006 at 08:29:38PM +0000, Frederik Deweerdt wrote:
-> > > > I see. Just to be sure that I got the matter right, does the issue boils
-> > > > down to a choice between:
-> > >
-> > > woah, woah, woah, you're getting yourself confused here.
-> > yep :), I clearly missed the point you made there:
-> > http://lkml.org/lkml/2006/10/3/404
-> > I've re-read it, hope I've got it right this time.
-> > >
-> > > You're looking at what the architectures do here.  We're not concerned
-> > > with that, we're concerned with what the device drivers do with whatever
-> > > value the architecture has stuck in pdev->irq.
-> > Not sure I get it still though. Is the issue more than just the location
-> > of the irq validation code? If yes, could you explain what are the
-> > differences between your proposal and Jeff's ?
-> >
-> > Anyway, let me have another try at summing up the issue:
-> >
-> > #1
-> > - generic irq validation code in include/linux/pci.h
-> > - arch specific irq validation code in include/asm/pci.h
-> > - is_irq_valid() called by pci_request_irq()
+Hi Steven,
+
+The dynamic abilities of your logdev are very interesting! If I may emit some
+ideas :
+
+It would be great to have this logging information recorded into a standardized
+buffer format so it could be analyzed with data gathered by other
+instrumentation. Instead of using Tom's relay mechanism directly, you might
+want to have a look at LTTng (http://ltt.polymtl.ca) : it would be a simple
+matter of describing your own facility (group of event), the data types they
+record, run genevent (serialization code generator) and call those
+serialization functions when you want to record to the buffers from logdev.
+
+One thing logdev seems to have that LTTng does't currently is the integration
+with a mechanism that dumps the output upon a crash (LKCD integration). It's no
+rocket science, but I just did not have time to do it.
+
+I think it would be great to integrate those infrastructures together so we can
+easily merge information coming from various sources (markers, logdev, systemTAP
+scripts, LKET).
+
+* Steven Rostedt (rostedt@goodmis.org) wrote:
+> 1. break point and a watch address
 > 
-> s/is_irq_valid/valid_irq/g methinks.
-The point of the is_ prefix is to make it clear that we're returning 1
-if it's true and 0 if it's false. 
-<checks thread on return values>
-err... you said[1]:
-> There are at least 3 idioms:
-> [...]
-> 2) return 1 on YES, 0 on NO.
-> [...]
-> #2 should only be used if condition in question is spelled nice:
-Which I thought made sense, and that's why the is_ prefix is there now.
-Am I missing something?
+> This simply allows you to set a break point at some address (or pass in
+> a function name if it exists in kallsyms).
+> 
+> logprobe -f hrtimer_start  -v jiffies_64
+> 
+Does it automatically get the data type, or is there any way to specify it ?
+
+> 
+> 2. break point and watch from current
+> 
+> This allows a user to see something on the current task_struct. You need
+> to know the offset exactly. In the below example, I know that 20 (dec)
+> is the offset in the task_struct to lock_depth.
+> 
+> example:
+> 
+> logprobe -f schedule -c 20 "lock_depth"
+> 
+> produces:
+> 
+>   [ 8757.854029] cpu:1 sawfish:3862 func: schedule (0xc02f8320) lock_depth index:20 = 0xffffffff
+> 
+
+Could we think of a quick hack that would involve using gcc on stdin and return
+an "offsetof", all in user-space ?
+
+> 
+> 3. break point and watch fixed type
+> 
+> This is a catch all for me. I currently only implement preempt_count.
+> 
+> 
+>  logprobe -t pc -f _spin_lock
+> 
+> produces:
+> 
+>    [ 9442.215693] cpu:0 logread:6398 func: _spin_lock (0xc02fab9d)  preempt_count:0x0
+> 
+Ouch, I can imagine the performance impact of this breakpoint though :) This is
+a case where marking the code helps a lot.
+
 
 Regards,
-Frederik
-[1] http://lkml.org/lkml/2006/8/18/399
+
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

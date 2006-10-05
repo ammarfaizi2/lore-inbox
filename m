@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWJEXQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWJEXVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWJEXQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWJEXQ3
+	id S1751417AbWJEXVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWJEXVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:16:29 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:20241 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751432AbWJEXQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:16:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=n3XfB1PS3KhYdLOP6WAAaPlwuQ0x3lUWNJIH0r8jiPouLhTxB+ofszYNv42ctRjJuSxr16qvZNenvI/JowOQ6u1rjANnty3uADuWLIuB43t57l8hsXFFwM9YSir3ojqEqGahHZgbAbwvYAtIMnG97g+j3/SM0XjIKvKjZhzRURk=
-Message-ID: <4525925C.6060807@gmail.com>
-Date: Fri, 06 Oct 2006 01:16:21 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 5 Oct 2006 19:21:09 -0400
+Received: from mail.suse.de ([195.135.220.2]:7348 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751417AbWJEXVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 19:21:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+Date: Fri, 6 Oct 2006 01:21:01 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+References: <200610051910.25418.ak@suse.de> <200610060052.46538.ak@suse.de> <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       adilger@clusterfs.com, ext2-devel@lists.sourceforge.net
-Subject: Re: 2.6.18-mm2: ext3 BUG?
-References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org>
-In-Reply-To: <20061005145042.fd62289a.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610060121.01461.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 05 Oct 2006 23:34:13 +0159
-> Jiri Slaby <jirislaby@gmail.com> wrote:
+
+> If we had the
 > 
->> Hello,
->>
->> while yum update-ing, yum crashed and this appeared in log:
->> [ 2840.688718] EXT3-fs error (device hda2): ext3_free_blocks_sb: bit already 
->> cleared for block 747938
->> [ 2840.688732] Aborting journal on device hda2.
->> [ 2840.688858] ext3_abort called.
->>
->> ...
->>
->> I don't know how to reproduce it and really have no idea what version of -mm 
->> could introduce it (if any).
+> 	void __iomem *cfg = mmiocfg_remap(dev);
 > 
-> I don't necessarily see a bug in there.  The filesystem got a bit noisy but
-> did appropriately detect and handle the metadata inconsistency.
+> interface, we could (fairly easily) blacklist known-bad motherboards if we 
+> needed to,
 
-Perhaps, but why did it occur? S.m.a.r.t. doesn't tell me anything suspicious.
+With the bad Intel reference BIOS that's far too many.
 
-> The next step would be to fsck that filesystem, see waht it says.
+I've considered using PCI-IDs but even with that it would be quite messy.
 
-Yup. I fscked it after reboot and fixed them all...
+> For example, for some devices, maybe they'd lose some error handling 
+> capability, but they'd still be able to work otherwise.
 
-[went to gather some info from e2fsprogs sources what kind of errors it was (I 
-didn't note it and can't remember)]
+AFAIK that's always the case right now. Jeff's secret NDA device
+is the only known exception so far.
+ 
+> We _can_ do the same thing with checking the error return value from 
+> "pci_read_config_xxxx()",
 
-block differences, incorrect block counts, orphaned entries, some (gnome-vfs2 
-stuff which has been updated) went to lost+found.
+Problem is you get a hang at least on the Intel boards, not a -1
 
-I unfotunately can't post more accurate info, because I am a... chump? Bite me 
-and shame on me...
+> I dunno. I'm not likely to care _that_ deeply about this all, but I do 
+> think that machines that hang on device discovery is just about the worst 
+> possible thing, so I'd much rather have ten machines that can't use their 
+> very rare devices without some explicit kernel command line than have even 
+> _one_ machine that just hangs because MMIOCFG is buggered.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Actually they don't hang at discovery, but at the verify step we early use
+to decide if mcfg works or not (we go through a few busses and compare
+type 1 and mcfg). This is currently separate from the normal discovery
+to not burden the generic code with it.
+
+To be fair one issue is that the verify step current ignores the ACPI
+information about how many busses there are, but iirc the Intel board hung 
+pretty early so it likely wouldn't have helped there anyways.
+
+At some point there was hope if checking the MCFG against other
+ACPI resources would catch it, but it didn't at least on the board
+I tested on.
+
+> (And we should probably have the "pci=mmiocfg" kernel command line entry 
+> that forces MMIOCFG regardless of any e820 issues, even for normal 
+> accesses).
+
+Yes that would be a good change.
+
+-Andi

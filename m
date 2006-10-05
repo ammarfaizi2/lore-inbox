@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWJEWqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWJEWww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWJEWqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWJEWqi
+	id S932410AbWJEWww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWJEWww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:46:38 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:49407 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751001AbWJEWqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:46:37 -0400
-Date: Thu, 5 Oct 2006 15:42:54 -0700
-To: Pavel Roskin <proski@gnu.org>
-Cc: Samuel Tardieu <sam@rfc1149.net>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-Message-ID: <20061005224254.GA7695@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org> <20061002175245.GA14744@bougret.hpl.hp.com> <2006-10-03-17-58-31+trackit+sam@rfc1149.net> <20061003163415.GA17252@bougret.hpl.hp.com> <1160087873.2508.21.camel@dv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 18:52:52 -0400
+Received: from ns1.suse.de ([195.135.220.2]:12206 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932410AbWJEWwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 18:52:51 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+Date: Fri, 6 Oct 2006 00:52:46 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+References: <200610051910.25418.ak@suse.de> <452564B9.4010209@garzik.org> <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1160087873.2508.21.camel@dv>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+Message-Id: <200610060052.46538.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 06:37:53PM -0400, Pavel Roskin wrote:
-> Hello!
+
+> In other words, right now we have
 > 
-> On Tue, 2006-10-03 at 09:34 -0700, Jean Tourrilhes wrote:
-> > 	I don't really want to overstep my authority there, my goal
-> > was to minimise the changes. Pavel will have to clean up my mess, so I
-> > don't want change things too much.
+> 	int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
 > 
-> Sorry for a long delay.
-
-	That's ok, we all have a real life ;-)
-
-> I'm actually not very interested in the Wireless Extension interface of
-> the driver.  The less I touch that code, the better I feel.  I won't add
-> to the criticism for the latest changes; enough has been said.
+> and maybe we will simply have to add a totally new function like
 > 
-> Its fine with me that your are changing the orinoco driver to update
-> Wireless Extensions compatibility.
+> 	int pci_read_mmio_config_byte(struct pci_dev *dev, int where, u8 *val)
 > 
-> I'm trying to maintain a Subversion repository with the driver modified
-> to be compatible with a few latest kernels.  But it looks like it's an
-> uphill battle that I'm not going to win.
+> for drivers that literally _require_ the mmio accesses for one reason or 
+> another.
 
-	I'll try to come up with a patch for you. It's not as bad as
-it looks like. It will look like the patch for the external ipw
-drivers I sent on the list.
+That's easy to decide: if (where >= 256) mmconfig is required. 
 
-> Pavel Roskin
+I'm just afraid it probably won't help if the MCFG is totally broken and
+points to some other devices (like on the Intel boards). Then these drivers will 
+just hang and all of Alan's warning  messages won't help with that.
 
-	Have fun...
-
-	Jean
+-Andi

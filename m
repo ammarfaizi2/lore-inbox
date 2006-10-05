@@ -1,64 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWJEOVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWJEOYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWJEOVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWJEOVj
+	id S1751470AbWJEOYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWJEOYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:21:39 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:17604 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751236AbWJEOVh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:21:37 -0400
-Date: Thu, 5 Oct 2006 18:15:56 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Hans Henrik Happe <hhh@imada.sdu.dk>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take19 1/4] kevent: Core files.
-Message-ID: <20061005141556.GA30715@2ka.mipt.ru>
-References: <11587449471424@2ka.mipt.ru> <200610051156.25036.dada1@cosmosbay.com> <20061005102106.GE1015@2ka.mipt.ru> <200610051601.20701.hhh@imada.sdu.dk>
+	Thu, 5 Oct 2006 10:24:34 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:11230 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751470AbWJEOYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:24:33 -0400
+Date: Thu, 5 Oct 2006 10:24:00 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       fastboot@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Horms <horms@verge.net.au>, Magnus Damm <magnus@valinux.co.jp>,
+       Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.19-rc1: kexec broken on x86_64
+Message-ID: <20061005142400.GC20551@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <aec7e5c30610050328i2bf9e3b6qcacc1873231ece28@mail.gmail.com> <20061005134522.GB20551@in.ibm.com> <aec7e5c30610050656u6d287752pc9d1bcbb807442d3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610051601.20701.hhh@imada.sdu.dk>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 05 Oct 2006 18:15:57 +0400 (MSD)
+In-Reply-To: <aec7e5c30610050656u6d287752pc9d1bcbb807442d3@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 04:01:19PM +0200, Hans Henrik Happe (hhh@imada.sdu.dk) wrote:
-> > And what happens when there are 3 empty at the beginning and \we need to
-> > put there 4 ready events?
+On Thu, Oct 05, 2006 at 10:56:51PM +0900, Magnus Damm wrote:
+> Hi Vivek,
 > 
-> Couldn't there be 3 areas in the mmap buffer:
+> On 10/5/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> >On Thu, Oct 05, 2006 at 07:28:35PM +0900, Magnus Damm wrote:
+> >> Kexec is broken on x86_64 under 2.6.19-rc1.
+> >>
+> >> Or rather - kexec works ok under 2.6.19-rc1, but something related to
+> >> the vmlinux format has probably changed and kexec-tools fails to load
+> >> a vmlinux from 2.6.19-rc1.
+> >>
+> >> Loading bzImage works as usual, but vmlinux does not load properly.
+> >>
+> >> The kexec binary fails with the following message:
+> >>
+> >> Overlapping memory segments at 0x351000
+> >> sort_segments failed
+> >> / #
+> >>
+> >
+> >Hi Magnus,
+> >
+> >Can you please post the readelf -l output of the vmlinux you are trying
+> >to load. That's will give some indication if the segments are really
+> >overlapping in vmlinux or is it some processing bug at kexec-tools part.
 > 
-> - Unused: entries that the kernel can alloc from.
-> - Alloced: entries alloced by kernel but not yet used by user. Kernel can 
-> update these if new events requires that.
-> - Consumed: entries that the user are processing.
+> Elf file type is EXEC (Executable file)
+> Entry point 0x100100
+> There are 4 program headers, starting at offset 64
 > 
-> The user takes a set of alloced entries and make them consumed. Then it 
-> processes the events after which it makes them unused. 
+> Program Headers:
+>  Type           Offset             VirtAddr           PhysAddr
+>                 FileSiz            MemSiz              Flags  Align
+>  LOAD           0x0000000000100000 0xffffffff80100000 0x0000000000100000
+>                 0x00000000001a4888 0x00000000001a4888  R E    100000
+>  LOAD           0x00000000002a5000 0xffffffff802a5000 0x00000000002a5000
+>                 0x000000000008e086 0x00000000000c1504  RWE    100000
+>  LOAD           0x0000000000400000 0xffffffffff600000 0x00000000002fd000
+>                 0x0000000000000c08 0x0000000000000c08  RWE    100000
+>  NOTE           0x0000000000000000 0x0000000000000000 0x0000000000000000
+>                 0x0000000000000000 0x0000000000000000  R      8
 > 
-> If there are no unused entries and the kernel needs some, it has wait for free 
-> entries. The user has to notify when unused entries becomes available. It 
-> could set a flag in the mmap'ed area to avoid unnessesary wakeups.
+> Section to Segment mapping:
+>  Segment Sections...
+>   00     .text __ex_table .rodata .pci_fixup __ksymtab __ksymtab_gpl
+> __ksymtab_unused __ksymtab_strings __param
+>   01     .data .data.cacheline_aligned .data.read_mostly
+> .data.init_task .data.page_aligned .init.text .init.data .init.setup
+> .initcall.init .con_initcall.init .altinstructions
+> .altinstr_replacement .exit.text .init.ramfs .bss
+>   02     .vsyscall_0 .xtime_lock .vxtime .vgetcpu_mode .sys_tz
+> .sysctl_vsyscall .xtime .jiffies .vsyscall_1 .vsyscall_2 .vsyscall_3
+>   03
 > 
-> The are some details with indexing and wakeup notification that I have left 
-> out, but I hope my idea is clear. I could give a more detailed description if 
-> requested. Also, I'm a user-level programmer so I might not get the whole 
-> picture.
 
-This looks good on a picture, but how can you put it into page-based
-storage without major and complex shared structures, which should be
-properly locked between kernelspace and userspace?
+Ok. So second and third program header are overlapping in physical
+address space and that's why kexec-tools is cribbing.
 
-> Hans Henrik Happe
+Looking at these headers, it looks like program header 02 which contains
+will overwrite some of the data of program header 01 and I think that's
+wrong. Will look more into it.
 
--- 
-	Evgeniy Polyakov
+Thanks
+Vivek

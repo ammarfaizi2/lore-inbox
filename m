@@ -1,128 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWJEF0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWJEF1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWJEF0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 01:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWJEF0Z
+	id S1751128AbWJEF1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 01:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWJEF1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 01:26:25 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:61893 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751121AbWJEF0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 01:26:24 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 3/4] Char: mxser_new, pci_request_region for pci regions
-Date: Thu, 5 Oct 2006 07:27:07 +0200
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       support@moxa.com.tw
-References: <83721356982173@wsc.cz> <200610041545.22173.eike-kernel@sf-tec.de> <4523DB59.7020600@gmail.com>
-In-Reply-To: <4523DB59.7020600@gmail.com>
+	Thu, 5 Oct 2006 01:27:21 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:64715 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751128AbWJEF1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 01:27:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZIO0Lj6XCZa4akLhtAMv5Op6MAufMHMQCa/w3SG7bQo1osSBp6olq6iBbJOt83oMYvLj+WEbqX2PkRKrJuW6dZvD1h5So4zOjwtj7q+EFWEZA5ix+bDGbsOVrhT+p0gzoUruRSdn682opDFwNaIXWW5h8dfF7eu0HR2kTq1lRIg=
+Message-ID: <9a0545880610042227i7960737alb49480c609cff802@mail.gmail.com>
+Date: Wed, 4 Oct 2006 22:27:18 -0700
+From: "Steve Hindle" <mech422@gmail.com>
+To: "David Chinner" <dgc@sgi.com>
+Subject: Re: PROBLEM: Hardlock with 2.6.1[678] on Abit AI7, ICH5 + XFS, SATA under heavy I/O load
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+In-Reply-To: <20061005043154.GA11811@melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2766303.UMgrNoBr22";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610050727.17921.eike-kernel@sf-tec.de>
+Content-Disposition: inline
+References: <9a0545880610041828w658d7aaco20348d54e9321d8f@mail.gmail.com>
+	 <20061005043154.GA11811@melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2766303.UMgrNoBr22
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Jiri Slaby wrote:
-> Rolf Eike Beer wrote:
-> > Jiri Slaby wrote:
-> >> mxser_new, pci_request_region for pci regions
-> >>
-> >> Use pci_request_region instead of standard request_region for pci devi=
-ce
-> >> regions. More checking, simplier use.
-> >>
-> >> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> >>
-> >> ---
-> >> commit 1a717bdb06cef859dfbd426f46ea24a9c740e5c5
-> >> tree 85460f01008e9fa2edea675a73b394c48139df4a
-> >> parent d4f99406c592fb7ce2a65645d7c1f98ebe599238
-> >> author Jiri Slaby <jirislaby@gmail.com> Sat, 30 Sep 2006 01:20:12 +0200
-> >> committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 30 Sep 2006
-> >> 01:20:12 +0200
-> >>
-> >>  drivers/char/mxser_new.c |   10 ++++------
-> >>  1 files changed, 4 insertions(+), 6 deletions(-)
-> >>
-> >> diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-> >> index dfef9ce..c566cd0 100644
-> >> --- a/drivers/char/mxser_new.c
-> >> +++ b/drivers/char/mxser_new.c
-> >> @@ -526,8 +526,8 @@ static void __exit mxser_module_exit(voi
-> >>  			pdev =3D mxser_boards[i].pdev;
-> >>  			free_irq(mxser_boards[i].irq, &mxser_boards[i]);
-> >>  			if (pdev !=3D NULL) {	/* PCI */
-> >> -				release_region(pci_resource_start(pdev, 2), pci_resource_len(pdev,
-> >> 2)); -				release_region(pci_resource_start(pdev, 3),
-> >> pci_resource_len(pdev, 3)); +				pci_release_region(pdev, 2);
-> >> +				pci_release_region(pdev, 3);
-> >>  				pci_dev_put(pdev);
-> >>  			} else {
-> >>  				release_region(mxser_boards[i].ports[0].ioaddr, 8 *
-> >> mxser_boards[i].nports);
-> >> @@ -627,16 +627,14 @@ static int __init
-> >> mxser_get_PCI_conf(int
-> >>  	brd->board_type =3D board_type;
-> >>  	brd->nports =3D mxser_numports[board_type - 1];
-> >>  	ioaddress =3D pci_resource_start(pdev, 2);
-> >> -	request_region(pci_resource_start(pdev, 2), pci_resource_len(pdev, 2=
-),
-> >> -			"mxser(IO)");
-> >> +	pci_request_region(pdev, 2, "mxser(IO)");
-> >>
-> >>  	for (i =3D 0; i < brd->nports; i++)
-> >>  		brd->ports[i].ioaddr =3D ioaddress + 8 * i;
-> >>
-> >>  	/* vector */
-> >>  	ioaddress =3D pci_resource_start(pdev, 3);
-> >> -	request_region(pci_resource_start(pdev, 3), pci_resource_len(pdev, 3=
-),
-> >> -			"mxser(vector)");
-> >> +	pci_request_region(pdev, 3, "mxser(vector)");
-> >>  	brd->vector =3D ioaddress;
-> >>
-> >>  	/* irq */
+On 10/4/06, David Chinner <dgc@sgi.com> wrote:
+> On Wed, Oct 04, 2006 at 06:28:35PM -0700, Steve Hindle wrote:
+> > Hello,
 > >
-> > Correct me if I'm wrong, but that use of ioaddress looks totally wrong =
-to
-> > me. Isn't there a pci_iomap() or something missing?
+> >  My machine is hardlocking with recent kernels (including 2.6.18-mm3)
+> > under heavy I/O load (for instance, just compiling the kernel is
+> > enough to lock the machine).  No bug,oops,or panic and nothing in the
+> > system logs.
 >
-> Both brd->vector and brd->ports[i].ioaddr are used in inb and outb functi=
-on
-> calls. They themselves remap a small range (one byte in these cases) and
-> require ulong addresses as a parameter, not pointer to virtual space,
-> correct?
+> Does it happen on any other filesystems? Is this your root filesystem
+> that is hanging?
+>
+no, its not my root - but my other partitions are also XFS and are on
+the same drive...
+so not really any way to check ATM.
 
-Possible. I try to ignore that interface completely :) I would feel much mo=
-re=20
-comfortable if this would be done the other way. But this would probably=20
-introduce more code because this one seems to work on non-PCI devices also.=
-=20
-So just ignore me :)
+> Journalling filesystems shouldn't get corrupted by hangs or
+> crashes...
 
-Eike
+I understood this in theory - but was rather pleased theory == practice.
+However, I didn't even notice a 'not unmounted cleanly' message during
+subsequent boots?
+I might just have missed it though - Debian's boot has gotten much
+'chattier' over the years...
 
---nextPart2766303.UMgrNoBr22
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFJJe1XKSJPmm5/E4RAqXwAJ9GWNugpNEpOwG7cr8PpgGjDqoH4QCeN8qo
-NUX1ceT3HXgjeHzpCqm+ues=
-=2sOH
------END PGP SIGNATURE-----
-
---nextPart2766303.UMgrNoBr22--
+Steve

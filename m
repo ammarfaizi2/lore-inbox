@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWJEVrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWJEVpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWJEVrL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWJEVl5
+	id S932283AbWJEVpM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWJEVpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:41:57 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:39540 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932249AbWJEVlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:41:46 -0400
+	Thu, 5 Oct 2006 17:45:10 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:7871 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932262AbWJEVmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:42:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=5FZgL/HC2bXSWV7r2r1LHev9ef8pDoxYQ9qsOpFmHplOQYQm4krBpHzkuZm9Oe0lS4AFI1BkFG4Q8f/ndmDTlsuHHqgQXVOdI9PHuKlFxen1PXJ9OUKI2K9viuPNY7Mgt2z+pOLnBRpo6YpoNP6pr3mcl5AHWQbVRzmz+zWIdyM=  ;
+  b=icFgjvVa3wteXC7nCZOztdXL//yvEgNqqExRfxST4RBGdjGZbLglxs8ERcz8D9OAYPdDix+QFK5wtY+B8I94hjkU6vsBlnha+GjdkNRFXpsJGdCyg7o4owIM41CdGd+uNtRe7PYegUinGcA2Z6hOAmyMKwYWOU/emazDAou4PDs=  ;
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 04/14] uml: readd forgot prototype
-Date: Thu, 05 Oct 2006 23:38:46 +0200
+Subject: [PATCH 12/14] uml: remove duplicate export
+Date: Thu, 05 Oct 2006 23:39:13 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061005213846.17268.31893.stgit@memento.home.lan>
+Message-Id: <20061005213913.17268.66477.stgit@memento.home.lan>
 In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
 References: <20061005213212.17268.7409.stgit@memento.home.lan>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -30,25 +30,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-This was forgot in a previous patch so UML does not compile with TT mode enabled.
+The export is together with the definition, in arch/x86_64/lib/csum-partial.c,
+which is compiled in by arch/um/sys-x86_64/Makefile.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/include/os.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/um/sys-x86_64/ksyms.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/include/os.h b/arch/um/include/os.h
-index 120ca21..6516f6d 100644
---- a/arch/um/include/os.h
-+++ b/arch/um/include/os.h
-@@ -201,6 +201,7 @@ extern int os_getpgrp(void);
+diff --git a/arch/um/sys-x86_64/ksyms.c b/arch/um/sys-x86_64/ksyms.c
+index 8592738..12c5936 100644
+--- a/arch/um/sys-x86_64/ksyms.c
++++ b/arch/um/sys-x86_64/ksyms.c
+@@ -14,6 +14,3 @@ EXPORT_SYMBOL(__up_wakeup);
  
- #ifdef UML_CONFIG_MODE_TT
- extern void init_new_thread_stack(void *sig_stack, void (*usr1_handler)(int));
-+extern void stop(void);
- #endif
- extern void init_new_thread_signals(void);
- extern int run_kernel_thread(int (*fn)(void *), void *arg, void **jmp_ptr);
+ /*XXX: we need them because they would be exported by x86_64 */
+ EXPORT_SYMBOL(__memcpy);
+-
+-/* Networking helper routines. */
+-EXPORT_SYMBOL(ip_compute_csum);
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

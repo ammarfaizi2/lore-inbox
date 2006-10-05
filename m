@@ -1,144 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWJEIxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWJEI5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWJEIxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 04:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWJEIxu
+	id S1751507AbWJEI5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 04:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWJEI5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 04:53:50 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:53777 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751247AbWJEIxt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 04:53:49 -0400
-Date: Thu, 5 Oct 2006 10:53:51 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Christer Weinigel <christer@weinigel.se>
-Subject: Re: [patch 2.6.18+] MAINTAINERS - take over scx200-* and pc8736*
- drivers
-Message-Id: <20061005105351.f791f4f1.khali@linux-fr.org>
-In-Reply-To: <45248867.40903@gmail.com>
-References: <45248867.40903@gmail.com>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 04:57:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44679 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751507AbWJEI5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 04:57:14 -0400
+Date: Thu, 5 Oct 2006 10:57:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: error to be returned while suspended
+Message-ID: <20061005085706.GB27594@elf.ucw.cz>
+References: <200610031323.00547.oliver@neukum.org> <200610041834.57639.oliver@neukum.org> <20061004224448.GL8440@elf.ucw.cz> <200610050907.27035.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610050907.27035.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jim,
+Hi!
 
-> Add MAINTAINERS entries for new scx200_hrt and pc8736x_gpio drivers, and 
-> take over maintenance
-> of scx200_gpio, authored by Christer Weinigel (which Ive hacked at), who 
-> no longer has the hardware.
-> Also take over hwmon/pc87360, authored by Jean Delvare, who's dropped 
-> maintenance to dedicate
-> more time to hwmon subsystem.
-
-Yep, I'm fine with Jim taking over maintainerchip of the pc87360
-hardware monitoring driver.
-
+> > (So we are talking runtime suspend?)
 > 
-> Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
-> ---
+> Yes. Otherwise the patch would have been ready two days ago.
+> But if I am implenting this, I'll do a full implementation.
 > 
-> Christer acked this off-list already, in case he's too busy and misses 
-> this one.
+> > No, I do not know what the right interface is. I started to suspect
+> > that drivers should suspend/resume devices automatically, without
+> > userland help. Maybe having autosuspend_timeout in sysfs is enough.
 > 
->  MAINTAINERS                         |   41 
-> ++++++++++++++++++++++++++++--------
-> 
-> 
-> 
-> diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.18-rc6-mm2-sk/MAINTAINERS doc-touches/MAINTAINERS
-> --- linux-2.6.18-rc6-mm2-sk/MAINTAINERS	2006-09-12 09:39:29.000000000 -0600
-> +++ doc-touches/MAINTAINERS	2006-10-04 22:03:09.000000000 -0600
-> @@ -2151,6 +2151,11 @@ M:	emoenke@gwdg.de
->  L:	linux-kernel@vger.kernel.org
->  S:	Maintained
->  
-> +NSC_GPIO Common Methods Module (supports PC8736x_GPIO and SCX200_GPIO Drivers)
+> If you do this at kernel level, you'll screw up any demon implementing
+> a power policy to stay within the budget.
 
-All other entries in this file are uppercase.
+Well, in case of machine where "must get approval before you can use
+printer"... just do exactly that. Make userland ask approval of
+powerbudgetd before it opens /dev/lp0.
 
-I also doubt that anyone will ever search for "common methods module",
-I'm not even sure I understand what it means. What's really important
-here are the driver names IMHO, and you already have added entries for
-these below - isn't that sufficient?
-
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +S:	Maintained
-> +
->  NTFS FILESYSTEM
->  P:	Anton Altaparmakov
->  M:	aia21@cantab.net
-> @@ -2262,6 +2267,17 @@ T:	git kernel.org:/pub/scm/linux/kernel/
->  T:	cvs cvs.parisc-linux.org:/var/cvs/linux-2.6
->  S:	Maintained
->  
-> +PC87360 LM-SENSORS DRIVER
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +L:	lm-sensors@lm-sensors.org
-> +S:	Maintained
-
-I'd prefer "HARDWARE MONITORING" rather than "LM-SENSORS", as all other
-hwmon driver entries have. lm-sensors is really only the user-space
-part now, and the kernel can live without it.
-
-> +
-> +PC8736x GPIO Driver
-
-Uppercase.
-
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +S:	Maintained
-> +
->  PCI ERROR RECOVERY
->  P:	Linas Vepstas
->  M:	linas@austin.ibm.com
-> @@ -2574,16 +2590,25 @@ L:	linux-scsi@vger.kernel.org
->  S:	Maintained
->  
->  SCTP PROTOCOL
-> -P: Sridhar Samudrala
-> -M: sri@us.ibm.com
-> -L: lksctp-developers@lists.sourceforge.net
-> -S: Supported
-> +P:	Sridhar Samudrala
-> +M:	sri@us.ibm.com
-> +L:	lksctp-developers@lists.sourceforge.net
-> +S:	Supported
-
-This is noise for this patch, it should be sent as a seperate patch.
-
->  
->  SCx200 CPU SUPPORT
-> -P:	Christer Weinigel
-> -M:	christer@weinigel.se
-> -W:	http://www.weinigel.se
-> -S:	Supported
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +S:	Odd Fixes
-> +
-> +SCx200 GPIO DRIVER
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +S:	Maintained
-> +
-> +SCx200 HRT CLOCKSOURCE DRIVER
-> +P:	Jim Cromie
-> +M:	jim.cromie@gmail.com
-> +S:	Maintained
->  
->  SECURITY CONTACT
->  P:	Security Officers
-> 
-
-
+It will only be neccessary on very small machines, anyway.
+								Pavel
 -- 
-Jean Delvare
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

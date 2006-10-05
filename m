@@ -1,100 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWJEOB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWJEOC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWJEOB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJEOB0
+	id S1751160AbWJEOC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWJEOC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:01:26 -0400
-Received: from berlioz.imada.sdu.dk ([130.225.128.12]:14001 "EHLO
-	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
-	id S1751116AbWJEOBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:01:25 -0400
-From: Hans Henrik Happe <hhh@imada.sdu.dk>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take19 1/4] kevent: Core files.
-Date: Thu, 5 Oct 2006 16:01:19 +0200
-User-Agent: KMail/1.9.1
-Cc: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-References: <11587449471424@2ka.mipt.ru> <200610051156.25036.dada1@cosmosbay.com> <20061005102106.GE1015@2ka.mipt.ru>
-In-Reply-To: <20061005102106.GE1015@2ka.mipt.ru>
+	Thu, 5 Oct 2006 10:02:29 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:777 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751160AbWJEOC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:02:28 -0400
+Date: Thu, 5 Oct 2006 10:02:24 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Jaroslav Kysela <perex@suse.cz>
+cc: Jiri Kosina <jikos@jikos.cz>, Castet Matthieu <castet.matthieu@free.fr>,
+       Takashi Iwai <tiwai@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH] ALSA: fix kernel panic in initialization of mpu401 driver
+In-Reply-To: <Pine.LNX.4.61.0610050951570.9351@tm8103.perex-int.cz>
+Message-ID: <Pine.LNX.4.44L0.0610050959330.6226-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610051601.20701.hhh@imada.sdu.dk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 12:21, Evgeniy Polyakov wrote:
-> On Thu, Oct 05, 2006 at 11:56:24AM +0200, Eric Dumazet (dada1@cosmosbay.com) 
-wrote:
-> > On Thursday 05 October 2006 10:57, Evgeniy Polyakov wrote:
-> > 
-> > > Well, it is possible to create /sys/proc entry for that, and even now
-> > > userspace can grow mapping ring until it is forbiden by kernel, which
-> > > means limit is reached.
-> > 
-> > No need for yet another /sys/proc entry.
-> > 
-> > Right now, I (for example) may have a use for Generic event handling, but 
-for 
-> > a program that needs XXX.XXX handles, and about XX.XXX events per second.
-> > 
-> > Right now, this program uses epoll, and reaches no limit at all, once you 
-pass 
-> > the "ulimit -n", and other kernel wide tunes of course, not related to 
-epoll.
-> > 
-> > With your current kevent, I cannot switch to it, because of hardcoded 
-limits.
-> > 
-> > I may be wrong, but what is currently missing for me is :
-> > 
-> > - No hardcoded limit on the max number of events. (A process that can open 
-> > XXX.XXX files should be allowed to open a kevent queue with at least 
-XXX.XXX 
-> > events). Right now thats not clear what happens IF the current limit is 
-> > reached.
+On Thu, 5 Oct 2006, Jaroslav Kysela wrote:
+
+> On Wed, 4 Oct 2006, Jiri Kosina wrote:
 > 
-> This forces to overflows in fixed sized memory mapped buffer.
-> If we remove memory mapped buffer or will allow to have overflows (and
-> thus skipped entries) keven can easily scale to that limits (tested with
-> xx.xxx events though).
+> > I am getting kernel panic (NULL pointer dereference) on boot, with kernel 
+> > compiled with CONFIG_SND_MPU401_UART=y, on machine which does not have 
+> > this piece of hardware.
+> > 
+> > I have traced the problem down to 
+> > sound/drivers/mpu401/mpu401.c:snd_mpu401_probe() returning EINVAL, when 
+> > either port or IRQ parameters are not specified.
+> > 
+> > In such case, the drivers/base/bus.c:bus_attach_device() does not perform 
+> > klist_add_tail() call, but rather sets dev->is_registered to 0. This flag 
+> > is however not checked by the driver, so later on, when 
+> > alsa_card_mpu401_init() is called and platform_device_register_simple() 
+> > fails, the following callchain happens, causing NULL pointer dereference: 
+> > alsa_card_mpu401_init() -> platform_device_unregister() -> 
+> > platform_device_del() -> device_del() -> bus_remove_device() -> 
+> > klist_del() -> BOOM (the entry was not added to klist in 
+> > bus_attach_device()).
+> > 
+> > Proper solution is returning ENODEV from the ->probe() routine, which will 
+> > be correctly handled then by the rest of the device-driver attaching 
+> > subsystem (namely the retval check in bus_attach_device()). The following 
+> > patch fixes the problem, please apply.
 > 
-> > - In order to avoid touching the whole ring buffer, it might be good to be 
-> > able to reset the indexes to the beginning when ring buffer is empty. (So 
-if 
-> > the user land is responsive enough to consume events, only first pages of 
-the 
-> > mapping would be used : that saves L1/L2 cpu caches)
+> Unfortunately, I do not think that it's a proper solution. I think that
+> platform device layer should play more nicely and if probe() fails for 
+> a reason and if platform_device_register_simple() does not set 
+> IS_ERR(), then platform_device_unregister() must be callable to free
+> all resources.
 > 
-> And what happens when there are 3 empty at the beginning and \we need to
-> put there 4 ready events?
+> Also, you've proposed to not fix all returns in snd_mpu401_probe() only 
+> first two.
+> 
+> I would reject this patch and fix drivers/base/bus.c. The problematic 
+> change is in commit f2eaae197f4590c4d96f31b09b0ee9067421a95c and this 
+> patch will probably fix it:
 
-Couldn't there be 3 areas in the mmap buffer:
+Your patch is right as far as it goes, but it misses part of the problem.  
+device_add() shouldn't ignore the return value from bus_attach_device().  
+That's why we ended up trying to unregister a device which never was 
+properly registered in the first place.
 
-- Unused: entries that the kernel can alloc from.
-- Alloced: entries alloced by kernel but not yet used by user. Kernel can 
-update these if new events requires that.
-- Consumed: entries that the user are processing.
+What do you think of this addition to your patch (untested)?
 
-The user takes a set of alloced entries and make them consumed. Then it 
-processes the events after which it makes them unused. 
+Alan Stern
 
-If there are no unused entries and the kernel needs some, it has wait for free 
-entries. The user has to notify when unused entries becomes available. It 
-could set a flag in the mmap'ed area to avoid unnessesary wakeups.
 
-The are some details with indexing and wakeup notification that I have left 
-out, but I hope my idea is clear. I could give a more detailed description if 
-requested. Also, I'm a user-level programmer so I might not get the whole 
-picture.
+Index: 18g20/drivers/base/bus.c
+===================================================================
+--- 18g20.orig/drivers/base/bus.c
++++ 18g20/drivers/base/bus.c
+@@ -453,8 +453,10 @@ void bus_remove_device(struct device * d
+ 		remove_deprecated_bus_links(dev);
+ 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+ 		device_remove_attrs(dev->bus, dev);
+-		dev->is_registered = 0;
+-		klist_del(&dev->knode_bus);
++		if (dev->is_registered) {
++			dev->is_registered = 0;
++			klist_del(&dev->knode_bus);
++		}
+ 		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
+ 		device_release_driver(dev);
+ 		put_bus(dev->bus);
+Index: 18g20/drivers/base/core.c
+===================================================================
+--- 18g20.orig/drivers/base/core.c
++++ 18g20/drivers/base/core.c
+@@ -485,7 +485,8 @@ int device_add(struct device *dev)
+ 	if ((error = bus_add_device(dev)))
+ 		goto BusError;
+ 	kobject_uevent(&dev->kobj, KOBJ_ADD);
+-	bus_attach_device(dev);
++	if ((error = bus_attach_device(dev)))
++		goto AttachError;
+ 	if (parent)
+ 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
+ 
+@@ -504,6 +505,8 @@ int device_add(struct device *dev)
+  	kfree(class_name);
+ 	put_device(dev);
+ 	return error;
++ AttachError:
++	bus_remove_device(dev);
+  BusError:
+ 	device_pm_remove(dev);
+  PMError:
 
-Hans Henrik Happe

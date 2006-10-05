@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWJEScL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWJESee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWJEScL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWJEScL
+	id S1750748AbWJESee (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWJESee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:32:11 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:57137 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1750742AbWJEScJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:32:09 -0400
-Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
-References: <1160025104.6504.30.camel@localhost.localdomain>
-	 <20061005143133.GA400@Krystal>
-	 <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
-	 <20061005170132.GA11149@Krystal>
-	 <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 11:29:59 -0700
-Message-Id: <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 5 Oct 2006 14:34:34 -0400
+Received: from mail.gmx.de ([213.165.64.20]:43432 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750748AbWJESed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 14:34:33 -0400
+X-Authenticated: #31060655
+Message-ID: <45255059.3040908@gmx.net>
+Date: Thu, 05 Oct 2006 20:35:05 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 SUSE/1.0.5-1.1 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: Alex Owen <r.alex.owen@gmail.com>, linux-kernel@vger.kernel.org,
+       aabdulla@nvidia.com, "H. Peter Anvin" <hpa@zytor.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: forcedeth net driver: reverse mac address after pxe boot
+References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com> <20061005144442.GB18408@tuxdriver.com>
+In-Reply-To: <20061005144442.GB18408@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 14:09 -0400, Steven Rostedt wrote:
-
+John W. Linville wrote:
+> On Wed, Oct 04, 2006 at 05:19:20PM +0100, Alex Owen wrote:
 > 
-> My problem with using a timestamp, is that I ran logdev on too many archs.
-> So I need to have a timestamp that I can get to that is always reliable.
-> How does LTTng get the time for different archs?  Does it have separate
-> code for each arch?
+>> The obvious fix for this is to try and read the MAC address from the
+>> canonical location... ie where is the source of the address writen
+>> into the controlers registers at power on? But do we know where that
+>> may be?
 > 
+> This seems like The Right Thing (TM) to me, but we need someone from
+> NVidia(?) to provide that information.  Ayaz?
 
-I just got done updating a patchset that exposes the clocksources from
-generic time to take low level time stamps.. But even without that you
-can just call gettimeofday() directly to get a timestamp .
+The canonical location of the "original" MAC address is where we write
+back the reversed MAC address. So that won't work.
 
-Daniel
+>> The other solution would be unconditionally reset the controler to
+>> it's power on state then use the current logic? can we reset the
+>> controller via software?
+> 
+> This seems like a plausible alternative.
 
+AFAIK there is no way to do that (except powering off the machine).
+
+> The MAC address validation schemes suggested by others would probably
+> "work", but they would be a bit fragile.  For example, every new vendor
+> of forcedeth hardware would have a new OUI to be added to the list.
+
+Nooooo! That would be a nightmare. Especially because some BIOSes
+allow users to set the MAC address. All those setups would be broken
+instantly by that solution. (Yes, you can probably be clever, but
+then you don't have a chance to fix this generically.)
+
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

@@ -1,88 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWJEPlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWJEPkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWJEPlO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWJEPlO
+	id S932136AbWJEPkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWJEPkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:41:14 -0400
-Received: from mx1.suse.de ([195.135.220.2]:24018 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932148AbWJEPlM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:41:12 -0400
-From: Andi Kleen <ak@suse.de>
-To: Steve Fox <drfickle@us.ibm.com>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-Date: Thu, 5 Oct 2006 17:40:58 +0200
-User-Agent: KMail/1.9.3
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
-       vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <1160061173.9569.43.camel@dyn9047017100.beaverton.ibm.com> <1160062332.29690.10.camel@flooterbu>
-In-Reply-To: <1160062332.29690.10.camel@flooterbu>
+	Thu, 5 Oct 2006 11:40:10 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:56586 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932136AbWJEPkG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:40:06 -0400
+From: Jan-Bernd Themann <ossthema@de.ibm.com>
+Subject: [PATCH 2.6.19-rc1 2/2] ehea: fix port state notification, default queue sizes
+Date: Thu, 5 Oct 2006 16:53:14 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610051740.58511.ak@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
+       "Jan-Bernd Themann" <themann@de.ibm.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610051653.15186.ossthema@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 17:32, Steve Fox wrote:
-> On Thu, 2006-10-05 at 08:12 -0700, Badari Pulavarty wrote:
-> 
-> > Can you post the latest panic stack again (with CONFIG_DEBUG_KERNEL) ? 
-> 
-> CONFIG_DEBUG_KERNEL should be on
-> 
-> > Last time I couldn't match your instruction dump to any code segment
-> > in the routine. And also, can you post your .config file. I have
-> > an amd64 and em64t machine and both work fine...
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000827 RIP:
->  [<ffffffff804705e6>] xfrm_register_mode+0x36/0x60
-> PGD 0
-> Oops: 0000 [1] SMP
-> CPU 0
-> Modules linked in:
-> Pid: 1, comm: swapper Not tainted 2.6.18-git22 #1
-> RIP: 0010:[<ffffffff804705e6>]  [<ffffffff804705e6>] xfrm_register_mode+0x36/0x60
-> RSP: 0000:ffff810bffcbded0  EFLAGS: 00010286
-> RAX: 000000000000081f RBX: ffffffff805588a0 RCX: 0000000000000000
-> RDX: ffffffffffffffff RSI: 0000000000000002 RDI: ffffffff80559550
-> RBP: 00000000ffffffef R08: 000000003f924371 R09: 0000000000000000
-> R10: ffff810bffcbdcb0 R11: 0000000000000154 R12: 0000000000000000
-> R13: ffff810bffcbdef0 R14: 0000000000000000 R15: 0000000000000000
-> FS:  0000000000000000(0000) GS:ffffffff805d2000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000827 CR3: 0000000000201000 CR4: 00000000000006e0
-> Process swapper (pid: 1, threadinfo ffff810bffcbc000, task ffff810bffcbb4e0)
-> Stack:  0000000000000000 ffffffff8061fb48 0000000000000000 ffffffff80207182
->  0000000000000000 0000000000000000 0000000000000000 0000000000000000
->  0000000000000000 0000000000000000 0000000000000000 0000000000090000
+This patch includes a bug fix for the port state notification
+and fixes the default queue sizes.
 
-Please don't snip the Code: line. It is fairly important.
 
-> 
-> The base config file I'm using is at
-> http://flooterbu.net/kernel/elm3b239-2.6.17.config
+Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
+---
+ drivers/net/ehea/ehea.h      |   13 +++++++------
+ drivers/net/ehea/ehea_main.c |    6 +++---
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
-My guess is that something is wrong with the global variable it is accessing.
-Can you post the output of grep -5 xfrm_policy_afinfo ? 
+diff --git a/drivers/net/ehea/ehea.h b/drivers/net/ehea/ehea.h
+index 23b451a..b40724f 100644
+--- a/drivers/net/ehea/ehea.h
++++ b/drivers/net/ehea/ehea.h
+@@ -39,7 +39,7 @@ #include <asm/abs_addr.h>
+ #include <asm/io.h>
+ 
+ #define DRV_NAME	"ehea"
+-#define DRV_VERSION	"EHEA_0028"
++#define DRV_VERSION	"EHEA_0034"
+ 
+ #define EHEA_MSG_DEFAULT (NETIF_MSG_LINK | NETIF_MSG_TIMER \
+ 	| NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR)
+@@ -50,6 +50,7 @@ #define EHEA_MAX_ENTRIES_RQ3 16383
+ #define EHEA_MAX_ENTRIES_SQ  32767
+ #define EHEA_MIN_ENTRIES_QP  127
+ 
++#define EHEA_SMALL_QUEUES
+ #define EHEA_NUM_TX_QP 1
+ 
+ #ifdef EHEA_SMALL_QUEUES
+@@ -59,11 +60,11 @@ #define EHEA_DEF_ENTRIES_RQ1    4095
+ #define EHEA_DEF_ENTRIES_RQ2    1023
+ #define EHEA_DEF_ENTRIES_RQ3    1023
+ #else
+-#define EHEA_MAX_CQE_COUNT     32000
+-#define EHEA_DEF_ENTRIES_SQ    16000
+-#define EHEA_DEF_ENTRIES_RQ1   32080
+-#define EHEA_DEF_ENTRIES_RQ2    4020
+-#define EHEA_DEF_ENTRIES_RQ3    4020
++#define EHEA_MAX_CQE_COUNT      4080
++#define EHEA_DEF_ENTRIES_SQ     4080
++#define EHEA_DEF_ENTRIES_RQ1    8160
++#define EHEA_DEF_ENTRIES_RQ2    2040
++#define EHEA_DEF_ENTRIES_RQ3    2040
+ #endif
+ 
+ #define EHEA_MAX_ENTRIES_EQ 20
+diff --git a/drivers/net/ehea/ehea_main.c b/drivers/net/ehea/ehea_main.c
+index 263d1c5..0edb2f8 100644
+--- a/drivers/net/ehea/ehea_main.c
++++ b/drivers/net/ehea/ehea_main.c
+@@ -769,7 +769,7 @@ static void ehea_parse_eqe(struct ehea_a
+ 		if (EHEA_BMASK_GET(NEQE_PORT_UP, eqe)) {
+ 			if (!netif_carrier_ok(port->netdev)) {
+ 				ret = ehea_sense_port_attr(
+-					adapter->port[portnum]);
++					port);
+ 				if (ret) {
+ 					ehea_error("failed resensing port "
+ 						   "attributes");
+@@ -821,7 +821,7 @@ static void ehea_parse_eqe(struct ehea_a
+ 		netif_stop_queue(port->netdev);
+ 		break;
+ 	default:
+-		ehea_error("unknown event code %x", ec);
++		ehea_error("unknown event code %x, eqe=0x%lX", ec, eqe);
+ 		break;
+ 	}
+ }
+@@ -1845,7 +1845,7 @@ static int ehea_start_xmit(struct sk_buf
+ 
+ 	if (netif_msg_tx_queued(port)) {
+ 		ehea_info("post swqe on QP %d", pr->qp->init_attr.qp_nr);
+-		ehea_dump(swqe, sizeof(*swqe), "swqe");
++		ehea_dump(swqe, 512, "swqe");
+ 	}
+ 
+ 	ehea_post_swqe(pr->qp, swqe);
 
-I wonder if that variable overlaps something else.
-
-And please add a 
-printk("global %p\n",  xfrm_policy_afinfo[family]);
-at the beginning of net/xfrm/xfrm_poliy.c:xfrm_policy_lock_afinfo
-and post the output.
-
-If not then it's possible
-that some nearby variable is overflowing or similar. Adding some padding
-around xfrm_policy_afinfo would show that. 
-
-Another way if that global is proven to be corrupted will be to add
-checks all over the boot process to track down where it gets corrupted.
-
--Andi

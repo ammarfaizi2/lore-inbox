@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWJEXII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWJEXLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWJEXII (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWJEXII
+	id S932393AbWJEXLv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWJEXLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:08:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59587 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932418AbWJEXIE (ORCPT
+	Thu, 5 Oct 2006 19:11:51 -0400
+Received: from ns2.suse.de ([195.135.220.15]:27807 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932393AbWJEXLv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:08:04 -0400
-Date: Thu, 5 Oct 2006 16:07:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Jeff Garzik <jeff@garzik.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-In-Reply-To: <200610060052.46538.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
-References: <200610051910.25418.ak@suse.de> <452564B9.4010209@garzik.org>
- <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org> <200610060052.46538.ak@suse.de>
+	Thu, 5 Oct 2006 19:11:51 -0400
+To: kmannth@us.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] make mach-generic/summit.c compile on UP
+References: <Pine.LNX.4.64.0610051913010.12556@twin.jikos.cz>
+	<1160080292.5664.9.camel@keithlap>
+From: Andi Kleen <ak@suse.de>
+Date: 06 Oct 2006 01:11:44 +0200
+In-Reply-To: <1160080292.5664.9.camel@keithlap>
+Message-ID: <p73bqoqz7bj.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+keith mannthey <kmannth@us.ibm.com> writes:
 
-
-On Fri, 6 Oct 2006, Andi Kleen wrote:
+> On Thu, 2006-10-05 at 19:16 +0200, Jiri Kosina wrote:
+> > Hi,
+> > 
+> > arch/i386/mach-generic/summit.c doesn't compile (neither in current 
+> > mainline git tree, nor in 2.6.18-mm3) when CONFIG_SMP is not set:
+> > 
+> > In file included from arch/i386/mach-generic/summit.c:17:
+> > include/asm/mach-summit/mach_apic.h: In function 'apicid_to_node':
+> > include/asm/mach-summit/mach_apic.h:91: error: 'apicid_2_node' undeclared (first use in this function)
+> > include/asm/mach-summit/mach_apic.h:91: error: (Each undeclared identifier is reported only once
+> > include/asm/mach-summit/mach_apic.h:91: error: for each function it appears in.)
+> > Is the patch below correct?
 > 
-> > In other words, right now we have
-> > 
-> > 	int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
-> > 
-> > and maybe we will simply have to add a totally new function like
-> > 
-> > 	int pci_read_mmio_config_byte(struct pci_dev *dev, int where, u8 *val)
-> > 
-> > for drivers that literally _require_ the mmio accesses for one reason or 
-> > another.
-> 
-> That's easy to decide: if (where >= 256) mmconfig is required. 
-> 
-> I'm just afraid it probably won't help if the MCFG is totally broken and
-> points to some other devices (like on the Intel boards). Then these drivers will 
-> just hang and all of Alan's warning  messages won't help with that.
+> Well I guess it would fix the apicid_2_node build error but I can't
+> think of a single good reason to be in a config where you would need any
+> of the summit code in UP.
 
-Sure. I'd actually prefer a separate interface partly for that reason, and 
-partly also because I think the whole "pci_read_config_xxx()" interface 
-has always been horrible.
+The reason I allowed it originally was that it would allow UP distribution
+boot kernels to find all devices on Summit where you need the special
+APIC drivers etc. for that.
 
-If we had the
+But then distributions are mostly switching to SMP kernels by default
+anyways so it's a bit obsolete.
 
-	void __iomem *cfg = mmiocfg_remap(dev);
-
-interface, we could (fairly easily) blacklist known-bad motherboards if we 
-needed to, and also, it would allow drivers to check whether mmiocfg is 
-available. It's possible that some drivers might want it if it exists, but 
-it wouldn't necessarily be somethign that they _require_, so they could 
-gracefully handle the case of getting a NULL config space handle back.
-
-For example, for some devices, maybe they'd lose some error handling 
-capability, but they'd still be able to work otherwise.
-
-We _can_ do the same thing with checking the error return value from 
-"pci_read_config_xxxx()", and use the "use different access method if the 
-index is >= 256", but I have to say, that just makes my gag reflex 
-trigger. Having the same function just silently do two different things 
-depending on the offset just sounds like a recipe for disaster.
-
-I dunno. I'm not likely to care _that_ deeply about this all, but I do 
-think that machines that hang on device discovery is just about the worst 
-possible thing, so I'd much rather have ten machines that can't use their 
-very rare devices without some explicit kernel command line than have even 
-_one_ machine that just hangs because MMIOCFG is buggered.
-
-(And we should probably have the "pci=mmiocfg" kernel command line entry 
-that forces MMIOCFG regardless of any e820 issues, even for normal 
-accesses).
-
-			Linus
+-Andi

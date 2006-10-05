@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWJET0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWJET04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWJET0b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWJET0b
+	id S1750964AbWJET04 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWJET04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:26:31 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:22199 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S1750899AbWJET0a (ORCPT
+	Thu, 5 Oct 2006 15:26:56 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:5505 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750936AbWJET0y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:26:30 -0400
-Date: Thu, 5 Oct 2006 21:26:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dennis Heuer <dh@triple-media.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sunifdef instead of unifdef
-Message-ID: <20061005192629.GB20742@uranus.ravnborg.org>
-References: <20061005183830.351a0a2f.dh@triple-media.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005183830.351a0a2f.dh@triple-media.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 5 Oct 2006 15:26:54 -0400
+Message-ID: <45255C7D.20309@garzik.org>
+Date: Thu, 05 Oct 2006 15:26:53 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: misha@fabric7.com
+CC: KERNEL Linux <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/10] VIOC: New Network Device Driver
+References: <200610051045.35760.misha@fabric7.com>
+In-Reply-To: <200610051045.35760.misha@fabric7.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, there are three main reasons why I pledge for sunifdef
-> compatibility:
-> 
-> 1. There is a project page and an inviting community
-> 2. There is HTML documentation
-> 3. They use autotools, which is distributor and administrator-friendly
+Misha Tomushev wrote:
+> The following patch series introduces the VIOC Device Driver, that
+> provides a network device inerface
+> to the internal fabric interconnected network used on servers designed and
+> built by Fabric 7 Systems.
 
-You do realize that unifdef is included in the kernel so
-it just works?
+Please make this available somewhere as a single patch file.  It's 
+easier to review, and we never merge new drivers as a series of patches.
 
-> gcc -O2 -m64   -c -o unifdef.o unifdef.c
-> unifdef.c: In function 'main':
-> unifdef.c:129: warning: incompatible implicit declaration of built-in
-> function 'exit'
-> unifdef.c:157: warning: incompatible implicit declaration of built-in
-> function 'exit'
-> unifdef.c:180: warning: incompatible implicit declaration of built-in
-> function 'exit'
-> gcc unifdef.o -o unifdef
-Patches appreciated - seems a simple #include is missing.
+(granted, you need to split it up to get around the mailing list's 100K 
+size limit)
 
-	Sam

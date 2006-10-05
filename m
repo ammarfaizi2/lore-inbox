@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWJEOEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWJEOIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWJEOEO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWJEOEO
+	id S1751060AbWJEOIW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWJEOIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:04:14 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:263 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751209AbWJEOEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:04:13 -0400
-Date: Thu, 5 Oct 2006 16:04:11 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc1: known regressions
-Message-ID: <20061005140411.GH16812@stusta.de>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061005042816.GD16812@stusta.de> <1160023503.22232.10.camel@localhost.localdomain>
+	Thu, 5 Oct 2006 10:08:22 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:9732 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751060AbWJEOIV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:08:21 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160023503.22232.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 05 Oct 2006 14:08:14.0523 (UTC) FILETIME=[B2D5E8B0:01C6E887]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH]suspend support for usblp
+Date: Thu, 5 Oct 2006 10:08:00 -0400
+Message-ID: <Pine.LNX.4.61.0610051007150.28962@chaos.analogic.com>
+In-Reply-To: <200610050904.11944.oliver@neukum.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]suspend support for usblp
+thread-index: Acboh7L1cCbDL5bLQbKbZVo26p6fwg==
+References: <200610050904.11944.oliver@neukum.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Oliver Neukum" <oliver@neukum.org>
+Cc: <vojtech@suse.cz>, "Pavel Machek" <pavel@ucw.cz>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 02:45:03PM +1000, Benjamin Herrenschmidt wrote:
-> On Thu, 2006-10-05 at 06:28 +0200, Adrian Bunk wrote:
-> > Contrary to popular belief, there are people who test -rc kernels
-> > and report bugs.
-> > 
-> > And there are even people who test -git kernels.
-> > 
-> > This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18.
-> > 
-> > If you find your name in the Cc header, you are either submitter of one
-> > of the bugs, maintainer of an affectected subsystem or driver, a patch
-> > of you was declared guilty for a breakage or I'm considering you in any
-> > other way possibly involved with one or more of these issues.
-> > 
-> > Due to the huge amount of recipients, please trim the Cc when answering.
-> 
-> Add sleep/wakeup on powerbooks apparently busted. Haven't tracked down
-> yet.
->...
 
-Thanks, added.
+On Thu, 5 Oct 2006, Oliver Neukum wrote:
 
-cu
-Adrian
+> Hi,
+>
+> this implements suspend support for usblp. According to the CUPS people
+> ENODEV will make CUPS retry the job. Thus it is returned in the runtime
+> case. My printer survives suspend/resume cycles with it.
+>
+> 	Regards
+> 		Oliver
+>
+> Signed-off-by: Oliver Neukum <oliver@neukum.name>
+>
 
--- 
+Good. Glad you got it working!
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

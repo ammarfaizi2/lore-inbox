@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWJET5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWJET76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWJET5S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWJET5R
+	id S1751117AbWJET76 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWJET76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:57:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:49039 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751103AbWJET5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:57:16 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joe Korty <joe.korty@ccur.com>,
-       Inaky Perez-Gonzalez <inaky@linux.intel.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitmap: separate bitmap parsing for user buffer and kernel buffer
-References: <200610041756.30528.reinette.chatre@linux.intel.com>
-	<20061004181003.6dae6065.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Oct 2006 21:57:04 +0200
-In-Reply-To: <20061004181003.6dae6065.akpm@osdl.org>
-Message-ID: <p73odsqzgbz.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 5 Oct 2006 15:59:58 -0400
+Received: from mail.polish-dvd.com ([69.222.0.225]:33675 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S1751117AbWJET75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:59:57 -0400
+Message-ID: <20061005143237.xr08e3ew5b2ocgc8@69.222.0.225>
+Date: Thu, 05 Oct 2006 14:32:37 -0500
+From: art@usfltd.com
+To: linux-kernel@vger.kernel.org
+Cc: bunk@stusta.de
+Subject: 2.6.19-rc1 SMP x86_64 boot hungs up
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+2.6.19-rc1 SMP x86_64 boot hungs up
 
-> On Wed, 4 Oct 2006 17:56:30 -0700
-> Reinette Chatre <reinette.chatre@linux.intel.com> wrote:
-> 
-> > +			if (is_user) {
-> > +				if (__get_user(c, buf++))
-> > +					return -EFAULT;
-> > +			}
-> > +			else
-> > +				c = *buf++;
-> 
-> Is this actually needed?  __get_user(kernel_address) works OK and (believe
-> it or not, given all the stuff it involves) boils down to a single instruction.		
+boot hungs up !!!
+last lines from screen at boot time:
 
-It is needed on lots of architectures that use separate address spaces
-like sparc64, m68k, s390 (and on x86 with 4:4 patches) 
+...
+Uniform CD-ROM driver Revision: 3.20
+ide-floppy driver 0.99.newide
+usbcore: registered new driver libusual
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 1
+PNP: PS/2 controller doesn't have AUX irq; using default 12
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ hungs up here
+next lines are from working 2.6.18-git6 looks like i8042 problem
 
--Andi
+PM: Adding info for platform:i8042
+serio: i8042 AUX port at 0x60,0x64 irq 12
+PM: Adding info for serio:serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+PM: Adding info for serio:serio1
+mice: PS/2 mouse device common for all mice
+md: md driver 0.90.3 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: bitmap version 4.39
+TCP cubic registered
+...
+
+last good is 2.6.18-git6
+2.6.18-git7 to 2.6.19-rc1 hungs up
+
+xboom
+art@usfltd.com

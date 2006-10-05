@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWJEVmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWJEVly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWJEVmM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWJEVmA
+	id S932253AbWJEVly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWJEVly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:42:00 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:34738 "HELO
+	Thu, 5 Oct 2006 17:41:54 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:39858 "HELO
 	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932244AbWJEVlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:41:39 -0400
+	id S932251AbWJEVlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:41:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=gzgzjHfiUpKYYmNkhTS1yx1OFkpG7Wge9G+GvAJ6D7wa2PTa1Vh4PaQvvKbilvZU5+piiUthc4SvA2rHls6MG5xdRb8iN4MKETcfWg+ISNrwyzFq5Bns2x6TqjpmjZ6Hnu6iHybodV04w1xj4r5npkDy5LYNFzNBsIOBkeAAfhU=  ;
+  b=5kkjSDWkKakxArkG7959YZ6ph2jNye5mmFVzM0mD4pNp7jmg0NmExwPDmleN+wn6YtsPfJU1ZPlsOXMbwt2X2c3zcYh+N/OzZLObMWmV+b2C1wmA8w13kW0DrhOkaRXXKvclmOTnA15ydTn6mDRtV/n0IsFphBVjlqtiVPg/ipo=  ;
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 02/14] uml: revert wrong patch
-Date: Thu, 05 Oct 2006 23:38:39 +0200
+Subject: [PATCH 06/14] uml: make UML_SETJMP always safe
+Date: Thu, 05 Oct 2006 23:38:52 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061005213839.17268.28062.stgit@memento.home.lan>
+Message-Id: <20061005213852.17268.13871.stgit@memento.home.lan>
 In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
 References: <20061005213212.17268.7409.stgit@memento.home.lan>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -30,31 +30,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Andi Kleen pointed out that -mcmodel=kernel does not make sense for userspace
-code and would stop everything from working, and pointed out the correct fix for
-the original bug (not easy to do for me).
+If enable is moved by GCC in a register its value may not be preserved after
+coming back there with longjmp(). So, mark it as volatile to prevent this; this
+is suggested (it seems) in info gcc, when it talks about -Wuninitialized. I
+re-read this and it seems to say something different, but I still believe this
+may be needed.
 
-Reverts part of commit 06837504de7b4883e92af207dbbab4310d0db0ed.
-
-Cc: Andi Kleen <ak@suse.de>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/Makefile-x86_64 |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/um/include/longjmp.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/arch/um/Makefile-x86_64 b/arch/um/Makefile-x86_64
-index 11154b6..87d6373 100644
---- a/arch/um/Makefile-x86_64
-+++ b/arch/um/Makefile-x86_64
-@@ -4,7 +4,7 @@ # Released under the GPL
- core-y += arch/um/sys-x86_64/
- START := 0x60000000
+diff --git a/arch/um/include/longjmp.h b/arch/um/include/longjmp.h
+index e93c6d3..e860bc5 100644
+--- a/arch/um/include/longjmp.h
++++ b/arch/um/include/longjmp.h
+@@ -12,7 +12,8 @@ #define UML_LONGJMP(buf, val) do { \
+ } while(0)
  
--_extra_flags_ = -fno-builtin -m64 -mcmodel=kernel
-+_extra_flags_ = -fno-builtin -m64
- 
- #We #undef __x86_64__ for kernelspace, not for userspace where
- #it's needed for headers to work!
+ #define UML_SETJMP(buf) ({ \
+-	int n, enable;	   \
++	int n;	   \
++	volatile int enable;	\
+ 	enable = get_signals(); \
+ 	n = setjmp(*buf); \
+ 	if(n != 0) \
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

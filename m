@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWJEXVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWJEXWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWJEXVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWJEXVJ
+	id S1751438AbWJEXWw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWJEXWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:21:09 -0400
-Received: from mail.suse.de ([195.135.220.2]:7348 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751417AbWJEXVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:21:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-Date: Fri, 6 Oct 2006 01:21:01 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Garzik <jeff@garzik.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <200610051910.25418.ak@suse.de> <200610060052.46538.ak@suse.de> <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
+	Thu, 5 Oct 2006 19:22:51 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:19079 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751438AbWJEXWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 19:22:51 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <452593AC.3000406@s5r6.in-berlin.de>
+Date: Fri, 06 Oct 2006 01:22:20 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bcollins@debian.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: ohci1394 regression in 2.6.19-rc1
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <200610052132.11544.s0348365@sms.ed.ac.uk> <4525842F.3040109@s5r6.in-berlin.de> <200610052337.17805.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200610052337.17805.s0348365@sms.ed.ac.uk>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060121.01461.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> If we had the
+Alistair John Strachan wrote:
+> On Thursday 05 October 2006 23:16, Stefan Richter wrote:
+>> ...you can then revert the 'switch to kthread' patch and see if the
+>> message "Running dma failed because Node ID is not valid" disappears.
+>> Would be nice if you could test that.
 > 
-> 	void __iomem *cfg = mmiocfg_remap(dev);
+> Of course. I tried reverting these two, and it has not helped.
+
+Thanks.
+
+> -rw-r--r--  1 root root 562133 2006-10-05 23:29 kernel/drivers/ieee1394/ieee1394.ko
 > 
-> interface, we could (fairly easily) blacklist known-bad motherboards if we 
-> needed to,
+> (KBUILD only regenerated this file, I hope that's correct.)
 
-With the bad Intel reference BIOS that's far too many.
+Yes.
 
-I've considered using PCI-IDs but even with that it would be quite messy.
+> http://devzero.co.uk/~alistair/ieee1394/dmesg-2.6.19-rc1-reverts.gz
 
-> For example, for some devices, maybe they'd lose some error handling 
-> capability, but they'd still be able to work otherwise.
+One more thing you could to try if you can spare the time:
 
-AFAIK that's always the case right now. Jeff's secret NDA device
-is the only known exception so far.
- 
-> We _can_ do the same thing with checking the error return value from 
-> "pci_read_config_xxxx()",
+Build and boot Linux _2.6.18_ after applying this patchkit:
+http://me.in-berlin.de/~s5r6/linux1394/updates/
+This is only little more of 1394 stuff than what is now in 2.6.19-rc1.
 
-Problem is you get a hang at least on the Intel boards, not a -1
+This test would at least give a hint if changes sent via the linux1394
+git tree are the culprit, or some change from outside.
 
-> I dunno. I'm not likely to care _that_ deeply about this all, but I do 
-> think that machines that hang on device discovery is just about the worst 
-> possible thing, so I'd much rather have ten machines that can't use their 
-> very rare devices without some explicit kernel command line than have even 
-> _one_ machine that just hangs because MMIOCFG is buggered.
-
-Actually they don't hang at discovery, but at the verify step we early use
-to decide if mcfg works or not (we go through a few busses and compare
-type 1 and mcfg). This is currently separate from the normal discovery
-to not burden the generic code with it.
-
-To be fair one issue is that the verify step current ignores the ACPI
-information about how many busses there are, but iirc the Intel board hung 
-pretty early so it likely wouldn't have helped there anyways.
-
-At some point there was hope if checking the MCFG against other
-ACPI resources would catch it, but it didn't at least on the board
-I tested on.
-
-> (And we should probably have the "pci=mmiocfg" kernel command line entry 
-> that forces MMIOCFG regardless of any e820 issues, even for normal 
-> accesses).
-
-Yes that would be a good change.
-
--Andi
+In case you are familiar with quilt, take the quilt variant of the
+patchkit instead of the collapsed patch. Short instructions on the
+patchkits are on the website. The quilt patchset would allow to hunt
+down the bad patch by bisection --- if the bad one is among the 1394
+updates in the first place.
+-- 
+Stefan Richter
+-=====-=-==- =-=- --==-
+http://arcgraph.de/sr/

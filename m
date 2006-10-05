@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWJEL6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWJEMJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWJEL6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 07:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWJEL6Y
+	id S1751133AbWJEMJf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 08:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWJEMJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 07:58:24 -0400
-Received: from wx-out-0506.google.com ([66.249.82.237]:28127 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751106AbWJEL6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 07:58:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hs1Ym3bfiJl65DPh1qbCE46vlEfJO8/eU/WXnAiZNCKWYi1xRT/WvmTFguwlxGkc7T5xY/oGJI6+p0TI1xRW0tmGHeySiohVcTzWeAoGJoh7Fff/mlQ8n6JiBUBfUqijkmiZjlyT94kWYzL6+11Ql+WMHuNAF66BWOD+HzTcPcY=
-Message-ID: <aec7e5c30610050458x1fbe52bex851779d73c004350@mail.gmail.com>
-Date: Thu, 5 Oct 2006 20:58:22 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Lukas Hejtmanek" <xhejtman@mail.muni.cz>
-Subject: Re: Machine reboot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061005105250.GI2923@mail.muni.cz>
+	Thu, 5 Oct 2006 08:09:35 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:6628 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1751001AbWJEMJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 08:09:34 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Thu, 5 Oct 2006 14:09:31 +0200
+User-Agent: KMail/1.9.4
+Cc: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+References: <11587449471424@2ka.mipt.ru> <200610051245.03880.dada1@cosmosbay.com> <20061005105536.GA4838@2ka.mipt.ru>
+In-Reply-To: <20061005105536.GA4838@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061005105250.GI2923@mail.muni.cz>
+Message-Id: <200610051409.31826.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/5/06, Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
-> Hello,
+On Thursday 05 October 2006 12:55, Evgeniy Polyakov wrote:
+> On Thu, Oct 05, 2006 at 12:45:03PM +0200, Eric Dumazet (dada1@cosmosbay.com) 
+> >
+> > What is missing or not obvious is : If events are skipped because of
+> > overflows, What happens ? Connections stuck forever ? Hope that
+> > everything will restore itself ? Is kernel able to SIGNAL this problem to
+> > user land ?
 >
-> I'm facing troubles with machine restart. While sysrq-b restarts machine, reboot
-> command does not. Using printk I found that kernel does not hang and issues
-> reset properly but BIOS does not initiate boot sequence. Is there something
-> I could do?
+> Exisitng  code does not overflow by design, but can consume a lot of
+> memory. I talked about the case, when there will be some limit on
+> number of entries put into mapped buffer.
 
-A long shot, but switching to real mode does not work if the cpu is
-running in VMX root mode ie on hardware with Intel VT extensions
-enabled. So if you are using some kind of kernel virtualization module
-on rather new hardware, consider rmmod:ing the module before
-rebooting.
+You still dont answer my question. Please answer the question.
+Recap : You have a max of XXXX events queued. A network message come and 
+kernel want to add another event. It cannot because limit is reached. How the 
+User Program knows that this problem was hit ?
 
-I'm about to post patches for kexec that fixes this problem, but I'm
-not sure about the current reboot status.
 
-/ magnus
+> It is the same.
+> What if reing buffer was grown upto 3 entry, and is now empty, and we
+> need to put there 4 entries? Grow it again?
+> It can be done, easily, but it looks like a workaround not as solution.
+> And it is highly unlikely that in situation, when there are a lot of
+> event, ring can be empty.
+
+I dont speak of re-allocation of ring buffer. I dont care to allocate at 
+startup a big enough buffer.
+
+Say you have allocated a ring buffer of 1024*1024 entries.
+Then you queue 100 events per second, and dequeue them immediatly.
+No need to blindly use all 1024*1024 slots in the ring buffer, doing 
+index = (index+1)%(1024*1024)
+
+
+
+> epoll() does not have mmap.
+> Problem is not about how many events can be put into the kernel, but how
+> many of them can be put into mapped buffer.
+> There is no problem if mmap is turned off.
+
+So zap mmap() support completely, since it is not usable at all. We wont 
+discuss on it.

@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWJEXFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWJEXII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWJEXFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWJEXFQ
+	id S932418AbWJEXII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWJEXII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:05:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45726 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932402AbWJEXFO (ORCPT
+	Thu, 5 Oct 2006 19:08:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932418AbWJEXIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:05:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
+	Thu, 5 Oct 2006 19:08:04 -0400
+Date: Thu, 5 Oct 2006 16:07:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Jeff Garzik <jeff@garzik.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-Date: Fri, 6 Oct 2006 01:05:10 +0200
-User-Agent: KMail/1.9.3
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <200610051910.25418.ak@suse.de> <200610051927.27255.ak@suse.de> <Pine.LNX.4.64.0610051556330.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610051556330.3952@g5.osdl.org>
+In-Reply-To: <200610060052.46538.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
+References: <200610051910.25418.ak@suse.de> <452564B9.4010209@garzik.org>
+ <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org> <200610060052.46538.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060105.10357.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 October 2006 00:59, Linus Torvalds wrote:
+
+
+On Fri, 6 Oct 2006, Andi Kleen wrote:
 > 
-> On Thu, 5 Oct 2006, Andi Kleen wrote:
+> > In other words, right now we have
 > > 
-> > Ok. Please drop them then.
+> > 	int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
+> > 
+> > and maybe we will simply have to add a totally new function like
+> > 
+> > 	int pci_read_mmio_config_byte(struct pci_dev *dev, int where, u8 *val)
+> > 
+> > for drivers that literally _require_ the mmio accesses for one reason or 
+> > another.
 > 
-> Ok, done. Since they weren't the last commits in your branch, I had to do 
-> a certain amount of hand-waving: I merged up to the commit preceding the 
-> AC flag changes, and then I cherry-picked the one later commit separately.
+> That's easy to decide: if (where >= 256) mmconfig is required. 
 > 
-> So it's not a normal merge, since I wanted to avoid those two commits.
-> 
-> I've pushed out the result, you should check it out 
+> I'm just afraid it probably won't help if the MCFG is totally broken and
+> points to some other devices (like on the Intel boards). Then these drivers will 
+> just hang and all of Alan's warning  messages won't help with that.
 
-Looks good thanks.
+Sure. I'd actually prefer a separate interface partly for that reason, and 
+partly also because I think the whole "pci_read_config_xxx()" interface 
+has always been horrible.
 
-> (and drop the top  
-> three commits on your head once you're ok with my result, since they won't 
-> exist in my tree).
+If we had the
 
-I only use temporary merge trees from quilt anyways, so it's fine
-for me.
+	void __iomem *cfg = mmiocfg_remap(dev);
 
--Andi
+interface, we could (fairly easily) blacklist known-bad motherboards if we 
+needed to, and also, it would allow drivers to check whether mmiocfg is 
+available. It's possible that some drivers might want it if it exists, but 
+it wouldn't necessarily be somethign that they _require_, so they could 
+gracefully handle the case of getting a NULL config space handle back.
+
+For example, for some devices, maybe they'd lose some error handling 
+capability, but they'd still be able to work otherwise.
+
+We _can_ do the same thing with checking the error return value from 
+"pci_read_config_xxxx()", and use the "use different access method if the 
+index is >= 256", but I have to say, that just makes my gag reflex 
+trigger. Having the same function just silently do two different things 
+depending on the offset just sounds like a recipe for disaster.
+
+I dunno. I'm not likely to care _that_ deeply about this all, but I do 
+think that machines that hang on device discovery is just about the worst 
+possible thing, so I'd much rather have ten machines that can't use their 
+very rare devices without some explicit kernel command line than have even 
+_one_ machine that just hangs because MMIOCFG is buggered.
+
+(And we should probably have the "pci=mmiocfg" kernel command line entry 
+that forces MMIOCFG regardless of any e820 issues, even for normal 
+accesses).
+
+			Linus

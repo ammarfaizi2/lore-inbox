@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWJERRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWJERR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWJERRG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWJERRG
+	id S1751703AbWJERR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWJERR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:17:06 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:2482 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1750988AbWJERRF (ORCPT
+	Thu, 5 Oct 2006 13:17:57 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:57323 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751728AbWJERR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:17:05 -0400
-Date: Thu, 5 Oct 2006 19:16:14 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: keith mannthey <kmannth@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] make mach-generic/summit.c compile on UP
-Message-ID: <Pine.LNX.4.64.0610051913010.12556@twin.jikos.cz>
+	Thu, 5 Oct 2006 13:17:56 -0400
+Message-ID: <45253E37.6070305@garzik.org>
+Date: Thu, 05 Oct 2006 13:17:43 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: torvalds@osdl.org, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: Please pull x86-64 bug fixes
+References: <200610051910.25418.ak@suse.de>
+In-Reply-To: <200610051910.25418.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
+> Linus,
+> 
+> Please pull 'for-linus' from 
+> 
+>   git://one.firstfloor.org/home/andi/git/linux-2.6
+> 
+> Andi Kleen:
+>       x86-64: Update defconfig
+>       i386: Update defconfig
+>       i386: Fix PCI BIOS config space access
 
-arch/i386/mach-generic/summit.c doesn't compile (neither in current 
-mainline git tree, nor in 2.6.18-mm3) when CONFIG_SMP is not set:
+Does this fix the following issue:
 
-In file included from arch/i386/mach-generic/summit.c:17:
-include/asm/mach-summit/mach_apic.h: In function 'apicid_to_node':
-include/asm/mach-summit/mach_apic.h:91: error: 'apicid_2_node' undeclared (first use in this function)
-include/asm/mach-summit/mach_apic.h:91: error: (Each undeclared identifier is reported only once
-include/asm/mach-summit/mach_apic.h:91: error: for each function it appears in.)
+PCI: BIOS Bug: MCFG area at e0000000 is not E820-reserved
+PCI: Not using MMCONFIG.
 
-Is the patch below correct?
+100% of my x86-64 boxes, AMD or Intel, print this message.  And 100% of 
+them work just fine with MMCONFIG.
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+I think this rule is far too drastic for real life.
 
---- a/include/asm-i386/mach-summit/mach_apic.h
-+++ b/include/asm-i386/mach-summit/mach_apic.h
-@@ -88,7 +88,11 @@ static inline void clustered_apic_check(
- 
- static inline int apicid_to_node(int logical_apicid)
- {
-+#ifdef CONFIG_SMP
- 	return apicid_2_node[hard_smp_processor_id()];
-+#else
-+	return 0;
-+#endif
- }
- 
- /* Mapping from cpu number to logical apicid */
-diff --git a/include/asm-i386/smp.h b/include/asm-i386/smp.h
+	Jeff
 
--- 
-Jiri Kosina
+

@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWJEUxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWJEU6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWJEUxk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWJEUxk
+	id S1750987AbWJEU6A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWJEU6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:53:40 -0400
-Received: from smtpout.mac.com ([17.250.248.177]:15358 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932185AbWJEUxj (ORCPT
+	Thu, 5 Oct 2006 16:58:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:31116 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750996AbWJEU57 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:53:39 -0400
-In-Reply-To: <4524D8DC.1080100@garzik.org>
-References: <20061003001115.e898b8cb.akpm@osdl.org> <20061005083754.GA1060@elte.hu> <4524D8DC.1080100@garzik.org>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EB232FE2-9E35-412E-869A-66BF871A6397@mac.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: make-bogus-warnings-go-away tree [was: 2.6.18-mm3]
-Date: Thu, 5 Oct 2006 16:52:52 -0400
-To: Jeff Garzik <jeff@garzik.org>
-X-Mailer: Apple Mail (2.752.2)
+	Thu, 5 Oct 2006 16:57:59 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>, Jim Gettys <jg@laptop.org>,
+       Roman Zippel <zippel@linux-m68k.org>, akpm@osdl.org
+Subject: Re: [patch 00/22] high resolution timers / dynamic ticks - V3
+References: <20061004172217.092570000@cruncher.tec.linutronix.de>
+	<20061005011608.b69e3461.akpm@osdl.org>
+	<20061005081725.GA28877@elte.hu>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Oct 2006 22:57:24 +0200
+In-Reply-To: <20061005081725.GA28877@elte.hu>
+Message-ID: <p73fye2zdjf.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 05, 2006, at 06:05:16, Jeff Garzik wrote:
-> Ingo Molnar wrote:
->> A small suggestion: to give GCC folks a chance to actually fix  
->> this, could we actively annotate these places instead of working  
->> them around?
->
-> There was a patch posted in the past, mentioned in the thread  
-> discussed my #gccbug branch, that permitted annotations with zero  
-> code size changes.  I think that sort of annotation approach would  
-> be preferred. It was something like
->
-> #define noinit_warning(x) \
-> 	do { (void) (x) = (x); } while (0)
->
-> but given my memory, that's probably all wrong.
+Ingo Molnar <mingo@elte.hu> writes:
 
-The simplest way given the current GCC feature-set is:
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > With CONFIG_HIGH_RES_TIMERS=y, CONFIG_NO_HZ=n it's pretty sick.  It 
+> > pauses for several seconds after "input: AlpsPS/2 ALPS GlidePoint as 
+> > /class/input/input2" (printk-time claims 2 seconds, but it was longer 
+> > than that).
+> > 
+> > It's been stuck for a minute or more at the 12.980000 time, seems to 
+> > have hung.  The cursor is flashing extremely slowly.
+> 
+> ah, that's still the VAIO, right? Do you get a 'slow' LOC count on 
+> /proc/interrupts even on a stock kernel? If yes then that's a 
+> fundamentally sick local APIC timer interrupt. Stock kernel should show 
+> sickness too, if for example you boot an SMP kernel on it - can you 
+> confirm that? (the UP-IOAPIC only relies for profiling on the lapic 
+> timer, so there the only sickness you should see on the stock kernel is 
+> a non-working readprofile)
 
-   #ifdef HIDE_GCC_FALSE_POSITIVES
-   # define correct_init(x) x = x
-   #else
-   # define correct_init(x) x
-   #endif
+When I was hacking on my old noidletick patch I ran into this
+problem on several machines too.
 
-Then:
+But usually the problem wasn't that it was too slow, but that
+it completely stopped in C2 or deeper. I don't think there
+is a way to work around that except for not using C2 or deeper
+(not an option) or using a different timer source.
 
-   int correct_init(arg);
-   struct some_struct correct_init(foo);
+If that is true then hitting space lots of time will make it 
+go faster.
 
-Alternatively if only some struct member has problems and the rest  
-are OK:
-
-   struct some_struct foo;
-   correct_init(foo.bar);
-
-Cheers,
-Kyle Moffett
-
+-andi

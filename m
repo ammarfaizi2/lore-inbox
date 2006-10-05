@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWJEUM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWJEUOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWJEUM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWJEUM3
+	id S1751203AbWJEUOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWJEUOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:12:29 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:51074 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751192AbWJEUM2 (ORCPT
+	Thu, 5 Oct 2006 16:14:16 -0400
+Received: from www.osadl.org ([213.239.205.134]:37772 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751200AbWJEUOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:12:28 -0400
-Message-ID: <45256728.2060004@garzik.org>
-Date: Thu, 05 Oct 2006 16:12:24 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] scsi updates for post 2.6.18
-References: <1159995678.3437.80.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.60.0610052104330.6619@poirot.grange> <45255A02.2010308@garzik.org> <Pine.LNX.4.60.0610052129020.6619@poirot.grange>
-In-Reply-To: <Pine.LNX.4.60.0610052129020.6619@poirot.grange>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 5 Oct 2006 16:14:14 -0400
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
+	passing to IRQ handlers
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <20061005124601.94ed7194.akpm@osdl.org>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+	 <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	 <18975.1160058127@warthog.cambridge.redhat.com>
+	 <20061005124601.94ed7194.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 22:19:08 +0200
+Message-Id: <1160079548.9060.100.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> Sure, it WOULD be nice, but I don't know how. The "don't know" refers to 
-> the case 16MB block size, my tape supports only 16MB - 1 byte (according 
-> to st report). Is there a way to test various block sizes with CDs / 
-> hard-disks / ZIP / scanners? Would something with sg_dd work? Looks like 
-> it must be only sector size. Can I low-level format a disk with 16M 
-> sector?:-)
+On Thu, 2006-10-05 at 12:46 -0700, Andrew Morton wrote:
+> A quick survey of the wreckage:
 > 
-> Another possibility is to limit the block size at 8MB - I can test that.
+> - Dmitry's input git tree breaks a bit
+> 
+> - five of Greg's USB patches need fixing
+> 
+> - a few random -mm patches need touchups
+> 
+> - The hrtimer+dynticks i386 patch takes rather a hit and will need redoing.
 
-I would say, increase it to whatever the max is you can test...
+Nothing to worry about. In fact it makes life easier. I have to store
+the regs now in hrtimer_cpu_base to make them available to the
+sched_tick hrtimer callback.
 
-	Jeff
+Push it in. 
+
+	tglx
 
 

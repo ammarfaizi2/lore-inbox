@@ -1,57 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWJEERt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWJEEVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWJEERt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 00:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWJEERt
+	id S1750783AbWJEEVK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 00:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWJEEVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 00:17:49 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:44736 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750761AbWJEERt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 00:17:49 -0400
-Message-ID: <45248751.4060607@zytor.com>
-Date: Wed, 04 Oct 2006 21:17:21 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 5 Oct 2006 00:21:09 -0400
+Received: from qb-out-0506.google.com ([72.14.204.232]:34917 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750784AbWJEEVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 00:21:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=SQEIryT4VWAP0yB9gJuAUNvETfkdebLSn0ReUAln/Izt6lgXG51gwFIOfpyPEokoxgVNEQ/ZEYi/3CT7HYZd7m2MI4KU9iZ+F/x2M0HoT9cRVEo+6sMLx3Xq+XO+eFndU276ge+2pnFQ6rzaOuzJ499FDwoCKKhEx3MgHz2AhWQ=
+Message-ID: <45248867.40903@gmail.com>
+Date: Wed, 04 Oct 2006 22:21:59 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-References: <20061003170032.GA30036@in.ibm.com>	<20061003172511.GL3164@in.ibm.com>	<20061003201340.afa7bfce.akpm@osdl.org>	<20061004042850.GA27149@in.ibm.com> <45233B58.1050208@zytor.com>	<m1sli4cxr2.fsf@ebiederm.dsl.xmission.com>	<4523D0AF.5000907@zytor.com> <m1u02jbdus.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1u02jbdus.fsf@ebiederm.dsl.xmission.com>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, Jean Delvare <khali@linux-fr.org>,
+       Christer Weinigel <christer@weinigel.se>
+Subject: [patch 2.6.18+] MAINTAINERS - take over scx200-* and pc8736* drivers
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> "H. Peter Anvin" <hpa@zytor.com> writes:
-> 
->> Well, it doesn't help if what you end up with for some bootloader is a
->> nonfunctioning kernel.
-> 
-> I agree.  We need to look at what is happening closely.  
-> However just because we have some initial glitches doesn't mean we
-> shouldn't give up.
-> 
-> With grub you can say:
-> kernel --type=biglinux /path/to/bzImage
-> 
-> As I read the code it won't necessarily force the type of kernel image
-> grub will use but it will refuse to boot if it doesn't recognize 
-> the kernel as the type specified.
-> 
-> The code for grub is in stage2/boot.c:load_image().  It tries a few
-> other formats before it tests for the linux magic number but
-> it won't recognize an ELF format executable unless it is a mutliboot
-> or a BSD executable.
-> 
 
-This isn't just about Grub, though.  There is probably about a dozen 
-bootloaders in use on i386, if not more.
+Add MAINTAINERS entries for new scx200_hrt and pc8736x_gpio drivers, and 
+take over maintenance
+of scx200_gpio, authored by Christer Weinigel (which Ive hacked at), who 
+no longer has the hardware.
+Also take over hwmon/pc87360, authored by Jean Delvare, who's dropped 
+maintenance to dedicate
+more time to hwmon subsystem.
 
-	-hpa
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
+---
+
+Christer acked this off-list already, in case he's too busy and misses 
+this one.
+
+ MAINTAINERS                         |   41 
+++++++++++++++++++++++++++++--------
+
+
+
+diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.18-rc6-mm2-sk/MAINTAINERS doc-touches/MAINTAINERS
+--- linux-2.6.18-rc6-mm2-sk/MAINTAINERS	2006-09-12 09:39:29.000000000 -0600
++++ doc-touches/MAINTAINERS	2006-10-04 22:03:09.000000000 -0600
+@@ -2151,6 +2151,11 @@ M:	emoenke@gwdg.de
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++NSC_GPIO Common Methods Module (supports PC8736x_GPIO and SCX200_GPIO Drivers)
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
++
+ NTFS FILESYSTEM
+ P:	Anton Altaparmakov
+ M:	aia21@cantab.net
+@@ -2262,6 +2267,17 @@ T:	git kernel.org:/pub/scm/linux/kernel/
+ T:	cvs cvs.parisc-linux.org:/var/cvs/linux-2.6
+ S:	Maintained
+ 
++PC87360 LM-SENSORS DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++L:	lm-sensors@lm-sensors.org
++S:	Maintained
++
++PC8736x GPIO Driver
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
++
+ PCI ERROR RECOVERY
+ P:	Linas Vepstas
+ M:	linas@austin.ibm.com
+@@ -2574,16 +2590,25 @@ L:	linux-scsi@vger.kernel.org
+ S:	Maintained
+ 
+ SCTP PROTOCOL
+-P: Sridhar Samudrala
+-M: sri@us.ibm.com
+-L: lksctp-developers@lists.sourceforge.net
+-S: Supported
++P:	Sridhar Samudrala
++M:	sri@us.ibm.com
++L:	lksctp-developers@lists.sourceforge.net
++S:	Supported
+ 
+ SCx200 CPU SUPPORT
+-P:	Christer Weinigel
+-M:	christer@weinigel.se
+-W:	http://www.weinigel.se
+-S:	Supported
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Odd Fixes
++
++SCx200 GPIO DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
++
++SCx200 HRT CLOCKSOURCE DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
+ 
+ SECURITY CONTACT
+ P:	Security Officers
+
+

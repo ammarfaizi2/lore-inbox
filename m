@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWJEHQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWJEHRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751517AbWJEHQv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 03:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWJEHQv
+	id S1751520AbWJEHRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 03:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWJEHRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 03:16:51 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43721 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751181AbWJEHQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 03:16:49 -0400
-Subject: Re: 2.6.19-rc1: known regressions
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Klaus Knopper <knopper@knopper.net>, Andi Kleen <ak@suse.de>,
-       Luca Tettamanti <kronos.it@gmail.com>, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, discuss@x86-64.org,
-       Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Olaf Hering <olaf@aepfle.de>, Jens Axboe <axboe@suse.de>
-In-Reply-To: <20061005042816.GD16812@stusta.de>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-	 <20061005042816.GD16812@stusta.de>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 17:16:40 +1000
-Message-Id: <1160032600.7086.4.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 5 Oct 2006 03:17:42 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:47506 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751519AbWJEHRl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 03:17:41 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: usbatm@lists.infradead.org
+Subject: Re: [PATCH 1/3] UEAGLE : be suspend friendly
+Date: Thu, 5 Oct 2006 09:17:35 +0200
+User-Agent: KMail/1.9.4
+Cc: Pavel Machek <pavel@ucw.cz>, matthieu castet <castet.matthieu@free.fr>,
+       greg@kroah.com, ueagle <ueagleatm-dev@gna.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <4522BE19.1070103@free.fr> <20061004220548.GC8667@elf.ucw.cz>
+In-Reply-To: <20061004220548.GC8667@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610050917.36442.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Pavel,
 
-On Thu, 2006-10-05 at 06:28 +0200, Adrian Bunk wrote:
-> Contrary to popular belief, there are people who test -rc kernels
-> and report bugs.
+> > Signed-off-by: matthieu castet <castet.matthieu@free.fr>
+> > Index: linux/drivers/usb/atm/ueagle-atm.c
+> > ===================================================================
+> > --- linux.orig/drivers/usb/atm/ueagle-atm.c	2006-09-22 21:39:56.000000000 +0200
+> > +++ linux/drivers/usb/atm/ueagle-atm.c	2006-09-22 21:40:45.000000000 +0200
+> > @@ -1177,6 +1177,9 @@
+> >  			ret = uea_stat(sc);
+> >  		if (ret != -EAGAIN)
+> >  			msleep(1000);
+> > + 		if (try_to_freeze())
+> > +			uea_err(INS_TO_USBDEV(sc), "suspend/resume not supported, "
+> > +				"please unplug/replug your modem\n");
 > 
-> And there are even people who test -git kernels.
+> Plug/unplug should be easy enough to simulate from usb driver, no?
 
-Slightly off topic, but let me report a "metoo" as far as testing -git
-goes (you can even find a suspend2-against-current-git tree on
-kernel.org now!), and some positive progress: for the first time in
-months, I'm reliably suspending and resuming my amd64 based laptop. I
-don't have an exact cause, but would guess at Andi's multitude of
-patches and/or any cpufreq fixes that might have slid in there too. It's
-been really strange writing software that others can use reliably, and
-not being able to reliably use it yourself! Kudos to all the authors of
-suspend/resume bug fixes that have gone in!
+if a USB driver doesn't define suspend/resume methods, then the core simply
+unplugs it on suspend, and replugs on resume (IIRC).  Maybe Matthieu is trying
+for something better - hopefully he will explain.  Since this is a modem, it
+would be nice if the internet connection sprang back to life on resume, which
+requires more work than unplug/plug.  I've no idea what needs to be done to achieve
+this.  These modems use the ATM networking layer by the way, I don't know if that
+makes things easier or harder.
 
-Nigel
+Ciao,
 
+Duncan.

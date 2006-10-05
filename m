@@ -1,510 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWJESYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWJES1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWJESYt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWJESXi
+	id S1751416AbWJES1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWJES1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:23:38 -0400
-Received: from ext-103.mv.fabric7.com ([68.120.107.103]:7639 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S1751008AbWJESW4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:22:56 -0400
-From: Misha Tomushev <misha@fabric7.com>
-Reply-To: misha@fabric7.com
-Organization: Fabric7 Systems
-To: Jeff Garzik <jeff@garzik.org>
-Subject: [PATCH 4/10] VIOC: New Network Device Driver
-Date: Thu, 5 Oct 2006 11:01:33 -0700
-User-Agent: KMail/1.5.1
-Cc: KERNEL Linux <linux-kernel@vger.kernel.org>,
-       NETDEV Linux <linux-kernel@vger.kernel.org>
+	Thu, 5 Oct 2006 14:27:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:45696 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751044AbWJES1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 14:27:10 -0400
+From: Andi Kleen <ak@suse.de>
+To: Steve Fox <drfickle@us.ibm.com>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Date: Thu, 5 Oct 2006 20:27:02 +0200
+User-Agent: KMail/1.9.3
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
+       vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200610051740.58511.ak@suse.de> <1160071032.29690.19.camel@flooterbu>
+In-Reply-To: <1160071032.29690.19.camel@flooterbu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610051101.33443.misha@fabric7.com>
-X-OriginalArrivalTime: 05 Oct 2006 18:22:42.0703 (UTC) FILETIME=[3F6149F0:01C6E8AB]
+Message-Id: <200610052027.02208.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding VIOC device driver. VIOC hardware APIs.
+On Thursday 05 October 2006 19:57, Steve Fox wrote:
+> On Thu, 2006-10-05 at 17:40 +0200, Andi Kleen wrote:
+> 
+> > Please don't snip the Code: line. It is fairly important.
+> 
+> Sorry about that. The remote console I was using appears to overwrite
+> some text after I force the reboot. Here's a clean one.
+> 
+> global ffffffffffffffff
 
-Signed-off-by: Misha Tomushev  <misha@fabric7.com
+Ok that definitely shouldn't be in there.
 
-diff -uprN linux-2.6.17/drivers/net/vioc/vioc_api.c 
-linux-2.6.17.vioc/drivers/net/vioc/vioc_api.c
---- linux-2.6.17/drivers/net/vioc/vioc_api.c	1969-12-31 16:00:00.000000000 
--0800
-+++ linux-2.6.17.vioc/drivers/net/vioc/vioc_api.c	2006-10-04 
-10:21:45.000000000 -0700
-@@ -0,0 +1,384 @@
-+/*
-+ * Fabric7 Systems Virtual IO Controller Driver
-+ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
-+ * USA
-+ *
-+ * http://www.fabric7.com/
-+ *
-+ * Maintainers:
-+ *    driver-support@fabric7.com
-+ *
-+ *
-+ */
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/compiler.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
-+#include <linux/pci.h>
-+#include <linux/errno.h>
-+#include <linux/delay.h>
-+
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/byteorder.h>
-+#include <asm/uaccess.h>
-+
-+#include "f7/vnic_hw_registers.h"
-+#include "f7/vnic_defs.h"
-+
-+#include "vioc_vnic.h"
-+#include "vioc_api.h"
-+
-+int vioc_set_rx_intr_param(int viocdev_idx, int rx_intr_id, u32 timeout, u32 
-cntout)
-+{
-+	int ret = 0;
-+	struct vioc_device *viocdev;
-+	u64 regaddr;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, (VREG_IHCU_RXCINTTIMER + 
-+							(rx_intr_id << 2)));
-+	vioc_reg_wr(timeout, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, (VREG_IHCU_RXCINTPKTCNT + 
-+							(rx_intr_id << 2)));
-+	vioc_reg_wr(cntout, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+
-+int vioc_get_vnic_mac(int viocdev_idx, u32 vnic_id, u8 * p)
-+{
-+	struct vioc_device *viocdev = vioc_viocdev(viocdev_idx);
-+	u64 regaddr;
-+	u32 value;
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_MACADDRLO);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+	*((u32 *) & p[2]) = htonl(value);
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_MACADDRHI);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+	*((u16 *) & p[0]) = htons(value);
-+
-+	return 0;
-+}
-+
-+int vioc_set_vnic_mac(int viocdev_idx, u32 vnic_id, u8 * p)
-+{
-+	struct vioc_device *viocdev = vioc_viocdev(viocdev_idx);
-+	u64 regaddr;
-+	u32 value;
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_MACADDRLO);
-+	value = ntohl(*((u32 *) & p[2]));
-+
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_MACADDRHI);
-+	value = (ntohl(*((u32 *) & p[0])) >> 16) & 0xffff;
-+
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return 0;
-+}
-+
-+int vioc_set_txq(int viocdev_idx, u32 vnic_id, u32 txq_id, dma_addr_t base,
-+		 u32 num_elements)
-+{
-+	int ret = 0;
-+	u32 value;
-+	struct vioc_device *viocdev;
-+	u64 regaddr;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+	if (vnic_id >= VIOC_MAX_VNICS)
-+		goto parm_err_ret;
-+
-+	if (txq_id >= VIOC_MAX_TXQ)
-+		goto parm_err_ret;
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, (VREG_VENG_TXD_W0 + (txq_id << 
-5)));
-+
-+	value = base;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, (VREG_VENG_TXD_W1 + (txq_id << 
-5)));
-+	value = (((base >> 16) >> 16) & 0x000000ff) |
-+	    ((num_elements << 8) & 0x00ffff00);
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	/*
-+	 * Enable Interrupt-on-Empty
-+	 */
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_TXINTCTL);
-+	vioc_reg_wr(VREG_VENG_TXINTCTL_INTONEMPTY_MASK, viocdev->ba.virt,
-+		    regaddr);
-+
-+	return ret;
-+
-+      parm_err_ret:
-+	return -EINVAL;
-+}
-+
-+int vioc_set_rxc(int viocdev_idx, struct rxc *rxc)
-+{
-+	u32 value;
-+	struct vioc_device *viocdev;
-+	u64 regaddr;
-+	int ret = 0;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, (VREG_IHCU_RXC_LO + (rxc->rxc_id << 4)));
-+	value = rxc->dma;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, (VREG_IHCU_RXC_HI + (rxc->rxc_id << 4)));
-+	value = (((rxc->dma >> 16) >> 16) & 0x000000ff) |
-+	    ((rxc->count << 8) & 0x00ffff00);
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	/*
-+	 * Set-up mapping between this RxC queue and Rx interrupt
-+	 */
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, (VREG_IHCU_RXC_INT + (rxc->rxc_id << 
-4)));
-+	vioc_reg_wr((rxc->interrupt_id & 0xF), viocdev->ba.virt, regaddr);
-+
-+	ret = vioc_set_rx_intr_param(viocdev_idx,
-+				     rxc->interrupt_id,
-+				     viocdev->prov.run_param.rx_intr_timeout,
-+				     viocdev->prov.run_param.rx_intr_cntout);
-+	return ret;
-+}
-+
-+int vioc_set_rxs(int viocdev_idx, dma_addr_t base)
-+{
-+	int ret = 0;
-+	u32 value;
-+	u64 regaddr;
-+	struct vioc_device *viocdev;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, VREG_IHCU_INTRSTATADDRLO);
-+	value = base;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, VREG_IHCU_INTRSTATADDRHI);
-+	value = ((base >> 16) >> 16) & 0x000000ff;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+int vioc_set_rxdq(int viocdev_idx, u32 vnic_id, u32 rxdq_id, u32 rx_bufsize,
-+		  dma_addr_t base, u32 num_elements)
-+{
-+	int ret = 0;
-+	u32 value;
-+	struct vioc_device *viocdev;
-+	u64 regaddr;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, vnic_id, (VREG_IHCU_RXD_W0_R0 + 
-+							(rxdq_id << 4)));
-+	value = base;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, vnic_id, (VREG_IHCU_RXD_W1_R0 + 
-+							(rxdq_id << 4)));
-+	value = (((base >> 16) >> 16) & 0x000000ff) |
-+	    ((num_elements << 8) & 0x00ffff00);
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_IHCU, vnic_id, (VREG_IHCU_RXD_W2_R0 + 
-+							(rxdq_id << 4)));
-+	value = rx_bufsize;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+u32 vioc_rrd(int viocdev_idx, int module_id, int vnic_id, int reg_addr)
-+{
-+	u32 value;
-+	u64 regaddr;
-+	struct vioc_device *viocdev;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(module_id, vnic_id, reg_addr);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+
-+	return value;
-+}
-+
-+int vioc_rwr(int viocdev_idx, int module_id, int vnic_id, int reg_addr,
-+	     u32 value)
-+{
-+	int ret = 0;
-+	struct vioc_device *viocdev;
-+	u64 regaddr;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(module_id, vnic_id, reg_addr);
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+int vioc_ena_dis_tx_on_empty(int viocdev_idx, u32 vnic_id, u32 txq_id,
-+			     int ena_dis)
-+{
-+	u32 value = 0;
-+	u64 regaddr;
-+	struct vioc_device *viocdev = vioc_viocdev(viocdev_idx);
-+
-+	if (ena_dis)
-+		value |= VREG_VENG_TXINTCTL_INTONEMPTY_MASK;
-+	else
-+		value &= ~VREG_VENG_TXINTCTL_INTONEMPTY_MASK;
-+
-+	regaddr = GETRELADDR(VIOC_VENG, vnic_id, VREG_VENG_TXINTCTL);
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return 0;
-+}
-+
-+int vioc_set_vnic_cfg(int viocdev_idx, u32 vnic_id, u32 cfg)
-+{
-+	int ret = 0;
-+	u64 regaddr;
-+	struct vioc_device *viocdev;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+	regaddr = GETRELADDR(VIOC_BMC, vnic_id, VREG_BMC_VNIC_CFG);
-+
-+	vioc_reg_wr(cfg, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+int vioc_ena_dis_rxd_q(int viocdev_idx, u32 q_id, int ena_dis)
-+{
-+	int ret = 0;
-+	u32 value;
-+	u64 regaddr;
-+	struct vioc_device *viocdev;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, VREG_IHCU_RXDQEN);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+
-+	if (ena_dis)
-+		value |= 1 << q_id;
-+	else
-+		value &= ~(1 << q_id);
-+
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	return ret;
-+}
-+
-+void vioc_sw_reset(int viocdev_idx)
-+{
-+	u32 value;
-+	u64 regaddr;
-+	struct vioc_device *viocdev;
-+
-+	viocdev = vioc_viocdev(viocdev_idx);
-+
-+	regaddr = GETRELADDR(VIOC_BMC, 0, VREG_BMC_GLOBAL);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+	value |= VREG_BMC_GLOBAL_SOFTRESET_MASK;
-+	vioc_reg_wr(value, viocdev->ba.virt, regaddr);
-+
-+	do {
-+		vioc_reg_rd(viocdev->ba.virt, regaddr, &value);
-+		mdelay(1);
-+	} while (value & VREG_BMC_GLOBAL_SOFTRESET_MASK);
-+
-+	/*
-+	 * Clear BMC INTERRUPT register
-+	 */
-+	regaddr = GETRELADDR(VIOC_BMC, 0, VREG_BMC_INTRSTATUS);
-+	vioc_reg_wr(0xffff, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VING, 0, VREG_VING_BUFTH1);
-+	vioc_reg_wr(128, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VING, 0, VREG_VING_BUFTH2);
-+	vioc_reg_wr(150, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VING, 0, VREG_VING_BUFTH3);
-+	vioc_reg_wr(200, viocdev->ba.virt, regaddr);
-+
-+	regaddr = GETRELADDR(VIOC_VING, 0, VREG_VING_BUFTH4);
-+	vioc_reg_wr(256, viocdev->ba.virt, regaddr);
-+
-+	/*
-+	 * Initialize Context Scrub Control Register
-+	 */
-+	regaddr = GETRELADDR(VIOC_VING, 0, VREG_VING_CONTEXTSCRUB);
-+	/* Enable Context Scrub, Timeout ~ 5 sec */
-+	vioc_reg_wr(0x8000000f, viocdev->ba.virt, regaddr);	
-+	/*
-+	 * Initialize Sleep Time Register
-+	 */
-+	regaddr = GETRELADDR(VIOC_IHCU, 0, VREG_IHCU_SLEEPTIME);
-+	/* at 50ns ticks, 20 = 20x50 = 1usec */
-+	vioc_reg_wr(20, viocdev->ba.virt, regaddr);	
-+	/*
-+	 * VIOC bits version
-+	 */
-+	regaddr = GETRELADDR(VIOC_HT, 0, VREG_HT_CLASSREV);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &viocdev->vioc_bits_version);
-+	/*
-+	 * VIOC bits sub-version
-+	 */
-+	regaddr = GETRELADDR(VIOC_HT, 0, VREG_HT_EXPREV);
-+	vioc_reg_rd(viocdev->ba.virt, regaddr, &viocdev->vioc_bits_subversion);
-+
-+}
-+
-+int vioc_vnic_resources_set(int viocdev_idx, u32 vnic_id)
-+{
-+	struct vioc_device *viocdev = vioc_viocdev(viocdev_idx);
-+	struct vnic_device *vnicdev = viocdev->vnic_netdev[vnic_id]->priv;
-+	u64 regaddr;
-+
-+	/* Map VNIC-2-RXD */
-+	regaddr = GETRELADDR(VIOC_IHCU, vnic_id, VREG_IHCU_VNICRXDMAP);
-+	vioc_reg_wr(vnicdev->qmap, viocdev->ba.virt, regaddr);
-+
-+	/* Map VNIC-2-RXC */
-+	regaddr = GETRELADDR(VIOC_IHCU, vnic_id, VREG_IHCU_VNICRXCMAP);
-+	vioc_reg_wr(vnicdev->rxc_id, viocdev->ba.virt, regaddr);
-+
-+	/* Map Interrupt-2-RXC */
-+	regaddr =  GETRELADDR(VIOC_IHCU, vnic_id, (VREG_IHCU_RXC_INT +
-+					       (vnicdev->rxc_id << 4)));
-+	vioc_reg_wr(vnicdev->rxc_intr_id, viocdev->ba.virt, regaddr);
-+
-+	return 0;
-+}
-diff -uprN linux-2.6.17/drivers/net/vioc/vioc_api.h 
-linux-2.6.17.vioc/drivers/net/vioc/vioc_api.h
---- linux-2.6.17/drivers/net/vioc/vioc_api.h	1969-12-31 16:00:00.000000000 
--0800
-+++ linux-2.6.17.vioc/drivers/net/vioc/vioc_api.h	2006-09-06 
-16:23:00.000000000 -0700
-@@ -0,0 +1,64 @@
-+/*
-+ * Fabric7 Systems Virtual IO Controller Driver
-+ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
-+ * USA
-+ *
-+ * http://www.fabric7.com/
-+ *
-+ * Maintainers:
-+ *    driver-support@fabric7.com
-+ *
-+ *
-+ */
-+#ifndef _VIOC_API_H_
-+#define _VIOC_API_H_
-+
-+#include <asm/io.h>
-+#include "vioc_vnic.h"
-+
-+extern int vioc_vnic_resources_set(int vioc_id, u32 vnic_id);
-+extern void vioc_sw_reset(int vioc_id);
-+extern u32 vioc_rrd(int vioc_id, int module_id, int vnic_id, int reg_addr);
-+extern int vioc_rwr(int vioc_id, int module_id, int vnic_id, int reg_addr, 
-u32 value);
-+extern int vioc_set_vnic_mac(int vioc_id, u32 vnic_id, u8 * p);
-+extern int vioc_get_vnic_mac(int vioc_id, u32 vnic_id, u8 * p);
-+extern int vioc_set_txq(int vioc_id, u32 vnic_id, u32 txq_id, dma_addr_t 
-base,
-+                u32 num_elements);
-+
-+extern int vioc_set_rxc(int viocdev_idx, struct rxc *rxc);
-+
-+
-+extern int vioc_set_rxdq(int vioc_id, u32 vnic_id, u32 rxq_id, u32 
-rx_bufsize,
-+                 dma_addr_t base, u32 num_elements);
-+extern int vioc_set_rxs(int vioc_id, dma_addr_t base);
-+extern int vioc_set_vnic_cfg(int viocdev_idx, u32 vnic_id, u32 vnic_q_map);
-+extern int vioc_ena_dis_rxd_q(int vioc_id, u32 q_id, int ena_dis);
-+extern int vioc_ena_dis_tx_on_empty(int viocdev_idx, u32 vnic_id, u32 txq_id,
-+                            int ena_dis);
-+static inline void
-+vioc_reg_wr(u32 value, void __iomem *vaddr, u32 offset)
-+{
-+       writel(value, vaddr + offset);
-+}
-+
-+static inline void
-+vioc_reg_rd(void __iomem *vaddr, u32 offset, u32 * value_p)
-+{
-+       *value_p = readl(vaddr + offset);
-+}
-+
-+#endif                         /* _VIOC_API_H_ */
+I guess we need to track when it gets corrupted. Can you send the full
+boot log with this patch applied?
 
 
--- 
-Misha Tomushev
-misha@fabric7.com
+-Andi
 
-
+Index: linux-2.6.19-rc1-hack/init/main.c
+===================================================================
+--- linux-2.6.19-rc1-hack.orig/init/main.c
++++ linux-2.6.19-rc1-hack/init/main.c
+@@ -75,6 +75,9 @@
+ 
+ static int init(void *);
+ 
++extern void bugcheck(char *, int);
++#define CHECK bugcheck(__FILE__, __LINE__)
++
+ extern void init_IRQ(void);
+ extern void fork_init(unsigned long);
+ extern void mca_init(void);
+@@ -480,6 +483,8 @@ asmlinkage void __init start_kernel(void
+ 	char * command_line;
+ 	extern struct kernel_param __start___param[], __stop___param[];
+ 
++	CHECK;
++
+ 	smp_setup_processor_id();
+ 
+ 	/*
+@@ -502,7 +507,9 @@ asmlinkage void __init start_kernel(void
+ 	page_address_init();
+ 	printk(KERN_NOTICE);
+ 	printk(linux_banner);
++	CHECK;
+ 	setup_arch(&command_line);
++	CHECK;
+ 	setup_per_cpu_areas();
+ 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
+ 
+@@ -517,6 +524,7 @@ asmlinkage void __init start_kernel(void
+ 	 * fragile until we cpu_idle() for the first time.
+ 	 */
+ 	preempt_disable();
++	CHECK;
+ 	build_all_zonelists();
+ 	page_alloc_init();
+ 	printk(KERN_NOTICE "Kernel command line: %s\n", saved_command_line);
+@@ -525,6 +533,7 @@ asmlinkage void __init start_kernel(void
+ 		   __stop___param - __start___param,
+ 		   &unknown_bootoption);
+ 	sort_main_extable();
++	CHECK;
+ 	trap_init();
+ 	rcu_init();
+ 	init_IRQ();
+@@ -533,8 +542,10 @@ asmlinkage void __init start_kernel(void
+ 	hrtimers_init();
+ 	softirq_init();
+ 	timekeeping_init();
++	CHECK;
+ 	time_init();
+ 	profile_init();
++	CHECK;
+ 	if (!irqs_disabled())
+ 		printk("start_kernel(): bug: interrupts were enabled early\n");
+ 	early_boot_irqs_on();
+@@ -568,7 +579,9 @@ asmlinkage void __init start_kernel(void
+ #endif
+ 	vfs_caches_init_early();
+ 	cpuset_init_early();
++	CHECK;
+ 	mem_init();
++	CHECK;
+ 	kmem_cache_init();
+ 	setup_per_cpu_pageset();
+ 	numa_policy_init();
+@@ -577,6 +590,7 @@ asmlinkage void __init start_kernel(void
+ 	calibrate_delay();
+ 	pidmap_init();
+ 	pgtable_cache_init();
++	CHECK;
+ 	prio_tree_init();
+ 	anon_vma_init();
+ #ifdef CONFIG_X86
+@@ -586,12 +600,14 @@ asmlinkage void __init start_kernel(void
+ 	fork_init(num_physpages);
+ 	proc_caches_init();
+ 	buffer_init();
++	CHECK;
+ 	unnamed_dev_init();
+ 	key_init();
+ 	security_init();
+ 	vfs_caches_init(num_physpages);
+ 	radix_tree_init();
+ 	signals_init();
++	CHECK;
+ 	/* rootfs populating might need page-writeback */
+ 	page_writeback_init();
+ #ifdef CONFIG_PROC_FS
+@@ -599,6 +615,7 @@ asmlinkage void __init start_kernel(void
+ #endif
+ 	cpuset_init();
+ 	taskstats_init_early();
++	CHECK;
+ 	delayacct_init();
+ 
+ 	check_bugs();
+@@ -609,7 +626,7 @@ asmlinkage void __init start_kernel(void
+ 	rest_init();
+ }
+ 
+-static int __initdata initcall_debug;
++static int __initdata initcall_debug = 1;
+ 
+ static int __init initcall_debug_setup(char *str)
+ {
+@@ -639,7 +656,11 @@ static void __init do_initcalls(void)
+ 			printk("\n");
+ 		}
+ 
++		CHECK;
++
+ 		result = (*call)();
++		
++		CHECK;
+ 
+ 		if (result && result != -ENODEV && initcall_debug) {
+ 			sprintf(msgbuf, "error code %d", result);
+@@ -725,21 +746,32 @@ static int init(void * unused)
+ 
+ 	smp_prepare_cpus(max_cpus);
+ 
++	CHECK;
++
+ 	do_pre_smp_initcalls();
+ 
+ 	smp_init();
++
++	CHECK;
++
+ 	sched_init_smp();
+ 
+ 	cpuset_init_smp();
+ 
++	CHECK;
++
+ 	/*
+ 	 * Do this before initcalls, because some drivers want to access
+ 	 * firmware files.
+ 	 */
+ 	populate_rootfs();
+ 
++	CHECK;
++
+ 	do_basic_setup();
+ 
++	CHECK;
++
+ 	/*
+ 	 * check if there is an early userspace init.  If yes, let it do all
+ 	 * the work
+Index: linux-2.6.19-rc1-hack/net/xfrm/xfrm_policy.c
+===================================================================
+--- linux-2.6.19-rc1-hack.orig/net/xfrm/xfrm_policy.c
++++ linux-2.6.19-rc1-hack/net/xfrm/xfrm_policy.c
+@@ -39,6 +39,16 @@ EXPORT_SYMBOL(xfrm_policy_count);
+ static DEFINE_RWLOCK(xfrm_policy_afinfo_lock);
+ static struct xfrm_policy_afinfo *xfrm_policy_afinfo[NPROTO];
+ 
++void bugcheck(char *where, int line)
++{
++	int i;
++	for (i = 0; i < NPROTO; i++)
++		if (xfrm_policy_afinfo[i] == (void *)-1UL) {
++			printk("afinfo corrupted at %s:%d\n",where,line);
++			return;
++		}
++}
++
+ static kmem_cache_t *xfrm_dst_cache __read_mostly;
+ 
+ static struct work_struct xfrm_policy_gc_work;

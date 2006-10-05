@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWJEUic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWJEUjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWJEUic (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWJEUic
+	id S932077AbWJEUjd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWJEUjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:38:32 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:25019 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751282AbWJEUia (ORCPT
+	Thu, 5 Oct 2006 16:39:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54166 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932077AbWJEUjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:38:30 -0400
-Date: Thu, 5 Oct 2006 22:37:40 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Dennis Heuer <dh@triple-media.com>, linux-kernel@vger.kernel.org
-Subject: Re: sunifdef instead of unifdef
-In-Reply-To: <20061005192629.GB20742@uranus.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0610052236010.6038@yvahk01.tjqt.qr>
-References: <20061005183830.351a0a2f.dh@triple-media.com>
- <20061005192629.GB20742@uranus.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 5 Oct 2006 16:39:31 -0400
+Date: Thu, 5 Oct 2006 13:38:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Joe Korty <joe.korty@ccur.com>,
+       Inaky Perez-Gonzalez <inaky@linux.intel.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bitmap: separate bitmap parsing for user buffer and
+ kernel buffer
+Message-Id: <20061005133807.97827533.akpm@osdl.org>
+In-Reply-To: <p73odsqzgbz.fsf@verdi.suse.de>
+References: <200610041756.30528.reinette.chatre@linux.intel.com>
+	<20061004181003.6dae6065.akpm@osdl.org>
+	<p73odsqzgbz.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 05 Oct 2006 21:57:04 +0200
+Andi Kleen <ak@suse.de> wrote:
 
->> However, there are three main reasons why I pledge for sunifdef
->> compatibility:
->> 
->> 1. There is a project page and an inviting community
->> 2. There is HTML documentation
->> 3. They use autotools, which is distributor and administrator-friendly
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > On Wed, 4 Oct 2006 17:56:30 -0700
+> > Reinette Chatre <reinette.chatre@linux.intel.com> wrote:
+> > 
+> > > +			if (is_user) {
+> > > +				if (__get_user(c, buf++))
+> > > +					return -EFAULT;
+> > > +			}
+> > > +			else
+> > > +				c = *buf++;
+> > 
+> > Is this actually needed?  __get_user(kernel_address) works OK and (believe
+> > it or not, given all the stuff it involves) boils down to a single instruction.		
+> 
+> It is needed on lots of architectures that use separate address spaces
+> like sparc64, m68k, s390 (and on x86 with 4:4 patches) 
+> 
 
-autotools is, in some places, not developer friendly. A V=1 feature like 
-the kernel's makefile system has would be beneficial, as well as the 
-possibility to use PIC-compiled objects for PIE-executables (which 
-currently throws an error on some distros, and requires workarounds, 
-like the *-nolibtool files in pam_mount)
+It needs set_fs(KERNEL_DS) if we're going to use __get_user() on both
+callpaths.
 
->> gcc -O2 -m64   -c -o unifdef.o unifdef.c
->> unifdef.c: In function 'main':
->> unifdef.c:129: warning: incompatible implicit declaration of built-in
->> function 'exit'
->> unifdef.c:157: warning: incompatible implicit declaration of built-in
->> function 'exit'
->> unifdef.c:180: warning: incompatible implicit declaration of built-in
->> function 'exit'
->> gcc unifdef.o -o unifdef
->Patches appreciated - seems a simple #include is missing.
-
-#include <stdlib.h>
-
-
-	-`J'
--- 
+I think we'll stick with the `is_user' version - less tricky, clearer.

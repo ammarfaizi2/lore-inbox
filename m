@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWJEDjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWJEDr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWJEDjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 23:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWJEDjx
+	id S1751428AbWJEDr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 23:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWJEDr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 23:39:53 -0400
-Received: from xenotime.net ([66.160.160.81]:62353 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751332AbWJEDjw (ORCPT
+	Wed, 4 Oct 2006 23:47:28 -0400
+Received: from smtpout.mac.com ([17.250.248.185]:61155 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751428AbWJEDr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 23:39:52 -0400
-Date: Wed, 4 Oct 2006 20:41:14 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mark Assad <massad@gmail.com>, linux-kernel@vger.kernel.org,
-       trivial@kernel.org, hc@mivu.no, dtor@mail.ru
-Subject: Re: [PATCH] itmtouch: fix inverted flag to indicate touch location
- correctly
-Message-Id: <20061004204114.e2906ead.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0610041913050.3952@g5.osdl.org>
-References: <7f9863480610041736k2fe84c6bqd1d9740868dedf7d@mail.gmail.com>
-	<Pine.LNX.4.64.0610041913050.3952@g5.osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 23:47:28 -0400
+In-Reply-To: <20061004124310.10c9939b.akpm@osdl.org>
+References: <20061004183752.GG28596@parisc-linux.org> <20061004120242.319a47e4.akpm@osdl.org> <20061004192537.GH28596@parisc-linux.org> <20061004124310.10c9939b.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <945E314B-86E1-4DDE-9F8F-347A11C78393@mac.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Must check what?
+Date: Wed, 4 Oct 2006 23:47:17 -0400
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 19:14:11 -0700 (PDT) Linus Torvalds wrote:
+On Oct 04, 2006, at 15:43:10, Andrew Morton wrote:
+> (Or we do
+>
+> 	return assert_zero_or_errno(ret);
+>
+> which is a bit ug, but gets us there)
 
-> 
-> 
-> On Thu, 5 Oct 2006, Mark Assad wrote:
-> >
-> > From: Mark Assad <massad@gmail.com>
-> 
-> This email is totally whitespace-mangled.. I'm not a gmail user myself, 
-> but there's _bound_ to be some way to not turn tabs into spaces and get 
-> word-wrap etc.
+I'm personally a big fan of:
 
-Sure, if you use SMTP to gmail instead of the web interface.
-The web interface isn't decent for sending patches.
+   typedef int kerr_t;
+   # define kreterr_t kerr_t __must_check
 
----
-~Randy
+Then:
+
+   kreterr_t some_device_function(void *data)
+   {
+   	kerr_t result;
+   	if (!data)
+   		return -EINVAL;
+   	result = other_device_function(data + sizeof(struct foo));
+   	[...]
+   	return result;
+   }
+
+You could even tag __bitwise on kerr_t except that wouldn't work  
+nicely with returning a negative error code.  Is there any way to  
+tell sparse that:
+
+   -ESOMECODE => -((__force kerr_t)3)
+
+is ok when kerr_t is a bitwise type, without allowing any other math  
+operations?
+
+Alternatively you could:
+
+   #ifdef __KERNEL__
+   # define KENOENT ((__force kerr_t) -ENOENT)
+   # define KENOMEM ((__force kerr_t) -ENOMEM)
+   [...]
+   #endif
+
+But that's a _lot_ of code churn for fairly minimal gain.  It might  
+be easier just to patch sparse to add an errcode type attribute with  
+the desired behavior.  There also might be some way to do it with  
+enums but I'm not familiar enough with the exact GCC behavior to  
+comment.
+
+Cheers,
+Kyle Moffett

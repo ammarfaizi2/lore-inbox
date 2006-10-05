@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWJEVpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWJEVp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWJEVpL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWJEVl6
+	id S932292AbWJEVp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWJEVpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:41:58 -0400
-Received: from smtp010.mail.ukl.yahoo.com ([217.12.11.79]:25782 "HELO
-	smtp010.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932248AbWJEVln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:41:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=bVcD/kk7t3Z/hDowwCPLRt5LWPHrMyAxwrWFdTGDVUzZqHpkhRcIm5oZfWVrCT3wKWr0Urw8O6zMO/KB9qQretaUvsAXXUHp3knwtO09djW5G0amNNWVZxpYFqieLhIL8txpObVIhVq8whYLdAwGmmSe6M0a1LVfPUZ9mmpvf5k=  ;
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 03/14] uml: correct removal of pte_mkexec
-Date: Thu, 05 Oct 2006 23:38:43 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061005213843.17268.83159.stgit@memento.home.lan>
-In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
-References: <20061005213212.17268.7409.stgit@memento.home.lan>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Thu, 5 Oct 2006 17:45:14 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:3720 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932292AbWJEVpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:45:11 -0400
+Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dominique Dumont <domi.dumont@free.fr>,
+       Francesco Peeters <Francesco@FamPeeters.com>,
+       alsa-user <alsa-user@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160085133.1607.29.camel@localhost.localdomain>
+References: <877izsp3dm.fsf@gandalf.hd.free.fr>
+	 <13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
+	 <87y7rusddc.fsf@gandalf.hd.free.fr>  <1160081110.2481.104.camel@mindpipe>
+	 <1160085133.1607.29.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 17:45:36 -0400
+Message-Id: <1160084737.2481.112.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Thu, 2006-10-05 at 22:52 +0100, Alan Cox wrote:
+> Ar Iau, 2006-10-05 am 16:45 -0400, ysgrifennodd Lee Revell:
+> > I've heard that some motherboards do evil stuff like implementing legacy drive
+> > access modes using SMM which would cause dropouts without xruns
+> > reported.
+> 
+> They don't. SATA causes audio dropouts on some systems because its fast
+> enough to starve the audio device of regular enough access to the PCI
+> bus. If that is a problem the audio device should be tuning PCI
+> latencies
+> 
 
-Correct commit 5906e4171ad61ce68de95e51b773146707671f80 - this makes more sense:
-we turn pte_mkexec + pte_wrprotect to pte_mkread. However, due to a bug in
-pte_mkread, it does the exact same thing as pte_mkwrite, so this patch improves
-the code but does not change anything in practice. The pte_mkread bug is fixed
-separately, as it may have big impact.
+OK.  In fact the Windows driver and IIRC the OSS driver do tune PCI
+latencies.  But that can't be the problem here if analog playback is
+unaffected.  Sounds like electrical noise could be the issue...
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+Lee
 
- arch/um/kernel/skas/mmu.c |    5 +----
- 1 files changed, 1 insertions(+), 4 deletions(-)
-
-diff --git a/arch/um/kernel/skas/mmu.c b/arch/um/kernel/skas/mmu.c
-index c17eddc..2c6d090 100644
---- a/arch/um/kernel/skas/mmu.c
-+++ b/arch/um/kernel/skas/mmu.c
-@@ -60,10 +60,7 @@ #ifdef CONFIG_3_LEVEL_PGTABLES
- #endif
- 
- 	*pte = mk_pte(virt_to_page(kernel), __pgprot(_PAGE_PRESENT));
--	/* This is wrong for the code page, but it doesn't matter since the
--	 * stub is mapped by hand with the correct permissions.
--	 */
--	*pte = pte_mkwrite(*pte);
-+	*pte = pte_mkread(*pte);
- 	return(0);
- 
-  out_pmd:
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

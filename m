@@ -1,43 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWJENrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWJENyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWJENrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 09:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWJENrw
+	id S1750967AbWJENyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 09:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWJENyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 09:47:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:63867 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750924AbWJENrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 09:47:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=XI/zgaI1B+CXNIvn1liIdYsTtwhMhITHqlfP1jZ27fYSrFh3IfsqlP7XYbIuiBuPym4mVwrvtM/IgBbfdZ2lVN6LWH9ruHJPnG5tQIOFxL/1YVINSv2+PrBiJNFuP6q2YTmcHu8d/IlxRn83d0wtXgU8K/VI8baC5oq+lQaDODM=
-Date: Thu, 5 Oct 2006 17:47:34 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dennis Heuer <dh@triple-media.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sunifdef instead of unifdef
-Message-ID: <20061005134734.GA5335@martell.zuzino.mipt.ru>
-References: <20061005150816.76ca18c2.dh@triple-media.com>
+	Thu, 5 Oct 2006 09:54:22 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:38062 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1750913AbWJENyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 09:54:21 -0400
+Subject: [PATCH] ioremap balanced with iounmap for arch/i386
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 19:27:41 +0530
+Message-Id: <1160056661.19143.68.camel@amol.verismonetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005150816.76ca18c2.dh@triple-media.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 03:08:16PM +0200, Dennis Heuer wrote:
-> unifdef is not only very old and unmaintained, the binary does not work
-> and the source does not compile on a pure x86_64 system. There is
-> another tool that worked for me--though it 'closed with remarks'--and
-> that was updated recently (several times this year). It is called
-> sunifdef, is under an equal (new) BSD license, and is proposed to be
-> the successor of unifdef. See the project page:
->
-> http://www.sunifdef.strudl.org/
+ioremap must be balanced by an iounmap and failing to do so can result
+in a memory leak.
 
-What about posting compiler errors instead of suggesting something that
-is 10 times bigger?
+Tested (compilation only):
+- using allmodconfig
+- making sure the files are compiling without any warning/error due to
+new changes
+
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+ cpu/cpufreq/sc520_freq.c |    7 ++++++-
+ hpet.c                   |    7 ++++++-
+ pci-dma.c                |    4 +++-
+ time_hpet.c              |   15 ++++++++++++---
+ 4 files changed, 27 insertions(+), 6 deletions(-)
+---
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/arch/i386/kernel/cpu/cpufreq/sc520_freq.c linux-2.6.19-rc1/arch/i386/kernel/cpu/cpufreq/sc520_freq.c
+--- linux-2.6.19-rc1-orig/arch/i386/kernel/cpu/cpufreq/sc520_freq.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc1/arch/i386/kernel/cpu/cpufreq/sc520_freq.c	2006-10-05 18:25:00.000000000 +0530
+@@ -153,6 +153,7 @@ static struct cpufreq_driver sc520_freq_
+ static int __init sc520_freq_init(void)
+ {
+ 	struct cpuinfo_x86 *c = cpu_data;
++	int err;
+ 
+ 	/* Test if we have the right hardware */
+ 	if(c->x86_vendor != X86_VENDOR_AMD ||
+@@ -166,7 +167,11 @@ static int __init sc520_freq_init(void)
+ 		return -ENOMEM;
+ 	}
+ 
+-	return cpufreq_register_driver(&sc520_freq_driver);
++	err = cpufreq_register_driver(&sc520_freq_driver);
++	if (err)
++		iounmap(cpuctl);
++
++	return err;
+ }
+ 
+ 
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/arch/i386/kernel/hpet.c linux-2.6.19-rc1/arch/i386/kernel/hpet.c
+--- linux-2.6.19-rc1-orig/arch/i386/kernel/hpet.c	2006-09-21 10:15:25.000000000 +0530
++++ linux-2.6.19-rc1/arch/i386/kernel/hpet.c	2006-10-05 18:32:34.000000000 +0530
+@@ -34,6 +34,7 @@ static int __init init_hpet_clocksource(
+ 	unsigned long hpet_period;
+ 	void __iomem* hpet_base;
+ 	u64 tmp;
++	int err;
+ 
+ 	if (!is_hpet_enabled())
+ 		return -ENODEV;
+@@ -61,7 +62,11 @@ static int __init init_hpet_clocksource(
+ 	do_div(tmp, FSEC_PER_NSEC);
+ 	clocksource_hpet.mult = (u32)tmp;
+ 
+-	return clocksource_register(&clocksource_hpet);
++	err = clocksource_register(&clocksource_hpet);
++	if (err)
++		iounmap(hpet_base);
++
++	return err;
+ }
+ 
+ module_init(init_hpet_clocksource);
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/arch/i386/kernel/pci-dma.c linux-2.6.19-rc1/arch/i386/kernel/pci-dma.c
+--- linux-2.6.19-rc1-orig/arch/i386/kernel/pci-dma.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc1/arch/i386/kernel/pci-dma.c	2006-10-05 18:36:39.000000000 +0530
+@@ -75,7 +75,7 @@ EXPORT_SYMBOL(dma_free_coherent);
+ int dma_declare_coherent_memory(struct device *dev, dma_addr_t bus_addr,
+ 				dma_addr_t device_addr, size_t size, int flags)
+ {
+-	void __iomem *mem_base;
++	void __iomem *mem_base = NULL;
+ 	int pages = size >> PAGE_SHIFT;
+ 	int bitmap_size = (pages + 31)/32;
+ 
+@@ -114,6 +114,8 @@ int dma_declare_coherent_memory(struct d
+  free1_out:
+ 	kfree(dev->dma_mem->bitmap);
+  out:
++	if (mem_base)
++		iounmap(mem_base);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(dma_declare_coherent_memory);
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/arch/i386/kernel/time_hpet.c linux-2.6.19-rc1/arch/i386/kernel/time_hpet.c
+--- linux-2.6.19-rc1-orig/arch/i386/kernel/time_hpet.c	2006-10-05 14:00:38.000000000 +0530
++++ linux-2.6.19-rc1/arch/i386/kernel/time_hpet.c	2006-10-05 18:30:07.000000000 +0530
+@@ -132,14 +132,20 @@ int __init hpet_enable(void)
+ 	 * the single HPET timer for system time.
+ 	 */
+ #ifdef CONFIG_HPET_EMULATE_RTC
+-	if (!(id & HPET_ID_NUMBER))
++	if (!(id & HPET_ID_NUMBER)) {
++		iounmap(hpet_virt_address);
++		hpet_virt_address = NULL;
+ 		return -1;
++	}
+ #endif
+ 
+ 
+ 	hpet_period = hpet_readl(HPET_PERIOD);
+-	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
++	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD)) {
++		iounmap(hpet_virt_address);
++		hpet_virt_address = NULL;
+ 		return -1;
++	}
+ 
+ 	/*
+ 	 * 64 bit math
+@@ -156,8 +162,11 @@ int __init hpet_enable(void)
+ 
+ 	hpet_use_timer = id & HPET_ID_LEGSUP;
+ 
+-	if (hpet_timer_stop_set_go(hpet_tick))
++	if (hpet_timer_stop_set_go(hpet_tick)) {
++		iounmap(hpet_virt_address);
++		hpet_virt_address = NULL;
+ 		return -1;
++	}
+ 
+ 	use_hpet = 1;
+ 
+
 

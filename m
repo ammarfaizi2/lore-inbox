@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWJESee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWJEShs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWJESee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWJESee
+	id S1750769AbWJEShs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWJEShs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:34:34 -0400
-Received: from mail.gmx.de ([213.165.64.20]:43432 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750748AbWJESed (ORCPT
+	Thu, 5 Oct 2006 14:37:48 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:4624 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750769AbWJEShs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:34:33 -0400
-X-Authenticated: #31060655
-Message-ID: <45255059.3040908@gmx.net>
-Date: Thu, 05 Oct 2006 20:35:05 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 SUSE/1.0.5-1.1 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: Alex Owen <r.alex.owen@gmail.com>, linux-kernel@vger.kernel.org,
-       aabdulla@nvidia.com, "H. Peter Anvin" <hpa@zytor.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: forcedeth net driver: reverse mac address after pxe boot
-References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com> <20061005144442.GB18408@tuxdriver.com>
-In-Reply-To: <20061005144442.GB18408@tuxdriver.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 5 Oct 2006 14:37:48 -0400
+Date: Thu, 5 Oct 2006 14:36:51 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: andersen@codepoet.org, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061005183645.GD18408@tuxdriver.com>
+References: <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org> <1159948179.2817.26.camel@ux156> <20061005163513.GC6510@bougret.hpl.hp.com> <4525364D.1000409@garzik.org> <20061005174241.GA23632@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061005174241.GA23632@codepoet.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> On Wed, Oct 04, 2006 at 05:19:20PM +0100, Alex Owen wrote:
+On Thu, Oct 05, 2006 at 11:42:41AM -0600, Erik Andersen wrote:
+> On Thu Oct 05, 2006 at 12:43:57PM -0400, Jeff Garzik wrote:
+> > Wireless Extensions has reached end-of-life, and so we only need to
+> > support what's out there in wide distribution.
 > 
->> The obvious fix for this is to try and read the MAC address from the
->> canonical location... ie where is the source of the address writen
->> into the controlers registers at power on? But do we know where that
->> may be?
-> 
-> This seems like The Right Thing (TM) to me, but we need someone from
-> NVidia(?) to provide that information.  Ayaz?
+> Hmm, so what is going to replace it?  I was messing about with my
+> old powerbook G4 titanium, trying to make wpa_supplicant work
+> when I realized the airport/orinoco driver used for my powerbook
+> can't handle WPA since that apparently requires at least WE-18.
+> I started looking into what it would take to teach the orinoco
+> driver about WE>=18.  But I suppose there is no point in my
+> looking further if WE is heading to the great bit-bucket in the
+> sky.
 
-The canonical location of the "original" MAC address is where we write
-back the reversed MAC address. So that won't work.
+Driver fixes to support later WE versions are still welcome.
+Information on supporting WPA for that driver will still be needed
+for cfg80211.
 
->> The other solution would be unconditionally reset the controler to
->> it's power on state then use the current logic? can we reset the
->> controller via software?
-> 
-> This seems like a plausible alternative.
+Thanks,
 
-AFAIK there is no way to do that (except powering off the machine).
-
-> The MAC address validation schemes suggested by others would probably
-> "work", but they would be a bit fragile.  For example, every new vendor
-> of forcedeth hardware would have a new OUI to be added to the list.
-
-Nooooo! That would be a nightmare. Especially because some BIOSes
-allow users to set the MAC address. All those setups would be broken
-instantly by that solution. (Yes, you can probably be clever, but
-then you don't have a chance to fix this generically.)
-
-
-Regards,
-Carl-Daniel
+John
 -- 
-http://www.hailfinger.org/
+John W. Linville
+linville@tuxdriver.com

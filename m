@@ -1,110 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWJEPkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWJEPmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWJEPkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWJEPkK
+	id S932148AbWJEPmR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWJEPmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:40:10 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:56586 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932136AbWJEPkG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:40:06 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-Subject: [PATCH 2.6.19-rc1 2/2] ehea: fix port state notification, default queue sizes
-Date: Thu, 5 Oct 2006 16:53:14 +0200
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
+	Thu, 5 Oct 2006 11:42:17 -0400
+Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:8070 "EHLO
+	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
+	id S932140AbWJEPmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:42:15 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AQAAABnFJEWMDg0
+X-IronPort-AV: i="4.09,266,1157320800"; 
+   d="scan'208"; a="3886489:sNHT43297232"
+Date: Thu, 5 Oct 2006 17:41:52 +0200
+From: Joerg Roedel <joro-lkml@zlug.org>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][RFC] net/ipv6: seperate sit driver to extra module
+Message-ID: <20061005154152.GA2102@zlug.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
 Content-Disposition: inline
-To: Jeff Garzik <jeff@garzik.org>
-Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610051653.15186.ossthema@de.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch includes a bug fix for the port state notification
-and fixes the default queue sizes.
 
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
----
- drivers/net/ehea/ehea.h      |   13 +++++++------
- drivers/net/ehea/ehea_main.c |    6 +++---
- 2 files changed, 10 insertions(+), 9 deletions(-)
+Is there a reason why the tunnel driver for IPv6-in-IPv4 is currently
+compiled into the ipv6 module? This driver is only needed in gateways
+between different IPv6 networks. On all other hosts with ipv6 enabled it
+is not required. To have this driver in a seperate module will save
+memory on those machines.
+I appended a small and trival patch to 2.6.18 which does exactly this.
 
-diff --git a/drivers/net/ehea/ehea.h b/drivers/net/ehea/ehea.h
-index 23b451a..b40724f 100644
---- a/drivers/net/ehea/ehea.h
-+++ b/drivers/net/ehea/ehea.h
-@@ -39,7 +39,7 @@ #include <asm/abs_addr.h>
- #include <asm/io.h>
+Joerg
+
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_sit_as_module
+
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/af_inet6.c linux-2.6.18/net/ipv6/af_inet6.c
+--- linux-2.6.18-vanilla/net/ipv6/af_inet6.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/af_inet6.c	2006-10-05 16:55:02.000000000 +0200
+@@ -849,7 +849,6 @@ static int __init inet6_init(void)
+ 	err = addrconf_init();
+ 	if (err)
+ 		goto addrconf_fail;
+-	sit_init();
  
- #define DRV_NAME	"ehea"
--#define DRV_VERSION	"EHEA_0028"
-+#define DRV_VERSION	"EHEA_0034"
- 
- #define EHEA_MSG_DEFAULT (NETIF_MSG_LINK | NETIF_MSG_TIMER \
- 	| NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR)
-@@ -50,6 +50,7 @@ #define EHEA_MAX_ENTRIES_RQ3 16383
- #define EHEA_MAX_ENTRIES_SQ  32767
- #define EHEA_MIN_ENTRIES_QP  127
- 
-+#define EHEA_SMALL_QUEUES
- #define EHEA_NUM_TX_QP 1
- 
- #ifdef EHEA_SMALL_QUEUES
-@@ -59,11 +60,11 @@ #define EHEA_DEF_ENTRIES_RQ1    4095
- #define EHEA_DEF_ENTRIES_RQ2    1023
- #define EHEA_DEF_ENTRIES_RQ3    1023
- #else
--#define EHEA_MAX_CQE_COUNT     32000
--#define EHEA_DEF_ENTRIES_SQ    16000
--#define EHEA_DEF_ENTRIES_RQ1   32080
--#define EHEA_DEF_ENTRIES_RQ2    4020
--#define EHEA_DEF_ENTRIES_RQ3    4020
-+#define EHEA_MAX_CQE_COUNT      4080
-+#define EHEA_DEF_ENTRIES_SQ     4080
-+#define EHEA_DEF_ENTRIES_RQ1    8160
-+#define EHEA_DEF_ENTRIES_RQ2    2040
-+#define EHEA_DEF_ENTRIES_RQ3    2040
+ 	/* Init v6 extension headers. */
+ 	ipv6_rthdr_init();
+@@ -920,7 +919,6 @@ static void __exit inet6_exit(void)
+  	raw6_proc_exit();
  #endif
+ 	/* Cleanup code parts. */
+-	sit_cleanup();
+ 	ip6_flowlabel_cleanup();
+ 	addrconf_cleanup();
+ 	ip6_route_cleanup();
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Kconfig linux-2.6.18/net/ipv6/Kconfig
+--- linux-2.6.18-vanilla/net/ipv6/Kconfig	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/Kconfig	2006-10-05 17:07:11.000000000 +0200
+@@ -126,6 +126,19 @@ config INET6_XFRM_MODE_TUNNEL
  
- #define EHEA_MAX_ENTRIES_EQ 20
-diff --git a/drivers/net/ehea/ehea_main.c b/drivers/net/ehea/ehea_main.c
-index 263d1c5..0edb2f8 100644
---- a/drivers/net/ehea/ehea_main.c
-+++ b/drivers/net/ehea/ehea_main.c
-@@ -769,7 +769,7 @@ static void ehea_parse_eqe(struct ehea_a
- 		if (EHEA_BMASK_GET(NEQE_PORT_UP, eqe)) {
- 			if (!netif_carrier_ok(port->netdev)) {
- 				ret = ehea_sense_port_attr(
--					adapter->port[portnum]);
-+					port);
- 				if (ret) {
- 					ehea_error("failed resensing port "
- 						   "attributes");
-@@ -821,7 +821,7 @@ static void ehea_parse_eqe(struct ehea_a
- 		netif_stop_queue(port->netdev);
- 		break;
- 	default:
--		ehea_error("unknown event code %x", ec);
-+		ehea_error("unknown event code %x, eqe=0x%lX", ec, eqe);
- 		break;
- 	}
+ 	  If unsure, say Y.
+ 
++config IPV6_SIT
++	tristate "IPv6: IPv6-in-IPv4 tunnel (SIT driver)"
++	depends on IPV6
++	default n
++	---help---
++	  Tunneling means encapsulating data of one protocol type within
++	  another protocol and sending it over a channel that understands the
++	  encapsulating protocol. This driver implements encapsulation of IPv6
++	  into IPv4 packets. This is usefull if you want to connect two IPv6
++	  networks over an IPv4-only path.
++
++	  Saying M here will produce a module called sit.ko. If unsure, say N.
++
+ config IPV6_TUNNEL
+ 	tristate "IPv6: IPv6-in-IPv6 tunnel"
+ 	select INET6_TUNNEL
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Makefile linux-2.6.18/net/ipv6/Makefile
+--- linux-2.6.18-vanilla/net/ipv6/Makefile	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/Makefile	2006-10-05 17:10:42.000000000 +0200
+@@ -4,7 +4,7 @@
+ 
+ obj-$(CONFIG_IPV6) += ipv6.o
+ 
+-ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o sit.o \
++ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o \
+ 		route.o ip6_fib.o ipv6_sockglue.o ndisc.o udp.o raw.o \
+ 		protocol.o icmp.o mcast.o reassembly.o tcp_ipv6.o \
+ 		exthdrs.o sysctl_net_ipv6.o datagram.o proc.o \
+@@ -24,6 +24,7 @@ obj-$(CONFIG_INET6_XFRM_MODE_TRANSPORT) 
+ obj-$(CONFIG_INET6_XFRM_MODE_TUNNEL) += xfrm6_mode_tunnel.o
+ obj-$(CONFIG_NETFILTER)	+= netfilter/
+ 
++obj-$(CONFIG_IPV6_SIT) += sit.o
+ obj-$(CONFIG_IPV6_TUNNEL) += ip6_tunnel.o
+ 
+ obj-y += exthdrs_core.o
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/sit.c linux-2.6.18/net/ipv6/sit.c
+--- linux-2.6.18-vanilla/net/ipv6/sit.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/sit.c	2006-10-05 16:55:02.000000000 +0200
+@@ -850,3 +850,6 @@ int __init sit_init(void)
+ 	inet_del_protocol(&sit_protocol, IPPROTO_IPV6);
+ 	goto out;
  }
-@@ -1845,7 +1845,7 @@ static int ehea_start_xmit(struct sk_buf
- 
- 	if (netif_msg_tx_queued(port)) {
- 		ehea_info("post swqe on QP %d", pr->qp->init_attr.qp_nr);
--		ehea_dump(swqe, sizeof(*swqe), "swqe");
-+		ehea_dump(swqe, 512, "swqe");
- 	}
- 
- 	ehea_post_swqe(pr->qp, swqe);
++
++module_init(sit_init);
++module_exit(sit_cleanup);
 
+--UugvWAfsgieZRqgk--

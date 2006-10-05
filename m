@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWJEU1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWJEU1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWJEU1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWJEU1M
+	id S1751276AbWJEU1z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWJEU1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:27:12 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:20912 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751266AbWJEU1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:27:10 -0400
-Date: Thu, 5 Oct 2006 16:26:39 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-cc: Daniel Walker <dwalker@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
-In-Reply-To: <20061005201820.GA1865@Krystal>
-Message-ID: <Pine.LNX.4.58.0610051623520.432@gandalf.stny.rr.com>
-References: <1160025104.6504.30.camel@localhost.localdomain>
- <20061005143133.GA400@Krystal> <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
- <20061005170132.GA11149@Krystal> <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
- <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
- <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
- <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
- <20061005201820.GA1865@Krystal>
+	Thu, 5 Oct 2006 16:27:55 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:20615 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751276AbWJEU1y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 16:27:54 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc1: known regressions
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	<20061005042816.GD16812@stusta.de>
+	<1160023503.22232.10.camel@localhost.localdomain>
+X-Yow: Today, THREE WINOS from DETROIT sold me a framed photo of
+ TAB HUNTER before his MAKEOVER!
+Date: Thu, 05 Oct 2006 22:27:51 +0200
+In-Reply-To: <1160023503.22232.10.camel@localhost.localdomain> (Benjamin
+	Herrenschmidt's message of "Thu, 05 Oct 2006 14:45:03 +1000")
+Message-ID: <jevemyv77c.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-On Thu, 5 Oct 2006, Mathieu Desnoyers wrote:
-
+> On Thu, 2006-10-05 at 06:28 +0200, Adrian Bunk wrote:
+>> Contrary to popular belief, there are people who test -rc kernels
+>> and report bugs.
+>> 
+>> And there are even people who test -git kernels.
+>> 
+>> This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18.
+>> 
+>> If you find your name in the Cc header, you are either submitter of one
+>> of the bugs, maintainer of an affectected subsystem or driver, a patch
+>> of you was declared guilty for a breakage or I'm considering you in any
+>> other way possibly involved with one or more of these issues.
+>> 
+>> Due to the huge amount of recipients, please trim the Cc when answering.
 >
-> Just as a detail : LTTng traces NMI, which can happen on top of a
-> xtime_lock. So yes, I have to consider the impact of this kind of lock when I
-> choose my time source, which is currently a per architecture TSC read,
-> or a read of the jiffies counter when the architecture does not have a
-> synchronised TSC over the CPUs. This is abstracted in include/asm-*/ltt.h.
->
+> Add sleep/wakeup on powerbooks apparently busted. Haven't tracked down
+> yet.
 
-I'm curious.  How do you show the interactions between two CPUs when the
-TSC isn't in sync?  Using jiffies is not fast enough to know the order of
-events that happen within usecs.
+Does not even boot for me (iBook G4).
 
--- Steve
+Andreas.
 
-
-> I know it doesn't support dynamic ticks, I'm working on using the HRtimers
-> instead, but I must make sure that the seqlock read will fail if it nests over
-> a write seqlock.
->
-> MAthieu
->
-> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
->
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

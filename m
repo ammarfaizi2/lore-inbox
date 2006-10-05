@@ -1,68 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWJEN7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWJEOB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWJEN7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 09:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJEN7q
+	id S1751116AbWJEOB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJEOB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 09:59:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:41391 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751096AbWJEN7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 09:59:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=qH+PSjwULuPKufTaFI6GWImc0MHqEeoh1dpd0g2zEYEreK4bmgdi8DIgXx+PNN+o0FktDyRSkuT1n8ceGoEGr96otDuEiqcOXB6cW0N5mf/LnKQENswZNkCWNd1DEe+4mR6bGpFd1CNTeFIq4lRoaCnHkoAELzV4OkJz3Movldc=
-Date: Thu, 5 Oct 2006 17:59:24 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Matthew Wilcox <matthew@wil.cx>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
-       gregkh@suse.de
-Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #3
-Message-ID: <20061005135924.GB5335@martell.zuzino.mipt.ru>
-References: <20061004193229.GA352@slug> <4524106C.8010807@garzik.org> <20061004202938.GF352@slug> <20061004203311.GI28596@parisc-linux.org> <20061004212633.GG352@slug>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 10:01:26 -0400
+Received: from berlioz.imada.sdu.dk ([130.225.128.12]:14001 "EHLO
+	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
+	id S1751116AbWJEOBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:01:25 -0400
+From: Hans Henrik Happe <hhh@imada.sdu.dk>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Thu, 5 Oct 2006 16:01:19 +0200
+User-Agent: KMail/1.9.1
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+References: <11587449471424@2ka.mipt.ru> <200610051156.25036.dada1@cosmosbay.com> <20061005102106.GE1015@2ka.mipt.ru>
+In-Reply-To: <20061005102106.GE1015@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061004212633.GG352@slug>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610051601.20701.hhh@imada.sdu.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 09:26:33PM +0000, Frederik Deweerdt wrote:
-> On Wed, Oct 04, 2006 at 02:33:11PM -0600, Matthew Wilcox wrote:
-> > On Wed, Oct 04, 2006 at 08:29:38PM +0000, Frederik Deweerdt wrote:
-> > > I see. Just to be sure that I got the matter right, does the issue boils
-> > > down to a choice between:
-> >
-> > woah, woah, woah, you're getting yourself confused here.
-> yep :), I clearly missed the point you made there:
-> http://lkml.org/lkml/2006/10/3/404
-> I've re-read it, hope I've got it right this time.
-> >
-> > You're looking at what the architectures do here.  We're not concerned
-> > with that, we're concerned with what the device drivers do with whatever
-> > value the architecture has stuck in pdev->irq.
-> Not sure I get it still though. Is the issue more than just the location
-> of the irq validation code? If yes, could you explain what are the
-> differences between your proposal and Jeff's ?
->
-> Anyway, let me have another try at summing up the issue:
->
-> #1
-> - generic irq validation code in include/linux/pci.h
-> - arch specific irq validation code in include/asm/pci.h
-> - is_irq_valid() called by pci_request_irq()
+On Thursday 05 October 2006 12:21, Evgeniy Polyakov wrote:
+> On Thu, Oct 05, 2006 at 11:56:24AM +0200, Eric Dumazet (dada1@cosmosbay.com) 
+wrote:
+> > On Thursday 05 October 2006 10:57, Evgeniy Polyakov wrote:
+> > 
+> > > Well, it is possible to create /sys/proc entry for that, and even now
+> > > userspace can grow mapping ring until it is forbiden by kernel, which
+> > > means limit is reached.
+> > 
+> > No need for yet another /sys/proc entry.
+> > 
+> > Right now, I (for example) may have a use for Generic event handling, but 
+for 
+> > a program that needs XXX.XXX handles, and about XX.XXX events per second.
+> > 
+> > Right now, this program uses epoll, and reaches no limit at all, once you 
+pass 
+> > the "ulimit -n", and other kernel wide tunes of course, not related to 
+epoll.
+> > 
+> > With your current kevent, I cannot switch to it, because of hardcoded 
+limits.
+> > 
+> > I may be wrong, but what is currently missing for me is :
+> > 
+> > - No hardcoded limit on the max number of events. (A process that can open 
+> > XXX.XXX files should be allowed to open a kevent queue with at least 
+XXX.XXX 
+> > events). Right now thats not clear what happens IF the current limit is 
+> > reached.
+> 
+> This forces to overflows in fixed sized memory mapped buffer.
+> If we remove memory mapped buffer or will allow to have overflows (and
+> thus skipped entries) keven can easily scale to that limits (tested with
+> xx.xxx events though).
+> 
+> > - In order to avoid touching the whole ring buffer, it might be good to be 
+> > able to reset the indexes to the beginning when ring buffer is empty. (So 
+if 
+> > the user land is responsive enough to consume events, only first pages of 
+the 
+> > mapping would be used : that saves L1/L2 cpu caches)
+> 
+> And what happens when there are 3 empty at the beginning and \we need to
+> put there 4 ready events?
 
-s/is_irq_valid/valid_irq/g methinks.
+Couldn't there be 3 areas in the mmap buffer:
 
-> BTW this is much like it's done for pci_resource_to_user()
->
-> #2
-> - generic irq validation code in include/linux/interrupt.h
-> - arch specific irq validation code in include/asm/interrupt.h
-> - include/linux/pci.h includes linux/interrupt.h
-> - is_irq_valid() called by pci_request_irq() - and maybe others? -
+- Unused: entries that the kernel can alloc from.
+- Alloced: entries alloced by kernel but not yet used by user. Kernel can 
+update these if new events requires that.
+- Consumed: entries that the user are processing.
 
+The user takes a set of alloced entries and make them consumed. Then it 
+processes the events after which it makes them unused. 
+
+If there are no unused entries and the kernel needs some, it has wait for free 
+entries. The user has to notify when unused entries becomes available. It 
+could set a flag in the mmap'ed area to avoid unnessesary wakeups.
+
+The are some details with indexing and wakeup notification that I have left 
+out, but I hope my idea is clear. I could give a more detailed description if 
+requested. Also, I'm a user-level programmer so I might not get the whole 
+picture.
+
+Hans Henrik Happe

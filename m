@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWJEHNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWJEHOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWJEHNc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 03:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWJEHNc
+	id S1751179AbWJEHOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 03:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWJEHOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 03:13:32 -0400
-Received: from ns1.suse.de ([195.135.220.2]:36994 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751166AbWJEHNb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 03:13:31 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 5 Oct 2006 17:13:26 +1000
-Message-Id: <1061005071326.6578@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] md: Fix bug where new drives added to an md array sometimes don't sync properly.
-References: <20061005171233.6542.patches@notabene>
+	Thu, 5 Oct 2006 03:14:54 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:12862 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751179AbWJEHOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 03:14:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
+        b=dRX+GNxeuW035+IzKB6NIIrej8XTL3QjtPupmnDNotukpOjQdHJiR5hOd9NE2hLfQd2UDM25QyxqWlW085YQklOy3w71e96FIvmHInIpQbhFFDC78WeNqd+1zUNxKL6ZMiDvuinUFpsAPItOZSFMaq4gT7q2v+tbMxpSmVcERdc=
+Message-ID: <4524B0E9.8010005@web.de>
+Date: Thu, 05 Oct 2006 09:14:49 +0200
+From: Markus Wenke <M.Wenke@web.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: to many sockets ?
+References: <4523CD4E.10806@web.de> <1159979587.25772.82.camel@localhost.localdomain>
+In-Reply-To: <1159979587.25772.82.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a nasty bug in md in 2.6.18 affecting at least raid1.
-This fixes it (and has already been sent to stable@kernel.org).
+Alan Cox schrieb:
+> Ar Mer, 2006-10-04 am 17:03 +0200, ysgrifennodd Markus Wenke:
+>   
+>> Hi,
+>>
+>> I wrote a program which handles incomming sockets asynchron.
+>> It can handle up to 140000 connections simultaneously while every 
+>> connection send some bytes in both directions continuously.
+>>     
+>
+> Armwavingly 64K x 2 per socket worst case for non tcp windowed buffering
+>
+> 128K per socket x 140000 connections
+>
+> 8750MB of RAM
+>
+> plus other overhead
+>
+> Assuming you kept the socket buffer limit to 64K by setting it or
+> disabling window scaling you'd want a about 10GB of RAM for the sockets,
+> buffering and resources. With tcp windows you'd need more.
+The default values of my system are:
+SO_SNDBUF = 16384
+SO_RCVBUF = 87380
 
-### Comments for Changeset
+> If your data rates are always low, or the link is low latency you could
+> set the send/receive socket buffer for each connection via setsockopt
+> down to say 8K and come out needing perhaps 1GB or so instead.
+>
+I tried the same scenario with SO_SNDBUF = SO_RCVBUF = 8k, so that the 
+max memory is ca. 2G
+and the oom-killer kills my application at the same time (at 140000 
+connections).
 
-This fixes a bug introduced in 2.6.18. 
+I can not see in the messages that the system is out of memory,
+there is also no swap space used
 
-If a drive is added to a raid1 using older tools (mdadm-1.x or
-raidtools) then it will be included in the array without any resync
-happening.
+You can download my /var/log/messages at 
+http://hemaho.mine.nu/~biber/messages
 
-It has been submitted for 2.6.18.1.
+May you can give me a hint which line/value in the log shows me,
+that the system is out of memory?
 
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Thanks in advance
 
-### Diffstat output
- ./drivers/md/md.c |    1 +
- 1 file changed, 1 insertion(+)
+Markus Wenke
 
-diff .prev/drivers/md/md.c ./drivers/md/md.c
---- .prev/drivers/md/md.c	2006-09-29 11:51:39.000000000 +1000
-+++ ./drivers/md/md.c	2006-10-05 16:40:51.000000000 +1000
-@@ -3849,6 +3849,7 @@ static int hot_add_disk(mddev_t * mddev,
- 	}
- 	clear_bit(In_sync, &rdev->flags);
- 	rdev->desc_nr = -1;
-+	rdev->saved_raid_disk = -1;
- 	err = bind_rdev_to_array(rdev, mddev);
- 	if (err)
- 		goto abort_export;

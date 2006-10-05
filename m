@@ -1,97 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWJEPmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWJEPou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWJEPmj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWJEPmj
+	id S1751324AbWJEPou (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWJEPou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:42:39 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:12930 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932144AbWJEPmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:42:38 -0400
-Date: Thu, 05 Oct 2006 11:41:49 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Merge window closed: v2.6.19-rc1
-In-reply-to: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-To: linux-kernel@vger.kernel.org
-Message-id: <200610051141.50018.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-User-Agent: KMail/1.7
+	Thu, 5 Oct 2006 11:44:50 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:41385 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751213AbWJEPot
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:44:49 -0400
+Message-ID: <45252853.3050909@zytor.com>
+Date: Thu, 05 Oct 2006 08:44:19 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Andrew Morton <akpm@osdl.org>, vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>	<20061003172511.GL3164@in.ibm.com>	<20061003201340.afa7bfce.akpm@osdl.org>	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>	<20061004214403.e7d9f23b.akpm@osdl.org>	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>	<20061004233137.97451b73.akpm@osdl.org> <m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 October 2006 23:29, Linus Torvalds wrote:
->Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1
-> release.
->
->As usual for -rc1 with a lot of pending merges, it's a huge thing with
->tons of changes, and in fact since 2.6.18 took longer than normal due to
->me traveling (and others probably also being on vacations), it's possibly
->even larger than usual.
->
->I think we got updates to pretty much all of the active architectures,
->we've got VM changes (dirty shared page tracking, for example), we've got
->networking, drivers, you name it. Even the shortlog and the diffstats are
->too big to make the kernel mailing list, but even just the summary says
->something:
->
-> 4998 total commits
-> 6535 files changed, 414890 insertions(+), 233881 deletions(-)
->
->so please give it a good testing, and let's see if there are any
->regressions.
->
->As usual, the best way to get some grip on a particular subsystem would
->tend to be with some script like
->
-> git log --no-merges v2.6.18.. drivers/usb | git shortlog | less -S
->
->which gives a more manageable overview of any particular area you're
->interested in (in the example that would be 'drivers/usb', but you can
->use this to browse any interesting area).
->
->   Linus
+Eric W. Biederman wrote:
+> In the lazy programmer school of fixes.
+> 
+> I haven't really tested this in any configuration.
+> But reading video.S it does use variable in the bootsector.
+> It does seem to initialize the variables before use.
+> But obviously something is missed.
+> 
+> By zeroing the uninteresting parts of the bootsector just after we
+> have determined we are loaded ok.  We should ensure we are
+> always in a known state the entire time. 
+> 
+> Andrew if I am right about the cause of your video not working
+> when you set an enhanced video mode this should fix your boot
+> problem.
+> 
 
-I had to rebuild it 2 extra times to get all the options right, partially 
-my fault.  But once my usual .config was achieved, it back to business as 
-usual, complete with my logs being littered with this message:
+I just noticed we're using string instructions in setup.S, without 
+forcing DF = 0 anywhere.  There should be a "cld" near the top.
 
-Oct  5 11:14:40 coyote kernel: usb 3-2.1: reset low speed USB device using 
-ohci_hcd and address 3
-
-This is my only (so far) minor nit to pick.
-
-[root@coyote linux-2.6.19-rc1]# lsusb
-[...]
-Bus 003 Device 003: ID 045e:008c Microsoft Corp.
-[...]
-
-Now, I'd assume its referring to my mouse, the Microsoft Corp entry above, 
-which has had a fresh set of batteries installed without effecting this, 
-and I even removed the batteries from another usb/bluetooth mouse I use on 
-my lappy when its powered up, all without effecting this apparently 
-innocuous error as the mouse itself works just fine.  The receiver is 
-about 3 feet away as the tower is at least 5 feet away, under an adjacent 
-desk.
-
-This started at about the same time I jumped from a 2.6.16-something to the 
-2nd rc of 2.6.18, and has continued more or less un-abated since.  Doing a 
-reset/reconfigure on the mouse and base station does not appear to 
-generate any log messages, nor to effect the random logging of the above 
-messages.
-
-Does anyone have a suggestion?
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+	-hpa

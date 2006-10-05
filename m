@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWJEXij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWJEXkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbWJEXij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWJEXij
+	id S1751469AbWJEXkw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWJEXkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:38:39 -0400
-Received: from mx2.suse.de ([195.135.220.15]:28578 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751468AbWJEXii (ORCPT
+	Thu, 5 Oct 2006 19:40:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30412 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751469AbWJEXkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:38:38 -0400
-From: Andi Kleen <ak@suse.de>
-To: kmannth@us.ibm.com
-Subject: Re: 2.6.18-mm2 boot failure on x86-64 II
-Date: Fri, 6 Oct 2006 01:35:56 +0200
-User-Agent: KMail/1.9.3
-Cc: mel gorman <mel@csn.ul.ie>, Vivek goyal <vgoyal@in.ibm.com>,
-       Steve Fox <drfickle@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200610060114.03466.ak@suse.de> <1160091179.5664.17.camel@keithlap>
-In-Reply-To: <1160091179.5664.17.camel@keithlap>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Thu, 5 Oct 2006 19:40:51 -0400
+Date: Thu, 5 Oct 2006 16:40:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH -fix] swsusp: Make userland suspend work on SMP again
+Message-Id: <20061005164036.06237b30.akpm@osdl.org>
+In-Reply-To: <200610042226.43833.rjw@sisk.pl>
+References: <200610042226.43833.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060135.56134.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 4 Oct 2006 22:26:42 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> As of yet I haven't been able to recreate the hang.  I am running
-> similar HW to Steve. 
+> Unfortunately one of the recent changes in swsusp has broken the userland
+> suspend on SMP.  Fix it.
+> 
 
-That was on a 4 core Opteron with Tyan board  (S2881) and AMD-8111 
-chipset.
+Which patch does this fix?
 
--Andi
+> ---
+> ---
+>  kernel/power/user.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6.18-mm3/kernel/power/user.c
+
+I'll assume from this that your patch is applicable to -mm and that mainline
+doesn't have this bug.
+
+I'll further assume that it's swsusp-add-ioctl-for-swap-files-support.patch
+which added the bug.
+
+> ===================================================================
+> --- linux-2.6.18-mm3.orig/kernel/power/user.c
+> +++ linux-2.6.18-mm3/kernel/power/user.c
+> @@ -149,10 +149,10 @@ static int snapshot_ioctl(struct inode *
+>  			error = freeze_processes();
+>  			if (error) {
+>  				thaw_processes();
+> +				enable_nonboot_cpus();
+>  				error = -EBUSY;
+>  			}
+>  		}
+> -		enable_nonboot_cpus();
+>  		up(&pm_sem);
+>  		if (!error)
+>  			data->frozen = 1;

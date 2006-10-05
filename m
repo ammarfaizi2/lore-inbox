@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWJERoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbWJERpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751745AbWJERoF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWJERoF
+	id S1751751AbWJERpV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWJERpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:44:05 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:37356 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751745AbWJERoD (ORCPT
+	Thu, 5 Oct 2006 13:45:21 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42988 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751751AbWJERpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:44:03 -0400
-Message-ID: <4525445C.6060901@garzik.org>
-Date: Thu, 05 Oct 2006 13:43:56 -0400
+	Thu, 5 Oct 2006 13:45:18 -0400
+Message-ID: <452544AC.7050906@garzik.org>
+Date: Thu, 05 Oct 2006 13:45:16 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: discuss@x86-64.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-References: <200610051910.25418.ak@suse.de> <45253E37.6070305@garzik.org> <200610051931.23884.ak@suse.de>
-In-Reply-To: <200610051931.23884.ak@suse.de>
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+References: <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org> <1159948179.2817.26.camel@ux156> <20061005163513.GC6510@bougret.hpl.hp.com> <4525364D.1000409@garzik.org> <20061005174241.GA23632@codepoet.org>
+In-Reply-To: <20061005174241.GA23632@codepoet.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -27,46 +27,28 @@ X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 05 October 2006 19:17, Jeff Garzik wrote:
+Erik Andersen wrote:
+> On Thu Oct 05, 2006 at 12:43:57PM -0400, Jeff Garzik wrote:
+>> Wireless Extensions has reached end-of-life, and so we only need to
+>> support what's out there in wide distribution.
 > 
->> Does this fix the following issue:
->>
->> PCI: BIOS Bug: MCFG area at e0000000 is not E820-reserved
->> PCI: Not using MMCONFIG.
->>
->> 100% of my x86-64 boxes, AMD or Intel, print this message.  And 100% of 
->> them work just fine with MMCONFIG.
+> Hmm, so what is going to replace it?  I was messing about with my
+> old powerbook G4 titanium, trying to make wpa_supplicant work
+> when I realized the airport/orinoco driver used for my powerbook
+> can't handle WPA since that apparently requires at least WE-18.
+> I started looking into what it would take to teach the orinoco
+> driver about WE>=18.  But I suppose there is no point in my
+> looking further if WE is heading to the great bit-bucket in the
+> sky.
 > 
-> No. 
-> 
-> But it isn't really a issue. Basically everything[1] will work fine anyways.
-> 
-> [1]  Only thing you're missing AFAIK is PCI Extended Error Reporting.
+> Is 'Wireless Extensions The Next Generation' described and
+> documented somewhere?  Or am I better off if I just give up and
+> move on to some other more realistic project?  :-)
 
-Not really true, I have some cards which have >256 bytes of config space.
-
-
->> I think this rule is far too drastic for real life.
-> 
-> If you have a better proposal please share. I tried a few others, but none
-> of them could handle all the buggy Intel 9x5 boards that hang on any
-> mmconfig access (so the "try the first few busses" check already hangs)
-> 
-> Originally I thought
-> DMI blacklisting would work, but it's on too many systems for that
-> (and Linus rightfully hated it anyways). ACPI checks also didn't work.
-> I don't know of any others.
-
-It's a bit disappointing, since I keep getting brand new boxes with 
-brand new BIOSen, but keep hitting this rule.
-
-AFAICS it's a buggy check, since it continues to needlessly blacklist 
-working boxes.
-
-My proposal is quite simple:  "something that works" -- the current 
-solution obviously does not.
+Look around for references to nl80211 / cfg80211, particularly on the 
+netdev@vger.kernel.org list.
 
 	Jeff
 
 
+P.S.  Your mailer is generating buggy Mail-Followup-To lines.

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWJEUZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWJEU1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWJEUZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWJEUZQ
+	id S1751266AbWJEU1M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWJEU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:25:16 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:2508 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751255AbWJEUZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:25:14 -0400
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-From: Steve Fox <drfickle@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: vgoyal@in.ibm.com, Badari Pulavarty <pbadari@us.ibm.com>,
-       Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>,
-       Mel Gorman <mel@csn.ul.ie>
-In-Reply-To: <200610052108.55208.ak@suse.de>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <200610052027.02208.ak@suse.de> <20061005185217.GF20551@in.ibm.com>
-	 <200610052108.55208.ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 05 Oct 2006 15:25:09 -0500
-Message-Id: <1160079909.29690.40.camel@flooterbu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Thu, 5 Oct 2006 16:27:12 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:20912 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751266AbWJEU1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 16:27:10 -0400
+Date: Thu, 5 Oct 2006 16:26:39 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+cc: Daniel Walker <dwalker@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
+In-Reply-To: <20061005201820.GA1865@Krystal>
+Message-ID: <Pine.LNX.4.58.0610051623520.432@gandalf.stny.rr.com>
+References: <1160025104.6504.30.camel@localhost.localdomain>
+ <20061005143133.GA400@Krystal> <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
+ <20061005170132.GA11149@Krystal> <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
+ <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+ <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
+ <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+ <20061005201820.GA1865@Krystal>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 21:08 +0200, Andi Kleen wrote:
 
-> Mel might want to take a look (and perhaps
-> also cut down a little on the ugly printks ...) 
+On Thu, 5 Oct 2006, Mathieu Desnoyers wrote:
 
-I tested a patch from Mel which backs out the arch independent zone
-sizing and got the same results (to my inexperienced eye). I've sent him
-the boot log to verify they really are the same as without this
-back-out.
+>
+> Just as a detail : LTTng traces NMI, which can happen on top of a
+> xtime_lock. So yes, I have to consider the impact of this kind of lock when I
+> choose my time source, which is currently a per architecture TSC read,
+> or a read of the jiffies counter when the architecture does not have a
+> synchronised TSC over the CPUs. This is abstracted in include/asm-*/ltt.h.
+>
 
--- 
+I'm curious.  How do you show the interactions between two CPUs when the
+TSC isn't in sync?  Using jiffies is not fast enough to know the order of
+events that happen within usecs.
 
-Steve Fox
-IBM Linux Technology Center
+-- Steve
+
+
+> I know it doesn't support dynamic ticks, I'm working on using the HRtimers
+> instead, but I must make sure that the seqlock read will fail if it nests over
+> a write seqlock.
+>
+> MAthieu
+>
+> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
+>

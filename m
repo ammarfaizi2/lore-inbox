@@ -1,95 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWJETrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJETsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWJETrA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWJETrA
+	id S1751037AbWJETsl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWJETsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:47:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3718 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750886AbWJETq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:46:58 -0400
-Date: Thu, 5 Oct 2006 12:46:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
- passing to IRQ handlers
-Message-Id: <20061005124601.94ed7194.akpm@osdl.org>
-In-Reply-To: <18975.1160058127@warthog.cambridge.redhat.com>
-References: <20061002132116.2663d7a3.akpm@osdl.org>
-	<20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
-	<20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
-	<18975.1160058127@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 15:48:41 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:21664 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1751037AbWJETsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:48:40 -0400
+To: balagi@justmail.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "akpm@osdl.org" <akpm@osdl.org>
+Subject: Re: [PATCH 7/11] 2.6.18-mm3 pktcdvd: make procfs interface optional
+References: <op.tguqh5r2iudtyh@master>
+From: Peter Osterlund <petero2@telia.com>
+Date: 05 Oct 2006 21:48:29 +0200
+In-Reply-To: <op.tguqh5r2iudtyh@master>
+Message-ID: <m3k63emtma.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 15:22:07 +0100
-David Howells <dhowells@redhat.com> wrote:
+"Thomas Maier" <balagi@justmail.de> writes:
 
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > These should just use __get_cpu_var().
-> 
-> Done.
-> 
-> > And could we please remove the irq_regs macro?
-> 
-> Done.
-> 
-> > I think the change is good.  But I don't want to maintain this whopper
-> > out-of-tree for two months!  If we want to do this, we should just smash it
-> > in and grit our teeth.  But I am a bit concerned about the non-x86
-> > architectures.  I assume they'll continue to compile-and-work?
-> 
-> Well, it seems that IA64 and MIPS don't build as of 2.6.19-rc1 without my
-> having to do anything.  i386, x86_64, powerpc and frv build for at least one
-> configuration each.  The other archs I haven't touched, so will definitely
-> break.
-> 
-> Can those arch maintainers give me patches?
-> 
-> 
-> Anyway, I've made a GIT tree with just IRQ my patches in.  It can be browsed
-> at:
-> 
-> 	http://git.infradead.org/?p=users/dhowells/irq-2.6.git;a=shortlog
-> 
-> Or pulled from:
-> 
-> 	git://git.infradead.org/~dhowells/irq-2.6.git
-> 
-> David
-> 
-> ---
-> The following changes since commit d223a60106891bfe46febfacf46b20cd8509aaad:
->   Linus Torvalds:
->         Linux 2.6.19-rc1
-> 
-> are found in the git repository at:
-> 
->   git://git.infradead.org/~dhowells/irq-2.6.git
-> 
+> this patch makes the procfs interface optional and groups
+> the procfs functions together.
+> New kernel config parameter: CDROM_PKTCDVD_PROCINTF
 
-A quick survey of the wreckage:
+The Kconfig help text update looks good (slightly modified). Andrew,
+please apply:
 
-- Dmitry's input git tree breaks a bit
 
-- five of Greg's USB patches need fixing
+From: Thomas Maier <balagi@justmail.de>
 
-- a few random -mm patches need touchups
+pktcdvd: Update Kconfig help text.
 
-- The hrtimer+dynticks i386 patch takes rather a hit and will need redoing.
+Signed-off-by: Thomas Maier <balagi@justmail.de>
+Signed-off-by: Peter Osterlund <petero2@telia.com>
 
-So, not too bad at all.  It's a bit rough on the poor old arch maintainers,
-but it's pretty simple stuff.
+---
 
-I'd say let's do it...
+ drivers/block/Kconfig |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index 17dc222..f7eb08b 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -429,14 +429,18 @@ config CDROM_PKTCDVD
+ 	tristate "Packet writing on CD/DVD media"
+ 	depends on !UML
+ 	help
+-	  If you have a CDROM drive that supports packet writing, say Y to
+-	  include preliminary support. It should work with any MMC/Mt Fuji
+-	  compliant ATAPI or SCSI drive, which is just about any newer CD
+-	  writer.
++	  If you have a CDROM/DVD drive that supports packet writing, say
++	  Y to include support. It should work with any MMC/Mt Fuji
++	  compliant ATAPI or SCSI drive, which is just about any newer
++	  DVD/CD writer.
+ 
+-	  Currently only writing to CD-RW, DVD-RW and DVD+RW discs is possible.
++	  Currently only writing to CD-RW, DVD-RW, DVD+RW and DVDRAM discs
++	  is possible.
+ 	  DVD-RW disks must be in restricted overwrite mode.
+ 
++	  See the file <file:Documentation/cdrom/packet-writing.txt>
++	  for further information on the use of this driver.
++
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pktcdvd.
+ 
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

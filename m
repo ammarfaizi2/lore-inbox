@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWJEUIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWJEUJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWJEUIH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 16:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWJEUIH
+	id S1751188AbWJEUJa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 16:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWJEUJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 16:08:07 -0400
-Received: from fep32-0.kolumbus.fi ([193.229.0.63]:24159 "EHLO
-	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1751145AbWJEUIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 16:08:04 -0400
-Date: Thu, 5 Oct 2006 23:07:52 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Jeff Garzik <jeff@garzik.org>
-cc: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SCSI st: fix error handling in module init, sysfs
-In-Reply-To: <20061004100037.GA16915@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.64.0610052305460.7808@kai.makisara.local>
-References: <20061004100037.GA16915@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Oct 2006 16:09:30 -0400
+Received: from centrmmtao03.cox.net ([70.168.83.81]:55699 "EHLO
+	centrmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1751188AbWJEUJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 16:09:29 -0400
+Subject: Re: Free memory level in 2.6.16?
+From: Steve Bergman <sbergman@rueb.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <p73k63ezg3y.fsf@verdi.suse.de>
+References: <1160034527.23009.7.camel@localhost>
+	 <p73k63ezg3y.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 15:10:29 -0500
+Message-Id: <1160079029.29452.19.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006, Jeff Garzik wrote:
+On Thu, 2006-10-05 at 22:01 +0200, Andi Kleen wrote:
 
 > 
-> - Notice and handle sysfs errors in module init, tape init
+> Normally it keeps some memory free for interrupt handlers which
+> cannot free other memory. But 150MB is indeed a lot, especially
+> it's only in the ~900MB lowmem zone.
 > 
-> - Properly unwind errors in module init
-> 
-> - Remove bogus st_sysfs_class==NULL test, it is guaranteed !NULL at that point
-> 
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
-> 
+> You could play with /proc/sys/vm/lowmem_reserve_ratio but must
+> likely some defaults need tweaking.
 
-Acked-by: Kai Makisara <kai.makisara@kolumbus.fi>
+Thank you for the reply, Andi.  This kernel is compiled with the .config
+from the original FC5 release, which used kernel 2.6.15.  I just ran
+"make oldconfig" on it and accepted the defaults.
 
-> ---
-> 
->  drivers/scsi/st.c |  115 ++++++++++++++++++++++++++++++++++++------------------
->  1 files changed, 78 insertions(+), 37 deletions(-)
-> 
-> diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
-> index 7f669b6..3babdc7 100644
-> --- a/drivers/scsi/st.c
-> +++ b/drivers/scsi/st.c
-> @@ -195,9 +195,9 @@ static int sgl_unmap_user_pages(struct s
->  static int st_probe(struct device *);
-...
+So it is, I believe, a 4GB/4GB split.  Does that make a difference?
 
 Thanks,
-Kai
+Steve Bergman
+

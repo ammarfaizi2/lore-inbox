@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWJERYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWJER0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751711AbWJERYN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWJERYN
+	id S1751728AbWJER0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWJER0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:24:13 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:37391 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751355AbWJERYL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:24:11 -0400
-Date: Fri, 06 Oct 2006 02:26:35 +0900 (JST)
-Message-Id: <20061006.022635.85990065.yoshfuji@linux-ipv6.org>
-To: jmorris@namei.org
-Cc: joro-lkml@zlug.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH][RFC] net/ipv6: seperate sit driver to extra module
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.64.0610051148230.23631@d.namei>
-References: <20061005154152.GA2102@zlug.org>
-	<Pine.LNX.4.64.0610051148230.23631@d.namei>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 13:26:13 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:15770 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1751722AbWJER0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 13:26:12 -0400
+Date: Thu, 5 Oct 2006 11:26:11 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use linux/io.h instead of asm/io.h
+Message-ID: <20061005172611.GB2563@parisc-linux.org>
+References: <11600679551209-git-send-email-matthew@wil.cx> <45253EAE.2070600@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45253EAE.2070600@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.64.0610051148230.23631@d.namei> (at Thu, 5 Oct 2006 11:49:38 -0400 (EDT)), James Morris <jmorris@namei.org> says:
-
-> On Thu, 5 Oct 2006, Joerg Roedel wrote:
+On Thu, Oct 05, 2006 at 01:19:42PM -0400, Jeff Garzik wrote:
+> Matthew Wilcox wrote:
+> >In preparation for moving check_signature, change these users from
+> >asm/io.h to linux/io.h
 > 
-> > Is there a reason why the tunnel driver for IPv6-in-IPv4 is currently
-> > compiled into the ipv6 module? This driver is only needed in gateways
-> > between different IPv6 networks. On all other hosts with ipv6 enabled it
-> > is not required. To have this driver in a seperate module will save
-> > memory on those machines.
-> > I appended a small and trival patch to 2.6.18 which does exactly this.
-> 
-> Looks ok to me, although given that users used to get this by default when 
-> selecting IPv6, perhaps the default in Kconfig should be y.
+> The vast majority of drivers include asm/io.h.
 
-Agreed.  And, we could add #ifdef in addrconf.c.
+Yes.  linux/io.h was only created recently.  It's proper style to
+include linux/foo.h when both linux/foo.h and asm/foo.h exist [1]
+This is just a transition which hasn't been completed yet (indeed, has
+barely begun).
 
---yoshfuji
+> Wouldn't it be better to move check_signature to 
+> include/asm-generic/io.h, and include that where needed?
+
+I really don't think that proliferating header files unnecessarily is a
+good idea.
+
+[1] Except, of course, <linux/irq.h>, but I thought rmk was going to fix
+that.

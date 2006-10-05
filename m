@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWJESXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWJESXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWJESXp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 14:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWJESXm
+	id S1751207AbWJESXh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 14:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWJESXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 14:23:42 -0400
+	Thu, 5 Oct 2006 14:23:36 -0400
 Received: from ext-103.mv.fabric7.com ([68.120.107.103]:7639 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S1751044AbWJESW6
+	corp.fabric7.com") by vger.kernel.org with ESMTP id S1750833AbWJESW4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 14:22:58 -0400
+	Thu, 5 Oct 2006 14:22:56 -0400
 From: Misha Tomushev <misha@fabric7.com>
 Reply-To: misha@fabric7.com
 Organization: Fabric7 Systems
 To: Jeff Garzik <jeff@garzik.org>
-Subject: [PATCH 5/10] VIOC: New Network Device Driver
-Date: Thu, 5 Oct 2006 11:04:28 -0700
+Subject: [PATCH 3/10] VIOC: New Network Device Driver
+Date: Thu, 5 Oct 2006 10:59:36 -0700
 User-Agent: KMail/1.5.1
 Cc: KERNEL Linux <linux-kernel@vger.kernel.org>,
        NETDEV Linux <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610051104.28794.misha@fabric7.com>
-X-OriginalArrivalTime: 05 Oct 2006 18:22:43.0031 (UTC) FILETIME=[3F935670:01C6E8AB]
+Message-Id: <200610051059.36647.misha@fabric7.com>
+X-OriginalArrivalTime: 05 Oct 2006 18:22:42.0547 (UTC) FILETIME=[3F497C30:01C6E8AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adding VIOC device driver. Device driver initialization/termination.
+Adding VIOC device driver. Out-of-band provisioning protocol support code.
 
 Signed-off-by: Misha Tomushev  <misha@fabric7.com>
 
-diff -uprN linux-2.6.17/drivers/net/vioc/vioc_vnic.h 
-linux-2.6.17.vioc/drivers/net/vioc/vioc_vnic.h
---- linux-2.6.17/drivers/net/vioc/vioc_vnic.h	1969-12-31 16:00:00.000000000 
--0800
-+++ linux-2.6.17.vioc/drivers/net/vioc/vioc_vnic.h	2006-10-04 
-10:10:04.000000000 -0700
-@@ -0,0 +1,498 @@
+diff -uprN linux-2.6.17/drivers/net/vioc/f7/spp.h 
+linux-2.6.17.vioc/drivers/net/vioc/f7/spp.h
+--- linux-2.6.17/drivers/net/vioc/f7/spp.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.vioc/drivers/net/vioc/f7/spp.h	2006-09-06 16:22:59.000000000 
+-0700
+@@ -0,0 +1,68 @@
 +/*
 + * Fabric7 Systems Virtual IO Controller Driver
 + * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
@@ -65,489 +64,1224 @@ linux-2.6.17.vioc/drivers/net/vioc/vioc_vnic.h
 + *
 + *
 + */
-+#ifndef _VIOC_VNIC_H
-+#define _VIOC_VNIC_H
++#ifndef _SPP_H_
++#define _SPP_H_
 +
-+#include <linux/netdevice.h>
-+#include <linux/if_ether.h>
-+#include <linux/pci.h>
++#include "vnic_hw_registers.h"
 +
-+#include "f7/vnic_defs.h"
-+#include "f7/vnic_hw_registers.h"
-+#include "f7/vioc_pkts_defs.h"
++#define SPP_MODULE     VIOC_BMC
 +
++#define SPP_CMD_REG_BANK       15
++#define SPP_SIM_PMM_BANK       14
++#define        SPP_PMM_BMC_BANK        13
++
++/* communications COMMAND REGISTERS */
++#define SPP_SIM_PMM_CMDREG     GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R1)
++#define VIOCCP_SPP_SIM_PMM_CMDREG              \
++                       VIOCCP_GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R1)
++#define SPP_PMM_SIM_CMDREG     GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R2)
++#define VIOCCP_SPP_PMM_SIM_CMDREG              \
++                       VIOCCP_GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R2)
++#define SPP_PMM_BMC_HB_CMDREG  GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R3)
++#define SPP_PMM_BMC_SIG_CMDREG GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R4)
++#define SPP_PMM_BMC_CMDREG     GETRELADDR(SPP_MODULE, SPP_CMD_REG_BANK, 
+VREG_BMC_REG_R5)
++
++#define SPP_BANK_ADDR(bank) GETRELADDR(SPP_MODULE, bank, VREG_BMC_REG_R0)
++
++#define SPP_SIM_PMM_DATA GETRELADDR(SPP_MODULE, SPP_SIM_PMM_BANK, 
+VREG_BMC_REG_R0)
++#define VIOCCP_SPP_SIM_PMM_DATA                        \
++                       VIOCCP_GETRELADDR(SPP_MODULE, SPP_SIM_PMM_BANK, 
+VREG_BMC_REG_R0)
++
++/* PMM-BMC Sensor register bits */
++#define SPP_PMM_BMC_HB_SENREG  GETRELADDR(SPP_MODULE, 0, VREG_BMC_SENSOR0)
++#define SPP_PMM_BMC_CTL_SENREG GETRELADDR(SPP_MODULE, 0, VREG_BMC_SENSOR1)
++#define SPP_PMM_BMC_SENREG     GETRELADDR(SPP_MODULE, 0, VREG_BMC_SENSOR2)
++
++/* BMC Interrupt number used to alert PMM that message has been sent */
++#define SPP_SIM_PMM_INTR       1
++#define SPP_BANK_REGS          32
++
++
++#define SPP_OK                 0
++#define SPP_CHKSUM_ERR 1
++#endif /* _SPP_H_ */
++
+diff -uprN linux-2.6.17/drivers/net/vioc/f7/spp_msgdata.h 
+linux-2.6.17.vioc/drivers/net/vioc/f7/spp_msgdata.h
+--- linux-2.6.17/drivers/net/vioc/f7/spp_msgdata.h	1969-12-31 
+16:00:00.000000000 -0800
++++ linux-2.6.17.vioc/drivers/net/vioc/f7/spp_msgdata.h	2006-09-06 
+16:22:59.000000000 -0700
+@@ -0,0 +1,54 @@
 +/*
-+ * VIOC PCI constants
++ * Fabric7 Systems Virtual IO Controller Driver
++ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
++ * USA
++ *
++ * http://www.fabric7.com/
++ *
++ * Maintainers:
++ *    driver-support@fabric7.com
++ *
++ *
 + */
-+#define PCI_VENDOR_ID_FABRIC7  0xfab7
-+#define PCI_DEVICE_ID_VIOC_1   0x0001
-+#define PCI_DEVICE_ID_VIOC_8   0x0008
-+#define PCI_DEVICE_ID_IOAPIC   0x7459
++#ifndef _SPPMSGDATA_H_
++#define _SPPMSGDATA_H_
 +
-+#define VIOC_DRV_MODULE_NAME	"vioc"
++#include "spp.h"
 +
-+#define F7PF_HLEN_MIN   8	/* Minimal (kl=0) header */
-+#define F7PF_HLEN_STD   10	/* Standard (kl=1) header */
++/* KEYs For SPP_FACILITY_VNIC */
++#define SPP_KEY_VNIC_CTL       1
++#define SPP_KEY_SET_PROV       2
 +
-+#define VNIC_MAX_MTU   9180
-+#define VNIC_STD_MTU   1500
++/* Data Register Offset for VIOC ID parameter */
++#define SPP_VIOC_ID_IDX        0
++#define SPP_VIOC_ID_OFFSET GETRELADDR(SPP_MODULE, SPP_SIM_PMM_BANK, 
+(VREG_BMC_REG_R0 + (SPP_VIOC_ID_IDX << 2)))
++#define VIOCCP_SPP_VIOC_ID_OFFSET VIOCCP_GETRELADDR(SPP_MODULE, 
+SPP_SIM_PMM_BANK, (VREG_BMC_REG_R0 + (SPP_VIOC_ID_IDX << 2)))
 +
-+/* VIOC device constants */
-+#define VIOC_MAX_RXDQ		16
-+#define VIOC_MAX_RXCQ		16
-+#define VIOC_MAX_RXQ		4
-+#define VIOC_MAX_TXQ		4
-+#define VIOC_NAME_LEN		16
++/* KEYs for  SPP_FACILITY_SYS  */
++#define SPP_KEY_REQUEST_SIGNAL 1
 +
-+/*
-+ * VIOC device state
-+ */
++/* Data Register Offset for RESET_TYPE parameter */
++#define SPP_UOS_RESET_TYPE_IDX 0
++#define SPP_UOS_RESET_TYPE_OFFSET GETRELADDR(SPP_MODULE, SPP_SIM_PMM_BANK, 
+(VREG_BMC_REG_R0 + (SPP_UOS_RESET_TYPE_IDX << 2)))
++#define VIOCCP_SPP_UOS_RESET_TYPE_OFFSET VIOCCP_GETRELADDR(SPP_MODULE, 
+SPP_SIM_PMM_BANK, (VREG_BMC_REG_R0 + (SPP_UOS_RESET_TYPE_IDX << 2)))
 +
-+#define VIOC_STATE_INIT                0
-+#define VIOC_STATE_UP          (VIOC_STATE_INIT + 1)
++#define SPP_RESET_TYPE_REBOOT  1
++#define SPP_RESET_TYPE_SHUTDOWN        2
 +
-+#define RX_DESC_SIZE   sizeof (struct rx_pktBufDesc_Phys_w)
-+#define RX_DESC_QUANT  (4096/RX_DESC_SIZE)
++#endif /* _SPPMSGDATA_H_ */
 +
-+#define RXC_DESC_SIZE  sizeof (struct rxc_pktDesc_Phys_w)
-+#define RXC_DESC_QUANT (4096/RXC_DESC_SIZE)
 +
-+#define TX_DESC_SIZE   sizeof (struct tx_pktBufDesc_Phys_w)
-+#define TX_DESC_QUANT  (4096/TX_DESC_SIZE)
-+
-+#define RXS_DESC_SIZE  sizeof (struct rxc_pktStatusBlock_w)
-+
-+#define VIOC_COPYOUT_THRESHOLD	128
-+#define VIOC_RXD_BATCH_BITS		32
-+#define ALL_BATCH_SW_OWNED		0
-+#define ALL_BATCH_HW_OWNED		0xffffffff
-+
-+#define VIOC_ANY_VNIC			0
-+#define VIOC_NONE_TO_HW			(u32) -1
-+
-+/*
-+ * Status of the Rx operation as reflected in Rx Completion Descriptor
-+ */
-+#define GET_VNIC_RXC_STATUS(rxcd)      (\
-+       GET_VNIC_RXC_BADCRC(rxcd) |\
-+       GET_VNIC_RXC_BADLENGTH(rxcd) |\
-+       GET_VNIC_RXC_BADSMPARITY(rxcd) |\
-+       GET_VNIC_RXC_PKTABORT(rxcd)\
-+       )
-+#define VNIC_RXC_STATUS_OK_W           0
-+
-+#define VNIC_RXC_STATUS_MASK (\
-+               VNIC_RXC_ISBADLENGTH_W | \
-+               VNIC_RXC_ISBADCRC_W | \
-+               VNIC_RXC_ISBADSMPARITY_W | \
-+               VNIC_RXC_ISPKTABORT_W \
-+       )
-+
-+#define VIOC_IRQ_PARAM_VIOC_ID(param)  \
-+       (int) (((u64) param >> 28) & 0xf)
-+#define VIOC_IRQ_PARAM_INTR_ID(param)  \
-+       (int) ((u64) param & 0xffff)
-+#define VIOC_IRQ_PARAM_PARAM_ID(param) \
-+       (int) (((u64) param >> 16) & 0xff)
-+
-+#define VIOC_IRQ_PARAM_SET(vioc, intr, param) \
-+               ((((u64) vioc & 0xf) << 28) | \
-+               (((u64) param & 0xff) << 16) | \
-+               ((u64) intr & 0xffff))
-+/*
-+ * Return status codes
-+ */
-+#define E_VIOCOK       0
-+#define E_VIOCMAX      1
-+#define E_VIOCINTERNAL 2
-+#define E_VIOCNETREGERR 3
-+#define E_VIOCPARMERR  4
-+#define E_VIOCNOOP     5
-+#define E_VIOCTXFULL   6
-+#define E_VIOCIFNOTFOUND 7
-+#define E_VIOCMALLOCERR 8
-+#define E_VIOCORDERR   9
-+#define E_VIOCHWACCESS 10
-+#define E_VIOCHWNOTREADY 11
-+#define E_ALLOCERR     12
-+#define E_VIOCRXHW     13
-+#define E_VIOCRXCEMPTY 14
-+
-+/*
-+ * From the HW statnd point, every VNIC has 4 RxQ - receive queues.
-+ * Every RxQ is mapped to RxDQ (a ring with buffers for Rx Packets)
-+ * and RxC queue (a ring with descriptors that reflect the status of the 
-receive.
-+ * I.e. when VIOC receives the packet on any of the 4 RxQ, it would use the 
-mapping to determine where
-+ * to get buffer for the packet (RxDQ) and where to post the result of the 
-operation (RxC).
-+ */
-+
-+struct rxd_q_prov {
-+	u32 buf_size;
-+	u32 entries;
-+	u8 id;
-+	u8 state;
-+};
-+
-+struct vnic_prov_def {
-+	struct rxd_q_prov rxd_ring[4];
-+	u32 tx_entries;
-+	u32 rxc_entries;
-+	u8 rxc_id;
-+	u8 rxc_intr_id;
-+};
-+
-+struct vioc_run_param {
-+	u32 rx_intr_timeout;
-+	u32 rx_intr_cntout;
-+	u32 rx_wdog_timeout;
-+	u32 tx_pkts_per_bell;
-+	u32 tx_pkts_per_irq;
-+	int tx_intr_on_empty;
-+};
-+
-+struct vioc_prov {
-+	struct vnic_prov_def **vnic_prov_p;
-+	struct vioc_run_param run_param;
-+};
-+
-+struct vioc_irq {
-+	int irq;
-+	void *dev_id;
-+};
-+
-+/*
-+ * Wrapper around a pointer to a socket buffer
-+ */
-+struct vbuf {
-+	volatile struct sk_buff *skb;
-+	volatile dma_addr_t dma;
-+	volatile u32 length;
-+	volatile u32 special;
-+	volatile unsigned long time_stamp;
-+};
-+
-+struct rxc;
-+
-+/* Receive Completion set - RxC + NAPI device */
-+struct napi_poll {
-+	volatile u8 enabled;	/* if 0, Rx resource are not available */
-+	volatile u8 stopped;	/* if 1, NAPI has stopped servicing set */
-+	struct net_device poll_dev;	/* for NAPI */
-+	u64 rx_interrupts;	/* Number of Rx Interrupts for VIOC stats */
-+	struct rxc *rxc;
-+};
-+
-+/* Rx Completion Queue */
-+struct rxc {
-+	u8 rxc_id;
-+	u8 interrupt_id;
-+	spinlock_t lock;
-+	struct rxc_pktDesc_Phys_w *desc;
-+	dma_addr_t dma;
-+	u32 count;
-+	u32 sw_idx;
-+	u32 quota;
-+	u32 budget;
-+	void __iomem *va_of_vreg_ihcu_rxcintpktcnt;
-+	void __iomem *va_of_vreg_ihcu_rxcinttimer;
-+	void __iomem *va_of_vreg_ihcu_rxcintctl;
-+	struct vioc_device *viocdev;
-+	struct napi_poll napi;
-+};
-+
-+/* Rx Descriptor Queue */
-+struct rxdq {
-+	u8 rxdq_id;
-+	/* pointer to the Rx Buffer descriptor queue memory */
-+	struct rx_pktBufDesc_Phys_w *desc;
-+	dma_addr_t dma;
-+	struct vbuf *vbuf;
-+	u32 count;
-+	u16 rx_buf_size;
-+	/* A bit map of descriptors: 0 - owned by SW, 1 - owned by HW */
-+	u32 *dmap;
-+	u32 dmap_count;
-+	/* dmap_idx is needed for proc fs */
-+	u32 dmap_idx;
-+	/* Descriptor desginated as a "fence", i.e. owned by SW. */
-+	volatile u32 fence;
-+	/* A counter that, when expires, forces a call to vioc_next_fence_run() */
-+	volatile u32 skip_fence_run;
-+	volatile u32 run_to_end;
-+	volatile u32 to_hw;
-+	volatile u32 starvations;
-+	u32 prev_rxd_id;
-+	u32 err_cnt;
-+	u32 reset_cnt;
-+	struct vioc_device *viocdev;
-+};
-+
-+/* Tx Buffer Descriptor queue */
-+struct txq {
-+	u8 txq_id;		/* always TXQ0 for now */
-+	u8 vnic_id;
-+
-+	spinlock_t lock;	/* interrupt-safe */
-+	/*
-+	 * Shadow of the TxD Control Register, keep it here, so we do
-+	 * not have to read from HW
-+	 */
-+	u32 shadow_VREG_VENG_TXD_CTL;
-+	/*
-+	 * Address of the TxD Control Register when we ring the
-+	 * bell. Keep this always ready, for expediency.
-+	 */
-+	void __iomem *va_of_vreg_veng_txd_ctl;
-+	/*
-+	 * pointer to the Tx Buffer Descriptor queue memory
-+	 */
-+	struct tx_pktBufDesc_Phys_w *desc;
-+	dma_addr_t dma;
-+	struct vbuf *vbuf;
-+	u32 count;
-+	u32 tx_pkts_til_irq;
-+	u32 tx_pkts_til_bell;
-+	u32 bells;
-+	int do_ring_bell;
-+	/* next descriptor to use for Tx */
-+	volatile u32 next_to_use;
-+	/* next descriptor to check completion of Tx */
-+	volatile u32 next_to_clean;
-+	/* Frags count */
-+	volatile u32 frags;
-+	/* Empty Tx descriptor slots */
-+	volatile u32 empty;
-+	u32 wraps;
-+	u32 full;
-+};
-+
-+/*  Rx Completion Status Block */
-+struct rxs {
-+	struct rxc_pktStatusBlock_w *block;
-+	dma_addr_t dma;
-+};
-+
-+typedef enum { RX_WDOG_DISABLED, RX_WDOG_EXPECT_PKT,
-+	RX_WDOG_EXPECT_WDOGPKT
-+} wdog_state_t;
-+
-+struct vioc_device_stats {
-+	u64 tx_tasklets;	/* Number of Tx Interrupts */
-+	u64 tx_timers;		/* Number of Tx watchdog timers */
-+};
-+
-+#define        NETIF_STOP_Q    0xdead
-+#define NETIF_START_Q  0xfeed
-+
-+struct vnic_device_stats {
-+	u64 rx_fragment_errors;
-+	u64 rx_dropped;
-+	u64 skb_enqueued;	/* Total number of skb's enqueued */
-+	u64 skb_freed;		/* Total number of skb's freed */
-+	u32 netif_stops;	/* Number of times Tx was stopped */
-+	u32 netif_last;		/* Last netif_  command */
-+	u64 tx_on_empty_interrupts;	/* Number of Tx Empty Interrupts */
-+	u32 headroom_misses;	/* Number of headroom misses */
-+	u32 headroom_miss_drops;	/* Number of headroom misses */
-+};
-+
-+struct vioc_ba {
-+       void __iomem *virt;
-+       unsigned long long phy;
-+       unsigned long len;
-+};
-+
-+struct vioc_device {
-+	char name[VIOC_NAME_LEN];
-+	u32 vioc_bits_version;
-+	u32 vioc_bits_subversion;
-+
-+	u8 viocdev_idx;
-+	u8 vioc_state;		/* Initialization state */
-+	u8 mgmt_state;		/*  Management state */
-+	u8 highdma;
-+
-+	u32 vnics_map;
-+	u32 vnics_admin_map;
-+	u32 vnics_link_map;
-+
-+	struct vioc_ba ba;	/* VIOC PCI Dev Base Address: virtual and phy */
-+	struct vioc_ba ioapic_ba;	/* VIOC's IOAPIC Base Address: virtual and phy */
-+	struct pci_dev *pdev;
-+
-+	/*
-+	 * An array of pointers to net_device structures for
-+	 * every subordinate VNIC
-+	 */
-+	struct net_device *vnic_netdev[VIOC_MAX_VNICS];
-+	/*
-+	 * An array describing all Rx Completion Descriptor Queues in VIOC
-+	 */
-+	struct rxc *rxc_p[VIOC_MAX_RXCQ];
-+	struct rxc rxc_buf[VIOC_MAX_RXCQ];
-+	/*
-+	 * An array describing all Rx Descriptor Queues in VIOC
-+	 */
-+	struct rxdq *rxd_p[VIOC_MAX_RXDQ];
-+	struct rxdq rxd_buf[VIOC_MAX_RXDQ];
-+
-+	/* Rx Completion Status Block */
-+	struct rxs rxcstat;
-+
-+	/* ----- SIM SPECIFIC ------ */
-+	/* * Round-robbin over Rx Completion queues */
-+	u32 next_rxc_to_use;
-+	/* Round-robbin over RxDQs, when checking them out */
-+	u32 next_rxdq_to_use;
-+
-+	struct vioc_prov prov;	/* VIOC provisioning info */
-+	struct vioc_device_stats vioc_stats;
-+
-+	struct timer_list bmc_wd_timer;
-+	int bmc_wd_timer_active;
-+
-+	struct timer_list tx_timer;
-+	int tx_timer_active;
-+
-+	u32 num_rx_irqs;
-+	u32 num_irqs;
-+	u32 last_msg_to_sim;
-+};
-+
-+#define VIOC_BMC_INTR0 (1 << 0)
-+#define VIOC_BMC_INTR1 (1 << 1)
-+#define VIOC_BMC_INTR2 (1 << 2)
-+#define VIOC_BMC_INTR3 (1 << 3)
-+#define VIOC_BMC_INTR4 (1 << 4)
-+#define VIOC_BMC_INTR5 (1 << 5)
-+#define VIOC_BMC_INTR6 (1 << 6)
-+#define VIOC_BMC_INTR7 (1 << 7)
-+#define VIOC_BMC_INTR8 (1 << 8)
-+#define VIOC_BMC_INTR9 (1 << 9)
-+#define VIOC_BMC_INTR10        (1 << 10)
-+#define VIOC_BMC_INTR11        (1 << 11)
-+#define VIOC_BMC_INTR12        (1 << 12)
-+#define VIOC_BMC_INTR13        (1 << 13)
-+#define VIOC_BMC_INTR14        (1 << 14)
-+#define VIOC_BMC_INTR15        (1 << 15)
-+#define VIOC_BMC_INTR16        (1 << 16)
-+#define VIOC_BMC_INTR17        (1 << 17)
-+
-+#define VNIC_NEXT_IDX(i, count) ((count == 0) ? 0: (((i) + 1) % (count)))
-+#define VNIC_PREV_IDX(i, count) ((count == 0) ? 0: ((((i) == 0) ? ((count) - 
-1): ((i) - 1))))
-+
-+#define VNIC_RING_BELL(vnic, q_idx) vnic_ring_bell(vnic, q_idx)
-+
-+#define TXDS_REQUIRED(skb) 1
-+
-+#define TXD_WATER_MARK                 8
-+
-+#define GET_DESC_PTR(R, i, type) (&(((struct type *)((R)->desc))[i]))
-+#define RXD_PTR(R, i)          GET_DESC_PTR(R, i, rx_pktBufDesc_Phys_w)
-+#define TXD_PTR(R, i)          GET_DESC_PTR(R, i, tx_pktBufDesc_Phys_w)
-+#define RXC_PTR(R, i)          GET_DESC_PTR(R, i, rxc_pktBufDesc_Phys_w)
-+
-+/* Receive packet fragments */
-+
-+/* VNIC DEVICE */
-+struct vnic_device {
-+	u8 vnic_id;
-+	u8 rxc_id;
-+	u8 rxc_intr_id;
-+
-+	u32 qmap;		/* VNIC rx queues mappings */
-+	u32 vnic_q_en;		/* VNIC queues enables */
-+
-+	struct txq txq;
-+	struct vioc_device *viocdev;
-+	struct net_device *netdev;
-+	struct net_device_stats net_stats;
-+	struct vnic_device_stats vnic_stats;
-+
-+	u8 hw_mac[ETH_ALEN];
-+};
-+
-+/* vioc_transmit.c */
-+extern int vioc_vnic_init(struct net_device *);
-+extern void vioc_tx_timer(unsigned long data);
-+
-+/* vioc_driver.c */
-+extern struct vioc_device *vioc_viocdev(u32 vioc_id);
-+extern struct net_device *vioc_alloc_vnicdev(struct vioc_device *, int);
-+
-+/* vioc_irq.c */
-+extern int vioc_irq_init(void);
-+extern void vioc_irq_exit(void);
-+extern void vioc_free_irqs(u32 viocdev_idx);
-+extern int vioc_request_irqs(u32 viocdev_idx);
-+
-+extern int vioc_set_intr_func_param(int viocdev_idx, int intr_idx,
-+				    int intr_param);
-+
-+extern void vioc_rxc_interrupt(void *input_param);
-+extern void vioc_tx_interrupt(void *input_param);
-+extern void vioc_bmc_interrupt(void *input_param);
-+
-+/* vioc_receive.c */
-+extern int vioc_rx_poll(struct net_device *dev, int *budget);
-+extern int vioc_next_fence_run(struct rxdq *);
-+
-+/* spp.c */
-+extern int spp_init(void);
-+extern void spp_terminate(void);
-+extern void spp_msg_from_sim(int);
-+
-+/* spp_vnic.c */
-+extern int spp_vnic_init(void);
-+extern void spp_vnic_exit(void);
-+
-+/* vioc_spp.c */
-+extern void vioc_vnic_prov(int, u32, u32, int);
-+extern struct vnic_prov_def **vioc_prov_get(int);
-+extern void vioc_hb_to_bmc(int vioc_id);
-+extern int vioc_handle_reset_request(int);
-+extern void vioc_os_reset_notifier_exit(void);
-+extern void vioc_os_reset_notifier_init(void);
-+
-+
-+
-+static inline void vioc_rxc_interrupt_disable(struct rxc *rxc)
-+{
-+	writel(3, rxc->va_of_vreg_ihcu_rxcintctl);
-+}
-+
-+static inline void vioc_rxc_interrupt_enable(struct rxc *rxc)
-+{
-+	writel(0, rxc->va_of_vreg_ihcu_rxcintctl);
-+}
-+
-+static inline void vioc_rxc_interrupt_clear_pend(struct rxc *rxc)
-+{
-+	writel(2, rxc->va_of_vreg_ihcu_rxcintctl);
-+}
-+
-+#define POLL_WEIGHT 		32
-+#define RX_INTR_TIMEOUT		2
-+#define RX_INTR_PKT_CNT		8
-+#define TX_PKTS_PER_IRQ		64
-+#define TX_PKTS_PER_BELL	1
-+#define VIOC_CSUM_OFFLOAD	CHECKSUM_HW
-+#define VIOC_TRACE			0
-+
-+#define VIOC_LISTEN_GROUP	1
-+
-+#endif				/* _VIOC_VNIC_H */
-diff -uprN linux-2.6.17/drivers/net/vioc/vioc_driver.c 
-linux-2.6.17.vioc/drivers/net/vioc/vioc_driver.c
---- linux-2.6.17/drivers/net/vioc/vioc_driver.c	1969-12-31 16:00:00.000000000 
+diff -uprN linux-2.6.17/drivers/net/vioc/f7/sppapi.h 
+linux-2.6.17.vioc/drivers/net/vioc/f7/sppapi.h
+--- linux-2.6.17/drivers/net/vioc/f7/sppapi.h	1969-12-31 16:00:00.000000000 
 -0800
-+++ linux-2.6.17.vioc/drivers/net/vioc/vioc_driver.c	2006-10-04 
-10:51:24.000000000 -0700
-@@ -0,0 +1,872 @@
++++ linux-2.6.17.vioc/drivers/net/vioc/f7/sppapi.h	2006-09-06 
+16:22:59.000000000 -0700
+@@ -0,0 +1,240 @@
++/*
++ * Fabric7 Systems Virtual IO Controller Driver
++ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
++ * USA
++ *
++ * http://www.fabric7.com/
++ *
++ * Maintainers:
++ *    driver-support@fabric7.com
++ *
++ *
++ */
++#ifndef _SPPAPI_H_
++#define _SPPAPI_H_
++
++/*
++ * COMMAND REGISTER is encoded as follows:
++ * |-------------|-------------|--------|-----|----|------------|---------|
++ * | chksum:     | unique id:  | spare: | RC: | D: | facility:  | key:    |
++ * | 31 30 29 28 | 27 26 25 24 | 23 22  | 21  | 20 | 19 18 17 16| 15 - 0  |
++ * |-------------|-------------|--------|-----|----|------------|---------|
++ */
++
++#define SPP_KEY_MASK           0x0000ffff
++#define SPP_KEY_SHIFT  0
++#define SPP_KEY_MASK_SHIFTED   (SPP_KEY_MASK >> SPP_KEY_SHIFT)
++#define SPP_FACILITY_MASK      0x000f0000
++#define SPP_FACILITY_SHIFT     16
++#define SPP_FACILITY_MASK_SHIFTED      (SPP_FACILITY_MASK >> 
+SPP_FACILITY_SHIFT)
++#define SPP_D_MASK                     0x00100000
++#define SPP_D_SHIFT                    20
++#define SPP_D_MASK_SHIFTED     (SPP_D_MASK >> SPP_D_SHIFT)
++#define SPP_RC_MASK                    0x00200000
++#define SPP_RC_SHIFT           21
++#define SPP_RC_MASK_SHIFTED    (SPP_RC_MASK >> SPP_RC_SHIFT)
++#define SPP_UNIQID_MASK                0x0f000000
++#define SPP_UNIQID_SHIFT       24
++#define SPP_UNIQID_MASK_SHIFTED        (SPP_UNIQID_MASK >> SPP_UNIQID_SHIFT)
++#define SPP_CHKSUM_MASK                0xf0000000
++#define SPP_CHKSUM_SHIFT       28
++#define SPP_CHKSUM_MASK_SHIFTED        (SPP_CHKSUM_MASK >> SPP_CHKSUM_SHIFT)
++
++#define SPP_GET_KEY(m)                         \
++    ((m & SPP_KEY_MASK) >> SPP_KEY_SHIFT)
++
++#define SPP_GET_FACILITY(m)                            \
++    ((m & SPP_FACILITY_MASK) >> SPP_FACILITY_SHIFT)
++
++#define SPP_GET_D(m)                                   \
++    ((m & SPP_D_MASK) >> SPP_D_SHIFT)
++
++#define SPP_GET_RC(m)                                  \
++    ((m & SPP_D_MASK) >> SPP_D_SHIFT)
++
++#define SPP_GET_UNIQID(m)                                      \
++    ((m & SPP_UNIQID_MASK) >> SPP_UNIQID_SHIFT)
++
++#define SPP_GET_CHKSUM(m)                                      \
++    ((m & SPP_CHKSUM_MASK) >> SPP_CHKSUM_SHIFT)
++
++#define SPP_SET_KEY(m, key) do { \
++    m = ((m & ~SPP_KEY_MASK) | ((key << SPP_KEY_SHIFT) & SPP_KEY_MASK)) ; \
++} while (0)
++
++#define SPP_SET_FACILITY(m, facility) do { \
++    m = ((m & ~SPP_FACILITY_MASK) | ((facility << SPP_FACILITY_SHIFT) & 
+SPP_FACILITY_MASK)) ; \
++} while (0)
++
++#define SPP_MBOX_FREE          0
++#define SPP_MBOX_OCCUPIED      1
++
++#define SPP_MBOX_EMPTY(m) (SPP_GET_D(m) == SPP_MBOX_FREE)
++#define SPP_MBOX_FULL(m) (SPP_GET_D(m) == SPP_MBOX_OCCUPIED)
++
++#define SPP_SET_D(m, D) do { \
++    m = ((m & ~SPP_D_MASK) | ((D << SPP_D_SHIFT) & SPP_D_MASK)) ; \
++} while (0)
++
++#define        SPP_CMD_OK              0
++#define SPP_CMD_FAIL   1
++
++#define SPP_SET_RC(m, rc) do { \
++    m = ((m & ~SPP_RC_MASK) | ((rc << SPP_RC_SHIFT) & SPP_RC_MASK)) ; \
++} while (0)
++
++#define SPP_SET_UNIQID(m, uniqid) do { \
++    m = ((m & ~SPP_UNIQID_MASK) | ((uniqid << SPP_UNIQID_SHIFT) & 
+SPP_UNIQID_MASK)) ; \
++} while (0)
++
++
++#define SPP_SET_CHKSUM(m, chksum) do { \
++    m = ((m & ~SPP_CHKSUM_MASK) | ((chksum << SPP_CHKSUM_SHIFT) & 
+SPP_CHKSUM_MASK)) ; \
++} while (0)
++
++
++static inline u32 spp_calc_u32_4bit_chksum(u32 w, int n)
++{
++       int len;
++       int nibbles = (n > 8) ? 8:n;
++       u32 cs = 0;
++
++       for (len = 0; len < nibbles; len++) {
++               w = (w >> len);
++               cs += w  & SPP_CHKSUM_MASK_SHIFTED;
++       }
++
++       while (cs >> 4)
++               cs = (cs & SPP_CHKSUM_MASK_SHIFTED) + (cs >> 4);
++
++       return (~cs);
++}
++
++static inline u32 spp_calc_u32_chksum(u32 w)
++{
++       return (spp_calc_u32_4bit_chksum(w, 7));
++}
++
++static inline u32
++spp_validate_u32_chksum(u32 w)
++{
++       return (spp_calc_u32_4bit_chksum(w, 8) & SPP_CHKSUM_MASK_SHIFTED);
++}
++
++static inline u32
++spp_mbox_build_cmd(u32 key, u32 facility, u32 uniqid)
++{
++       u32     m = 0;
++       u32 cs;
++
++       SPP_SET_KEY(m, key);
++       SPP_SET_FACILITY(m, facility);
++       SPP_SET_UNIQID(m, uniqid);
++       SPP_SET_D(m, SPP_MBOX_OCCUPIED);
++       cs = spp_calc_u32_4bit_chksum(m, 7);
++       cs = (cs)?cs:~cs;
++       SPP_SET_CHKSUM(m, cs);
++
++       return (m);
++}
++
++static inline u32
++spp_build_key_facility(u32 key, u32 facility)
++{
++       u32     m = 0;
++
++       SPP_SET_KEY(m, key);
++       SPP_SET_FACILITY(m, facility);
++
++       return (m);
++}
++
++
++static inline u32
++spp_mbox_build_reply(u32 cmd, int success)
++{
++       u32 reply = cmd;
++       u32 cs;
++
++       SPP_SET_D(reply, SPP_MBOX_FREE);
++       if (success == SPP_CMD_OK)
++               SPP_SET_RC(reply, SPP_CMD_OK);
++       else
++               SPP_SET_RC(reply, SPP_CMD_FAIL);
++
++       cs = spp_calc_u32_4bit_chksum(reply, 7);
++       cs = (cs)?cs:~cs;
++       SPP_SET_CHKSUM(reply, cs);
++
++       return (reply);
++}
++
++static inline int
++spp_mbox_empty(u32 m)
++{
++       return SPP_MBOX_EMPTY(m);
++}
++
++static inline int
++spp_mbox_full(u32 m)
++{
++       return SPP_MBOX_FULL(m);
++}
++
++/*
++ * SPP Facilities 0 - 15
++ */
++
++#define SPP_FACILITY_VNIC      0       /* VNIC Provisioning */
++#define SPP_FACILITY_SYS       1       /* UOS Control */
++#define SPP_FACILITY_ISCSI_VNIC        2       /* iSCSI Initiator 
+Provisioning */
++
++
++/*
++ * spp_msg_register() is use to install a callback - cb_fn() function, that 
+would
++ * be invoked once the message with specific handle has beed received.
++ * The unique "handle" that associates the callback with the messages is
++ * key_facility parameter.
++ * Typically the endpoints (sender on SIM and receiver on PMM) would agree on
++ * the  "handle" that consists of FACILITY (4 bits) and KEY (16 bits).
++ * The inlude spp_build_key_facility(key, facility) builds such handle.
++ * The parameters of callback:
++ * cb_nf(u32 cmd, void *data_buf, int data_buf_size, u32 timestamp), are
++ * cmd - an actual command value that was sent by SIM
++ * data_buf - pointer to up to 128 bytes (32 u32s) of message data from SIM
++ * data_buf_size - actual number of bytes in the message
++ * timestamp - a relative time/sequence number indicating when message,
++ * that caused the callback, was received.
++ *
++ * IMPORTANT: If the message was already waiting, at the time of 
+spp_msg_register()
++ * call, the cb_fn() will be invoked in the context of spp_msg_register().
++ *
++ */
++extern int spp_msg_register(u32 key_facility, void (*cb_fn)(u32, void *, int, 
+u32));
++
++/*
++ * spp_msg_unregirster() will remove the callback function, so that
++ * the imcoming messages with the key_facility handle will basically be
++ * overwriting command and data buffers.
++ */
++
++extern void spp_msg_unregister(u32 key_facility);
++
++extern int read_spp_regbank32(int vioc, int bank, char *buffer);
++
++#endif /* _SPPAPI_H_ */
++
+diff -uprN linux-2.6.17/drivers/net/vioc/khash.h 
+linux-2.6.17.vioc/drivers/net/vioc/khash.h
+--- linux-2.6.17/drivers/net/vioc/khash.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.vioc/drivers/net/vioc/khash.h	2006-09-06 16:22:59.000000000 
+-0700
+@@ -0,0 +1,63 @@
++/*
++ * Fabric7 Systems Virtual IO Controller Driver
++ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
++ * USA
++ *
++ * http://www.fabric7.com/
++ *
++ * Maintainers:
++ *    driver-support@fabric7.com
++ *
++ *
++ */
++#ifndef __HASHIT__
++#define __HASHIT__
++
++#define CHAIN_H 0U
++#define OADDRESS_H 1U
++#define OVERFLOW_H 2U
++
++#include <linux/stddef.h>
++#include <linux/errno.h>
++#include <linux/vmalloc.h>
++#include <linux/string.h>
++
++struct shash_t;
++
++/* Elem is used both for chain and overflow hash */
++struct hash_elem_t {
++    struct hash_elem_t *next;
++    void *key;
++    void *data;
++       void (*cb_fn)(u32, void *, int, u32);
++       u32      command;
++       u32      timestamp;
++       spinlock_t lock;
++};
++
++
++struct shash_t  *hashT_create(u32, size_t, size_t, u32(*)(unsigned char *, 
+unsigned long), int(*)(void *, void *), unsigned int);
++int hashT_delete(struct shash_t * , void *);
++struct hash_elem_t *hashT_lookup(struct shash_t * , void *);
++struct hash_elem_t *hashT_add(struct shash_t *, void *);
++void hashT_destroy(struct shash_t *);
++/* Accesors */
++void **hashT_getkeys(struct shash_t *);
++size_t hashT_tablesize(struct shash_t *);
++size_t hashT_size(struct shash_t *);
++
++#endif
+
+diff -uprN linux-2.6.17/drivers/net/vioc/spp.c 
+linux-2.6.17.vioc/drivers/net/vioc/spp.c
+--- linux-2.6.17/drivers/net/vioc/spp.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17.vioc/drivers/net/vioc/spp.c	2006-10-04 10:16:15.000000000 
+-0700
+@@ -0,0 +1,624 @@
++/*
++ * Fabric7 Systems Virtual IO Controller Driver
++ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
++ * USA
++ *
++ * http://www.fabric7.com/
++ *
++ * Maintainers:
++ *    driver-support@fabric7.com
++ *
++ *
++ */
++#include <linux/module.h>
++#include "f7/vnic_hw_registers.h"
++#include "f7/spp.h"
++#include "f7/sppapi.h"
++
++#include "vioc_vnic.h"
++#include "vioc_api.h"
++#include "khash.h"
++
++#define FACILITY_CNT   16
++
++#define mix(a,b,c) \
++{ \
++  a -= b; a -= c; a ^= (c >> 13); \
++  b -= c; b -= a; b ^= (a << 8); \
++  c -= a; c -= b; c ^= (b >> 13); \
++  a -= b; a -= c; a ^= (c >> 12);  \
++  b -= c; b -= a; b ^= (a << 16); \
++  c -= a; c -= b; c ^= (b >> 5); \
++  a -= b; a -= c; a ^= (c >> 3);  \
++  b -= c; b -= a; b ^= (a << 10); \
++  c -= a; c -= b; c ^= (b >> 15); \
++}
++
++
++struct shash_t {
++	/* Common fields for all hash tables types */
++	size_t tsize;		/* Table size */
++	size_t ksize;		/* Key size is fixed at creation time */
++	size_t dsize;		/* Data size is fixed at creation time */
++	size_t nelems;		/* Number of elements in the hash table */
++	struct hash_ops *h_ops;
++	 u32(*hash_fn) (unsigned char *, unsigned long);
++	void (*copy_fn) (void *, int, void *);
++	int (*compare_fn) (void *, void *);
++	struct hash_elem_t **chtable;	/* Data for the collision */
++};
++
++struct hash_ops {
++	int (*delete) (struct shash_t *, void *);
++	struct hash_elem_t *(*lookup) (struct shash_t *, void *);
++	void (*destroy) (struct shash_t *);
++	struct hash_elem_t *(*add) (struct shash_t *, void *);
++	void **(*getkeys) (struct shash_t *);
++};
++
++struct facility {
++	struct shash_t *hashT;
++	spinlock_t lock;
++};
++
++static u32 hash_func(unsigned char *k, unsigned long length)
++{
++	unsigned long a, b, c, len;
++
++	/* Set up the internal state */
++	len = length;
++	a = b = c = 0x9e3779b9;	/* the golden ratio; an arbitrary value */
++
++	/* Handle most of the key */
++	while (len >= 12) {
++		a += (k[0] + ((unsigned long)k[1] << 8) +
++		      ((unsigned long)k[2] << 16) +
++		      ((unsigned long)k[3] << 24));
++		b += (k[4] + ((unsigned long)k[5] << 8) +
++		      ((unsigned long)k[6] << 16) +
++		      ((unsigned long)k[7] << 24));
++		c += (k[8] + ((unsigned long)k[9] << 8) +
++		      ((unsigned long)k[10] << 16) +
++		      ((unsigned long)k[11] << 24));
++		mix(a, b, c);
++		k += 12;
++		len -= 12;
++	}
++
++	/* Handle the last 11 bytes */
++	c += length;
++	switch (len) {		/* all the case statements fall through */
++	case 11:
++		c += ((unsigned long)k[10] << 24);
++	case 10:
++		c += ((unsigned long)k[9] << 16);
++	case 9:
++		c += ((unsigned long)k[8] << 8);
++		/* the first byte of c is reserved for the length */
++	case 8:
++		b += ((unsigned long)k[7] << 24);
++	case 7:
++		b += ((unsigned long)k[6] << 16);
++	case 6:
++		b += ((unsigned long)k[5] << 8);
++	case 5:
++		b += k[4];
++	case 4:
++		a += ((unsigned long)k[3] << 24);
++	case 3:
++		a += ((unsigned long)k[2] << 16);
++	case 2:
++		a += ((unsigned long)k[1] << 8);
++	case 1:
++		a += k[0];
++	}
++	mix(a, b, c);
++
++	return c;
++}
++
++static u32 gethash(struct shash_t *htable, void *key)
++{
++	size_t len;
++
++	len = htable->ksize;
++
++	/* Hash the key and get the meaningful bits for our table */
++	return ((htable->hash_fn(key, len)) & (htable->tsize - 1));
++}
++
++/* Data associated to this key MUST be freed by the caller */
++static int ch_delete(struct shash_t *htable, void *key)
++{
++	u32 idx;
++	struct hash_elem_t *cursor;	/* Cursor for the linked list */
++	struct hash_elem_t *tmp;	/* Pointer to the element to be deleted */
++
++	idx = gethash(htable, key);
++
++	if (!htable->chtable[idx])
++		return -1;
++
++	/* Delete asked element */
++	/* Element to delete is the first in the chain */
++	if (htable->compare_fn(htable->chtable[idx]->key, key) == 0) {
++		tmp = htable->chtable[idx];
++		htable->chtable[idx] = tmp->next;
++		vfree(tmp);
++		htable->nelems--;
++		return 0;
++	}
++	/* Search thru the chain for the element */
++	else {
++		cursor = htable->chtable[idx];
++		while (cursor->next != NULL) {
++			if (htable->compare_fn(cursor->next->key, key) == 0) {
++				tmp = cursor->next;
++				cursor->next = tmp->next;
++				vfree(tmp);
++				htable->nelems--;
++				return 0;
++			}
++			cursor = cursor->next;
++		}
++	}
++
++	return -1;
++}
++
++static void ch_destroy(struct shash_t *htable)
++{
++	u32 idx;
++	struct hash_elem_t *cursor;
++
++	for (idx = 0; idx < htable->tsize; idx++) {
++		cursor = htable->chtable[idx];
++
++		while (cursor != NULL) {
++			struct hash_elem_t *tmp_cursor = cursor;
++
++			cursor = cursor->next;
++			vfree(tmp_cursor);
++		}
++	}
++	vfree(htable->chtable);
++}
++
++/* Return a NULL terminated string of pointers to all hash table keys */
++static void **ch_getkeys(struct shash_t *htable)
++{
++	u32 idx;
++	struct hash_elem_t *cursor;
++	void **keys;
++	u32 kidx;
++
++	keys = vmalloc((htable->nelems + 1) * sizeof(void *));
++	if (!keys) {
++		return NULL;
++	}
++	keys[htable->nelems] = NULL;
++	kidx = 0;
++
++	for (idx = 0; idx < htable->tsize; idx++) {
++
++		cursor = htable->chtable[idx];
++		while (cursor != NULL) {
++			printk(KERN_INFO "Element %d in bucket %d, key %p value %px\n",
++			       kidx, idx, cursor->key, cursor->data);
++			keys[kidx] = cursor->key;
++			kidx++;
++
++			cursor = cursor->next;
++		}
++	}
++
++	return keys;
++}
++
++/* Accesors 
+******************************************************************/
++inline size_t hashT_tablesize(struct shash_t * htable)
++{
++	return htable->tsize;
++}
++
++inline size_t hashT_size(struct shash_t * htable)
++{
++	return htable->nelems;
++}
++
++static struct hash_elem_t *ch_lookup(struct shash_t *htable, void *key)
++{
++	u32 idx;
++	struct hash_elem_t *cursor;
++
++	idx = gethash(htable, key);
++
++	cursor = htable->chtable[idx];
++
++	/* Search thru the chain for the asked key */
++	while (cursor != NULL) {
++		if (htable->compare_fn(cursor->key, key) == 0)
++			return cursor;
++		cursor = cursor->next;
++	}
++
++	return NULL;
++}
++
++static struct hash_elem_t *ch_add(struct shash_t *htable, void *key)
++{
++	u32 idx;
++	struct hash_elem_t *cursor;
++	struct hash_elem_t *oneelem;
++
++	idx = gethash(htable, key);
++
++	cursor = htable->chtable[idx];
++
++	/* Search thru the chain for the asked key */
++	while (cursor != NULL) {
++		if (htable->compare_fn(cursor->key, key) == 0)
++			break;
++		cursor = cursor->next;
++	}
++
++	if (!cursor) {
++		/* cursor == NULL, means, that no element with this key was found,
++		 * need to insert one
++		 */
++		oneelem =
++		    (struct hash_elem_t *)vmalloc(sizeof(struct hash_elem_t) +
++						  htable->ksize +
++						  htable->dsize);
++		if (!oneelem)
++			return (struct hash_elem_t *)NULL;
++		memset((void *)oneelem, 0,
++		       sizeof(struct hash_elem_t) + htable->ksize +
++		       htable->dsize);
++
++		oneelem->command = 0;
++		oneelem->key = (void *)((char *)oneelem + sizeof(struct hash_elem_t));
++		oneelem->data = (void *)((char *)oneelem->key + htable->ksize);
++		memcpy((void *)oneelem->key, (void *)key, htable->ksize);
++
++		oneelem->next = NULL;
++
++		if (htable->chtable[idx] == NULL)
++			/* No collision ;), first element in this bucket */
++			htable->chtable[idx] = oneelem;
++		else {
++			/* Collision, insert at the end of the chain */
++			cursor = htable->chtable[idx];
++			while (cursor->next != NULL)
++				cursor = cursor->next;
++
++			/* Insert element at the end of the chain */
++			cursor->next = oneelem;
++		}
++
++		htable->nelems++;
++		spin_lock_init(&oneelem->lock);
++	} else {
++		/* Found element with the key */
++		oneelem = cursor;
++	}
++
++	return oneelem;
++}
++
++static int key_compare(void *key_in, void *key_out)
++{
++	if ((u16) * ((u16 *) key_in) == (u16) * ((u16 *) key_out))
++		return 0;
++	else
++		return 1;
++}
++
++struct hash_ops ch_ops = {
++	.delete = ch_delete,
++	.lookup = ch_lookup,
++	.destroy = ch_destroy,
++	.getkeys = ch_getkeys,
++	.add = ch_add
++};
++
++struct facility fTable[FACILITY_CNT];
++
++int spp_init(void)
++{
++	int i;
++
++	for (i = 0; i < FACILITY_CNT; i++) {
++		fTable[i].hashT = NULL;
++		spin_lock_init(&fTable[i].lock);
++	}
++
++	spp_vnic_init();
++
++	return 0;
++}
++
++void spp_terminate(void)
++{
++	int i;
++
++	spp_vnic_exit();
++
++	for (i = 0; i < FACILITY_CNT; i++) {
++		if (fTable[i].hashT) {
++			spin_lock(&fTable[i].lock);
++			hashT_destroy(fTable[i].hashT);
++			fTable[i].hashT = NULL;
++			spin_unlock(&fTable[i].lock);
++		}
++	}
++}
++
++void spp_msg_from_sim(int vioc_idx)
++{
++	struct vioc_device *viocdev = vioc_viocdev(vioc_idx);
++	u32 command_reg, pmm_reply;
++	u32 key, facility, uniqid;
++	u32 *data_p;
++	struct hash_elem_t *elem;
++	int i;
++
++	vioc_reg_rd(viocdev->ba.virt, SPP_SIM_PMM_CMDREG, &command_reg);
++
++	if (spp_mbox_empty(command_reg)) {
++		return;
++	}
++
++	/* Validate checksum */
++	if (spp_validate_u32_chksum(command_reg) != 0) {
++		return;
++	}
++
++	/* Build reply message to SIM */
++	pmm_reply = spp_mbox_build_reply(command_reg, SPP_CMD_OK);
++
++	key = SPP_GET_KEY(command_reg);
++	facility = SPP_GET_FACILITY(command_reg);
++	uniqid = SPP_GET_UNIQID(command_reg);
++
++	/* Check-and-create hash table */
++	spin_lock(&fTable[facility].lock);
++
++	if (fTable[facility].hashT == NULL) {
++		fTable[facility].hashT =
++		    hashT_create(1024, 2, 128, NULL, key_compare, 0);
++		if (fTable[facility].hashT == NULL) {
++			goto error_exit;
++		}
++	}
++
++	/* Add the hash table element */
++	elem = hashT_add(fTable[facility].hashT, (void *)&key);
++	if (!elem) {
++		goto error_exit;
++	}
++	spin_unlock(&fTable[facility].lock);
++
++	/* Copy data from SPP Registers to the key buffer */
++	spin_lock(&elem->lock);
++
++	/* Copy data from SPP Register Bank */
++	for (i = 0, data_p = (u32 *) elem->data; i < SPP_BANK_REGS;
++	     i++, (u32 *) data_p++) {
++		vioc_reg_rd(viocdev->ba.virt, SPP_SIM_PMM_DATA + (i << 2), (u32 *) data_p);
++	}
++
++	elem->command = command_reg;
++	elem->timestamp++;
++	elem->timestamp = (elem->timestamp & 0x0fffffff) | (vioc_idx << 28);
++
++	spin_unlock(&elem->lock);
++
++	vioc_reg_wr(pmm_reply, viocdev->ba.virt, SPP_SIM_PMM_CMDREG);
++	viocdev->last_msg_to_sim = pmm_reply;
++
++	/* If there was registered callback, execute it */
++	if (elem->cb_fn) {
++		spin_lock(&elem->lock);
++		if (spp_validate_u32_chksum(elem->command) == 0) {
++			/* If there is a valid message waiting, call callback */
++			elem->cb_fn(elem->command,
++				    elem->data, 128, elem->timestamp);
++			elem->command = 0;
++		}
++		spin_unlock(&elem->lock);
++	}
++	return;
++
++      error_exit:
++	spin_unlock(&fTable[facility].lock);
++	pmm_reply = spp_mbox_build_reply(command_reg, SPP_CMD_FAIL);
++	vioc_reg_wr(pmm_reply, viocdev->ba.virt, SPP_SIM_PMM_CMDREG);
++	return;
++
++}
++
++int spp_msg_register(u32 key_facility, void (*cb_fn) (u32, void *, int, u32))
++{
++	u32 facility = SPP_GET_FACILITY(key_facility);
++	u32 key = SPP_GET_KEY(key_facility);
++	struct hash_elem_t *elem;
++
++	/* Check-and-create hash table */
++	spin_lock(&fTable[facility].lock);
++
++	if (fTable[facility].hashT == NULL) {
++		fTable[facility].hashT =
++		    hashT_create(1024, 2, 128, NULL, key_compare, 0);
++		if (fTable[facility].hashT == NULL) {
++			goto error_exit;
++		}
++	}
++
++	/* Add the hash table element */
++	elem = hashT_add(fTable[facility].hashT, (void *)&key);
++	if (!elem) {
++		goto error_exit;
++	}
++	spin_unlock(&fTable[facility].lock);
++
++	spin_lock(&elem->lock);
++	elem->cb_fn = cb_fn;
++	if (spp_validate_u32_chksum(elem->command) == 0) {
++		/* If there is a valid message waiting, call callback */
++		elem->cb_fn(elem->command, elem->data, 128, elem->timestamp);
++		elem->command = 0;
++	}
++	spin_unlock(&elem->lock);
++	return SPP_CMD_OK;
++
++      error_exit:
++	spin_unlock(&fTable[facility].lock);
++	return SPP_CMD_FAIL;
++}
++
++void spp_msg_unregister(u32 key_facility)
++{
++	u32 key = SPP_GET_KEY(key_facility);
++	u32 facility = SPP_GET_FACILITY(key_facility);
++	struct hash_elem_t *elem;
++
++	if (fTable[facility].hashT == NULL)
++		return;
++
++	elem = hashT_lookup(fTable[facility].hashT, (void *)&key);
++	if (!elem)
++		return;
++
++	spin_lock(&elem->lock);
++	elem->cb_fn = NULL;
++	spin_unlock(&elem->lock);
++}
++
++
++int read_spp_regbank32(int vioc_idx, int bank, char *buffer)
++{
++	struct vioc_device *viocdev = vioc_viocdev(vioc_idx);
++	int i;
++	u32 *data_p;
++	u32 reg;
++
++	if (!viocdev)
++		return 0;
++
++	/* Copy data from SPP Register Bank */
++	for (i = 0, data_p = (u32 *) buffer; i < SPP_BANK_REGS;
++	     i++, (u32 *) data_p++) {
++		reg = SPP_BANK_ADDR(bank) + (i << 2);
++		vioc_reg_rd(viocdev->ba.virt, reg, (u32 *) data_p);
++	}
++
++	return i;
++}
++
++struct shash_t *hashT_create(u32 sizehint, 
++							size_t keybuf_size,
++			     			size_t databuf_size, 
++							u32(*hfunc) (unsigned char *,
++							unsigned long),
++							int (*cfunc) (void *, void *), 
++							unsigned int flags)
++{
++	struct shash_t *htable;
++	u32 size = 0;		/* Table size */
++	int i = 1;
++
++	/* Take the size hint and round it to the next higher power of two */
++	while (size < sizehint) {
++		size = 1 << i++;
++		if (size == 0) {
++			size = 1 << (i - 2);
++			break;
++		}
++	}
++
++	if (cfunc == NULL)
++		return NULL;
++
++	/* Create hash table */
++	htable = vmalloc(sizeof(struct shash_t) + keybuf_size + databuf_size);
++	if (!htable)
++		return NULL;
++
++	/* And create structs for hash table */
++
++	htable->h_ops = &ch_ops;
++	htable->chtable = vmalloc(size * (sizeof(struct hash_elem_t)
++						   	+ keybuf_size 
++							+ databuf_size));
++	if (!htable->chtable) {
++		vfree(htable);
++		return NULL;
++	}
++
++	memset(htable->chtable, '\0',
++	       size * (sizeof(struct hash_elem_t) + keybuf_size + databuf_size));
++
++	/* Initialize hash table common fields */
++	htable->tsize = size;
++	htable->ksize = keybuf_size;
++	htable->dsize = databuf_size;
++	htable->nelems = 0;
++
++	if (hfunc)
++		htable->hash_fn = hfunc;
++	else
++		htable->hash_fn = hash_func;
++
++	htable->compare_fn = cfunc;
++
++	return htable;
++}
++
++int hashT_delete(struct shash_t *htable, void *key)
++{
++	return htable->h_ops->delete(htable, key);
++}
++
++struct hash_elem_t *hashT_add(struct shash_t *htable, void *key)
++{
++	return htable->h_ops->add(htable, key);
++}
++
++struct hash_elem_t *hashT_lookup(struct shash_t *htable, void *key)
++{
++	return htable->h_ops->lookup(htable, key);
++}
++
++void hashT_destroy(struct shash_t *htable)
++{
++
++	htable->h_ops->destroy(htable);
++
++	vfree(htable);
++}
++
++void **hashT_getkeys(struct shash_t *htable)
++{
++	return htable->h_ops->getkeys(htable);
++}
++
++#ifdef EXPORT_SYMTAB
++EXPORT_SYMBOL(spp_msg_register);
++EXPORT_SYMBOL(spp_msg_unregister);
++EXPORT_SYMBOL(read_spp_regbank32);
++#endif
+diff -uprN linux-2.6.17/drivers/net/vioc/spp_vnic.c 
+linux-2.6.17.vioc/drivers/net/vioc/spp_vnic.c
+--- linux-2.6.17/drivers/net/vioc/spp_vnic.c	1969-12-31 16:00:00.000000000 
+-0800
++++ linux-2.6.17.vioc/drivers/net/vioc/spp_vnic.c	2006-10-04 
+10:18:35.000000000 -0700
+@@ -0,0 +1,131 @@
++/*
++ * Fabric7 Systems Virtual IO Controller Driver
++ * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307
++ * USA
++ *
++ * http://www.fabric7.com/
++ *
++ * Maintainers:
++ *    driver-support@fabric7.com
++ *
++ *
++ */
++#include <stdarg.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/string.h>
++#include <linux/ctype.h>
++#include <linux/kernel.h>
++#include <linux/proc_fs.h>
++#include "vioc_vnic.h"
++#include "vioc_api.h"
++#include "f7/sppapi.h"
++#include "f7/spp_msgdata.h"
++#include "f7/vnic_hw_registers.h"
++
++
++#define VIOC_ID_FROM_STAMP(stamp)      ((stamp >> 28) & 0xf)
++
++static u32 relative_time;
++
++static void spp_vnic_cb(u32 cmd, void *msg_buf, int buf_size, u32 viocstamp)
++{
++	u32 param, param2;
++	int viocdev_idx;
++	u32 timestamp = viocstamp & 0x0fffffff;
++	int vioc_id = VIOC_ID_FROM_STAMP(viocstamp);
++
++	relative_time = timestamp;
++
++	viocdev_idx = ((int *)msg_buf)[SPP_VIOC_ID_IDX];
++	if (viocdev_idx != vioc_id) {
++		printk(KERN_ERR "%s: MSG to VIOC=%d, but param VIOC=%d\n",
++		       __FUNCTION__, vioc_id, viocdev_idx);
++	}
++	param = vioc_rrd(viocdev_idx, VIOC_BMC, 0, VREG_BMC_VNIC_EN);
++	param2 = vioc_rrd(viocdev_idx, VIOC_BMC, 0, VREG_BMC_PORT_EN);
++#ifdef VNIC_UNREGISTER_PATCH
++	vioc_vnic_prov(viocdev_idx, param, param2, 1);
++#else
++	vioc_vnic_prov(viocdev_idx, param, param2, 0);
++#endif
++}
++
++static void spp_sys_cb(u32 cmd, void *msg_buf, int buf_size, u32 viocstamp)
++{
++	u32 reset_type;
++	u32 timestamp = viocstamp & 0x0fffffff;
++
++	relative_time = timestamp;
++
++	reset_type = ((u32 *) msg_buf)[SPP_UOS_RESET_TYPE_IDX];
++	if (vioc_handle_reset_request(reset_type) < 0) {
++		/* Invalid reset type ..ignore the message */
++		printk(KERN_ERR "Invalid reset request %d\n", reset_type);
++	}
++}
++static void spp_prov_cb(u32 cmd, void *msg_buf, int buf_size, u32 viocstamp)
++{
++	u32 timestamp = viocstamp & 0x0fffffff;
++
++	relative_time = timestamp;
++}
++
++struct kf_handler {
++	u32 key;
++	u32 facility;
++	void (*cb) (u32, void *, int, u32);
++};
++
++static
++struct kf_handler local_cb[] = {
++	{SPP_KEY_VNIC_CTL, SPP_FACILITY_VNIC, spp_vnic_cb},
++	{SPP_KEY_REQUEST_SIGNAL, SPP_FACILITY_SYS, spp_sys_cb},
++	{SPP_KEY_SET_PROV, SPP_FACILITY_VNIC, spp_prov_cb},
++	{0, 0, NULL}
++};
++
++int spp_vnic_init(void)
++{
++	u32 key_facility = 0;
++	int i;
++
++	for (i = 0; local_cb[i].cb; i++) {
++
++		SPP_SET_KEY(key_facility, local_cb[i].key);
++		SPP_SET_FACILITY(key_facility, local_cb[i].facility);
++
++		spp_msg_register(key_facility, local_cb[i].cb);
++	}
++	return 0;
++}
++
++void spp_vnic_exit(void)
++{
++	u32 key_facility = 0;
++	int i;
++
++	for (i = 0; local_cb[i].cb; i++) {
++
++		SPP_SET_KEY(key_facility, local_cb[i].key);
++		SPP_SET_FACILITY(key_facility, local_cb[i].facility);
++
++		spp_msg_unregister(key_facility);
++	}
++	return;
++}
++
+diff -uprN linux-2.6.17/drivers/net/vioc/vioc_spp.c 
+linux-2.6.17.vioc/drivers/net/vioc/vioc_spp.c
+--- linux-2.6.17/drivers/net/vioc/vioc_spp.c	1969-12-31 16:00:00.000000000 
+-0800
++++ linux-2.6.17.vioc/drivers/net/vioc/vioc_spp.c	2006-10-04 
+10:39:45.000000000 -0700
+@@ -0,0 +1,388 @@
 +/*
 + * Fabric7 Systems Virtual IO Controller Driver
 + * Copyright (C) 2003-2005 Fabric7 Systems.  All rights reserved.
@@ -580,11 +1314,12 @@ linux-2.6.17.vioc/drivers/net/vioc/vioc_driver.c
 +#include <linux/types.h>
 +#include <linux/compiler.h>
 +#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/errno.h>
 +#include <linux/delay.h>
 +#include <linux/init.h>
 +#include <linux/ioport.h>
 +#include <linux/netdevice.h>
-+#include <linux/sysdev.h>
 +#include <linux/etherdevice.h>
 +#include <linux/skbuff.h>
 +#include <linux/ethtool.h>
@@ -592,837 +1327,355 @@ linux-2.6.17.vioc/drivers/net/vioc/vioc_driver.c
 +#include <linux/if_vlan.h>
 +#include <linux/wait.h>
 +#include <linux/sched.h>
-+#include <linux/notifier.h>
-+#include <linux/errno.h>
++#include <linux/signal.h>
++#include <linux/reboot.h>
++#include <linux/kallsyms.h>
 +
 +#include <asm/system.h>
 +#include <asm/io.h>
 +#include <asm/byteorder.h>
 +#include <asm/uaccess.h>
++#include <asm/semaphore.h>
++#include <net/genetlink.h>
 +
 +#include "f7/vnic_hw_registers.h"
 +#include "f7/vnic_defs.h"
-+
-+#include <linux/moduleparam.h>
++#include "f7/spp_msgdata.h"
 +#include "vioc_vnic.h"
 +#include "vioc_api.h"
 +
-+#include "driver_version.h"
++/* Register definitions for communication between VIOC and BMC */
 +
++#define SPP_VIOC_MODULE        VIOC_BMC
 +
-+MODULE_AUTHOR("support@fabric7.com");
-+MODULE_DESCRIPTION("VIOC interface driver");
-+MODULE_LICENSE("GPL");
++#define SPP_BMC_VNIC   14
++#define SPP_SIM_VNIC   15
 +
-+MODULE_VERSION(VIOC_DISPLAY_VERSION);
++/* PMM-BMC communications messages */
++#define SPP_BMC_RST_RQ         0x01
++#define SPP_BMC_TUN_MSG                0x02
++#define SPP_BMC_HB                     0x01
 +
-+/*
-+ * Standard parameters for ring provisioning.  Single TxQ per VNIC.
-+ * Two RX sets per VIOC, with 3 RxDs, 1 RxC, 1 Rx interrupt per set.
-+ */
++/* PMM-BMC Sensor register bits */
++#define SPP_HB_SENSOR_REG      GETRELADDR(SPP_VIOC_MODULE, 0, 
+VREG_BMC_SENSOR0)
++#define SPP_SHUTDWN_SENSOR_REG GETRELADDR(SPP_VIOC_MODULE, 0, 
+VREG_BMC_SENSOR1)
++#define SPP_PANIC_SENSOR_REG   GETRELADDR(SPP_VIOC_MODULE, 0, 
+VREG_BMC_SENSOR2)
++#define SPP_RST_SENSOR_REG     GETRELADDR(SPP_VIOC_MODULE, 0, 
+VREG_BMC_SENSOR3)
 +
-+#define TXQ_SIZE			1024
-+#define TX_INTR_ON_EMPTY	0
++/* PMM-BMC communications registers */
++#define SPP_BMC_HB_REG         GETRELADDR(SPP_VIOC_MODULE, SPP_BMC_VNIC, 
+VREG_BMC_REG_R31)
++#define SPP_BMC_CMD_REG                GETRELADDR(SPP_VIOC_MODULE, 
+SPP_BMC_VNIC, VREG_BMC_REG_R30)
 +
-+#define VNIC_RXQ_MAP		0xf	/* Bits 0-3 for 4 VNIC queues */
-+#define RXDQ_PERSET_COUNT	3
-+#define RXDQ_COUNT			(RXSET_COUNT * RXDQ_PERSET_COUNT)
-+/* RXDQ sizes (entry counts) must be multiples of this */
-+#define RXDQ_ALIGN			VIOC_RXD_BATCH_BITS
-+#define RXDQ_SIZE			2048
-+#define RXDQ_JUMBO_SIZE		ALIGN(RXDQ_SIZE, RXDQ_ALIGN)
-+#define RXDQ_STD_SIZE		ALIGN(RXDQ_SIZE, RXDQ_ALIGN)
-+#define RXDQ_SMALL_SIZE		ALIGN(RXDQ_SIZE, RXDQ_ALIGN)
-+#define RXDQ_EXTRA_SIZE		ALIGN(RXDQ_SIZE, RXDQ_ALIGN)
++static DECLARE_MUTEX(vnic_prov_sem);
 +
-+#define RXC_COUNT			RXSET_COUNT
-+#define RXC_SIZE			
-(RXDQ_JUMBO_SIZE+RXDQ_STD_SIZE+RXDQ_SMALL_SIZE+RXDQ_EXTRA_SIZE)
-+
-+/* VIOC devices */
-+static struct pci_device_id vioc_pci_tbl[] __devinitdata = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_FABRIC7, PCI_DEVICE_ID_VIOC_1)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_FABRIC7, PCI_DEVICE_ID_VIOC_8)},
-+	{0,},
-+};
-+
-+MODULE_DEVICE_TABLE(pci, vioc_pci_tbl);
-+
-+static spinlock_t vioc_idx_lock = SPIN_LOCK_UNLOCKED;
-+static unsigned vioc_idx = 0;
-+static struct vioc_device *vioc_devices[VIOC_MAX_VIOCS];
-+
-+static struct vioc_device *viocdev_new(int viocdev_idx, struct pci_dev *pdev)
++static inline void vnic_prov_get_sema(void)
 +{
-+	int k;
-+	struct vioc_device *viocdev;
-+
-+	if (viocdev_idx >= VIOC_MAX_VIOCS)
-+		return NULL;
-+
-+	viocdev = kmalloc(sizeof(struct vioc_device), GFP_KERNEL);
-+	if (!viocdev)
-+		return viocdev;
-+
-+	memset(viocdev, 0, sizeof(struct vioc_device));
-+
-+	viocdev->pdev = pdev;
-+	viocdev->vioc_state = VIOC_STATE_INIT;
-+	viocdev->viocdev_idx = viocdev_idx;
-+
-+	viocdev->prov.run_param.tx_pkts_per_bell = TX_PKTS_PER_BELL;
-+	viocdev->prov.run_param.tx_pkts_per_irq = TX_PKTS_PER_IRQ;
-+	viocdev->prov.run_param.tx_intr_on_empty = TX_INTR_ON_EMPTY;
-+	viocdev->prov.run_param.rx_intr_timeout = RX_INTR_TIMEOUT;
-+	viocdev->prov.run_param.rx_intr_cntout = RX_INTR_PKT_CNT;
-+	viocdev->prov.run_param.rx_wdog_timeout = HZ / 4;
-+
-+	for (k = 0; k < VIOC_MAX_VNICS; k++) {
-+		viocdev->vnic_netdev[k] = NULL;	/* spp */
-+	}
-+
-+	vioc_devices[viocdev_idx] = viocdev;
-+
-+	return viocdev;
++	down(&vnic_prov_sem);
 +}
 +
-+/*
-+ * Remove all Rx descriptors from the queue.
-+ */
-+static void vioc_clear_rxq(struct vioc_device *viocdev, struct rxdq *rxdq)
++static inline void vnic_prov_put_sema(void)
 +{
-+	int j;
++	up(&vnic_prov_sem);
++}
 +
-+	/* Disable this queue */
-+	vioc_ena_dis_rxd_q(viocdev->viocdev_idx, rxdq->rxdq_id, 0);
++/* VIOC must be write-locked */
++static int vioc_vnic_enable(int vioc_id, int vnic_id)
++{
++	struct vioc_device *viocdev = vioc_viocdev(vioc_id);
++	struct net_device *netdev;
++	int rc = E_VIOCOK;
 +
-+	if (rxdq->vbuf == NULL)
-+		return;
++	netdev = viocdev->vnic_netdev[vnic_id];
++	if (netdev == NULL) {
++		netdev = vioc_alloc_vnicdev(viocdev, vnic_id);
++		if (netdev == NULL) {
++			rc = -ENOMEM;
++			goto vioc_vnic_enable_exit;
++		} else {
++			viocdev->vnic_netdev[vnic_id] = netdev;
 +
-+	for (j = 0; j < rxdq->count; j++) {
-+		struct rx_pktBufDesc_Phys_w *rxd;
-+		if (rxdq->vbuf[j].skb) {
-+			pci_unmap_single(rxdq->viocdev->pdev,
-+					 rxdq->vbuf[j].dma,
-+					 rxdq->rx_buf_size, PCI_DMA_FROMDEVICE);
-+			dev_kfree_skb_any((struct sk_buff *)rxdq->vbuf[j].skb);
-+			rxdq->vbuf[j].skb = NULL;
-+			rxdq->vbuf[j].dma = (dma_addr_t) NULL;
++			if ((rc = register_netdev(netdev))) {
++				free_netdev(netdev);
++				viocdev->vnic_netdev[vnic_id] = NULL;
++				goto vioc_vnic_enable_exit;
++			}
 +		}
-+		rxd = RXD_PTR(rxdq, j);
-+		wmb();
-+		CLR_VNIC_RX_OWNED(rxd);
 +	}
++
++	viocdev->vnics_map |= (1 << vnic_id);
++
++	rc = vioc_vnic_resources_set(vioc_id, vnic_id);
++
++      vioc_vnic_enable_exit:
++
++	return rc;
 +}
 +
-+/*
-+ * Refill an empty Rx queue with Rx with Rx buffers
-+ */
-+static int vioc_refill_rxq(struct vioc_device *viocdev, struct rxdq *rxdq)
++/* VIOC must be write-locked */
++static int vioc_vnic_disable(int vioc_id, int vnic_id, int unreg_flag)
 +{
-+	int ret = 0;
++	struct vioc_device *viocdev = vioc_viocdev(vioc_id);
 +
-+	memset(rxdq->vbuf, 0, rxdq->count * sizeof(struct vbuf));
-+	memset(rxdq->dmap, 0, rxdq->dmap_count * (VIOC_RXD_BATCH_BITS / 8));
++	/* Remove VNIC from the map BEFORE releasing resources */
++	viocdev->vnics_map &= ~(1 << vnic_id);
 +
-+	rxdq->fence = 0;
-+	rxdq->to_hw = VIOC_NONE_TO_HW;
-+	rxdq->starvations = 0;
-+	rxdq->run_to_end = 0;
-+	rxdq->skip_fence_run = rxdq->dmap_count / 4;
-+
-+	ret = vioc_next_fence_run(rxdq);
-+	BUG_ON(ret != 0);
-+	return ret;
-+}
-+
-+struct vioc_device *vioc_viocdev(u32 viocdev_idx)
-+{
-+	if (viocdev_idx >= vioc_idx) {
-+		BUG_ON(viocdev_idx >= vioc_idx);
-+		return NULL;
++	if (unreg_flag) {
++		/* Unregister netdev */
++		if (viocdev->vnic_netdev[vnic_id]) {
++			unregister_netdev(viocdev->vnic_netdev[vnic_id]);
++			dev_err(&viocdev->pdev->dev, "%s: %s\n", __FUNCTION__,
++			       (viocdev->vnic_netdev[vnic_id])->name);
++			free_netdev(viocdev->vnic_netdev[vnic_id]);
++			viocdev->vnic_netdev[vnic_id] = NULL;
++		} else
++			BUG_ON(viocdev->vnic_netdev[vnic_id] == NULL);
 +	}
 +
-+	BUG_ON(vioc_devices[viocdev_idx] == NULL);
-+	return vioc_devices[viocdev_idx];
-+}
-+
-+static void vioc_bmc_wdog(unsigned long data)
-+{
-+
-+	struct vioc_device *viocdev = (struct vioc_device *)data;
-+
-+	if (!viocdev->bmc_wd_timer_active)
-+		return;
-+
-+	/*
-+	 * Send Heartbeat message to BMC
-+	 */
-+	vioc_hb_to_bmc(viocdev->viocdev_idx);
-+
-+	/*
-+	 * Reset the timer
-+	 */
-+	mod_timer(&viocdev->bmc_wd_timer, jiffies + HZ);
-+
-+	return;
-+}
-+
-+static int extract_vnic_prov(struct vioc_device *viocdev, 
-+									struct vnic_device *vnicdev)
-+{
-+	struct vnic_prov_def *vr;
-+	int j;
-+
-+	vr = viocdev->prov.vnic_prov_p[vnicdev->vnic_id];
-+	if (vr == NULL) {
-+		dev_err(&viocdev->pdev->dev, "vioc %d: vnic %d No provisioning set\n",
-+		       viocdev->viocdev_idx, vnicdev->vnic_id);
-+		return E_VIOCPARMERR;
-+	}
-+
-+	if (vr->tx_entries == 0) {
-+		dev_err(&viocdev->pdev->dev, "vioc %d: vnic %d Tx ring not provisioned\n",
-+		       viocdev->viocdev_idx, vnicdev->vnic_id);
-+		return E_VIOCPARMERR;
-+	}
-+
-+	if (viocdev->rxc_p[vr->rxc_id] == NULL) {
-+		dev_err(&viocdev->pdev->dev,
-+		       "vioc %d: vnic %d RxC ring %d  not provisioned\n",
-+		       viocdev->viocdev_idx, vnicdev->vnic_id, vr->rxc_id);
-+		return E_VIOCPARMERR;
-+	}
-+
-+	if (vr->rxc_intr_id >= viocdev->num_rx_irqs) {
-+		dev_err(&viocdev->pdev->dev, "vioc %d: vnic %d IRQ %d INVALID (max %d)\n",
-+		       viocdev->viocdev_idx, vnicdev->vnic_id,
-+		       vr->rxc_intr_id, (viocdev->num_rx_irqs - 1));
-+		return E_VIOCPARMERR;
-+	}
-+
-+	vnicdev->txq.count = vr->tx_entries;
-+	vnicdev->rxc_id = vr->rxc_id;
-+	vnicdev->rxc_intr_id = vr->rxc_intr_id;
-+
-+	for (j = 0; j < 4; j++) {
-+		struct rxd_q_prov *ring = &vr->rxd_ring[j];
-+
-+		if (ring->state == 0)
-+			continue;
-+
-+		if (viocdev->rxd_p[ring->id] == NULL) {
-+			dev_err(&viocdev->pdev->dev,
-+			       "vioc %d: vnic %d RxD ring %d  not provisioned\n",
-+			       viocdev->viocdev_idx, vnicdev->vnic_id,
-+			       ring->id);
-+			return E_VIOCPARMERR;
-+		}
-+
-+		/* Set Rx queue ENABLE bit for BMC_VNIC_CFG register */
-+		vnicdev->vnic_q_en |= (1 << j);
-+
-+	}
-+	vnicdev->qmap =
-+	    ((vr->rxd_ring[0].id & 0xf) << (0 + 8 * 0)) |
-+	    ((vr->rxd_ring[0].state & 0x1) << (7 + 8 * 0)) |
-+	    ((vr->rxd_ring[1].id & 0xf) << (0 + 8 * 1)) |
-+	    ((vr->rxd_ring[1].state & 0x1) << (7 + 8 * 1)) |
-+	    ((vr->rxd_ring[2].id & 0xf) << (0 + 8 * 2)) |
-+	    ((vr->rxd_ring[2].state & 0x1) << (7 + 8 * 2)) |
-+	    ((vr->rxd_ring[3].id & 0xf) << (0 + 8 * 3)) |
-+	    ((vr->rxd_ring[3].state & 0x1) << (7 + 8 * 3));
 +	return E_VIOCOK;
 +}
 +
-+struct net_device *vioc_alloc_vnicdev(struct vioc_device *viocdev, int 
-vnic_id)
++void vioc_vnic_prov(int vioc_id, u32 vnic_en, u32 port_en, int free_flag)
 +{
-+	struct net_device *netdev;
-+	struct vnic_device *vnicdev;
++	u32 change_map;
++	u32 up_map;
++	u32 down_map;
++	int vnic_id;
++	int rc = E_VIOCOK;
++	struct vioc_device *viocdev = vioc_viocdev(vioc_id);
 +
-+	netdev = alloc_etherdev(sizeof(struct vnic_device));
-+	if (!netdev) {
-+		return NULL;
-+	}
++	change_map = vnic_en ^ viocdev->vnics_map;
++	up_map = vnic_en & change_map;
++	down_map = viocdev->vnics_map & change_map;
 +
-+	viocdev->vnic_netdev[vnic_id] = netdev;
-+	vnicdev = netdev_priv(netdev);
-+	vnicdev->viocdev = viocdev;
-+	vnicdev->netdev = netdev;
-+	vnicdev->vnic_id = vnic_id;
-+	sprintf(&netdev->name[0], "ve%d.%02d", viocdev->viocdev_idx, vnic_id);
-+	netdev->init = &vioc_vnic_init;	/* called when it is registered */
-+	vnicdev->txq.vnic_id = vnic_id;
-+
-+	if (extract_vnic_prov(viocdev, vnicdev) != E_VIOCOK) {
-+		free_netdev(netdev);
-+		return NULL;
-+	}
-+
-+	return netdev;
-+}
-+
-+static void vioc_free_resources(struct vioc_device *viocdev, u32 viocidx)
-+{
-+	int i;
-+	struct napi_poll *napi_p;
-+	int start_j = jiffies;
-+	int delta_j = 0;
-+
-+	for (i = 0; i < VIOC_MAX_RXCQ; i++) {
-+		struct rxc *rxc = viocdev->rxc_p[i];
-+		if (rxc == NULL)
-+			continue;
-+
-+		napi_p = &rxc->napi;
-+		/* Tell NAPI poll to stop */
-+		napi_p->enabled = 0;
-+
-+		/* Make sure that NAPI poll gets the message */
-+		netif_rx_schedule(&napi_p->poll_dev);
-+
-+		/* Wait for an ack from NAPI that it stopped,
-+		 * so we can release resources
-+		 */
-+		while (!napi_p->stopped) {
-+			schedule();
-+			delta_j = jiffies - start_j;
-+			if (delta_j > 10 * HZ) {
-+				/* Looks like NAPI didn;t get to run.
-+				 * Bail out hoping, we are not stuck
-+				 * in NAPI poll.
-+				 */
-+				break;
++	/* Enable from 0 to max */
++	for (vnic_id = 0; vnic_id < VIOC_MAX_VNICS; vnic_id++) {
++		if (up_map & (1 << vnic_id)) {
++			rc = vioc_vnic_enable(vioc_id, vnic_id);
++			if (rc) {
++				dev_err(&viocdev->pdev->dev, "%s: Enable VNIC %d FAILED\n",
++				       __FUNCTION__, vnic_id);
 +			}
 +		}
-+		if (rxc->dma) {
-+			pci_free_consistent(viocdev->pdev,
-+					    rxc->count * RXC_DESC_SIZE,
-+					    rxc->desc, rxc->dma);
-+			rxc->desc = NULL;
-+			rxc->dma = (dma_addr_t) NULL;
++	}
++
++	/* Disable from max to 0 */
++	for (vnic_id = VIOC_MAX_VNICS - 1; vnic_id >= 0; vnic_id--) {
++		if (down_map & (1 << vnic_id)) {
++			rc = vioc_vnic_disable(vioc_id, vnic_id, free_flag);
++			if (rc) {
++				dev_err(&viocdev->pdev->dev, "%s: Disable VNIC %d FAILED\n",
++				       __FUNCTION__, vnic_id);
++			}
 +		}
 +	}
 +
-+	for (i = 0; i < VIOC_MAX_RXDQ; i++) {
-+		struct rxdq *rxdq = viocdev->rxd_p[i];
-+		if (rxdq == NULL)
-+			continue;
-+
-+		vioc_ena_dis_rxd_q(viocidx, rxdq->rxdq_id, 0);
-+		if (rxdq->vbuf) {
-+			vioc_clear_rxq(viocdev, rxdq);
-+			vfree(rxdq->vbuf);
-+			rxdq->vbuf = NULL;
++	/*
++	 * Now, after all VNIC enable-disable changes are in place,
++	 * viocdev->vnics_map contains the current state of VNIC map.
++	 * Use only ENABLED VNICs to process PORT_EN register, aka
++	 * LINK state register.
++	 */
++	for (vnic_id = VIOC_MAX_VNICS - 1; vnic_id >= 0; vnic_id--) {
++		if (viocdev->vnics_map & (1 << vnic_id)) {
++			struct net_device *netdev =
++			    viocdev->vnic_netdev[vnic_id];
++			if (port_en & (1 << vnic_id)) {
++				/* PORT ENABLED - LINK UP */
++				if (!netif_carrier_ok(netdev)) {
++					netif_carrier_on(netdev);
++					netif_wake_queue(netdev);
++					dev_err(&viocdev->pdev->dev, "idx %d, %s: Link UP\n",
++					       vioc_id, netdev->name);
++				}
++			} else {
++				/* PORT DISABLED - LINK DOWN */
++				if (netif_carrier_ok(netdev)) {
++					netif_stop_queue(netdev);
++					netif_carrier_off(netdev);
++					dev_err(&viocdev->pdev->dev,
++					       "idx %d, %s: Link DOWN\n",
++					       vioc_id, netdev->name);
++				}
++			}
 +		}
-+		if (rxdq->dmap) {
-+			vfree(rxdq->dmap);
-+			rxdq->dmap = NULL;
-+		}
-+		if (rxdq->dma) {
-+			pci_free_consistent(viocdev->pdev,
-+					    rxdq->count * RX_DESC_SIZE,
-+					    rxdq->desc, rxdq->dma);
-+			rxdq->desc = NULL;
-+			rxdq->dma = (dma_addr_t) NULL;
-+		}
-+		viocdev->rxd_p[rxdq->rxdq_id] = NULL;
 +	}
-+
-+	/* Free RxC status block */
-+	if (viocdev->rxcstat.dma) {
-+		pci_free_consistent(viocdev->pdev, RXS_DESC_SIZE,
-+				    viocdev->rxcstat.block,
-+				    viocdev->rxcstat.dma);
-+		viocdev->rxcstat.block = NULL;
-+		viocdev->rxcstat.dma = (dma_addr_t) NULL;
-+	}
-+
 +}
 +
 +/*
-+ * Initialize rxsets - RxS, RxCs and RxDs and push to VIOC.
-+ * Return negative errno on failure.
++ * Called from interrupt or task context
 + */
-+static int vioc_alloc_resources(struct vioc_device *viocdev, u32 viocidx)
++void vioc_bmc_interrupt(void *input_param)
 +{
-+	int j, i;
-+	int ret;
-+	struct vnic_prov_def *vr;
-+	struct napi_poll *napi_p;
-+	struct rxc *rxc;
++	int vioc_id = VIOC_IRQ_PARAM_VIOC_ID(input_param);
++	int rc = 0;
++	u32 intr_source_map, intr_source;
++	struct vioc_device *viocdev = vioc_viocdev(vioc_id);
 +
-+	dev_err(&viocdev->pdev->dev, "vioc%d: ENTER %s\n", viocidx, __FUNCTION__);
-+
-+	/* Allocate Rx Completion Status block */
-+	viocdev->rxcstat.block = (struct rxc_pktStatusBlock_w *)
-+	    pci_alloc_consistent(viocdev->pdev,
-+				 RXS_DESC_SIZE * VIOC_MAX_RXCQ,
-+				 &viocdev->rxcstat.dma);
-+	if (!viocdev->rxcstat.block) {
-+		dev_err(&viocdev->pdev->dev, "vioc%d: Could not allocate RxS\n", viocidx);
-+		ret = -ENOMEM;
-+		goto error;
-+	}
-+	/* Tell VIOC about this RxC Status block */
-+	ret = vioc_set_rxs(viocidx, viocdev->rxcstat.dma);
-+	if (ret) {
-+		dev_err(&viocdev->pdev->dev, "vioc%d: Could not set RxS\n", viocidx);
-+		goto error;
++	if (viocdev->vioc_state != VIOC_STATE_UP) {
++		dev_err(&viocdev->pdev->dev, "VIOC %d is not UP yet\n",
++		       viocdev->viocdev_idx);
++		return;
 +	}
 +
-+	/* Based on provisioning request, setup RxCs and RxDs */
-+	for (i = 0; i < VIOC_MAX_VNICS; i++) {
-+		vr = viocdev->prov.vnic_prov_p[i];
-+		if (vr == NULL) {
++	/* Get the Interrupt Source Register */
++	intr_source_map = vioc_rrd(viocdev->viocdev_idx, VIOC_BMC, 0,
++				   VREG_BMC_INTRSTATUS);
++
++	vnic_prov_get_sema();
++
++	/*
++	 * Clear all pending interrupt bits, we will service all interrupts
++	 * based on the copy of 0x144 register in intr_source.
++	 */
++	rc = vioc_rwr(viocdev->viocdev_idx, VIOC_BMC, 0,
++		      VREG_BMC_INTRSTATUS, intr_source_map);
++	if (rc) {
++		dev_err(&viocdev->pdev->dev, "%s: vioc_rwr() -> %d\n", __FUNCTION__, rc);
++		goto vioc_bmc_interrupt_exit;
++	}
++
++	for (intr_source = VIOC_BMC_INTR0; intr_source_map; intr_source <<= 1) {
++		switch (intr_source_map & intr_source) {
++		case VIOC_BMC_INTR0:
 +			dev_err(&viocdev->pdev->dev,
-+			       "vioc %d: vnic %d No provisioning set\n",
-+			       viocdev->viocdev_idx, i);
-+			goto error;
++			       "*** OLD SPP commands (BMC intr %08x) are no longer supported\n",
++			       intr_source_map);
++			break;
++		case VIOC_BMC_INTR1:
++			spp_msg_from_sim(viocdev->viocdev_idx);
++			break;
++
++		default:
++			break;
 +		}
-+
-+		if (vr->rxc_id >= VIOC_MAX_RXCQ) {
-+			dev_err(&viocdev->pdev->dev, "vioc%d: INVALID RxC %d provisioned\n",
-+			       viocidx, vr->rxc_id);
-+			goto error;
-+		}
-+		rxc = viocdev->rxc_p[vr->rxc_id];
-+		if (rxc == NULL) {
-+			rxc = &viocdev->rxc_buf[vr->rxc_id];
-+			viocdev->rxc_p[vr->rxc_id] = rxc;
-+			rxc->rxc_id = vr->rxc_id;
-+			rxc->viocdev = viocdev;
-+			rxc->quota = POLL_WEIGHT;
-+			rxc->budget = POLL_WEIGHT;
-+			rxc->count = vr->rxc_entries;
-+
-+			/* Allocate RxC ring memory */
-+			rxc->desc = (struct rxc_pktDesc_Phys_w *)
-+			    pci_alloc_consistent(viocdev->pdev,
-+						 rxc->count * RXC_DESC_SIZE,
-+						 &rxc->dma);
-+			if (!rxc->desc) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Can't allocate RxC ring %d for %d entries\n",
-+				       viocidx, rxc->rxc_id, rxc->count);
-+				ret = -ENOMEM;
-+				goto error;
-+			}
-+			rxc->interrupt_id = vr->rxc_intr_id;
-+
-+			rxc->va_of_vreg_ihcu_rxcinttimer =
-+			    (&viocdev->ba)->virt + GETRELADDR(VIOC_IHCU, 0,
-+							      (VREG_IHCU_RXCINTTIMER
-+							       +
-+							       (rxc->
-+								interrupt_id <<
-+								2)));
-+
-+			rxc->va_of_vreg_ihcu_rxcintpktcnt =
-+			    (&viocdev->ba)->virt + GETRELADDR(VIOC_IHCU, 0,
-+							      (VREG_IHCU_RXCINTPKTCNT
-+							       +
-+							       (rxc->
-+								interrupt_id <<
-+								2)));
-+			rxc->va_of_vreg_ihcu_rxcintctl =
-+			    (&viocdev->ba)->virt + GETRELADDR(VIOC_IHCU, 0,
-+							      (VREG_IHCU_RXCINTCTL
-+							       +
-+							       (rxc->
-+								interrupt_id <<
-+								2)));
-+			/* Set parameter (rxc->rxc_id), that will be passed to interrupt code */
-+			ret = vioc_set_intr_func_param(viocdev->viocdev_idx,
-+						       rxc->interrupt_id,
-+						       rxc->rxc_id);
-+			if (ret) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not set PARAM for INTR ID %d\n",
-+				       viocidx, rxc->interrupt_id);
-+				goto error;
-+			}
-+
-+			/* Register RxC ring and interrupt */
-+			ret = vioc_set_rxc(viocidx, rxc);
-+			if (ret) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not set RxC %d\n",
-+				       viocidx, vr->rxc_id);
-+				goto error;
-+			}
-+
-+			/* Initialize NAPI poll structure and device */
-+			napi_p = &rxc->napi;
-+			napi_p->enabled = 1;	/* ready for Rx poll */
-+			napi_p->stopped = 0;	/* NOT stopped */
-+			napi_p->rxc = rxc;
-+			napi_p->poll_dev.weight = POLL_WEIGHT;
-+			napi_p->poll_dev.priv = &rxc->napi;	/* Note */
-+			napi_p->poll_dev.poll = &vioc_rx_poll;
-+
-+			dev_hold(&napi_p->poll_dev);
-+			/* Enable the poll device */
-+			set_bit(__LINK_STATE_START, &napi_p->poll_dev.state);
-+			netif_start_queue(&napi_p->poll_dev);
-+		};
-+
-+		/* Allocate Rx rings */
-+		for (j = 0; j < 4; j++) {
-+			struct rxd_q_prov *ring = &vr->rxd_ring[j];
-+			struct rxdq *rxdq;
-+
-+			if (ring->id >= VIOC_MAX_RXDQ) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: BAD Provisioning request for RXD %d\n",
-+				       viocidx, ring->id);
-+				goto error;
-+			}
-+
-+			rxdq = viocdev->rxd_p[ring->id];
-+			if (rxdq != NULL)
-+				continue;
-+
-+			if (ring->state == 0)
-+				continue;
-+
-+			rxdq = &viocdev->rxd_buf[ring->id];
-+			viocdev->rxd_p[ring->id] = rxdq;
-+
-+			rxdq->rxdq_id = ring->id;
-+			rxdq->viocdev = viocdev;
-+			rxdq->count = ring->entries;
-+			rxdq->rx_buf_size = ring->buf_size;
-+
-+			/* skb array */
-+			rxdq->vbuf = vmalloc(rxdq->count * sizeof(struct vbuf));
-+			if (!rxdq->vbuf) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Can't allocate RxD vbuf (%d entries)\n",
-+				       viocidx, rxdq->count);
-+				ret = -ENOMEM;
-+				goto error;
-+			}
-+
-+			/* Ring memory */
-+			rxdq->desc = (struct rx_pktBufDesc_Phys_w *)
-+			    pci_alloc_consistent(viocdev->pdev,
-+						 rxdq->count * RX_DESC_SIZE,
-+						 &rxdq->dma);
-+			if (!rxdq->desc) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Can't allocate RxD ring (%d entries)\n",
-+				       viocidx, rxdq->count);
-+				ret = -ENOMEM;
-+				goto error;
-+			}
-+			rxdq->dmap_count = rxdq->count / VIOC_RXD_BATCH_BITS;
-+			/* Descriptor ownership bit map */
-+			rxdq->dmap = (u32 *)
-+			    vmalloc(rxdq->dmap_count *
-+				    (VIOC_RXD_BATCH_BITS / 8));
-+			if (!rxdq->dmap) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not allocate dmap\n",
-+				       viocidx);
-+				ret = -ENOMEM;
-+				goto error;
-+			}
-+			/* Refill ring */
-+			ret = vioc_refill_rxq(viocdev, rxdq);
-+			if (ret) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not fill rxdq%d\n",
-+				       viocidx, rxdq->rxdq_id);
-+				goto error;
-+			}
-+			/* Tell VIOC about this queue */
-+			ret = vioc_set_rxdq(viocidx, VIOC_ANY_VNIC,
-+					    rxdq->rxdq_id, rxdq->rx_buf_size,
-+					    rxdq->dma, rxdq->count);
-+			if (ret) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not set rxdq%d\n",
-+				       viocidx, rxdq->rxdq_id);
-+				goto error;
-+			}
-+			/* Enable this queue */
-+			ret = vioc_ena_dis_rxd_q(viocidx, rxdq->rxdq_id, 1);
-+			if (ret) {
-+				dev_err(&viocdev->pdev->dev,
-+				       "vioc%d: Could not enable rxdq%d\n",
-+				       viocidx, rxdq->rxdq_id);
-+				goto error;
-+			}
-+		}		/* for 4 rings */
++		intr_source_map &= ~intr_source;
 +	}
 +
-+	return 0;
++      vioc_bmc_interrupt_exit:
 +
-+      error:
-+	/* Caller is responsible for calling vioc_free_rxsets() */
-+	return ret;
++	vnic_prov_put_sema();
++
++	return;
++
 +}
 +
-+static void vioc_remove(struct pci_dev *pdev)
++/* SPP Messages originated by VIOC driver */
++void vioc_hb_to_bmc(int vioc_id)
 +{
-+	struct vioc_device *viocdev = pci_get_drvdata(pdev);
++	struct vioc_device *viocdev = vioc_viocdev(0);
 +
 +	if (!viocdev)
 +		return;
 +
-+	/* Disable interrupts */
-+	vioc_free_irqs(viocdev->viocdev_idx);
-+
-+	viocdev->vioc_state = VIOC_STATE_INIT;
-+
-+	if (viocdev->bmc_wd_timer.function) {
-+		viocdev->bmc_wd_timer_active = 0;
-+		del_timer_sync(&viocdev->bmc_wd_timer);
-+	}
-+
-+	if (viocdev->tx_timer.function) {
-+		viocdev->tx_timer_active = 0;
-+		del_timer_sync(&viocdev->tx_timer);
-+	}
-+
-+	vioc_vnic_prov(viocdev->viocdev_idx, 0, 0, 1);
-+
-+	vioc_free_resources(viocdev, viocdev->viocdev_idx);
-+
-+	/* Reset VIOC chip */
-+	vioc_sw_reset(viocdev->viocdev_idx);
-+
-+#if defined(CONFIG_MSIX_MOD)
-+	if (viocdev->num_irqs > 4) {
-+		pci_disable_msix(viocdev->pdev);
-+	} else {
-+		pci_release_regions(viocdev->pdev);
-+	}
-+#else
-+	pci_release_regions(viocdev->pdev);
-+#endif
-+
-+	iounmap(viocdev->ba.virt);
-+
-+	if (viocdev->viocdev_idx < VIOC_MAX_VIOCS)
-+		vioc_devices[viocdev->viocdev_idx] = NULL;
-+
-+	kfree(viocdev);
-+	pci_set_drvdata(pdev, NULL);
-+
-+	pci_disable_device(pdev);
++	/* Signal BMC that command was written by setting bit 0 of
++	 * SENSOR Register */
++	vioc_reg_wr(1, viocdev->ba.virt, SPP_HB_SENSOR_REG);
 +}
 +
-+/*
-+ * vioc_probe - Device Initialization Routine
-+ * @pdev: PCI device information struct (VIOC PCI device)
-+ * @ent: entry in vioc_pci_tbl
-+ *
-+ * Returns 0 on success, negative on failure
-+ *
-+ */
-+static int __devinit vioc_probe(struct pci_dev *pdev, const
-+				struct pci_device_id *ent)
++void vioc_reset_rq_to_bmc(int vioc_id, u32 command)
 +{
-+	int cur_vioc_idx;
-+	struct vioc_device *viocdev;
-+	unsigned long long mmio_start = 0, mmio_len;
-+	u32 param1, param2;
-+	int ret;
++	struct vioc_device *viocdev = vioc_viocdev(0);
 +
-+	viocdev = pci_get_drvdata(pdev);
-+	if (viocdev) {
-+		cur_vioc_idx = viocdev->viocdev_idx;
-+		BUG_ON(viocdev != NULL);	/* should not happen */
-+	} else {
-+		spin_lock(&vioc_idx_lock);
-+		cur_vioc_idx = vioc_idx++;
-+		spin_unlock(&vioc_idx_lock);
-+		if (cur_vioc_idx < VIOC_MAX_VIOCS) {
-+			viocdev = viocdev_new(cur_vioc_idx, pdev);
-+			BUG_ON(viocdev == NULL);
-+			pci_set_drvdata(pdev, viocdev);
-+		} else {
-+			dev_err(&pdev->dev,
-+			       "vioc_id %d > maximum supported, aborting.\n",
-+			       cur_vioc_idx);
-+			return -ENODEV;
-+		}
++	if (!viocdev)
++		return;
++
++	switch (command) {
++	case SYS_RESTART:
++		vioc_reg_wr(1, viocdev->ba.virt, SPP_RST_SENSOR_REG);
++		break;
++	case SYS_HALT:
++	case SYS_POWER_OFF:
++		vioc_reg_wr(1, viocdev->ba.virt, SPP_SHUTDWN_SENSOR_REG);
++		break;
++	default:
++		dev_err(&viocdev->pdev->dev, "%s: Received invalid command %d\n",
++		       __FUNCTION__, command);
 +	}
-+
-+	sprintf(viocdev->name, "vioc%d", cur_vioc_idx);
-+
-+	if ((ret = pci_enable_device(pdev))) {
-+		dev_err(&pdev->dev, "vioc%d: Cannot enable PCI device\n",
-+		       cur_vioc_idx);
-+		goto vioc_probe_err;
-+	}
-+
-+	if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)) {
-+		dev_err(&pdev->dev, "vioc%d: Cannot find PCI device base address\n",
-+		       cur_vioc_idx);
-+		ret = -ENODEV;
-+		goto vioc_probe_err;
-+	}
-+
-+	/* Initialize interrupts: get number if Rx IRQs, 2 or 16 are valid returns 
-*/
-+	viocdev->num_rx_irqs = vioc_request_irqs(cur_vioc_idx);
-+
-+	if (viocdev->num_rx_irqs == 0) {
-+		dev_err(&pdev->dev, "vioc%d: Request IRQ failed\n", cur_vioc_idx);
-+		goto vioc_probe_err;
-+	}
-+
-+	pci_set_master(pdev);
-+
-+	/* Configure DMA attributes. */
-+	if ((ret = pci_set_dma_mask(pdev, DMA_64BIT_MASK))) {
-+		if ((ret = pci_set_dma_mask(pdev, DMA_32BIT_MASK))) {
-+			dev_err(&pdev->dev, "vioc%d: No usable DMA configuration\n",
-+			       cur_vioc_idx);
-+			goto vioc_probe_err;
-+		}
-+	} else {
-+		viocdev->highdma = 1;
-+	}
-+
-+	mmio_start = pci_resource_start(pdev, 0);
-+	mmio_len = pci_resource_len(pdev, 0);
-+
-+	viocdev->ba.virt = ioremap(mmio_start, mmio_len);
-+	viocdev->ba.phy = mmio_start;
-+	viocdev->ba.len = mmio_len;
-+
-+	/* Soft reset the chip; pick up versions */
-+	vioc_sw_reset(cur_vioc_idx);
-+
-+	viocdev->vioc_bits_version &= 0xff;
-+
-+	if (viocdev->vioc_bits_version < 0x74) {
-+		dev_err(&pdev->dev, "VIOC version %x not supported, aborting\n",
-+		       viocdev->vioc_bits_version);
-+		ret = -EINVAL;
-+		goto vioc_probe_err;
-+	}
-+
-+	dev_info(&pdev->dev, "vioc%d: Detected VIOC version %x.%x\n",
-+	       cur_vioc_idx,
-+	       viocdev->vioc_bits_version, viocdev->vioc_bits_subversion);
-+
-+	viocdev->prov.vnic_prov_p = vioc_prov_get(viocdev->num_rx_irqs);
-+
-+	/* Allocate and provision resources */
-+	if ((ret = vioc_alloc_resources(viocdev, cur_vioc_idx))) {
-+		dev_err(&pdev->dev, "vioc%d: Could not allocate resources\n",
-+		       cur_vioc_idx);
-+		goto vioc_probe_err;
-+	}
-+
-+	/*
-+	 * Initialize heartbeat (watchdog) timer:
-+	 */
-+	if (viocdev->viocdev_idx == 0) {
-+		/* Heartbeat is delivered ONLY by "master" VIOC in a
-+		 * partition */
-+		init_timer(&viocdev->bmc_wd_timer);
-+		viocdev->bmc_wd_timer.function = &vioc_bmc_wdog;
-+		viocdev->bmc_wd_timer.expires = jiffies + HZ;
-+		viocdev->bmc_wd_timer.data = (unsigned long)viocdev;
-+		add_timer(&viocdev->bmc_wd_timer);
-+		viocdev->bmc_wd_timer_active = 1;
-+	}
-+
-+	/* Disable all watchdogs by default */
-+	viocdev->bmc_wd_timer_active = 0;
-+
-+	/*
-+	 * Initialize tx_timer (tx watchdog) timer:
-+	 */
-+	init_timer(&viocdev->tx_timer);
-+	viocdev->tx_timer.function = &vioc_tx_timer;
-+	viocdev->tx_timer.expires = jiffies + HZ / 4;
-+	viocdev->tx_timer.data = (unsigned long)viocdev;
-+	add_timer(&viocdev->tx_timer);
-+	/* !!! TESTING ONLY !!! */
-+	viocdev->tx_timer_active = 1;
-+
-+	viocdev->vnics_map = 0;
-+
-+	param1 = vioc_rrd(viocdev->viocdev_idx, VIOC_BMC, 0, VREG_BMC_VNIC_EN);
-+	param2 = vioc_rrd(viocdev->viocdev_idx, VIOC_BMC, 0, VREG_BMC_PORT_EN);
-+	vioc_vnic_prov(viocdev->viocdev_idx, param1, param2, 1);
-+
-+	viocdev->vioc_state = VIOC_STATE_UP;
-+
-+	return ret;
-+
-+      vioc_probe_err:
-+	vioc_remove(pdev);
-+	return ret;
 +}
 +
-+/*
-+ * Set up "version" as a driver attribute.
-+ */
-+static ssize_t show_version(struct device_driver *drv, char *buf)
-+{
-+	sprintf(buf, "%s\n", VIOC_DISPLAY_VERSION);
-+	return strlen(buf) + 1;
-+}
++/*-------------------------------------------------------------------*/
 +
-+static DRIVER_ATTR(version, S_IRUGO, show_version, NULL);
++/* Shutdown/Reboot handler definitions */
++static int vioc_shutdown_notify(struct notifier_block *thisblock,
++				unsigned long code, void *unused);
 +
-+static struct pci_driver vioc_driver = {
-+	.name = VIOC_DRV_MODULE_NAME,
-+	.id_table = vioc_pci_tbl,
-+	.probe = vioc_probe,
-+	.remove = __devexit_p(vioc_remove),
++static struct notifier_block vioc_shutdown_notifier = {
++	.notifier_call = vioc_shutdown_notify
 +};
 +
-+static int __init vioc_module_init(void)
++void vioc_os_reset_notifier_init(void)
 +{
-+	int ret = 0;
-+
-+	memset(&vioc_devices, 0, sizeof(vioc_devices));
-+	vioc_idx = 0;
-+	spin_lock_init(&vioc_idx_lock);
-+
-+	vioc_irq_init();
-+	spp_init();
-+
-+	ret = pci_module_init(&vioc_driver);
-+	if (ret) {
-+		printk(KERN_ERR "%s: pci_module_init() -> %d\n", __FUNCTION__,
-+		       ret);
-+		vioc_irq_exit();
-+		return ret;
-+	} else
-+		driver_create_file(&vioc_driver.driver, &driver_attr_version);
-+
-+	vioc_os_reset_notifier_init();
-+
-+	return ret;
++	/* We want to know get a callback when the system is going down */
++	if (register_reboot_notifier(&vioc_shutdown_notifier)) {
++		printk(KERN_ERR "%s: register_reboot_notifier() returned error\n",
++		       __FUNCTION__);
++	}
 +}
 +
-+static void __exit vioc_module_exit(void)
++void vioc_os_reset_notifier_exit(void)
 +{
-+	vioc_irq_exit();
-+	spp_terminate();
-+	flush_scheduled_work();
-+	vioc_os_reset_notifier_exit();
-+	driver_remove_file(&vioc_driver.driver, &driver_attr_version);
-+	pci_unregister_driver(&vioc_driver);
++	if (unregister_reboot_notifier(&vioc_shutdown_notifier)) {
++		printk (KERN_ERR "%s: unregister_reboot_notifier() returned error\n",
++		     __FUNCTION__);
++	}
 +}
 +
-+module_init(vioc_module_init);
-+module_exit(vioc_module_exit);
++ /*
++  * vioc_shutdown_notify - Called when the OS is going down.
++  */
++static int vioc_shutdown_notify(struct notifier_block *thisblock,
++				unsigned long code, void *unused)
++{
++	vioc_reset_rq_to_bmc(0, code);
++	printk(KERN_ERR "%s: sent %s UOS state to BMC\n",
++			__FUNCTION__,
++			((code == SYS_RESTART) ? "REBOOT" :
++			((code == SYS_HALT) ? "HALT" :
++		 	((code == SYS_POWER_OFF) ? "POWER_OFF" : "Unknown"))));
 +
-+#ifdef EXPORT_SYMTAB
-+EXPORT_SYMBOL(vioc_viocdev);
-+#endif				/* EXPORT_SYMTAB */
++	return 0;
++}
++
++/*
++ * FUNCTION: vioc_handle_reset_request
++ * INPUT: Reset type : Shutdown, Reboot, Poweroff
++ * OUTPUT: Returns 0 on Success -EINVAL on failure
++ *
++ */
++int vioc_handle_reset_request(int reset_type)
++{
++	struct sk_buff *msg = NULL;
++	void *hdr;
++
++	printk(KERN_ERR "%s: received reset request %d via SPP\n",
++	       __FUNCTION__, reset_type);
++
++	/* Disable VIOC interrupts */
++	// vioc_irq_exit();
++
++	msg = nlmsg_new(NLMSG_GOODSIZE);
++	if (msg == NULL) {
++		printk(KERN_ERR "%s: nlmsg_new() FAILS\n", __FUNCTION__);
++		return (-ENOBUFS);
++	}
++
++	hdr = nlmsg_put(msg, 0, 0, 0, 0, 0);
++
++	if (reset_type == SPP_RESET_TYPE_REBOOT)
++		nla_put_string(msg, reset_type, "Reboot");
++	else
++		nla_put_string(msg, reset_type, "Shutdown");
++
++	nlmsg_end(msg, hdr);
++
++	return nlmsg_multicast(genl_sock, msg, 0, VIOC_LISTEN_GROUP);
++}
 
 
 -- 

@@ -1,98 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWJEP0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWJEP01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWJEP0A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWJEP0A
+	id S932125AbWJEP01 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWJEP01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:26:00 -0400
-Received: from mx1.suse.de ([195.135.220.2]:9423 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932125AbWJEPZ7 (ORCPT
+	Thu, 5 Oct 2006 11:26:27 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:62 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932125AbWJEP00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:25:59 -0400
-From: Andi Kleen <ak@suse.de>
-To: axboe@kernel.dk
-Subject: sys_splice crashes in 2.6.19rc1 during autotest
-Date: Thu, 5 Oct 2006 17:25:53 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
+	Thu, 5 Oct 2006 11:26:26 -0400
+Message-ID: <4525257A.4040609@openvz.org>
+Date: Thu, 05 Oct 2006 19:32:10 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, xemul@openvz.org,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, "Seth, Rohit" <rohit.seth@intel.com>,
+       haveblue@us.ibm.com
+Subject: [PATCH] BC: resource beancounters (v5) (added userpages reclamation)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610051725.53183.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MAJOR CHANGES:
+- phys pages limit hit leads to user pages reclamation
+- bc can be changed on arbitrary task
 
-I was running autotest on 2.6.19rc1+x86_64 patchkit and I ended up with a BUG()
-below sys_splice while running some IO test there.
+-----------------------------------------------------
 
-This was a debugging kernel with PREEMPTION and various other
-debugging options enabled.
+Core Resource Beancounters (BC) + kernel/user memory control.
 
-The system ran out of disk space during the test so that
-might have been related and I ended up with a "fio" process
-in D. Also the system was confused afterwards with rm
-oopsing etc.
+BC allows to account and control consumption
+of kernel resources used by group of processes.
 
-File system was reiserfs.
+Draft UBC description on OpenVZ wiki can be found at
+http://wiki.openvz.org/UBC_parameters
 
--Andi
+The full BC patch set allows to control:
+- kernel memory. All the kernel objects allocatable
+on user demand should be accounted and limited
+for DoS protection.
+E.g. page tables, task structs, vmas etc.
 
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at /abuild/autoboot/lsrc/x86_64/linux/mm/filemap.c:547
-invalid opcode: 0000 [1] SMP 
-CPU 0 
-Modules linked in:
-Pid: 13789, comm: fio Not tainted 2.6.19-rc1 #5
-RIP: 0010:[<ffffffff80255134>]  [<ffffffff80255134>] unlock_page+0xf/0x2f
-RSP: 0018:ffff81000a5e1e18  EFLAGS: 00010246
-RAX: 0000000000000000 RBX: ffff810000cfa9e0 RCX: 0000000000000036
-RDX: ffff81000a5e1e98 RSI: ffff810000cfa9e0 RDI: ffff810000cfa9e0
-RBP: ffff810000cfa9e0 R08: ffff81003ec46c00 R09: ffffc20000265908
-R10: ffff8100157a3e40 R11: 0000000000000000 R12: ffff81003e0a09a0
-R13: 0000000000001000 R14: 0000000006400000 R15: ffff810037baac10
-FS:  00002af7c37d7b70(0000) GS:ffffffff8077d000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00002af7c365e0b0 CR3: 0000000002c07000 CR4: 00000000000006e0
-Process fio (pid: 13789, threadinfo ffff81000a5e0000, task ffff81003f4b6e60)
-Stack:  00000000ffffffe4 ffffffff80293652 ffff81000a5e1e98 ffff81003e0a0800
- ffff8100367745c0 00000000000200d2 000000000000452c ffff81003e0a09a0
- ffff81003e0a0800 0000000000000000 0000000000000000 ffffffff80694f00
-Call Trace:
- [<ffffffff80293652>] pipe_to_file+0x2df/0x2f0
- [<ffffffff80292b4e>] splice_from_pipe+0x86/0x213
- [<ffffffff80292f0d>] generic_file_splice_write+0x21/0x8a
- [<ffffffff80293baa>] sys_splice+0x105/0x210
- [<ffffffff8020953e>] system_call+0x7e/0x83
-DWARF2 unwinder stuck at system_call+0x7e/0x83
+- virtual memory pages. BCs allow to
+limit a container to some amount of memory and
+introduces 2-level OOM killer taking into account
+container's consumption.
+pages shared between containers are correctly
+charged as fractions (tunable).
 
-Leftover inexact backtrace:
+- network buffers. These includes TCP/IP rcv/snd
+buffers, dgram snd buffers, unix, netlinks and
+other buffers.
+
+- minor resources accounted/limited by number:
+tasks, files, flocks, ptys, siginfo, pinned dcache
+mem, sockets, iptentries (for containers with
+virtualized networking)
+
+As the first step we want to propose for discussion
+the most complicated parts of resource management:
+kernel memory and virtual memory.
+The patch set to be sent provides core for BC and
+management of kernel memory only. Virtual memory
+management will be sent in a couple of days.
+
+The patches in these series are:
+* diff-atomic-dec-and-lock-irqsave.patch:
+introduce atomic_dec_and_lock_irqsave()
+
+* diff-bc-kconfig.patch:
+Adds kernel/bc/Kconfig file with UBC options and
+includes it into arch Kconfigs
+
+* diff-bc-core.patch:
+Contains core functionality and interfaces of BC:
+find/create beancounter, initialization,
+charge/uncharge of resource, core objects' declarations.
+
+* diff-bc-task.patch:
+Contains code responsible for setting BC on task,
+it's inheriting and setting host context in interrupts.
+
+* diff-bc-syscalls.patch:
+Patch adds system calls for BC management:
+1. sys_get_bcid - get current BC id
+2. sys_set_bcid - changes BC on task
+3. sys_set_bclimit - set limits for resources consumtions
+4. sys_get_bcstat - returns limits/usages/fails for BC
+
+* diff-bc-kmem-core.patch:
+Introduces BC_KMEMSIZE resource which accounts kernel
+objects allocated by task's request.
+
+Objects are accounted via struct page and slab objects.
+For the latter ones each slab contains a set of pointers
+corresponding object is charged to.
+
+Allocation charge rules:
+1. Pages - if allocation is performed with __GFP_BC flag - page
+is charged to current's exec_bc.
+2. Slabs - kmem_cache may be created with SLAB_BC flag - in this
+case each allocation is charged. Caches used by kmalloc are
+created with SLAB_BC | SLAB_BC_NOCHARGE flags. In this case
+only __GFP_BC allocations are charged.
+
+* diff-bc-kmem-charge.patch:
+Adds SLAB_BC and __GFP_BC flags in appropriate places
+to cause charging/limiting of specified resources.
+
+* diff-bc-vmpages-core:
+Accounting of private pages (mappings), done per-vma.
+Charged on mmap().
+
+* diff-bc-rsspages-core:
+Phys pages accounting. Charging is done on page touch
+(page fault) and limit hit leads to reclamation.
+Reclamation is done based on beancounter list of pages.
+
+* diff-bc-userpages-charge:
+Hooks across the kernel for user pages accounting.
+
+* bcctl.c:
+Tool for BC management. Allows changing BC, setting BC limits,
+viewing current usages.
 
 
-fio process:
 
-Code: 0f 0b 68 fc 59 57 80 c2 23 02 48 89 df e8 f2 f9 ff ff 48 89
-RIP  [<ffffffff80255134>] unlock_page+0xf/0x2f
- RSP <ffff81000a5e1e18>
+Summary of changes from v4 patch set:
+* changed set of resources - kmemsize, privvmpages, physpages
+* added event hooks for resources (init, limit hit etc)
+* added user pages reclamation (bc_try_to_free_pages)
+* removed pages sharing accounting - charge to first user
+* task now carries only one BC pointer, simplified
+* make set_bcid syscall move arbitrary task into BC
+* resources are not recharged when task moves
+* each vm_area_struct carries a BC pointer
 
-fio           D ffff81003d50c3e4     0 13789      1                4669 (L-TLB)
- ffff81000a5e1ad8 0000000000000046 0000000000000001 0000000000000000
- 0000000000000007 ffff81003f4b6e60 ffff81003d666a30 000000f51a101cfa
- 000000000000494a ffff81003f4b7038 0000000100000000 0000000000000282
-Call Trace:
- [<ffffffff805323df>] __mutex_lock_slowpath+0x5d/0x98
- [<ffffffff80532287>] mutex_lock+0x1a/0x1e
- [<ffffffff8027da11>] pipe_read_fasync+0x29/0x60
- [<ffffffff8027dd4b>] pipe_read_release+0xe/0x1e
- [<ffffffff80279496>] __fput+0xae/0x191
- [<ffffffff80276f53>] filp_close+0x5c/0x64
- [<ffffffff802326b5>] put_files_struct+0x6e/0xcd
- [<ffffffff80233870>] do_exit+0x235/0x829
- [<ffffffff8020af9d>] kernel_math_error+0x0/0x90
- [<ffffffff8020b53f>] do_invalid_op+0xad/0xb7
- [<ffffffff8053373d>] error_exit+0x0/0x84
-DWARF2 unwinder stuck at error_exit+0x0/0x84
+Summary of changes from v3 patch set:
 
+* Added basic user pages accounting (lockedpages/privvmpages)
+* spell in Kconfig
+* Makefile reworked
+* EXPORT_SYMBOL_GPL
+* union w/o name in struct page
+* bc_task_charge is void now
+* adjust minheld/maxheld splitted
 
+Summary of changes from v2 patch set:
+
+* introduced atomic_dec_and_lock_irqsave()
+* bc_adjust_held_minmax comment
+* added __must_check for bc_*charge* funcs
+* use hash_long() instead of own one
+* bc/Kconfig is sourced from init/Kconfig now
+* introduced bcid_t type with comment from Alan Cox
+* check for barrier <= limit in sys_set_bclimit()
+* removed (bc == NULL) checks
+* replaced memcpy in beancounter_findcrate with assignment
+* moved check 'if (mask & BC_ALLOC)' out of the lock
+* removed unnecessary memset()
+
+Summary of changes from v1 patch set:
+
+* CONFIG_BEANCOUNTERS is 'n' by default
+* fixed Kconfig includes in arches
+* removed hierarchical beancounters to simplify first patchset
+* removed unused 'private' pointer
+* removed unused EXPORTS
+* MAXVALUE redeclared as LONG_MAX
+* beancounter_findcreate clarification
+* renamed UBC -> BC, ub -> bc etc.
+* moved BC inheritance into copy_process
+* introduced reset_exec_bc() with proposed BUG_ON
+* removed task_bc beancounter (not used yet, for numproc)
+* fixed syscalls for sparc
+* added sys_get_bcstat(): return info that was in /proc
+* cond_syscall instead of #ifdefs
+
+Many thanks to Oleg Nesterov, Alan Cox, Matt Helsley and others
+for patch review and comments.
+
+Patch set is applicable to 2.6.18-mm3
+
+Thanks,
+Kirill

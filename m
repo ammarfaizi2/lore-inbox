@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWJET4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWJET5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWJET4d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWJET4d
+	id S1751103AbWJET5S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWJET5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:56:33 -0400
-Received: from mail.gmx.net ([213.165.64.20]:61123 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751102AbWJET4c (ORCPT
+	Thu, 5 Oct 2006 15:57:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:49039 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751103AbWJET5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:56:32 -0400
-X-Authenticated: #20450766
-Date: Thu, 5 Oct 2006 21:56:33 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jeff Garzik <jeff@garzik.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] scsi updates for post 2.6.18
-In-Reply-To: <45255A02.2010308@garzik.org>
-Message-ID: <Pine.LNX.4.60.0610052129020.6619@poirot.grange>
-References: <1159995678.3437.80.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.60.0610052104330.6619@poirot.grange> <45255A02.2010308@garzik.org>
+	Thu, 5 Oct 2006 15:57:16 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Joe Korty <joe.korty@ccur.com>,
+       Inaky Perez-Gonzalez <inaky@linux.intel.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bitmap: separate bitmap parsing for user buffer and kernel buffer
+References: <200610041756.30528.reinette.chatre@linux.intel.com>
+	<20061004181003.6dae6065.akpm@osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 05 Oct 2006 21:57:04 +0200
+In-Reply-To: <20061004181003.6dae6065.akpm@osdl.org>
+Message-ID: <p73odsqzgbz.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006, Jeff Garzik wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> Guennadi Liakhovetski wrote:
-> > On Wed, 4 Oct 2006, James Bottomley wrote:
-> > 
-> > > This is (hopefully) my final batch of updates before we go -rc1.  It's
-> > > mainly code cleanups, some driver updates and the new qla4xxx iScsi
-> > > driver.
-> > 
-> > James, is there a reason why you didn't include this one:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-scsi&m=115974328128341&w=2
-> > 
-> > Do you think it can cause problems?
+> On Wed, 4 Oct 2006 17:56:30 -0700
+> Reinette Chatre <reinette.chatre@linux.intel.com> wrote:
 > 
-> It would be nice to get it tested, based on your "don't know if it works
-> though" comment...
+> > +			if (is_user) {
+> > +				if (__get_user(c, buf++))
+> > +					return -EFAULT;
+> > +			}
+> > +			else
+> > +				c = *buf++;
+> 
+> Is this actually needed?  __get_user(kernel_address) works OK and (believe
+> it or not, given all the stuff it involves) boils down to a single instruction.		
 
-Sure, it WOULD be nice, but I don't know how. The "don't know" refers to 
-the case 16MB block size, my tape supports only 16MB - 1 byte (according 
-to st report). Is there a way to test various block sizes with CDs / 
-hard-disks / ZIP / scanners? Would something with sg_dd work? Looks like 
-it must be only sector size. Can I low-level format a disk with 16M 
-sector?:-)
+It is needed on lots of architectures that use separate address spaces
+like sparc64, m68k, s390 (and on x86 with 4:4 patches) 
 
-Another possibility is to limit the block size at 8MB - I can test that.
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+-Andi

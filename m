@@ -1,131 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWJEWOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWJEWQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWJEWOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJEWOI
+	id S932343AbWJEWQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWJEWQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:14:08 -0400
-Received: from mga02.intel.com ([134.134.136.20]:36010 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S932348AbWJEWOE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:14:04 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,267,1157353200"; 
-   d="scan'208"; a="141038430:sNHT21975240"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 5 Oct 2006 18:16:43 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:22146 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932343AbWJEWQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 18:16:42 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4525842F.3040109@s5r6.in-berlin.de>
+Date: Fri, 06 Oct 2006 00:16:15 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Cast removal
-Date: Thu, 5 Oct 2006 15:14:02 -0700
-Message-ID: <B28E9812BAF6E2498B7EC5C427F293A40114A6CB@orsmsx415.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Cast removal
-Thread-Index: AcboVSnC6QWXXtUgSQ2J0rK9jV1jAgAP+3cwAA14syA=
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Moore, Robert" <robert.moore@intel.com>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: "Len Brown" <lenb@kernel.org>, "Brown, Len" <len.brown@intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "ACPI List" <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 05 Oct 2006 22:14:03.0489 (UTC) FILETIME=[90F92510:01C6E8CB]
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bcollins@debian.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: ohci1394 regression in 2.6.19-rc1 (was Re: Merge window closed:
+ v2.6.19-rc1)
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <45255574.5020203@s5r6.in-berlin.de> <200610052130.28610.s0348365@sms.ed.ac.uk> <200610052132.11544.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200610052132.11544.s0348365@sms.ed.ac.uk>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you're discussing this type of thing, I agree wholeheartedly:
-
-static void acpi_processor_notify(acpi_handle handle, u32 event, void
-*data)  {
--	struct acpi_processor *pr = (struct acpi_processor *)data;
-+	struct acpi_processor *pr = data;
-
-
-I find this one interesting, as we've put a number of them into the
-ACPICA core:
-
--	(void) kmem_cache_destroy(cache);
-+	kmem_cache_destroy(cache);
-
-I believe that the point of the (void) is to prevent lint from
-squawking, and perhaps some picky ANSI-C compilers. What is the overall
-Linux policy on this?
-
-Thanks,
-Bob
-
-
-> -----Original Message-----
-> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
-> owner@vger.kernel.org] On Behalf Of Moore, Robert
-> Sent: Thursday, October 05, 2006 8:46 AM
-> To: Jan Engelhardt; Andrew Morton
-> Cc: Len Brown; Brown, Len; Linux Kernel Mailing List; ACPI List
-> Subject: RE: [PATCH] Cast removal
+Alistair John Strachan wrote:
+> On Thursday 05 October 2006 21:30, Alistair John Strachan wrote:
+> [snip]
+>> I haven't tried to use it, but I agree that the outcome is similar. I
+>> recompiled with excessive debug output on 2.6.19-rc1, and uploaded the
+>> configs for 2.6.19-rc1 and 2.6.18, and the corresponding dmesg outputs. As
+>> you can see, 2.6.18 does not exhibit any problems.
 > 
-> I was speaking generally, as far as casting issues go with ACPICA. We
-> have lots of compilers to support, as well as 16/32/64 bit issues. We
-> are about to remove the 16-bit support, which will clean things up a
-> bit.
+> Forgetting the URL; apologies:
 > 
-> I would appreciate a couple of examples of exactly what is being
-> discussed.
-> Thanks.
-> Bob
-> 
-> 
-> > -----Original Message-----
-> > From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
-> > owner@vger.kernel.org] On Behalf Of Jan Engelhardt
-> > Sent: Thursday, October 05, 2006 1:00 AM
-> > To: Andrew Morton
-> > Cc: Len Brown; Brown, Len; Linux Kernel Mailing List; ACPI List
-> > Subject: Re: [PATCH] Cast removal
-> >
-> >
-> > >> > > I'm okay applying this patch it touches the linux-specific
-> > >> > > drivers/acpi/* files only, no ACPICA files.
-> > >> >
-> > >> > Why?
-> > >>
-> > >> Why am I okay with it?
-> > >
-> > >No, I meant why not clean up ACPICA too?
-> >
-> > I was about to go through the whole kernel base for anti-casting.
-> Sounds
-> > like a big task, and probably is. I just did not want to do it all
-at
-> > once and send a mega-patch. Instead, a per-directory walk seems best
-> to
-> > me, and granted, "dispatcher events executer hardware namespace" and
-> all
-> > the other directories under drivers/acpi/ were supposed to be the
-next
-> > to be examined for casts.
-> >     Though if you have problems with that because compiling with
-ugh,
-> > old or broken, compilers, be my guest.
-> > http://www.velocityreviews.com/forums/t313918-void-casting.html
-> > """If your compiler requires a cast, you are using a C++
-compiler."""
-> > Is that the case?
-> >
-> >
-> >
-> > 	-`J'
-> > --
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-linux-acpi"
-> in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
-in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> http://devzero.co.uk/~alistair/ieee1394/
+
+Thanks. From the 2.6.19-rc1 dmesg: The ieee1394 core inserts a packet
+before there was the first bus reset and first self ID stage completed.
+This shouldn't happen. Also, the packet looks a bit weird but that is
+probably because some base variables are still zero when this packet is
+sent:
+
+[   39.513301] ieee1394: send packet at S100: ffc00140 0000ffff f0000234
+
+destination = ffc0: node 0 on local FireWire bus (this is the host's
+node; there isn't any other one anyway)
+transaction label = 0: OK
+retry code = 1: bogus, should be 0 as the first attempt
+transaction code = 4: quadlet read request (usually used "much" later by
+higher-level code, i.e. ieee1394's nodemgr, after self ID stage was
+properly completed plus a pause)
+pri = 0: OK
+source ID = 0000: not OK, should be ffc0 on proper packets
+destination offset = ffff f000 0234: this is the address of the
+BROADCAST_CHANNEL register (usually read "much" later by ieee1394's
+nodemgr to probe capabilities of an IRM: nodemgr_check_irm_capability()
+calls this.)
+
+It does indeed look like the nodemgr kicked in prematurely. After some
+other messages from lower levels and from different contexts, there is
+also a sign of nodemgr_check_irm_capability() failing (it can only fail
+this early):
+
+[   40.298112] ieee1394: Current remote IRM is not 1394a-2000 compliant,
+resetting...
+
+OK. Enough with the boring details. Maybe the following patch doesn't
+work entirely as I intended:
+"ieee1394: nodemgr: switch to kthread api, replace reset semaphore"
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=d2f119fe319528da8c76a1107459d6f478cbf28c
+
+I think if you revert the next patch first...
+"ieee1394: nodemgr: convert nodemgr_serialize semaphore to mutex"
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=cab8d154e2ed43fe1495aa0e18103e747552891b
+
+...you can then revert the 'switch to kthread' patch and see if the
+message "Running dma failed because Node ID is not valid" disappears.
+Would be nice if you could test that.
+-- 
+Stefan Richter
+-=====-=-==- =-=- --=-=
+http://arcgraph.de/sr/

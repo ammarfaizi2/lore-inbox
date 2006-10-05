@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWJEVp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWJEVqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWJEVp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWJEVpO
+	id S932274AbWJEVqG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWJEVqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:45:14 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:3720 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932292AbWJEVpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:45:11 -0400
-Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dominique Dumont <domi.dumont@free.fr>,
-       Francesco Peeters <Francesco@FamPeeters.com>,
-       alsa-user <alsa-user@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160085133.1607.29.camel@localhost.localdomain>
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	 <13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
-	 <87y7rusddc.fsf@gandalf.hd.free.fr>  <1160081110.2481.104.camel@mindpipe>
-	 <1160085133.1607.29.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 17:45:36 -0400
-Message-Id: <1160084737.2481.112.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 17:46:00 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:55556 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932274AbWJEVpZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:45:25 -0400
+Date: Thu, 5 Oct 2006 17:45:25 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Oliver Neukum <oliver@neukum.org>
+cc: Pavel Machek <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+In-Reply-To: <200610052325.39690.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.44L0.0610051732190.7346-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 22:52 +0100, Alan Cox wrote:
-> Ar Iau, 2006-10-05 am 16:45 -0400, ysgrifennodd Lee Revell:
-> > I've heard that some motherboards do evil stuff like implementing legacy drive
-> > access modes using SMM which would cause dropouts without xruns
-> > reported.
-> 
-> They don't. SATA causes audio dropouts on some systems because its fast
-> enough to starve the audio device of regular enough access to the PCI
-> bus. If that is a problem the audio device should be tuning PCI
-> latencies
-> 
+On Thu, 5 Oct 2006, Oliver Neukum wrote:
 
-OK.  In fact the Windows driver and IIRC the OSS driver do tune PCI
-latencies.  But that can't be the problem here if analog playback is
-unaffected.  Sounds like electrical noise could be the issue...
+> I have a few observations, but no solution either:
+> - if root tells a device to suspend, it shall do so
 
-Lee
+Probably everyone will agree on that.
+
+> - the issues of manual & automatic suspend and remote wakeup are orthogonal
+
+Except for the fact that remote wakeup kicks in only when a device is 
+suspended.
+
+> - there should be a common API for all devices
+
+It would be nice, wouldn't it?  But we _already_ have several vastly
+different power-management APIs.  Consider for example DPMI and IDE 
+spindown.
+
+> - there's no direct connection between power save and open()
+
+Why shouldn't a device always be put into a power-saving mode whenever it 
+isn't open?  Agreed, you might want to reduce its power usage at times 
+even when it is open...
+
+> The question when a device is in use is far from trivial.
+
+Yes.  It has to be decided by each individual driver.  For simple 
+character-oriented devices, "open" is a good first start.
+
+Alan Stern
 

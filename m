@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWJER0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWJERba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWJER0N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWJER0N
+	id S1751737AbWJERba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWJERba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:26:13 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:15770 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1751722AbWJER0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:26:12 -0400
-Date: Thu, 5 Oct 2006 11:26:11 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+	Thu, 5 Oct 2006 13:31:30 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56541 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751737AbWJERb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 13:31:29 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+Date: Thu, 5 Oct 2006 19:31:23 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use linux/io.h instead of asm/io.h
-Message-ID: <20061005172611.GB2563@parisc-linux.org>
-References: <11600679551209-git-send-email-matthew@wil.cx> <45253EAE.2070600@garzik.org>
+References: <200610051910.25418.ak@suse.de> <45253E37.6070305@garzik.org>
+In-Reply-To: <45253E37.6070305@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45253EAE.2070600@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610051931.23884.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 01:19:42PM -0400, Jeff Garzik wrote:
-> Matthew Wilcox wrote:
-> >In preparation for moving check_signature, change these users from
-> >asm/io.h to linux/io.h
+On Thursday 05 October 2006 19:17, Jeff Garzik wrote:
+
+> Does this fix the following issue:
 > 
-> The vast majority of drivers include asm/io.h.
+> PCI: BIOS Bug: MCFG area at e0000000 is not E820-reserved
+> PCI: Not using MMCONFIG.
+> 
+> 100% of my x86-64 boxes, AMD or Intel, print this message.  And 100% of 
+> them work just fine with MMCONFIG.
 
-Yes.  linux/io.h was only created recently.  It's proper style to
-include linux/foo.h when both linux/foo.h and asm/foo.h exist [1]
-This is just a transition which hasn't been completed yet (indeed, has
-barely begun).
+No. 
 
-> Wouldn't it be better to move check_signature to 
-> include/asm-generic/io.h, and include that where needed?
+But it isn't really a issue. Basically everything[1] will work fine anyways.
 
-I really don't think that proliferating header files unnecessarily is a
-good idea.
+[1]  Only thing you're missing AFAIK is PCI Extended Error Reporting.
 
-[1] Except, of course, <linux/irq.h>, but I thought rmk was going to fix
-that.
+> I think this rule is far too drastic for real life.
+
+If you have a better proposal please share. I tried a few others, but none
+of them could handle all the buggy Intel 9x5 boards that hang on any
+mmconfig access (so the "try the first few busses" check already hangs)
+
+Originally I thought
+DMI blacklisting would work, but it's on too many systems for that
+(and Linus rightfully hated it anyways). ACPI checks also didn't work.
+I don't know of any others.
+
+-Andi

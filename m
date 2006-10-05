@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWJETpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWJETrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWJETpz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWJETpy
+	id S1750886AbWJETrA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWJETrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:45:54 -0400
-Received: from 82-71-49-12.dsl.in-addr.zen.co.uk ([82.71.49.12]:52963 "EHLO
-	mail.lidskialf.net") by vger.kernel.org with ESMTP id S1750886AbWJETpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:45:53 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: forcedeth net driver: reverse mac address after pxe boot
-Date: Thu, 5 Oct 2006 20:45:52 +0100
-User-Agent: KMail/1.9.4
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       Alex Owen <r.alex.owen@gmail.com>, linux-kernel@vger.kernel.org,
-       aabdulla@nvidia.com, "H. Peter Anvin" <hpa@zytor.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com> <45255059.3040908@gmx.net> <20061005193113.GE18408@tuxdriver.com>
-In-Reply-To: <20061005193113.GE18408@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 5 Oct 2006 15:47:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3718 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750886AbWJETq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:46:58 -0400
+Date: Thu, 5 Oct 2006 12:46:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
+ passing to IRQ handlers
+Message-Id: <20061005124601.94ed7194.akpm@osdl.org>
+In-Reply-To: <18975.1160058127@warthog.cambridge.redhat.com>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+	<20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+	<20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	<18975.1160058127@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610052045.52955.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 20:31, John W. Linville wrote:
-> On Thu, Oct 05, 2006 at 08:35:05PM +0200, Carl-Daniel Hailfinger wrote:
-> > John W. Linville wrote:
-> > > On Wed, Oct 04, 2006 at 05:19:20PM +0100, Alex Owen wrote:
-> > >> The obvious fix for this is to try and read the MAC address from the
-> > >> canonical location... ie where is the source of the address writen
-> > >> into the controlers registers at power on? But do we know where that
-> > >> may be?
-> > >
-> > > This seems like The Right Thing (TM) to me, but we need someone from
-> > > NVidia(?) to provide that information.  Ayaz?
-> >
-> > The canonical location of the "original" MAC address is where we write
-> > back the reversed MAC address. So that won't work.
->
-> I think you misunderstand the suggestion (which is admittedly based
-> on supposition).
->
-> On most devices, the MAC address is programmed into a register at
-> runtime.  It is not "burned-in" to the device itself.  Instead it is
-> usually stored in some sort of eeprom/nvram/flash/whatever.  The driver
-> retrieves it at runtime from the nvram and programs it into the device.
->
-> In this case, the forcedeth driver is retrieving the MAC address from
-> a register, reversing it, and writing it back to the _same_ register.
-> Experience suggests that this register is unlikely to have "magically"
-> received that information.  The supposition is that instead some
-> firmware has pre-loaded the register, perhaps at IPL?
->
-> It is possible that the device itself is loading the MAC address
-> from e.g. a serial eeprom tied to the device and inaccessible to
-> the CPU.  If that is the case, there may be no other solution than
-> the current silliness.  Since the driver is reversed engineered,
-> the current silliness (and a prayer for fixed PXE firmware) is the
-> only good alternative we have.
+On Thu, 05 Oct 2006 15:22:07 +0100
+David Howells <dhowells@redhat.com> wrote:
 
-I think my conclusion was that the BIOS was responsible for retrieving the MAC 
-from "somewhere" (perhaps a BIOS specific location) and writing it into the 
-register that forcedeth users. 
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > These should just use __get_cpu_var().
+> 
+> Done.
+> 
+> > And could we please remove the irq_regs macro?
+> 
+> Done.
+> 
+> > I think the change is good.  But I don't want to maintain this whopper
+> > out-of-tree for two months!  If we want to do this, we should just smash it
+> > in and grit our teeth.  But I am a bit concerned about the non-x86
+> > architectures.  I assume they'll continue to compile-and-work?
+> 
+> Well, it seems that IA64 and MIPS don't build as of 2.6.19-rc1 without my
+> having to do anything.  i386, x86_64, powerpc and frv build for at least one
+> configuration each.  The other archs I haven't touched, so will definitely
+> break.
+> 
+> Can those arch maintainers give me patches?
+> 
+> 
+> Anyway, I've made a GIT tree with just IRQ my patches in.  It can be browsed
+> at:
+> 
+> 	http://git.infradead.org/?p=users/dhowells/irq-2.6.git;a=shortlog
+> 
+> Or pulled from:
+> 
+> 	git://git.infradead.org/~dhowells/irq-2.6.git
+> 
+> David
+> 
+> ---
+> The following changes since commit d223a60106891bfe46febfacf46b20cd8509aaad:
+>   Linus Torvalds:
+>         Linux 2.6.19-rc1
+> 
+> are found in the git repository at:
+> 
+>   git://git.infradead.org/~dhowells/irq-2.6.git
+> 
 
-AFAIR, the binary driver only ever accessed the location forcedeth is 
-accessing, and it also did the same byte swapping process. I never bothered 
-to take the BIOS itelf apart to find out where it was getting the MAC from to 
-begin with.
+A quick survey of the wreckage:
+
+- Dmitry's input git tree breaks a bit
+
+- five of Greg's USB patches need fixing
+
+- a few random -mm patches need touchups
+
+- The hrtimer+dynticks i386 patch takes rather a hit and will need redoing.
+
+So, not too bad at all.  It's a bit rough on the poor old arch maintainers,
+but it's pretty simple stuff.
+
+I'd say let's do it...

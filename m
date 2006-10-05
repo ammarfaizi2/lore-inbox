@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWJEOpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWJEOxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWJEOpd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWJEOpd
+	id S1751480AbWJEOxp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWJEOxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:45:33 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:11531 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932106AbWJEOpc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:45:32 -0400
-Date: Thu, 5 Oct 2006 10:44:50 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Alex Owen <r.alex.owen@gmail.com>
-Cc: linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net,
-       aabdulla@nvidia.com
-Subject: Re: forcedeth net driver: reverse mac address after pxe boot
-Message-ID: <20061005144442.GB18408@tuxdriver.com>
-References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com>
+	Thu, 5 Oct 2006 10:53:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:43440 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751473AbWJEOxo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:53:44 -0400
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+From: Steve Fox <drfickle@us.ibm.com>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Andi Kleen <ak@suse.de>, vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <45245B03.2070803@mbligh.org>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <20061004170659.f3b089a8.akpm@osdl.org> <20061005005124.GA23408@in.ibm.com>
+	 <200610050257.53971.ak@suse.de>  <45245B03.2070803@mbligh.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 05 Oct 2006 09:53:40 -0500
+Message-Id: <1160060020.29690.5.camel@flooterbu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 05:19:20PM +0100, Alex Owen wrote:
+On Wed, 2006-10-04 at 18:08 -0700, Martin Bligh wrote:
+> Andi Kleen wrote:
+> >>I think most likely it would crash on 2.6.18. Keith mannthey had reported
+> >>a different crash on 2.6.18-rc4-mm2 when this patch was introduced first
+> >>time. Following is the link to the thread.
+> > 
+> > 
+> > Then maybe trying 2.6.17 + the patch and then bisect between that and -rc4?
+> 
+> I think it's fixed already in -git22, or at least it is for the IBM box
+> reporting to test.kernel.org. You might want to try that one ...
 
-> The obvious fix for this is to try and read the MAC address from the
-> canonical location... ie where is the source of the address writen
-> into the controlers registers at power on? But do we know where that
-> may be?
+-git22 also panics for me.
 
-This seems like The Right Thing (TM) to me, but we need someone from
-NVidia(?) to provide that information.  Ayaz?
-
-> The other solution would be unconditionally reset the controler to
-> it's power on state then use the current logic? can we reset the
-> controller via software?
-
-This seems like a plausible alternative.
-
-The MAC address validation schemes suggested by others would probably
-"work", but they would be a bit fragile.  For example, every new vendor
-of forcedeth hardware would have a new OUI to be added to the list.
-
-John
 -- 
-John W. Linville
-linville@tuxdriver.com
+
+Steve Fox
+IBM Linux Technology Center

@@ -1,127 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWJEB5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWJEB5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWJEB5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 21:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWJEB5L
+	id S1751321AbWJEB5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 21:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWJEB5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 21:57:11 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:6857 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751315AbWJEB5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 21:57:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DXhbotRSuuLie1SCQHtFHshBFqLlF38sYt/sMOgBii/RFBD1+EjHAtZYC8s4dhWjZoBDA4o/dBphMQvZSZE9hOil7A4YSsqWjJAD9eOdjQFRydUPwTF8UrNJcRd8heXHoRJS1fagYq3J1x9U9vaGemE5AV63NblRFqyew0bAdP4=
-Message-ID: <a762e240610041857w64539d9h10687aab5235f745@mail.gmail.com>
-Date: Wed, 4 Oct 2006 18:57:07 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-Cc: "Andrew Morton" <akpm@osdl.org>, "Steve Fox" <drfickle@us.ibm.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "Vivek Goyal" <vgoyal@in.ibm.com>,
-       "Ian Campbell" <Ian.Campbell@xensource.com>
-In-Reply-To: <200610041756.47682.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Oct 2006 21:57:50 -0400
+Received: from mail2.genealogia.fi ([194.100.116.229]:32978 "EHLO
+	mail2.genealogia.fi") by vger.kernel.org with ESMTP
+	id S1751321AbWJEB5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 21:57:49 -0400
+Date: Wed, 4 Oct 2006 18:55:26 -0700
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Theodore Tso <tytso@mit.edu>
+Cc: Jean Tourrilhes <jt@hpl.hp.com>, Linus Torvalds <torvalds@osdl.org>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Jeff Garzik <jeff@garzik.org>, Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+Subject: Re: LEAP (was: wpa supplicant/ipw3945, ESSID last char missing)
+Message-ID: <20061005015526.GB6145@jm.kir.nu>
+References: <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org> <20061004181032.GA4272@bougret.hpl.hp.com> <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org> <20061004185903.GA4386@bougret.hpl.hp.com> <20061004232939.GA19647@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <1159969349.28106.64.camel@flooterbu>
-	 <20061004084540.af17fee5.akpm@osdl.org>
-	 <200610041756.47682.ak@suse.de>
+In-Reply-To: <20061004232939.GA19647@thunk.org>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.6 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/06, Andi Kleen <ak@suse.de> wrote:
-> On Wednesday 04 October 2006 17:45, Andrew Morton wrote:
-> > On Wed, 04 Oct 2006 08:42:28 -0500
-> > Steve Fox <drfickle@us.ibm.com> wrote:
-> >
-> > > On Thu, 2006-09-28 at 14:01 -0700, Andrew Morton wrote:
-> > > > On Thu, 28 Sep 2006 17:50:31 +0000 (UTC)
-> > > > "Steve Fox" <drfickle@us.ibm.com> wrote:
-> > > >
-> > > > > On Thu, 28 Sep 2006 01:46:23 -0700, Andrew Morton wrote:
-> > > > >
-> > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
-> > > > >
-> > > > > Panic on boot. This machine booted 2.6.18-mm1 fine. em64t machine.
-> > > > >
-> > > > > TCP bic registered
-> > > > > TCP westwood registered
-> > > > > TCP htcp registered
-> > > > > NET: Registered protocol family 1
-> > > > > NET: Registered protocol family 17
-> > > > > Unable to handle kernel paging request at ffffffffffffffff RIP:
-> > > > >  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > > > > PGD 203027 PUD 2b031067 PMD 0
-> > > > > Oops: 0000 [1] SMP
-> > > > > last sysfs file:
-> > > > > CPU 0
-> > > > > Modules linked in:
-> > > > > Pid: 1, comm: swapper Not tainted 2.6.18-mm2-autokern1 #1
-> > > > > RIP: 0010:[<ffffffff8047ef93>]  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > > > > RSP: 0000:ffff810bffcbde90  EFLAGS: 00010286
-> > > > > RAX: 0000000000000000 RBX: ffff810bff4a1000 RCX: 2222222222222222
-> > > > > RDX: ffff810bff4a1000 RSI: 0000000000000005 RDI: ffffffff8055f5e0
-> > > > > RBP: ffffffffffffffff R08: 0000000000007616 R09: 000000000000000e
-> > > > > R10: 0000000000000006 R11: ffffffff803373f0 R12: 0000000000000000
-> > > > > R13: 0000000000000005 R14: ffff810bff4a1000 R15: 0000000000000000
-> > > > > FS:  0000000000000000(0000) GS:ffffffff805d8000(0000) knlGS:0000000000000000
-> > > > > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > > > > CR2: ffffffffffffffff CR3: 0000000000201000 CR4: 00000000000006e0
-> > > > > Process swapper (pid: 1, threadinfo ffff810bffcbc000, task ffff810bffcbb510)
-> > > > > Stack:  ffff810bff4a1000 ffffffff8055f4c0 0000000000000000 ffff810bffcbdef0
-> > > > >  0000000000000000 ffffffff8042736e 0000000000000000 0000000000000000
-> > > > >  0000000000000000 ffffffff8061c68d ffffffff806260f0 ffffffff80207182
-> > > > > Call Trace:
-> > > > >  [<ffffffff8042736e>] register_netdevice_notifier+0x3e/0x70
-> > > > >  [<ffffffff8061c68d>] packet_init+0x2d/0x53
-> > > > >  [<ffffffff80207182>] init+0x162/0x330
-> > > > >  [<ffffffff8020a9d8>] child_rip+0xa/0x12
-> > > > >  [<ffffffff8033c2a2>] acpi_ds_init_one_object+0x0/0x82
-> > > > >  [<ffffffff80207020>] init+0x0/0x330
-> > > > >  [<ffffffff8020a9ce>] child_rip+0x0/0x12
-> > > > >
-> > > > >
-> > > > > Code: 48 8b 45 00 0f 18 08 49 83 fd 02 4c 8d 65 f8 0f 84 f8 fe ff
-> > > > > RIP  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > > > >  RSP <ffff810bffcbde90>
-> > > > > CR2: ffffffffffffffff
-> > > > >  <0>Kernel panic - not syncing: Attempted to kill init!
-> > > > >
-> > > >
-> > > > I'm really struggling to work out what went wrong there.  Comparing your
-> > > > miserable 20 bytes of code to my object code makes me think that this:
-> > > >
-> > > >           struct packet_sock *po = pkt_sk(sk);
-> > > >
-> > > > returned -1, perhaps in %ebp.  But it's all very crude.
-> > > >
-> > > > Perhaps you could compile that kernel with CONFIG_DEBUG_INFO, rerun it (the
-> > > > addresses might change) then have a poke around with `gdb vmlinux' (or
-> > > > maybe just addr2line) to work out where it's really oopsing?
-> > > >
-> > > > I don't see much which has changed in that area recently.
-> > >
-> > > Sorry for the delay. I was finally able to perform a bisect on this. It
-> > > turns out the patch that causes this is
-> > > x86_64-mm-re-positioning-the-bss-segment.patch, which seems like a
-> > > strange candidate, but sure enough I can boot to login: right up until
-> > > that patch is applied.
-> >
-> > hm, that patch was merged into mainline September 29.  Does mainline work?
->
-> Yes we had this earlier already. But without this patch it doesn't
-> compile for some people. So it was readded.
->
-> And nobody knows why the reposition-bss patch actually breaks things :/
+On Wed, Oct 04, 2006 at 07:29:39PM -0400, Theodore Tso wrote:
 
-I just wanted to add a chaned up my config file and things went away.
-It was not at all clear as to what was causing it.
+> P.S.  Because of all of these changing interfaces, I *still* haven't
+> been able to get wpa_supplicant working with LEAP so I can get
+> wireless access to in IBM offices using my ipw3945 driver.  I've
+> tried, and failed.  Sigh, I guess I'm not smart enough....
 
+This is getting somewhat off topic to the main thread, but anyway, LEAP
+is quite an odd beast as far as EAP methods are concerned and the way it
+is implemented in Cisco APs makes it even worse.. LEAP can mean so many
+different things that it is difficult to give any generic answer to how
+to do this. Just about any other wireless security configuration would
+be easier to explain.. ;-)
 
-Thanks,
-  Keith
+Feel free to write me more details on the configuration used in the
+network and I can try to figure out how that would need to be
+configured. I would need to know whether LEAP is being used with IEEE
+802.1X (dynamic WEP keys; key_mgmt=IEEE8021X in wpa_supplicant)) or with
+WPA (key_mgmt=WPA-EAP in wpa_supplicant). In addition, it would be
+useful to know whether the APs are configured to require Cisco
+prorietary "Network EAP" authentication algorithm (auth_alg=LEAP in
+wpa_supplicant) or not. Many of the drivers do not support that at all..
+I don't know whether ipw3945 does since I have not tested this myself
+and do not remember having heard of a clear report on this being used.
+
+And just hope that the APs do not require Cisco proprietary CKIP or CMIC
+encryption algorithms which are most likely not supported by ipw3945 (or
+most Linux drivers for that matter)..
+
+-- 
+Jouni Malinen                                            PGP id EFC895FA

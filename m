@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWJFOvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWJFOwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbWJFOvk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 10:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWJFOvk
+	id S1161026AbWJFOwT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 10:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbWJFOwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 10:51:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39945 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161018AbWJFOvj
+	Fri, 6 Oct 2006 10:52:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42505 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161026AbWJFOwS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 10:51:39 -0400
-Date: Thu, 5 Oct 2006 10:36:57 +0000
+	Fri, 6 Oct 2006 10:52:18 -0400
+Date: Thu, 5 Oct 2006 12:40:37 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Message-ID: <20061005103657.GA4474@ucw.cz>
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061001171912.b7aac1d8.akpm@osdl.org> <20061002003908.GA18707@lists.us.dell.com>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: wireless abi breakage (was Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA)
+Message-ID: <20061005124036.GA4624@ucw.cz>
+References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com> <20060929202928.GA14000@tuxdriver.com> <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com> <20060929212748.GA10288@bougret.hpl.hp.com> <20060930193853.GA6890@ucw.cz> <20061002170832.GB14535@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061002003908.GA18707@lists.us.dell.com>
+In-Reply-To: <20061002170832.GB14535@bougret.hpl.hp.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I assume that cute userspace applications for controlling backlight
-> > brightness via the generic backlight driver either exist or are in
-> > progress?  What is the status of that?
+> > > 	That's exactly the point of this warning (some distro like to
+> > > kill it), I think it spells pretty clearly what's wrong. Don't say I
+> > > did not warn you...
+> > 
+> > Well... we are trying to have stable abi here. Breaking older wireless
+> > tools randomly is *not* okay in the middle of stable series.
 > 
-> For Dell laptops, the dellLcdBrightness app is included in the
-> libsmbios-bin package (http://linux.dell.com/libsmbios/main/ and
-> http://linux.dell.com/libsmbios/main/yum.html for the yum repo).  It's
-> entirely userspace.
+> 	I'm sorry, but as there is no longer any "devel" serie, to me
+> there is no longer any "stable" serie. Do you mean that we are going
+> to get frozen with the same APIs until then end of time ? I don't
+> think so...
 
-Please move it into the kernel where it belongs, and use lcd
-brightness subsystem like everyone else.
-							Pavel
+I mean that proprt procedure for removing APIs needs to be followed,
+and that is deprecating them in Doc*/feature-removal-schedule, along
+with date, waiting a year, then removing them.
+
+> 	You can see the glass half-full or half-empty. Maybe you can
+
+No, not in this case.
 -- 
 Thanks for all the (sleeping) penguins.

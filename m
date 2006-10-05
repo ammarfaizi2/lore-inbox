@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWJEVPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWJEVSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWJEVPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWJEVPr
+	id S1750857AbWJEVSc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWJEVSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:15:47 -0400
-Received: from orca.ele.uri.edu ([131.128.51.63]:7314 "EHLO orca.ele.uri.edu")
-	by vger.kernel.org with ESMTP id S932201AbWJEVPp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:15:45 -0400
-Date: Thu, 5 Oct 2006 17:15:44 -0400
-From: Will Simoneau <simoneau@ele.uri.edu>
-To: sparclinux@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [sparc64] 2.6.18 unaligned accesses in eth1394
-Message-ID: <20061005211543.GA18539@ele.uri.edu>
-Mail-Followup-To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 [Linux 2.6.18 sparc64]
+	Thu, 5 Oct 2006 17:18:31 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:45441 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750857AbWJEVSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:18:31 -0400
+Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dominique Dumont <domi.dumont@free.fr>
+Cc: alsa-user <alsa-user@lists.sourceforge.net>,
+       Francesco Peeters <Francesco@FamPeeters.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <87r6xmscif.fsf@gandalf.hd.free.fr>
+References: <877izsp3dm.fsf@gandalf.hd.free.fr>
+	 <13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
+	 <87y7rusddc.fsf@gandalf.hd.free.fr> <1160081110.2481.104.camel@mindpipe>
+	 <87r6xmscif.fsf@gandalf.hd.free.fr>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 17:18:55 -0400
+Message-Id: <1160083137.2481.108.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-10-05 at 23:01 +0200, Dominique Dumont wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
+> 
+> > This is going to be a problem with the SATA driver not ALSA.  I've heard
+> > that some motherboards do evil stuff like implementing legacy drive
+> > access modes using SMM which would cause dropouts without xruns
+> > reported.
+> 
+> Why do I hear distortion with PCM on SPDIF output and no distortion at
+> all on analog front output ? (both with the SB Live card)
+> 
+> > Please report it on LKML.
+> 
+> Will do. (although your mail and this mail are cc'ed to LKLM)
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Did you ever try the latency tracer?  (See LKML archives for
+instructions)
 
-Here's a pair of unaligned accesses I found playing with the eth1394 driver:
+Lee
 
-Kernel unaligned access at TPC[102c8190] ether1394_tx+0xf8/0x600 [eth1394]
-Kernel unaligned access at TPC[10162c8c] ether1394_data_handler+0x914/0x100=
-0 [eth1394]
-
-The first one I seem to be able to fix by adding a get_unaligned() at
-lines 1679-1680 of eth1394.c around eth->h_dest; the second one seems to
-be triggered by this code:
-
-(gdb) list *ether1394_data_handler+0x914
-0xc94 is in ether1394_data_handler (drivers/ieee1394/eth1394.c:1264).
-1259        priv->stats.rx_dropped++;
-1260        dev_kfree_skb_any(skb);
-1261        goto bad_proto;
-1262     }
-1263 =20
-1264     if (netif_rx(skb) =3D=3D NET_RX_DROP) {
-1265        priv->stats.rx_errors++;
-1266        priv->stats.rx_dropped++;
-1267        goto bad_proto;
-1268     }
-
-Unaligned accesses caused by netif_rx seem to have happened before on
-mips long ago (according to google). I suspect nobody has ever tried
-eth1394 on sparc64 ;-)
-
-eth1394 seems to work fine otherwise, I can plug a firewire hdd and a
-laptop with firewire into the sparc and everything works OK. I get
-~13MB/sec network throughput from laptop -> sparc (the sparc's CPU is
-hitting 100% system time), I suspect it would be a lot faster with the
-alignment problem fixed.
-
---OXfL5xGRrasGEqWY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFJXX/LYBaX8VDLLURAjRAAKDBM2GaPLb7SLcrDhuEnWsyns5BvQCgmTKF
-izn/QuiwNtm17P92bILrU0Y=
-=JB9E
------END PGP SIGNATURE-----
-
---OXfL5xGRrasGEqWY--

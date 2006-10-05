@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWJEWIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWJEWJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWJEWIT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWJEWIT
+	id S932320AbWJEWJd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWJEWJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:08:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34996 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932332AbWJEWIR (ORCPT
+	Thu, 5 Oct 2006 18:09:33 -0400
+Received: from mail.gmx.de ([213.165.64.20]:26077 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932320AbWJEWJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:08:17 -0400
-Date: Thu, 5 Oct 2006 15:07:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Suzuki Kp <suzuki@in.ibm.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>,
-       lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
-       andmike@us.ibm.com
-Subject: Re: [RFC] PATCH to fix rescan_partitions to return errors properly
-  - take 2
-Message-Id: <20061005150729.170e41c4.akpm@osdl.org>
-In-Reply-To: <45256BE2.5040702@in.ibm.com>
-References: <452307B4.3050006@in.ibm.com>
-	<20061004130932.GC18800@harddisk-recovery.com>
-	<4523E66B.5090604@in.ibm.com>
-	<20061004170827.GE18800@harddisk-recovery.nl>
-	<4523F16D.5060808@in.ibm.com>
-	<20061005104018.GC7343@harddisk-recovery.nl>
-	<45256BE2.5040702@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 5 Oct 2006 18:09:32 -0400
+X-Authenticated: #704063
+Subject: Re: [Patch] Dereference in drivers/usb/misc/adutux.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, netwiz@crc.id.au
+In-Reply-To: <20061005082131.c9a0ecd0.rdunlap@xenotime.net>
+References: <1160042489.3101.2.camel@alice>
+	 <20061005082131.c9a0ecd0.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 00:09:29 +0200
+Message-Id: <1160086169.26057.1.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 13:32:34 -0700
-Suzuki Kp <suzuki@in.ibm.com> wrote:
+hi,
 
-> Erik,
-> 
-> 
-> Erik Mouw wrote:
-> > On Wed, Oct 04, 2006 at 10:37:49AM -0700, Suzuki Kp wrote:
+> > in two of the error cases, dev is still NULL,
+> > and we dereference it. Spotted by coverity (cid#1428, 1429)
 > > 
-> >>Erik Mouw wrote:
-> >>
-> >>>I disagree. It's perfectly valid for a disk not to have a partition
-> >>>table (for example: components of a RAID5 MD device) and we shouldn't
-> >>>scare users about that. Also an unrecognised partition table format
-> >>>(DEC VMS, Novell Netware, etc.) is not a reason to throw an error, it's
-> >>>just unrecognised and as far as the kernel knows it's unpartioned.
-> >>
-> 
-> [...]
-> 
-> 
-> Thank you very much for the inputs.
-> 
-> As per the discussion I have made the changes to the patch.
-> 
-> This change needs to be implemented in some of the partition checkers 
-> which doesn't do that already.
-> 
-> Btw, do you think it is a good idea to let the other partition checkers 
-> run, even if one of them has failed ?
-> 
-> Right now, the check_partition runs the partition checkers in a 
-> sequential manner, until it finds a success or an error.
+> space after if, for, while, etc.  No space after function names.
 
-This is all important information to capture in the patch changelog: it
-covers user-visible changes, it covers user-affecting problems with the
-present kernel, it describes the implications of making this change to the
-kernel, etc.  All important stuff.  So could you please send a complete
-changelog for this patch?
+updated patch below.
 
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
->
-> * Fix rescan_partition to propagate the low level I/O error.
->
-
-Not enough ;)
+--- linux-2.6.19-rc1/drivers/usb/misc/adutux.c.orig	2006-10-05 17:34:45.000000000 +0200
++++ linux-2.6.19-rc1/drivers/usb/misc/adutux.c	2006-10-05 17:34:53.000000000 +0200
+@@ -370,7 +370,8 @@ static int adu_release(struct inode *ino
+ 	retval = adu_release_internal(dev);
  
-> 
-> 
-> Signed Off by: Suzuki K P <suzuki@in.ibm.com>
-> 
+ exit:
+-	up(&dev->sem);
++	if (dev)
++		up(&dev->sem);
+ 	dbg(2," %s : leave, return value %d", __FUNCTION__, retval);
+ 	return retval;
+ }
 
-Please use "Signed-off-by:"
-
-This patch had tabs replaced with spaces, despite the fact that it was an
-attachment - that's a new one.  Please get that fixed up for future
-patches, thanks.
 

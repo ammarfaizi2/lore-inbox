@@ -1,243 +1,414 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWJEPuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbWJEPuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWJEPuG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWJEPuG
+	id S1751571AbWJEPuV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWJEPuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:50:06 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42222 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751582AbWJEPuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:50:03 -0400
-Date: Thu, 5 Oct 2006 11:49:16 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
-In-Reply-To: <20061005143133.GA400@Krystal>
-Message-ID: <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
-References: <1160025104.6504.30.camel@localhost.localdomain>
- <20061005143133.GA400@Krystal>
+	Thu, 5 Oct 2006 11:50:21 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:41917 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751576AbWJEPuR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:50:17 -0400
+Message-ID: <45252B17.1020605@openvz.org>
+Date: Thu, 05 Oct 2006 19:56:07 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, xemul@openvz.org,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Hugh Dickins <hugh@veritas.com>, Srivatsa <vatsa@in.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, haveblue@us.ibm.com
+Subject: [PATCH 5/10] BC: user interface (syscalls)
+References: <4525257A.4040609@openvz.org>
+In-Reply-To: <4525257A.4040609@openvz.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006, Mathieu Desnoyers wrote:
+Add the following system calls for BC management:
+ 1. sys_get_bcid     - get current BC id
+ 2. sys_set_bcid     - change BC on task
+ 3. sys_set_bclimit  - set limits for resources consumtions 
+ 4. sys_get_bcstat   - return br_resource_parm on resource
 
-> Hi Steven,
->
-> The dynamic abilities of your logdev are very interesting! If I may emit some
-> ideas :
+Signed-off-by: Pavel Emelianov <xemul@openvz.org>
+Signed-off-by: Kirill Korotaev <dev@openvz.org>
 
-Thanks, I appreciate all constructive ideas!
+---
 
->
-> It would be great to have this logging information recorded into a standardized
-> buffer format so it could be analyzed with data gathered by other
-> instrumentation. Instead of using Tom's relay mechanism directly, you might
-> want to have a look at LTTng (http://ltt.polymtl.ca) : it would be a simple
-> matter of describing your own facility (group of event), the data types they
-> record, run genevent (serialization code generator) and call those
-> serialization functions when you want to record to the buffers from logdev.
+ arch/i386/kernel/syscall_table.S |    4 +
+ arch/ia64/kernel/entry.S         |    4 +
+ arch/sparc/kernel/entry.S        |    2 
+ arch/sparc/kernel/systbls.S      |    6 +
+ arch/sparc64/kernel/entry.S      |    2 
+ arch/sparc64/kernel/systbls.S    |   10 ++-
+ include/asm-i386/unistd.h        |    6 +
+ include/asm-ia64/unistd.h        |    6 +
+ include/asm-powerpc/systbl.h     |    4 +
+ include/asm-powerpc/unistd.h     |    6 +
+ include/asm-sparc/unistd.h       |    4 +
+ include/asm-sparc64/unistd.h     |    4 +
+ include/asm-x86_64/unistd.h      |   10 ++-
+ kernel/bc/sys.c                  |  130 +++++++++++++++++++++++++++++++++++++++
+ kernel/sys_ni.c                  |    6 +
+ 15 files changed, 195 insertions(+), 9 deletions(-)
 
-Hmm, interesting. But at the mean time, what you describe seems a little
-out of scope with logdev. This doesn't mean that it can't be applied, now
-or later.  But currently, I do use logdev for 90% debugging and 10%
-analyzing.  Perhaps for the analyzing part, this would be useful.  I have
-to admit, I didn't get far trying to convert LTTng to 2.6.18. Didn't have
-the time. Ah, I see you have a patch there now for 2.6.18.  Adding this
-would be good to do.  But unfortunately, my time is currently very limited
-(who's isn't. But mine currently is more limited than it usually is).
-
-When things slow down for me a little, I'll see where you are at, and take
-a look.  Something we can also discuss at the next OLS.
-
-
->
-> One thing logdev seems to have that LTTng does't currently is the integration
-> with a mechanism that dumps the output upon a crash (LKCD integration). It's no
-> rocket science, but I just did not have time to do it.
-
-heehee, in pine the "no" was cut off by my 80 cols, and it looked like
-"It's rocket science".  Well if it _was_ rocket science, I wouldn't be
-able to do it ;-)
-
-But from that really bright thread (lit up mainly by the flames), there
-was strong talk about LTTng not tracing for debugging.  It _can_ be a
-debugging tool, but that's not its main purpose. It is an analyzing tool.
-Logdev _was_ written to be a debugging tool, and that is why I never
-pushed to hard to get it into the kernel. Because, mainly, it was used for
-kernel hackers only.
-
-This is why the output of the crashes is very important for Logdev, and
-not so important for LTTng.  Logdev's biggest asset was the ability to
-find deadlocks.  The output always showed the order of events between
-processors, and time and time again, I've submitted race condition
-fix patches to the kernel, to the -rt patch and even to tglx's hrtimer
-work.
-
-To logdev, speed of the trace is important, but not that important.
-Accuracy of the trace is the most important.  Originally, I had a single
-buffer, and would use spinlocks to protect it.  All CPUs would share this
-buffer. The reason for this, is I wanted simple code to prove that the
-sequence events really did happen in a certain order.  I just recently
-changed the ring buffer to use a lockless buffer per cpu, but I still
-question it's accuracy. But I guess it does make things faster now.
-
->
-> I think it would be great to integrate those infrastructures together so we can
-> easily merge information coming from various sources (markers, logdev, systemTAP
-> scripts, LKET).
-
-The one argument I have against this, is that some of these have different
-objectives.  Merging too much can dilute the objective of the app.  But I
-do think that a cooperation between the tools would be nice.
-
-
->
-> * Steven Rostedt (rostedt@goodmis.org) wrote:
-> > 1. break point and a watch address
-> >
-> > This simply allows you to set a break point at some address (or pass in
-> > a function name if it exists in kallsyms).
-> >
-> > logprobe -f hrtimer_start  -v jiffies_64
-> >
-> Does it automatically get the data type, or is there any way to specify it ?
-
-Not yet, but all of the kprobes code for logdev was written in about 26
-hours.  And really because I lost access to the Internet, did I do so
-much.  I got to get back to other things, so the progress will once again
-slow down to almost a halt.
-
-I would really like to integrate the logdev tools with gdb so that I can
-load the vmlinux kernel and get all sorts of good stuff.
-
-But that's not going to happen in 26 hours :-)
-
-I also need to learn how to do that.
-
->
-> >
-> > 2. break point and watch from current
-> >
-> > This allows a user to see something on the current task_struct. You need
-> > to know the offset exactly. In the below example, I know that 20 (dec)
-> > is the offset in the task_struct to lock_depth.
-> >
-> > example:
-> >
-> > logprobe -f schedule -c 20 "lock_depth"
-> >
-> > produces:
-> >
-> >   [ 8757.854029] cpu:1 sawfish:3862 func: schedule (0xc02f8320) lock_depth index:20 = 0xffffffff
-> >
->
-> Could we think of a quick hack that would involve using gcc on stdin and return
-> an "offsetof", all in user-space ?
-
-Have an idea, I'd love to see it!
-
->
-> >
-> > 3. break point and watch fixed type
-> >
-> > This is a catch all for me. I currently only implement preempt_count.
-> >
-> >
-> >  logprobe -t pc -f _spin_lock
-> >
-> > produces:
-> >
-> >    [ 9442.215693] cpu:0 logread:6398 func: _spin_lock (0xc02fab9d)  preempt_count:0x0
-> >
-> Ouch, I can imagine the performance impact of this breakpoint though :) This is
-> a case where marking the code helps a lot.
-
-True, but it also matters what you write.  My old static tracing still
-noticeably slowed down the system.  But this thread is _not_ about
-static vs dynamic, that's been beaten to death already and I don't want
-to be involved in that debate until the emotions calm down (like that has
-ever happened on LKML).
-
-But the above really didn't slow the system down too noticeably.
-
->
->
-> Regards,
->
-> Mathieu
-
-Well Mathieu, thanks a lot for taking the time to look at the code.  I'd
-like to know more about LTTng too, and understand it better.  Hopefully,
-when things slow down a little I will.
-
-I know I said I'm staying out of the debate, but I need to ask this
-anyway.  Couldn't LTTng be fully implemented with dynamic traces? And if
-so, then what would be the case, to get that into the kernel, and then
-maintain a separate patch to convert those dynamic traces into static
-onces where performance is critical.  This way, you can get the
-infrastructure into the kernel, and get more eyes on it. Also make the
-patch smaller.
-
-As you stated, there can be more users than LTTng to what gets into the
-kernel.  Now, grant you, I don't know LTTng too well, so all this that I'm
-saying could just be coming out of my butt. But from what I did read,
-LTTng is a _good_ tool, and should be supported.  It just seems that the
-method isn't accepted.
-
-I've learned a lot from Ingo and Thomas.  One thing I watch them do with
-the -rt patch was to get small pieces into the kernel, a little at a time.
-But these pieces got into the kernel not because it came from Ingo, but
-because they actually benefited other parts of the kernel.
-
-Like relay getting into the kernel, that was a part of LTT that helped
-other parts of the kernel.  So if there is an underlining infrastructure
-that can be used by multiple systems, then that should be something to
-strive for.
-
-So if you convert LTTng to use dynamic traces only (for now), and that
-gets accepted into the kernel, you will then have a larger user base of
-LTTng.  Yes, the performance may be a problem, but you have a separate
-patch (as you do now) to change to static tracing for those that need the
-performance.  But in the mean time, you have those that can use it without
-recompiling their kernel.
-
-Now heres the kicker!
-
-When the demand comes to make LTTng (that's in the kernel) perform better,
-then the kernel developers will feel the pressure to either introduce
-static tracing in critical points, or fix up the dynamic tracing to
-perform better.
-
-As Ingo showed in the thread.  He added code to speed up kprobes. This was
-done just because it was noticed that kprobes was slow. It will never be
-done if no one notices.  But as soon as there is a demand for speed on
-that system, there will be lots of good ideas coming out to make it
-better.
-
-So I personally am not for or against static tracing, because simply I
-don't mind patching my own kernel, and I'm not maintaining it.  Logdev was
-used to add static tracing quickly.  Logdev started in the 2.1 kernel, and
-is now at 2.6.18.  I've seldom had problems porting it.  The most
-difficult port (which took 2 hours) was to the -rt patch.  And that was
-just because my tracing had to be aware of spinlocks turning into mutexes,
-and interrupts not really being disabled.
-
-But the moral here is that logdev was as much contained out of the kernel,
-and I could just slam in trace points when needed.  After a bug was found,
-I removed all them right away. (thank God for subversion and quilt).
-
-Just some thoughts. Although I'm sure I'm going to regret bringing this
-back up. :-/
-
-Tschuess,
-
--- Steve
+--- ./arch/i386/kernel/syscall_table.S.bc_syscalls	2006-10-05 11:42:39.000000000 +0400
++++ ./arch/i386/kernel/syscall_table.S	2006-10-05 12:09:09.000000000 +0400
+@@ -322,3 +322,7 @@ ENTRY(sys_call_table)
+ 	.long sys_kevent_get_events	/* 320 */
+ 	.long sys_kevent_ctl
+ 	.long sys_kevent_wait
++	.long sys_get_bcid
++	.long sys_set_bcid
++	.long sys_set_bclimit		/* 325 */
++	.long sys_get_bcstat
+--- ./arch/ia64/kernel/entry.S.bc_syscalls	2006-10-05 11:42:39.000000000 +0400
++++ ./arch/ia64/kernel/entry.S	2006-10-05 12:09:09.000000000 +0400
+@@ -1610,5 +1610,9 @@ sys_call_table:
+ 	data8 sys_sync_file_range		// 1300
+ 	data8 sys_tee
+ 	data8 sys_vmsplice
++	data8 sys_get_bcid
++	data8 sys_set_bcid
++	data8 sys_set_bclimit			// 1305
++	data8 sys_get_bcstat
+ 
+ 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
+--- ./arch/sparc/kernel/entry.S.bc_syscalls	2006-09-20 14:46:17.000000000 +0400
++++ ./arch/sparc/kernel/entry.S	2006-10-05 12:09:09.000000000 +0400
+@@ -37,7 +37,7 @@
+ 
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
++#define NR_SYSCALLS 304      /* Each OS is different... */
+ 
+ /* These are just handy. */
+ #define _SV	save	%sp, -STACKFRAME_SZ, %sp
+--- ./arch/sparc/kernel/systbls.S.bc_syscalls	2006-09-20 14:46:17.000000000 +0400
++++ ./arch/sparc/kernel/systbls.S	2006-10-05 12:09:09.000000000 +0400
+@@ -78,7 +78,8 @@ sys_call_table:
+ /*285*/	.long sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
+ /*290*/	.long sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ /*295*/	.long sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
+-/*300*/	.long sys_set_robust_list, sys_get_robust_list
++/*300*/	.long sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
++/*305*/	.long sys_get_bcstat
+ 
+ #ifdef CONFIG_SUNOS_EMUL
+ 	/* Now the SunOS syscall table. */
+@@ -192,4 +193,7 @@ sunos_sys_table:
+ 	.long sunos_nosys, sunos_nosys, sunos_nosys
+ 	.long sunos_nosys, sunos_nosys, sunos_nosys
+ 
++	.long sunos_nosys, sunos_nosys, sunos_nosys,
++	.long sunos_nosys
++
+ #endif
+--- ./arch/sparc64/kernel/entry.S.bc_syscalls	2006-09-20 14:46:17.000000000 +0400
++++ ./arch/sparc64/kernel/entry.S	2006-10-05 12:09:09.000000000 +0400
+@@ -25,7 +25,7 @@
+ 
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
++#define NR_SYSCALLS 304      /* Each OS is different... */
+ 
+ 	.text
+ 	.align		32
+--- ./arch/sparc64/kernel/systbls.S.bc_syscalls	2006-09-20 14:46:17.000000000 +0400
++++ ./arch/sparc64/kernel/systbls.S	2006-10-05 12:09:09.000000000 +0400
+@@ -79,7 +79,8 @@ sys_call_table32:
+ 	.word sys_mkdirat, sys_mknodat, sys_fchownat, compat_sys_futimesat, compat_sys_fstatat64
+ /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ 	.word sys_fchmodat, sys_faccessat, compat_sys_pselect6, compat_sys_ppoll, sys_unshare
+-/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list
++/*300*/	.word compat_sys_set_robust_list, compat_sys_get_robust_list, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
++	.word sys_nis_syscall
+ 
+ #endif /* CONFIG_COMPAT */
+ 
+@@ -149,7 +150,9 @@ sys_call_table:
+ 	.word sys_mkdirat, sys_mknodat, sys_fchownat, sys_futimesat, sys_fstatat64
+ /*290*/	.word sys_unlinkat, sys_renameat, sys_linkat, sys_symlinkat, sys_readlinkat
+ 	.word sys_fchmodat, sys_faccessat, sys_pselect6, sys_ppoll, sys_unshare
+-/*300*/	.word sys_set_robust_list, sys_get_robust_list
++/*300*/	.word sys_set_robust_list, sys_get_robust_list, sys_get_bcid, sys_set_bcid, sys_set_bclimit
++	.word sys_get_bcstat
++
+ 
+ #if defined(CONFIG_SUNOS_EMUL) || defined(CONFIG_SOLARIS_EMUL) || \
+     defined(CONFIG_SOLARIS_EMUL_MODULE)
+@@ -263,4 +266,7 @@ sunos_sys_table:
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
+ 	.word sunos_nosys, sunos_nosys, sunos_nosys
++
++	.word sunos_nosys, sunos_nosys, sunos_nosys
++	.word sunos_nosys
+ #endif
+--- ./include/asm-i386/unistd.h.bc_syscalls	2006-10-05 11:42:42.000000000 +0400
++++ ./include/asm-i386/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -328,10 +328,14 @@
+ #define __NR_kevent_get_events	320
+ #define __NR_kevent_ctl		321
+ #define __NR_kevent_wait	322
++#define __NR_get_bcid		323
++#define __NR_set_bcid		324
++#define __NR_set_bclimit	325
++#define __NR_get_bcstat		326
+ 
+ #ifdef __KERNEL__
+ 
+-#define NR_syscalls 323
++#define NR_syscalls 327
+ #include <linux/err.h>
+ 
+ /*
+--- ./include/asm-ia64/unistd.h.bc_syscalls	2006-10-05 11:42:42.000000000 +0400
++++ ./include/asm-ia64/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -291,11 +291,15 @@
+ #define __NR_sync_file_range		1300
+ #define __NR_tee			1301
+ #define __NR_vmsplice			1302
++#define __NR_get_bcid			1303
++#define __NR_set_bcid			1304
++#define __NR_set_bclimit		1305
++#define __NR_get_bcstat			1306
+ 
+ #ifdef __KERNEL__
+ 
+ 
+-#define NR_syscalls			279 /* length of syscall table */
++#define NR_syscalls			283 /* length of syscall table */
+ 
+ #define __ARCH_WANT_SYS_RT_SIGACTION
+ 
+--- ./include/asm-powerpc/systbl.h.bc_syscalls	2006-09-20 14:46:39.000000000 +0400
++++ ./include/asm-powerpc/systbl.h	2006-10-05 12:09:09.000000000 +0400
+@@ -304,3 +304,7 @@ SYSCALL_SPU(fchmodat)
+ SYSCALL_SPU(faccessat)
+ COMPAT_SYS_SPU(get_robust_list)
+ COMPAT_SYS_SPU(set_robust_list)
++SYSCALL(sys_get_bcid)
++SYSCALL(sys_set_bcid)
++SYSCALL(sys_set_bclimit)
++SYSCALL(sys_get_bcstat)
+--- ./include/asm-powerpc/unistd.h.bc_syscalls	2006-10-05 11:42:42.000000000 +0400
++++ ./include/asm-powerpc/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -323,10 +323,14 @@
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
++#define __NR_get_bcid		301
++#define __NR_set_bcid		302
++#define __NR_set_bclimit	303
++#define __NR_get_bcstat		304
+ 
+ #ifdef __KERNEL__
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		305
+ 
+ #define __NR__exit __NR_exit
+ #define NR_syscalls	__NR_syscalls
+--- ./include/asm-sparc/unistd.h.bc_syscalls	2006-10-05 11:42:43.000000000 +0400
++++ ./include/asm-sparc/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -318,6 +318,10 @@
+ #define __NR_unshare		299
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
++#define __NR_get_bcid		302
++#define __NR_set_bcid		303
++#define __NR_set_bclimit	304
++#define __NR_get_bcstat		305
+ 
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+--- ./include/asm-sparc64/unistd.h.bc_syscalls	2006-10-05 11:42:43.000000000 +0400
++++ ./include/asm-sparc64/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -320,6 +320,10 @@
+ #define __NR_unshare		299
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
++#define __NR_get_bcid		302
++#define __NR_set_bcid		303
++#define __NR_set_bclimit	304
++#define __NR_get_bcstat		305
+ 
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+--- ./include/asm-x86_64/unistd.h.bc_syscalls	2006-10-05 11:42:43.000000000 +0400
++++ ./include/asm-x86_64/unistd.h	2006-10-05 12:09:09.000000000 +0400
+@@ -625,8 +625,16 @@ __SYSCALL(__NR_kevent_get_events, sys_ke
+ __SYSCALL(__NR_kevent_ctl, sys_kevent_ctl)
+ #define __NR_kevent_wait	282
+ __SYSCALL(__NR_kevent_wait, sys_kevent_wait)
++#define __NR_get_bcid		283
++__SYSCALL(__NR_get_bcid, sys_get_bcid)
++#define __NR_set_bcid		284
++__SYSCALL(__NR_set_bcid, sys_set_bcid)
++#define __NR_set_bclimit	285
++__SYSCALL(__NR_set_bclimit, sys_set_bclimit)
++#define __NR_get_bcstat		286
++__SYSCALL(__NR_get_bcstat, sys_get_bcstat)
+ 
+-#define __NR_syscall_max __NR_kevent_wait
++#define __NR_syscall_max __NR_get_bcstat
+ 
+ #ifdef __KERNEL__
+ #include <linux/err.h>
+--- /dev/null	2006-07-18 14:52:43.075228448 +0400
++++ ./kernel/bc/sys.c	2006-10-05 12:10:31.000000000 +0400
+@@ -0,0 +1,130 @@
++/*
++ * kernel/bc/sys.c
++ *
++ * Copyright (C) 2006 OpenVZ SWsoft Inc
++ *
++ */
++
++#include <linux/sched.h>
++
++#include <asm/uaccess.h>
++
++#include <bc/beancounter.h>
++#include <bc/task.h>
++
++asmlinkage long sys_get_bcid(void)
++{
++	struct beancounter *bc;
++
++	bc = get_exec_bc();
++	return bc->bc_id;
++}
++
++asmlinkage long sys_set_bcid(bcid_t id, pid_t pid)
++{
++	int error;
++	struct task_struct *tsk;
++	struct beancounter *bc;
++
++	error = -EPERM;
++	if (!capable(CAP_SETUID))
++		goto out;
++
++	error = -ENOMEM;
++	bc = bc_findcreate(id, BC_ALLOC);
++	if (bc == NULL)
++		goto out;
++
++	read_lock(&tasklist_lock);
++	tsk = find_task_by_pid(pid);
++	if (tsk != NULL)
++		get_task_struct(tsk);
++	read_unlock(&tasklist_lock);
++
++	error = -ESRCH;
++	if (tsk == NULL)
++		goto out_putbc;
++
++	error = bc_task_move(tsk, bc);
++
++	put_task_struct(tsk);
++out_putbc:
++	bc_put(bc);
++out:
++	return error;
++}
++
++asmlinkage long sys_set_bclimit(bcid_t id, unsigned long resource,
++		unsigned long __user *limits)
++{
++	int error;
++	struct beancounter *bc;
++	unsigned long new_limits[2];
++
++	error = -EPERM;
++	if(!capable(CAP_SYS_RESOURCE))
++		goto out;
++
++	error = -EINVAL;
++	if (resource >= BC_RESOURCES)
++		goto out;
++
++	error = -EFAULT;
++	if (copy_from_user(&new_limits, limits, sizeof(new_limits)))
++		goto out;
++
++	error = -EINVAL;
++	if (new_limits[0] > BC_MAXVALUE || new_limits[1] > BC_MAXVALUE ||
++			new_limits[0] > new_limits[1])
++		goto out;
++
++	error = -ENOENT;
++	bc = bc_findcreate(id, BC_LOOKUP);
++	if (bc == NULL)
++		goto out;
++
++	spin_lock_irq(&bc->bc_lock);
++	error = 0;
++	if (bc_resources[resource]->bcr_change)
++		error = bc_resources[resource]->bcr_change(bc,
++				new_limits[0], new_limits[1]);
++	if (error < 0)
++		goto out_unlock;
++
++	bc->bc_parms[resource].barrier = new_limits[0];
++	bc->bc_parms[resource].limit = new_limits[1];
++	spin_unlock_irq(&bc->bc_lock);
++out_unlock:
++	bc_put(bc);
++out:
++	return error;
++}
++
++asmlinkage long sys_get_bcstat(bcid_t id, unsigned long resource,
++		struct bc_resource_parm __user *uparm)
++{
++	int error;
++	struct beancounter *bc;
++	struct bc_resource_parm parm;
++
++	error = -EINVAL;
++	if (resource >= BC_RESOURCES)
++		goto out;
++
++	error = -ENOENT;
++	bc = bc_findcreate(id, BC_LOOKUP);
++	if (bc == NULL)
++		goto out;
++
++	spin_lock_irq(&bc->bc_lock);
++	parm = bc->bc_parms[resource];
++	spin_unlock_irq(&bc->bc_lock);
++	bc_put(bc);
++
++	error = 0;
++	if (copy_to_user(uparm, &parm, sizeof(parm)))
++		error = -EFAULT;
++
++out:
++	return error;
++}
+--- ./kernel/sys_ni.c.bc_syscalls	2006-10-05 11:42:43.000000000 +0400
++++ ./kernel/sys_ni.c	2006-10-05 12:09:09.000000000 +0400
+@@ -143,3 +143,9 @@ cond_syscall(compat_sys_move_pages);
+ cond_syscall(sys_bdflush);
+ cond_syscall(sys_ioprio_set);
+ cond_syscall(sys_ioprio_get);
++
++/* user resources syscalls */
++cond_syscall(sys_set_bcid);
++cond_syscall(sys_get_bcid);
++cond_syscall(sys_set_bclimit);
++cond_syscall(sys_get_bcstat);

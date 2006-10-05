@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWJELsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWJEL6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWJELsy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 07:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWJELsy
+	id S1751106AbWJEL6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 07:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWJEL6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 07:48:54 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:4017 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751057AbWJELsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 07:48:53 -0400
-Date: Thu, 5 Oct 2006 07:48:48 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86/microcode: handle sysfs error
-Message-ID: <20061005114848.GA10397@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 07:58:24 -0400
+Received: from wx-out-0506.google.com ([66.249.82.237]:28127 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751106AbWJEL6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 07:58:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hs1Ym3bfiJl65DPh1qbCE46vlEfJO8/eU/WXnAiZNCKWYi1xRT/WvmTFguwlxGkc7T5xY/oGJI6+p0TI1xRW0tmGHeySiohVcTzWeAoGJoh7Fff/mlQ8n6JiBUBfUqijkmiZjlyT94kWYzL6+11Ql+WMHuNAF66BWOD+HzTcPcY=
+Message-ID: <aec7e5c30610050458x1fbe52bex851779d73c004350@mail.gmail.com>
+Date: Thu, 5 Oct 2006 20:58:22 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Lukas Hejtmanek" <xhejtman@mail.muni.cz>
+Subject: Re: Machine reboot
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061005105250.GI2923@mail.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <20061005105250.GI2923@mail.muni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/5/06, Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+> Hello,
+>
+> I'm facing troubles with machine restart. While sysrq-b restarts machine, reboot
+> command does not. Using printk I found that kernel does not hang and issues
+> reset properly but BIOS does not initiate boot sequence. Is there something
+> I could do?
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+A long shot, but switching to real mode does not work if the cpu is
+running in VMX root mode ie on hardware with Intel VT extensions
+enabled. So if you are using some kind of kernel virtualization module
+on rather new hardware, consider rmmod:ing the module before
+rebooting.
 
----
+I'm about to post patches for kexec that fixes this problem, but I'm
+not sure about the current reboot status.
 
- arch/i386/kernel/microcode.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/arch/i386/kernel/microcode.c b/arch/i386/kernel/microcode.c
-index bca92be..441f140 100644
---- a/arch/i386/kernel/microcode.c
-+++ b/arch/i386/kernel/microcode.c
-@@ -656,14 +656,18 @@ static struct attribute_group mc_attr_gr
- 
- static int mc_sysdev_add(struct sys_device *sys_dev)
- {
--	int cpu = sys_dev->id;
-+	int err, cpu = sys_dev->id;
- 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
- 
- 	if (!cpu_online(cpu))
- 		return 0;
-+
- 	pr_debug("Microcode:CPU %d added\n", cpu);
- 	memset(uci, 0, sizeof(*uci));
--	sysfs_create_group(&sys_dev->kobj, &mc_attr_group);
-+
-+	err = sysfs_create_group(&sys_dev->kobj, &mc_attr_group);
-+	if (err)
-+		return err;
- 
- 	microcode_init_cpu(cpu);
- 	return 0;
+/ magnus

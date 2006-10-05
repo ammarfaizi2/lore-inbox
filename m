@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWJEQDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWJEQFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWJEQDb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 12:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWJEQDb
+	id S932158AbWJEQFN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 12:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWJEQFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 12:03:31 -0400
-Received: from igw1.zrnko.cz ([81.31.45.161]:60832 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S1751243AbWJEQDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 12:03:30 -0400
-Date: Thu, 5 Oct 2006 18:05:18 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Machine reboot
-Message-ID: <20061005160518.GM2923@mail.muni.cz>
-References: <20061005105250.GI2923@mail.muni.cz> <aec7e5c30610050458x1fbe52bex851779d73c004350@mail.gmail.com>
+	Thu, 5 Oct 2006 12:05:12 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:44692 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932158AbWJEQFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 12:05:10 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 5 Oct 2006 17:05:04 +0100
+From: Tony Finch <dot@dotat.at>
+X-X-Sender: fanf2@hermes-2.csi.cam.ac.uk
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Dennis Heuer <dh@triple-media.com>, linux-kernel@vger.kernel.org,
+       dot@dotat.at
+Subject: Re: sunifdef instead of unifdef
+In-Reply-To: <1160059253.26064.69.camel@pmac.infradead.org>
+Message-ID: <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
+References: <20061005150816.76ca18c2.dh@triple-media.com>
+ <1160059253.26064.69.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aec7e5c30610050458x1fbe52bex851779d73c004350@mail.gmail.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 08:58:22PM +0900, Magnus Damm wrote:
-> A long shot, but switching to real mode does not work if the cpu is
-> running in VMX root mode ie on hardware with Intel VT extensions
-> enabled. So if you are using some kind of kernel virtualization module
-> on rather new hardware, consider rmmod:ing the module before
-> rebooting.
-> 
-> I'm about to post patches for kexec that fixes this problem, but I'm
-> not sure about the current reboot status.
+On Thu, 5 Oct 2006, David Woodhouse wrote:
+>
+> I wouldn't describe it as 'very old' -- the last commit seems to have
+> been last March, which isn't _so_ recent but perhaps it just hasn't
+> _needed_ an update?
+>
+> Neither would I describe it as unmaintained. Tony was quite quickly
+> responsive when I asked him if it would be OK to include unifdef in the
+> kernel source tree.
 
-You are right, I'm using Intel Core 2 Duo processor with DP965LT board that is
-capable of VT extensions. However, I'm using vanilla 2.6.18 kernel in X86_64,
-no additional patches, nor XEN or VMWARE is running (even their modules are
-not loaded). Moreover, SYSRQ-B (emergency reboot) works fine. System graceful
-reboot does not work.
+I haven't received any contributions to unifdef in the last 18 months
+which is why it hasn't changed. Yes, it has some significant gaps in its
+functionality, but it's reasonably correct within its current scope. (I
+tend to think that if you need more advanced functionality then you are
+already in serious trouble: for example, my unifdef was written so that I
+could understand xterm's frightening pty handling....) I don't have a lot
+of time to make extensive changes to unifdef, and given that sunifdef
+exists there is not much point. Thanks for telling me about it: I didn't
+know it existed, and it's nice to see other people basing such great stuff
+on my work.
 
+> I don't see a huge point in changing, unless it lets us get rid of stuff
+> like
+> 	#if defined(__KERNEL__ && ....
+
+I don't think your syntax errors are my problem :-)
+
+Tony.
 -- 
-Luká¹ Hejtmánek
+f.a.n.finch  <dot@dotat.at>  http://dotat.at/
+FORTIES CROMARTY FORTH: SOUTHERLY 6 TO GALE 8, DECREASING 5 OR 6 LATER. RAIN
+OR SHOWERS. MODERATE OR GOOD.

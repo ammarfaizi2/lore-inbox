@@ -1,94 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWJEG2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWJEGcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWJEG2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 02:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWJEG2i
+	id S1751154AbWJEGcI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 02:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWJEGcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 02:28:38 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:48484 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751501AbWJEG2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 02:28:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=l5lfaNdkbE4t1l4UH/BjsOqbXo2zfTXg95MmeRLcnMWt6KdzH7xsQN5SW/t/nDxF1l4ZkPCTDJfNywnHpUXkp7K+9uhK0yQVUAVItzkA9FEVhg5wtWIAEDEO/e2YvyXvI62IpX9kWNFmHddb2Iy8XiYWQSLBHTpy7trHGgGR8C0=  ;
-Message-ID: <4524A620.8020801@yahoo.com.au>
-Date: Thu, 05 Oct 2006 16:28:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andre Noll <maan@systemlinux.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, andrea@suse.de,
-       riel@redhat.com
-Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
-References: <20061004104018.GB22487@skl-net.de> <4523BE45.5050205@yahoo.com.au> <20061004154227.GD22487@skl-net.de> <1159976940.27331.0.camel@twins> <20061004203935.GB32161@redhat.com>
-In-Reply-To: <20061004203935.GB32161@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Oct 2006 02:32:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38077 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751154AbWJEGcE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 02:32:04 -0400
+Date: Wed, 4 Oct 2006 23:31:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+Message-Id: <20061004233137.97451b73.akpm@osdl.org>
+In-Reply-To: <m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
+	<20061004214403.e7d9f23b.akpm@osdl.org>
+	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Oct 04, 2006 at 05:49:00PM +0200, Peter Zijlstra wrote:
-> 
->  > > > It is also nice if we can work out where the page actually came from. The
->  > > > following attached patch should help out a bit with that, if you could
->  > > > run with it?
->  > > Okay. I'll reboot with your patch and let you know if it crashes again.
->  > enable CONFIG_DEBUG_VM to get that.
-> 
-> Given this warnings still pops up from time to time, I question whether
-> putting that check under DEBUG_VM was such a good idea.  It's not as
-> if it's a major performance impact.  This has potential for us to lose
-> valuable debugging info for a few nanoseconds performance increase in
-> an already costly path.
+On Thu, 05 Oct 2006 00:13:12 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Frustratingly, it usually doesn't tell us much (without my previous
-patch), because it is normally some driver that has stuffed up their
-refcounting and the page-> fields don't tell us where the page has
-come from.
+> Do things work better if you don't specify a vga=xxx mode?
 
-But..
-
-> This patch brings it back unconditionally, and moves the BUG()
-> into the if arm.
-
-... this shouldn't hurt if gcc moves the unlikely code out of the
-linear instruction stream, which I think it usually does. It shouldn't
-cost _anything_ because we're already doing the branch for the BUG_ON
-which you remove.
-
-> Signed-off-by: Dave Jones <davej@redhat.com>
-
-Thanks,
-Acked-by: Nick Piggin <npiggin@suse.de>
-
-> 
-> --- local-git/mm/rmap.c~	2006-10-04 16:38:06.000000000 -0400
-> +++ local-git/mm/rmap.c	2006-10-04 16:38:24.000000000 -0400
-> @@ -576,15 +576,14 @@ void page_add_file_rmap(struct page *pag
->  void page_remove_rmap(struct page *page)
->  {
->  	if (atomic_add_negative(-1, &page->_mapcount)) {
-> -#ifdef CONFIG_DEBUG_VM
->  		if (unlikely(page_mapcount(page) < 0)) {
->  			printk (KERN_EMERG "Eeek! page_mapcount(page) went negative! (%d)\n", page_mapcount(page));
->  			printk (KERN_EMERG "  page->flags = %lx\n", page->flags);
->  			printk (KERN_EMERG "  page->count = %x\n", page_count(page));
->  			printk (KERN_EMERG "  page->mapping = %p\n", page->mapping);
-> +			BUG();
->  		}
-> -#endif
-> -		BUG_ON(page_mapcount(page) < 0);
-> +
->  		/*
->  		 * It would be tidy to reset the PageAnon mapping here,
->  		 * but that might overwrite a racing page_add_anon_rmap
-
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+yes, without vga=0x263 it boots.

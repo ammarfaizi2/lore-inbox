@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWJEWY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWJEW05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbWJEWY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWJEWY4
+	id S932382AbWJEW05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWJEW05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:24:56 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:36332 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932333AbWJEWYz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:24:55 -0400
-Subject: Re: [PATCH] make mach-generic/summit.c compile on UP
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0610052308000.12556@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610051913010.12556@twin.jikos.cz>
-	 <1160080292.5664.9.camel@keithlap>
-	 <Pine.LNX.4.64.0610052308000.12556@twin.jikos.cz>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 05 Oct 2006 15:24:53 -0700
-Message-Id: <1160087093.5664.14.camel@keithlap>
+	Thu, 5 Oct 2006 18:26:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2233 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932377AbWJEW04 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 18:26:56 -0400
+Date: Thu, 5 Oct 2006 15:26:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Moore, Robert" <robert.moore@intel.com>
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Len Brown" <lenb@kernel.org>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "ACPI List" <linux-acpi@vger.kernel.org>
+Subject: Re: [PATCH] Cast removal
+Message-Id: <20061005152608.b6a7fb27.akpm@osdl.org>
+In-Reply-To: <B28E9812BAF6E2498B7EC5C427F293A40114A6CB@orsmsx415.amr.corp.intel.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A40114A6CB@orsmsx415.amr.corp.intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 23:18 +0200, Jiri Kosina wrote:
-> On Thu, 5 Oct 2006, keith mannthey wrote:
-> 
-> > > In file included from arch/i386/mach-generic/summit.c:17:
-> > > include/asm/mach-summit/mach_apic.h: In function 'apicid_to_node':
-> > > include/asm/mach-summit/mach_apic.h:91: error: 'apicid_2_node' undeclared (first use in this function)
-> > > include/asm/mach-summit/mach_apic.h:91: error: (Each undeclared identifier is reported only once
-> > > include/asm/mach-summit/mach_apic.h:91: error: for each function it appears in.)
-> > > Is the patch below correct?
-> > Well I guess it would fix the apicid_2_node build error but I can't
-> > think of a single good reason to be in a config where you would need any
-> > of the summit code in UP.  Perhaps a kconfig or makefile change in the
-> > right spot would be better. 
-> 
-> Yes, this was in fact a product of a random .config (but allowed by 
-> Kconfig rules). There should definitely be a Kconfig rule not allowing 
-> having this non-working .config settings.
-> 
-> I guess that probably making CONFIG_X86_GENERIC dependent on CONFIG_SMP 
-> would not be good, because the mach-default/ makes sense even on UP, am I 
-> right
+On Thu, 5 Oct 2006 15:14:02 -0700
+"Moore, Robert" <robert.moore@intel.com> wrote:
 
-Yea I am pretty sure CONFIG_X86_GENERIC is ment to boot UP and SMP
-kernels. 
-  
- Maybe just moving apicid_2_node to a UP safe location would be a good
-way to go as well.  I overlooked the fact that CONFIG_X86_GENERIC wasn't
-always SMP. 
+> If you're discussing this type of thing, I agree wholeheartedly:
+> 
+> static void acpi_processor_notify(acpi_handle handle, u32 event, void
+> *data)  {
+> -	struct acpi_processor *pr = (struct acpi_processor *)data;
+> +	struct acpi_processor *pr = data;
+> 
 
-Thanks,
-  Keith 
+OK, thanks.  I would expect all compilers to be happy with that.  However a
+bit of googling I did indicated that lint (or some flavour thereof)
+complains about the missing cast.  Which is dumb of it.
 
+> I find this one interesting, as we've put a number of them into the
+> ACPICA core:
+> 
+> -	(void) kmem_cache_destroy(cache);
+> +	kmem_cache_destroy(cache);
+> 
+> I believe that the point of the (void) is to prevent lint from
+> squawking, and perhaps some picky ANSI-C compilers. What is the overall
+> Linux policy on this?
+
+policy = not;
+
+But there's quite a lot of it in the tree.
+
+Actually..  kmem_cache_destroy() returns void, so any checker which complains
+about the missing cast needs a stern talking to.

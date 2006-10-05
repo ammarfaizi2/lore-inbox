@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWJEWh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWJEWkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWJEWh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 18:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWJEWh6
+	id S932405AbWJEWkb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 18:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWJEWka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 18:37:58 -0400
-Received: from c60.cesmail.net ([216.154.195.49]:64013 "EHLO c60.cesmail.net")
-	by vger.kernel.org with ESMTP id S932403AbWJEWh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 18:37:56 -0400
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-From: Pavel Roskin <proski@gnu.org>
-To: jt@hpl.hp.com
-Cc: Samuel Tardieu <sam@rfc1149.net>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20061003163415.GA17252@bougret.hpl.hp.com>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu>
-	 <20060928202931.dc324339.akpm@osdl.org>
-	 <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
-	 <20060929124558.33ef6c75.akpm@osdl.org>
-	 <200609300001.k8U01sPI004389@turing-police.cc.vt.edu>
-	 <20060929182008.fee2a229.akpm@osdl.org>
-	 <20061002175245.GA14744@bougret.hpl.hp.com>
-	 <2006-10-03-17-58-31+trackit+sam@rfc1149.net>
-	 <20061003163415.GA17252@bougret.hpl.hp.com>
+	Thu, 5 Oct 2006 18:40:30 -0400
+Received: from mga05.intel.com ([192.55.52.89]:4000 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932400AbWJEWk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 18:40:28 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,267,1157353200"; 
+   d="scan'208"; a="142295439:sNHT530088398"
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061005143748.2f6594a2.akpm@osdl.org>
+References: <B41635854730A14CA71C92B36EC22AAC3F3FBA@mssmsx411>
+	 <20061005143748.2f6594a2.akpm@osdl.org>
 Content-Type: text/plain
-Date: Thu, 05 Oct 2006 18:37:53 -0400
-Message-Id: <1160087873.2508.21.camel@dv>
+Organization: Intel
+Date: Thu, 05 Oct 2006 14:51:25 -0700
+Message-Id: <1160085085.8035.222.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 2006-10-05 at 14:37 -0700, Andrew Morton wrote:
 
-On Tue, 2006-10-03 at 09:34 -0700, Jean Tourrilhes wrote:
-> 	I don't really want to overstep my authority there, my goal
-> was to minimise the changes. Pavel will have to clean up my mess, so I
-> don't want change things too much.
+> 
+> Tim and Ananiev report that the recent WARN_ON_ONCE changes cause increased
+> cache misses with the tbench workload.  Apparently due to the access to the
+> newly-added static variable.
+> 
+> Rearrange the code so that we don't touch that variable unless the warning is
+> going to trigger.
+> 
+> Also rework the logic so that the static variable starts out at zero, so we
+> can move it into bss.
+> 
+> It would seem logical to mark the static variable as __read_mostly too.  But
+> it would be wrong, because that would put it back into the vmlinux image, and
+> the kernel will never read from this variable in normal operation anyway. 
+> Unless the compiler or hardware go and do some prefetching on us?
+> 
+> For some reason this patch shrinks softirq.o text by 40 bytes.
+> 
 
-Sorry for a long delay.
+Andrew,
 
-I'm actually not very interested in the Wireless Extension interface of
-the driver.  The less I touch that code, the better I feel.  I won't add
-to the criticism for the latest changes; enough has been said.
+Thanks for the patch.  I tested it and it helped fix tbench regression
+seen earlier and reduced the cache misses. 
 
-Its fine with me that your are changing the orinoco driver to update
-Wireless Extensions compatibility.
-
-I'm trying to maintain a Subversion repository with the driver modified
-to be compatible with a few latest kernels.  But it looks like it's an
-uphill battle that I'm not going to win.
-
--- 
-Regards,
-Pavel Roskin
-
+Tim

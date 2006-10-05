@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWJEVoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWJEVo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWJEVoV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWJEVmN
+	id S932290AbWJEVo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWJEVoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:42:13 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:3434 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932244AbWJEVmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:42:11 -0400
+	Thu, 5 Oct 2006 17:44:22 -0400
+Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:23688 "HELO
+	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751411AbWJEVoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:44:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
-  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=KgVOdS3B7tDWbq1+j5KJ12mii7l9bCzS7uIlVxMAmAehfjulkYcC7mod3xWaF40+solUpw2ApRe9vZFhOARmg5V/C2QcTR7sYjzcJn3OjmsmXDgq57Cs1rdYBoyRvrcIH9vH1XK5gPkoqDim/Z22oEd/vcIPwuBmSlW52ozu4PU=  ;
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 11/14] uml: asm offsets duplication removal
-Date: Thu, 05 Oct 2006 23:39:10 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=d89kL34HJG7sxg8FpEq0VI6qrgEL5P0kjZY420BlVonCkTA5BcBdxkD4vFbAhP22abfRPKlxzx4ejfOzdoPZwCPUmtodaVC2K9MaFbbbPH8DFvx+S9LzB6tMpwX/WCrekBo7qtOeHlnVSs0U1SjU62CSwOIP1dhByDJiS208iWM=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: uml: use DEFCONFIG_LIST to avoid reading host's config
+Date: Thu, 5 Oct 2006 23:41:13 +0200
+User-Agent: KMail/1.9.1
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061005213910.17268.63692.stgit@memento.home.lan>
-In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
-References: <20061005213212.17268.7409.stgit@memento.home.lan>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+References: <11600785071661-git-send-email-blaisorblade@yahoo.it> <20061005213754.GC6790@ccure.user-mode-linux.org>
+In-Reply-To: <20061005213754.GC6790@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610052341.13341.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-
-Unify macros common to x86 and x86_64 kernel-offsets.h files.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- arch/um/include/common-offsets.h               |   10 ++++++++++
- arch/um/include/sysdep-i386/kernel-offsets.h   |    4 ----
- arch/um/include/sysdep-x86_64/kernel-offsets.h |    4 ----
- 3 files changed, 10 insertions(+), 8 deletions(-)
-
-diff --git a/arch/um/include/common-offsets.h b/arch/um/include/common-offsets.h
-index 39bb210..461175f 100644
---- a/arch/um/include/common-offsets.h
-+++ b/arch/um/include/common-offsets.h
-@@ -1,9 +1,16 @@
- /* for use by sys-$SUBARCH/kernel-offsets.c */
- 
-+DEFINE(KERNEL_MADV_REMOVE, MADV_REMOVE);
-+#ifdef CONFIG_MODE_TT
-+OFFSET(HOST_TASK_EXTERN_PID, task_struct, thread.mode.tt.extern_pid);
-+#endif
-+
- OFFSET(HOST_TASK_REGS, task_struct, thread.regs);
- OFFSET(HOST_TASK_PID, task_struct, pid);
-+
- DEFINE(UM_KERN_PAGE_SIZE, PAGE_SIZE);
- DEFINE(UM_NSEC_PER_SEC, NSEC_PER_SEC);
-+
- DEFINE_STR(UM_KERN_EMERG, KERN_EMERG);
- DEFINE_STR(UM_KERN_ALERT, KERN_ALERT);
- DEFINE_STR(UM_KERN_CRIT, KERN_CRIT);
-@@ -12,7 +19,10 @@ DEFINE_STR(UM_KERN_WARNING, KERN_WARNING
- DEFINE_STR(UM_KERN_NOTICE, KERN_NOTICE);
- DEFINE_STR(UM_KERN_INFO, KERN_INFO);
- DEFINE_STR(UM_KERN_DEBUG, KERN_DEBUG);
-+
- DEFINE(UM_ELF_CLASS, ELF_CLASS);
- DEFINE(UM_ELFCLASS32, ELFCLASS32);
- DEFINE(UM_ELFCLASS64, ELFCLASS64);
-+
-+/* For crypto assembler code. */
- DEFINE(crypto_tfm_ctx_offset, offsetof(struct crypto_tfm, __crt_ctx));
-diff --git a/arch/um/include/sysdep-i386/kernel-offsets.h b/arch/um/include/sysdep-i386/kernel-offsets.h
-index 2e58c4c..97ec9d8 100644
---- a/arch/um/include/sysdep-i386/kernel-offsets.h
-+++ b/arch/um/include/sysdep-i386/kernel-offsets.h
-@@ -18,9 +18,5 @@ #define OFFSET(sym, str, mem) \
- void foo(void)
- {
- 	OFFSET(HOST_TASK_DEBUGREGS, task_struct, thread.arch.debugregs);
--	DEFINE(KERNEL_MADV_REMOVE, MADV_REMOVE);
--#ifdef CONFIG_MODE_TT
--	OFFSET(HOST_TASK_EXTERN_PID, task_struct, thread.mode.tt.extern_pid);
--#endif
- #include <common-offsets.h>
- }
-diff --git a/arch/um/include/sysdep-x86_64/kernel-offsets.h b/arch/um/include/sysdep-x86_64/kernel-offsets.h
-index 4cbfbb9..a307237 100644
---- a/arch/um/include/sysdep-x86_64/kernel-offsets.h
-+++ b/arch/um/include/sysdep-x86_64/kernel-offsets.h
-@@ -19,9 +19,5 @@ #define OFFSET(sym, str, mem) \
- 
- void foo(void)
- {
--	DEFINE(KERNEL_MADV_REMOVE, MADV_REMOVE);
--#ifdef CONFIG_MODE_TT
--	OFFSET(HOST_TASK_EXTERN_PID, task_struct, thread.mode.tt.extern_pid);
--#endif
- #include <common-offsets.h>
- }
+On Thursday 05 October 2006 23:37, Jeff Dike wrote:
+> On Thu, Oct 05, 2006 at 10:01:47PM +0200, Paolo 'Blaisorblade' Giarrusso 
+wrote:
+> > From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> >
+> > This should make sure that, for UML, host's configuration files are not
+> > considered, which avoids various pains to the user. Our dependency are
+> > such that the obtained Kconfig will be valid and will lead to successful
+> > compilation - however they cannot prevent an user from disabling any boot
+> > device, and if an option is not set in the read .config (say
+> > /boot/config-XXX), with make menuconfig ARCH=um, it is not set. This
+> > always disables UBD and all console I/O channels, which leads to
+> > non-working UML kernels, so this bothers users - especially now, since it
+> > will happen on almost every machine
+> > (/boot/config-`uname -r` exists almost on every machine). It can be
+> > workarounded with make defconfig ARCH=um, but it is non-obvious and can
+> > be avoided, so please _do_ merge this patch.
+> >
+> > Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+>
+> Acked-by: Jeff Dike <jdike@addtoit.com>
+>
+> Paolo - send this to Andrew as well so it doesn't get lost.
+Yep, doing that separately in next batch - I'm sending to Andrew 14 patches, 
+this one is still in the queue with other 10 patches, then there are the UBD 
+ones (about 10 right now, will shrink the number maybe).
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade
+http://www.user-mode-linux.org/~blaisorblade
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

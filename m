@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWJEPJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWJEPNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWJEPJN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWJEPJM
+	id S1751472AbWJEPNX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWJEPNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:09:12 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:12040 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751488AbWJEPJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:09:10 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Merge window closed: v2.6.19-rc1
-Date: Thu, 5 Oct 2006 16:09:12 +0100
-User-Agent: KMail/1.9.4
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bcollins@debian.org, stefanr@s5r6.in-berlin.de,
-       linux1394-devel@lists.sourceforge.net
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 5 Oct 2006 11:13:22 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:22984 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751472AbWJEPNV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:13:21 -0400
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Steve Fox <drfickle@us.ibm.com>
+Cc: Martin Bligh <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <1160060020.29690.5.camel@flooterbu>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <20061004170659.f3b089a8.akpm@osdl.org> <20061005005124.GA23408@in.ibm.com>
+	 <200610050257.53971.ak@suse.de>  <45245B03.2070803@mbligh.org>
+	 <1160060020.29690.5.camel@flooterbu>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 08:12:52 -0700
+Message-Id: <1160061173.9569.43.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610051609.12466.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 04:29, Linus Torvalds wrote:
-> Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1 release.
->
-> As usual for -rc1 with a lot of pending merges, it's a huge thing with
-> tons of changes, and in fact since 2.6.18 took longer than normal due to
-> me traveling (and others probably also being on vacations), it's possibly
-> even larger than usual.
->
-> I think we got updates to pretty much all of the active architectures,
-> we've got VM changes (dirty shared page tracking, for example), we've got
-> networking, drivers, you name it. Even the shortlog and the diffstats are
-> too big to make the kernel mailing list, but even just the summary says
-> something:
+On Thu, 2006-10-05 at 09:53 -0500, Steve Fox wrote:
+> On Wed, 2006-10-04 at 18:08 -0700, Martin Bligh wrote:
+> > Andi Kleen wrote:
+> > >>I think most likely it would crash on 2.6.18. Keith mannthey had reported
+> > >>a different crash on 2.6.18-rc4-mm2 when this patch was introduced first
+> > >>time. Following is the link to the thread.
+> > > 
+> > > 
+> > > Then maybe trying 2.6.17 + the patch and then bisect between that and -rc4?
+> > 
+> > I think it's fixed already in -git22, or at least it is for the IBM box
+> > reporting to test.kernel.org. You might want to try that one ...
+> 
+> -git22 also panics for me.
+> 
 
-Booted fine here, but I've got a few strange messages from the firewire
-subsystem that weren't present in 2.6.18. I think it marginally slows down
-boot up, but I could just be imagining it.
+Steve,
 
-[alistair] 16:04 [~] dmesg | grep 1394
-ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[19]  MMIO=[dffff000-dffff7ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-ohci1394: fw-host1: OHCI-1394 1.1 (PCI): IRQ=[17]  MMIO=[dfffc000-dfffc7ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-ohci1394: fw-host0: Running dma failed because Node ID is not valid
-ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
-ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00023c0091023fd7]
-ieee1394: Host added: ID:BUS[1-00:1023]  GUID[000129200003d023]
+Can you post the latest panic stack again (with CONFIG_DEBUG_KERNEL) ? 
+Last time I couldn't match your instruction dump to any code segment
+in the routine. And also, can you post your .config file. I have
+an amd64 and em64t machine and both work fine...
 
--- 
-Cheers,
-Alistair.
+Thanks,
+Badari
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWJEVy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWJEV4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWJEVy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWJEVy6
+	id S932232AbWJEV4A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWJEV4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:54:58 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:37323 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932303AbWJEVy5 (ORCPT
+	Thu, 5 Oct 2006 17:56:00 -0400
+Received: from ackle.nomi.cz ([81.31.33.35]:32216 "EHLO ackle.nomi.cz")
+	by vger.kernel.org with ESMTP id S932232AbWJEVz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:54:57 -0400
-Date: Thu, 5 Oct 2006 17:54:21 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-Message-ID: <20061005215421.GH20551@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061003170032.GA30036@in.ibm.com> <20061003172511.GL3164@in.ibm.com> <20061003201340.afa7bfce.akpm@osdl.org> <m1vemzbe4c.fsf@ebiederm.dsl.xmission.com> <20061004214403.e7d9f23b.akpm@osdl.org> <m1ejtnb893.fsf@ebiederm.dsl.xmission.com> <20061004233137.97451b73.akpm@osdl.org> <m1vemz9s2d.fsf@ebiederm.dsl.xmission.com>
+	Thu, 5 Oct 2006 17:55:59 -0400
+Date: Thu, 5 Oct 2006 23:55:55 +0200
+From: onovy@nomi.cz
+To: linux-kernel@vger.kernel.org
+Subject: Re: ip_conntrack_core - possible memory leak in 2.4
+Message-ID: <20061005215555.GA11253@nomi.cz>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20061004180201.GA18386@nomi.cz> <20061005193028.GC5050@1wt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1vemz9s2d.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061005193028.GC5050@1wt.eu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 12:48:10AM -0600, Eric W. Biederman wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > On Thu, 05 Oct 2006 00:13:12 -0600
-> > ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> >> Do things work better if you don't specify a vga=xxx mode?
-> >
-> > yes, without vga=0x263 it boots.
-> 
-> Ok.  It will take some digging but I suspect the problem is
-> that video.S is using a table or a variable placed over the original
-> boot sector, and expecting it to be zero initialized. 
-> 
-> Finding that in the pile of 2000 lines of assembly could take a
-> little while.
-> 
-> Now at least we have something other people can try and reproduce
-> this problem with.
->
+> Well, I know several old 2.4 netfilter systems running around and which
+> process between 100 and 200 millions of sessions a day with peak hours
+> around 4000 sessions/s. They might have been rebooted twice in 3 years,
+> and they still work without a glitch. So I clearly don't think that the
+> problem mentionned above is present in plain 2.4. It might be a very
+> old bug in you rather old kernel, or one specific to some patches in
+> your distro's kernel (BTW, I would be surprized you wouldn't find
+> anything more recent than 2.4.17).
+If you look at that link, you will see man with same problem as i have at
+2.4.26 kernel. I'm just trying to do some diffs and collect some more
+information. I can't switch kernel in that device, because i'm not author of
+that firmware.
 
-I have tried it on three machines with various combinations of vga=
-but no luck. Can't reproduce the problem at all. :-(
-
-Vivek
+-- 
+S pozdravem/Best regards
+ Ondrej Novy
+ 
+Email: onovy@nomi.cz
+Jabber: onovy@njs.netlab.cz
+ICQ: 115-674-713
+MSN: onovy@hotmail.com
+Yahoo ID: novy_ondrej
+Tel/Cell: +420 777 963 207

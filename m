@@ -1,308 +1,343 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWJEJQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWJEJly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbWJEJQv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 05:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWJEJQv
+	id S1751288AbWJEJly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 05:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWJEJly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 05:16:51 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:39878 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1751553AbWJEJQt (ORCPT
+	Thu, 5 Oct 2006 05:41:54 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:59881 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751288AbWJEJlw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 05:16:49 -0400
-Date: Thu, 5 Oct 2006 18:16:31 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, rmk@arm.linux.org.uk, gregkh@suse.de,
-       ysato@users.sourceforge.jp
-Subject: Re: [PATCH] Generic platform device IDE driver
-Message-ID: <20061005091631.GA8631@localhost.hsdv.com>
-References: <20061004074535.GA7180@localhost.hsdv.com> <1159962084.25772.14.camel@localhost.localdomain> <20061004200501.GB6664@localhost.Internal.Linux-SH.ORG> <1159972725.25772.26.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 05:41:52 -0400
+Date: Thu, 5 Oct 2006 13:41:16 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       matthltc@us.ibm.com
+Subject: Re: [2.6.18 PATCH]: Filesystem Event Reporter V4
+Message-ID: <20061005094114.GD1015@2ka.mipt.ru>
+References: <451E8C47.6090407@gmail.com> <20061003164727.GA1804@2ka.mipt.ru> <4523D01F.6030202@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <1159972725.25772.26.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <4523D01F.6030202@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 05 Oct 2006 13:41:17 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 03:38:45PM +0100, Alan Cox wrote:
-> Ar Iau, 2006-10-05 am 05:05 +0900, ysgrifennodd Paul Mundt:
-> > Ok, I wasn't sure if libata was intended for anything outside of the
-> > SATA case (especially non-PCI), but if that's the way to go, I'll look
-> > at hacking something up under libata.
-> 
-> Take a look at 2.6.18-mm or 2.6.19-* and you should see all you need in
-> that including the pcmcia driver and other users who set up much the
-> same way a generic platform device driver would.
-> 
-Ok, just hacked this together quickly, how does it look? I'm booting
-this on an SH-4A (R7780RP) from current git and all works fine..
+On Wed, Oct 04, 2006 at 11:15:43PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
+> >>+extern int * get_fsevent_refcnt(void);
+> >>+extern void put_fsevent_refcnt(void);
+> >>+extern int per_cpu_fsevent_refcnt(int cpu);
+> >>+extern void init_fsevent_refcnt(int cpu);
+> >>+extern void init_missed_fsevent_refcnt(int cpu);
+> >>+extern atomic_t * per_cpu_missed_refcnt(int cpu);
+> >>    
+> >
+> >This protects against nothing, since there are now correct reference
+> >counters.
+> >  
+> Maybe you misunderstand them, new-added reference will synchronize rmmod,
+> you know there are possibly some processes using raise_fsevent hook when a
+> user rmmods fsevent, if just set raise_fsevent to NULL, the kernel will 
+> panic
+> because fsevent is released but some processes need to refer to it. 
+> Andrew thinks
+> any lock operation shouldn't be involved in filesytem code path, so 
+> reference count
+> per cpu is a good choice, the principle behind it is any process will 
+> increase reference
+> count of calling raise_fsevent before it is ready for calling 
+> raise_fsevent and decrease
+> that reference count after finishing the call, the process scheduler 
+> possibly
+> migrate a raise_fsevent caller process from current cpu to another cpu 
+> because of
+> workload balance, so for the process migration case, reference count 
+> won't work well,
+> I added another reference count -- missed_refcnt which records this kind 
+> of migration.
 
-Thankfully you did most of the heavy lifting :-)
+I do not say that they are broken, but you in some places you access per-cpu
+variuables without turning preemption off. I think some locking or
+preemption tweaks should be done there to explicitly mark critical
+regions.
 
---
+> >>+	                 NETLINK_CB(skb2).dst_group = 0;
+> >>+	                 NETLINK_CB(skb2).dst_pid = p->pid;
+> >>+	                 NETLINK_CB(skb2).pid = 0;
+> >>+	                 ret = netlink_unicast(fsevent_sock, skb2,
+> >>+	                                p->pid, 0);
+> >>    
+> >
+> >Btw, pid in netlink messages should not be considered as 'process id' of
+> >the sending process. Processes can be changed, but pid will be the same.
+> >  
+> I don't understand your comment, do you mean the other id can identify 
+> the sender of
+> fsevent correctly, that a pid is used again will take a very long time, 
+> I think pid can identify
+> a fsevent sender process, can you explain your comment more detailded?
 
- drivers/ata/Kconfig         |    9 ++
- drivers/ata/Makefile        |    1 
- drivers/ata/pata_platform.c |  198 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 208 insertions(+)
+PID in the netlink message is just identity number, it is not and should
+not be considered as 'process id'. You do not know in advance how long
+it will take to wrap PIDs, so do not make any assumptions on netlink pid
+field at all.
 
-commit f257da330416413947c65dac20cefbd39231eb30
-Author: Paul Mundt <lethal@linux-sh.org>
-Date:   Thu Oct 5 18:13:27 2006 +0900
+> >>+static void fsevent_commit(void * unused)
+> >>+{
+> >>+	struct sk_buff * skb = NULL;
+> >>+	int * refcnt, missed_refcnt;
+> >>+	int cpuid;
+> >>+
+> >>+		
+> >>+	while((skb = skb_dequeue(&get_cpu_var(fsevent_send_queue)))
+> >>+		!= NULL) {
+> >>+		fsevent_send_to_process(skb);
+> >>+		kfree_skb(skb);
+> >>+		put_cpu_var(fsevent_send_queue);
+> >>+	}
+> >>+
+> >>+	if (exit_flag == 1) {
+> >>+		refcnt = get_fsevent_refcnt();
+> >>    
+> >
+> >What prevents from adding another skb into the queue between above loop
+> >and check for flag?
+> >  
+> before adding a fsevent to the queue, a process will check exit_flag, if 
+> it is set to 1, that
+> process won't queue the fsevent and return immediately.
 
-    ata: Simple generic platform device libata driver.
-    
-    This adds a simple generic libata driver for directly-connected
-    and pre-configured platform devices commonly found on embedded
-    systems.
-    
-    For most of these devices, the only variation ends up being the
-    I/O and CTL bases as well as the IRQ, with everything else
-    effectively behaving as a standard ISA bus PIO device.
-    
-    Users of 'pata_platform' are required to pack in 3 resources per
-    port, namely, the aforementioned variations. Each port must be
-    registered independently, which doesn't end up being a big problem,
-    as most of the embedded use cases don't have more than one or two
-    ports anyways.
-    
-    Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+But you check for exit_flag in fsevent_commit() without any locks.
 
-diff --git a/drivers/ata/Kconfig b/drivers/ata/Kconfig
-index 3f4aa0c..70a5a08 100644
---- a/drivers/ata/Kconfig
-+++ b/drivers/ata/Kconfig
-@@ -482,6 +482,15 @@ config PATA_WINBOND
- 
- 	  If unsure, say N.
- 
-+config PATA_PLATFORM
-+	tristate "Generic platform device PATA support"
-+	depends on EMBEDDED
-+	help
-+	  This option enables support for generic directly connected ATA
-+	  devices commonly found on embedded systems.
-+
-+	  If unsure, say N.
-+
- endif
- endmenu
- 
-diff --git a/drivers/ata/Makefile b/drivers/ata/Makefile
-index 72243a6..408c8c9 100644
---- a/drivers/ata/Makefile
-+++ b/drivers/ata/Makefile
-@@ -53,6 +53,7 @@ obj-$(CONFIG_PATA_VIA)		+= pata_via.o
- obj-$(CONFIG_PATA_WINBOND)	+= pata_sl82c105.o
- obj-$(CONFIG_PATA_SIS)		+= pata_sis.o
- obj-$(CONFIG_PATA_TRIFLEX)	+= pata_triflex.o
-+obj-$(CONFIG_PATA_PLATFORM)	+= pata_platform.o
- # Should be last but one libata driver
- obj-$(CONFIG_ATA_GENERIC)	+= ata_generic.o
- # Should be last libata driver
-diff --git a/drivers/ata/pata_platform.c b/drivers/ata/pata_platform.c
-new file mode 100644
-index 0000000..b9de610
---- /dev/null
-+++ b/drivers/ata/pata_platform.c
-@@ -0,0 +1,198 @@
-+/*
-+ * Generic platform device PATA driver
-+ *
-+ * Copyright (C) 2006  Paul Mundt
-+ *
-+ * Based on pata_pcmcia:
-+ *
-+ *   Copyright 2005-2006 Red Hat Inc <alan@redhat.com>, all rights reserved.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/blkdev.h>
-+#include <scsi/scsi_host.h>
-+#include <linux/ata.h>
-+#include <linux/libata.h>
-+#include <linux/platform_device.h>
-+
-+#define DRV_NAME "pata_platform"
-+#define DRV_VERSION "0.1.0"
-+
-+static int pio_mask = 1;
-+
-+/*
-+ * Provide our own set_mode() as we don't want to change anything that has
-+ * already been configured..
-+ */
-+static void pata_platform_set_mode(struct ata_port *ap)
-+{
-+	int i;
-+
-+	for (i = 0; i < ATA_MAX_DEVICES; i++) {
-+		struct ata_device *dev = &ap->device[i];
-+
-+		if (ata_dev_enabled(dev)) {
-+			/* We don't really care */
-+			dev->pio_mode = dev->xfer_mode = XFER_PIO_0;
-+			dev->xfer_shift = ATA_SHIFT_PIO;
-+			dev->flags |= ATA_DFLAG_PIO;
-+		}
-+	}
-+}
-+
-+static struct scsi_host_template pata_platform_sht = {
-+	.module			= THIS_MODULE,
-+	.name			= DRV_NAME,
-+	.ioctl			= ata_scsi_ioctl,
-+	.queuecommand		= ata_scsi_queuecmd,
-+	.can_queue		= ATA_DEF_QUEUE,
-+	.this_id		= ATA_SHT_THIS_ID,
-+	.sg_tablesize		= LIBATA_MAX_PRD,
-+	.max_sectors		= ATA_MAX_SECTORS,
-+	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
-+	.emulated		= ATA_SHT_EMULATED,
-+	.use_clustering		= ATA_SHT_USE_CLUSTERING,
-+	.proc_name		= DRV_NAME,
-+	.dma_boundary		= ATA_DMA_BOUNDARY,
-+	.slave_configure	= ata_scsi_slave_config,
-+	.bios_param		= ata_std_bios_param,
-+};
-+
-+static struct ata_port_operations pata_platform_port_ops = {
-+	.set_mode		= pata_platform_set_mode,
-+
-+	.port_disable		= ata_port_disable,
-+	.tf_load		= ata_tf_load,
-+	.tf_read		= ata_tf_read,
-+	.check_status 		= ata_check_status,
-+	.exec_command		= ata_exec_command,
-+	.dev_select 		= ata_std_dev_select,
-+
-+	.freeze			= ata_bmdma_freeze,
-+	.thaw			= ata_bmdma_thaw,
-+	.error_handler		= ata_bmdma_error_handler,
-+	.post_internal_cmd	= ata_bmdma_post_internal_cmd,
-+
-+	.qc_prep 		= ata_qc_prep,
-+	.qc_issue		= ata_qc_issue_prot,
-+
-+	.data_xfer		= ata_pio_data_xfer_noirq,
-+
-+	.irq_handler		= ata_interrupt,
-+	.irq_clear		= ata_bmdma_irq_clear,
-+
-+	.port_start		= ata_port_start,
-+	.port_stop		= ata_port_stop,
-+	.host_stop		= ata_host_stop
-+};
-+
-+/**
-+ *	pata_platform_probe		-	attach a platform interface
-+ *	@pdev: platform device
-+ *
-+ *	Register a platform bus IDE interface. Such interfaces are PIO and we
-+ *	assume do not support IRQ sharing.
-+ *
-+ *	Platform devices are expected to contain 3 resources per port:
-+ *
-+ *		- I/O Base (IORESOURCE_IO)
-+ *		- CTL Base (IORESOURCE_IO)
-+ *		- IRQ	   (IORESOURCE_IRQ)
-+ */
-+static int __devinit pata_platform_probe(struct platform_device *pdev)
-+{
-+	struct resource *io_res, *ctl_res;
-+	struct ata_probe_ent ae;
-+	int ret = -EBUSY;
-+
-+	/*
-+	 * Simple resource validation ..
-+	 */
-+	if (unlikely(pdev->num_resources != 3)) {
-+		dev_err(&pdev->dev, "invalid number of resources\n");
-+		return -EINVAL;
-+	}
-+
-+	io_res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (unlikely(io_res == NULL))
-+		return -EINVAL;
-+
-+	ctl_res = platform_get_resource(pdev, IORESOURCE_IO, 1);
-+	if (unlikely(ctl_res == NULL))
-+		return -EINVAL;
-+
-+	/*
-+	 * Now that that's out of the way, wire up the port..
-+	 */
-+	memset(&ae, 0, sizeof(struct ata_probe_ent));
-+	INIT_LIST_HEAD(&ae.node);
-+	ae.dev = &pdev->dev;
-+	ae.port_ops = &pata_platform_port_ops;
-+	ae.sht = &pata_platform_sht;
-+	ae.n_ports = 1;
-+	ae.pio_mask = pio_mask;
-+	ae.irq = platform_get_irq(pdev, 0);
-+	ae.irq_flags = 0;
-+	ae.port_flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST;
-+	ae.port[0].cmd_addr = io_res->start;
-+	ae.port[0].altstatus_addr = ctl_res->start;
-+	ae.port[0].ctl_addr = ctl_res->start;
-+	ata_std_ports(&ae.port[0]);
-+
-+	ret = ata_device_add(&ae);
-+	if (unlikely(ret == 0))
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-+/**
-+ *	pata_platform_remove	-	unplug a platform interface
-+ *	@pdev: platform device
-+ *
-+ *	A platform bus ATA device has been unplugged. Perform the needed
-+ *	cleanup. Also called on module unload for any active devices.
-+ */
-+static int __devexit pata_platform_remove(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct ata_host *host = dev_get_drvdata(dev);
-+
-+	ata_host_remove(host);
-+	dev_set_drvdata(dev, NULL);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver pata_platform_driver = {
-+	.probe		= pata_platform_probe,
-+	.remove		= __devexit_p(pata_platform_remove),
-+	.driver = {
-+		.name		= DRV_NAME,
-+		.owner		= THIS_MODULE,
-+	},
-+};
-+
-+static int __init pata_platform_init(void)
-+{
-+	return platform_driver_register(&pata_platform_driver);
-+}
-+
-+static void __exit pata_platform_exit(void)
-+{
-+	platform_driver_unregister(&pata_platform_driver);
-+}
-+module_init(pata_platform_init);
-+module_exit(pata_platform_exit);
-+
-+module_param(pio_mask, int, 0);
-+
-+MODULE_AUTHOR("Paul Mundt");
-+MODULE_DESCRIPTION("low-level driver for platform device ATA");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
+> >>+		if (*refcnt <= 0) {
+> >>+			*refcnt = -1;
+> >>+			put_fsevent_refcnt();
+> >>+			return;
+> >>+		}
+> >>+		cpuid = smp_processor_id();
+> >>+
+> >>+		missed_refcnt = atomic_read(per_cpu_missed_refcnt(cpuid));
+> >>+		if (missed_refcnt == *refcnt)
+> >>+		{
+> >>+			*refcnt = -1;
+> >>+			printk("cpu#%d: missed refcnt = %d\n", cpuid, 
+> >>missed_refcnt);
+> >>+		}
+> >>+		else {
+> >>+			if (missed_refcnt != 0) {
+> >>+				printk("cpu#%d: refcnt = %d, missed refcnt = 
+> >>%d\n", cpuid, *refcnt, missed_refcnt);
+> >>+			}
+> >>+		}
+> >>    
+> >
+> >Above operation seems racy, what prevents from changing missed_refcnt
+> >after it was read?
+> >  
+> if the case you said is hit, missed_refcnt must be not equal to 
+> missed_refcnt, because they are for the same cpu, so no problem, it will 
+> be checked
+> in the next work schedule.
+
+Since it is called with disabled preemption it is ok, but in that case
+you do not need missed_refcnt to be atomic.
+
+> >>+static void __exit fsevent_exit(void)
+> >>+{
+> >>+	listener * p = NULL, * q = NULL;
+> >>+	int cpu;
+> >>+	int wait_flag = 1;
+> >>+	struct sk_buff * skb = NULL;
+> >>+
+> >>+	fsevents_mask = 0;
+> >>+	exit_flag = 1;
+> >>+
+> >>+	while (wait_flag == 1) {
+> >>+		wait_flag = 0;
+> >>+		for_each_possible_cpu(cpu) {
+> >>+			if (per_cpu_fsevent_refcnt(cpu) >= 0) {
+> >>    
+> >
+> >This check is racy against above checks (marked as racy in comments).
+> >  
+> No problem, the real processing is within the work kthread, that will 
+> avoid this.
+> >  
+> >>+				wait_flag = 1;
+> >>+				schedule_work(&per_cpu(fsevent_work, cpu));
+> >>+			}
+> >>+		}
+> >>+		flush_scheduled_work();
+> >>+	}
+> >>+	__raise_fsevent = 0;
+> >>+
+> >>+	while ((skb = skb_dequeue(&fsevent_sock->sk_receive_queue)) != NULL) 
+> >>{
+> >>+		kfree_skb(skb);
+> >>+	}
+> >>+	while ((skb = skb_dequeue(&fsevent_sock->sk_write_queue)) != NULL) {
+> >>+		kfree_skb(skb);
+> >>+	}
+> >>    
+> >
+> >Why are you doing this? It looks wrong, since socket's queue is cleaned
+> >automatically.
+> >  
+> When I release fsevent_sock, the kernel always printk a message which 
+> says "sk_rmem_alloc isn't zero",
+> I don't know why, I doubt there are some packets in recieve and write 
+> queue, so try to free them.
+> but sk_rmem_alloc is always non-zero, so I must set it to 0, the kernel 
+> doesn't printk.
+
+That means that you broke socket accounting in some way.
+sock_release() should do all cleanup for you.
+
+> >  
+> >>+	printk("sk_rmem_alloc=%d, sk_wmem_alloc=%d\n", 
+> >>+		atomic_read(&fsevent_sock->sk_rmem_alloc),
+> >>+		atomic_read(&fsevent_sock->sk_wmem_alloc));
+> >>+	atomic_set(&fsevent_sock->sk_rmem_alloc, 0);
+> >>+	atomic_set(&fsevent_sock->sk_wmem_alloc, 0);
+> >>    
+> >
+> >100 % broken - you should not look into that variables, if kernel prints
+> >assertions about sizes, that means either leaked skbs or double
+> >freeings.
+> >  
+> Can you tell me when sk_rmem_alloc will increase and when it will 
+> decrease? How to
+> check whether the skb leakage or double free happened? When I test this, 
+> sk_rmem_alloc
+> is always 888, I don't understand it.
+
+Each time you add skb into socket queue appropriate socket is charged for 
+value equal to sizeof(skb)+sizeof(skb_shared_info)+aligned size of the data.
+That number is added to the one of the sk_r/wmem_alloc, depending on the
+direction of the skb way, skb's destructor is set to the function which
+will remove appropiate amount of from above variables.
+When you call sock_release() all skbs are removed and freed, so socket
+accounting is corrected in kfree_skb(), which (if there are no users)
+calls destructor and frees skb and data.
+If you see asserions that above variables are not zero, that means that
+you either removed skb from the queue and forgot to free it, or freed it
+several times (although it will be likely a crash in this case), or you
+overwrote that variables after some memory corruption.
+
+> >>+
+> >>+void init_fsevent_refcnt(int cpu)
+> >>+{
+> >>+	int * refcnt = &per_cpu(raise_fsevent_refcnt, cpu);
+> >>+	*refcnt = 0;
+> >>+}
+> >>+EXPORT_SYMBOL(init_fsevent_refcnt);
+> >>    
+> >
+> >This is racy.
+> >  
+> This doesn't take effect in the normal processing, the work kthread will 
+> do the real
+> work which will ensure no racy.
+
+Then just remove it, and actually the whole modularity does not seems a
+good idea, although it is of course your decision to make design static
+or not. I would implement such things with dynamic registration of the
+clients and just make fsevent statically built into the kernel.
+
+> >>+struct fsevent_filter {
+> >>+	/* filter type, it just is one of them
+> >>+	 * FSEVENT_FILTER_ALL
+> >>+	 * FSEVENT_FILTER_PID
+> >>+	 * FSEVENT_FILTER_UID
+> >>+	 * FSEVENT_FILTER_GID
+> >>+	 */
+> >>+	enum fsevent_type type;	/* filter type */
+> >>+
+> >>+	/* mask of file system events the user listen or ignore
+> >>+	 * if the user need to ignore all the events of some pid
+> >>+	 * , gid or uid, he(she) must set mask to FSEVENT_MASK.
+> >>+	 */ 
+> >>+	fsevent_mask_t mask;
+> >>    
+> >
+> >This is wrong, since it has different size on 64 and 32 platforms.
+> >  
+> thanks, I'll check it.
+> >  
+> >>+	union {
+> >>+		pid_t pid;
+> >>+		uid_t uid;
+> >>+		gid_t gid;
+> >>+	} id;
+> >>+
+> >>+	enum filter_control control;
+> >>+};
+> >>+
+> >>+struct fsevent {
+> >>+	__u32 type;
+> >>+	__u32 cpu;
+> >>+	struct timespec timestamp;
+> >>    
+> >
+> >Wrong size.
+> >  
+> I don't understand it, can you explain it further?
+
+It has different size on 32 and 64 bit platforms, since it uses longs.
+Your application will not work if kernel and userspace has different
+size of the long, like can happen with for example x86_64.
+
+> >>+static inline int _raise_fsevent
+> >>+	(const char * oldname, const char * newname, u32 mask)
+> >>+{
+> >>+	int ret;
+> >>+	int * refcnt = NULL;
+> >>+	int start_cpuid, end_cpuid;
+> >>+
+> >>+	refcnt = get_fsevent_refcnt();
+> >>+	start_cpuid = smp_processor_id();
+> >>+	if ((*refcnt == -1) || (__raise_fsevent == 0)) {
+> >>+		put_fsevent_refcnt();
+> >>+		return -1;
+> >>+	}
+> >>+	(*refcnt)++;
+> >>+	put_fsevent_refcnt();
+> >>    
+> >
+> >This looks really racy.
+> >What prevents from rescheduling here?
+> >  
+> This has disabled the preemption, so it is impossible to reshcedule.
+
+No, put_fsevent_refcnt() andbles it again.
+Or is it disabled on higher layer?
+
+> >>+	ret = __raise_fsevent(oldname, newname, mask);
+> >>+	refcnt = get_fsevent_refcnt();
+> >>+	end_cpuid = smp_processor_id();
+> >>+	if (start_cpuid != end_cpuid) {
+> >>+		printk("fsevent: process '%s' migration: cpu#%d -> cpu#%d.", 
+> >>current->comm, start_cpuid, end_cpuid);
+> >>+		atomic_inc(per_cpu_missed_refcnt(start_cpuid));
+> >>+		put_fsevent_refcnt();
+> >>+		return -1;
+> >>+	}
+> >>+	(*refcnt)--;
+> >>+	put_fsevent_refcnt();
+> >>+	return ret;
+> >>+}
+> >>    
+> >
+> >What prevents change for __raise_fsevent in that function?
+> >  
+> If reference count is not -1, rmmod won't change __raise_fsevent. the 
+> key is two new-added
+> refrence counters.
+
+You do it without preemption disabled and any other locks...
+
+-- 
+	Evgeniy Polyakov

@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWJEPUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWJEPUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751527AbWJEPUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWJEPUI
+	id S932113AbWJEPUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWJEPUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 5 Oct 2006 11:20:11 -0400
+Received: from wx-out-0506.google.com ([66.249.82.226]:54354 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932113AbWJEPUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 5 Oct 2006 11:20:08 -0400
-Received: from xenotime.net ([66.160.160.81]:15028 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932114AbWJEPUG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:20:06 -0400
-Date: Thu, 5 Oct 2006 08:21:31 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Cc: linux-kernel@vger.kernel.org, netwiz@crc.id.au
-Subject: Re: [Patch] Dereference in drivers/usb/misc/adutux.c
-Message-Id: <20061005082131.c9a0ecd0.rdunlap@xenotime.net>
-In-Reply-To: <1160042489.3101.2.camel@alice>
-References: <1160042489.3101.2.camel@alice>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cLtFHXJwrRkIoUWLIPYC6ngafu9PZF/sc3hr3fOoGe3EJlbtoVZOM0OYMfJWLhCSuetOLad81m6Iq6yKH0cwJLVvTLKsF4aABI+wNkavAoVOFAUbjVnfA3jig3Jr0x+f+qcDrFmuYgLWte1MXRai25eglMx17p8SxFj3TuHOZCw=
+Message-ID: <5a4c581d0610050820m11779c4er7a323cfec49cd39a@mail.gmail.com>
+Date: Thu, 5 Oct 2006 15:20:06 +0000
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: jt@hpl.hp.com
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       "Jeff Garzik" <jeff@garzik.org>, "Lee Revell" <rlrevell@joe-job.com>,
+       "Norbert Preining" <preining@logic.at>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+In-Reply-To: <20061005002637.GA5145@bougret.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061003214038.GE23912@tuxdriver.com>
+	 <20061004181032.GA4272@bougret.hpl.hp.com>
+	 <Pine.LNX.4.64.0610041133040.3952@g5.osdl.org>
+	 <20061004185903.GA4386@bougret.hpl.hp.com>
+	 <Pine.LNX.4.64.0610041216510.3952@g5.osdl.org>
+	 <20061004195229.GA4459@bougret.hpl.hp.com>
+	 <Pine.LNX.4.64.0610041311420.3952@g5.osdl.org>
+	 <20061004204718.GA4599@bougret.hpl.hp.com>
+	 <Pine.LNX.4.64.0610041522190.3952@g5.osdl.org>
+	 <20061005002637.GA5145@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 12:01:29 +0200 Eric Sesterhenn wrote:
+On 10/5/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
+> On Wed, Oct 04, 2006 at 03:26:09PM -0700, Linus Torvalds wrote:
+> >
+> > The very fact that this turned into a discussion is a sign that the ABI
+> > breakage wasn't handled well enough. Usually, when we do something, nobody
+> > ever even notices.
+>
+>         There was the grand total of *ONE* user who was personally
+> impacted by the userspace API change (the two other, one was hit by a
+> bug, now fixed, one was hit because of kernel API change + external
+> driver). And I immediately proposed to postpone the change to a later
+> time.
 
-> hi,
-> 
-> in two of the error cases, dev is still NULL,
-> and we dereference it. Spotted by coverity (cid#1428, 1429)
-> 
-> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> 
-> --- linux-2.6.19-rc1/drivers/usb/misc/adutux.c.orig	2006-10-05 11:57:52.000000000 +0200
-> +++ linux-2.6.19-rc1/drivers/usb/misc/adutux.c	2006-10-05 11:58:19.000000000 +0200
-> @@ -370,7 +370,8 @@ static int adu_release(struct inode *ino
->  	retval = adu_release_internal(dev);
->  
->  exit:
-> -	up(&dev->sem);
-> +	if(dev)
-> +		up(&dev->sem);
->  	dbg(2," %s : leave, return value %d", __FUNCTION__, retval);
->  	return retval;
->  }
+And said user, being me, is currently running with upgraded userspace
+ without any issues (counting upgrading userspace as a non-issue).
 
-	if (dev)
+I originally logged my report as I do for other things that break or look
+ different in new snapshots, in order to provide early feedback to the
+ kernel developers - I guess it's the actual point of having snapshots
+ from kernel.org...
 
-space after if, for, while, etc.  No space after function names.
+Thanks, ciao,
 
----
-~Randy
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWJERmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWJERoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751743AbWJERmn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751741AbWJERmn
+	id S1751745AbWJERoF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWJERoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:42:43 -0400
-Received: from codepoet.org ([166.70.99.138]:42121 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S1751742AbWJERmm (ORCPT
+	Thu, 5 Oct 2006 13:44:05 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37356 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751745AbWJERoD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:42:42 -0400
-Date: Thu, 5 Oct 2006 11:42:41 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061005174241.GA23632@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org> <1159948179.2817.26.camel@ux156> <20061005163513.GC6510@bougret.hpl.hp.com> <4525364D.1000409@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4525364D.1000409@garzik.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.9i
+	Thu, 5 Oct 2006 13:44:03 -0400
+Message-ID: <4525445C.6060901@garzik.org>
+Date: Thu, 05 Oct 2006 13:43:56 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: discuss@x86-64.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+References: <200610051910.25418.ak@suse.de> <45253E37.6070305@garzik.org> <200610051931.23884.ak@suse.de>
+In-Reply-To: <200610051931.23884.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Oct 05, 2006 at 12:43:57PM -0400, Jeff Garzik wrote:
-> Wireless Extensions has reached end-of-life, and so we only need to
-> support what's out there in wide distribution.
+Andi Kleen wrote:
+> On Thursday 05 October 2006 19:17, Jeff Garzik wrote:
+> 
+>> Does this fix the following issue:
+>>
+>> PCI: BIOS Bug: MCFG area at e0000000 is not E820-reserved
+>> PCI: Not using MMCONFIG.
+>>
+>> 100% of my x86-64 boxes, AMD or Intel, print this message.  And 100% of 
+>> them work just fine with MMCONFIG.
+> 
+> No. 
+> 
+> But it isn't really a issue. Basically everything[1] will work fine anyways.
+> 
+> [1]  Only thing you're missing AFAIK is PCI Extended Error Reporting.
 
-Hmm, so what is going to replace it?  I was messing about with my
-old powerbook G4 titanium, trying to make wpa_supplicant work
-when I realized the airport/orinoco driver used for my powerbook
-can't handle WPA since that apparently requires at least WE-18.
-I started looking into what it would take to teach the orinoco
-driver about WE>=18.  But I suppose there is no point in my
-looking further if WE is heading to the great bit-bucket in the
-sky.
+Not really true, I have some cards which have >256 bytes of config space.
 
-Is 'Wireless Extensions The Next Generation' described and
-documented somewhere?  Or am I better off if I just give up and
-move on to some other more realistic project?  :-)
 
- -Erik
+>> I think this rule is far too drastic for real life.
+> 
+> If you have a better proposal please share. I tried a few others, but none
+> of them could handle all the buggy Intel 9x5 boards that hang on any
+> mmconfig access (so the "try the first few busses" check already hangs)
+> 
+> Originally I thought
+> DMI blacklisting would work, but it's on too many systems for that
+> (and Linus rightfully hated it anyways). ACPI checks also didn't work.
+> I don't know of any others.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+It's a bit disappointing, since I keep getting brand new boxes with 
+brand new BIOSen, but keep hitting this rule.
+
+AFAICS it's a buggy check, since it continues to needlessly blacklist 
+working boxes.
+
+My proposal is quite simple:  "something that works" -- the current 
+solution obviously does not.
+
+	Jeff
+
+

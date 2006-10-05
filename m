@@ -1,56 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWJENRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWJENVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWJENRf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 09:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWJENRf
+	id S1750795AbWJENVc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 09:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWJENVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 09:17:35 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12769 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751461AbWJENRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 09:17:34 -0400
-Date: Thu, 5 Oct 2006 15:16:23 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ashok Raj <ashok.raj@intel.com>, Nathan Lynch <nathanl@austin.ibm.com>
-Subject: Re: [PATCH] drivers/base: error handling fixes
-Message-ID: <20061005131623.GC6920@osiris.boeblingen.de.ibm.com>
-References: <20061004130554.GA25974@havoc.gtf.org> <20061004172434.1a2ddb71@gondolin.boeblingen.de.ibm.com> <20061005081705.GA6920@osiris.boeblingen.de.ibm.com> <4524E983.6010208@garzik.org> <20061005124848.GB6920@osiris.boeblingen.de.ibm.com> <45250161.4060002@garzik.org>
+	Thu, 5 Oct 2006 09:21:32 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:40312 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750788AbWJENVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 09:21:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=iePB413c8qH1TqW3YJ0TglEA9ydSeFQI8o14lzBSFlywi1nb1bHpa6M1OVZvOkY/73rS/B7716clQp4+MhDADwKOd9Yio5QfrWwccIizUQEwkH5TuUc0F5t7yw021RLXVrwCpHn+y56qgKPytjV2G4Ca85W5iQesREyE97dHwSw=
+Message-ID: <4525070D.9030609@gmail.com>
+Date: Thu, 05 Oct 2006 07:22:21 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45250161.4060002@garzik.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Jean Delvare <khali@linux-fr.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Christer Weinigel <christer@weinigel.se>
+Subject: Re: [patch 2.6.18+] MAINTAINERS - take over scx200-* and pc8736*
+ drivers
+References: <45248867.40903@gmail.com> <20061005105351.f791f4f1.khali@linux-fr.org>
+In-Reply-To: <20061005105351.f791f4f1.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>If someone wants to provide a better fix, let's see the patch...
-> >If sysfs_remove_group() would also work for non-created (-existent) groups
-> >then the patch below would work. Unfortunately that is not the case. So one
-> >would have to remember if sysfs_create_group() was done and succeeded before
-> >calling sysfs_remove_group()...
-> >There must be an easier way.
-> >diff --git a/drivers/base/topology.c b/drivers/base/topology.c
-> >index 3ef9d51..d0056c3 100644
-> >--- a/drivers/base/topology.c
-> >+++ b/drivers/base/topology.c
-> 
-> ACK
 
-Ah, you probably got me wrong. The patch doesn't work, because of the
-sysfs_remove_group() stuff. That's why there is no Signed-off-by:...
+Add MAINTAINERS entries for new scx200_hrt and pc8736x_gpio drivers, and 
+take over maintenance of scx200_gpio, authored by Christer Weinigel 
+(which Ive hacked at), who no longer has the hardware.
+Also take over hwmon/pc87360, authored by Jean Delvare, who's dropped 
+maintenance to dedicate more time to hwmon subsystem.
 
-What _could_ happen with this patch applied: some code fails on
-CPU_UP_PREPARE and then all notifiers get called with CPU_UP_CANCELLED.
 
-That would cause the call of topology_remove_dev(sys_dev) and therefore
-sysfs_remove_group(&sys_dev->kobj, &topology_attr_group) which will crash,
-because sysfs_create_group() wasn't even called.
-To fix this one has to remember if sysfs_create_group() succeeded or was
-even called. That would be a per-cpu array. Now, I think it's just
-overkill to introduce a per-cpu array for error-checking.
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
+---
 
-IMHO it would make sense to change sysfs_remove_group() so it will survive
-if being asked to remove groups that don't exist.
+Christer acked this off-list already, in case he's too busy and misses 
+this one.
+
+$ diffstat diff.maintainers
+ MAINTAINERS |   28 ++++++++++++++++++++++++----
+ 1 files changed, 24 insertions(+), 4 deletions(-)
+
+
+
+Jean Delvare wrote:
+> Yep, I'm fine with Jim taking over maintainerchip of the pc87360
+> hardware monitoring driver.
+>
+>   
+
+>> +NSC_GPIO Common Methods Module (supports PC8736x_GPIO and SCX200_GPIO Drivers)
+>>     
+>
+> All other entries in this file are uppercase.
+>
+> I also doubt that anyone will ever search for "common methods module",
+> I'm not even sure I understand what it means. What's really important
+> here are the driver names IMHO, and you already have added entries for
+> these below - isn't that sufficient?
+>
+>   
+Ack.  I was ambivalent about this, since its not a driver, and nobody 
+would modprobe it directly.
+I went for thoroughness, assuming Id be corrected.. ;-)
+
+
+diff -ruNp -X dontdiff -X exclude-diffs linux-2.6.18/MAINTAINERS doc-touches/MAINTAINERS
+--- linux-2.6.18/MAINTAINERS	2006-09-19 23:57:12.000000000 -0600
++++ doc-touches/MAINTAINERS	2006-10-05 07:03:45.000000000 -0600
+@@ -2215,6 +2215,17 @@ T:	git kernel.org:/pub/scm/linux/kernel/
+ T:	cvs cvs.parisc-linux.org:/var/cvs/linux-2.6
+ S:	Maintained
+ 
++PC87360 HARDWARE MONITORING DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++L:	lm-sensors@lm-sensors.org
++S:	Maintained
++
++PC8736x GPIO DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
++
+ PCI ERROR RECOVERY
+ P:	Linas Vepstas
+ M:	linas@austin.ibm.com
+@@ -2525,10 +2536,19 @@ L: lksctp-developers@lists.sourceforge.n
+ S: Supported
+ 
+ SCx200 CPU SUPPORT
+-P:	Christer Weinigel
+-M:	christer@weinigel.se
+-W:	http://www.weinigel.se
+-S:	Supported
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Odd Fixes
++
++SCx200 GPIO DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
++
++SCx200 HRT CLOCKSOURCE DRIVER
++P:	Jim Cromie
++M:	jim.cromie@gmail.com
++S:	Maintained
+ 
+ SECURITY CONTACT
+ P:	Security Officers
+
+

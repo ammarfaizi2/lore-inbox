@@ -1,94 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWJEOYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWJEOaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWJEOYe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWJEOYe
+	id S1751462AbWJEOaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWJEOaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:24:34 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:11230 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751470AbWJEOYd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:24:33 -0400
-Date: Thu, 5 Oct 2006 10:24:00 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Horms <horms@verge.net.au>, Magnus Damm <magnus@valinux.co.jp>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.19-rc1: kexec broken on x86_64
-Message-ID: <20061005142400.GC20551@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <aec7e5c30610050328i2bf9e3b6qcacc1873231ece28@mail.gmail.com> <20061005134522.GB20551@in.ibm.com> <aec7e5c30610050656u6d287752pc9d1bcbb807442d3@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Oct 2006 10:30:11 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:64980 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751462AbWJEOaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:30:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ZWQ4RJAR2YCDiNDhOFthmVtxchRW+ut7i0jc4b6ApcQH9LGHsEhhdsSyi31NWhQGTVXu8ygySHB1n90ytopv4zgSgAnlrFVRdUfr2B8XoHrayfZAs8+rXGKtndmMV/FOBFtZ9ej4H/4eiPB00qRnQu+P5gH6NCx8R6785N0Q+C4=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: "Alex Owen" <r.alex.owen@gmail.com>
+Subject: Re: forcedeth net driver: reverse mac address after pxe boot
+Date: Thu, 5 Oct 2006 16:28:40 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2004@gmx.net,
+       aabdulla@nvidia.com
+References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com>
+In-Reply-To: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <aec7e5c30610050656u6d287752pc9d1bcbb807442d3@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610051628.40247.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 10:56:51PM +0900, Magnus Damm wrote:
-> Hi Vivek,
+On Wednesday 04 October 2006 18:19, Alex Owen wrote:
+> I an issue with the forcedeth driver when used after the BIOS PXE routines.
+> When booting directly from disk the ethernet MAC address is normal.
+> eg: 00:16:17:xx:yy:zz
+> But is the BIOS PXE boot stack loads pxelinux which then boots the
+> local disk, or if pxelinux loads a kernel/initrd, then the MAC address
+> detected by the forcedeth linux driver is reversed.
+> eg zz:yy:xx:17:16:00
 > 
-> On 10/5/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> >On Thu, Oct 05, 2006 at 07:28:35PM +0900, Magnus Damm wrote:
-> >> Kexec is broken on x86_64 under 2.6.19-rc1.
-> >>
-> >> Or rather - kexec works ok under 2.6.19-rc1, but something related to
-> >> the vmlinux format has probably changed and kexec-tools fails to load
-> >> a vmlinux from 2.6.19-rc1.
-> >>
-> >> Loading bzImage works as usual, but vmlinux does not load properly.
-> >>
-> >> The kexec binary fails with the following message:
-> >>
-> >> Overlapping memory segments at 0x351000
-> >> sort_segments failed
-> >> / #
-> >>
-> >
-> >Hi Magnus,
-> >
-> >Can you please post the readelf -l output of the vmlinux you are trying
-> >to load. That's will give some indication if the segments are really
-> >overlapping in vmlinux or is it some processing bug at kexec-tools part.
+> This is obviously causes me a problem with automated installs started
+> via PXE boot as the installed cannot DHCP as the MAC address is wrong.
 > 
-> Elf file type is EXEC (Executable file)
-> Entry point 0x100100
-> There are 4 program headers, starting at offset 64
+> I have read some of the bug reports and LKML threads on WOL and
+> forcedeth and I have looked at the code of the driver... most closely
+> forcedeth v57 as per comment #22 of
+> http://bugzilla.kernel.org/show_bug.cgi?id=6604
 > 
-> Program Headers:
->  Type           Offset             VirtAddr           PhysAddr
->                 FileSiz            MemSiz              Flags  Align
->  LOAD           0x0000000000100000 0xffffffff80100000 0x0000000000100000
->                 0x00000000001a4888 0x00000000001a4888  R E    100000
->  LOAD           0x00000000002a5000 0xffffffff802a5000 0x00000000002a5000
->                 0x000000000008e086 0x00000000000c1504  RWE    100000
->  LOAD           0x0000000000400000 0xffffffffff600000 0x00000000002fd000
->                 0x0000000000000c08 0x0000000000000c08  RWE    100000
->  NOTE           0x0000000000000000 0x0000000000000000 0x0000000000000000
->                 0x0000000000000000 0x0000000000000000  R      8
+> My understanding of the code is that the driver determines the cards
+> MAC address by reading from registers in the ethernet controller, but
+> that for reasons best known to nvidia this  address backwards and so
+> the driver "fixes" this by itself reversing the read values and
+> writing them back to the controller.
 > 
-> Section to Segment mapping:
->  Segment Sections...
->   00     .text __ex_table .rodata .pci_fixup __ksymtab __ksymtab_gpl
-> __ksymtab_unused __ksymtab_strings __param
->   01     .data .data.cacheline_aligned .data.read_mostly
-> .data.init_task .data.page_aligned .init.text .init.data .init.setup
-> .initcall.init .con_initcall.init .altinstructions
-> .altinstr_replacement .exit.text .init.ramfs .bss
->   02     .vsyscall_0 .xtime_lock .vxtime .vgetcpu_mode .sys_tz
-> .sysctl_vsyscall .xtime .jiffies .vsyscall_1 .vsyscall_2 .vsyscall_3
->   03
+> This normally works ok and there has been some work to put the old
+> "wrong" MAC address back at close down to get WOL to work to.
 > 
+> Enter PXE... Booting from PXE (in BIOS) seems to "fixup" the "wrong"
+> MAC address so when the driver determines the cards MAC address by
+> reading from registers in the ethernet controller then MAC address
+> there is now CORRECT. The driver however assumes it is reversed and in
+> trying to "fix" the MAC address is infact writes back the
+> revesed/broken MAC back to the controller.
+> 
+> The obvious fix for this is to try and read the MAC address from the
+> canonical location... ie where is the source of the address writen
+> into the controlers registers at power on? But do we know where that
+> may be?
+> 
+> The other solution would be unconditionally reset the controler to
+> it's power on state then use the current logic? can we reset the
+> controller via software?
+> There does seem to be an nv_mac_reset function... and this does seem
+> to be called if the card has a capability DEV_HAS_POWER_CONTROL but it
+> is called in nv_open() while the MAC is read in nv_probe().
+> 
+> Perhaps we need to unconditionally run nv_mac_reset just before
+> reading the MAC in nv_probe() ?
+> 
+> Anyway I hope that someone who knows kernel internals and this driver
+> inparticular feels the urge to look at this!
 
-Ok. So second and third program header are overlapping in physical
-address space and that's why kexec-tools is cribbing.
-
-Looking at these headers, it looks like program header 02 which contains
-will overwrite some of the data of program header 01 and I think that's
-wrong. Will look more into it.
-
-Thanks
-Vivek
+Also MAC addresses cannot be arbitrary. If nothing else would work,
+we can add OUI numbers (3 most significant bytes of MAC)
+of known suppliers of nvidia eth and check whether they are
+in lower bytes or in higher ones.
+--
+vda

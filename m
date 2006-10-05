@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWJEVjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWJEVkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWJEVjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWJEVjm
+	id S932250AbWJEVkX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWJEVkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:39:42 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:45747 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932228AbWJEVjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:39:41 -0400
-Date: Thu, 5 Oct 2006 17:37:54 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: stable@kernel.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: uml: use DEFCONFIG_LIST to avoid reading host's config
-Message-ID: <20061005213754.GC6790@ccure.user-mode-linux.org>
-References: <11600785071661-git-send-email-blaisorblade@yahoo.it>
+	Thu, 5 Oct 2006 17:40:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34779 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932246AbWJEVkU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:40:20 -0400
+Subject: Re: [PATCH] Use linux/io.h instead of asm/io.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <willy@parisc-linux.org>
+In-Reply-To: <11600679551209-git-send-email-matthew@wil.cx>
+References: <11600679551209-git-send-email-matthew@wil.cx>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 05 Oct 2006 23:04:12 +0100
+Message-Id: <1160085852.1607.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11600785071661-git-send-email-blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 10:01:47PM +0200, Paolo 'Blaisorblade' Giarrusso wrote:
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Ar Iau, 2006-10-05 am 11:05 -0600, ysgrifennodd Matthew Wilcox:
+> In preparation for moving check_signature, change these users from
+> asm/io.h to linux/io.h
 > 
-> This should make sure that, for UML, host's configuration files are not
-> considered, which avoids various pains to the user. Our dependency are such that
-> the obtained Kconfig will be valid and will lead to successful compilation -
-> however they cannot prevent an user from disabling any boot device, and if an
-> option is not set in the read .config (say /boot/config-XXX), with make
-> menuconfig ARCH=um, it is not set. This always disables UBD and all console I/O
-> channels, which leads to non-working UML kernels, so this bothers users -
-> especially now, since it will happen on almost every machine
-> (/boot/config-`uname -r` exists almost on every machine). It can be workarounded
-> with make defconfig ARCH=um, but it is non-obvious and can be avoided, so please
-> _do_ merge this patch.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> Signed-off-by: Matthew Wilcox <willy@parisc-linux.org>
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+Acked-by: Alan Cox <alan@redhat.com>
 
-Paolo - send this to Andrew as well so it doesn't get lost.
-
-				Jeff

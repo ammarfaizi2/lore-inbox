@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWJEOxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWJEPHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbWJEOxp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWJEOxp
+	id S1751287AbWJEPHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWJEPHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:53:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:43440 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751473AbWJEOxo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:53:44 -0400
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-From: Steve Fox <drfickle@us.ibm.com>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Andi Kleen <ak@suse.de>, vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <45245B03.2070803@mbligh.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <20061004170659.f3b089a8.akpm@osdl.org> <20061005005124.GA23408@in.ibm.com>
-	 <200610050257.53971.ak@suse.de>  <45245B03.2070803@mbligh.org>
-Content-Type: text/plain
+	Thu, 5 Oct 2006 11:07:55 -0400
+Received: from berlioz.imada.sdu.dk ([130.225.128.12]:8120 "EHLO
+	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
+	id S1751287AbWJEPHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:07:53 -0400
+From: Hans Henrik Happe <hhh@imada.sdu.dk>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Thu, 5 Oct 2006 17:07:48 +0200
+User-Agent: KMail/1.9.1
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+References: <11587449471424@2ka.mipt.ru> <200610051601.20701.hhh@imada.sdu.dk> <20061005141556.GA30715@2ka.mipt.ru>
+In-Reply-To: <20061005141556.GA30715@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 05 Oct 2006 09:53:40 -0500
-Message-Id: <1160060020.29690.5.camel@flooterbu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610051707.49087.hhh@imada.sdu.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-04 at 18:08 -0700, Martin Bligh wrote:
-> Andi Kleen wrote:
-> >>I think most likely it would crash on 2.6.18. Keith mannthey had reported
-> >>a different crash on 2.6.18-rc4-mm2 when this patch was introduced first
-> >>time. Following is the link to the thread.
+On Thursday 05 October 2006 16:15, Evgeniy Polyakov wrote:
+> On Thu, Oct 05, 2006 at 04:01:19PM +0200, Hans Henrik Happe 
+(hhh@imada.sdu.dk) wrote:
+> > > And what happens when there are 3 empty at the beginning and \we need to
+> > > put there 4 ready events?
 > > 
+> > Couldn't there be 3 areas in the mmap buffer:
 > > 
-> > Then maybe trying 2.6.17 + the patch and then bisect between that and -rc4?
+> > - Unused: entries that the kernel can alloc from.
+> > - Alloced: entries alloced by kernel but not yet used by user. Kernel can 
+> > update these if new events requires that.
+> > - Consumed: entries that the user are processing.
+> > 
+> > The user takes a set of alloced entries and make them consumed. Then it 
+> > processes the events after which it makes them unused. 
+> > 
+> > If there are no unused entries and the kernel needs some, it has wait for 
+free 
+> > entries. The user has to notify when unused entries becomes available. It 
+> > could set a flag in the mmap'ed area to avoid unnessesary wakeups.
+> > 
+> > The are some details with indexing and wakeup notification that I have 
+left 
+> > out, but I hope my idea is clear. I could give a more detailed description 
+if 
+> > requested. Also, I'm a user-level programmer so I might not get the whole 
+> > picture.
 > 
-> I think it's fixed already in -git22, or at least it is for the IBM box
-> reporting to test.kernel.org. You might want to try that one ...
+> This looks good on a picture, but how can you put it into page-based
+> storage without major and complex shared structures, which should be
+> properly locked between kernelspace and userspace?
 
--git22 also panics for me.
+I wasn't clear about the structure. I meant a ring-buffer with 3 areas. So 
+it's basically the same model as Eric Dumazet described, only with 3 indexes; 
+2 in the user-writeable page and 1 in kernel.
 
--- 
+When the kernel has alloced an entry it should store it in a way that makes it 
+invalid after user consumsion, which is simply an increment of an index. 
+Sliding-window like schemes should solve this.
 
-Steve Fox
-IBM Linux Technology Center
+Hans Henrik Happe

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWJERTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWJERUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751705AbWJERTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWJERTz
+	id S932189AbWJERUX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWJERUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:19:55 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:17850 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751704AbWJERTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:19:54 -0400
-Date: Thu, 5 Oct 2006 19:19:53 +0200
-From: Voluspa <lista1@comhem.se>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: Merge window closed: v2.6.19-rc1
-Message-ID: <20061005191953.607547d1@loke.fish.not>
-In-Reply-To: <20061005095944.f0c75c9f.rdunlap@xenotime.net>
-References: <20061005184916.3bc76868@loke.fish.not>
-	<20061005095944.f0c75c9f.rdunlap@xenotime.net>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.4.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Oct 2006 13:20:22 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:63979 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932188AbWJERUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 13:20:19 -0400
+Message-ID: <45253ECF.8080709@garzik.org>
+Date: Thu, 05 Oct 2006 13:20:15 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <willy@parisc-linux.org>
+Subject: Re: [PATCH] Consolidate check_signature
+References: <11600679551209-git-send-email-matthew@wil.cx> <11600679552794-git-send-email-matthew@wil.cx>
+In-Reply-To: <11600679552794-git-send-email-matthew@wil.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006 09:59:44 -0700 Randy Dunlap wrote:
-> On Thu, 5 Oct 2006 18:49:16 +0200 Voluspa wrote:
+Matthew Wilcox wrote:
+> There's nothing arch-specific about check_signature(), so move it to
+> <linux/io.h>.  Use a cross between the Alpha and i386 implementations
+> as the generic one.
 > 
-> >   AR      arch/x86_64/lib/lib.a
-> >   GEN     .version
-> >   CHK     include/linux/compile.h
-> >   UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      vmlinux
-> > arch/x86_64/kernel/built-in.o: In function
-> > `print_trace_warning_symbol':
-> > traps.c:(.text.print_trace_warning_symbol+0xa): undefined reference
-> > to `print_symbol' make: *** [vmlinux] Error 1
-> 
-> You don't have CONFIG_KALLSYMS enabled?
+> Signed-off-by: Matthew Wilcox <willy@parisc-linux.org>
 
-Never. I like to keep the kernel as lean as possible until some
-bug-reporting requires otherwise.
+IMO this isn't 2.6.19-rc1 material.
 
-> 
-> Does this patch fix the build for you?
+Much more appropriate for 2.6.20, after living in -mm for a while.
 
-Perfect. Thanx. Built, but haven't booted yet.
+	Jeff
 
-Mvh
-Mats Johannesson
+
 

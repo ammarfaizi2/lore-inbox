@@ -1,141 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWJERgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWJERmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751676AbWJERgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbWJERgg
+	id S1751743AbWJERmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751741AbWJERmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:36:36 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:65414 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751654AbWJERgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:36:35 -0400
-Date: Thu, 5 Oct 2006 13:36:28 -0400
-To: Paul B Schroeder <pschroeder@uplogix.com>
+	Thu, 5 Oct 2006 13:42:43 -0400
+Received: from codepoet.org ([166.70.99.138]:42121 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1751742AbWJERmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 13:42:42 -0400
+Date: Thu, 5 Oct 2006 11:42:41 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jeff@garzik.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Exar quad port serial
-Message-ID: <20061005173628.GB30993@csclub.uwaterloo.ca>
-References: <1160068402.29393.7.camel@rupert>
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061005174241.GA23632@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org> <1159948179.2817.26.camel@ux156> <20061005163513.GC6510@bougret.hpl.hp.com> <4525364D.1000409@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160068402.29393.7.camel@rupert>
+In-Reply-To: <4525364D.1000409@garzik.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 12:13:21PM -0500, Paul B Schroeder wrote:
-> I put this together real quick to get all of the ports of my "dumb" Exar
-> quad uart card to work..  Patch applies against 2.6.19-rc1 just fine..
-> 
-> 
-> ---------------------------------------------------------------------------
-> 
-> diff -urN linux-2.6.17.i686.orig/drivers/serial/8250_exar.c linux-2.6.17.i686/drivers/serial/8250_exar.c
-> --- linux-2.6.17.i686.orig/drivers/serial/8250_exar.c	1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.17.i686/drivers/serial/8250_exar.c	2006-10-02 17:11:31.000000000 -0500
-> @@ -0,0 +1,52 @@
-> +/*
-> + *  linux/drivers/serial/8250_exar.c
-> + *
-> + *  Written by Paul B Schroeder < pschroeder "at" uplogix "dot" com >
-> + *  Based on 8250_boca.
-> + *
-> + *  Copyright (C) 2005 Russell King.
-> + *  Data taken from include/asm-i386/serial.h
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/serial_8250.h>
-> +
-> +#define PORT(_base,_irq)				\
-> +	{						\
-> +		.iobase		= _base,		\
-> +		.irq		= _irq,			\
-> +		.uartclk	= 1843200,		\
-> +		.iotype		= UPIO_PORT,		\
-> +		.flags		= UPF_BOOT_AUTOCONF,	\
-> +	}
-> +
-> +static struct plat_serial8250_port exar_data[] = {
-> +	PORT(0x100, 5),
-> +	PORT(0x108, 5),
-> +	PORT(0x110, 5),
-> +	PORT(0x118, 5),
-> +	{ },
-> +};
-> +
-> +static struct platform_device exar_device = {
-> +	.name			= "serial8250",
-> +	.id			= PLAT8250_DEV_EXAR,
-> +	.dev			= {
-> +		.platform_data	= exar_data,
-> +	},
-> +};
-> +
-> +static int __init exar_init(void)
-> +{
-> +	return platform_device_register(&exar_device);
-> +}
-> +
-> +module_init(exar_init);
-> +
-> +MODULE_AUTHOR("Paul B Schroeder");
-> +MODULE_DESCRIPTION("8250 serial probe module for Exar cards");
-> +MODULE_LICENSE("GPL");
-> diff -urN linux-2.6.17.i686.orig/drivers/serial/Kconfig linux-2.6.17.i686/drivers/serial/Kconfig
-> --- linux-2.6.17.i686.orig/drivers/serial/Kconfig	2006-09-06 14:50:05.000000000 -0500
-> +++ linux-2.6.17.i686/drivers/serial/Kconfig	2006-10-02 17:13:25.000000000 -0500
-> @@ -211,6 +211,16 @@
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called 8250_boca.
->  
-> +config SERIAL_8250_EXAR
-> +	tristate "Support Exar cards"
-> +	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-> +	help
-> +	  Say Y here if you have a Exar serial board.  Please read the Boca
-> +	  mini-HOWTO, avaialble from <http://www.tldp.org/docs.html#howto>
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called 8250_exar.
-> +
->  config SERIAL_8250_HUB6
->  	tristate "Support Hub6 cards"
->  	depends on SERIAL_8250 != n && ISA && SERIAL_8250_MANY_PORTS
-> diff -urN linux-2.6.17.i686.orig/drivers/serial/Makefile linux-2.6.17.i686/drivers/serial/Makefile
-> --- linux-2.6.17.i686.orig/drivers/serial/Makefile	2006-06-17 20:49:35.000000000 -0500
-> +++ linux-2.6.17.i686/drivers/serial/Makefile	2006-10-02 17:13:52.000000000 -0500
-> @@ -17,6 +17,7 @@
->  obj-$(CONFIG_SERIAL_8250_FOURPORT) += 8250_fourport.o
->  obj-$(CONFIG_SERIAL_8250_ACCENT) += 8250_accent.o
->  obj-$(CONFIG_SERIAL_8250_BOCA) += 8250_boca.o
-> +obj-$(CONFIG_SERIAL_8250_EXAR) += 8250_exar.o
->  obj-$(CONFIG_SERIAL_8250_HUB6) += 8250_hub6.o
->  obj-$(CONFIG_SERIAL_8250_MCA) += 8250_mca.o
->  obj-$(CONFIG_SERIAL_8250_AU1X00) += 8250_au1x00.o
-> diff -urN linux-2.6.17.i686.orig/include/linux/serial_8250.h linux-2.6.17.i686/include/linux/serial_8250.h
-> --- linux-2.6.17.i686.orig/include/linux/serial_8250.h	2006-06-17 20:49:35.000000000 -0500
-> +++ linux-2.6.17.i686/include/linux/serial_8250.h	2006-10-02 17:12:34.000000000 -0500
-> @@ -41,6 +41,7 @@
->  	PLAT8250_DEV_FOURPORT,
->  	PLAT8250_DEV_ACCENT,
->  	PLAT8250_DEV_BOCA,
-> +	PLAT8250_DEV_EXAR,
->  	PLAT8250_DEV_HUB6,
->  	PLAT8250_DEV_MCA,
->  	PLAT8250_DEV_AU1X00,
+On Thu Oct 05, 2006 at 12:43:57PM -0400, Jeff Garzik wrote:
+> Wireless Extensions has reached end-of-life, and so we only need to
+> support what's out there in wide distribution.
 
-With 2.6 kernels at least a lot of Exar chips already work.  Perhaps you
-could be more explicit about which Exar chips/boards this is supposed to
-cover.
+Hmm, so what is going to replace it?  I was messing about with my
+old powerbook G4 titanium, trying to make wpa_supplicant work
+when I realized the airport/orinoco driver used for my powerbook
+can't handle WPA since that apparently requires at least WE-18.
+I started looking into what it would take to teach the orinoco
+driver about WE>=18.  But I suppose there is no point in my
+looking further if WE is heading to the great bit-bucket in the
+sky.
+
+Is 'Wireless Extensions The Next Generation' described and
+documented somewhere?  Or am I better off if I just give up and
+move on to some other more realistic project?  :-)
+
+ -Erik
 
 --
-Len Sorensen
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

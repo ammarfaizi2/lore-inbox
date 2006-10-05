@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWJEOk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWJEOog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWJEOk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 10:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWJEOk4
+	id S932097AbWJEOog (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 10:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWJEOof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 10:40:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39854 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932076AbWJEOk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 10:40:56 -0400
-Subject: Re: sunifdef instead of unifdef
-From: David Woodhouse <dwmw2@infradead.org>
-To: Dennis Heuer <dh@triple-media.com>
-Cc: linux-kernel@vger.kernel.org, dot@dotat.at
-In-Reply-To: <20061005150816.76ca18c2.dh@triple-media.com>
-References: <20061005150816.76ca18c2.dh@triple-media.com>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 15:40:53 +0100
-Message-Id: <1160059253.26064.69.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 5 Oct 2006 10:44:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30171 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932092AbWJEOoe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 10:44:34 -0400
+Message-ID: <45251A83.9060901@redhat.com>
+Date: Thu, 05 Oct 2006 07:45:23 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com> <20061004045527.GB32267@2ka.mipt.ru> <452363C5.1020505@redhat.com> <20061004074821.GA22688@2ka.mipt.ru> <4523ED6C.9080902@redhat.com> <20061005090214.GB1015@2ka.mipt.ru>
+In-Reply-To: <20061005090214.GB1015@2ka.mipt.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDE7C2B78544235EF8F24D775"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 15:08 +0200, Dennis Heuer wrote:
-> unifdef is not only very old and unmaintained, the binary does not work
-> and the source does not compile on a pure x86_64 system. 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDE7C2B78544235EF8F24D775
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-It works for me. Describe your problem more coherently.
+Evgeniy Polyakov wrote:
+> And you can add/remove signal events using existing kevent api between
+> calls.
 
-I wouldn't describe it as 'very old' -- the last commit seems to have
-been last March, which isn't _so_ recent but perhaps it just hasn't
-_needed_ an update?
+That's far more expensive than using a mask under control of the program.=
 
-Neither would I describe it as unmaintained. Tony was quite quickly
-responsive when I asked him if it would be OK to include unifdef in the
-kernel source tree.
 
-> There is another tool that worked for me--though it 'closed with
-> remarks'--and that was updated recently (several times this year). It
-> is called sunifdef, is under an equal (new) BSD license, and is
-> proposed to be the successor of unifdef. See the project page:
-> 
-> http://www.sunifdef.strudl.org/ 
 
-I don't see a huge point in changing, unless it lets us get rid of stuff
-like 
+> And creating special cases for usual events is bad.
+> There is unified way to deal with events in kevent -
+> add/remove/modify/wait on them, signals are just usual events.
 
-	#if defined(__KERNEL__ && ....
+How can this be unified?  The installment of the temporary signal mask
+is unlike the handling of signal for the purpose of reporting them
+through the signal queue.  It's equally completely new functionality.
+Don't kid yourself in thinking that because this is signal stuff, too,
+you're "unifying" something.  The way this signal mask is used has
+nothing whatsoever to do with the delivering signals via the event
+queue.  For the latter the signals always must be blocked (similar to
+sigwait's requirement).
 
-when used with -U__KERNEL__.
+As a result it means you want to introduce a new mechanism for the event
+queue instead of using the well known and often used method of
+optionally passing a signal mask to the syscall.  That's just insane.
 
--- 
-dwmw2
 
+> I think you wanted to say, that 'all event mechanism except the most
+> commonly used poll/select/epoll use timespec'.
+
+Get your facts straight.  select uses timeval which is just the
+predecessor of of timespec.  And epoll is just (badly) designed after
+poll.  Fact is therefore that poll plus its spawn is the only interface
+using such a timeout method.
+
+
+> I designed it to be similar to poll(), it is really good interface.
+
+Not many people agree.  All the interfaces designed (not derived) in the
+last years take a timespec parameter.
+
+Plus, you chose to ignore all the nice things using a timespec allow you
+like absolute timeout modes etc.  See the clock_nanosleep()  interface
+for a way this can be useful.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enigDE7C2B78544235EF8F24D775
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFJRqD2ijCOnn/RHQRAuYfAKCBqCeIKicnFwvVUOufPet+/PDwNgCcDnS7
+QwG3um7cgsPZrH/E2DoNzBs=
+=gZ4H
+-----END PGP SIGNATURE-----
+
+--------------enigDE7C2B78544235EF8F24D775--

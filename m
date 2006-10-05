@@ -1,97 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWJEIHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWJEIMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWJEIHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 04:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWJEIHf
+	id S1751193AbWJEIMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 04:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWJEIMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 04:07:35 -0400
-Received: from gate.perex.cz ([85.132.177.35]:13504 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1751202AbWJEIHe (ORCPT
+	Thu, 5 Oct 2006 04:12:05 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:33261 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1751193AbWJEIMB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 04:07:34 -0400
-Date: Thu, 5 Oct 2006 10:07:31 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Castet Matthieu <castet.matthieu@free.fr>, Takashi Iwai <tiwai@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] ALSA: fix kernel panic in initialization of mpu401 driver
-In-Reply-To: <Pine.LNX.4.64.0610042216240.12556@twin.jikos.cz>
-Message-ID: <Pine.LNX.4.61.0610050951570.9351@tm8103.perex-int.cz>
-References: <Pine.LNX.4.64.0610042216240.12556@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Oct 2006 04:12:01 -0400
+Date: Thu, 5 Oct 2006 10:16:36 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Klaus Knopper <knopper@knopper.net>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: compile error for 2.6.18-git19 with CONFIG_RWSEM_GENERIC_SPINLOCK=y
+Message-ID: <20061005081636.GA8208@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Klaus Knopper <knopper@knopper.net>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061003192000.GG6710@knopper.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006, Jiri Kosina wrote:
-
-> I am getting kernel panic (NULL pointer dereference) on boot, with kernel 
-> compiled with CONFIG_SND_MPU401_UART=y, on machine which does not have 
-> this piece of hardware.
+On 03-10-2006 21:20, Klaus Knopper wrote:
+> Hello everyone,
 > 
-> I have traced the problem down to 
-> sound/drivers/mpu401/mpu401.c:snd_mpu401_probe() returning EINVAL, when 
-> either port or IRQ parameters are not specified.
+> Since the "reporting bugs" FAQ told me to post here in case I can't
+> identify the right person to ask, and have not found any mention of this
+> problem on the list and anywhere else yet, I do.
 > 
-> In such case, the drivers/base/bus.c:bus_attach_device() does not perform 
-> klist_add_tail() call, but rather sets dev->is_registered to 0. This flag 
-> is however not checked by the driver, so later on, when 
-> alsa_card_mpu401_init() is called and platform_device_register_simple() 
-> fails, the following callchain happens, causing NULL pointer dereference: 
-> alsa_card_mpu401_init() -> platform_device_unregister() -> 
-> platform_device_del() -> device_del() -> bus_remove_device() -> 
-> klist_del() -> BOOM (the entry was not added to klist in 
-> bus_attach_device()).
+> Problem description: Compiling 2.6.18-git19 (gcc-3.3 and 4.1) fails for
+> processor family i386 (when CONFIG_RWSEM_GENERIC_SPINLOCK=y) is set,
+> with
 > 
-> Proper solution is returning ENODEV from the ->probe() routine, which will 
-> be correctly handled then by the rest of the device-driver attaching 
-> subsystem (namely the retval check in bus_attach_device()). The following 
-> patch fixes the problem, please apply.
+> arch/i386/lib/lib.a(semaphore.o): In function `call_rwsem_down_read_failed':
+> arch/i386/lib/semaphore.S:(.sched.text+0x5f): undefined reference to `rwsem_down_read_failed'
+> arch/i386/lib/lib.a(semaphore.o): In function `call_rwsem_down_write_failed':
+> arch/i386/lib/semaphore.S:(.sched.text+0x6a): undefined reference to `rwsem_down_write_failed'
+> arch/i386/lib/lib.a(semaphore.o): In function `call_rwsem_wake':
+> arch/i386/lib/semaphore.S:(.sched.text+0x76): undefined reference to `rwsem_wake'
+> arch/i386/lib/lib.a(semaphore.o): In function `call_rwsem_downgrade_wake':
+> arch/i386/lib/semaphore.S:(.sched.text+0x7f): undefined reference to `rwsem_downgrade_wake'
+> 
+> This option is present in .config when setting processor family to
+> plain "i386" in make menuconfig.
+> 
+> Using CONFIG_RWSEM_XCHGADD_ALGORITHM=y INSTEAD of
+> CONFIG_RWSEM_GENERIC_SPINLOCK=y (i486 and up) kind of "fixes" the
+> compile error, but I'm not sure if the resulting code would still run on
+> a real i386.
+> 
+> This problem also exists for ealier gits, but I can't tell exactly when
+> it started.
+> 
+> Regards
+> -Klaus Knopper
+> PS: Please CC any answers to me, since I'm not a subscriber to this list.
 
-Unfortunately, I do not think that it's a proper solution. I think that
-platform device layer should play more nicely and if probe() fails for 
-a reason and if platform_device_register_simple() does not set 
-IS_ERR(), then platform_device_unregister() must be callable to free
-all resources.
+It looks there is only one person in the world who remembers i386!
 
-Also, you've proposed to not fix all returns in snd_mpu401_probe() only 
-first two.
+I attach my patch proposal.
 
-I would reject this patch and fix drivers/base/bus.c. The problematic 
-change is in commit f2eaae197f4590c4d96f31b09b0ee9067421a95c and this 
-patch will probably fix it:
+Best regards,
 
-[PATCH] drivers/base - check if device is registered before removal
+Jarek P.
 
-Without this fix platform_device_unregister() might oops.
 
-Signed-off-by: Jaroslav Kysela <perex@suse.cz>
-
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index 12173d1..daa2390 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -428,8 +428,10 @@ void bus_remove_device(struct device * d
- 		sysfs_remove_link(&dev->kobj, "bus");
- 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
- 		device_remove_attrs(dev->bus, dev);
--		dev->is_registered = 0;
--		klist_del(&dev->knode_bus);
-+		if (dev->is_registered) {
-+			dev->is_registered = 0;
-+			klist_del(&dev->knode_bus);
-+		}
- 		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
- 		device_release_driver(dev);
- 		put_bus(dev->bus);
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+diff -Nurp linux-2.6.18-rc1-/arch/i386/lib/semaphore.S linux-2.6.18-rc1/arch/i386/lib/semaphore.S
+--- linux-2.6.18-rc1-/arch/i386/lib/semaphore.S	2006-10-05 09:25:44.000000000 +0200
++++ linux-2.6.18-rc1/arch/i386/lib/semaphore.S	2006-10-05 10:01:01.000000000 +0200
+@@ -153,6 +153,7 @@ ENTRY(__read_lock_failed)
+ #endif
+ 
+ /* Fix up special calling conventions */
++#ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
+ ENTRY(call_rwsem_down_read_failed)
+ 	CFI_STARTPROC
+ 	push %ecx
+@@ -214,3 +215,4 @@ ENTRY(call_rwsem_downgrade_wake)
+ 	CFI_ENDPROC
+ 	END(call_rwsem_downgrade_wake)
+ 
++#endif

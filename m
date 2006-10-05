@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWJETjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWJETmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWJETjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWJETjZ
+	id S1750788AbWJETmg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWJETmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:39:25 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:11385 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1750714AbWJETjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:39:24 -0400
-Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-In-Reply-To: <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-References: <1160025104.6504.30.camel@localhost.localdomain>
-	 <20061005143133.GA400@Krystal>
-	 <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
-	 <20061005170132.GA11149@Krystal>
-	 <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
-	 <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
-	 <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Thu, 05 Oct 2006 12:39:20 -0700
-Message-Id: <1160077160.6660.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 5 Oct 2006 15:42:36 -0400
+Received: from ns.suse.de ([195.135.220.2]:22412 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750788AbWJETmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:42:35 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+Date: Thu, 5 Oct 2006 21:42:29 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de> <45255D34.804@garzik.org>
+In-Reply-To: <45255D34.804@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610052142.29692.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 11:49 -0700, Daniel Walker wrote:
+tel 975 board and a Asus AMD K8 board with PCI Express) please share it.
+> 
+> Can you then please share the list of known BIOS bugs?
 
-> That's part of the reason for the changes that I made to the clocksource
-> API . It makes it so instrumentation, with other things, can generically
-> read a low level cycle clock. Like on PPC you would read the
-> decrementer, and on x86 you would read the TSC . However, the
-> application has no idea what it's reading.
+I already did, but here again in detail:
 
-Meant to say PowerPC uses the timebase clocksource. Sorry I've got to
-many architectures swirling around.
+Intel 9x5 hangs when you do any mmconfig access (apparently reference BIOS
+fills in bogus address). Check against ACPI resources doesn't catch it
+either.
 
-Daniel
+Mac Mini doesn't do any Type1 at all, so a verify pass that checks
+mcfg against type1 doesn't work there.
 
+AMD K8 boards with PCI-E bridges have mmconfig only 
+on some busses, but not on the internal northbridge busses. 
+MCFG can describe this by listing segments, but the contents 
+of that on many boards can be described as "fictional" at best.
+That is why Linux needs to verify that too.
+ 
+> All I have to do on my machines is work around the disable-mmconfig 
+> code, and things start working.
+
+If the choice is between a secret NDA only card with dubious
+functionality and booting on lots of modern boards I know what to 
+choose.
+
+-Andi
+ 

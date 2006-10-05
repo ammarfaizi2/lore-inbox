@@ -1,119 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWJEPmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWJEPmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWJEPmR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 11:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWJEPmR
+	id S932144AbWJEPmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 11:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWJEPmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 11:42:17 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:8070 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S932140AbWJEPmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 11:42:15 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAABnFJEWMDg0
-X-IronPort-AV: i="4.09,266,1157320800"; 
-   d="scan'208"; a="3886489:sNHT43297232"
-Date: Thu, 5 Oct 2006 17:41:52 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC] net/ipv6: seperate sit driver to extra module
-Message-ID: <20061005154152.GA2102@zlug.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Thu, 5 Oct 2006 11:42:39 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:12930 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932144AbWJEPmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 11:42:38 -0400
+Date: Thu, 05 Oct 2006 11:41:49 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Merge window closed: v2.6.19-rc1
+In-reply-to: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+To: linux-kernel@vger.kernel.org
+Message-id: <200610051141.50018.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 04 October 2006 23:29, Linus Torvalds wrote:
+>Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1
+> release.
+>
+>As usual for -rc1 with a lot of pending merges, it's a huge thing with
+>tons of changes, and in fact since 2.6.18 took longer than normal due to
+>me traveling (and others probably also being on vacations), it's possibly
+>even larger than usual.
+>
+>I think we got updates to pretty much all of the active architectures,
+>we've got VM changes (dirty shared page tracking, for example), we've got
+>networking, drivers, you name it. Even the shortlog and the diffstats are
+>too big to make the kernel mailing list, but even just the summary says
+>something:
+>
+> 4998 total commits
+> 6535 files changed, 414890 insertions(+), 233881 deletions(-)
+>
+>so please give it a good testing, and let's see if there are any
+>regressions.
+>
+>As usual, the best way to get some grip on a particular subsystem would
+>tend to be with some script like
+>
+> git log --no-merges v2.6.18.. drivers/usb | git shortlog | less -S
+>
+>which gives a more manageable overview of any particular area you're
+>interested in (in the example that would be 'drivers/usb', but you can
+>use this to browse any interesting area).
+>
+>   Linus
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I had to rebuild it 2 extra times to get all the options right, partially 
+my fault.  But once my usual .config was achieved, it back to business as 
+usual, complete with my logs being littered with this message:
 
-Is there a reason why the tunnel driver for IPv6-in-IPv4 is currently
-compiled into the ipv6 module? This driver is only needed in gateways
-between different IPv6 networks. On all other hosts with ipv6 enabled it
-is not required. To have this driver in a seperate module will save
-memory on those machines.
-I appended a small and trival patch to 2.6.18 which does exactly this.
+Oct  5 11:14:40 coyote kernel: usb 3-2.1: reset low speed USB device using 
+ohci_hcd and address 3
 
-Joerg
+This is my only (so far) minor nit to pick.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_sit_as_module
+[root@coyote linux-2.6.19-rc1]# lsusb
+[...]
+Bus 003 Device 003: ID 045e:008c Microsoft Corp.
+[...]
 
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/af_inet6.c linux-2.6.18/net/ipv6/af_inet6.c
---- linux-2.6.18-vanilla/net/ipv6/af_inet6.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/af_inet6.c	2006-10-05 16:55:02.000000000 +0200
-@@ -849,7 +849,6 @@ static int __init inet6_init(void)
- 	err = addrconf_init();
- 	if (err)
- 		goto addrconf_fail;
--	sit_init();
- 
- 	/* Init v6 extension headers. */
- 	ipv6_rthdr_init();
-@@ -920,7 +919,6 @@ static void __exit inet6_exit(void)
-  	raw6_proc_exit();
- #endif
- 	/* Cleanup code parts. */
--	sit_cleanup();
- 	ip6_flowlabel_cleanup();
- 	addrconf_cleanup();
- 	ip6_route_cleanup();
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Kconfig linux-2.6.18/net/ipv6/Kconfig
---- linux-2.6.18-vanilla/net/ipv6/Kconfig	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/Kconfig	2006-10-05 17:07:11.000000000 +0200
-@@ -126,6 +126,19 @@ config INET6_XFRM_MODE_TUNNEL
- 
- 	  If unsure, say Y.
- 
-+config IPV6_SIT
-+	tristate "IPv6: IPv6-in-IPv4 tunnel (SIT driver)"
-+	depends on IPV6
-+	default n
-+	---help---
-+	  Tunneling means encapsulating data of one protocol type within
-+	  another protocol and sending it over a channel that understands the
-+	  encapsulating protocol. This driver implements encapsulation of IPv6
-+	  into IPv4 packets. This is usefull if you want to connect two IPv6
-+	  networks over an IPv4-only path.
-+
-+	  Saying M here will produce a module called sit.ko. If unsure, say N.
-+
- config IPV6_TUNNEL
- 	tristate "IPv6: IPv6-in-IPv6 tunnel"
- 	select INET6_TUNNEL
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Makefile linux-2.6.18/net/ipv6/Makefile
---- linux-2.6.18-vanilla/net/ipv6/Makefile	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/Makefile	2006-10-05 17:10:42.000000000 +0200
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_IPV6) += ipv6.o
- 
--ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o sit.o \
-+ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o \
- 		route.o ip6_fib.o ipv6_sockglue.o ndisc.o udp.o raw.o \
- 		protocol.o icmp.o mcast.o reassembly.o tcp_ipv6.o \
- 		exthdrs.o sysctl_net_ipv6.o datagram.o proc.o \
-@@ -24,6 +24,7 @@ obj-$(CONFIG_INET6_XFRM_MODE_TRANSPORT) 
- obj-$(CONFIG_INET6_XFRM_MODE_TUNNEL) += xfrm6_mode_tunnel.o
- obj-$(CONFIG_NETFILTER)	+= netfilter/
- 
-+obj-$(CONFIG_IPV6_SIT) += sit.o
- obj-$(CONFIG_IPV6_TUNNEL) += ip6_tunnel.o
- 
- obj-y += exthdrs_core.o
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/sit.c linux-2.6.18/net/ipv6/sit.c
---- linux-2.6.18-vanilla/net/ipv6/sit.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/sit.c	2006-10-05 16:55:02.000000000 +0200
-@@ -850,3 +850,6 @@ int __init sit_init(void)
- 	inet_del_protocol(&sit_protocol, IPPROTO_IPV6);
- 	goto out;
- }
-+
-+module_init(sit_init);
-+module_exit(sit_cleanup);
+Now, I'd assume its referring to my mouse, the Microsoft Corp entry above, 
+which has had a fresh set of batteries installed without effecting this, 
+and I even removed the batteries from another usb/bluetooth mouse I use on 
+my lappy when its powered up, all without effecting this apparently 
+innocuous error as the mouse itself works just fine.  The receiver is 
+about 3 feet away as the tower is at least 5 feet away, under an adjacent 
+desk.
 
---UugvWAfsgieZRqgk--
+This started at about the same time I jumped from a 2.6.16-something to the 
+2nd rc of 2.6.18, and has continued more or less un-abated since.  Doing a 
+reset/reconfigure on the mouse and base station does not appear to 
+generate any log messages, nor to effect the random logging of the above 
+messages.
+
+Does anyone have a suggestion?
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWJEAgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWJEAgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWJEAgj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Oct 2006 20:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWJEAgj
+	id S1751269AbWJEAgv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Oct 2006 20:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWJEAgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Oct 2006 20:36:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751268AbWJEAgi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Oct 2006 20:36:38 -0400
-Date: Wed, 4 Oct 2006 17:36:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: John Keller <jpk@sgi.com>, linux-ia64@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] [PATCH 1/3] - Altix: Add initial ACPI IO
- support
-Message-Id: <20061004173633.c193eafd.akpm@osdl.org>
-In-Reply-To: <20061004225649.GB14395@kroah.com>
-References: <20061004214925.3193.26724.sendpatchset@attica.americas.sgi.com>
-	<20061004225649.GB14395@kroah.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Oct 2006 20:36:51 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:11508 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751269AbWJEAgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Oct 2006 20:36:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PqJ4tOMd/Aq9ebuFxOY9fNLnZx4dMP0mKNpO2InuWTW2DXq7o64eby7tNOOJlwpKstNvShRJWu3ZItYYUrj2IHzmYSYNDWkK1tkXMbzZgUIm2coFN8xFimY6D02qqSqbh2b9IbzdbgP28ltwIBIeF4NmSbJ5JKRhCcOSHj3WEsc=
+Message-ID: <7f9863480610041736k2fe84c6bqd1d9740868dedf7d@mail.gmail.com>
+Date: Thu, 5 Oct 2006 10:36:49 +1000
+From: "Mark Assad" <massad@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] itmtouch: fix inverted flag to indicate touch location correctly
+Cc: trivial@kernel.org, hc@mivu.no, torvalds@osdl.org, dtor@mail.ru
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006 15:56:49 -0700
-Greg KH <greg@kroah.com> wrote:
+From: Mark Assad <massad@gmail.com>
 
-> On Wed, Oct 04, 2006 at 04:49:25PM -0500, John Keller wrote:
-> > First phase in introducing ACPI support to SN.
-> > In this phase, when running with an ACPI capable PROM,
-> > the DSDT will define the root busses and all SN nodes
-> > (SGIHUB, SGITIO). An ACPI bus driver will be registered
-> > for the node devices, with the acpi_pci_root_driver being
-> > used for the root busses. An ACPI vendor descriptor is
-> > now used to pass platform specific information for both
-> > nodes and busses, eliminating the need for the current
-> > SAL calls. Also, with ACPI support, SN fixup code is no longer
-> > needed to initiate the PCI bus scans, as the acpi_pci_root_driver
-> > does that.
-> 
-> How do these three patches differ from the ones I added to my tree
-> yesterday?
+There is a bug in the current version of the itmtouch USB touchscreen
+driver. The if statment that checks if pressure is being applied to
+the touch screen is now missing a ! (not), so events are no longer
+being reported correctly.
 
-A bunch of other stuff got merged out of order this morning and broke your
-tree.  I asked John for a rediff.  Check your inbox ;)
+The origonal source code for this line was as follows:
+#define UCP(x) ((unsigned char*)(x))
+#define UCOM(x,y,z) ((UCP((x)->transfer_buffer)[y]) & (z))
+if (!UCOM(urb, 7, 0x20)) {
 
-> > Resend #2 - resync with TOT
-> 
-> "TOT"?
+And was cleaned to:
+ unsigned char *data = urb->transfer_buffer;
+....
+ if (data[7] & 0x20) {
 
-tip-of-tree.
+(note the lack of ! )
+
+This has been tested on an LG L1510BF and an LG1510SF touch screen.
+
+Patched applied from: linux-2.6.18
+
+Signed-off-by: Mark Assad <massad@gmail.com>
+
+---
+
+--- linux-2.6.18/drivers/usb/input/itmtouch.c   2006-09-20
+13:42:06.000000000 +1000
++++ linux/drivers/usb/input/itmtouch.c  2006-10-05 09:49:56.000000000 +1000
+@@ -36,7 +36,11 @@
+  *
+  * 1.2.1  09/03/2005 (HCE) hc@mivu.no
+  *   Code cleanup and adjusting syntax to start matching kernel standards
+- *
++ *
++ * 1.2.2  10/05/2006 (MJA) massad@gmail.com
++ *   Flag for detecting if the screen was being touch was incorrectly
++ *   inverted, so no touch events were being detected.
++ *
+  *****************************************************************************/
+
+ #include <linux/kernel.h>
+@@ -53,7 +57,7 @@
+ #define USB_PRODUCT_ID_TOUCHPANEL      0xf9e9
+
+ #define DRIVER_AUTHOR "Hans-Christian Egtvedt <hc@mivu.no>"
+-#define DRIVER_VERSION "v1.2.1"
++#define DRIVER_VERSION "v1.2.2"
+ #define DRIVER_DESC "USB ITM Inc Touch Panel Driver"
+ #define DRIVER_LICENSE "GPL"
+
+@@ -108,7 +112,7 @@ static void itmtouch_irq(struct urb *urb
+        input_regs(dev, regs);
+
+        /* if pressure has been released, then don't report X/Y */
+-       if (data[7] & 0x20) {
++       if (!(data[7] & 0x20)) {
+                input_report_abs(dev, ABS_X, (data[0] & 0x1F) << 7 |
+(data[3] & 0x7F));
+                input_report_abs(dev, ABS_Y, (data[1] & 0x1F) << 7 |
+(data[4] & 0x7F));
+        }

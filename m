@@ -1,241 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWJERGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWJERF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751434AbWJERGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 13:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWJERGj
+	id S1751388AbWJERF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 13:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWJERF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 13:06:39 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:22923 "EHLO
+	Thu, 5 Oct 2006 13:05:57 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:20363 "EHLO
 	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1751434AbWJERGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 13:06:37 -0400
+	id S1751001AbWJERF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 13:05:56 -0400
 From: Matthew Wilcox <matthew@wil.cx>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>
-Subject: [PATCH] Centralise definitions of sector_t and blkcnt_t
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Matthew Wilcox <matthew@wil.cx>,
+       Matthew Wilcox <willy@parisc-linux.org>
+Subject: [PATCH] Use linux/io.h instead of asm/io.h
 Reply-To: Matthew Wilcox <matthew@wil.cx>
-Date: Thu, 05 Oct 2006 11:04:11 -0600
-Message-Id: <11600678512429-git-send-email-matthew@wil.cx>
+Date: Thu, 05 Oct 2006 11:05:54 -0600
+Message-Id: <11600679551209-git-send-email-matthew@wil.cx>
 X-Mailer: git-send-email 1.4.1.1
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: SpamAssassin version 3.0.6 on pentafluge.infradead.org summary:
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 FORGED_RCVD_HELO       Received: contains a forged HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_LBD and CONFIG_LSF are spread into asm/types.h for no particularly
-good reason.  Centralising the definition in linux/types.h means that arch
-maintainers don't need to bother adding it, as well as fixing the problem
-with x86-64 users being asked to make a decision that has absolutely no
-effect.  The H8/300 porters seem particularly confused since I'm not aware
-of any microcontrollers that need to support 2TB filesystems these days.
+In preparation for moving check_signature, change these users from
+asm/io.h to linux/io.h
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Signed-off-by: Matthew Wilcox <willy@parisc-linux.org>
 ---
- block/Kconfig               |    6 ++----
- include/asm-h8300/types.h   |    6 ------
- include/asm-i386/types.h    |   10 ----------
- include/asm-mips/types.h    |   10 ----------
- include/asm-powerpc/types.h |   10 ----------
- include/asm-s390/types.h    |   10 ----------
- include/asm-sh/types.h      |   10 ----------
- include/asm-x86_64/types.h  |    3 ---
- include/linux/types.h       |   14 +++++++++-----
- 9 files changed, 11 insertions(+), 68 deletions(-)
+ drivers/block/xd.c                |    2 +-
+ drivers/input/misc/wistron_btns.c |    2 +-
+ drivers/net/eth16i.c              |    2 +-
+ drivers/scsi/aha152x.c            |    2 +-
+ drivers/scsi/dtc.c                |    2 +-
+ drivers/scsi/fdomain.c            |    2 +-
+ drivers/scsi/seagate.c            |    2 +-
+ drivers/scsi/t128.c               |    2 +-
+ drivers/scsi/wd7000.c             |    2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/block/Kconfig b/block/Kconfig
-index 83766a6..a50f481 100644
---- a/block/Kconfig
-+++ b/block/Kconfig
-@@ -19,11 +19,9 @@ config BLOCK
+diff --git a/drivers/block/xd.c b/drivers/block/xd.c
+index ebf3025..dd43361 100644
+--- a/drivers/block/xd.c
++++ b/drivers/block/xd.c
+@@ -48,9 +48,9 @@ #include <linux/wait.h>
+ #include <linux/blkdev.h>
+ #include <linux/blkpg.h>
+ #include <linux/delay.h>
++#include <linux/io.h>
  
- if BLOCK
+ #include <asm/system.h>
+-#include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/dma.h>
  
--#XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
--#for instance.
- config LBD
- 	bool "Support for Large Block Devices"
--	depends on X86 || (MIPS && 32BIT) || PPC32 || (S390 && !64BIT) || SUPERH || UML
-+	depends on !64BIT
- 	help
- 	  Say Y here if you want to attach large (bigger than 2TB) discs to
- 	  your machine, or if you want to have a raid or loopback device
-@@ -44,7 +42,7 @@ config BLK_DEV_IO_TRACE
- 
- config LSF
- 	bool "Support for Large Single Files"
--	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
-+	depends on !64BIT
- 	help
- 	  Say Y here if you want to be able to handle very large files (bigger
- 	  than 2TB), otherwise say N.
-diff --git a/include/asm-h8300/types.h b/include/asm-h8300/types.h
-index da2402b..2a8b1b2 100644
---- a/include/asm-h8300/types.h
-+++ b/include/asm-h8300/types.h
-@@ -55,12 +55,6 @@ #define BITS_PER_LONG 32
- 
- typedef u32 dma_addr_t;
- 
--#define HAVE_SECTOR_T
--typedef u64 sector_t;
--
--#define HAVE_BLKCNT_T
--typedef u64 blkcnt_t;
--
- #endif /* __KERNEL__ */
- 
- #endif /* __ASSEMBLY__ */
-diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
-index 4b4b295..ad0a55b 100644
---- a/include/asm-i386/types.h
-+++ b/include/asm-i386/types.h
-@@ -57,16 +57,6 @@ typedef u32 dma_addr_t;
- #endif
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/include/asm-mips/types.h b/include/asm-mips/types.h
-index 2b52e18..63a13c5 100644
---- a/include/asm-mips/types.h
-+++ b/include/asm-mips/types.h
-@@ -93,16 +93,6 @@ #else
- typedef unsigned long phys_t;
- #endif
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/include/asm-powerpc/types.h b/include/asm-powerpc/types.h
-index d6fb56b..3b36375 100644
---- a/include/asm-powerpc/types.h
-+++ b/include/asm-powerpc/types.h
-@@ -97,16 +97,6 @@ typedef struct {
- 	unsigned long env;
- } func_descr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/include/asm-s390/types.h b/include/asm-s390/types.h
-index ae2951c..fc5d7cf 100644
---- a/include/asm-s390/types.h
-+++ b/include/asm-s390/types.h
-@@ -87,16 +87,6 @@ typedef union {
- 	} subreg;
- } register_pair;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* ! __s390x__   */
- #endif /* __ASSEMBLY__  */
- #endif /* __KERNEL__    */
-diff --git a/include/asm-sh/types.h b/include/asm-sh/types.h
-index 3c09dd4..fd00dbb 100644
---- a/include/asm-sh/types.h
-+++ b/include/asm-sh/types.h
-@@ -52,16 +52,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/include/asm-x86_64/types.h b/include/asm-x86_64/types.h
-index c86c2e6..2d4491a 100644
---- a/include/asm-x86_64/types.h
-+++ b/include/asm-x86_64/types.h
-@@ -48,9 +48,6 @@ typedef unsigned long long u64;
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/include/linux/types.h b/include/linux/types.h
-index 750f085..c0fa603 100644
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -134,15 +134,19 @@ #define aligned_u64 unsigned long long _
-  *
-  * Linux always considers sectors to be 512 bytes long independently
-  * of the devices real block size.
-- *
-- * If required, asm/types.h can override it and define
-- * HAVE_SECTOR_T
+diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
+index 4639537..7b9d1c1 100644
+--- a/drivers/input/misc/wistron_btns.c
++++ b/drivers/input/misc/wistron_btns.c
+@@ -17,7 +17,7 @@
+  * with this program; if not, write to the Free Software Foundation, Inc.,
+  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
   */
--#ifndef HAVE_SECTOR_T
-+#ifdef CONFIG_LBD
-+typedef u64 sector_t;
-+#else
- typedef unsigned long sector_t;
- #endif
+-#include <asm/io.h>
++#include <linux/io.h>
+ #include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
+diff --git a/drivers/net/eth16i.c b/drivers/net/eth16i.c
+index f16b6a5..a731c10 100644
+--- a/drivers/net/eth16i.c
++++ b/drivers/net/eth16i.c
+@@ -162,9 +162,9 @@ #include <linux/etherdevice.h>
+ #include <linux/skbuff.h>
+ #include <linux/bitops.h>
+ #include <linux/jiffies.h>
++#include <linux/io.h>		  
  
--#ifndef HAVE_BLKCNT_T
-+/*
-+ * The type of the inode's block count.
-+ */
-+#ifdef CONFIG_LSF
-+typedef u64 blkcnt_t;
-+#else
- typedef unsigned long blkcnt_t;
- #endif
+ #include <asm/system.h>
+-#include <asm/io.h>
+ #include <asm/dma.h>
  
+ 
+diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
+index fb6a476..004c152 100644
+--- a/drivers/scsi/aha152x.c
++++ b/drivers/scsi/aha152x.c
+@@ -238,7 +238,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <asm/irq.h>
+-#include <asm/io.h>
++#include <linux/io.h>
+ #include <linux/blkdev.h>
+ #include <asm/system.h>
+ #include <linux/errno.h>
+diff --git a/drivers/scsi/dtc.c b/drivers/scsi/dtc.c
+index 0d5713d..5475672 100644
+--- a/drivers/scsi/dtc.c
++++ b/drivers/scsi/dtc.c
+@@ -82,7 +82,7 @@ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <asm/io.h>
++#include <linux/io.h>
+ #include "scsi.h"
+ #include <scsi/scsi_host.h>
+ #include "dtc.h"
+diff --git a/drivers/scsi/fdomain.c b/drivers/scsi/fdomain.c
+index b0694dc..df1ec7c 100644
+--- a/drivers/scsi/fdomain.c
++++ b/drivers/scsi/fdomain.c
+@@ -278,9 +278,9 @@ #include <linux/proc_fs.h>
+ #include <linux/pci.h>
+ #include <linux/stat.h>
+ #include <linux/delay.h>
++#include <linux/io.h>
+ #include <scsi/scsicam.h>
+ 
+-#include <asm/io.h>
+ #include <asm/system.h>
+ 
+ #include <scsi/scsi.h>
+diff --git a/drivers/scsi/seagate.c b/drivers/scsi/seagate.c
+index 4e6666c..0ade232 100644
+--- a/drivers/scsi/seagate.c
++++ b/drivers/scsi/seagate.c
+@@ -97,8 +97,8 @@ #include <linux/init.h>
+ #include <linux/blkdev.h>
+ #include <linux/stat.h>
+ #include <linux/delay.h>
++#include <linux/io.h>
+ 
+-#include <asm/io.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ 
+diff --git a/drivers/scsi/t128.c b/drivers/scsi/t128.c
+index 2df6747..0b7a70f 100644
+--- a/drivers/scsi/t128.c
++++ b/drivers/scsi/t128.c
+@@ -109,7 +109,7 @@ #define PSEUDO_DMA
+ #include <asm/system.h>
+ #include <linux/signal.h>
+ #include <linux/sched.h>
+-#include <asm/io.h>
++#include <linux/io.h>
+ #include <linux/blkdev.h>
+ #include <linux/interrupt.h>
+ #include <linux/stat.h>
+diff --git a/drivers/scsi/wd7000.c b/drivers/scsi/wd7000.c
+index a0b61af..96ec581 100644
+--- a/drivers/scsi/wd7000.c
++++ b/drivers/scsi/wd7000.c
+@@ -178,10 +178,10 @@ #include <linux/proc_fs.h>
+ #include <linux/blkdev.h>
+ #include <linux/init.h>
+ #include <linux/stat.h>
++#include <linux/io.h>
+ 
+ #include <asm/system.h>
+ #include <asm/dma.h>
+-#include <asm/io.h>
+ 
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
 -- 
 1.4.1.1
+

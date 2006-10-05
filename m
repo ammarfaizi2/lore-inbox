@@ -1,80 +1,283 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJETsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWJETtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWJETsl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWJETsl
+	id S1751053AbWJETtM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWJETtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:48:41 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:21664 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1751037AbWJETsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:48:40 -0400
-To: balagi@justmail.de
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "akpm@osdl.org" <akpm@osdl.org>
-Subject: Re: [PATCH 7/11] 2.6.18-mm3 pktcdvd: make procfs interface optional
-References: <op.tguqh5r2iudtyh@master>
-From: Peter Osterlund <petero2@telia.com>
-Date: 05 Oct 2006 21:48:29 +0200
-In-Reply-To: <op.tguqh5r2iudtyh@master>
-Message-ID: <m3k63emtma.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Thu, 5 Oct 2006 15:49:11 -0400
+Received: from mga06.intel.com ([134.134.136.21]:54315 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751053AbWJETtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:49:09 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,266,1157353200"; 
+   d="scan'208"; a="140974341:sNHT32399668"
+From: Reinette Chatre <reinette.chatre@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] bitmap: parse kernel and user buffers
+Date: Thu, 5 Oct 2006 12:49:07 -0700
+User-Agent: KMail/1.9.4
+Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>,
+       Joe Korty <joe.korty@ccur.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, reinette.chatre@linux.intel.com
+References: <200610041756.30528.reinette.chatre@linux.intel.com> <200610041833.40866.inaky@linux.intel.com> <20061004185747.4cb64048.akpm@osdl.org>
+In-Reply-To: <20061004185747.4cb64048.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610051249.07856.reinette.chatre@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Thomas Maier" <balagi@justmail.de> writes:
+lib/bitmap.c:bitmap_parse() is a library function that received as
+input a user buffer. This seemed to have originated from the way the
+write_proc function of the /proc filesystem operates.
 
-> this patch makes the procfs interface optional and groups
-> the procfs functions together.
-> New kernel config parameter: CDROM_PKTCDVD_PROCINTF
+This has been reworked as follows:
+- don't use kmalloc
+- eliminates a lot of get_user overhead by performing one access_ok
+  before using __get_user
+- access kernel buffer using __get_user(kernel_address)
 
-The Kconfig help text update looks good (slightly modified). Andrew,
-please apply:
+This function will be useful for other uses as well; for example,
+taking input  for /sysfs instead of /proc, so it was changed to accept
+kernel buffers. We have this use for the Linux UWB project, as part as
+the upcoming bandwidth allocator code.
+
+Only a few routines used this function and they were changed too.
 
 
-From: Thomas Maier <balagi@justmail.de>
-
-pktcdvd: Update Kconfig help text.
-
-Signed-off-by: Thomas Maier <balagi@justmail.de>
-Signed-off-by: Peter Osterlund <petero2@telia.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@linux.intel.com>
 
 ---
+This is an updated version of patch 
+bitmap-bitmap_parse-takes-a-kernel-buffer-instead-of-a-user-buffer.patch 
 
- drivers/block/Kconfig |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
+With the usage of access_ok() before __get_user(), is it still necessary
+to check the return code of __get_user? We currently do this.
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index 17dc222..f7eb08b 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -429,14 +429,18 @@ config CDROM_PKTCDVD
- 	tristate "Packet writing on CD/DVD media"
- 	depends on !UML
- 	help
--	  If you have a CDROM drive that supports packet writing, say Y to
--	  include preliminary support. It should work with any MMC/Mt Fuji
--	  compliant ATAPI or SCSI drive, which is just about any newer CD
--	  writer.
-+	  If you have a CDROM/DVD drive that supports packet writing, say
-+	  Y to include support. It should work with any MMC/Mt Fuji
-+	  compliant ATAPI or SCSI drive, which is just about any newer
-+	  DVD/CD writer.
+ include/linux/bitmap.h   |    7 +++++--
+ include/linux/cpumask.h  |   14 +++++++-------
+ include/linux/nodemask.h |   14 +++++++-------
+ kernel/irq/proc.c        |    2 +-
+ kernel/profile.c         |    2 +-
+ lib/bitmap.c             |   47 +++++++++++++++++++++++++++++++++++++++--------
+ 6 files changed, 60 insertions(+), 26 deletions(-)
+
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/bitmap.h linux-2.6.hg/include/linux/bitmap.h
+--- linux-2.6.hg.vanilla/include/linux/bitmap.h	2006-10-02 14:04:35.000000000 -0700
++++ linux-2.6.hg/include/linux/bitmap.h	2006-10-05 11:35:51.000000000 -0700
+@@ -46,7 +46,8 @@
+  * bitmap_remap(dst, src, old, new, nbits)	*dst = map(old, new)(src)
+  * bitmap_bitremap(oldbit, old, new, nbits)	newbit = map(old, new)(oldbit)
+  * bitmap_scnprintf(buf, len, src, nbits)	Print bitmap src to buf
+- * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from user buf
++ * bitmap_parse(buf, buflen, dst, nbits)	Parse bitmap dst from buf
++ * bitmap_parse_user(ubuf, ulen, dst, nbits)	Parse bitmap dst from user buf
+  * bitmap_scnlistprintf(buf, len, src, nbits)	Print bitmap src as list to buf
+  * bitmap_parselist(buf, dst, nbits)		Parse bitmap dst from list
+  * bitmap_find_free_region(bitmap, bits, order)	Find and allocate bit region
+@@ -106,7 +107,9 @@ extern int __bitmap_weight(const unsigne
  
--	  Currently only writing to CD-RW, DVD-RW and DVD+RW discs is possible.
-+	  Currently only writing to CD-RW, DVD-RW, DVD+RW and DVDRAM discs
-+	  is possible.
- 	  DVD-RW disks must be in restricted overwrite mode.
+ extern int bitmap_scnprintf(char *buf, unsigned int len,
+ 			const unsigned long *src, int nbits);
+-extern int bitmap_parse(const char __user *ubuf, unsigned int ulen,
++extern int bitmap_parse(const char *buf, unsigned int buflen,
++			unsigned long *dst, int nbits);
++extern int bitmap_parse_user(const char __user *ubuf, unsigned int ulen,
+ 			unsigned long *dst, int nbits);
+ extern int bitmap_scnlistprintf(char *buf, unsigned int len,
+ 			const unsigned long *src, int nbits);
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/lib/bitmap.c linux-2.6.hg/lib/bitmap.c
+--- linux-2.6.hg.vanilla/lib/bitmap.c	2006-10-02 14:04:39.000000000 -0700
++++ linux-2.6.hg/lib/bitmap.c	2006-10-05 11:40:40.000000000 -0700
+@@ -317,8 +317,8 @@ EXPORT_SYMBOL(bitmap_scnprintf);
  
-+	  See the file <file:Documentation/cdrom/packet-writing.txt>
-+	  for further information on the use of this driver.
+ /**
+  * bitmap_parse - convert an ASCII hex string into a bitmap.
+- * @ubuf: pointer to buffer in user space containing string.
+- * @ubuflen: buffer size in bytes.  If string is smaller than this
++ * @buf: pointer to buffer containing string.
++ * @buflen: buffer size in bytes.  If string is smaller than this
+  *    then it must be terminated with a \0.
+  * @maskp: pointer to bitmap array that will contain result.
+  * @nmaskbits: size of bitmap, in bits.
+@@ -329,9 +329,15 @@ EXPORT_SYMBOL(bitmap_scnprintf);
+  * then leading 0-bits are prepended.  %-EINVAL is returned for illegal
+  * characters and for grouping errors such as "1,,5", ",44", "," and "".
+  * Leading and trailing whitespace accepted, but not embedded whitespace.
++ *
++ * This function is used by a wrapper function (bitmap_parse_user())
++ * that tests (using access_ok()) a user buffer before passing it here for
++ * parsing. We need to use __get_user(). When provided with a kernel
++ * buffer we are thus using __get_user(kernel_address), which works OK and
++ * is used in several places in the core kernel.
+  */
+-int bitmap_parse(const char __user *ubuf, unsigned int ubuflen,
+-        unsigned long *maskp, int nmaskbits)
++int bitmap_parse(const char *buf, unsigned int buflen,
++		unsigned long *maskp, int nmaskbits)
+ {
+ 	int c, old_c, totaldigits, ndigits, nchunks, nbits;
+ 	u32 chunk;
+@@ -343,11 +349,11 @@ int bitmap_parse(const char __user *ubuf
+ 		chunk = ndigits = 0;
+ 
+ 		/* Get the next chunk of the bitmap */
+-		while (ubuflen) {
++		while (buflen) {
+ 			old_c = c;
+-			if (get_user(c, ubuf++))
++			if (__get_user(c, buf++))
+ 				return -EFAULT;
+-			ubuflen--;
++			buflen--;
+ 			if (isspace(c))
+ 				continue;
+ 
+@@ -388,12 +394,37 @@ int bitmap_parse(const char __user *ubuf
+ 		nbits += (nchunks == 1) ? nbits_to_hold_value(chunk) : CHUNKSZ;
+ 		if (nbits > nmaskbits)
+ 			return -EOVERFLOW;
+-	} while (ubuflen && c == ',');
++	} while (buflen && c == ',');
+ 
+ 	return 0;
+ }
+ EXPORT_SYMBOL(bitmap_parse);
+ 
++/**
++ * bitmap_parse_user()
++ *
++ * @ubuf: pointer to user buffer containing string.
++ * @ulen: buffer size in bytes.  If string is smaller than this
++ *    then it must be terminated with a \0.
++ * @maskp: pointer to bitmap array that will contain result.
++ * @nmaskbits: size of bitmap, in bits.
++ *
++ * Wrapper for bitmap_parse(), providing it with user buffer.
++ *
++ * We cannot have this as an inline function in bitmap.h because it needs
++ * linux/uaccess.h to get the access_ok() declaration and this causes
++ * cyclic dependencies.
++ */
++int bitmap_parse_user(const char __user *ubuf,
++			unsigned int ulen, unsigned long *maskp,
++			int nmaskbits)
++{
++	if (!access_ok(VERIFY_READ, ubuf, ulen))
++		return -EFAULT;
++	return bitmap_parse((const char *)ubuf, ulen, maskp, nmaskbits);
++}
++EXPORT_SYMBOL(bitmap_parse_user);
 +
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called pktcdvd.
+ /*
+  * bscnl_emit(buf, buflen, rbot, rtop, bp)
+  *
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/cpumask.h linux-2.6.hg/include/linux/cpumask.h
+--- linux-2.6.hg.vanilla/include/linux/cpumask.h	2006-10-02 14:04:35.000000000 -0700
++++ linux-2.6.hg/include/linux/cpumask.h	2006-10-04 09:07:47.000000000 -0700
+@@ -8,8 +8,8 @@
+  * See detailed comments in the file linux/bitmap.h describing the
+  * data type on which these cpumasks are based.
+  *
+- * For details of cpumask_scnprintf() and cpumask_parse(),
+- * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ * For details of cpumask_scnprintf() and cpumask_parse_user(),
++ * see bitmap_scnprintf() and bitmap_parse_user() in lib/bitmap.c.
+  * For details of cpulist_scnprintf() and cpulist_parse(), see
+  * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
+  * For details of cpu_remap(), see bitmap_bitremap in lib/bitmap.c
+@@ -49,7 +49,7 @@
+  * unsigned long *cpus_addr(mask)	Array of unsigned long's in mask
+  *
+  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
+- * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
++ * int cpumask_parse_user(ubuf, ulen, mask)	Parse ascii string as cpumask
+  * int cpulist_scnprintf(buf, len, mask) Format cpumask as list for printing
+  * int cpulist_parse(buf, map)		Parse ascii string as cpulist
+  * int cpu_remap(oldbit, old, new)	newbit = map(old, new)(oldbit)
+@@ -273,12 +273,12 @@ static inline int __cpumask_scnprintf(ch
+ 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+ }
  
+-#define cpumask_parse(ubuf, ulen, dst) \
+-			__cpumask_parse((ubuf), (ulen), &(dst), NR_CPUS)
+-static inline int __cpumask_parse(const char __user *buf, int len,
++#define cpumask_parse_user(ubuf, ulen, dst) \
++			__cpumask_parse_user((ubuf), (ulen), &(dst), NR_CPUS)
++static inline int __cpumask_parse_user(const char __user *buf, int len,
+ 					cpumask_t *dstp, int nbits)
+ {
+-	return bitmap_parse(buf, len, dstp->bits, nbits);
++	return bitmap_parse_user(buf, len, dstp->bits, nbits);
+ }
+ 
+ #define cpulist_scnprintf(buf, len, src) \
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/irq/proc.c linux-2.6.hg/kernel/irq/proc.c
+--- linux-2.6.hg.vanilla/kernel/irq/proc.c	2006-10-02 14:04:38.000000000 -0700
++++ linux-2.6.hg/kernel/irq/proc.c	2006-10-04 09:05:55.000000000 -0700
+@@ -57,7 +57,7 @@ static int irq_affinity_write_proc(struc
+ 	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity)
+ 		return -EIO;
+ 
+-	err = cpumask_parse(buffer, count, new_value);
++	err = cpumask_parse_user(buffer, count, new_value);
+ 	if (err)
+ 		return err;
+ 
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/profile.c linux-2.6.hg/kernel/profile.c
+--- linux-2.6.hg.vanilla/kernel/profile.c	2006-10-02 14:04:38.000000000 -0700
++++ linux-2.6.hg/kernel/profile.c	2006-10-04 09:45:01.000000000 -0700
+@@ -396,7 +396,7 @@ static int prof_cpu_mask_write_proc (str
+ 	unsigned long full_count = count, err;
+ 	cpumask_t new_value;
+ 
+-	err = cpumask_parse(buffer, count, new_value);
++	err = cpumask_parse_user(buffer, count, new_value);
+ 	if (err)
+ 		return err;
+ 
+diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/nodemask.h linux-2.6.hg/include/linux/nodemask.h
+--- linux-2.6.hg.vanilla/include/linux/nodemask.h	2006-10-03 16:58:10.000000000 -0700
++++ linux-2.6.hg/include/linux/nodemask.h	2006-10-04 09:19:52.000000000 -0700
+@@ -8,8 +8,8 @@
+  * See detailed comments in the file linux/bitmap.h describing the
+  * data type on which these nodemasks are based.
+  *
+- * For details of nodemask_scnprintf() and nodemask_parse(),
+- * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ * For details of nodemask_scnprintf() and nodemask_parse_user(),
++ * see bitmap_scnprintf() and bitmap_parse_user() in lib/bitmap.c.
+  * For details of nodelist_scnprintf() and nodelist_parse(), see
+  * bitmap_scnlistprintf() and bitmap_parselist(), also in bitmap.c.
+  * For details of node_remap(), see bitmap_bitremap in lib/bitmap.c.
+@@ -51,7 +51,7 @@
+  * unsigned long *nodes_addr(mask)	Array of unsigned long's in mask
+  *
+  * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
+- * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
++ * int nodemask_parse_user(ubuf, ulen, mask)	Parse ascii string as nodemask
+  * int nodelist_scnprintf(buf, len, mask) Format nodemask as list for printing
+  * int nodelist_parse(buf, map)		Parse ascii string as nodelist
+  * int node_remap(oldbit, old, new)	newbit = map(old, new)(oldbit)
+@@ -288,12 +288,12 @@ static inline int __nodemask_scnprintf(c
+ 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+ }
+ 
+-#define nodemask_parse(ubuf, ulen, dst) \
+-			__nodemask_parse((ubuf), (ulen), &(dst), MAX_NUMNODES)
+-static inline int __nodemask_parse(const char __user *buf, int len,
++#define nodemask_parse_user(ubuf, ulen, dst) \
++		__nodemask_parse_user((ubuf), (ulen), &(dst), MAX_NUMNODES)
++static inline int __nodemask_parse_user(const char __user *buf, int len,
+ 					nodemask_t *dstp, int nbits)
+ {
+-	return bitmap_parse(buf, len, dstp->bits, nbits);
++	return bitmap_parse_user(buf, len, dstp->bits, nbits);
+ }
+ 
+ #define nodelist_scnprintf(buf, len, src) \
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

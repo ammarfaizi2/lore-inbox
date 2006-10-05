@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWJEVqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWJEVpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWJEVqA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 17:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWJEVp7
+	id S932262AbWJEVpL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 17:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWJEVl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 17:45:59 -0400
-Received: from mx1.suse.de ([195.135.220.2]:4258 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932292AbWJEVp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 17:45:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: Re: [PATCH 02/14] uml: revert wrong patch
-Date: Thu, 5 Oct 2006 23:45:09 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org,
+	Thu, 5 Oct 2006 17:41:58 -0400
+Received: from smtp010.mail.ukl.yahoo.com ([217.12.11.79]:25782 "HELO
+	smtp010.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932248AbWJEVln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 17:41:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
+  b=bVcD/kk7t3Z/hDowwCPLRt5LWPHrMyAxwrWFdTGDVUzZqHpkhRcIm5oZfWVrCT3wKWr0Urw8O6zMO/KB9qQretaUvsAXXUHp3knwtO09djW5G0amNNWVZxpYFqieLhIL8txpObVIhVq8whYLdAwGmmSe6M0a1LVfPUZ9mmpvf5k=  ;
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 03/14] uml: correct removal of pte_mkexec
+Date: Thu, 05 Oct 2006 23:38:43 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-References: <20061005213212.17268.7409.stgit@memento.home.lan> <20061005213839.17268.28062.stgit@memento.home.lan>
-In-Reply-To: <20061005213839.17268.28062.stgit@memento.home.lan>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610052345.09704.ak@suse.de>
+Message-Id: <20061005213843.17268.83159.stgit@memento.home.lan>
+In-Reply-To: <20061005213212.17268.7409.stgit@memento.home.lan>
+References: <20061005213212.17268.7409.stgit@memento.home.lan>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 23:38, Paolo 'Blaisorblade' Giarrusso wrote:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-> Andi Kleen pointed out that -mcmodel=kernel does not make sense for userspace
-> code and would stop everything from working, 
+Correct commit 5906e4171ad61ce68de95e51b773146707671f80 - this makes more sense:
+we turn pte_mkexec + pte_wrprotect to pte_mkread. However, due to a bug in
+pte_mkread, it does the exact same thing as pte_mkwrite, so this patch improves
+the code but does not change anything in practice. The pte_mkread bug is fixed
+separately, as it may have big impact.
 
-did it work at all with it? 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
--Andi
+ arch/um/kernel/skas/mmu.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
+
+diff --git a/arch/um/kernel/skas/mmu.c b/arch/um/kernel/skas/mmu.c
+index c17eddc..2c6d090 100644
+--- a/arch/um/kernel/skas/mmu.c
++++ b/arch/um/kernel/skas/mmu.c
+@@ -60,10 +60,7 @@ #ifdef CONFIG_3_LEVEL_PGTABLES
+ #endif
+ 
+ 	*pte = mk_pte(virt_to_page(kernel), __pgprot(_PAGE_PRESENT));
+-	/* This is wrong for the code page, but it doesn't matter since the
+-	 * stub is mapped by hand with the correct permissions.
+-	 */
+-	*pte = pte_mkwrite(*pte);
++	*pte = pte_mkread(*pte);
+ 	return(0);
+ 
+  out_pmd:
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

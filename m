@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWJETcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWJETjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbWJETcK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 15:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWJETcK
+	id S1750714AbWJETjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 15:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWJETjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 15:32:10 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:3858 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750999AbWJETcI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 15:32:08 -0400
-Date: Thu, 5 Oct 2006 15:31:20 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-Cc: Alex Owen <r.alex.owen@gmail.com>, linux-kernel@vger.kernel.org,
-       aabdulla@nvidia.com, "H. Peter Anvin" <hpa@zytor.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: forcedeth net driver: reverse mac address after pxe boot
-Message-ID: <20061005193113.GE18408@tuxdriver.com>
-References: <55c223960610040919u221deffei5a5b6c37cfc8eb5a@mail.gmail.com> <20061005144442.GB18408@tuxdriver.com> <45255059.3040908@gmx.net>
+	Thu, 5 Oct 2006 15:39:25 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:11385 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750714AbWJETjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 15:39:24 -0400
+Subject: Re: [RFC] The New and Improved Logdev (now with kprobes!)
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@sous-sol.org>, fche@redhat.com,
+       Tom Zanussi <zanussi@us.ibm.com>
+In-Reply-To: <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+References: <1160025104.6504.30.camel@localhost.localdomain>
+	 <20061005143133.GA400@Krystal>
+	 <Pine.LNX.4.58.0610051054300.28606@gandalf.stny.rr.com>
+	 <20061005170132.GA11149@Krystal>
+	 <Pine.LNX.4.58.0610051309090.30291@gandalf.stny.rr.com>
+	 <1160072999.6660.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <Pine.LNX.4.58.0610051438010.31280@gandalf.stny.rr.com>
+	 <1160074147.6660.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Thu, 05 Oct 2006 12:39:20 -0700
+Message-Id: <1160077160.6660.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45255059.3040908@gmx.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 08:35:05PM +0200, Carl-Daniel Hailfinger wrote:
-> John W. Linville wrote:
-> > On Wed, Oct 04, 2006 at 05:19:20PM +0100, Alex Owen wrote:
-> > 
-> >> The obvious fix for this is to try and read the MAC address from the
-> >> canonical location... ie where is the source of the address writen
-> >> into the controlers registers at power on? But do we know where that
-> >> may be?
-> > 
-> > This seems like The Right Thing (TM) to me, but we need someone from
-> > NVidia(?) to provide that information.  Ayaz?
-> 
-> The canonical location of the "original" MAC address is where we write
-> back the reversed MAC address. So that won't work.
+On Thu, 2006-10-05 at 11:49 -0700, Daniel Walker wrote:
 
-I think you misunderstand the suggestion (which is admittedly based
-on supposition).
+> That's part of the reason for the changes that I made to the clocksource
+> API . It makes it so instrumentation, with other things, can generically
+> read a low level cycle clock. Like on PPC you would read the
+> decrementer, and on x86 you would read the TSC . However, the
+> application has no idea what it's reading.
 
-On most devices, the MAC address is programmed into a register at
-runtime.  It is not "burned-in" to the device itself.  Instead it is
-usually stored in some sort of eeprom/nvram/flash/whatever.  The driver
-retrieves it at runtime from the nvram and programs it into the device.
+Meant to say PowerPC uses the timebase clocksource. Sorry I've got to
+many architectures swirling around.
 
-In this case, the forcedeth driver is retrieving the MAC address from
-a register, reversing it, and writing it back to the _same_ register.
-Experience suggests that this register is unlikely to have "magically"
-received that information.  The supposition is that instead some
-firmware has pre-loaded the register, perhaps at IPL?
+Daniel
 
-It is possible that the device itself is loading the MAC address
-from e.g. a serial eeprom tied to the device and inaccessible to
-the CPU.  If that is the case, there may be no other solution than
-the current silliness.  Since the driver is reversed engineered,
-the current silliness (and a prayer for fixed PXE firmware) is the
-only good alternative we have.
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

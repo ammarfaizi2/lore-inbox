@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWJEXOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWJEXQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWJEXOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 19:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWJEXOU
+	id S932416AbWJEXQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 19:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWJEXQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 19:14:20 -0400
-Received: from ns2.suse.de ([195.135.220.15]:47007 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751411AbWJEXOS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 19:14:18 -0400
-From: Andi Kleen <ak@suse.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64 II
-Date: Fri, 6 Oct 2006 01:14:03 +0200
-User-Agent: KMail/1.9.3
-Cc: vgoyal@in.ibm.com, Steve Fox <drfickle@us.ibm.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, kmannth@us.ibm.com,
-       Andy Whitcroft <apw@shadowen.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <Pine.LNX.4.64.0610052128570.29014@skynet.skynet.ie> <200610052251.31571.ak@suse.de>
-In-Reply-To: <200610052251.31571.ak@suse.de>
+	Thu, 5 Oct 2006 19:16:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:20241 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751432AbWJEXQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 19:16:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=n3XfB1PS3KhYdLOP6WAAaPlwuQ0x3lUWNJIH0r8jiPouLhTxB+ofszYNv42ctRjJuSxr16qvZNenvI/JowOQ6u1rjANnty3uADuWLIuB43t57l8hsXFFwM9YSir3ojqEqGahHZgbAbwvYAtIMnG97g+j3/SM0XjIKvKjZhzRURk=
+Message-ID: <4525925C.6060807@gmail.com>
+Date: Fri, 06 Oct 2006 01:16:21 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, sct@redhat.com,
+       adilger@clusterfs.com, ext2-devel@lists.sourceforge.net
+Subject: Re: 2.6.18-mm2: ext3 BUG?
+References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org>
+In-Reply-To: <20061005145042.fd62289a.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060114.03466.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 22:51, Andi Kleen wrote:
+Andrew Morton wrote:
+> On Thu, 05 Oct 2006 23:34:13 +0159
+> Jiri Slaby <jirislaby@gmail.com> wrote:
 > 
-> > hmm, rather than bugging you with patches now, I'll see what I can find 
-> > with the x86_64 machines I have access to and see can I reproduce it.
+>> Hello,
+>>
+>> while yum update-ing, yum crashed and this appeared in log:
+>> [ 2840.688718] EXT3-fs error (device hda2): ext3_free_blocks_sb: bit already 
+>> cleared for block 747938
+>> [ 2840.688732] Aborting journal on device hda2.
+>> [ 2840.688858] ext3_abort called.
+>>
+>> ...
+>>
+>> I don't know how to reproduce it and really have no idea what version of -mm 
+>> could introduce it (if any).
 > 
-> I started the bisect, should finish soon.
+> I don't necessarily see a bug in there.  The filesystem got a bit noisy but
+> did appropriately detect and handle the metadata inconsistency.
 
-It ended at 
+Perhaps, but why did it occur? S.m.a.r.t. doesn't tell me anything suspicious.
 
-diff-tree d5cdb67236dba94496de052c9f9f431e1fc658f4 (from 0dad3510ee82bcf8a380b81
-a2184a664a911ef9c)
-Author: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
-Date:   Tue Sep 12 10:19:00 2006 -0700
+> The next step would be to fsck that filesystem, see waht it says.
 
-    acpiphp: disable bridges
-    
-    Currently acpiphp calls pci_enable_device() against all
-    hot-added bridges, but acpiphp does not call pci_disable_device()
-    against them in hot-remove. So ioapic hot-remove would fail.
-    This patch fixes this issue.
+Yup. I fscked it after reboot and fixed them all...
 
-Not sure that is it really, it is possible i made a mistake during bisect
-(the symptoms changed from bad page to just networking doesn't work
-somewhere at 4cfee88ad30acc47f02b8b7ba3db8556262dce1e) 
+[went to gather some info from e2fsprogs sources what kind of errors it was (I 
+didn't note it and can't remember)]
 
-I don't have time to rerun unfortunately
-for some time. Anyone else looking would be useful.
+block differences, incorrect block counts, orphaned entries, some (gnome-vfs2 
+stuff which has been updated) went to lost+found.
 
--Andi
+I unfotunately can't post more accurate info, because I am a... chump? Bite me 
+and shame on me...
 
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWJFKTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWJFKbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWJFKTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 06:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJFKTb
+	id S1751412AbWJFKbv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 06:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWJFKbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 06:19:31 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:61965 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932186AbWJFKT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 06:19:29 -0400
+	Fri, 6 Oct 2006 06:31:51 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:65150 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751412AbWJFKbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 06:31:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Da97DgHlismrzZY0wPfSwxP7Tkz+iu4ziqQOhRGf3r6IWn24zeBeiJiOGhKP6i4GNBHmYr773vCGMbRx/51XxRxpNnmMTDJUN2g4cgnvqj0F25MjVR/OHkDfcfjtMNe1trYBWD22PvZ8UtW13y7wsFWZ7z4+jeKsD6oiN3lXYD4=
-Message-ID: <98975a8b0610060319u30b6862as886232e9bb5a3723@mail.gmail.com>
-Date: Fri, 6 Oct 2006 12:19:29 +0200
-From: "=?ISO-8859-2?Q?Witold_W=B3adys=B3aw_Wojciech_Wilk?=" 
-	<witold.wilk@gmail.com>
-To: "Uwe Zeisberger" <zeisberg@informatik.uni-freiburg.de>,
-       "Witold W?adys?aw Wojciech Wilk" <witold.wilk@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: how to get the kernel to be more "verbose"?
-In-Reply-To: <20061006094348.GB11065@informatik.uni-freiburg.de>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=JNFGOq8qCr+vSkxiv0u+qNFIfFlp4Y/7j0gBZxOI69qCE6xz6LW/UHd7k/8QtY4YWoGDojxox2Z7XatYSeKNpSORW2/PGNUJpGOaejn7XBhrOjOB0MI6eKE/36BhBDJQsajuALcVTYs2pu+kufDc6wIzMugdK53q4mliYV84N3o=
+Date: Fri, 6 Oct 2006 10:31:27 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
+       gregkh@suse.de
+Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #3
+Message-ID: <20061006103127.GJ352@slug>
+References: <20061004193229.GA352@slug> <4524106C.8010807@garzik.org> <20061004202938.GF352@slug> <20061004203311.GI28596@parisc-linux.org> <20061004212633.GG352@slug> <20061005135924.GB5335@martell.zuzino.mipt.ru> <20061005143607.GH352@slug> <20061006100421.GA5335@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <98975a8b0610052234p3287ab8fr70335f858ba4583b@mail.gmail.com>
-	 <20061006073303.GA5105@cepheus.pub>
-	 <98975a8b0610060038t4d5dbd14ja348ce78351a93e3@mail.gmail.com>
-	 <20061006094348.GB11065@informatik.uni-freiburg.de>
+In-Reply-To: <20061006100421.GA5335@martell.zuzino.mipt.ru>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/10/6, Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>:
-> > No, I've used the config I had in the 2.6.8 (in proc/config.gz), but
-> > the SAME kernel 2.6.8 source compiled incorrectly. So I think this
-> > might be some glitch on my machine... because it is im possible to
-> > make a kernel that is always getting stuck in the same place.
-> Did you notice that Debian kernels are not vanilla but patched?
-> You can get the patches from http://packages.debian.org/
+On Fri, Oct 06, 2006 at 02:04:21PM +0400, Alexey Dobriyan wrote:
+> On Thu, Oct 05, 2006 at 02:36:07PM +0000, Frederik Deweerdt wrote:
+> > > > - is_irq_valid() called by pci_request_irq()
+> > >
+> > > s/is_irq_valid/valid_irq/g methinks.
+> > The point of the is_ prefix is to make it clear that we're returning 1
+> > if it's true and 0 if it's false.
+> > <checks thread on return values>
+> > err... you said[1]:
+> > > There are at least 3 idioms:
+> > > [...]
+> > > 2) return 1 on YES, 0 on NO.
+> > > [...]
+> > > #2 should only be used if condition in question is spelled nice:
+> > Which I thought made sense, and that's why the is_ prefix is there now.
+> > Am I missing something?
+> 
+> I think, looking at
+> 
+> 	if (irq_valid(irq))
+> 
+> one can be damn sure it follows common convention.
+That maybe true, however the is_ prefix just rules out any ambiguity.
+Using is/has/have/can for boolean functions whenever possible is a good
+practice and I'd prefer to stick to it.
+> That "is_" prefix just beats my ears. If is irq valid.
+I understand your concerns on the "sound" issues though. Does
+is_valid_irq() sound better to you?
 
-OK, I'll check them out. Maybe they did patch them somewhere... But if
-such a patch exist I think it should be for quite some time in the
-mainstream, because this is quite a critical kernel bug, that it
-crashes down.
-
-> > >You can try the "initcall_debug" kernel parameter to see which init
-> > >functions are called.
-> > I will use that then. I am quite new to debugging the kernel... My
-> > programming knowledge is still quite low ;) But I will try that today
-> > after work... I will write more. I need to get the Wi-Fi working ASAP.
-> Another thing that could help you is SysRQ, there is a request that
-> prints out a stack dump.
-
-Unfortunately the SysRQ does not respond. I've tried that to reboot,
-shutdown, etc the system after the crash. There is simply no response.
-I've tried even compiling into the kernel some really abstract
-drivers, just in case I forgot something. I've managed once even a
-2.5MB kernel image ;) unfortunately it got stuck just like the rest.
-
-Thanks again, I'll write something more through the weekend, maybe I
-will solve this... at least I hope so.
--- 
-Witold Wladyslaw Wojciech Wilk Et39m:+48605066384 gg3211630 (lepiej @)
-prr: giant boulder'02 @13kkm - brak czasu :( / tychy-sosnowiec-gliwice
-pms: vw golf 2 byl, juz sprzedany :) / pierwszeimie.nazwisko@gmail.com
-pms/kc: citroen xantia mkI 2.0 8v 1995 225kkm/17kkm hydrokomfortowa :)
+Thanks,
+Frederik

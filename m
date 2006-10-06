@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWJFJWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWJFJ0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWJFJWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 05:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWJFJWZ
+	id S1751364AbWJFJ0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 05:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWJFJ0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 05:22:25 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:23724 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751353AbWJFJWY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 05:22:24 -0400
-Date: Fri, 6 Oct 2006 11:22:17 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.18-git21, possible recursive locking in kseriod ends up in
- DWARF2 unwinder stuck
-In-Reply-To: <d120d5000610051334o7604b1d4hd2f4c9a9b858f06e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0610061119240.12556@twin.jikos.cz>
-References: <5a4c581d0610041417y113bb92cs10971308180980e5@mail.gmail.com> 
- <Pine.LNX.4.64.0610042317590.12556@twin.jikos.cz>
- <d120d5000610051334o7604b1d4hd2f4c9a9b858f06e@mail.gmail.com>
+	Fri, 6 Oct 2006 05:26:36 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:52176 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932134AbWJFJ0f convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 05:26:35 -0400
+To: "Peter Osterlund" <petero2@telia.com>
+From: balagi@justmail.de
+Subject: Re: Re: [PATCH 3/11] 2.6.18-mm3 pktcdvd: new pkt_find_dev()
+Cc: linux-kernel@vger.kernel.org
+X-Priority: 3
+X-Abuse: 300631278 / unknown, unknown
+User-Agent: freenetMail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1GVlyT-0006mx-SB@www12.emo.freenet-rz.de>
+Date: Fri, 06 Oct 2006 11:26:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006, Dmitry Torokhov wrote:
+Hello,
 
-> I tested the patches and they work. Couple of comments:
-> - register_lock_class is marked as inline but now has 2 call sites and
-> is relatively big - might want to remove "inline"
+the idea was to simply allow
+  map block-dev-id to pktcdvd
+and
+  unmap block-dev-id from pktcdvd
+since this functionality can be implemented easily without costs in pkt_remove_dev()
 
-I agree.
+But it is ok to put it into user space.
 
-> - how about adding lockdep_set_subclass() to avoid littering source
-> with struct lock_class_key when we only want to tweak subclass? For
-> that we might want export register_lock_class and hide it behind a
-> #define...
+-Thomas Maier
 
-I added Ingo to CC so that he could comment.
+----- original Nachricht --------
 
-However I would not be able to submit patches which will be tested, as the 
-only machine I had with passthrough synpatics port broke horribly and is 
-currently in the warranty repair.
+Betreff: Re: [PATCH 3/11] 2.6.18-mm3 pktcdvd: new pkt_find_dev()
+Gesendet: Do 05 Okt 2006 21:51:43 CEST
+Von: "Peter Osterlund"<petero2@telia.com>
 
--- 
-Jiri Kosina
+> "Thomas Maier" <balagi@justmail.de> writes:
+> 
+> > Also pkt_remove_dev() can use now the device id of the mapped
+> > block device to remove the mapping.
+> 
+> Why would that be desirable? I think it's better to implement this
+> feature in the user space tools and leave the kernel interface
+> simple.
+> 
+> -- 
+> Peter Osterlund - petero2@telia.com
+> http://web.telia.com/~u89404340
+> 
+
+--- original Nachricht Ende ----
+
+
+
+
+
+
+
+
+

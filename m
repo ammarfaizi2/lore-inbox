@@ -1,43 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWJFBAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWJFB3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWJFBAj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 21:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWJFBAj
+	id S932552AbWJFB3O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 21:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWJFB3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 21:00:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15844 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932545AbWJFBAi (ORCPT
+	Thu, 5 Oct 2006 21:29:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47080 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932552AbWJFB3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 21:00:38 -0400
-Date: Thu, 5 Oct 2006 18:00:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 04/14] uml: readd forgot prototype
-Message-Id: <20061005180035.90c6937e.akpm@osdl.org>
-In-Reply-To: <20061005213846.17268.31893.stgit@memento.home.lan>
-References: <20061005213212.17268.7409.stgit@memento.home.lan>
-	<20061005213846.17268.31893.stgit@memento.home.lan>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 21:29:13 -0400
+Date: Thu, 5 Oct 2006 18:29:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+In-Reply-To: <4525A9E9.6080301@garzik.org>
+Message-ID: <Pine.LNX.4.64.0610051821280.3952@g5.osdl.org>
+References: <200610051910.25418.ak@suse.de> <452564B9.4010209@garzik.org>
+ <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org> <200610060052.46538.ak@suse.de>
+ <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org> <4525A9E9.6080301@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 23:38:46 +0200
-"Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
 
-> --- a/arch/um/include/os.h
-> +++ b/arch/um/include/os.h
-> @@ -201,6 +201,7 @@ extern int os_getpgrp(void);
->  
->  #ifdef UML_CONFIG_MODE_TT
->  extern void init_new_thread_stack(void *sig_stack, void (*usr1_handler)(int));
-> +extern void stop(void);
 
-You have a global function called "stop"?
+On Thu, 5 Oct 2006, Jeff Garzik wrote:
 
-Good luck with that...
+> Linus Torvalds wrote:
+> > (And we should probably have the "pci=mmiocfg" kernel command line entry
+> > that forces MMIOCFG regardless of any e820 issues, even for normal
+> > accesses).
+> 
+> Something like this?
 
+Yes, except I look at the resulting messy conditional:
+
+        if ((type == 1) && (!(pci_probe & PCI_NO_CHECKS)) &&
+                !e820_all_mapped(pci_mmcfg_config[0].base_address,
+                        pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+                        E820_RESERVED)) {
+
+and it's totally unreadable, so how about making this a helper inline 
+function like
+
+	static inline int validate_mmcfg(int type, unsigned long address)
+	{
+		/*
+		 * If type 1 accesses don't work, assume we run on a
+		 * Mac and always use MCFG
+		 */
+		if (type != 1)
+			return 1;
+
+		/*
+		 * If the user asked us to not check the MMIOCFG base 
+		 * address, just trust it.
+		 */
+		if (pci_probe & PCI_NO_CHECKS)
+			return 1;
+
+		/*
+		 * Otherwise require that it's marked reserved in 
+		 * the e820 tables
+		 */
+		return e820_all_mapped(address,
+			address + MMCONFIG_APER_MIN,
+			E820_RESERVED);
+	}
+
+and then just saying
+
+	if (!validate_mmcfg(type, pci_mmcfg_config[0].base_address)) {
+		.. complain and exit ..
+
+which just seems a hell of a lot prettier to me.
+
+It also means that _if_ we ever figure out other ways to double-check the 
+address automatically (or we have some automatic way of saying "that can't 
+be valid"), we can do so in that "validate" function, without adding more 
+and more horrible code.
+
+What say you? Let's try to keep the code readable (and preferably make it 
+more so..)
+
+			Linus

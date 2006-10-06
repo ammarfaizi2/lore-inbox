@@ -1,63 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422986AbWJFVuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422989AbWJFVwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422986AbWJFVuI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422988AbWJFVuH
+	id S1422989AbWJFVwN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422987AbWJFVwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:50:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31947 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422986AbWJFVuE (ORCPT
+	Fri, 6 Oct 2006 17:52:13 -0400
+Received: from mail.polish-dvd.com ([69.222.0.225]:38556 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S1422989AbWJFVwM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:50:04 -0400
-Message-ID: <4526CF6F.9040006@RedHat.com>
-Date: Fri, 06 Oct 2006 17:49:35 -0400
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Fri, 6 Oct 2006 17:52:12 -0400
+Message-ID: <20061006162435.jwb4n5zrl68sow4w@69.222.0.225>
+Date: Fri, 06 Oct 2006 16:24:35 -0500
+From: art@usfltd.com
+To: linux-kernel@vger.kernel.org
+Cc: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.19-rc1 SMP x86_64 boot hungs up
+References: <20061005143237.xr08e3ew5b2ocgc8@69.222.0.225>
+	<20061005212029.GL16812@stusta.de>
+In-Reply-To: <20061005212029.GL16812@stusta.de>
 MIME-Version: 1.0
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
-References: <1160170629.5453.34.camel@lade.trondhjem.org>
-In-Reply-To: <1160170629.5453.34.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> If try_to_release_page() is called with a zero gfp mask, then the
-> filesystem is effectively denied the possibility of sleeping while
-> attempting to release the page. There doesn't appear to be any valid
-> reason why this should be banned, given that we're not calling this from
-> a memory allocation context.
->  
-> For this reason, change the gfp_mask argument of the call to GFP_KERNEL.
->     
-> Note: I am less sure of what the callers of invalidate_complete_page()
-> require, and so this patch does not touch that mask.
-> 
-> Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-> ---
-> diff --git a/mm/truncate.c b/mm/truncate.c
-> index f4edbc1..49c1ffd 100644
-> --- a/mm/truncate.c
-> +++ b/mm/truncate.c
-> @@ -302,7 +302,7 @@ invalidate_complete_page2(struct address
->  	if (page->mapping != mapping)
->  		return 0;
->  
-> -	if (PagePrivate(page) && !try_to_release_page(page, 0))
-> +	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
->  		return 0;
->  
->  	write_lock_irq(&mapping->tree_lock);
-Well I was using mapping_gfp_mask(mapping) as the argument to
-try_to_release_page() which also worked... but isn't this
-just plugging one of many holes? Meaning try_to_release_page is called
-from a number of places with a zero gfp_mask so shouldn't those
-also be fixed as well OR removed the gfp_mask as an argument as the
-comment at the top of try_to_release_page() alludes to?
+Quoting Adrian Bunk <bunk@stusta.de>:
 
-steved.
+> On Thu, Oct 05, 2006 at 02:32:37PM -0500, art@usfltd.com wrote:
+>
+>> 2.6.19-rc1 SMP x86_64 boot hungs up
+>>
+>> boot hungs up !!!
+>> last lines from screen at boot time:
+>>
+>> ...
+>> Uniform CD-ROM driver Revision: 3.20
+>> ide-floppy driver 0.99.newide
+>> usbcore: registered new driver libusual
+>> usbcore: registered new driver hiddev
+>> usbcore: registered new driver usbhid
+>> drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+>> PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 1
+>> PNP: PS/2 controller doesn't have AUX irq; using default 12
+>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ hungs up here
+>> next lines are from working 2.6.18-git6 looks like i8042 problem
+>>
+>> PM: Adding info for platform:i8042
+>> serio: i8042 AUX port at 0x60,0x64 irq 12
+>> PM: Adding info for serio:serio0
+>> serio: i8042 KBD port at 0x60,0x64 irq 1
+>> PM: Adding info for serio:serio1
+>> mice: PS/2 mouse device common for all mice
+>> md: md driver 0.90.3 MAX_MD_DEVS=256, MD_SB_DISKS=27
+>> md: bitmap version 4.39
+>> TCP cubic registered
+>> ...
+>>
+>> last good is 2.6.18-git6
+>> 2.6.18-git7 to 2.6.19-rc1 hungs up
+>
+>
+> Thanks for the confirmation.
+>
+> Can you try to find the guilty commit through git bisecting?
+>
+> IOW, please do:
+>
+>
+> # install git and cogito on your computer
+>
+> # clone Linus' tree:
+> cg-clone \
+> git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+>
+> # start bisecting:
+> cd linux-2.6
+> git bisect start
+> git bisect bad b278240839e20fa9384ea430df463b367b90e04e
+> git bisect good dd77a4ee0f3981693d4229aa1d57cea9e526ff47
+>
+> # start round
+> cp /path/to/.config .
+> make oldconfig
+> make
+> # install kernel, check whether it's good or bad, then:
+> git bisect [bad|good]
+> # start next round
+>
+>
+> After at about 8 reboots, you'll have found the guilty commit
+> ("...  is first bad commit").
+>
+>
+> More information on git bisecting:
+>   man git-bisect
+>
+>
+> TIA
+> Adrian
+>
+> --
+>
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+>
+>
 
+
+
+$ git-bisect bad 265baba316ea258ca015aa79bc6f107cd9fce2b3 is first bad commit
+commit 265baba316ea258ca015aa79bc6f107cd9fce2b3
+Author: Andi Kleen <ak@suse.de>
+Date:   Tue Sep 26 10:52:26 2006 +0200
+
+     [PATCH] Update defconfig
+
+     Signed-off-by: Andi Kleen <ak@suse.de>
+
+:040000 040000 2c37b438987d915eb3eb10756f0f2a9239167a65  
+5be110cee7f07799703a24a2493605b4a1527fb7 M      arch
+
+
+any clue ?
+
+xboom

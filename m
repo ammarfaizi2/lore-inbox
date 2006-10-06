@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422939AbWJFUnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422944AbWJFUoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422939AbWJFUnO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWJFUnN
+	id S1422944AbWJFUoF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWJFUoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:43:13 -0400
-Received: from mailfe01.tele2.fr ([212.247.154.12]:61922 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1422939AbWJFUnL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:43:11 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Fri, 6 Oct 2006 22:42:54 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org
-Subject: Early keyboard initialization?
-Message-ID: <20061006204254.GD5489@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	linux-kernel@vger.kernel.org
+	Fri, 6 Oct 2006 16:44:04 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:53155 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S932629AbWJFUoB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:44:01 -0400
+Date: Fri, 6 Oct 2006 16:43:58 -0400
+To: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.19-rc1 boot failure--ops in mpu401_init?
+Message-ID: <20061006204358.GB18026@fieldses.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+A machine that booted fine under 2.6.18-rc6 is failing to boot with
+2.6.19-rc1.  After commenting out infinite loop of "Spurious ACK"
+messages from atkbd.c that were hiding the original OOPS, I see the an
+oops at klist_del+0xd/0x50 with a stack like:
 
-Is there any reason for initializing the input layer and keyboards so
-late?  Since prevents from being able to perform alt-sysrqs early, and
-blind people who use speakup would like to get early control over the
-speech.  Here is the patch that they use.
+bus_remove_device+0x9f/0xc0
+device_del+0x17a/0x1b0
+platform_device_del+0x69/0x80
+platform_device_unregister+0xd/0x20
+alsa_card_mpu401_init+0x7a/0x90
+init+0x7f/0x260
+kernel_thread_helper+0x7/0x10
 
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Unfortunately I can't actually see the top of the OOPS.  (And haven't
+had any luck getting a serial console to work yet...)
 
---- /usr/src/linux-2.6.18/drivers/Makefile.orig	2006-10-06 11:34:15.000000000 -0400
-+++ drivers/Makefile	2006-10-06 11:34:15.000000000 -0400
-@@ -27,6 +27,9 @@
- 
- obj-y				+= serial/
- obj-$(CONFIG_PARPORT)		+= parport/
-+obj-$(CONFIG_SERIO)		+= input/serio/
-+obj-$(CONFIG_GAMEPORT)		+= input/gameport/
-+obj-$(CONFIG_INPUT)		+= input/
- obj-y				+= base/ block/ misc/ mfd/ net/ media/
- obj-$(CONFIG_NUBUS)		+= nubus/
- obj-$(CONFIG_ATM)		+= atm/
-@@ -50,9 +53,6 @@
- obj-$(CONFIG_USB)		+= usb/
- obj-$(CONFIG_PCI)		+= usb/
- obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
--obj-$(CONFIG_SERIO)		+= input/serio/
--obj-$(CONFIG_GAMEPORT)		+= input/gameport/
--obj-$(CONFIG_INPUT)		+= input/
- obj-$(CONFIG_I2O)		+= message/
- obj-$(CONFIG_RTC_LIB)		+= rtc/
- obj-$(CONFIG_I2C)		+= i2c/
+I also probably won't have time to try a git-bisect in the next few
+days, though I could try it eventually if it'd help.
+
+Let me know of any other details that would be helpful.
+
+--b.

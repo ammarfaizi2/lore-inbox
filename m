@@ -1,46 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWJFPUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJFPh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWJFPUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 11:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWJFPUh
+	id S1751355AbWJFPh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 11:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWJFPh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 11:20:37 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:52895 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751489AbWJFPUf (ORCPT
+	Fri, 6 Oct 2006 11:37:59 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:49794 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751355AbWJFPh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 11:20:35 -0400
-Message-ID: <45267440.1000806@garzik.org>
-Date: Fri, 06 Oct 2006 11:20:32 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       torvalds@osdl.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH, RAW] IRQ: Maintain irq number globally rather than passing
- to IRQ handlers
-References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu> <45263D9C.9030200@garzik.org> <452673AC.1080602@garzik.org>
-In-Reply-To: <452673AC.1080602@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Fri, 6 Oct 2006 11:37:58 -0400
+Date: Fri, 6 Oct 2006 11:36:29 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Mel Gorman <mel@skynet.ie>
+Cc: Steve Fox <drfickle@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, kmannth@us.ibm.com,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Message-ID: <20061006153629.GA19756@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu> <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061006143312.GB9881@skynet.ie>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Here is the raw, un-split-up first pass of the irq argument removal 
-> patch (500K):    http://gtf.org/garzik/misc/patch.irq-remove
+On Fri, Oct 06, 2006 at 03:33:12PM +0100, Mel Gorman wrote:
+> > Linux version 2.6.18-git22 (root@elm3b239) (gcc version 4.1.0 (SUSE Linux)) #2 SMP Thu Oct 5 19:05:36 PDT 2006
+> > Command line: root=/dev/sda1 vga=791  ip=9.47.67.239:9.47.67.50:9.47.67.1:255.255.255.0 resume=/dev/sdb1 showopts earlyprintk=serial,ttyS0,57600 console=tty0 console=ttyS0,57600 autobench_args: root=/dev/sda1 ABAT:1160100417
+> > BIOS-provided physical RAM map:
+> >  BIOS-e820: 0000000000000000 - 000000000009ac00 (usable)
+> >  BIOS-e820: 000000000009ac00 - 00000000000a0000 (reserved)
+> >  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+> >  BIOS-e820: 0000000000100000 - 00000000bff764c0 (usable)
+> >  BIOS-e820: 00000000bff764c0 - 00000000bff98880 (ACPI data)
+> >  BIOS-e820: 00000000bff98880 - 00000000c0000000 (reserved)
+> >  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+> >  BIOS-e820: 0000000100000000 - 0000000c00000000 (usable)
+> 
+> I continued what Steve was doing this morning to see could this be
+> pinned down. After placing 'CHECK;' in a few places as suggested by
+> Andi's check, the problem code was identified as that following in
+> mm/bootmem.c#init_bootmem_core()
+> 
+>         mapsize = get_mapsize(bdata);
+>         memset(bdata->node_bootmem_map, 0xff, mapsize);
+> 
+> That explains the value in the array at least. A few more printfs around
+> this point printed out the following in the boot log
+> 
+> init_bootmem_core(0, 1909, 0, 12582912)
+> init_bootmem_core: Calling memset(0xFFFF810000775000, 1572864)
+> AAGH: afinfo corrupted at mm/bootmem.c:121
+> 
+> where;
+> 
+> 1909 == mapstart
+> 0 == start
+> 12582912 == end
+> 1572864 == mapsize
+> 
+> mapstart, start and end being the parameters being passed to
+> init_bootmem_core(). This means we are calling memset for the physical
+> range 0x775000 -> 0x8F5000 which is in a usable range according to the
+> BIOS-e820 map it appears.
+> 
 
-A couple more notes:
+Hi Mel,
 
-* Builds on x86 and x86-64, including !CONFIG_SMP (which turns on 
-several drivers most never see)
+Where is bss placed in physical memory? I guess bss_start and bss_stop
+from System.map will tell us. That will confirm that above memset step is
+stomping over bss. Then we have to just find that somewhere probably
+we allocated wrong physical memory area for bootmem allocator map.
 
-* Is missing the EXPORT_SYMBOL(), just like dhowell's pt_regs stuff is now
+Thanks
+Vivek
 

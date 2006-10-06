@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJFPh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWJFPss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWJFPh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 11:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWJFPh7
+	id S1751524AbWJFPss (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 11:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWJFPsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 11:37:59 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:49794 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751355AbWJFPh6 (ORCPT
+	Fri, 6 Oct 2006 11:48:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48606 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751503AbWJFPsq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 11:37:58 -0400
-Date: Fri, 6 Oct 2006 11:36:29 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Mel Gorman <mel@skynet.ie>
-Cc: Steve Fox <drfickle@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, kmannth@us.ibm.com,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-Message-ID: <20061006153629.GA19756@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu> <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061006143312.GB9881@skynet.ie>
-User-Agent: Mutt/1.5.11
+	Fri, 6 Oct 2006 11:48:46 -0400
+Date: Fri, 6 Oct 2006 08:47:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH, RAW] IRQ: Maintain irq number globally rather than
+ passing to IRQ handlers
+In-Reply-To: <452673AC.1080602@garzik.org>
+Message-ID: <Pine.LNX.4.64.0610060841320.3952@g5.osdl.org>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+ <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+ <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+ <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org>
+ <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org>
+ <20061006111156.GA19678@elte.hu> <45263D9C.9030200@garzik.org>
+ <452673AC.1080602@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 03:33:12PM +0100, Mel Gorman wrote:
-> > Linux version 2.6.18-git22 (root@elm3b239) (gcc version 4.1.0 (SUSE Linux)) #2 SMP Thu Oct 5 19:05:36 PDT 2006
-> > Command line: root=/dev/sda1 vga=791  ip=9.47.67.239:9.47.67.50:9.47.67.1:255.255.255.0 resume=/dev/sdb1 showopts earlyprintk=serial,ttyS0,57600 console=tty0 console=ttyS0,57600 autobench_args: root=/dev/sda1 ABAT:1160100417
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009ac00 (usable)
-> >  BIOS-e820: 000000000009ac00 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 00000000bff764c0 (usable)
-> >  BIOS-e820: 00000000bff764c0 - 00000000bff98880 (ACPI data)
-> >  BIOS-e820: 00000000bff98880 - 00000000c0000000 (reserved)
-> >  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-> >  BIOS-e820: 0000000100000000 - 0000000c00000000 (usable)
-> 
-> I continued what Steve was doing this morning to see could this be
-> pinned down. After placing 'CHECK;' in a few places as suggested by
-> Andi's check, the problem code was identified as that following in
-> mm/bootmem.c#init_bootmem_core()
-> 
->         mapsize = get_mapsize(bdata);
->         memset(bdata->node_bootmem_map, 0xff, mapsize);
-> 
-> That explains the value in the array at least. A few more printfs around
-> this point printed out the following in the boot log
-> 
-> init_bootmem_core(0, 1909, 0, 12582912)
-> init_bootmem_core: Calling memset(0xFFFF810000775000, 1572864)
-> AAGH: afinfo corrupted at mm/bootmem.c:121
-> 
-> where;
-> 
-> 1909 == mapstart
-> 0 == start
-> 12582912 == end
-> 1572864 == mapsize
-> 
-> mapstart, start and end being the parameters being passed to
-> init_bootmem_core(). This means we are calling memset for the physical
-> range 0x775000 -> 0x8F5000 which is in a usable range according to the
-> BIOS-e820 map it appears.
-> 
 
-Hi Mel,
 
-Where is bss placed in physical memory? I guess bss_start and bss_stop
-from System.map will tell us. That will confirm that above memset step is
-stomping over bss. Then we have to just find that somewhere probably
-we allocated wrong physical memory area for bootmem allocator map.
+On Fri, 6 Oct 2006, Jeff Garzik wrote:
+>
+> Here is the raw, un-split-up first pass of the irq argument removal patch
+> (500K):	http://gtf.org/garzik/misc/patch.irq-remove
 
-Thanks
-Vivek
+So I'm not at all as sure about this as about the "regs" stuff.
 
+The "regs" value has always been controversial. It's pretty much always 
+existed (due to the keyboard hander and the magic debugging keysequences), 
+and anybody who looks at 0.01 will quickly realize that the keyboard 
+driver was one of the very first drivers (I think it's even written in 
+assembly at that point: originally _all_ of what was to become Linux was 
+pure asm, the whole "oh, cool, I could write this part in C" came later). 
+But it's been pretty much a special case since day #1, purely for that 
+"press a key to see where the h*ck we hung" case.
+
+In contrast, the irq argument itself is really no different from the 
+cookie we pass in on registration - it's just passing it back to the 
+driver that requested the thing. So unlike "regs", there's not really 
+anything strange about it, and there's nothing really "wrong" with having 
+it there.
+
+So I'm not at all as convinced about this one.

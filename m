@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWJFO2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422692AbWJFOeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWJFO2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 10:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWJFO2J
+	id S1422692AbWJFOeL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 10:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbWJFOeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 10:28:09 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:2996 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932363AbWJFO2G (ORCPT
+	Fri, 6 Oct 2006 10:34:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27599 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422692AbWJFOeI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 10:28:06 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-To: Tommaso Cucinotta <cucinotta@sssup.it>,
-       "lkml, " <linux-kernel@vger.kernel.org>
-Subject: Re: In-kernel precise timing.
-Date: Fri, 6 Oct 2006 07:27:58 -0700
-User-Agent: KMail/1.9.1
-References: <45259F9F.1050203@sssup.it>
-In-Reply-To: <45259F9F.1050203@sssup.it>
-Organization: IBM Linux Technology Center
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060727.58376.dvhltc@us.ibm.com>
+	Fri, 6 Oct 2006 10:34:08 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061006141704.GH2563@parisc-linux.org> 
+References: <20061006141704.GH2563@parisc-linux.org>  <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com> 
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 06 Oct 2006 15:33:44 +0100
+Message-ID: <10081.1160145224@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 17:13, you wrote:
-> Hi,
->
-> I'd like to know what is the preferrable way,
-> in a Linux kernel module, to get a notification
-> at a time in the future so to avoid as much as
-> possible unpredictable delays due to possible
-> device driver interferences. Basically, I would
-> like to use such a mechanism to preempt (also)
-> real-time tasks for the purpose of temporally
-> isolating them from among each other.
->
-> Is there any prioritary mechanism for specifying
-> kind of higher priority timers, to be served as
-> soon as possible, vs. lower priority ones, that
-> could be e.g. delayed to ksoftirqd and similar ?
-> (referring to 2.6.17/18, currently using add_timer(),
-> del_timer(), but AFAICS these primitives are more
-> appropriate for "timeout" behaviours, rather than
-> "precise timing" ones).
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-There is no notion of priority in the current timer system, although that idea 
-has been tossed around a bit.  As far as an appropriate timer for events, as 
-opposed to timeouts, consider using ktimers + hrtimers (both of which are 
-included in the -rt patchset).  The are optimized for times that you expect 
-to expire (as opposed to timeouts which usually don't) and can provide 
-accuracy to the 10s of microseconds.
+> Why not "def_bool n"?
 
-http://tglx.de/ktimers.html
-http://tglx.de/hrtimers.html
-http://people.redhat.com/mingo/realtime-preempt/
+def_bool?  What's that?  default + bool?  I don't remember seeing any of those
+in any of the files I looked in.
 
-Regards,
+> Or indeed, since the default is n, why not just "bool"?
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+*shrug*
+
+I'd prefer to default all of these in a common place rather than having to
+relentlessly duplicate them over all archs.  Is that possible?
+
+David

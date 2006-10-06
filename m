@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWJFKgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWJFKxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWJFKgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 06:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWJFKgh
+	id S932226AbWJFKxk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 06:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWJFKxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 06:36:37 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:47258 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751431AbWJFKgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 06:36:36 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Oct 2006 06:53:40 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14505 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751457AbWJFKxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 06:53:39 -0400
+Subject: Re: [PATCH 3/5] ioremap balanced with iounmap for
+	drivers/char/moxa.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Lad <amol@verismonetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1160110629.19143.90.camel@amol.verismonetworks.com>
+References: <1160110629.19143.90.camel@amol.verismonetworks.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <17702.12704.868782.312125@alkaid.it.uu.se>
-Date: Fri, 6 Oct 2006 12:36:16 +0200
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Really good idea to allow mmap(0, FIXED)?
-In-Reply-To: <1160119515.3000.89.camel@laptopd505.fenrus.org>
-References: <200610052059.11714.mb@bu3sch.de>
-	<eg4624$be$1@taverner.cs.berkeley.edu>
-	<1160119515.3000.89.camel@laptopd505.fenrus.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Date: Fri, 06 Oct 2006 12:19:14 +0100
+Message-Id: <1160133554.1607.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven writes:
- > >     mmap(0, 4096, PROT_READ|PROT_EXEC|PROT_WRITE,
- > >         MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
- > >     struct s *bar = 0;
- > 
- > the question isn't if it's a good idea to allow mmap(0) but to allow
- > mmap PROT_WRITE | PROT_EXEC !
+Ar Gwe, 2006-10-06 am 10:27 +0530, ysgrifennodd Amol Lad:
+> Signed-off-by: Amol Lad <amol@verismonetworks.com>
+> ---
+>  moxa.c |    6 ++++++
+>  1 files changed, 6 insertions(+)
+> ---
 
-It is if you want JITs, code loaders, virtualisation engines, etc
-to continue working.
+
+Looks ok to me
+
+Signed-off-by: Alan Cox <alan@redhat.com>

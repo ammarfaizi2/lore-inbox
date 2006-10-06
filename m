@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWJFG76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWJFG7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbWJFG76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 02:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbWJFG76
+	id S932651AbWJFG7f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 02:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWJFG7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 02:59:58 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:19356 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932672AbWJFG75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 02:59:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Jrj2Wlc4B2EDPNR7SWWVSx79GSSztwXxxhEo9VuMGvIgl7NA5MxJddBflCqFVREthfhd5MNGQ+oScnREpep06k3Q13Tdy4PJ8dUFrC3c8+OIOXU9uDt7F5jSsSqmkqs+DV44zVRlDu/UVCARvSJzEK0sHVv50/JKNiyWwrgjE2w=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [2.6.19-rc1][AGP] Regression -  amd_k7_agp  no longer detected
-Date: Fri, 6 Oct 2006 02:59:52 -0400
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
-References: <200610060150.20415.shawn.starr@rogers.com> <20061006060803.GB3381@redhat.com>
-In-Reply-To: <20061006060803.GB3381@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 6 Oct 2006 02:59:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49084 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932651AbWJFG7e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 02:59:34 -0400
+Date: Thu, 5 Oct 2006 23:59:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+Message-Id: <20061005235909.75178c09.akpm@osdl.org>
+In-Reply-To: <m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
+	<20061004214403.e7d9f23b.akpm@osdl.org>
+	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+	<20061004233137.97451b73.akpm@osdl.org>
+	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610060259.52742.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 October 2006 2:08 am, Dave Jones wrote:
-> On Fri, Oct 06, 2006 at 01:50:19AM -0400, Shawn Starr wrote:
->  > When loading amd_k7_agp nothing appears from kernel, no information
->  > about the AGP chipset/aptreture size etc. Even putting kprints inside
->  > the probe() function of the driver does not get called.
->
-> Even as the first thing in agp_amdk7_probe() ?
+On Thu, 05 Oct 2006 09:29:42 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Nada, nothing appears even if I put a printk before we do any actual probing.
+> 
+> In the lazy programmer school of fixes.
+> 
+> I haven't really tested this in any configuration.
+> But reading video.S it does use variable in the bootsector.
+> It does seem to initialize the variables before use.
+> But obviously something is missed.
+> 
+> By zeroing the uninteresting parts of the bootsector just after we
+> have determined we are loaded ok.  We should ensure we are
+> always in a known state the entire time. 
+> 
+> Andrew if I am right about the cause of your video not working
+> when you set an enhanced video mode this should fix your boot
+> problem.
+> 
+> Singed-off-by: Eric Biederman <ebiederm@xmission.com>
+> 
+> diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
+> index 53903a4..246ac88 100644
+> --- a/arch/i386/boot/setup.S
+> +++ b/arch/i386/boot/setup.S
+> @@ -287,6 +287,13 @@ # Check if an old loader tries to load a
+>  loader_panic_mess: .string "Wrong loader, giving up..."
+>  
+>  loader_ok:
+> +# Zero initialize the variables we keep in the bootsector
+> +	xorw	%di, %di
+> +	xorb	%al, %al
+> +	movw	$497, %cx
+> +	rep
+> +	stosb
+> +
+>  # Get memory size (extended mem, kB)
+>  
+>  	xorl	%eax, %eax
 
-> What is pci_register_driver returning ?
-
-Don't know yet. II didn't yet walk agp_amdk7_init() and dump out the values 
-yet.
-
-> When we modprobe the chipset driver, and run through the ->probe, it's all
-> pci layer stuff really, up until we agp_alloc_bridge(). But if you're not
-> getting that far, the core agpgart stuff doesn't even come into play.
-
-> It's something of a mystery to me as that driver hasn't changed in ages
-> asides from spelling fixes and other trivialities.
-
-It does appear to be PCI. Yes, I don't see any significant changes in the agp 
-code (other than the one mentioned below)
-
-> Damn, that's going back a bit..
-> But again, this driver hasn't really changed much since 2.5.x, so I'm
-> wondering if this is a side-effect of some change in another subsystem.
-> Can you narrow it down to a specific kernel version where it broke ?
-> 2.6.15 -> 2.6.18 is such a huge delta it's not even worth looking at.
-> Narrow the scope, and I'll eyeball the pci changes etc.
-
-> I don't have any AMD hardware to test any more, so I've no chance of
-> trying to reproduce this.  All I can suggest is to try and narrow
-> down where it's failing, and then maybe I'll have enough clues to hazard
-> a guess at the cause.
-
-I'm going to do some git bisect fun (best time to learn how to do it) and 
-narrow this down later when I get back from work. We should find the cuprate 
-later today.
-
->  > Looking at the differences, I noticed some changes in generic.c for
->  > determing the AGP speed. I don't know if this has anything to do with
->  > this breaking. This video card is a Radeon 7500 AiW 64MB DDR and can do
->  > AGP4x and BIOS has AGP4x turned on by default. But this all would fail
->  > even before X is started if agpgart finds no chipset.
->
-> That code runs later when /dev/agpgart is open()'d, so it shouldn't
-> affect this. It shouldn't be hard to revert though if you want to
-> try it.  Also, that only changed the AGPx8 path, which no K7 chipsets can
-> do. If you ended up running that code, something is deeply screwed.
-
-> 	Dave
-
-I can certainly do a quick debug on that to confirm if it is or not hitting 
-that code path later today.
-
-Thanks Dave. I'll provide you more info once I narrow things down a bit.
-
-Shawn.
+That fixed the vga=0x263 crash.

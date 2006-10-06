@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422965AbWJFU7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422964AbWJFVDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422965AbWJFU7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWJFU7O
+	id S1422964AbWJFVDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422970AbWJFVDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:59:14 -0400
-Received: from natblert.rzone.de ([81.169.145.181]:12425 "EHLO
-	natblert.rzone.de") by vger.kernel.org with ESMTP id S1422962AbWJFU7L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:59:11 -0400
-Date: Fri, 6 Oct 2006 22:52:16 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Linus Torvalds <torvalds@osdl.org>, Paul Mackeras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH] powerpc: spu fixup after irq changes
-Message-ID: <20061006205216.GA8272@aepfle.de>
-References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org> <20061006203434.GA7932@aepfle.de>
+	Fri, 6 Oct 2006 17:03:10 -0400
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:53554 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1422964AbWJFVDJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 17:03:09 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20061006203434.GA7932@aepfle.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: forcedeth net driver: reverse mac address after pxe boot
+Date: Fri, 6 Oct 2006 14:02:58 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0189CAB1A@hqemmail02.nvidia.com>
+In-Reply-To: <20061006191115.GA21526@tuxdriver.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: forcedeth net driver: reverse mac address after pxe boot
+Thread-Index: Acbpez5yNf5zr9/MSfusBDaU2LxclAADymLw
+From: "Ayaz Abdulla" <AAbdulla@nvidia.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: "Alex Owen" <r.alex.owen@gmail.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Oct 2006 21:02:58.0851 (UTC) FILETIME=[CD76C730:01C6E98A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It is just a legacy bug that we have to live with. Newer chipsets will
+have the correct format in the BIOS.
 
-remove struct pt_regs * from remaining spu irq functions.
+With the latest forcedeth driver and latest PXE you should not have any
+issues.
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
-
----
-on top of previous irq fixup
+Regards,
+Ayaz
 
 
- arch/powerpc/platforms/cell/spu_base.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+-----Original Message-----
+From: John W. Linville [mailto:linville@tuxdriver.com] 
+Sent: Friday, October 06, 2006 12:12 PM
+To: Ayaz Abdulla
+Cc: Alex Owen; linux-kernel@vger.kernel.org
+Subject: Re: forcedeth net driver: reverse mac address after pxe boot
 
-Index: linux-2.6/arch/powerpc/platforms/cell/spu_base.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spu_base.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spu_base.c
-@@ -147,7 +147,7 @@ static int __spu_trap_data_map(struct sp
- }
- 
- static irqreturn_t
--spu_irq_class_0(int irq, void *data, struct pt_regs *regs)
-+spu_irq_class_0(int irq, void *data)
- {
- 	struct spu *spu;
- 
-@@ -186,7 +186,7 @@ spu_irq_class_0_bottom(struct spu *spu)
- EXPORT_SYMBOL_GPL(spu_irq_class_0_bottom);
- 
- static irqreturn_t
--spu_irq_class_1(int irq, void *data, struct pt_regs *regs)
-+spu_irq_class_1(int irq, void *data)
- {
- 	struct spu *spu;
- 	unsigned long stat, mask, dar, dsisr;
-@@ -224,7 +224,7 @@ spu_irq_class_1(int irq, void *data, str
- EXPORT_SYMBOL_GPL(spu_irq_class_1_bottom);
- 
- static irqreturn_t
--spu_irq_class_2(int irq, void *data, struct pt_regs *regs)
-+spu_irq_class_2(int irq, void *data)
- {
- 	struct spu *spu;
- 	unsigned long stat;
+
+On Fri, Oct 06, 2006 at 10:29:04AM -0700, Ayaz Abdulla wrote:
+> This has been fixed in version "243.0537". You will have to request an
+> updated BIOS from your board vendor.
+
+Ayaz,
+
+Can you explain the whole "reverse-order MAC address" thing?
+Why/how does it end-up in that register backwards in the first place?
+Does it serve some purpose that way?  Or is it just a bug that we
+have to live with?
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

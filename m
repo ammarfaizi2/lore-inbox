@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWJFAwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWJFAxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWJFAwz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 20:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWJFAwz
+	id S932513AbWJFAxG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 20:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWJFAxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 20:52:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:45707 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932512AbWJFAwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 20:52:54 -0400
-Message-ID: <4525A8D8.9050504@garzik.org>
-Date: Thu, 05 Oct 2006 20:52:40 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 5 Oct 2006 20:53:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:49260 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932513AbWJFAxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 20:53:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mViaR+bwcdEiHrywMG9hX/AwW5unxCj1XyeeT/mI5jFIaPhZY9hcbPOpmFXR+j5Se0xFD3FrL+bmQMXS/tSgIeDt9jWe21wyA7VenzzDtSnkUGQlDE8oRlmkj32fILA+SSA/PCavi8YchesjBj/4uzBG9DjKjpBE0oC2qYGBWXA=
+Message-ID: <513a5e60610051753o1dd828c4i52b8ba563601694a@mail.gmail.com>
+Date: Thu, 5 Oct 2006 19:53:02 -0500
+From: "Madhu Saravana Sibi Govindan" <ssshayagriva@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Using "Asynchronous Notifications" within an interrupt handler
+In-Reply-To: <513a5e60610051727t7f7c7b78u62410c4b8f8502a7@mail.gmail.com>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing
- to IRQ handlers
-References: <20061002132116.2663d7a3.akpm@osdl.org>  <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com>
-In-Reply-To: <18975.1160058127@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+References: <513a5e60610051727t7f7c7b78u62410c4b8f8502a7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The overwhelming majority of irq handlers don't use the 'irq' argument 
-either...  the driver-supplied pointer is what drivers use, exclusively, 
-to differentiate between different instances.
+Hello all,
 
-If we are going to break all the irq handlers, I'd suggest going ahead 
-and removing that one too.
+I'm developing a linux device driver for kernel version 2.16.15. I'm
+thinking of using the "Asynchronous Notification" mechanism, explained
+in the Linux Device Drivers book by Corbet and Rubini in Chapter 6,
+within an interrupt handler.
 
-	Jeff
+The idea is: whenever the device driver receives an interrupt from the
+hardware device, the interrupt handler uses this 'asynchronous
+notification' mechanism to notify a user-level process of this
+interrupt. The user-level process, on the other hand, is waiting for
+this SIGIO signal from the device driver.
 
+My question is: is it safe to use the asynchronous notification
+mechanism within an interrupt handler? I see that this call acquires a
+bunch of locks before sending the signal to the process. Would this
+cause any deadlocking situations? Or should I resort to the top and
+bottom half approach for interrupt handling and handle the
+notification in the bottom half?
 
+I'd be very thankful for suggestions/ideas on this topic.
+
+Regards and thanks in advance,
+G.Sibi
+
+PS: I've posted this to os_drivers@lists.osdl.org too. My apologies
+for the duplication.

@@ -1,48 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbWJFH2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWJFHbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbWJFH2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 03:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161093AbWJFH2S
+	id S1750711AbWJFHbp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 03:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWJFHbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 03:28:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17130 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161091AbWJFH2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 03:28:17 -0400
-Subject: Re: [patch 00/22] high resolution timers / dynamic ticks - V3
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, John Stultz <johnstul@us.ibm.com>,
-       Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-       Dave Jones <davej@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
-       Jim Gettys <jg@laptop.org>, Roman Zippel <zippel@linux-m68k.org>,
-       akpm@osdl.org
-In-Reply-To: <p73fye2zdjf.fsf@verdi.suse.de>
-References: <20061004172217.092570000@cruncher.tec.linutronix.de>
-	 <20061005011608.b69e3461.akpm@osdl.org> <20061005081725.GA28877@elte.hu>
-	 <p73fye2zdjf.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 06 Oct 2006 09:28:08 +0200
-Message-Id: <1160119688.3000.91.camel@laptopd505.fenrus.org>
+	Fri, 6 Oct 2006 03:31:45 -0400
+Received: from mo30.po.2iij.net ([210.128.50.53]:42529 "EHLO mo30.po.2iij.net")
+	by vger.kernel.org with ESMTP id S1750711AbWJFHbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 03:31:44 -0400
+Message-Id: <200610060731.k967Vaes094416@mbox33.po.2iij.net>
+Date: Fri, 6 Oct 2006 16:31:36 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: "Om Narasimhan" <om.turyx@gmail.com>
+Cc: yoichi_yuasa@tripeaks.co.jp, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [-mm PATCH] fixed PCMCIA au1000_generic.c
+In-Reply-To: <6b4e42d10610052318h53102e73h64766a7cb677be1b@mail.gmail.com>
+References: <20061003001115.e898b8cb.akpm@osdl.org>
+	<20061004224406.46a9d05c.yoichi_yuasa@tripeaks.co.jp>
+	<6b4e42d10610052318h53102e73h64766a7cb677be1b@mail.gmail.com>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Oct 2006 23:18:44 -0700
+"Om Narasimhan" <om.turyx@gmail.com> wrote:
 
-> But usually the problem wasn't that it was too slow, but that
-> it completely stopped in C2 or deeper. I don't think there
-> is a way to work around that except for not using C2 or deeper
-> (not an option) or using a different timer source.
+> On 10/4/06, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
+> > Hi,
+> >
+> Sorry for the late reply.
+> > pcmcia-au1000_generic-fix.patch has a problem.
+> > It needs more fix.
+> > ops->shutdown(skt), skt is out of definition scope.
+> 
+> Is it so?
+> After applying the patch, the code would look like,
+> -----
+> 
+> 		skt->status = au1x00_pcmcia_skt_state(skt);
+> 
+> 		ret = pcmcia_register_socket(&skt->socket);
+> 		if (ret)
+> 			goto out_err;
+> <snip>
+> 
+> out_err:
+> 	flush_scheduled_work();
+> 	ops->hw_shutdown(skt);
+> 	while (i-- > 0) {
+> 		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
+> 		del_timer_sync(&skt->poll_timer);
+> 		pcmcia_unregister_socket(&skt->socket);
+> 		flush_scheduled_work();
+> 		ops->hw_shutdown(skt);
+> 		i--;
+> 	}
+> 	kfree(sinfo);
+> -----
+> The  first call to ops->shutdown(skt) would free the skt (of the
+> function scope). The internal skt to the loop is a placeholder to call
+> shutdown().
+> Or did I miss any point?
 
-actually it's supposed to be C3 where lapic stops, not C2.
 
-For systems with C3, lapic is not usable for timers as is, and hpet or
-similar needs to be used instead.
+	for (i = 0; i < nr; i++) {
+		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i); <-- 1st skt definition
+<snip>
+		ret = pcmcia_register_socket(&skt->socket);
+		if (ret)
+			goto out_err;
 
+		WARN_ON(skt->socket.sock != i);
 
+		add_timer(&skt->poll_timer);
+	}
+<snip>
+
+out_err:
+	flush_scheduled_work();
+	ops->hw_shutdown(skt); <-- skt undeclared
+	while (i-- > 0) {
+		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i); <-- 2nd skt definition
+		del_timer_sync(&skt->poll_timer);
+		pcmcia_unregister_socket(&skt->socket);
+		flush_scheduled_work();
+		ops->hw_shutdown(skt);
+	}
+
+Yoichi

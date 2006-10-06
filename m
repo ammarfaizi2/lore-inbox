@@ -1,110 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWJFIQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWJFI03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWJFIQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 04:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWJFIQZ
+	id S1751204AbWJFI03 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 04:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWJFI03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 04:16:25 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:56565 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1750834AbWJFIQY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 04:16:24 -0400
-Date: Fri, 6 Oct 2006 01:16:07 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] x86_64 add missing enter_idle() calls
-Message-ID: <20061006081607.GB8793@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Fri, 6 Oct 2006 04:26:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:58049 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751204AbWJFI02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 04:26:28 -0400
+Subject: Re: __STRICT_ANSI__ checks in headers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ismail Donmez <ismail@pardus.org.tr>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       mchehab@infradead.org
+In-Reply-To: <200610051116.12726.ismail@pardus.org.tr>
+References: <200609150901.33644.ismail@pardus.org.tr>
+	 <200610011034.57158.ismail@pardus.org.tr>
+	 <20061001091411.GA9647@uranus.ravnborg.org>
+	 <200610051116.12726.ismail@pardus.org.tr>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 09:26:22 +0100
+Message-Id: <1160123182.26064.140.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2006-10-05 at 11:16 +0300, Ismail Donmez wrote:
+> The problem shows itself in the modpost, somehow __extension__ clause seems to 
+> foobar module CRC. I am not yet successfull on making modpost ignore 
+> __extension__ .
+> 
+> Any ideas appreciated. 
 
-Unless I am mistaken, I think we are missing some calls to enter_idle()
-in the x86_64 tree. The following patch adds a bunch of missing
-enter_idle() callbacks for some of the "direct" interrupt handlers.
+Something like this (and build with GENERATE_PARSER=1) _ought_ to do it,
+but doesn't work:
 
-changelog:
-	- adds missing enter_idle() calls to most of the "direct" interrupt
-	  handlers.
+diff --git a/scripts/genksyms/keywords.gperf b/scripts/genksyms/keywords.gperf
+index c75e0c8..1c31f38 100644
+--- a/scripts/genksyms/keywords.gperf
++++ b/scripts/genksyms/keywords.gperf
+@@ -11,6 +11,7 @@ __attribute, ATTRIBUTE_KEYW
+ __attribute__, ATTRIBUTE_KEYW
+ __const, CONST_KEYW
+ __const__, CONST_KEYW
++__extension__,EXTENSION_KEYW
+ __inline, INLINE_KEYW
+ __inline__, INLINE_KEYW
+ __signed, SIGNED_KEYW
+diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
+index ca04c94..66ae413 100644
+--- a/scripts/genksyms/parse.y
++++ b/scripts/genksyms/parse.y
+@@ -60,6 +60,7 @@ remove_list(struct string_list **pb, str
+ %token CONST_KEYW
+ %token DOUBLE_KEYW
+ %token ENUM_KEYW
++%token EXTENSION_KEYW
+ %token EXTERN_KEYW
+ %token FLOAT_KEYW
+ %token INLINE_KEYW
+@@ -269,7 +270,7 @@ cvar_qualifier_seq:
+ 
+ cvar_qualifier:
+ 	CONST_KEYW | VOLATILE_KEYW | ATTRIBUTE_PHRASE
+-	| RESTRICT_KEYW
++	| RESTRICT_KEYW | EXTENSION_KEYW
+ 		{ /* restrict has no effect in prototypes so ignore it */
+ 		  remove_node($1);
+ 		  $$ = $1;
 
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
+-- 
+dwmw2
 
-diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
-index af4a1c7..74ed3b8 100644
---- a/arch/x86_64/kernel/apic.c
-+++ b/arch/x86_64/kernel/apic.c
-@@ -1015,6 +1015,7 @@ #if 0
- 	} 
- #endif 
- 	irq_exit();
-+	enter_idle();
- }
- 
- /*
-@@ -1047,6 +1048,7 @@ asmlinkage void smp_error_interrupt(void
- 	printk (KERN_DEBUG "APIC error on CPU%d: %02x(%02x)\n",
- 	        smp_processor_id(), v , v1);
- 	irq_exit();
-+	enter_idle();
- }
- 
- int disable_apic; 
-diff --git a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
-index b8a407f..28c73d8 100644
---- a/arch/x86_64/kernel/irq.c
-+++ b/arch/x86_64/kernel/irq.c
-@@ -127,6 +127,7 @@ #endif
- 	irq_exit();
- 
- 	set_irq_regs(old_regs);
-+	enter_idle();
- 	return 1;
- }
- 
-diff --git a/arch/x86_64/kernel/mce_amd.c b/arch/x86_64/kernel/mce_amd.c
-index 883fe74..4b458eb 100644
---- a/arch/x86_64/kernel/mce_amd.c
-+++ b/arch/x86_64/kernel/mce_amd.c
-@@ -224,6 +224,7 @@ asmlinkage void mce_threshold_interrupt(
- 	}
- out:
- 	irq_exit();
-+	enter_idle();
- }
- 
- /*
-diff --git a/arch/x86_64/kernel/mce_intel.c b/arch/x86_64/kernel/mce_intel.c
-index 6551505..030b1e3 100644
---- a/arch/x86_64/kernel/mce_intel.c
-+++ b/arch/x86_64/kernel/mce_intel.c
-@@ -27,6 +27,7 @@ asmlinkage void smp_thermal_interrupt(vo
- 		mce_log_therm_throt_event(smp_processor_id(), msr_val);
- 
- 	irq_exit();
-+	enter_idle();
- }
- 
- static void __cpuinit intel_init_thermal(struct cpuinfo_x86 *c)
-diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
-diff --git a/arch/x86_64/kernel/smp.c b/arch/x86_64/kernel/smp.c
-index 4f67697..c1d70e3 100644
---- a/arch/x86_64/kernel/smp.c
-+++ b/arch/x86_64/kernel/smp.c
-@@ -520,5 +520,6 @@ asmlinkage void smp_call_function_interr
- 		mb();
- 		atomic_inc(&call_data->finished);
- 	}
-+	enter_idle();
- }
- 

@@ -1,93 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWJFCgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWJFCrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbWJFCgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 22:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWJFCgG
+	id S932574AbWJFCrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 22:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWJFCrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 22:36:06 -0400
-Received: from rtsoft3.corbina.net ([85.21.88.6]:784 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932569AbWJFCgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 22:36:03 -0400
-Date: Fri, 6 Oct 2006 06:35:40 +0400
-From: Vitaly Bordug <vbordug@ru.mvista.com>
-To: Olof Johansson <olof@lixom.net>
-Cc: galak@kernel.crashing.org, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] powerpc: fix fsl_soc build breaks
-Message-ID: <20061006063540.1b5c9528@localhost.localdomain>
-In-Reply-To: <20061005211648.0d550152@pb15>
-References: <20061005211648.0d550152@pb15>
-X-Mailer: Sylpheed-Claws 2.5.2cvs1 (GTK+ 2.10.4; i686-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=Sig_4WTd0IpFZsFYIgux4vvO0na;
- protocol="application/pgp-signature"; micalg=PGP-SHA1
+	Thu, 5 Oct 2006 22:47:52 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:32916 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932574AbWJFCrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 22:47:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=ARnUILLNu1jQ/ycuw9GEBNfHOqmkFvF2Ed9CUn0ahRKLuNjluFR3+KfkPMFfzwdKhS3K0jFlDPqZ7/xwFr8iZO3G09UUBSz0A8GCVSIxLieuahEvNIPjs1AbssKFC/ao5Msx8o0C7b6xDLhWHeIpfe9ol6QjNSHvofsCXNwBBQU=  ;
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Thu, 5 Oct 2006 19:47:43 -0700
+User-Agent: KMail/1.7.1
+Cc: Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610052325.39690.oliver@neukum.org>
+In-Reply-To: <200610052325.39690.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610051947.44595.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_4WTd0IpFZsFYIgux4vvO0na
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Thursday 05 October 2006 2:25 pm, Oliver Neukum wrote:
 
-On Thu, 5 Oct 2006 21:16:48 -0500
-Olof Johansson wrote:
+> - the issues of manual & automatic suspend and remote wakeup are orthogonal
+> - there should be a common API for all devices
 
-> Hrm, there's no way this ever built at time of merge. There's a
-> missing } and the wrong type on phy_irq.
->=20
-> Also, another const for get_property().
->=20
->=20
->   CC      arch/powerpc/sysdev/fsl_soc.o
-> arch/powerpc/sysdev/fsl_soc.c: In function 'fs_enet_of_init':
-> arch/powerpc/sysdev/fsl_soc.c:625: error: assignment of read-only
-> variable 'phy_irq' arch/powerpc/sysdev/fsl_soc.c:625: warning:
-> assignment makes integer from pointer without a cast
-> arch/powerpc/sysdev/fsl_soc.c:661: warning: assignment discards
-> qualifiers from pointer target type
-> arch/powerpc/sysdev/fsl_soc.c:684: error: subscripted value is
-> neither array nor pointer arch/powerpc/sysdev/fsl_soc.c:687: error:
-> subscripted value is neither array nor pointer
-> arch/powerpc/sysdev/fsl_soc.c:722: warning: ISO C90 forbids mixed
-> declarations and code arch/powerpc/sysdev/fsl_soc.c:728: error:
-> invalid storage class for function 'cpm_uart_of_init'
-> arch/powerpc/sysdev/fsl_soc.c:798: error: initializer element is not
-> constant arch/powerpc/sysdev/fsl_soc.c:798: error: expected
-> declaration or statement at end of input make[1]: ***
-> [arch/powerpc/sysdev/fsl_soc.o] Error 1
->=20
->=20
-> Signed-off-by: Olof Johansson <olof@lixom.net>
->=20
->=20
-> ---
->=20
-> There are more issues with this file. Whitespace, if () {}; and other
-> things. I'm just fixing the build breaks.
->=20
-> These were all introduced by patches fed upstream via git trees
-> instead of list posts, as far as I can tell. Maybe posting patches is
-> a better idea, more eyes on the code.
->=20
+AFAIK there is no demonstrated need for an API to suspend
+individual devices.  Of course there's the question of who
+would _use_ such a thing (some unspecified component, worth
+designing one first), but drivers can use internal runtime
+suspend mechanisms to be in low power modes and hide that
+fact from the rest of the system.  That is, activate on
+demand, suspend when idle.
 
-All those were submitted in form of patches prior, and located issues addre=
-ssed. I must mistype something with git-push,
-so it didn't fed in very latest changes. Thanks for pointing it out and sor=
-ry for confusion.
-
---
-Sincerely, Vitaly
-
---Sig_4WTd0IpFZsFYIgux4vvO0na
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFJcD8uOg9JvQhSEsRAilZAJ9z2huq0aovwaqEfI5BrVlUFasPFACcDgMk
-Qa6GGNCqOCWKbHP/JcVTLX4=
-=qAdB
------END PGP SIGNATURE-----
-
---Sig_4WTd0IpFZsFYIgux4vvO0na--

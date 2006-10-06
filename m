@@ -1,103 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWJFC1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWJFCgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWJFC1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 22:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWJFC1z
+	id S932569AbWJFCgG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 22:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWJFCgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 22:27:55 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:49334 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751021AbWJFC1y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 22:27:54 -0400
-Subject: Re: 2.6.19-rc1: kexec broken on x86_64
-From: Magnus Damm <magnus@valinux.co.jp>
-To: vgoyal@in.ibm.com
-Cc: Magnus Damm <magnus.damm@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@lists.osdl.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Horms <horms@verge.net.au>, Andi Kleen <ak@muc.de>,
-       Ian.Campbell@XenSource.com
-In-Reply-To: <20061005163347.GD20551@in.ibm.com>
-References: <aec7e5c30610050328i2bf9e3b6qcacc1873231ece28@mail.gmail.com>
-	 <20061005134522.GB20551@in.ibm.com>
-	 <aec7e5c30610050656u6d287752pc9d1bcbb807442d3@mail.gmail.com>
-	 <20061005163347.GD20551@in.ibm.com>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 11:28:27 +0900
-Message-Id: <1160101707.6870.8.camel@localhost>
+	Thu, 5 Oct 2006 22:36:06 -0400
+Received: from rtsoft3.corbina.net ([85.21.88.6]:784 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S932569AbWJFCgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 22:36:03 -0400
+Date: Fri, 6 Oct 2006 06:35:40 +0400
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+To: Olof Johansson <olof@lixom.net>
+Cc: galak@kernel.crashing.org, paulus@samba.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] powerpc: fix fsl_soc build breaks
+Message-ID: <20061006063540.1b5c9528@localhost.localdomain>
+In-Reply-To: <20061005211648.0d550152@pb15>
+References: <20061005211648.0d550152@pb15>
+X-Mailer: Sylpheed-Claws 2.5.2cvs1 (GTK+ 2.10.4; i686-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary=Sig_4WTd0IpFZsFYIgux4vvO0na;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 12:33 -0400, Vivek Goyal wrote:
-> On Thu, Oct 05, 2006 at 10:56:51PM +0900, Magnus Damm wrote:
-> > Hi Vivek,
-> > 
-> > On 10/5/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> > >On Thu, Oct 05, 2006 at 07:28:35PM +0900, Magnus Damm wrote:
-> > >> Kexec is broken on x86_64 under 2.6.19-rc1.
-> > >>
-> > >> Or rather - kexec works ok under 2.6.19-rc1, but something related to
-> > >> the vmlinux format has probably changed and kexec-tools fails to load
-> > >> a vmlinux from 2.6.19-rc1.
-> > >>
-> > >> Loading bzImage works as usual, but vmlinux does not load properly.
-> > >>
-> > >> The kexec binary fails with the following message:
-> > >>
-> > >> Overlapping memory segments at 0x351000
-> > >> sort_segments failed
-> > >> / #
-> > >>
-> > >
-> > >Hi Magnus,
-> > >
-> > >Can you please post the readelf -l output of the vmlinux you are trying
-> > >to load. That's will give some indication if the segments are really
-> > >overlapping in vmlinux or is it some processing bug at kexec-tools part.
-> > 
-> > Elf file type is EXEC (Executable file)
-> > Entry point 0x100100
-> > There are 4 program headers, starting at offset 64
-> > 
-> > Program Headers:
-> >  Type           Offset             VirtAddr           PhysAddr
-> >                 FileSiz            MemSiz              Flags  Align
-> >  LOAD           0x0000000000100000 0xffffffff80100000 0x0000000000100000
-> >                 0x00000000001a4888 0x00000000001a4888  R E    100000
-> >  LOAD           0x00000000002a5000 0xffffffff802a5000 0x00000000002a5000
-> >                 0x000000000008e086 0x00000000000c1504  RWE    100000
-> >  LOAD           0x0000000000400000 0xffffffffff600000 0x00000000002fd000
-> >                 0x0000000000000c08 0x0000000000000c08  RWE    100000
-> >  NOTE           0x0000000000000000 0x0000000000000000 0x0000000000000000
-> >                 0x0000000000000000 0x0000000000000000  R      8
-> > 
-> > Section to Segment mapping:
-> >  Segment Sections...
-> >   00     .text __ex_table .rodata .pci_fixup __ksymtab __ksymtab_gpl
-> > __ksymtab_unused __ksymtab_strings __param
-> >   01     .data .data.cacheline_aligned .data.read_mostly
-> > .data.init_task .data.page_aligned .init.text .init.data .init.setup
-> > .initcall.init .con_initcall.init .altinstructions
-> > .altinstr_replacement .exit.text .init.ramfs .bss
-> >   02     .vsyscall_0 .xtime_lock .vxtime .vgetcpu_mode .sys_tz
-> > .sysctl_vsyscall .xtime .jiffies .vsyscall_1 .vsyscall_2 .vsyscall_3
-> >   03
-> >
-> 
-> Hi Magnus,
-> 
-> I think this got introduced because of Ian Cambell's patch for creating
-> PT_NOTE headers. Can you please try attached patch. I think it should
-> fix the issue.
+--Sig_4WTd0IpFZsFYIgux4vvO0na
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-You are right, the patch solves the problem. It is now possible to use
-kexec on x86_64 to reboot into a vmlinux built from 2.6.19-rc1 + your
-patch.
+On Thu, 5 Oct 2006 21:16:48 -0500
+Olof Johansson wrote:
 
-Nice work, thanks!
+> Hrm, there's no way this ever built at time of merge. There's a
+> missing } and the wrong type on phy_irq.
+>=20
+> Also, another const for get_property().
+>=20
+>=20
+>   CC      arch/powerpc/sysdev/fsl_soc.o
+> arch/powerpc/sysdev/fsl_soc.c: In function 'fs_enet_of_init':
+> arch/powerpc/sysdev/fsl_soc.c:625: error: assignment of read-only
+> variable 'phy_irq' arch/powerpc/sysdev/fsl_soc.c:625: warning:
+> assignment makes integer from pointer without a cast
+> arch/powerpc/sysdev/fsl_soc.c:661: warning: assignment discards
+> qualifiers from pointer target type
+> arch/powerpc/sysdev/fsl_soc.c:684: error: subscripted value is
+> neither array nor pointer arch/powerpc/sysdev/fsl_soc.c:687: error:
+> subscripted value is neither array nor pointer
+> arch/powerpc/sysdev/fsl_soc.c:722: warning: ISO C90 forbids mixed
+> declarations and code arch/powerpc/sysdev/fsl_soc.c:728: error:
+> invalid storage class for function 'cpm_uart_of_init'
+> arch/powerpc/sysdev/fsl_soc.c:798: error: initializer element is not
+> constant arch/powerpc/sysdev/fsl_soc.c:798: error: expected
+> declaration or statement at end of input make[1]: ***
+> [arch/powerpc/sysdev/fsl_soc.o] Error 1
+>=20
+>=20
+> Signed-off-by: Olof Johansson <olof@lixom.net>
+>=20
+>=20
+> ---
+>=20
+> There are more issues with this file. Whitespace, if () {}; and other
+> things. I'm just fixing the build breaks.
+>=20
+> These were all introduced by patches fed upstream via git trees
+> instead of list posts, as far as I can tell. Maybe posting patches is
+> a better idea, more eyes on the code.
+>=20
 
-/ magnus
+All those were submitted in form of patches prior, and located issues addre=
+ssed. I must mistype something with git-push,
+so it didn't fed in very latest changes. Thanks for pointing it out and sor=
+ry for confusion.
 
+--
+Sincerely, Vitaly
+
+--Sig_4WTd0IpFZsFYIgux4vvO0na
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFJcD8uOg9JvQhSEsRAilZAJ9z2huq0aovwaqEfI5BrVlUFasPFACcDgMk
+Qa6GGNCqOCWKbHP/JcVTLX4=
+=qAdB
+-----END PGP SIGNATURE-----
+
+--Sig_4WTd0IpFZsFYIgux4vvO0na--

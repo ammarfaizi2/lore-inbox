@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWJFALM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWJFANY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWJFALM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 20:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWJFALM
+	id S932484AbWJFANY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 20:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWJFANX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 20:11:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44244 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932477AbWJFALL (ORCPT
+	Thu, 5 Oct 2006 20:13:23 -0400
+Received: from mailfe09.tele2.it ([212.247.155.13]:58079 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S932485AbWJFANV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 20:11:11 -0400
-Date: Thu, 5 Oct 2006 17:10:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [APM] Share APM emulator between architectures.
-Message-Id: <20061005171053.e467a5f4.akpm@osdl.org>
-In-Reply-To: <20061005151840.GA16842@linux-mips.org>
-References: <20061005151840.GA16842@linux-mips.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Oct 2006 20:13:21 -0400
+X-T2-Posting-ID: VkvTh9l7ZoGXxeaXnVjcEw==
+X-Cloudmark-Score: 0.000000 []
+Message-ID: <45259F9F.1050203@sssup.it>
+Date: Fri, 06 Oct 2006 02:13:19 +0200
+From: Tommaso Cucinotta <cucinotta@sssup.it>
+User-Agent: Mozilla Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: In-kernel precise timing.
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006 16:18:40 +0100
-Ralf Baechle <ralf@linux-mips.org> wrote:
+Hi,
 
-> Currently ARM and MIPS both have a copy of the APM emulation code.  Move
-> that code to drivers/char and make it selectable through
-> SYS_SUPPORTS_APM_EMULATION.  To make this work, fix MIPS Kconfig to use
-> kernel/power/Kconfig.
+I'd like to know what is the preferrable way,
+in a Linux kernel module, to get a notification
+at a time in the future so to avoid as much as
+possible unpredictable delays due to possible
+device driver interferences. Basically, I would
+like to use such a mechanism to preempt (also)
+real-time tasks for the purpose of temporally
+isolating them from among each other.
 
-It would have been better to create the new driver as a standalone
-patch, then let arm and mips independently migrate over to it later on.
+Is there any prioritary mechanism for specifying
+kind of higher priority timers, to be served as
+soon as possible, vs. lower priority ones, that
+could be e.g. delayed to ksoftirqd and similar ?
+(referring to 2.6.17/18, currently using add_timer(),
+del_timer(), but AFAICS these primitives are more
+appropriate for "timeout" behaviours, rather than
+"precise timing" ones).
 
-But if Russell's OK with this patch we can run with it.
+Thanks, regards,
+
+    T.

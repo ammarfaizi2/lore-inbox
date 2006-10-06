@@ -1,129 +1,212 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWJFUFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWJFUMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422913AbWJFUFT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422916AbWJFUFS
+	id S932570AbWJFUMT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWJFUMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:05:18 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:35558 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422912AbWJFUFQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:05:16 -0400
-Date: Fri, 6 Oct 2006 16:04:36 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Steve Fox <drfickle@us.ibm.com>, mel@skynet.ie
-Cc: Andi Kleen <ak@suse.de>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-Message-ID: <20061006200436.GG19756@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu> <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie> <20061006153629.GA19756@in.ibm.com> <20061006171105.GC9881@skynet.ie> <1160157830.29690.66.camel@flooterbu>
+	Fri, 6 Oct 2006 16:12:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52415 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932570AbWJFUMS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:12:18 -0400
+Date: Fri, 6 Oct 2006 13:11:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] call truncate_inode_pages in the DIO fallback to
+ buffered I/O path
+Message-Id: <20061006131148.9c6b88ab.akpm@osdl.org>
+In-Reply-To: <x49ac4a5zkw.fsf@segfault.boston.devel.redhat.com>
+References: <x49zmcc6mhh.fsf@segfault.boston.devel.redhat.com>
+	<20061004102522.d58c00ef.akpm@osdl.org>
+	<4523F486.1000604@oracle.com>
+	<x49mz8c6k83.fsf@segfault.boston.devel.redhat.com>
+	<20061004111603.20cdaa35.akpm@osdl.org>
+	<45240034.2040704@oracle.com>
+	<20061004121645.fd2765e4.akpm@osdl.org>
+	<x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
+	<20061004165504.c1dd3dd3.akpm@osdl.org>
+	<x49ac4a5zkw.fsf@segfault.boston.devel.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160157830.29690.66.camel@flooterbu>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 01:03:50PM -0500, Steve Fox wrote:
-> On Fri, 2006-10-06 at 18:11 +0100, Mel Gorman wrote:
-> > On (06/10/06 11:36), Vivek Goyal didst pronounce:
-> > > Where is bss placed in physical memory? I guess bss_start and bss_stop
-> > > from System.map will tell us. That will confirm that above memset step is
-> > > stomping over bss. Then we have to just find that somewhere probably
-> > > we allocated wrong physical memory area for bootmem allocator map.
-> > > 
-> > 
-> > BSS is at 0x643000 -> 0x777BC4
-> > init_bootmem wipes from 0x777000 -> 0x8F7000
-> > 
-> > So the BSS bytes from 0x777000 ->0x777BC4 (which looks very suspiciously
-> > pile a page alignment of addr & PAGE_MASK) gets set to 0xFF. One possible
-> > fix is below. It adds a check in bad_addr() to see if the BSS section is
-> > about to be used for bootmap. It Seems To Work For Me (tm) and illustrates
-> > the source of the problem even if it's not the 100% correct fix.
+On Thu, 05 Oct 2006 15:31:43 -0400
+Jeff Moyer <jmoyer@redhat.com> wrote:
+
+> akpm> I'd propose that we do this via
 > 
-> I was able to boot the machine with Mel's patch applied on top of
-> -git22.
+> akpm> 	generic_file_buffered_write(...);
+> akpm> 	do_sync_file_range(..., SYNC_FILE_RANGE_WAIT_BEFORE|
+> akpm> 			SYNC_FILE_RANGE_WRITE|
+> akpm> 			SYNC_FILE_RANGE_WAIT_AFTER)
+> 
+> akpm> 	invalidate_mapping_pages(...);
+> 
+> OK, patch attached.
+
+I mangled your patch rather a lot.
+
+- coding style (multiple declarations and multiple assignments)
+
+- `endbyte' should be loff_t, not pgoff_t.
+
+- sync the region (pos, pos+written), not (pos, pos+count).
+
+- attempt to return the correct value from __generic_file_aio_write_nolock
+  in all circumstances.
+
+- Avoid testing the O_DIRECT flag twice - just call
+  generic_file_buffered_write() from two sites.  Simpler and cleaner that way.
 
 
-Please have a look at the attached patch. Does it make some sense. 
-
-Steve, can you please give this patch a try if it fixes the problem?
-
-Thanks
-Vivek
+Patch is below.  The end result looks like:
 
 
+	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
+	if (unlikely(file->f_flags & O_DIRECT)) {
+		loff_t endbyte;
+		ssize_t written_buffered;
+
+		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
+							ppos, count, ocount);
+		if (written < 0 || written == count)
+			goto out;
+		/*
+		 * direct-io write to a hole: fall through to buffered I/O
+		 * for completing the rest of the request.
+		 */
+		pos += written;
+		count -= written;
+		written_buffered = generic_file_buffered_write(iocb, iov,
+						nr_segs, pos, ppos, count,
+						written);
+
+		/*
+		 * We need to ensure that the page cache pages are written to
+		 * disk and invalidated to preserve the expected O_DIRECT
+		 * semantics.
+		 */
+		endbyte = pos + written_buffered - 1;
+		err = do_sync_file_range(file, pos, endbyte,
+					 SYNC_FILE_RANGE_WAIT_BEFORE|
+					 SYNC_FILE_RANGE_WRITE|
+					 SYNC_FILE_RANGE_WAIT_AFTER);
+		if (err == 0) {
+			written += written_buffered;
+			invalidate_mapping_pages(mapping,
+						 pos >> PAGE_CACHE_SHIFT,
+						 endbyte >> PAGE_CACHE_SHIFT);
+		} else {
+			/*
+			 * We don't know how much we wrote, so just return
+			 * the number of bytes which were direct-written
+			 */
+		}
+	} else {
+		written = generic_file_buffered_write(iocb, iov, nr_segs,
+				pos, ppos, count, written);
+	}
+out:
+	current->backing_dev_info = NULL;
+	return written ? written : err;
+}
 
 
-o Currently some code pieces assume that address returned by find_e820_area()
-  are page aligned. But looks like find_e820_area() had no such intention
-  and hence one might end up stomping over some of the data. One such
-  case is bootmem allocator initialization code stomped over bss.
+Which I think is closer to correct, but boy it needs a lot of reviewing and
+testing.
 
-o This patch modified find_e820_area() to return page aligned address. This
-  might be little wasteful of memory but at the same time probably it is
-  easier to handle page aligned memory. 
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
 
- arch/x86_64/kernel/e820.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff -puN arch/x86_64/kernel/e820.c~x86_64-return-page-aligned-phy-addr-from-find-e820-area arch/x86_64/kernel/e820.c
---- linux-2.6.19-rc1-1M/arch/x86_64/kernel/e820.c~x86_64-return-page-aligned-phy-addr-from-find-e820-area	2006-10-06 15:28:13.000000000 -0400
-+++ linux-2.6.19-rc1-1M-root/arch/x86_64/kernel/e820.c	2006-10-06 15:44:45.000000000 -0400
-@@ -54,13 +54,13 @@ static inline int bad_addr(unsigned long
+diff -puN mm/filemap.c~direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write-fixes mm/filemap.c
+--- a/mm/filemap.c~direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write-fixes
++++ a/mm/filemap.c
+@@ -2228,7 +2228,7 @@ __generic_file_aio_write_nolock(struct k
+ 	struct inode 	*inode = mapping->host;
+ 	unsigned long	seg;
+ 	loff_t		pos;
+-	ssize_t		written, written_direct;
++	ssize_t		written;
+ 	ssize_t		err;
  
- 	/* various gunk below that needed for SMP startup */
- 	if (addr < 0x8000) { 
--		*addrp = 0x8000;
-+		*addrp = PAGE_ALIGN(0x8000);
- 		return 1; 
+ 	ocount = 0;
+@@ -2258,7 +2258,7 @@ __generic_file_aio_write_nolock(struct k
+ 
+ 	/* We can write back this queue in page reclaim */
+ 	current->backing_dev_info = mapping->backing_dev_info;
+-	written = written_direct = 0;
++	written = 0;
+ 
+ 	err = generic_write_checks(file, &pos, &count, S_ISBLK(inode->i_mode));
+ 	if (err)
+@@ -2275,8 +2275,11 @@ __generic_file_aio_write_nolock(struct k
+ 
+ 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
+ 	if (unlikely(file->f_flags & O_DIRECT)) {
+-		written = generic_file_direct_write(iocb, iov,
+-				&nr_segs, pos, ppos, count, ocount);
++		loff_t endbyte;
++		ssize_t written_buffered;
++
++		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
++							ppos, count, ocount);
+ 		if (written < 0 || written == count)
+ 			goto out;
+ 		/*
+@@ -2285,31 +2288,34 @@ __generic_file_aio_write_nolock(struct k
+ 		 */
+ 		pos += written;
+ 		count -= written;
++		written_buffered = generic_file_buffered_write(iocb, iov,
++						nr_segs, pos, ppos, count,
++						written);
+ 
+-		written_direct = written;
+-	}
+-
+-	written = generic_file_buffered_write(iocb, iov, nr_segs,
+-			pos, ppos, count, written);
+-
+-	/*
+-	 *  When falling through to buffered I/O, we need to ensure that the
+-	 *  page cache pages are written to disk and invalidated to preserve
+-	 *  the expected O_DIRECT semantics.
+-	 */
+-	if (unlikely(file->f_flags & O_DIRECT)) {
+-		pgoff_t endbyte = pos + count - 1;
+-
++		/*
++		 * We need to ensure that the page cache pages are written to
++		 * disk and invalidated to preserve the expected O_DIRECT
++		 * semantics.
++		 */
++		endbyte = pos + written_buffered - 1;
+ 		err = do_sync_file_range(file, pos, endbyte,
+ 					 SYNC_FILE_RANGE_WAIT_BEFORE|
+ 					 SYNC_FILE_RANGE_WRITE|
+ 					 SYNC_FILE_RANGE_WAIT_AFTER);
+-		if (err == 0)
++		if (err == 0) {
++			written += written_buffered;
+ 			invalidate_mapping_pages(mapping,
+ 						 pos >> PAGE_CACHE_SHIFT,
+ 						 endbyte >> PAGE_CACHE_SHIFT);
+-		else
+-			written = written_direct;
++		} else {
++			/*
++			 * We don't know how much we wrote, so just return
++			 * the number of bytes which were direct-written
++			 */
++		}
++	} else {
++		written = generic_file_buffered_write(iocb, iov, nr_segs,
++				pos, ppos, count, written);
  	}
- 
- 	/* direct mapping tables of the kernel */
- 	if (last >= table_start<<PAGE_SHIFT && addr < table_end<<PAGE_SHIFT) { 
--		*addrp = table_end << PAGE_SHIFT; 
-+		*addrp = PAGE_ALIGN(table_end << PAGE_SHIFT);
- 		return 1;
- 	} 
- 
-@@ -68,18 +68,18 @@ static inline int bad_addr(unsigned long
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (LOADER_TYPE && INITRD_START && last >= INITRD_START && 
- 	    addr < INITRD_START+INITRD_SIZE) { 
--		*addrp = INITRD_START + INITRD_SIZE; 
-+		*addrp = PAGE_ALIGN(INITRD_START + INITRD_SIZE);
- 		return 1;
- 	} 
- #endif
- 	/* kernel code */
--	if (last >= __pa_symbol(&_text) && last < __pa_symbol(&_end)) {
--		*addrp = __pa_symbol(&_end);
-+	if (last >= __pa_symbol(&_text) && addr < __pa_symbol(&_end)) {
-+		*addrp = PAGE_ALIGN(__pa_symbol(&_end));
- 		return 1;
- 	}
- 
- 	if (last >= ebda_addr && addr < ebda_addr + ebda_size) {
--		*addrp = ebda_addr + ebda_size;
-+		*addrp = PAGE_ALIGN(ebda_addr + ebda_size);
- 		return 1;
- 	}
- 
-@@ -152,7 +152,7 @@ unsigned long __init find_e820_area(unsi
- 			continue; 
- 		while (bad_addr(&addr, size) && addr+size <= ei->addr+ei->size)
- 			;
--		last = addr + size;
-+		last = PAGE_ALIGN(addr) + size;
- 		if (last > ei->addr + ei->size)
- 			continue;
- 		if (last > end) 
+ out:
+ 	current->backing_dev_info = NULL;
 _
+

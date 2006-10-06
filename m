@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWJFLC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWJFLFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWJFLC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJFLC6
+	id S1751511AbWJFLFG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWJFLFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:02:58 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3279 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751481AbWJFLC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:02:57 -0400
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
-	passing to IRQ handlers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-In-Reply-To: <4525A8D8.9050504@garzik.org>
-References: <20061002132116.2663d7a3.akpm@osdl.org>
-	 <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
-	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
-	 <18975.1160058127@warthog.cambridge.redhat.com>
-	 <4525A8D8.9050504@garzik.org>
+	Fri, 6 Oct 2006 07:05:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26860 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751493AbWJFLFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:05:01 -0400
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
+References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de>
+	 <45255D34.804@garzik.org> <200610052142.29692.ak@suse.de>
+	 <452564B9.4010209@garzik.org>
+	 <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 06 Oct 2006 12:25:32 +0100
-Message-Id: <1160133932.1607.68.camel@localhost.localdomain>
+Organization: Intel International BV
+Date: Fri, 06 Oct 2006 13:03:50 +0200
+Message-Id: <1160132630.3000.98.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-10-05 am 20:52 -0400, ysgrifennodd Jeff Garzik:
-> The overwhelming majority of irq handlers don't use the 'irq' argument 
-> either...  the driver-supplied pointer is what drivers use, exclusively, 
-> to differentiate between different instances.
+On Thu, 2006-10-05 at 15:45 -0700, Linus Torvalds wrote:
 > 
-> If we are going to break all the irq handlers, I'd suggest going ahead 
-> and removing that one too.
+> On Thu, 5 Oct 2006, Jeff Garzik wrote:
+> 
+> > Andi Kleen wrote:
+> > > If the choice is between a secret NDA only card with dubious
+> > > functionality and booting on lots of modern boards I know what to choose.
+> > 
+> > That's a strawman argument.  There is no need to choose.  You can clearly boot
+> > on lots of modern boards with mmconfig just fine.  We just need to narrow down
+> > which ones.
+> 
+> Jeff, _that_ is the strawman argument.
+> 
+> The thing is, nobody has been able to so far come up with a way to narrow 
+> down which ones.
+> 
+> I think Andi's response was quite on the mark: if you have a patch to 
+> narrow it down, please share. Until then, the fact is, we don't know 
+> _how_, and you're barking up the wrong tree.
 
-NAK to that, it will mess up a lot of older drivers which still use the
-irq field and also those who want it to print
+
+we can do a tiny bit better than the current code; some chipsets have
+the address of the MMIO region stored in their config space; so we can
+get to that using the old method and validate the acpi code with that.
+
+I'm (in the background) working on collecting which chipsets have this;
+it seems that at least several Intel ones do.
+
+
 

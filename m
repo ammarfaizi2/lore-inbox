@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422892AbWJFTIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWJFTKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422892AbWJFTIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422893AbWJFTIR
+	id S1422664AbWJFTKb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 15:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422657AbWJFTKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:08:17 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:31134 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422892AbWJFTIP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 15:08:15 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Tim Bird <tim.bird@am.sony.com>
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-Date: Fri, 6 Oct 2006 12:08:09 -0700
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, "Theodore Ts'o" <theotso@us.ibm.com>
-References: <200610051404.08540.dvhltc@us.ibm.com> <452696C8.9000009@am.sony.com>
-In-Reply-To: <452696C8.9000009@am.sony.com>
+	Fri, 6 Oct 2006 15:10:31 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:62911 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1422647AbWJFTKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 15:10:30 -0400
+Date: Fri, 6 Oct 2006 21:09:07 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Olaf Hering <olaf@aepfle.de>
+cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] fix mesh compile errors after irq changes
+In-Reply-To: <20061006185310.GA6757@aepfle.de>
+Message-ID: <Pine.LNX.4.62.0610062108300.23747@pademelon.sonytel.be>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+ <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+ <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+ <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
+ <20061006185310.GA6757@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610061208.09867.dvhltc@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 October 2006 10:47, Tim Bird wrote:
-> Darren Hart wrote:
-> > There is now a realtime Linux wiki available here:
-> >
-> > http://rt.wiki.kernel.org
-> >
-> > The goal is to provide a place for folks interested in realtime Linux to
-> > learn more, and for those working on or with realtime Linux to share
-> > their code, tests, and experiences.
->
-> Looks good!  This is interesting timing.  CELF is in the process of
-> putting together an Embedded Linux Wiki, and one of the sections
-> was going to be realtime.  However, with this announcement, I think
-> we need to re-think at least that part of our planned site.
->
-> Quite possibly we should throw our efforts towards this
-> (at least for kernel-oriented realtime info).  BTW, we also plan
-> to use MediaWiki, so that much would be consistent with your site.
+On Fri, 6 Oct 2006, Olaf Hering wrote:
+> drivers/scsi/mesh.c:469: error: too many arguments to function 'mesh_interrupt'
+> drivers/scsi/mesh.c:507: error: too many arguments to function 'mesh_interrupt'
+> 
+> Signed-off-by: Olaf Hering <olaf@aepfle.de>
+> 
+> ---
+>  drivers/scsi/mesh.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6/drivers/scsi/mesh.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/scsi/mesh.c
+> +++ linux-2.6/drivers/scsi/mesh.c
+> @@ -466,7 +466,7 @@ static void mesh_start_cmd(struct mesh_s
+>  				dlog(ms, "intr b4 arb, intr/exc/err/fc=%.8x",
+>  				     MKWORD(mr->interrupt, mr->exception,
+>  					    mr->error, mr->fifo_count));
+> -				mesh_interrupt(0, (void *)ms, NULL);
+> +				mesh_interrupt(0, (void *)ms);
+                                                  ^^^^^^^^
+>  				if (ms->phase != arbitrating)
+>  					return;
+>  			}
+> @@ -504,7 +504,7 @@ static void mesh_start_cmd(struct mesh_s
+>  		dlog(ms, "intr after disresel, intr/exc/err/fc=%.8x",
+>  		     MKWORD(mr->interrupt, mr->exception,
+>  			    mr->error, mr->fifo_count));
+> -		mesh_interrupt(0, (void *)ms, NULL);
+> +		mesh_interrupt(0, (void *)ms);
+                                  ^^^^^^^^
+These casts are superfluous, right?
 
-We would really appreciate any -rt relevant content you could contribute.
+Gr{oetje,eeting}s,
 
-Thanks,
+						Geert
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

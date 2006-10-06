@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWJFEvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWJFEwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751787AbWJFEvI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 00:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWJFEvI
+	id S1751782AbWJFEwc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 00:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWJFEwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 00:51:08 -0400
-Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:37353 "EHLO
-	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751788AbWJFEvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 00:51:06 -0400
+	Fri, 6 Oct 2006 00:52:31 -0400
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:52362 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751784AbWJFEwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 00:52:30 -0400
 From: Vadim Lobanov <vlobanov@speakeasy.net>
 To: akpm@osdl.org
-Subject: [PATCH 2/5] fdtable: Make fdarray and fdsets equal in size.
-Date: Thu, 5 Oct 2006 21:51:04 -0700
+Subject: [PATCH 5/5] fdtable: Extensive fs/file.c cleanups.
+Date: Thu, 5 Oct 2006 21:52:28 -0700
 User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -20,429 +20,457 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610052151.04490.vlobanov@speakeasy.net>
+Message-Id: <200610052152.29013.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, each fdtable supports three dynamically-sized arrays of data: the
-fdarray and two fdsets. The code allows the number of fds supported by the
-fdarray (fdtable->max_fds) to differ from the number of fds supported by each
-of the fdsets (fdtable->max_fdset). In practice, it is wasteful for these two
-sizes to differ: whenever we hit a limit on the smaller-capacity structure, we
-will reallocate the entire fdtable and all the dynamic arrays within it, so
-any delta in the memory used by the larger-capacity structure will never be
-touched at all. Rather than hogging this excess, we shouldn't even allocate it
-in the first place, and keep the capacities of the fdarray and the fdsets
-equal. This patch removes fdtable->max_fdset. As an added bonus, most of the
-supporting code becomes simpler.
+As long as the previous patch replaces the guts of fs/file.c, it makes sense
+to tidy up all the code within. This work includes:
+	code simplification via refactoring,
+	elimination of unnecessary code paths,
+	extensive commenting throughout the entire file, and
+	other minor cleanups and consistency tweaks.
+This patch does not contain any functional modifications.
+
+This is the last patch in the series. All the code should now be sparkly
+clean.
 
 Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
 
-diff -Npru old/arch/alpha/kernel/osf_sys.c new/arch/alpha/kernel/osf_sys.c
---- old/arch/alpha/kernel/osf_sys.c	2006-10-05 19:16:56.000000000 -0700
-+++ new/arch/alpha/kernel/osf_sys.c	2006-10-05 19:27:25.000000000 -0700
-@@ -979,7 +979,7 @@ osf_select(int n, fd_set __user *inp, fd
- 	long timeout;
- 	int ret = -EINVAL;
- 	struct fdtable *fdt;
--	int max_fdset;
-+	int max_fds;
- 
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -1003,9 +1003,9 @@ osf_select(int n, fd_set __user *inp, fd
- 
- 	rcu_read_lock();
- 	fdt = files_fdtable(current->files);
--	max_fdset = fdt->max_fdset;
-+	max_fds = fdt->max_fds;
- 	rcu_read_unlock();
--	if (n < 0 || n > max_fdset)
-+	if (n < 0 || n > max_fds)
- 		goto out_nofds;
- 
- 	/*
-diff -Npru old/arch/mips/kernel/kspd.c new/arch/mips/kernel/kspd.c
---- old/arch/mips/kernel/kspd.c	2006-09-19 20:42:06.000000000 -0700
-+++ new/arch/mips/kernel/kspd.c	2006-10-05 19:27:25.000000000 -0700
-@@ -301,7 +301,7 @@ static void sp_cleanup(void)
- 	for (;;) {
- 		unsigned long set;
- 		i = j * __NFDBITS;
--		if (i >= fdt->max_fdset || i >= fdt->max_fds)
-+		if (i >= fdt->max_fds)
- 			break;
- 		set = fdt->open_fds->fds_bits[j++];
- 		while (set) {
-diff -Npru old/fs/compat.c new/fs/compat.c
---- old/fs/compat.c	2006-10-05 19:17:17.000000000 -0700
-+++ new/fs/compat.c	2006-10-05 19:27:25.000000000 -0700
-@@ -1674,19 +1674,19 @@ int compat_core_sys_select(int n, compat
- {
- 	fd_set_bits fds;
- 	char *bits;
--	int size, max_fdset, ret = -EINVAL;
-+	int size, max_fds, ret = -EINVAL;
- 	struct fdtable *fdt;
- 
- 	if (n < 0)
- 		goto out_nofds;
- 
--	/* max_fdset can increase, so grab it once to avoid race */
-+	/* max_fds can increase, so grab it once to avoid race */
- 	rcu_read_lock();
- 	fdt = files_fdtable(current->files);
--	max_fdset = fdt->max_fdset;
-+	max_fds = fdt->max_fds;
- 	rcu_read_unlock();
--	if (n > max_fdset)
--		n = max_fdset;
-+	if (n > max_fds)
-+		n = max_fds;
- 
- 	/*
- 	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
-diff -Npru old/fs/exec.c new/fs/exec.c
---- old/fs/exec.c	2006-10-05 19:17:17.000000000 -0700
-+++ new/fs/exec.c	2006-10-05 19:27:25.000000000 -0700
-@@ -782,7 +782,7 @@ static void flush_old_files(struct files
- 		j++;
- 		i = j * __NFDBITS;
- 		fdt = files_fdtable(files);
--		if (i >= fdt->max_fds || i >= fdt->max_fdset)
-+		if (i >= fdt->max_fds)
- 			break;
- 		set = fdt->close_on_exec->fds_bits[j];
- 		if (!set)
-diff -Npru old/fs/fcntl.c new/fs/fcntl.c
---- old/fs/fcntl.c	2006-10-05 19:17:17.000000000 -0700
-+++ new/fs/fcntl.c	2006-10-05 19:27:25.000000000 -0700
-@@ -77,10 +77,9 @@ repeat:
- 		start = files->next_fd;
- 
- 	newfd = start;
--	if (start < fdt->max_fdset) {
-+	if (start < fdt->max_fds)
- 		newfd = find_next_zero_bit(fdt->open_fds->fds_bits,
--			fdt->max_fdset, start);
--	}
-+					   fdt->max_fds, start);
- 	
- 	error = -EMFILE;
- 	if (newfd >= current->signal->rlim[RLIMIT_NOFILE].rlim_cur)
 diff -Npru old/fs/file.c new/fs/file.c
---- old/fs/file.c	2006-10-05 19:17:17.000000000 -0700
-+++ new/fs/file.c	2006-10-05 19:27:25.000000000 -0700
-@@ -69,8 +69,8 @@ void free_fd_array(struct file **array, 
+--- old/fs/file.c	2006-10-05 21:22:30.000000000 -0700
++++ new/fs/file.c	2006-10-05 21:22:43.000000000 -0700
+@@ -1,21 +1,18 @@
+ /*
+  *  linux/fs/file.c
+  *
++ *  Manage the dynamic fd arrays in the process files_struct.
+  *  Copyright (C) 1998-1999, Stephen Tweedie and Bill Hawes
+  *
+- *  Manage the dynamic fd arrays in the process files_struct.
++ *  Pagesize-based fdarray/fdset allocation algorithm; major cleanups.
++ *  Copyright (C) 2006, Vadim Lobanov
+  */
  
- static void __free_fdtable(struct fdtable *fdt)
- {
--	free_fdset(fdt->open_fds, fdt->max_fdset);
--	free_fdset(fdt->close_on_exec, fdt->max_fdset);
-+	free_fdset(fdt->open_fds, fdt->max_fds);
-+	free_fdset(fdt->close_on_exec, fdt->max_fds);
- 	free_fd_array(fdt->fd, fdt->max_fds);
- 	kfree(fdt);
- }
-@@ -113,7 +113,7 @@ static void free_fdtable_rcu(struct rcu_
- 	struct fdtable_defer *fddef;
+ #include <linux/fs.h>
+-#include <linux/mm.h>
+-#include <linux/time.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/file.h>
+-#include <linux/bitops.h>
+ #include <linux/interrupt.h>
+-#include <linux/spinlock.h>
+-#include <linux/rcupdate.h>
+ #include <linux/workqueue.h>
  
- 	BUG_ON(!fdt);
--	fdset_size = fdt->max_fdset / 8;
-+	fdset_size = fdt->max_fds / 8;
- 	fdarray_size = fdt->max_fds * sizeof(struct file *);
- 
- 	if (fdt->free_files) {
-@@ -125,13 +125,11 @@ static void free_fdtable_rcu(struct rcu_
- 		kmem_cache_free(files_cachep, fdt->free_files);
- 		return;
- 	}
--	if (fdt->max_fdset <= EMBEDDED_FD_SET_SIZE &&
--		fdt->max_fds <= NR_OPEN_DEFAULT) {
-+	if (fdt->max_fds <= NR_OPEN_DEFAULT)
- 		/*
- 		 * The fdtable was embedded
- 		 */
- 		return;
--	}
- 	if (fdset_size <= PAGE_SIZE && fdarray_size <= PAGE_SIZE) {
- 		kfree(fdt->open_fds);
- 		kfree(fdt->close_on_exec);
-@@ -156,9 +154,7 @@ static void free_fdtable_rcu(struct rcu_
- 
- void free_fdtable(struct fdtable *fdt)
- {
--	if (fdt->free_files ||
--		fdt->max_fdset > EMBEDDED_FD_SET_SIZE ||
--		fdt->max_fds > NR_OPEN_DEFAULT)
-+	if (fdt->free_files || fdt->max_fds > NR_OPEN_DEFAULT)
- 		call_rcu(&fdt->rcu, free_fdtable_rcu);
- }
- 
-@@ -171,12 +167,11 @@ static void copy_fdtable(struct fdtable 
- 	int i;
- 	int count;
- 
--	BUG_ON(nfdt->max_fdset < fdt->max_fdset);
- 	BUG_ON(nfdt->max_fds < fdt->max_fds);
- 	/* Copy the existing tables and install the new pointers */
- 
--	i = fdt->max_fdset / (sizeof(unsigned long) * 8);
--	count = (nfdt->max_fdset - fdt->max_fdset) / 8;
-+	i = fdt->max_fds / (sizeof(unsigned long) * 8);
-+	count = (nfdt->max_fds - fdt->max_fds) / 8;
- 
- 	/*
- 	 * Don't copy the entire array if the current fdset is
-@@ -184,9 +179,9 @@ static void copy_fdtable(struct fdtable 
- 	 */
- 	if (i) {
- 		memcpy (nfdt->open_fds, fdt->open_fds,
--						fdt->max_fdset/8);
-+						fdt->max_fds/8);
- 		memcpy (nfdt->close_on_exec, fdt->close_on_exec,
--						fdt->max_fdset/8);
-+						fdt->max_fds/8);
- 		memset (&nfdt->open_fds->fds_bits[i], 0, count);
- 		memset (&nfdt->close_on_exec->fds_bits[i], 0, count);
- 	}
-@@ -221,7 +216,7 @@ fd_set * alloc_fdset(int num)
- 
- void free_fdset(fd_set *array, int num)
- {
--	if (num <= EMBEDDED_FD_SET_SIZE) /* Don't free an embedded fdset */
-+	if (num <= NR_OPEN_DEFAULT) /* Don't free an embedded fdset */
- 		return;
- 	else if (num <= 8 * PAGE_SIZE)
- 		kfree(array);
-@@ -240,18 +235,6 @@ static struct fdtable *alloc_fdtable(int
- 	if (!fdt)
-   		goto out;
- 
--	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nr + 1));
--	if (nfds > NR_OPEN)
--		nfds = NR_OPEN;
--
--  	new_openset = alloc_fdset(nfds);
--  	new_execset = alloc_fdset(nfds);
--  	if (!new_openset || !new_execset)
--  		goto out;
--	fdt->open_fds = new_openset;
--	fdt->close_on_exec = new_execset;
--	fdt->max_fdset = nfds;
--
- 	nfds = NR_OPEN_DEFAULT;
- 	/*
- 	 * Expand to the max in easy steps, and keep expanding it until
-@@ -271,15 +254,21 @@ static struct fdtable *alloc_fdtable(int
- 				nfds = NR_OPEN;
-   		}
- 	} while (nfds <= nr);
-+
-+  	new_openset = alloc_fdset(nfds);
-+  	new_execset = alloc_fdset(nfds);
-+  	if (!new_openset || !new_execset)
-+  		goto out;
-+	fdt->open_fds = new_openset;
-+	fdt->close_on_exec = new_execset;
-+
- 	new_fds = alloc_fd_array(nfds);
- 	if (!new_fds)
--		goto out2;
-+		goto out;
- 	fdt->fd = new_fds;
- 	fdt->max_fds = nfds;
- 	fdt->free_files = NULL;
- 	return fdt;
--out2:
--	nfds = fdt->max_fdset;
- out:
- 	free_fdset(new_openset, nfds);
- 	free_fdset(new_execset, nfds);
-@@ -310,7 +299,7 @@ static int expand_fdtable(struct files_s
- 	 * we dropped the lock
- 	 */
- 	cur_fdt = files_fdtable(files);
--	if (nr >= cur_fdt->max_fds || nr >= cur_fdt->max_fdset) {
-+	if (nr >= cur_fdt->max_fds) {
- 		/* Continue as planned */
- 		copy_fdtable(new_fdt, cur_fdt);
- 		rcu_assign_pointer(files->fdt, new_fdt);
-@@ -336,11 +325,10 @@ int expand_files(struct files_struct *fi
- 
- 	fdt = files_fdtable(files);
- 	/* Do we need to expand? */
--	if (nr < fdt->max_fdset && nr < fdt->max_fds)
-+	if (nr < fdt->max_fds)
- 		return 0;
- 	/* Can we expand? */
--	if (fdt->max_fdset >= NR_OPEN || fdt->max_fds >= NR_OPEN ||
--	    nr >= NR_OPEN)
-+	if (nr >= NR_OPEN)
- 		return -EMFILE;
- 
- 	/* All good, so we try */
-diff -Npru old/fs/open.c new/fs/open.c
---- old/fs/open.c	2006-10-05 19:17:17.000000000 -0700
-+++ new/fs/open.c	2006-10-05 19:27:25.000000000 -0700
-@@ -864,8 +864,7 @@ int get_unused_fd(void)
- 
- repeat:
- 	fdt = files_fdtable(files);
-- 	fd = find_next_zero_bit(fdt->open_fds->fds_bits,
--				fdt->max_fdset,
-+	fd = find_next_zero_bit(fdt->open_fds->fds_bits, fdt->max_fds,
- 				files->next_fd);
- 
- 	/*
-diff -Npru old/fs/select.c new/fs/select.c
---- old/fs/select.c	2006-10-05 19:17:18.000000000 -0700
-+++ new/fs/select.c	2006-10-05 19:27:25.000000000 -0700
-@@ -311,7 +311,7 @@ static int core_sys_select(int n, fd_set
- {
- 	fd_set_bits fds;
- 	void *bits;
--	int ret, max_fdset;
-+	int ret, max_fds;
- 	unsigned int size;
- 	struct fdtable *fdt;
- 	/* Allocate small arguments on the stack to save memory and be faster */
-@@ -321,13 +321,13 @@ static int core_sys_select(int n, fd_set
- 	if (n < 0)
- 		goto out_nofds;
- 
--	/* max_fdset can increase, so grab it once to avoid race */
-+	/* max_fds can increase, so grab it once to avoid race */
- 	rcu_read_lock();
- 	fdt = files_fdtable(current->files);
--	max_fdset = fdt->max_fdset;
-+	max_fds = fdt->max_fds;
- 	rcu_read_unlock();
--	if (n > max_fdset)
--		n = max_fdset;
-+	if (n > max_fds)
-+		n = max_fds;
- 
- 	/*
- 	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
-diff -Npru old/include/linux/file.h new/include/linux/file.h
---- old/include/linux/file.h	2006-10-05 19:17:19.000000000 -0700
-+++ new/include/linux/file.h	2006-10-05 19:27:25.000000000 -0700
-@@ -26,14 +26,8 @@ struct embedded_fd_set {
- 	unsigned long fds_bits[1];
+ struct fdtable_defer {
+@@ -26,13 +23,16 @@ struct fdtable_defer {
  };
  
--/*
-- * More than this number of fds: we use a separately allocated fd_set
-- */
--#define EMBEDDED_FD_SET_SIZE (BITS_PER_BYTE * sizeof(struct embedded_fd_set))
+ /*
+- * We use this list to defer free fdtables that have vmalloced
+- * sets/arrays. By keeping a per-cpu list, we avoid having to embed
+- * the work_struct in fdtable itself which avoids a 64 byte (i386) increase 
+in
+- * this per-task structure.
++ * We use this list to defer free fdtables that have vmalloced sets/arrays. 
+By
++ * keeping a per-cpu list, we avoid having to embed the work_struct in the
++ * fdtable itself.
+  */
+ static DEFINE_PER_CPU(struct fdtable_defer, fdtable_defer_list);
+ 
++/**
++ * alloc_fdmem - Allocate space for fdtable dynamic data.
++ * @size: Amount of memory, in bytes, required to hold the data.
++ */
+ static inline void * alloc_fdmem(unsigned int size)
+ {
+ 	if (size <= PAGE_SIZE)
+@@ -41,6 +41,10 @@ static inline void * alloc_fdmem(unsigne
+ 		return vmalloc(size);
+ }
+ 
++/**
++ * free_fdarr - Free the fdarray within the fdtable.
++ * @fdt: The containing fdtable.
++ */
+ static inline void free_fdarr(struct fdtable *fdt)
+ {
+ 	if (fdt->max_fds <= (PAGE_SIZE / sizeof(struct file *)))
+@@ -49,6 +53,10 @@ static inline void free_fdarr(struct fdt
+ 		vfree(fdt->fd);
+ }
+ 
++/**
++ * free_fdset - Free the fdsets within the fdtable.
++ * @fdt: The containing fdtable.
++ */
+ static inline void free_fdset(struct fdtable *fdt)
+ {
+ 	if (fdt->max_fds <= (PAGE_SIZE * BITS_PER_BYTE / 2))
+@@ -57,32 +65,58 @@ static inline void free_fdset(struct fdt
+ 		vfree(fdt->open_fds);
+ }
+ 
++/**
++ * fdtable_timer - Reschedule deferred fdtable deletion work.
++ * @data: Typecast pointer to the relevant fdtable_defer structure.
++ */
+ static void fdtable_timer(unsigned long data)
+ {
+-	struct fdtable_defer *fddef = (struct fdtable_defer *)data;
++	struct fdtable_defer *fddef;
+ 
++	fddef = (struct fdtable_defer *)data;
+ 	spin_lock(&fddef->lock);
+ 	/*
+-	 * If someone already emptied the queue return.
++	 * If there are any fdtables scheduled for deletion, then try to
++	 * schedule this work. If we could not schedule, then run this function
++	 * again in a little while.
+ 	 */
+-	if (!fddef->next)
+-		goto out;
+-	if (!schedule_work(&fddef->wq))
+-		mod_timer(&fddef->timer, 5);
+-out:
++	if (fddef->next)
++		if (!schedule_work(&fddef->wq))
++			mod_timer(&fddef->timer, 5);
+ 	spin_unlock(&fddef->lock);
+ }
+ 
+-static void free_fdtable_work(struct fdtable_defer *f)
++/**
++ * free_fdtable_work - Free deferred fdtables.
++ * @fddef: Per-cpu area containing a list of deferred fdtables.
++ *
++ * Fdtable structures which contain member data obtained using vmalloc are 
+not
++ * freed immediately, but are instead deferred for the workqueue context. The
++ * workqueue uses this function to handle the deferred fdtables.
++ */
++static void free_fdtable_work(struct fdtable_defer *fddef)
+ {
+ 	struct fdtable *fdt;
+ 
+-	spin_lock_bh(&f->lock);
+-	fdt = f->next;
+-	f->next = NULL;
+-	spin_unlock_bh(&f->lock);
+-	while(fdt) {
+-		struct fdtable *next = fdt->next;
++	/*
++	 * Grab a linked list of the deferred fdtables. We'll free those, so
++	 * set the list as empty before continuing with the real work.
++	 */
++	spin_lock_bh(&fddef->lock);
++	fdt = fddef->next;
++	fddef->next = NULL;
++	spin_unlock_bh(&fddef->lock);
++
++	while (fdt) {
++		struct fdtable *next;
++
++		next = fdt->next;
++		/*
++		 * Since this fdtable was deferred, we know for a fact that the
++		 * fdarray was obtained with vmalloc. The fdset is smaller,
++		 * however, so we must check its size to know how to release
++		 * it.
++		 */
+ 		vfree(fdt->fd);
+ 		free_fdset(fdt);
+ 		kfree(fdt);
+@@ -90,36 +124,52 @@ static void free_fdtable_work(struct fdt
+ 	}
+ }
+ 
++/**
++ * free_fdtable_rcu - Free an fdtable or its wrapper files_struct.
++ * @rcu: The RCU head structure embedded within the to-be-freed fdtable.
++ *
++ * In order to correctly free an fdtable that was in use by the system, this
++ * function should be invoked as an RCU callback on the target fdtable. It 
+must
++ * be used on non-embedded fdtables or embedded fdtables once the wrapper
++ * files_struct is to be discarded; it must not be used on embedded fdtables
++ * where the wrapper files_struct must persist.
++ */
+ void free_fdtable_rcu(struct rcu_head *rcu)
+ {
+-	struct fdtable *fdt = container_of(rcu, struct fdtable, rcu);
+-	struct fdtable_defer *fddef;
 -
+-	BUG_ON(!fdt);
++	struct fdtable *fdt;
+ 
++	fdt = container_of(rcu, struct fdtable, rcu);
+ 	if (fdt->max_fds <= NR_OPEN_DEFAULT) {
+ 		/*
+-		 * This fdtable is embedded in the files structure and that
+-		 * structure itself is getting destroyed.
++		 * This fdtable is embedded within a wrapper files_struct, and
++		 * both are now expired. Free the container.
+ 		 */
+ 		kmem_cache_free(files_cachep,
+ 				container_of(fdt, struct files_struct, fdtab));
+ 		return;
+ 	}
+ 	if (fdt->max_fds <= (PAGE_SIZE / sizeof(struct file *))) {
++		/*
++		 * The fdarray was obtained with kmalloc, and since the fdset
++		 * will always be smaller we know it was also obtained with
++		 * kmalloc. Thus, we can dispose of the fdtable right now.
++		 */
+ 		kfree(fdt->fd);
+ 		kfree(fdt->open_fds);
+ 		kfree(fdt);
+ 	} else {
++		struct fdtable_defer *fddef;
++
++		/*
++		 * The fdset has at least one component obtained with vmalloc.
++		 * Hence, we will handle deallocation from the workqueue
++		 * context. If we are unable to schedule the work, then we set
++		 * a timer to fire and reattempt to schedule later.
++		 */
+ 		fddef = &get_cpu_var(fdtable_defer_list);
+ 		spin_lock(&fddef->lock);
+ 		fdt->next = fddef->next;
+ 		fddef->next = fdt;
+-		/*
+-		 * vmallocs are handled from the workqueue context.
+-		 * If the per-cpu workqueue is running, then we
+-		 * defer work scheduling through a timer.
+-		 */
+ 		if (!schedule_work(&fddef->wq))
+ 			mod_timer(&fddef->timer, 5);
+ 		spin_unlock(&fddef->lock);
+@@ -127,23 +177,34 @@ void free_fdtable_rcu(struct rcu_head *r
+ 	}
+ }
+ 
+-/*
+- * Expand the fdset in the files_struct.  Called with the files spinlock
+- * held for write.
++/**
++ * copy_fdtable - Copy fdtable data.
++ * @nfdt: New fdtable to copy data to.
++ * @ofdt: Old fdtable to copy data from.
++ *
++ * Copy fdarray and fdset data from the old fdtable to the new fdtable. If 
+the
++ * new fdtable supports more file entries, then the extra high-order data 
+will
++ * be zeroed. The file_lock related to ofdt must be held for write.
+  */
+ static void copy_fdtable(struct fdtable *nfdt, struct fdtable *ofdt)
+ {
+ 	unsigned int cpy, set;
+ 
+ 	BUG_ON(nfdt->max_fds < ofdt->max_fds);
++	/*
++	 * Don't copy or clear the data if we are creating a new fdtable for
++	 * fork().
++	 */
+ 	if (ofdt->max_fds == 0)
+ 		return;
+ 
++	/* Initialize the new fdarray. */
+ 	cpy = ofdt->max_fds * sizeof(struct file *);
+ 	set = (nfdt->max_fds - ofdt->max_fds) * sizeof(struct file *);
+ 	memcpy(nfdt->fd, ofdt->fd, cpy);
+ 	memset((char *)(nfdt->fd) + cpy, 0, set);
+ 
++	/* Initialize the new fdsets. */
+ 	cpy = ofdt->max_fds / BITS_PER_BYTE;
+ 	set = (nfdt->max_fds - ofdt->max_fds) / BITS_PER_BYTE;
+ 	memcpy(nfdt->open_fds, ofdt->open_fds, cpy);
+@@ -152,6 +213,16 @@ static void copy_fdtable(struct fdtable 
+ 	memset((char *)(nfdt->close_on_exec) + cpy, 0, set);
+ }
+ 
++/**
++ * alloc_fdtable - Allocate an appropriately-sized fdtable.
++ * @nr: Requested fd index to be supported.
++ *
++ * Allocate and initialize a new fdtable. The fdtable must be able to support
++ * the requested file descriptor nr within its internal data structures.
++ *
++ * On success, the newly-created fdtable is returned. On allocation failure,
++ * NULL is returned.
++ */
+ static struct fdtable * alloc_fdtable(unsigned int nr)
+ {
+ 	struct fdtable *fdt;
+@@ -171,20 +242,24 @@ static struct fdtable * alloc_fdtable(un
+ 	if (nr > NR_OPEN)
+ 		nr = NR_OPEN;
+ 
++	/* Create the fdtable itself. */
+ 	fdt = kmalloc(sizeof(struct fdtable), GFP_KERNEL);
+ 	if (!fdt)
+ 		goto out;
+ 	fdt->max_fds = nr;
++	/* Allocate space for the fdarray. */
+ 	data = alloc_fdmem(nr * sizeof(struct file *));
+ 	if (!data)
+ 		goto out_fdt;
+ 	fdt->fd = (struct file **)data;
++	/* Allocate space for both fdsets together - open_fds is the base. */
+ 	data = alloc_fdmem(2 * nr / BITS_PER_BYTE);
+ 	if (!data)
+ 		goto out_arr;
+ 	fdt->open_fds = (fd_set *)data;
+ 	data += nr / BITS_PER_BYTE;
+ 	fdt->close_on_exec = (fd_set *)data;
++	/* Initialize the rest of the fdtable. */
+ 	INIT_RCU_HEAD(&fdt->rcu);
+ 	fdt->next = NULL;
+ 
+@@ -198,82 +273,83 @@ out:
+ 	return NULL;
+ }
+ 
+-/*
+- * Expand the file descriptor table.
+- * This function will allocate a new fdtable and both fd array and fdset, of
+- * the given size.
+- * Return <0 error code on error; 1 on successful completion.
+- * The files->file_lock should be held on entry, and will be held on exit.
++/**
++ * expand_files - Accommodate an fd index inside a files structure.
++ * @files: The files structure that must be sized.
++ * @nr: Requested fd index to be supported.
++ *
++ * Make sure that the given files structure can accommodate the provided fd
++ * index within its associated fdtable. If the requested index exceeds the
++ * current capacity and there is room for expansion, a larger fdtable will be
++ * created and installed. The files->file_lock should be held on entry, and
++ * will be held on exit.
++ *
++ * If the current fdtable is sufficient, 0 is returned. If the fdtable was
++ * expanded and execution may have blocked, 1 is returned. On an error
++ * condition, a negative error code is returned.
+  */
+-static int expand_fdtable(struct files_struct *files, int nr)
++int expand_files(struct files_struct *files, int nr)
+ 	__releases(files->file_lock)
+ 	__acquires(files->file_lock)
+ {
+-	struct fdtable *new_fdt, *cur_fdt;
++	struct fdtable *cur_fdt, *new_fdt;
+ 
++	cur_fdt = files_fdtable(files);
++	/* Do we need to expand? */
++	if (nr < cur_fdt->max_fds)
++		return 0;
++	/* Are we allowed to expand? */
++	if (nr >= NR_OPEN)
++		return -EMFILE;
++
++	/* Allocate a larger fdtable outside the lock. */
+ 	spin_unlock(&files->file_lock);
+ 	new_fdt = alloc_fdtable(nr);
+ 	spin_lock(&files->file_lock);
+ 	if (!new_fdt)
+ 		return -ENOMEM;
++	cur_fdt = files_fdtable(files);
+ 	/*
+-	 * Check again since another task may have expanded the fd table while
+-	 * we dropped the lock
++	 * Check the sizes again since another task may have expanded the
++	 * fdtable while we dropped the lock.
+ 	 */
+-	cur_fdt = files_fdtable(files);
+-	if (nr >= cur_fdt->max_fds) {
+-		/* Continue as planned */
++	if (nr < cur_fdt->max_fds) {
++		/* Somebody else expanded, so undo our allocation attempt. */
++		free_fdarr(new_fdt);
++		free_fdset(new_fdt);
++		kfree(new_fdt);
++	} else {
++		/* All good. Install the new fdtable and retire the old one. */
+ 		copy_fdtable(new_fdt, cur_fdt);
+ 		rcu_assign_pointer(files->fdt, new_fdt);
+ 		if (cur_fdt->max_fds > NR_OPEN_DEFAULT)
+ 			call_rcu(&cur_fdt->rcu, free_fdtable_rcu);
+-	} else {
+-		/* Somebody else expanded, so undo our attempt */
+-		free_fdarr(new_fdt);
+-		free_fdset(new_fdt);
+-		kfree(new_fdt);
+ 	}
+ 	return 1;
+ }
+ 
+-/*
+- * Expand files.
+- * This function will expand the file structures, if the requested size 
+exceeds
+- * the current capacity and there is room for expansion.
+- * Return <0 error code on error; 0 when nothing done; 1 when files were
+- * expanded and execution may have blocked.
+- * The files->file_lock should be held on entry, and will be held on exit.
++/**
++ * fdtable_defer_list_init - Initialize the per-cpu fdtable defer list.
++ * @cpu: The cpu for which the defer list should be initialized.
+  */
+-int expand_files(struct files_struct *files, int nr)
+-{
+-	struct fdtable *fdt;
+-
+-	fdt = files_fdtable(files);
+-	/* Do we need to expand? */
+-	if (nr < fdt->max_fds)
+-		return 0;
+-	/* Can we expand? */
+-	if (nr >= NR_OPEN)
+-		return -EMFILE;
+-
+-	/* All good, so we try */
+-	return expand_fdtable(files, nr);
+-}
+-
+ static void __devinit fdtable_defer_list_init(int cpu)
+ {
+-	struct fdtable_defer *fddef = &per_cpu(fdtable_defer_list, cpu);
++	struct fdtable_defer *fddef;
++
++	fddef = &per_cpu(fdtable_defer_list, cpu);
+ 	spin_lock_init(&fddef->lock);
+ 	INIT_WORK(&fddef->wq, (void (*)(void *))free_fdtable_work, fddef);
+-	init_timer(&fddef->timer);
+-	fddef->timer.data = (unsigned long)fddef;
+-	fddef->timer.function = fdtable_timer;
++	setup_timer(&fddef->timer, fdtable_timer, (unsigned long)fddef);
+ 	fddef->next = NULL;
+ }
+ 
++/**
++ * files_defer_init - Initialize the fdtable defer lists.
++ */
+ void __init files_defer_init(void)
+ {
+ 	int i;
++
+ 	for_each_possible_cpu(i)
+ 		fdtable_defer_list_init(i);
+ }
+diff -Npru old/include/linux/file.h new/include/linux/file.h
+--- old/include/linux/file.h	2006-10-05 21:22:30.000000000 -0700
++++ new/include/linux/file.h	2006-10-05 21:22:43.000000000 -0700
+@@ -29,8 +29,8 @@ struct embedded_fd_set {
  struct fdtable {
  	unsigned int max_fds;
--	int max_fdset;
  	struct file ** fd;      /* current fd array */
- 	fd_set *close_on_exec;
+-	fd_set *close_on_exec;
  	fd_set *open_fds;
-diff -Npru old/include/linux/init_task.h new/include/linux/init_task.h
---- old/include/linux/init_task.h	2006-10-05 19:17:19.000000000 -0700
-+++ new/include/linux/init_task.h	2006-10-05 19:27:25.000000000 -0700
-@@ -11,7 +11,6 @@
- #define INIT_FDTABLE \
- {							\
- 	.max_fds	= NR_OPEN_DEFAULT, 		\
--	.max_fdset	= EMBEDDED_FD_SET_SIZE,		\
- 	.fd		= &init_files.fd_array[0], 	\
- 	.close_on_exec	= (fd_set *)&init_files.close_on_exec_init, \
- 	.open_fds	= (fd_set *)&init_files.open_fds_init, 	\
-diff -Npru old/kernel/exit.c new/kernel/exit.c
---- old/kernel/exit.c	2006-10-05 19:17:20.000000000 -0700
-+++ new/kernel/exit.c	2006-10-05 19:27:25.000000000 -0700
-@@ -428,7 +428,7 @@ static void close_files(struct files_str
- 	for (;;) {
- 		unsigned long set;
- 		i = j * __NFDBITS;
--		if (i >= fdt->max_fdset || i >= fdt->max_fds)
-+		if (i >= fdt->max_fds)
- 			break;
- 		set = fdt->open_fds->fds_bits[j++];
- 		while (set) {
-diff -Npru old/kernel/fork.c new/kernel/fork.c
---- old/kernel/fork.c	2006-10-05 19:21:52.000000000 -0700
-+++ new/kernel/fork.c	2006-10-05 19:27:25.000000000 -0700
-@@ -596,7 +596,7 @@ static inline int copy_fs(unsigned long 
- 
- static int count_open_files(struct fdtable *fdt)
- {
--	int size = fdt->max_fdset;
-+	int size = fdt->max_fds;
- 	int i;
- 
- 	/* Find the last open fd */
-@@ -623,7 +623,6 @@ static struct files_struct *alloc_files(
- 	newf->next_fd = 0;
- 	fdt = &newf->fdtab;
- 	fdt->max_fds = NR_OPEN_DEFAULT;
--	fdt->max_fdset = EMBEDDED_FD_SET_SIZE;
- 	fdt->close_on_exec = (fd_set *)&newf->close_on_exec_init;
- 	fdt->open_fds = (fd_set *)&newf->open_fds_init;
- 	fdt->fd = &newf->fd_array[0];
-@@ -644,7 +643,7 @@ static struct files_struct *dup_fd(struc
- {
- 	struct files_struct *newf;
- 	struct file **old_fds, **new_fds;
--	int open_files, size, i, expand;
-+	int open_files, size, i;
- 	struct fdtable *old_fdt, *new_fdt;
- 
- 	*errorp = -ENOMEM;
-@@ -655,25 +654,14 @@ static struct files_struct *dup_fd(struc
- 	spin_lock(&oldf->file_lock);
- 	old_fdt = files_fdtable(oldf);
- 	new_fdt = files_fdtable(newf);
--	size = old_fdt->max_fdset;
- 	open_files = count_open_files(old_fdt);
--	expand = 0;
- 
- 	/*
--	 * Check whether we need to allocate a larger fd array or fd set.
--	 * Note: we're not a clone task, so the open count won't  change.
-+	 * Check whether we need to allocate a larger fd array and fd set.
-+	 * Note: we're not a clone task, so the open count won't change.
- 	 */
--	if (open_files > new_fdt->max_fdset) {
--		new_fdt->max_fdset = 0;
--		expand = 1;
--	}
- 	if (open_files > new_fdt->max_fds) {
- 		new_fdt->max_fds = 0;
--		expand = 1;
--	}
--
--	/* if the old fdset gets grown now, we'll only copy up to "size" fds */
--	if (expand) {
- 		spin_unlock(&oldf->file_lock);
- 		spin_lock(&newf->file_lock);
- 		*errorp = expand_files(newf, open_files-1);
-@@ -719,8 +707,8 @@ static struct files_struct *dup_fd(struc
- 	/* This is long word aligned thus could use a optimized version */ 
- 	memset(new_fds, 0, size); 
- 
--	if (new_fdt->max_fdset > open_files) {
--		int left = (new_fdt->max_fdset-open_files)/8;
-+	if (new_fdt->max_fds > open_files) {
-+		int left = (new_fdt->max_fds-open_files)/8;
- 		int start = open_files / (8 * sizeof(unsigned long));
- 
- 		memset(&new_fdt->open_fds->fds_bits[start], 0, left);
-diff -Npru old/security/selinux/hooks.c new/security/selinux/hooks.c
---- old/security/selinux/hooks.c	2006-10-05 19:17:27.000000000 -0700
-+++ new/security/selinux/hooks.c	2006-10-05 19:27:25.000000000 -0700
-@@ -1728,7 +1728,7 @@ static inline void flush_unauthorized_fi
- 		j++;
- 		i = j * __NFDBITS;
- 		fdt = files_fdtable(files);
--		if (i >= fdt->max_fds || i >= fdt->max_fdset)
-+		if (i >= fdt->max_fds)
- 			break;
- 		set = fdt->open_fds->fds_bits[j];
- 		if (!set)
++	fd_set *close_on_exec;
+ 	struct rcu_head rcu;
+ 	struct fdtable *next;
+ };

@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWJFL1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWJFL1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWJFL1c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWJFL1c
+	id S1751212AbWJFL1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWJFL1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:27:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:26009 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750727AbWJFL1a (ORCPT
+	Fri, 6 Oct 2006 07:27:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61373 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751212AbWJFL1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:27:30 -0400
-Message-ID: <45263D9C.9030200@garzik.org>
-Date: Fri, 06 Oct 2006 07:27:24 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 6 Oct 2006 07:27:52 -0400
+Date: Fri, 6 Oct 2006 13:27:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Message-ID: <20061006112742.GL29353@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610052325.39690.oliver@neukum.org> <200610051947.44595.david-b@pacbell.net> <200610060904.51936.oliver@neukum.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than	passing
- to IRQ handlers
-References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu>
-In-Reply-To: <20061006111156.GA19678@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610060904.51936.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Jeff Garzik <jeff@garzik.org> wrote:
+On Fri 2006-10-06 09:04:51, Oliver Neukum wrote:
+> Am Freitag, 6. Oktober 2006 04:47 schrieb David Brownell:
+> > On Thursday 05 October 2006 2:25 pm, Oliver Neukum wrote:
+> > 
+> > > - the issues of manual & automatic suspend and remote wakeup are orthogonal
+> > > - there should be a common API for all devices
+> > 
+> > AFAIK there is no demonstrated need for an API to suspend
+> > individual devices.  Of course there's the question of who
+> > would _use_ such a thing (some unspecified component, worth
+> > designing one first), but drivers can use internal runtime
+> > suspend mechanisms to be in low power modes and hide that
+> > fact from the rest of the system.  That is, activate on
+> > demand, suspend when idle.
 > 
->>> NAK to that, it will mess up a lot of older drivers which still use 
->>> the irq field and also those who want it to print
->> Look at the pt_regs change -- the irq change is similar:
->>
->> The information does not go away, it is merely available via another 
->> avenue.
-> 
-> but pt_regs is alot less frequently used than irq - and where it's used 
-> they arent "drivers" but mostly arch level code like hw-timer handlers.
+> I doubt that a lot. Eg. Again, if I close the lid I may want my USB
+> network cards be suspended or not and that decision might change several
+> times a day. It's a policy decision in many cases. And I'd not be
+> happy
 
-Nonetheless the -vast majority- of drivers don't use the argument at 
-all, and the minority that do use it are not modern drivers.
+If you want your usb network card suspended... there's perfectly fine
+interface to do that. It is called "ifconfig usbeth0 down".
 
-	Jeff
+> with being required to down the interfaces to do so. Suspension should
+> be as transparent as possible.
 
+What you want is fairly hard to implement in kernel, and it is not
+clear if it is kernel job after all. "Transparent" is nice, but
+"simple kernel code" is nice, too.
 
+If you have very simple&easy&nice&transparent kernel code that can do
+what you want, fine; but maybe we want to trade "transparent" for
+"KISS".
 
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWJFWI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422994AbWJFWQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932642AbWJFWI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 18:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWJFWI1
+	id S1422994AbWJFWQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 18:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWJFWQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 18:08:27 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:23275 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932642AbWJFWI0 (ORCPT
+	Fri, 6 Oct 2006 18:16:48 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:16936 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1422994AbWJFWQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 18:08:26 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-Date: Sat, 7 Oct 2006 00:01:01 +0200
-User-Agent: KMail/1.9.1
-Cc: Arjan van de Ven <arjan@infradead.org>, Jeff Garzik <jeff@garzik.org>,
-       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <200610051910.25418.ak@suse.de> <1160132630.3000.98.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0610060906140.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610060906140.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 6 Oct 2006 18:16:47 -0400
+X-IronPort-AV: i="4.09,273,1157353200"; 
+   d="scan'208"; a="415723073:sNHT16908944"
+Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Steve Dickson <SteveD@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4526CF6F.9040006@RedHat.com>
+References: <1160170629.5453.34.camel@lade.trondhjem.org>
+	 <4526CF6F.9040006@RedHat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610070001.01752.rjw@sisk.pl>
+Organization: Network Appliance Inc
+Date: Fri, 06 Oct 2006 18:16:30 -0400
+Message-Id: <1160172990.12253.14.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 06 Oct 2006 22:16:45.0878 (UTC) FILETIME=[1C2D7D60:01C6E995]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 6 October 2006 18:07, Linus Torvalds wrote:
-> 
-> On Fri, 6 Oct 2006, Arjan van de Ven wrote:
-> >
-> > we can do a tiny bit better than the current code; some chipsets have
-> > the address of the MMIO region stored in their config space; so we can
-> > get to that using the old method and validate the acpi code with that.
-> 
-> Yes. I think trusting ACPI is _always_ a mistake. It's insane. We should 
-> never ask the firmware for any data that we can just figure out ourselves.
-> 
-> And we should tell all hardware companies that firmware tables are stupid, 
-> and that we just want to know what the hell the registers MEAN!
-> 
-> I've certainly tried to tell Intel that. I think they may even have heard 
-> me occasionally.
-> 
-> I can't understand why some people _still_ think ACPI is a good idea..
+On Fri, 2006-10-06 at 17:49 -0400, Steve Dickson wrote:
+> Trond Myklebust wrote:
+> > If try_to_release_page() is called with a zero gfp mask, then the
+> > filesystem is effectively denied the possibility of sleeping while
+> > attempting to release the page. There doesn't appear to be any valid
+> > reason why this should be banned, given that we're not calling this from
+> > a memory allocation context.
+> >  
+> > For this reason, change the gfp_mask argument of the call to GFP_KERNEL.
+> >     
+> > Note: I am less sure of what the callers of invalidate_complete_page()
+> > require, and so this patch does not touch that mask.
+> > 
+> > Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+> > ---
+> > diff --git a/mm/truncate.c b/mm/truncate.c
+> > index f4edbc1..49c1ffd 100644
+> > --- a/mm/truncate.c
+> > +++ b/mm/truncate.c
+> > @@ -302,7 +302,7 @@ invalidate_complete_page2(struct address
+> >  	if (page->mapping != mapping)
+> >  		return 0;
+> >  
+> > -	if (PagePrivate(page) && !try_to_release_page(page, 0))
+> > +	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
+> >  		return 0;
+> >  
+> >  	write_lock_irq(&mapping->tree_lock);
+> Well I was using mapping_gfp_mask(mapping) as the argument to
+> try_to_release_page() which also worked... but isn't this
+> just plugging one of many holes?
 
-I violently agree.
+Yeah using mapping_gfp_mask(mapping) sounds like a better option.
 
-Rafael
+...and yes, there are other callers that need to be audited. I'm
+particularly curious about the effect of the call in
+block_invalidatepage() on XFS, which has a similar test to ours.
 
+The call in fallback_migrate_page() should probably be using
+mapping_gfp_mask() too.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+> Meaning try_to_release_page is called
+> from a number of places with a zero gfp_mask so shouldn't those
+> also be fixed as well OR removed the gfp_mask as an argument as the
+> comment at the top of try_to_release_page() alludes to?
 
+Nope. In order to make it work correctly with NFS and XFS, all calls to
+try_to_release_page() would have to be allowed to be blocking. The
+problem is that shrink_page_list() still wants to call
+try_to_release_page() from a memory allocation context.
+
+Cheers,
+  Trond

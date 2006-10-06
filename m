@@ -1,246 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbWJFW5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWJFXBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422721AbWJFW5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 18:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbWJFW5h
+	id S1422723AbWJFXBW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWJFXBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 18:57:37 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:41106 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422721AbWJFW5g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 18:57:36 -0400
-Subject: Re: 2.6.18 Nasty Lockup
-From: john stultz <johnstul@us.ibm.com>
-To: caglar@pardus.org.tr
-Cc: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>
-In-Reply-To: <200609291149.52443.caglar@pardus.org.tr>
-References: <20060926123640.GA7826@tigers.local>
-	 <1159384500.29040.3.camel@localhost>
-	 <200609281439.58755.caglar@pardus.org.tr>
-	 <200609291149.52443.caglar@pardus.org.tr>
-Content-Type: multipart/mixed; boundary="=-d2p7oeR/CqJ0IcMXG2vH"
-Date: Fri, 06 Oct 2006 15:57:32 -0700
-Message-Id: <1160175452.6140.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 6 Oct 2006 19:01:22 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:16075 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1422723AbWJFXBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 19:01:21 -0400
+X-Sasl-enc: PKwv7ArVa7OkV1K/0wqTO5zqyrEgx+P0dCNR0KSZu/2G 1160175681
+Message-ID: <4526E0AC.9070105@imap.cc>
+Date: Sat, 07 Oct 2006 01:03:08 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: mingo@elte.hu
+Subject: v2.6.19-rc1 regression: printk missing klogd wakeup
+References: <72sfz-wa-1@gated-at.bofh.it>
+In-Reply-To: <72sfz-wa-1@gated-at.bofh.it>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig988FC63E2C514997B72C7FE2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig988FC63E2C514997B72C7FE2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---=-d2p7oeR/CqJ0IcMXG2vH
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Unsurprisingly, v2.6.19-rc1 still contains the problem I reported
+for v2.6.18-rc1 under the subject "Linux v2.6.18-rc1: printk delays"
+and later (unfortunately not before it made it into v2.6.18) tracked
+down through bisecting to
 
-On Fri, 2006-09-29 at 11:49 +0300, S.Çağlar Onur wrote:
-> 28 Eyl 2006 Per 14:39 tarihinde, S.Çağlar Onur şunları yazmıştı: 
-> > 27 Eyl 2006 Çar 22:14 tarihinde, john stultz şunları yazmıştı:
-> > > Ok. Good to hear you have a workaround. Now to sort out why your TSCs
-> > > are becoming un-synced. From the dmesg you sent me privately, I noticed
-> > > that while you have 4 cpus, the following message only shows up once:
-> > >
-> > > ACPI: Processor [CPU1] (supports 8 throttling states)
-> > >
-> > > Does disabling cpufreq change anything?
-> >
-> > By the way i tried but nothing changes :(
-> 
-> Is there any other advice available? Is there anything else you want me to 
-> try?
+[a0f1ccfd8d37457a6d8a9e01acebeefcdfcc306e] lockdep: do not recurse in pri=
+ntk
 
-Hey S.Çağlar,
+Problem description:
+> While X is running, output from printk() appears in syslog (eg.
+> /var/log/messages) only after a key is pressed on the system keyboard,
+> even though it is visible with dmesg immediately.
+(from lkml message <450BF1CC.2070309@imap.cc> - see that message
+for further details)
 
-	So I just wrote up this test case that will show how skewed the TSCs
-are. I'd be interested if you could run it a few times quickly after a
-fresh boot, and then again a day or so later.
+The problem did not exist in 2.6.17, so I think it qualifies as a
+regression.
 
-See the header comment for instructions.
+The following naive patch fixes the problem for me, without any
+apparent ill effects (ie. the menace of lockup never manifested
+itself):
 
-And just a fair warning: this runs w/ SCHED_FIFO, and thus has the
-potential to hang your system (while writing it I made a few flubs and
-it hung my system). I believe I've got all of the issues fixed (tested
-on a few systems), but wanted to give you a fair warning before I
-suggest you run this.  :)
+--- a/kernel/printk.c   2006-10-07 00:51:09.000000000 +0200
++++ b/kernel/printk.c   2006-10-07 00:51:41.000000000 +0200
+@@ -826,8 +826,7 @@ void release_console_sem(void)
+                 * from within the scheduler code, then do not lock
+                 * up due to self-recursion:
+                 */
+-               if (!lockdep_internal())
+-                       wake_up_interruptible(&log_wait);
++               wake_up_interruptible(&log_wait);
+        }
+ }
+ EXPORT_SYMBOL(release_console_sem);
 
-thanks
--john
+But I guess for a proper fix the if() condition should rather be
+refined a bit than thrown out completely.
 
---=-d2p7oeR/CqJ0IcMXG2vH
-Content-Disposition: attachment; filename=tsc-drift.c
-Content-Type: text/x-csrc; name=tsc-drift.c; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-/* tsc-drift.c
- *	Checks TSC delta across cpus.
- *
- *	Build: gcc -lpthread tsc-drift.c -o tsc-drift
- *	Run: ./tsc-drift <NUM CPUS>
- *
- *	Copyright (C) 2006 IBM, John Stultz <johnstul@us.ibm.com>
- *	Licensed under the GPL.
- */
-
-#include <stdio.h>
-#include <sys/time.h>
-#include <pthread.h>
-#include <errno.h>
-#include <stdlib.h>
-
-#define MAX_THREADS 128
-#define LISTSIZE 1000
-
-# define	rdtscll(val)	__asm__ __volatile__("rdtsc" : "=A" (val))
-
-typedef struct { volatile int counter; } atomic_t;
-
-int thread_count = 1;
-int done;
-volatile int flag;
-volatile int ready;
-atomic_t check_in;
-
-unsigned long long cpu_tsc_vals[MAX_THREADS][LISTSIZE];
-
-static inline int atomic_add(int i, atomic_t *v)
-{
-	int __i;
-	__i = i;
-	asm volatile(
-		"lock; xaddl %0, %1;"
-		:"=r"(i)
-		:"m"(v->counter), "0"(i));
-	return i + __i;
-}
-
-void atomic_inc(atomic_t *v)
-{
-	atomic_add(1,v);
-}
-
-void atomic_dec(atomic_t *v)
-{
-	atomic_add(-1, v);
-}
-
-void atomic_set(atomic_t *v, int val)
-{
-	v->counter = val;
-}
-
-int atomic_get(atomic_t *v)
-{
-	return v->counter;
-}
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
 
 
-void* cpu_thread(void* arg)
-{
-	int cpu_id = (int)arg;
-	int count = 0;
-	long mask = 1<<cpu_id;
-	/* bind to cpu */
-	if(sched_setaffinity(0, sizeof(mask), &mask)){
-		printf("Cannot bind to cpu %i (%i)\n", cpu_id, errno);
-		exit(1);
-	}
-	usleep(10);
-	while(1){
-		while(!ready)
-			usleep(1);
-		if (done)
-			break;
-		atomic_inc(&check_in);
-		while (!flag)
-			/* spin */;
-		rdtscll(cpu_tsc_vals[cpu_id][count++]);
-		atomic_dec(&check_in);
-	}
-}
+--------------enig988FC63E2C514997B72C7FE2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-void* controlling_thread(void* arg)
-{
-	int count = 0;
-	long mask = 1;
-	/* bind to cpu */
-	sched_setaffinity(0, sizeof(mask), &mask);
-	usleep(10);
-	for(count =0 ; count < LISTSIZE; count++) {		
-		ready = 1;
-		/* wait for check ins*/
-		while(atomic_get(&check_in) < (thread_count -1)) 
-			usleep(1);
-		ready = 0;
-		usleep(10);
-		/* set flag*/
-		while(!flag)
-			flag=1;
-		rdtscll(cpu_tsc_vals[0][count]);
-		/* wait for check ins*/
-		while(atomic_get(&check_in) > 0)
-			usleep(1);
-		flag = 0;
-	}
-	done = 1;
-	ready =1;
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFFJuC5MdB4Whm86/kRAsSqAJsGRm+Y4fpBkZUAwApazRWK0poMVgCfchTb
+zhf2dpWtCVDke2MTymCPIUg=
+=B8Lx
+-----END PGP SIGNATURE-----
 
-void create_thread(pthread_t *thread, void*(*func)(void*), void* arg, int prio)
-{
-	pthread_attr_t attr;
-	struct sched_param param;
-
-	param.sched_priority = sched_get_priority_min(SCHED_FIFO) + prio;
-
-	pthread_attr_init(&attr);
-	pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
-	pthread_attr_setschedparam(&attr, &param);
-	pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
-	if (pthread_create(thread, &attr, func, arg)) {
-		perror("pthread_create failed");
-	}
-	pthread_attr_destroy(&attr);
-}
-
-int main(int argc, void** argv)
-{
-	int i,j;
-	pthread_t pth[MAX_THREADS];
-	void* ret;
-	long long min_delta[MAX_THREADS];
-	
-	/* pull the thread count */
-	if(argc > 1)
-		thread_count = strtol(argv[1],0,0);
-	if(thread_count > MAX_THREADS)
-		thread_count = MAX_THREADS;
-
-	/* spawn */
-	for(i=1; i < thread_count; i++)
-		create_thread(&pth[i], cpu_thread, (void*)i, 10);
-	create_thread(&pth[0], controlling_thread, (void*)0, 15);
-
-	/* wait */
-	for(i=1; i< thread_count; i++)
-		pthread_join(pth[i],&ret);
-
-	/* calculate differences */
-	for (i=0; i < thread_count; i++)
-		min_delta[i] = -1L;
-	for (j=0; j < LISTSIZE; j++) {
-		for(i=0; i< thread_count; i++) {
-			long long delta;
-			delta = cpu_tsc_vals[i][j] - cpu_tsc_vals[0][j];
-			if((unsigned long long)delta < 
-					(unsigned long long)min_delta[i])
-				min_delta[i] = delta;
-		}
-	}
-	for (i=0; i < thread_count; i++)
-		printf("cpu: %i  min_delta:%lld cycles\n", i, min_delta[i]);
-
-	return 0;
-}
-
---=-d2p7oeR/CqJ0IcMXG2vH--
-
+--------------enig988FC63E2C514997B72C7FE2--

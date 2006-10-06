@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422727AbWJFXB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWJFXCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422727AbWJFXB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422725AbWJFXB6
+	id S932661AbWJFXCl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932665AbWJFXCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:01:58 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:61848 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1422728AbWJFXB4 (ORCPT
+	Fri, 6 Oct 2006 19:02:41 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:64666 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S932660AbWJFXCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:01:56 -0400
-Message-id: <34287982324@wsc.cz>
-Subject: [PATCH 2/6] Char: mxser_new, testbit for bit testing
+	Fri, 6 Oct 2006 19:02:40 -0400
+Message-id: <34287982344@wsc.cz>
+Subject: [PATCH 4/6] Char: mxser_new, don't check tty_unregister retval
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat,  7 Oct 2006 01:01:56 +0200 (CEST)
+Date: Sat,  7 Oct 2006 01:02:39 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, testbit for bit testing
+mxser_new, don't check tty_unregister retval
 
-Use testbit like in tty subsystem for TTY_IO_ERROR testing.
+Like other drivers silently unregister_tty_driver and put_tty_driver. It
+shouldn't be busy when module release function is called, since we are not
+bsd, no refs shouldn't be held.
 
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit 104fc67145e462bc89c0f778a1907f96cd150873
-tree 8d0fff4e5ead2913954f3a73127e74e898d0d1f2
-parent f1ec019ded64c90bc2c8017a41bd77c8f900711c
-author Jiri Slaby <jirislaby@gmail.com> Fri, 06 Oct 2006 23:39:18 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Fri, 06 Oct 2006 23:39:18 +0200
+commit 24213aff7a051554d9e489db5d60605e1a6ae7ab
+tree b1bad2212060583b3bf4322e64bf6cf18a6c7cf2
+parent 39c9825cc56a093e7779780e2928cf8944cb1148
+author Jiri Slaby <jirislaby@gmail.com> Sat, 07 Oct 2006 00:11:04 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 07 Oct 2006 00:11:04 +0200
 
- drivers/char/mxser_new.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/char/mxser_new.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index 1f53e07..84d72aa 100644
+index 073926e..25c5091 100644
 --- a/drivers/char/mxser_new.c
 +++ b/drivers/char/mxser_new.c
-@@ -461,7 +461,8 @@ static int mxser_block_til_ready(struct 
- 	 * If non-blocking mode is set, or the port is not enabled,
- 	 * then make the check up front and then exit.
- 	 */
--	if ((filp->f_flags & O_NONBLOCK) || (tty->flags & (1 << TTY_IO_ERROR))) {
-+	if ((filp->f_flags & O_NONBLOCK) ||
-+			test_bit(TTY_IO_ERROR, &tty->flags)) {
- 		port->flags |= ASYNC_NORMAL_ACTIVE;
- 		return 0;
- 	}
-@@ -1437,7 +1438,7 @@ static int mxser_tiocmget(struct tty_str
+@@ -2994,15 +2994,12 @@ static int __init mxser_module_init(void
  
- 	if (tty->index == MXSER_PORTS)
- 		return -ENOIOCTLCMD;
--	if (tty->flags & (1 << TTY_IO_ERROR))
-+	if (test_bit(TTY_IO_ERROR, &tty->flags))
- 		return -EIO;
+ static void __exit mxser_module_exit(void)
+ {
+-	int i, err;
++	unsigned int i;
  
- 	control = info->MCR;
-@@ -1464,7 +1465,7 @@ static int mxser_tiocmset(struct tty_str
+ 	pr_debug("Unloading module mxser ...\n");
  
- 	if (tty->index == MXSER_PORTS)
- 		return -ENOIOCTLCMD;
--	if (tty->flags & (1 << TTY_IO_ERROR))
-+	if (test_bit(TTY_IO_ERROR, &tty->flags))
- 		return -EIO;
+-	err = tty_unregister_driver(mxvar_sdriver);
+-	if (!err)
+-		put_tty_driver(mxvar_sdriver);
+-	else
+-		printk(KERN_ERR "Couldn't unregister MOXA Smartio/Industio family serial driver\n");
++	tty_unregister_driver(mxvar_sdriver);
++	put_tty_driver(mxvar_sdriver);
  
- 	spin_lock_irqsave(&info->slock, flags);
-@@ -1798,10 +1799,10 @@ static int mxser_ioctl(struct tty_struct
- 	}
- 	/* above add by Victor Yu. 01-05-2004 */
- 
--	if ((cmd != TIOCGSERIAL) && (cmd != TIOCMIWAIT) && (cmd != TIOCGICOUNT)) {
--		if (tty->flags & (1 << TTY_IO_ERROR))
--			return -EIO;
--	}
-+	if (cmd != TIOCGSERIAL && cmd != TIOCMIWAIT && cmd != TIOCGICOUNT &&
-+			test_bit(TTY_IO_ERROR, &tty->flags))
-+		return -EIO;
-+
- 	switch (cmd) {
- 	case TCSBRK:		/* SVID version: non-zero arg --> no break */
- 		retval = tty_check_change(tty);
+ 	for (i = 0; i < MXSER_BOARDS; i++)
+ 		if (mxser_boards[i].board_type != -1)

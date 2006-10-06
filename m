@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422983AbWJFVoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422986AbWJFVuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422983AbWJFVoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422985AbWJFVoD
+	id S1422986AbWJFVuI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422988AbWJFVuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:44:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11196 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1422983AbWJFVoB (ORCPT
+	Fri, 6 Oct 2006 17:50:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31947 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422986AbWJFVuE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:44:01 -0400
-Date: Fri, 6 Oct 2006 23:43:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Len Brown <len.brown@intel.com>, linux-acpi@intel.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Message-ID: <20061006214351.GB29572@elf.ucw.cz>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
+	Fri, 6 Oct 2006 17:50:04 -0400
+Message-ID: <4526CF6F.9040006@RedHat.com>
+Date: Fri, 06 Oct 2006 17:49:35 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
+References: <1160170629.5453.34.camel@lade.trondhjem.org>
+In-Reply-To: <1160170629.5453.34.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Trond Myklebust wrote:
+> If try_to_release_page() is called with a zero gfp mask, then the
+> filesystem is effectively denied the possibility of sleeping while
+> attempting to release the page. There doesn't appear to be any valid
+> reason why this should be banned, given that we're not calling this from
+> a memory allocation context.
+>  
+> For this reason, change the gfp_mask argument of the call to GFP_KERNEL.
+>     
+> Note: I am less sure of what the callers of invalidate_complete_page()
+> require, and so this patch does not touch that mask.
+> 
+> Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+> ---
+> diff --git a/mm/truncate.c b/mm/truncate.c
+> index f4edbc1..49c1ffd 100644
+> --- a/mm/truncate.c
+> +++ b/mm/truncate.c
+> @@ -302,7 +302,7 @@ invalidate_complete_page2(struct address
+>  	if (page->mapping != mapping)
+>  		return 0;
+>  
+> -	if (PagePrivate(page) && !try_to_release_page(page, 0))
+> +	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
+>  		return 0;
+>  
+>  	write_lock_irq(&mapping->tree_lock);
+Well I was using mapping_gfp_mask(mapping) as the argument to
+try_to_release_page() which also worked... but isn't this
+just plugging one of many holes? Meaning try_to_release_page is called
+from a number of places with a zero gfp_mask so shouldn't those
+also be fixed as well OR removed the gfp_mask as an argument as the
+comment at the top of try_to_release_page() alludes to?
 
-> There is a problem in th following scenario(s):
-> 
-> boot -> suspend -> (un)plug battery -> resume
-> 
-> The problem arises in both cases - i.e. suspend with battery plugged in, 
-> and resume with battery unplugged, or vice versa.
-> 
-> After resume, when the battery status has changed (plugged in -> unplegged 
-> or unplugged -> plugged in) during the time when the system was sleeping, 
-> the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
-> the current state).
-> 
-> The following patch adds ->resume method to the ACPI battery handler, which
-> has the only aim - to check whether the battery state has changed during sleep, 
-> and if so, update the ACPI internal data structures, so that information 
-> published through /proc/acpi/battery/*/* is correct even after suspend/resume
-> cycle, during which the battery was removed/inserted.
-> 
-> The patch is against current ACPI git tree, but applies cleanly also 
-> against -mm and probably other trees. Please apply.
-> 
-> Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+steved.
 
-Looks okay to me.
-									Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

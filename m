@@ -1,129 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWJFEGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWJFEXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWJFEGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 00:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751774AbWJFEGo
+	id S1751783AbWJFEXe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 00:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWJFEXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 00:06:44 -0400
-Received: from mga03.intel.com ([143.182.124.21]:52761 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1751773AbWJFEGn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 00:06:43 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,268,1157353200"; 
-   d="scan'208"; a="127627019:sNHT30440116"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Date: Fri, 6 Oct 2006 08:06:37 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC3F42E0@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Thread-Index: AcboxorD06NiddCQR26uQ96xmASQjwANhYaQ
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <tim.c.chen@linux.intel.com>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
-       <herbert@gondor.apana.org.au>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2006 04:06:42.0431 (UTC) FILETIME=[D4AF78F0:01C6E8FC]
+	Fri, 6 Oct 2006 00:23:34 -0400
+Received: from gate.crashing.org ([63.228.1.57]:14730 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751780AbWJFEXd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 00:23:33 -0400
+Subject: Re: [PATCH] powerpc: irq change build breaks
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olof Johansson <olof@lixom.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
+       galak@kernel.crashing.org, arnd@arndb.de, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+In-Reply-To: <20061005203110.4c3022ce@localhost.localdomain>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+	 <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	 <18975.1160058127@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
+	 <20061005203110.4c3022ce@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 14:22:41 +1000
+Message-Id: <1160108561.22232.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Apparently due to the access to the
-> newly-added static variable.
+On Thu, 2006-10-05 at 20:31 -0500, Olof Johansson wrote:
+> Fix up some of the buildbreaks from the irq handler changes.
+> 
+> 
+> Signed-off-by: Olof Johansson <olof@lixom.net>
 
-The cache miss was increased as a result of instructions reordering but
-not due to the newly-added static variable. The original patch have
-added local but not static variable. Newly-added local variable compiler
-has placed in register.
-The original patch made reordering of tests-register-and-jump and
-test-memory-and-jump instructions. That was a side effect of the patch.
-To watch closely ordering of 'if (a && b)' or 'if (b && a)' becomes more
-weight than 'unlikely()' using if 'a' is in register and 'b' is in
-memory. I would say: unlikely() cost is 10:1; ordering cost is 1000:1.
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Leonid 
+> ---
+> 
+> On Thu, 5 Oct 2006 16:35:02 -0700 (PDT) Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> 
+> > Any fall-out from this should be both obvious and pretty trivial to fix 
+> > up.
+> > 
+> 
+> Here's a pass of fixes from building all defconfigs under arch/powerpc
+> + grep of generic_handle_irq callers.
+> 
+> 
+> 
+>  arch/powerpc/platforms/85xx/mpc85xx_ads.c  |    2 +-
+>  arch/powerpc/platforms/85xx/mpc85xx_cds.c  |    2 +-
+>  arch/powerpc/platforms/86xx/mpc86xx_hpcn.c |    2 +-
+>  arch/powerpc/platforms/cell/interrupt.c    |    2 +-
+>  arch/powerpc/platforms/chrp/setup.c        |    2 +-
+>  arch/powerpc/platforms/powermac/pic.c      |    2 +-
+>  arch/powerpc/sysdev/qe_lib/qe_ic.c         |    4 ++--
+>  arch/powerpc/sysdev/tsi108_pci.c           |    2 +-
+>  drivers/macintosh/via-cuda.c               |    2 +-
+>  sound/oss/dmasound/dmasound_awacs.c        |    4 ++--
+>  10 files changed, 12 insertions(+), 12 deletions(-)
+> 
+> 
+> 
+> Index: linux-2.6/arch/powerpc/platforms/85xx/mpc85xx_ads.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/85xx/mpc85xx_ads.c
+> +++ linux-2.6/arch/powerpc/platforms/85xx/mpc85xx_ads.c
+> @@ -72,7 +72,7 @@ static void cpm2_cascade(unsigned int ir
+>  	int cascade_irq;
+>  
+>  	while ((cascade_irq = cpm2_get_irq(regs)) >= 0) {
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	}
+>  	desc->chip->eoi(irq);
+>  }
+> Index: linux-2.6/arch/powerpc/platforms/85xx/mpc85xx_cds.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/85xx/mpc85xx_cds.c
+> +++ linux-2.6/arch/powerpc/platforms/85xx/mpc85xx_cds.c
+> @@ -138,7 +138,7 @@ static void mpc85xx_8259_cascade(unsigne
+>  	unsigned int cascade_irq = i8259_irq(regs);
+>  
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  
+>  	desc->chip->eoi(irq);
+>  }
+> Index: linux-2.6/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> +++ linux-2.6/arch/powerpc/platforms/86xx/mpc86xx_hpcn.c
+> @@ -58,7 +58,7 @@ static void mpc86xx_8259_cascade(unsigne
+>  {
+>  	unsigned int cascade_irq = i8259_irq(regs);
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	desc->chip->eoi(irq);
+>  }
+>  #endif	/* CONFIG_PCI */
+> Index: linux-2.6/arch/powerpc/platforms/cell/interrupt.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/cell/interrupt.c
+> +++ linux-2.6/arch/powerpc/platforms/cell/interrupt.c
+> @@ -121,7 +121,7 @@ static void iic_ioexc_cascade(unsigned i
+>  					irq_linear_revmap(iic_host,
+>  							  base | cascade);
+>  				if (cirq != NO_IRQ)
+> -					generic_handle_irq(cirq, regs);
+> +					generic_handle_irq(cirq);
+>  			}
+>  		/* post-ack level interrupts */
+>  		ack = bits & ~IIC_ISR_EDGE_MASK;
+> Index: linux-2.6/arch/powerpc/platforms/chrp/setup.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/chrp/setup.c
+> +++ linux-2.6/arch/powerpc/platforms/chrp/setup.c
+> @@ -340,7 +340,7 @@ static void chrp_8259_cascade(unsigned i
+>  {
+>  	unsigned int cascade_irq = i8259_irq(regs);
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	desc->chip->eoi(irq);
+>  }
+>  
+> Index: linux-2.6/arch/powerpc/sysdev/qe_lib/qe_ic.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/sysdev/qe_lib/qe_ic.c
+> +++ linux-2.6/arch/powerpc/sysdev/qe_lib/qe_ic.c
+> @@ -343,7 +343,7 @@ void fastcall qe_ic_cascade_low(unsigned
+>  
+>  	chip->mask_ack(irq);
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	chip->unmask(irq);
+>  }
+>  
+> @@ -359,7 +359,7 @@ void fastcall qe_ic_cascade_high(unsigne
+>  
+>  	chip->mask_ack(irq);
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	chip->unmask(irq);
+>  }
+>  
+> Index: linux-2.6/arch/powerpc/sysdev/tsi108_pci.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/sysdev/tsi108_pci.c
+> +++ linux-2.6/arch/powerpc/sysdev/tsi108_pci.c
+> @@ -410,6 +410,6 @@ void tsi108_irq_cascade(unsigned int irq
+>  {
+>  	unsigned int cascade_irq = get_pci_source();
+>  	if (cascade_irq != NO_IRQ)
+> -		generic_handle_irq(cascade_irq, regs);
+> +		generic_handle_irq(cascade_irq);
+>  	desc->chip->eoi(irq);
+>  }
+> Index: linux-2.6/arch/powerpc/platforms/powermac/pic.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/platforms/powermac/pic.c
+> +++ linux-2.6/arch/powerpc/platforms/powermac/pic.c
+> @@ -227,7 +227,7 @@ static irqreturn_t gatwick_action(int cp
+>  			continue;
+>  		irq += __ilog2(bits);
+>  		spin_unlock_irqrestore(&pmac_pic_lock, flags);
+> -		__do_IRQ(irq, regs);
+> +		__do_IRQ(irq);
+>  		spin_lock_irqsave(&pmac_pic_lock, flags);
+>  		rc = IRQ_HANDLED;
+>  	}
+> Index: linux-2.6/drivers/macintosh/via-cuda.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/macintosh/via-cuda.c
+> +++ linux-2.6/drivers/macintosh/via-cuda.c
+> @@ -437,7 +437,7 @@ cuda_poll(void)
+>       * disable_irq(), would that work on m68k ? --BenH
+>       */
+>      local_irq_save(flags);
+> -    cuda_interrupt(0, NULL, NULL);
+> +    cuda_interrupt(0, NULL);
+>      local_irq_restore(flags);
+>  }
+>  
+> Index: linux-2.6/sound/oss/dmasound/dmasound_awacs.c
+> ===================================================================
+> --- linux-2.6.orig/sound/oss/dmasound/dmasound_awacs.c
+> +++ linux-2.6/sound/oss/dmasound/dmasound_awacs.c
+> @@ -465,7 +465,7 @@ tas_dmasound_init(void)
+>  			val = pmac_call_feature(PMAC_FTR_READ_GPIO, NULL, gpio_headphone_detect, 0);
+>  			pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, gpio_headphone_detect, val | 0x80);
+>  			/* Trigger it */
+> -  			headphone_intr(0,NULL,NULL);
+> +  			headphone_intr(0, NULL);
+>    		}
+>    	}
+>    	if (!gpio_headphone_irq) {
+> @@ -1499,7 +1499,7 @@ static int awacs_sleep_notify(struct pmu
+>  				write_audio_gpio(gpio_audio_reset, !gpio_audio_reset_pol);
+>  				msleep(150);
+>  				tas_leave_sleep(); /* Stub for now */
+> -				headphone_intr(0,NULL,NULL);
+> +				headphone_intr(0, NULL);
+>  				break;
+>  			case AWACS_DACA:
+>  				msleep(10); /* Check this !!! */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-arch" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Friday, October 06, 2006 1:38 AM
-To: Ananiev, Leonid I
-Cc: tim.c.chen@linux.intel.com; Jeremy Fitzhardinge;
-herbert@gondor.apana.org.au; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-
-
-So how's this look?
-
-I worry a bit that someone's hardware might go and prefetch that static
-variable even when we didn't ask it to.  Can that happen?
-
-
-
-
-Tim and Ananiev report that the recent WARN_ON_ONCE changes cause
-increased
-cache misses with the tbench workload.  Apparently due to the access to
-the
-newly-added static variable.
-
-Rearrange the code so that we don't touch that variable unless the
-warning is
-going to trigger.
-
-Also rework the logic so that the static variable starts out at zero, so
-we
-can move it into bss.
-
-It would seem logical to mark the static variable as __read_mostly too.
-But
-it would be wrong, because that would put it back into the vmlinux
-image, and
-the kernel will never read from this variable in normal operation
-anyway. 
-Unless the compiler or hardware go and do some prefetching on us?
-
-For some reason this patch shrinks softirq.o text by 40 bytes.
-
-Cc: Tim Chen <tim.c.chen@intel.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- include/asm-generic/bug.h |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
-
-diff -puN include/asm-generic/bug.h~fix-warn_on--warn_on_once-regression
-include/asm-generic/bug.h
---- a/include/asm-generic/bug.h~fix-warn_on--warn_on_once-regression
-+++ a/include/asm-generic/bug.h
-@@ -41,14 +41,14 @@
- #endif
- #endif
- 
--#define WARN_ON_ONCE(condition)	({			\
--	static int __warn_once = 1;			\
--	typeof(condition) __ret_warn_once = (condition);\
--							\
--	if (likely(__warn_once))			\
--		if (WARN_ON(__ret_warn_once)) 		\
--			__warn_once = 0;		\
--	unlikely(__ret_warn_once);			\
-+#define WARN_ON_ONCE(condition)	({
-\
-+	static int __warned;					\
-+	typeof(condition) __ret_warn_once = (condition);	\
-+								\
-+	if (unlikely(__ret_warn_once))				\
-+		if (WARN_ON(!__warned)) 			\
-+			__warned = 1;				\
-+	unlikely(__ret_warn_once);				\
- })
- 
- #ifdef CONFIG_SMP
-_

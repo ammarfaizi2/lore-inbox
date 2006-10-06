@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWJFXG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422729AbWJFXIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbWJFXG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWJFXG5
+	id S1422729AbWJFXIb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422733AbWJFXIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:06:57 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:10415 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932660AbWJFXGz (ORCPT
+	Fri, 6 Oct 2006 19:08:31 -0400
+Received: from mail.impinj.com ([206.169.229.170]:33698 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S1422729AbWJFXIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:06:55 -0400
-Message-ID: <4526E175.9090608@garzik.org>
-Date: Fri, 06 Oct 2006 19:06:29 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 6 Oct 2006 19:08:30 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 5/5] fdtable: Extensive fs/file.c cleanups.
+Date: Fri, 6 Oct 2006 16:08:29 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200610052152.29013.vlobanov@speakeasy.net> <200610061438.07702.vlobanov@speakeasy.net> <20061006154254.e9d584d0.akpm@osdl.org>
+In-Reply-To: <20061006154254.e9d584d0.akpm@osdl.org>
 MIME-Version: 1.0
-To: "Duran, Leo" <leo.duran@amd.com>
-CC: "Rafael J. Wysocki" <rjw@sisk.pl>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-References: <1449F58C868D8D4E9C72945771150BDF46F8FD@SAUSEXMB1.amd.com>
-In-Reply-To: <1449F58C868D8D4E9C72945771150BDF46F8FD@SAUSEXMB1.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200610061608.29085.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duran, Leo wrote:
-> OK, lets' take K8 processor performance states (p-states) as an example:
-> BIOS, which should know 'best' about a given platform, needs to
-> communicate to the OS what 'voltage' (VID code) is correct for given
-> 'frequency' (FID),
-> and it can do that via ACPI processor tables (_PSS). Otherwise, OS code
-> is left with having to manage a HUGE amount 'specifics' (processor
-> models), and endless driver revisions to account for new parts.
-> 
-> So, one can argue that there's merit on having ACPI, it's just a shame
-> when BIOS doesn't get it right! (thus the justification for lack of
-> 'trust'... the same can probably be said about other BIOS issues, not
-> just ACPI)
+On Friday 06 October 2006 15:42, Andrew Morton wrote:
+> On Fri, 6 Oct 2006 14:38:07 -0700
+>
+> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+> > This patch still has a lot of useful (and I'd argue necessary) fixes for
+> > incorrect comments and confusing code ordering. It's especially nice for
+> > those who might try to understand what's going on inside fs/file.c, so
+> > seems a shame to drop it. I could...
+> > 	... hold on to it until the other fdtable changes hit mainline.
+> > 		or
+> > 	... redo this one with just the bare essentials.
+> > 		or
+> > 	... drop it completely.
+>
+>                 or
+>         ... redo the patches so this one comes first.
+>
+> Which sounds like a hassle.  If it's too much hassle, your option 1 sounds
+> OK.
 
-That's pretty much it in a nutshell...  Since most BIOS are largely 
-tested and qualified only on That Other OS, Linux often gets the short 
-end of the stick.  We have a long history of running into BIOS bugs, and 
-having to work around them.  We've learned the hard way that programming 
-the "bare metal" is often the only reliable way to get things done.
+I'll hold on to it for now, then. It's probably best, so there's less 
+code-churn, and the patches will hopefully get more technical reviews and 
+testing.
 
-	Jeff
+In the future, I'll make sure to send cleanups first in the series. Thanks for 
+the feedback. :)
 
-
-
+-- Vadim Lobanov

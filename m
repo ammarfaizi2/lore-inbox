@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWJFTxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422666AbWJFUAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWJFTxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJFTxc
+	id S1422666AbWJFUAL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWJFUAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:53:32 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:39333 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932335AbWJFTxa (ORCPT
+	Fri, 6 Oct 2006 16:00:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:20905 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1422666AbWJFUAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 15:53:30 -0400
-Date: Fri, 6 Oct 2006 15:53:19 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Muli Ben-Yehuda <muli@il.ibm.com>, David Howells <dhowells@redhat.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-Message-ID: <20061006195319.GA18665@kvack.org>
-References: <20061005212216.GA10912@rhun.haifa.ibm.com> <m11wpl328i.fsf@ebiederm.dsl.xmission.com> <20061006155021.GE14186@rhun.haifa.ibm.com> <20061006162054.GF14186@rhun.haifa.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061006162054.GF14186@rhun.haifa.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Oct 2006 16:00:10 -0400
+Message-ID: <4526B5BD.4030809@garzik.org>
+Date: Fri, 06 Oct 2006 15:59:57 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Val Henson <val_henson@linux.intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
+References: <1160161519800-git-send-email-matthew@wil.cx> <11601615192857-git-send-email-matthew@wil.cx> <4526AB43.7030809@garzik.org> <20061006192842.GO2563@parisc-linux.org>
+In-Reply-To: <20061006192842.GO2563@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 06:20:54PM +0200, Muli Ben-Yehuda wrote:
-> On Fri, Oct 06, 2006 at 05:50:21PM +0200, Muli Ben-Yehuda wrote:
+Matthew Wilcox wrote:
+> On Fri, Oct 06, 2006 at 03:15:15PM -0400, Jeff Garzik wrote:
+>> Matthew Wilcox wrote:
+>>> Also, pci_set_mwi() will fail if the cache line
+>>> size is 0, so we don't need to check that ourselves any more.
+>> NAK, not true on all arches.  sparc64 at least presumes that the 
+>> firmware DTRT with cacheline size, which hurts us now given this tulip patch
 > 
-> > > What happens if you boot with max_cpus=1?
-> > 
-> > Trying it now... woohoo, it boots all the way and stays up!
+> How does it hurt us?
 > 
-> Ok, after verifying that maxcpus=1 causes the problematic changeset to
-> boot, I also tried maxcpus=1 with the tip of the tree. I hit this NULL
-> pointer dereference in profile_tick, with and without
-> maxcpus=1. Disassembly says that get_irq_regs() is returning NULL,
-> which may or may not be related to the genirq issue.
+> int pcibios_prep_mwi(struct pci_dev *dev)
+> {
+>         /* We set correct PCI_CACHE_LINE_SIZE register values for every
+>          * device probed on this platform.  So there is nothing to check
+>          * and this always succeeds.
+>          */
+>         return 0;
+> }
+> 
+> If Dave's wrong about that, it hurts him, not us ;-)
+> 
+> It's still not necessary for the Tulip driver to check.
 
-I ran into this as well and managed to bisect it to the following commit:
+The unmodified tulip driver checks both MWI and cacheline-size because 
+one of the clones (PNIC or PNIC2) will let you set the MWI bit, but 
+hardwires cacheline size to zero.
 
-7d12e780e003f93433d49ce78cfedf4b4c52adc5 is first bad commit
-commit 7d12e780e003f93433d49ce78cfedf4b4c52adc5
-Author: David Howells <dhowells@redhat.com>
-Date:   Thu Oct 5 14:55:46 2006 +0100
+If the arches do not behave consistently, we need to keep the check in 
+the tulip driver, to avoid incorrectly programming the csr0 MWI bit.
 
-    IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
-...
+	Jeff
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+
+

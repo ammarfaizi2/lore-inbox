@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422964AbWJFVDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbWJFVHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422964AbWJFVDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422970AbWJFVDK
+	id S932631AbWJFVHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWJFVHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:03:10 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:53554 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S1422964AbWJFVDJ convert rfc822-to-8bit (ORCPT
+	Fri, 6 Oct 2006 17:07:25 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:47608 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932631AbWJFVHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:03:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 6 Oct 2006 17:07:24 -0400
+Date: Fri, 6 Oct 2006 23:07:22 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Suzuki K P <suzuki@in.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, andmike@us.ibm.com
+Subject: Re: [RFC] PATCH to fix rescan_partitions to return errors properly - take 2
+Message-ID: <20061006210721.GC31233@harddisk-recovery.nl>
+References: <452307B4.3050006@in.ibm.com> <20061004130932.GC18800@harddisk-recovery.com> <4523E66B.5090604@in.ibm.com> <20061004170827.GE18800@harddisk-recovery.nl> <4523F16D.5060808@in.ibm.com> <20061005104018.GC7343@harddisk-recovery.nl> <45256BE2.5040702@in.ibm.com> <20061006125336.GA27183@harddisk-recovery.nl> <452695CE.8080901@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: forcedeth net driver: reverse mac address after pxe boot
-Date: Fri, 6 Oct 2006 14:02:58 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0189CAB1A@hqemmail02.nvidia.com>
-In-Reply-To: <20061006191115.GA21526@tuxdriver.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: forcedeth net driver: reverse mac address after pxe boot
-Thread-Index: Acbpez5yNf5zr9/MSfusBDaU2LxclAADymLw
-From: "Ayaz Abdulla" <AAbdulla@nvidia.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: "Alex Owen" <r.alex.owen@gmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2006 21:02:58.0851 (UTC) FILETIME=[CD76C730:01C6E98A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452695CE.8080901@in.ibm.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is just a legacy bug that we have to live with. Newer chipsets will
-have the correct format in the BIOS.
+On Fri, Oct 06, 2006 at 10:43:42AM -0700, Suzuki K P wrote:
+> Erik Mouw wrote:
+> >I think it's best not to change the current behaviour and let all
+> >partition checkers run, even if one of them failed due to device
+> >errors. I wouldn't mind if the behaviour changed like you propose,
+> >though.
+> >
+> At present, the partition checkers doesn't run, if one of the preceeding 
+> checker has reported an error ! *But*, some of the checkers doesn't 
+> report the I/O error which they came across! So, this may let others 
+> run. Thats not we want, right. We would like them to return I/O errors, 
+> and and the check_partition should let other partition checkers continue.
 
-With the latest forcedeth driver and latest PXE you should not have any
-issues.
-
-Regards,
-Ayaz
+Indeed, we want them to behave the same. I.e.: a partition checker
+should tell when it encounters an I/O error.
 
 
------Original Message-----
-From: John W. Linville [mailto:linville@tuxdriver.com] 
-Sent: Friday, October 06, 2006 12:12 PM
-To: Ayaz Abdulla
-Cc: Alex Owen; linux-kernel@vger.kernel.org
-Subject: Re: forcedeth net driver: reverse mac address after pxe boot
+Erik
 
-
-On Fri, Oct 06, 2006 at 10:29:04AM -0700, Ayaz Abdulla wrote:
-> This has been fixed in version "243.0537". You will have to request an
-> updated BIOS from your board vendor.
-
-Ayaz,
-
-Can you explain the whole "reverse-order MAC address" thing?
-Why/how does it end-up in that register backwards in the first place?
-Does it serve some purpose that way?  Or is it just a bug that we
-have to live with?
-
-John
 -- 
-John W. Linville
-linville@tuxdriver.com
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
++-- Erik Mouw -- www.harddisk-recovery.nl -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

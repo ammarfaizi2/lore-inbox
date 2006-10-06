@@ -1,94 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWJFWrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422720AbWJFWxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422722AbWJFWrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 18:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWJFWrE
+	id S1422720AbWJFWxy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 18:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422721AbWJFWxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 18:47:04 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:30989 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932658AbWJFWrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 18:47:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n9rKprFqFdxec/9Pt8iaMcxct/gmVAU3+58CPl0tttRNtlTXEQxzCKdEafGgeoBMbVgz18O8GJXyZJDPAetTBVaI4xRb74zUPcBFXwb+UARYTZCZPTbxYNjDXXqNeAdy9lEqkT8QNSItN6KUT/cP0/zCp9MlKrdtEnmefgwwmTY=
-Message-ID: <9a8748490610061547g6c62ee7dq37c139c1966ea8c5@mail.gmail.com>
-Date: Sat, 7 Oct 2006 00:47:00 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Merge window closed: v2.6.19-rc1
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       James.Bottomley@HansenPartnership.com
-In-Reply-To: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 6 Oct 2006 18:53:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:11219 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422720AbWJFWxx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 18:53:53 -0400
+Subject: [Patch] x86_64 hot-add memroy srat.c fix
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: andrew <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Konrad redhat <konradr@redhat.com>,
+       dzickus@redhat.com, lhms-devel <lhms-devel@lists.sourceforge.net>,
+       Andi Kleen <ak@suse.de>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Fri, 06 Oct 2006 15:53:49 -0700
+Message-Id: <1160175229.5663.23.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/10/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
-> Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1 release.
->
-> As usual for -rc1 with a lot of pending merges, it's a huge thing with
-> tons of changes, and in fact since 2.6.18 took longer than normal due to
-> me traveling (and others probably also being on vacations), it's possibly
-> even larger than usual.
->
-> I think we got updates to pretty much all of the active architectures,
-> we've got VM changes (dirty shared page tracking, for example), we've got
-> networking, drivers, you name it. Even the shortlog and the diffstats are
-> too big to make the kernel mailing list, but even just the summary says
-> something:
->
->  4998 total commits
->  6535 files changed, 414890 insertions(+), 233881 deletions(-)
->
-> so please give it a good testing, and let's see if there are any
-> regressions.
->
+  This patch corrects the logic used in srat.c to figure out what
+parsing what action to take when registering hot-add areas.  Hot-add
+areas should only be added to the node information for the
+MEMORY_HOTPLGU_RESERVE case.  When booting MEMORY_HOTPLUG_SPARSE hot-add
+areas on everything but the last node are getting include in the node
+data and during kernel boot the pages are setup then the kernel dies
+when the pages are used. This patch fixes this issue.  It is based
+against 2.6.19-rc1.  
 
-2.6.19-rc1-git2 :
+Signed-off-by: Keith Mannthey <kmannth@us.ibm.com> 
+---
+srat.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-...
-  CC      arch/i386/mm/pgtable.o
-  CC      arch/i386/mach-voyager/voyager_basic.o
-  CC      arch/i386/mm/fault.o
-  CC      arch/i386/kernel/ptrace.o
-arch/i386/mach-voyager/voyager_basic.c:170: error: conflicting types
-for 'voyager_timer_inte
-rrupt'
-include/asm/voyager.h:508: error: previous declaration of
-'voyager_timer_interrupt' was here
-arch/i386/mach-voyager/voyager_basic.c:170: error: conflicting types
-for 'voyager_timer_inte
-rrupt'
-include/asm/voyager.h:508: error: previous declaration of
-'voyager_timer_interrupt' was here
-make[1]: *** [arch/i386/mach-voyager/voyager_basic.o] Error 1
-make: *** [arch/i386/mach-voyager] Error 2
-make: *** Waiting for unfinished jobs....
-  CC      arch/i386/kernel/time.o
-In file included from arch/i386/kernel/time.c:74:
-include/asm-i386/mach-voyager/do_timer.h: In function `do_timer_interrupt_hook':
-include/asm-i386/mach-voyager/do_timer.h:8: error: `irq_regs'
-undeclared (first use in this
-function)
-include/asm-i386/mach-voyager/do_timer.h:8: error: (Each undeclared
-identifier is reported o
-nly once
-include/asm-i386/mach-voyager/do_timer.h:8: error: for each function
-it appears in.)
-make[1]: *** [arch/i386/kernel/time.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-  CC      arch/i386/mm/ioremap.o
-make: *** [arch/i386/kernel] Error 2
+diff -urN linux-2.6.18/arch/x86_64/mm/srat.c linux-2.6.18-rc1/arch/x86_64/mm/srat.c
+--- linux-2.6.18/arch/x86_64/mm/srat.c	2006-10-06 17:17:04.000000000 -0400
++++ linux-2.6.18-rc1/arch/x86_64/mm/srat.c	2006-10-06 16:29:59.000000000 -0400
+@@ -207,7 +207,7 @@
+ 	return hotadd_percent > 0;
+ }
+ #else
+-int update_end_of_memory(unsigned long end) {return 0;}
++int update_end_of_memory(unsigned long end) {return -1;}
+ static int hotadd_enough_memory(struct bootnode *nd) {return 1;}
+ #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
+ static inline int save_add_info(void) {return 1;}
+@@ -337,7 +337,7 @@
+ 	push_node_boundaries(node, nd->start >> PAGE_SHIFT,
+ 						nd->end >> PAGE_SHIFT);
+ 
+- 	if (ma->flags.hot_pluggable && !reserve_hotadd(node, start, end) < 0) {
++ 	if (ma->flags.hot_pluggable && (reserve_hotadd(node, start, end) < 0)) {
+ 		/* Ignore hotadd region. Undo damage */
+ 		printk(KERN_NOTICE "SRAT: Hotplug region ignored\n");
+ 		*nd = oldnode;
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

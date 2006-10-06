@@ -1,153 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWJFLON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWJFLP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWJFLON (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWJFLON
+	id S1750791AbWJFLP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWJFLPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:14:13 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:63606 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750745AbWJFLOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:14:12 -0400
-Date: Fri, 6 Oct 2006 13:14:43 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
-       Castet Matthieu <castet.matthieu@free.fr>
-Subject: Re: [Alsa-devel] [PATCH] Driver core: Don't ignore error returns
- from probing
-Message-ID: <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.61.0610061138580.8573@tm8103.perex-int.cz>
-References: <20061005175852.GC15180@suse.de>
-	<Pine.LNX.4.44L0.0610051656290.7144-100000@iolanthe.rowland.org>
-	<20061006095334.3cdebcc0@gondolin.boeblingen.de.ibm.com>
-	<Pine.LNX.4.61.0610061138580.8573@tm8103.perex-int.cz>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Oct 2006 07:15:25 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:62104 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750705AbWJFLPY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:15:24 -0400
+Message-ID: <45263ABC.4050604@garzik.org>
+Date: Fri, 06 Oct 2006 07:15:08 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than	passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org>	 <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>	 <18975.1160058127@warthog.cambridge.redhat.com>	 <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain>
+In-Reply-To: <1160133932.1607.68.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 11:41:05 +0200 (CEST),
-Jaroslav Kysela <perex@suse.cz> wrote:
-
-> > Hm, I don't think we should call device_release_driver if
-> > bus_attach_device failed (and I think calling bus_remove_device if
-> > bus_attach_device failed is unintuitive). I did a patch that added a
-> > function which undid just the things bus_add_device did (here:
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115816560424389&w=2),
-> > which unfortunately got lost somewhere... (I'll rebase and resend.)
+Alan Cox wrote:
+> Ar Iau, 2006-10-05 am 20:52 -0400, ysgrifennodd Jeff Garzik:
+>> The overwhelming majority of irq handlers don't use the 'irq' argument 
+>> either...  the driver-supplied pointer is what drivers use, exclusively, 
+>> to differentiate between different instances.
+>>
+>> If we are going to break all the irq handlers, I'd suggest going ahead 
+>> and removing that one too.
 > 
-> Yes, but it might be better to check dev->is_registered flag in 
-> bus_remove_device() before device_release_driver() call to save some code, 
-> rather than reuse most of code in bus_delete_device().
+> NAK to that, it will mess up a lot of older drivers which still use the
+> irq field and also those who want it to print
 
-If we undid things (symlinks et al.) in the order we added them, we can
-factor out bus_delete_device() from bus_remove_device() and avoid both
-code duplication and calling bus_remove_device() if bus_attach_device()
-failed. Something like the patch below (untested).
+Look at the pt_regs change -- the irq change is similar:
+
+The information does not go away, it is merely available via another avenue.
+
+	Jeff
 
 
---- linux-2.6-CH.orig/drivers/base/base.h
-+++ linux-2.6-CH/drivers/base/base.h
-@@ -17,6 +17,7 @@ extern int attribute_container_init(void
- 
- extern int bus_add_device(struct device * dev);
- extern int bus_attach_device(struct device * dev);
-+extern void bus_delete_device(struct device * dev);
- extern void bus_remove_device(struct device * dev);
- extern struct bus_type *get_bus(struct bus_type * bus);
- extern void put_bus(struct bus_type * bus);
---- linux-2.6-CH.orig/drivers/base/bus.c
-+++ linux-2.6-CH/drivers/base/bus.c
-@@ -360,7 +360,7 @@ static void device_remove_attrs(struct b
-  *	bus_add_device - add device to bus
-  *	@dev:	device being added
-  *
-- *	- Add the device to its bus's list of devices.
-+ *	- Add attributes.
-  *	- Create link to device's bus.
-  */
- int bus_add_device(struct device * dev)
-@@ -424,29 +424,44 @@ int bus_attach_device(struct device * de
- }
- 
- /**
-- *	bus_remove_device - remove device from bus
-- *	@dev:	device to be removed
-+ *     bus_delete_device - undo bus_add_device
-+ *     @dev:   device being deleted
-  *
-- *	- Remove symlink from bus's directory.
-- *	- Delete device from bus's list.
-- *	- Detach from its driver.
-- *	- Drop reference taken in bus_add_device().
-+ *     - Remove symlink from bus's directory.
-+ *     - Remove attributes.
-+ *     - Drop reference taken in bus_add_device().
-  */
--void bus_remove_device(struct device * dev)
-+void bus_delete_device(struct device * dev)
- {
- 	if (dev->bus) {
- 		sysfs_remove_link(&dev->kobj, "subsystem");
- 		sysfs_remove_link(&dev->kobj, "bus");
- 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
- 		device_remove_attrs(dev->bus, dev);
--		dev->is_registered = 0;
--		klist_del(&dev->knode_bus);
--		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
--		device_release_driver(dev);
- 		put_bus(dev->bus);
- 	}
- }
- 
-+/**
-+ *	bus_remove_device - remove device from bus
-+ *	@dev:	device to be removed
-+ *
-+ *	- Remove symlink from bus's directory.
-+ *	- Delete device from bus's list.
-+ *	- Detach from its driver.
-+ *	- Drop reference taken in bus_add_device().
-+ */
-+void bus_remove_device(struct device * dev)
-+{
-+	if (!dev->bus)
-+		return;
-+	dev->is_registered = 0;
-+	klist_del(&dev->knode_bus);
-+	pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
-+	device_release_driver(dev);
-+	bus_delete_device(dev);
-+}
-+
- static int driver_add_attrs(struct bus_type * bus, struct device_driver * drv)
- {
- 	int error = 0;
---- linux-2.6-CH.orig/drivers/base/core.c
-+++ linux-2.6-CH/drivers/base/core.c
-@@ -479,7 +479,9 @@ int device_add(struct device *dev)
- 	if ((error = bus_add_device(dev)))
- 		goto BusError;
- 	kobject_uevent(&dev->kobj, KOBJ_ADD);
--	bus_attach_device(dev);
-+	error = bus_attach_device(dev);
-+	if (error)
-+		goto attachError;
- 	if (parent)
- 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
- 
-@@ -498,6 +500,8 @@ int device_add(struct device *dev)
-  	kfree(class_name);
- 	put_device(dev);
- 	return error;
-+ attachError:
-+	bus_delete_device(dev);
-  BusError:
- 	device_pm_remove(dev);
-  PMError:
+

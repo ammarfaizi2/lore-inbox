@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWJFTF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWJFTGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422891AbWJFTF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422892AbWJFTFZ
+	id S932203AbWJFTGl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 15:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWJFTGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:05:25 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:20429 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1422891AbWJFTFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 15:05:20 -0400
-From: Matthew Wilcox <matthew@wil.cx>
-To: Val Henson <val_henson@linux.intel.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Cc: netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-Subject: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
-Reply-To: Matthew Wilcox <matthew@wil.cx>
-Date: Fri, 06 Oct 2006 13:05:19 -0600
-Message-Id: <11601615192857-git-send-email-matthew@wil.cx>
-X-Mailer: git-send-email 1.4.1.1
-In-Reply-To: <1160161519800-git-send-email-matthew@wil.cx>
-References: <1160161519800-git-send-email-matthew@wil.cx>
+	Fri, 6 Oct 2006 15:06:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43714 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932203AbWJFTGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 15:06:40 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: caszonyi@rdslink.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Merge window closed: v2.6.19-rc1
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	<Pine.LNX.4.62.0610062041440.1966@grinch.ro>
+	<Pine.LNX.4.64.0610061110050.3952@g5.osdl.org>
+Date: Fri, 06 Oct 2006 13:05:14 -0600
+In-Reply-To: <Pine.LNX.4.64.0610061110050.3952@g5.osdl.org> (Linus Torvalds's
+	message of "Fri, 6 Oct 2006 11:12:10 -0700 (PDT)")
+Message-ID: <m1irixz2mt.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We used to check whether pci_set_mwi() had succeeded by testing the
-hardware MWI bit.  Now we need only check the return value (and failing
-to do so is a warning).  Also, pci_set_mwi() will fail if the cache line
-size is 0, so we don't need to check that ourselves any more.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> On Fri, 6 Oct 2006, caszonyi@rdslink.ro wrote:
+>> 
+>> In dmesg:
+>> warning: process `sleep' used the removed sysctl system call
+>> warning: process `alsactl' used the removed sysctl system call
+>> warning: process `nscd' used the removed sysctl system call
+>> warning: process `tail' used the removed sysctl system call
+>
+> You need to compile with CONFIG_SYSCLT set to 'y' rather than 'n'.
+>
+> Alternatively, you can probably fix it by just upgrading user-land, but 
+> the SYSCLT thing _does_ still exist, it's just deprecated and defaults to 
+> off by default..
+>
+> (Or you can possibly even choose to just ignore the warnings, they 
+> probably won't affect any actual behaviour)
 
-diff --git a/drivers/net/tulip/tulip_core.c b/drivers/net/tulip/tulip_core.c
-index d11d28c..64d999b 100644
---- a/drivers/net/tulip/tulip_core.c
-+++ b/drivers/net/tulip/tulip_core.c
-@@ -1135,7 +1135,6 @@ static void __devinit tulip_mwi_config (
- {
- 	struct tulip_private *tp = netdev_priv(dev);
- 	u8 cache;
--	u16 pci_command;
- 	u32 csr0;
- 
- 	if (tulip_debug > 3)
-@@ -1153,21 +1152,15 @@ static void __devinit tulip_mwi_config (
- 	/* set or disable MWI in the standard PCI command bit.
- 	 * Check for the case where  mwi is desired but not available
- 	 */
--	if (csr0 & MWI)	pci_set_mwi(pdev);
--	else		pci_clear_mwi(pdev);
--
--	/* read result from hardware (in case bit refused to enable) */
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if ((csr0 & MWI) && (!(pci_command & PCI_COMMAND_INVALIDATE)))
--		csr0 &= ~MWI;
--
--	/* if cache line size hardwired to zero, no MWI */
--	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache);
--	if ((csr0 & MWI) && (cache == 0)) {
--		csr0 &= ~MWI;
-+	if (csr0 & MWI)	{
-+		if (pci_set_mwi(pdev))
-+			csr0 &= ~MWI;
-+	} else {
- 		pci_clear_mwi(pdev);
- 	}
- 
-+	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache);
-+
- 	/* assign per-cacheline-size cache alignment and
- 	 * burst length values
- 	 */
+I'm tempted to submit a patch that just kills the warning.
+
+The only known user is lipthreads from glibc performing.
+if ! uname -v | grep "SMP" ; then
+	....
+fi
+
+That code if it gets -ENOSYS reads /proc/sys/kernel/version,
+and it has worked this way since the day it was written.
+
+I have been looking for other uses of sys_sysctl but I haven't
+found any.  Why glibc doesn't call uname like any normal
+program when it wants to uname information is beyond me.
+
+Eric

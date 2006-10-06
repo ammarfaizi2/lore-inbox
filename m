@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423004AbWJFX1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423006AbWJFX3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423004AbWJFX1J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423006AbWJFX1J
+	id S1423006AbWJFX3i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423005AbWJFX3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:27:09 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:16605 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1423004AbWJFX1I (ORCPT
+	Fri, 6 Oct 2006 19:29:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423006AbWJFX3h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:27:08 -0400
-Message-id: <12387098213213@wsc.cz>
-Subject: [PATCH] Char: nozomi, use tty_wakeup
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <p.hardwick@option.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat,  7 Oct 2006 01:27:07 +0200 (CEST)
+	Fri, 6 Oct 2006 19:29:37 -0400
+Date: Fri, 6 Oct 2006 16:29:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bryce Harrington <bryce@osdl.org>, Pavel Machek <pavel@ucw.cz>
+Cc: vatsa@in.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       shaohua.li@intel.com, hotplug_sig@osdl.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: Status on CPU hotplug issues
+Message-Id: <20061006162924.344090f8.akpm@osdl.org>
+In-Reply-To: <20061006231012.GH22139@osdl.org>
+References: <20060316174447.GA8184@in.ibm.com>
+	<20060316170814.02fa55a1.akpm@osdl.org>
+	<20060317084653.GA4515@in.ibm.com>
+	<20060317010412.3243364c.akpm@osdl.org>
+	<20061006231012.GH22139@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nozomi, use tty_wakeup
+On Fri, 6 Oct 2006 16:10:12 -0700
+Bryce Harrington <bryce@osdl.org> wrote:
 
-Use tty_wakeup instead of self-implemented wake calling.
+> On Fri, Mar 17, 2006 at 01:04:12AM -0800, Andrew Morton wrote:
+> > Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+> > > Well ..other arch-es need to have a similar check if they get around to
+> > > implement physical hot-add (even if they allow offlining of all CPUs). This is 
+> > > required since a user can (by mistake maybe) try to bring up an already online 
+> > > CPU by writing a '1' to it's sysfs 'online' file. 'store_online' 
+> > > (drivers/base/cpu.c) unconditionally calls 'smp_prepare_cpu' w/o checking for 
+> > > this error condition. The check added in the patch catches such error 
+> > > conditions as well.
+> > 
+> > OK..  I guess we should fix those architectures while we're thinking about it.
+> >
+> > > +	/* Check if CPU is already online. This can happen if user tries to 
+> > > +	 * bringup an already online CPU or a previous offline attempt
+> > > +	 * on this CPU has failed.
+> > > +	 */
+> > > +	if (cpu_online(cpu)) {
+> > > +		ret = -EINVAL;
+> > > +		goto exit;
+> > > +	}
+> > 
+> > How well tested is this?  From my reading, this will cause
+> > enable_nonboot_cpus() to panic.  Is that intended?
+> 
+> Andrew,
+> 
+> I wanted to give you an update on results of cpu testing I've done on
+> recent kernels and several architectures.  Since -rc1 is out, I wanted
+> to give added visibility to the few issues that remain.
+> 
+> The full results are available here:
+> 
+>     http://crucible.osdl.org/runs/hotplug_report.html
+> 
+> This is actually a report for cpu hotplug tests generated hourly,
+> however we run it against all of the kernel -git snapshots posted to
+> kernel.org.  Whereever you see a blank square, it indicates the kernel
+> either failed to build or boot.
+> 
 
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Can you describe the nature of the cpu-hotplug tests you're running?  I'd
+be fairly staggered if the kernel was able to survive a full-on cpu-hotplug
+stress test for more than one second, frankly.  There's a lot of code in
+there which is non-hotplug-aware.  Running a non-preemptible kernel would
+make things appear more stable, perhaps.
 
----
-commit b19884f570ea41ff9100cc56962e8d6f435e2337
-tree f68d0e40ee5e527a0c6d96dc28291235032c45e1
-parent 56269f9ba9ccaf60a314ebcf58d4de650995c4e5
-author Jiri Slaby <jirislaby@gmail.com> Sat, 07 Oct 2006 01:23:24 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 07 Oct 2006 01:23:24 +0200
+iirc Pavel did some testing a month or two ago and was seeing userspace
+misbehaviour?
 
- drivers/char/nozomi.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+> 
+> Issues were found in four areas: General kernel, cpu hotplug, sysstat,
+> and the test harness itself.
+>
 
-diff --git a/drivers/char/nozomi.c b/drivers/char/nozomi.c
-index cd95ed5..8d502d2 100644
---- a/drivers/char/nozomi.c
-+++ b/drivers/char/nozomi.c
-@@ -922,12 +922,8 @@ static int send_data( enum port_type ind
-     SET_MEM( addr, &size, 4 );
-     SET_MEM_BUF( addr + 4, dc->send_buf, size);
- 
--    if (port->tty) {
--        if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup) {
--            tty->ldisc.write_wakeup(tty);
--        }
--        wake_up_interruptible(&tty->write_wait);
--    }
-+    if (tty)
-+	tty_wakeup(tty);
- 
-     return 1;
- }
+It's surprising that AMD and Intel CPUs behave differently.  Also a good
+start on diagnosing things.
+

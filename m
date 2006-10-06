@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWJFNPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWJFNSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWJFNPF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 09:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWJFNPE
+	id S932297AbWJFNSo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 09:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWJFNSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 09:15:04 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:60380 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932225AbWJFNPC (ORCPT
+	Fri, 6 Oct 2006 09:18:44 -0400
+Received: from mail.rtlogic.com ([165.236.216.78]:23589 "EHLO rtlogic.com")
+	by vger.kernel.org with ESMTP id S932297AbWJFNSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 09:15:02 -0400
-Date: Fri, 6 Oct 2006 06:14:51 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] i386 add X86_FEATURE_PEBS and detection
-Message-ID: <20061006131451.GE9063@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Fri, 6 Oct 2006 09:18:44 -0400
+From: "Russell Johnson" <rjohnson@rtlogic.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: bigphysarea mmap and direct_io
+Date: Fri, 6 Oct 2006 07:18:39 -0600
+Message-ID: <003101c6e949$f018cf40$f500030a@rtlogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-Index: AcbpSe7nkK402dbRQbS0UJ2u+/Exmw==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+My driver is allocating memory via bigphysarea and my application mmap's the
+area for performance reasons.  With linux kernels 2.6.14 and prior on i386
+platforms, I have been able to issue disk reads using direct_io to fill this
+bigphysarea memory and prevent multiple copies of the data.  The file system
+code for direct I/O disk reads checks for VM_IO and will not allow direct io
+in that case.  So to do this I had my driver clear the VM_IO flag after
+calling remap_pfn_range.
 
-Here is a patch (used by perfmon2) to detect the presence of the
-Precise Event Based Sampling (PEBS) feature for i386.
-The patch also adds the cpu_has_pebs macro.
+With kernel 2.6.16 and newer, remap_pfn_range sets a new flag VM_PFNMAP
+which direct_io also checks.  If my driver clears VM_PFNMAP then the kernel
+will oops upon an munmap call because it will attempt to free the pages.
 
-IMPORTANT: you need to have the i386 X86_FEATURE_DS renaming patch applied first!
+I'm looking for the proper way to do what I want which is to allow the
+application to mmap and do direct io disk access to the bigphysarea memory.
+I've unsuccessfully tried writing a nopage handler and I still get an oops
+upon munmap.  Can someone point me in the right direction?
 
-changelog:
-        - adds X86_FEATURE_PEBS
-        - adds cpu_has_pebs to test for X86_FEATURE_PEBS
+Please cc me as I'm not on this list.  Thanks!
 
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
+rjohnson@rtlogic.com
+
+Russell Johnson
+RT Logic! 
 
 
-diff --git a/arch/i386/kernel/cpu/intel.c b/arch/i386/kernel/cpu/intel.c
-index 94a95aa..798c2f6 100644
---- a/arch/i386/kernel/cpu/intel.c
-+++ b/arch/i386/kernel/cpu/intel.c
-@@ -195,8 +195,14 @@ #endif
- 	if ((c->x86 == 0xf && c->x86_model >= 0x03) ||
- 		(c->x86 == 0x6 && c->x86_model >= 0x0e))
- 		set_bit(X86_FEATURE_CONSTANT_TSC, c->x86_capability);
--}
- 
-+	if (cpu_has_ds) {
-+		unsigned int l1;
-+		rdmsr(MSR_IA32_MISC_ENABLE, l1, l2);
-+		if (!(l1 & (1<<12)))
-+			set_bit(X86_FEATURE_PEBS, c->x86_capability);
-+	}
-+}
- 
- static unsigned int __cpuinit intel_size_cache(struct cpuinfo_x86 * c, unsigned int size)
- {
---- a/include/asm-i386/cpufeature.h	2006-10-06 05:34:05.000000000 -0700
-+++ b/include/asm-i386/cpufeature.h	2006-10-06 05:12:57.000000000 -0700
-@@ -73,6 +73,7 @@
- #define X86_FEATURE_UP		(3*32+ 9) /* smp kernel running on up */
- #define X86_FEATURE_FXSAVE_LEAK (3*32+10) /* FXSAVE leaks FOP/FIP/FOP */
- #define X86_FEATURE_ARCH_PERFMON (3*32+11) /* Intel Architectural PerfMon */
-+#define X86_FEATURE_PEBS	(3*32+12)  /* Precise-Event Based Sampling */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
- #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-@@ -135,6 +136,7 @@
- #define cpu_has_pmm		boot_cpu_has(X86_FEATURE_PMM)
- #define cpu_has_pmm_enabled	boot_cpu_has(X86_FEATURE_PMM_EN)
- #define cpu_has_ds		boot_cpu_has(X86_FEATURE_DS)
-+#define cpu_has_pebs 		boot_cpu_has(X86_FEATURE_PEBS)
- 
- #endif /* __ASM_I386_CPUFEATURE_H */
- 

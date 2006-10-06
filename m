@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422752AbWJFRDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422753AbWJFRFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422752AbWJFRDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWJFRDd
+	id S1422753AbWJFRFx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWJFRFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:03:33 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:32463 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1422752AbWJFRDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:03:32 -0400
-Date: Fri, 6 Oct 2006 11:03:31 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	Fri, 6 Oct 2006 13:05:53 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31400 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422753AbWJFRFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:05:52 -0400
 Subject: Re: [PATCH] [PATCH] Rename pdc_init
-Message-ID: <20061006170331.GJ2563@parisc-linux.org>
-References: <11601511393703-git-send-email-matthew@wil.cx> <4526876A.5090103@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
 In-Reply-To: <4526876A.5090103@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <11601511393703-git-send-email-matthew@wil.cx>
+	 <4526876A.5090103@garzik.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 06 Oct 2006 18:30:21 +0100
+Message-Id: <1160155822.1607.110.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 12:42:18PM -0400, Jeff Garzik wrote:
+Ar Gwe, 2006-10-06 am 12:42 -0400, ysgrifennodd Jeff Garzik:
+> Matthew Wilcox wrote:
+> > parisc uses pdc_init() for different purposes, so call it pdc202xx_init
+> > instead.
+> > 
+> > Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> 
 > I don't mind the patch (you should have CC'd me and linux-ide though), 
-
-We really need to figure out how to communicate that better.  I just
-sent it to the maintainer (as listed in MODULE_AUTHOR).  Do we need a
-MODULE_CHANGES_CC macro too?
-
 > but where is parisc's pdc_init actually used, and why is it global?
 
-Hmm.  Embarrassing.  Seems it's a stale prototype; I'll delete it.
+Can you cc me the patch as well ?
 
-OTOH, there is a pdc_init in avr32, and it's prudent to not have two
-functions of the same name, so that you know which one is appearing in a
-backtrace.  So it might be a good idea to apply this patch anyway.

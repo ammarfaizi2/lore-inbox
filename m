@@ -1,104 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWJFUC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWJFUFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWJFUC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWJFUC1
+	id S1422913AbWJFUFT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422916AbWJFUFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:02:27 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:61261 "EHLO avexch1.qlogic.com")
-	by vger.kernel.org with ESMTP id S932482AbWJFUC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:02:26 -0400
-Date: Fri, 6 Oct 2006 13:02:23 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-Message-ID: <20061006200223.GT2365@n6014avq19270.qlogic.org>
-References: <20061005212216.GA10912@rhun.haifa.ibm.com> <m11wpl328i.fsf@ebiederm.dsl.xmission.com> <20061006155021.GE14186@rhun.haifa.ibm.com> <20061006162054.GF14186@rhun.haifa.ibm.com> <20061006190039.GN2365@n6014avq19270.qlogic.org> <20061006124213.28afb767.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 6 Oct 2006 16:05:18 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:35558 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422912AbWJFUFQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:05:16 -0400
+Date: Fri, 6 Oct 2006 16:04:36 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Steve Fox <drfickle@us.ibm.com>, mel@skynet.ie
+Cc: Andi Kleen <ak@suse.de>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Message-ID: <20061006200436.GG19756@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu> <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie> <20061006153629.GA19756@in.ibm.com> <20061006171105.GC9881@skynet.ie> <1160157830.29690.66.camel@flooterbu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061006124213.28afb767.akpm@osdl.org>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.12-2006-07-14
-X-OriginalArrivalTime: 06 Oct 2006 20:02:26.0185 (UTC) FILETIME=[5839EF90:01C6E982]
+In-Reply-To: <1160157830.29690.66.camel@flooterbu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Oct 2006, Andrew Morton wrote:
+On Fri, Oct 06, 2006 at 01:03:50PM -0500, Steve Fox wrote:
+> On Fri, 2006-10-06 at 18:11 +0100, Mel Gorman wrote:
+> > On (06/10/06 11:36), Vivek Goyal didst pronounce:
+> > > Where is bss placed in physical memory? I guess bss_start and bss_stop
+> > > from System.map will tell us. That will confirm that above memset step is
+> > > stomping over bss. Then we have to just find that somewhere probably
+> > > we allocated wrong physical memory area for bootmem allocator map.
+> > > 
+> > 
+> > BSS is at 0x643000 -> 0x777BC4
+> > init_bootmem wipes from 0x777000 -> 0x8F7000
+> > 
+> > So the BSS bytes from 0x777000 ->0x777BC4 (which looks very suspiciously
+> > pile a page alignment of addr & PAGE_MASK) gets set to 0xFF. One possible
+> > fix is below. It adds a check in bad_addr() to see if the BSS section is
+> > about to be used for bootmap. It Seems To Work For Me (tm) and illustrates
+> > the source of the problem even if it's not the 100% correct fix.
+> 
+> I was able to boot the machine with Mel's patch applied on top of
+> -git22.
 
-> On Fri, 6 Oct 2006 12:00:39 -0700
-> Andrew Vasquez <andrew.vasquez@qlogic.com> wrote:
-> 
-> > [   27.510539] Booting processor 1/2 APIC 0x1
-> > [   27.514684] Unable to handle kernel NULL pointer dereference at 0000000000000088 RIP: 
-> > [   27.520204]  [<ffffffff80225fb0>] profile_tick+0x40/0x90
-> > [   27.528118] PGD 0 
-> > [   27.530222] Oops: 0000 [1] SMP 
-> > [   27.533505] CPU 0 
-> > [   27.535610] Modules linked in:
-> > [   27.538755] Pid: 1, comm: swapper Not tainted 2.6.19-rc1 #5
-> > [   27.544367] RIP: 0010:[<ffffffff80225fb0>]  [<ffffffff80225fb0>] profile_tick+0x40/0x90
-> > [   27.552483] RSP: 0000:ffffffff8059ff78  EFLAGS: 00010046
-> > [   27.557842] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000001
-> > [   27.565024] RDX: ffff810081a77f40 RSI: 0000000000000046 RDI: 0000000000000001
-> > [   27.572203] RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000007
-> 
-> 
-> hm, we seem to have broken x86_64 completely.
-> 
-> smp_apic_timer_interrupt() needs to do
-> 
-> 	struct pt_regs *old_regs = set_irq_regs(regs);
-> 
-> on entry and
-> 
-> 	set_irq_regs(old_regs);
-> 
-> on exit.
-> 
-> But it doesn't get passed the pt_regs*
-> 
-> >From my reading of `macro apicinterrupt' in arch/x86_64/kernel/entry.S,
-> smp_apic_timer_interrupt() actually _does_ get passed the pt_reg*, only it
-> doesn't declare it.  I think - Andi would need to confirm.
-> 
-> If I'm right...
-> 
-> 
-> diff -puN arch/x86_64/kernel/apic.c~x86_64-irq_regs-fix arch/x86_64/kernel/apic.c
-> --- a/arch/x86_64/kernel/apic.c~x86_64-irq_regs-fix
-> +++ a/arch/x86_64/kernel/apic.c
-> @@ -913,8 +913,10 @@ void smp_local_timer_interrupt(void)
->   * [ if a single-CPU system runs an SMP kernel then we call the local
->   *   interrupt as well. Thus we cannot inline the local irq ... ]
->   */
-> -void smp_apic_timer_interrupt(void)
-> +void smp_apic_timer_interrupt(struct pt_regs *regs)
->  {
-> +	struct pt_regs *old_regs = set_irq_regs(regs);
-> +
->  	/*
->  	 * the NMI deadlock-detector uses this.
->  	 */
-> @@ -934,6 +936,7 @@ void smp_apic_timer_interrupt(void)
->  	irq_enter();
->  	smp_local_timer_interrupt();
->  	irq_exit();
-> +	set_irq_regs(old_regs);
->  }
->  
->  /*
 
-Patch appears to work.
+Please have a look at the attached patch. Does it make some sense. 
 
-At least I can now boot my x86_64 box.
+Steve, can you please give this patch a try if it fixes the problem?
+
+Thanks
+Vivek
+
+
+
+
+o Currently some code pieces assume that address returned by find_e820_area()
+  are page aligned. But looks like find_e820_area() had no such intention
+  and hence one might end up stomping over some of the data. One such
+  case is bootmem allocator initialization code stomped over bss.
+
+o This patch modified find_e820_area() to return page aligned address. This
+  might be little wasteful of memory but at the same time probably it is
+  easier to handle page aligned memory. 
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/x86_64/kernel/e820.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff -puN arch/x86_64/kernel/e820.c~x86_64-return-page-aligned-phy-addr-from-find-e820-area arch/x86_64/kernel/e820.c
+--- linux-2.6.19-rc1-1M/arch/x86_64/kernel/e820.c~x86_64-return-page-aligned-phy-addr-from-find-e820-area	2006-10-06 15:28:13.000000000 -0400
++++ linux-2.6.19-rc1-1M-root/arch/x86_64/kernel/e820.c	2006-10-06 15:44:45.000000000 -0400
+@@ -54,13 +54,13 @@ static inline int bad_addr(unsigned long
+ 
+ 	/* various gunk below that needed for SMP startup */
+ 	if (addr < 0x8000) { 
+-		*addrp = 0x8000;
++		*addrp = PAGE_ALIGN(0x8000);
+ 		return 1; 
+ 	}
+ 
+ 	/* direct mapping tables of the kernel */
+ 	if (last >= table_start<<PAGE_SHIFT && addr < table_end<<PAGE_SHIFT) { 
+-		*addrp = table_end << PAGE_SHIFT; 
++		*addrp = PAGE_ALIGN(table_end << PAGE_SHIFT);
+ 		return 1;
+ 	} 
+ 
+@@ -68,18 +68,18 @@ static inline int bad_addr(unsigned long
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (LOADER_TYPE && INITRD_START && last >= INITRD_START && 
+ 	    addr < INITRD_START+INITRD_SIZE) { 
+-		*addrp = INITRD_START + INITRD_SIZE; 
++		*addrp = PAGE_ALIGN(INITRD_START + INITRD_SIZE);
+ 		return 1;
+ 	} 
+ #endif
+ 	/* kernel code */
+-	if (last >= __pa_symbol(&_text) && last < __pa_symbol(&_end)) {
+-		*addrp = __pa_symbol(&_end);
++	if (last >= __pa_symbol(&_text) && addr < __pa_symbol(&_end)) {
++		*addrp = PAGE_ALIGN(__pa_symbol(&_end));
+ 		return 1;
+ 	}
+ 
+ 	if (last >= ebda_addr && addr < ebda_addr + ebda_size) {
+-		*addrp = ebda_addr + ebda_size;
++		*addrp = PAGE_ALIGN(ebda_addr + ebda_size);
+ 		return 1;
+ 	}
+ 
+@@ -152,7 +152,7 @@ unsigned long __init find_e820_area(unsi
+ 			continue; 
+ 		while (bad_addr(&addr, size) && addr+size <= ei->addr+ei->size)
+ 			;
+-		last = addr + size;
++		last = PAGE_ALIGN(addr) + size;
+ 		if (last > ei->addr + ei->size)
+ 			continue;
+ 		if (last > end) 
+_

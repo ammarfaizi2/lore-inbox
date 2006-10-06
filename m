@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422938AbWJFUf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWJFUfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422938AbWJFUf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422939AbWJFUf0
+	id S932603AbWJFUfm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWJFUfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:35:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6342 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422938AbWJFUfY (ORCPT
+	Fri, 6 Oct 2006 16:35:42 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:730 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932603AbWJFUfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:35:24 -0400
-Date: Fri, 6 Oct 2006 13:35:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/5] ioremap balanced with iounmap for
- drivers/char/epca.c
-Message-Id: <20061006133516.c5cbf43b.akpm@osdl.org>
-In-Reply-To: <1160110625.19143.83.camel@amol.verismonetworks.com>
-References: <1160110625.19143.83.camel@amol.verismonetworks.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 6 Oct 2006 16:35:39 -0400
+Date: Fri, 6 Oct 2006 16:35:00 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@muc.de>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Magnus Damm <magnus@valinux.co.jp>, Ian.Campbell@XenSource.com
+Subject: [PATCH] x86_64: Overlapping program headers in physical addr space fix
+Message-ID: <20061006203500.GA13634@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Oct 2006 10:27:05 +0530
-Amol Lad <amol@verismonetworks.com> wrote:
+Hi Andi,
 
-> ioremap must be balanced by an iounmap and failing to do so can result
-> in a memory leak.
-> 
-> Tested (compilation only):
-> - using allmodconfig
-> - making sure the files are compiling without any warning/error due to
-> new changes
-> 
-> Signed-off-by: Amol Lad <amol@verismonetworks.com>
-> ---
->  epca.c |    5 ++++-
->  1 files changed, 4 insertions(+), 1 deletion(-)
-> ---
-> diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/drivers/char/epca.c linux-2.6.19-rc1/drivers/char/epca.c
-> --- linux-2.6.19-rc1-orig/drivers/char/epca.c	2006-10-05 14:00:42.000000000 +0530
-> +++ linux-2.6.19-rc1/drivers/char/epca.c	2006-10-05 14:50:00.000000000 +0530
-> @@ -1474,8 +1474,11 @@ static void post_fep_init(unsigned int c
->  	if ((bd->type == PCXEVE || bd->type == PCXE) && (readw(memaddr + XEPORTS) < 3))
->  		shrinkmem = 1;
->  	if (bd->type < PCIXEM)
-> -		if (!request_region((int)bd->port, 4, board_desc[bd->type]))
-> +		if (!request_region((int)bd->port, 4, board_desc[bd->type])) {
-> +			iounmap(bd->re_map_membase);
-> +			bd->re_map_membase = NULL;
->  			return;		
-> +		}
->  	memwinon(bd, 0);
->  
+Can you please apply following patch. Magnus verified that it fixed
+his problem.
 
-I think this will do the wrong thing if (bd->type >= PCIXEM).  Maybe it's
-OK, but it's not immediately obvious from a quick reading.
+o A recent change to vmlinux.ld.S file broke kexec as now resulting vmlinux
+  program headers are overlapping in physical address space.
 
-I'm quite worried about changes in crufty old drivers like these - if we
-break them, the breakage will take a *long* time to be discovered.  Too
-late for us to fix them.
+o Now all the vsyscall related sections are placed after data and after
+  that mostly init data sections are placed. To avoid physical overlap
+  among phdrs, there are three possible solutions.	
+	- Place vsyscall sections also in data phdrs instead of user
+	- move vsyscal sections after init data in bss.
+	- create another phdrs say data.init and move all the sections
+	  after vsyscall into this new phdr.
 
-Plus a lot of them are just plain badly coded, so extra care is needed to
-understand the tricks which they're playing.
+o This patch implements the third solution. 
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/x86_64/kernel/vmlinux.lds.S |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN arch/x86_64/kernel/vmlinux.lds.S~x86_64-physical-addr-space-overlap-in-phdrs-fix arch/x86_64/kernel/vmlinux.lds.S
+--- linux-2.6.19-rc1-1M/arch/x86_64/kernel/vmlinux.lds.S~x86_64-physical-addr-space-overlap-in-phdrs-fix	2006-10-05 12:15:00.000000000 -0400
++++ linux-2.6.19-rc1-1M-root/arch/x86_64/kernel/vmlinux.lds.S	2006-10-05 12:15:00.000000000 -0400
+@@ -17,6 +17,7 @@ PHDRS {
+ 	text PT_LOAD FLAGS(5);	/* R_E */
+ 	data PT_LOAD FLAGS(7);	/* RWE */
+ 	user PT_LOAD FLAGS(7);	/* RWE */
++	data.init PT_LOAD FLAGS(7);	/* RWE */
+ 	note PT_NOTE FLAGS(4);	/* R__ */
+ }
+ SECTIONS
+@@ -131,7 +132,7 @@ SECTIONS
+   . = ALIGN(8192);		/* init_task */
+   .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
+ 	*(.data.init_task)
+-  } :data
++  }:data.init
+ 
+   . = ALIGN(4096);
+   .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
+_

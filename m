@@ -1,96 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422990AbWJFVyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422992AbWJFVzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422990AbWJFVyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422991AbWJFVyQ
+	id S1422992AbWJFVzT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422993AbWJFVzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:54:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18638 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422990AbWJFVyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:54:15 -0400
-Date: Fri, 6 Oct 2006 17:54:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: ak@suse.de
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Compress stack unwinder output
-Message-ID: <20061006215412.GB15420@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, ak@suse.de,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Fri, 6 Oct 2006 17:55:19 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:61319 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1422992AbWJFVzR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 17:55:17 -0400
+Message-ID: <4526D084.1030700@zytor.com>
+Date: Fri, 06 Oct 2006 14:54:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>	<20061003172511.GL3164@in.ibm.com>	<20061003201340.afa7bfce.akpm@osdl.org>	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>	<20061004214403.e7d9f23b.akpm@osdl.org>	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>	<20061004233137.97451b73.akpm@osdl.org>	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>	<20061005235909.75178c09.akpm@osdl.org>	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>	<20061006183846.GF19756@in.ibm.com> <4526A66B.4030805@zytor.com> <m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The unwinder has some extra newlines, which eat up loads of screen
-space when it spews. (See https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=137900
-for a nasty example).
+Eric W. Biederman wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
+> 
+>> Vivek Goyal wrote:
+>>> Hi Eric,
+>>> I have added cld in the regenerated patch below.
+>> No, the cld needs to be earlier.  It turns out this isn't the first use of
+>> string instructions.
+> 
+> Can we rely on the int calls not setting df?  Otherwise we need to clear
+> df at each use as we do with all of the later uses.
+> 
 
-warning_symbol-> and warning-> already printk a newline, so don't add one
-in the strings passed to them.
+Yes, we can, with a few exceptions.  INT saves the flags and IRET 
+restores them.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- linux-2.6.18.noarch/arch/x86_64/kernel/traps.c~	2006-10-06 17:42:47.000000000 -0400
-+++ linux-2.6.18.noarch/arch/x86_64/kernel/traps.c	2006-10-06 17:47:23.000000000 -0400
-@@ -289,21 +289,21 @@ void dump_trace(struct task_struct *tsk,
- 		}
- 		if (unw_ret > 0) {
- 			if (call_trace == 1 && !arch_unw_user_mode(&info)) {
--				ops->warning_symbol(data, "DWARF2 unwinder stuck at %s\n",
-+				ops->warning_symbol(data, "DWARF2 unwinder stuck at %s",
- 					     UNW_PC(&info));
- 				if ((long)UNW_SP(&info) < 0) {
--					ops->warning(data, "Leftover inexact backtrace:\n");
-+					ops->warning(data, "Leftover inexact backtrace:");
- 					stack = (unsigned long *)UNW_SP(&info);
- 					if (!stack)
- 						return;
- 				} else
--					ops->warning(data, "Full inexact backtrace again:\n");
-+					ops->warning(data, "Full inexact backtrace again:");
- 			} else if (call_trace >= 1)
- 				return;
- 			else
--				ops->warning(data, "Full inexact backtrace again:\n");
-+				ops->warning(data, "Full inexact backtrace again:");
- 		} else
--			ops->warning(data, "Inexact backtrace:\n");
-+			ops->warning(data, "Inexact backtrace:");
- 	}
- 	if (!stack) {
- 		unsigned long dummy;
---- linux-2.6.18.noarch/arch/i386/kernel/traps.c~	2006-10-06 17:47:28.000000000 -0400
-+++ linux-2.6.18.noarch/arch/i386/kernel/traps.c	2006-10-06 17:47:45.000000000 -0400
-@@ -194,22 +194,22 @@ void dump_trace(struct task_struct *task
- 		}
- 		if (unw_ret > 0) {
- 			if (call_trace == 1 && !arch_unw_user_mode(&info)) {
--				ops->warning_symbol(data, "DWARF2 unwinder stuck at %s\n",
-+				ops->warning_symbol(data, "DWARF2 unwinder stuck at %s",
- 					     UNW_PC(&info));
- 				if (UNW_SP(&info) >= PAGE_OFFSET) {
--					ops->warning(data, "Leftover inexact backtrace:\n");
-+					ops->warning(data, "Leftover inexact backtrace:");
- 					stack = (void *)UNW_SP(&info);
- 					if (!stack)
- 						return;
- 					ebp = UNW_FP(&info);
- 				} else
--					ops->warning(data, "Full inexact backtrace again:\n");
-+					ops->warning(data, "Full inexact backtrace again:");
- 			} else if (call_trace >= 1)
- 				return;
- 			else
--				ops->warning(data, "Full inexact backtrace again:\n");
-+				ops->warning(data, "Full inexact backtrace again:");
- 		} else
--			ops->warning(data, "Inexact backtrace:\n");
-+			ops->warning(data, "Inexact backtrace:");
- 	}
- 	if (!stack) {
- 		unsigned long dummy;
--- 
-http://www.codemonkey.org.uk
+	-hpa

@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWJFKQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWJFKRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWJFKQI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 06:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJFKQI
+	id S1751406AbWJFKRp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 06:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWJFKRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 06:16:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48771 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932307AbWJFKQE (ORCPT
+	Fri, 6 Oct 2006 06:17:45 -0400
+Received: from xexex.zapek.com ([213.41.240.83]:46004 "EHLO mail.zapek.com")
+	by vger.kernel.org with ESMTP id S1751406AbWJFKRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 06:16:04 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] um: irq changes break build
-Date: Fri, 06 Oct 2006 11:15:36 +0100
-To: penberg@cs.helsinki.fi, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, jdike@addtoit.com,
-       blaisorblade@yahoo.it
-Message-Id: <20061006101535.7403.26244.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 6 Oct 2006 06:17:44 -0400
+From: David Gerber <dg-lkml@zapek.com>
+To: Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: Keyboard Stuttering
+Date: Fri, 6 Oct 2006 12:18:36 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610061218.36883.dg-lkml@zapek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+> I'm experiencing some severe keyboard stuttering on my laptop.  The 
+> problem is particularly bad in X, and I believe it also occurs at the 
+> console, though I'm having a difficult time verifying that.  The problem 
+> shows up as repeated characters (not regular key-repeat-related), and 
+> sometimes dropped key presses.
 
-Fixup broken UML build due to 7d12e780e003f93433d49ce78cfedf4b4c52adc5 "IRQ:
-Maintain regs pointer globally rather than passing to IRQ handlers".
+(I'm not subscribed to the list, CC: to me if needed)
 
-Added code to save/restore regs pointer.
+Same problem here. Intel Core 2 Duo with 2.6.19-rc1 x86_64 SMP. Happens on 
+2.6.17 too. I use 'noapic' as a workaround but that disables one of the CPU 
+core of course.
 
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Paolo "Blaisorblade" Giarrusso <blaisorblade@yahoo.it>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+I cannot reproduce the problem within the console nor gdm. Only on the X 
+desktop.
 
- arch/um/kernel/irq.c      |   10 ++++++----
- include/asm-um/irq_regs.h |    1 +
- 2 files changed, 7 insertions(+), 4 deletions(-)
+dmesg and dmidecode outputs are available at:
+http://zapek.com/misc/9400_dmesg
+http://zapek.com/misc/9400_dmidecode
+This is a Dell Inspiron 9400.
 
-diff --git a/arch/um/kernel/irq.c b/arch/um/kernel/irq.c
-index eee97bb..41b2e53 100644
---- a/arch/um/kernel/irq.c
-+++ b/arch/um/kernel/irq.c
-@@ -355,10 +355,12 @@ #endif
-  */
- unsigned int do_IRQ(int irq, union uml_pt_regs *regs)
- {
--       irq_enter();
--       __do_IRQ(irq, (struct pt_regs *)regs);
--       irq_exit();
--       return 1;
-+	struct pt_regs *old_regs = set_irq_regs(regs);
-+	irq_enter();
-+	__do_IRQ(irq, (struct pt_regs *)regs);
-+	irq_exit();
-+	set_irq_regs(old_regs);
-+	return 1;
- }
- 
- int um_request_irq(unsigned int irq, int fd, int type,
-diff --git a/include/asm-um/irq_regs.h b/include/asm-um/irq_regs.h
-new file mode 100644
-index 0000000..3dd9c0b
---- /dev/null
-+++ b/include/asm-um/irq_regs.h
-@@ -0,0 +1 @@
-+#include <asm-generic/irq_regs.h>
+-- 
+Dave - http://zapek.com/

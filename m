@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWJFQfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWJFQjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422701AbWJFQfq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWJFQfq
+	id S932444AbWJFQjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWJFQjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:35:46 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:11702 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1422701AbWJFQfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:35:45 -0400
-From: Matthew Wilcox <matthew@wil.cx>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-Subject: [PATCH] Fix vivi compile on parisc
-Reply-To: Matthew Wilcox <matthew@wil.cx>
-Date: Fri, 06 Oct 2006 10:35:45 -0600
-Message-Id: <11601525451073-git-send-email-matthew@wil.cx>
-X-Mailer: git-send-email 1.4.1.1
+	Fri, 6 Oct 2006 12:39:13 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:11938 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932439AbWJFQjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 12:39:11 -0400
+Message-ID: <452686A3.9050004@garzik.org>
+Date: Fri, 06 Oct 2006 12:38:59 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH, RAW] IRQ: Maintain irq number globally rather than passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu> <45263D9C.9030200@garzik.org> <452673AC.1080602@garzik.org> <Pine.LNX.4.64.0610060841320.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610060841320.3952@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-parisc (and several other architectures) don't have a dma_address in their
-sg list.  Use the macro instead.
+Linus Torvalds wrote:
+> 
+> On Fri, 6 Oct 2006, Jeff Garzik wrote:
+>> Here is the raw, un-split-up first pass of the irq argument removal patch
+>> (500K):	http://gtf.org/garzik/misc/patch.irq-remove
+> 
+> So I'm not at all as sure about this as about the "regs" stuff.
+> 
+> The "regs" value has always been controversial. It's pretty much always 
+> existed (due to the keyboard hander and the magic debugging keysequences), 
+> and anybody who looks at 0.01 will quickly realize that the keyboard 
+> driver was one of the very first drivers (I think it's even written in 
+> assembly at that point: originally _all_ of what was to become Linux was 
+> pure asm, the whole "oh, cool, I could write this part in C" came later). 
+> But it's been pretty much a special case since day #1, purely for that 
+> "press a key to see where the h*ck we hung" case.
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
----
- drivers/media/video/vivi.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+Chuckle :)
 
-diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
-index 841884a..a2ef093 100644
---- a/drivers/media/video/vivi.c
-+++ b/drivers/media/video/vivi.c
-@@ -272,7 +272,7 @@ static void gen_line(struct sg_to_addr t
- 
- 	/* Get first addr pointed to pixel position */
- 	oldpg=get_addr_pos(pos,pages,to_addr);
--	pg=pfn_to_page(to_addr[oldpg].sg->dma_address >> PAGE_SHIFT);
-+	pg=pfn_to_page(sg_dma_address(to_addr[oldpg].sg) >> PAGE_SHIFT);
- 	basep = kmap_atomic(pg, KM_BOUNCE_READ)+to_addr[oldpg].sg->offset;
- 
- 	/* We will just duplicate the second pixel at the packet */
-@@ -287,7 +287,7 @@ static void gen_line(struct sg_to_addr t
- 		for (color=0;color<4;color++) {
- 			pgpos=get_addr_pos(pos,pages,to_addr);
- 			if (pgpos!=oldpg) {
--				pg=pfn_to_page(to_addr[pgpos].sg->dma_address >> PAGE_SHIFT);
-+				pg=pfn_to_page(sg_dma_address(to_addr[pgpos].sg) >> PAGE_SHIFT);
- 				kunmap_atomic(basep, KM_BOUNCE_READ);
- 				basep= kmap_atomic(pg, KM_BOUNCE_READ)+to_addr[pgpos].sg->offset;
- 				oldpg=pgpos;
-@@ -339,8 +339,8 @@ static void gen_line(struct sg_to_addr t
- 				for (color=0;color<4;color++) {
- 					pgpos=get_addr_pos(pos,pages,to_addr);
- 					if (pgpos!=oldpg) {
--						pg=pfn_to_page(to_addr[pgpos].
--								sg->dma_address
-+						pg=pfn_to_page(sg_dma_address(
-+								to_addr[pgpos].sg)
- 								>> PAGE_SHIFT);
- 						kunmap_atomic(basep,
- 								KM_BOUNCE_READ);
-@@ -386,7 +386,7 @@ static void vivi_fillbuff(struct vivi_de
- 	struct timeval ts;
- 
- 	/* Test if DMA mapping is ready */
--	if (!vb->dma.sglist[0].dma_address)
-+	if (!sg_dma_address(&vb->dma.sglist[0]))
- 		return;
- 
- 	prep_to_addr(to_addr,vb);
-@@ -783,7 +783,7 @@ static int vivi_map_sg(void *dev, struct
- 	for (i = 0; i < nents; i++ ) {
- 		BUG_ON(!sg[i].page);
- 
--		sg[i].dma_address = page_to_phys(sg[i].page) + sg[i].offset;
-+		sg_dma_address(&sg[i]) = page_to_phys(sg[i].page) + sg[i].offset;
- 	}
- 
- 	return nents;
--- 
-1.4.1.1
+> In contrast, the irq argument itself is really no different from the 
+> cookie we pass in on registration - it's just passing it back to the 
+> driver that requested the thing. So unlike "regs", there's not really 
+> anything strange about it, and there's nothing really "wrong" with having 
+> it there.
+
+It doesn't have the colorful history of pt_regs, but the 'irq' argument 
+is dead weight.  I'd say the wrongness stems from its utter uselessness.
+
+Out of ~1100 irq handlers, the irq parameter is used in ~50.  The vast 
+majority of those 50 uses are debug printks, or abused as a "did I call 
+myself?" internal driver flag.  The number of "real" uses is under 15, 
+and those are all ancient ISA or platform drivers that pre-date my ~10 
+year history with Linux.
+
+So, I don't see any convincing argument to keep it.  And if we are going 
+to kill it, given the pt_regs churn, this is probably the best 
+opportunity we'll have in years.
+
+Another weak-but-still-present argument in favor of killing it is that 
+this change would IMO future-proof irq handlers, against more exotic irq 
+handling methods that may come down the pipe.
+
+	Jeff
+
 

@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWJFHEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbWJFHVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161065AbWJFHEM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 03:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161066AbWJFHEM
+	id S1161081AbWJFHVO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 03:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWJFHVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 03:04:12 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:18656 "EHLO
+	Fri, 6 Oct 2006 03:21:14 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:57519 "EHLO
 	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1161065AbWJFHEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 03:04:12 -0400
+	id S1161081AbWJFHVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 03:21:13 -0400
 From: Oliver Neukum <oliver@neukum.org>
-To: linux-usb-devel@lists.sourceforge.net,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Fri, 6 Oct 2006 09:04:51 +0200
+Date: Fri, 6 Oct 2006 09:21:51 +0200
 User-Agent: KMail/1.8
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610052325.39690.oliver@neukum.org> <200610051947.44595.david-b@pacbell.net>
-In-Reply-To: <200610051947.44595.david-b@pacbell.net>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44L0.0610051732190.7346-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610051732190.7346-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610060904.51936.oliver@neukum.org>
+Message-Id: <200610060921.52186.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 6. Oktober 2006 04:47 schrieb David Brownell:
-> On Thursday 05 October 2006 2:25 pm, Oliver Neukum wrote:
+Am Donnerstag, 5. Oktober 2006 23:45 schrieb Alan Stern:
+> On Thu, 5 Oct 2006, Oliver Neukum wrote:
 > 
+> > I have a few observations, but no solution either:
+> > - if root tells a device to suspend, it shall do so
+> 
+> Probably everyone will agree on that.
+
+But should it stay suspended until explictely resumed? Do we have
+consensus on that?
+
 > > - the issues of manual & automatic suspend and remote wakeup are orthogonal
+> 
+> Except for the fact that remote wakeup kicks in only when a device is 
+> suspended.
+
+Yes.
+ 
 > > - there should be a common API for all devices
 > 
-> AFAIK there is no demonstrated need for an API to suspend
-> individual devices.  Of course there's the question of who
-> would _use_ such a thing (some unspecified component, worth
-> designing one first), but drivers can use internal runtime
-> suspend mechanisms to be in low power modes and hide that
-> fact from the rest of the system.  That is, activate on
-> demand, suspend when idle.
+> It would be nice, wouldn't it?  But we _already_ have several vastly
+> different power-management APIs.  Consider for example DPMI and IDE 
+> spindown.
 
-I doubt that a lot. Eg. Again, if I close the lid I may want my USB
-network cards be suspended or not and that decision might change several
-times a day. It's a policy decision in many cases. And I'd not be happy
-with being required to down the interfaces to do so. Suspension should
-be as transparent as possible.
+No reason to make matters worse.
+ 
+> > - there's no direct connection between power save and open()
+> 
+> Why shouldn't a device always be put into a power-saving mode whenever it 
+> isn't open?  Agreed, you might want to reduce its power usage at times 
+> even when it is open...
+
+That and you are putting the latency/power choice into kernel space.
+I've seen GPS recievers that need 30 seconds to get a fix. Autosuspend
+needs to be in kernel space. But that doesn't mean that it is sufficient
+as a mechanism nor that it doesn't need parameters supplied from
+user space.
+
+> > The question when a device is in use is far from trivial.
+> 
+> Yes.  It has to be decided by each individual driver.  For simple 
+> character-oriented devices, "open" is a good first start.
+
+Yes. However, simple character devices are the first candidates for
+libusb so kernel space is left with the hard cases.
 
 	Regards
 		Oliver

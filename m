@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbWJFWTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWJFW0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932645AbWJFWTu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 18:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWJFWTu
+	id S932439AbWJFW0d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 18:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWJFW0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 18:19:50 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:40255 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S932645AbWJFWTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 18:19:49 -0400
-X-IronPort-AV: i="4.09,273,1157353200"; 
-   d="dif'208?scan'208,208"; a="415723543:sNHT1358472600"
-Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Steve Dickson <SteveD@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1160172990.12253.14.camel@lade.trondhjem.org>
-References: <1160170629.5453.34.camel@lade.trondhjem.org>
-	 <4526CF6F.9040006@RedHat.com>
-	 <1160172990.12253.14.camel@lade.trondhjem.org>
-Content-Type: multipart/mixed; boundary="=-NzKveN/26H8fgIw4FJ23"
-Organization: Network Appliance Inc
-Date: Fri, 06 Oct 2006 18:19:27 -0400
-Message-Id: <1160173167.12253.17.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 06 Oct 2006 22:19:43.0192 (UTC) FILETIME=[85DD7580:01C6E995]
+	Fri, 6 Oct 2006 18:26:33 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:29930 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932439AbWJFW0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 18:26:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XLgwDf+llx2gFgTHLIdmHYOEekZKn5c0Wj7xVt3SpZWUO0B70jBbUF4gvCj6mnv4FRBtrCgeC71IMlQhHYLHZzreQlwjOPUMkSqP4roHhaWcSzSKaPzLXn61v7IRBe1NdlQFIK++Pc9DhHo+/oUBITZZRYiFpoJsgV7poL23yTs=
+Message-ID: <9a8748490610061526n5135f62ax81748f2175796a8c@mail.gmail.com>
+Date: Sat, 7 Oct 2006 00:26:31 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Stas Sergeev" <stsp@aknet.ru>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jakub Jelinek" <jakub@redhat.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Hugh Dickins" <hugh@veritas.com>,
+       "Ulrich Drepper" <drepper@redhat.com>
+In-Reply-To: <45269BEE.7050008@aknet.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4516B721.5070801@redhat.com>
+	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
+	 <45229A99.6060703@aknet.ru>
+	 <1159899820.2891.542.camel@laptopd505.fenrus.org>
+	 <4522AEA1.5060304@aknet.ru>
+	 <1159900934.2891.548.camel@laptopd505.fenrus.org>
+	 <4522B4F9.8000301@aknet.ru>
+	 <20061003210037.GO20982@devserv.devel.redhat.com>
+	 <45240640.4070104@aknet.ru> <45269BEE.7050008@aknet.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 06/10/06, Stas Sergeev <stsp@aknet.ru> wrote:
+> Hi Andrew.
+>
+> The attached patch makes the access(X_OK) to take the
+> "noexec" mount option into an account.
+>
+Makes sense to me.
 
---=-NzKveN/26H8fgIw4FJ23
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Fri, 2006-10-06 at 18:16 -0400, Trond Myklebust wrote:
-> Yeah using mapping_gfp_mask(mapping) sounds like a better option.
-
-Revised patch is attached...
-
-Cheers,
-  Trond
-
-
---=-NzKveN/26H8fgIw4FJ23
-Content-Disposition: inline; filename*0=linux-2.6.18-005-fix_gfp_mask_in_invalidate_complete_page2.di; filename*1=f
-Content-Type: message/rfc822; name=linux-2.6.18-005-fix_gfp_mask_in_invalidate_complete_page2.dif
-
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-Date: Fri Oct 6 17:31:47 2006 -0400
-Subject: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2 
-Note: I am less sure of what the callers of invalidate_inode_pages()
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-Message-Id: <1160173167.12253.18.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-
-
---=-NzKveN/26H8fgIw4FJ23--
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

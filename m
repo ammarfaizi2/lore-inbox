@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWJFPRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWJFPSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWJFPRX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 11:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWJFPRX
+	id S1751447AbWJFPSK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 11:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWJFPSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 11:17:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61912 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750773AbWJFPRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 11:17:22 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-Date: Fri, 06 Oct 2006 09:14:53 -0600
-In-Reply-To: <20061005212216.GA10912@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
-	message of "Thu, 5 Oct 2006 23:22:16 +0200")
-Message-ID: <m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 6 Oct 2006 11:18:10 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:47519 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751447AbWJFPSI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 11:18:08 -0400
+Message-ID: <452673AC.1080602@garzik.org>
+Date: Fri, 06 Oct 2006 11:18:04 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+CC: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       torvalds@osdl.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH, RAW] IRQ: Maintain irq number globally rather than passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu> <45263D9C.9030200@garzik.org>
+In-Reply-To: <45263D9C.9030200@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <muli@il.ibm.com> writes:
+Here is the raw, un-split-up first pass of the irq argument removal 
+patch (500K):	http://gtf.org/garzik/misc/patch.irq-remove
 
-> My x366 no longer boots with 2.6.19-rc1. The boot either hangs in
-> uhci_hcd_init or dies with 'do_IRQ: cannot handle IRQ -1". Bisection
-> says this one is bad:
+Notes:
 
-Ok.  So at least the second case is because some irq is being delivered
-to a cpu that was not expecting it.
+* raw first pass, DO NOT APPLY.
 
-The hang case is weird because the kernel does not get told about
-the irqs on your second ioapic.
+* this was useful work:  it turned up several minor bugs
 
-When it gets the 'do_IRQ: cannot handle IRQ -1' how long
-has the system been in user space?  (It doesn't look like
-init got started but that is hard to tell, shutting off irqbalanced
-for testing purposes would be interesting)
+* Do we mark irq handlers FASTCALL?  If not, we probably can now.
 
-Seeing the failure case is really weird because this early in boot
-everything should be routed to cpu 0.
+* I also turned up a few obvious places that dhowells missed in his 
+pt_regs patch, inevitably in non-x86 arches that probably were not built.
 
-What happens if you boot with max_cpus=1?
+* I need to fix up ~10 or so drivers that called their interrupt 
+handlers directly, then used a 'irq == 0' test to determine whether the 
+interrupt handler was called internally, or by the system.
 
-The change the patch introduced was that we are now always
-pointing irqs towards individual cpus, and not accepting an irq
-if it comes into the wrong cpu.  
+* not sure yet if I want to mark the parport "irq handler" functions as 
+truly irqreturn_t
 
-The only hypothesis I have so far is that there may be an issue
-with the x366 chipset ioapics that this patch reveals.
+* Hopefully I will have this polished by the end of the day.
 
-I would suspect a wider issue but in several months of testing
-this is the first bug report I have seen.
 
-If simple tests don't reveal what is going on then we will
-have to instrument up that BUG and print out the per
-cpu vector to irq tables, the cpu number, and the vector
-the unexpected irq came in on.
-
-Eric

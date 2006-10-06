@@ -1,117 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWJFRtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422790AbWJFRyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWJFRtX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWJFRtX
+	id S1422790AbWJFRyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWJFRyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:49:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34960 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751400AbWJFRtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:49:22 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-Date: Fri, 06 Oct 2006 11:47:12 -0600
-In-Reply-To: <20061006155021.GE14186@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
-	message of "Fri, 6 Oct 2006 17:50:21 +0200")
-Message-ID: <m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 6 Oct 2006 13:54:46 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:52092 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S1422790AbWJFRyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:54:45 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=lMmEwQ2TqR8zaiBj88OThah3zwc6k1Icd15zSgqUOP7jcugkeXjyfcTcmExixHIy5eniY51UIvD2U75xj91nGNugpLR3bz0vuavxmn1MCT1ipyKs7LJ44bBlc8/knLZW;
+X-IronPort-AV: i="4.09,273,1157346000"; 
+   d="scan'208"; a="93117780:sNHT17193213"
+Date: Fri, 6 Oct 2006 12:53:51 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dell poweredge 2400 harddisks going into offline mode when heavy I/O occurs
+Message-ID: <20061006175351.GA6688@lists.us.dell.com>
+References: <20060928141923.GH9348@vanheusden.com> <20060928151257.GA18268@lists.us.dell.com> <45231A63.3020102@tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45231A63.3020102@tmr.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <muli@il.ibm.com> writes:
+On Tue, Oct 03, 2006 at 10:20:19PM -0400, Bill Davidsen wrote:
+> Matt Domsch wrote:
+> >On Thu, Sep 28, 2006 at 04:19:23PM +0200, Folkert van Heusden wrote:
+> >>Hi,
+> >>
+> >>I have a Dell Poweredge 2400 with 6 scsi harddisks in (hw-) raid 5.
+> >>512MB ram, 2x P3.
+> >>When heavy disk i/o occurs, the system puts the harddisks into offline
+> >>mode causing the filesystems to be put in readonly. The current kernel
+> >>is 2.6.8, with 2.4.27 this did not occure. Googling did not help. The
+> >>disks all have green lights (there's a special led for each to indicate
+> >>errors - that one is off).
+> >
+> >[snip]
+> >>Sep 28 16:05:12 kasparov kernel: aacraid: Host adapter reset request. 
+> >>SCSI hang ?
+> >>Sep 28 16:06:12 kasparov kernel: aacraid: SCSI bus appears hung
+> >>Sep 28 16:06:12 kasparov kernel: scsi: Device offlined - not ready after 
+> >>error recovery: host 1 channel 0 id 0 lun 0
+> >
+> >Yes, this is familiar. See:
+> >
+> >http://lists.us.dell.com/pipermail/linux-poweredge/2004-May/014694.html
+> >
+> >In addition, please consider mounting your file systems with
+> >'noatime', as this reduces the number of small writes being sent to
+> >the disks.
+> >
+> >2.6.x kernels have the ability to swamp the RAID controller firmware
+> >with requests where 2.4.x kernels couldn't so easily.
+> 
+> Can you configure the controller as JBOD and use software raid.
 
-> On Fri, Oct 06, 2006 at 09:14:53AM -0600, Eric W. Biederman wrote:
->
->> Muli Ben-Yehuda <muli@il.ibm.com> writes:
->
-> In some cases we haven't made it to userspace at all. In other, we're
-> in the initrd.
+Yes, you can.  It's an option in the BIOS SETUP screen during POST.
 
-Ok.  So no irqbalanced? 
-Any non-standard firmware on this box like a hypervisor or weird APM
-code that could be causing problems.
+> Would the controller keep up with that?
 
-I'm just trying to think of things that might trip over a change in
-irq handling, besides a chipset.
+Yes.  (This is what I had done on my PE2400 for years too, before I
+replaced it entirely).  The SCSI controller is then driven by aic7xxx,
+80MB/sec capable, though in that unit it's only a single SCSI channel
+and the backplane is a single 1x6 backplane, so you can't split the
+bus in half; but that's no different than what you've already got.
 
-I want to suspect the irq migration code but it doesn't look like
-irqbalanced has started at all so irq migration doesn't appear to be
-happening.
+Thanks,
+Matt
 
-
->> Seeing the failure case is really weird because this early in boot
->> everything should be routed to cpu 0.
->> 
->> What happens if you boot with max_cpus=1?
->
-> Trying it now... woohoo, it boots all the way and stays up!
-
-Cool.  So this is clearly about irqs being delivered to multiple
-cpus, and getting getting the delivery messed up for some reason.
-
->> If simple tests don't reveal what is going on then we will
->> have to instrument up that BUG and print out the per
->> cpu vector to irq tables, the cpu number, and the vector
->> the unexpected irq came in on.
->
-> I'm certainly game for any debugging you have in mind - this is my
-> main Calgary development machine so getting it booting is a pretty
-> high priority :-)
-
-Sure.  Anything that breaks irqs for 2.6.19 is clearly a big problem.
-
-Can you try the debug patch below and tell me what it reports.
-As long as the problem irq is not for something important this
-should allow you to boot, and just collect the information.
-
-What I am hoping is that we will see which irq or irqs are having
-problems. Then we can check out how the irq controller for those
-irq are programmed.
-
-Eric
-
-
-diff --git a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
-index 506f27c..0bd4281 100644
---- a/arch/x86_64/kernel/irq.c
-+++ b/arch/x86_64/kernel/irq.c
-@@ -113,9 +113,20 @@ asmlinkage unsigned int do_IRQ(struct pt
-        irq = __get_cpu_var(vector_irq)[vector];
- 
-        if (unlikely(irq >= NR_IRQS)) {
--               printk(KERN_EMERG "%s: cannot handle IRQ %d\n",
--                                       __FUNCTION__, irq);
--               BUG();
-+               if (printk_ratelimit()) {
-+                       int cpu, vec;
-+                       printk(KERN_EMERG "%s: cannot handle IRQ %d vector: %d cpu: %d\n",
-+                               __FUNCTION__, irq, vector, smp_processor_id());
-+                       for_each_online_cpu(cpu) {
-+                               for (vec = 0; vec < NR_VECTORS; vec++) {
-+                                       irq = per_cpu(vector_irq, cpu);
-+                                       printk(KERN_DEBUG "vector_irq[%d][%d] -> %d\n",
-+                                               cpu, vec, irq);
-+                               }
-+                       }
-+               }
-+               irq_exit();
-+               return 1;
-        }
- 
- #ifdef CONFIG_DEBUG_STACKOVERFLOW
-
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

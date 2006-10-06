@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWJFCrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWJFDFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbWJFCrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 22:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWJFCrw
+	id S1751075AbWJFDFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 23:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWJFDFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 22:47:52 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:32916 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932574AbWJFCrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 22:47:51 -0400
+	Thu, 5 Oct 2006 23:05:03 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:21088 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751080AbWJFDE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 23:04:58 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ARnUILLNu1jQ/ycuw9GEBNfHOqmkFvF2Ed9CUn0ahRKLuNjluFR3+KfkPMFfzwdKhS3K0jFlDPqZ7/xwFr8iZO3G09UUBSz0A8GCVSIxLieuahEvNIPjs1AbssKFC/ao5Msx8o0C7b6xDLhWHeIpfe9ol6QjNSHvofsCXNwBBQU=  ;
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Thu, 5 Oct 2006 19:47:43 -0700
-User-Agent: KMail/1.7.1
-Cc: Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610052325.39690.oliver@neukum.org>
-In-Reply-To: <200610052325.39690.oliver@neukum.org>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=tizdRNL0dWeOCx1C/w4pBaj1VgVYVDOCcr2LShfOIigwTmC8pemCkKudVEtoGwayckVENAZ/rFhrG79QuqUHn3uAEN8Hj/k9/NGWWNMGKMFYbp/BRbMTE/EaHk2qcpUSLs0bkfuilxriiXooG/qC2LVWxrlbA9Vb9JmbkCCdHeQ=
+Message-ID: <9a0545880610052004o78433b52u24154e8ba1080bb3@mail.gmail.com>
+Date: Thu, 5 Oct 2006 20:04:56 -0700
+From: "Steve Hindle" <mech422@gmail.com>
+To: "David Chinner" <dgc@sgi.com>
+Subject: Re: PROBLEM: Hardlock with 2.6.18-mm3 on Abit AI7, ICH5 + EXT3/XFS, SATA under heavy I/O load
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610051947.44595.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 October 2006 2:25 pm, Oliver Neukum wrote:
+I confirmed I get the exact same behavior with 2.6.18-mm3 and ext3..
+So I don't think XFS is the problem.
 
-> - the issues of manual & automatic suspend and remote wakeup are orthogonal
-> - there should be a common API for all devices
+Its _really_ annoying that the box is more stable under windows then
+linux :-(  Is there anything I can do to help narrow it down?  The
+configs are the same as in the previous post, except this time I
+booted with 2.6.18-mm3.  I suspect a SATA problem, but I'm unsure what
+to test?  should I try booting with acpi=off? or maybe disabling
+(l?)apic stuff?  I don't have any idea what boot options are
+relavent...Given it only flakes under 'heavy' load, could it be
+interrupt related?
 
-AFAIK there is no demonstrated need for an API to suspend
-individual devices.  Of course there's the question of who
-would _use_ such a thing (some unspecified component, worth
-designing one first), but drivers can use internal runtime
-suspend mechanisms to be in low power modes and hide that
-fact from the rest of the system.  That is, activate on
-demand, suspend when idle.
-
+Steve

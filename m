@@ -1,46 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422944AbWJFUoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbWJFUu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422944AbWJFUoF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWJFUoE
+	id S932628AbWJFUu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWJFUu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:44:04 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:53155 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S932629AbWJFUoB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:44:01 -0400
-Date: Fri, 6 Oct 2006 16:43:58 -0400
-To: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc1 boot failure--ops in mpu401_init?
-Message-ID: <20061006204358.GB18026@fieldses.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Fri, 6 Oct 2006 16:50:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62666 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932628AbWJFUu0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:50:26 -0400
+Date: Fri, 6 Oct 2006 13:50:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Amol Lad <amol@verismonetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/9] sound/oss/btaudio.c: ioremap balanced with iounmap
+Message-Id: <20061006135018.ec3c55de.akpm@osdl.org>
+In-Reply-To: <1160113132.19143.128.camel@amol.verismonetworks.com>
+References: <1160113132.19143.128.camel@amol.verismonetworks.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A machine that booted fine under 2.6.18-rc6 is failing to boot with
-2.6.19-rc1.  After commenting out infinite loop of "Spurious ACK"
-messages from atkbd.c that were hiding the original OOPS, I see the an
-oops at klist_del+0xd/0x50 with a stack like:
+On Fri, 06 Oct 2006 11:08:52 +0530
+Amol Lad <amol@verismonetworks.com> wrote:
 
-bus_remove_device+0x9f/0xc0
-device_del+0x17a/0x1b0
-platform_device_del+0x69/0x80
-platform_device_unregister+0xd/0x20
-alsa_card_mpu401_init+0x7a/0x90
-init+0x7f/0x260
-kernel_thread_helper+0x7/0x10
+> ioremap must be balanced by an iounmap and failing to do so can result
+> in a memory leak.
+> 
+> Tested (compilation only):
+> - using allmodconfig
+> - making sure the files are compiling without any warning/error due to
+> new changes
+> 
+> Signed-off-by: Amol Lad <amol@verismonetworks.com>
+> ---
+> Forwarding to lkml as got no response from linux-sound
+> ---
+>  btaudio.c |    2 ++
+>  1 files changed, 2 insertions(+)
+> ---
+> diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/sound/oss/btaudio.c linux-2.6.19-rc1/sound/oss/btaudio.c
+> --- linux-2.6.19-rc1-orig/sound/oss/btaudio.c	2006-09-21 10:15:52.000000000 +0530
+> +++ linux-2.6.19-rc1/sound/oss/btaudio.c	2006-10-05 15:21:32.000000000 +0530
+> @@ -1013,6 +1013,7 @@ static int __devinit btaudio_probe(struc
+>          return 0;
+>  
+>   fail4:
+> +	iounmap(bta->mmio);
+>  	unregister_sound_dsp(bta->dsp_analog);
+>   fail3:
+>  	if (digital)
+> @@ -1051,6 +1052,7 @@ static void __devexit btaudio_remove(str
+>          free_irq(bta->irq,bta);
+>  	release_mem_region(pci_resource_start(pci_dev,0),
+>  			   pci_resource_len(pci_dev,0));
+> +	iounmap(bta->mmio);
+>  
+>  	/* remove from linked list */
+>  	if (bta == btaudios) {
 
-Unfortunately I can't actually see the top of the OOPS.  (And haven't
-had any luck getting a serial console to work yet...)
+No, that misses several cases.  Please review this version:
 
-I also probably won't have time to try a git-bisect in the next few
-days, though I could try it eventually if it'd help.
+--- a/sound/oss/btaudio.c~sound-oss-btaudioc-ioremap-balanced-with-iounmap
++++ a/sound/oss/btaudio.c
+@@ -1020,6 +1020,7 @@ static int __devinit btaudio_probe(struc
+  fail2:
+         free_irq(bta->irq,bta);	
+  fail1:
++	iounmap(bta->mmio);
+ 	kfree(bta);
+  fail0:
+ 	release_mem_region(pci_resource_start(pci_dev,0),
+@@ -1051,6 +1052,7 @@ static void __devexit btaudio_remove(str
+         free_irq(bta->irq,bta);
+ 	release_mem_region(pci_resource_start(pci_dev,0),
+ 			   pci_resource_len(pci_dev,0));
++	iounmap(bta->mmio);
+ 
+ 	/* remove from linked list */
+ 	if (bta == btaudios) {
+_
 
-Let me know of any other details that would be helpful.
-
---b.

@@ -1,110 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWJFGSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbWJFGmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWJFGSr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 02:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWJFGSr
+	id S932633AbWJFGmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 02:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWJFGmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 02:18:47 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:57174 "EHLO
+	Fri, 6 Oct 2006 02:42:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:1924 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932229AbWJFGSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 02:18:46 -0400
+	id S932633AbWJFGmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 02:42:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J1S7O4iRnfWkaxHNYkJVQXDLwVp08M//gGo1V3GtV42WUZOQf8YeulmjFtHZ3yWw6rMULsXGXK6MW6Cbi0o/sSEoZXyaVni9ciYgiOlkmDlPT7+nWM+ua7wqAbb+OxyYI6CA4NcZ5HsDkk/e+eSbgCTPxuLKT1SBYw/TXekk+jw=
-Message-ID: <6b4e42d10610052318h53102e73h64766a7cb677be1b@mail.gmail.com>
-Date: Thu, 5 Oct 2006 23:18:44 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: "Yoichi Yuasa" <yoichi_yuasa@tripeaks.co.jp>
-Subject: Re: [-mm PATCH] fixed PCMCIA au1000_generic.c
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061004224406.46a9d05c.yoichi_yuasa@tripeaks.co.jp>
+        b=GSnSaoc1gEXbwtQaZY6286zcsNQHwt43yn1/SBYAj/awD1RIEgwUzoHPkaJO4JoHfmdl0JIm2hkAAp8n++lEnN/sZ+IXdV6yjou6EM4iC5qPcA8840stxGZy9aVcn06VzFInmBKLsxnvIe7E86BC3uZ0LGJVT0HguK+NuUSi4AI=
+Message-ID: <d4e708d60610052341v8e8718cpfca5b60a28bfc93b@mail.gmail.com>
+Date: Fri, 6 Oct 2006 08:41:56 +0200
+From: "koos vriezen" <koos.vriezen@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: Linux 2.6.18 break scratchbox
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061004213521.GA8667@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-	 <20061004224406.46a9d05c.yoichi_yuasa@tripeaks.co.jp>
+References: <d4e708d60610030759h23a037aega70acb44bff1b524@mail.gmail.com>
+	 <20061004213521.GA8667@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/4/06, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> Hi,
+2006/10/4, Pavel Machek <pavel@ucw.cz>:
+> Hi!
 >
-Sorry for the late reply.
-> pcmcia-au1000_generic-fix.patch has a problem.
-> It needs more fix.
-> ops->shutdown(skt), skt is out of definition scope.
+> > Hit by http://bugzilla.scratchbox.org/bugzilla/show_bug.cgi?id=279 I
+> > wondered why such
+> > a change that could break existing setups entered 2.6.18.
+> > Now I can peek through '/proc/<pid of process outside chroot env w/ my
+> > UID>/root' into the
+> > box's root (and that's why scratchbox is broken now).
+>
+> File bug at bugzilla.kernel.org :-).
+>
+> I'm afraid we did not know about this ABI change, and noone using
+> scratchbox tested 2.6.18-rcX...
 
-Is it so?
-After applying the patch, the code would look like,
------
+Well I did google for this before this report and eg.
+http://nchip.livejournal.com/ already mentioned it (but probably
+didn't report it at lkml) and there where some other links.
+But since I couldn't find any info on this new feature, that one can
+now read and write file through the /proc/xx/root link, I ask it here.
+And hopefully, if it's a regression, would be fixed in the stable tree
+ASAP. (Somehow I almost can't believe this change wouldn't show
+immediately in a regression test setup, and there must be a reason for
+opening this door w/o using an axe).
 
-		skt->status = au1x00_pcmcia_skt_state(skt);
-
-		ret = pcmcia_register_socket(&skt->socket);
-		if (ret)
-			goto out_err;
-<snip>
-
-out_err:
-	flush_scheduled_work();
-	ops->hw_shutdown(skt);
-	while (i-- > 0) {
-		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-		del_timer_sync(&skt->poll_timer);
-		pcmcia_unregister_socket(&skt->socket);
-		flush_scheduled_work();
-		ops->hw_shutdown(skt);
-		i--;
-	}
-	kfree(sinfo);
------
-The  first call to ops->shutdown(skt) would free the skt (of the
-function scope). The internal skt to the loop is a placeholder to call
-shutdown().
-Or did I miss any point?
-
-Regards,
-Om.
->
-> Yoichi
->
-> Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
->
-> diff -pruN -X linux-2.6.18-mm3/Documentation/dontdiff linux-2.6.18-mm3-orig/drivers/pcmcia/au1000_generic.c linux-2.6.18-mm3/drivers/pcmcia/au1000_generic.c
-> --- linux-2.6.18-mm3-orig/drivers/pcmcia/au1000_generic.c       2006-10-04 11:24:33.017136250 +0900
-> +++ linux-2.6.18-mm3/drivers/pcmcia/au1000_generic.c    2006-10-04 22:32:21.806060500 +0900
-> @@ -351,6 +351,7 @@ struct skt_dev_info {
->  int au1x00_pcmcia_socket_probe(struct device *dev, struct pcmcia_low_level *ops, int first, int nr)
->  {
->         struct skt_dev_info *sinfo;
-> +       struct au1000_pcmcia_socket *skt;
->         int ret, i;
->
->         sinfo = kzalloc(sizeof(struct skt_dev_info), GFP_KERNEL);
-> @@ -365,7 +366,7 @@ int au1x00_pcmcia_socket_probe(struct de
->          * Initialise the per-socket structure.
->          */
->         for (i = 0; i < nr; i++) {
-> -               struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-> +               skt = PCMCIA_SOCKET(i);
->                 memset(skt, 0, sizeof(*skt));
->
->                 skt->socket.resource_ops = &pccard_static_ops;
-> @@ -442,7 +443,7 @@ out_err:
->         flush_scheduled_work();
->         ops->hw_shutdown(skt);
->         while (i-- > 0) {
-> -               struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-> +               skt = PCMCIA_SOCKET(i);
->                 del_timer_sync(&skt->poll_timer);
->                 pcmcia_unregister_socket(&skt->socket);
->                 flush_scheduled_work();
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Koos
+>                                                                 Pavel

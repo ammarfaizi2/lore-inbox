@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWJFQ1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422694AbWJFQ2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWJFQ1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWJFQ1Y
+	id S1422694AbWJFQ2H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbWJFQ2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:27:24 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:55466
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750993AbWJFQ1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:27:24 -0400
-Date: Fri, 6 Oct 2006 17:26:09 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: [PATCH] fix IRQ register passing for i386 SMP platforms
-Message-ID: <20061006162609.GA22640@shadowen.org>
+	Fri, 6 Oct 2006 12:28:07 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:63634 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751570AbWJFQ2D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 12:28:03 -0400
+Message-ID: <45268412.3040400@perkel.com>
+Date: Fri, 06 Oct 2006 09:28:02 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Andy Whitcroft <apw@shadowen.org>
+To: linux-kernel@vger.kernel.org
+Subject: Read Only File System?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fix IRQ register passing for i386 SMP platforms
+Not sure where to ask this question so I'll try here. I have a Raid 0 
+EXT3 file system that is coming up read only. I don't think it's raid 
+related but not sure why it's stuck on read only.
 
-Seems that the i386 SMP conversion for the new global irq regs
-is not quite there.  Results in the following compile errors:
+When I run mount it shows:
+/dev/md0 on /data type ext3 (rw,noatime)
 
-    arch/i386/kernel/apic.c: In function `smp_local_timer_interrupt':
-    arch/i386/kernel/apic.c:1200: error: `irq_regs' undeclared (first
-						    use in this function)
-    arch/i386/kernel/apic.c:1200: error: (Each undeclared
-					    identifier is reported only once
-    arch/i386/kernel/apic.c:1200: error: for each function it appears in.)
+But when I attempt (running as root) to change anything I get:
+touch: cannot touch `x': Read-only file system
 
-Fix it up.
+When I list the directory I get this:
+drwxr-xr-x    8 root root  4096 Sep 29 15:15 .
+drwxr-xr-x   45 root root  4096 Oct  4 10:42 ..
+drwxr-xr-x    4 root root  4096 Sep 11 03:17 critical
+drwx------    2 root root 16384 Sep 10 22:37 lost+found
+drwxr-xr-x   19 root root  4096 Sep 11 02:07 mirror
+dr-x------   14 root root  4096 Sep  9 09:52 Robin
+drwxr-xr-x    7 root root  4096 Oct  5 02:16 snapshot
+drwxrwxr-x+ 289 root root 12288 Oct  1 03:20 www
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
-diff --git a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
-index 7d500da..2fd4b7d 100644
---- a/arch/i386/kernel/apic.c
-+++ b/arch/i386/kernel/apic.c
-@@ -1197,7 +1197,7 @@ inline void smp_local_timer_interrupt(vo
- {
- 	profile_tick(CPU_PROFILING);
- #ifdef CONFIG_SMP
--	update_process_times(user_mode_vm(irq_regs));
-+	update_process_times(user_mode_vm(get_irq_regs()));
- #endif
- 
- 	/*
+Note the weird permissions on Robin. This happened because I was trying 
+to save data from a crashed Windows NT system and I used rsync to copy 
+the data over. And I noticed the problem around the same time.
+
+So - what can I do to fix this?
+

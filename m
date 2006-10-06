@@ -1,153 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422982AbWJFVjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422983AbWJFVoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422982AbWJFVjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422983AbWJFVjH
+	id S1422983AbWJFVoE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422985AbWJFVoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:39:07 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:17641 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422982AbWJFVjE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:39:04 -0400
-Subject: [RFC] Avoid PIT SMP lockups
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: =?UTF-8?Q?S=2E=C3=87a=C4=9Flar?= Onur <caglar@pardus.org.tr>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 06 Oct 2006 14:38:56 -0700
-Message-Id: <1160170736.6140.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Fri, 6 Oct 2006 17:44:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11196 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422983AbWJFVoB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 17:44:01 -0400
+Date: Fri, 6 Oct 2006 23:43:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Len Brown <len.brown@intel.com>, linux-acpi@intel.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
+Message-ID: <20061006214351.GB29572@elf.ucw.cz>
+References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Andi,
-	Mind testing this patch on the AMD SMP box you were using earlier w/
-acpi=off? I have spent a bit of time trying to hunt down the cause of
-the reported SMP boxes hanging when they use the PIT for a clocksource,
-and have not been able to root cause it. Removing the first three PIT io
-instructions from pit_read() seemed to avoid the issue, but I can't see
-why.
+Hi!
 
-My current theory is that we're livelocking somehow:
+> There is a problem in th following scenario(s):
+> 
+> boot -> suspend -> (un)plug battery -> resume
+> 
+> The problem arises in both cases - i.e. suspend with battery plugged in, 
+> and resume with battery unplugged, or vice versa.
+> 
+> After resume, when the battery status has changed (plugged in -> unplegged 
+> or unplugged -> plugged in) during the time when the system was sleeping, 
+> the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
+> the current state).
+> 
+> The following patch adds ->resume method to the ACPI battery handler, which
+> has the only aim - to check whether the battery state has changed during sleep, 
+> and if so, update the ACPI internal data structures, so that information 
+> published through /proc/acpi/battery/*/* is correct even after suspend/resume
+> cycle, during which the battery was removed/inserted.
+> 
+> The patch is against current ACPI git tree, but applies cleanly also 
+> against -mm and probably other trees. Please apply.
+> 
+> Signed-off-by: Jiri Kosina <jikos@jikos.cz>
 
-timer_interrupt:
-	seq_write_lock_irqsave(xtime_lock)
-	spin_lock_irqsave(i8253_lock)
-	portio()
-	spin_unlock_irqrestore(i8253_lock)
-	seq_write_unlock_irqrestore(xtime_lock)
+Looks okay to me.
+									Pavel
 
-gettime:
-	do {
-		seq = read_seqbegin(xtime_lock)
-		spin_lock_irqsave(i8253_lock)
-		portio()
-		spin_unlock_irqrestore(i8253_lock)
-	} while (read_seqretry(&xtime_lock, seq))
-
-
-Where maybe one cpu is running gettime, spinning like mad grabbing and
-releasing the i8253_lock, while another cpu is in the timer_interrupt
-thread already holding the xtime lock, trying to grab the i8253_lock.
-
-Yea.. its a weak theory (and sysrq-t output doesn't support it)... Don't
-have a clue otherwise though. Your thoughts? 
-
-Anyway, since I can't figure it out, this patch should avoid the issue,
-by disabling the PIT on SMP boxes (and makes a minor change so we
-properly fall back to jiffies if the TSC is bad and there's nothing
-else).
-
-S.Çağlar: Could you give it a whirl to see if it changes your vmware
-issue?
-
-thanks
--john
-
-
-
-
-This patch avoids possible PIT livelock issues seen on SMP systems, by
-not allowing it as a clocksource on SMP boxes.
-
-However, since the PIT may no longer be present, we have to properly
-handle the cases where SMP systems have TSC skew and fall back from the
-TSC. Since the PIT isn't there, it would "fall back" to the TSC again.
-So this changes the jiffies rating to 1, and the TSC-bad rating value to
-0.
-
-Thus you will get the following behavior priority on i386 systems:
-
-tsc		[if present & stable]
-hpet		[if present]
-cyclone		[if present]
-acpi_pm		[if present]
-pit		[if UP]
-jiffies
-
-Rather then the current more complicated:
-tsc		[if present & stable]
-hpet		[if present]
-cyclone		[if present]
-acpi_pm		[if present]
-pit		[if cpus < 4]
-tsc		[if present & unstable]
-jiffies
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
-index 477b24d..9a0060b 100644
---- a/arch/i386/kernel/i8253.c
-+++ b/arch/i386/kernel/i8253.c
-@@ -109,7 +109,7 @@ static struct clocksource clocksource_pi
- 
- static int __init init_pit_clocksource(void)
- {
--	if (num_possible_cpus() > 4) /* PIT does not scale! */
-+	if (num_possible_cpus() > 1) /* PIT does not scale! */
- 		return 0;
- 
- 	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
-diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
-index b8fa0a8..fbc9582 100644
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -349,8 +349,8 @@ static int tsc_update_callback(void)
- 	int change = 0;
- 
- 	/* check to see if we should switch to the safe clocksource: */
--	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
--		clocksource_tsc.rating = 50;
-+	if (clocksource_tsc.rating != 0 && check_tsc_unstable()) {
-+		clocksource_tsc.rating = 0;
- 		clocksource_reselect();
- 		change = 1;
- 	}
-@@ -461,7 +461,7 @@ static int __init init_tsc_clocksource(v
- 							clocksource_tsc.shift);
- 		/* lower the rating if we already know its unstable: */
- 		if (check_tsc_unstable())
--			clocksource_tsc.rating = 50;
-+			clocksource_tsc.rating = 0;
- 
- 		init_timer(&verify_tsc_freq_timer);
- 		verify_tsc_freq_timer.function = verify_tsc_freq;
-diff --git a/kernel/time/jiffies.c b/kernel/time/jiffies.c
-index 126bb30..a99b2a6 100644
---- a/kernel/time/jiffies.c
-+++ b/kernel/time/jiffies.c
-@@ -57,7 +57,7 @@ static cycle_t jiffies_read(void)
- 
- struct clocksource clocksource_jiffies = {
- 	.name		= "jiffies",
--	.rating		= 0, /* lowest rating*/
-+	.rating		= 1, /* lowest valid rating*/
- 	.read		= jiffies_read,
- 	.mask		= 0xffffffff, /*32bits*/
- 	.mult		= NSEC_PER_JIFFY << JIFFIES_SHIFT, /* details above */
-
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

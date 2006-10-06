@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWJFMaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWJFMxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWJFMaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 08:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWJFMaV
+	id S1751362AbWJFMxo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 08:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWJFMxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 08:30:21 -0400
-Received: from main.gmane.org ([80.91.229.2]:27525 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751284AbWJFMaU (ORCPT
+	Fri, 6 Oct 2006 08:53:44 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:2666 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751362AbWJFMxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 08:30:20 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: [PATCH 01/02] net/ipv6: seperate sit driver to extra module
-Date: 06 Oct 2006 14:24:11 +0200
-Message-ID: <87zmc9k4yc.fsf@willow.rfc1149.net>
-References: <20061006093402.GA12460@zlug.org> <87d595lln3.fsf@willow.rfc1149.net> <20061006120917.GC12460@zlug.org>
-Mime-Version: 1.0
+	Fri, 6 Oct 2006 08:53:43 -0400
+Date: Fri, 6 Oct 2006 14:53:36 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Suzuki Kp <suzuki@in.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, andmike@us.ibm.com
+Subject: Re: [RFC] PATCH to fix rescan_partitions to return errors properly  - take 2
+Message-ID: <20061006125336.GA27183@harddisk-recovery.nl>
+References: <452307B4.3050006@in.ibm.com> <20061004130932.GC18800@harddisk-recovery.com> <4523E66B.5090604@in.ibm.com> <20061004170827.GE18800@harddisk-recovery.nl> <4523F16D.5060808@in.ibm.com> <20061005104018.GC7343@harddisk-recovery.nl> <45256BE2.5040702@in.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
-Cc: netdev@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <45256BE2.5040702@in.ibm.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Joerg" == Joerg Roedel <joro-lkml@zlug.org> writes:
+On Thu, Oct 05, 2006 at 01:32:34PM -0700, Suzuki Kp wrote:
+> Btw, do you think it is a good idea to let the other partition checkers 
+> run, even if one of them has failed ?
 
-Joerg> It is enabled per default because the users get this per
-Joerg> default when using the current IPv6 module. James Morris
-Joerg> mentioned this issue yesterday. I think setting the default to
-Joerg> N would be more consistent, but the Y is probably less painfull
-Joerg> for the users.
+Yes, just let them run. Partition information doesn't need to be on the
+very first sector of the drive. If the first sector is bad and the
+partition table for your funky XYZ partition table format lives on the
+tenth sector, then a checker that checks the first sector would fail
+and prevent your checker from running.
 
-Makes sense. I proposed this because I reconfigure my kernel with
-"make oldconfig" and see new questions pop up. Maybe menuconfig and
-xconfig should proeminently highlight NEW questions from the top-level
-(by using a bold font on any item which is either new or has new
-sub-items) so that users get a clear view of what they may need to
-configure.
+OTOH: having ten partition checkers check the same bad first sector
+doesn't really speed up the partion check process (for that reason we
+disable partition checking for drives we get for recovery). A way to
+solve that would be to keep a list of bad sectors: if the first checker
+finds a bad sector, it notes it down in the list so the next checker
+wouldn't have to try to read that particular sector. Maybe that's too
+much work to do in kernel and we'd better move the partition checking
+to userland.
 
-  Sam
+> Right now, the check_partition runs the partition checkers in a 
+> sequential manner, until it finds a success or an error.
+
+I think it's best not to change the current behaviour and let all
+partition checkers run, even if one of them failed due to device
+errors. I wouldn't mind if the behaviour changed like you propose,
+though.
+
+
+Erik
+
 -- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

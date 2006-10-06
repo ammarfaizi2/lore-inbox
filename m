@@ -1,64 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWJFLFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWJFLON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbWJFLFG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWJFLFF
+	id S1750745AbWJFLON (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWJFLON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:05:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26860 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751493AbWJFLFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:05:01 -0400
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
-References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de>
-	 <45255D34.804@garzik.org> <200610052142.29692.ak@suse.de>
-	 <452564B9.4010209@garzik.org>
-	 <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 06 Oct 2006 13:03:50 +0200
-Message-Id: <1160132630.3000.98.camel@laptopd505.fenrus.org>
+	Fri, 6 Oct 2006 07:14:13 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:63606 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750745AbWJFLOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:14:12 -0400
+Date: Fri, 6 Oct 2006 13:14:43 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Castet Matthieu <castet.matthieu@free.fr>
+Subject: Re: [Alsa-devel] [PATCH] Driver core: Don't ignore error returns
+ from probing
+Message-ID: <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <Pine.LNX.4.61.0610061138580.8573@tm8103.perex-int.cz>
+References: <20061005175852.GC15180@suse.de>
+	<Pine.LNX.4.44L0.0610051656290.7144-100000@iolanthe.rowland.org>
+	<20061006095334.3cdebcc0@gondolin.boeblingen.de.ibm.com>
+	<Pine.LNX.4.61.0610061138580.8573@tm8103.perex-int.cz>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-05 at 15:45 -0700, Linus Torvalds wrote:
+On Fri, 6 Oct 2006 11:41:05 +0200 (CEST),
+Jaroslav Kysela <perex@suse.cz> wrote:
+
+> > Hm, I don't think we should call device_release_driver if
+> > bus_attach_device failed (and I think calling bus_remove_device if
+> > bus_attach_device failed is unintuitive). I did a patch that added a
+> > function which undid just the things bus_add_device did (here:
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115816560424389&w=2),
+> > which unfortunately got lost somewhere... (I'll rebase and resend.)
 > 
-> On Thu, 5 Oct 2006, Jeff Garzik wrote:
-> 
-> > Andi Kleen wrote:
-> > > If the choice is between a secret NDA only card with dubious
-> > > functionality and booting on lots of modern boards I know what to choose.
-> > 
-> > That's a strawman argument.  There is no need to choose.  You can clearly boot
-> > on lots of modern boards with mmconfig just fine.  We just need to narrow down
-> > which ones.
-> 
-> Jeff, _that_ is the strawman argument.
-> 
-> The thing is, nobody has been able to so far come up with a way to narrow 
-> down which ones.
-> 
-> I think Andi's response was quite on the mark: if you have a patch to 
-> narrow it down, please share. Until then, the fact is, we don't know 
-> _how_, and you're barking up the wrong tree.
+> Yes, but it might be better to check dev->is_registered flag in 
+> bus_remove_device() before device_release_driver() call to save some code, 
+> rather than reuse most of code in bus_delete_device().
+
+If we undid things (symlinks et al.) in the order we added them, we can
+factor out bus_delete_device() from bus_remove_device() and avoid both
+code duplication and calling bus_remove_device() if bus_attach_device()
+failed. Something like the patch below (untested).
 
 
-we can do a tiny bit better than the current code; some chipsets have
-the address of the MMIO region stored in their config space; so we can
-get to that using the old method and validate the acpi code with that.
-
-I'm (in the background) working on collecting which chipsets have this;
-it seems that at least several Intel ones do.
-
-
-
+--- linux-2.6-CH.orig/drivers/base/base.h
++++ linux-2.6-CH/drivers/base/base.h
+@@ -17,6 +17,7 @@ extern int attribute_container_init(void
+ 
+ extern int bus_add_device(struct device * dev);
+ extern int bus_attach_device(struct device * dev);
++extern void bus_delete_device(struct device * dev);
+ extern void bus_remove_device(struct device * dev);
+ extern struct bus_type *get_bus(struct bus_type * bus);
+ extern void put_bus(struct bus_type * bus);
+--- linux-2.6-CH.orig/drivers/base/bus.c
++++ linux-2.6-CH/drivers/base/bus.c
+@@ -360,7 +360,7 @@ static void device_remove_attrs(struct b
+  *	bus_add_device - add device to bus
+  *	@dev:	device being added
+  *
+- *	- Add the device to its bus's list of devices.
++ *	- Add attributes.
+  *	- Create link to device's bus.
+  */
+ int bus_add_device(struct device * dev)
+@@ -424,29 +424,44 @@ int bus_attach_device(struct device * de
+ }
+ 
+ /**
+- *	bus_remove_device - remove device from bus
+- *	@dev:	device to be removed
++ *     bus_delete_device - undo bus_add_device
++ *     @dev:   device being deleted
+  *
+- *	- Remove symlink from bus's directory.
+- *	- Delete device from bus's list.
+- *	- Detach from its driver.
+- *	- Drop reference taken in bus_add_device().
++ *     - Remove symlink from bus's directory.
++ *     - Remove attributes.
++ *     - Drop reference taken in bus_add_device().
+  */
+-void bus_remove_device(struct device * dev)
++void bus_delete_device(struct device * dev)
+ {
+ 	if (dev->bus) {
+ 		sysfs_remove_link(&dev->kobj, "subsystem");
+ 		sysfs_remove_link(&dev->kobj, "bus");
+ 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+ 		device_remove_attrs(dev->bus, dev);
+-		dev->is_registered = 0;
+-		klist_del(&dev->knode_bus);
+-		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
+-		device_release_driver(dev);
+ 		put_bus(dev->bus);
+ 	}
+ }
+ 
++/**
++ *	bus_remove_device - remove device from bus
++ *	@dev:	device to be removed
++ *
++ *	- Remove symlink from bus's directory.
++ *	- Delete device from bus's list.
++ *	- Detach from its driver.
++ *	- Drop reference taken in bus_add_device().
++ */
++void bus_remove_device(struct device * dev)
++{
++	if (!dev->bus)
++		return;
++	dev->is_registered = 0;
++	klist_del(&dev->knode_bus);
++	pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
++	device_release_driver(dev);
++	bus_delete_device(dev);
++}
++
+ static int driver_add_attrs(struct bus_type * bus, struct device_driver * drv)
+ {
+ 	int error = 0;
+--- linux-2.6-CH.orig/drivers/base/core.c
++++ linux-2.6-CH/drivers/base/core.c
+@@ -479,7 +479,9 @@ int device_add(struct device *dev)
+ 	if ((error = bus_add_device(dev)))
+ 		goto BusError;
+ 	kobject_uevent(&dev->kobj, KOBJ_ADD);
+-	bus_attach_device(dev);
++	error = bus_attach_device(dev);
++	if (error)
++		goto attachError;
+ 	if (parent)
+ 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
+ 
+@@ -498,6 +500,8 @@ int device_add(struct device *dev)
+  	kfree(class_name);
+ 	put_device(dev);
+ 	return error;
++ attachError:
++	bus_delete_device(dev);
+  BusError:
+ 	device_pm_remove(dev);
+  PMError:

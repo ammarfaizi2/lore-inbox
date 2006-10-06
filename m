@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWJFKEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWJFKQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWJFKEX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 06:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWJFKEX
+	id S932307AbWJFKQI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 06:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWJFKQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 06:04:23 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:28830 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932147AbWJFKEX (ORCPT
+	Fri, 6 Oct 2006 06:16:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48771 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932307AbWJFKQE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 06:04:23 -0400
-To: linux-kernel@vger.kernel.org
-CC: linux-mm@kvack.org, viro@zeniv.linux.org.uk,
-       David Miller <davem@davemloft.net>,
-       Dmitriy Monakhov <dmonakhov@openvz.org>
-Subject: [PATCH] mm: D-cache flushing was forgotten 
-From: Dmitriy Monakhov <dmonakhov@openvz.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
-Date: Fri, 06 Oct 2006 13:44:50 +0400
-Message-ID: <87psd5lqwd.fsf@sw.ru>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Fri, 6 Oct 2006 06:16:04 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] um: irq changes break build
+Date: Fri, 06 Oct 2006 11:15:36 +0100
+To: penberg@cs.helsinki.fi, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, jdike@addtoit.com,
+       blaisorblade@yahoo.it
+Message-Id: <20061006101535.7403.26244.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Here is a patch that add D-cache flushing  routine
-after page was changed. It is forgotten in current code.
+Fixup broken UML build due to 7d12e780e003f93433d49ce78cfedf4b4c52adc5 "IRQ:
+Maintain regs pointer globally rather than passing to IRQ handlers".
 
-David Miller agree with patch.
+Added code to save/restore regs pointer.
 
-Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Paolo "Blaisorblade" Giarrusso <blaisorblade@yahoo.it>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ arch/um/kernel/irq.c      |   10 ++++++----
+ include/asm-um/irq_regs.h |    1 +
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
---=-=-=
-Content-Disposition: inline; filename=diff-buffer-flush-dcache-page
-
-diff --git a/fs/buffer.c b/fs/buffer.c
-index 71649ef..b2652aa 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -2008,6 +2008,7 @@ static int __block_prepare_write(struct 
- 			clear_buffer_new(bh);
- 			kaddr = kmap_atomic(page, KM_USER0);
- 			memset(kaddr+block_start, 0, bh->b_size);
-+			flush_dcache_page(page);
- 			kunmap_atomic(kaddr, KM_USER0);
- 			set_buffer_uptodate(bh);
- 			mark_buffer_dirty(bh);
-@@ -2514,6 +2515,7 @@ failed:
- 	 */
- 	kaddr = kmap_atomic(page, KM_USER0);
- 	memset(kaddr, 0, PAGE_CACHE_SIZE);
-+	flush_dcache_page(page);
- 	kunmap_atomic(kaddr, KM_USER0);
- 	SetPageUptodate(page);
- 	set_page_dirty(page);
-
---=-=-=--
-
+diff --git a/arch/um/kernel/irq.c b/arch/um/kernel/irq.c
+index eee97bb..41b2e53 100644
+--- a/arch/um/kernel/irq.c
++++ b/arch/um/kernel/irq.c
+@@ -355,10 +355,12 @@ #endif
+  */
+ unsigned int do_IRQ(int irq, union uml_pt_regs *regs)
+ {
+-       irq_enter();
+-       __do_IRQ(irq, (struct pt_regs *)regs);
+-       irq_exit();
+-       return 1;
++	struct pt_regs *old_regs = set_irq_regs(regs);
++	irq_enter();
++	__do_IRQ(irq, (struct pt_regs *)regs);
++	irq_exit();
++	set_irq_regs(old_regs);
++	return 1;
+ }
+ 
+ int um_request_irq(unsigned int irq, int fd, int type,
+diff --git a/include/asm-um/irq_regs.h b/include/asm-um/irq_regs.h
+new file mode 100644
+index 0000000..3dd9c0b
+--- /dev/null
++++ b/include/asm-um/irq_regs.h
+@@ -0,0 +1 @@
++#include <asm-generic/irq_regs.h>

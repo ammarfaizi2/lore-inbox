@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWJFSCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422794AbWJFSEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWJFSCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 14:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWJFSCY
+	id S1422794AbWJFSEA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 14:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWJFSEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 14:02:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13972 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932107AbWJFSCX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 14:02:23 -0400
-Date: Fri, 6 Oct 2006 11:01:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
- passing to IRQ handlers
-In-Reply-To: <20061006164211.GA15321@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0610061055490.3952@g5.osdl.org>
-References: <20061002132116.2663d7a3.akpm@osdl.org>
- <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
- <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
- <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
- <20061006164211.GA15321@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Oct 2006 14:04:00 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:29359 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422794AbWJFSD6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 14:03:58 -0400
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+From: Steve Fox <drfickle@us.ibm.com>
+To: Mel Gorman <mel@skynet.ie>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@suse.de>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, kmannth@us.ibm.com,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <20061006171105.GC9881@skynet.ie>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	 <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu>
+	 <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu>
+	 <20061006143312.GB9881@skynet.ie> <20061006153629.GA19756@in.ibm.com>
+	 <20061006171105.GC9881@skynet.ie>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 06 Oct 2006 13:03:50 -0500
+Message-Id: <1160157830.29690.66.camel@flooterbu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 6 Oct 2006, Russell King wrote:
+On Fri, 2006-10-06 at 18:11 +0100, Mel Gorman wrote:
+> On (06/10/06 11:36), Vivek Goyal didst pronounce:
+> > Where is bss placed in physical memory? I guess bss_start and bss_stop
+> > from System.map will tell us. That will confirm that above memset step is
+> > stomping over bss. Then we have to just find that somewhere probably
+> > we allocated wrong physical memory area for bootmem allocator map.
+> > 
 > 
-> If it's obvious and trivial, it should be easy for anyone to fix, even
-> the person who broke it.  Especially as there are build logs automatically
-> generated for every -git tree at http://armlinux.simtec.co.uk/kautobuild/
+> BSS is at 0x643000 -> 0x777BC4
+> init_bootmem wipes from 0x777000 -> 0x8F7000
+> 
+> So the BSS bytes from 0x777000 ->0x777BC4 (which looks very suspiciously
+> pile a page alignment of addr & PAGE_MASK) gets set to 0xFF. One possible
+> fix is below. It adds a check in bad_addr() to see if the BSS section is
+> about to be used for bootmap. It Seems To Work For Me (tm) and illustrates
+> the source of the problem even if it's not the 100% correct fix.
 
-Ok, I just committed a rough first cut at fixing up arm/.
+I was able to boot the machine with Mel's patch applied on top of
+-git22.
 
-I don't have a cross-build environment, and am too lazy to set one up, but 
-that should likely fix 99% of the issues, and any missing things should be 
-fairly obvious from the compiler warnings and errors that are bound to 
-remain.
+-- 
 
-Somebody with an arm environment, please test and send in any remaining 
-missing parts, and we'll get it all sorted out long before rmk comes back 
-from holidays ;)
-
-		Linus
+Steve Fox
+IBM Linux Technology Center

@@ -1,69 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422786AbWJFRo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422787AbWJFRqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422786AbWJFRo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422787AbWJFRo0
+	id S1422787AbWJFRqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWJFRqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:44:26 -0400
-Received: from outbound-blu.frontbridge.com ([65.55.251.16]:49270 "EHLO
-	outbound3-blu-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1422786AbWJFRoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:44:24 -0400
-X-BigFish: V
-Message-ID: <452696C8.9000009@am.sony.com>
-Date: Fri, 06 Oct 2006 10:47:52 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Darren Hart <dvhltc@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, "Theodore Ts'o" <theotso@us.ibm.com>
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-References: <200610051404.08540.dvhltc@us.ibm.com>
-In-Reply-To: <200610051404.08540.dvhltc@us.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Oct 2006 13:46:06 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:12771 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1422787AbWJFRqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:46:02 -0400
+From: Matthew Wilcox <matthew@wil.cx>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-usb-devel@lists.sourceforge.net,
+       Grant Grundler <grundler@parisc-linux.org>,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: [PATCH] extract() and implement() are bit field manipulation routines.
+Reply-To: Matthew Wilcox <matthew@wil.cx>
+Date: Fri, 06 Oct 2006 11:46:00 -0600
+Message-Id: <11601567602932-git-send-email-matthew@wil.cx>
+X-Mailer: git-send-email 1.4.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darren Hart wrote:
-> There is now a realtime Linux wiki available here:
-> 
-> http://rt.wiki.kernel.org
-> 
-> The goal is to provide a place for folks interested in realtime Linux to learn 
-> more, and for those working on or with realtime Linux to share their code, 
-> tests, and experiences.
+From: Grant Grundler <grundler@parisc-linux.org>
 
-Looks good!  This is interesting timing.  CELF is in the process of
-putting together an Embedded Linux Wiki, and one of the sections
-was going to be realtime.  However, with this announcement, I think
-we need to re-think at least that part of our planned site.
+extract() and implement() have brain damaged attempts to handle
+32-bit wide "fields".
+The problem is the index math in the original code didn't clear all
+the relevant bits.  (offset >> 5) only compensated for 32-bit index.
+We need (offset >> 6) if we want to use 64-bit loads.
 
-Quite possibly we should throw our efforts towards this
-(at least for kernel-oriented realtime info).  BTW, we also plan
-to use MediaWiki, so that much would be consistent with your site.
+But it was also wrong in that it tried to use quasi-aligned loads.
+Ie "report" was only incremented in multiples of 4 bytes and then
+the offset was masked off for values greater than 4 bytes.
+The right way is to pretend "report" points at a byte array.
+And offset is then only minor adjustment for < 8 bits of offset.
+"n" (field width) can then be as big as 24 (assuming 32-bit loads)
+since "offset" will never be bigger than 7.
 
-Our site is intended to cover more than just the kernel,
-so I didn't really approach the kernel.org owners for a sub-domain,
-but your use of a sub-domain of wiki.kernel.org is very interesting.
-I didn't know such things were available.
+If someone needs either function to handle more than 24-bits,
+please document why - point at a specification or specific USB
+hid device - in comments in the code.
 
-Do you think other sub-domains of wiki.kernel.org will be made
-available for other kernel areas?  If so, what are the terms
-of use?  We haven't chosen our domain name yet, so we
-still have some flexibility if there are other options open
-to us.  (maybe embedded.wiki.kernel.org??)
+extract/implement() are also an eyesore to read.
+Please banish whoever wrote it to read CodingStyle 3 times in a row
+to a classroom full of 1st graders armed with rubberbands.
+Or just flame them. Whatever. Globbing all the code together
+on two lines does NOT make it faster and is Just Wrong.
 
-Who would I contact about this?
+I've tested this patch on j6000 (dual 750Mhz PA-RISC, 32-bit 2.6.12-rc5).
+Kyle McMartin tested on c3000 (up 400Mhz PA-RISC, same kernel).
+"p2-mate" (Peter De Schrijver?) tested on sb1250 (dual core Mips,
+   broadcom "swarm" eval board).
 
-Thanks,
- -- Tim
+Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+---
+ drivers/usb/input/hid-core.c |   24 +++++++++++++++++-------
+ 1 files changed, 17 insertions(+), 7 deletions(-)
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+index 8ea9c91..2ceabab 100644
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -752,21 +752,31 @@ static __inline__ __u32 s32ton(__s32 val
+ }
+ 
+ /*
+- * Extract/implement a data field from/to a report.
++ * Extract/implement a data field from/to a little endian report (bit array).
+  */
+ 
+ static __inline__ __u32 extract(__u8 *report, unsigned offset, unsigned n)
+ {
+-	report += (offset >> 5) << 2; offset &= 31;
+-	return (le64_to_cpu(get_unaligned((__le64*)report)) >> offset) & ((1ULL << n) - 1);
++	u32 x;
++
++	report += offset >> 3;  /* adjust byte index */
++	offset &= 8 - 1;
++	x = get_unaligned((u32 *) report);
++	x = le32_to_cpu(x);
++	x = (x >> offset) & ((1 << n) - 1);
++	return x;
+ }
+ 
+ static __inline__ void implement(__u8 *report, unsigned offset, unsigned n, __u32 value)
+ {
+-	report += (offset >> 5) << 2; offset &= 31;
+-	put_unaligned((get_unaligned((__le64*)report)
+-		& cpu_to_le64(~((((__u64) 1 << n) - 1) << offset)))
+-		| cpu_to_le64((__u64)value << offset), (__le64*)report);
++	u32 x;
++
++	report += offset >> 3;
++	offset &= 8 - 1;
++	x = get_unaligned((u32 *)report);
++	x &= cpu_to_le32(~((((__u32) 1 << n) - 1) << offset));
++	x |= cpu_to_le32(value << offset);
++	put_unaligned(x,(u32 *)report);
+ }
+ 
+ /*
+-- 
+1.4.1.1
 

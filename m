@@ -1,105 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWJFL5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWJFMGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422642AbWJFL5u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWJFL5t
+	id S1422636AbWJFMGH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 08:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWJFMGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:57:49 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:12117 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1422642AbWJFL5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:57:48 -0400
-Date: Fri, 6 Oct 2006 13:57:31 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc][patch 2.6.18-rc7] block: explicit plugging
-Message-ID: <20061006115731.GK5170@kernel.dk>
-References: <20060916115607.GA16971@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060916115607.GA16971@wotan.suse.de>
+	Fri, 6 Oct 2006 08:06:07 -0400
+Received: from demail.cyclades.de ([62.225.173.196]:35235 "EHLO
+	demail.cyclades.de") by vger.kernel.org with ESMTP id S1422636AbWJFMGF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 08:06:05 -0400
+Date: Fri, 6 Oct 2006 14:05:35 +0200 (CEST)
+From: Thomas Hoehn <thomas.hoehn@avocent.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH] Perle multimodem card (PCI-RAS) detection, kernel 2.6.18
+Message-ID: <Pine.LNX.4.64.0610061133410.7912@muc-thoehn.cyclades.de>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on DEMail/Cyclades(Release 6.5.1|January 21, 2004) at
+ 10/06/2006 02:06:03 PM,
+	Serialize by Router on DEMail/Cyclades(Release 6.5.1|January 21, 2004) at
+ 10/06/2006 02:06:05 PM,
+	Serialize complete at 10/06/2006 02:06:05 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 16 2006, Nick Piggin wrote:
-> Hi,
-> 
-> I've been tinkering with this idea for a while, and I'd be interested
-> in seeing what people think about it. The patch isn't in a great state
-> of commenting or splitting ;) but I'd be interested feelings about the
-> general approach, and whether I'm going to hit any bad problems (eg.
-> with SCSI or IDE).
-> 
-> Nick
-> 
-> 
-> This is a patch to perform block device plugging explicitly in the submitting
-> process context rather than implicitly by the block device.
-> 
-> There are several advantages to plugging in process context over plugging
-> by the block device:
-> 
-> - Implicit plugging is only active when the queue empties, so any
->   advantages are lost if there is parallel IO occuring. Not so with
->   explicit plugging.
-> 
-> - Implicit plugging relies on a timer and watermarks and a kind-of-explicit
->   directive in lock_page which directs plugging. These are heuristics and
->   can cost performance due to holding a block device idle longer than it
->   should be. Explicit plugging avoids most of these issues by only holding
->   the device idle when it is known more requests will be submitted.
-> 
-> - This lock_page directive uses a roundabout way to attempt to minimise
->   intrusiveness of plugging on the VM. In doing so, it gets needlessly
->   complex: the VM really is in a good position to direct the block layer
->   as to the nature of its requests, so there is no need to try to hide
->   the fact.
-> 
-> - Explicit plugging keeps a process-private queue of requests being held.
->   This offers some advantages over immediately sending requests to the
->   block device: firstly, merging can be attempted on requests in this list
->   (currently only attempted on the head of the list) without taking any
->   locks; secondly, when unplugging occurs, the requests can be delivered
->   to the block device queue in a batch, thus the lock aquisitions can be
->   batched up.
->   
-> On a parallel tiobench benchmark, of the 800 000 calls to __make_request
-> performed, this patch avoids 490 000 (62%) of queue_lock aquisitions by
-> early merging on the private plugged list.
+Hi there,
 
-Nick, this looks pretty good in general from the vm side, and the
-concept is nice for reduced lock bouncing. I've merged this for more
-testing in a 'plug' branch in the block repo.
+this patch is to get the Perle quad-modem PCI card (PCI-RAS4) detected by
+current serial driver code in 2.6 kernel. It may also get the PCI-RAS8
+(Perle 8-port modem PIC card) running, but I can't guarantee as I only
+have a PCI-RAS4 for testing.
 
-> Testing and development is in early stages yet. In particular, the lack of
-> a timer based unplug kick probably breaks some block device drivers in
-> funny ways (though works here for me with SCSI and UML so far). Also needs
-> much wider testing.
+Here are the pci infos about the card (lspci -vn):
 
-Your SCSI changes are pretty broken, I've fixed them up. We need some
-way of asking the block layer to back off and rerun is sometime soon,
-which is what the plugging does in that case. I've introduced a new
-mechanism for that.
+0000:02:07.0 0700: 10b5:9030 (prog-if 02)
+         Subsystem: 155f:f001
+         Flags: medium devsel, IRQ 10
+         Memory at d0100400 (32-bit, non-prefetchable) [size=128]
+         I/O ports at 3800 [size=128]
+         I/O ports at 3400 [size=32]
 
-Changes:
+i.e.:
+Vendor ID: 10b5 (PLX Technology, Inc.)
+Device ID: 9030 (PLX PCI <-> IOBus Bridge Hot Swap)
+Subvendor ID: 155f (Perle Systems Ltd)
+Subdevice ID: f001 (PCI-RAS4), f010 (PCI-RAS8)
+Uses BAR: 2 (IO port 0x3400)
 
-    - Don't invoke ->request_fn() in blk_queue_invalidate_tags
+The PCI card has a TI TL16C754BPN (Texas Instruments) Quad-UART with 64 Byte
+Rx/Tx-FIFO onboard, which is compatible to ST16654 so it should be detected
+by the serial driver code.
 
-    - Fixup all filesystems for block_sync_page()
+Actually the autoconf() in 8250.c bails out because the IER test fails.
+It turns out that bit 4 is set on my card regardless what is written to IER.
 
-    - Add blk_delay_queue() to handle the old plugging-on-shortage
-      usage.
+Looking in the TL16C754B datasheet gives the clue that EFR is involved
+(see http://focus.ti.com/docs/prod/folders/print/tl16c754b.html, pdf p.30):
+"NOTE: IER[7:4] can only be modified if EFR[4] is set, i.e. EFR[4] is a write
+enable:". So I and'ed the IER read-back-value in scratch2 and scratch3 with
+0x0f in order to test only bit 0-3 (but I'm not sure if that is fine for
+general case). Whith that UART type ST16654 is found.
 
-    - Unconditionally run replug_current_nested() in ioschedule()
+It was also neccessary to add vendor/device ID's for PLX chip 9030 and Perles
+subsystem components in pci_ids.h.
 
-    - Merge to current git tree.
+The "(Maximum) number of 8250/16550 serial ports" in the kernel config should
+also be set properly (4 internal + 4/8 on Perle card).
 
-I'll try to do some serious testing on this soon. It would also be nice
-to retain the plugging information for blktrace, even if it isn't per
-queue anymore. Hmmm.
+Would be glad if someone could test and confirm the patch below.
 
--- 
-Jens Axboe
+Regards,
 
+Thomas Hoehn
+Avocent Germany
+(formerly Cyclades)
+
+Web: www.avocent.com
+Email: thomas.hoehn@avocent.com
+
+=== 8< ============================================================================
+
+diff -ur linux-2.6.18.orig/drivers/serial/8250.c linux/drivers/serial/8250.c
+--- linux-2.6.18.orig/drivers/serial/8250.c	2006-09-20 05:42:06.000000000 +0200
++++ linux/drivers/serial/8250.c	2006-10-04 17:40:22.000000000 +0200
+@@ -920,12 +920,12 @@
+  #ifdef __i386__
+  		outb(0xff, 0x080);
+  #endif
+-		scratch2 = serial_inp(up, UART_IER);
++		scratch2 = serial_inp(up, UART_IER) & 0x0f;
+  		serial_outp(up, UART_IER, 0x0F);
+  #ifdef __i386__
+  		outb(0, 0x080);
+  #endif
+-		scratch3 = serial_inp(up, UART_IER);
++		scratch3 = serial_inp(up, UART_IER) & 0x0f;
+  		serial_outp(up, UART_IER, scratch);
+  		if (scratch2 != 0 || scratch3 != 0x0F) {
+  			/*
+diff -ur linux-2.6.18.orig/drivers/serial/8250_pci.c linux/drivers/serial/8250_pci.c
+--- linux-2.6.18.orig/drivers/serial/8250_pci.c	2006-09-20 05:42:06.000000000 +0200
++++ linux/drivers/serial/8250_pci.c	2006-10-04 17:40:22.000000000 +0200
+@@ -679,6 +679,13 @@
+  	 */
+  	{
+  		.vendor		= PCI_VENDOR_ID_PLX,
++		.device		= PCI_DEVICE_ID_PLX_9030,
++		.subvendor	= PCI_SUBVENDOR_ID_PERLE,
++		.subdevice	= PCI_ANY_ID,
++		.setup		= pci_default_setup,
++	},
++	{
++		.vendor		= PCI_VENDOR_ID_PLX,
+  		.device		= PCI_DEVICE_ID_PLX_9050,
+  		.subvendor	= PCI_SUBVENDOR_ID_EXSYS,
+  		.subdevice	= PCI_SUBDEVICE_ID_EXSYS_4055,
+@@ -2353,6 +2360,15 @@
+  		pbn_b2_2_115200 },
+
+  	/*
++	 * Perle PCI-RAS cards
++	 */
++	{       PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030,
++		PCI_SUBVENDOR_ID_PERLE, PCI_SUBDEVICE_ID_PCI_RAS4,
++		0, 0, pbn_b2_4_921600 },
++	{       PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030,
++		PCI_SUBVENDOR_ID_PERLE, PCI_SUBDEVICE_ID_PCI_RAS8,
++		0, 0, pbn_b2_8_921600 },
++	/*
+  	 * These entries match devices with class COMMUNICATION_SERIAL,
+  	 * COMMUNICATION_MODEM or COMMUNICATION_MULTISERIAL
+  	 */
+diff -ur linux-2.6.18.orig/include/linux/pci_ids.h linux/include/linux/pci_ids.h
+--- linux-2.6.18.orig/include/linux/pci_ids.h	2006-09-20 05:42:06.000000000 +0200
++++ linux/include/linux/pci_ids.h	2006-10-04 17:41:37.000000000 +0200
+@@ -948,6 +948,7 @@
+  #define PCI_DEVICE_ID_PLX_R753		0x1152
+  #define PCI_DEVICE_ID_PLX_OLITEC	0x1187
+  #define PCI_DEVICE_ID_PLX_PCI200SYN	0x3196
++#define PCI_DEVICE_ID_PLX_9030          0x9030
+  #define PCI_DEVICE_ID_PLX_9050		0x9050
+  #define PCI_DEVICE_ID_PLX_9080		0x9080
+  #define PCI_DEVICE_ID_PLX_GTEK_SERIAL2	0xa001
+@@ -1961,6 +1962,10 @@
+
+  #define PCI_VENDOR_ID_CHELSIO		0x1425
+
++#define PCI_SUBVENDOR_ID_PERLE          0x155f
++#define PCI_SUBDEVICE_ID_PCI_RAS4       0xf001
++#define PCI_SUBDEVICE_ID_PCI_RAS8       0xf010 
++
+
+  #define PCI_VENDOR_ID_SYBA		0x1592
+  #define PCI_DEVICE_ID_SYBA_2P_EPP	0x0782
+
+=== 8< ============================================================================

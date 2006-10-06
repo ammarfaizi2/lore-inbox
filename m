@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422859AbWJFTBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422857AbWJFTCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422859AbWJFTBS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWJFTBF
+	id S1422857AbWJFTCE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 15:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422879AbWJFTCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:01:05 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:58323 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1422859AbWJFS63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 14:58:29 -0400
-Date: Fri, 06 Oct 2006 14:58:09 -0400
-From: Andy Gay <andy@andynet.net>
-Subject: Re: [Patch] Memory leak in drivers/usb/serial/airprime.c
-In-reply-to: <1160044314.6153.2.camel@alice>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1160161089.28125.212.camel@tahini.andynet.net>
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.3
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1160044314.6153.2.camel@alice>
+	Fri, 6 Oct 2006 15:02:03 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:55216 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1422877AbWJFTBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 15:01:36 -0400
+From: Matthew Wilcox <matthew@wil.cx>
+To: Val Henson <val_henson@linux.intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Cc: netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
+Subject: From: Matthew Wilcox <matthew@wil.cx>
+Reply-To: Matthew Wilcox <matthew@wil.cx>
+Date: Fri, 06 Oct 2006 13:01:34 -0600
+Message-Id: <1160161294850-git-send-email-matthew@wil.cx>
+X-Mailer: git-send-email 1.4.1.1
+In-Reply-To: <11601612941804-git-send-email-matthew@wil.cx>
+References: <11601612941804-git-send-email-matthew@wil.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm. And I really thought I'd plugged all the leaks....
+We used to check whether pci_set_mwi() had succeeded by testing the
+hardware MWI bit.  Now we need only check the return value (and failing
+to do so is a warning).  Also, pci_set_mwi() will fail if the cache line
+size is 0, so we don't need to check that ourselves any more.
 
-Acked-by: Andy Gay <andy@andynet.net>
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-On Thu, 2006-10-05 at 12:31 +0200, Eric Sesterhenn wrote:
-> hi,
-> 
-> the commit http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=5dda171202f94127e49c12daf780cdae1b4e668b
-> added a memory leak. In case we cant allocate an urb, we dont free
-> the buffer and leak it. Coverity id #1438
-> 
-> Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> 
-> --- linux-2.6.19-rc1/drivers/usb/serial/airprime.c.orig	2006-10-05 12:25:56.000000000 +0200
-> +++ linux-2.6.19-rc1/drivers/usb/serial/airprime.c	2006-10-05 12:26:35.000000000 +0200
-> @@ -133,6 +133,7 @@ static int airprime_open(struct usb_seri
->  		}
->  		urb = usb_alloc_urb(0, GFP_KERNEL);
->  		if (!urb) {
-> +			kfree(buffer);
->  			dev_err(&port->dev, "%s - no more urbs?\n",
->  				__FUNCTION__);
->  			result = -ENOMEM;
-> 
-> 
-> 
-
+diff --git a/drivers/net/tulip/tulip_core.c b/drivers/net/tulip/tulip_core.c
+index d11d28c..64d999b 100644
+--- a/drivers/net/tulip/tulip_core.c
++++ b/drivers/net/tulip/tulip_core.c
+@@ -1135,7 +1135,6 @@ static void __devinit tulip_mwi_config (
+ {
+ 	struct tulip_private *tp = netdev_priv(dev);
+ 	u8 cache;
+-	u16 pci_command;
+ 	u32 csr0;
+ 
+ 	if (tulip_debug > 3)
+@@ -1153,21 +1152,15 @@ static void __devinit tulip_mwi_config (
+ 	/* set or disable MWI in the standard PCI command bit.
+ 	 * Check for the case where  mwi is desired but not available
+ 	 */
+-	if (csr0 & MWI)	pci_set_mwi(pdev);
+-	else		pci_clear_mwi(pdev);
+-
+-	/* read result from hardware (in case bit refused to enable) */
+-	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
+-	if ((csr0 & MWI) && (!(pci_command & PCI_COMMAND_INVALIDATE)))
+-		csr0 &= ~MWI;
+-
+-	/* if cache line size hardwired to zero, no MWI */
+-	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache);
+-	if ((csr0 & MWI) && (cache == 0)) {
+-		csr0 &= ~MWI;
++	if (csr0 & MWI)	{
++		if (pci_set_mwi(pdev))
++			csr0 &= ~MWI;
++	} else {
+ 		pci_clear_mwi(pdev);
+ 	}
+ 
++	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache);
++
+ 	/* assign per-cacheline-size cache alignment and
+ 	 * burst length values
+ 	 */

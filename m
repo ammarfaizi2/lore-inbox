@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWJFTP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422696AbWJFTQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWJFTP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWJFTP1
+	id S1422696AbWJFTQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 15:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422685AbWJFTQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:15:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:5800 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932450AbWJFTP0 (ORCPT
+	Fri, 6 Oct 2006 15:16:51 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:12200 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1422680AbWJFTQu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 15:15:26 -0400
-Message-ID: <4526AB43.7030809@garzik.org>
-Date: Fri, 06 Oct 2006 15:15:15 -0400
+	Fri, 6 Oct 2006 15:16:50 -0400
+Message-ID: <4526AB94.7060200@garzik.org>
+Date: Fri, 06 Oct 2006 15:16:36 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
@@ -18,9 +18,9 @@ To: Matthew Wilcox <matthew@wil.cx>
 CC: Val Henson <val_henson@linux.intel.com>,
        Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
        linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
-References: <1160161519800-git-send-email-matthew@wil.cx> <11601615192857-git-send-email-matthew@wil.cx>
-In-Reply-To: <11601615192857-git-send-email-matthew@wil.cx>
+Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
+References: <1160161519800-git-send-email-matthew@wil.cx>
+In-Reply-To: <1160161519800-git-send-email-matthew@wil.cx>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -30,12 +30,15 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Matthew Wilcox wrote:
-> Also, pci_set_mwi() will fail if the cache line
-> size is 0, so we don't need to check that ourselves any more.
+> Since some devices may not implement the MWI bit, we should check that
+> the write did set it and return an error if it didn't.
+> 
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-NAK, not true on all arches.  sparc64 at least presumes that the 
-firmware DTRT with cacheline size, which hurts us now given this tulip patch
+ACK, though (as it seems you are doing) you should audit pci_set_mwi() 
+users to make sure behavior matches up with this implementation
 
 	Jeff
+
 
 

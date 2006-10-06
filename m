@@ -1,64 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWJFJfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWJFJjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWJFJfg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 05:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWJFJfg
+	id S1751393AbWJFJjb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 05:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWJFJjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 05:35:36 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:32767 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751375AbWJFJfe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 05:35:34 -0400
-Date: Fri, 6 Oct 2006 02:35:25 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] i386 rename X86_FEATURE_DTES to X86_FEATURE_DS
-Message-ID: <20061006093525.GA9063@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Fri, 6 Oct 2006 05:39:31 -0400
+Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:2936 "EHLO
+	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
+	id S1751382AbWJFJj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 05:39:29 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AQAAAOG/JUWMEA0
+X-IronPort-AV: i="4.09,270,1157320800"; 
+   d="scan'208"; a="3916001:sNHT45560736"
+Date: Fri, 6 Oct 2006 11:39:27 +0200
+From: Joerg Roedel <joro-lkml@zlug.org>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       David Miller <davem@davemloft.net>
+Subject: [PATCH 02/02] net/ipv6: seperate sit driver to extra module (addrconf.c changes)
+Message-ID: <20061006093927.GB12460@zlug.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="7iMSBzlTiPOCCT2k"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here is a patch (used by perfmon2) that renames X86_FEATURE_DTES
-to X86_FEATURE_DS to match Intel's documentation for the Debug Store
-save area on i386. The patch also adds cpu_has_ds.
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-changelog:
-        - rename X86_FEATURE_DTES to X86_FEATURE_DS to match documentation
-        - adds cpu_has_ds to test for X86_FEATURE_DS
+This patch contains the changes to net/ipv6/addrconf.c to remove sit
+specific code if the sit driver is not selected.
 
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
+Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
 
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_sit_as_module_addrconf
 
-diff --git a/include/asm-i386/cpufeature.h b/include/asm-i386/cpufeature.h
-index d314ebb..69ce350 100644
---- a/include/asm-i386/cpufeature.h
-+++ b/include/asm-i386/cpufeature.h
-@@ -31,7 +31,7 @@ #define X86_FEATURE_PAT		(0*32+16) /* Pa
- #define X86_FEATURE_PSE36	(0*32+17) /* 36-bit PSEs */
- #define X86_FEATURE_PN		(0*32+18) /* Processor serial number */
- #define X86_FEATURE_CLFLSH	(0*32+19) /* Supports the CLFLUSH instruction */
--#define X86_FEATURE_DTES	(0*32+21) /* Debug Trace Store */
-+#define X86_FEATURE_DS		(0*32+21) /* Debug Store */
- #define X86_FEATURE_ACPI	(0*32+22) /* ACPI via MSR */
- #define X86_FEATURE_MMX		(0*32+23) /* Multimedia Extensions */
- #define X86_FEATURE_FXSR	(0*32+24) /* FXSAVE and FXRSTOR instructions (fast save and restore */
-@@ -134,6 +134,7 @@ #define cpu_has_phe		boot_cpu_has(X86_FE
- #define cpu_has_phe_enabled	boot_cpu_has(X86_FEATURE_PHE_EN)
- #define cpu_has_pmm		boot_cpu_has(X86_FEATURE_PMM)
- #define cpu_has_pmm_enabled	boot_cpu_has(X86_FEATURE_PMM_EN)
-+#define cpu_has_ds		boot_cpu_has(X86_FEATURE_DS)
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/addrconf.c linux-2.6.18/net/ipv6/addrconf.c
+--- linux-2.6.18-vanilla/net/ipv6/addrconf.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/addrconf.c	2006-10-06 11:04:04.000000000 +0200
+@@ -389,8 +389,10 @@ static struct inet6_dev * ipv6_add_dev(s
+ 	ndev->regen_timer.data = (unsigned long) ndev;
+ 	if ((dev->flags&IFF_LOOPBACK) ||
+ 	    dev->type == ARPHRD_TUNNEL ||
+-	    dev->type == ARPHRD_NONE ||
+-	    dev->type == ARPHRD_SIT) {
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
++	    dev->type == ARPHRD_SIT ||
++#endif
++	    dev->type == ARPHRD_NONE) {
+ 		printk(KERN_INFO
+ 		       "%s: Disabled Privacy Extensions\n",
+ 		       dev->name);
+@@ -1522,8 +1524,10 @@ addrconf_prefix_route(struct in6_addr *p
+ 	   This thing is done here expecting that the whole
+ 	   class of non-broadcast devices need not cloning.
+ 	 */
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 	if (dev->type == ARPHRD_SIT && (dev->flags&IFF_POINTOPOINT))
+ 		rtmsg.rtmsg_flags |= RTF_NONEXTHOP;
++#endif
  
- #endif /* __ASM_I386_CPUFEATURE_H */
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
+ }
+@@ -1545,6 +1549,7 @@ static void addrconf_add_mroute(struct n
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
+ }
  
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void sit_route_add(struct net_device *dev)
+ {
+ 	struct in6_rtmsg rtmsg;
+@@ -1561,6 +1566,7 @@ static void sit_route_add(struct net_dev
+ 
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
+ }
++#endif
+ 
+ static void addrconf_add_lroute(struct net_device *dev)
+ {
+@@ -1831,6 +1837,7 @@ int addrconf_set_dstaddr(void __user *ar
+ 	if (dev == NULL)
+ 		goto err_exit;
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 	if (dev->type == ARPHRD_SIT) {
+ 		struct ifreq ifr;
+ 		mm_segment_t	oldfs;
+@@ -1860,6 +1867,7 @@ int addrconf_set_dstaddr(void __user *ar
+ 			err = dev_open(dev);
+ 		}
+ 	}
++#endif
+ 
+ err_exit:
+ 	rtnl_unlock();
+@@ -1993,6 +2001,7 @@ int addrconf_del_ifaddr(void __user *arg
+ 	return err;
+ }
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void sit_add_v4_addrs(struct inet6_dev *idev)
+ {
+ 	struct inet6_ifaddr * ifp;
+@@ -2061,6 +2070,7 @@ static void sit_add_v4_addrs(struct inet
+ 		}
+         }
+ }
++#endif
+ 
+ static void init_loopback(struct net_device *dev)
+ {
+@@ -2124,6 +2134,7 @@ static void addrconf_dev_config(struct n
+ 		addrconf_add_linklocal(idev, &addr);
+ }
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void addrconf_sit_config(struct net_device *dev)
+ {
+ 	struct inet6_dev *idev;
+@@ -2149,6 +2160,7 @@ static void addrconf_sit_config(struct n
+ 	} else
+ 		sit_route_add(dev);
+ }
++#endif
+ 
+ static inline int
+ ipv6_inherit_linklocal(struct inet6_dev *idev, struct net_device *link_dev)
+@@ -2243,9 +2255,11 @@ static int addrconf_notify(struct notifi
+ 		}
+ 
+ 		switch(dev->type) {
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 		case ARPHRD_SIT:
+ 			addrconf_sit_config(dev);
+ 			break;
++#endif
+ 		case ARPHRD_TUNNEL6:
+ 			addrconf_ip6_tnl_config(dev);
+ 			break;
+
+--7iMSBzlTiPOCCT2k--

@@ -1,212 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWJFUMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWJFUNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbWJFUMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWJFUMT
+	id S932571AbWJFUNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWJFUNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:12:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52415 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932570AbWJFUMS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:12:18 -0400
-Date: Fri, 6 Oct 2006 13:11:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] call truncate_inode_pages in the DIO fallback to
- buffered I/O path
-Message-Id: <20061006131148.9c6b88ab.akpm@osdl.org>
-In-Reply-To: <x49ac4a5zkw.fsf@segfault.boston.devel.redhat.com>
-References: <x49zmcc6mhh.fsf@segfault.boston.devel.redhat.com>
-	<20061004102522.d58c00ef.akpm@osdl.org>
-	<4523F486.1000604@oracle.com>
-	<x49mz8c6k83.fsf@segfault.boston.devel.redhat.com>
-	<20061004111603.20cdaa35.akpm@osdl.org>
-	<45240034.2040704@oracle.com>
-	<20061004121645.fd2765e4.akpm@osdl.org>
-	<x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
-	<20061004165504.c1dd3dd3.akpm@osdl.org>
-	<x49ac4a5zkw.fsf@segfault.boston.devel.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 6 Oct 2006 16:13:18 -0400
+Received: from 1-1-5-8a.ehn.lk.bostream.se ([82.183.137.225]:47857 "EHLO
+	1-1-5-8a.ehn.lk.bostream.se") by vger.kernel.org with ESMTP
+	id S932571AbWJFUNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:13:17 -0400
+Date: Fri, 6 Oct 2006 22:13:14 +0200
+From: Henrik Carlqvist <Henrik@LinkopingJudo.org>
+To: linux-kernel@vger.kernel.org
+Cc: mark.fasheh@oracle.com
+Subject: Re: ocfs2 problem with nfs v2
+Message-Id: <20061006221314.0b961635.Henrik@LinkopingJudo.org>
+In-Reply-To: <20060914202423.56314cf5.hc8@uthyres.com>
+References: <20060913223320.008bdcf7.hc8@uthyres.com>
+	<20060914202423.56314cf5.hc8@uthyres.com>
+Organization: =?ISO-8859-1?Q?Link=F6ping?= Judo
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Oct 2006 15:31:43 -0400
-Jeff Moyer <jmoyer@redhat.com> wrote:
-
-> akpm> I'd propose that we do this via
+Henrik Carlqvist <hc8@uthyres.com> wrote:
+> Using NFS v3 in Slackware 9.1 the server works fine, but with NFS v2 I
+> was able to repeat the bug.
 > 
-> akpm> 	generic_file_buffered_write(...);
-> akpm> 	do_sync_file_range(..., SYNC_FILE_RANGE_WAIT_BEFORE|
-> akpm> 			SYNC_FILE_RANGE_WRITE|
-> akpm> 			SYNC_FILE_RANGE_WAIT_AFTER)
-> 
-> akpm> 	invalidate_mapping_pages(...);
-> 
-> OK, patch attached.
+> This is what it looks like on the NFS client:
 
-I mangled your patch rather a lot.
+> # mount -o nfsvers=2 ekorrapa:/san/old /mnt/hd/ 
 
-- coding style (multiple declarations and multiple assignments)
+> # ls -al /mnt/hd/ 
+> ls:/mnt/hd/lost+found: Input/output error 
+> ls: /mnt/hd/1: Input/output error
+> ls: /mnt/hd/2: Input/output error
 
-- `endbyte' should be loff_t, not pgoff_t.
+> However, on the NFS server things look exactly the same as before:
+> Sep 14 10:53:23 kattapa kernel: (5380,0):ocfs2_encode_fh:155 ERROR: fh
+> buffer is too small for encoding 
 
-- sync the region (pos, pos+written), not (pos, pos+count).
+This message is posted only to make this thread useful by others which
+encounter the same problem. The problem got into bugzilla at
+http://oss.oracle.com/bugzilla/show_bug.cgi?id=777 but unfortunately
+because of limitations in NFS v2 it would be very hard to make ocfs2 to
+work with the default settings of an NFS v2 server.
 
-- attempt to return the correct value from __generic_file_aio_write_nolock
-  in all circumstances.
+One solution to the problem is to export with the no_subtree_check
+option. This solution has some mild security implications so reading
+and understanding the manpage of exportfs should be done before trying
+this. With the no_subtree_check option NFS v2 clients are able to use
+mounts directly from the NFS server with ocfs2.
 
-- Avoid testing the O_DIRECT flag twice - just call
-  generic_file_buffered_write() from two sites.  Simpler and cleaner that way.
+Another workaround is to configure an "NFS proxy" which does NFS v3 mounts
+from the server with ocfs2 and then reexports those mounts with NFS v2. To
+be able to reexport an NFS mounted directory a user space NFS server is
+needed. I have tried the old and obsolete server from
+http://sourceforge.net/projects/unfs which was able to do NFS v2 reexports
+of NFS v3 mounted directories from the NFS v3 server with ocfs2.
 
-
-Patch is below.  The end result looks like:
-
-
-	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
-	if (unlikely(file->f_flags & O_DIRECT)) {
-		loff_t endbyte;
-		ssize_t written_buffered;
-
-		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
-							ppos, count, ocount);
-		if (written < 0 || written == count)
-			goto out;
-		/*
-		 * direct-io write to a hole: fall through to buffered I/O
-		 * for completing the rest of the request.
-		 */
-		pos += written;
-		count -= written;
-		written_buffered = generic_file_buffered_write(iocb, iov,
-						nr_segs, pos, ppos, count,
-						written);
-
-		/*
-		 * We need to ensure that the page cache pages are written to
-		 * disk and invalidated to preserve the expected O_DIRECT
-		 * semantics.
-		 */
-		endbyte = pos + written_buffered - 1;
-		err = do_sync_file_range(file, pos, endbyte,
-					 SYNC_FILE_RANGE_WAIT_BEFORE|
-					 SYNC_FILE_RANGE_WRITE|
-					 SYNC_FILE_RANGE_WAIT_AFTER);
-		if (err == 0) {
-			written += written_buffered;
-			invalidate_mapping_pages(mapping,
-						 pos >> PAGE_CACHE_SHIFT,
-						 endbyte >> PAGE_CACHE_SHIFT);
-		} else {
-			/*
-			 * We don't know how much we wrote, so just return
-			 * the number of bytes which were direct-written
-			 */
-		}
-	} else {
-		written = generic_file_buffered_write(iocb, iov, nr_segs,
-				pos, ppos, count, written);
-	}
-out:
-	current->backing_dev_info = NULL;
-	return written ? written : err;
-}
-
-
-Which I think is closer to correct, but boy it needs a lot of reviewing and
-testing.
-
-
-
-diff -puN mm/filemap.c~direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write-fixes mm/filemap.c
---- a/mm/filemap.c~direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write-fixes
-+++ a/mm/filemap.c
-@@ -2228,7 +2228,7 @@ __generic_file_aio_write_nolock(struct k
- 	struct inode 	*inode = mapping->host;
- 	unsigned long	seg;
- 	loff_t		pos;
--	ssize_t		written, written_direct;
-+	ssize_t		written;
- 	ssize_t		err;
- 
- 	ocount = 0;
-@@ -2258,7 +2258,7 @@ __generic_file_aio_write_nolock(struct k
- 
- 	/* We can write back this queue in page reclaim */
- 	current->backing_dev_info = mapping->backing_dev_info;
--	written = written_direct = 0;
-+	written = 0;
- 
- 	err = generic_write_checks(file, &pos, &count, S_ISBLK(inode->i_mode));
- 	if (err)
-@@ -2275,8 +2275,11 @@ __generic_file_aio_write_nolock(struct k
- 
- 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
- 	if (unlikely(file->f_flags & O_DIRECT)) {
--		written = generic_file_direct_write(iocb, iov,
--				&nr_segs, pos, ppos, count, ocount);
-+		loff_t endbyte;
-+		ssize_t written_buffered;
-+
-+		written = generic_file_direct_write(iocb, iov, &nr_segs, pos,
-+							ppos, count, ocount);
- 		if (written < 0 || written == count)
- 			goto out;
- 		/*
-@@ -2285,31 +2288,34 @@ __generic_file_aio_write_nolock(struct k
- 		 */
- 		pos += written;
- 		count -= written;
-+		written_buffered = generic_file_buffered_write(iocb, iov,
-+						nr_segs, pos, ppos, count,
-+						written);
- 
--		written_direct = written;
--	}
--
--	written = generic_file_buffered_write(iocb, iov, nr_segs,
--			pos, ppos, count, written);
--
--	/*
--	 *  When falling through to buffered I/O, we need to ensure that the
--	 *  page cache pages are written to disk and invalidated to preserve
--	 *  the expected O_DIRECT semantics.
--	 */
--	if (unlikely(file->f_flags & O_DIRECT)) {
--		pgoff_t endbyte = pos + count - 1;
--
-+		/*
-+		 * We need to ensure that the page cache pages are written to
-+		 * disk and invalidated to preserve the expected O_DIRECT
-+		 * semantics.
-+		 */
-+		endbyte = pos + written_buffered - 1;
- 		err = do_sync_file_range(file, pos, endbyte,
- 					 SYNC_FILE_RANGE_WAIT_BEFORE|
- 					 SYNC_FILE_RANGE_WRITE|
- 					 SYNC_FILE_RANGE_WAIT_AFTER);
--		if (err == 0)
-+		if (err == 0) {
-+			written += written_buffered;
- 			invalidate_mapping_pages(mapping,
- 						 pos >> PAGE_CACHE_SHIFT,
- 						 endbyte >> PAGE_CACHE_SHIFT);
--		else
--			written = written_direct;
-+		} else {
-+			/*
-+			 * We don't know how much we wrote, so just return
-+			 * the number of bytes which were direct-written
-+			 */
-+		}
-+	} else {
-+		written = generic_file_buffered_write(iocb, iov, nr_segs,
-+				pos, ppos, count, written);
- 	}
- out:
- 	current->backing_dev_info = NULL;
-_
-
+regards Henrik

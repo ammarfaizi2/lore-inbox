@@ -1,37 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422924AbWJFUUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWJFUXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422924AbWJFUUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWJFUT7
+	id S932580AbWJFUXD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWJFUXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:19:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13250 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751080AbWJFUT5 (ORCPT
+	Fri, 6 Oct 2006 16:23:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8643 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932580AbWJFUXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:19:57 -0400
-Date: Fri, 6 Oct 2006 13:18:58 -0700
+	Fri, 6 Oct 2006 16:23:01 -0400
+Date: Fri, 6 Oct 2006 13:22:58 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot
- handle IRQ -1"
-Message-Id: <20061006131858.d5925b70.akpm@osdl.org>
-In-Reply-To: <20061006200223.GT2365@n6014avq19270.qlogic.org>
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-	<20061006162054.GF14186@rhun.haifa.ibm.com>
-	<20061006190039.GN2365@n6014avq19270.qlogic.org>
-	<20061006124213.28afb767.akpm@osdl.org>
-	<20061006200223.GT2365@n6014avq19270.qlogic.org>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] fdtable: Extensive fs/file.c cleanups.
+Message-Id: <20061006132258.39fc58ed.akpm@osdl.org>
+In-Reply-To: <200610052152.29013.vlobanov@speakeasy.net>
+References: <200610052152.29013.vlobanov@speakeasy.net>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -39,14 +24,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 13:02:23 -0700
-Andrew Vasquez <andrew.vasquez@qlogic.com> wrote:
+On Thu, 5 Oct 2006 21:52:28 -0700
+Vadim Lobanov <vlobanov@speakeasy.net> wrote:
 
-> Patch appears to work.
+> As long as the previous patch replaces the guts of fs/file.c, it makes sense
+> to tidy up all the code within. This work includes:
+> 	code simplification via refactoring,
+> 	elimination of unnecessary code paths,
+> 	extensive commenting throughout the entire file, and
+> 	other minor cleanups and consistency tweaks.
+> This patch does not contain any functional modifications.
+> 
+> This is the last patch in the series. All the code should now be sparkly
+> clean.
 
-OK, thanks - if Andi can confirm that this:
+This (wordwrapped) patch should have been the first in the series, not the
+last.  Having the substantive changes come after the cleanups makes
+subsequent problem diagnosis simpler, means we have less code to revert if
+it goes bad, etc.
 
-> -void smp_apic_timer_interrupt(void)
-> +void smp_apic_timer_interrupt(struct pt_regs *regs)
-
-really reflects reality then we're good to go.
+So I'll drop this one.

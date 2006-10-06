@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWJFJKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWJFJMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWJFJKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 05:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWJFJKV
+	id S932110AbWJFJMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 05:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWJFJMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 05:10:21 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:56775 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932092AbWJFJKV (ORCPT
+	Fri, 6 Oct 2006 05:12:10 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:37802 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S932110AbWJFJMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 05:10:21 -0400
-Date: Fri, 6 Oct 2006 02:10:06 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] add X86_FEATURE_PEBS and detection
-Message-ID: <20061006091006.GD8793@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Fri, 6 Oct 2006 05:12:09 -0400
+Date: Fri, 6 Oct 2006 11:11:56 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: keith mannthey <kmannth@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] make mach-generic/summit.c compile on UP
+In-Reply-To: <1160087093.5664.14.camel@keithlap>
+Message-ID: <Pine.LNX.4.64.0610061109360.12556@twin.jikos.cz>
+References: <Pine.LNX.4.64.0610051913010.12556@twin.jikos.cz> 
+ <1160080292.5664.9.camel@keithlap>  <Pine.LNX.4.64.0610052308000.12556@twin.jikos.cz>
+ <1160087093.5664.14.camel@keithlap>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 5 Oct 2006, keith mannthey wrote:
 
-Here is a patch (used by perfmon2) to detect the presence of the
-Precise Event Based Sampling (PEBS) feature for Intel 64-bit processors.
-The patch also adds the cpu_has_pebs macro.
+> Yea I am pretty sure CONFIG_X86_GENERIC is ment to boot UP and SMP 
+> kernels.
+>  Maybe just moving apicid_2_node to a UP safe location would be a good 
+> way to go as well.  I overlooked the fact that CONFIG_X86_GENERIC wasn't 
+> always SMP.
 
-IMPORTANT: you need to have the X86_FEATURE_DS renaming patch applied first!
+Below is the patch doing exactly this. Fixes compilation of Linus' git 
+tree, applicable also to -mm. Please apply.
 
-changelog:
-	- adds X86_FEATURE_PEBS
-	- adds cpu_has_pebs to test for X86_FEATURE_PEBS
+[PATCH] make kernels with CONFIG_X86_GENERIC and !CONFIG_SMP compilable
 
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
+CONFIG_X86_GENERIC is not exclusively CONFIG_SMP, as mach-default/ could
+be compiled also for UP archs. The patch fixes compilation error in 
+include/asm/mach-summit/mach_apic.h in case CONFIG_X86_GENERIC && !CONFIG_SMP
 
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -835,6 +835,13 @@ static void __cpuinit init_intel(struct 
- 			set_bit(X86_FEATURE_ARCH_PERFMON, &c->x86_capability);
- 	}
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+
+ include/asm-i386/smp.h                   |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -46,8 +46,6 @@ extern u8 x86_cpu_to_apicid[];
  
-+	if (cpu_has_ds) {
-+		unsigned int l1, l2;
-+		rdmsr(MSR_IA32_MISC_ENABLE, l1, l2);
-+		if (!(l1 & (1<<12)))
-+			set_bit(X86_FEATURE_PEBS, c->x86_capability);
-+	}
+ #define cpu_physical_id(cpu)	x86_cpu_to_apicid[cpu]
+ 
+-extern u8 apicid_2_node[];
+-
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void cpu_exit_clear(void);
+ extern void cpu_uninit(void);
+@@ -101,6 +99,9 @@ #define NO_PROC_ID		0xFF		/* No processo
+ #endif
+ 
+ #ifndef __ASSEMBLY__
 +
- 	n = c->extended_cpuid_level;
- 	if (n >= 0x80000008) {
- 		unsigned eax = cpuid_eax(0x80000008);
---- a/include/asm-x86_64/cpufeature.h
-+++ b/include/asm-x86_64/cpufeature.h
-@@ -68,6 +68,7 @@
- #define X86_FEATURE_FXSAVE_LEAK (3*32+7)  /* FIP/FOP/FDP leaks through FXSAVE */
- #define X86_FEATURE_UP		(3*32+8) /* SMP kernel running on UP */
- #define X86_FEATURE_ARCH_PERFMON (3*32+9) /* Intel Architectural PerfMon */
-+#define X86_FEATURE_PEBS	(3*32+10) /* Precise-Event Based Sampling */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
- #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-@@ -113,5 +114,6 @@
- #define cpu_has_centaur_mcr    0
- #define cpu_has_clflush	       boot_cpu_has(X86_FEATURE_CLFLSH)
- #define cpu_has_ds 	       boot_cpu_has(X86_FEATURE_DS)
-+#define cpu_has_pebs 	       boot_cpu_has(X86_FEATURE_PEBS)
- 
- #endif /* __ASM_X8664_CPUFEATURE_H */
++extern u8 apicid_2_node[];
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ static __inline int logical_smp_processor_id(void)
+ {
+
+-- 
+Jiri Kosina

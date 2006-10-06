@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWJFQdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422701AbWJFQfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWJFQdF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWJFQdF
+	id S1422701AbWJFQfq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWJFQfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:33:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:41567 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751596AbWJFQdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:33:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=QeotYJBfABMawyj5rxCPrxwLpzOWqp/NHj5iGCJDYgu+d4Da5wZCU83lqg4nyC/I6pSUHLs41YmwcI8GQZ6eh+E1jTkg9WbwO9nsvkDfXfrbd7Enmnjpu+bRLqYWS3Pd7+gKA21biH0uAzirY21DqSzZ0ob7I7DI7F50cjMtpA8=
-Date: Fri, 6 Oct 2006 16:32:38 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Read Only File System?
-Message-ID: <20061006163238.GK352@slug>
-References: <45268412.3040400@perkel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45268412.3040400@perkel.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Fri, 6 Oct 2006 12:35:46 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:11702 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1422701AbWJFQfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 12:35:45 -0400
+From: Matthew Wilcox <matthew@wil.cx>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
+Subject: [PATCH] Fix vivi compile on parisc
+Reply-To: Matthew Wilcox <matthew@wil.cx>
+Date: Fri, 06 Oct 2006 10:35:45 -0600
+Message-Id: <11601525451073-git-send-email-matthew@wil.cx>
+X-Mailer: git-send-email 1.4.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 09:28:02AM -0700, Marc Perkel wrote:
-> Not sure where to ask this question so I'll try here. I have a Raid 0 EXT3 file system that is coming up read 
-> only. I don't think it's raid related but not sure why it's stuck on read only.
-> 
-> When I run mount it shows:
-> /dev/md0 on /data type ext3 (rw,noatime)
-> 
-> But when I attempt (running as root) to change anything I get:
-> touch: cannot touch `x': Read-only file system
-> 
-> When I list the directory I get this:
-> drwxr-xr-x    8 root root  4096 Sep 29 15:15 .
-> drwxr-xr-x   45 root root  4096 Oct  4 10:42 ..
-> drwxr-xr-x    4 root root  4096 Sep 11 03:17 critical
-> drwx------    2 root root 16384 Sep 10 22:37 lost+found
-> drwxr-xr-x   19 root root  4096 Sep 11 02:07 mirror
-> dr-x------   14 root root  4096 Sep  9 09:52 Robin
-> drwxr-xr-x    7 root root  4096 Oct  5 02:16 snapshot
-> drwxrwxr-x+ 289 root root 12288 Oct  1 03:20 www
-> 
-> Note the weird permissions on Robin. This happened because I was trying to save data from a crashed Windows 
-> NT system and I used rsync to copy the data over. And I noticed the problem around the same time.
-> 
-> So - what can I do to fix this?
-Does your dmesg have some info on this?
+parisc (and several other architectures) don't have a dma_address in their
+sg list.  Use the macro instead.
 
-Regards,
-Frederik
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+---
+ drivers/media/video/vivi.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/media/video/vivi.c b/drivers/media/video/vivi.c
+index 841884a..a2ef093 100644
+--- a/drivers/media/video/vivi.c
++++ b/drivers/media/video/vivi.c
+@@ -272,7 +272,7 @@ static void gen_line(struct sg_to_addr t
+ 
+ 	/* Get first addr pointed to pixel position */
+ 	oldpg=get_addr_pos(pos,pages,to_addr);
+-	pg=pfn_to_page(to_addr[oldpg].sg->dma_address >> PAGE_SHIFT);
++	pg=pfn_to_page(sg_dma_address(to_addr[oldpg].sg) >> PAGE_SHIFT);
+ 	basep = kmap_atomic(pg, KM_BOUNCE_READ)+to_addr[oldpg].sg->offset;
+ 
+ 	/* We will just duplicate the second pixel at the packet */
+@@ -287,7 +287,7 @@ static void gen_line(struct sg_to_addr t
+ 		for (color=0;color<4;color++) {
+ 			pgpos=get_addr_pos(pos,pages,to_addr);
+ 			if (pgpos!=oldpg) {
+-				pg=pfn_to_page(to_addr[pgpos].sg->dma_address >> PAGE_SHIFT);
++				pg=pfn_to_page(sg_dma_address(to_addr[pgpos].sg) >> PAGE_SHIFT);
+ 				kunmap_atomic(basep, KM_BOUNCE_READ);
+ 				basep= kmap_atomic(pg, KM_BOUNCE_READ)+to_addr[pgpos].sg->offset;
+ 				oldpg=pgpos;
+@@ -339,8 +339,8 @@ static void gen_line(struct sg_to_addr t
+ 				for (color=0;color<4;color++) {
+ 					pgpos=get_addr_pos(pos,pages,to_addr);
+ 					if (pgpos!=oldpg) {
+-						pg=pfn_to_page(to_addr[pgpos].
+-								sg->dma_address
++						pg=pfn_to_page(sg_dma_address(
++								to_addr[pgpos].sg)
+ 								>> PAGE_SHIFT);
+ 						kunmap_atomic(basep,
+ 								KM_BOUNCE_READ);
+@@ -386,7 +386,7 @@ static void vivi_fillbuff(struct vivi_de
+ 	struct timeval ts;
+ 
+ 	/* Test if DMA mapping is ready */
+-	if (!vb->dma.sglist[0].dma_address)
++	if (!sg_dma_address(&vb->dma.sglist[0]))
+ 		return;
+ 
+ 	prep_to_addr(to_addr,vb);
+@@ -783,7 +783,7 @@ static int vivi_map_sg(void *dev, struct
+ 	for (i = 0; i < nents; i++ ) {
+ 		BUG_ON(!sg[i].page);
+ 
+-		sg[i].dma_address = page_to_phys(sg[i].page) + sg[i].offset;
++		sg_dma_address(&sg[i]) = page_to_phys(sg[i].page) + sg[i].offset;
+ 	}
+ 
+ 	return nents;
+-- 
+1.4.1.1
+

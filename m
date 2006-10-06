@@ -1,64 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422758AbWJFRKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422760AbWJFRLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422758AbWJFRKN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422754AbWJFRKM
+	id S1422760AbWJFRLL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422759AbWJFRLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:10:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:34037 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422758AbWJFRKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:10:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PmO4jC0u35UxIDOZO9V4qAqMe4HYkp7ZvdojoYDwRo6tPwIebGKjFBydla7T2QolCEIfISbhJoZ7blJF84ntk8ZGnILhZGoHVswZKTADOllu+nV5TmfVLiM9ml622WYHL45YFv+IPg4xuymkG+ZgoECrfOdrpE/ZdlJViorp8oA=
-Message-ID: <513a5e60610061010k2fb0b8cex245f009d8d79de69@mail.gmail.com>
-Date: Fri, 6 Oct 2006 12:10:09 -0500
-From: "Madhu Saravana Sibi Govindan" <ssshayagriva@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: Using "Asynchronous Notifications" within an interrupt handler
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0610060741040.12702@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Oct 2006 13:11:11 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:40135 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1422760AbWJFRLI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:11:08 -0400
+Date: Fri, 6 Oct 2006 18:11:05 +0100
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Steve Fox <drfickle@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, kmannth@us.ibm.com,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Message-ID: <20061006171105.GC9881@skynet.ie>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200610052105.00359.ak@suse.de> <1160080954.29690.44.camel@flooterbu> <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie> <20061006153629.GA19756@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <513a5e60610051727t7f7c7b78u62410c4b8f8502a7@mail.gmail.com>
-	 <513a5e60610051753o1dd828c4i52b8ba563601694a@mail.gmail.com>
-	 <Pine.LNX.4.61.0610060741040.12702@yvahk01.tjqt.qr>
+In-Reply-To: <20061006153629.GA19756@in.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the information.
+On (06/10/06 11:36), Vivek Goyal didst pronounce:
+> On Fri, Oct 06, 2006 at 03:33:12PM +0100, Mel Gorman wrote:
+> > > Linux version 2.6.18-git22 (root@elm3b239) (gcc version 4.1.0 (SUSE Linux)) #2 SMP Thu Oct 5 19:05:36 PDT 2006
+> > > Command line: root=/dev/sda1 vga=791  ip=9.47.67.239:9.47.67.50:9.47.67.1:255.255.255.0 resume=/dev/sdb1 showopts earlyprintk=serial,ttyS0,57600 console=tty0 console=ttyS0,57600 autobench_args: root=/dev/sda1 ABAT:1160100417
+> > > BIOS-provided physical RAM map:
+> > >  BIOS-e820: 0000000000000000 - 000000000009ac00 (usable)
+> > >  BIOS-e820: 000000000009ac00 - 00000000000a0000 (reserved)
+> > >  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+> > >  BIOS-e820: 0000000000100000 - 00000000bff764c0 (usable)
+> > >  BIOS-e820: 00000000bff764c0 - 00000000bff98880 (ACPI data)
+> > >  BIOS-e820: 00000000bff98880 - 00000000c0000000 (reserved)
+> > >  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+> > >  BIOS-e820: 0000000100000000 - 0000000c00000000 (usable)
+> > 
+> > I continued what Steve was doing this morning to see could this be
+> > pinned down. After placing 'CHECK;' in a few places as suggested by
+> > Andi's check, the problem code was identified as that following in
+> > mm/bootmem.c#init_bootmem_core()
+> > 
+> >         mapsize = get_mapsize(bdata);
+> >         memset(bdata->node_bootmem_map, 0xff, mapsize);
+> > 
+> > That explains the value in the array at least. A few more printfs around
+> > this point printed out the following in the boot log
+> > 
+> > init_bootmem_core(0, 1909, 0, 12582912)
+> > init_bootmem_core: Calling memset(0xFFFF810000775000, 1572864)
+> > AAGH: afinfo corrupted at mm/bootmem.c:121
+> > 
+> > where;
+> > 
+> > 1909 == mapstart
+> > 0 == start
+> > 12582912 == end
+> > 1572864 == mapsize
+> > 
+> > mapstart, start and end being the parameters being passed to
+> > init_bootmem_core(). This means we are calling memset for the physical
+> > range 0x775000 -> 0x8F5000 which is in a usable range according to the
+> > BIOS-e820 map it appears.
+> > 
+> 
+> Hi Mel,
+> 
 
-I have another quick question: my device driver can expect up to 4
-different interrupts (from 4 hardware devices). Can I send a posix
-real-time signal (SIGRTMIN) using the kill_async interface and expect
-the kernel to queue these signals for delievery to the sleeping
-process? (Because if I use SIGIO it is possible that an incoming
-interrupt is lost because the kernel doesn't queue up normal signals,
-right?).
+Hi.
 
-Thanks,
-G.Sibi
+> Where is bss placed in physical memory? I guess bss_start and bss_stop
+> from System.map will tell us. That will confirm that above memset step is
+> stomping over bss. Then we have to just find that somewhere probably
+> we allocated wrong physical memory area for bootmem allocator map.
+> 
 
-On 10/6/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >
-> > My question is: is it safe to use the asynchronous notification
-> > mechanism within an interrupt handler? I see that this call acquires a
-> > bunch of locks before sending the signal to the process. Would this
-> > cause any deadlocking situations? Or should I resort to the top and
-> > bottom half approach for interrupt handling and handle the
-> > notification in the bottom half?
->
-> It may be possible - I have an old driver for custom hardware lying
-> around here, and it does this in the irq handler:
->
-> kill_fasync(&global.fasync_ptr, SIGIO, POLL_IN);
->
->
->
->         -`J'
-> --
->
+BSS is at 0x643000 -> 0x777BC4
+init_bootmem wipes from 0x777000 -> 0x8F7000
+
+So the BSS bytes from 0x777000 ->0x777BC4 (which looks very suspiciously
+pile a page alignment of addr & PAGE_MASK) gets set to 0xFF. One possible
+fix is below. It adds a check in bad_addr() to see if the BSS section is
+about to be used for bootmap. It Seems To Work For Me (tm) and illustrates
+the source of the problem even if it's not the 100% correct fix.
+
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.18-git22-clean/arch/x86_64/kernel/e820.c linux-2.6.18-git22-bss_relocate_fix/arch/x86_64/kernel/e820.c
+--- linux-2.6.18-git22-clean/arch/x86_64/kernel/e820.c	2006-10-05 20:42:07.000000000 +0100
++++ linux-2.6.18-git22-bss_relocate_fix/arch/x86_64/kernel/e820.c	2006-10-06 17:39:51.000000000 +0100
+@@ -51,6 +51,7 @@ extern struct resource code_resource, da
+ static inline int bad_addr(unsigned long *addrp, unsigned long size)
+ { 
+ 	unsigned long addr = *addrp, last = addr + size; 
++	unsigned long bss_start, bss_end;
+ 
+ 	/* various gunk below that needed for SMP startup */
+ 	if (addr < 0x8000) { 
+@@ -77,6 +78,14 @@ static inline int bad_addr(unsigned long
+ 		*addrp = __pa_symbol(&_end);
+ 		return 1;
+ 	}
++	
++	/* bss section */
++	bss_start = __pa_symbol(&__bss_start);
++	bss_end = PAGE_ALIGN(__pa_symbol(&__bss_stop));
++	if (addr >= bss_start && addr < bss_end) {
++		*addrp = bss_end;
++		return 1;
++	}
+ 
+ 	if (last >= ebda_addr && addr < ebda_addr + ebda_size) {
+ 		*addrp = ebda_addr + ebda_size;
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

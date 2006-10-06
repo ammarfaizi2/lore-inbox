@@ -1,56 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWJFAxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWJFA5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWJFAxG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 20:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWJFAxG
+	id S932519AbWJFA5S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 20:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWJFA5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 20:53:06 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:49260 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932513AbWJFAxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 20:53:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mViaR+bwcdEiHrywMG9hX/AwW5unxCj1XyeeT/mI5jFIaPhZY9hcbPOpmFXR+j5Se0xFD3FrL+bmQMXS/tSgIeDt9jWe21wyA7VenzzDtSnkUGQlDE8oRlmkj32fILA+SSA/PCavi8YchesjBj/4uzBG9DjKjpBE0oC2qYGBWXA=
-Message-ID: <513a5e60610051753o1dd828c4i52b8ba563601694a@mail.gmail.com>
-Date: Thu, 5 Oct 2006 19:53:02 -0500
-From: "Madhu Saravana Sibi Govindan" <ssshayagriva@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Using "Asynchronous Notifications" within an interrupt handler
-In-Reply-To: <513a5e60610051727t7f7c7b78u62410c4b8f8502a7@mail.gmail.com>
+	Thu, 5 Oct 2006 20:57:18 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:56715 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932519AbWJFA5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 20:57:18 -0400
+Message-ID: <4525A9E9.6080301@garzik.org>
+Date: Thu, 05 Oct 2006 20:57:13 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <513a5e60610051727t7f7c7b78u62410c4b8f8502a7@mail.gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+References: <200610051910.25418.ak@suse.de> <452564B9.4010209@garzik.org> <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org> <200610060052.46538.ak@suse.de> <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610051600440.3952@g5.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------090103010903080107050901"
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+This is a multi-part message in MIME format.
+--------------090103010903080107050901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'm developing a linux device driver for kernel version 2.16.15. I'm
-thinking of using the "Asynchronous Notification" mechanism, explained
-in the Linux Device Drivers book by Corbet and Rubini in Chapter 6,
-within an interrupt handler.
+Linus Torvalds wrote:
+> (And we should probably have the "pci=mmiocfg" kernel command line entry 
+> that forces MMIOCFG regardless of any e820 issues, even for normal 
+> accesses).
 
-The idea is: whenever the device driver receives an interrupt from the
-hardware device, the interrupt handler uses this 'asynchronous
-notification' mechanism to notify a user-level process of this
-interrupt. The user-level process, on the other hand, is waiting for
-this SIGIO signal from the device driver.
+Something like this?
 
-My question is: is it safe to use the asynchronous notification
-mechanism within an interrupt handler? I see that this call acquires a
-bunch of locks before sending the signal to the process. Would this
-cause any deadlocking situations? Or should I resort to the top and
-bottom half approach for interrupt handling and handle the
-notification in the bottom half?
 
-I'd be very thankful for suggestions/ideas on this topic.
+--------------090103010903080107050901
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-Regards and thanks in advance,
-G.Sibi
 
-PS: I've posted this to os_drivers@lists.osdl.org too. My apologies
-for the duplication.
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+---
+
+ arch/i386/pci/common.c     |    4 ++++
+ arch/i386/pci/mmconfig.c   |    3 ++-
+ arch/x86_64/pci/mmconfig.c |    3 ++-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/i386/pci/common.c b/arch/i386/pci/common.c
+index 68bce19..38d9f4f 100644
+--- a/arch/i386/pci/common.c
++++ b/arch/i386/pci/common.c
+@@ -237,6 +237,10 @@ #ifdef CONFIG_PCI_MMCONFIG
+ 		pci_probe &= ~PCI_PROBE_MMCONF;
+ 		return NULL;
+ 	}
++	else if (!strcmp(str, "mmconf")) {
++		pci_probe |= PCI_PROBE_MMCONF | PCI_NO_CHECKS;
++		return NULL;
++	}
+ #endif
+ 	else if (!strcmp(str, "noacpi")) {
+ 		acpi_noirq_set();
+diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+index d0c3da3..056cb0a 100644
+--- a/arch/i386/pci/mmconfig.c
++++ b/arch/i386/pci/mmconfig.c
+@@ -237,7 +237,8 @@ void __init pci_mmcfg_init(int type)
+ 
+ 	/* Only do this check when type 1 works. If it doesn't work
+ 	   assume we run on a Mac and always use MCFG */
+-	if (type == 1 && !e820_all_mapped(pci_mmcfg_config[0].base_address,
++	if ((type == 1) && (!(pci_probe & PCI_NO_CHECKS)) &&
++		!e820_all_mapped(pci_mmcfg_config[0].base_address,
+ 			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+ 			E820_RESERVED)) {
+ 		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
+diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+index 7732f42..d942fc7 100644
+--- a/arch/x86_64/pci/mmconfig.c
++++ b/arch/x86_64/pci/mmconfig.c
+@@ -209,7 +209,8 @@ void __init pci_mmcfg_init(int type)
+ 
+ 	/* Only do this check when type 1 works. If it doesn't work
+            assume we run on a Mac and always use MCFG */
+-	if (type == 1 && !e820_all_mapped(pci_mmcfg_config[0].base_address,
++	if ((type == 1) && (!(pci_probe & PCI_NO_CHECKS)) &&
++	     !e820_all_mapped(pci_mmcfg_config[0].base_address,
+ 			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+ 			E820_RESERVED)) {
+ 		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
+
+--------------090103010903080107050901--

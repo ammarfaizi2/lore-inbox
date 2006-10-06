@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWJFQVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWJFQVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWJFQVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWJFQVD
+	id S932435AbWJFQVf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWJFQVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:21:03 -0400
-Received: from xenotime.net ([66.160.160.81]:42970 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751391AbWJFQVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:21:01 -0400
-Date: Fri, 6 Oct 2006 09:22:28 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>
-Cc: Witold =?UTF-8?Q?W=C5=82adys=C5=82aw?= Wojciech Wilk 
-	<witold.wilk@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: how to get the kernel to be more "verbose"?
-Message-Id: <20061006092228.a22cf9ba.rdunlap@xenotime.net>
-In-Reply-To: <20061006073303.GA5105@cepheus.pub>
-References: <98975a8b0610052234p3287ab8fr70335f858ba4583b@mail.gmail.com>
-	<20061006073303.GA5105@cepheus.pub>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 6 Oct 2006 12:21:34 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:52529 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932435AbWJFQV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 12:21:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GjWu5A3n+pzeJg2nOnC2PyzE9rcA9rYCeBqtKwB2ou8l389sSjTfV7RSyWhR76m90zTKZjR6unYTXZoIgUTgr0R1TVB9qAJMWlfvASasT/nR9NU9Vv5m8gQG/HvNITuhCKBYSCm/l7+4fsJLFF6AvLL4V82Y1Oicf7UnQjXwvoQ=
+Message-ID: <d120d5000610060921q493a3f58n45285e6dcc037156@mail.gmail.com>
+Date: Fri, 6 Oct 2006 12:21:27 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH, RAW] IRQ: Maintain irq number globally rather than passing to IRQ handlers
+Cc: "Jeff Garzik" <jeff@garzik.org>, "David Howells" <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       "Ingo Molnar" <mingo@elte.hu>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>, "Thomas Gleixner" <tglx@linutronix.de>,
+       "Greg KH" <greg@kroah.com>, "David Brownell" <david-b@pacbell.net>,
+       "Alan Stern" <stern@rowland.harvard.edu>
+In-Reply-To: <Pine.LNX.4.64.0610060841320.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	 <18975.1160058127@warthog.cambridge.redhat.com>
+	 <4525A8D8.9050504@garzik.org>
+	 <1160133932.1607.68.camel@localhost.localdomain>
+	 <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu>
+	 <45263D9C.9030200@garzik.org> <452673AC.1080602@garzik.org>
+	 <Pine.LNX.4.64.0610060841320.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 09:33:03 +0200 Uwe Zeisberger wrote:
+On 10/6/06, Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Hello Witold,
-> 
-> Witold Władysław Wojciech Wilk wrote:
-> > I've tried using the /proc/config.gz provided by the default kernel,
-> > but to no avail.
-> Does this mean, you cannot find the config because /proc/config.gz
-> doesn't exist?  Then try /boot/config-2.6.8.  Maybe I misunderstood you?
->  
-> > The next step of loading the kernel I have seen in various logs is the
-> > TCP/IP stack, am I right? 
-> I think offically the initcalls are in no particular order, but in
-> practice in depends on the linking order.  For my kernel the next line
-> is
-> 
-> 	IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
+> In contrast, the irq argument itself is really no different from the
+> cookie we pass in on registration - it's just passing it back to the
+> driver that requested the thing. So unlike "regs", there's not really
+> anything strange about it, and there's nothing really "wrong" with having
+> it there.
+>
+> So I'm not at all as convinced about this one.
 
-They are in initcall section order and within those sections they
-are in link order.  From include/linux/init.h:
+But drivers rarely care about exact IRQ that caused their interrupt
+routines to be called. I looked at some of them and they normally use
+it just to print warnings which is not critical (and data can still be
+retrieved form elsewhere). And without it the only argument can very
+nicely be passed via a register (if regparm is allowed).
 
-/* initcalls are now grouped by functionality into separate 
- * subsections. Ordering inside the subsections is determined
- * by link order. 
- * For backwards compatibility, initcall() puts the call in 
- * the device init subsection.
- */
+Drivers that truly need to know IRQ can have it added to dev_id cookie
+and use separate dev_ids.
 
-#define __define_initcall(level,fn) \
-	static initcall_t __initcall_##fn __attribute_used__ \
-	__attribute__((__section__(".initcall" level ".init"))) = fn
-
-#define core_initcall(fn)		__define_initcall("1",fn)
-#define postcore_initcall(fn)		__define_initcall("2",fn)
-#define arch_initcall(fn)		__define_initcall("3",fn)
-#define subsys_initcall(fn)		__define_initcall("4",fn)
-#define fs_initcall(fn)			__define_initcall("5",fn)
-#define device_initcall(fn)		__define_initcall("6",fn)
-#define late_initcall(fn)		__define_initcall("7",fn)
-
-> > Any help? Please point me at something, I am trying for two weeks
-> > already, and I cannot find any problems like mine. Thanks a lot for
-> > any help.
-> You can try the "initcall_debug" kernel parameter to see which init
-> functions are called.
-
-You can also add "debug" to the boot options.  That will make the
-kernel more verbose, but beware, some distro's init scripts
-change the loglevel during bootup, so it may not have effect for
-very long.
-
-And if you have a second machine, you can use netconsole or serial
-console (depending on hardware) to capture boot messages.
-The "earlyprintk" option could help here.  Even without a second
-machine, using "earlyprintk=vga" might help.
-
----
-~Randy
+-- 
+Dmitry

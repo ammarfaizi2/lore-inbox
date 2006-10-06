@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422666AbWJFUAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422904AbWJFUAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422666AbWJFUAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWJFUAL
+	id S1422904AbWJFUAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWJFUAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:00:11 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:20905 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1422666AbWJFUAK (ORCPT
+	Fri, 6 Oct 2006 16:00:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19132 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422906AbWJFUAX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:00:10 -0400
-Message-ID: <4526B5BD.4030809@garzik.org>
-Date: Fri, 06 Oct 2006 15:59:57 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Val Henson <val_henson@linux.intel.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
-References: <1160161519800-git-send-email-matthew@wil.cx> <11601615192857-git-send-email-matthew@wil.cx> <4526AB43.7030809@garzik.org> <20061006192842.GO2563@parisc-linux.org>
-In-Reply-To: <20061006192842.GO2563@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Fri, 6 Oct 2006 16:00:23 -0400
+Date: Fri, 6 Oct 2006 13:00:07 -0700
+From: Judith Lebzelter <judith@osdl.org>
+To: Judith Lebzelter <judith@osdl.org>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Kconfig dependency !VT for VIOCONS
+Message-ID: <20061006200007.GD3684@shell0.pdx.osdl.net>
+References: <20061006180549.GB3684@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061006180549.GB3684@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Fri, Oct 06, 2006 at 03:15:15PM -0400, Jeff Garzik wrote:
->> Matthew Wilcox wrote:
->>> Also, pci_set_mwi() will fail if the cache line
->>> size is 0, so we don't need to check that ourselves any more.
->> NAK, not true on all arches.  sparc64 at least presumes that the 
->> firmware DTRT with cacheline size, which hurts us now given this tulip patch
+Actually, this gets rid of the CONFIG_VIOCONS from my .config, but 
+then I get another warning when I build:
+
+Warning! Found recursive dependency: VT VIOCONS VT
+
+Can anyone suggest something?
+
+Thanks,
+Judith
+
+On Fri, Oct 06, 2006 at 11:05:49AM -0700, Judith Lebzelter wrote:
+> From: Judith Lebzelter <judith@osdl.org>
 > 
-> How does it hurt us?
+> Add Kconfig dependency !VT for VIOCONS
 > 
-> int pcibios_prep_mwi(struct pci_dev *dev)
-> {
->         /* We set correct PCI_CACHE_LINE_SIZE register values for every
->          * device probed on this platform.  So there is nothing to check
->          * and this always succeeds.
->          */
->         return 0;
-> }
+> I would like to avoid this compile error in 'allmodconfig':
+> drivers/char/viocons.c:52:2: error: #error You must turn off CONFIG_VT to use CONFIG_VIOCONS
 > 
-> If Dave's wrong about that, it hurts him, not us ;-)
+> Signed-off-by: Judith Lebzelter <judith@osdl.org>
+> ---
 > 
-> It's still not necessary for the Tulip driver to check.
-
-The unmodified tulip driver checks both MWI and cacheline-size because 
-one of the clones (PNIC or PNIC2) will let you set the MWI bit, but 
-hardwires cacheline size to zero.
-
-If the arches do not behave consistently, we need to keep the check in 
-the tulip driver, to avoid incorrectly programming the csr0 MWI bit.
-
-	Jeff
-
-
-
+> Index: linux/arch/powerpc/platforms/iseries/Kconfig
+> ===================================================================
+> --- linux.orig/arch/powerpc/platforms/iseries/Kconfig	2006-10-05 09:35:09.000000000 -0700
+> +++ linux/arch/powerpc/platforms/iseries/Kconfig	2006-10-06 10:30:19.333425703 -0700
+> @@ -4,6 +4,7 @@
+>  
+>  config VIOCONS
+>  	tristate "iSeries Virtual Console Support (Obsolete)"
+> +	depends on !VT
+>  	help
+>  	  This is the old virtual console driver for legacy iSeries.
+>  	  You should use the iSeries Hypervisor Virtual Console
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev

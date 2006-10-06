@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWJFLyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWJFLyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWJFLyb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWJFLyb
+	id S932204AbWJFLyy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWJFLyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:54:31 -0400
-Received: from mail.gmx.net ([213.165.64.20]:6569 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932192AbWJFLya convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:54:30 -0400
-X-Authenticated: #19095397
-From: Bernd Schubert <bernd-schubert@gmx.de>
-To: Jan Kara <jack@suse.cz>
-Subject: Re: quota problem with 2.6.15.7
-Date: Fri, 6 Oct 2006 13:55:10 +0200
-User-Agent: KMail/1.9.4
-Cc: reiserfs-list@namesys.org, linux-kernel@vger.kernel.org
-References: <200609021557.03885.bernd-schubert@gmx.de> <20060905091924.GC3830@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060905091924.GC3830@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 6 Oct 2006 07:54:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56998 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932204AbWJFLyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:54:53 -0400
+Date: Fri, 6 Oct 2006 13:55:07 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH 1/3] Fix IO error reporting on fsync()
+Message-ID: <20061006115507.GD14533@atrey.karlin.mff.cuni.cz>
+References: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610061355.11146.bernd-schubert@gmx.de>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jan,
+When IO error happens during async write, we have to mark buffer as having IO
+error too. Otherwise IO error reporting for filesystems like ext2 does not
+work.
 
-On Tuesday 05 September 2006 11:19, Jan Kara wrote:
->   Hmm, the trace looks strange... It is definitely mixed with some old
-> data. We definitely reached reiserfs_quota_on() but didn't reach
-> vfs_quota_on() so it seems we crashed somewhere in path_lookup() (also
-> link_path_walk() in the beginning of the trace suggests that). That's
-> generic VFS code so maybe this is nothing quota specific. So this looks
-> quite hard to debug if there's no reasonable way of reproducing it.
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-I couldn't reproduce it with a vanilla kernel, but just was told (from the 
-people who compiled the patched kernel) that its due to lustre patches.
-
-
-Thanks again for your help,
-Bernd
-
--- 
-Bernd Schubert
-PCI / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg
-
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.18/fs/buffer.c linux-2.6.18-1-mark_error_buffer/fs/buffer.c
+--- linux-2.6.18/fs/buffer.c	2006-09-27 13:08:34.000000000 +0200
++++ linux-2.6.18-1-mark_error_buffer/fs/buffer.c	2006-10-06 13:05:29.000000000 +0200
+@@ -589,6 +589,7 @@ static void end_buffer_async_write(struc
+ 			       bdevname(bh->b_bdev, b));
+ 		}
+ 		set_bit(AS_EIO, &page->mapping->flags);
++		set_buffer_write_io_error(bh);
+ 		clear_buffer_uptodate(bh);
+ 		SetPageError(page);
+ 	}

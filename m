@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWJFRPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422764AbWJFRSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422767AbWJFRPE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422761AbWJFRPC
+	id S1422764AbWJFRSG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422763AbWJFRSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:15:02 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17106 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422764AbWJFRPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:15:00 -0400
-Date: Fri, 6 Oct 2006 10:14:53 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Tommaso Cucinotta <cucinotta@sssup.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: In-kernel precise timing.
-In-Reply-To: <45259F9F.1050203@sssup.it>
-Message-ID: <Pine.LNX.4.64.0610061011500.14591@schroedinger.engr.sgi.com>
-References: <45259F9F.1050203@sssup.it>
+	Fri, 6 Oct 2006 13:18:05 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:7301 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1422764AbWJFRSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:18:02 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45268FB1.6080605@s5r6.in-berlin.de>
+Date: Fri, 06 Oct 2006 19:17:37 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bcollins@debian.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: ohci1394 regression in 2.6.19-rc1
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <200610052132.11544.s0348365@sms.ed.ac.uk> <4525842F.3040109@s5r6.in-berlin.de> <200610052337.17805.s0348365@sms.ed.ac.uk> <452593AC.3000406@s5r6.in-berlin.de> <45266042.4060107@s5r6.in-berlin.de>
+In-Reply-To: <45266042.4060107@s5r6.in-berlin.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006, Tommaso Cucinotta wrote:
+I wrote:
+> I saw the messages and the delay that you described now too, using Linux
+> 2.6.18 + all IEEE 1394 updates. I will continue to narrow the cause down.
 
-> I'd like to know what is the preferrable way,
-> in a Linux kernel module, to get a notification
-> at a time in the future so to avoid as much as
-> possible unpredictable delays due to possible
-> device driver interferences. Basically, I would
-> like to use such a mechanism to preempt (also)
-> real-time tasks for the purpose of temporally
-> isolating them from among each other.
-> 
-> Is there any prioritary mechanism for specifying
-> kind of higher priority timers, to be served as
-> soon as possible, vs. lower priority ones, that
-> could be e.g. delayed to ksoftirqd and similar ?
-> (referring to 2.6.17/18, currently using add_timer(),
-> del_timer(), but AFAICS these primitives are more
-> appropriate for "timeout" behaviours, rather than
-> "precise timing" ones).
+It's as I suspected:
+"ieee1394: nodemgr: switch to kthread api, replace reset semaphore"
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=d2f119fe319528da8c76a1107459d6f478cbf28c
 
-This is possible via a hardware interrupt. HPET chips and also the PIT 
-provide the ability to schedule an ihterrupts in the future. The periodic 
-timer tick is such a mechanism that is also used by the scheduler to 
-preempt processes. If the interrupt has sufficiently high priority then 
-you could avoid many interrupt holdoffs. However, you may not be able to 
-do much since you have no process context. Plus this may be nothing else 
-than duplicating already existing functionality.
+Before that, I get a selfID-complete event, then nodemgr starts its
+work. After that its the reverse, which lets nodemgr inject a packet
+before the bus is completely ready. (So it's actually a regression in
+ieee1394 core's high-level functions, not in ohci1394. And it's harmless.)
 
+I will post when I have a fix.
+-- 
+Stefan Richter
+-=====-=-==- =-=- --==-
+http://arcgraph.de/sr/

@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422815AbWJFS0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422821AbWJFS1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422815AbWJFS0u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 14:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJFS0u
+	id S1422821AbWJFS1l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 14:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422822AbWJFS1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 14:26:50 -0400
-Received: from stella.eotvos.elte.hu ([193.225.226.189]:31505 "EHLO
-	stella.eotvos.elte.hu") by vger.kernel.org with ESMTP
-	id S1422815AbWJFS0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 14:26:50 -0400
-Date: Fri, 6 Oct 2006 20:26:42 +0200 (CEST)
-From: Czigola Gabor <czigola@elte.hu>
-X-X-Sender: czigola@kamorka
-To: linux-kernel@vger.kernel.org
-Subject: root MD array is still in use upon shutdown possible fix
-Message-ID: <Pine.LNX.4.64.0610062006460.25341@kamorka>
+	Fri, 6 Oct 2006 14:27:41 -0400
+Received: from gate.perex.cz ([85.132.177.35]:7906 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1422821AbWJFS1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 14:27:40 -0400
+Date: Fri, 6 Oct 2006 20:27:38 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: [ALSA PATCH] alsa-git merge request
+Message-ID: <Pine.LNX.4.61.0610062025300.8573@tm8103.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-EC-Spam-Score: -2.8
-X-EC-Spam-Report: spam=No; required=5.9; autolearn=failed; bayesian_score=0.5;
-	stars=;
-	scanned=stella.eotvos.elte.hu; Fri, 06 Oct 2006 20:26:46 +0200;
-	scanner=SpamAssassin 3.0.3 2005-04-27;
-	tests=ALL_TRUSTED;
-	blacklisted_at=<dns:elte.hu?type=MX> [10 mx3.mail.elte.hu., 10 mx2.mail.elte.hu.]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Linus, please do an update from:
 
-When my root filesystem is on an MD (RAID5) array, I can't cleanly shut 
-down (trying to change the array ro, even when nothing else than the 
-kernel threads and init and one bash are running, and the root fs is ro 
-remounted), because I've got "md: md0 still in use" kernel messages. 
-Usually it doesn't cause any problems, but it possibly could leave the 
-array in an inconsistent state (resync required after reboot).
+  http://www.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+  (linus branch)
 
-I made a patch for md.c, based on the thread on "Can't get md array to 
-shut down cleanly" started at 2006-07-06 on linux-raid@vger.
+The GNU patch is available at:
 
-The problem is reproducible on kernel v. 2.6.17.5 and 2.6.17.11, this 
-patch is made for the latter.
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-10-06.patch.gz
 
-Please check this patch, for me it does work, but I'm not sure, that it 
-doesn't break something else. I'm not on the list, please CC me.
+Additional notes:
 
-Here is the diff for drivers/md/md.c:
+  This patch group contains only serious bugfixes and new device IDs.
 
-2789c2789
-< 		if (atomic_read(&mddev->active)>2) {
----
-> 		if (atomic_read(&mddev->active)>2 && !ro) {
 
--- 
-Czigola, Gabor
+The following files will be updated:
+
+ include/sound/core.h             |    4 +-
+ include/sound/version.h          |    6 +-
+ sound/core/hwdep.c               |    3 +
+ sound/core/init.c                |   92 +++++++++++++++++++++-----------------
+ sound/isa/es18xx.c               |    1 
+ sound/pci/ac97/ac97_patch.c      |    7 ++-
+ sound/pci/au88x0/au88x0.c        |    1 
+ sound/pci/emu10k1/emu10k1_main.c |    4 +-
+ sound/pci/hda/hda_intel.c        |    1 
+ sound/pci/hda/patch_realtek.c    |    4 ++
+ sound/pci/hda/patch_si3054.c     |    5 ++
+ sound/usb/usx2y/usbusx2yaudio.c  |   18 ++-----
+ sound/usb/usx2y/usx2yhwdeppcm.c  |   17 ++-----
+ 13 files changed, 89 insertions(+), 74 deletions(-)
+
+
+The following things were done:
+
+Amol Lad:
+      [ALSA] sound/pci/au88x0/au88x0.c: ioremap balanced with iounmap
+
+Arnaud Patard:
+      [ALSA] emu10k1: Fix outl() in snd_emu10k1_resume_regs()
+
+Dan Cyr:
+      [ALSA] hda-intel - New pci id for Nvidia MCP61
+
+Eric Sesterhenn:
+      [ALSA] Fix memory leak in sound/isa/es18xx.c
+
+Florin Malita:
+      [ALSA] Dereference after free in snd_hwdep_release()
+
+Jaroslav Kysela:
+      [ALSA] version 1.0.13
+
+Karsten Wiese:
+      [ALSA] Fix bug in snd-usb-usx2y's usX2Y_pcms_lock_check()
+      [ALSA] Repair snd-usb-usx2y for usb 2.6.18
+      [ALSA] Handle file operations during snd_card disconnects using static file->f_op
+
+Luke Zhang:
+      [ALSA] WM9712 fixes for ac97_patch.c
+
+Sasha Khapyorsky:
+      [ALSA] hda/patch_si3054: new codec vendor IDs
+
+Tobin Davis:
+      [ALSA] Add new subdevice ids for hda-intel
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

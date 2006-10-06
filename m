@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWJFFeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWJFFfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWJFFeW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 01:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWJFFeW
+	id S1751373AbWJFFfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 01:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWJFFfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 01:34:22 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:12419 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751358AbWJFFeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 01:34:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=qxX/A5xmF5Sl9Gq+haA5Fbi+RARjlazYKNMzR3vyfA7TNQ5HDgdgNa7W71pR5HzOY/c71AjvKKIiMT53L5DhE68zjrXJJE950BfTalGpJLvDy1i4jMxaEPrF5hQV6+6enRVyfsjobnxC1jNqf9C930g0Bpb+2ISjX+QaUCHUOJI=
-Message-ID: <98975a8b0610052234p3287ab8fr70335f858ba4583b@mail.gmail.com>
-Date: Fri, 6 Oct 2006 07:34:20 +0200
-From: "=?ISO-8859-2?Q?Witold_W=B3adys=B3aw_Wojciech_Wilk?=" 
-	<witold.wilk@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: how to get the kernel to be more "verbose"?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 6 Oct 2006 01:35:33 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:15030 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1751360AbWJFFfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 01:35:32 -0400
+Subject: [PATCH 1/9] sound/oss/btaudio.c: ioremap balanced with iounmap
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 06 Oct 2006 11:08:52 +0530
+Message-Id: <1160113132.19143.128.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ioremap must be balanced by an iounmap and failing to do so can result
+in a memory leak.
 
-I have a problem on my machine, it's the Asus A6M laptop (amd sempron
-3200+, 2gb ram, 80gb disk, (still unknown sound card), realtek 8168
-ethernet, broadcom wireless, geforce go6100 etc), using debian amd64
-port stable.
+Tested (compilation only):
+- using allmodconfig
+- making sure the files are compiling without any warning/error due to
+new changes
 
-I simply cannot compile a bootable kernel. Every single one hangs at a
-single point:
-NET: Registered protocol family 2
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+Forwarding to lkml as got no response from linux-sound
+---
+ btaudio.c |    2 ++
+ 1 files changed, 2 insertions(+)
+---
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/sound/oss/btaudio.c linux-2.6.19-rc1/sound/oss/btaudio.c
+--- linux-2.6.19-rc1-orig/sound/oss/btaudio.c	2006-09-21 10:15:52.000000000 +0530
++++ linux-2.6.19-rc1/sound/oss/btaudio.c	2006-10-05 15:21:32.000000000 +0530
+@@ -1013,6 +1013,7 @@ static int __devinit btaudio_probe(struc
+         return 0;
+ 
+  fail4:
++	iounmap(bta->mmio);
+ 	unregister_sound_dsp(bta->dsp_analog);
+  fail3:
+ 	if (digital)
+@@ -1051,6 +1052,7 @@ static void __devexit btaudio_remove(str
+         free_irq(bta->irq,bta);
+ 	release_mem_region(pci_resource_start(pci_dev,0),
+ 			   pci_resource_len(pci_dev,0));
++	iounmap(bta->mmio);
+ 
+ 	/* remove from linked list */
+ 	if (bta == btaudios) {
 
-(I am writing from my memory).
 
-It does not produce an oops, does not produce anything, just gets
-stuck, no disk usage after this, simply the machine is totally
-hang-up. Rebooting has to be done by the service reset button. The
-power button doesn't even work.
-
-I've tried differendt editions from 2.6.8 to the current. The 2.6.8 is
-shipped with debian port to amd64 - and the default debian kernel
-boots up. But I need the wi-fi broadcom card - that is quite new.
-
-I've tried using the /proc/config.gz provided by the default kernel,
-but to no avail.
-
-The next step of loading the kernel I have seen in various logs is the
-TCP/IP stack, am I right? I've tried mutiple types of networking
-config (router, non router, with/without ipv6, etc). But it still
-hangs up.
-
-Always in the same place. There is no output even with all the
-possible debugging options compiled in.
-
-Can You in some extent point me where to look for errors, what could
-it be? Is there any way of loading a kernel on top of the default
-kernel, so when it crashes I can trace the problem somehow?
-
-Also, I've tried both gcc 3.3 and 3.4.
-
-Any help? Please point me at something, I am trying for two weeks
-already, and I cannot find any problems like mine. Thanks a lot for
-any help.
--- 
-Witold Wladyslaw Wojciech Wilk Et39m:+48605066384 gg3211630 (lepiej @)
-prr: giant boulder'02 @13kkm - brak czasu :( / tychy-sosnowiec-gliwice
-pms: vw golf 2 byl, juz sprzedany :) / pierwszeimie.nazwisko@gmail.com
-pms/kc: citroen xantia mkI 2.0 8v 1995 225kkm/17kkm hydrokomfortowa :)

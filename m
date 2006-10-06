@@ -1,63 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422838AbWJFSrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422839AbWJFSve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422838AbWJFSrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 14:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422840AbWJFSrM
+	id S1422839AbWJFSve (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 14:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422834AbWJFSve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 14:47:12 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16393 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422837AbWJFSrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 14:47:10 -0400
-Date: Fri, 6 Oct 2006 20:47:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alex Romosan <romosan@sycorax.lbl.gov>
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org
-Subject: 2.6.19-rc1 regression: airo suspend fails
-Message-ID: <20061006184706.GR16812@stusta.de>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <871wpmoyjv.fsf@sycorax.lbl.gov>
+	Fri, 6 Oct 2006 14:51:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44248 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1422839AbWJFSvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 14:51:33 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@gmail.com>
+Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
+References: <20061005212216.GA10912@rhun.haifa.ibm.com>
+	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610060855220.3952@g5.osdl.org>
+	<m1hcyh1hqz.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610061102010.3952@g5.osdl.org>
+Date: Fri, 06 Oct 2006 12:48:55 -0600
+In-Reply-To: <Pine.LNX.4.64.0610061102010.3952@g5.osdl.org> (Linus Torvalds's
+	message of "Fri, 6 Oct 2006 11:08:08 -0700 (PDT)")
+Message-ID: <m1r6xlz3e0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <871wpmoyjv.fsf@sycorax.lbl.gov>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 09:31:16PM -0700, Alex Romosan wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > so please give it a good testing, and let's see if there are any 
-> > regressions.
-> 
-> it breaks suspend when the airo module is loaded:
-> 
-> kernel: Stopping tasks: =================================================================================
-> kernel:  stopping tasks timed out after 20 seconds (1 tasks remaining):
-> kernel:   eth1
-> kernel: Restarting tasks...<6> Strange, eth1 not stopped
-> 
-> if i remove the airo module suspend works normally (this is on a
-> thinkpad t40).
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Thanks for your report.
+> On Fri, 6 Oct 2006, Eric W. Biederman wrote:
+>> 
+>> Forcing irqs to specific cpus is not something this patch adds.  That
+>> is the way the ioapic routes irqs.
+>
+> What that patch adds is to make it an ERROR if some irq goes to an 
+> unexpected cpu.
+>
+> And that very much is wrong. 
 
-Let's try to figure out what broke it.
+Agreed. Not recovering from an irq that hits the wrong cpu if we
+can recover from it is a problem.   That part must be fixed.
 
-As a first step, please replace drivers/net/wireless/airo.c with the 
-version in 2.6.18 and check whether this fixes the issue (you can ignore 
-the deprecated warning during compilation).
+>> Yes.  A single problem over several months of testing has been found.
+>
+> Umm. It got found the moment it became part of the standard tree.
+>
+> The fact is, "months of testing" is not actually very much, if it's the 
+> -mm tree. That's at best a "good vetting", but it really doesn't prove 
+> anything.
 
-> --alex--
+I'm not trying to prove anything just saying that I tried.
+All it shows is that there are an interesting subset of systems that
+work.
 
-cu
-Adrian
+The fact that the system that failed has a comparatively low volume
+chipset from IBM let's me entertain my an atypical hardware hypothesis.
 
--- 
+>> So this is fairly fundamentally an irq migration problem.  If you
+>> never change which cpu an irq is pointed at you don't have problems,
+>> as there are no races.
+>
+> So? Does that change the issue that this new model seems inherently racy?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+If it is inherently racy, (i.e. it cannot be fixed) I don't have a
+problem removing the code.
 
+>> The current irq migration logic does everything in the irq handler
+>> after an irq has been received so we can avoid various kinds of races.
+>
+> No. You don't understand, or you refuse to face the issue.
+>
+> The races are in _hardware_, outside the CPU. The fact that we do things 
+> in an irq handler doesn't seem to change a lot.
+
+(as an aside the problem does not appear on the irq migration path
+ because the kernel has not made it far enough for that to be
+ possible)
+
+I think I don't understand the race you see.  I believe the premise
+the irq migration code works under is that while an irq is pending
+a second irq will not be sent from the ioapic.
+
+If that premise is true, and we disable that irq on the ioapic,
+while the irq is still pending that should successfully prevent
+the hardware from sending any further instances of that irq while we
+manipulate it's routing.
+
+There are a few more details but that is why I think that path is
+safe.
+
+> And what do you intend to do if it turns out that the reason it doesn't 
+> work on x366 is that the _hardware_ just is incompatible with your
+> model?
+
+If the code is fundamentally unfixable the code must go.
+
+> I'm not saying that's the case, and maybe there's some stupid bug that has 
+> been overlooked, and maybe it can all work fine. But the new model _does_ 
+> seem to be at least _potentially_ fundamentally broken.
+
+The BUG_ON certainly is, I will work up a patch to get rid of that.
+I'm hoping to understand how it could possibly happen before I fix
+that now that I have a reproducer of that condition, because it may
+influence the fix.  But dropping an irq on the floor is certainly
+better then crashing the entire system. 
+
+Eric

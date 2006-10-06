@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWJFTKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWJFTLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbWJFTKb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 15:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422657AbWJFTKb
+	id S932315AbWJFTLl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 15:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWJFTLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 15:10:31 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:62911 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1422647AbWJFTKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 15:10:30 -0400
-Date: Fri, 6 Oct 2006 21:09:07 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Olaf Hering <olaf@aepfle.de>
-cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] fix mesh compile errors after irq changes
-In-Reply-To: <20061006185310.GA6757@aepfle.de>
-Message-ID: <Pine.LNX.4.62.0610062108300.23747@pademelon.sonytel.be>
-References: <20061002132116.2663d7a3.akpm@osdl.org>
- <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
- <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
- <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
- <20061006185310.GA6757@aepfle.de>
+	Fri, 6 Oct 2006 15:11:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44991 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932315AbWJFTLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 15:11:39 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061003170032.GA30036@in.ibm.com>
+	<20061003172511.GL3164@in.ibm.com>
+	<20061003201340.afa7bfce.akpm@osdl.org>
+	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
+	<20061004214403.e7d9f23b.akpm@osdl.org>
+	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+	<20061004233137.97451b73.akpm@osdl.org>
+	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+	<20061005235909.75178c09.akpm@osdl.org>
+	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
+	<20061006183846.GF19756@in.ibm.com> <4526A66B.4030805@zytor.com>
+Date: Fri, 06 Oct 2006 13:09:34 -0600
+In-Reply-To: <4526A66B.4030805@zytor.com> (H. Peter Anvin's message of "Fri,
+	06 Oct 2006 11:54:35 -0700")
+Message-ID: <m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006, Olaf Hering wrote:
-> drivers/scsi/mesh.c:469: error: too many arguments to function 'mesh_interrupt'
-> drivers/scsi/mesh.c:507: error: too many arguments to function 'mesh_interrupt'
-> 
-> Signed-off-by: Olaf Hering <olaf@aepfle.de>
-> 
-> ---
->  drivers/scsi/mesh.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> Index: linux-2.6/drivers/scsi/mesh.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/scsi/mesh.c
-> +++ linux-2.6/drivers/scsi/mesh.c
-> @@ -466,7 +466,7 @@ static void mesh_start_cmd(struct mesh_s
->  				dlog(ms, "intr b4 arb, intr/exc/err/fc=%.8x",
->  				     MKWORD(mr->interrupt, mr->exception,
->  					    mr->error, mr->fifo_count));
-> -				mesh_interrupt(0, (void *)ms, NULL);
-> +				mesh_interrupt(0, (void *)ms);
-                                                  ^^^^^^^^
->  				if (ms->phase != arbitrating)
->  					return;
->  			}
-> @@ -504,7 +504,7 @@ static void mesh_start_cmd(struct mesh_s
->  		dlog(ms, "intr after disresel, intr/exc/err/fc=%.8x",
->  		     MKWORD(mr->interrupt, mr->exception,
->  			    mr->error, mr->fifo_count));
-> -		mesh_interrupt(0, (void *)ms, NULL);
-> +		mesh_interrupt(0, (void *)ms);
-                                  ^^^^^^^^
-These casts are superfluous, right?
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Gr{oetje,eeting}s,
+> Vivek Goyal wrote:
+>>>
+>> Hi Eric,
+>> I have added cld in the regenerated patch below.
+>
+> No, the cld needs to be earlier.  It turns out this isn't the first use of
+> string instructions.
 
-						Geert
+Can we rely on the int calls not setting df?  Otherwise we need to clear
+df at each use as we do with all of the later uses.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> I think I am going to add DF=0 as a documented entry condition; it definitely
+> seems all current Linux kernels require it.
+>
+>> Also one more minor nit. stosb relies on being %es set properly. By the
+>> time control reaches loader_ok, i could not find %es being set explicitly
+>> hence I am assuming we are relying on bootloader to set it up for us. Maybe we
+>> can be little more paranoid and setup the %es before stosb. I
+>> have done this change too in the attached patch. Pleaese have a look.
+>> I know little about assembly code.
+>
+> %es being set is part of the requirements list, although it *would* be better to
+> not rely on any segment registers being set at all (only rely on %cs.)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Agreed.
+
+Eric
+

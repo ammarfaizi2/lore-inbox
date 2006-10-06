@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWJFOJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWJFOQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWJFOJI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 10:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJFOJI
+	id S932358AbWJFOQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 10:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWJFOQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 10:09:08 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:45264 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S932349AbWJFOJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 10:09:06 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Pavel Machek <pavel@ucw.cz>, linux-usb-devel@lists.sourceforge.net,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Fri, 6 Oct 2006 16:09:45 +0200
-User-Agent: KMail/1.8
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610060904.51936.oliver@neukum.org> <20061006112742.GL29353@elf.ucw.cz>
-In-Reply-To: <20061006112742.GL29353@elf.ucw.cz>
+	Fri, 6 Oct 2006 10:16:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:7838 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932354AbWJFOQZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 10:16:25 -0400
+Message-ID: <45266523.9040408@garzik.org>
+Date: Fri, 06 Oct 2006 10:16:03 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org>	 <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>	 <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>	 <18975.1160058127@warthog.cambridge.redhat.com>	 <4525A8D8.9050504@garzik.org>	 <1160133932.1607.68.camel@localhost.localdomain>	 <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu>	 <45263D9C.9030200@garzik.org> <20061006112550.GA21733@elte.hu> <d120d5000610060707p13a9e97fkcb1219164da3f2d1@mail.gmail.com>
+In-Reply-To: <d120d5000610060707p13a9e97fkcb1219164da3f2d1@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610061609.45796.oliver@neukum.org>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 6. Oktober 2006 13:27 schrieben Sie:
-> > with being required to down the interfaces to do so. Suspension should
-> > be as transparent as possible.
+Dmitry Torokhov wrote:
+> On 10/6/06, Ingo Molnar <mingo@elte.hu> wrote:
+>>
+>> * Jeff Garzik <jeff@garzik.org> wrote:
+>>
+>> > >but pt_regs is alot less frequently used than irq - and where it's
+>> > >used they arent "drivers" but mostly arch level code like hw-timer
+>> > >handlers.
+>> >
+>> > Nonetheless the -vast majority- of drivers don't use the argument at
+>> > all, and the minority that do use it are not modern drivers.
+>>
+>> i'm all for changing that too :)
+>>
 > 
-> What you want is fairly hard to implement in kernel, and it is not
-> clear if it is kernel job after all. "Transparent" is nice, but
-> "simple kernel code" is nice, too.
-> 
-> If you have very simple&easy&nice&transparent kernel code that can do
-> what you want, fine; but maybe we want to trade "transparent" for
-> "KISS".
+> What drivers use irq argument? I know i8042 does but only to detect
+> whether interrupt routine was called because irq was raised or it was
+> called manually and I can use dev_id for that...
 
-It seems to me that a network driver needs to have the ability to drop
-packets onto the floor while disconnect() is running. In the case of
-a disconnection triggered by usbfs a lack of this ability is a race condition.
-I've done an implementation of kaweth which allows suspending the interface
-while it is alive.
+Ancient ISA legacys, a few powermac drivers, and a lot of printk's. 
+Your gut instinct is correct -- outside of printk, it is largely used to 
+differentiate callers.
 
-	Regards
-		Oliver
+	Jeff
+
+
 

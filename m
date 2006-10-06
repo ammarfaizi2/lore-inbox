@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751660AbWJFCU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWJFCWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751660AbWJFCU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 22:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751663AbWJFCU1
+	id S1751663AbWJFCWF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 22:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWJFCWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 22:20:27 -0400
-Received: from c-71-197-74-6.hsd1.ca.comcast.net ([71.197.74.6]:48791 "EHLO
-	nofear.bounceme.net") by vger.kernel.org with ESMTP
-	id S1751660AbWJFCU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 22:20:27 -0400
-Message-ID: <4525BD61.80400@syphir.sytes.net>
-Date: Thu, 05 Oct 2006 19:20:17 -0700
-From: "C.Y.M" <syphir@syphir.sytes.net>
-Reply-To: syphir@syphir.sytes.net
-Organization: CooLNeT
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at fs/inotify.c:181 with linux-2.6.18
-References: <452581D7.5020907@syphir.sytes.net> <4525B546.7070305@yahoo.com.au>
-In-Reply-To: <4525B546.7070305@yahoo.com.au>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Oct 2006 22:22:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57573 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751663AbWJFCWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Oct 2006 22:22:04 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 2.6.19-rc1] Fix do_mbind warning with CONFIG_MIGRATION=n
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 06 Oct 2006 12:21:18 +1000
+Message-ID: <6526.1160101278@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> C.Y.M wrote:
->> Since I updated to 2.6.18, I have had the following warnings in my
->> syslog.  Is
->> this a known problem? Better yet, is there a solution to this?  I am
->> running on
->> a i686 (Athlon XP) 32 bit cpu compiled under gcc-3.4.6.
->>
->>
->> Oct  5 08:27:31 sid kernel: BUG: warning at
->> fs/inotify.c:181/set_dentry_child_flags()
->> Oct  5 08:27:31 sid kernel:  [<c0182a10>]
->> set_dentry_child_flags+0x170/0x190
->> Oct  5 08:27:31 sid kernel:  [<c0182adf>] remove_watch_no_event+0x5f/0x70
->> Oct  5 08:27:31 sid kernel:  [<c0182b08>]
->> inotify_remove_watch_locked+0x18/0x50
->> Oct  5 08:27:31 sid kernel:  [<c01833dc>] inotify_rm_wd+0x6c/0xb0
->> Oct  5 08:27:31 sid kernel:  [<c0183e98>] sys_inotify_rm_watch+0x38/0x60
->> Oct  5 08:27:31 sid kernel:  [<c0102d8f>] syscall_call+0x7/0xb
-> 
-> I don't think it is a known problem. Is it reproduceable? Any idea what
-> is making the inotify syscalls?
-> 
+With CONFIG_MIGRATION=n
 
-The warning messages start about an hour or two after I boot into the 2.6.18
-kernel.  I am not doing anything on the machine when it happens.  I don't see
-any new processes starting up at that time either.  As soon as I boot back to
-2.6.17.13, there are no more problems.  Also, the machine is not running X when
-it occurs.
+mm/mempolicy.c: In function 'do_mbind':
+mm/mempolicy.c:796: warning: passing argument 2 of 'migrate_pages' from incompatible pointer type
 
-root@sid:~$ grep BUG /var/log/syslog
-Oct  5 08:27:31 sid kernel: BUG: warning at
-fs/inotify.c:181/set_dentry_child_flags()
-Oct  5 11:46:36 sid kernel: BUG: warning at
-fs/inotify.c:181/set_dentry_child_flags()
-Oct  5 13:24:50 sid kernel: BUG: warning at
-fs/inotify.c:181/set_dentry_child_flags()
-Oct  5 15:17:55 sid kernel: BUG: warning at
-fs/inotify.c:181/set_dentry_child_flags()
-Oct  5 16:40:10 sid kernel: BUG: warning at
-fs/inotify.c:181/set_dentry_child_flags()
+Signed-off-by: Keith Owens <kaos@ocs.com.au>
+
+---
+ mm/mempolicy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux/mm/mempolicy.c
+===================================================================
+--- linux.orig/mm/mempolicy.c
++++ linux/mm/mempolicy.c
+@@ -727,7 +727,7 @@ int do_migrate_pages(struct mm_struct *m
+ 	return -ENOSYS;
+ }
+ 
+-static struct page *new_vma_page(struct page *page, unsigned long private)
++static struct page *new_vma_page(struct page *page, unsigned long private, int **x)
+ {
+ 	return NULL;
+ }
 
 
-Best Regards.

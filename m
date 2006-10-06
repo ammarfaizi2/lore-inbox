@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422981AbWJFVhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422984AbWJFViM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422981AbWJFVhR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 17:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422984AbWJFVhR
+	id S1422984AbWJFViM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 17:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422982AbWJFViM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 17:37:17 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:57387 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1422982AbWJFVhP (ORCPT
+	Fri, 6 Oct 2006 17:38:12 -0400
+Received: from mail.impinj.com ([206.169.229.170]:44149 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S1422983AbWJFViL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 17:37:15 -0400
-X-IronPort-AV: i="4.09,273,1157353200"; 
-   d="scan'208"; a="415716431:sNHT16042840"
-Subject: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Andrew Morton <akpm@osdl.org>, Steve Dickson <SteveD@redhat.com>
+	Fri, 6 Oct 2006 17:38:11 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 5/5] fdtable: Extensive fs/file.c cleanups.
+Date: Fri, 6 Oct 2006 14:38:07 -0700
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+References: <200610052152.29013.vlobanov@speakeasy.net> <20061006132258.39fc58ed.akpm@osdl.org>
+In-Reply-To: <20061006132258.39fc58ed.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Fri, 06 Oct 2006 17:37:09 -0400
-Message-Id: <1160170629.5453.34.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 06 Oct 2006 21:37:24.0785 (UTC) FILETIME=[9CDB4A10:01C6E98F]
+Content-Disposition: inline
+Message-Id: <200610061438.07702.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If try_to_release_page() is called with a zero gfp mask, then the
-filesystem is effectively denied the possibility of sleeping while
-attempting to release the page. There doesn't appear to be any valid
-reason why this should be banned, given that we're not calling this from
-a memory allocation context.
- 
-For this reason, change the gfp_mask argument of the call to GFP_KERNEL.
-    
-Note: I am less sure of what the callers of invalidate_complete_page()
-require, and so this patch does not touch that mask.
+On Friday 06 October 2006 13:22, Andrew Morton wrote:
+> On Thu, 5 Oct 2006 21:52:28 -0700
+>
+> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+> > As long as the previous patch replaces the guts of fs/file.c, it makes
+> > sense to tidy up all the code within. This work includes:
+> > 	code simplification via refactoring,
+> > 	elimination of unnecessary code paths,
+> > 	extensive commenting throughout the entire file, and
+> > 	other minor cleanups and consistency tweaks.
+> > This patch does not contain any functional modifications.
+> >
+> > This is the last patch in the series. All the code should now be sparkly
+> > clean.
+>
+> This (wordwrapped) patch should have been the first in the series, not the
+> last.
 
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-diff --git a/mm/truncate.c b/mm/truncate.c
-index f4edbc1..49c1ffd 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -302,7 +302,7 @@ invalidate_complete_page2(struct address
- 	if (page->mapping != mapping)
- 		return 0;
- 
--	if (PagePrivate(page) && !try_to_release_page(page, 0))
-+	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
- 		return 0;
- 
- 	write_lock_irq(&mapping->tree_lock);
+Didn't know. Was hoping to gather this kind of feedback after the first 
+submission attempt.
+
+> So I'll drop this one.
+
+This patch still has a lot of useful (and I'd argue necessary) fixes for 
+incorrect comments and confusing code ordering. It's especially nice for 
+those who might try to understand what's going on inside fs/file.c, so seems 
+a shame to drop it. I could...
+	... hold on to it until the other fdtable changes hit mainline.
+		or
+	... redo this one with just the bare essentials.
+		or
+	... drop it completely.
+
+-- Vadim Lobanov

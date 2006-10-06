@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWJFQFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWJFQIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWJFQFK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWJFQFJ
+	id S1751550AbWJFQIS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWJFQIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:05:09 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:63880 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932111AbWJFQFI (ORCPT
+	Fri, 6 Oct 2006 12:08:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14563 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751550AbWJFQIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:05:08 -0400
-Message-Id: <200610061605.k96G56iB007083@laptop13.inf.utfsm.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc1 (git 49f19ce401edfff937c448dd74c22497da361889)
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Fri, 06 Oct 2006 12:05:06 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 06 Oct 2006 12:05:06 -0400 (CLT)
+	Fri, 6 Oct 2006 12:08:17 -0400
+Date: Fri, 6 Oct 2006 09:07:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+In-Reply-To: <1160132630.3000.98.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0610060906140.3952@g5.osdl.org>
+References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de>
+  <45255D34.804@garzik.org> <200610052142.29692.ak@suse.de> 
+ <452564B9.4010209@garzik.org>  <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
+ <1160132630.3000.98.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On sparc64 I'm getting:
 
-  CC      arch/sparc64/kernel/irq.o
-In file included from arch/sparc64/kernel/irq.c:24:
-include/linux/irq.h:24:26: error: asm/irq_regs.h: No such file or directory
-arch/sparc64/kernel/irq.c: In function 'handler_irq':
-arch/sparc64/kernel/irq.c:561: error: too many arguments to function '__do_IRQ'
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+
+On Fri, 6 Oct 2006, Arjan van de Ven wrote:
+>
+> we can do a tiny bit better than the current code; some chipsets have
+> the address of the MMIO region stored in their config space; so we can
+> get to that using the old method and validate the acpi code with that.
+
+Yes. I think trusting ACPI is _always_ a mistake. It's insane. We should 
+never ask the firmware for any data that we can just figure out ourselves.
+
+And we should tell all hardware companies that firmware tables are stupid, 
+and that we just want to know what the hell the registers MEAN!
+
+I've certainly tried to tell Intel that. I think they may even have heard 
+me occasionally.
+
+I can't understand why some people _still_ think ACPI is a good idea..
+
+		Linus

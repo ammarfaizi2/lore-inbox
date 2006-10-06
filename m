@@ -1,79 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWJFO4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWJFOz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWJFO4I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 10:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWJFO4A
+	id S932394AbWJFOz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 10:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWJFOz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 10:56:00 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:50854
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1422694AbWJFOzo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 10:55:44 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Really good idea to allow mmap(0, FIXED)?
-Date: Fri, 6 Oct 2006 16:55:32 +0200
-User-Agent: KMail/1.9.4
-References: <200610052059.11714.mb@bu3sch.de>
-In-Reply-To: <200610052059.11714.mb@bu3sch.de>
+	Fri, 6 Oct 2006 10:55:57 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:64425 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422697AbWJFOzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 10:55:45 -0400
+Date: Fri, 6 Oct 2006 16:55:46 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [S390] Use CONFIG_GENERIC_TIME and define TOD clock source.
+Message-ID: <20061006145546.GF26371@skybase>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610061655.32249.mb@bu3sch.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, some people have good points against special casing
-address 0 here. That's fine.
-But: I think, if we don't protect from remapping address 0,
-we should _really_ take NULL pointer dereference bugs more serious.
-Every NULL pointer dereference bug should be checked for the
-possibility of unprivileged users controlling the kernel.
-I think currently NULL pointer dereferece bugs are not seen as
-a security vulnerability by most people. In future we
-should look at the bugs more closely and check if this is a
-security vulnerability or just a "crash my app" bug.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
+[S390] Use CONFIG_GENERIC_TIME and define TOD clock source.
 
-On Thursday 05 October 2006 20:59, Michael Buesch wrote:
-> Hi,
-> 
-> This question has already been discussed here in the past, but
-> we did not come to a good result. So I want to ask the question again:
-> 
-> Is is really a good idea to allow processes to remap something
-> to address 0?
-> I say no, because this can potentially be used to turn rather harmless
-> kernel bugs into a security vulnerability.
-> 
-> Let's say we have some kernel NULL pointer dereference bug somewhere,
-> that's rather harmless, if it happens in process context and
-> does not leak any resources on segfaulting the triggering app.
-> So the worst thing that happens is a crashing app. Yeah, this bug must
-> be fixed. But my point is that this bug can probably be used to
-> manipulate the way the kernel works or even to inject code into
-> the kernel from userspace.
-> 
-> Attached to this mail is an example. The kernel module represents
-> the actual "kernel-bug". Its whole purpose in this example is to
-> introduce a user-triggerable NULL pointer dereference.
-> Please stop typing now, if you are typing something like
-> "If you can load a kernel module, you have access to the kernel anyway".
-> This is different. We always _had_ and most likely _have_ NULL pointer
-> dereference bugs in the kernel.
-> 
-> The example programm injects a magic value 0xB15B00B2 into the
-> kernel, which is printk'ed on success.
-> 
-> In my opinion, this should be forbidden by disallowing mmapping
-> to address 0. A NULL pointer dereference is such a common bug, that
-> it is worth protecting against.
-> Besides that, I currently don't see a valid reason to mmap address 0.
-> 
-> Comments?
-> 
+Fix too slow clock by using CONFIG_GENERIC_TIME and adding a
+clock source for the s390 time-of-day clock. As added benefit
+we get rid of the s390 specific definition of do_gettimeofday
+and do_settimeofday.
 
--- 
-Greetings Michael.
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ arch/s390/Kconfig       |    3 +
+ arch/s390/defconfig     |    1 
+ arch/s390/kernel/time.c |   88 ++++++++++--------------------------------------
+ 3 files changed, 24 insertions(+), 68 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/defconfig linux-2.6-patched/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	2006-10-06 16:29:54.000000000 +0200
++++ linux-2.6-patched/arch/s390/defconfig	2006-10-06 16:30:02.000000000 +0200
+@@ -9,6 +9,7 @@ CONFIG_STACKTRACE_SUPPORT=y
+ CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+ CONFIG_GENERIC_HWEIGHT=y
+ CONFIG_GENERIC_CALIBRATE_DELAY=y
++CONFIG_GENERIC_TIME=y
+ CONFIG_S390=y
+ CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
+ 
+diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	2006-10-06 16:29:26.000000000 +0200
++++ linux-2.6-patched/arch/s390/Kconfig	2006-10-06 16:30:02.000000000 +0200
+@@ -30,6 +30,9 @@ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+ 
++config GENERIC_TIME
++	def_bool y
++
+ config GENERIC_BUST_SPINLOCK
+ 	bool
+ 
+diff -urpN linux-2.6/arch/s390/kernel/time.c linux-2.6-patched/arch/s390/kernel/time.c
+--- linux-2.6/arch/s390/kernel/time.c	2006-10-06 16:30:00.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/time.c	2006-10-06 16:30:02.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include <linux/profile.h>
+ #include <linux/timex.h>
+ #include <linux/notifier.h>
++#include <linux/clocksource.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/delay.h>
+@@ -82,74 +83,6 @@ void tod_to_timeval(__u64 todval, struct
+ 	xtime->tv_nsec = ((todval * 1000) >> 12);
+ }
+ 
+-static inline unsigned long do_gettimeoffset(void) 
+-{
+-	__u64 now;
+-
+-	now = (get_clock() - jiffies_timer_cc) >> 12;
+-	now -= (__u64) jiffies * USECS_PER_JIFFY;
+-	return (unsigned long) now;
+-}
+-
+-/*
+- * This version of gettimeofday has microsecond resolution.
+- */
+-void do_gettimeofday(struct timeval *tv)
+-{
+-	unsigned long flags;
+-	unsigned long seq;
+-	unsigned long usec, sec;
+-
+-	do {
+-		seq = read_seqbegin_irqsave(&xtime_lock, flags);
+-
+-		sec = xtime.tv_sec;
+-		usec = xtime.tv_nsec / 1000 + do_gettimeoffset();
+-	} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
+-
+-	while (usec >= 1000000) {
+-		usec -= 1000000;
+-		sec++;
+-	}
+-
+-	tv->tv_sec = sec;
+-	tv->tv_usec = usec;
+-}
+-
+-EXPORT_SYMBOL(do_gettimeofday);
+-
+-int do_settimeofday(struct timespec *tv)
+-{
+-	time_t wtm_sec, sec = tv->tv_sec;
+-	long wtm_nsec, nsec = tv->tv_nsec;
+-
+-	if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
+-		return -EINVAL;
+-
+-	write_seqlock_irq(&xtime_lock);
+-	/* This is revolting. We need to set the xtime.tv_nsec
+-	 * correctly. However, the value in this location is
+-	 * is value at the last tick.
+-	 * Discover what correction gettimeofday
+-	 * would have done, and then undo it!
+-	 */
+-	nsec -= do_gettimeoffset() * 1000;
+-
+-	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - sec);
+-	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - nsec);
+-
+-	set_normalized_timespec(&xtime, sec, nsec);
+-	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
+-
+-	ntp_clear();
+-	write_sequnlock_irq(&xtime_lock);
+-	clock_was_set();
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(do_settimeofday);
+-
+-
+ #ifdef CONFIG_PROFILING
+ #define s390_do_profile()	profile_tick(CPU_PROFILING)
+ #else
+@@ -340,6 +273,22 @@ void init_cpu_timer(void)
+ 
+ extern void vtime_init(void);
+ 
++static cycle_t read_tod_clock(void)
++{
++	return get_clock();
++}
++
++static struct clocksource clocksource_tod = {
++	.name		= "tod",
++	.rating		= 100,
++	.read		= read_tod_clock,
++	.mask		= -1ULL,
++	.mult		= 1000,
++	.shift		= 12,
++	.is_continuous	= 1,
++};
++
++
+ /*
+  * Initialize the TOD clock and the CPU timer of
+  * the boot cpu.
+@@ -384,6 +333,9 @@ void __init time_init(void)
+ 					      &ext_int_info_cc) != 0)
+                 panic("Couldn't request external interrupt 0x1004");
+ 
++	if (clocksource_register(&clocksource_tod) != 0)
++		panic("Could not register TOD clock source");
++
+         init_cpu_timer();
+ 
+ #ifdef CONFIG_NO_IDLE_HZ

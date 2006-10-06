@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWJFLUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWJFLVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWJFLUO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWJFLUO
+	id S932075AbWJFLVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWJFLVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:20:14 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37020 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750784AbWJFLUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:20:10 -0400
-Subject: Re: Really good idea to allow mmap(0, FIXED)?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17702.12704.868782.312125@alkaid.it.uu.se>
-References: <200610052059.11714.mb@bu3sch.de>
-	 <eg4624$be$1@taverner.cs.berkeley.edu>
-	 <1160119515.3000.89.camel@laptopd505.fenrus.org>
-	 <17702.12704.868782.312125@alkaid.it.uu.se>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 06 Oct 2006 13:20:05 +0200
-Message-Id: <1160133606.3000.101.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 6 Oct 2006 07:21:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18833 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932075AbWJFLVP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:21:15 -0400
+Date: Fri, 6 Oct 2006 13:21:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Message-ID: <20061006112105.GI29353@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0610051219500.6596-100000@iolanthe.rowland.org> <200610051835.21704.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200610051835.21704.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-06 at 12:36 +0200, Mikael Pettersson wrote:
-> Arjan van de Ven writes:
->  > >     mmap(0, 4096, PROT_READ|PROT_EXEC|PROT_WRITE,
->  > >         MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
->  > >     struct s *bar = 0;
->  > 
->  > the question isn't if it's a good idea to allow mmap(0) but to allow
->  > mmap PROT_WRITE | PROT_EXEC !
+On Thu 2006-10-05 18:35:21, Oliver Neukum wrote:
+> Am Donnerstag, 5. Oktober 2006 18:21 schrieb Alan Stern:
+> > Currently we don't have any userspace APIs for such a daemon to use.  The 
+> > only existing API is deprecated and will go away soon.
 > 
-> It is if you want JITs, code loaders, virtualisation engines, etc
-> to continue working.
+> I trust it'll be replaced.
 
-yeah I know we can't forbid it point blank
-(having said that, on architectures where I and D cache aren't coherent
-(and there are many, including ia64), most of these are buggy anyway;
-the sane ones actually do an mprotect between writing and executing, so
-that the kernel can take care of the cache coherency properly)
+It does not seem that API was that useful after all.
+
+> > Current thinking is that a driver will suspend its device whenever the 
+> > device isn't in use.  With usblp, that would be whenever the device file 
+> > isn't open.  See the example code in usb-skeleton.c.
+> 
+> In the general case the idea seems insufficient. If I close my laptop's lid
+> I want all input devices suspended, whether the corresponding files are
+> opened or not. In fact, if I have port level power control I might even
+> want to cut power to them.
+
+I do not see how this is useful.
+								Pavel
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

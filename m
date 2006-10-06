@@ -1,106 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422952AbWJFUyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422957AbWJFU6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422952AbWJFUyX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422953AbWJFUyX
+	id S1422957AbWJFU6j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422960AbWJFU6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:54:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7628 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422952AbWJFUyW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:54:22 -0400
-Date: Fri, 6 Oct 2006 13:54:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/9] sound/oss/dmasound/dmasound_awacs.c: ioremap
- balanced with iounmap
-Message-Id: <20061006135410.7b4cdc24.akpm@osdl.org>
-In-Reply-To: <1160113133.19143.130.camel@amol.verismonetworks.com>
-References: <1160113133.19143.130.camel@amol.verismonetworks.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Oct 2006 16:58:39 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:11737 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1422957AbWJFU6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 16:58:38 -0400
+Date: Fri, 6 Oct 2006 16:58:36 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] 2.6.19-rc1 boot failure--ops in mpu401_init?
+Message-ID: <20061006205836.GC18026@fieldses.org>
+References: <20061006204358.GB18026@fieldses.org> <1160167993.17615.0.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160167993.17615.0.camel@mindpipe>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Oct 2006 11:08:53 +0530
-Amol Lad <amol@verismonetworks.com> wrote:
+On Fri, Oct 06, 2006 at 04:53:13PM -0400, Lee Revell wrote:
+> On Fri, 2006-10-06 at 16:43 -0400, J. Bruce Fields wrote:
+> > I also probably won't have time to try a git-bisect in the next few
+> > days, though I could try it eventually if it'd help. 
+> 
+> Thanks for the report.  Problem is known and fixed in later releases.
+> See the LKML/alsa-devel thread "Driver core: Don't ignore error returns
+> from probing".
 
-> Signed-off-by: Amol Lad <amol@verismonetworks.com>
-> ---
->  dmasound_awacs.c |   39 +++++++++++++++++++++++++++++++++++----
->  1 files changed, 35 insertions(+), 4 deletions(-)
-> ---
-> diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/sound/oss/dmasound/dmasound_awacs.c linux-2.6.19-rc1/sound/oss/dmasound/dmasound_awacs.c
-> --- linux-2.6.19-rc1-orig/sound/oss/dmasound/dmasound_awacs.c	2006-10-05 14:01:04.000000000 +0530
-> +++ linux-2.6.19-rc1/sound/oss/dmasound/dmasound_awacs.c	2006-10-05 17:34:42.000000000 +0530
-> @@ -3067,8 +3067,9 @@ printk("dmasound_pmac: Awacs/Screamer Co
->  		udelay(1);
->  
->  	/* Initialize beep stuff */
-> -	if ((res=setup_beep()))
-> -		return res ;
-> +	res=setup_beep();
-> +	if (res)
-> +		goto out_unmap;
->  
->  #ifdef CONFIG_PM
->  	pmu_register_sleep_notifier(&awacs_sleep_notifier);
-> @@ -3160,7 +3161,26 @@ printk("dmasound_pmac: Awacs/Screamer Co
->  	 */
->  	input_register_device(awacs_beep_dev);
->  
-> -	return dmasound_init();
-> +	res = dmasound_init();
-> +	if (res)
-> +		goto out_unmap1;
-> +
-> +	return 0;
-> +	
-> +out_unmap1:
-> +	if (is_pbook_3X00)
-> +		iounmap(latch_base);
-> +	else if (is_pbook_g3)
-> +		iounmap(macio_base);
-> +out_unmap:
-> +	if (i2s_node)
-> +		iounmap(i2s);
-> +	else
-> +		iounmap(awacs);
-> +	iounmap(awacs_txdma);
-> +	iounmap(awacs_rxdma);
-> +
-> +	return res;
->  }
->  
->  static void __exit dmasound_awacs_cleanup(void)
-> @@ -3177,8 +3197,19 @@ static void __exit dmasound_awacs_cleanu
->  			daca_cleanup();
->  			break;
->  	}
-> -	dmasound_deinit();
->  
-> +	if (is_pbook_3X00)
-> +		iounmap(latch_base);
-> +	else if (is_pbook_g3)
-> +		iounmap(macio_base);
-> +	if (i2s_node)
-> +		iounmap(i2s);
-> +	else
-> +		iounmap(awacs);
-> +	iounmap(awacs_txdma);
-> +	iounmap(awacs_rxdma);
-> +
-> +	dmasound_deinit();
->  }
->  
-
-man, this is taxing my attention span to the limit.  It'd be nice if
-someone else could help out with the reviewing here..
-
-This one could benefit from having a helper function which is called from
-both places.
-
-
+OK, thanks.--b.

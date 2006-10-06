@@ -1,77 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbWJFHVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbWJFHUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbWJFHVO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 03:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWJFHVO
+	id S1161077AbWJFHUH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 03:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWJFHUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 03:21:14 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:57519 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1161081AbWJFHVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 03:21:13 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Fri, 6 Oct 2006 09:21:51 +0200
-User-Agent: KMail/1.8
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <Pine.LNX.4.44L0.0610051732190.7346-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0610051732190.7346-100000@iolanthe.rowland.org>
+	Fri, 6 Oct 2006 03:20:07 -0400
+Received: from holoclan.de ([62.75.158.126]:152 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1161077AbWJFHUF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 03:20:05 -0400
+Date: Fri, 6 Oct 2006 09:18:12 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: 2.6.19-rc1 lost ACPI events after suspend
+Message-ID: <20061006071812.GD21470@gimli>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-thinkpad@linux-thinkpad.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610060921.52186.oliver@neukum.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  *Waving hallo again* After partially solving one problem
+	another occurs... With my most recent kernel [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 5. Oktober 2006 23:45 schrieb Alan Stern:
-> On Thu, 5 Oct 2006, Oliver Neukum wrote:
-> 
-> > I have a few observations, but no solution either:
-> > - if root tells a device to suspend, it shall do so
-> 
-> Probably everyone will agree on that.
+*Waving hallo again*
 
-But should it stay suspended until explictely resumed? Do we have
-consensus on that?
+After partially solving one problem another occurs...
 
-> > - the issues of manual & automatic suspend and remote wakeup are orthogonal
-> 
-> Except for the fact that remote wakeup kicks in only when a device is 
-> suspended.
+With my most recent kernel 
 
-Yes.
- 
-> > - there should be a common API for all devices
-> 
-> It would be nice, wouldn't it?  But we _already_ have several vastly
-> different power-management APIs.  Consider for example DPMI and IDE 
-> spindown.
+commit d223a60106891bfe46febfacf46b20cd8509aaad
+tree ca81ba555de7a9a68605ef98f13fbc027439cdd2
+parent 77dc2db6d1d2703ee4e83d4b3dbecf4e06a910e6
+author Linus Torvalds <torvalds@g5.osdl.org> Wed, 04 Oct 2006 19:57:05 -0700
 
-No reason to make matters worse.
- 
-> > - there's no direct connection between power save and open()
-> 
-> Why shouldn't a device always be put into a power-saving mode whenever it 
-> isn't open?  Agreed, you might want to reduce its power usage at times 
-> even when it is open...
+with additional patch tp_smapi 0.30 
 
-That and you are putting the latency/power choice into kernel space.
-I've seen GPS recievers that need 30 seconds to get a fix. Autosuspend
-needs to be in kernel space. But that doesn't mean that it is sufficient
-as a mechanism nor that it doesn't need parameters supplied from
-user space.
+I can suspend exactly twice. will say, after second wakeup I don't get 
+any ACPI events. I already searched for error messages in the logs and 
+found this:
 
-> > The question when a device is in use is far from trivial.
-> 
-> Yes.  It has to be decided by each individual driver.  For simple 
-> character-oriented devices, "open" is a good first start.
+Oct  6 08:49:09 gimli kernel: [45058.156000] ACPI Exception (evxface-0545):
+AE_BAD_PARAMETER, Removing notify handler [20060707]
 
-Yes. However, simple character devices are the first candidates for
-libusb so kernel space is left with the hard cases.
+it occurs on unloading ibm_acpi module after resume
+reloading ibm_acpi dosen't change anything
 
-	Regards
-		Oliver
+one message that is in the log for the first suspend/resume but not in the
+second is 
+- Breaking affinity for irq 219
+
+and in the second I see this, which I guess has nothing to do with my
+problem...
+
++ e1000: eth0: e1000_watchdog: NIC Link is Down
++ BUG: warning at drivers/pci/msi.c:680/pci_enable_msi()
++  [<c0103bbd>] dump_trace+0x69/0x1af
++  [<c0103d1b>] show_trace_log_lvl+0x18/0x2c
++  [<c01043ba>] show_trace+0xf/0x11
++  [<c01044bd>] dump_stack+0x15/0x17
++  [<c0208d36>] pci_enable_msi+0x78/0x22e
++  [<c025808b>] e1000_open+0x64/0x176
++  [<c029b281>] dev_open+0x2b/0x62
++  [<c0299d8f>] dev_change_flags+0x47/0xe4
++  [<c02cde47>] devinet_ioctl+0x252/0x556
++  [<c0290ffa>] sock_ioctl+0x19e/0x1c2
++  [<c01697df>] do_ioctl+0x1f/0x62
++  [<c0169a67>] vfs_ioctl+0x245/0x257
++  [<c0169ac5>] sys_ioctl+0x4c/0x67
++  [<c0102da7>] syscall_call+0x7/0xb
++ DWARF2 unwinder stuck at syscall_call+0x7/0xb
++
++ Leftover inexact backtrace:
++
++  =======================
+
+the complete logs are attached
+
+
+gruss
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

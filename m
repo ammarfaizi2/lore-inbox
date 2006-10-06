@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWJFQIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbWJFQLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751550AbWJFQIS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWJFQIR
+	id S1751561AbWJFQLi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWJFQLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:08:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14563 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751550AbWJFQIR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:08:17 -0400
-Date: Fri, 6 Oct 2006 09:07:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
-In-Reply-To: <1160132630.3000.98.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0610060906140.3952@g5.osdl.org>
-References: <200610051910.25418.ak@suse.de> <200610051953.23510.ak@suse.de>
-  <45255D34.804@garzik.org> <200610052142.29692.ak@suse.de> 
- <452564B9.4010209@garzik.org>  <Pine.LNX.4.64.0610051536590.3952@g5.osdl.org>
- <1160132630.3000.98.camel@laptopd505.fenrus.org>
+	Fri, 6 Oct 2006 12:11:38 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:34387 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751560AbWJFQLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 12:11:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=EUrNJwRFePIyD2KCO3sPKiGryo59hWLjV3gjNEhbqq5M/j1JI5XFVrYFb0mXJDqdRComSF+7Ohk80Ml7crBetEhJvZdmKYX90IAjRLyw2/qOYNBMdtLjNQjCPU4F2ZgQolFjZ5eftZOjCkJLMk/wnuv1cfkWKDt72CfmnsRDk68=
+Reply-To: andrew.j.wade@gmail.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Date: Fri, 6 Oct 2006 12:11:27 -0400
+User-Agent: KMail/1.9.1
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       tim.c.chen@linux.intel.com, "Jeremy Fitzhardinge" <jeremy@goop.org>,
+       herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
+References: <B41635854730A14CA71C92B36EC22AAC3F3FBA@mssmsx411> <20061005143748.2f6594a2.akpm@osdl.org>
+In-Reply-To: <20061005143748.2f6594a2.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610061211.30184.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 05 October 2006 17:37, Andrew Morton wrote:
+> 
+> So how's this look?
+> 
+> I worry a bit that someone's hardware might go and prefetch that static
+> variable even when we didn't ask it to.  Can that happen?
 
+     Branch mispredictions might cause spurious fetches. But the
+unlikely() should take care of that for the (presumably common)
+!__warned case.
 
-On Fri, 6 Oct 2006, Arjan van de Ven wrote:
->
-> we can do a tiny bit better than the current code; some chipsets have
-> the address of the MMIO region stored in their config space; so we can
-> get to that using the old method and validate the acpi code with that.
+> ...
+> 
+> It would seem logical to mark the static variable as __read_mostly too. But  
+> it would be wrong, because that would put it back into the vmlinux image, and
+> the kernel will never read from this variable in normal operation anyway. 
 
-Yes. I think trusting ACPI is _always_ a mistake. It's insane. We should 
-never ask the firmware for any data that we can just figure out ourselves.
+And if that's the case they should probably be in amongst write-hot
+variables so as to reduce cache-line ping-ponging. __read_mostly should
+probably be called __read_hot_write_cold, see
+http://lkml.org/lkml/2006/6/26/290 .
 
-And we should tell all hardware companies that firmware tables are stupid, 
-and that we just want to know what the hell the registers MEAN!
+> Unless the compiler or hardware go and do some prefetching on us?
 
-I've certainly tried to tell Intel that. I think they may even have heard 
-me occasionally.
+The compiler doesn't, at least not GCC 4. I wouldn't expect it to
+hoist loads out of non-loop blocks.
 
-I can't understand why some people _still_ think ACPI is a good idea..
+> For some reason this patch shrinks softirq.o text by 40 bytes.
 
-		Linus
+The compiler optimizes out __ret_warn_once; it didn't do that before.
+
+The patch looks good to me, though I am still baffled as to why the
+cache misses were occurring.
+
+Andrew Wade

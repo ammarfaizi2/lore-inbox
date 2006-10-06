@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422759AbWJFRO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWJFRPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422759AbWJFRO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422761AbWJFRO1
+	id S1422767AbWJFRPE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422761AbWJFRPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:14:27 -0400
-Received: from mail.codesourcery.com ([65.74.133.4]:60396 "EHLO
-	mail.codesourcery.com") by vger.kernel.org with ESMTP
-	id S1422759AbWJFRO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:14:26 -0400
-Date: Fri, 6 Oct 2006 17:14:24 +0000 (UTC)
-From: "Joseph S. Myers" <joseph@codesourcery.com>
-X-X-Sender: jsm28@digraph.polyomino.org.uk
-To: linux-kernel@vger.kernel.org
-cc: David Woodhouse <dwmw2@infradead.org>
-Subject: [PATCH] Remove "#ifdef linux" from linux/a.out.h
-Message-ID: <Pine.LNX.4.64.0610061712110.18057@digraph.polyomino.org.uk>
+	Fri, 6 Oct 2006 13:15:02 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17106 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1422764AbWJFRPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:15:00 -0400
+Date: Fri, 6 Oct 2006 10:14:53 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Tommaso Cucinotta <cucinotta@sssup.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: In-kernel precise timing.
+In-Reply-To: <45259F9F.1050203@sssup.it>
+Message-ID: <Pine.LNX.4.64.0610061011500.14591@schroedinger.engr.sgi.com>
+References: <45259F9F.1050203@sssup.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The <linux/a.out.h> header contains "#ifdef linux".  GCC's fixincludes
-then creates its own copy of the installed header with this changed to
-"#ifdef __linux__".  There should be no need for "#ifdef linux" in
-Linux kernel headers, so this patch removes the conditional.  With
-this patch, fixincludes (from GCC 4.1) makes no changes to the headers
-installed by "make headers_install" on MIPS (I haven't tested on other
-architectures).
+On Fri, 6 Oct 2006, Tommaso Cucinotta wrote:
 
-Signed-off-by: Joseph Myers <joseph@codesourcery.com>
----
-Index: include/linux/a.out.h
-===================================================================
---- include/linux/a.out.h
-+++ include/linux/a.out.h
-@@ -127,7 +127,6 @@
- #define SEGMENT_SIZE PAGE_SIZE
- #endif
- 
--#ifdef linux
- #include <asm/page.h>
- #if defined(__i386__) || defined(__mc68000__)
- #define SEGMENT_SIZE	1024
-@@ -136,7 +135,6 @@
- #define SEGMENT_SIZE	PAGE_SIZE
- #endif
- #endif
--#endif
- 
- #define _N_SEGMENT_ROUND(x) ALIGN(x, SEGMENT_SIZE)
- 
+> I'd like to know what is the preferrable way,
+> in a Linux kernel module, to get a notification
+> at a time in the future so to avoid as much as
+> possible unpredictable delays due to possible
+> device driver interferences. Basically, I would
+> like to use such a mechanism to preempt (also)
+> real-time tasks for the purpose of temporally
+> isolating them from among each other.
+> 
+> Is there any prioritary mechanism for specifying
+> kind of higher priority timers, to be served as
+> soon as possible, vs. lower priority ones, that
+> could be e.g. delayed to ksoftirqd and similar ?
+> (referring to 2.6.17/18, currently using add_timer(),
+> del_timer(), but AFAICS these primitives are more
+> appropriate for "timeout" behaviours, rather than
+> "precise timing" ones).
 
+This is possible via a hardware interrupt. HPET chips and also the PIT 
+provide the ability to schedule an ihterrupts in the future. The periodic 
+timer tick is such a mechanism that is also used by the scheduler to 
+preempt processes. If the interrupt has sufficiently high priority then 
+you could avoid many interrupt holdoffs. However, you may not be able to 
+do much since you have no process context. Plus this may be nothing else 
+than duplicating already existing functionality.
 
-
--- 
-Joseph S. Myers
-joseph@codesourcery.com

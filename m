@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWJFFUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWJFFVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbWJFFUa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 01:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbWJFFUa
+	id S932590AbWJFFVx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 01:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWJFFVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 01:20:30 -0400
-Received: from xenotime.net ([66.160.160.81]:17372 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932586AbWJFFUa (ORCPT
+	Fri, 6 Oct 2006 01:21:53 -0400
+Received: from hera.kernel.org ([140.211.167.34]:14237 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932584AbWJFFVw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 01:20:30 -0400
-Date: Thu, 5 Oct 2006 22:21:56 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Matt LaPlante <kernel1@cyberdogtech.com>
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 19-rc1]  Fix typos in /Documentation : 'T''
-Message-Id: <20061005222156.437070f9.rdunlap@xenotime.net>
-In-Reply-To: <20061005220633.62dd8ab0.kernel1@cyberdogtech.com>
-References: <20061005220633.62dd8ab0.kernel1@cyberdogtech.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Oct 2006 01:21:52 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Jan Dittmer <jdi@l4x.org>
+Subject: Re: [PATCH] misc,acpi,backlight: MSI S270 Laptop support, fifth try
+Date: Fri, 6 Oct 2006 01:23:14 -0400
+User-Agent: KMail/1.8.2
+Cc: Lennart Poettering <mzxreary@0pointer.de>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, dtor@insightbb.com, akpm@osdl.org
+References: <20061004024927.GA27716@ecstasy.ring2.lan> <45235042.4090201@l4x.org>
+In-Reply-To: <45235042.4090201@l4x.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610060123.15013.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Oct 2006 22:06:33 -0400 Matt LaPlante wrote:
+On Wednesday 04 October 2006 02:10, Jan Dittmer wrote:
+> Lennart Poettering wrote:
 
-> This patch fixes typos in various Documentation txts. The patch addresses some words starting with the letter 'T'.  
-> 
-> Signed-off-by: Matt LaPlante <kernel1@cyberdogtech.com>
+> > diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+> This part is still spaces only. The help text should be indented
+> by tab + 2 spaces.
 
-Thanks, Matt.
+fixed.
+thanks,
+-Len

@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWJFLRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWJFLUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWJFLRr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWJFLRr
+	id S1750847AbWJFLUM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWJFLUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:17:47 -0400
-Received: from mail01.verismonetworks.com ([164.164.99.228]:8378 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1750706AbWJFLRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:17:46 -0400
-Subject: Re: [PATCH 4/5] ioremap balanced with iounmap for
-	drivers/char/rio/rio_linux.c
-From: Amol Lad <amol@verismonetworks.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1160133715.1607.64.camel@localhost.localdomain>
-References: <1160110628.19143.89.camel@amol.verismonetworks.com>
-	 <1160133715.1607.64.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 16:51:06 +0530
-Message-Id: <1160133666.19143.150.camel@amol.verismonetworks.com>
+	Fri, 6 Oct 2006 07:20:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20624 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750743AbWJFLUK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:20:10 -0400
+Date: Fri, 6 Oct 2006 13:11:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than	passing to IRQ handlers
+Message-ID: <20061006111156.GA19678@elte.hu>
+References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45263ABC.4050604@garzik.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +
-> > +		if (hp->Caddr)
-> > +			iounmap(hp->Caddr);
-> >  	}
+
+* Jeff Garzik <jeff@garzik.org> wrote:
+
+> >NAK to that, it will mess up a lot of older drivers which still use 
+> >the irq field and also those who want it to print
 > 
-> I don't think this is sufficient because it may be unmapped earlier on
-> error but hp->Caddr is not then cleared .
+> Look at the pt_regs change -- the irq change is similar:
+> 
+> The information does not go away, it is merely available via another 
+> avenue.
 
-Is this fine ?
+but pt_regs is alot less frequently used than irq - and where it's used 
+they arent "drivers" but mostly arch level code like hw-timer handlers.
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
- rio_linux.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletion(-)
----
-diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/drivers/char/rio/rio_linux.c linux-2.6.19-rc1/drivers/char/rio/rio_linux.c
---- linux-2.6.19-rc1-orig/drivers/char/rio/rio_linux.c	2006-10-05 14:00:43.000000000 +0530
-+++ linux-2.6.19-rc1/drivers/char/rio/rio_linux.c	2006-10-06 16:42:19.000000000 +0530
-@@ -1022,6 +1022,7 @@ static int __init rio_init(void)
- 			found++;
- 		} else {
- 			iounmap(p->RIOHosts[p->RIONumHosts].Caddr);
-+			p->RIOHosts[p->RIONumHosts].Caddr = NULL;
- 		}
- 	}
- 
-@@ -1071,6 +1072,7 @@ static int __init rio_init(void)
- 			found++;
- 		} else {
- 			iounmap(p->RIOHosts[p->RIONumHosts].Caddr);
-+			p->RIOHosts[p->RIONumHosts].Caddr = NULL;
- 		}
- #else
- 		printk(KERN_ERR "Found an older RIO PCI card, but the driver is not " "compiled to support it.\n");
-@@ -1110,8 +1112,10 @@ static int __init rio_init(void)
- 				}
- 			}
- 
--			if (!okboard)
-+			if (!okboard) {
- 				iounmap(hp->Caddr);
-+				hp->Caddr = NULL;
-+			}
- 		}
- 	}
- 
-@@ -1181,6 +1185,9 @@ static void __exit rio_exit(void)
- 		}
- 		/* It is safe/allowed to del_timer a non-active timer */
- 		del_timer(&hp->timer);
-+
-+		if (hp->Caddr)
-+			iounmap(hp->Caddr);
- 	}
- 
- 	if (misc_deregister(&rio_fw_device) < 0) {
-
-
+	Ingo

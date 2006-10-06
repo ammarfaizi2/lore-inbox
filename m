@@ -1,55 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWJFW0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWJFWb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWJFW0d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 18:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWJFW0d
+	id S1422996AbWJFWb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 18:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWJFWb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 18:26:33 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:29930 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932439AbWJFW0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 18:26:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XLgwDf+llx2gFgTHLIdmHYOEekZKn5c0Wj7xVt3SpZWUO0B70jBbUF4gvCj6mnv4FRBtrCgeC71IMlQhHYLHZzreQlwjOPUMkSqP4roHhaWcSzSKaPzLXn61v7IRBe1NdlQFIK++Pc9DhHo+/oUBITZZRYiFpoJsgV7poL23yTs=
-Message-ID: <9a8748490610061526n5135f62ax81748f2175796a8c@mail.gmail.com>
-Date: Sat, 7 Oct 2006 00:26:31 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Stas Sergeev" <stsp@aknet.ru>
-Subject: Re: [patch] honour MNT_NOEXEC for access()
-Cc: "Andrew Morton" <akpm@osdl.org>, "Jakub Jelinek" <jakub@redhat.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Hugh Dickins" <hugh@veritas.com>,
-       "Ulrich Drepper" <drepper@redhat.com>
-In-Reply-To: <45269BEE.7050008@aknet.ru>
+	Fri, 6 Oct 2006 18:31:56 -0400
+Received: from outbound-blu.frontbridge.com ([65.55.251.16]:50604 "EHLO
+	outbound3-blu-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1422996AbWJFWbz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 18:31:55 -0400
+X-BigFish: VP
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4516B721.5070801@redhat.com>
-	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
-	 <45229A99.6060703@aknet.ru>
-	 <1159899820.2891.542.camel@laptopd505.fenrus.org>
-	 <4522AEA1.5060304@aknet.ru>
-	 <1159900934.2891.548.camel@laptopd505.fenrus.org>
-	 <4522B4F9.8000301@aknet.ru>
-	 <20061003210037.GO20982@devserv.devel.redhat.com>
-	 <45240640.4070104@aknet.ru> <45269BEE.7050008@aknet.ru>
+Subject: RE: [discuss] Re: Please pull x86-64 bug fixes
+Date: Fri, 6 Oct 2006 17:31:46 -0500
+Message-ID: <1449F58C868D8D4E9C72945771150BDF46F8FD@SAUSEXMB1.amd.com>
+In-Reply-To: <200610070001.01752.rjw@sisk.pl>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] Re: Please pull x86-64 bug fixes
+Thread-Index: AcbplADBZxklJDKRTcS5QYEDSYAHLgAAKJ+g
+From: "Duran, Leo" <leo.duran@amd.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, "Linus Torvalds" <torvalds@osdl.org>
+cc: "Arjan van de Ven" <arjan@infradead.org>, "Jeff Garzik" <jeff@garzik.org>,
+       "Andi Kleen" <ak@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 06 Oct 2006 22:31:45.0595 (UTC)
+ FILETIME=[347368B0:01C6E997]
+X-WSS-ID: 693806DB1L85213766-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/10/06, Stas Sergeev <stsp@aknet.ru> wrote:
-> Hi Andrew.
->
-> The attached patch makes the access(X_OK) to take the
-> "noexec" mount option into an account.
->
-Makes sense to me.
+OK, lets' take K8 processor performance states (p-states) as an example:
+BIOS, which should know 'best' about a given platform, needs to
+communicate to the OS what 'voltage' (VID code) is correct for given
+'frequency' (FID),
+and it can do that via ACPI processor tables (_PSS). Otherwise, OS code
+is left with having to manage a HUGE amount 'specifics' (processor
+models), and endless driver revisions to account for new parts.
+
+So, one can argue that there's merit on having ACPI, it's just a shame
+when BIOS doesn't get it right! (thus the justification for lack of
+'trust'... the same can probably be said about other BIOS issues, not
+just ACPI)
+
+Leo Duran
+
+
+-----Original Message-----
+From: Rafael J. Wysocki [mailto:rjw@sisk.pl] 
+Sent: Friday, October 06, 2006 5:01 PM
+To: Linus Torvalds
+Cc: Arjan van de Ven; Jeff Garzik; Andi Kleen; discuss@x86-64.org;
+linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: Please pull x86-64 bug fixes
+
+On Friday, 6 October 2006 18:07, Linus Torvalds wrote:
+> 
+> On Fri, 6 Oct 2006, Arjan van de Ven wrote:
+> >
+> > we can do a tiny bit better than the current code; some chipsets
+have
+> > the address of the MMIO region stored in their config space; so we
+can
+> > get to that using the old method and validate the acpi code with
+that.
+> 
+> Yes. I think trusting ACPI is _always_ a mistake. It's insane. We
+should 
+> never ask the firmware for any data that we can just figure out
+ourselves.
+> 
+> And we should tell all hardware companies that firmware tables are
+stupid, 
+> and that we just want to know what the hell the registers MEAN!
+> 
+> I've certainly tried to tell Intel that. I think they may even have
+heard 
+> me occasionally.
+> 
+> I can't understand why some people _still_ think ACPI is a good idea..
+
+I violently agree.
+
+Rafael
+
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller
+
+
+
+
+

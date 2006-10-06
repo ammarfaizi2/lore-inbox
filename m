@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWJFM5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWJFM6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWJFM5N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 08:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWJFM5N
+	id S932091AbWJFM6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 08:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJFM6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 08:57:13 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:48143 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751353AbWJFM5L
+	Fri, 6 Oct 2006 08:58:23 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:49935 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932072AbWJFM6V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 08:57:11 -0400
-Date: Fri, 06 Oct 2006 21:59:35 +0900 (JST)
-Message-Id: <20061006.215935.92667295.yoshfuji@linux-ipv6.org>
+	Fri, 6 Oct 2006 08:58:21 -0400
+Date: Fri, 06 Oct 2006 22:00:45 +0900 (JST)
+Message-Id: <20061006.220045.89792760.yoshfuji@linux-ipv6.org>
 To: joro-lkml@zlug.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH 01/02] net/ipv6: seperate sit driver to extra module
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH 02/02] net/ipv6: seperate sit driver to extra module
+ (addrconf.c changes)
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20061006093402.GA12460@zlug.org>
-References: <20061006093402.GA12460@zlug.org>
+In-Reply-To: <20061006093927.GB12460@zlug.org>
+References: <20061006093927.GB12460@zlug.org>
 Organization: USAGI/WIDE Project
 X-URL: http://www.yoshifuji.org/%7Ehideaki/
 X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
@@ -32,22 +32,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20061006093402.GA12460@zlug.org> (at Fri, 6 Oct 2006 11:34:02 +0200), Joerg Roedel <joro-lkml@zlug.org> says:
+In article <20061006093927.GB12460@zlug.org> (at Fri, 6 Oct 2006 11:39:27 +0200), Joerg Roedel <joro-lkml@zlug.org> says:
 
-> this is the submit of the patch discussed yesterday to compile the sit
-> driver as a seperate module.
-> 
-> changes to yesterday:
-> - default select changed to y in Kconfig
-> - added ifdefs to net/ipv6/addrconf.c
->   (this part is big, to keep the patches around 100 lines the
->    addrconf.c changes are posted in a seperate patch)
+> This patch contains the changes to net/ipv6/addrconf.c to remove sit
+> specific code if the sit driver is not selected.
 > 
 > Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
 
-> +         into IPv4 packets. This is usefull if you want to connect two IPv6
-                                       ~~~~~~~useful
-
-Otherwise, it seems okay to me.
+Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
 
 --yoshfuji

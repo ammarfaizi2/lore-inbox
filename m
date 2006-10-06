@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWJFL0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWJFL1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWJFL0R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWJFL0Q
+	id S1750727AbWJFL1c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWJFL1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:26:16 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:35518 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750830AbWJFL0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:26:15 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [Alsa-devel] 2.6.19-rc1: hda_intel: azx_get_response timeout, switching to polling mode...
-Date: Fri, 6 Oct 2006 13:26:06 +0200
-User-Agent: KMail/1.9.4
-Cc: alsa-devel@alsa-project.org, Linux List <linux-kernel@vger.kernel.org>
-References: <200610050954.57677.prakash@punnoor.de> <200610052311.35446.prakash@punnoor.de> <s5hejtlu2wv.wl%tiwai@suse.de>
-In-Reply-To: <s5hejtlu2wv.wl%tiwai@suse.de>
+	Fri, 6 Oct 2006 07:27:32 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:26009 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750727AbWJFL1a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 07:27:30 -0400
+Message-ID: <45263D9C.9030200@garzik.org>
+Date: Fri, 06 Oct 2006 07:27:24 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2232465.9et51qUiE3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Ingo Molnar <mingo@elte.hu>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than	passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <4525A8D8.9050504@garzik.org> <1160133932.1607.68.camel@localhost.localdomain> <45263ABC.4050604@garzik.org> <20061006111156.GA19678@elte.hu>
+In-Reply-To: <20061006111156.GA19678@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610061326.07161.prakash@punnoor.de>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2232465.9et51qUiE3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ingo Molnar wrote:
+> * Jeff Garzik <jeff@garzik.org> wrote:
+> 
+>>> NAK to that, it will mess up a lot of older drivers which still use 
+>>> the irq field and also those who want it to print
+>> Look at the pt_regs change -- the irq change is similar:
+>>
+>> The information does not go away, it is merely available via another 
+>> avenue.
+> 
+> but pt_regs is alot less frequently used than irq - and where it's used 
+> they arent "drivers" but mostly arch level code like hw-timer handlers.
 
-Am Freitag 06 Oktober 2006 12:58 schrieb Takashi Iwai:
-> At Thu, 5 Oct 2006 23:11:35 +0200,
->
-> Prakash Punnoor wrote:
-> > Am Donnerstag 05 Oktober 2006 12:18 schrieb Takashi Iwai:
-> > > At Thu, 5 Oct 2006 09:54:57 +0200,
-> > >
-> > > Prakash Punnoor wrote:
-> > > > I didn't get above message with 2.6.18. Usign irqpoll above message
-> > > > doesn't appear, but I think neither it optimal.
-> > >
-> > > The latest snd-hda-intel driver uses MSI as default.
-> > > Pass disable_msi=3D1 module option and see whether it works.
-> >
-> > Yes, no more message, but what is even better: My nforce nic works again
-> > (w/o using irqpoll)! So the alsa driver broke it. Now both are using sa=
-me
-> > irq and peaceful again.
->
-> It's more likely a problem of IRQ routing than the driver itself...
+Nonetheless the -vast majority- of drivers don't use the argument at 
+all, and the minority that do use it are not modern drivers.
 
-Well, whom should I contact then?
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+	Jeff
 
---nextPart2232465.9et51qUiE3
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFJj1PxU2n/+9+t5gRAtz9AKCxBb5p35OP8Bq70cpbfvfStZdmTQCgwK3I
-6nkjJMRyLu10S5VW9NvHthk=
-=ve8/
------END PGP SIGNATURE-----
-
---nextPart2232465.9et51qUiE3--

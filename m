@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWJFLpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWJFLqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWJFLpj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 07:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWJFLpi
+	id S932162AbWJFLqz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 07:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWJFLqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 07:45:38 -0400
-Received: from main.gmane.org ([80.91.229.2]:41642 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750860AbWJFLpi (ORCPT
+	Fri, 6 Oct 2006 07:46:55 -0400
+Received: from gate.perex.cz ([85.132.177.35]:23515 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932162AbWJFLqy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 07:45:38 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: [PATCH 01/02] net/ipv6: seperate sit driver to extra module
-Date: 06 Oct 2006 13:38:24 +0200
-Message-ID: <87d595lln3.fsf@willow.rfc1149.net>
-References: <20061006093402.GA12460@zlug.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
-Cc: netdev@vger.kernel.org
+	Fri, 6 Oct 2006 07:46:54 -0400
+Date: Fri, 6 Oct 2006 13:46:52 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Castet Matthieu <castet.matthieu@free.fr>
+Subject: Re: [Alsa-devel] [PATCH] Driver core: Don't ignore error returns
+ from probing
+In-Reply-To: <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.61.0610061338230.8573@tm8103.perex-int.cz>
+References: <20061005175852.GC15180@suse.de>
+ <Pine.LNX.4.44L0.0610051656290.7144-100000@iolanthe.rowland.org>
+ <20061006095334.3cdebcc0@gondolin.boeblingen.de.ibm.com>
+ <Pine.LNX.4.61.0610061138580.8573@tm8103.perex-int.cz>
+ <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Joerg" == Joerg Roedel <joro-lkml@zlug.org> writes:
+On Fri, 6 Oct 2006, Cornelia Huck wrote:
 
-Joerg> this is the submit of the patch discussed yesterday to compile
-Joerg> the sit driver as a seperate module.
+> On Fri, 6 Oct 2006 11:41:05 +0200 (CEST),
+> Jaroslav Kysela <perex@suse.cz> wrote:
+> 
+> > > Hm, I don't think we should call device_release_driver if
+> > > bus_attach_device failed (and I think calling bus_remove_device if
+> > > bus_attach_device failed is unintuitive). I did a patch that added a
+> > > function which undid just the things bus_add_device did (here:
+> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=115816560424389&w=2),
+> > > which unfortunately got lost somewhere... (I'll rebase and resend.)
+> > 
+> > Yes, but it might be better to check dev->is_registered flag in 
+> > bus_remove_device() before device_release_driver() call to save some code, 
+> > rather than reuse most of code in bus_delete_device().
+> 
+> If we undid things (symlinks et al.) in the order we added them, we can
+> factor out bus_delete_device() from bus_remove_device() and avoid both
+> code duplication and calling bus_remove_device() if bus_attach_device()
+> failed. Something like the patch below (untested).
 
-Your patch looks ok to me, but given that many people won't need sit,
-why is it enabled by default? Omitting it would save 10k of kernel
-text on x86 and people will see the new kernel configuration option
-anyway and will enable it if needed.
+It looks better, but I think that having only one function with if 
+(is_registered) saves a few bytes of instruction memory. Anyway, I do not 
+feel myself to judge what's the best.
 
-  Sam
--- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
+						Jaroslav
 
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

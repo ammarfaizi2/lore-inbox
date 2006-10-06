@@ -1,75 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422724AbWJFXBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWJFXCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422724AbWJFXBj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWJFXBi
+	id S1422725AbWJFXCT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422728AbWJFXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:01:38 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:60312 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1422724AbWJFXBh (ORCPT
+	Fri, 6 Oct 2006 19:02:19 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:62874 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1422725AbWJFXCR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:01:37 -0400
-Message-id: <34281112314@wsc.cz>
-Subject: [PATCH 1/6] Char: mxser_new, eliminate tty ldisc deref
+	Fri, 6 Oct 2006 19:02:17 -0400
+Message-id: <34287982334@wsc.cz>
+Subject: [PATCH 3/6] Char: mxser_new, correct fail paths
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat,  7 Oct 2006 01:01:35 +0200 (CEST)
+Date: Sat,  7 Oct 2006 01:02:16 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, eliminate tty ldisc deref
+mxser_new, correct fail paths
 
-Use tty_ldisc_flush and tty_wakeup helpers for accessing ldisc internals.
+Resources were not released in some fail paths. Correct this behaviour by
+implementing function and calling it when something fails.
 
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit f1ec019ded64c90bc2c8017a41bd77c8f900711c
-tree 2c0916affadc7d056cd8ce397109a3f85bfc4c1f
-parent b886c49c87ee91a038b917f6933183db8ae58125
-author Jiri Slaby <jirislaby@gmail.com> Fri, 06 Oct 2006 23:14:52 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Fri, 06 Oct 2006 23:14:52 +0200
+commit 39c9825cc56a093e7779780e2928cf8944cb1148
+tree 00f7949a299c7023a30bb290dcfb8c4bea7cf634
+parent 104fc67145e462bc89c0f778a1907f96cd150873
+author Jiri Slaby <jirislaby@gmail.com> Sat, 07 Oct 2006 00:07:23 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 07 Oct 2006 00:07:23 +0200
 
- drivers/char/mxser_new.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
+ drivers/char/mxser_new.c |   49 +++++++++++++++++++++++-----------------------
+ 1 files changed, 24 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index a555dda..1f53e07 100644
+index 84d72aa..073926e 100644
 --- a/drivers/char/mxser_new.c
 +++ b/drivers/char/mxser_new.c
-@@ -1065,7 +1065,6 @@ static void mxser_close(struct tty_struc
+@@ -2563,6 +2563,22 @@ static const struct tty_operations mxser
+  * The MOXA Smartio/Industio serial driver boot-time initialization code!
+  */
  
- 	unsigned long timeout;
- 	unsigned long flags;
--	struct tty_ldisc *ld;
++static void mxser_release_res(struct mxser_board *brd, unsigned int irq)
++{
++	struct pci_dev *pdev = brd->pdev;
++
++	if (irq)
++		free_irq(brd->irq, brd);
++	if (pdev != NULL) {	/* PCI */
++		pci_release_region(pdev, 2);
++		pci_release_region(pdev, 3);
++		pci_dev_put(pdev);
++	} else {
++		release_region(brd->ports[0].ioaddr, 8 * brd->nports);
++		release_region(brd->vector, 1);
++	}
++}
++
+ static int __devinit mxser_initbrd(struct mxser_board *brd)
+ {
+ 	struct mxser_port *info;
+@@ -2613,6 +2629,8 @@ static int __devinit mxser_initbrd(struc
+ 		printk(KERN_ERR "Board %s: Request irq failed, IRQ (%d) may "
+ 			"conflict with another device.\n",
+ 			mxser_brdname[brd->board_type - 1], brd->irq);
++		/* We hold resources, we need to release them. */
++		mxser_release_res(brd, 0);
+ 		return retval;
+ 	}
+ 	return 0;
+@@ -2963,14 +2981,9 @@ static int __init mxser_module_init(void
+ 				" driver !\n");
+ 		put_tty_driver(mxvar_sdriver);
  
- 	if (tty->index == MXSER_PORTS)
- 		return;
-@@ -1145,12 +1144,7 @@ static void mxser_close(struct tty_struc
- 	if (tty->driver->flush_buffer)
- 		tty->driver->flush_buffer(tty);
+-		for (i = 0; i < MXSER_BOARDS; i++) {
+-			if (mxser_boards[i].board_type == -1)
+-				continue;
+-			else {
+-				free_irq(mxser_boards[i].irq, &mxser_boards[i]);
+-				/* todo: release io, vector */
+-			}
+-		}
++		for (i = 0; i < MXSER_BOARDS; i++)
++			if (mxser_boards[i].board_type != -1)
++				mxser_release_res(&mxser_boards[i], 1);
+ 		return retval;
+ 	}
  
--	ld = tty_ldisc_ref(tty);
--	if (ld) {
--		if (ld->flush_buffer)
--			ld->flush_buffer(tty);
--		tty_ldisc_deref(ld);
+@@ -2991,24 +3004,10 @@ static void __exit mxser_module_exit(voi
+ 	else
+ 		printk(KERN_ERR "Couldn't unregister MOXA Smartio/Industio family serial driver\n");
+ 
+-	for (i = 0; i < MXSER_BOARDS; i++) {
+-		struct pci_dev *pdev;
++	for (i = 0; i < MXSER_BOARDS; i++)
++		if (mxser_boards[i].board_type != -1)
++			mxser_release_res(&mxser_boards[i], 1);
+ 
+-		if (mxser_boards[i].board_type == -1)
+-			continue;
+-		else {
+-			pdev = mxser_boards[i].pdev;
+-			free_irq(mxser_boards[i].irq, &mxser_boards[i]);
+-			if (pdev != NULL) {	/* PCI */
+-				pci_release_region(pdev, 2);
+-				pci_release_region(pdev, 3);
+-				pci_dev_put(pdev);
+-			} else {
+-				release_region(mxser_boards[i].ports[0].ioaddr, 8 * mxser_boards[i].nports);
+-				release_region(mxser_boards[i].vector, 1);
+-			}
+-		}
 -	}
-+	tty_ldisc_flush(tty);
- 
- 	tty->closing = 0;
- 	info->event = 0;
-@@ -1303,9 +1297,7 @@ static void mxser_flush_buffer(struct tt
- 	spin_unlock_irqrestore(&info->slock, flags);
- 	/* above added by shinhay */
- 
--	wake_up_interruptible(&tty->write_wait);
--	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup)
--		(tty->ldisc.write_wakeup) (tty);
-+	tty_wakeup(tty);
+ 	pr_debug("Done.\n");
  }
  
- /*

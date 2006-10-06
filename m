@@ -1,62 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWJFQD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWJFQFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751540AbWJFQD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 12:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbWJFQD1
+	id S932106AbWJFQFK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 12:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWJFQFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 12:03:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3042 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751539AbWJFQD1 (ORCPT
+	Fri, 6 Oct 2006 12:05:09 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:63880 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932111AbWJFQFI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 12:03:27 -0400
-Date: Fri, 6 Oct 2006 09:02:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Muli Ben-Yehuda <muli@il.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot
- handle IRQ -1"
-In-Reply-To: <m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.64.0610060855220.3952@g5.osdl.org>
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
- <m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Oct 2006 12:05:08 -0400
+Message-Id: <200610061605.k96G56iB007083@laptop13.inf.utfsm.cl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.19-rc1 (git 49f19ce401edfff937c448dd74c22497da361889)
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Fri, 06 Oct 2006 12:05:06 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 06 Oct 2006 12:05:06 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On sparc64 I'm getting:
 
-
-On Fri, 6 Oct 2006, Eric W. Biederman wrote:
-> 
-> The change the patch introduced was that we are now always
-> pointing irqs towards individual cpus, and not accepting an irq
-> if it comes into the wrong cpu.  
-
-I think we should just revert that thing. I don't think there is any real 
-reason to force irq's to specific cpu's: the vectors haven't been _that_ 
-problematic a resource, and being limited to just 200+ possible vectors 
-globally really hasn't been a real problem once we started giving out the 
-vectors more sanely.
-
-And the new code clearly causes problems, and it seems to limit our use of 
-irq's in fairly arbitrary ways. It also would seem to depend on the irq 
-routing being both sane and reliable, something I'm not sure we should 
-rely on.
-
-Also, I suspect the whole notion of only accepting an irq on one 
-particular CPU is fundamentally fragile. The irq delivery tends to be a 
-multi-phase process that we can't even _control_ from software (ie the irq 
-may be pending inside an APIC or a bridge chip or other system logic, so 
-things may be happening _while_ we possibly try to change the cpu 
-delivery).
-
-So how about just reverting that change?
-
-		Linus
+  CC      arch/sparc64/kernel/irq.o
+In file included from arch/sparc64/kernel/irq.c:24:
+include/linux/irq.h:24:26: error: asm/irq_regs.h: No such file or directory
+arch/sparc64/kernel/irq.c: In function 'handler_irq':
+arch/sparc64/kernel/irq.c:561: error: too many arguments to function '__do_IRQ'
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWJFEeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWJFEuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWJFEeP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 00:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWJFEeP
+	id S1751791AbWJFEuj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 00:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWJFEuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 00:34:15 -0400
-Received: from gw.goop.org ([64.81.55.164]:14516 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1750817AbWJFEeO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 00:34:14 -0400
-Message-ID: <4525DCC5.40101@goop.org>
-Date: Thu, 05 Oct 2006 21:34:13 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Fri, 6 Oct 2006 00:50:39 -0400
+Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:39885 "EHLO
+	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751791AbWJFEuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 00:50:39 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: akpm@osdl.org
+Subject: [PATCH 1/5] fdtable: Delete pointless code in dup_fd().
+Date: Thu, 5 Oct 2006 21:50:37 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Really good idea to allow mmap(0, FIXED)?
-References: <200610052059.11714.mb@bu3sch.de> <eg4624$be$1@taverner.cs.berkeley.edu>
-In-Reply-To: <eg4624$be$1@taverner.cs.berkeley.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610052150.37914.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner wrote:
-> Is this right?  Have I correctly understood the issue?
+The dup_fd() function creates a new files_struct and fdtable embedded inside
+that files_struct, and then possibly expands the fdtable using expand_files().
+The out_release error path is invoked when expand_files() returns an error
+code. However, when this attempt to expand fails, the fdtable is left in its
+original embedded form, so it is pointless to try to free the associated
+fdarray and fdsets.
 
-More or less, though a simpler example would be something like:
+Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
 
-    if (thing->uid == 0)
-        do_magic();
-
-and if "thing" happens to be in userspace (NULL or otherwise) then the 
-user can control this test.  So the answer is that the kernel shouldn't 
-be looking at uninitialized pointers.
-
-    J
+diff -Npru old/kernel/fork.c new/kernel/fork.c
+--- old/kernel/fork.c	2006-10-05 19:18:06.000000000 -0700
++++ new/kernel/fork.c	2006-10-05 19:19:56.000000000 -0700
+@@ -727,14 +727,11 @@ static struct files_struct *dup_fd(struc
+ 		memset(&new_fdt->close_on_exec->fds_bits[start], 0, left);
+ 	}
+ 
+-out:
+ 	return newf;
+ 
+ out_release:
+-	free_fdset (new_fdt->close_on_exec, new_fdt->max_fdset);
+-	free_fdset (new_fdt->open_fds, new_fdt->max_fdset);
+-	free_fd_array(new_fdt->fd, new_fdt->max_fds);
+ 	kmem_cache_free(files_cachep, newf);
++out:
+ 	return NULL;
+ }
+ 

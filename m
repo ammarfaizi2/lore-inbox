@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWJFM6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWJFNDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWJFM6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 08:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWJFM6E
+	id S932217AbWJFNDU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 09:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWJFNDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 08:58:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9361 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750996AbWJFM6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 08:58:01 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003172511.GL3164@in.ibm.com>
-	<20061003201340.afa7bfce.akpm@osdl.org>
-	<m1vemzbe4c.fsf@ebiederm.dsl.xmission.com>
-	<20061004214403.e7d9f23b.akpm@osdl.org>
-	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
-	<20061004233137.97451b73.akpm@osdl.org>
-	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
-	<20061005235909.75178c09.akpm@osdl.org>
-Date: Fri, 06 Oct 2006 06:56:03 -0600
-In-Reply-To: <20061005235909.75178c09.akpm@osdl.org> (Andrew Morton's message
-	of "Thu, 5 Oct 2006 23:59:09 -0700")
-Message-ID: <m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 6 Oct 2006 09:03:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37769 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932217AbWJFNDT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 09:03:19 -0400
+Date: Fri, 6 Oct 2006 09:01:56 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Vara Prasad <prasadav@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       systemtap <systemtap@sourceware.org>
+Subject: Re: tracepoint maintainance models
+Message-ID: <20061006130156.GA3566@redhat.com>
+References: <20060918150231.GA8197@elte.hu> <1158594491.6069.125.camel@localhost.localdomain> <20060918152230.GA12631@elte.hu> <1158596341.6069.130.camel@localhost.localdomain> <20060918161526.GL3951@redhat.com> <1158598927.6069.141.camel@localhost.localdomain> <450EEF2E.3090302@us.ibm.com> <1158608981.6069.167.camel@localhost.localdomain> <450F0180.1040606@us.ibm.com> <1160112791.30146.12.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160112791.30146.12.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Hi -
 
-> On Thu, 05 Oct 2006 09:29:42 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
->
->> 
->> In the lazy programmer school of fixes.
->> 
->> I haven't really tested this in any configuration.
->> But reading video.S it does use variable in the bootsector.
->> It does seem to initialize the variables before use.
->> But obviously something is missed.
->> 
->> By zeroing the uninteresting parts of the bootsector just after we
->> have determined we are loaded ok.  We should ensure we are
->> always in a known state the entire time. 
->> 
->> Andrew if I am right about the cause of your video not working
->> when you set an enhanced video mode this should fix your boot
->> problem.
->> 
->> Singed-off-by: Eric Biederman <ebiederm@xmission.com>
->> 
->> diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
->> index 53903a4..246ac88 100644
->> --- a/arch/i386/boot/setup.S
->> +++ b/arch/i386/boot/setup.S
->> @@ -287,6 +287,13 @@ # Check if an old loader tries to load a
->>  loader_panic_mess: .string "Wrong loader, giving up..."
->>  
->>  loader_ok:
->> +# Zero initialize the variables we keep in the bootsector
->> +	xorw	%di, %di
->> +	xorb	%al, %al
->> +	movw	$497, %cx
->> +	rep
->> +	stosb
->> +
->>  # Get memory size (extended mem, kB)
->>  
->>  	xorl	%eax, %eax
->
-> That fixed the vga=0x263 crash.
+On Fri, Oct 06, 2006 at 01:33:11AM -0400, Steven Rostedt wrote:
+> Coming into this really late, and I'm still behind in reading this and
+> related threads, but I want to throw this idea out, and it's getting
+> late.
+> [...]
+> #define MARK(label, var)			\
+> 	asm ("debug_" #label ":\n"		\
+> 	     ".section .data\n"			\
+> 	     #label "_" #var ": xor %0,%0\n"	\
+> 	     ".previous" : : "r"(var))
+> [...]
+> $ gcc -O2 -o mark mark.c
+> $ ./mark
+> func y is in reg B at 0x80483ce
+> [...]
 
-Good.  We still have to be paranoid and address HPA's missing cld issues,
-But otherwise it looks like we are in good shape.
+Clever.
 
-Eric
+> Now the question is, isn't MARK() in this code a non intrusive marker?
 
+Not quite.  The assembly code forces gcc to materialize the data that
+it might already have inlined, and to borrow a register for the
+duration.  It's still a neat idea though.
 
+- FChE

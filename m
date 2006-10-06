@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422942AbWJFUkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWJFUlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422942AbWJFUkb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 16:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422939AbWJFUkb
+	id S932617AbWJFUlO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 16:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422943AbWJFUlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 16:40:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5064 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422942AbWJFUk3 (ORCPT
+	Fri, 6 Oct 2006 16:41:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19400 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422939AbWJFUlM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 16:40:29 -0400
-Date: Fri, 6 Oct 2006 13:40:20 -0700
+	Fri, 6 Oct 2006 16:41:12 -0400
+Date: Fri, 6 Oct 2006 13:41:04 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Amol Lad <amol@verismonetworks.com>
 Cc: linux kernel <linux-kernel@vger.kernel.org>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>
+       Wim Van Sebroeck <wim@iguana.be>
 Subject: Re: [PATCH 5/5] ioremap balanced with iounmap for
  drivers/char/watchdog/s3c2410_wdt.c
-Message-Id: <20061006134020.96edb3ff.akpm@osdl.org>
+Message-Id: <20061006134104.9bd4dcf1.akpm@osdl.org>
 In-Reply-To: <1160110627.19143.88.camel@amol.verismonetworks.com>
 References: <1160110627.19143.88.camel@amol.verismonetworks.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
@@ -75,4 +75,6 @@ and the above patch illustrates one of them.
 
 Sigh.  Oh well, patch looks correct - I'll start spamming Wim with it,
 thanks.
+
+(Not that Wim - this Wim).
 

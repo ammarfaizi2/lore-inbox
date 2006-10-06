@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWJFNei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWJFNg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWJFNei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 09:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJFNei
+	id S932325AbWJFNg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 09:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJFNg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 09:34:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20130 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932174AbWJFNeh (ORCPT
+	Fri, 6 Oct 2006 09:36:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35490 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932335AbWJFNfA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 09:34:37 -0400
+	Fri, 6 Oct 2006 09:35:00 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/4] LOG2: Alter get_order() so that it can make use of ilog2() on a constant [try #4]
-Date: Fri, 06 Oct 2006 14:34:20 +0100
+Subject: [PATCH 2/4] LOG2: Alter roundup_pow_of_two() so that it can use a ilog2() on a constant [try #4]
+Date: Fri, 06 Oct 2006 14:34:17 +0100
 To: torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20061006133420.9972.82238.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061006133417.9972.76941.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com>
 References: <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,73 +26,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Alter get_order() so that it can make use of ilog2() on a constant to produce a
-constant value, retaining the ability for an arch to override it in the
-non-const case.
+Alter roundup_pow_of_two() so that it can make use of ilog2() on a constant to
+produce a constant value, retaining the ability for an arch to override it in
+the non-const case.
+
+This permits the function to be used to initialise variables.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/asm-generic/page.h |   38 ++++++++++++++++++++++++++++++++++----
- 1 files changed, 34 insertions(+), 4 deletions(-)
+ include/linux/kernel.h |    6 ------
+ include/linux/log2.h   |   26 ++++++++++++++++++++++++++
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/include/asm-generic/page.h b/include/asm-generic/page.h
-index a96b5d9..b55052c 100644
---- a/include/asm-generic/page.h
-+++ b/include/asm-generic/page.h
-@@ -4,21 +4,51 @@ #define _ASM_GENERIC_PAGE_H
- #ifdef __KERNEL__
- #ifndef __ASSEMBLY__
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 473101a..67ca3ad 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -156,12 +156,6 @@ #endif
  
--#include <linux/compiler.h>
-+#include <linux/log2.h>
+ unsigned long int_sqrt(unsigned long);
  
--/* Pure 2^n version of get_order */
--static __inline__ __attribute_const__ int get_order(unsigned long size)
-+/*
-+ * non-const pure 2^n version of get_order
-+ * - the arch may override these in asm/bitops.h if they can be implemented
-+ *   more efficiently than using the arch log2 routines
-+ * - we use the non-const log2() instead if the arch has defined one suitable
-+ */
-+#ifndef ARCH_HAS_GET_ORDER
-+static inline __attribute__((const))
-+int __get_order(unsigned long size, int page_shift)
- {
-+#if BITS_PER_LONG == 32 && defined(ARCH_HAS_ILOG2_U32)
-+	int order = __ilog2_u32(size) - page_shift;
-+	return order >= 0 ? order : 0;
-+#elif BITS_PER_LONG == 64 && defined(ARCH_HAS_ILOG2_U64)
-+	int order = __ilog2_u64(size) - page_shift;
-+	return order >= 0 ? order : 0;
-+#else
- 	int order;
+-static inline unsigned long
+-__attribute_const__ roundup_pow_of_two(unsigned long x)
+-{
+-	return 1UL << fls_long(x - 1);
+-}
+-
+ extern int printk_ratelimit(void);
+ extern int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst);
  
--	size = (size - 1) >> (PAGE_SHIFT - 1);
-+	size = (size - 1) >> (page_shift - 1);
- 	order = -1;
- 	do {
- 		size >>= 1;
- 		order++;
- 	} while (size);
- 	return order;
-+#endif
+diff --git a/include/linux/log2.h b/include/linux/log2.h
+index 3979c60..d02e1a5 100644
+--- a/include/linux/log2.h
++++ b/include/linux/log2.h
+@@ -43,6 +43,15 @@ int __ilog2_u64(u64 n)
  }
-+#endif
+ #endif
+ 
++/*
++ * round up to nearest power of two
++ */
++static inline __attribute__((const))
++unsigned long __roundup_pow_of_two(unsigned long n)
++{
++	return 1UL << fls_long(n - 1);
++}
 +
+ /**
+  * ilog2 - log of base 2 of 32-bit or a 64-bit unsigned value
+  * @n - parameter
+@@ -128,4 +137,21 @@ (						\
+ 	__ilog2_u64(n)				\
+  )
+ 
 +/**
-+ * get_order - calculate log2(pages) to hold a block of the specified size
-+ * @n - size
++ * roundup_pow_of_two - round the given value up to nearest power of two
++ * @n - parameter
 + *
-+ * calculate allocation order based on the current page size
++ * round the given balue up to the nearest power of two
++ * - the result is undefined when n == 0
 + * - this can be used to initialise global variables from constant data
 + */
-+#define get_order(n)							\
-+(									\
-+	__builtin_constant_p(n) ?					\
-+	((n < (1UL << PAGE_SHIFT)) ? 0 : ilog2(n) - PAGE_SHIFT) :	\
-+	__get_order(n, PAGE_SHIFT)					\
++#define roundup_pow_of_two(n)			\
++(						\
++	__builtin_constant_p(n) ? (		\
++		(n == 1) ? 0 :			\
++		(1UL << (ilog2((n) - 1) + 1))	\
++				   ) :		\
++	__roundup_pow_of_two(n)			\
 + )
- 
- #endif	/* __ASSEMBLY__ */
- #endif	/* __KERNEL__ */
++
+ #endif /* _LINUX_LOG2_H */

@@ -1,166 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWJFXp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWJFXyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWJFXp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWJFXp1
+	id S1751258AbWJFXyO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWJFXyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:45:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13732 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932191AbWJFXp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:45:26 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-	<m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-	<20061006202324.GJ14186@rhun.haifa.ibm.com>
-Date: Fri, 06 Oct 2006 17:42:40 -0600
-In-Reply-To: <20061006202324.GJ14186@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
-	message of "Fri, 6 Oct 2006 22:23:24 +0200")
-Message-ID: <m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Oct 2006 19:54:14 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:3794 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1751258AbWJFXyI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 19:54:08 -0400
+Message-id: <54435213243213@wsc.cz>
+Subject: [PATCH 2/2] Char: nozomi, bad comment sings
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <p.hardwick@option.com>
+Date: Sat,  7 Oct 2006 01:54:07 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <muli@il.ibm.com> writes:
+nozomi, bad comment sings
 
-> On Fri, Oct 06, 2006 at 11:47:12AM -0600, Eric W. Biederman wrote:
->> Muli Ben-Yehuda <muli@il.ibm.com> writes:
->> 
->> > On Fri, Oct 06, 2006 at 09:14:53AM -0600, Eric W. Biederman wrote:
->> >
->> >> Muli Ben-Yehuda <muli@il.ibm.com> writes:
->> >
->> > In some cases we haven't made it to userspace at all. In other, we're
->> > in the initrd.
->> 
->> Ok.  So no irqbalanced? 
->
-> Nope.
->
->> Any non-standard firmware on this box like a hypervisor or weird APM
->> code that could be causing problems.
->
-> BIOS is bog standard and has been working fine for at least a
-> year. The only firmware I updated recently was the aic94xx firmware
-> when aic94xx was merged into mainline.
->
->> I'm just trying to think of things that might trip over a change in
->> irq handling, besides a chipset.
->
-> Looking at the code below, aic94xx is certainly suspect.
->
->> Can you try the debug patch below and tell me what it reports.
->> As long as the problem irq is not for something important this
->> should allow you to boot, and just collect the information.
->
-> Unfortunately aic94xx is pretty important, but we do get a lot
-> further.
+Don't use // for comments in C.
 
-Yes.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
->> What I am hoping is that we will see which irq or irqs are having
->> problems. Then we can check out how the irq controller for those
->> irq are programmed.
->
-> I had to slightly redo your patch to cut down on the verbosity (and
-> get the pet CPU vector arrays correctly). This is over Serial-Over-Lan
-> which is painful beyond words and also tends to lose the most
-> interesting bits of the log. Sorry. Hopefully there's enough in here
-> to make progress.
+---
+commit 3cbc3a3dd48ae68c4a936d161e5f256094fc2bef
+tree 529c5a4b7efcda99629b09c744bc63852762cd6e
+parent e7e58c9f0d3ce7bed7f8c4b1921da37d65e3ee8f
+author Jiri Slaby <jirislaby@gmail.com> Sat, 07 Oct 2006 01:49:54 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Sat, 07 Oct 2006 01:49:54 +0200
 
-Ok.  A couple of interesting tidbits here.
-The first is that it is simply not enough to return, to get avoid this.
-This may be simply because we are not acknowledging the irq.
+ drivers/char/nozomi.c |   28 ++++++++++++++--------------
+ 1 files changed, 14 insertions(+), 14 deletions(-)
 
-If I read your bootlog right. You have logical cpus, but only two
-sockets, and I think only two cores.  The other two logical cpus
-being hyperthreaded.
-
-The irq routing is behaving as I would expect, only cpu 0 is being
-setup.
-
-So I guess what I need, and didn't provide the code to inspect
-is how the ioapic are being programmed.
-
-It looks like either we are programming them wrong, or that
-we can't actually control which part of a cpu in a socket
-gets an irq.
-
-Here is a quick debug patch that while being over kill
-will show how we are programming the ioapic for these problem
-interrupts.
-
-Once I know how we have programmed the ioapics.  I will know if
-this is a weird irq delivery condition or a bug in our ioapic programming.
-
-I guess I need to start digging through the cpu documentation and errata
-and see if I can find any hint of what I am seeing here.
-
-Thanks for your help,
-Eric
-
-
-
-
-
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index 91728d9..738cc97 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -778,7 +778,7 @@ void __init UNEXPECTED_IO_APIC(void)
+diff --git a/drivers/char/nozomi.c b/drivers/char/nozomi.c
+index 354a8a6..70ac4ac 100644
+--- a/drivers/char/nozomi.c
++++ b/drivers/char/nozomi.c
+@@ -413,11 +413,11 @@ struct port {
+ 	ctrl_ul_t ctrl_ul;
+ 	ctrl_dl_t ctrl_dl;
+ 	struct kfifo *fifo_ul;
+-//	u32 dl_addr[2];
++/*	u32 dl_addr[2]; */
+ 	void __iomem *dl_addr[2];
+ 	u32 dl_size[2];
+ 	u8 toggle_dl;
+-//	u32 ul_addr[2];
++/*	u32 ul_addr[2]; */
+ 	void __iomem *ul_addr[2];
+ 	u32 ul_size[2];
+ 	u8 toggle_ul;
+@@ -435,7 +435,7 @@ struct port {
+ 
+ /* Private data one for each card in the system */
+ typedef struct {
+-//	u32 base_addr;
++/*	u32 base_addr; */
+ 	void __iomem *base_addr;
+ 	u8 closing;
+ 
+@@ -519,7 +519,7 @@ static inline dc_t *get_dc_by_tty(struct
+ /* TODO: */
+ /* -Optimize */
+ /* -Rewrite cleaner */
+-//static void read_mem32(u32 *buf, u32 mem_addr_start, u32 size_bytes) {
++/*static void read_mem32(u32 *buf, u32 mem_addr_start, u32 size_bytes) { */
+ static void read_mem32(u32 * buf, void __iomem * mem_addr_start, u32 size_bytes)
  {
+ 	u32 i = 0;
+@@ -552,7 +552,7 @@ static void read_mem32(u32 * buf, void _
+ /* TODO: */
+ /* - Rewrite cleaner */
+ /* - merge with read_mem32() */
+-//static void read_mem32_buf(u32 *buf, u32 mem_addr_start, u32 size_bytes) {
++/*static void read_mem32_buf(u32 *buf, u32 mem_addr_start, u32 size_bytes) { */
+ static void read_mem32_buf(u32 * buf, void __iomem * mem_addr_start,
+ 			   u32 size_bytes)
+ {
+@@ -590,7 +590,7 @@ #endif
+ /* TODO: */
+ /* -Optimize */
+ /* -Rewrite cleaner */
+-//static u32 write_mem32(u32 mem_addr_start, u32 *buf, u32 size_bytes) {
++/*static u32 write_mem32(u32 mem_addr_start, u32 *buf, u32 size_bytes) {*/
+ static u32 write_mem32(void __iomem * mem_addr_start, u32 * buf, u32 size_bytes)
+ {
+ 	u32 i = 0;
+@@ -623,7 +623,7 @@ static u32 write_mem32(void __iomem * me
+ 
+ /* Todo: */
+ /* - Merge with write_mem32() */
+-//static u32 write_mem32_buf(u32 mem_addr_start, u32 *buf, u32 size_bytes) {
++/*static u32 write_mem32_buf(u32 mem_addr_start, u32 *buf, u32 size_bytes) {*/
+ static u32 write_mem32_buf(void __iomem * mem_addr_start, u32 * buf,
+ 			   u32 size_bytes)
+ {
+@@ -738,7 +738,7 @@ static void setup_memory(dc_t * dc)
+ 					     dc->config_table.ul_app2_len);
+ 	dc->port[PORT_CTRL].ul_size[CH_A] =
+ 	    dc->config_table.ul_ctrl_len - buff_offset;
+-//    offset = dc->config_table.ul_start;
++/*    offset = dc->config_table.ul_start;*/
  }
  
--void __apicdebuginit print_IO_APIC(void)
-+void print_IO_APIC(void)
- {
- 	int apic, i;
- 	union IO_APIC_reg_00 reg_00;
-diff --git a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
-index b8a407f..9dd0793 100644
---- a/arch/x86_64/kernel/irq.c
-+++ b/arch/x86_64/kernel/irq.c
-@@ -18,6 +18,7 @@ #include <linux/delay.h>
- #include <asm/uaccess.h>
- #include <asm/io_apic.h>
- #include <asm/idle.h>
-+#include <asm/hw_irq.h>
- 
- atomic_t irq_err_count;
- 
-@@ -115,9 +116,18 @@ asmlinkage unsigned int do_IRQ(struct pt
- 	irq = __get_cpu_var(vector_irq)[vector];
- 
- 	if (unlikely(irq >= NR_IRQS)) {
--		printk(KERN_EMERG "%s: cannot handle IRQ %d\n",
--					__FUNCTION__, irq);
--		BUG();
-+		if (printk_ratelimit()) {
-+			int cpu, vec;
-+			printk(KERN_EMERG "%s: cannot handle IRQ %d vector: %d cpu: %d\n",
-+				__FUNCTION__, irq, vector, smp_processor_id());
-+			irq = per_cpu(vectro_irq, 0);
-+			printk("v[0][%d] -> %d\n", vector, irq);
-+			print_IO_APIC();
-+		}
-+		irq_exit();
-+
-+		set_irq_regs(old_regs);
-+		return 1;
+ /* Dump config table under initalization phase */
+@@ -1852,7 +1852,7 @@ static int ntty_write(struct tty_struct 
  	}
  
- #ifdef CONFIG_DEBUG_STACKOVERFLOW
+ 	spin_lock_irqsave(&dc->spin_mutex, flags);
+-	// CTS is only valid on the modem channel
++	/* CTS is only valid on the modem channel */
+ 	if (port == &(dc->port[PORT_MDM])) {
+ 		if (port->ctrl_dl.CTS) {
+ 			D4("Enable interrupt");
+@@ -1878,8 +1878,8 @@ static int ntty_write_room(struct tty_st
+ {
+ 	struct port *port = (struct port *)tty->driver_data;
+ 	int room = 0;
+-//      u32      flags = 0;
+-//      dc_t *dc = get_dc_by_tty(tty);
++/*	u32 flags = 0;
++	dc_t *dc = get_dc_by_tty(tty); */
+ 
+ 	if (!port) {
+ 		return 0;
+@@ -1887,9 +1887,9 @@ static int ntty_write_room(struct tty_st
+ 	if (down_trylock(&port->tty_sem)) {
+ 		return 0;
+ 	}
+-// if(down_interruptible(&port->tty_sem)){
+-//      return 0;
+-// }
++/*	if(down_interruptible(&port->tty_sem)) {
++		return 0;
++	}*/
+ 
+ 	if (!port->tty_open_count) {
+ 		goto exit;

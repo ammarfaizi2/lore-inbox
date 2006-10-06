@@ -1,116 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWJFRtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWJFRtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422768AbWJFRtS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 13:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWJFRtS
+	id S1751400AbWJFRtX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 13:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWJFRtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 13:49:18 -0400
-Received: from smtp.rdslink.ro ([193.231.236.97]:59801 "EHLO smtp.rdslink.ro")
-	by vger.kernel.org with ESMTP id S1751400AbWJFRtR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 13:49:17 -0400
-X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
-Date: Fri, 6 Oct 2006 20:49:07 +0300 (EEST)
-From: caszonyi@rdslink.ro
-X-X-Sender: sony@grinch.ro
-Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
-To: ebiederm@xmission.com
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Merge window closed: v2.6.19-rc1
-In-Reply-To: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.62.0610062041440.1966@grinch.ro>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	Fri, 6 Oct 2006 13:49:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34960 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751400AbWJFRtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 13:49:22 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@gmail.com>
+Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
+References: <20061005212216.GA10912@rhun.haifa.ibm.com>
+	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
+	<20061006155021.GE14186@rhun.haifa.ibm.com>
+Date: Fri, 06 Oct 2006 11:47:12 -0600
+In-Reply-To: <20061006155021.GE14186@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
+	message of "Fri, 6 Oct 2006 17:50:21 +0200")
+Message-ID: <m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Oct 2006, Linus Torvalds wrote:
+Muli Ben-Yehuda <muli@il.ibm.com> writes:
 
+> On Fri, Oct 06, 2006 at 09:14:53AM -0600, Eric W. Biederman wrote:
 >
-> Ok, it's two weeks since v2.6.18, and as a result I've cut a -rc1 release.
+>> Muli Ben-Yehuda <muli@il.ibm.com> writes:
 >
-> As usual for -rc1 with a lot of pending merges, it's a huge thing with
-> tons of changes, and in fact since 2.6.18 took longer than normal due to
-> me traveling (and others probably also being on vacations), it's possibly
-> even larger than usual.
+> In some cases we haven't made it to userspace at all. In other, we're
+> in the initrd.
+
+Ok.  So no irqbalanced? 
+Any non-standard firmware on this box like a hypervisor or weird APM
+code that could be causing problems.
+
+I'm just trying to think of things that might trip over a change in
+irq handling, besides a chipset.
+
+I want to suspect the irq migration code but it doesn't look like
+irqbalanced has started at all so irq migration doesn't appear to be
+happening.
+
+
+>> Seeing the failure case is really weird because this early in boot
+>> everything should be routed to cpu 0.
+>> 
+>> What happens if you boot with max_cpus=1?
 >
-> I think we got updates to pretty much all of the active architectures,
-> we've got VM changes (dirty shared page tracking, for example), we've got
-> networking, drivers, you name it. Even the shortlog and the diffstats are
-> too big to make the kernel mailing list, but even just the summary says
-> something:
+> Trying it now... woohoo, it boots all the way and stays up!
+
+Cool.  So this is clearly about irqs being delivered to multiple
+cpus, and getting getting the delivery messed up for some reason.
+
+>> If simple tests don't reveal what is going on then we will
+>> have to instrument up that BUG and print out the per
+>> cpu vector to irq tables, the cpu number, and the vector
+>> the unexpected irq came in on.
 >
-> 4998 total commits
-> 6535 files changed, 414890 insertions(+), 233881 deletions(-)
->
-> so please give it a good testing, and let's see if there are any
-> regressions.
->
+> I'm certainly game for any debugging you have in mind - this is my
+> main Calgary development machine so getting it booting is a pretty
+> high priority :-)
 
-In dmesg:
-warning: process `sleep' used the removed sysctl system call
-warning: process `alsactl' used the removed sysctl system call
-warning: process `nscd' used the removed sysctl system call
-warning: process `tail' used the removed sysctl system call
+Sure.  Anything that breaks irqs for 2.6.19 is clearly a big problem.
 
-ver_linux says:
-  /~ $ ./src/kernel/linux-2.6.19-rc1/scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+Can you try the debug patch below and tell me what it reports.
+As long as the problem irq is not for something important this
+should allow you to boot, and just collect the information.
 
-Linux grinch 2.6.19-rc1 #1 PREEMPT Thu Oct 5 22:53:57 EEST 2006 i686 
-unknown unknown GNU/Linux
+What I am hoping is that we will see which irq or irqs are having
+problems. Then we can check out how the irq controller for those
+irq are programmed.
 
-Gnu C                  3.3.4
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12p
-mount                  2.12p
-module-init-tools      3.1
-e2fsprogs              1.35
-jfsutils               1.1.11
-reiserfsprogs          3.6.18
-xfsprogs               2.6.13
-quota-tools            3.12.
-nfs-utils              1.0.7
-Linux C Library        2.3.4
-Dynamic linker (ldd)   2.3.4
-Linux C++ Library      5.0.6
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-
-  /~ $ /usr/sbin/alsactl -v
-alsactl version 1.0.10
+Eric
 
 
-In Documentation/feature-removal-schedule.txt it says:
-
----------------------------
-
-What:   sys_sysctl
-When:   January 2007
-Why:    The same information is available through /proc/sys and that is 
-the
-         interface user space prefers to use. And there do not appear to be
-         any existing user in user space of sys_sysctl.  The additional
-         maintenance overhead of keeping a set of binary names gets
-         in the way of doing a good job of maintaining this interface.
-
-Who:    Eric Biederman <ebiederm@xmission.com>
-
----------------------------
-
-I can upgrade my userspace (Slackware 10.1) if necessary ;)
-
-Bye
-Calin
-
---
-
-"frate, trezeste-te, aici nu-i razboiul stelelor"
- 				Radu R. pe offtopic at lug.ro
+diff --git a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
+index 506f27c..0bd4281 100644
+--- a/arch/x86_64/kernel/irq.c
++++ b/arch/x86_64/kernel/irq.c
+@@ -113,9 +113,20 @@ asmlinkage unsigned int do_IRQ(struct pt
+        irq = __get_cpu_var(vector_irq)[vector];
+ 
+        if (unlikely(irq >= NR_IRQS)) {
+-               printk(KERN_EMERG "%s: cannot handle IRQ %d\n",
+-                                       __FUNCTION__, irq);
+-               BUG();
++               if (printk_ratelimit()) {
++                       int cpu, vec;
++                       printk(KERN_EMERG "%s: cannot handle IRQ %d vector: %d cpu: %d\n",
++                               __FUNCTION__, irq, vector, smp_processor_id());
++                       for_each_online_cpu(cpu) {
++                               for (vec = 0; vec < NR_VECTORS; vec++) {
++                                       irq = per_cpu(vector_irq, cpu);
++                                       printk(KERN_DEBUG "vector_irq[%d][%d] -> %d\n",
++                                               cpu, vec, irq);
++                               }
++                       }
++               }
++               irq_exit();
++               return 1;
+        }
+ 
+ #ifdef CONFIG_DEBUG_STACKOVERFLOW
 

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWJFAYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWJFAiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751537AbWJFAYi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 20:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWJFAYi
+	id S932497AbWJFAiN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 20:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWJFAiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 20:24:38 -0400
-Received: from mx1.suse.de ([195.135.220.2]:18876 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751535AbWJFAYh (ORCPT
+	Thu, 5 Oct 2006 20:38:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:43945 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932496AbWJFAiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 20:24:37 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: mel@skynet.ie (Mel Gorman)
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc1: known regressions
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-	<20061005042816.GD16812@stusta.de>
-	<1160023503.22232.10.camel@localhost.localdomain>
-	<jevemyv77c.fsf@sykes.suse.de> <20061005211506.GB28161@skynet.ie>
-X-Yow: I brought my BOWLING BALL - and some DRUGS!!
-Date: Fri, 06 Oct 2006 02:24:20 +0200
-In-Reply-To: <20061005211506.GB28161@skynet.ie> (Mel Gorman's message of "Thu,
-	5 Oct 2006 22:15:06 +0100")
-Message-ID: <jek63euw97.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Thu, 5 Oct 2006 20:38:11 -0400
+Date: Thu, 5 Oct 2006 17:37:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Industrial device driver uio/uio_*
+Message-ID: <20061006003758.GA23391@kroah.com>
+References: <1157995334.23085.188.camel@localhost.localdomain> <1159988394.25772.97.camel@localhost.localdomain> <20061004121835.bb155afe.akpm@osdl.org> <1159990345.1386.277.camel@localhost.localdomain> <20061005081247.GA8218@localhost.hsdv.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061005081247.GA8218@localhost.hsdv.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mel@skynet.ie (Mel Gorman) writes:
+On Thu, Oct 05, 2006 at 05:12:47PM +0900, Paul Mundt wrote:
+> On Wed, Oct 04, 2006 at 09:32:25PM +0200, Thomas Gleixner wrote:
+> > On Wed, 2006-10-04 at 12:18 -0700, Andrew Morton wrote:
+> > > On Wed, 04 Oct 2006 19:59:54 +0100
+> > > > I would just NAK it but want to be sure the guys saw the list of
+> > > > problems
+> > > > 
+> > > 
+> > > cc's added.
+> > > 
+> > > Thomas has been a bit tied up with timers and interrupts of late.
+> > 
+> > Yup. fork(tglx) still returns -ETOOMANYINSTANCES.
+> > 
+> > I have no objections, if you pull it from -mm for now. The list of flaws
+> > is accepted and we'll work on this in foreseeable time, _IF_ there is
+> > some basic consensus about the idea itself not being fundamentaly wrong.
+> > 
+> I've got a few cycles I can throw at this, it's a problem space we
+> (Renesas) are interested in too..
+> 
+> Alan, is your Sept. 11 list the extent of your issues with the current
+> code, or was there more that you sent off-list?
+> 
+> I'll toss up a quick git tree for this so we don't lose anything, and
+> the fixes can trickle in to -mm that way, or it can just be pulled and
+> added back later.
 
-> Can you please confirm that CONFIG_HIGHMEM is set on your machine?
+Please just send me patches and I'll update the main version that I
+have, which will get pulled into -mm.
 
-Yes, it is.
+And yes, I need to look at this some more too.  I was considering just
+stripping it down to the bare essencials right now, the interrupt
+handling stuff, and then slowly adding pieces back when people asked for
+them.
 
-> If it is, can you unset it and see does it boot?
+Unless people need all of the different options right now?
 
-I did, and it did.
+thanks,
 
-> If it boots, this patch should allow the kernel to boot with
-> CONFIG_HIGHMEM.
 
-Bingo! :-)
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+greg k-h

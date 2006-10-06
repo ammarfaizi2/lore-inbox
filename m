@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWJFAiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWJFAwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbWJFAiN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Oct 2006 20:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWJFAiM
+	id S932515AbWJFAwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Oct 2006 20:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWJFAwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Oct 2006 20:38:12 -0400
-Received: from ns2.suse.de ([195.135.220.15]:43945 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932496AbWJFAiL (ORCPT
+	Thu, 5 Oct 2006 20:52:55 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:45707 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932512AbWJFAwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Oct 2006 20:38:11 -0400
-Date: Thu, 5 Oct 2006 17:37:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Industrial device driver uio/uio_*
-Message-ID: <20061006003758.GA23391@kroah.com>
-References: <1157995334.23085.188.camel@localhost.localdomain> <1159988394.25772.97.camel@localhost.localdomain> <20061004121835.bb155afe.akpm@osdl.org> <1159990345.1386.277.camel@localhost.localdomain> <20061005081247.GA8218@localhost.hsdv.com>
+	Thu, 5 Oct 2006 20:52:54 -0400
+Message-ID: <4525A8D8.9050504@garzik.org>
+Date: Thu, 05 Oct 2006 20:52:40 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005081247.GA8218@localhost.hsdv.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: David Howells <dhowells@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
+       David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing
+ to IRQ handlers
+References: <20061002132116.2663d7a3.akpm@osdl.org>  <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com>
+In-Reply-To: <18975.1160058127@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 05:12:47PM +0900, Paul Mundt wrote:
-> On Wed, Oct 04, 2006 at 09:32:25PM +0200, Thomas Gleixner wrote:
-> > On Wed, 2006-10-04 at 12:18 -0700, Andrew Morton wrote:
-> > > On Wed, 04 Oct 2006 19:59:54 +0100
-> > > > I would just NAK it but want to be sure the guys saw the list of
-> > > > problems
-> > > > 
-> > > 
-> > > cc's added.
-> > > 
-> > > Thomas has been a bit tied up with timers and interrupts of late.
-> > 
-> > Yup. fork(tglx) still returns -ETOOMANYINSTANCES.
-> > 
-> > I have no objections, if you pull it from -mm for now. The list of flaws
-> > is accepted and we'll work on this in foreseeable time, _IF_ there is
-> > some basic consensus about the idea itself not being fundamentaly wrong.
-> > 
-> I've got a few cycles I can throw at this, it's a problem space we
-> (Renesas) are interested in too..
-> 
-> Alan, is your Sept. 11 list the extent of your issues with the current
-> code, or was there more that you sent off-list?
-> 
-> I'll toss up a quick git tree for this so we don't lose anything, and
-> the fixes can trickle in to -mm that way, or it can just be pulled and
-> added back later.
+The overwhelming majority of irq handlers don't use the 'irq' argument 
+either...  the driver-supplied pointer is what drivers use, exclusively, 
+to differentiate between different instances.
 
-Please just send me patches and I'll update the main version that I
-have, which will get pulled into -mm.
+If we are going to break all the irq handlers, I'd suggest going ahead 
+and removing that one too.
 
-And yes, I need to look at this some more too.  I was considering just
-stripping it down to the bare essencials right now, the interrupt
-handling stuff, and then slowly adding pieces back when people asked for
-them.
-
-Unless people need all of the different options right now?
-
-thanks,
+	Jeff
 
 
-greg k-h

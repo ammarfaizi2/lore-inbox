@@ -1,95 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWJFXBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422724AbWJFXBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422723AbWJFXBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 19:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWJFXBW
+	id S1422724AbWJFXBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 19:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWJFXBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:01:22 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:16075 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1422723AbWJFXBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:01:21 -0400
-X-Sasl-enc: PKwv7ArVa7OkV1K/0wqTO5zqyrEgx+P0dCNR0KSZu/2G 1160175681
-Message-ID: <4526E0AC.9070105@imap.cc>
-Date: Sat, 07 Oct 2006 01:03:08 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: mingo@elte.hu
-Subject: v2.6.19-rc1 regression: printk missing klogd wakeup
-References: <72sfz-wa-1@gated-at.bofh.it>
-In-Reply-To: <72sfz-wa-1@gated-at.bofh.it>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig988FC63E2C514997B72C7FE2"
+	Fri, 6 Oct 2006 19:01:38 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:60312 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1422724AbWJFXBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 19:01:37 -0400
+Message-id: <34281112314@wsc.cz>
+Subject: [PATCH 1/6] Char: mxser_new, eliminate tty ldisc deref
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sat,  7 Oct 2006 01:01:35 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig988FC63E2C514997B72C7FE2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+mxser_new, eliminate tty ldisc deref
 
-Unsurprisingly, v2.6.19-rc1 still contains the problem I reported
-for v2.6.18-rc1 under the subject "Linux v2.6.18-rc1: printk delays"
-and later (unfortunately not before it made it into v2.6.18) tracked
-down through bisecting to
+Use tty_ldisc_flush and tty_wakeup helpers for accessing ldisc internals.
 
-[a0f1ccfd8d37457a6d8a9e01acebeefcdfcc306e] lockdep: do not recurse in pri=
-ntk
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Problem description:
-> While X is running, output from printk() appears in syslog (eg.
-> /var/log/messages) only after a key is pressed on the system keyboard,
-> even though it is visible with dmesg immediately.
-(from lkml message <450BF1CC.2070309@imap.cc> - see that message
-for further details)
+---
+commit f1ec019ded64c90bc2c8017a41bd77c8f900711c
+tree 2c0916affadc7d056cd8ce397109a3f85bfc4c1f
+parent b886c49c87ee91a038b917f6933183db8ae58125
+author Jiri Slaby <jirislaby@gmail.com> Fri, 06 Oct 2006 23:14:52 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Fri, 06 Oct 2006 23:14:52 +0200
 
-The problem did not exist in 2.6.17, so I think it qualifies as a
-regression.
+ drivers/char/mxser_new.c |   12 ++----------
+ 1 files changed, 2 insertions(+), 10 deletions(-)
 
-The following naive patch fixes the problem for me, without any
-apparent ill effects (ie. the menace of lockup never manifested
-itself):
-
---- a/kernel/printk.c   2006-10-07 00:51:09.000000000 +0200
-+++ b/kernel/printk.c   2006-10-07 00:51:41.000000000 +0200
-@@ -826,8 +826,7 @@ void release_console_sem(void)
-                 * from within the scheduler code, then do not lock
-                 * up due to self-recursion:
-                 */
--               if (!lockdep_internal())
--                       wake_up_interruptible(&log_wait);
-+               wake_up_interruptible(&log_wait);
-        }
+diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+index a555dda..1f53e07 100644
+--- a/drivers/char/mxser_new.c
++++ b/drivers/char/mxser_new.c
+@@ -1065,7 +1065,6 @@ static void mxser_close(struct tty_struc
+ 
+ 	unsigned long timeout;
+ 	unsigned long flags;
+-	struct tty_ldisc *ld;
+ 
+ 	if (tty->index == MXSER_PORTS)
+ 		return;
+@@ -1145,12 +1144,7 @@ static void mxser_close(struct tty_struc
+ 	if (tty->driver->flush_buffer)
+ 		tty->driver->flush_buffer(tty);
+ 
+-	ld = tty_ldisc_ref(tty);
+-	if (ld) {
+-		if (ld->flush_buffer)
+-			ld->flush_buffer(tty);
+-		tty_ldisc_deref(ld);
+-	}
++	tty_ldisc_flush(tty);
+ 
+ 	tty->closing = 0;
+ 	info->event = 0;
+@@ -1303,9 +1297,7 @@ static void mxser_flush_buffer(struct tt
+ 	spin_unlock_irqrestore(&info->slock, flags);
+ 	/* above added by shinhay */
+ 
+-	wake_up_interruptible(&tty->write_wait);
+-	if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) && tty->ldisc.write_wakeup)
+-		(tty->ldisc.write_wakeup) (tty);
++	tty_wakeup(tty);
  }
- EXPORT_SYMBOL(release_console_sem);
-
-But I guess for a proper fix the if() condition should rather be
-refined a bit than thrown out completely.
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
-
-
---------------enig988FC63E2C514997B72C7FE2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFJuC5MdB4Whm86/kRAsSqAJsGRm+Y4fpBkZUAwApazRWK0poMVgCfchTb
-zhf2dpWtCVDke2MTymCPIUg=
-=B8Lx
------END PGP SIGNATURE-----
-
---------------enig988FC63E2C514997B72C7FE2--
+ 
+ /*

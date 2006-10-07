@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423109AbWJGDLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423119AbWJGDUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423109AbWJGDLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 23:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423111AbWJGDLk
+	id S1423119AbWJGDUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 23:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWJGDTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 23:11:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60871 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423109AbWJGDLj (ORCPT
+	Fri, 6 Oct 2006 23:19:48 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:1977 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932694AbWJGDTq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 23:11:39 -0400
-Date: Fri, 6 Oct 2006 20:11:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-In-Reply-To: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0610062000281.3952@g5.osdl.org>
-References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Oct 2006 23:19:46 -0400
+Date: Fri, 6 Oct 2006 23:19:10 -0400
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: pm list <linux-pm@lists.osdl.org>, Matthew Locke <matt@nomadgs.com>,
+       Amit Kucheria <amit.kucheria@nokia.com>,
+       Igor Stoppa <igor.stoppa@nokia.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] CPUFreq PowerOP integration, Centrino PM Core and OPs registration 2/3
+Message-ID: <20061007031910.GA1494@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	"Eugeny S. Mints" <eugeny.mints@gmail.com>,
+	pm list <linux-pm@lists.osdl.org>, Matthew Locke <matt@nomadgs.com>,
+	Amit Kucheria <amit.kucheria@nokia.com>,
+	Igor Stoppa <igor.stoppa@nokia.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <45096C1A.7010008@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45096C1A.7010008@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Thu, Sep 14, 2006 at 06:50:02PM +0400, Eugeny S. Mints wrote:
 
-On Sat, 7 Oct 2006, Jesper Juhl wrote:
-> 
-> Which has worked great in the past, but with recent kernels it has
-> been a sure way to cause a complete lockup within 1 hour :-(
+> +static int 
+> +process_pwr_param(struct pm_core_point *opt, int op, char *param_name,
+> +		  int va_arg)
+> +{
+> +	int cpu = 0;
+> +	char buf[8];
+> +
+> +	for (cpu = 0; cpu < NR_CPUS; cpu++)
+> +	{
+> +		sprintf(buf, "v%d", cpu);
+> +
+> +		if (strcmp(param_name, buf) == 0) {
+> +			if (op == PWR_PARAM_SET)
+> +				opt->opt[cpu].pwpr[_I386_PM_CORE_POINT_V] = 
+> +									va_arg;
+> +			else if (opt != NULL)
+> +				*(int *)va_arg = 
+> +				     opt->opt[cpu].pwpr[_I386_PM_CORE_POINT_V];
+> +			else if ((*(int *)va_arg = get_vtg(cpu)) <= 0)
+> +				return -EINVAL;
+> +			return 0;
+> +		}
+> +
+> +		sprintf(buf, "freq%d", cpu);
+> +
+> +		if (strcmp(param_name, buf) == 0) {
+> +			if (op == PWR_PARAM_SET)
+> +				opt->opt[cpu].pwpr[_I386_PM_CORE_POINT_FREQ] = 
+> +									va_arg;
+> +			else if (opt != NULL)
+> +				*(int *)va_arg = 
+> +				  opt->opt[cpu].pwpr[_I386_PM_CORE_POINT_FREQ];
+> +			else if ((*(int *)va_arg = get_freq(cpu)) <= 0)
+> +				return -EINVAL;
+> +
+> +			return 0;
+> +		}
+> +	}
+> +
+> +	return -EINVAL;
+> +}
 
-Reliable lock-ups (and "within 1 hour" is quite quick too) are actually 
-great.
+Ouch. IIRC Pavel had some fine comments about such string parsing deep in
+arch code... Other than that I see lots of indirection, lots of code being
+added (~400 lines) for no gain in functionality for the x86 case.
 
-> 2.6.17.13 .
-> The first kernel where I know for sure it caused lockups is
-> 2.6.18-git15 .   I've also tested 2.6.18-git16, 2.6.18-git21 and
-> 2.6.19-rc1-git2 and those 3 also lock up solid.
-
-Can I bother you to just bisect it?
-
-Even if you decide that it's too painful to bisect to the very end, "git 
-bisect" will give great results after just as few reboots as four or five, 
-and hopefully narrow down the thing a _lot_.
-
-So, for example, while my git tree doesn't contain the stable release 
-numbers, you can trivially just get my tree, and then point "git fetch" at 
-the stable git tree and get v2.6.17.13 that way.
-
-Then you can do just
-
-	git bisect start
-	git bisect good v2.6.17.13
-	git bisect bad $(cat patch-2.6.18-git15.id)
-
-and off you go - it will pick a half-way point for you to test, and then 
-if that one was good, you just say "git bisect good", and it will pick the 
-next one..
-
-(that "patch-2.6.18-git15.id" thing is from kernel.org - it's how you can 
-get the exact git state of any particular snapshot, even if it's not 
-tagged in any real tree - that particular one seems to have SHA1 ID 
-1bdfd554be94def718323659173517c5d4a69d25..)
-
-"git bisect" really does kick ass. Don't worry if it says "10374 commits 
-to test after this" - because it does a binary search, it basically 
-cuts the commits to test in half each time, and so if you do just five 
-bisections, you'll have cut down the 10,000 commits to just a few hundred. 
-At that point, maybe we even have a clue, or we might ask you to test a 
-few more times to narrow things down even more.
-
-		Linus
+Thanks,
+	Dominik

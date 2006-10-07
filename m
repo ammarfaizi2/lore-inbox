@@ -1,132 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWJGMEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWJGMMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWJGMEB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 08:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWJGMEB
+	id S1751011AbWJGMMt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 08:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWJGMMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 08:04:01 -0400
-Received: from smtp5-g19.free.fr ([212.27.42.35]:19681 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750980AbWJGMEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 08:04:00 -0400
-From: Dominique Dumont <domi.dumont@free.fr>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: alsa-user <alsa-user@lists.sourceforge.net>,
-       Francesco Peeters <Francesco@FamPeeters.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	<13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
-	<87y7rusddc.fsf@gandalf.hd.free.fr>
-	<1160081110.2481.104.camel@mindpipe>
-	<87r6xmscif.fsf@gandalf.hd.free.fr>
-	<1160083137.2481.108.camel@mindpipe>
-Date: Sat, 07 Oct 2006 14:03:57 +0200
-Message-ID: <878xjs1geq.fsf@gandalf.hd.free.fr>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Sat, 7 Oct 2006 08:12:49 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:7471 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751007AbWJGMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 08:12:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=exWY12NaM25HlWnC8yzMPyRbfF7461y0M2jlkMuK972SyzwmlscuoIuvs2e4+8aGZhKdF+yKSRBS7co9HIM9XFxwCFX78Q5dMNE979BJeio7mgq381HfySWmW1Ja6wZI7QyQpT05NL1sZTW3klqhr/12VO5nXW4aPk6juKu7+PU=
+Message-ID: <309a667c0610070512y47718898i4a664ef6cce7c312@mail.gmail.com>
+Date: Sat, 7 Oct 2006 17:42:47 +0530
+From: "Devesh Sharma" <devesh28@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Compiling dependent module
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: domi.dumont@free.fr
-X-SA-Exim-Scanned: No (on gandalf.hd.free.fr); SAEximRunCond expanded to false
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_18407_12249361.1160223167735"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
+------=_Part_18407_12249361.1160223167735
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Did you ever try the latency tracer?  (See LKML archives for
-> instructions)
+Hello all,
 
-Yes I did (this time better than 2 or 3 days ago :-/ ).
+I have a situation where, I have one parent module in ../hello/
+directory which exports one symbol (g_my_export). I have a dependent
+module in ../hello1/ directory. Both have it's own makefiles.
+Compiling of parent module (hello.ko) is fine, but during compilation
+of dependent module (hello1.ko) I see a warning that g_my_export is
+undefined.
 
-- I compiled and booted 2.6.28-rt5 with latency tracer enabled
-- I verified that I got latency trace enabled (seen trace in kern.log)
+On the other hand when I do depmod -a and modprobe, dependent module
+inserts successfully in kernel.
 
-I only got some traces after running this (detail added for the sake
-of other newbies like me) :
+I want to remove compile time warning. What should I do?
 
-   gandalf:/proc/sys/kernel# echo 0 > preempt_max_latency
+The source and makefile of both parent and dependent module is
+attached with this mail.
 
-Here's the max latency trace I got (note that I got a similar trace
-*before* running the test, so I'd say it's unrelated to the AC3
-drop-out problem.):
+Thanks
+Devesh.
 
-preemption latency trace v1.1.5 on 2.6.18-rt5
---------------------------------------------------------------------
- latency: 19 us, #58/58, CPU#0 | (M:rt VP:0, KP:0, SP:1 HP:1)
-    -----------------
-    | task: posix_cpu_timer-2 (uid:0 nice:0 policy:1 rt_prio:99)
-    -----------------
+------=_Part_18407_12249361.1160223167735
+Content-Type: text/x-csrc; name=hello.c; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eszyyno7
+Content-Disposition: attachment; filename="hello.c"
 
-                 _------=> CPU#            
-                / _-----=> irqs-off        
-               | / _----=> need-resched    
-               || / _---=> hardirq/softirq 
-               ||| / _--=> preempt-depth   
-               |||| /                      
-               |||||     delay             
-   cmd     pid ||||| time  |   caller      
-      \   /    |||||   \   |   /           
-  <idle>-0     0Dnh2    0us : __trace_start_sched_wakeup (try_to_wake_up)
-  <idle>-0     0Dnh2    0us : __trace_start_sched_wakeup <<...>-2> (0 0)
-  <idle>-0     0Dnh2    0us : try_to_wake_up <<...>-2> (199 20)
-  <idle>-0     0Dnh1    0us : preempt_schedule (try_to_wake_up)
-  <idle>-0     0Dnh1    0us : wake_up_process (run_posix_cpu_timers)
-  <idle>-0     0Dnh1    0us : note_interrupt (handle_level_irq)
-  <idle>-0     0Dnh2    0us : enable_8259A_irq (handle_level_irq)
-  <idle>-0     0Dnh2    1us : preempt_schedule (enable_8259A_irq)
-  <idle>-0     0Dnh1    1us : preempt_schedule (handle_level_irq)
-  <idle>-0     0Dnh1    2us : irq_exit (do_IRQ)
-  <idle>-0     0Dnh1    3us : do_IRQ (b0101ade b 0)
-  <idle>-0     0Dnh1    3us : handle_level_irq (do_IRQ)
-  <idle>-0     0Dnh2    3us+: mask_and_ack_8259A (handle_level_irq)
-  <idle>-0     0Dnh2    8us : preempt_schedule (mask_and_ack_8259A)
-  <idle>-0     0Dnh2    8us : redirect_hardirq (handle_level_irq)
-  <idle>-0     0Dnh2    9us : wake_up_process (redirect_hardirq)
-  <idle>-0     0Dnh2    9us : try_to_wake_up (wake_up_process)
-  <idle>-0     0Dnh2    9us : task_rq_lock (try_to_wake_up)
-  <idle>-0     0Dnh3    9us : activate_task (try_to_wake_up)
-  <idle>-0     0Dnh3    9us : sched_clock (activate_task)
-  <idle>-0     0Dnh3    9us : __activate_task (activate_task)
-  <idle>-0     0Dnh3    9us : __activate_task <<...>-2006> (59 1)
-  <idle>-0     0Dnh3    9us : enqueue_task (__activate_task)
-  <idle>-0     0Dnh3    9us : __trace_start_sched_wakeup (try_to_wake_up)
-  <idle>-0     0Dnh3    9us : try_to_wake_up <<...>-2006> (140 20)
-  <idle>-0     0Dnh2    9us : preempt_schedule (try_to_wake_up)
-  <idle>-0     0Dnh2    9us : wake_up_process (redirect_hardirq)
-  <idle>-0     0Dnh1   10us : preempt_schedule (handle_level_irq)
-  <idle>-0     0Dnh1   10us : irq_exit (do_IRQ)
-  <idle>-0     0Dnh1   11us : do_IRQ (b0101ade e 0)
-  <idle>-0     0Dnh1   11us : handle_level_irq (do_IRQ)
-  <idle>-0     0Dnh2   11us+: mask_and_ack_8259A (handle_level_irq)
-  <idle>-0     0Dnh2   16us : preempt_schedule (mask_and_ack_8259A)
-  <idle>-0     0Dnh2   16us : redirect_hardirq (handle_level_irq)
-  <idle>-0     0Dnh2   16us : wake_up_process (redirect_hardirq)
-  <idle>-0     0Dnh2   16us : try_to_wake_up (wake_up_process)
-  <idle>-0     0Dnh2   16us : task_rq_lock (try_to_wake_up)
-  <idle>-0     0Dnh3   17us : activate_task (try_to_wake_up)
-  <idle>-0     0Dnh3   17us : sched_clock (activate_task)
-  <idle>-0     0Dnh3   17us : __activate_task (activate_task)
-  <idle>-0     0Dnh3   17us : __activate_task <<...>-861> (53 2)
-  <idle>-0     0Dnh3   17us : enqueue_task (__activate_task)
-  <idle>-0     0Dnh3   17us : __trace_start_sched_wakeup (try_to_wake_up)
-  <idle>-0     0Dnh3   17us : try_to_wake_up <<...>-861> (146 20)
-  <idle>-0     0Dnh2   17us : preempt_schedule (try_to_wake_up)
-  <idle>-0     0Dnh2   17us : wake_up_process (redirect_hardirq)
-  <idle>-0     0Dnh1   17us : preempt_schedule (handle_level_irq)
-  <idle>-0     0Dnh1   17us : irq_exit (do_IRQ)
-  <idle>-0     0Dn..   17us : __schedule (cpu_idle)
-  <idle>-0     0Dn..   17us : profile_hit (__schedule)
-  <idle>-0     0Dn.1   18us : sched_clock (__schedule)
-   <...>-2     0D..2   18us : __switch_to (__schedule)
-   <...>-2     0D..2   18us : __schedule <<idle>-0> (20 199)
-   <...>-2     0...1   18us : trace_stop_sched_switched (__schedule)
-   <...>-2     0D..1   18us : trace_stop_sched_switched <<...>-2> (0 0)
-   <...>-2     0D..2   18us : __schedule (__schedule)
+I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgpNT0RVTEVf
+TElDRU5TRSgiRHVhbCBCU0QvR1BMIik7CgppbnQgZ19teV9leHBvcnQgPSAweEEgOwoKc3RhdGlj
+IGludCBoZWxsb19pbml0KHZvaWQpCnsKcHJpbnRrKEtFUk5fQUxFUlQgIkhlbGxvLCB3b3JsZFxu
+Iik7CnJldHVybiAwOwp9CnN0YXRpYyB2b2lkIGhlbGxvX2V4aXQodm9pZCkKewpwcmludGsoS0VS
+Tl9BTEVSVCAiR29vZGJ5ZSwgY3J1ZWwgd29ybGRcbiIpOwp9CgpFWFBPUlRfU1lNQk9MKGdfbXlf
+ZXhwb3J0KSA7Cgptb2R1bGVfaW5pdChoZWxsb19pbml0KTsKbW9kdWxlX2V4aXQoaGVsbG9fZXhp
+dCk7Cg==
+------=_Part_18407_12249361.1160223167735
+Content-Type: application/octet-stream; name=Makefile
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eszz2xjb
+Content-Disposition: attachment; filename="Makefile"
 
+IyBJZiBLRVJORUxSRUxFQVNFIGlzIGRlZmluZWQsIHdlJ3ZlIGJlZW4gaW52b2tlZCBmcm9tIHRo
+ZQojIGtlcm5lbCBidWlsZCBzeXN0ZW0gYW5kIGNhbiB1c2UgaXRzIGxhbmd1YWdlLgppZm5lcSAo
+JChLRVJORUxSRUxFQVNFKSwpCm9iai1tIDo9IGhlbGxvLm8KIyBPdGhlcndpc2Ugd2Ugd2VyZSBj
+YWxsZWQgZGlyZWN0bHkgZnJvbSB0aGUgY29tbWFuZAojIGxpbmU7IGludm9rZSB0aGUga2VybmVs
+IGJ1aWxkIHN5c3RlbS4KZWxzZQpLRVJORUxESVIgPz0gL2xpYi9tb2R1bGVzLyQoc2hlbGwgdW5h
+bWUgLXIpL2J1aWxkCgpQV0QgOj0gJChzaGVsbCBwd2QpCgpkZWZhdWx0OgoJJChNQUtFKSAtQyAk
+KEtFUk5FTERJUikgTT0kKFBXRCkgbW9kdWxlcwoKaW5zdGFsbDoKCSQoTUFLRSkgLUMgJChLRVJO
+RUxESVIpIE09JChQV0QpIG1vZHVsZXNfaW5zdGFsbAoKY2xlYW46CgkkKE1BS0UpIC1DICQoS0VS
+TkVMRElSKSBNPSQoUFdEKSBjbGVhbgoKZW5kaWYK
+------=_Part_18407_12249361.1160223167735
+Content-Type: text/x-csrc; name=hello1.c; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eszz32zb
+Content-Disposition: attachment; filename="hello1.c"
 
-vim:ft=help
+I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgpNT0RVTEVf
+TElDRU5TRSgiRHVhbCBCU0QvR1BMIik7CgpleHRlcm4gaW50IGdfbXlfZXhwb3J0IDsKCnN0YXRp
+YyBpbnQgaGVsbG9faW5pdCh2b2lkKQp7CiAgICBwcmludGsoS0VSTl9BTEVSVCAiSGVsbG8sIHdv
+cmxkMVxuIik7CiAgICAKICAgIHByaW50aygiVmFsdWUgaW4gZ19teV9leHBvcnQ9JWRcbiIsZ19t
+eV9leHBvcnQpIDsKcmV0dXJuIDA7Cn0Kc3RhdGljIHZvaWQgaGVsbG9fZXhpdCh2b2lkKQp7CnBy
+aW50ayhLRVJOX0FMRVJUICJHb29kYnllLCBjcnVlbCB3b3JsZDFcbiIpOwp9Cgptb2R1bGVfaW5p
+dChoZWxsb19pbml0KTsKbW9kdWxlX2V4aXQoaGVsbG9fZXhpdCk7Cg==
+------=_Part_18407_12249361.1160223167735
+Content-Type: application/octet-stream; name=Makefile
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eszz38k8
+Content-Disposition: attachment; filename="Makefile"
 
-
-
-Cheers
+IyBJZiBLRVJORUxSRUxFQVNFIGlzIGRlZmluZWQsIHdlJ3ZlIGJlZW4gaW52b2tlZCBmcm9tIHRo
+ZQojIGtlcm5lbCBidWlsZCBzeXN0ZW0gYW5kIGNhbiB1c2UgaXRzIGxhbmd1YWdlLgppZm5lcSAo
+JChLRVJORUxSRUxFQVNFKSwpCm9iai1tIDo9IGhlbGxvMS5vCiMgT3RoZXJ3aXNlIHdlIHdlcmUg
+Y2FsbGVkIGRpcmVjdGx5IGZyb20gdGhlIGNvbW1hbmQKIyBsaW5lOyBpbnZva2UgdGhlIGtlcm5l
+bCBidWlsZCBzeXN0ZW0uCmVsc2UKS0VSTkVMRElSID89IC9saWIvbW9kdWxlcy8kKHNoZWxsIHVu
+YW1lIC1yKS9idWlsZAoKUFdEIDo9ICQoc2hlbGwgcHdkKQoKZGVmYXVsdDoKCSQoTUFLRSkgLUMg
+JChLRVJORUxESVIpIE09JChQV0QpIG1vZHVsZXMKCmluc3RhbGw6CgkkKE1BS0UpIC1DICQoS0VS
+TkVMRElSKSBNPSQoUFdEKSBtb2R1bGVzX2luc3RhbGwKCmNsZWFuOgoJJChNQUtFKSAtQyAkKEtF
+Uk5FTERJUikgTT0kKFBXRCkgY2xlYW4KCmVuZGlmCg==
+------=_Part_18407_12249361.1160223167735--

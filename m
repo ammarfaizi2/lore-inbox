@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJGMdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWJGMyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWJGMdd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 08:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWJGMdd
+	id S1751077AbWJGMyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 08:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWJGMyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 08:33:33 -0400
-Received: from ozlabs.org ([203.10.76.45]:61851 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750810AbWJGMdc (ORCPT
+	Sat, 7 Oct 2006 08:54:15 -0400
+Received: from soundwarez.org ([217.160.171.123]:4075 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751077AbWJGMyP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 08:33:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Oct 2006 08:54:15 -0400
+Subject: Re: sysfs & ALSA card
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+In-Reply-To: <20061007074440.GA9304@kroah.com>
+References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz>
+	 <20061007062458.GF23366@kroah.com>  <20061007074440.GA9304@kroah.com>
+Content-Type: text/plain
+Date: Sat, 07 Oct 2006 14:55:30 +0200
+Message-Id: <1160225730.19302.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17703.40127.482493.417591@cargo.ozlabs.ibm.com>
-Date: Sat, 7 Oct 2006 22:25:35 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Olaf Hering <olaf@aepfle.de>, Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] powerpc: fixup after irq changes
-In-Reply-To: <17702.62074.410366.433781@cargo.ozlabs.ibm.com>
-References: <20061002132116.2663d7a3.akpm@osdl.org>
-	<20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
-	<20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
-	<18975.1160058127@warthog.cambridge.redhat.com>
-	<Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
-	<20061006203434.GA7932@aepfle.de>
-	<17702.62074.410366.433781@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+On Sat, 2006-10-07 at 00:44 -0700, Greg KH wrote: 
+> > On Fri, Oct 06, 2006 at 04:00:27PM +0200, Jaroslav Kysela wrote:
+> > > 	I would like to discuss where is the right root for soundcards in 
+> > > the sysfs tree. I would like to put card specific variables like id there 
+> > > (see /proc/asound/card0/id).
 
-> You also removed the regs argument from the get_irq functions.  That
-> is a separate unrelated change, which I would want to think about for
-> a bit, because at least at one stage I had a use for that parameter.
+> > > Also, I plan to create link from 
+> > > /sys/class/sound tree to the appropriate card to show relationship. 
+> > > Something like:
+> > > 
+> > > /sys/<somewhere>/soundcard/0
+> > > 
+> > > /sys/class/sound/controlC0/soundcard -> ../../../<somewhere>/soundcard/0
+> > > 
+> > > 	Any comments and suggestions?
 
-I remembered the use I had for it - for interrupt controllers that
-want to save away an old cpu priority value or similar.  The ones that
-need to do that (xics and cell) either don't do it (xics :) or use a
-per-cpu array (cell).  Also, we call get_irq from an interrupt handler
-for cascaded interrupts in some cases.  So I have applied your patch
-and fixed the rejects.
+No, please no links if you have stuff that can be expressed in a tree,
+which you perfectly can in this case. Just create a parent "card-device"
+to hold the generic card attributes, and put the stuff like pcmC0* below
+that device. Userspace is fine with that and will not break,
+cause /sys/class/sound/* is still just a flat directory with all devices
+in one directory, only the link targets will point to a hierarchy (note
+that the link target of "pcmC1D0c" includes" Audigy2". )
+
+> Here's what /sys/class/sound now looks like for me:
+>  $ tree /sys/class/sound/
+>  /sys/class/sound/
+>  |-- Audigy2 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2
+>  |-- admmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/admmidi1
+>  |-- amidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/amidi1
+>  |-- controlC1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/controlC1
+>  |-- dmmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/dmmidi1
+>  |-- hwC1D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/hwC1D0
+>  |-- midi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midi1
+>  |-- midiC1D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midiC1D0
+>  |-- midiC1D1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midiC1D1
+>  |-- pcmC1D0c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D0c
+>  |-- pcmC1D0p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D0p
+>  |-- pcmC1D1c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D1c
+>  |-- pcmC1D2c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D2c
+>  |-- pcmC1D2p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D2p
+>  |-- pcmC1D3p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D3p
+>  |-- pcmC1D4c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D4c
+>  |-- pcmC1D4p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D4p
+>  `-- timer -> ../../devices/virtual/sound/timer
+> 
+> 
+> Yeah, I picked the wrong name for the card, it should be "card1" instead
+> of "Audigy2" here, but you get the idea.
+
+That looks nice. Yeah, it should something that matches to the C1 in the
+other names.
+
+> Please also note that you will need the latest versions of udev to get
+> this to work properly for your sysfs nodes.
+
+This should be fine for all recent releases including SLE.
 
 Thanks,
-Paul.
+Kay
+

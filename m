@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWJGQzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWJGRD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWJGQzK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 12:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWJGQzK
+	id S1751260AbWJGRD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 13:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWJGRD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 12:55:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51359 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751238AbWJGQzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 12:55:08 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-	<m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-	<20061006202324.GJ14186@rhun.haifa.ibm.com>
-	<m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
-	<20061007080315.GM14186@rhun.haifa.ibm.com>
-Date: Sat, 07 Oct 2006 10:52:24 -0600
-In-Reply-To: <20061007080315.GM14186@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
-	message of "Sat, 7 Oct 2006 10:03:15 +0200")
-Message-ID: <m14pugxe47.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Oct 2006 13:03:57 -0400
+Received: from ns1.mvista.com ([63.81.120.158]:29422 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751260AbWJGRD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 13:03:56 -0400
+Subject: Re: [PATCH 2 of 23] lookup_one_len_nd - lookup_one_len with
+	nameidata argument
+From: Daniel Walker <dwalker@mvista.com>
+To: Josef Jeff Sipek <jsipek@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk
+In-Reply-To: <3104d077379c19c98510.1160197641@thor.fsl.cs.sunysb.edu>
+References: <3104d077379c19c98510.1160197641@thor.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Date: Sat, 07 Oct 2006 10:03:53 -0700
+Message-Id: <1160240633.21411.6.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <muli@il.ibm.com> writes:
+On Sat, 2006-10-07 at 01:07 -0400, Josef Jeff Sipek wrote:
 
-> On Fri, Oct 06, 2006 at 05:42:40PM -0600, Eric W. Biederman wrote:
->
->> If I read your bootlog right. You have logical cpus, but only two
->> sockets, and I think only two cores.  The other two logical cpus
->> being hyperthreaded.
->
-> Yes, 2 sockets each of which is HT. Here's a /proc/cpuinfo from a
-> distro kernel:
+> -struct dentry * lookup_one_len(const char * name, struct dentry * base, int len)
+> +struct dentry * lookup_one_len_nd(const char *name, struct dentry * base, int len, struct nameidata *nd)
 
-Ok.  From looking at an individual case the ioapic is programmed
-correctly and I don't see a reason the local apic would be programmed
-incorrectly.  However logical delivery mode and lowest priority
-delivery mode are enabled.  So we are asking the interrupt delivery
-subsystem to choose a cpu to deliver the interrupt to and then are not
-giving the cpu any choice.  So we may be confusing things. 
+> -extern struct dentry * lookup_one_len(const char *, struct dentry *, int);
+> +extern struct dentry * lookup_one_len_nd(const char *, struct dentry *, int, struct nameidata *);
+> +
+> +/* SMP-safe */
+> +static inline struct dentry *lookup_one_len(const char *name, struct dentry *dir, int len)
 
-Can you try CONFIG_CPU_HOTPLUG?  That will force genapic to be set
-to genapic_physflat instead of genapic_flat.
 
-I am hoping that by running the apics in a different delivery mode
-that explicitly says just deliver this interrupt to this cpu we
-will avoid the problem you are seeing.
+These lines are all too long . Should max out at 80 characters.
 
-If genapic_physflat works we will have to decide what to do about
-genapic_flat.
+Daniel
 
-Thanks,
-
-Eric

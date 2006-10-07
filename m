@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWJGRID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWJGROA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWJGRID (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 13:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWJGRIC
+	id S932157AbWJGROA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 13:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWJGROA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 13:08:02 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60345 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932321AbWJGRIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 13:08:00 -0400
-Subject: Re: [Alsa-user] Pb with simultaneous SATA and ALSA I/O
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dominique Dumont <domi.dumont@free.fr>
-Cc: alsa-user <alsa-user@lists.sourceforge.net>,
-       Francesco Peeters <Francesco@FamPeeters.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <878xjs1geq.fsf@gandalf.hd.free.fr>
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	 <13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
-	 <87y7rusddc.fsf@gandalf.hd.free.fr> <1160081110.2481.104.camel@mindpipe>
-	 <87r6xmscif.fsf@gandalf.hd.free.fr> <1160083137.2481.108.camel@mindpipe>
-	 <878xjs1geq.fsf@gandalf.hd.free.fr>
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 13:08:34 -0400
-Message-Id: <1160240915.17615.57.camel@mindpipe>
+	Sat, 7 Oct 2006 13:14:00 -0400
+Received: from main.gmane.org ([80.91.229.2]:57572 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932157AbWJGRN7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 13:13:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: 25 random kernel configs, 24 build failures - 2.6.19-rc1-git2
+Date: Sat, 7 Oct 2006 17:13:30 +0000 (UTC)
+Message-ID: <loom.20061007T185916-369@post.gmane.org>
+References: <200610071102.05384.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 68.61.60.54 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; InfoPath.1; .NET CLR 1.1.4322))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-07 at 14:03 +0200, Dominique Dumont wrote:
-> Lee Revell <rlrevell@joe-job.com> writes:
-> 
-> > Did you ever try the latency tracer?  (See LKML archives for
-> > instructions)
-> 
-> Yes I did (this time better than 2 or 3 days ago :-/ ).
-> 
-> - I compiled and booted 2.6.28-rt5 with latency tracer enabled
-> - I verified that I got latency trace enabled (seen trace in kern.log)
-> 
-> I only got some traces after running this (detail added for the sake
-> of other newbies like me) :
-> 
->    gandalf:/proc/sys/kernel# echo 0 > preempt_max_latency
-> 
-> Here's the max latency trace I got (note that I got a similar trace
-> *before* running the test, so I'd say it's unrelated to the AC3
-> drop-out problem.):
+Jesper Juhl <jesper.juhl <at> gmail.com> writes:
 
-I think it must be an electrical noise issue.
 
-Lee
+> kernel/sched.c: In function `domain_distance':
+> kernel/sched.c:5673: internal compiler error: Segmentation fault
+> Please submit a full bug report,
+> with preprocessed source if appropriate.
+> See <URL:http://gcc.gnu.org/bugs.html> for instructions.
+> make[1]: *** [kernel/sched.o] Error 1
+> make: *** [kernel] Error 2
+> 
+> ====================
+
+Jesper
+
+In case you haven't noticed this in the load of errors - there you have 
+something to report to GCC bugzilla! (I did a quick gcc bugzilla search for 
+kernel/sched.c and ICE, but did not see anything exactly similar at the least.)
+
+Parag
 

@@ -1,28 +1,28 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422779AbWJFX6V (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 6 Oct 2006 19:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423010AbWJFX6U
+	id S1751736AbWJGF3k (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 7 Oct 2006 01:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWJGF3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 19:58:20 -0400
-Received: from softbank220002179167.bbtec.net ([220.2.179.167]:5896 "HELO
-	softbank220002179167.bbtec.net") by vger.kernel.org with SMTP
-	id S1422779AbWJFX6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 19:58:20 -0400
-From: "Armand Kirk" <ewheelerbzta@brooksschool.org>
-Reply-To: "Armand Kirk" <ewheelerbzta@brooksschool.org>
-Message-ID: <5732846675.7827033097@brooksschool.org>
-Date: Sat, 7 Oct 2006 15:05:03 -0400
+	Sat, 7 Oct 2006 01:29:40 -0400
+Received: from [60.218.192.71] ([60.218.192.71]:16135 "HELO 60.218.192.71")
+	by vger.kernel.org with SMTP id S1751735AbWJGF3k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:29:40 -0400
+From: "Ginger Huerta" <ruedingerwvbu@medical-tribune.de>
+Reply-To: "Ginger Huerta" <ruedingerwvbu@medical-tribune.de>
+Message-ID: <1695988318.3419904709@medical-tribune.de>
+Date: Sat, 7 Oct 2006 00:33:22 -0400
 To: <linux-kernel@vger.kernel.org>
-Subject: outdo russsian Teens!
+Subject: most advantageous Hussies and   outshine puussies!
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1422779AbWJFX6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751736AbWJGF3k@vger.kernel.org>
 
 
-Doo yoou wantt fascinating  Girl?
+exact russiian subtle Womans !
 
-http://vzmoprofasedolz.com
+http://teens644il.com
 

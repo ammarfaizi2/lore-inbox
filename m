@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWJGS1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWJGShK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWJGS1P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 14:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751746AbWJGS1P
+	id S932533AbWJGShK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 14:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWJGShJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 14:27:15 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:44995 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S1751565AbWJGS1O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 14:27:14 -0400
-Date: Sat, 7 Oct 2006 20:27:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] minimal alpha pt_regs fixes
-Message-ID: <20061007182708.GB5937@uranus.ravnborg.org>
-References: <20061007131731.GC29920@ftp.linux.org.uk> <4527C2F7.2010102@garzik.org>
+	Sat, 7 Oct 2006 14:37:09 -0400
+Received: from ns1.mvista.com ([63.81.120.158]:28924 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751796AbWJGShH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 14:37:07 -0400
+Subject: Re: [PATCH 2 of 23] lookup_one_len_nd - lookup_one_len with
+	nameidata argument
+From: Daniel Walker <dwalker@mvista.com>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk
+In-Reply-To: <20061007182301.GA25352@filer.fsl.cs.sunysb.edu>
+References: <3104d077379c19c98510.1160197641@thor.fsl.cs.sunysb.edu>
+	 <1160240633.21411.6.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061007182301.GA25352@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Date: Sat, 07 Oct 2006 11:37:04 -0700
+Message-Id: <1160246224.21411.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4527C2F7.2010102@garzik.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 07, 2006 at 11:08:39AM -0400, Jeff Garzik wrote:
-> Al Viro wrote:
-> >diff --git a/include/asm-alpha/irq_regs.h b/include/asm-alpha/irq_regs.h
-> >new file mode 100644
-> >index 0000000..3dd9c0b
-> >--- /dev/null
-> >+++ b/include/asm-alpha/irq_regs.h
-> >@@ -0,0 +1 @@
-> >+#include <asm-generic/irq_regs.h>
+On Sat, 2006-10-07 at 14:23 -0400, Josef Sipek wrote:
+
+> > 
+> > These lines are all too long . Should max out at 80 characters.
 > 
+> A large portion of that file has lines >80 chars. I just kept it consistent.
 > 
-> ACK, of course, but I wonder if we can do something about these 1-line 
-> header files.
 
-It would be even more simple and future proof if we could in
-some way do it so "#include <foo/bar.h>" would pick up bar.h from
-asm-$(ARCH) if it exists and otherwise pick up asm-generic/bar.h.
+It's like that all over the kernel, but when you add new code it's good
+to keep the lines under <=80 characters. That way you don't add to the
+mess.
 
-Then we could include the generic one in asm-generic and
-all architectures would include it except those that provide their
-own variant. The asm-$(ARCH) specific files would need a way to include
-the asm-generic version.
+Daniel
 
-I have no idea handy for how to actually implment this but wanted
-just to share the idea.
-The trade-off is that if it gets too iplicit then suddenly users will
-loose overview of how it works.
-
-	Sam

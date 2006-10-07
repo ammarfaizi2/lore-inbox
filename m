@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422818AbWJGAzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422822AbWJGBQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422818AbWJGAzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 20:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWJGAzE
+	id S1422822AbWJGBQy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 21:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422824AbWJGBQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 20:55:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54949 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422818AbWJGAzD (ORCPT
+	Fri, 6 Oct 2006 21:16:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1450 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422822AbWJGBQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 20:55:03 -0400
-Message-ID: <4526FAD2.8010004@redhat.com>
-Date: Fri, 06 Oct 2006 20:54:42 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Tim Bird <tim.bird@am.sony.com>,
-       Darren Hart <dvhltc@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       "Theodore Ts'o" <theotso@us.ibm.com>
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-References: <200610051404.08540.dvhltc@us.ibm.com> <452696C8.9000009@am.sony.com> <20061006181503.GE21816@thunk.org>
-In-Reply-To: <20061006181503.GE21816@thunk.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Fri, 6 Oct 2006 21:16:54 -0400
+Date: Fri, 6 Oct 2006 18:16:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>,
+       "Michael H. Warfield" <mhw@wittsend.com>
+Subject: Re: [PATCH] Char: remove unneded termbits redefinitions
+Message-Id: <20061006181641.e437548e.akpm@osdl.org>
+In-Reply-To: <1236876321987@karneval.cz>
+References: <1236876321987@karneval.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+On Wed,  4 Oct 2006 18:49:01 +0200 (CEST)
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
-> Yep, that was part of the design.  When I approached Peter Anvin and
-> the other kernel.org maintainers during OLS about hosting the -rt wiki
-> on kernel.org infrastructure, what we explicitly talked about was
-> making it easy to set up other wiki's for multiple kernel projects,
+> Char, remove unneded termbits redefinitions
+> 
+> No need to redefine termbits in char tree.
 
-It would be nice to give the wikis wiki editable navigation
-menus, like http://kernelnewbies.org/ and http://linux-mm.org/
+drivers/char/ip2/ip2main.c:2498: error: 'B153600' undeclared (first use in this function)
+drivers/char/ip2/ip2main.c:2498: error: (Each undeclared identifier is reported only once
+drivers/char/ip2/ip2main.c:2498: error: for each function it appears in.)
+drivers/char/ip2/ip2main.c:2500: error: 'B307200' undeclared (first use in this function)
 
-Too many of the wikis out there become horrendously hard to
-navigate after a few years...
+Unless you're a sparc user, methinks you didn't compile this one.
 
--- 
-Who do you trust?
-The people with all the right answers?
-Or the people with the right questions?
+I suppose an appropriate fix would be to move the B153600 and B307200
+definitions into include/asm-*/termbits.h (those which don't already have it).
+But that's just a guess.
+

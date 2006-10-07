@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWJGSo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWJGS6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751833AbWJGSo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 14:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWJGSo2
+	id S932714AbWJGS6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 14:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbWJGS6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 14:44:28 -0400
-Received: from hosting.zipcon.net ([209.221.136.3]:32972 "EHLO
-	hosting.zipcon.net") by vger.kernel.org with ESMTP id S1751833AbWJGSo1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 14:44:27 -0400
-From: Bill Waddington <william.waddington@beezmo.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
-Date: Sat, 07 Oct 2006 11:44:22 -0700
-Message-ID: <epsfi2t2dkegcm339i310e6k445k2klqt9@4ax.com>
-References: <fa.FU9k10MvHKEiGBkmyRa0N7lIvX4@ifi.uio.no> <fa.YmeJPP3GwSahgI09Gcaha4kqm84@ifi.uio.no> <fa.qbSmIOXP3NtOgNMHs5oazelaSJs@ifi.uio.no> <fa.AB8rZ1kwd3vQ1HCbYfV1438E4A0@ifi.uio.no> <fa.fxkKYbd7b8jGDAGrZeNdx030Z/g@ifi.uio.no> <20061002140121.f588b463.akpm@osdl.org> <fa.v9OUIBlFjbmpdm2jHjUOj/6fm5Y@ifi.uio.no>
-In-Reply-To: <fa.v9OUIBlFjbmpdm2jHjUOj/6fm5Y@ifi.uio.no>
-X-Mailer: Forte Agent 3.3/32.846
+	Sat, 7 Oct 2006 14:58:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:15558 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932714AbWJGS6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 14:58:42 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 1/3] driver for mcs7830 (aka DeLOCK) USB ethernet adapter
+Date: Sat, 7 Oct 2006 20:58:24 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-usb-devel@lists.sourceforge.net,
+       David Hollis <dhollis@davehollis.com>, support@moschip.com,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       Michael Helmling <supermihi@web.de>
+References: <200609170102.50856.arnd@arndb.de> <200609271828.58205.david-b@pacbell.net>
+In-Reply-To: <200609271828.58205.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hosting.zipcon.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - beezmo.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610072058.26162.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Oct 2006 10:52:19 UTC, in fa.linux.kernel Ingo Molnar
-wrote:
+On Thursday 28 September 2006 03:28, David Brownell wrote:
+> On Saturday 16 September 2006 4:02 pm, Arnd Bergmann wrote:
+> > This driver adds support for the DeLOCK USB ethernet adapter
+> > and potentially others based on the MosChip MCS7830 chip.
+> > 
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> 
 
->
->* Andrew Morton <akpm@osdl.org> wrote:
->
->> > I don't personally mind the patch, I just wanted to bring that issue 
->> > up.
->> 
->> yup.  Perhaps we could add
->> 
->> #define IRQ_HANDLERS_DONT_USE_PTREGS
->> 
->> so that out-of-tree drivers can reliably do their ifdefing.
->
->i'd suggest we do something like:
->
-> #define __PT_REGS
->
->so that backportable drivers can do:
->
->  static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
->
->instead of an #ifdef jungle. Older kernel bases can define __PT_REGS in 
->their interrupt.h (or in the backported driver's header, in one place)
->
-> #ifndef __PT_REGS
-> # define __PT_REGS , struct pt_regs *regs
-> #endif
->
->this would minimize the direct impact in the source-code.
+David, I was under the assumption that you would submit this version
+for inclusion in 2.6.19. Do you have it queued somewhere for submission
+or did you expect me to send it to someone else?
 
-Has this or something like it been sprinkled with penguin pee?  I'm
-one of those misguided out-of-tree maintainers.  I dont' use pt_regs
-but like warning-free compiles - and a single code module when
-possible.
-
-Thanks,
-Bill
--- 
-William D Waddington
-william.waddington@beezmo.com
-"Even bugs...are unexpected signposts on
-the long road of creativity..." - Ken Burtch
+	Arnd <><

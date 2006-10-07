@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932779AbWJGTRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932781AbWJGTSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932779AbWJGTRw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 15:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbWJGTRw
+	id S932781AbWJGTSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 15:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbWJGTSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 15:17:52 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:57862 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932779AbWJGTRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 15:17:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LeyFmVJuIp9Fd1fU2aXyLqMLeyFdYPH1LmoSkm4+IaOiQMTZToD5jyOizALopqHj8dkM8yjKOuKWoV7V1GSUuXvt8w8Rz8RQPH8StigwQL6kNDQhguEHvDyddO98fwKOq3Zcz28dQtgP6GCqKsgHpQ90hRuGI9pEP7+tVikeOxI=
-Message-ID: <9a8748490610071217x45d96e05lf2448269724e750f@mail.gmail.com>
-Date: Sat, 7 Oct 2006 21:17:50 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Parag Warudkar" <kernel-stuff@comcast.net>
-Subject: Re: 25 random kernel configs, 24 build failures - 2.6.19-rc1-git2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <loom.20061007T185916-369@post.gmane.org>
+	Sat, 7 Oct 2006 15:18:38 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:31507 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S932781AbWJGTSh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 15:18:37 -0400
+Message-ID: <4527FC8B.8010208@aknet.ru>
+Date: Sat, 07 Oct 2006 23:14:19 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru>	 <1159900934.2891.548.camel@laptopd505.fenrus.org>	 <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru> <1160170464.12835.4.camel@localhost.localdomain> <4526C7F4.6090706@redhat.com> <45278D2A.4020605@aknet.ru> <4527D64A.7060002@redhat.com>
+In-Reply-To: <4527D64A.7060002@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610071102.05384.jesper.juhl@gmail.com>
-	 <loom.20061007T185916-369@post.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/10/06, Parag Warudkar <kernel-stuff@comcast.net> wrote:
-> Jesper Juhl <jesper.juhl <at> gmail.com> writes:
->
->
-> > kernel/sched.c: In function `domain_distance':
-> > kernel/sched.c:5673: internal compiler error: Segmentation fault
-> > Please submit a full bug report,
-> > with preprocessed source if appropriate.
-> > See <URL:http://gcc.gnu.org/bugs.html> for instructions.
-> > make[1]: *** [kernel/sched.o] Error 1
-> > make: *** [kernel] Error 2
-> >
-> > ====================
->
-> Jesper
->
-> In case you haven't noticed this in the load of errors - there you have
-> something to report to GCC bugzilla! (I did a quick gcc bugzilla search for
-> kernel/sched.c and ICE, but did not see anything exactly similar at the least.)
->
-I did notice, and I will report it, don't worry :-)
+Hello.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Ulrich Drepper wrote:
+>> Now, as the access(X_OK) is fixed, would it be
+>> feasible for ld.so to start using it?
+> Just must be kidding.  No access control can be reliably implemented at
+> userlevel.  There is no point starting something as stupid as this.
+But in this case how can you ever solve the
+problem of ld.so executing the binaries for which
+the user does not have an exec permission?
+Yes, the userspace apps usually should not enforce
+the kernel's access control, but ld.so seems to be
+the special case - it is a kernel helper after all,
+so it have to be carefull and check what it does.
+

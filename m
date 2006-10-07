@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbWJGGAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbWJGF42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932739AbWJGGAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 02:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbWJGGAP
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 02:00:15 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:11185 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932618AbWJGF42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932702AbWJGF42 (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 7 Oct 2006 01:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWJGF4Z
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 7 Oct 2006 01:56:25 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:8369 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S932618AbWJGF4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:56:16 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 13 of 23] Unionfs: Readdir state
-Message-Id: <28ddedcd7cbe7b07dc15.1160197652@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 15 of 23] Unionfs: Privileged operations workqueue
+Message-Id: <b601a3cced0e325c9420.1160197654@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1160197639@thor.fsl.cs.sunysb.edu>
-Date: Sat, 07 Oct 2006 01:07:32 -0400
+Date: Sat, 07 Oct 2006 01:07:34 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
@@ -25,7 +25,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This file contains the routines for maintaining readdir state.
+Workqueue & helper functions used to perform privileged operations on
+behalf of the user process.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -33,13 +34,37 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
-1 file changed, 295 insertions(+)
-fs/unionfs/rdstate.c |  295 ++++++++++++++++++++++++++++++++++++++++++++++++++
+3 files changed, 200 insertions(+), 2 deletions(-)
+fs/unionfs/main.c |    8 ++-
+fs/unionfs/sioq.c |  115 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+fs/unionfs/sioq.h |   79 ++++++++++++++++++++++++++++++++++++
 
-diff -r e107be2f4ead -r 28ddedcd7cbe fs/unionfs/rdstate.c
+diff -r e7c28c2447c2 -r b601a3cced0e fs/unionfs/main.c
+--- a/fs/unionfs/main.c	Sat Oct 07 00:46:19 2006 -0400
++++ b/fs/unionfs/main.c	Sat Oct 07 00:46:19 2006 -0400
+@@ -256,12 +256,16 @@ static int parse_dirs_option(struct supe
+ 			branches++;
+ 
+ 	/* allocate space for underlying pointers to hidden dentry */
+-	if (!(stopd(sb)->usi_data = alloc_new_data(branches))) {
++	stopd(sb)->usi_data = kcalloc(branches,
++			sizeof(struct unionfs_usi_data), GFP_KERNEL);
++	if (!stopd(sb)->usi_data) {
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
+ 
+-	if (!(hidden_root_info->udi_dentry = alloc_new_dentries(branches))) {
++	hidden_root_info->udi_dentry = kcalloc(branches,
++			sizeof(struct dentry *), GFP_KERNEL);
++	if (!hidden_root_info->udi_dentry) {
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
+diff -r e7c28c2447c2 -r b601a3cced0e fs/unionfs/sioq.c
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/fs/unionfs/rdstate.c	Sat Oct 07 00:46:19 2006 -0400
-@@ -0,0 +1,295 @@
++++ b/fs/unionfs/sioq.c	Sat Oct 07 00:46:19 2006 -0400
+@@ -0,0 +1,115 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -60,280 +85,183 @@ diff -r e107be2f4ead -r 28ddedcd7cbe fs/unionfs/rdstate.c
 +
 +#include "union.h"
 +
-+/* This file contains the routines for maintaining readdir state. */
-+/* There are two structures here, rdstate which is a hash table
-+ * of the second structure which is a filldir_node. */
++struct workqueue_struct *sioq;
 +
-+/* This is a kmem_cache_t for filldir nodes, because we allocate a lot of them
-+ * and they shouldn't waste memory.  If the node has a small name (as defined
-+ * by the dentry structure), then we use an inline name to preserve kmalloc
-+ * space. */
-+static kmem_cache_t *unionfs_filldir_cachep;
-+int init_filldir_cache(void)
++int __init init_sioq(void)
 +{
-+	unionfs_filldir_cachep =
-+	    kmem_cache_create("unionfs_filldir", sizeof(struct filldir_node), 0,
-+			      SLAB_RECLAIM_ACCOUNT, NULL, NULL);
++	int err;
 +
-+	if (!unionfs_filldir_cachep)
-+		return -ENOMEM;
++	sioq = create_workqueue("unionfs_siod");
++	if (!IS_ERR(sioq))
++		return 0;
 +
-+	return 0;
-+}
-+
-+void destroy_filldir_cache(void)
-+{
-+	if (unionfs_filldir_cachep)
-+		kmem_cache_destroy(unionfs_filldir_cachep);
-+}
-+
-+/* This is a tuning parameter that tells us roughly how big to make the
-+ * hash table in directory entries per page.  This isn't perfect, but
-+ * at least we get a hash table size that shouldn't be too overloaded.
-+ * The following averages are based on my home directory.
-+ * 14.44693	Overall
-+ * 12.29	Single Page Directories
-+ * 117.93	Multi-page directories
-+ */
-+#define DENTPAGE 4096
-+#define DENTPERONEPAGE 12
-+#define DENTPERPAGE 118
-+#define MINHASHSIZE 1
-+static int guesstimate_hash_size(struct inode *inode)
-+{
-+	struct inode *hidden_inode;
-+	int bindex;
-+	int hashsize = MINHASHSIZE;
-+
-+	if (itopd(inode)->uii_hashsize > 0)
-+		return itopd(inode)->uii_hashsize;
-+
-+	for (bindex = ibstart(inode); bindex <= ibend(inode); bindex++) {
-+		if (!(hidden_inode = itohi_index(inode, bindex)))
-+			continue;
-+
-+		if (hidden_inode->i_size == DENTPAGE) {
-+			hashsize += DENTPERONEPAGE;
-+		} else {
-+			hashsize +=
-+			    (hidden_inode->i_size / DENTPAGE) * DENTPERPAGE;
-+		}
-+	}
-+
-+	return hashsize;
-+}
-+
-+int init_rdstate(struct file *file)
-+{
-+	BUG_ON(sizeof(loff_t) != (sizeof(unsigned int) + sizeof(unsigned int)));
-+	BUG_ON(ftopd(file)->rdstate != NULL);
-+
-+	ftopd(file)->rdstate =
-+	    alloc_rdstate(file->f_dentry->d_inode, fbstart(file));
-+	if (!ftopd(file)->rdstate)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+struct unionfs_dir_state *find_rdstate(struct inode *inode, loff_t fpos)
-+{
-+	struct unionfs_dir_state *rdstate = NULL;
-+	struct list_head *pos;
-+
-+	spin_lock(&itopd(inode)->uii_rdlock);
-+	list_for_each(pos, &itopd(inode)->uii_readdircache) {
-+		struct unionfs_dir_state *r =
-+		    list_entry(pos, struct unionfs_dir_state, uds_cache);
-+		if (fpos == rdstate2offset(r)) {
-+			itopd(inode)->uii_rdcount--;
-+			list_del(&r->uds_cache);
-+			rdstate = r;
-+			break;
-+		}
-+	}
-+	spin_unlock(&itopd(inode)->uii_rdlock);
-+	return rdstate;
-+}
-+
-+struct unionfs_dir_state *alloc_rdstate(struct inode *inode, int bindex)
-+{
-+	int i = 0;
-+	int hashsize;
-+	int mallocsize = sizeof(struct unionfs_dir_state);
-+	struct unionfs_dir_state *rdstate;
-+
-+	hashsize = guesstimate_hash_size(inode);
-+	mallocsize += hashsize * sizeof(struct list_head);
-+	/* Round it up to the next highest power of two. */
-+	mallocsize--;
-+	mallocsize |= mallocsize >> 1;
-+	mallocsize |= mallocsize >> 2;
-+	mallocsize |= mallocsize >> 4;
-+	mallocsize |= mallocsize >> 8;
-+	mallocsize |= mallocsize >> 16;
-+	mallocsize++;
-+
-+	/* This should give us about 500 entries anyway. */
-+	if (mallocsize > PAGE_SIZE)
-+		mallocsize = PAGE_SIZE;
-+
-+	hashsize =
-+	    (mallocsize -
-+	     sizeof(struct unionfs_dir_state)) / sizeof(struct list_head);
-+
-+	rdstate = kmalloc(mallocsize, GFP_KERNEL);
-+	if (!rdstate)
-+		return NULL;
-+
-+	spin_lock(&itopd(inode)->uii_rdlock);
-+	if (itopd(inode)->uii_cookie >= (MAXRDCOOKIE - 1))
-+		itopd(inode)->uii_cookie = 1;
-+	else
-+		itopd(inode)->uii_cookie++;
-+
-+	rdstate->uds_cookie = itopd(inode)->uii_cookie;
-+	spin_unlock(&itopd(inode)->uii_rdlock);
-+	rdstate->uds_offset = 1;
-+	rdstate->uds_access = jiffies;
-+	rdstate->uds_bindex = bindex;
-+	rdstate->uds_dirpos = 0;
-+	rdstate->uds_hashentries = 0;
-+	rdstate->uds_size = hashsize;
-+	for (i = 0; i < rdstate->uds_size; i++)
-+		INIT_LIST_HEAD(&rdstate->uds_list[i]);
-+
-+	return rdstate;
-+}
-+
-+static void free_filldir_node(struct filldir_node *node)
-+{
-+	if (node->namelen >= DNAME_INLINE_LEN_MIN)
-+		kfree(node->name);
-+	kmem_cache_free(unionfs_filldir_cachep, node);
-+}
-+
-+void free_rdstate(struct unionfs_dir_state *state)
-+{
-+	struct filldir_node *tmp;
-+	int i;
-+
-+	for (i = 0; i < state->uds_size; i++) {
-+		struct list_head *head = &(state->uds_list[i]);
-+		struct list_head *pos, *n;
-+
-+		/* traverse the list and deallocate space */
-+		list_for_each_safe(pos, n, head) {
-+			tmp = list_entry(pos, struct filldir_node, file_list);
-+			list_del(&tmp->file_list);
-+			free_filldir_node(tmp);
-+		}
-+	}
-+
-+	kfree(state);
-+}
-+
-+struct filldir_node *find_filldir_node(struct unionfs_dir_state *rdstate,
-+				       const char *name, int namelen)
-+{
-+	int index;
-+	unsigned int hash;
-+	struct list_head *head;
-+	struct list_head *pos;
-+	struct filldir_node *cursor = NULL;
-+	int found = 0;
-+
-+	BUG_ON(namelen <= 0);
-+
-+	hash = full_name_hash(name, namelen);
-+	index = hash % rdstate->uds_size;
-+
-+	head = &(rdstate->uds_list[index]);
-+	list_for_each(pos, head) {
-+		cursor = list_entry(pos, struct filldir_node, file_list);
-+
-+		if (cursor->namelen == namelen && cursor->hash == hash
-+		    && !strncmp(cursor->name, name, namelen)) {
-+			/* a duplicate exists, and hence no need to create entry to the list */
-+			found = 1;
-+			/* if the duplicate is in this branch, then the file system is corrupted. */
-+			if (cursor->bindex == rdstate->uds_bindex) {
-+				//buf->error = err = -EIO;
-+				printk(KERN_DEBUG
-+				       "Possible I/O error unionfs_filldir: a file is duplicated in the same branch %d: %s\n",
-+				       rdstate->uds_bindex, cursor->name);
-+			}
-+			break;
-+		}
-+	}
-+
-+	if (!found) {
-+		cursor = NULL;
-+	}
-+	return cursor;
-+}
-+
-+inline struct filldir_node *alloc_filldir_node(const char *name, int namelen,
-+					       unsigned int hash, int bindex)
-+{
-+	struct filldir_node *newnode;
-+
-+	newnode =
-+	    (struct filldir_node *)kmem_cache_alloc(unionfs_filldir_cachep,
-+						    SLAB_KERNEL);
-+	if (!newnode)
-+		goto out;
-+
-+out:
-+	return newnode;
-+}
-+
-+int add_filldir_node(struct unionfs_dir_state *rdstate, const char *name,
-+		     int namelen, int bindex, int whiteout)
-+{
-+	struct filldir_node *new;
-+	unsigned int hash;
-+	int index;
-+	int err = 0;
-+	struct list_head *head;
-+
-+	BUG_ON(namelen <= 0);
-+
-+	hash = full_name_hash(name, namelen);
-+	index = hash % rdstate->uds_size;
-+	head = &(rdstate->uds_list[index]);
-+
-+	new = alloc_filldir_node(name, namelen, hash, bindex);
-+	if (!new) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	INIT_LIST_HEAD(&new->file_list);
-+	new->namelen = namelen;
-+	new->hash = hash;
-+	new->bindex = bindex;
-+	new->whiteout = whiteout;
-+
-+	if (namelen < DNAME_INLINE_LEN_MIN) {
-+		new->name = new->iname;
-+	} else {
-+		new->name = kmalloc(namelen + 1, GFP_KERNEL);
-+		if (!new->name) {
-+			kmem_cache_free(unionfs_filldir_cachep, new);
-+			new = NULL;
-+			goto out;
-+		}
-+	}
-+
-+	memcpy(new->name, name, namelen);
-+	new->name[namelen] = '\0';
-+
-+	rdstate->uds_hashentries++;
-+
-+	list_add(&(new->file_list), head);
-+out:
++	err = PTR_ERR(sioq);
++	printk(KERN_ERR "create_workqueue failed %d\n", err);
++	sioq = NULL;
 +	return err;
 +}
++
++void fin_sioq(void)
++{
++	if (sioq)
++		destroy_workqueue(sioq);
++}
++
++void run_sioq(void (*func)(void *arg), struct sioq_args *args)
++{
++	DECLARE_WORK(wk, func, &args->comp);
++
++	init_completion(&args->comp);
++	while (!queue_work(sioq, &wk)) {
++		// TODO: do accounting if needed
++		schedule();
++	}
++	wait_for_completion(&args->comp);
++}
++
++void __unionfs_create(void *data)
++{
++	struct sioq_args *args = data;
++	struct create_args *c = &args->u.create;
++
++	args->err = vfs_create(c->parent, c->dentry, c->mode, c->nd);
++	complete(&args->comp);
++}
++
++void __unionfs_mkdir(void *data)
++{
++	struct sioq_args *args = data;
++	struct mkdir_args *m = &args->u.mkdir;
++
++	args->err = vfs_mkdir(m->parent, m->dentry, m->mode);
++	complete(&args->comp);
++}
++
++void __unionfs_mknod(void *data)
++{
++	struct sioq_args *args = data;
++	struct mknod_args *m = &args->u.mknod;
++
++	args->err = vfs_mknod(m->parent, m->dentry, m->mode, m->dev);
++	complete(&args->comp);
++}
++void __unionfs_symlink(void *data)
++{
++	struct sioq_args *args = data;
++	struct symlink_args *s = &args->u.symlink;
++
++	args->err = vfs_symlink(s->parent, s->dentry, s->symbuf, s->mode);
++	complete(&args->comp);
++}
++
++void __unionfs_unlink(void *data)
++{
++	struct sioq_args *args = data;
++	struct unlink_args *u = &args->u.unlink;
++
++	args->err = vfs_unlink(u->parent, u->dentry);
++	complete(&args->comp);
++}
++
++void __delete_whiteouts(void *data) {
++	struct sioq_args *args = data;
++	struct deletewh_args *d = &args->u.deletewh;
++
++	args->err = do_delete_whiteouts(d->dentry, d->bindex, d->namelist);
++	complete(&args->comp);
++}
++
++void __is_opaque_dir(void *data)
++{
++	struct sioq_args *args = data;
++
++	args->ret = lookup_one_len(UNIONFS_DIR_OPAQUE, args->u.isopaque.dentry,
++				sizeof(UNIONFS_DIR_OPAQUE) - 1);
++	complete(&args->comp);
++}
++
+diff -r e7c28c2447c2 -r b601a3cced0e fs/unionfs/sioq.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/fs/unionfs/sioq.h	Sat Oct 07 00:46:19 2006 -0400
+@@ -0,0 +1,79 @@
++#ifndef _SIOQ_H
++#define _SIOQ_H
++
++struct deletewh_args {
++	struct unionfs_dir_state *namelist;
++	struct dentry *dentry;
++	int bindex;
++};
++
++struct isopaque_args {
++	struct dentry *dentry;
++};
++
++struct create_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++	struct nameidata *nd;
++};
++
++struct mkdir_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++};
++
++struct mknod_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	umode_t mode;
++	dev_t dev;
++};
++
++struct symlink_args {
++	struct inode *parent;
++	struct dentry *dentry;
++	char *symbuf;
++	umode_t mode;
++};
++
++struct unlink_args {
++	struct inode *parent;
++	struct dentry *dentry;
++};
++
++
++struct sioq_args {
++
++	struct completion comp;
++	int err;
++	void *ret;
++
++	union {
++		struct deletewh_args deletewh;
++		struct isopaque_args isopaque;
++		struct create_args create;
++		struct mkdir_args mkdir;
++		struct mknod_args mknod;
++		struct symlink_args symlink;
++		struct unlink_args unlink;
++	} u;
++};
++
++extern struct workqueue_struct *sioq;
++int __init init_sioq(void);
++extern void fin_sioq(void);
++extern void run_sioq(void (*func)(void *arg), struct sioq_args *args);
++
++/* Extern definitions for our privledge escalation helpers */
++extern void __unionfs_create(void *data);
++extern void __unionfs_mkdir(void *data);
++extern void __unionfs_mknod(void *data);
++extern void __unionfs_symlink(void *data);
++extern void __unionfs_unlink(void *data);
++extern void __delete_whiteouts(void *data);
++extern void __is_opaque_dir(void *data);
++
++#endif /* _SIOQ_H */
 +
 
 

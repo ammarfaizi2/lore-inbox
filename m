@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWJGNQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWJGNQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWJGNQz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 09:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWJGNQz
+	id S1750923AbWJGNQo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 09:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWJGNQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 09:16:55 -0400
-Received: from accolon.hansenpartnership.com ([64.109.89.108]:9103 "EHLO
-	accolon.hansenpartnership.com") by vger.kernel.org with ESMTP
-	id S1751789AbWJGNQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 09:16:54 -0400
-Subject: Re: Merge window closed: v2.6.19-rc1
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0610061932280.3952@g5.osdl.org>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-	 <9a8748490610061547g6c62ee7dq37c139c1966ea8c5@mail.gmail.com>
-	 <Pine.LNX.4.64.0610061932280.3952@g5.osdl.org>
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 08:16:51 -0500
-Message-Id: <1160227011.3459.9.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Sat, 7 Oct 2006 09:16:44 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:53006 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1750923AbWJGNQn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 09:16:43 -0400
+Message-ID: <4527A93D.1050203@aknet.ru>
+Date: Sat, 07 Oct 2006 17:18:53 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru>	 <1159900934.2891.548.camel@laptopd505.fenrus.org>	 <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru> <1160170464.12835.4.camel@localhost.localdomain>
+In-Reply-To: <1160170464.12835.4.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-06 at 19:33 -0700, Linus Torvalds wrote:
-> Gaah. That voyager timer handling is a bit confusing.
-> 
-> Maybe something like this would fix it?
-> 
-> Untested. Need James or the other alledged voyager-owner to actually test 
-> or do somethign better..
+Hello.
 
-There are other alleged voyager owners ... see, I keep telling you its a
-popular architecture ...
-
-I'll take a look ... I think I can probably eliminate the regs usage
-from the VIC code as well.
-
-James
-
+Alan Cox wrote:
+> I doubt anyone uses access() any more for anything but this doesn't seem
+Even though the access(X_OK) is mostly not needed
+as the execve() would fail anyway, this is not the
+case for ld.so. I think it would be a good idea for
+ld.so to start using the access(R_OK | X_OK) before
+open().
 

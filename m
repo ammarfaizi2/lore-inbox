@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWJGLIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWJGLQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWJGLIi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 07:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWJGLIh
+	id S1750867AbWJGLQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 07:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWJGLQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 07:08:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30469 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750836AbWJGLIh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 07:08:37 -0400
-Date: Sat, 7 Oct 2006 11:08:24 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Message-ID: <20061007110824.GA4277@ucw.cz>
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610060904.51936.oliver@neukum.org> <200610061410.10059.david-b@pacbell.net> <200610071249.48194.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610071249.48194.oliver@neukum.org>
-User-Agent: Mutt/1.5.9i
+	Sat, 7 Oct 2006 07:16:58 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:17423 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1750848AbWJGLQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 07:16:57 -0400
+Message-ID: <45278D2A.4020605@aknet.ru>
+Date: Sat, 07 Oct 2006 15:19:06 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru>	 <1159900934.2891.548.camel@laptopd505.fenrus.org>	 <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru> <1160170464.12835.4.camel@localhost.localdomain> <4526C7F4.6090706@redhat.com>
+In-Reply-To: <4526C7F4.6090706@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello.
 
-> > > > > - the issues of manual & automatic suspend and remote wakeup are orthogonal
-> > > > > - there should be a common API for all devices
-> > > > 
-> > > > AFAIK there is no demonstrated need for an API to suspend
-> > > > individual devices.  ...
-> > > 
-> > > I doubt that a lot. 
-> > 
-> > You haven't demonstrated such a need either; so why doubt it?
-> 
-> OK, let me state the basics.
-> 
-> To get real power savings, we:
-> - blank the display
-> - spin down the hard drive
-> - put the CPU into an ACPI sleep state
-> 
-> To do the latter well, we need to make sure there's no DMA. It is
-> important that less or little DMA will not help. We need no DMA.
-> So we need to handle the commonest scenarios fully.
-> 
-> I dare say that the commonest scenario involving USB is a laptop with
-> an input device attached. Input devices are for practical purposes always
-> opened. A simple resume upon open and suspend upon close is useless.
+Ulrich Drepper пишет:
+> The change itself is conceptually correct.  I haven't looked at the
+> technical details but it looks OK.
+Thankyou. Finally this seemingly hopeless thread
+started to yield the positive results. :)
 
-Okay, but you can simply do autosuspend with remote wakeup completely
-inside input driver. You do ot need it to be controlled from X... at
-most you need one variable ('autosuspend_inactivity_timeout')
-controlled from userland.
+Now, as the access(X_OK) is fixed, would it be
+feasible for ld.so to start using it?
 
-That's what we already do for hdd spindown... you simply tell disk to
-aitospindown after X seconds of inactivity.
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.

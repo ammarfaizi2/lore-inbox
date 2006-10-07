@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWJGMXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJGMdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWJGMXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 08:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWJGMXZ
+	id S1750810AbWJGMdd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 08:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWJGMdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 08:23:25 -0400
-Received: from fmmailgate02.web.de ([217.72.192.227]:49084 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP
-	id S1751036AbWJGMXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 08:23:24 -0400
-Subject: [PATCH] [RESEND]  Remove logic error in /Documentation/devices.txt
-From: Marcus Fischer <marcus-fischer@web.de>
-Reply-To: marcus-fischer@web.de
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 14:25:15 +0200
-Message-Id: <1160223915.3367.4.camel@mflaptop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Sat, 7 Oct 2006 08:33:33 -0400
+Received: from ozlabs.org ([203.10.76.45]:61851 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750810AbWJGMdc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 08:33:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17703.40127.482493.417591@cargo.ozlabs.ibm.com>
+Date: Sat, 7 Oct 2006 22:25:35 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Olaf Hering <olaf@aepfle.de>, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
+       David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] powerpc: fixup after irq changes
+In-Reply-To: <17702.62074.410366.433781@cargo.ozlabs.ibm.com>
+References: <20061002132116.2663d7a3.akpm@osdl.org>
+	<20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+	<20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+	<18975.1160058127@warthog.cambridge.redhat.com>
+	<Pine.LNX.4.64.0610051632250.3952@g5.osdl.org>
+	<20061006203434.GA7932@aepfle.de>
+	<17702.62074.410366.433781@cargo.ozlabs.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
-Author: Marcus Fischer <linux@marcusfischer.com>
-Date:   Fri Sep 29 23:50:01 2006 +0200
+I wrote:
 
-    I found an logic error in the following commit:
-    
-        author    Steven Haigh <netwiz@crc.id.au>
-                  Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
-        committer Greg Kroah-Hartman <gregkh@suse.de>
-                  Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
-        commit    03270634e242dd10cc8569d31a00659d25b2b8e7
-        tree      8f4665eb7b17386e733fcdc7d02e87c4a1592550
-        parent    8ac283ad415358f022498887811c35ac656b5222
-    
-Documentation/devices.txt may either say 
-../adutux10 11th OntrackADU device    or 
-../adutux9 10th Ontrack ADU device.
+> You also removed the regs argument from the get_irq functions.  That
+> is a separate unrelated change, which I would want to think about for
+> a bit, because at least at one stage I had a use for that parameter.
 
-Anyway, the original one makes no sense.
-   
-+ 67 = /dev/usb/adutux0 1st Ontrak ADU device
-+ ...
-+ 76 = /dev/usb/adutux10 10th Ontrak ADU device
+I remembered the use I had for it - for interrupt controllers that
+want to save away an old cpu priority value or similar.  The ones that
+need to do that (xics and cell) either don't do it (xics :) or use a
+per-cpu array (cell).  Also, we call get_irq from an interrupt handler
+for cascaded interrupts in some cases.  So I have applied your patch
+and fixed the rejects.
 
-This patch removes the logic error.
-
-However, I saw that MAX_DEVICES is 16.
-Thus, shouldn't this docu then say:
-"81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
-
-Best,
-Marcus
-
-PS: Please CC me, I'm not on this list.
-
-
-
-Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
----
-
-diff --git a/Documentation/devices.txt b/Documentation/devices.txt
-index addc67b..37efae8 100644
---- a/Documentation/devices.txt
-+++ b/Documentation/devices.txt
-@@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
-66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
-67 = /dev/usb/adutux0 1st Ontrak ADU device
-    ...
-- 76 = /dev/usb/adutux10 10th Ontrak ADU device
-+ 76 = /dev/usb/adutux9 10th Ontrak ADU device
-96 = /dev/usb/hiddev0 1st USB HID device
-    ...
-111 = /dev/usb/hiddev15 16th USB HID device
-
-
-
+Thanks,
+Paul.

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWJGSXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWJGSX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWJGSXR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 14:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWJGSXR
+	id S932398AbWJGSX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 14:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWJGSX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 14:23:17 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54225 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751238AbWJGSXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 14:23:16 -0400
-Date: Sat, 7 Oct 2006 14:23:01 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
-       viro@ftp.linux.org.uk
-Subject: Re: [PATCH 2 of 23] lookup_one_len_nd - lookup_one_len with nameidata argument
-Message-ID: <20061007182301.GA25352@filer.fsl.cs.sunysb.edu>
-References: <3104d077379c19c98510.1160197641@thor.fsl.cs.sunysb.edu> <1160240633.21411.6.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
+	Sat, 7 Oct 2006 14:23:27 -0400
+Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:40857 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1751499AbWJGSX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 14:23:27 -0400
+Date: Sat, 7 Oct 2006 20:23:25 +0200
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, caszonyi@rdslink.ro,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Merge window closed: v2.6.19-rc1
+Message-ID: <20061007182325.GA9185@boogie.lpds.sztaki.hu>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <Pine.LNX.4.62.0610062041440.1966@grinch.ro> <Pine.LNX.4.64.0610061110050.3952@g5.osdl.org> <m1irixz2mt.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160240633.21411.6.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m1irixz2mt.fsf@ebiederm.dsl.xmission.com>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 07, 2006 at 10:03:53AM -0700, Daniel Walker wrote:
-> On Sat, 2006-10-07 at 01:07 -0400, Josef Jeff Sipek wrote:
-> 
-> > -struct dentry * lookup_one_len(const char * name, struct dentry * base, int len)
-> > +struct dentry * lookup_one_len_nd(const char *name, struct dentry * base, int len, struct nameidata *nd)
-> 
-> > -extern struct dentry * lookup_one_len(const char *, struct dentry *, int);
-> > +extern struct dentry * lookup_one_len_nd(const char *, struct dentry *, int, struct nameidata *);
-> > +
-> > +/* SMP-safe */
-> > +static inline struct dentry *lookup_one_len(const char *name, struct dentry *dir, int len)
-> 
-> 
-> These lines are all too long . Should max out at 80 characters.
+On Fri, Oct 06, 2006 at 01:05:14PM -0600, Eric W. Biederman wrote:
 
-A large portion of that file has lines >80 chars. I just kept it consistent.
+> That code if it gets -ENOSYS reads /proc/sys/kernel/version,
+> and it has worked this way since the day it was written.
 
-Josef 'Jeff' Sipek.
+What happens if /proc is not mounted (e.g. in a chrooted environment)?
+
+Gabor
 
 -- 
-Computer Science is no more about computers than astronomy is about
-telescopes.
-		- Edsger Dijkstra
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

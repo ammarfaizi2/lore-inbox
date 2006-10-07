@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWJGSX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWJGS1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWJGSX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 14:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWJGSX1
+	id S1751744AbWJGS1P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 14:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751746AbWJGS1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 14:23:27 -0400
-Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:40857 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1751499AbWJGSX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 14:23:27 -0400
-Date: Sat, 7 Oct 2006 20:23:25 +0200
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, caszonyi@rdslink.ro,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Merge window closed: v2.6.19-rc1
-Message-ID: <20061007182325.GA9185@boogie.lpds.sztaki.hu>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <Pine.LNX.4.62.0610062041440.1966@grinch.ro> <Pine.LNX.4.64.0610061110050.3952@g5.osdl.org> <m1irixz2mt.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
+	Sat, 7 Oct 2006 14:27:15 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:44995 "EHLO pasmtpA.tele.dk")
+	by vger.kernel.org with ESMTP id S1751565AbWJGS1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 14:27:14 -0400
+Date: Sat, 7 Oct 2006 20:27:08 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] minimal alpha pt_regs fixes
+Message-ID: <20061007182708.GB5937@uranus.ravnborg.org>
+References: <20061007131731.GC29920@ftp.linux.org.uk> <4527C2F7.2010102@garzik.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1irixz2mt.fsf@ebiederm.dsl.xmission.com>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+In-Reply-To: <4527C2F7.2010102@garzik.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 01:05:14PM -0600, Eric W. Biederman wrote:
+On Sat, Oct 07, 2006 at 11:08:39AM -0400, Jeff Garzik wrote:
+> Al Viro wrote:
+> >diff --git a/include/asm-alpha/irq_regs.h b/include/asm-alpha/irq_regs.h
+> >new file mode 100644
+> >index 0000000..3dd9c0b
+> >--- /dev/null
+> >+++ b/include/asm-alpha/irq_regs.h
+> >@@ -0,0 +1 @@
+> >+#include <asm-generic/irq_regs.h>
+> 
+> 
+> ACK, of course, but I wonder if we can do something about these 1-line 
+> header files.
 
-> That code if it gets -ENOSYS reads /proc/sys/kernel/version,
-> and it has worked this way since the day it was written.
+It would be even more simple and future proof if we could in
+some way do it so "#include <foo/bar.h>" would pick up bar.h from
+asm-$(ARCH) if it exists and otherwise pick up asm-generic/bar.h.
 
-What happens if /proc is not mounted (e.g. in a chrooted environment)?
+Then we could include the generic one in asm-generic and
+all architectures would include it except those that provide their
+own variant. The asm-$(ARCH) specific files would need a way to include
+the asm-generic version.
 
-Gabor
+I have no idea handy for how to actually implment this but wanted
+just to share the idea.
+The trade-off is that if it gets too iplicit then suddenly users will
+loose overview of how it works.
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+	Sam

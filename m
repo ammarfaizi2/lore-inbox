@@ -1,57 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932784AbWJGTUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932782AbWJGT1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932784AbWJGTUB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 15:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbWJGTUA
+	id S932782AbWJGT1E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 15:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932783AbWJGT1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 15:20:00 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:34572 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S932784AbWJGTT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 15:19:59 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: [PATCH 01/10] -mm: clocksource: increase initcall priority
-References: <20061006185439.667702000@mvista.com>
-	<20061006185456.261581000@mvista.com>
-	<87hcygqgl8.fsf@duaron.myhome.or.jp>
-	<1160239878.21411.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<87d594qa4o.fsf@duaron.myhome.or.jp>
-	<87lknsotnj.fsf@duaron.myhome.or.jp>
-	<1160246668.21411.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 08 Oct 2006 04:19:52 +0900
-In-Reply-To: <1160246668.21411.12.camel@c-67-180-230-165.hsd1.ca.comcast.net> (Daniel Walker's message of "Sat\, 07 Oct 2006 11\:44\:28 -0700")
-Message-ID: <877izcorvr.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 7 Oct 2006 15:27:03 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:24254 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S932782AbWJGT1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 15:27:01 -0400
+Message-ID: <4527FF78.4050309@linuxtv.org>
+Date: Sat, 07 Oct 2006 15:26:48 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+CC: Mike Isely at pobox <isely@pobox.com>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: pvrusb2 and 2.6.19-rc1
+References: <Pine.LNX.4.64.0610071138100.27957@cnc.isely.net>
+In-Reply-To: <Pine.LNX.4.64.0610071138100.27957@cnc.isely.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090807050102090405050106"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker <dwalker@mvista.com> writes:
+This is a multi-part message in MIME format.
+--------------090807050102090405050106
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> On Sun, 2006-10-08 at 03:41 +0900, OGAWA Hirofumi wrote:
+Mike Isely wrote:
+> Mauro:
 >
->> >>> 
->> >>> We'll need to change it.
->> >>
->> >> We can add a call to clocksource_rating_change() inside
->> >> acpi_pm_need_workaround(), are there deeper dependencies?
->> >
->> > There is no deeper dependencies.  If it's meaning
->> > clocksource_reselect() in current git, it sounds good to me.
->> 
->> Ah, I was forgetting why I didn't before. If it's a buggy pmtmr, we'll
->> get corrupted time until re-selecting the clocksource.
->> 
->> If anybody doesn't care this will be good with it. If not, we would
->> need to back to old one. IIRC, John did it.
->
-> We could just reverse it, use the verified read function until we know
-> it's a good PM timer, then switch to the faster read function.
+> Why are the pvrusb2 configuration switches nowhere to be found in 
+> 2.6.19-rc1?  I'm running xconfig here and searching reverse-deps to try 
+> and locate it.  Best I can tell is that it's gone.  The driver sources are 
+> still present.  What's going on?
+>   
+Mauro, please pull from:
 
-Yes, we did it in old timer code.
+|git://git.kernel.org/pub/scm/linux/kernel/git/mkrufky/v4l-dvb.git
+
+to fix the issue described by Mike Isely, above... ||or just apply the
+attached patch to your git tree and send to Linus.|
+|
+This problem is only present in your git tree -- the hg tree is in good
+shape.  How did this happen, Mauro?
+
+Regards,
+
+Michael Krufky
+
+
+|
+
+--------------090807050102090405050106
+Content-Type: text/plain;
+ name="0001-Kconfig-restore-pvrusb2-menu-items.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="0001-Kconfig-restore-pvrusb2-menu-items.txt"
+
+>From 9ce12c8763cc244725dec99085efd293483c6bf8 Mon Sep 17 00:00:00 2001
+From: Michael Krufky <mkrufky@linuxtv.org>
+Date: Sat, 7 Oct 2006 15:10:53 -0400
+Subject: [PATCH] Kconfig: restore pvrusb2 menu items
+
+Looks like the pvrusb2 menu items were accidentally removed in
+git commit 1450e6bedc58c731617d99b4670070ed3ccc91b4
+
+This patch restores the menu items so that the pvrusb2 driver can be built.
+
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+---
+ drivers/media/video/Kconfig |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/media/video/Kconfig b/drivers/media/video/Kconfig
+index afb734d..fbe5b61 100644
+--- a/drivers/media/video/Kconfig
++++ b/drivers/media/video/Kconfig
+@@ -677,6 +677,8 @@ #
+ menu "V4L USB devices"
+ 	depends on USB && VIDEO_DEV
+ 
++source "drivers/media/video/pvrusb2/Kconfig"
++
+ source "drivers/media/video/em28xx/Kconfig"
+ 
+ source "drivers/media/video/usbvideo/Kconfig"
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+1.4.2.1
+
+
+--------------090807050102090405050106--

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWJGOoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWJGOpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWJGOoz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 10:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWJGOoz
+	id S932146AbWJGOpl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 10:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWJGOpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 10:44:55 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:41376 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S932116AbWJGOoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 10:44:54 -0400
-Date: Sat, 7 Oct 2006 08:44:53 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       parisc-linux@parisc-linux.org
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
-Message-ID: <20061007144453.GY2563@parisc-linux.org>
-References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org> <20061006164211.GA15321@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610061055490.3952@g5.osdl.org> <20061007025444.GV2563@parisc-linux.org>
+	Sat, 7 Oct 2006 10:45:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:5569 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932119AbWJGOpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 10:45:40 -0400
+Message-ID: <4527BD42.8050502@garzik.org>
+Date: Sat, 07 Oct 2006 10:44:18 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061007025444.GV2563@parisc-linux.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Matthew Wilcox <matthew@wil.cx>, Val Henson <val_henson@linux.intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
+References: <1160161519800-git-send-email-matthew@wil.cx> <11601615192857-git-send-email-matthew@wil.cx> <4526AB43.7030809@garzik.org> <20061006192842.GO2563@parisc-linux.org> <4526B5BD.4030809@garzik.org> <20061007053448.GC3314@colo.lackof.org>
+In-Reply-To: <20061007053448.GC3314@colo.lackof.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 08:54:44PM -0600, Matthew Wilcox wrote:
-> git-pull git://git.parisc-linux.org/git/linux-2.6.git irq-fixes
+Grant Grundler wrote:
+> On Fri, Oct 06, 2006 at 03:59:57PM -0400, Jeff Garzik wrote:
+>> The unmodified tulip driver checks both MWI and cacheline-size because 
+>> one of the clones (PNIC or PNIC2) will let you set the MWI bit, but 
+>> hardwires cacheline size to zero.
 > 
-> Or apply the patch below, if that's easier
+> Maybe the generic pci_set_mwi() can verify cacheline size is non-zero?
+> I don't think each driver should need to enforce this.
 
-And the next series of patches actually make it boot.
+Agreed.
 
-git-pull git://git.parisc-linux.org/git/linux-2.6.git irq-fixes
 
-Kyle McMartin:
-      [PARISC] Make firmware calls irqsafe-ish...
+>> If the arches do not behave consistently, we need to keep the check in 
+>> the tulip driver, to avoid incorrectly programming the csr0 MWI bit.
+> 
+> Why not fix the arches to be consistent?
+> There's alot more drivers than arches...and we have control
+> of the arch specific PCI support.
 
-Matthew Wilcox:
-      [PARISC] Use set_irq_regs
-      [PA-RISC] Fix boot breakage
-      [PARISC] pdc_init no longer exists
-      [PARISC] More pt_regs removal
+Agreed.
 
- arch/parisc/kernel/drivers.c  |    6 -
- arch/parisc/kernel/firmware.c |  250 +++++++++++++++++++++++++-----------------
- arch/parisc/kernel/irq.c      |    3 
- arch/parisc/kernel/smp.c      |   15 --
- arch/parisc/kernel/time.c     |   32 ++---
- include/asm-parisc/pdc.h      |    2 
- 6 files changed, 177 insertions(+), 131 deletions(-)
+	Jeff
+
+
 

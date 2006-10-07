@@ -1,116 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWJGWbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932883AbWJGXCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751830AbWJGWbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 18:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932874AbWJGWbF
+	id S932883AbWJGXCl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 19:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932884AbWJGXCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 18:31:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:1842 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751830AbWJGWbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 18:31:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QBPfM/1JFiPd1R33K0RJvUvayg/FtGbd2BCYxqnMZ/CrUgbjpgtM9cRX00AKdK7BKeOVrjNVh+ezdUXemDGwn41oQL4PhE0MkSYmUeBLFKeROjvVuqzQk4ftfbHw8sWO5zqhDVDPbzICUoWaXOqEa/WajLSPlRcxZ4NT1GKajQI=
-Message-ID: <6b4e42d10610071531v24b09695j3842df0534905c34@mail.gmail.com>
-Date: Sat, 7 Oct 2006 15:31:01 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: "Yoichi Yuasa" <yoichi_yuasa@tripeaks.co.jp>
-Subject: Re: [-mm PATCH] fixed PCMCIA au1000_generic.c
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200610060731.k967Vaes094416@mbox33.po.2iij.net>
+	Sat, 7 Oct 2006 19:02:41 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:12945 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932883AbWJGXCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 19:02:41 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.19-rc1: known regressions (v2)
+Date: Sun, 8 Oct 2006 01:02:33 +0200
+User-Agent: KMail/1.9.4
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alsa-devel@alsa-project.org
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061007214620.GB8810@stusta.de>
+In-Reply-To: <20061007214620.GB8810@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart3582523.QVHlDXvm4u";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-	 <20061004224406.46a9d05c.yoichi_yuasa@tripeaks.co.jp>
-	 <6b4e42d10610052318h53102e73h64766a7cb677be1b@mail.gmail.com>
-	 <200610060731.k967Vaes094416@mbox33.po.2iij.net>
+Message-Id: <200610080102.37267.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/06, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> On Thu, 5 Oct 2006 23:18:44 -0700
-> "Om Narasimhan" <om.turyx@gmail.com> wrote:
->
-> > On 10/4/06, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> > > Hi,
-> > >
-> > Sorry for the late reply.
-> > > pcmcia-au1000_generic-fix.patch has a problem.
-> > > It needs more fix.
->         for (i = 0; i < nr; i++) {
->                 struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i); <-- 1st skt definition
-> <snip>
->                 ret = pcmcia_register_socket(&skt->socket);
->                 if (ret)
->                         goto out_err;
->
->                 WARN_ON(skt->socket.sock != i);
->
->                 add_timer(&skt->poll_timer);
->         }
-> <snip>
->
-> out_err:
->         flush_scheduled_work();
->         ops->hw_shutdown(skt); <-- skt undeclared
-I am sorry. I did not find this.
-Please find the corrected patch.
-Applies cleanly to 2.6.18-rc6, rc7, 2.6.18, and 2.6.19-rc1
-Regards,
-Om.
+--nextPart3582523.QVHlDXvm4u
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Am Samstag 07 Oktober 2006 23:46 schrieb Adrian Bunk:
+> Subject    : snd-hda-intel <-> forcedeth MSI problem
+> References : http://lkml.org/lkml/2006/10/5/40
+> Submitter  : Prakash Punnoor <prakash@punnoor.de>
+> Status     : unknown
 
- drivers/pcmcia/au1000_generic.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+AFAIK, strictly speaking this is not a regression, but rather a new feature=
+=20
+breaking: MSI capability of snd-hda-intel. Alsa dev =20
+Takashi Iwai doesn't think it is snd-hda-intel doing something wrong, but=20
+rather an IRQ routing probem. As such I am not sure who to cc....
 
-diff --git a/drivers/pcmcia/au1000_generic.c b/drivers/pcmcia/au1000_generic.c
-index d5dd0ce..5387de6 100644
---- a/drivers/pcmcia/au1000_generic.c
-+++ b/drivers/pcmcia/au1000_generic.c
-@@ -351,6 +351,7 @@ struct skt_dev_info {
- int au1x00_pcmcia_socket_probe(struct device *dev, struct
-pcmcia_low_level *ops, int first, int nr)
- {
- 	struct skt_dev_info *sinfo;
-+	struct au1000_pcmcia_socket *skt;
- 	int ret, i;
+While I don't really understand the details, I guess it is due to snd and n=
+et=20
+sharing the interrupt in "pure" APIC more:
 
- 	sinfo = kzalloc(sizeof(struct skt_dev_info), GFP_KERNEL);
-@@ -365,7 +366,7 @@ int au1x00_pcmcia_socket_probe(struct de
- 	 * Initialise the per-socket structure.
- 	 */
- 	for (i = 0; i < nr; i++) {
--		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-+		skt = PCMCIA_SOCKET(i);
- 		memset(skt, 0, sizeof(*skt));
+ 23:     232796          0   IO-APIC-fasteoi  HDA Intel, eth0
 
- 		skt->socket.resource_ops = &pccard_static_ops;
-@@ -438,17 +439,19 @@ #endif
- 	dev_set_drvdata(dev, sinfo);
- 	return 0;
+So both are physically on the same INT line? But MSI of snd want to assign=
+=20
+another IRQ to itself:
 
--	do {
--		struct au1000_pcmcia_socket *skt = PCMCIA_SOCKET(i);
-+
-+out_err:
-+	flush_scheduled_work();
-+	ops->hw_shutdown(skt);
-+	while (i-- > 0) {
-+		skt = PCMCIA_SOCKET(i);
+ 23:       7486          0   IO-APIC-fasteoi  eth0
+316:          0          0   PCI-MSI-edge     HDA Intel
 
- 		del_timer_sync(&skt->poll_timer);
- 		pcmcia_unregister_socket(&skt->socket);
--out_err:
- 		flush_scheduled_work();
- 		ops->hw_shutdown(skt);
+So it seems that irq23 still receives signals from snd and thus the nobody=
+=20
+cared message gets printed.
 
--		i--;
--	} while (i > 0);
-+	}
- 	kfree(sinfo);
- out:
- 	return ret;
+Thus my work-around is simply to disable MSI of snd by=20
+snd-hda-intel.disable_msi=3D1 and all is well again.
+
+So if this cannot be fixed for 2.6.19, I humbly suggest deactivating MSI of=
+=20
+snd-intel-hda by default.
+
+Cheers,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart3582523.QVHlDXvm4u
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFKDINxU2n/+9+t5gRAtieAJ0Vw0Lf2L3Vwx8jfYjDbMsRAmtvjACg+T04
+5TlyAD/uTPM9eXZ6BMwAY88=
+=iQT0
+-----END PGP SIGNATURE-----
+
+--nextPart3582523.QVHlDXvm4u--

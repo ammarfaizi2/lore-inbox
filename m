@@ -1,108 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWJGMMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWJGMWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWJGMMt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 08:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWJGMMt
+	id S1751035AbWJGMWt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 08:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWJGMWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 08:12:49 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:7471 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751007AbWJGMMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 08:12:48 -0400
+	Sat, 7 Oct 2006 08:22:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:684 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751031AbWJGMWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 08:22:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=exWY12NaM25HlWnC8yzMPyRbfF7461y0M2jlkMuK972SyzwmlscuoIuvs2e4+8aGZhKdF+yKSRBS7co9HIM9XFxwCFX78Q5dMNE979BJeio7mgq381HfySWmW1Ja6wZI7QyQpT05NL1sZTW3klqhr/12VO5nXW4aPk6juKu7+PU=
-Message-ID: <309a667c0610070512y47718898i4a664ef6cce7c312@mail.gmail.com>
-Date: Sat, 7 Oct 2006 17:42:47 +0530
-From: "Devesh Sharma" <devesh28@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Compiling dependent module
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=m0FPEsZX82M+HiE5hmO1mHLQhVy2WQwG9PRRmovnfwuFbF5dk0FCdq02BCdW2i0zqtMnCQs2+a0ZOerIeDz7S3s5V7BhgmX3feB8acWG9rjz+blctkkrggGGpI3qifmiPsIpZoHvlWaDFCvFOA03Cue8MjBEEuv7YFBY1sVAqlM=
+Message-ID: <45279C24.1080004@gmail.com>
+Date: Sat, 07 Oct 2006 14:22:37 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_18407_12249361.1160223167735"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, support@moxa.com.tw,
+       "Michael H. Warfield" <mhw@wittsend.com>
+Subject: Re: [PATCH] Char: remove unneded termbits redefinitions
+References: <1236876321987@karneval.cz> <20061006181641.e437548e.akpm@osdl.org>
+In-Reply-To: <20061006181641.e437548e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_18407_12249361.1160223167735
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Andrew Morton wrote:
+> On Wed,  4 Oct 2006 18:49:01 +0200 (CEST)
+> Jiri Slaby <jirislaby@gmail.com> wrote:
+> 
+>> Char, remove unneded termbits redefinitions
+>>
+>> No need to redefine termbits in char tree.
+> 
+> drivers/char/ip2/ip2main.c:2498: error: 'B153600' undeclared (first use in this function)
+> drivers/char/ip2/ip2main.c:2498: error: (Each undeclared identifier is reported only once
+> drivers/char/ip2/ip2main.c:2498: error: for each function it appears in.)
+> drivers/char/ip2/ip2main.c:2500: error: 'B307200' undeclared (first use in this function)
+> 
+> Unless you're a sparc user, methinks you didn't compile this one.
+> 
+> I suppose an appropriate fix would be to move the B153600 and B307200
+> definitions into include/asm-*/termbits.h (those which don't already have it).
+> But that's just a guess.
 
-Hello all,
+Hum, I thought I had at least compiled it :/. Next time I'll double-check!
 
-I have a situation where, I have one parent module in ../hello/
-directory which exports one symbol (g_my_export). I have a dependent
-module in ../hello1/ directory. Both have it's own makefiles.
-Compiling of parent module (hello.ko) is fine, but during compilation
-of dependent module (hello1.ko) I see a warning that g_my_export is
-undefined.
+The problem is, that sparc defines it in a little bit different way.
+ip2 does this: <<EOF
+#ifndef B153600
+#       define B153600   0010005
+#endif
+#ifndef B307200
+#       define B307200   0010006
+#endif
+#ifndef B921600
+#       define B921600   0010007
+#endif
+EOF
 
-On the other hand when I do depmod -a and modprobe, dependent module
-inserts successfully in kernel.
+and sparc termbits looks like this: <<EOF
+/* This is what we can do with the Zilogs. */
+#define  B76800   0x00001005
+/* This is what we can do with the SAB82532. */
+#define  B153600  0x00001006
+#define  B307200  0x00001007
+#define  B614400  0x00001008
+#define  B921600  0x00001009
+EOF
 
-I want to remove compile time warning. What should I do?
+This diversity should be eliminated, I guess. What do char-folks think about 
+this? Should we move this bits into asm-specific directories?
 
-The source and makefile of both parent and dependent module is
-attached with this mail.
-
-Thanks
-Devesh.
-
-------=_Part_18407_12249361.1160223167735
-Content-Type: text/x-csrc; name=hello.c; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eszyyno7
-Content-Disposition: attachment; filename="hello.c"
-
-I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgpNT0RVTEVf
-TElDRU5TRSgiRHVhbCBCU0QvR1BMIik7CgppbnQgZ19teV9leHBvcnQgPSAweEEgOwoKc3RhdGlj
-IGludCBoZWxsb19pbml0KHZvaWQpCnsKcHJpbnRrKEtFUk5fQUxFUlQgIkhlbGxvLCB3b3JsZFxu
-Iik7CnJldHVybiAwOwp9CnN0YXRpYyB2b2lkIGhlbGxvX2V4aXQodm9pZCkKewpwcmludGsoS0VS
-Tl9BTEVSVCAiR29vZGJ5ZSwgY3J1ZWwgd29ybGRcbiIpOwp9CgpFWFBPUlRfU1lNQk9MKGdfbXlf
-ZXhwb3J0KSA7Cgptb2R1bGVfaW5pdChoZWxsb19pbml0KTsKbW9kdWxlX2V4aXQoaGVsbG9fZXhp
-dCk7Cg==
-------=_Part_18407_12249361.1160223167735
-Content-Type: application/octet-stream; name=Makefile
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eszz2xjb
-Content-Disposition: attachment; filename="Makefile"
-
-IyBJZiBLRVJORUxSRUxFQVNFIGlzIGRlZmluZWQsIHdlJ3ZlIGJlZW4gaW52b2tlZCBmcm9tIHRo
-ZQojIGtlcm5lbCBidWlsZCBzeXN0ZW0gYW5kIGNhbiB1c2UgaXRzIGxhbmd1YWdlLgppZm5lcSAo
-JChLRVJORUxSRUxFQVNFKSwpCm9iai1tIDo9IGhlbGxvLm8KIyBPdGhlcndpc2Ugd2Ugd2VyZSBj
-YWxsZWQgZGlyZWN0bHkgZnJvbSB0aGUgY29tbWFuZAojIGxpbmU7IGludm9rZSB0aGUga2VybmVs
-IGJ1aWxkIHN5c3RlbS4KZWxzZQpLRVJORUxESVIgPz0gL2xpYi9tb2R1bGVzLyQoc2hlbGwgdW5h
-bWUgLXIpL2J1aWxkCgpQV0QgOj0gJChzaGVsbCBwd2QpCgpkZWZhdWx0OgoJJChNQUtFKSAtQyAk
-KEtFUk5FTERJUikgTT0kKFBXRCkgbW9kdWxlcwoKaW5zdGFsbDoKCSQoTUFLRSkgLUMgJChLRVJO
-RUxESVIpIE09JChQV0QpIG1vZHVsZXNfaW5zdGFsbAoKY2xlYW46CgkkKE1BS0UpIC1DICQoS0VS
-TkVMRElSKSBNPSQoUFdEKSBjbGVhbgoKZW5kaWYK
-------=_Part_18407_12249361.1160223167735
-Content-Type: text/x-csrc; name=hello1.c; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eszz32zb
-Content-Disposition: attachment; filename="hello1.c"
-
-I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgpNT0RVTEVf
-TElDRU5TRSgiRHVhbCBCU0QvR1BMIik7CgpleHRlcm4gaW50IGdfbXlfZXhwb3J0IDsKCnN0YXRp
-YyBpbnQgaGVsbG9faW5pdCh2b2lkKQp7CiAgICBwcmludGsoS0VSTl9BTEVSVCAiSGVsbG8sIHdv
-cmxkMVxuIik7CiAgICAKICAgIHByaW50aygiVmFsdWUgaW4gZ19teV9leHBvcnQ9JWRcbiIsZ19t
-eV9leHBvcnQpIDsKcmV0dXJuIDA7Cn0Kc3RhdGljIHZvaWQgaGVsbG9fZXhpdCh2b2lkKQp7CnBy
-aW50ayhLRVJOX0FMRVJUICJHb29kYnllLCBjcnVlbCB3b3JsZDFcbiIpOwp9Cgptb2R1bGVfaW5p
-dChoZWxsb19pbml0KTsKbW9kdWxlX2V4aXQoaGVsbG9fZXhpdCk7Cg==
-------=_Part_18407_12249361.1160223167735
-Content-Type: application/octet-stream; name=Makefile
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eszz38k8
-Content-Disposition: attachment; filename="Makefile"
-
-IyBJZiBLRVJORUxSRUxFQVNFIGlzIGRlZmluZWQsIHdlJ3ZlIGJlZW4gaW52b2tlZCBmcm9tIHRo
-ZQojIGtlcm5lbCBidWlsZCBzeXN0ZW0gYW5kIGNhbiB1c2UgaXRzIGxhbmd1YWdlLgppZm5lcSAo
-JChLRVJORUxSRUxFQVNFKSwpCm9iai1tIDo9IGhlbGxvMS5vCiMgT3RoZXJ3aXNlIHdlIHdlcmUg
-Y2FsbGVkIGRpcmVjdGx5IGZyb20gdGhlIGNvbW1hbmQKIyBsaW5lOyBpbnZva2UgdGhlIGtlcm5l
-bCBidWlsZCBzeXN0ZW0uCmVsc2UKS0VSTkVMRElSID89IC9saWIvbW9kdWxlcy8kKHNoZWxsIHVu
-YW1lIC1yKS9idWlsZAoKUFdEIDo9ICQoc2hlbGwgcHdkKQoKZGVmYXVsdDoKCSQoTUFLRSkgLUMg
-JChLRVJORUxESVIpIE09JChQV0QpIG1vZHVsZXMKCmluc3RhbGw6CgkkKE1BS0UpIC1DICQoS0VS
-TkVMRElSKSBNPSQoUFdEKSBtb2R1bGVzX2luc3RhbGwKCmNsZWFuOgoJJChNQUtFKSAtQyAkKEtF
-Uk5FTERJUikgTT0kKFBXRCkgY2xlYW4KCmVuZGlmCg==
-------=_Part_18407_12249361.1160223167735--
+sorry,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

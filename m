@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422878AbWJGCAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423055AbWJGCU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422878AbWJGCAk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 22:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422886AbWJGCAk
+	id S1423055AbWJGCU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 22:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423057AbWJGCU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 22:00:40 -0400
-Received: from xenotime.net ([66.160.160.81]:38075 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422878AbWJGCAj (ORCPT
+	Fri, 6 Oct 2006 22:20:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59066 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423055AbWJGCU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 22:00:39 -0400
-Date: Fri, 6 Oct 2006 19:02:04 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Matt LaPlante <kernel1@cyberdogtech.com>
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 19-rc1]  Fix typos in /Documentation : 'U-Z'
-Message-Id: <20061006190204.9ccacbeb.rdunlap@xenotime.net>
-In-Reply-To: <20061006095031.7dfcbe53.kernel1@cyberdogtech.com>
-References: <20061006095031.7dfcbe53.kernel1@cyberdogtech.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Oct 2006 22:20:56 -0400
+Date: Fri, 6 Oct 2006 19:20:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Duran, Leo" <leo.duran@amd.com>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Arjan van de Ven <arjan@infradead.org>,
+       Jeff Garzik <jeff@garzik.org>, Andi Kleen <ak@suse.de>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: RE: [discuss] Re: Please pull x86-64 bug fixes
+In-Reply-To: <1449F58C868D8D4E9C72945771150BDF46F8FD@SAUSEXMB1.amd.com>
+Message-ID: <Pine.LNX.4.64.0610061912460.3952@g5.osdl.org>
+References: <1449F58C868D8D4E9C72945771150BDF46F8FD@SAUSEXMB1.amd.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 09:50:31 -0400 Matt LaPlante wrote:
 
-> This patch fixes typos in various Documentation txts. The patch addresses some words starting with the letters 'U-Z'.  
 
-Mostly good, but I have a few comments below.
+On Fri, 6 Oct 2006, Duran, Leo wrote:
+> 
+> So, one can argue that there's merit on having ACPI
 
-> diff -ru a/Documentation/block/biodoc.txt b/Documentation/block/biodoc.txt
-> --- a/Documentation/block/biodoc.txt	2006-10-05 22:18:50.000000000 -0400
-> +++ b/Documentation/block/biodoc.txt	2006-10-05 23:04:59.000000000 -0400
-> @@ -403,14 +403,14 @@
->      for raw i/o.
->  ii. Ability to represent high-memory buffers (which do not have a virtual
->      address mapping in kernel address space).
-> -iii.Ability to represent large i/os w/o unecessarily breaking them up (i.e
-> +iii.Ability to represent large i/os w/o unnecessarily breaking them up (i.e
+Not really.
 
-I'd prefer to see "I/Os"  "without"   "i.e.".
+The thing is, you have two choices:
+ - define interfaces in hardware
+ - not doing so, and then trying to paper it over with idiotic tables.
 
-> diff -ru a/Documentation/filesystems/spufs.txt b/Documentation/filesystems/spufs.txt
-> --- a/Documentation/filesystems/spufs.txt	2006-10-05 22:18:51.000000000 -0400
-> +++ b/Documentation/filesystems/spufs.txt	2006-10-05 22:53:50.000000000 -0400
-> @@ -210,7 +210,7 @@
->     /signal2
->         The two signal notification channels of an SPU.  These  are  read-write
->         files  that  operate  on  a 32 bit word.  Writing to one of these files
-> -       triggers an interrupt on the SPU. The  value  writting  to  the  signal
-> +       triggers an interrupt on the SPU.  The  value  writing  to  the  signal
+Sadly, Intel decided that they should do the latter, and invented ACPI.
 
-I think that should be "written".
+If instead they had decided to just let the hardware describe itself, we 
+wouldn't need ACPI. 
 
->         files can be read from the SPU through a channel read or from host user
->         space through the file.  After the value has been read by the  SPU,  it
->         is  reset  to zero.  The possible operations on an open signal1 or sig-
+There are two kinds of interfaces: the simple ones, and the broken ones. 
 
-> diff -ru a/Documentation/MSI-HOWTO.txt b/Documentation/MSI-HOWTO.txt
-> --- a/Documentation/MSI-HOWTO.txt	2006-10-05 22:18:52.000000000 -0400
-> +++ b/Documentation/MSI-HOWTO.txt	2006-10-05 22:31:22.000000000 -0400
-> @@ -219,7 +219,7 @@
->  Note that the pre-assigned IOAPIC dev->irq is valid only if the device
->  operates in PIN-IRQ assertion mode. In MSI-X mode, any attempt at
->  using dev->irq by the device driver to request for interrupt service
-> -may result unpredictabe behavior.
-> +may result unpredictable behavior.
+The simple ones are better defined by the hardware people, and they work. 
+They are of the kind:
 
-   may result in unpredictable behavior.
+ "The pointer to the MMIO config area is readable from IO port at offset 
+  cf4h"
 
->  For each MSI-X vector granted, a device driver is responsible for calling
->  other functions like request_irq(), enable_irq(), etc. to enable
+The broken ones are the ones where hardware people know what they want to 
+do, but they think the interface is sucky and complicated, so they make it 
+_doubly_ sucky by then saying "we'll describe it in the BIOS tables", so 
+that now there is another (incompetent) group that can _also_ screw things 
+up. Yeehaa!
 
----
-~Randy
+The thing is, Intel did really well for _years_ with just defining 
+hardware interfaces. The PIIX IDE controller interfaces were a great 
+success, and worked for over a decade. So here's a question for you:
+
+  "After having done something successfully for a decade, what do you do?
+   Do you
+    (a) Try to emulate a known successful strategy?
+    (b) Put a committee together to try to come up with a new and more 
+        'generic' solution, since you were only successful for closer to 
+        fifteen years."
+
+Guess which one is ACPI.
+
+		Linus

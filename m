@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbWJGTTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932784AbWJGTUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932780AbWJGTTk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 15:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbWJGTTk
+	id S932784AbWJGTUB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 15:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbWJGTUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 15:19:40 -0400
-Received: from eazy.amigager.de ([213.239.192.238]:54160 "EHLO
-	eazy.amigager.de") by vger.kernel.org with ESMTP id S932780AbWJGTTj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 15:19:39 -0400
-Date: Sat, 7 Oct 2006 21:19:38 +0200
-From: Tino Keitel <tino.keitel@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [resend] [git pull] drm tree for 2.6.19-rc1
-Message-ID: <20061007191938.GA18426@dose.home.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609300336000.4402@skynet.skynet.ie>
+	Sat, 7 Oct 2006 15:20:00 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:34572 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932784AbWJGTT7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 15:19:59 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: [PATCH 01/10] -mm: clocksource: increase initcall priority
+References: <20061006185439.667702000@mvista.com>
+	<20061006185456.261581000@mvista.com>
+	<87hcygqgl8.fsf@duaron.myhome.or.jp>
+	<1160239878.21411.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	<87d594qa4o.fsf@duaron.myhome.or.jp>
+	<87lknsotnj.fsf@duaron.myhome.or.jp>
+	<1160246668.21411.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 08 Oct 2006 04:19:52 +0900
+In-Reply-To: <1160246668.21411.12.camel@c-67-180-230-165.hsd1.ca.comcast.net> (Daniel Walker's message of "Sat\, 07 Oct 2006 11\:44\:28 -0700")
+Message-ID: <877izcorvr.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609300336000.4402@skynet.skynet.ie>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 03:37:16 +0100, Dave Airlie wrote:
-> 
-> Hi Linus,
-> 
-> This is the DRM tree, the main work is the addition of simpler clean memory
-> manager which fixes a lot of problems for Via and Sis users and the Intel
-> 965 support.
-> 
-> Please pull from 'drm-patches' branch of
-> git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git 
-> drm-patches
+Daniel Walker <dwalker@mvista.com> writes:
 
-How about the vblank patch for the broken video timing in 2.6.18? It is
-commit 881ba569929ceafd42e3c86228b0172099083d1d in
-git://anongit.freedesktop.org/git/mesa/drm and solved the problem for
-me.
+> On Sun, 2006-10-08 at 03:41 +0900, OGAWA Hirofumi wrote:
+>
+>> >>> 
+>> >>> We'll need to change it.
+>> >>
+>> >> We can add a call to clocksource_rating_change() inside
+>> >> acpi_pm_need_workaround(), are there deeper dependencies?
+>> >
+>> > There is no deeper dependencies.  If it's meaning
+>> > clocksource_reselect() in current git, it sounds good to me.
+>> 
+>> Ah, I was forgetting why I didn't before. If it's a buggy pmtmr, we'll
+>> get corrupted time until re-selecting the clocksource.
+>> 
+>> If anybody doesn't care this will be good with it. If not, we would
+>> need to back to old one. IIRC, John did it.
+>
+> We could just reverse it, use the verified read function until we know
+> it's a good PM timer, then switch to the faster read function.
 
-Regards,
-Tino
+Yes, we did it in old timer code.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

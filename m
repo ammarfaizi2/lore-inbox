@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWJGFyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbWJGFze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbWJGFyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 01:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWJGFyw
+	id S932623AbWJGFze (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 01:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWJGFzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 01:54:52 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:51632 "EHLO
+	Sat, 7 Oct 2006 01:55:06 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54960 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932422AbWJGFyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 01:54:50 -0400
+	id S932605AbWJGFyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:54:55 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 22 of 23] Unionfs: Unlink
-Message-Id: <a20795e821a8a7a362a7.1160197661@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 3 of 23] Unionfs: Branch management functionality
+Message-Id: <283be70922a4ed04834a.1160197642@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1160197639@thor.fsl.cs.sunysb.edu>
-Date: Sat, 07 Oct 2006 01:07:41 -0400
+Date: Sat, 07 Oct 2006 01:07:22 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
@@ -25,7 +25,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch provides unlink functionality for Unionfs.
+This patch contains the ioctls to increase the union generation and to query
+which branch a file exists on.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -33,13 +34,13 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
-1 file changed, 178 insertions(+)
-fs/unionfs/unlink.c |  178 +++++++++++++++++++++++++++++++++++++++++++++++++++
+1 file changed, 74 insertions(+)
+fs/unionfs/branchman.c |   74 ++++++++++++++++++++++++++++++++++++++++++++++++
 
-diff -r 606b1edca92c -r a20795e821a8 fs/unionfs/unlink.c
+diff -r 3104d077379c -r 283be70922a4 fs/unionfs/branchman.c
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/fs/unionfs/unlink.c	Sat Oct 07 00:46:20 2006 -0400
-@@ -0,0 +1,178 @@
++++ b/fs/unionfs/branchman.c	Sat Oct 07 00:46:18 2006 -0400
+@@ -0,0 +1,74 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
@@ -60,162 +61,58 @@ diff -r 606b1edca92c -r a20795e821a8 fs/unionfs/unlink.c
 +
 +#include "union.h"
 +
-+static int unionfs_unlink_whiteout(struct inode *dir, struct dentry *dentry)
++int unionfs_ioctl_incgen(struct file *file, unsigned int cmd, unsigned long arg)
 +{
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_dir_dentry;
-+	int bindex;
-+	int err = 0;
++	struct super_block *sb;
++	int gen;
 +
++	sb = file->f_dentry->d_sb;
++
++	unionfs_write_lock(sb);
++
++	gen = atomic_inc_return(&stopd(sb)->usi_generation);
++
++	atomic_set(&dtopd(sb->s_root)->udi_generation, gen);
++	atomic_set(&itopd(sb->s_root->d_inode)->uii_generation, gen);
++
++	unionfs_write_unlock(sb);
++
++	return gen;
++}
++
++int unionfs_ioctl_queryfile(struct file *file, unsigned int cmd,
++			    unsigned long arg)
++{
++	int err = 0;
++	fd_set branchlist;
++
++	int bstart = 0, bend = 0, bindex = 0;
++	struct dentry *dentry, *hidden_dentry;
++
++	dentry = file->f_dentry;
++	lock_dentry(dentry);
 +	if ((err = unionfs_partial_lookup(dentry)))
 +		goto out;
++	bstart = dbstart(dentry);
++	bend = dbend(dentry);
 +
-+	bindex = dbstart(dentry);
++	FD_ZERO(&branchlist);
 +
-+	hidden_dentry = dtohd_index(dentry, bindex);
-+	if (!hidden_dentry)
-+		goto out;
-+
-+	hidden_dir_dentry = lock_parent(hidden_dentry);
-+
-+	/* avoid destroying the hidden inode if the file is in use */
-+	dget(hidden_dentry);
-+	if (!(err = is_robranch_super(dentry->d_sb, bindex)))
-+		err = vfs_unlink(hidden_dir_dentry->d_inode, hidden_dentry);
-+	dput(hidden_dentry);
-+	fist_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+	unlock_dir(hidden_dir_dentry);
-+
-+	if (err && !IS_COPYUP_ERR(err))
-+		goto out;
-+
-+	if (err) {
-+		if (dbstart(dentry) == 0)
-+			goto out;
-+
-+		err = create_whiteout(dentry, dbstart(dentry) - 1);
-+	} else if (dbopaque(dentry) != -1) {
-+		/* There is a hidden lower-priority file with the same name. */
-+		err = create_whiteout(dentry, dbopaque(dentry));
-+	} else {
-+		err = create_whiteout(dentry, dbstart(dentry));
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		hidden_dentry = dtohd_index(dentry, bindex);
++		if (!hidden_dentry)
++			continue;
++		if (hidden_dentry->d_inode)
++			FD_SET(bindex, &branchlist);
 +	}
 +
++	err = copy_to_user((void __user *)arg, &branchlist, sizeof(fd_set));
++	if (err)
++		err = -EFAULT;
++
 +out:
-+	if (!err)
-+		dentry->d_inode->i_nlink--;
-+
-+	/* We don't want to leave negative leftover dentries for revalidate. */
-+	if (!err && (dbopaque(dentry) != -1))
-+		update_bstart(dentry);
-+
-+	return err;
-+}
-+
-+int unionfs_unlink(struct inode *dir, struct dentry *dentry)
-+{
-+	int err = 0;
-+
-+	lock_dentry(dentry);
-+
-+	err = unionfs_unlink_whiteout(dir, dentry);
-+	/* call d_drop so the system "forgets" about us */
-+	if (!err)
-+		d_drop(dentry);
-+
 +	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+static int unionfs_rmdir_first(struct inode *dir, struct dentry *dentry,
-+			       struct unionfs_dir_state *namelist)
-+{
-+	int err;
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_dir_dentry = NULL;
-+
-+	/* Here we need to remove whiteout entries. */
-+	err = delete_whiteouts(dentry, dbstart(dentry), namelist);
-+	if (err) {
-+		goto out;
-+	}
-+
-+	hidden_dentry = dtohd(dentry);
-+
-+	hidden_dir_dentry = lock_parent(hidden_dentry);
-+
-+	/* avoid destroying the hidden inode if the file is in use */
-+	dget(hidden_dentry);
-+	if (!(err = is_robranch(dentry))) {
-+		err = vfs_rmdir(hidden_dir_dentry->d_inode, hidden_dentry);
-+	}
-+	dput(hidden_dentry);
-+
-+	fist_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+	/* propagate number of hard-links */
-+	dentry->d_inode->i_nlink = get_nlinks(dentry->d_inode);
-+
-+out:
-+	if (hidden_dir_dentry) {
-+		unlock_dir(hidden_dir_dentry);
-+	}
-+	return err;
-+}
-+
-+int unionfs_rmdir(struct inode *dir, struct dentry *dentry)
-+{
-+	int err = 0;
-+	struct unionfs_dir_state *namelist = NULL;
-+
-+	lock_dentry(dentry);
-+
-+	/* check if this unionfs directory is empty or not */
-+	err = check_empty(dentry, &namelist);
-+	if (err) {
-+#if 0
-+		/* vfs_rmdir(our caller) unhashed the dentry.  This will recover
-+		 * the Unionfs inode number for the directory itself, but the
-+		 * children are already lost.  It seems that tmpfs manages its
-+		 * way around this by upping the refcount on everything.
-+		 *
-+		 * Even if we do this, we still lose the inode numbers of the
-+		 * children.  The best way to fix this is to fix the VFS (or
-+		 * use persistent inode maps). */
-+		if (d_unhashed(dentry))
-+			d_rehash(dentry);
-+#endif
-+		goto out;
-+	}
-+
-+	err = unionfs_rmdir_first(dir, dentry, namelist);
-+	/* create whiteout */
-+	if (!err) {
-+		err = create_whiteout(dentry, dbstart(dentry));
-+	} else {
-+		int new_err;
-+
-+		if (dbstart(dentry) == 0)
-+			goto out;
-+
-+		/* exit if the error returned was NOT -EROFS */
-+		if (!IS_COPYUP_ERR(err))
-+			goto out;
-+
-+		new_err = create_whiteout(dentry, dbstart(dentry) - 1);
-+		if (new_err != -EEXIST)
-+			err = new_err;
-+	}
-+
-+out:
-+	/* call d_drop so the system "forgets" about us */
-+	if (!err)
-+		d_drop(dentry);
-+
-+	if (namelist)
-+		free_rdstate(namelist);
-+
-+	unlock_dentry(dentry);
-+	return err;
++	return err < 0 ? err : bend;
 +}
 +
 

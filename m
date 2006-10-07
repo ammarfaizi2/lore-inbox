@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWJGOlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWJGOoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWJGOlN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 10:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWJGOlN
+	id S932116AbWJGOoz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 10:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWJGOoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 10:41:13 -0400
-Received: from mail5.postech.ac.kr ([141.223.1.113]:36290 "EHLO
-	mail5.postech.ac.kr") by vger.kernel.org with ESMTP id S932105AbWJGOlM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 10:41:12 -0400
-Date: Sat, 7 Oct 2006 23:41:39 +0900
-From: Seongsu Lee <senux@senux.com>
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Valdis.Kletnieks@vt.edu
-Subject: Re: specifying the order of calling kernel functions (or modules)
-Message-ID: <20061007144139.GA2155@pooky.senux.com>
-References: <20060928101724.GA18635@pooky.senux.com> <200609281547.k8SFl3Au004978@turing-police.cc.vt.edu> <20060930104205.GB10248@pooky.senux.com> <20060930094731.2fe41e12.rdunlap@xenotime.net>
-Mime-Version: 1.0
+	Sat, 7 Oct 2006 10:44:55 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:41376 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S932116AbWJGOoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 10:44:54 -0400
+Date: Sat, 7 Oct 2006 08:44:53 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       parisc-linux@parisc-linux.org
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Message-ID: <20061007144453.GY2563@parisc-linux.org>
+References: <20061002132116.2663d7a3.akpm@osdl.org> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <18975.1160058127@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0610051632250.3952@g5.osdl.org> <20061006164211.GA15321@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610061055490.3952@g5.osdl.org> <20061007025444.GV2563@parisc-linux.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060930094731.2fe41e12.rdunlap@xenotime.net>
-X-TERRACE-SPAMMARK: NO       (SR:6.89)                     
-  (by Terrace)                                                   
+In-Reply-To: <20061007025444.GV2563@parisc-linux.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Oct 06, 2006 at 08:54:44PM -0600, Matthew Wilcox wrote:
+> git-pull git://git.parisc-linux.org/git/linux-2.6.git irq-fixes
+> 
+> Or apply the patch below, if that's easier
 
-Thank you for the replys.
+And the next series of patches actually make it boot.
 
-I try to phrase differently.
+git-pull git://git.parisc-linux.org/git/linux-2.6.git irq-fixes
 
-I made a simple kernel module that do 'hello world'. The module will be
-called when I do 'modprobe' or 'insmod' to load it into the memory.
+Kyle McMartin:
+      [PARISC] Make firmware calls irqsafe-ish...
 
-When is the function, init_module(), in the module called in the case 
-the module is compiled as a built-in one? (Not M but Y in .config)
-Can I specify the exact time of calling the function, init_module() in
-the module?
+Matthew Wilcox:
+      [PARISC] Use set_irq_regs
+      [PA-RISC] Fix boot breakage
+      [PARISC] pdc_init no longer exists
+      [PARISC] More pt_regs removal
 
--- 
-Seongsu Lee - http://www.senux.com/
-The nice thing about Windows is - It does not just
-crash, it displays a dialog box and lets you press
-'OK' first. (Arno Schaefer's .sig)
-
-
-
+ arch/parisc/kernel/drivers.c  |    6 -
+ arch/parisc/kernel/firmware.c |  250 +++++++++++++++++++++++++-----------------
+ arch/parisc/kernel/irq.c      |    3 
+ arch/parisc/kernel/smp.c      |   15 --
+ arch/parisc/kernel/time.c     |   32 ++---
+ include/asm-parisc/pdc.h      |    2 
+ 6 files changed, 177 insertions(+), 131 deletions(-)
 

@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWJGMyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWJGNFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWJGMyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 08:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWJGMyP
+	id S1751548AbWJGNFv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 09:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbWJGNFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 08:54:15 -0400
-Received: from soundwarez.org ([217.160.171.123]:4075 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751077AbWJGMyP (ORCPT
+	Sat, 7 Oct 2006 09:05:51 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:31922 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751548AbWJGNFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 08:54:15 -0400
-Subject: Re: sysfs & ALSA card
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-In-Reply-To: <20061007074440.GA9304@kroah.com>
-References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz>
-	 <20061007062458.GF23366@kroah.com>  <20061007074440.GA9304@kroah.com>
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 14:55:30 +0200
-Message-Id: <1160225730.19302.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Oct 2006 09:05:50 -0400
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>
+Message-Id: <20061007105807.14024.67270.sendpatchset@linux.site>
+In-Reply-To: <20061007105758.14024.70048.sendpatchset@linux.site>
+References: <20061007105758.14024.70048.sendpatchset@linux.site>
+Subject: [patch 1/3] mm: arch_free_page fix
+Date: Sat,  7 Oct 2006 15:05:46 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-07 at 00:44 -0700, Greg KH wrote: 
-> > On Fri, Oct 06, 2006 at 04:00:27PM +0200, Jaroslav Kysela wrote:
-> > > 	I would like to discuss where is the right root for soundcards in 
-> > > the sysfs tree. I would like to put card specific variables like id there 
-> > > (see /proc/asound/card0/id).
+After the PG_reserved check was added, arch_free_page was being called in the
+wrong place (it could be called for a page we don't actually want to free).
+Fix that.
 
-> > > Also, I plan to create link from 
-> > > /sys/class/sound tree to the appropriate card to show relationship. 
-> > > Something like:
-> > > 
-> > > /sys/<somewhere>/soundcard/0
-> > > 
-> > > /sys/class/sound/controlC0/soundcard -> ../../../<somewhere>/soundcard/0
-> > > 
-> > > 	Any comments and suggestions?
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-No, please no links if you have stuff that can be expressed in a tree,
-which you perfectly can in this case. Just create a parent "card-device"
-to hold the generic card attributes, and put the stuff like pcmC0* below
-that device. Userspace is fine with that and will not break,
-cause /sys/class/sound/* is still just a flat directory with all devices
-in one directory, only the link targets will point to a hierarchy (note
-that the link target of "pcmC1D0c" includes" Audigy2". )
-
-> Here's what /sys/class/sound now looks like for me:
->  $ tree /sys/class/sound/
->  /sys/class/sound/
->  |-- Audigy2 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2
->  |-- admmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/admmidi1
->  |-- amidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/amidi1
->  |-- controlC1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/controlC1
->  |-- dmmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/dmmidi1
->  |-- hwC1D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/hwC1D0
->  |-- midi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midi1
->  |-- midiC1D0 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midiC1D0
->  |-- midiC1D1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/midiC1D1
->  |-- pcmC1D0c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D0c
->  |-- pcmC1D0p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D0p
->  |-- pcmC1D1c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D1c
->  |-- pcmC1D2c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D2c
->  |-- pcmC1D2p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D2p
->  |-- pcmC1D3p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D3p
->  |-- pcmC1D4c -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D4c
->  |-- pcmC1D4p -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/pcmC1D4p
->  `-- timer -> ../../devices/virtual/sound/timer
-> 
-> 
-> Yeah, I picked the wrong name for the card, it should be "card1" instead
-> of "Audigy2" here, but you get the idea.
-
-That looks nice. Yeah, it should something that matches to the C1 in the
-other names.
-
-> Please also note that you will need the latest versions of udev to get
-> this to work properly for your sysfs nodes.
-
-This should be fine for all recent releases including SLE.
-
-Thanks,
-Kay
-
+Index: linux-2.6/mm/page_alloc.c
+===================================================================
+--- linux-2.6.orig/mm/page_alloc.c	2006-08-05 18:38:50.000000000 +1000
++++ linux-2.6/mm/page_alloc.c	2006-09-17 17:19:32.000000000 +1000
+@@ -443,7 +443,6 @@ static void __free_pages_ok(struct page 
+ 	int i;
+ 	int reserved = 0;
+ 
+-	arch_free_page(page, order);
+ 	if (!PageHighMem(page))
+ 		debug_check_no_locks_freed(page_address(page),
+ 					   PAGE_SIZE<<order);
+@@ -453,7 +452,9 @@ static void __free_pages_ok(struct page 
+ 	if (reserved)
+ 		return;
+ 
++	arch_free_page(page, order);
+ 	kernel_map_pages(page, 1 << order, 0);
++
+ 	local_irq_save(flags);
+ 	__count_vm_events(PGFREE, 1 << order);
+ 	free_one_page(page_zone(page), page, order);
+@@ -717,13 +718,12 @@ static void fastcall free_hot_cold_page(
+ 	struct per_cpu_pages *pcp;
+ 	unsigned long flags;
+ 
+-	arch_free_page(page, 0);
+-
+ 	if (PageAnon(page))
+ 		page->mapping = NULL;
+ 	if (free_pages_check(page))
+ 		return;
+ 
++	arch_free_page(page, 0);
+ 	kernel_map_pages(page, 1, 0);
+ 
+ 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];

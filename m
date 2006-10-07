@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbWJGGCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWJGFy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932608AbWJGGCV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 02:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWJGFzA
+	id S932583AbWJGFy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 01:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbWJGFyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 01:55:00 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:53168 "EHLO
+	Sat, 7 Oct 2006 01:54:55 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:52912 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932566AbWJGFyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 01:54:52 -0400
+	id S932527AbWJGFyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:54:51 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 19 of 23] Unionfs: Helper macros/inlines
-Message-Id: <d7b005418bfc9911ed07.1160197658@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 16 of 23] Unionfs: Handling of stale inodes
+Message-Id: <766f19339624900d3338.1160197655@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1160197639@thor.fsl.cs.sunysb.edu>
-Date: Sat, 07 Oct 2006 01:07:38 -0400
+Date: Sat, 07 Oct 2006 01:07:35 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
@@ -25,7 +25,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains many macros and inline functions used thoughout Unionfs.
+Provides nicer handling of stale inodes.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
@@ -33,204 +33,126 @@ Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
-1 file changed, 192 insertions(+)
-fs/unionfs/fanout.h |  192 +++++++++++++++++++++++++++++++++++++++++++++++++++
+1 file changed, 114 insertions(+)
+fs/unionfs/stale_inode.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++
 
-diff -r ec307c3cb429 -r d7b005418bfc fs/unionfs/fanout.h
+diff -r b601a3cced0e -r 766f19339624 fs/unionfs/stale_inode.c
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/fs/unionfs/fanout.h	Sat Oct 07 00:46:19 2006 -0400
-@@ -0,0 +1,192 @@
++++ b/fs/unionfs/stale_inode.c	Sat Oct 07 00:46:19 2006 -0400
+@@ -0,0 +1,114 @@
 +/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef Sipek
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ *  Adpated from linux/fs/bad_inode.c
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ *  Copyright (C) 1997, Stephen Tweedie
++ *
++ *  Provide stub functions for "stale" inodes, a bit friendlier than the
++ *  -EIO that bad_inode.c does.
 + */
 +
-+#ifndef _FANOUT_H_
-+#define _FANOUT_H_
++#include <linux/version.h>
 +
-+/* Inode to private data */
-+static inline struct unionfs_inode_info *itopd(const struct inode *inode)
++#include <linux/fs.h>
++#include <linux/stat.h>
++#include <linux/sched.h>
++
++static struct address_space_operations unionfs_stale_aops;
++
++/* declarations for "sparse */
++extern struct inode_operations stale_inode_ops;
++
++/*
++ * The follow_link operation is special: it must behave as a no-op
++ * so that a stale root inode can at least be unmounted. To do this
++ * we must dput() the base and return the dentry with a dget().
++ */
++static void *stale_follow_link(struct dentry *dent, struct nameidata *nd)
 +{
-+	return
-+	    &(container_of(inode, struct unionfs_inode_container, vfs_inode)->
-+	      info);
++	return ERR_PTR(vfs_follow_link(nd, ERR_PTR(-ESTALE)));
 +}
 +
-+#define itohi_ptr(ino) (itopd(ino)->uii_inode)
-+#define ibstart(ino) (itopd(ino)->b_start)
-+#define ibend(ino) (itopd(ino)->b_end)
-+
-+/* Superblock to private data */
-+#define stopd(super) ((struct unionfs_sb_info *)(super)->s_fs_info)
-+#define stopd_lhs(super) ((super)->s_fs_info)
-+#define sbstart(sb) 0
-+#define sbend(sb) stopd(sb)->b_end
-+#define sbmax(sb) (stopd(sb)->b_end + 1)
-+
-+/* File to private Data */
-+#define ftopd(file) ((struct unionfs_file_info *)((file)->private_data))
-+#define ftopd_lhs(file) ((file)->private_data)
-+#define ftohf_ptr(file)  (ftopd(file)->ufi_file)
-+#define fbstart(file) (ftopd(file)->b_start)
-+#define fbend(file) (ftopd(file)->b_end)
-+
-+/* File to hidden file. */
-+static inline struct file *ftohf(struct file *f)
++static int return_ESTALE(void)
 +{
-+	return ftopd(f)->ufi_file[fbstart(f)];
++	return -ESTALE;
 +}
 +
-+static inline struct file *ftohf_index(const struct file *f, int index)
++#define ESTALE_ERROR ((void *) (return_ESTALE))
++
++static struct file_operations stale_file_ops = {
++	.llseek = ESTALE_ERROR,
++	.read = ESTALE_ERROR,
++	.write = ESTALE_ERROR,
++	.readdir = ESTALE_ERROR,
++	.poll = ESTALE_ERROR,
++	.ioctl = ESTALE_ERROR,
++	.mmap = ESTALE_ERROR,
++	.open = ESTALE_ERROR,
++	.flush = ESTALE_ERROR,
++	.release = ESTALE_ERROR,
++	.fsync = ESTALE_ERROR,
++	.fasync = ESTALE_ERROR,
++	.lock = ESTALE_ERROR,
++};
++
++struct inode_operations stale_inode_ops = {
++	.create = ESTALE_ERROR,
++	.lookup = ESTALE_ERROR,
++	.link = ESTALE_ERROR,
++	.unlink = ESTALE_ERROR,
++	.symlink = ESTALE_ERROR,
++	.mkdir = ESTALE_ERROR,
++	.rmdir = ESTALE_ERROR,
++	.mknod = ESTALE_ERROR,
++	.rename = ESTALE_ERROR,
++	.readlink = ESTALE_ERROR,
++	.follow_link = stale_follow_link,
++	.truncate = ESTALE_ERROR,
++	.permission = ESTALE_ERROR,
++};
++
++/*
++ * When a filesystem is unable to read an inode due to an I/O error in
++ * its read_inode() function, it can call make_stale_inode() to return a
++ * set of stubs which will return ESTALE errors as required.
++ *
++ * We only need to do limited initialisation: all other fields are
++ * preinitialised to zero automatically.
++ */
++
++/**
++ *	make_stale_inode - mark an inode stale due to an I/O error
++ *	@inode: Inode to mark stale
++ *
++ *	When an inode cannot be read due to a media or remote network
++ *	failure this function makes the inode "stale" and causes I/O operations
++ *	on it to fail from this point on.
++ */
++
++void make_stale_inode(struct inode *inode)
 +{
-+	return ftopd(f)->ufi_file[index];
++	inode->i_mode = S_IFREG;
++	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++	inode->i_op = &stale_inode_ops;
++	inode->i_fop = &stale_file_ops;
++	inode->i_mapping->a_ops = &unionfs_stale_aops;
 +}
 +
-+static inline void set_ftohf_index(struct file *f, int index, struct file *val)
++/*
++ * This tests whether an inode has been flagged as stale. The test uses
++ * &stale_inode_ops to cover the case of invalidated inodes as well as
++ * those created by make_stale_inode() above.
++ */
++
++/**
++ *	is_stale_inode - is an inode errored
++ *	@inode: inode to test
++ *
++ *	Returns true if the inode in question has been marked as stale.
++ */
++
++int is_stale_inode(struct inode *inode)
 +{
-+	ftopd(f)->ufi_file[index] = val;
++	return (inode->i_op == &stale_inode_ops);
 +}
 +
-+static inline void set_ftohf(struct file *f, struct file *val)
-+{
-+	ftopd(f)->ufi_file[fbstart(f)] = val;
-+}
-+
-+/* Inode to hidden inode. */
-+static inline struct inode *itohi(const struct inode *i)
-+{
-+	return itopd(i)->uii_inode[ibstart(i)];
-+}
-+
-+static inline struct inode *itohi_index(const struct inode *i, int index)
-+{
-+	return itopd(i)->uii_inode[index];
-+}
-+
-+static inline void set_itohi_index(struct inode *i, int index,
-+				   struct inode *val)
-+{
-+	itopd(i)->uii_inode[index] = val;
-+}
-+
-+static inline void set_itohi(struct inode *i, struct inode *val)
-+{
-+	itopd(i)->uii_inode[ibstart(i)] = val;
-+}
-+
-+/* Superblock to hidden superblock. */
-+static inline struct super_block *stohs(const struct super_block *o)
-+{
-+	return stopd(o)->usi_data[sbstart(o)].sb;
-+}
-+
-+static inline struct super_block *stohs_index(const struct super_block *o, int index)
-+{
-+	return stopd(o)->usi_data[index].sb;
-+}
-+
-+static inline void set_stohs_index(struct super_block *o, int index,
-+				   struct super_block *val)
-+{
-+	stopd(o)->usi_data[index].sb = val;
-+}
-+
-+static inline void set_stohs(struct super_block *o, struct super_block *val)
-+{
-+	stopd(o)->usi_data[sbstart(o)].sb = val;
-+}
-+
-+/* Branch count macros. */
-+static inline int branch_count(struct super_block *o, int index)
-+{
-+	return atomic_read(&stopd(o)->usi_data[index].sbcount);
-+}
-+
-+static inline void set_branch_count(struct super_block *o, int index, int val)
-+{
-+	atomic_set(&stopd(o)->usi_data[index].sbcount, val);
-+}
-+
-+static inline void branchget(struct super_block *o, int index)
-+{
-+	atomic_inc(&stopd(o)->usi_data[index].sbcount);
-+}
-+
-+static inline void branchput(struct super_block *o, int index)
-+{
-+	atomic_dec(&stopd(o)->usi_data[index].sbcount);
-+}
-+
-+/* Dentry macros */
-+static inline struct unionfs_dentry_info *dtopd(const struct dentry *dent)
-+{
-+	return dent->d_fsdata;
-+}
-+
-+#define dtopd_lhs(dent) ((dent)->d_fsdata)
-+#define dtopd_nocheck(dent) dtopd(dent)
-+#define dbstart(dent) (dtopd(dent)->udi_bstart)
-+#define set_dbstart(dent, val) do { dtopd(dent)->udi_bstart = val; } while(0)
-+#define dbend(dent) (dtopd(dent)->udi_bend)
-+#define set_dbend(dent, val) do { dtopd(dent)->udi_bend = val; } while(0)
-+#define dbopaque(dent) (dtopd(dent)->udi_bopaque)
-+#define set_dbopaque(dent, val) do { dtopd(dent)->udi_bopaque = val; } while (0)
-+
-+static inline void set_dtohd_index(struct dentry *dent, int index,
-+				   struct dentry *val)
-+{
-+	dtopd(dent)->udi_dentry[index] = val;
-+}
-+
-+static inline struct dentry *dtohd_index(const struct dentry *dent, int index)
-+{
-+	return dtopd(dent)->udi_dentry[index];
-+}
-+
-+static inline struct dentry *dtohd(const struct dentry *dent)
-+{
-+	return dtopd(dent)->udi_dentry[dbstart(dent)];
-+}
-+
-+static inline void set_dtohm_index(struct dentry *dent, int index,
-+				   struct vfsmount *mnt)
-+{
-+	dtopd(dent)->udi_mnt[index] = mnt;
-+}
-+
-+static inline struct vfsmount *dtohm_index(const struct dentry *dent, int index)
-+{
-+	return dtopd(dent)->udi_mnt[index];
-+}
-+
-+static inline struct vfsmount *dtohm(const struct dentry *dent)
-+{
-+	return dtopd(dent)->udi_mnt[dbstart(dent)];
-+}
-+
-+#define set_dtohd_index_nocheck(dent, index, val) set_dtohd_index(dent, index, val)
-+#define dtohd_index_nocheck(dent, index) dtohd_index(dent, index)
-+
-+#define dtohd_ptr(dent) (dtopd(dent)->udi_dentry)
-+
-+#define dtohm_ptr(dent) (dtopd(dent)->udi_mnt)
-+
-+/* Macros for locking a dentry. */
-+#define lock_dentry(d) down(&dtopd(d)->udi_sem)
-+#define unlock_dentry(d) up(&dtopd(d)->udi_sem)
-+#define verify_locked(d)
-+
-+#endif	/* _FANOUT_H */
 
 

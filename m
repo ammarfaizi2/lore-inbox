@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932820AbWJGURt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932826AbWJGUVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932820AbWJGURt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 16:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932821AbWJGURt
+	id S932826AbWJGUVj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 16:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932827AbWJGUVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 16:17:49 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:10766 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S932820AbWJGURs (ORCPT
+	Sat, 7 Oct 2006 16:21:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62424 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932826AbWJGUVi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 16:17:48 -0400
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com, netdev@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org
-Subject: Re: 2.6.19-rc1 regression: airo suspend fails
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-	<871wpmoyjv.fsf@sycorax.lbl.gov> <20061006184706.GR16812@stusta.de>
-	<1160250771.24902.6.camel@kleikamp.austin.ibm.com>
-Date: Sat, 07 Oct 2006 13:17:13 -0700
-In-Reply-To: <1160250771.24902.6.camel@kleikamp.austin.ibm.com> (message from
-	Dave Kleikamp on Sat, 07 Oct 2006 14:52:51 -0500)
-Message-ID: <873b9zhody.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Sat, 7 Oct 2006 16:21:38 -0400
+Date: Sat, 7 Oct 2006 13:08:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: sysfs & ALSA card
+Message-ID: <20061007200827.GA10108@kroah.com>
+References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz> <20061007062458.GF23366@kroah.com> <20061007074440.GA9304@kroah.com> <1160225730.19302.1.camel@localhost> <20061007191228.GA31396@vrfy.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061007191228.GA31396@vrfy.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp <shaggy@austin.ibm.com> writes:
+On Sat, Oct 07, 2006 at 09:12:28PM +0200, Kay Sievers wrote:
+> On Sat, Oct 07, 2006 at 02:55:31PM +0200, Kay Sievers wrote:
+> > On Sat, 2006-10-07 at 00:44 -0700, Greg KH wrote: 
+> > >  $ tree /sys/class/sound/
+> > >  /sys/class/sound/
+> > >  |-- Audigy2 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2
+> > >  |-- admmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/admmidi1
+> 
+> > > Yeah, I picked the wrong name for the card, it should be "card1" instead
+> > > of "Audigy2" here, but you get the idea.
+> > 
+> > That looks nice. Yeah, it should something that matches to the C1 in the
+> > other names.
+> 
+> This works fine for me with two soundcards and connect/disconnect
+> module load/unload.
+> 
+> All devices are in a flat list in the class directory, also the card%i
+> ones:
 
-> I believe it was broken by:
-> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=3b4c7d640376dbccfe80fc4f7b8772ecc7de28c5
->
-> I have seen this in the -mm tree, but didn't follow up at the time.  I
-> was able to fix it with the following patch.  I don't know if it's the
-> best fix, but it seems to follow the same logic as the original code.
->
->
-> The airo driver used to break out of while loop if there were any signals
-> pending.  Since it no longer checks for signals, it at least needs to check
-> if it needs to be frozen.
->
-> Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
->
-> diff -Nurp linux-2.6.19-rc1/drivers/net/wireless/airo.c linux/drivers/net/wireless/airo.c
-> --- linux-2.6.19-rc1/drivers/net/wireless/airo.c	2006-10-05 07:22:39.000000000 -0500
-> +++ linux/drivers/net/wireless/airo.c	2006-10-07 13:42:13.000000000 -0500
-> @@ -3090,7 +3090,8 @@ static int airo_thread(void *data) {
->  						set_bit(JOB_AUTOWEP, &ai->jobs);
->  						break;
->  					}
-> -					if (!kthread_should_stop()) {
-> +					if (!kthread_should_stop() &&
-> +					    !freezing(current)) {
->  						unsigned long wake_at;
->  						if (!ai->expires || !ai->scan_timeout) {
->  							wake_at = max(ai->expires,
-> @@ -3102,7 +3103,8 @@ static int airo_thread(void *data) {
->  						schedule_timeout(wake_at - jiffies);
->  						continue;
->  					}
-> -				} else if (!kthread_should_stop()) {
-> +				} else if (!kthread_should_stop() &&
-> +					   !freezing(current)) {
->  					schedule();
->  					continue;
->  				}
->
+Yes, nice, your tweak solved my oops problem, which was wierd.  I've
+added some error checks now and added it back into my tree, thanks for
+the fixes.
 
-thanks. with this patch applied i can suspend to ram with the airo
-module loaded.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+greg k-h

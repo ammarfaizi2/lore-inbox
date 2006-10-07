@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932846AbWJGVCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932864AbWJGVIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932846AbWJGVCt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 17:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932858AbWJGVCt
+	id S932864AbWJGVIa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 17:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWJGVI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 17:02:49 -0400
-Received: from wx-out-0506.google.com ([66.249.82.232]:52848 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932846AbWJGVCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 17:02:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NKfgaXrWYg4+BR95ULv8XDjcz45CyfErdOmErqOP6QH5ctOP/Aljvf+3puo/kRwK7HoViHp0q+Tv2Uen277ihb54BMERtji51bz5OsZYm62DReF4yLzi6HaBO1bhacVBi63I47BImAGz6/Q67UcCeiVram7V9B//Hxb1ur1hMOQ=
-Message-ID: <9a8748490610071402m4450365kedff5615d008fcd5@mail.gmail.com>
-Date: Sat, 7 Oct 2006 23:02:43 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610062000281.3952@g5.osdl.org>
+	Sat, 7 Oct 2006 17:08:29 -0400
+Received: from nijmegen.renzel.net ([195.243.213.130]:4550 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S932864AbWJGVI3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 17:08:29 -0400
+Message-ID: <452816A9.3080208@twisted-brains.org>
+Date: Sat, 07 Oct 2006 23:05:45 +0200
+From: Marcel Siegert <mws@twisted-brains.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.19-rc1 fix compilation/linking error in arch/x86_64_kernel/traps.c
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
-	 <Pine.LNX.4.64.0610062000281.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/10/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Sat, 7 Oct 2006, Jesper Juhl wrote:
-> >
-> > Which has worked great in the past, but with recent kernels it has
-> > been a sure way to cause a complete lockup within 1 hour :-(
->
-> Reliable lock-ups (and "within 1 hour" is quite quick too) are actually
-> great.
->
-> > 2.6.17.13 .
-> > The first kernel where I know for sure it caused lockups is
-> > 2.6.18-git15 .   I've also tested 2.6.18-git16, 2.6.18-git21 and
-> > 2.6.19-rc1-git2 and those 3 also lock up solid.
->
-> Can I bother you to just bisect it?
->
-Sure, but it will take a little while since building + booting +
-starting the test + waiting for the lockup takes a fair bit of time
-for each kernel and also due to the fact that my git skills are pretty
-limited, but I'll figure it out (need to improve those git skills
-anyway) :-)
+hi linus,
 
-I'll be back with more info.
+the following compilation error:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+CC      arch/x86_64/kernel/traps.o
+arch/x86_64/kernel/traps.c: In function 'print_trace_warning_symbol':
+arch/x86_64/kernel/traps.c:375: warning: implicit declaration of function 'print_symbol'
+
+causing the following linking error
+arch/x86_64/kernel/built-in.o: In function `print_trace_warning_symbol':
+traps.c:(.text+0x2f85): undefined reference to `print_symbol'
+make: *** [vmlinux] Error 1
+
+is being fixed with the following patch.
+
+
+
+Description: fix missing include of kallsyms.h in arch/x86_64/kernel/traps.c
+
+Signed-off-by: Marcel Siegert <mws@twisted-brains.org>
+
+--- linux/arch/x86_64/kernel/traps.c    2006-10-07 22:33:07.000000000 +0200
++++ linux-2.6.19-rc1-patched/arch/x86_64/kernel/traps.c 2006-10-06 15:20:18.801485944 +0200
+@@ -29,7 +29,7 @@
+  #include <linux/kprobes.h>
+  #include <linux/kexec.h>
+  #include <linux/unwind.h>
+-
++#include <linux/kallsyms.h>
+  #include <asm/system.h>
+  #include <asm/uaccess.h>
+  #include <asm/io.h>
+
+
+

@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWJGFzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWJGGCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbWJGFzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 01:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWJGFzE
+	id S932705AbWJGGCW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 02:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWJGFy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 01:55:04 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54448 "EHLO
+	Sat, 7 Oct 2006 01:54:57 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:53424 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932422AbWJGFyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 01:54:54 -0400
+	id S932584AbWJGFyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:54:53 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 21 of 23] Unionfs: Include file
-Message-Id: <606b1edca92cfb812a4f.1160197660@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 2 of 23] lookup_one_len_nd - lookup_one_len with nameidata
+	argument
+Message-Id: <3104d077379c19c98510.1160197641@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1160197639@thor.fsl.cs.sunysb.edu>
-Date: Sat, 07 Oct 2006 01:07:40 -0400
+Date: Sat, 07 Oct 2006 01:07:21 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
@@ -25,40 +26,68 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Global include file - can be included from userspace by utilities.
+This patch renames lookup_one_len to lookup_one_len_nd, and adds a nameidata
+argument. An inline function, lookup_one_len (which calls lookup_one_len_nd
+with nd == NULL) preserves original behavior.
+
+The following Unionfs patches depend on this one.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 
 ---
 
-1 file changed, 20 insertions(+)
-include/linux/union_fs.h |   20 ++++++++++++++++++++
+2 files changed, 10 insertions(+), 5 deletions(-)
+fs/namei.c            |    7 +++----
+include/linux/namei.h |    8 +++++++-
 
-diff -r 4a0655b52aef -r 606b1edca92c include/linux/union_fs.h
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/include/linux/union_fs.h	Sat Oct 07 00:46:20 2006 -0400
-@@ -0,0 +1,20 @@
-+#ifndef _LINUX_UNION_FS_H
-+#define _LINUX_UNION_FS_H
+diff -r 45185d249694 -r 3104d077379c fs/namei.c
+--- a/fs/namei.c	Sat Oct 07 00:46:18 2006 -0400
++++ b/fs/namei.c	Sat Oct 07 00:46:18 2006 -0400
+@@ -1295,8 +1295,7 @@ static struct dentry *lookup_hash(struct
+ 	return __lookup_hash(&nd->last, nd->dentry, nd);
+ }
+ 
+-/* SMP-safe */
+-struct dentry * lookup_one_len(const char * name, struct dentry * base, int len)
++struct dentry * lookup_one_len_nd(const char *name, struct dentry * base, int len, struct nameidata *nd)
+ {
+ 	unsigned long hash;
+ 	struct qstr this;
+@@ -1316,7 +1315,7 @@ struct dentry * lookup_one_len(const cha
+ 	}
+ 	this.hash = end_name_hash(hash);
+ 
+-	return __lookup_hash(&this, base, NULL);
++	return __lookup_hash(&this, base, nd);
+ access:
+ 	return ERR_PTR(-EACCES);
+ }
+@@ -2761,7 +2760,7 @@ EXPORT_SYMBOL(get_write_access); /* binf
+ EXPORT_SYMBOL(get_write_access); /* binfmt_aout */
+ EXPORT_SYMBOL(getname);
+ EXPORT_SYMBOL(lock_rename);
+-EXPORT_SYMBOL(lookup_one_len);
++EXPORT_SYMBOL(lookup_one_len_nd);
+ EXPORT_SYMBOL(page_follow_link_light);
+ EXPORT_SYMBOL(page_put_link);
+ EXPORT_SYMBOL(page_readlink);
+diff -r 45185d249694 -r 3104d077379c include/linux/namei.h
+--- a/include/linux/namei.h	Sat Oct 07 00:46:18 2006 -0400
++++ b/include/linux/namei.h	Sat Oct 07 00:46:18 2006 -0400
+@@ -76,7 +76,13 @@ extern struct file *nameidata_to_filp(st
+ extern struct file *nameidata_to_filp(struct nameidata *nd, int flags);
+ extern void release_open_intent(struct nameidata *);
+ 
+-extern struct dentry * lookup_one_len(const char *, struct dentry *, int);
++extern struct dentry * lookup_one_len_nd(const char *, struct dentry *, int, struct nameidata *);
 +
-+#define UNIONFS_VERSION  "2.0"
-+/*
-+ * DEFINITIONS FOR USER AND KERNEL CODE:
-+ * (Note: ioctl numbers 1--9 are reserved for fistgen, the rest
-+ *  are auto-generated automatically based on the user's .fist file.)
-+ */
-+# define UNIONFS_IOCTL_INCGEN		_IOR(0x15, 11, int)
-+# define UNIONFS_IOCTL_QUERYFILE	_IOR(0x15, 15, int)
-+
-+/* We don't support normal remount, but unionctl uses it. */
-+# define UNIONFS_REMOUNT_MAGIC		0x4a5a4380
-+
-+/* should be at least LAST_USED_UNIONFS_PERMISSION<<1 */
-+#define MAY_NFSRO			16
-+
-+#endif /* _LINUX_UNIONFS_H */
-+
++/* SMP-safe */
++static inline struct dentry *lookup_one_len(const char *name, struct dentry *dir, int len)
++{
++	return lookup_one_len_nd(name, dir, len, NULL);
++}
+ 
+ extern int follow_down(struct vfsmount **, struct dentry **);
+ extern int follow_up(struct vfsmount **, struct dentry **);
 
 

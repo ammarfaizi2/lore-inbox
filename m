@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932864AbWJGVIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932863AbWJGVKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932864AbWJGVIa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 17:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWJGVI3
+	id S932863AbWJGVKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 17:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWJGVKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 17:08:29 -0400
-Received: from nijmegen.renzel.net ([195.243.213.130]:4550 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S932864AbWJGVI3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 17:08:29 -0400
-Message-ID: <452816A9.3080208@twisted-brains.org>
-Date: Sat, 07 Oct 2006 23:05:45 +0200
-From: Marcel Siegert <mws@twisted-brains.org>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Sat, 7 Oct 2006 17:10:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14087 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932863AbWJGVKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 17:10:52 -0400
+Date: Sat, 7 Oct 2006 23:10:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: art@usfltd.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1 SMP x86_64 boot hungs up
+Message-ID: <20061007211046.GA8810@stusta.de>
+References: <20061005143237.xr08e3ew5b2ocgc8@69.222.0.225> <20061005212029.GL16812@stusta.de> <20061006162435.jwb4n5zrl68sow4w@69.222.0.225>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.19-rc1 fix compilation/linking error in arch/x86_64_kernel/traps.c
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061006162435.jwb4n5zrl68sow4w@69.222.0.225>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi linus,
+On Fri, Oct 06, 2006 at 04:24:35PM -0500, art@usfltd.com wrote:
+> 
+> 
+> $ git-bisect bad 265baba316ea258ca015aa79bc6f107cd9fce2b3 is first bad commit
+> commit 265baba316ea258ca015aa79bc6f107cd9fce2b3
+> Author: Andi Kleen <ak@suse.de>
+> Date:   Tue Sep 26 10:52:26 2006 +0200
+> 
+>      [PATCH] Update defconfig
+> 
+>      Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> :040000 040000 2c37b438987d915eb3eb10756f0f2a9239167a65  
+> 5be110cee7f07799703a24a2493605b4a1527fb7 M      arch
+> 
+> 
+> any clue ?
 
-the following compilation error:
+First of all thanks for your testing.
 
-CC      arch/x86_64/kernel/traps.o
-arch/x86_64/kernel/traps.c: In function 'print_trace_warning_symbol':
-arch/x86_64/kernel/traps.c:375: warning: implicit declaration of function 'print_symbol'
+Are you using the defconfig (instead of your own .config) on your 
+computer?
 
-causing the following linking error
-arch/x86_64/kernel/built-in.o: In function `print_trace_warning_symbol':
-traps.c:(.text+0x2f85): undefined reference to `print_symbol'
-make: *** [vmlinux] Error 1
+If not, it seems something else (e.g. an unrelated temporary error) 
+interfered with your bisecting, and I do not have any clue.  :-(
 
-is being fixed with the following patch.
+> xboom
 
+cu
+Adrian
 
+-- 
 
-Description: fix missing include of kallsyms.h in arch/x86_64/kernel/traps.c
-
-Signed-off-by: Marcel Siegert <mws@twisted-brains.org>
-
---- linux/arch/x86_64/kernel/traps.c    2006-10-07 22:33:07.000000000 +0200
-+++ linux-2.6.19-rc1-patched/arch/x86_64/kernel/traps.c 2006-10-06 15:20:18.801485944 +0200
-@@ -29,7 +29,7 @@
-  #include <linux/kprobes.h>
-  #include <linux/kexec.h>
-  #include <linux/unwind.h>
--
-+#include <linux/kallsyms.h>
-  #include <asm/system.h>
-  #include <asm/uaccess.h>
-  #include <asm/io.h>
-
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

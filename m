@@ -1,211 +1,270 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWJGDTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423122AbWJGDk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWJGDTs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 23:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWJGDTr
+	id S1423122AbWJGDk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 23:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423123AbWJGDk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 23:19:47 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:62136 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932471AbWJGDTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 23:19:45 -0400
-Date: Fri, 6 Oct 2006 23:19:28 -0400
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
-Cc: pm list <linux-pm@lists.osdl.org>, Matthew Locke <matt@nomadgs.com>,
-       Amit Kucheria <amit.kucheria@nokia.com>,
-       Igor Stoppa <igor.stoppa@nokia.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] CPUFreq PowerOP integratoin, CPUFreq core 1/3
-Message-ID: <20061007031928.GB1494@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	"Eugeny S. Mints" <eugeny.mints@gmail.com>,
-	pm list <linux-pm@lists.osdl.org>, Matthew Locke <matt@nomadgs.com>,
-	Amit Kucheria <amit.kucheria@nokia.com>,
-	Igor Stoppa <igor.stoppa@nokia.com>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <45096A7B.2070007@gmail.com>
-Mime-Version: 1.0
+	Fri, 6 Oct 2006 23:40:28 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:31878 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1423122AbWJGDk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 23:40:26 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Simple script that locks up my box with recent kernels
+Date: Sat, 07 Oct 2006 13:40:21 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <338ei25ni8d6o1ra6pllitgssf2qo1k17a@4ax.com>
+References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
+In-Reply-To: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45096A7B.2070007@gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 7 Oct 2006 01:36:24 +0200, "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
 
-> -obj-$(CONFIG_CPU_FREQ)			+= cpufreq.o
-> +obj-$(CONFIG_CPU_FREQ)			+= cpufreq.o freq_helpers.o
+>Hi,
+>
+>I've been using the this very simple script for a while to do test
+>builds of the kernel :
+>
+>
+>#!/bin/bash
+>
+>for i in $(seq 1 100); do
+>        nice make distclean
+>        while true; do
+>                nice make randconfig
+>                grep -q "CONFIG_EXPERIMENTAL=y" .config
+>                if [ $? -eq 1 ]; then
+>                        break
+>                fi
+>        done
+>        cp .config config.${i}
+>        nice make -j3 > build.log.${i} 2>&1
+>done
+>
+>
+>Which has worked great in the past, but with recent kernels it has
+>been a sure way to cause a complete lockup within 1 hour :-(
 
-So every driver is now required to use freq_helpers, even if it does not
-even allow for the setting of a specific frequency, but only a frequency
-range (longrun)? And drivers are limitied to a specific amount of CPU
-frequency states to export?
+There's some no-nos Adrian Bunk pointed out back when I was doing this, 
+here's what I used last year -- it recently ran a hundred compiles but 
+I forgot or lost the script that interpreted results :(  
 
-> -	freqs->flags = cpufreq_driver->flags;
->  	dprintk("notification %u of frequency transition to %u kHz\n",
->  		state, freqs->new);
->  
-> +	/* FIXME: don't we need a lock here? */
+grant@sempro:~$ cat /usr/local/bin/zrandom-build
+#!/bin/bash
+#
+# 2.6 kernel random .config compiler driver
+#
+# Copyright (C) 2005 Grant Coady gcoady.lk@gmail.com
+#
+# GPL v2 per linux/COPYING by reference
+#
+# Thanks to:
+# comp.unix.shell people:
+#  Chris F.A. Johnson <http://cfaj.freeshell.org> for CLI number test
+#  Ed Morton <morton@lsupcaemnt.com> for 'awk' solution in resuming
+#  for answers to query 2005-07-27 for improvements to this script.
+#
+# linux-kernel people:
+#  Adrian Bunk  Don't bother with useless CONFIG_BROKEN= .config
+#                                         CONFIG_STANDALONE=
+#  Jesper Juhl  Feedback
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# What?
+# ``````
+# A script to build random kernel .configs to discover kbuild errors.
+# The .config, compiler output and time are recorded into the destination
+#  directory.  Run several in parallel with outputs to different directories.
+#
+# The .config and compiler result are linked by a three digit number at
+#  start of filename.
+#
+# Files
+# ``````
+# 000-about     record settings for a particular run
+# ???-config    the .config
+# ???-result    build (compiler) output
+# ???-time      time to build in seconds and mm:ss (curiosity)
+#
+# Post processing of results lists each error (or warning) and the first
+#  .config file triggering the error/warning.  Another script.
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# globals
+clean=""        # -c set "Y" to do 'make clean' prior to compiles
+store="../"     # -d destination directory
+jobnr=""        # -jn make job control
+limit=100       # -n number of .config builds to make
+build="Y"       # -t clear to not build .config for testing
+patch=""        # set "Y" to skip retry CONFIG_BROKEN=y .configs
+count=0         # build counter
+retry=0         # retry counter for useless .config filter
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Setup the trial series, command line interface
 
-We're already holding a lock here, unless you changed the calling
-conventions.
+function show_usage
+{
+        echo "random-build
+        random .config compiler driver for 2.6 series kernel
+        usage: random-build [-d destination_directory] [-n nnn] [-t] [-u]
 
-> -		if (!(cpufreq_driver->flags & CPUFREQ_CONST_LOOPS)) {
-> -			if ((policy) && (policy->cpu == freqs->cpu) &&
-> -			    (policy->cur) && (policy->cur != freqs->old)) {
-> -				dprintk("Warning: CPU frequency is"
-> -					" %u, cpufreq assumed %u kHz.\n",
-> -					freqs->old, policy->cur);
-> -				freqs->old = policy->cur;
-> -			}
-> +		if ((policy) && (policy->cpu == freqs->cpu) &&
-> +		    (policy->cur) && (policy->cur != freqs->old)) {
-> +			dprintk("Warning: CPU frequency is"
-> +				" %u, cpufreq assumed %u kHz.\n",
-> +				freqs->old, policy->cur);
-> +			freqs->old = policy->cur;
->  		}
-Why are you removing the check for CONST_LOOPS here?
+        -c      do 'make clean' prior to each compile, default off
+        -d dir  destination for results, default ../
+        -jn     make job control, n = 0..9
+        -n nnn  number of compile runs, default 100
+        -t      testing config driver, no build .config
 
-> +/**
-> + * show_scaling_governor - show the current policy for the specified CPU
-> + */
-> +static ssize_t 
-> +show_available_freqs(struct cpufreq_policy *policy, char *buf)
+        cd into linux top-level directory, specify an output directory
+        outside the kernel directory, example command:
 
-Description does not match function name; also please return type and
-function on one line (yes, I know, the current cpufreq core gets this wrong
-too, but still...)
+                random-build -c -n 333 -d ../trial-2.6.13-rc3-mm2-1
 
->  /**
-> - * show_scaling_driver - show the cpufreq driver currently loaded
-> - */
-> -static ssize_t show_scaling_driver (struct cpufreq_policy * policy, char *buf)
-> -{
-> -	return scnprintf(buf, CPUFREQ_NAME_LEN, "%s\n", cpufreq_driver->name);
-> -}
-> -
+        would make clean prior to each build and place the results of
+        333 random .config to directory ../trial-2.6.13-rc3-mm2-1
 
-That breaks userspace.
+        Useless .config generated are skipped, read script source to see
+        current setting; CONFIG_BROKEN=y is definitely useless :)
+        "
+        exit 1
+}
 
-> +extern cpumask_t arch_get_dependent_cpus_mask(int cpu);
+function check_config_limit # limit
+{
+        case $1 in
+                *[!0-9]*) limit=0;;
+                *       ) limit=$1;;
+        esac
+        if [ $limit -lt 1 -o $limit -gt 999 ]; then
+                limit=100
+        fi
+}
 
+function check_create_dest # destination
+{
+        local crap="n"
+        if [ ! -d "$1" ]; then
+                echo -e \
+                "Non-existent destination $1 specified, create it? (y/N) \c"
+                read crap
+                echo
+                if [ "$crap" == "y" -o "$crap" == "Y" ]; then
+                        mkdir "$1"
+                else
+                        echo "bad dest"; show_usage
+                fi
+        fi
+        store=$1
+}
 
->  
->  /**
->   * cpufreq_add_dev - add a CPU device
-> @@ -617,10 +635,10 @@ static int cpufreq_add_dev (struct sys_d
->  	int ret = 0;
->  	struct cpufreq_policy new_policy;
->  	struct cpufreq_policy *policy;
-> -	struct freq_attr **drv_attr;
->  	struct sys_device *cpu_sys_dev;
->  	unsigned long flags;
->  	unsigned int j;
-> +	char freq_n[CPUFREQ_FREQ_STR_SIZE];
+# parse command line
+while [ $1 ]; do
+        case $1 in
+                -c )    clean="Y";;     # do 'make clean'
+                -d )    check_create_dest $2; shift;;
+                -j[0-9]) jobnr=$1;;
+                -n )    check_config_limit $2; shift;;
+                -t )    build="";;      # disable build
+                 * )    echo "bad CLI"; show_usage;;
+        esac
+        shift
+done
+echo "
+#==>>
+#==>>   Grant's random kernel configs $(date)
+#==>>    $0 from $PWD
+#==>>     host: linux-$(uname -r) on $HOSTNAME
+#==>>      store=$store
+#==>>       limit=$limit
+#==>>        clean=$clean
+#==>>         build=$build
+#==>>          job control=$jobnr
+#==>>
+"       2>&1 | tee "$store/000-about"
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Run the trial series
+#
+# check if destination contains results, if so assume restart test run and
+#  thus overwrite the last partial result, remove leading zeroes so number
+#  is seen as decimal, not octal!  Queried comp.unix.shell - 2005-07-27...
 
-Will cause troubles for gx-suspmod which would want to export >10.000
-states.
+function perhaps_resume_trial
+{
+        count=$(ls $store/*-config 2>/dev/null \
+                | awk -F/ '{f=$NF}END{print f+0}')
 
->  #ifdef CONFIG_SMP
->  	struct cpufreq_policy *managed_policy;
->  #endif
-> @@ -630,7 +648,7 @@ #endif
->  
->  	cpufreq_debug_disable_ratelimit();
->  	dprintk("adding CPU %u\n", cpu);
-> -
-> +	
+        if [ $count -gt 0 -a $count -lt 1000 ]; then
+                if [ $count -gt 1 ]; then
+                        echo -e "\n#==>> Resuming: $count\n"
+                fi
+                ((count--))
+        else
+                count=0
+        fi
+}
 
-Inserting trailing whitespace
+function check_config
+{
+        local x=$(egrep \
+                'CONFIG_BROKEN= | CONFIG_STANDALONE= | CONFIG_DEBUG_INFO=' \
+                .config > /dev/null)
+        return $x
+}
 
->  #ifdef CONFIG_SMP
->  	/* check whether a different CPU already registered this
->  	 * CPU because it is in the same boat. */
-> @@ -638,15 +656,9 @@ #ifdef CONFIG_SMP
->  	if (unlikely(policy)) {
->  		cpufreq_cpu_put(policy);
->  		cpufreq_debug_enable_ratelimit();
-> -		return 0;
-> +		return ret;
->  	}
->  #endif
+function create_random_config
+{
+        if [ -n "$patch" ]; then
+                make randconfig > /dev/null
+        else
+                while true; do
+                        make randconfig > /dev/null
+                        check_config && break
+                        echo -e "\tRetry ($((++retry))): skipped useless .config"
+                done
+        fi
+        cp .config "$store/$trial-config"
+}
 
-Why are you returning an error here?
+function build_random_config
+{
+        if [ -n "$build" ]; then
+                [ -n "$clean" ] && make clean
+                make $jobnr 2> "$store/$trial-result"
+        fi
+}
 
-> @@ -654,23 +666,38 @@ #endif
->  	}
->  
->  	policy->cpu = cpu;
-> -	policy->cpus = cpumask_of_cpu(cpu);
-> +
-> +	/* 
-> +	 * FIXME: this will go away once notifications moved to lower layers 
-> +	 * presumably to clock/voltage framework level
-> +	 */
-> +	policy->cpus = arch_get_dependent_cpus_mask(cpu);
+stamp=$SECONDS
+function write_timestamp_file
+{
+        local t=0 m=0 s=0
+        t=$((SECONDS - stamp))
+        m=$(printf "%2d"  $((t / 60)))
+        s=$(printf "%02d" $((t % 60)))
+        echo -e "$t\t$m:$s" > "$store/$trial-time"
+        stamp=$SECONDS
+}
 
-Can't find arch_get_dependent_cpus_mask defined anywhere or in this patch.
-As each patch should at least compile and boot, that won't work.
+perhaps_resume_trial
+while [ $((++count)) -le $limit ]; do
 
->  	mutex_init(&policy->lock);
->  	mutex_lock(&policy->lock);
->  	init_completion(&policy->kobj_unregister);
->  	INIT_WORK(&policy->update, handle_update, (void *)(long)cpu);
->  
-> -	/* call driver. From then on the cpufreq must be able
-> -	 * to accept all calls to ->verify and ->setpolicy for this CPU
-> -	 */
-> -	ret = cpufreq_driver->init(policy);
-> -	if (ret) {
-> +	policy->governor = CPUFREQ_DEFAULT_GOVERNOR;
-> +
-> +	/* FIXME: soon this will come from PowerOP Core as well */
-> +	policy->cpuinfo.transition_latency = 10000; /* 10uS latency */
+        trial=$(printf %003d $count)
+        echo "#==>> $0, run $count: make randconfig"
+        create_random_config
+        build_random_config
+        write_timestamp_file
+done
 
-Ouch.
+echo "skipped $retry useless .config :o)"
 
-> @@ -692,8 +719,16 @@ #ifdef CONFIG_SMP
->  
->  			cpufreq_debug_enable_ratelimit();
->  			mutex_unlock(&policy->lock);
-> -			ret = 0;
-> -			goto err_out_driver_exit; /* call driver->exit() */
-> +			/* 
-> +			 * FIXME: interesting... cpufreq handles one policy 
-> +			 * entry for all affected CPUs... it works since 
-> +			 * currently same set of freq/voltage pairs are always 
-> +			 * registered for all CPUs. That bacomes not the case
-> +			 * with PowerOP approach when we can have different
-> +			 * set of operating points even for affected CPUs
-> +			 */ 
-> +			kfree(policy);
-> +			return 0;
+# end
 
-No, that's not true -- "affected CPUs" can only be set to the same frequency
-at any point. It's the same "clock domain". Therefore, your statement is
-invalid.
-
-> @@ -944,6 +972,7 @@ unsigned int cpufreq_quick_get(unsigned 
->  EXPORT_SYMBOL(cpufreq_quick_get);
->  
->  
-> +/* FIXME: REVISIT: this routine returns 0 on error! */
->  /**
->   * cpufreq_get - get the current CPU frequency (in kHz)
-
-Yes. For if it were to return -EINVAL, userspace would tell you
-that you've got at ~4294 GHz CPU.
-
-> +module_param(smart_cpu, uint, 0644);
-> +MODULE_PARM_DESC(smart_cpu, "Define if cpu handles frequency intervals insted oftarget frequencies");
-
-Ouch.
-
-These were just a few comments on the code. On the "big picture", I'll write
-a separate e-mail.
-
-Thanks,
-	Dominik

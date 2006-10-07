@@ -1,159 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWJGR11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWJGRen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWJGR11 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 13:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWJGR10
+	id S932422AbWJGRen (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 13:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWJGRem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 13:27:26 -0400
-Received: from 70-91-206-233-BusName-SFBA.hfc.comcastbusiness.net ([70.91.206.233]:56783
-	"EHLO saville.com") by vger.kernel.org with ESMTP id S932360AbWJGR10
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 13:27:26 -0400
-Message-ID: <4527E384.3010607@saville.com>
-Date: Sat, 07 Oct 2006 10:27:32 -0700
-From: Wink Saville <wink@saville.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Sat, 7 Oct 2006 13:34:42 -0400
+Received: from smtp5-g19.free.fr ([212.27.42.35]:56272 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932422AbWJGRem (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 13:34:42 -0400
+Message-ID: <4527E537.4030604@free.fr>
+Date: Sat, 07 Oct 2006 19:34:47 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060809 Debian/1.7.13-0.3
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Debugging startup/frame buffer problem in 2.6.18
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: ueagle <ueagleatm-dev@gna.org>, Ernst Herzberg <list-lkml@net4u.de>
+Subject: Re: 2.6.19-rc1 [ueagle-atm] Oops
+References: <200610071858.22641.duncan.sands@math.u-psud.fr>
+In-Reply-To: <200610071858.22641.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I'm proceeding to debug the frame buffer problem I mentioned here, http://lkml.org/lkml/2006/10/5/22, I've added printk's and modified *_console_sem (see <Console output> & <Modifications> below) but I end up blind as debug output eventually stops. I then changed my kernel command line so it outputs to two consoles:
+thanks for the report.
 
-/boot/vmlinuz root=/dev/sda2 ro splash initcall_debug console=tty0 console=ttyS0,115200n8 loglevel=7
+Duncan Sands wrote:
+> 
+> ----------  Forwarded Message  ----------
+> 
+> Subject: 2.6.19-rc1 [ueagle-atm] Oops
+> Date: Saturday 7 October 2006 03:53
+> From: Ernst Herzberg <list-lkml@net4u.de>
+> To: linux-kernel@vger.kernel.org
+> 
+> Moin.
+> 
+> Works without problems on 2.6.18. 
+> 
+> 2.6.19-rc1: 
+> (no, it does not work. The message 
+> "usb 2-2: [ueagle-atm] modem operational" below is a lie;)
+> 
+> usb 2-2: new full speed USB device using uhci_hcd and address 3
+> usb 2-2: configuration #1 chosen from 1 choice
+> usb 2-2: [ueagle-atm] ADSL device founded vid (0X1110) pid (0X900F) : Eagle I
+> usb 2-2: reset full speed USB device using uhci_hcd and address 3
+> BUG: unable to handle kernel paging request at virtual address 74617473
+>  printing eip:
+> c018c5ab
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> Modules linked in: dvb_bt8xx bt878 dvb_pll cx24110 bttv ir_common compat_ioctl32
+> btcx_risc tveeprom stv0299 ves1x93 ueagle_atm usbatm atm dvb_ttpci ttpci_eeprom
+> saa7146_vv video_buf videodev v4l1_compat v4l2_common saa7146 dvb_core processor
+> button ohci_hcd uhci_hcd ehci_hcd usbcore iptable_nat ipt_MASQUERADE ip_nat
+> ip_conntrack nfnetlink iptable_filter ip_tables x_tables pppoe pppox ppp_async
+> ppp_generic slhc crc_ccitt tun ebtables ppdev parport_pc lp parport evdev psmouse
+> CPU:    0
+> EIP:    0060:[<c018c5ab>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.19-rc1 #1)
+> EIP is at sysfs_dirent_exist+0x4b/0x6f
+> eax: f99e9573   ebx: f7e41a04   ecx: 00000004   edx: 00000004
+> esi: f99e9561   edi: 74617473   ebp: f55593e0   esp: f54b7c68
+> ds: 007b   es: 007b   ss: 0068
+> Process khubd (pid: 4078, ti=f54b7000 task=f54bc540 task.ti=f54b7000)
+> Stack: 74617473 f99e948a f56fc714 00000000 f55593d4 c018bec6 00008124 00000004
+>        00000004 c0117574 0000000f f553ba50 f54b7cc0 f56fc714 f99eae24 00000000
+>        f99ead4c c018dab0 f56fc714 f553ba50 f5432180 00000000 f54d24e0 f99e800c
+> Call Trace:
+>  [<c018bec6>] sysfs_add_file+0x2e/0x70
+>  [<c0117574>] nr_processes+0x4/0x6
+>  [<c018dab0>] sysfs_create_group+0x5b/0xcb
+>  [<f99e800c>] uea_bind+0x215/0x53c [ueagle_atm]
+>  [<f99e6e73>] uea_kthread+0x0/0xb98 [ueagle_atm]
+>  [<f99e7df7>] uea_bind+0x0/0x53c [ueagle_atm]
+>  [<f99e23b9>] usbatm_usb_probe+0x109/0x7b2 [usbatm]
+>  [<f99e83a6>] uea_probe+0x73/0x17d [ueagle_atm]
+>  [<f9996da3>] usb_probe_interface+0x56/0x83 [usbcore]
+>  [<c0275c4e>] really_probe+0x2e/0xbf
+>  [<c0275d1e>] driver_probe_device+0x3f/0x93
+>  [<c02752da>] bus_for_each_drv+0x3e/0x5c
+>  [<c0275dd9>] device_attach+0x62/0x66
+>  [<c0275d72>] __device_attach+0x0/0x5
+>  [<c027527b>] bus_attach_device+0x1e/0x3f
+>  [<c02745b7>] device_add+0x3c6/0x476
+>  [<f999551a>] usb_set_configuration+0x394/0x4b1 [usbcore]
+>  [<f999c509>] generic_probe+0x15c/0x223 [usbcore]
+>  [<f9996a75>] usb_probe_device+0x33/0x38 [usbcore]
+>  [<c0275c4e>] really_probe+0x2e/0xbf
+>  [<c0275d1e>] driver_probe_device+0x3f/0x93
+>  [<c02752da>] bus_for_each_drv+0x3e/0x5c
+>  [<c0275dd9>] device_attach+0x62/0x66
+>  [<c0275d72>] __device_attach+0x0/0x5
+>  [<c027527b>] bus_attach_device+0x1e/0x3f
+>  [<c02745b7>] device_add+0x3c6/0x476
+>  [<f9995182>] usb_cache_string+0x7e/0x82 [usbcore]
+>  [<f9990dc5>] usb_new_device+0x5d/0xcb [usbcore]
+>  [<f9991bd5>] hub_thread+0x4d6/0xbc8 [usbcore]
+>  [<c0360571>] schedule+0x2b1/0x64a
+>  [<c012b1fe>] autoremove_wake_function+0x0/0x37
+>  [<f99916ff>] hub_thread+0x0/0xbc8 [usbcore]
+>  [<c012b0a5>] kthread+0xc9/0xcd
+>  [<c012afdc>] kthread+0x0/0xcd
+>  [<c01038eb>] kernel_thread_helper+0x7/0x1c
+>  =======================
+> Code: 16 eb 42 8b 5b 04 83 eb 04 8b 43 04 0f 18 00 90 8d 43 04 39 e8 74 2e 8b 43 14 85 c0 74 e5 89 d8 e8 6b ee ff ff 89 c6 8b 3c 24 ac <ae> 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 c5 b8 ef
+> EIP: [<c018c5ab>] sysfs_dirent_exist+0x4b/0x6f SS:ESP 0068:f54b7c68
+> 
+> 
+I found where it comes from : somebody patch ueagle-atm and broke it : 
+http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e7ccdfec087f02930c5cdc81143d4a045ae8d361
 
-Still no output after trying to acquire the console sem. Anyway at this point it looks like I need to debug at a lower level. I was thinking of writing directly to the serial port or maybe there is a better choice?
-
-Thanks,
-
-Wink Saville
+I have to investigate why this patch is need, but it is nice to see that 
+the patch wasn't forwarded to the maintainers and I wasn't aware of it...
 
 
-<Console output>
-
-[   40.267852] Calling initcall 0xffffffff8074eedc: fb_console_init+0x0/0x12c()
-[   40.275097] acquire_console_sem: drivers/video/console/fbcon.c:fb_console_init:3266
-[   40.282956] acquire_console_sem: GOT IT FOR drivers/video/console/fbcon.c:fb_console_init:3266
-[   40.282958] fb_register_client E
-[   40.282960] notifier_chain_register: E nl=ffffffff8069c9f8 n=ffffffff8069d070
-[   40.282962] notifier_chain_register: X nl=ffffffff8069c9f8 n=ffffffff8069d070
-[   40.282963] fb_register_client X
-[   40.282985] release_console_sem: drivers/video/console/fbcon.c:fb_console_init:3282
-[   40.320818] Calling initcall 0xffffffff8043ed31: nvidiafb_init+0x0/0x258()
-[   40.327889] nvidiafb_setup START
-[   40.331251] nvidiafb_probe START
-[   40.334604] ACPI: PCI Interrupt 0000:05:00.0[A] -> GSI 16 (level, low) -> IRQ 169
-[   40.342354] nvidiafb: Device ID: 10de0391
-[   40.359248] nvidiafb: CRTC0 analog found
-[   40.379285] nvidiafb: CRTC1 analog not found
-[   40.383684] nvidiafb: CRTC 0 appears to have a CRT attached
-[   40.389362] nvidiafb: Using CRT on CRTC 0
-[   40.393550] nvidia_set_fbinfo START
-[   40.397153] nvidia_set_fbinfo END
-[   40.400585] nvidiafb_check_var START
-[   40.404278] nvidiafb_check_var END
-[   40.407796] nvidia_save_vga START
-[   40.411308] nvidia_save_vga END
-[   40.414568] register_framebuffer: ENTER
-[   40.418520] register_framebuffer: num_registered_fb=1
-[   40.423710] register_framebuffer: call fb_var_to_videomode
-[   40.429306] register_framebuffer: call fb_add_videomode
-[   40.434640] register_framebuffer: call fb_notifier_call_chain
-[   40.440495] fb_notifier_call_chain E
-[   40.444187] notifier_call_chain: E nl=ffffffff8069c9f8 val=0x5 v=ffff81007ff1fcd0
-[   40.451872] notifier_call_chain: notifier_call nb=ffffffff8069d070 val=0x5 v=ffff81007ff1fcd0
-[   40.460598] fbcon_event_notify: E notifier_block=ffffffff8069d070 action=0x5 data=ffff81007ff1fcd0
-[   40.469756] fbcon_fb_registerd: -1 E idx=0
-[   40.473968] fbcon_fb_registerd: toploop i=0
-[   40.478307] fbcon_fb_registerd: info_idx = idx = 0 break
-[   40.482291] notifier_call_chain: E nl=ffffffff80671d48 val=0xc v=ffff81007ff58ef8
-[   40.482293] notifier_call_chain: notifier_call nb=ffffffff8067b590 val=0xc v=ffff81007ff58ef8
-[   40.482296] notifier_call_chain: notifier_call ret=0x0 nb=ffffffff8067b590 val=0xc v=ffff81007ff58ef8
-[   40.482298] notifier_call_chain: X ret=0x0 nl=ffffffff80671d48 val=0xc v=ffff81007ff58ef8
-[   40.482300] notifier_call_chain: E nl=ffffffff80671d48 val=0x5 v=ffff81007ff58eb8
-[   40.482302] notifier_call_chain: notifier_call nb=ffffffff8067b590 val=0x5 v=ffff81007ff58eb8
-[   40.482305] notifier_call_chain: notifier_call ret=0x0 nb=ffffffff8067b590 val=0x5 v=ffff81007ff58eb8
-[   40.482307] notifier_call_chain: X ret=0x0 nl=ffffffff80671d48 val=0x5 v=ffff81007ff58eb8
-[   40.552088] fbcon_fb_registerd: info_idx=0 call fbcon_takeover(1)
-[   40.558286] fbcon_takeover: E show_logo=1
-[   40.562407] fbcon_takeover: call take_over_console show_logo=1
-[   40.568350] take_over_console: E csw=ffffffff805d8600 first=0, last=62, deflt=1
-[   40.575859] register_con_driver: acquire_console_sem
-[   40.580933] acquire_console_sem: drivers/char/vt.c:register_con_driver:3156
-[   40.588000] acquire_console_sem: GOT IT FOR drivers/char/vt.c:register_con_driver:3156
-[   40.588001] register_con_driver: acquire_console_sem GOT IT
-[   40.588484] notifier_call_chain: E nl=ffffffff80671d38 val=0x1 v=0000000000000000
-[   40.588486] notifier_call_chain: X ret=0x0 nl=ffffffff80671d38 val=0x1 v=0000000000000000
-[   40.588491] notifier_call_chain: E nl=ffffffff80677118 val=0x0 v=ffff81007f65a810
-[   40.588493] notifier_call_chain: X ret=0x0 nl=ffffffff80677118 val=0x0 v=ffff81007f65a810
-[   40.588499] notifier_call_chain: E nl=ffffffff80671d38 val=0x2 v=0000000000000000
-[   40.588501] notifier_call_chain: X ret=0x0 nl=ffffffff80671d38 val=0x2 v=0000000000000000
-[   40.588503] notifier_call_chain: E nl=ffffffff80671d38 val=0x1 v=0000000000000000
-[   40.588506] notifier_call_chain: X ret=0x0 nl=ffffffff80671d38 val=0x1 v=0000000000000000
-[   40.588507] register_con_driver: release_console_sem
-[   40.588509] release_console_sem: drivers/char/vt.c:register_con_driver:3211
-[   40.590594] notifier_call_chain: E nl=ffffffff80671d38 val=0x2 v=0000000000000000
-[   40.590596] notifier_call_chain: X ret=0x0 nl=ffffffff80671d38 val=0x2 v=0000000000000000
-[   40.678628] notifier_call_chain: E nl=ffffffff80677128 val=0x0 v=ffff81007f65b0c0
-[   40.678631] notifier_call_chain: X ret=0x0 nl=ffffffff80677128 val=0x0 v=ffff81007f65b0c0
-[   40.710263] take_over_console: call bind_con_driver csw=ffffffff805d8600 first=0, last=62, deflt=1
-[   40.719419] bind_con_driver: E
-[   40.722586] bind_con_driver: acquire_console_sem
-[   40.727319] acquire_console_sem: drivers/char/vt.c:bind_con_driver:2742
-</Console output>
-
-<Modifications>
-
-drivers/char/vt.c:
-2727 static int bind_con_driver(const struct consw *csw, int first, int last,
-2728                            int deflt)
-2729 {
-2730         struct module *owner = csw->owner;
-2731         const char *desc = NULL;
-2732         struct con_driver *con_driver;
-2733         int i, j = -1, k = -1, retval = -ENODEV;
-2734
-2735         printk("bind_con_driver: E\n");
-2736         if (!try_module_get(owner)) {
-2737                 printk("bin_con_driver: err try_module_get\n");
-2738                 return -ENODEV;
-2739         }
-2740
-2741         printk("bind_con_driver: acquire_console_sem\n");
-2742         acquire_console_sem();
-2743         printk("bind_con_driver: acquire_console_sem GOT IT\n");
-
-kernel/printk.c:
- 752 void acquire_console_sem_real(void)
- 753 {
- 754         BUG_ON(in_interrupt());
- 755         if (console_suspended) {
- 756                 down(&secondary_console_sem);
- 757                 return;
- 758         }
- 759         down(&console_sem);
- 760         console_locked = 1;
- 761         console_may_schedule = 1;
- 762 }
- 763 EXPORT_SYMBOL(acquire_console_sem_real);
- 764
- 765 void acquire_console_sem_dbg(const char *file, const char *function, int line)
- 766 {
- 767         printk("acquire_console_sem: %s:%s:%d\n", file, function, line);
- 768         acquire_console_sem_real();
- 769         printk("acquire_console_sem: GOT IT FOR %s:%s:%d\n", file, function, line);
- 770 }
- 771 EXPORT_SYMBOL(acquire_console_sem_dbg);
- 772
-
-include/linux/console.h:
-125 #define acquire_console_sem() acquire_console_sem_dbg(__FILE__, __FUNCTION__, __LINE__)
-126 #define try_acquire_console_sem() try_acquire_console_sem_dbg(__FILE__, __FUNCTION__, __LINE__)
-127 #define release_console_sem() release_console_sem_dbg(__FILE__, __FUNCTION__, __LINE__)
-
-</Modifications>
+Matthieu

@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWJGSob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWJGSo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWJGSob (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 14:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWJGSoa
+	id S1751833AbWJGSo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 14:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWJGSo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 14:44:30 -0400
-Received: from ns1.mvista.com ([63.81.120.158]:41469 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932354AbWJGSoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 14:44:30 -0400
-Subject: Re: [PATCH 01/10] -mm: clocksource: increase initcall priority
-From: Daniel Walker <dwalker@mvista.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-In-Reply-To: <87lknsotnj.fsf@duaron.myhome.or.jp>
-References: <20061006185439.667702000@mvista.com>
-	 <20061006185456.261581000@mvista.com> <87hcygqgl8.fsf@duaron.myhome.or.jp>
-	 <1160239878.21411.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <87d594qa4o.fsf@duaron.myhome.or.jp>  <87lknsotnj.fsf@duaron.myhome.or.jp>
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 11:44:28 -0700
-Message-Id: <1160246668.21411.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Oct 2006 14:44:28 -0400
+Received: from hosting.zipcon.net ([209.221.136.3]:32972 "EHLO
+	hosting.zipcon.net") by vger.kernel.org with ESMTP id S1751833AbWJGSo1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 14:44:27 -0400
+From: Bill Waddington <william.waddington@beezmo.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Date: Sat, 07 Oct 2006 11:44:22 -0700
+Message-ID: <epsfi2t2dkegcm339i310e6k445k2klqt9@4ax.com>
+References: <fa.FU9k10MvHKEiGBkmyRa0N7lIvX4@ifi.uio.no> <fa.YmeJPP3GwSahgI09Gcaha4kqm84@ifi.uio.no> <fa.qbSmIOXP3NtOgNMHs5oazelaSJs@ifi.uio.no> <fa.AB8rZ1kwd3vQ1HCbYfV1438E4A0@ifi.uio.no> <fa.fxkKYbd7b8jGDAGrZeNdx030Z/g@ifi.uio.no> <20061002140121.f588b463.akpm@osdl.org> <fa.v9OUIBlFjbmpdm2jHjUOj/6fm5Y@ifi.uio.no>
+In-Reply-To: <fa.v9OUIBlFjbmpdm2jHjUOj/6fm5Y@ifi.uio.no>
+X-Mailer: Forte Agent 3.3/32.846
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hosting.zipcon.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - beezmo.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 03:41 +0900, OGAWA Hirofumi wrote:
+On Tue, 03 Oct 2006 10:52:19 UTC, in fa.linux.kernel Ingo Molnar
+wrote:
 
-> >>> 
-> >>> We'll need to change it.
-> >>
-> >> We can add a call to clocksource_rating_change() inside
-> >> acpi_pm_need_workaround(), are there deeper dependencies?
-> >
-> > There is no deeper dependencies.  If it's meaning
-> > clocksource_reselect() in current git, it sounds good to me.
-> 
-> Ah, I was forgetting why I didn't before. If it's a buggy pmtmr, we'll
-> get corrupted time until re-selecting the clocksource.
-> 
-> If anybody doesn't care this will be good with it. If not, we would
-> need to back to old one. IIRC, John did it.
+>
+>* Andrew Morton <akpm@osdl.org> wrote:
+>
+>> > I don't personally mind the patch, I just wanted to bring that issue 
+>> > up.
+>> 
+>> yup.  Perhaps we could add
+>> 
+>> #define IRQ_HANDLERS_DONT_USE_PTREGS
+>> 
+>> so that out-of-tree drivers can reliably do their ifdefing.
+>
+>i'd suggest we do something like:
+>
+> #define __PT_REGS
+>
+>so that backportable drivers can do:
+>
+>  static irqreturn_t irq_handler(int irq, void *dev_id __PT_REGS)
+>
+>instead of an #ifdef jungle. Older kernel bases can define __PT_REGS in 
+>their interrupt.h (or in the backported driver's header, in one place)
+>
+> #ifndef __PT_REGS
+> # define __PT_REGS , struct pt_regs *regs
+> #endif
+>
+>this would minimize the direct impact in the source-code.
 
-We could just reverse it, use the verified read function until we know
-it's a good PM timer, then switch to the faster read function.
+Has this or something like it been sprinkled with penguin pee?  I'm
+one of those misguided out-of-tree maintainers.  I dont' use pt_regs
+but like warning-free compiles - and a single code module when
+possible.
 
-Daniel
-
+Thanks,
+Bill
+-- 
+William D Waddington
+william.waddington@beezmo.com
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch

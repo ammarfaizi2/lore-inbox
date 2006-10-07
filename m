@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWJGPlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWJGPsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWJGPlE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 11:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWJGPlD
+	id S932270AbWJGPsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 11:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWJGPsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 11:41:03 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:2572 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S932265AbWJGPlB (ORCPT
+	Sat, 7 Oct 2006 11:48:16 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:35514 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S932270AbWJGPsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 11:41:01 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: [PATCH 01/10] -mm: clocksource: increase initcall priority
-References: <20061006185439.667702000@mvista.com>
-	<20061006185456.261581000@mvista.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 08 Oct 2006 00:40:51 +0900
-In-Reply-To: <20061006185456.261581000@mvista.com> (Daniel Walker's message of "Fri\, 06 Oct 2006 11\:54\:40 -0700")
-Message-ID: <87hcygqgl8.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 7 Oct 2006 11:48:15 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.18 Nasty Lockup
+Date: Sat, 7 Oct 2006 18:48:25 +0300
+User-Agent: KMail/1.9.5
+Cc: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>
+References: <20060926123640.GA7826@tigers.local> <200609291149.52443.caglar@pardus.org.tr> <1160175452.6140.45.camel@localhost.localdomain>
+In-Reply-To: <1160175452.6140.45.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1362412.6mqpSzr7u5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610071848.25904.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker <dwalker@mvista.com> writes:
+--nextPart1362412.6mqpSzr7u5
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Index: linux-2.6.17/drivers/clocksource/acpi_pm.c
-> ===================================================================
-> --- linux-2.6.17.orig/drivers/clocksource/acpi_pm.c
-> +++ linux-2.6.17/drivers/clocksource/acpi_pm.c
-> @@ -174,4 +174,4 @@ pm_good:
->  	return clocksource_register(&clocksource_acpi_pm);
->  }
->  
-> -module_init(init_acpi_pm_clocksource);
-> +postcore_initcall(init_acpi_pm_clocksource);
+07 Eki 2006 Cts 01:57 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=B1=
+=C5=9Ft=C4=B1:=20
+> Hey S.=C3=87a=C4=9Flar,
+>
+> 	So I just wrote up this test case that will show how skewed the TSCs
+> are. I'd be interested if you could run it a few times quickly after a
+> fresh boot, and then again a day or so later.
+>
+> See the header comment for instructions.
+>
+> And just a fair warning: this runs w/ SCHED_FIFO, and thus has the
+> potential to hang your system (while writing it I made a few flubs and
+> it hung my system). I believe I've got all of the issues fixed (tested
+> on a few systems), but wanted to give you a fair warning before I
+> suggest you run this.  :)
 
-Current code is assumeing DECLARE_PCI_FIXUP_EARLY() is called before
-init_acpi_pm_clocksource().
+Ok ill try this on Monday, thanks!
 
-We'll need to change it.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart1362412.6mqpSzr7u5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFJ8xJy7E6i0LKo6YRAnrhAJ9PX6hLS2+t+qSAH4c1LpaqwRiVSgCfVpLi
+jCbpxCSIOUv3ljmC7gGHdXY=
+=mxGA
+-----END PGP SIGNATURE-----
+
+--nextPart1362412.6mqpSzr7u5--

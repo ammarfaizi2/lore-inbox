@@ -1,124 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWJGAGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932667AbWJGAPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWJGAGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 20:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423015AbWJGAGJ
+	id S932667AbWJGAPn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 20:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWJGAPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 20:06:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:16231 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1422716AbWJGAGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 20:06:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pebvDdJcpCtvdFzp6CA8Zmj+OitUR/Pj+f2Fh46fHs0xII+I/0sfulQKeRwXciH8bAsiLBqSnJQPw9J0xEgqQ7VmPXPbcGQ9nH7P72hcEg+bAJMpYSOU4kWAC3BMCsWSRM8e+AkCT1QOm5iH5ANtf366lRMPT+SLOw1+blB4q9w=
-Message-ID: <9a8748490610061706k7d8228d4s109108bb94f061a8@mail.gmail.com>
-Date: Sat, 7 Oct 2006 02:06:07 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <20061006165425.23b326e0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
-	 <20061006165425.23b326e0.akpm@osdl.org>
+	Fri, 6 Oct 2006 20:15:43 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38756 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932667AbWJGAPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 20:15:42 -0400
+Date: Fri, 06 Oct 2006 18:15:36 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH 2/2] [TULIP] Check the return value from pci_set_mwi()
+In-reply-to: <fa.lMwhGlM7h3gT94gAUyYURPCF1Qg@ifi.uio.no>
+To: Jeff Garzik <jeff@garzik.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Matthew Wilcox <matthew@wil.cx>
+Message-id: <4526F1A8.3020907@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.5vbPpPQ5p6Rqb6w5IQvYeIEZ+o4@ifi.uio.no>
+ <fa.5fHFiSyxiA8IzX/z36b4ccRdkwk@ifi.uio.no>
+ <fa.xexLYpZ2s3jlzi3H4j8CMu5nU5M@ifi.uio.no>
+ <fa.DScE5F/ioZsTJQxVaKgCvzyY/+o@ifi.uio.no>
+ <fa.lMwhGlM7h3gT94gAUyYURPCF1Qg@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/10/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Sat, 7 Oct 2006 01:36:24 +0200
-> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
->
-> > Hi,
-> >
-> > I've been using the this very simple script for a while to do test
-> > builds of the kernel :
-> >
-> >
-> > #!/bin/bash
-> >
-> > for i in $(seq 1 100); do
-> >         nice make distclean
-> >         while true; do
-> >                 nice make randconfig
-> >                 grep -q "CONFIG_EXPERIMENTAL=y" .config
-> >                 if [ $? -eq 1 ]; then
-> >                         break
-> >                 fi
-> >         done
-> >         cp .config config.${i}
-> >         nice make -j3 > build.log.${i} 2>&1
-> > done
-> >
-> >
-> > Which has worked great in the past, but with recent kernels it has
-> > been a sure way to cause a complete lockup within 1 hour :-(
-> >
->
-> This is probably one of those nobody-but-you-can-reproduce-it things.
->
-I hope not. But that actually why I post the script, to try an get
-more people to reproduce...
+Jeff Garzik wrote:
+> The unmodified tulip driver checks both MWI and cacheline-size because 
+> one of the clones (PNIC or PNIC2) will let you set the MWI bit, but 
+> hardwires cacheline size to zero.
+> 
+> If the arches do not behave consistently, we need to keep the check in 
+> the tulip driver, to avoid incorrectly programming the csr0 MWI bit.
+> 
+>     Jeff
 
+I should think that pci_set_mwi should fail if either the cache line 
+size showed 0 (after either setting the correct size or assuming it 
+should have been set already) or the MWI bit ended up clear after we 
+tried to turn it on.
 
-> >
-> > When the lockup happens the box just freezes and doesn't respond to
-> > anything at all. Sometimes I can reboot with alt+sysrq+b but sometimes
-> > not even that works.
->
-> If you can do sysrq-b then you can do sysrq-t, too?
->
-I don't know, haven't tried - but I'll try the next few times it locks up.
-
-
-> Please ensure that you have all the CONFIG_DEBUG_* things set, apart from
-> PAGEALLOC.
->
-$ zgrep CONFIG_DEBUG_ /proc/config.gz
-# CONFIG_DEBUG_DRIVER is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_SLAB_LEAK=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_RT_MUTEXES=y
-CONFIG_DEBUG_PI_LIST=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_DEBUG_MUTEXES=y
-CONFIG_DEBUG_RWSEMS=y
-CONFIG_DEBUG_LOCK_ALLOC=y
-CONFIG_DEBUG_LOCKDEP=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_DEBUG_LOCKING_API_SELFTESTS=y
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_HIGHMEM=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_DEBUG_INFO=y
-CONFIG_DEBUG_FS=y
-CONFIG_DEBUG_VM=y
-CONFIG_DEBUG_LIST=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_STACK_USAGE=y
-CONFIG_DEBUG_PAGEALLOC=y
-CONFIG_DEBUG_RODATA=y
-
-That good enough?
-
-
->
-> Once you've got the test set up and running, you can do the alt-ctl-F1
-> thing to take you out of X and into the vga console.  I suggest you leave
-> it running that way, see if anything pops up when it hangs.
->
-I've done that on a few occasions already without seeing anything, but
-I'll try a few more times.
-
+That pcibios_prep_mwi code for sparc64 looks wrong, if you plug in a 
+device that doesn't implement MWI at all it will probably not let 
+anything get written to PCI_CACHE_LINE_SIZE other than 0, but it is 
+blindly succeeding in all cases. Even if the arch assumes the firmware 
+already set the size properly it should still make sure it is non-zero 
+before allowing MWI..
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

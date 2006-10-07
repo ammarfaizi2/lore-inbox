@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWJGCn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423073AbWJGCqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932681AbWJGCn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 22:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWJGCn3
+	id S1423073AbWJGCqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 22:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423071AbWJGCqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 22:43:29 -0400
-Received: from thunk.org ([69.25.196.29]:3521 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932681AbWJGCn2 (ORCPT
+	Fri, 6 Oct 2006 22:46:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62912 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423070AbWJGCqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 22:43:28 -0400
-Date: Fri, 6 Oct 2006 22:42:50 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Rik van Riel <riel@redhat.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, Darren Hart <dvhltc@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, "Theodore Ts'o" <theotso@us.ibm.com>
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-Message-ID: <20061007024250.GH21816@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Rik van Riel <riel@redhat.com>, Tim Bird <tim.bird@am.sony.com>,
-	Darren Hart <dvhltc@us.ibm.com>, linux-kernel@vger.kernel.org,
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-	Theodore Ts'o <theotso@us.ibm.com>
-References: <200610051404.08540.dvhltc@us.ibm.com> <452696C8.9000009@am.sony.com> <20061006181503.GE21816@thunk.org> <4526FAD2.8010004@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4526FAD2.8010004@redhat.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Fri, 6 Oct 2006 22:46:05 -0400
+Date: Fri, 6 Oct 2006 19:45:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Suzuki K P <suzuki@in.ibm.com>
+Cc: Erik Mouw <erik@harddisk-recovery.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
+       andmike@us.ibm.com
+Subject: Re: [RFC] Fix check_partition routines ( was Re: [RFC] PATCH to fix
+ rescan_partitions to return errors properly - take 2)
+Message-Id: <20061006194550.8351ed5e.akpm@osdl.org>
+In-Reply-To: <452706EA.3040702@in.ibm.com>
+References: <452307B4.3050006@in.ibm.com>
+	<20061004130932.GC18800@harddisk-recovery.com>
+	<4523E66B.5090604@in.ibm.com>
+	<20061004170827.GE18800@harddisk-recovery.nl>
+	<4523F16D.5060808@in.ibm.com>
+	<20061005104018.GC7343@harddisk-recovery.nl>
+	<45256BE2.5040702@in.ibm.com>
+	<20061006125336.GA27183@harddisk-recovery.nl>
+	<452695CE.8080901@in.ibm.com>
+	<20061006210721.GC31233@harddisk-recovery.nl>
+	<452706EA.3040702@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 08:54:42PM -0400, Rik van Riel wrote:
-> >Yep, that was part of the design.  When I approached Peter Anvin and
-> >the other kernel.org maintainers during OLS about hosting the -rt wiki
-> >on kernel.org infrastructure, what we explicitly talked about was
-> >making it easy to set up other wiki's for multiple kernel projects,
+On Fri, 06 Oct 2006 18:46:18 -0700
+Suzuki K P <suzuki@in.ibm.com> wrote:
+
+> *  The check_partition() stops its probe once it hits an I/O error from the partition checkers. This would prevent the actual partition checker getting a chance to verify the partition. So, this patch lets the check_partition continue probing untill it hits a success while recording the I/O error which might have been reported by the checking routines.
 > 
-> It would be nice to give the wikis wiki editable navigation
-> menus, like http://kernelnewbies.org/ and http://linux-mm.org/
-> 
+> Also, it does some cleanup of the partition methods for ibm, atari and amiga to return -1 upon hitting an I/O error.
 
-Actually, you can edit the Navigation menu by editing
-Mediawiki:Sidebar magic page.  There are other things that you can
-edit in the Mediawiki:* namespace that affect the Wiki's overall
-navigation.
-
-Only the Wiki sysops are allowed to edit the Mediawiki:* namespace,
-though, because of the fact that they affect the core behavior of the
-wiki, and because some of the Mediawiki:* pages use raw html, and so
-there are some cross-scripting security holes that could be a problem
-if you allowed random users to be able to edit them.
-
-> Too many of the wikis out there become horrendously hard to
-> navigate after a few years...
-
-Agreed, which is why you need to have wiki editors keeping track of
-whether the important pages are available either on the main page or
-within two clicks of the main page.  
-
-
-						- Ted
+What is the significance of a `return 1', a `return 0' and a `return -EFOO' in these
+functions?  It all looks rather odd.

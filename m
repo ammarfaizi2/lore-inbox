@@ -1,139 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWJGLBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWJGLIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750821AbWJGLBb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 07:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWJGLBb
+	id S1750836AbWJGLIi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 07:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWJGLIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 07:01:31 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:30606 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750821AbWJGLBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 07:01:31 -0400
-From: "Andrea Paterniani" <a.paterniani@swapp-eng.it>
-To: "David Brownell" <david-b@pacbell.net>
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch 2.6.18-git] SPI -- Freescale iMX SPI controller driver
-Date: Sat, 7 Oct 2006 13:01:56 +0200
-Message-ID: <FLEPLOLKEPNLMHOILNHPAEODCMAA.a.paterniani@swapp-eng.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <200610061635.24216.david-b@pacbell.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Sat, 7 Oct 2006 07:08:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30469 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750836AbWJGLIh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 07:08:37 -0400
+Date: Sat, 7 Oct 2006 11:08:24 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Message-ID: <20061007110824.GA4277@ucw.cz>
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610060904.51936.oliver@neukum.org> <200610061410.10059.david-b@pacbell.net> <200610071249.48194.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610071249.48194.oliver@neukum.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > ...
-> > > ug.  Why not simply open-code
-> > >
-> > > 	readl(addr + DATA);
-> >
-> > I found usefull to define macros to use inside code something like
-> > 	rd_CONTROL(regs)
-> > instead of
-> > 	readl(regs + 0x08)
-> > since to me the macro sounds more friendly.
-> > Should I have to adhere to some standard ?
-> >
-> The standards are more or less to avoid creating namespace clutter,
-> and to make explicit where register access happens.  Defining new
-> macros violates the former; not being able to tell where the chip
-> registers are accessed (because they're wrapped in macros) violates
-> the latter.
+Hi!
 
-What you're saying is clear.
-But I'm a little bit confused...what about the lot of definitions that use __REG or __REG2 macros to define registers address
-(inside imx-regs.h, pxa-regs.h and so on) ?
+> > > > > - the issues of manual & automatic suspend and remote wakeup are orthogonal
+> > > > > - there should be a common API for all devices
+> > > > 
+> > > > AFAIK there is no demonstrated need for an API to suspend
+> > > > individual devices.  ...
+> > > 
+> > > I doubt that a lot. 
+> > 
+> > You haven't demonstrated such a need either; so why doubt it?
+> 
+> OK, let me state the basics.
+> 
+> To get real power savings, we:
+> - blank the display
+> - spin down the hard drive
+> - put the CPU into an ACPI sleep state
+> 
+> To do the latter well, we need to make sure there's no DMA. It is
+> important that less or little DMA will not help. We need no DMA.
+> So we need to handle the commonest scenarios fully.
+> 
+> I dare say that the commonest scenario involving USB is a laptop with
+> an input device attached. Input devices are for practical purposes always
+> opened. A simple resume upon open and suspend upon close is useless.
 
+Okay, but you can simply do autosuspend with remote wakeup completely
+inside input driver. You do ot need it to be controlled from X... at
+most you need one variable ('autosuspend_inactivity_timeout')
+controlled from userland.
 
-
-
-> > > The use of loops_per_jiffy seems inappropriate.  That's an IO-space read in
-> > > there, which is slow.  This timeout will be very long indeed.
-> >
-> > Please suggest me what it's more appropriate.
->
-> Pick a constant, use it.
-
-How should I choose the value of that costant ?
-Please suggest me.
-
-
-
-- Andrea
-
-
-
------Messaggio originale-----
-Da: David Brownell [mailto:david-b@pacbell.net]
-Inviato: sabato 7 ottobre 2006 1.35
-A: Andrea Paterniani
-Cc: Andrew Morton; Linux Kernel list
-Oggetto: Re: [patch 2.6.18-git] SPI -- Freescale iMX SPI controller
-driver
-
-
-On Tuesday 03 October 2006 9:08 am, Andrea Paterniani wrote:
-> Here some questions and answers to your comments, (please consider I'm nearly new to kernel programming).
->
->
->
-> > ...
-> > ug.  Why not simply open-code
-> >
-> > 	readl(addr + DATA);
->
-> I found usefull to define macros to use inside code something like
-> 	rd_CONTROL(regs)
-> instead of
-> 	readl(regs + 0x08)
-> since to me the macro sounds more friendly.
-> Should I have to adhere to some standard ?
-
-The standards are more or less to avoid creating namespace clutter,
-and to make explicit where register access happens.  Defining new
-macros violates the former; not being able to tell where the chip
-registers are accessed (because they're wrapped in macros) violates
-the latter.
-
-
-> > The use of loops_per_jiffy seems inappropriate.  That's an IO-space read in
-> > there, which is slow.  This timeout will be very long indeed.
->
-> Please suggest me what it's more appropriate.
-
-Pick a constant, use it.
-
-
-
-> > I see tasklets being scheduled, but no tasklet_disable() or tasklet_kill(),
-> > etc.  Is this driver racy against shutdown or rmmod?
->
-> Do you mean I should use tasklet_kill() inside spi_imx_remove ?
-
-That's how I read it.  :)
-
-
-> > > +	drv_data->rd_data_phys = (dma_addr_t)res->start;
-> >
-> > I don't think it's correct to cast a kernel virtual address straight to a
-> > dma_addr_t.
->
-> File include/asm-arm/types.h defines
-> 	typedef u32 dma_addr_t;
-> Also I think that for ARM architecture resource_size_t in practice
-> is u32 since CONFIG_RESOURCES_64BIT isn't defined.
-> Is this construction correct ? If not what should I do ?
-
-I think it's correct; it's certainly standard for converting physical
-addresses to DMA addresses.  (Andrew got that one wrong; resource
-addresses are physical, not virtual.)
-
-- Dave
-
+That's what we already do for hdd spindown... you simply tell disk to
+aitospindown after X seconds of inactivity.
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

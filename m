@@ -1,1068 +1,493 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932683AbWJGCr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422900AbWJGCxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932683AbWJGCr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 22:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWJGCr0
+	id S1422900AbWJGCxD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 22:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423071AbWJGCxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 22:47:26 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54689 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932683AbWJGCrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 22:47:25 -0400
-Subject: Proof of concept:  Logdev with "almost-non" intrusive markers.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-In-Reply-To: <20060921232024.GA16155@Krystal>
-References: <20060921232024.GA16155@Krystal>
-Content-Type: text/plain
-Date: Fri, 06 Oct 2006 22:47:17 -0400
-Message-Id: <1160189237.21768.47.camel@localhost.localdomain>
+	Fri, 6 Oct 2006 22:53:03 -0400
+Received: from cpe-74-70-38-78.nycap.res.rr.com ([74.70.38.78]:45828 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1422900AbWJGCxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 22:53:00 -0400
+Date: Fri, 6 Oct 2006 22:52:11 -0400
+From: Matt LaPlante <kernel1@cyberdogtech.com>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 19-rc1]  Fix typos in /Documentation : 'U-Z'
+Message-Id: <20061006225211.1e88892d.kernel1@cyberdogtech.com>
+In-Reply-To: <20061006190204.9ccacbeb.rdunlap@xenotime.net>
+References: <20061006095031.7dfcbe53.kernel1@cyberdogtech.com>
+	<20061006190204.9ccacbeb.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Fri, 06 Oct 2006 22:52:19 -0400
+	(not processed: message from valid local sender)
+X-Return-Path: kernel1@cyberdogtech.com
+X-Envelope-From: kernel1@cyberdogtech.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Fri, 06 Oct 2006 22:52:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I've been catching up a little on the threads, but I'm still behind
-(4036 unread in LKML folder). But I wanted to show this proof of
-concept, just to get some more ideas rolling around.
+Hi Randy,
+  Thanks for the feedback as always.  See below...
 
-Yesterday, I posted a way to save a location and register of a contained
-local variable.  Today I've implemented it in Logdev.  So my markers are
-almost non intrusive. The only thing that the markers do, is force gcc
-to put the wanted variables into a register at a certain point. 
+> > -iii.Ability to represent large i/os w/o unecessarily breaking them up (i.e
+> > +iii.Ability to represent large i/os w/o unnecessarily breaking them up (i.e
+> 
+> I'd prefer to see "I/Os"  "without"   "i.e.".
 
-Jeremy mentioned a way to also store the values in memory, but this is
-just a proof of concept, and further ideas can be built upon it.
+This style is throughout this text.  It can be changed, but would be easier to do in
+its own diff rather than changing the whole file here.  Left as-is.
 
+> 
+> > -       triggers an interrupt on the SPU. The  value  writting  to  the  signal
+> > +       triggers an interrupt on the SPU.  The  value  writing  to  the  signal
+> 
+> I think that should be "written".
+> 
+> > -may result unpredictabe behavior.
+> > +may result unpredictable behavior.
+> 
+>    may result in unpredictable behavior.
+> 
 
-My logdev patch and tool set can be downloaded at
-http://rostedt.homelinux.com/logdev
+Fixed and Fixed.  Updated version below.
 
-The topic of this email is not about logdev, but about the markers.  So
-my patch on top of logdev is included here (also available for download
-at the mentioned url).
+-- 
 
-What did I do?
-
-I've added 5 markers.
-  LD_MARK(label)
-  LD_MARK1(label,arg1)
-  LD_MARK2(label,arg1,arg2)
-  LD_MARK3(label,arg1,arg2,arg3)
-  LD_MARK4(label,arg1,arg2,arg3,arg4)
-
-Here's an example of LD_MARK2: (defined in my patch at
-include/asm-i386/logdev_marker.h)
-
-#define LD_MARK2(label, arg1, arg2)					\
-	{								\
-		extern void __logdev_caller__ ## label(typeof(arg1),	\
-						       typeof(arg2));	\
-		asm("1:"						\
-		    ".section .__logdev_markers,\"a\"\n"		\
-		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-		    ".long 2\n"						\
-		    "xorl %0, %0\n"					\
-		    ".short 0\n"					\
-		    "xorl %1, %1\n"					\
-		    ".short 0\n"					\
-		    ".previous"						\
-		    : :							\
-		    "r"(arg1), "r"(arg2));				\
-	}
-
-
-
-So basically in the elf section __logdev_markers  I have dynamic records
-that are sizeof(long) defined.  The records would look like this.
-
-struct {
-	unsigned long probe_address;
-	unsigned long function_to_call;
-	unsigned long num_of_args;
-	unsigned long regs[0];
-};
-
-My logdev program reads these in to a descriptor, and puts them into a
-link list.  It calls an arch specific function to translate what was in
-the regs[] record to some id that can be used later to find what
-register the argument is used in.
-
-
-Now note in the macro:
-
-	extern void __logdev_caller__ ## label(typeof(arg1),	\
-					       typeof(arg2));	\
-
-This forces strict type checking of the tracer to the function that is
-called.  How is that done?  Well in include/linux/logdev_marker.h I have
-all my tracing prototypes declared. If it doesn't match the marker, then
-I get a compile time error.
-
-In linux/logdev_marker.h:
-
-#define LDCALLER(caller) __logdev_caller__ ## caller
-
-void LDCALLER(context_switch) (struct task_struct *prev,
-			       struct task_struct *next);
-void LDCALLER(mm_fault) (struct mm_struct *mm, struct vm_area_struct *vma,
-			 unsigned long address, int write_access);
-
-
-Here you see two trace functions. The markers I have for these is in
-context_switch and __handle_mm_fault respectively.
-
-in kernel/sched.c:
-
-static inline struct task_struct *
-context_switch(struct rq *rq, struct task_struct *prev,
-	       struct task_struct *next)
-{
-	struct mm_struct *mm = next->mm;
-	struct mm_struct *oldmm = prev->active_mm;
-
-	LD_MARK2(context_switch, prev, next);
-
-
-in mm/memory.c:
-
-int __handle_mm_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-		unsigned long address, int write_access)
-{
-	pgd_t *pgd;
-	pud_t *pud;
-	pmd_t *pmd;
-	pte_t *pte;
-
-	LD_MARK4(mm_fault, mm, vma, address, write_access);
-
-
-If the prototype doesn't match, then there's a compile time error.  That
-header file is also included in the same place that the trace functions
-are defined, so the match must be true there too.
-
-These examples are just proof in concept.  The context_switch one is
-very hard to get kprobes to see prev and next, because context_switch is
-an static inline, and every modification of sched.c may make gcc
-optimize what it does with prev and next differently.  They are not
-passed as parameters.
-
-The __handle_mm_fault can easily be done by jprobes, but I was testing
-my LD_MARK4 with it.
-
-So what this proof-of-conecpt is doing, is showing a way to use kprobes
-with little to no performance hit to the binary, when tracing is off.
-We save on the L1 cache and barely change the optimization that gcc
-does.
-
-This also shows a way to strongly type check the parameters used between
-the markers and the tracers that are using the markers.
-
-What this proof-of-concept does *not* do, is solve the issues that LTTng
-are trying to solve, (as well as dprobes).   This only works with
-kprobes that are currently in the kernel, or basically any other "int 3"
-type method.
-
-But this was done to get ideas out in the open, and perhaps this will
-trigger an idea in those that are much brighter than I, and we will have
-some utopia of a solution :-)
-
--------------
-
-End of proof-of-concept
-
-For those interested, here's a little description of what I've done with
-Logdev and the markers.
-
-my logdev device has a /debugfs/logdev/marker file that shows what's
-been registered:
-
-# cat /debugfs/logdev/marker
-probe address:  c0154599
-func address:   c0260ae3
-args:           4
-arg 0 reg:      eax
-arg 1 reg:      edx
-arg 2 reg:      ecx
-arg 3 reg:      ebx
-
-probe address:  c02f8aa5
-func address:   c0260928
-args:           2
-arg 0 reg:      eax
-arg 1 reg:      edx
-
-
-Here we see that c0154599 is the address of where the marker is in
-__handle_mm_fault. Also the address of the function is shown, and number
-of args.  We also see what registers are used.
-
-
-To turn on the probes, an ioctl is called to that same file.  The logdev
-tool "logmark" can do this for you.  "logmark 1" turns on the probes,
-and "logmark 0" turns them off.
-
-logread still shows the output of what is done:
-
-# ./logread
-[...]
-[  367.829418] cpu:1 gnome-settings-:3858(115:120:115) -->> gnome-terminal:3875(116:120:116)
-[  367.829429] cpu:0 swapper:0(140:120:140) -->> logread:4323(116:120:116)
-[  367.829740] cpu:0 logread:4323  mm=0xf0f12200 vma=0xf293a41c  address=8065044  write_access=1
-[  367.830089] cpu:0 logread:4323(116:120:116) -->> swapper:0(140:120:140)
-[  367.835167] cpu:0 swapper:0(140:120:140) -->> logread:4323(115:120:115)
-[  367.835476] cpu:0 logread:4323  mm=0xf0f12200 vma=0xf293a41c  address=8066004  write_access=1
-
-
-Well if anyone wants to play with this.  The code is (once again) at
-http://rostedt.homelinux.com/logdev.  You will need to apply the two
-patches for 2.6.18:
-
-http://rostedt.homelinux.com/logdev/logdev-0.5.3-2.6.18.patch
-http://rostedt.homelinux.com/logdev/logdev-markers-0.5.3-2.6.18.patch
-
-and the tools are here
-
-http://rostedt.homelinux.com/logdev/logdev-tools-0.5.3-1.tar.bz2
-
-You need to build them yourself.
-
-Currently, logdev-markers only works for i386. But it would be really
-easy to port it to any other arch that already has kprobes.
-
-
-Here's the marker patch:
-
-Index: linux-2.6.18/include/asm-i386/logdev_marker.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18/include/asm-i386/logdev_marker.h	2006-10-06 21:21:37.000000000 -0400
-@@ -0,0 +1,182 @@
-+/*
-+ * logdev_marker.h
-+ *
-+ * Copyright - 2006 - Steven Rostedt, Red Hat Inc, (srostedt at redhat dot com)
-+ */
-+#ifndef _ASM_LOGDEV_MARKER_H
-+#define _ASM_LOGDEV_MARKER_H
-+
-+
-+/*
-+ * eax = 0
-+ * ebx = 3
-+ * ecx = 1
-+ * edx = 2
-+ * edi = 7
-+ * ebp = 5
-+ * esp = 4
-+ * esi = 6
-+ */
-+enum {
-+	LD_REGA = 0,
-+	LD_REGB = 3,
-+	LD_REGC = 1,
-+	LD_REGD = 2,
-+	LD_REGDI = 7,
-+	LD_REGBP = 5,
-+	LD_REGSP = 4,
-+	LD_REGSI = 6
-+};
-+
-+static inline int logdev_mark_get_reg(unsigned long op)
-+{
-+	/*
-+	 * Strip out the register:
-+	 */
-+	return (op >> 8) & 0x7;
-+}
-+
-+static inline unsigned long
-+logdev_mark_get_reg_content(int reg, struct pt_regs *regs)
-+{
-+	static int once;
-+
-+	switch (reg) {
-+	case LD_REGA:
-+		return regs->eax;
-+	case LD_REGB:
-+		return regs->ebx;
-+	case LD_REGC:
-+		return regs->ecx;
-+	case LD_REGD:
-+		return regs->edx;
-+	case LD_REGDI:
-+		return regs->edi;
-+	case LD_REGBP:
-+		return regs->ebp;
-+	case LD_REGSP:
-+		return regs->esp;
-+	case LD_REGSI:
-+		return regs->esi;
-+	default:
-+		if (!once) {
-+			printk("unknown reg type %d\n", reg);
-+			once = 1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+
-+static inline const char *logdev_reg_to_name(int reg)
-+{
-+	switch (reg) {
-+	case LD_REGA:
-+		return "eax";
-+	case LD_REGB:
-+		return "ebx";
-+	case LD_REGC:
-+		return "ecx";
-+	case LD_REGD:
-+		return "edx";
-+	case LD_REGDI:
-+		return "edi";
-+	case LD_REGBP:
-+		return "ebp";
-+	case LD_REGSP:
-+		return "esp";
-+	case LD_REGSI:
-+		return "esi";
-+	}
-+	return "unknown reg!";
-+}
-+
-+#define _LD_STR(x) #x
-+#define LD_STR(x) _LD_STR(x)
-+
-+#define LD_MARK(label)							\
-+	{								\
-+		extern void __logdev_caller__ ## label(void);		\
-+		asm("1:"						\
-+		    ".section .__logdev_markers,\"a\"\n"		\
-+		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-+		    ".long 0\n"						\
-+		    ".previous"						\
-+		    : :	);						\
-+	}
-+
-+#define LD_MARK1(label, arg1)						\
-+	{								\
-+		extern void __logdev_caller__ ## label(typeof(arg1));	\
-+		asm("1:"						\
-+		    ".section .__logdev_markers,\"a\"\n"		\
-+		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-+		    ".long 1\n"						\
-+		    "xorl %0, %0\n"					\
-+		    ".short 0\n"					\
-+		    ".previous"						\
-+		    : :							\
-+		    "r"(arg1));						\
-+	}
-+
-+#define LD_MARK2(label, arg1, arg2)					\
-+	{								\
-+		extern void __logdev_caller__ ## label(typeof(arg1),	\
-+						       typeof(arg2));	\
-+		asm("1:"						\
-+		    ".section .__logdev_markers,\"a\"\n"		\
-+		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-+		    ".long 2\n"						\
-+		    "xorl %0, %0\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %1, %1\n"					\
-+		    ".short 0\n"					\
-+		    ".previous"						\
-+		    : :							\
-+		    "r"(arg1), "r"(arg2));				\
-+	}
-+
-+#define LD_MARK3(label, arg1, arg2, arg3)				\
-+	{								\
-+		extern void __logdev_caller__ ## label(typeof(arg1),	\
-+						       typeof(arg2),	\
-+						       typeof(arg3));	\
-+		asm("1:"						\
-+		    ".section .__logdev_markers,\"a\"\n"		\
-+		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-+		    ".long 3\n"						\
-+		    "xorl %0, %0\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %1, %1\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %2, %2\n"					\
-+		    ".short 0\n"					\
-+		    ".previous"						\
-+		    : :							\
-+		    "r"(arg1), "r"(arg2), "r"(arg3));			\
-+	}
-+
-+#define LD_MARK4(label, arg1, arg2, arg3, arg4)				\
-+	{								\
-+		extern void __logdev_caller__ ## label(typeof(arg1),	\
-+						       typeof(arg2),	\
-+						       typeof(arg3),	\
-+						       typeof(arg4));	\
-+		asm("1:"						\
-+		    ".section .__logdev_markers,\"a\"\n"		\
-+		    ".long 1b," LD_STR(__logdev_caller__ ## label) "\n"	\
-+		    ".long 4\n"						\
-+		    "xorl %0, %0\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %1, %1\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %2, %2\n"					\
-+		    ".short 0\n"					\
-+		    "xorl %3, %3\n"					\
-+		    ".short 0\n"					\
-+		    ".previous"						\
-+		    : :							\
-+		    "r"(arg1), "r"(arg2), "r"(arg3), "r"(arg4));	\
-+	}
-+
-+#endif /* _ASM_LOGDEV_MARKER_H */
-Index: linux-2.6.18/include/linux/logdev_marker.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18/include/linux/logdev_marker.h	2006-10-06 21:08:40.000000000 -0400
-@@ -0,0 +1,30 @@
-+/*
-+ * logdev_marker.h
-+ *
-+ * Copyright - 2006 - Steven Rostedt, Red Hat Inc, (srostedt at redhat dot com)
-+ */
-+#ifndef _LINUX_LOGDEV_MARKER_H
-+#define _LINUX_LOGDEV_MARKER_H
-+
-+#ifdef CONFIG_LOGDEV_MARKER
-+
-+#include <asm/logdev_marker.h>
-+
-+#define LDCALLER(caller) __logdev_caller__ ## caller
-+
-+void LDCALLER(context_switch) (struct task_struct *prev,
-+			       struct task_struct *next);
-+void LDCALLER(mm_fault) (struct mm_struct *mm, struct vm_area_struct *vma,
-+			 unsigned long address, int write_access);
-+
-+#else
-+
-+#define LD_MARK(label)				do { } while(0)
-+#define LD_MARK1(label,arg1)			do { } while(0)
-+#define LD_MARK2(label,arg1,arg2)		do { } while(0)
-+#define LD_MARK3(label,arg1,arg2,arg3)		do { } while(0)
-+#define LD_MARK4(label,arg1,arg2,arg3,arg4)	do { } while(0)
-+
-+#endif /* CONFIG_LOGDEV_MARKER */
-+
-+#endif /* _LINUX_LOGDEV_MARKER_H */
-Index: linux-2.6.18/kernel/sched.c
-===================================================================
---- linux-2.6.18.orig/kernel/sched.c	2006-10-06 17:49:36.000000000 -0400
-+++ linux-2.6.18/kernel/sched.c	2006-10-06 21:05:44.000000000 -0400
-@@ -53,7 +53,7 @@
- #include <linux/kprobes.h>
- #include <linux/delayacct.h>
- #include <asm/tlb.h>
--
-+#include <linux/logdev_marker.h>
- #include <linux/logdev.h>
+diff -ru x/Documentation/accounting/taskstats.txt y/Documentation/accounting/taskstats.txt
+--- x/Documentation/accounting/taskstats.txt	2006-10-06 22:40:11.000000000 -0400
++++ y/Documentation/accounting/taskstats.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -122,12 +122,12 @@
  
- #include <asm/unistd.h>
-@@ -1806,6 +1806,8 @@ context_switch(struct rq *rq, struct tas
- 	struct mm_struct *mm = next->mm;
- 	struct mm_struct *oldmm = prev->active_mm;
+ However, maintaining per-process, in addition to per-task stats, within the
+ kernel has space and time overheads. To address this, the taskstats code
+-accumalates each exiting task's statistics into a process-wide data structure.
+-When the last task of a process exits, the process level data accumalated also
++accumulates each exiting task's statistics into a process-wide data structure.
++When the last task of a process exits, the process level data accumulated also
+ gets sent to userspace (along with the per-task data).
  
-+	LD_MARK2(context_switch, prev, next);
-+
- 	if (unlikely(!mm)) {
- 		next->active_mm = oldmm;
- 		atomic_inc(&oldmm->mm_count);
-Index: linux-2.6.18/arch/i386/Kconfig.debug
-===================================================================
---- linux-2.6.18.orig/arch/i386/Kconfig.debug	2006-10-06 18:25:05.000000000 -0400
-+++ linux-2.6.18/arch/i386/Kconfig.debug	2006-10-06 20:59:41.000000000 -0400
-@@ -76,6 +76,11 @@ config X86_MPPARSE
- 	depends on X86_LOCAL_APIC && !X86_VISWS
- 	default y
+ When a user queries to get per-tgid data, the sum of all other live threads in
+-the group is added up and added to the accumalated total for previously exited
++the group is added up and added to the accumulated total for previously exited
+ threads of the same thread group.
  
-+config LOGDEV_MARKER
-+	bool
-+	depends on LOGDEV && KPROBES
-+	default y
-+
- config DOUBLEFAULT
- 	default y
- 	bool "Enable doublefault exception handler" if EMBEDDED
-Index: linux-2.6.18/arch/i386/kernel/vmlinux.lds.S
-===================================================================
---- linux-2.6.18.orig/arch/i386/kernel/vmlinux.lds.S	2006-10-06 18:20:17.000000000 -0400
-+++ linux-2.6.18/arch/i386/kernel/vmlinux.lds.S	2006-10-06 18:24:13.000000000 -0400
-@@ -44,6 +44,15 @@ SECTIONS
-   }
-   __tracedata_end = .;
+ Extending taskstats
+diff -ru x/Documentation/block/biodoc.txt y/Documentation/block/biodoc.txt
+--- x/Documentation/block/biodoc.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/block/biodoc.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -391,7 +391,7 @@
+ on to the generic block layer, only to be merged by the i/o scheduler
+ when the underlying device was capable of handling the i/o in one shot.
+ Also, using the buffer head as an i/o structure for i/os that didn't originate
+-from the buffer cache unecessarily added to the weight of the descriptors
++from the buffer cache unnecessarily added to the weight of the descriptors
+ which were generated for each such chunk.
  
-+#ifdef CONFIG_LOGDEV_MARKER
-+  . = ALIGN(4);
-+  __logdev_marker_start = .;
-+  .__logdev_markers : AT(ADDR(.__logdev_markers) - LOAD_OFFSET) {
-+	*(.__logdev_markers)
-+  }
-+  __logdev_marker_end = .;
-+#endif
-+
-   /* writeable */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
- 	*(.data)
-Index: linux-2.6.18/drivers/char/Makefile
-===================================================================
---- linux-2.6.18.orig/drivers/char/Makefile	2006-10-06 18:26:16.000000000 -0400
-+++ linux-2.6.18/drivers/char/Makefile	2006-10-06 18:26:46.000000000 -0400
-@@ -100,6 +100,7 @@ obj-$(CONFIG_LOGDEV)		+= logdev.o
- obj-$(CONFIG_LOGDEV_PROBE)	+= logdev_probe.o
- obj-$(CONFIG_LOGDEV_RINGBUF)	+= logdev_ringbuf.o
- obj-$(CONFIG_LOGDEV_RELAY)	+= logdev_relay.o
-+obj-$(CONFIG_LOGDEV_MARKER)	+= logdev_marker.o
+ The following were some of the goals and expectations considered in the
+@@ -403,14 +403,14 @@
+     for raw i/o.
+ ii. Ability to represent high-memory buffers (which do not have a virtual
+     address mapping in kernel address space).
+-iii.Ability to represent large i/os w/o unecessarily breaking them up (i.e
++iii.Ability to represent large i/os w/o unnecessarily breaking them up (i.e
+     greater than PAGE_SIZE chunks in one shot)
+ iv. At the same time, ability to retain independent identity of i/os from
+     different sources or i/o units requiring individual completion (e.g. for
+     latency reasons)
+ v.  Ability to represent an i/o involving multiple physical memory segments
+     (including non-page aligned page fragments, as specified via readv/writev)
+-    without unecessarily breaking it up, if the underlying device is capable of
++    without unnecessarily breaking it up, if the underlying device is capable of
+     handling it.
+ vi. Preferably should be based on a memory descriptor structure that can be
+     passed around different types of subsystems or layers, maybe even
+diff -ru x/Documentation/DMA-API.txt y/Documentation/DMA-API.txt
+--- x/Documentation/DMA-API.txt	2006-10-06 22:40:12.000000000 -0400
++++ y/Documentation/DMA-API.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -489,7 +489,7 @@
+ flags can be or'd together and are
  
- obj-$(CONFIG_HANGCHECK_TIMER)	+= hangcheck-timer.o
- obj-$(CONFIG_TCG_TPM)		+= tpm/
-Index: linux-2.6.18/drivers/char/logdev_marker.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18/drivers/char/logdev_marker.c	2006-10-06 21:45:40.000000000 -0400
-@@ -0,0 +1,497 @@
-+/*
-+ * logdev_marker.c
-+ *
-+ * Copyright (C) 2006 Steven Rostedt <steven.rostedt@kihontech.com>
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License (not later!)
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ */
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/logdev.h>
-+#include <linux/uaccess.h>
-+#include <linux/seq_file.h>
-+#include <linux/debugfs.h>
-+#include <linux/kprobes.h>
-+#include <linux/ptrace.h>
-+#include <linux/kallsyms.h>
-+#include <linux/list.h>
-+#include <linux/logdev_marker.h>
-+
-+#include <asm/atomic.h>
-+
-+#include "logdev_priv.h"
-+
-+#define MAX_ARGS 4
-+
-+#undef DPRINTK
-+#if 1
-+#  define DPRINTK(x...) printk(x)
-+#else
-+#  define DPRINTK(x...) do { } while(0)
-+#endif
-+
-+static LIST_HEAD(logdev_probes);
-+
-+typedef void (*logdev_func0_t)(void);
-+typedef void (*logdev_func1_t)(unsigned long);
-+typedef void (*logdev_func2_t)(unsigned long, unsigned long);
-+typedef void (*logdev_func3_t)(unsigned long, unsigned long,
-+			       unsigned long);
-+typedef void (*logdev_func4_t)(unsigned long, unsigned long,
-+			       unsigned long, unsigned long);
-+
-+union logdev_func {
-+	logdev_func0_t func0;
-+	logdev_func1_t func1;
-+	logdev_func2_t func2;
-+	logdev_func3_t func3;
-+	logdev_func4_t func4;
-+};
-+
-+struct logdev_mark_probe {
-+	struct list_head list;
-+	struct kprobe kp;
-+	union logdev_func func;
-+	unsigned long address;
-+	int args;
-+	int arg_regs[MAX_ARGS];
-+};
-+
-+/* ---------------- cut here for user space headers -------------------- */
-+
-+#define LOGMARK_IOCTL_BASE 'm'
-+
-+#define MARK_IO(nr) _IO(LOGMARK_IOCTL_BASE, nr)
-+#define MARK_IOW(nr, type) _IOW(LOGMARK_IOCTL_BASE, nr, type)
-+
-+#define LOGMARK_START  MARK_IO(0)
-+#define LOGMARK_STOP   MARK_IO(1)
-+
-+#define LOGMARK_ID_MARK		0x56580000
-+
-+#define LOGMARK_CNTXTSW		0x56580001
-+#define LOGMARK_MM_FAULT	0x56580002
-+
-+struct logdev_mark_hdr {
-+	unsigned long long t;
-+	int id;
-+};
-+
-+struct logdev_mark_switch {
-+	struct logdev_mark_hdr hdr;
-+	short pid_prev;
-+	short pid_next;
-+	int prev_prio;
-+	int prev_static_prio;
-+	int prev_normal_prio;
-+	int prev_state;
-+	int next_prio;
-+	int next_static_prio;
-+	int next_normal_prio;
-+	char prev_comm[TASK_COMM_LEN];
-+	char next_comm[TASK_COMM_LEN];
-+};
-+
-+struct logdev_mark_mm_fault {
-+	struct logdev_mark_hdr hdr;
-+	short pid;
-+	char comm[TASK_COMM_LEN];
-+	struct mm_struct *mm;
-+	struct vm_area_struct *vma;
-+	unsigned long address;
-+	int write_access;
-+};
-+
-+
-+/* ---------------- end of user space header cut ---------------- */
-+
-+struct logdev_probe_hdr {
-+	unsigned long addr;
-+	unsigned long offset;
-+	int func_symbol_size;
-+	char func_symbol[KSYM_NAME_LEN+1];
-+};
-+
-+
-+/* TODO, put this in logdev.c so I don't keep copying it */
-+static void logdev_print_time_cpu(unsigned long long t, int cpu)
-+{
-+	unsigned long usec_rem;
-+	unsigned long secs;
-+
-+	usec_rem = do_div(t, 1000000000)/1000;
-+	secs = (unsigned long)t;
-+
-+	printk("[%5lu.%06lu] cpu:%d ",
-+	       secs, usec_rem, cpu);
-+}
-+
-+/* ------------------- cut here for user space print -------------- */
-+
-+/* "s/printk/printf" */
-+
-+static void logdev_print_hdr(int cpu,
-+			     struct logdev_mark_hdr *hdr)
-+{
-+	logdev_print_time_cpu(hdr->t, cpu);
-+}
-+
-+static void logdev_mark_switch_print(int cpu, int size,
-+				     struct logdev_mark_switch *lm)
-+{
-+	logdev_print_hdr(cpu, &lm->hdr);
-+
-+	printk("%s:%d(%d:%d:%d) -->> ",
-+	       lm->prev_comm,
-+	       lm->pid_prev,
-+	       lm->prev_prio,
-+	       lm->prev_static_prio,
-+	       lm->prev_normal_prio);
-+
-+	printk("%s:%d(%d:%d:%d)\n",
-+	       lm->next_comm,
-+	       lm->pid_next,
-+	       lm->next_prio,
-+	       lm->next_static_prio,
-+	       lm->next_normal_prio);
-+}
-+
-+static void logdev_mark_mm_fault_print(int cpu, int size,
-+				       struct logdev_mark_mm_fault *lm)
-+{
-+	logdev_print_hdr(cpu, &lm->hdr);
-+
-+	printk("%s:%d  mm=%p vma=%p  address=%lx  write_access=%d\n",
-+	       lm->comm,
-+	       lm->pid,
-+	       lm->mm,
-+	       lm->vma,
-+	       lm->address,
-+	       lm->write_access);
-+}
-+
-+static void logdev_mark_callback(struct logdev_header *hdr,
-+				 struct logdev_custom *custom,
-+				 int cpu,
-+				 void *rec)
-+{
-+	struct logdev_mark_hdr *lm = rec;
-+
-+	switch (lm->id) {
-+	case LOGMARK_CNTXTSW:
-+		logdev_mark_switch_print(cpu, hdr->size, rec);
-+		break;
-+	case LOGMARK_MM_FAULT:
-+		logdev_mark_mm_fault_print(cpu, hdr->size, rec);
-+		break;
-+	default:
-+		printk("Unknown marker callback id %x\n",
-+		       custom->id);
-+		break;
-+	}
-+}
-+/* ------------------ end cut for user space printing ------------------- */
-+
-+
-+static void __kprobes logmark_hdr(struct logdev_mark_hdr *lm, int id)
-+{
-+	lm->t = sched_clock();
-+	lm->id = id;
-+}
-+
-+
-+void LDCALLER(context_switch) (struct task_struct *prev,
-+			       struct task_struct *next)
-+{
-+	struct logdev_mark_switch lm;
-+
-+	logmark_hdr(&lm.hdr, LOGMARK_CNTXTSW);
-+
-+	lm.pid_prev = prev->pid;
-+	lm.prev_prio = prev->prio;
-+	lm.prev_static_prio = prev->static_prio;
-+	lm.prev_normal_prio = prev->normal_prio;
-+	lm.prev_state = prev->state;
-+	lm.pid_next = next->pid;
-+	lm.next_prio = next->prio;
-+	lm.next_static_prio = next->static_prio;
-+	lm.next_normal_prio = next->normal_prio;
-+	memcpy(lm.prev_comm, prev->comm, TASK_COMM_LEN);
-+	memcpy(lm.next_comm, next->comm, TASK_COMM_LEN);
-+
-+	logdev_record(LOGMARK_ID_MARK, sizeof(lm),
-+		      &lm, sizeof(lm), NULL);
-+}
-+
-+void LDCALLER(mm_fault) (struct mm_struct *mm, struct vm_area_struct *vma,
-+			 unsigned long address, int write_access)
-+{
-+	struct logdev_mark_mm_fault lm;
-+
-+	logmark_hdr(&lm.hdr, LOGMARK_MM_FAULT);
-+
-+	lm.pid = current->pid;
-+	memcpy(lm.comm, current->comm, TASK_COMM_LEN);
-+
-+	lm.mm = mm;
-+	lm.vma = vma;
-+	lm.address = address;
-+	lm.write_access = write_access;
-+
-+	logdev_record(LOGMARK_ID_MARK, sizeof(lm),
-+		      &lm, sizeof(lm), NULL);
-+}
-+
-+/************************ Kprobes ******************************/
-+
-+static int __kprobes logmark_probe(struct kprobe *kp, struct pt_regs *regs)
-+{
-+	struct logdev_mark_probe *p =
-+		container_of(kp, struct logdev_mark_probe, kp);
-+	unsigned long args[MAX_ARGS];
-+	int i;
-+
-+	for (i=0; i < p->args; i++)
-+		args[i] = logdev_mark_get_reg_content(p->arg_regs[i], regs);
-+
-+	switch (p->args) {
-+	case 0:
-+		p->func.func0();
-+		break;
-+	case 1:
-+		p->func.func1(args[0]);
-+		break;
-+	case 2:
-+		p->func.func2(args[0], args[1]);
-+		break;
-+	case 3:
-+		p->func.func3(args[0], args[1], args[2]);
-+		break;
-+	case 4:
-+		p->func.func4(args[0], args[1], args[2], args[3]);
-+		break;
-+
-+	}
-+	return 0;
-+}
-+
-+
-+/************************ User Land ******************************/
-+
-+static DEFINE_MUTEX(logdev_marker_lock);
-+
-+static int mark_is_on;
-+
-+static int logdev_mark_ioctl(struct inode *inode, struct file *filp,
-+			     unsigned int cmd, unsigned long arg)
-+{
-+	int ret = 0;
-+	struct logdev_mark_probe *probe;
-+
-+	switch (cmd) {
-+	case LOGMARK_START:
-+
-+		mutex_lock(&logdev_marker_lock);
-+		if (!mark_is_on) {
-+			list_for_each_entry(probe, &logdev_probes, list) {
-+				probe->kp.pre_handler = logmark_probe;
-+				probe->kp.addr =
-+					(kprobe_opcode_t *)probe->address;
-+
-+				ret = register_kprobe(&probe->kp);
-+				if (ret < 0) {
-+					ret = -EINVAL;
-+					printk(KERN_WARNING
-+					       "logdev_marker: can't register probe\n");
-+					break;
-+				}
-+			}
-+			mark_is_on = 1;
-+		}
-+		mutex_unlock(&logdev_marker_lock);
-+
-+		break;
-+
-+	case LOGMARK_STOP:
-+
-+		mutex_lock(&logdev_marker_lock);
-+		if (mark_is_on) {
-+			list_for_each_entry(probe, &logdev_probes, list) {
-+				unregister_kprobe(&probe->kp);
-+			}
-+			mark_is_on = 0;
-+		}
-+		mutex_unlock(&logdev_marker_lock);
-+
-+		break;
-+
-+	default:
-+		ret = -ENOTTY;
-+	}
-+
-+	return ret;
-+}
-+
-+
-+/******************* List mark entries *****************/
-+
-+static void __kprobes *s_next(struct seq_file *m, void *v, loff_t *pos)
-+{
-+	struct logdev_mark_probe *p = NULL;
-+	int l = 0;
-+
-+	list_for_each_entry(p, &logdev_probes, list) {
-+		if (l++ >= *pos)
-+			break;
-+	}
-+
-+	(*pos)++;
-+
-+	if (&p->list == &logdev_probes)
-+		return NULL;
-+
-+	return p;
-+}
-+
-+static void __kprobes *s_start(struct seq_file *m, loff_t *pos)
-+	__acquires(logdev_dev.lock)
-+{
-+	struct logdev_mark_probe *p = NULL;
-+	loff_t l = 0;
-+
-+	list_for_each_entry(p, &logdev_probes, list) {
-+		if (l++ >= *pos)
-+			break;
-+	}
-+
-+	if (&p->list == &logdev_probes)
-+		return NULL;
-+
-+	(*pos)++;
-+
-+	return p;
-+}
-+
-+static void __kprobes s_stop(struct seq_file *m, void *p)
-+	__releases(logdev_dev.lock)
-+{
-+}
-+
-+static int __kprobes s_show(struct seq_file *m, void *v)
-+{
-+	struct logdev_mark_probe *lm = v;
-+	int i;
-+
-+	seq_printf(m, "probe address:\t%p\n", (void*)lm->address);
-+	seq_printf(m, "func address:\t%p\n", (void*)lm->func.func0);
-+	seq_printf(m, "args:\t\t%d\n", lm->args);
-+	for (i=0; i < lm->args; i++) {
-+		seq_printf(m, "arg %d reg:\t%s\n",
-+			   i, logdev_reg_to_name(lm->arg_regs[i]));
-+	}
-+	seq_printf(m,"\n");
-+	return 0;
-+}
-+
-+static struct seq_operations logdev_seq_op = {
-+	.start = s_start,
-+	.next = s_next,
-+	.stop = s_stop,
-+	.show = s_show,
-+};
-+
-+/******************* end list kprobes *****************/
-+
-+static int logdev_mark_open (struct inode *inode, struct file *filp)
-+{
-+	int ret;
-+
-+	ret = seq_open(filp, &logdev_seq_op);
-+	if (!ret) {
-+		struct seq_file *m = filp->private_data;
-+		m->private = inode->u.generic_ip;
-+	}
-+
-+	return ret;
-+}
-+
-+
-+static struct file_operations logdev_mark_fops = {
-+	.read		= seq_read,
-+	.ioctl		= logdev_mark_ioctl,
-+	.open		= logdev_mark_open,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
-+/************************ End User Land ******************************/
-+
-+
-+extern unsigned long __logdev_marker_start;
-+extern unsigned long __logdev_marker_end;
-+
-+static int __init logdev_marker_init(void)
-+{
-+	unsigned long *p;
-+	struct logdev_mark_probe *probe;
-+
-+	debugfs_create_file("marker", 0600, logdev_d,
-+			    NULL, &logdev_mark_fops);
-+
-+	logdev_register_callback(LOGMARK_ID_MARK, logdev_mark_callback);
-+
-+	/*
-+	 * Arch must make sure that these are aligned by sizeof(long)
-+	 *
-+	 *  (p is incremented in the loop)
-+	 */
-+	for (p = &__logdev_marker_start; p < &__logdev_marker_end; ) {
-+		int i;
-+
-+		probe = kzalloc(sizeof(*probe), GFP_KERNEL);
-+		if (!probe) {
-+			printk(KERN_WARNING "logdev_marker: ran out of memory!\n");
-+			break;
-+		}
-+		probe->address = *p++;
-+		probe->func.func0 = (logdev_func0_t)*p++;
-+		probe->args = *p++;
-+		if (probe->args > MAX_ARGS) {
-+			printk(KERN_WARNING "logdev_marker: corrupted mark section\n");
-+			kfree(probe);
-+			break;
-+		}
-+		for (i=0; i < probe->args; i++) {
-+			probe->arg_regs[i] = logdev_mark_get_reg(*p++);
-+			if (probe->arg_regs[i] < 0)
-+				break;
-+		}
-+		if (i < probe->args) {
-+			printk(KERN_WARNING "logdev_marker: unknown reg\n");
-+			kfree(probe);
-+			break;
-+		}
-+
-+		list_add(&probe->list, &logdev_probes);
-+	}
-+
-+	return 0;
-+}
-+
-+module_init(logdev_marker_init);
-Index: linux-2.6.18/mm/memory.c
-===================================================================
---- linux-2.6.18.orig/mm/memory.c	2006-10-06 21:06:52.000000000 -0400
-+++ linux-2.6.18/mm/memory.c	2006-10-06 21:20:10.000000000 -0400
-@@ -49,6 +49,7 @@
- #include <linux/module.h>
- #include <linux/delayacct.h>
- #include <linux/init.h>
-+#include <linux/logdev_marker.h>
+ DMA_MEMORY_MAP - request that the memory returned from
+-dma_alloc_coherent() be directly writeable.
++dma_alloc_coherent() be directly writable.
  
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -2326,6 +2327,8 @@ int __handle_mm_fault(struct mm_struct *
- 	pmd_t *pmd;
- 	pte_t *pte;
+ DMA_MEMORY_IO - request that the memory returned from
+ dma_alloc_coherent() be addressable using read/write/memcpy_toio etc.
+diff -ru x/Documentation/dvb/ci.txt y/Documentation/dvb/ci.txt
+--- x/Documentation/dvb/ci.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/dvb/ci.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -71,7 +71,7 @@
+ The disadvantage is that the driver/hardware has to manage the rest. For
+ the application programmer it would be as simple as sending/receiving an
+ array to/from the CI ioctls as defined in the Linux DVB API. No changes
+-have been made in the API to accomodate this feature.
++have been made in the API to accommodate this feature.
  
-+	LD_MARK4(mm_fault, mm, vma, address, write_access);
-+
- 	__set_current_state(TASK_RUNNING);
  
- 	count_vm_event(PGFAULT);
+ * Why the need for another CI interface ?
+@@ -102,7 +102,7 @@
+ implemented by most applications. Hence this area is revisited.
+ 
+ This CI interface is quite different in the case that it tries to
+-accomodate all other CI based devices, that fall into the other categories
++accommodate all other CI based devices, that fall into the other categories.
+ 
+ This means that this CI interface handles the EN50221 style tags in the
+ Application layer only and no session management is taken care of by the
+diff -ru x/Documentation/eisa.txt y/Documentation/eisa.txt
+--- x/Documentation/eisa.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/eisa.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -62,7 +62,7 @@
+ bus_base_addr : slot 0 address on this bus
+ slots	      : max slot number to probe
+ force_probe   : Probe even when slot 0 is empty (no EISA mainboard)
+-dma_mask      : Default DMA mask. Usualy the bridge device dma_mask.
++dma_mask      : Default DMA mask. Usually the bridge device dma_mask.
+ bus_nr	      : unique bus id, set by eisa_root_register
+ 
+ ** Driver :
+diff -ru x/Documentation/filesystems/adfs.txt y/Documentation/filesystems/adfs.txt
+--- x/Documentation/filesystems/adfs.txt	2006-10-06 22:40:14.000000000 -0400
++++ y/Documentation/filesystems/adfs.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -3,7 +3,7 @@
+ 
+   uid=nnn	All files in the partition will be owned by
+ 		user id nnn.  Default 0 (root).
+-  gid=nnn	All files in the partition willbe in group
++  gid=nnn	All files in the partition will be in group
+ 		nnn.  Default 0 (root).
+   ownmask=nnn	The permission mask for ADFS 'owner' permissions
+ 		will be nnn.  Default 0700.
+diff -ru x/Documentation/filesystems/configfs/configfs.txt y/Documentation/filesystems/configfs/configfs.txt
+--- x/Documentation/filesystems/configfs/configfs.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/filesystems/configfs/configfs.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -209,7 +209,7 @@
+ 
+ [struct config_group]
+ 
+-A config_item cannot live in a vaccum.  The only way one can be created
++A config_item cannot live in a vacuum.  The only way one can be created
+ is via mkdir(2) on a config_group.  This will trigger creation of a
+ child item.
+ 
+@@ -275,7 +275,7 @@
+ 
+ [struct configfs_subsystem]
+ 
+-A subsystem must register itself, ususally at module_init time.  This
++A subsystem must register itself, usually at module_init time.  This
+ tells configfs to make the subsystem appear in the file tree.
+ 
+ 	struct configfs_subsystem {
+diff -ru x/Documentation/filesystems/hpfs.txt y/Documentation/filesystems/hpfs.txt
+--- x/Documentation/filesystems/hpfs.txt	2006-10-06 22:40:14.000000000 -0400
++++ y/Documentation/filesystems/hpfs.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -274,7 +274,7 @@
+      Fixed race-condition in buffer code - it is in all filesystems in Linux;
+         when reading device (cat /dev/hda) while creating files on it, files
+         could be damaged
+-2.02 Woraround for bug in breada in Linux. breada could cause accesses beyond
++2.02 Workaround for bug in breada in Linux. breada could cause accesses beyond
+         end of partition
+ 2.03 Char, block devices and pipes are correctly created
+      Fixed non-crashing race in unlink (Alexander Viro)
+diff -ru x/Documentation/filesystems/ocfs2.txt y/Documentation/filesystems/ocfs2.txt
+--- x/Documentation/filesystems/ocfs2.txt	2006-10-06 22:40:14.000000000 -0400
++++ y/Documentation/filesystems/ocfs2.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -30,7 +30,7 @@
+ Features which OCFS2 does not support yet:
+ 	- sparse files
+ 	- extended attributes
+-	- shared writeable mmap
++	- shared writable mmap
+ 	- loopback is supported, but data written will not
+ 	  be cluster coherent.
+ 	- quotas
+diff -ru x/Documentation/filesystems/proc.txt y/Documentation/filesystems/proc.txt
+--- x/Documentation/filesystems/proc.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/filesystems/proc.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -1220,9 +1220,9 @@
+ you probably should increase the lower_zone_protection setting.
+ 
+ The units of this tunable are fairly vague.  It is approximately equal
+-to "megabytes".  So setting lower_zone_protection=100 will protect around 100
++to "megabytes," so setting lower_zone_protection=100 will protect around 100
+ megabytes of the lowmem zone from user allocations.  It will also make
+-those 100 megabytes unavaliable for use by applications and by
++those 100 megabytes unavailable for use by applications and by
+ pagecache, so there is a cost.
+ 
+ The effects of this tunable may be observed by monitoring
+diff -ru x/Documentation/filesystems/spufs.txt y/Documentation/filesystems/spufs.txt
+--- x/Documentation/filesystems/spufs.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/filesystems/spufs.txt	2006-10-06 22:49:42.000000000 -0400
+@@ -210,7 +210,7 @@
+    /signal2
+        The two signal notification channels of an SPU.  These  are  read-write
+        files  that  operate  on  a 32 bit word.  Writing to one of these files
+-       triggers an interrupt on the SPU. The  value  writting  to  the  signal
++       triggers an interrupt on the SPU.  The  value  written  to  the  signal
+        files can be read from the SPU through a channel read or from host user
+        space through the file.  After the value has been read by the  SPU,  it
+        is  reset  to zero.  The possible operations on an open signal1 or sig-
+diff -ru x/Documentation/hrtimers.txt y/Documentation/hrtimers.txt
+--- x/Documentation/hrtimers.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/hrtimers.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -30,7 +30,7 @@
+   necessitate a more complex handling of high resolution timers, which
+   in turn decreases robustness. Such a design still led to rather large
+   timing inaccuracies. Cascading is a fundamental property of the timer
+-  wheel concept, it cannot be 'designed out' without unevitably
++  wheel concept, it cannot be 'designed out' without inevitably
+   degrading other portions of the timers.c code in an unacceptable way.
+ 
+ - the implementation of the current posix-timer subsystem on top of
+diff -ru x/Documentation/ide.txt y/Documentation/ide.txt
+--- x/Documentation/ide.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/ide.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -390,5 +390,5 @@
+ Wed Apr 17 22:52:44 CEST 2002 edited by Marcin Dalecki, the current
+ maintainer.
+ 
+-Wed Aug 20 22:31:29 CEST 2003 updated ide boot uptions to current ide.c
++Wed Aug 20 22:31:29 CEST 2003 updated ide boot options to current ide.c
+ comments at 2.6.0-test4 time. Maciej Soltysiak <solt@dns.toxicfilms.tv>
+diff -ru x/Documentation/input/atarikbd.txt y/Documentation/input/atarikbd.txt
+--- x/Documentation/input/atarikbd.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/input/atarikbd.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -103,7 +103,7 @@
+ 
+ 5.1 Joystick Event Reporting
+ 
+-In this mode, the ikbd generates a record whever the joystick position is
++In this mode, the ikbd generates a record whenever the joystick position is
+ changed (i.e. for each opening or closing of a joystick switch or trigger).
+ 
+ The joystick event record is two bytes of the form:
+diff -ru x/Documentation/input/iforce-protocol.txt y/Documentation/input/iforce-protocol.txt
+--- x/Documentation/input/iforce-protocol.txt	2006-10-06 22:40:12.000000000 -0400
++++ y/Documentation/input/iforce-protocol.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -23,9 +23,9 @@
+ When using USB:
+ OP DATA
+ The 2B, LEN and CS fields have disappeared, probably because USB handles frames and
+-data corruption is handled or unsignificant.
++data corruption is handled or insignificant.
+ 
+-First, I describe effects that are sent by the device to the computer
++First, I describe effects that are sent by the device to the computer.
+ 
+ ** Device input state
+ This packet is used to indicate the state of each button and the value of each
+diff -ru x/Documentation/ioctl/cdrom.txt y/Documentation/ioctl/cdrom.txt
+--- x/Documentation/ioctl/cdrom.txt	2006-10-06 22:40:12.000000000 -0400
++++ y/Documentation/ioctl/cdrom.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -735,7 +735,7 @@
+ 	    Ok, this is where problems start.  The current interface for
+ 	    the CDROM_DISC_STATUS ioctl is flawed.  It makes the false
+ 	    assumption that CDs are all CDS_DATA_1 or all CDS_AUDIO, etc.
+-	    Unfortunatly, while this is often the case, it is also
++	    Unfortunately, while this is often the case, it is also
+ 	    very common for CDs to have some tracks with data, and some
+ 	    tracks with audio.	Just because I feel like it, I declare
+ 	    the following to be the best way to cope.  If the CD has
+diff -ru x/Documentation/laptop-mode.txt y/Documentation/laptop-mode.txt
+--- x/Documentation/laptop-mode.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/laptop-mode.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -699,7 +699,7 @@
+ Dax Kelson submitted this so that the ACPI acpid daemon will
+ kick off the laptop_mode script and run hdparm. The part that
+ automatically disables laptop mode when the battery is low was
+-writen by Jan Topinski.
++written by Jan Topinski.
+ 
+ -----------------/etc/acpi/events/ac_adapter BEGIN------------------------------
+ event=ac_adapter
+diff -ru x/Documentation/MSI-HOWTO.txt y/Documentation/MSI-HOWTO.txt
+--- x/Documentation/MSI-HOWTO.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/MSI-HOWTO.txt	2006-10-06 22:50:04.000000000 -0400
+@@ -219,7 +219,7 @@
+ Note that the pre-assigned IOAPIC dev->irq is valid only if the device
+ operates in PIN-IRQ assertion mode. In MSI-X mode, any attempt at
+ using dev->irq by the device driver to request for interrupt service
+-may result unpredictabe behavior.
++may result in unpredictable behavior.
+ 
+ For each MSI-X vector granted, a device driver is responsible for calling
+ other functions like request_irq(), enable_irq(), etc. to enable
+diff -ru x/Documentation/networking/NAPI_HOWTO.txt y/Documentation/networking/NAPI_HOWTO.txt
+--- x/Documentation/networking/NAPI_HOWTO.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/networking/NAPI_HOWTO.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -601,7 +601,7 @@
+ 	
+ 5) dev->close() and dev->suspend() issues
+ ==========================================
+-The driver writter neednt worry about this. The top net layer takes
++The driver writer needn't worry about this; the top net layer takes
+ care of it.
+ 
+ 6) Adding new Stats to /proc 
+@@ -622,9 +622,9 @@
+ packets fast enough i.e send a pause only when you run out of rx buffers.
+ Note FC in itself is a good solution but we have found it to not be
+ much of a commodity feature (both in NICs and switches) and hence falls
+-under the same category as using NIC based mitigation. Also experiments
+-indicate that its much harder to resolve the resource allocation
+-issue (aka lazy receiving that NAPI offers) and hence quantify its usefullness
++under the same category as using NIC based mitigation. Also, experiments
++indicate that it's much harder to resolve the resource allocation
++issue (aka lazy receiving that NAPI offers) and hence quantify its usefulness
+ proved harder. In any case, FC works even better with NAPI but is not
+ necessary.
+ 
+diff -ru x/Documentation/networking/sk98lin.txt y/Documentation/networking/sk98lin.txt
+--- x/Documentation/networking/sk98lin.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/networking/sk98lin.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -346,7 +346,7 @@
+       depending on the load of the system. If the driver detects that the
+       system load is too high, the driver tries to shield the system against 
+       too much network load by enabling interrupt moderation. If - at a later
+-      time - the CPU utilizaton decreases again (or if the network load is 
++      time - the CPU utilization decreases again (or if the network load is 
+       negligible) the interrupt moderation will automatically be disabled.
+ 
+ Interrupt moderation should be used when the driver has to handle one or more
+diff -ru x/Documentation/networking/slicecom.txt y/Documentation/networking/slicecom.txt
+--- x/Documentation/networking/slicecom.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/networking/slicecom.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -126,7 +126,7 @@
+ 
+ Though the options below are to be set on a single interface, they apply to the
+ whole board. The restriction, to use them on 'UP' interfaces, is because the 
+-command sequence below could lead to unpredicable results.
++command sequence below could lead to unpredictable results.
+ 
+ 	# echo 0        >boardnum
+ 	# echo internal >clock_source
+diff -ru x/Documentation/networking/wan-router.txt y/Documentation/networking/wan-router.txt
+--- x/Documentation/networking/wan-router.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/networking/wan-router.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -412,7 +412,7 @@
+ 
+ beta3-2.1.4 Jul 2000		o X25 M_BIT Problem fix.
+ 				o Added the Multi-Port PPP
+-				  Updated utilites for the Multi-Port PPP.
++				  Updated utilities for the Multi-Port PPP.
+ 
+ 2.1.4	Aut 2000
+ 				o In X25API:
+@@ -450,7 +450,7 @@
+ 
+ 
+ 				o Keyboard Led Monitor/Debugger
+-					- A new utilty /usr/sbin/wpkbdmon uses keyboard leds
++					- A new utility /usr/sbin/wpkbdmon uses keyboard leds
+ 					  to convey operational statistic information of the 
+ 					  Sangoma WANPIPE cards.
+ 					NUM_LOCK    = Line State  (On=connected,    Off=disconnected)
+diff -ru x/Documentation/pnp.txt y/Documentation/pnp.txt
+--- x/Documentation/pnp.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/pnp.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -184,7 +184,7 @@
+ Please note that the character 'X' can be used as a wild card in the function
+ portion (last four characters).
+ ex:
+-	/* Unkown PnP modems */
++	/* Unknown PnP modems */
+ 	{	"PNPCXXX",		UNKNOWN_DEV	},
+ 
+ Supported PnP card IDs can optionally be defined.
+diff -ru x/Documentation/robust-futex-ABI.txt y/Documentation/robust-futex-ABI.txt
+--- x/Documentation/robust-futex-ABI.txt	2006-10-06 22:40:17.000000000 -0400
++++ y/Documentation/robust-futex-ABI.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -170,7 +170,7 @@
+  1) the 'head' pointer or an subsequent linked list pointer
+     is not a valid address of a user space word
+  2) the calculated location of the 'lock word' (address plus
+-    'offset') is not the valud address of a 32 bit user space
++    'offset') is not the valid address of a 32 bit user space
+     word
+  3) if the list contains more than 1 million (subject to
+     future kernel configuration changes) elements.
+diff -ru x/Documentation/s390/Debugging390.txt y/Documentation/s390/Debugging390.txt
+--- x/Documentation/s390/Debugging390.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/s390/Debugging390.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -846,9 +846,9 @@
+ instead if the code isn't compiled -g, as it is much faster:
+ objdump --disassemble-all --syms vmlinux > vmlinux.lst  
+ 
+-As hard drive space is valuble most of us use the following approach.
++As hard drive space is valuable, most of us use the following approach.
+ 1) Look at the emitted psw on the console to find the crash address in the kernel.
+-2) Look at the file System.map ( in the linux directory ) produced when building 
++2) Look at the file System.map (in the linux directory) produced when building 
+ the kernel to find the closest address less than the current PSW to find the
+ offending function.
+ 3) use grep or similar to search the source tree looking for the source file
+diff -ru x/Documentation/scsi/ibmmca.txt y/Documentation/scsi/ibmmca.txt
+--- x/Documentation/scsi/ibmmca.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/scsi/ibmmca.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -461,7 +461,7 @@
+       This needs the RD-Bit to be disabled on IM_OTHER_SCSI_CMD_CMD which 
+       allows data to be written from the system to the device. It is a
+       necessary step to be allowed to set blocksize of SCSI-tape-drives and 
+-      the tape-speed, whithout confusing the SCSI-Subsystem.
++      the tape-speed, without confusing the SCSI-Subsystem.
+    2) The recognition of a tape is included in the check_devices routine.
+       This is done by checking for TYPE_TAPE, that is already defined in
+       the kernel-scsi-environment. The markup of a tape is done in the 
+diff -ru x/Documentation/scsi/ncr53c8xx.txt y/Documentation/scsi/ncr53c8xx.txt
+--- x/Documentation/scsi/ncr53c8xx.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/scsi/ncr53c8xx.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -115,7 +115,7 @@
+ 
+           ftp://ftp.symbios.com/
+ 
+-Usefull SCSI tools written by Eric Youngdale are available at tsx-11:
++Useful SCSI tools written by Eric Youngdale are available at tsx-11:
+ 
+           ftp://tsx-11.mit.edu/pub/linux/ALPHA/scsi/scsiinfo-X.Y.tar.gz
+           ftp://tsx-11.mit.edu/pub/linux/ALPHA/scsi/scsidev-X.Y.tar.gz
+diff -ru x/Documentation/sound/alsa/Audigy-mixer.txt y/Documentation/sound/alsa/Audigy-mixer.txt
+--- x/Documentation/sound/alsa/Audigy-mixer.txt	2006-10-06 22:40:13.000000000 -0400
++++ y/Documentation/sound/alsa/Audigy-mixer.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -6,7 +6,7 @@
+ 
+ The EMU10K2 chips have a DSP part which can be programmed to support 
+ various ways of sample processing, which is described here.
+-(This acticle does not deal with the overall functionality of the 
++(This article does not deal with the overall functionality of the 
+ EMU10K2 chips. See the manuals section for further details.)
+ 
+ The ALSA driver programs this portion of chip by default code
+diff -ru x/Documentation/sound/alsa/SB-Live-mixer.txt y/Documentation/sound/alsa/SB-Live-mixer.txt
+--- x/Documentation/sound/alsa/SB-Live-mixer.txt	2006-10-06 22:40:13.000000000 -0400
++++ y/Documentation/sound/alsa/SB-Live-mixer.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -5,7 +5,7 @@
+ 
+ The EMU10K1 chips have a DSP part which can be programmed to support
+ various ways of sample processing, which is described here.
+-(This acticle does not deal with the overall functionality of the 
++(This article does not deal with the overall functionality of the 
+ EMU10K1 chips. See the manuals section for further details.)
+ 
+ The ALSA driver programs this portion of chip by default code
+diff -ru x/Documentation/uml/UserModeLinux-HOWTO.txt y/Documentation/uml/UserModeLinux-HOWTO.txt
+--- x/Documentation/uml/UserModeLinux-HOWTO.txt	2006-10-06 22:43:36.000000000 -0400
++++ y/Documentation/uml/UserModeLinux-HOWTO.txt	2006-10-06 22:46:37.000000000 -0400
+@@ -1477,7 +1477,7 @@
+ 
+ 
+ 
+-  Making it world-writeable looks bad, but it seems not to be
++  Making it world-writable looks bad, but it seems not to be
+   exploitable as a security hole.  However, it does allow anyone to cre-
+   ate useless tap devices (useless because they can't configure them),
+   which is a DOS attack.  A somewhat more secure alternative would to be
 
 

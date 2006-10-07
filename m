@@ -1,78 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423012AbWJGABe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWJGAGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423012AbWJGABe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Oct 2006 20:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423015AbWJGABe
+	id S1422716AbWJGAGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Oct 2006 20:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423015AbWJGAGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Oct 2006 20:01:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57750 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423012AbWJGABd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Oct 2006 20:01:33 -0400
-Date: Fri, 6 Oct 2006 17:00:31 -0700
-From: Bryce Harrington <bryce@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, vatsa@in.ibm.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, shaohua.li@intel.com,
-       hotplug_sig@osdl.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: Status on CPU hotplug issues
-Message-ID: <20061007000031.GI22139@osdl.org>
-References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org> <20060317084653.GA4515@in.ibm.com> <20060317010412.3243364c.akpm@osdl.org> <20061006231012.GH22139@osdl.org> <20061006162924.344090f8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Oct 2006 20:06:09 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:16231 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1422716AbWJGAGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Oct 2006 20:06:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pebvDdJcpCtvdFzp6CA8Zmj+OitUR/Pj+f2Fh46fHs0xII+I/0sfulQKeRwXciH8bAsiLBqSnJQPw9J0xEgqQ7VmPXPbcGQ9nH7P72hcEg+bAJMpYSOU4kWAC3BMCsWSRM8e+AkCT1QOm5iH5ANtf366lRMPT+SLOw1+blB4q9w=
+Message-ID: <9a8748490610061706k7d8228d4s109108bb94f061a8@mail.gmail.com>
+Date: Sat, 7 Oct 2006 02:06:07 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Simple script that locks up my box with recent kernels
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linus Torvalds" <torvalds@osdl.org>
+In-Reply-To: <20061006165425.23b326e0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061006162924.344090f8.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
+	 <20061006165425.23b326e0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 04:29:24PM -0700, Andrew Morton wrote:
-> Can you describe the nature of the cpu-hotplug tests you're running?  I'd
-> be fairly staggered if the kernel was able to survive a full-on cpu-hotplug
-> stress test for more than one second, frankly.  There's a lot of code in
-> there which is non-hotplug-aware.  Running a non-preemptible kernel would
-> make things appear more stable, perhaps.
+On 07/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Sat, 7 Oct 2006 01:36:24 +0200
+> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+>
+> > Hi,
+> >
+> > I've been using the this very simple script for a while to do test
+> > builds of the kernel :
+> >
+> >
+> > #!/bin/bash
+> >
+> > for i in $(seq 1 100); do
+> >         nice make distclean
+> >         while true; do
+> >                 nice make randconfig
+> >                 grep -q "CONFIG_EXPERIMENTAL=y" .config
+> >                 if [ $? -eq 1 ]; then
+> >                         break
+> >                 fi
+> >         done
+> >         cp .config config.${i}
+> >         nice make -j3 > build.log.${i} 2>&1
+> > done
+> >
+> >
+> > Which has worked great in the past, but with recent kernels it has
+> > been a sure way to cause a complete lockup within 1 hour :-(
+> >
+>
+> This is probably one of those nobody-but-you-can-reproduce-it things.
+>
+I hope not. But that actually why I post the script, to try an get
+more people to reproduce...
 
-Certainly, the testsuite is one the OSDL Hotplug SIG put together last
-summer, and consists of several test cases:
 
-   http://developer.osdl.org/dev/HOTPLUG/planning/hotplug_cpu_test_plan_status.html
+> >
+> > When the lockup happens the box just freezes and doesn't respond to
+> > anything at all. Sometimes I can reboot with alt+sysrq+b but sometimes
+> > not even that works.
+>
+> If you can do sysrq-b then you can do sysrq-t, too?
+>
+I don't know, haven't tried - but I'll try the next few times it locks up.
 
-   hotplug01:  Check IRQ behavior during cpu hotplug events
-   hotplug02:  Check process migration during cpu hotplug events
-   hotplug03:  Verify tasks get scheduled on newly onlined cpu's
-   hotplug04:  Verify disallowing offlining all CPU's
-   hotplug05:  (Unimplemented)
-   hotplug06:  Check userspace tools (sar, top) during cpu hotplug events 
-   hotplug07:  Stress case doing kernel compile while cpu's are
-               hotplugged on and off repeatedly
 
-It can be downloaded here:
-   http://developer.osdl.org/dev/hotplug/tests/
+> Please ensure that you have all the CONFIG_DEBUG_* things set, apart from
+> PAGEALLOC.
+>
+$ zgrep CONFIG_DEBUG_ /proc/config.gz
+# CONFIG_DEBUG_DRIVER is not set
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_SLAB_LEAK=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_RT_MUTEXES=y
+CONFIG_DEBUG_PI_LIST=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_RWSEMS=y
+CONFIG_DEBUG_LOCK_ALLOC=y
+CONFIG_DEBUG_LOCKDEP=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_DEBUG_LOCKING_API_SELFTESTS=y
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_HIGHMEM=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_FS=y
+CONFIG_DEBUG_VM=y
+CONFIG_DEBUG_LIST=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_DEBUG_PAGEALLOC=y
+CONFIG_DEBUG_RODATA=y
 
-Results are posted here:
-   http://crucible.osdl.org/runs/hotplug_report.html
+That good enough?
 
-We've been running this testsuite fairly continuously for several
-months, and irregularly for about a year before that.  We find that on
-some platforms like PPC64 it's quite robust, and on others there are
-issues, but the developers tend to be quick to provide fixes as the
-issues are found.  I'm glad to see that the results are finally showing
-green for ia64.
 
-> > Issues were found in four areas: General kernel, cpu hotplug, sysstat,
-> > and the test harness itself.
-> 
-> It's surprising that AMD and Intel CPUs behave differently.  Also a good
-> start on diagnosing things.
+>
+> Once you've got the test set up and running, you can do the alt-ctl-F1
+> thing to take you out of X and into the vga console.  I suggest you leave
+> it running that way, see if anything pops up when it hangs.
+>
+I've done that on a few occasions already without seeing anything, but
+I'll try a few more times.
 
-I was also surprised to see this too.  Note that the .config's for the
-amd and em64t machines are considerably different (different drivers,
-etc.), but the cpu config should be relatively comparable.  Still, I
-wouldn't rule out the different behaviors being due to configuration
-differences.  We could work on homogenizing the configs of the two
-systems if that would help in troubleshooting?
 
-Thanks,
-Bryce
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

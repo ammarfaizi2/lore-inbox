@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbWJGGGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWJGGZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932622AbWJGGGS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 02:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWJGGGS
+	id S932627AbWJGGZY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 02:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbWJGGZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 02:06:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65512 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932622AbWJGGGQ (ORCPT
+	Sat, 7 Oct 2006 02:25:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:36276 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932627AbWJGGZW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 02:06:16 -0400
-Date: Fri, 6 Oct 2006 23:06:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Fix IO error reporting on fsync()
-Message-Id: <20061006230609.c04e78bc.akpm@osdl.org>
-In-Reply-To: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz>
-References: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Oct 2006 02:25:22 -0400
+Date: Fri, 6 Oct 2006 23:24:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: sysfs & ALSA card
+Message-ID: <20061007062458.GF23366@kroah.com>
+References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 13:49:47 +0200
-Jan Kara <jack@suse.cz> wrote:
+On Fri, Oct 06, 2006 at 04:00:27PM +0200, Jaroslav Kysela wrote:
+> Hi,
+> 
+> 	I would like to discuss where is the right root for soundcards in 
+> the sysfs tree. I would like to put card specific variables like id there 
+> (see /proc/asound/card0/id).
 
->   current code in buffer.c has two pitfalls that cause problems with IO
-> error reporting of filesystems using mapping->private_list for their
-> metadata buffers (e.g. ext2).
->   The first problem is that end_io_async_write() does not mark IO error
-> in the buffer flags, only in the page flags. Hence fsync_buffers_list()
-> does not find out that some IO error has occured and will not report it.
->   The second problem is that buffers from private_list can be freed
-> (e.g. under memory pressure) and if fsync_buffer_list() is called after
-> that moment, IO error is lost - note that metadata buffers mark AS_EIO
-> on the *device mapping* not on the inode mapping.
->   Following series of three patches tries to fix these problems. The
-> approach I took (after some discussions with Andrew) is introducing
-> dummy buffer_head in the mapping instead of private_list. This dummy
-> buffer head serves as a head of metadata buffer list and also collects
-> IO errors from other buffers on the list (see the third patch for more
-> details). This is kind of compromise between introducing a pointer to
-> inode's address_space into each buffer and between using list_head
-> instead of buffer_head and playing some dirty tricks to recognize that
-> one particular list_head is actually from address_space and not from
-> buffer_head. Any suggestions for improvements welcome.
+That would be nice to have in sysfs, I agree.
 
-This is really complex, and enlarges the inode by quite a lot, which hurts.
+> Also, I plan to create link from 
+> /sys/class/sound tree to the appropriate card to show relationship. 
+> Something like:
+> 
+> /sys/<somewhere>/soundcard/0
+> 
+> /sys/class/sound/controlC0/soundcard -> ../../../<somewhere>/soundcard/0
+> 
+> 	Any comments and suggestions?
 
-What about putting an address_space* into the buffer_head?  Transfer the
-EIO state into the address_space within, say, __remove_assoc_queue()?
+Yeah, this isn't that hard right now.  Just create a new struct device
+for every card, point the parent of this new device to the device that
+represents the card, and then point the other different sound specific
+devices to the new card.
+
+Hm, let me go hack at it and see what I come up with, code is so much
+better for an example...
+
+thanks,
+
+greg k-h

@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWJGPAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWJGPIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWJGPAg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 11:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWJGPAg
+	id S932209AbWJGPIp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 11:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWJGPIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 11:00:36 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:26013 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S932156AbWJGPAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 11:00:35 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [patch] honour MNT_NOEXEC for access()
-Date: Sat, 7 Oct 2006 15:00:30 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <eg8fee$lpc$1@taverner.cs.berkeley.edu>
-References: <4516B721.5070801@redhat.com> <1160170464.12835.4.camel@localhost.localdomain> <4526C7F4.6090706@redhat.com> <45278D2A.4020605@aknet.ru>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1160233230 22316 128.32.168.222 (7 Oct 2006 15:00:30 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Sat, 7 Oct 2006 15:00:30 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Sat, 7 Oct 2006 11:08:45 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37057 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932209AbWJGPIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 11:08:45 -0400
+Message-ID: <4527C2F7.2010102@garzik.org>
+Date: Sat, 07 Oct 2006 11:08:39 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] minimal alpha pt_regs fixes
+References: <20061007131731.GC29920@ftp.linux.org.uk>
+In-Reply-To: <20061007131731.GC29920@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev  wrote:
->Now, as the access(X_OK) is fixed, would it be
->feasible for ld.so to start using it?
+Al Viro wrote:
+> diff --git a/include/asm-alpha/irq_regs.h b/include/asm-alpha/irq_regs.h
+> new file mode 100644
+> index 0000000..3dd9c0b
+> --- /dev/null
+> +++ b/include/asm-alpha/irq_regs.h
+> @@ -0,0 +1 @@
+> +#include <asm-generic/irq_regs.h>
 
-access() has TOCTTOU vulnerabilities, and should not be used for
-any security-critical purpose...
+
+ACK, of course, but I wonder if we can do something about these 1-line 
+header files.
+
+Would it be reasonable to encourage developers to do something like
+
+	#ifdef ARCH_HAVE_FEATURE_FOO
+	#include <asm/foo.h>
+	#else
+	#include <asm-generic/foo.h>
+	#endif
+
+to avoid these 1-line headers?
+
+	Jeff
+
+

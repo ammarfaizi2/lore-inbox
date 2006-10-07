@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbWJGGgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbWJGHSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbWJGGgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 02:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWJGGgV
+	id S932698AbWJGHSa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 03:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWJGHSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 02:36:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57581 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932612AbWJGGgU (ORCPT
+	Sat, 7 Oct 2006 03:18:30 -0400
+Received: from smtpout.mac.com ([17.250.248.181]:10449 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932698AbWJGHS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 02:36:20 -0400
-Date: Fri, 6 Oct 2006 23:35:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 1/12] i386: Distinguish absolute symbols
-Message-Id: <20061006233547.43888a48.akpm@osdl.org>
-In-Reply-To: <20061003170413.GA3164@in.ibm.com>
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003170413.GA3164@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Oct 2006 03:18:29 -0400
+In-Reply-To: <1160123182.26064.140.camel@pmac.infradead.org>
+References: <200609150901.33644.ismail@pardus.org.tr> <200610011034.57158.ismail@pardus.org.tr> <20061001091411.GA9647@uranus.ravnborg.org> <200610051116.12726.ismail@pardus.org.tr> <1160123182.26064.140.camel@pmac.infradead.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E97C1F9B-36B7-43F8-A472-160754AB8139@mac.com>
+Cc: Ismail Donmez <ismail@pardus.org.tr>, Sam Ravnborg <sam@ravnborg.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       mchehab@infradead.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: __STRICT_ANSI__ checks in headers
+Date: Sat, 7 Oct 2006 03:17:55 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Oct 2006 13:04:13 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+On Oct 06, 2006, at 04:26:22, David Woodhouse wrote:
+> On Thu, 2006-10-05 at 11:16 +0300, Ismail Donmez wrote:
+>> The problem shows itself in the modpost, somehow __extension__  
+>> clause seems to  foobar module CRC. I am not yet successfull on  
+>> making modpost ignore
+>> __extension__ .
+>>
+>> Any ideas appreciated.
+>
+> Something like this (and build with GENERATE_PARSER=1) _ought_ to  
+> do it,
+> but doesn't work:
+>
+> @@ -269,7 +270,7 @@ cvar_qualifier_seq:
+>
+>  cvar_qualifier:
+>  	CONST_KEYW | VOLATILE_KEYW | ATTRIBUTE_PHRASE
+> -	| RESTRICT_KEYW
+> +	| RESTRICT_KEYW | EXTENSION_KEYW
+>  		{ /* restrict has no effect in prototypes so ignore it */
+>  		  remove_node($1);
+>  		  $$ = $1;
 
-> Ld knows about 2 kinds of symbols,  absolute and section
-> relative.  Section relative symbols symbols change value
-> when a section is moved and absolute symbols do not.
-> 
-> Currently in the linker script we have several labels
-> marking the beginning and ending of sections that
-> are outside of sections, making them absolute symbols.
-> Having a mixture of absolute and section relative
-> symbols refereing to the same data is currently harmless
-> but it is confusing.
-> 
-> This must be done carefully as newer revs of ld do not place
-> symbols that appear in sections without data and instead
-> ld makes those symbols global :(
-> 
-> My ultimate goal is to build a relocatable kernel.  The
-> safest and least intrusive technique is to generate
-> relocation entries so the kernel can be relocated at load
-> time.  The only penalty would be an increase in the size
-> of the kernel binary.  The problem is that if absolute and
-> relocatable symbols are not properly specified absolute symbols
-> will be relocated or section relative symbols won't be, which
-> is fatal.
-> 
-> The practical motivation is that when generating kernels that
-> will run from a reserved area for analyzing what caused
-> a kernel panic, it is simpler if you don't need to hard code
-> the physical memory location they will run at, especially
-> for the distributions.
+Well it's actually technically not a cvar_qualifier; it's a pseudo- 
+arbitrarily attached keyword that can be stuck on any number of GCC- 
+only constructs, like nested code: "__extension__ ({ foo(); 1; })"  
+for example.
 
-This patch causes the following warnings:
+Probably the simplest thing to do is actually to just convert it into  
+a nonexistent or whitespace token, or if there's a preprocessing step  
+just #define it to the empty string.
 
-/opt/crosstool/gcc-4.1.0-glibc-2.3.6/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ld: .tmp_vmlinux1: warning: allocated section `.smp_altinstr_replacement' not in segment
-/opt/crosstool/gcc-4.1.0-glibc-2.3.6/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ld: .tmp_vmlinux2: warning: allocated section `.smp_altinstr_replacement' not in segment
-/opt/crosstool/gcc-4.1.0-glibc-2.3.6/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ld: vmlinux: warning: allocated section `.smp_altinstr_replacement' not in segment
-
-The patch
-i386-force-section-size-to-be-non-zero-to-prevent-a-symbol-becoming-absolute.patch
-makes those warnings go away again, but we decided to drop that.
-
-This:
-
-  .smp_altinstr_replacement : AT(ADDR(.smp_altinstr_replacement) - LOAD_OFFSET) {
-	*(.smp_altinstr_replacement)
-	. = ALIGN(4096);
-	__smp_alt_end = .;
-  }
-
-looks odd.  What's the point in putting a gap before __smp_alt_end?  Moving
-__smp_alt_end to before the ALIGN doesn't prevent the warning.
-
-GNU ld version 2.16.1, gcc-4.1.0, config at
-http://userweb.kernel.org/~akpm/config-vmm.txt
+Cheers,
+Kyle Moffett
 

@@ -1,108 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWJGFGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWJGFFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWJGFGU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 01:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWJGFGT
+	id S1751693AbWJGFFn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 01:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWJGFFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 01:06:19 -0400
-Received: from mail01.verismonetworks.com ([164.164.99.228]:48321 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1751700AbWJGFGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 01:06:19 -0400
-Subject: Re: [PATCH 3/9] sound/oss/msnd_pinnacle.c: ioremap balanced with
-	iounmap
-From: Amol Lad <amol@verismonetworks.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061006160324.142ccebf.akpm@osdl.org>
-References: <1160113137.19143.140.camel@amol.verismonetworks.com>
-	 <20061006160324.142ccebf.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 07 Oct 2006 10:39:37 +0530
-Message-Id: <1160197777.19143.157.camel@amol.verismonetworks.com>
+	Sat, 7 Oct 2006 01:05:42 -0400
+Received: from elasmtp-scoter.atl.sa.earthlink.net ([209.86.89.67]:3303 "EHLO
+	elasmtp-scoter.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751693AbWJGFFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 01:05:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=mindspring.com;
+  b=uATbmmxiiol2vgdMJzvA3dy1QGl9WIcTlEF6o16K1w9BhONRQ6p71FLo/y/djTHy;
+  h=Received:Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:X-Mailer:Mime-Version:Content-Type:Content-Transfer-Encoding:X-ELNK-Trace:X-Originating-IP;
+Date: Sat, 7 Oct 2006 01:05:16 -0400
+From: Bill Fink <billfink@mindspring.com>
+To: Joerg Roedel <joro-lkml@zlug.org>
+Cc: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: [PATCH 01/02] net/ipv6: seperate sit driver to extra module
+Message-Id: <20061007010517.3b9db240.billfink@mindspring.com>
+In-Reply-To: <20061006151556.GA15637@zlug.org>
+References: <20061006093402.GA12460@zlug.org>
+	<20061006.215935.92667295.yoshfuji@linux-ipv6.org>
+	<20061006151556.GA15637@zlug.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; powerpc-yellowdog-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: c598f748b88b6fd49c7f779228e2f6aeda0071232e20db4dc676853b8c459d60cebadcb608fd178d350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.55.21.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-06 at 16:03 -0700, Andrew Morton wrote:
-> On Fri, 06 Oct 2006 11:08:57 +0530
-> Amol Lad <amol@verismonetworks.com> wrote:
-> 
-> >  msnd_pinnacle.c |   10 ++++++++++
-> 
-> This driver fails to check that ioremap() actually succeeded.  Hence with
-> this patch we can end up doing iounmap(NULL).
-> 
-Is this better ?
+On Fri, 6 Oct 2006 17:15:56 +0200, Joerg Roedel wrote:
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
- msnd_pinnacle.c |   30 +++++++++++++++++++++---------
- 1 files changed, 21 insertions(+), 9 deletions(-)
----
-diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/sound/oss/msnd_pinnacle.c linux-2.6.19-rc1/sound/oss/msnd_pinnacle.c
---- linux-2.6.19-rc1-orig/sound/oss/msnd_pinnacle.c	2006-09-21 10:15:52.000000000 +0530
-+++ linux-2.6.19-rc1/sound/oss/msnd_pinnacle.c	2006-10-07 10:28:31.000000000 +0530
-@@ -1441,6 +1441,10 @@ static int __init attach_multisound(void
- 
- static void __exit unload_multisound(void)
- {
-+	if (dev.base) {
-+		iounmap(dev.base);
-+		dev.base = NULL;
-+	}
- 	release_region(dev.io, dev.numio);
- 	free_irq(dev.irq, &dev);
- 	unregister_sound_mixer(dev.mixer_minor);
-@@ -1884,30 +1888,38 @@ static int __init msnd_init(void)
- 	printk(KERN_INFO LOGNAME ": %u byte audio FIFOs (x2)\n", dev.fifosize);
- 	if ((err = msnd_fifo_alloc(&dev.DAPF, dev.fifosize)) < 0) {
- 		printk(KERN_ERR LOGNAME ": Couldn't allocate write FIFO\n");
--		return err;
-+		goto fail1;
- 	}
- 
- 	if ((err = msnd_fifo_alloc(&dev.DARF, dev.fifosize)) < 0) {
- 		printk(KERN_ERR LOGNAME ": Couldn't allocate read FIFO\n");
--		msnd_fifo_free(&dev.DAPF);
--		return err;
-+		goto fail2;
- 	}
- 
- 	if ((err = probe_multisound()) < 0) {
- 		printk(KERN_ERR LOGNAME ": Probe failed\n");
--		msnd_fifo_free(&dev.DAPF);
--		msnd_fifo_free(&dev.DARF);
--		return err;
-+		goto fail3;
- 	}
- 
- 	if ((err = attach_multisound()) < 0) {
- 		printk(KERN_ERR LOGNAME ": Attach failed\n");
--		msnd_fifo_free(&dev.DAPF);
--		msnd_fifo_free(&dev.DARF);
--		return err;
-+		goto fail3;
- 	}
- 
- 	return 0;
-+
-+fail3:
-+	msnd_fifo_free(&dev.DARF);
-+fail2:
-+	msnd_fifo_free(&dev.DAPF);
-+fail1:
-+	if (dev.base) {
-+		iounmap(dev.base);
-+		dev.base = NULL;
-+	}
-+
-+	return err;
-+	
- }
- 
- static void __exit msdn_cleanup(void)
+> +config IPV6_SIT
+> +	tristate "IPv6: IPv6-in-IPv4 tunnel (SIT driver)"
+> +	depends on IPV6
+> +	default y
+> +	---help---
+> +	  Tunneling means encapsulating data of one protocol type within
+> +	  another protocol and sending it over a channel that understands the
+> +	  encapsulating protocol. This driver implements encapsulation of IPv6
+> +	  into IPv4 packets. This is useful if you want to connect two IPv6
+> +	  networks over an IPv4-only path.
+> +
+> +	  Saying M here will produce a module called sit.ko. If unsure, say N.
 
+>From a user perspective, I believe it should say "If unsure, say Y".
+The unsure case for the unsure user should be the case that works for
+the broadest possible usage spectrum, which would be the 'Y' case.
+To put it another way, if you pick 'Y' and don't really need it, the
+only downside is wasting some memory.  But if you pick 'N' and actually
+did need it, previously working IPv6 networking would no longer work.
+I believe the default setting should match the unsure recommendation.
 
+						-Bill

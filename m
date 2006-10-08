@@ -1,133 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWJHTV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWJHTX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWJHTV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWJHTV5
+	id S1751350AbWJHTX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWJHTX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:21:57 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:33754 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751352AbWJHTV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:21:56 -0400
-X-Sasl-enc: A5PtNj4e2Kf+2klOc9CY/jJu0fDXHZCZMJ/v7KvQG4vf 1160335316
-Message-ID: <45295046.8000602@imap.cc>
-Date: Sun, 08 Oct 2006 21:23:50 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
+	Sun, 8 Oct 2006 15:23:29 -0400
+Received: from mail.gmx.net ([213.165.64.20]:28804 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751350AbWJHTX2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 15:23:28 -0400
+X-Authenticated: #1045983
+From: Helge Deller <deller@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] [kernel/ subdirectory] constifications
+Date: Sun, 8 Oct 2006 21:21:49 +0200
+User-Agent: KMail/1.9.5
+X-Face: *4/{KL3=jWs!v\UO#3e7~Vb1~CL@oP'~|*/M$!9`tb2[;fY@)WscF2iV7`,a$141g'o,7X
+	?Bt1Wb:L7K6z-<?-+-13|S_ixrq58*E`)ZkSe~NSI?u=89G'J<n]7\?[)LCCBZc}~[j(e}
+	`-QV{#%&[?^fAke6t8QbP;b'XB,ZU84HeThMrO(@/K.`jxq9P({V(AzezCKMxk\F2^p^+"
+	["ppalbA!zy-l)^Qa3*u/Z-1W3,o?2fes2_d\u=1\E9N+~Qo
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc1: INFO: possible recursive locking detected
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE35B4D19BBF651CF999ED603"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610082121.49925.deller@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE35B4D19BBF651CF999ED603
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+- completely constify string arrays,  thus move them to the rodata section
+- audit.c: mark some initially initialized variables __read_mostly
 
-I still get the following, apparently ReiserFS related lockdep message
-shortly after boot on:
-ts@gx110:~> uname -a
-Linux gx110 2.6.19-rc1-noinitrd #2 PREEMPT Sat Oct 7 01:03:48 CEST 2006 i=
-686 i686 i386 GNU/Linux
-with the root filesystem being ReiserFS v3.
-
-Oct  7 21:16:42 gx110 kernel: [  217.130153]
-Oct  7 21:16:42 gx110 kernel: [  217.130159] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Oct  7 21:16:42 gx110 kernel: [  217.130185] [ INFO: possible recursive l=
-ocking detected ]
-Oct  7 21:16:42 gx110 kernel: [  217.130195] 2.6.19-rc1-noinitrd #2
-Oct  7 21:16:42 gx110 kernel: [  217.130202] ----------------------------=
------------------
-Oct  7 21:16:42 gx110 kernel: [  217.130211] kdm/3270 is trying to acquir=
-e lock:
-Oct  7 21:16:42 gx110 kernel: [  217.130221]  (&inode->i_mutex){--..}, at=
-: [<c0340702>] mutex_lock+0x1c/0x1f
-Oct  7 21:16:42 gx110 kernel: [  217.130267]
-Oct  7 21:16:42 gx110 kernel: [  217.130269] but task is already holding =
-lock:
-Oct  7 21:16:42 gx110 kernel: [  217.130277]  (&inode->i_mutex){--..}, at=
-: [<c0340702>] mutex_lock+0x1c/0x1f
-Oct  7 21:16:42 gx110 kernel: [  217.130296]
-Oct  7 21:16:42 gx110 kernel: [  217.130298] other info that might help u=
-s debug this:
-Oct  7 21:16:42 gx110 kernel: [  217.130308] 3 locks held by kdm/3270:
-Oct  7 21:16:42 gx110 kernel: [  217.130315]  #0:  (&inode->i_mutex){--..=
-}, at: [<c0340702>] mutex_lock+0x1c/0x1f
-Oct  7 21:16:42 gx110 kernel: [  217.130335]  #1:  (&REISERFS_I(inode)->x=
-attr_sem){----}, at: [<c01bc851>] reiserfs_acl_chmod+0xe1/0x180
-Oct  7 21:16:42 gx110 kernel: [  217.130373]  #2:  (&REISERFS_SB(s)->xatt=
-r_dir_sem){----}, at: [<c01bc886>] reiserfs_acl_chmod+0x116/0x180
-Oct  7 21:16:42 gx110 kernel: [  217.130395]
-Oct  7 21:16:42 gx110 kernel: [  217.130398] stack backtrace:
-Oct  7 21:16:43 gx110 kernel: [  217.130691]  [<c0103ccc>] dump_trace+0x6=
-4/0x1c9
-Oct  7 21:16:43 gx110 kernel: [  217.130745]  [<c0103e43>] show_trace_log=
-_lvl+0x12/0x25
-Oct  7 21:16:43 gx110 kernel: [  217.130790]  [<c010411f>] show_trace+0xd=
-/0x10
-Oct  7 21:16:43 gx110 kernel: [  217.130834]  [<c0104139>] dump_stack+0x1=
-7/0x19
-Oct  7 21:16:43 gx110 kernel: [  217.130878]  [<c012e40c>] __lock_acquire=
-+0x74f/0x9ac
-Oct  7 21:16:43 gx110 kernel: [  217.131127]  [<c012e8eb>] lock_acquire+0=
-x4a/0x6b
-Oct  7 21:16:43 gx110 kernel: [  217.131428]  [<c034057f>] __mutex_lock_s=
-lowpath+0xa7/0x20e
-Oct  7 21:16:43 gx110 kernel: [  217.131662]  [<c0340702>] mutex_lock+0x1=
-c/0x1f
-Oct  7 21:16:43 gx110 kernel: [  217.131890]  [<c01bb8f2>] reiserfs_xattr=
-_set+0xda/0x2b0
-Oct  7 21:16:43 gx110 kernel: [  217.132744]  [<c01bc2f1>] reiserfs_set_a=
-cl+0x184/0x1fd
-Oct  7 21:16:43 gx110 kernel: [  217.133394]  [<c01bc894>] reiserfs_acl_c=
-hmod+0x124/0x180
-Oct  7 21:16:43 gx110 kernel: [  217.134035]  [<c019e41b>] reiserfs_setat=
-tr+0x20b/0x243
-Oct  7 21:16:43 gx110 kernel: [  217.134622]  [<c016f23d>] notify_change+=
-0x135/0x2bc
-Oct  7 21:16:43 gx110 kernel: [  217.135090]  [<c015bcb1>] sys_fchmodat+0=
-x9f/0xc6
-Oct  7 21:16:43 gx110 kernel: [  217.135498]  [<c015bcea>] sys_chmod+0x12=
-/0x14
-Oct  7 21:16:43 gx110 kernel: [  217.135888]  [<c0102d1d>] sysenter_past_=
-esp+0x56/0x8d
-Oct  7 21:16:43 gx110 kernel: [  217.135934] DWARF2 unwinder stuck at sys=
-enter_past_esp+0x56/0x8d
-Oct  7 21:16:43 gx110 kernel: [  217.135950]
-Oct  7 21:16:43 gx110 kernel: [  217.135963] Leftover inexact backtrace:
-Oct  7 21:16:43 gx110 kernel: [  217.135966]
-Oct  7 21:16:43 gx110 kernel: [  217.135988]  =3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-HTH
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+    Signed-off-by: Helge Deller <deller@gmx.de>
 
 
---------------enigE35B4D19BBF651CF999ED603
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+ include/linux/relay.h |    2 +-
+ kernel/audit.c        |    8 ++++----
+ kernel/configs.c      |    2 +-
+ kernel/cpuset.c       |    4 ++--
+ kernel/dma.c          |    2 +-
+ kernel/futex.c        |    2 +-
+ kernel/kallsyms.c     |    2 +-
+ kernel/lockdep_proc.c |    4 ++--
+ kernel/profile.c      |    2 +-
+ kernel/relay.c        |    2 +-
+ kernel/resource.c     |    4 ++--
+ kernel/sched.c        |    2 +-
+ 12 files changed, 18 insertions(+), 18 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFFKVBPMdB4Whm86/kRArH5AJ0UeqFeYuTAS+kzJ/mGVMvve+nuRwCdFjcC
-Y17Nf9BFv7j/S/gY3u7PCTc=
-=nOgo
------END PGP SIGNATURE-----
-
---------------enigE35B4D19BBF651CF999ED603--
+diff --git a/include/linux/relay.h b/include/linux/relay.h
+index 24accb4..07c56e6 100644
+--- a/include/linux/relay.h
++++ b/include/linux/relay.h
+@@ -274,7 +274,7 @@ static inline void subbuf_start_reserve(
+ /*
+  * exported relay file operations, kernel/relay.c
+  */
+-extern struct file_operations relay_file_operations;
++extern const struct file_operations relay_file_operations;
+ 
+ #endif /* _LINUX_RELAY_H */
+ 
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 98106f6..9648dff 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -62,13 +62,13 @@
+ 
+ /* No auditing will take place until audit_initialized != 0.
+  * (Initialization happens after skb_init is called.) */
+-static int	audit_initialized;
++static int	audit_initialized __read_mostly;
+ 
+ /* No syscall auditing will take place unless audit_enabled != 0. */
+-int		audit_enabled;
++int		audit_enabled __read_mostly;
+ 
+ /* Default state when kernel boots without any parameters. */
+-static int	audit_default;
++static int	audit_default __read_mostly;
+ 
+ /* If auditing cannot proceed, audit_failure selects what happens. */
+ static int	audit_failure = AUDIT_FAIL_PRINTK;
+@@ -1027,7 +1027,7 @@ void audit_log_hex(struct audit_buffer *
+ 	int i, avail, new_len;
+ 	unsigned char *ptr;
+ 	struct sk_buff *skb;
+-	static const unsigned char *hex = "0123456789ABCDEF";
++	static const unsigned char hex[] = "0123456789ABCDEF";
+ 
+ 	if (!ab)
+ 		return;
+diff --git a/kernel/configs.c b/kernel/configs.c
+index f9e3197..8fa1fb2 100644
+--- a/kernel/configs.c
++++ b/kernel/configs.c
+@@ -75,7 +75,7 @@ ikconfig_read_current(struct file *file,
+ 	return count;
+ }
+ 
+-static struct file_operations ikconfig_file_ops = {
++static const struct file_operations ikconfig_file_ops = {
+ 	.owner = THIS_MODULE,
+ 	.read = ikconfig_read_current,
+ };
+diff --git a/kernel/cpuset.c b/kernel/cpuset.c
+index 9d850ae..b94b8de 100644
+--- a/kernel/cpuset.c
++++ b/kernel/cpuset.c
+@@ -1532,7 +1532,7 @@ static int cpuset_rename(struct inode *o
+ 	return simple_rename(old_dir, old_dentry, new_dir, new_dentry);
+ }
+ 
+-static struct file_operations cpuset_file_operations = {
++static const struct file_operations cpuset_file_operations = {
+ 	.read = cpuset_file_read,
+ 	.write = cpuset_file_write,
+ 	.llseek = generic_file_llseek,
+@@ -2610,7 +2610,7 @@ static int cpuset_open(struct inode *ino
+ 	return single_open(file, proc_cpuset_show, pid);
+ }
+ 
+-struct file_operations proc_cpuset_operations = {
++const struct file_operations proc_cpuset_operations = {
+ 	.open		= cpuset_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+diff --git a/kernel/dma.c b/kernel/dma.c
+index 2020644..937b13c 100644
+--- a/kernel/dma.c
++++ b/kernel/dma.c
+@@ -140,7 +140,7 @@ static int proc_dma_open(struct inode *i
+ 	return single_open(file, proc_dma_show, NULL);
+ }
+ 
+-static struct file_operations proc_dma_operations = {
++static const struct file_operations proc_dma_operations = {
+ 	.open		= proc_dma_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 4aaf919..0c465c9 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1493,7 +1493,7 @@ static unsigned int futex_poll(struct fi
+ 	return ret;
+ }
+ 
+-static struct file_operations futex_fops = {
++static const struct file_operations futex_fops = {
+ 	.release	= futex_close,
+ 	.poll		= futex_poll,
+ };
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index eeac3e3..27f9cb5 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -436,7 +436,7 @@ static int kallsyms_release(struct inode
+ 	return seq_release(inode, file);
+ }
+ 
+-static struct file_operations kallsyms_operations = {
++static const struct file_operations kallsyms_operations = {
+ 	.open = kallsyms_open,
+ 	.read = seq_read,
+ 	.llseek = seq_lseek,
+diff --git a/kernel/lockdep_proc.c b/kernel/lockdep_proc.c
+index f6e72ea..5c8738f 100644
+--- a/kernel/lockdep_proc.c
++++ b/kernel/lockdep_proc.c
+@@ -135,7 +135,7 @@ static int lockdep_open(struct inode *in
+ 	return res;
+ }
+ 
+-static struct file_operations proc_lockdep_operations = {
++static const struct file_operations proc_lockdep_operations = {
+ 	.open		= lockdep_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+@@ -319,7 +319,7 @@ static int lockdep_stats_open(struct ino
+ 	return single_open(file, lockdep_stats_show, NULL);
+ }
+ 
+-static struct file_operations proc_lockdep_stats_operations = {
++static const struct file_operations proc_lockdep_stats_operations = {
+ 	.open		= lockdep_stats_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+diff --git a/kernel/profile.c b/kernel/profile.c
+index 857300a..0fafd7b 100644
+--- a/kernel/profile.c
++++ b/kernel/profile.c
+@@ -480,7 +480,7 @@ static ssize_t write_profile(struct file
+ 	return count;
+ }
+ 
+-static struct file_operations proc_profile_operations = {
++static const struct file_operations proc_profile_operations = {
+ 	.read		= read_profile,
+ 	.write		= write_profile,
+ };
+diff --git a/kernel/relay.c b/kernel/relay.c
+index 1d63ecd..a6b1dcc 100644
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -1008,7 +1008,7 @@ static ssize_t relay_file_sendfile(struc
+ 				       actor, target);
+ }
+ 
+-struct file_operations relay_file_operations = {
++const struct file_operations relay_file_operations = {
+ 	.open		= relay_file_open,
+ 	.poll		= relay_file_poll,
+ 	.mmap		= relay_file_mmap,
+diff --git a/kernel/resource.c b/kernel/resource.c
+index 6de60c1..f0c2105 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -115,14 +115,14 @@ static int iomem_open(struct inode *inod
+ 	return res;
+ }
+ 
+-static struct file_operations proc_ioports_operations = {
++static const struct file_operations proc_ioports_operations = {
+ 	.open		= ioports_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+ 	.release	= seq_release,
+ };
+ 
+-static struct file_operations proc_iomem_operations = {
++static const struct file_operations proc_iomem_operations = {
+ 	.open		= iomem_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+diff --git a/kernel/sched.c b/kernel/sched.c
+index 53608a5..c9b6edb 100644
+--- a/kernel/sched.c
++++ b/kernel/sched.c
+@@ -505,7 +505,7 @@ static int schedstat_open(struct inode *
+ 	return res;
+ }
+ 
+-struct file_operations proc_schedstat_operations = {
++const struct file_operations proc_schedstat_operations = {
+ 	.open    = schedstat_open,
+ 	.read    = seq_read,
+ 	.llseek  = seq_lseek,

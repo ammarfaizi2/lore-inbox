@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWJHNnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWJHNob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWJHNnS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 09:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWJHNnS
+	id S1751160AbWJHNob (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 09:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWJHNob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 09:43:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52706 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751155AbWJHNnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 09:43:17 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/3] i386/x86_64: FIX pci_enable_irq to set dev->irq to the irq number
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-	<m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-	<20061006202324.GJ14186@rhun.haifa.ibm.com>
-	<m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
-	<20061007080315.GM14186@rhun.haifa.ibm.com>
-	<m14pugxe47.fsf@ebiederm.dsl.xmission.com>
-	<20061007175926.GN14186@rhun.haifa.ibm.com>
-	<m1k63budt1.fsf_-_@ebiederm.dsl.xmission.com>
-Date: Sun, 08 Oct 2006 07:41:19 -0600
-In-Reply-To: <m1k63budt1.fsf_-_@ebiederm.dsl.xmission.com> (Eric
-	W. Biederman's message of "Sun, 08 Oct 2006 07:39:38 -0600")
-Message-ID: <m1fydzudq8.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 8 Oct 2006 09:44:31 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:13065 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751160AbWJHNoa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 09:44:30 -0400
+Message-ID: <45290143.80808@aknet.ru>
+Date: Sun, 08 Oct 2006 17:46:43 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jakub Jelinek <jakub@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru>	 <1159900934.2891.548.camel@laptopd505.fenrus.org>	 <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru>	 <1160170464.12835.4.camel@localhost.localdomain>	 <4526C7F4.6090706@redhat.com> <45278D2A.4020605@aknet.ru>	 <4527D64A.7060002@redhat.com>  <4527FC8B.8010208@aknet.ru>	 <1160296364.3000.167.camel@laptopd505.fenrus.org>	 <4528C0B0.4070002@aknet.ru> <1160304945.3000.175.camel@laptopd505.fenrus.org>
+In-Reply-To: <1160304945.3000.175.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-In commit: ace80ab796ae30d2c9ee8a84ab6f608a61f8b87b  I removed
-the weird logic that used the vector number as the irq number
-when MSI was defined.  However pci_enable_irq was using a different test
-in the io_apic_assign_irqs path and I missed it :(
+Arjan van de Ven wrote:
+> But when invoked manually.. there is even LESS special about it... it
+> could be ANY file on the system. And it's no different from any other
+> file in /bin, /usr/bin etc etc
+I agree with that completely, but it was not me
+who started adding the ld.so-specific tricks to
+the kernel, making it special.
+The assumptions of the current mmap check are:
+1. The program does mmap with PROT_EXEC, not mmap/mprotect
+(it was explicitly pointed out that this is unlikely to change).
+2. The program does the file-backed mmap, not the anon
+mmap then read.
+That suits ld.so very well because it happened to work that
+way, but it is not very usefull for pretty much anything else
+(unless someone can show the real-life examples).
+So this is what makes ld.so special. Right now it checks
+exec/noexec by trying mmap(PROT_EXEC) and see if that fails.
+But there can be other ways to check that, including the ones
+that will not break the other progs/configurations.
+And I don't see any harm in having a way for the program
+to explicitly say whether it wants an exec perm or not.
+(access() suits exactly for that, but it is racey)
 
-This patch removes the wrong code so no one hits this problem.
+>> Otherwise, please tell me, how can you solve the problem
+>> of ld.so started directly, can execute the files you do
+>> not have an exec permission for?
+> denying PROT_EXEC of non-"x" files does (somewhat).
+But you can't do that - lets be realistic. Also I wonder
+whether it will violate the posix specs or not.
 
-This code is only active when a specific set of boot command line
-parameters is specified which likely explains why no one has
-notices this earlier.
+> It's never fool
+> proof obviously, as long as you need to allow jits.
+Certainly.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/i386/pci/irq.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
-
-diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
-index 47f02af..dbc4aae 100644
---- a/arch/i386/pci/irq.c
-+++ b/arch/i386/pci/irq.c
-@@ -1141,10 +1141,6 @@ static int pirq_enable_irq(struct pci_de
- 			}
- 			dev = temp_dev;
- 			if (irq >= 0) {
--#ifdef CONFIG_PCI_MSI
--				if (!platform_legacy_irq(irq))
--					irq = IO_APIC_VECTOR(irq);
--#endif
- 				printk(KERN_INFO "PCI->APIC IRQ transform: %s[%c] -> IRQ %d\n",
- 					pci_name(dev), 'A' + pin, irq);
- 				dev->irq = irq;
--- 
-1.4.2.rc3.g7e18e-dirty
+>> Then ld.so can just use that to solve all those permission
+>> problems.
+> this is just entirely a wrong assumption; one based on the assumption
+> that ld.so is something special, that it isn't.
+Yes, that assumption is wrong, but it was not me who
+invented it. I only want to move the ld.so-specific
+stuff to ld.so itself, nothing more.
 

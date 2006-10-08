@@ -1,78 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWJHQSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWJHQTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWJHQSL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 12:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWJHQSL
+	id S1751250AbWJHQTK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 12:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWJHQTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 12:18:11 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:46001 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751252AbWJHQSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 12:18:10 -0400
-Subject: Re: + clocksource-increase-initcall-priority.patch added to -mm
-	tree
-From: Daniel Walker <dwalker@mvista.com>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160323127.5686.37.camel@localhost.localdomain>
-References: <200610070153.k971ren4020838@shell0.pdx.osdl.net>
-	 <1160294812.22911.8.camel@localhost.localdomain>
-	 <1160302797.22911.37.camel@localhost.localdomain>
-	 <1160319033.3693.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319234.5686.12.camel@localhost.localdomain>
-	 <1160322317.3693.47.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160323127.5686.37.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 09:18:07 -0700
-Message-Id: <1160324288.3693.71.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 12:19:09 -0400
+Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:39882 "EHLO
+	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
+	id S1751250AbWJHQTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 12:19:08 -0400
+Message-ID: <452924D3.9070907@att.net.mx>
+Date: Sun, 08 Oct 2006 11:18:27 -0500
+From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: ocilent1@gmail.com
+CC: Chris Wedgwood <cw@f00f.org>, Lee Revell <rlrevell@joe-job.com>,
+       Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
+       linux list <linux-kernel@vger.kernel.org>, dsd@gentoo.org
+Subject: Re: sound skips on 2.6.18-ck1
+References: <200606181204.29626.ocilent1@gmail.com> <20060719063344.GA1677@tuatara.stupidest.org> <44BE37E8.2040706@att.net.mx> <45281E90.2080502@att.net.mx>
+In-Reply-To: <45281E90.2080502@att.net.mx>
+Content-Type: multipart/mixed;
+ boundary="------------050505020406080108020002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 17:58 +0200, Thomas Gleixner wrote:
-> On Sun, 2006-10-08 at 08:45 -0700, Daniel Walker wrote:
-> > > I'd like to know, why we need to move that and you did not explain _why_
-> > > it is likely that it is used during bootup.
-> > 
-> > If the clocksources are registered at the same time as the clocksource
-> > users then you end up with users frequently switching clocks during boot
-> > up. The original clocksource code solved this by not allowing a real
-> > clocksource lookup until after the system fully booted.
-> 
-> No, that was not the reason. It does not hurt anything, when the
-> clocksource changes during bootup. You simply replace one read out
-> device by another one.
-> 
-> The reason was that we wanted to select clocksources as late as
-> possible, as we wanted to have late init clocksources ready and TSC
-> problems outruled.
+This is a multi-part message in MIME format.
+--------------050505020406080108020002
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think we're going to need to wait for John to comment. His last
-comment on this patch was in agreement as long as it solved the churn
-issue (as of Aug. 4 on LKML).
+Hugo Vanwoerkom wrote:
+> Hi,
+>
+>
+> I see that on 2.6.18-ck1 still some sort of quirks patch is needed for 
+> VIA chips.
+>
+> I get plenty:
+>
+> ALSA: underrun, at least 0ms.
+>
+> and with 2.6.17-ck1 with the quirks.c.patch I did not. But the patch 
+> does not fit on 2.6.18 :-(
+>
+> Strangely enough this time around I do *not* get underruns on vt's 
+> with mpg321 and I *do* get them on X. Last time around it was the 
+> reverse.
+>
+> Is there a fix for 2.6.18 ?
+>
+> Thanks!
+>
+> Hugo
+>
 
-> > However, if you put all the clocksources into postcore initcall, with
-> > that being known in advance, and all the users are in lower priority
-> > initcalls then you don't need extra code to prevent churn during bootup.
-> > 
-> > The reason that I think this will get used during boot up is because
-> > some of the target users will be instrumentation, and (my prediction
-> > anyway) is that some will need to use the interface early. Still even
-> > postcore may not be early enough.
-> 
-> Early bootup Instrumentation is really not a good argument to make that
-> fragile time related stuff even more complex. There is no problem to
-> register reliable clocksources in early bootup, but do not make this
-> mandatory. Not every system is an ARM SoC, where you can and must rely
-> on the one source which is available usually right when the CPU comes
-> up.
+I know nothing about quirks.c but I adapted the patch that worked (TM) 
+under 2.6.17 to 2.6.18 and it solves the situation for me.
+I attach the reworked patch and my lspci.
 
-It's not mandatory, it's just preferred.. As I said above, to avoid
-churn. I don't like the churn at boot up, and I tried to make sure there
-was none added in the patch set. 
+Regards
 
-Daniel
+Hugo
 
+
+
+
+
+
+
+
+--------------050505020406080108020002
+Content-Type: text/plain;
+ name="quirks.c.2.6.18.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="quirks.c.2.6.18.patch"
+
+diff -Naur linux-2.6.17.orig/drivers/pci/quirks.c linux-2.6.17/drivers/pci/quirks.c
+--- linux-2.6.17.orig/drivers/pci/quirks.c	2006-10-08 07:52:25.000000000 -0500
++++ linux-2.6.17/drivers/pci/quirks.c	2006-10-08 07:45:06.000000000 -0500
+@@ -650,10 +650,37 @@
+  * Some of the on-chip devices are actually '586 devices' so they are
+  * listed here.
+  */
++
++static int via_irq_fixup_needed = -1;
++
++/*
++ * As some VIA hardware is available in PCI-card form, we need to restrict
++ * this quirk to VIA PCI hardware built onto VIA-based motherboards only.
++ * We try to locate a VIA southbridge before deciding whether the quirk
++ * should be applied.
++ */
++static const struct pci_device_id via_irq_fixup_tbl[] = {
++	{
++		.vendor 	= PCI_VENDOR_ID_VIA,
++		.device		= PCI_ANY_ID,
++		.subvendor	= PCI_ANY_ID,
++		.subdevice	= PCI_ANY_ID,
++		.class		= PCI_CLASS_BRIDGE_ISA << 8,
++		.class_mask	= 0xffff00,
++	},
++	{ 0, },
++};
++
+ static void quirk_via_irq(struct pci_dev *dev)
+ {
+ 	u8 irq, new_irq;
+ 
++	if (via_irq_fixup_needed == -1)
++		via_irq_fixup_needed = pci_dev_present(via_irq_fixup_tbl);
++
++	if (!via_irq_fixup_needed)
++		return;
++
+ 	new_irq = dev->irq & 0xf;
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	if (new_irq != irq) {
+@@ -663,14 +690,7 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8235_USB_2, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
+ 
+ /*
+  * VIA VT82C598 has its device ID settable and many BIOSes
+
+--------------050505020406080108020002
+Content-Type: text/plain;
+ name="11.lspci"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="11.lspci"
+
+00:00.0 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:00.1 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:00.2 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:00.3 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:00.4 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:00.7 Host bridge: VIA Technologies, Inc. KT880 Host Bridge
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+00:0a.0 VGA compatible controller: nVidia Corporation NV18 [GeForce4 MX 440 AGP 8x] (rev a2)
+00:0b.0 RAID bus controller: Silicon Image, Inc. SiI 3112 [SATALink/SATARaid] Serial ATA Controller (rev 02)
+00:0c.0 Multimedia audio controller: Creative Labs SB Audigy LS
+00:0f.0 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800/K8T890 South]
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
+01:00.0 VGA compatible controller: nVidia Corporation NV18 [GeForce4 MX 4000 AGP 8x] (rev c1)
+
+--------------050505020406080108020002--

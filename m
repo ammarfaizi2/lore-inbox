@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWJHPqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWJHPnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWJHPqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 11:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWJHPqS
+	id S1751230AbWJHPnp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 11:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWJHPnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 11:46:18 -0400
-Received: from www.osadl.org ([213.239.205.134]:23995 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751236AbWJHPqS (ORCPT
+	Sun, 8 Oct 2006 11:43:45 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:51681 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751230AbWJHPno (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 11:46:18 -0400
-Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net>
-	 <1160301340.22911.27.camel@localhost.localdomain>
-	 <1160318750.3693.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319112.5686.8.camel@localhost.localdomain>
-	 <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 17:46:15 +0200
-Message-Id: <1160322376.5686.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 11:43:44 -0400
+Date: Sun, 8 Oct 2006 17:42:57 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor coding style fix
+In-Reply-To: <9a8748490610080829r54053e14ud8c7b02c8f39476c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0610081742020.26553@yvahk01.tjqt.qr>
+References: <452913DB.4010409@gmail.com> <9a8748490610080829r54053e14ud8c7b02c8f39476c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 08:32 -0700, Daniel Walker wrote:
-> > sched_clock is a user of the clocksource API and there is absolutely no
-> > reason to put that into sched.c
-> 
-> We could do something like kernel/time/sched_clock.c ? I really don't
-> like the idea of stuff sched_clock() , and timekeeping back into
-> clocksource.
+>> Kernel generally follow the style
+>> 
+>> if (func()) {
+>> /* failed case */
+>> } else {
+>> /* success */
+>> }
 
-Do we really want 3 files which each has 50 lines of code ? Although
-it's better than pushing that stuff into sched.c and timer.c. timer.c is
-enough mess and we really do not want to add more.
+Here's my: NAK.
+(At best it should be if(foo != 0) rather than if(foo), but that's just me.)
 
-	tglx
+> I really liked the old code better. If in the future
+> init_srcu_struct() is changed to also return >0 for some conditions,
+> then that would not previously have triggered BUG(), but after your
+> changes it will. The code, as it were, perfectly expressed what it
+> wanted to happen - if it returns less than zero it's a BUG().
+> I say leave it alone.
 
+I agree here.
+
+
+	-`J'
+-- 

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWJHESM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWJHEn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWJHESM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 00:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWJHESM
+	id S1750797AbWJHEn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 00:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWJHEn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 00:18:12 -0400
-Received: from mail.gmx.de ([213.165.64.20]:64739 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750730AbWJHESL (ORCPT
+	Sun, 8 Oct 2006 00:43:59 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:32262 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1750718AbWJHEn5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 00:18:11 -0400
-X-Authenticated: #9792705
-From: Norberto Bensa <nbensa@gmx.net>
-To: Ed Sweetman <safemode2@comcast.net>
-Subject: Re: Unable to find root fs with libata only 2.6.18-mm3
-Date: Sun, 8 Oct 2006 01:18:04 -0300
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <45284BE0.7030600@comcast.net>
-In-Reply-To: <45284BE0.7030600@comcast.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3965786.97TMkEu9ET";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610080118.05091.nbensa@gmx.net>
-X-Y-GMX-Trusted: 0
+	Sun, 8 Oct 2006 00:43:57 -0400
+X-IronPort-AV: i="4.09,276,1157353200"; 
+   d="scan'208"; a="416033891:sNHT29414772"
+Subject: Re: 2.6.19-rc1: known regressions (v2)
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Adrian Bunk <bunk@stusta.de>
+Message-ID: <EXSVLRB01xe0ymQ1WE900000265@exsvlrb01.hq.netapp.com>
+X-OriginalArrivalTime: 08 Oct 2006 04:43:51.0606 (UTC) FILETIME=[5A341560:01C6EA94]
+Date: 7 Oct 2006 21:43:51 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3965786.97TMkEu9ET
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Cc: Linus Torvalds <torvalds@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, art@usfltd.com, ak@suse.de, discuss@x86-64.org,  Prakash Punnoor <prakash@punnoor.de>, perex@suse.cz, alsa-devel@alsa-project.org, Steve Fox <drfickle@us.ibm.com>,  netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>,  len.brown@intel.com, linux-acpi@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,  Olaf Hering <olaf@aepfle.de>, Antonino Daplas <adaplas@pol.net>, linux-fbdev-devel@lists.sourceforge.net,  Thierry Vignaud <tvignaud@mandriva.com>, jgarzik@pobox.com, linux-ide@vger.kernel.org, Ernst Herzberg <list-lkml@net4u.de>, Matthieu Castet <castet.matthieu@free.fr>,  linux-usb-devel@lists.sourceforge.net, Jens Axboe <axboe@oracle.com>,  Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-pm@osdl.org, linuxppc-dev@ozlabs.org, Andreas Schwab <schwab@suse.de>,  Mel Gorman <mel@skynet.ie>, Alex Romosan <romosan@sycorax.lbl.gov>, Sukadev Bhattiprolu <sukadev@us.ibm.!
+ com>, Dave Kleikamp <shaggy@austin.ibm.com>, Torsten Kaiser <kernel@bardioc.dyndns.org>, Magnus Damm <magnus.damm@gmail.com>, Vivek Goyal <vgoyal@in.ibm.com>, ebiederm@xmission.com, fastboot@osdl.org, Alistair John Strachan <s0348365@sms.ed.ac.uk>, Stefan Richter <stefanr@s5r6.in-berlin.de>,  linux1394-devel@lists.sourceforge.net
+In-Reply-To: <20061007214620.GB8810@stusta.de>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	 <20061007214620.GB8810@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Sun, 08 Oct 2006 00:43:35 -0400
+Message-Id: <1160282615.5506.9.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 
-Ed Sweetman wrote:
-> My question is, do I still need to compile in scsi disk/cdrom/generic
+On Sat, 2006-10-07 at 23:46 +0200, Adrian Bunk wrote:
 
-You need scsi disk.
+> Subject    : NFSv4 fails to mount (timeout)
+> References : http://bugzilla.kernel.org/show_bug.cgi?id=7274
+> Submitter  : Torsten Kaiser <kernel@bardioc.dyndns.org>
+> Guilty     : Trond Myklebust <Trond.Myklebust@netapp.com>
+>              commit 51b6ded4d9a94a61035deba1d8f51a54e3a3dd86
+> Handled-By : Trond Myklebust <Trond.Myklebust@netapp.com>
+> Patch      : http://bugzilla.kernel.org/show_bug.cgi?id=7274
+> Status     : patch available
 
-=2D-=20
-Norberto Bensa
-Cel: 011-5654-9539
-Ciudad de Buenos Aires, Argentina
+Thanks... Always nice to hear that you have been judged and found
+guilty. Now go and reread that fucking bug report...
 
-
---nextPart3965786.97TMkEu9ET
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBFKHv9uW4an9W1spIRAgmrAJ9zEzFLezECcRfCj0WoMXW2cq1TSwCgqIOC
-kLNcc4WJuKxSF2uNRFAdUmY=
-=2sLk
------END PGP SIGNATURE-----
-
---nextPart3965786.97TMkEu9ET--

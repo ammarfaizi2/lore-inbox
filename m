@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWJHTac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWJHT37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWJHTac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWJHTaa
+	id S1751356AbWJHT37 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWJHT37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:30:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9488 "HELO
+	Sun, 8 Oct 2006 15:29:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7440 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751365AbWJHTaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:30:10 -0400
-Date: Sun, 8 Oct 2006 21:30:05 +0200
+	id S1751356AbWJHT36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 15:29:58 -0400
+Date: Sun, 8 Oct 2006 21:29:44 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>
 Subject: Re: x60 backlight Re: [discuss] 2.6.19-rc1: known regressions (v2)
-Message-ID: <20061008193005.GJ6755@stusta.de>
-References: <20061008173809.GE6755@stusta.de> <20061008175958.GA30377@mellanox.co.il>
+Message-ID: <20061008192944.GI6755@stusta.de>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061007214620.GB8810@stusta.de> <20061008071254.GA5672@ucw.cz> <20061008173809.GE6755@stusta.de> <20061008183602.GB4496@ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061008175958.GA30377@mellanox.co.il>
+In-Reply-To: <20061008183602.GB4496@ucw.cz>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 08, 2006 at 07:59:58PM +0200, Michael S. Tsirkin wrote:
-> Quoting r. Adrian Bunk <bunk@stusta.de>:
-> > Subject: Re: x60 backlight Re: [discuss] 2.6.19-rc1: known regressions (v2)
-> > 
+On Sun, Oct 08, 2006 at 06:36:02PM +0000, Pavel Machek wrote:
+> On Sun 08-10-06 19:38:09, Adrian Bunk wrote:
 > > On Sun, Oct 08, 2006 at 07:12:54AM +0000, Pavel Machek wrote:
 > > > 
 > > > On Sat 07-10-06 23:46:21, Adrian Bunk wrote:
 > > > > This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18
 > > > > that are not yet fixed Linus' tree.
 > > > > 
+> > > > If you find your name in the Cc header, you are either submitter of one
+> > > > of the bugs, maintainer of an affectected subsystem or driver, a patch
+> > > > of you was declared guilty for a breakage or I'm considering you in any
+> > > > other way possibly involved with one or more of these issues.
+> > > > 
+> > > > Due to the huge amount of recipients, please trim the Cc when answering.
 > > > ...
 > > > > Subject    : T60 stops triggering any ACPI events
 > > > > References : http://lkml.org/lkml/2006/10/4/425
 > > > > Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
 > > > > Status     : unknown
+> > > > 
+> > > > 
+> > > > Subject    : thinkpad x60: brightness no longer adjustable in 2.6.18-git
+> > > > References : http://lkml.org/lkml/2006/10/2/300
+> > > > Submitter  : Pavel Machek <pavel@ucw.cz>
+> > > > Status     : unknown, related to the issue above?
+> > > 
+> > > Strange, problem went away after reboot. I guess I'll write it off as
+> > > an acpi glitch... there's definitely something strange going on with
+> > > backlight around s2ram: during normal operation, backlight changes are
+> > > fast. After s2ram, backlight change from keyboard takes 300msec or so.
+> > 
+> > Is this a regression compared to 2.6.18 or an older issue?
 > 
-> This was on a pre -rc1 git tree.
-> I've been using -rc1 since it's out and does not happen to me anymore.
-> So we probably can write this off as a memory corruption
-> issue that got fixed in between.
+> Slowness is not something I'd classify as serious problem, and
+> breakage is not reproducible. Ignore it for now.
 
-Thanks for the information, I've removed it from the list.
-
-> MST
+OK, removed.
 
 cu
 Adrian

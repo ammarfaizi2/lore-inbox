@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWJHVPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWJHVSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWJHVPL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWJHVPL
+	id S1751461AbWJHVSe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWJHVSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:15:11 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:54483 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1750788AbWJHVPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:15:09 -0400
-Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
-From: Daniel Walker <dwalker@mvista.com>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160333127.5686.58.camel@localhost.localdomain>
-References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net>
-	 <1160301340.22911.27.camel@localhost.localdomain>
-	 <1160318750.3693.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319112.5686.8.camel@localhost.localdomain>
-	 <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160322376.5686.25.camel@localhost.localdomain>
-	 <1160323597.3693.62.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160324354.5686.41.camel@localhost.localdomain>
-	 <1160324846.3693.78.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160326451.5686.51.camel@localhost.localdomain>
-	 <1160328400.3693.100.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160333127.5686.58.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 14:15:07 -0700
-Message-Id: <1160342108.3693.144.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 17:18:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13006 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751461AbWJHVSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:18:33 -0400
+Date: Sun, 8 Oct 2006 23:18:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Keith Chew <keith.chew@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS THRM-Throttling and driver timings
+Message-ID: <20061008211821.GA4280@elf.ucw.cz>
+References: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com> <1159886437.2891.532.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159886437.2891.532.camel@laptopd505.fenrus.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 20:45 +0200, Thomas Gleixner wrote:
+Hi!
 
-> > I'm not moving the kernel/timer.c clocksource user back into
-> > kernel/time/clocksource.c . That code completely belongs with the
-> > generic time of day changes. The code is directly coupled, and in fact
-> > it improves the timekeeping clock switching code to have it that way.
-> 
-> I don't see any reason, why it must be added to timer.c. You can achieve
-> the same result with calling the code outside, except that the compiler
-> might miss some inline optimization. The switch clock code is not a
-> hotpath and so it does not matter whether it is called here or there.
+> > We have a motherboard that has Thermal Throttling in the BIOS (which
+> > we cannot disable). This causes the CPU usage to go up and down when
+> > the CPU temperature reaches (and stays around) the Throttling
+> > temperature point.
+> > 
+> > What we would like to know is whether this will affect the timings in
+> > drivers, eg the wireless drivers we are using. What can we check in
+> > drivers' code that will tell us that its operations may be affected
+> > the throttling?
+> > 
+> > In the past few days, we noticed that some of the linux units we
+> > deployed freezes after deveral hours of operation, we are now trying
+> > to reproduce the problem in our test environment. Some insight on the
+> > affect of throttling will help us narrow down the search.
 
-It wouldn't be as clean to integrate the two. The hotpath is improved
-(which is what I was referring too above.)
+> in general linux should be ok with this happening. However for specific
+> cases... you'll need to provide more information; you're not
+> mentioning
 
-Daniel
+Really? AFAICT P4 will happily slow down behind our backs, making at
+least udelays() with interrupts disabled sleep for too long.
 
+> (also: if you actually HIT throttling, there is something very very
+> wrong; you're not supposed to hit that unless the fan is defective, but
+> never in "normal" healthy operation. If you do hit it without hardware
+> defects then there is most likely a fundamental airflow problem you'll
+> want to fix urgently)
+
+At least in toshiba notebook, I was hitting thermal throttling even
+through both fans were okay. There are many misdesigned machines out
+there, I fear.
+								Pavel 
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWJHVv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWJHVxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWJHVv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWJHVv0
+	id S932074AbWJHVxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWJHVxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:51:26 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37865 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751490AbWJHVvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:51:25 -0400
-Date: Sun, 8 Oct 2006 23:51:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org
-Subject: Re: Funky "Blue screen" issue while rebooting from X with 2.6.18-git21
-Message-ID: <20061008215110.GF4152@elf.ucw.cz>
-References: <9a8748490610041316w3ad442a6rf8f5fc5189fd72ac@mail.gmail.com> <20061008174759.GF6755@stusta.de> <20061008183406.GA4496@ucw.cz> <9a8748490610081446y6103a9b1o491ce87250beabfb@mail.gmail.com>
+	Sun, 8 Oct 2006 17:53:18 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:37905 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751491AbWJHVxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:53:17 -0400
+Message-ID: <4529734B.7070707@superbug.co.uk>
+Date: Sun, 08 Oct 2006 22:53:15 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490610081446y6103a9b1o491ce87250beabfb@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rt5 crashes with netconsole enabled. (bug#7288)
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> >> > I have a strange "problem" with 2.6.18-git21 that I've never had with
-> >> > any previous kernel. If I open up an xterm in X, su to root and
-> >> > 'reboot' (or 'shutdown -r now') I instantly get a blue screen that
-> >> > persists until the box actually reboots.
-> >>
-> >> Pavel, is this a known issue or should Jesper bisect?
-> >
-> >Jesper should show it is kernel problem and not userland race.
-> >
-> 
-> Jesper will try to do that ;-)
-> 
-> 
-> >If userspace does kill -15 -1; kill -9 -1, and X fails to shut down in
-> >time, it is userland problem ('should wait for X to shut down').
-> >
-> 
-> Well, I just checked my initscript that is run when going into
-> runlevels 0 & 6, and it does this :
-> 
-> (...)
-> 
-> # Kill all processes.
-> # INIT is supposed to handle this entirely now, but this didn't always
-> # work correctly without this second pass at killing off the processes.
-> # Since INIT already notified the user that processes were being killed,
-> # we'll avoid echoing this info this time around.
-> if [ ! "$1" = "fast" ]; then # shutdown did not already kill all processes
->  /sbin/killall5 -15
->  /bin/sleep 5
->  /sbin/killall5 -9
-> fi
+Does anyone have any clues where I can find help regarding the rt kernels?
 
-...so, if X takes more than five seconds to shut down, you kill it
-with -9, resulting in blue screen. Too bad, and not an kernel problem.
+Please see kernel bug entry:
+http://bugzilla.kernel.org/show_bug.cgi?id=7288
+Description: 2.6.18-rt5 crashes with netconsole enabled. (bug#7288)
 
-Try inserting something like
+Full console trace attached to bug report.
+Extract of console trace of crash/hang:
 
-	while ps -aux | grep myXserver;
-		sleep 1;
-	done
-
-alternatively, remove/shorten the sleep and you should experience blue
-screen in 2.6.17.
-
-> kernels, but since somewhere in the 2.6.18-rc series I've experienced
-> this "blue screen" problem once in a while and I've also had a problem
-> with the screen going all white when switching from X to a plain tty
-> and back (once it goes white it stays that way permanently until I
-> reboot) - I *never* see those issues when running 2.6.17.x and
-> earlier.
-
-Maybe something got slower in 2.6.18?
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+modprobe/8459[CPU#1]: BUG in write_msg at drivers/net/netconsole.c:85
+5/0x67
+ [<c012274d>] _call_console_drivers+0x4e/0x52
+ [<c0122d92>] release_console_sem+0x12a/0x1dc
+ [<c0122ac7>] vprintk+0x299/0x2e1
+ [<c0122b24>] printk+0x15/0x17
+ [<f8991090>] init_netconsole+0x75/0x80 [netconsole]
+ [<c013dbec>] sys_init_module+0x1597/0x175d
+ [<c0102f99>] sysenter_past_esp+0x56/0x79
+modprobe/8459[CPU#1]: BUG in write_msg at drivers/net/netconsole.c:87
+ [<c0103f92>] show_trace+0x16/0x19
+ [<c0104583>] dump_stack+0x1a/0x1f
+ [<c01234aa>] __WARN_ON+0x41/0x57
+ [<f899112c>] write_msg+0x91/0xc9 [netconsole]
+ [<c01226ed>] __call_console_drivers+0x55/0x67
+ [<c012274d>] _call_console_drivers+0x4e/0x52
+ [<c0122d92>] release_console_sem+0x12a/0x1dc
+ [<c0122ac7>] vprintk+0x299/0x2e1
+ [<c0122b24>] printk+0x15/0x17
+ [<f8991090>] init_netconsole+0x75/0x80 [netconsole]
+ [<c013dbec>] sys_init_module+0x1597/0x175d
+ [<c0102f99>] sysenter_past_esp+0x56/0x79
+modprobe/8459[CPU#1]: BUG in write_msg at drivers/net/netconsole.c:85
+ [<c0103f92>] show_trace+0x16/0x19
+ [<c0104583>] dump_stack+0x1a/0x1f
+ [<c01234aa>] __WARN_ON+0x41/0x57
+ [<f8991102>] write_msg+0x67/0xc9 [netconsole]
+ [<c01226ed>] __call_console_drivers+0x55/0x67
+ [<c012274d>] _call_console_drivers+0x4e/0x52
+le+0x1597/0x175d
+ [<c0102f99>] sysenter_past_esp+0x56/0x79
+modprobe/8459[CPU#1]: BUG in write_msg at drivers/net/netconsole.c:87

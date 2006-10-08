@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWJHCDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWJHCDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWJHCDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 22:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWJHCDl
+	id S1750740AbWJHCDW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 22:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWJHCDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 22:03:41 -0400
-Received: from mx2.rowland.org ([192.131.102.7]:29956 "HELO mx2.rowland.org")
-	by vger.kernel.org with SMTP id S1750742AbWJHCDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 22:03:40 -0400
-Date: Sat, 7 Oct 2006 22:03:38 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Oliver Neukum <oliver@neukum.org>
-cc: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-In-Reply-To: <200610071703.24599.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Oct 2006 22:03:22 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:45515 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S1750740AbWJHCDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 22:03:21 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: Really good idea to allow mmap(0, FIXED)?
+Date: Sun, 8 Oct 2006 02:03:07 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <eg9m8r$8lf$1@taverner.cs.berkeley.edu>
+References: <200610052059.11714.mb@bu3sch.de> <1160119515.3000.89.camel@laptopd505.fenrus.org> <eg6bk4$7r1$1@taverner.cs.berkeley.edu> <452844AB.2050406@goop.org>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1160272987 8879 128.32.168.222 (8 Oct 2006 02:03:07 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Sun, 8 Oct 2006 02:03:07 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Oct 2006, David Brownell wrote:
+Jeremy Fitzhardinge  wrote:
+>David Wagner wrote:
+>> Oops.  Please ignore the PROT_EXEC.  That is completely irrelevant.
+>
+>Though (*something_ops->thingy)() becomes a lot more interesting if 
+>something_ops or ->thingy is NULL...
 
-> On Saturday 07 October 2006 10:16 am, Oliver Neukum wrote:
-> 
-> > > > I dare say that the commonest scenario involving USB is a laptop with
-> > > > an input device attached. Input devices are for practical purposes always
-> > > > opened. A simple resume upon open and suspend upon close is useless.
+If something_ops is NULL, catastrophic consequences ensue either way.
+It's just as bad even if address 0 isn't mmap'ed with PROT_EXEC.  For
+example, suppose that .thingy is at offset 0x14 (say) and something_ops
+is NULL.  Then (*something_ops->thingy)() reads 4 bytes from address
+0x14, treats what the 4 bytes read as an address, and transfers control
+to that address.  (On a 32-bit x86.)  Since the latter address is under
+the attacker's control, this means that the kernel has just transferred
+control to an address of the attacker's choosing -- not good.
 
-You are distorting what I said.  The "resume upon open and suspend upon
-close" scheme was not intended for things like input devices, which are
-more or less permanently open.  It was intended for things like
-fingerprint readers or printers, which spend most of their time not being
-used.
-
-> That is, the standard model is useless?  I think you've made
-> a few strange leaps of logic there ... care to fill in those
-> gaps and explain just _why_ that standard model is "useless"???
-> 
-> Recall by the way that the autosuspend stuff kicked off with
-> discussions about exactly how to make sure that Linux could
-> get the power savings inherent in suspending USB root hubs,
-> with remote wakeup enabling use of the mouse on that keyboard.
-> (I remember Len Brown talking to me a few years back about how
-> that was the "last" 2W per controller easily available to save
-> power on Centrino laptops ... now we're almost ready to claim
-> that savings.)
-
-The most obvious model for suspending keyboards or mice is an inactivity 
-timeout (with the timeout limit set from userspace), but other policies 
-certainly could be useful in specific circumstances.
-
-Considering that we have virtually no autosuspend capability now, taking
-the first few simple steps will be a big help.  Just getting an
-infrastructure in place is a good start, even without a userspace API.  
-Later on, when we have a better idea of what we want, bells and whistles
-can be added.
-
-Even Oliver has admitted that the implementation issues are very tricky 
-and he doesn't know the best approach to take.
-
-Alan Stern
-
+As you say, if something_ops->thingy is NULL, then mmap'ing address 0
+with PROT_EXEC allows evil consequences.

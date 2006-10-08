@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWJHT4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWJHUV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWJHT4e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWJHT4e
+	id S1751442AbWJHUV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 16:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWJHUVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:56:34 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:31678 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1751387AbWJHT4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:56:34 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Sun, 8 Oct 2006 21:57:17 +0200
-User-Agent: KMail/1.8
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <200610071703.24599.david-b@pacbell.net> <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org> <20061008193648.GA4042@elf.ucw.cz>
-In-Reply-To: <20061008193648.GA4042@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 8 Oct 2006 16:21:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1463 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751438AbWJHUVy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 16:21:54 -0400
+Date: Sun, 8 Oct 2006 13:21:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <willy@parisc-linux.org>
+Subject: Re: [PATCH] Consolidate check_signature
+Message-Id: <20061008132147.958dc6a8.akpm@osdl.org>
+In-Reply-To: <11600679552794-git-send-email-matthew@wil.cx>
+References: <11600679551209-git-send-email-matthew@wil.cx>
+	<11600679552794-git-send-email-matthew@wil.cx>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610082157.17233.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 8. Oktober 2006 21:36 schrieb Pavel Machek:
-> <AOL>Mee too</AOL>
-> 
-> Please, lets do few "autosuspend" things, and when we know how it
-> looks, we can think about doing something more advanced.
+On Thu, 05 Oct 2006 11:05:55 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-Very well, which drivers do you want first?
+> There's nothing arch-specific about check_signature(), so move it to
+> <linux/io.h>.  Use a cross between the Alpha and i386 implementations
+> as the generic one.
 
-	Regards
-		Oliver
+It wuld have been nice to have uninlined it too.  And to have given
+it a less crappy name.

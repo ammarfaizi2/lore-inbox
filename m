@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWJHJJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWJHJpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWJHJJB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 05:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWJHJJB
+	id S1750992AbWJHJpd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 05:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWJHJpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 05:09:01 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:28686 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1750968AbWJHJJA (ORCPT
+	Sun, 8 Oct 2006 05:45:33 -0400
+Received: from www.osadl.org ([213.239.205.134]:183 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750988AbWJHJpc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 05:09:00 -0400
-Message-ID: <4528C0B0.4070002@aknet.ru>
-Date: Sun, 08 Oct 2006 13:11:12 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jakub Jelinek <jakub@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch] honour MNT_NOEXEC for access()
-References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru>	 <1159900934.2891.548.camel@laptopd505.fenrus.org>	 <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru>	 <1160170464.12835.4.camel@localhost.localdomain>	 <4526C7F4.6090706@redhat.com> <45278D2A.4020605@aknet.ru>	 <4527D64A.7060002@redhat.com>  <4527FC8B.8010208@aknet.ru> <1160296364.3000.167.camel@laptopd505.fenrus.org>
-In-Reply-To: <1160296364.3000.167.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sun, 8 Oct 2006 05:45:32 -0400
+Subject: Re: + clocksource-initialize-list-value.patch added to -mm tree
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: akpm@osdl.org
+Cc: dwalker@mvista.com, johnstul@us.ibm.com, mingo@elte.hu,
+       zippel@linux-m68k.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200610070153.k971rsDf020869@shell0.pdx.osdl.net>
+References: <200610070153.k971rsDf020869@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Sun, 08 Oct 2006 11:50:39 +0200
+Message-Id: <1160301039.22911.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Fri, 2006-10-06 at 18:53 -0700, akpm@osdl.org wrote:
+> A change to clocksource initialization.  It's optional for new clocksources,
+> but prefered.  If the list field is initialized it allows clocksource_register
+> to complete faster since it doesn't have the scan the list of clocks doing
+> strcmp on each.
 
-Arjan van de Ven wrote:
->> but ld.so seems to be
->> the special case - it is a kernel helper after all,
-> in what way is ld.so special in ANY way?
-It is a kernel helper. Kernel does all the security
-checks before invoking it. However, when invoked
-directly, it have to do these checks itself. So it is
-special in a way that it have to do the security checks
-which otherwise only the kernel should do.
-Otherwise, please tell me, how can you solve the problem
-of ld.so started directly, can execute the files you do
-not have an exec permission for? The MNT_NOEXEC hack of
-mmap doesn't solve that.
+Either make it required or not.
 
-Jeremy proposed playing with flags - interesting.
-What if the MAP_EXECUTABLE flag, which is currently unused,
-will be used for the program to explicitly specify that it
-needs an exec permission on the file, and fail otherwise?
-Then ld.so can just use that to solve all those permission
-problems.
+> diff -puN arch/i386/kernel/hpet.c~clocksource-initialize-list-value arch/i386/kernel/hpet.c
+> --- a/arch/i386/kernel/hpet.c~clocksource-initialize-list-value
+> +++ a/arch/i386/kernel/hpet.c
+> @@ -27,6 +27,7 @@ static struct clocksource clocksource_hp
+>  	.mult		= 0, /* set below */
+>  	.shift		= HPET_SHIFT,
+>  	.is_continuous	= 1,
+> +	.list		= CLOCKSOURCE_LIST_INIT(clocksource_hpet.list),
+... 
+> +/* Abstracted list initialization */
+> +#define CLOCKSOURCE_LIST_INIT(x)	LIST_HEAD_INIT(x)
+> +
+
+Please use LIST_HEAD_INIT(). This is not an abstraction, this is an
+obfuscation. 
+
+	tglx
+
 

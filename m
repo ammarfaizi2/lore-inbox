@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWJHHNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWJHHOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWJHHNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWJHHNo
+	id S1750865AbWJHHOg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWJHHOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:13:44 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:12198 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1750859AbWJHHNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:13:43 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Date: Sun, 8 Oct 2006 09:14:26 +0200
-User-Agent: KMail/1.8
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071916.27315.oliver@neukum.org> <200610071703.24599.david-b@pacbell.net>
-In-Reply-To: <200610071703.24599.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 03:14:36 -0400
+Received: from lug-owl.de ([195.71.106.12]:28360 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750861AbWJHHOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:14:35 -0400
+Date: Sun, 8 Oct 2006 09:14:33 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Andrew Morton <akpm@osdl.org>, Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sct@redhat.com, adilger@clusterfs.com, linux-ext3@vger.kernel.org
+Subject: Re: 2.6.18-mm2: ext3 BUG?
+Message-ID: <20061008071433.GC30283@lug-owl.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Jiri Slaby <jirislaby@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	sct@redhat.com, adilger@clusterfs.com, linux-ext3@vger.kernel.org
+References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org> <4525925C.6060807@gmail.com> <20061005171428.636c087c.akpm@osdl.org> <20061008063330.GA30283@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZNveOOYjKturpEFp"
 Content-Disposition: inline
-Message-Id: <200610080914.26315.oliver@neukum.org>
+In-Reply-To: <20061008063330.GA30283@lug-owl.de>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 8. Oktober 2006 02:03 schrieb David Brownell:
-> On Saturday 07 October 2006 10:16 am, Oliver Neukum wrote:
-> 
-> > > > I dare say that the commonest scenario involving USB is a laptop with
-> > > > an input device attached. Input devices are for practical purposes always
-> > > > opened. A simple resume upon open and suspend upon close is useless.
-> 
-> That is, the standard model is useless?  I think you've made
 
-To be precise a simple implementation of autosuspend is useless.
-The idea can be expanded as I wrote if you care to read a bit further.
-But still I find the idea to have drawbacks for input devices.
+--ZNveOOYjKturpEFp
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That is not to say that autosuspend is bad in all cases, but there are
-unavoidable cases in which it is not optimal, which leads me to conclude
-that suspension for a device must remain triggerable from user space.
+On Sun, 2006-10-08 08:33:30 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de> wr=
+ote:
+> Just to add, I've seen right this, too, on Debian's 2.6.17-2-686, with
+> a 00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE
+> (rev 01) (8086:7111) PATA controller with a ST3300822A disk. That's
+> healthy from smartmontool's point of view. The machine has 192MB RAM, an
+> Intel P3 processor and is idle during daytime, busy with fetching
+> backups at night. I'm using this filesystem with faubackup, lots of
+> small files, lots of hard links and a number of large files.  Some of
+> the posts below mention large files, too.  My impression would be that
+> it happens when unlink()ing large files.  Oh, and it's a LV, not a
+> direct partition.
 
-	Regards
-		Oliver
- 
+Another thing to add:  I don't think this corruption is related to the
+PIIX4 controller. For some days (when we put the machines that were
+backed-up into production), we tried to work with an external USB HDD.
+(The backup box is off-site and only has limited bandwidth, so the
+idea was to move the USB HDD to the main site if we were on fire
+there. We gave up this idea due to too small USB performance.)
+
+However, I've seen this problem twice with the USB-attached disk, too.
+It's the exact same disk, we just threw away the case.
+
+MfG, JBG
+
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+Signature of:                http://catb.org/~esr/faqs/smart-questions.html
+the second  :
+
+--ZNveOOYjKturpEFp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD4DBQFFKKVZHb1edYOZ4bsRApQFAJYvZyZ4nLRIUOxe7b36DK/vfkfFAKCEaxst
+eUnLmFDJBmdmd0XJp/HdFA==
+=WtJU
+-----END PGP SIGNATURE-----
+
+--ZNveOOYjKturpEFp--

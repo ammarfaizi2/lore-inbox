@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWJHVg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWJHVi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWJHVg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJHVg1
+	id S932069AbWJHVi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWJHVi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:36:27 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:24375 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751488AbWJHVg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:36:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JGELQezwSTfgK2WbQUlc1Wicxtfuai7BRq4podO+3CjKC479kzsm8aJQqlqtVHqyiKiub4pix/v5+cGS4S+Iu0f4byeh55cDY5Fn+IkZJ4yAx1bUpKwLCFzVLUV8VdjCS0Dd+6QixKXs3zXOe/SuCW1/4kJQKvHkxN+FIOJd9+o=
-Message-ID: <653402b90610081436w34d692ecv2dd9801c451ab490@mail.gmail.com>
-Date: Sun, 8 Oct 2006 23:36:26 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [PATCH 2.6.19-rc1 V9] drivers: add LCD support
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061008211550.GE4152@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 8 Oct 2006 17:38:27 -0400
+Received: from www.osadl.org ([213.239.205.134]:64959 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751488AbWJHVi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:38:26 -0400
+Subject: Re: + clocksource-increase-initcall-priority.patch added to -mm
+	tree
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160343099.3693.153.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+References: <200610070153.k971ren4020838@shell0.pdx.osdl.net>
+	 <1160294812.22911.8.camel@localhost.localdomain>
+	 <1160302797.22911.37.camel@localhost.localdomain>
+	 <1160319033.3693.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160319234.5686.12.camel@localhost.localdomain>
+	 <1160322317.3693.47.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160323127.5686.37.camel@localhost.localdomain>
+	 <1160324288.3693.71.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160326363.5686.48.camel@localhost.localdomain>
+	 <1160327879.3693.97.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160334205.5686.72.camel@localhost.localdomain>
+	 <1160339986.3693.135.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160340722.5686.85.camel@localhost.localdomain>
+	 <1160342112.3693.146.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160342424.5686.102.camel@localhost.localdomain>
+	 <1160343099.3693.153.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Sun, 08 Oct 2006 23:38:25 +0200
+Message-Id: <1160343506.5686.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061006002950.49b25189.maxextreme@gmail.com>
-	 <20061008182438.GA4033@ucw.cz>
-	 <653402b90610081137g7885fc85h54e5e94de682a246@mail.gmail.com>
-	 <20061008191217.GA3788@elf.ucw.cz>
-	 <653402b90610081312m32fcf7ecx9929ae9dc4768c17@mail.gmail.com>
-	 <20061008211550.GE4152@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/8/06, Pavel Machek <pavel@ucw.cz> wrote:
->
-> Yep... but when we have /dev/fbcfag12864b ... do we need
-> /dev/cfag12864bX ? I think it is useless at that point.
->
+On Sun, 2006-10-08 at 14:31 -0700, Daniel Walker wrote:
+> On Sun, 2006-10-08 at 23:20 +0200, Thomas Gleixner wrote:
+> > On Sun, 2006-10-08 at 14:15 -0700, Daniel Walker wrote:
+> > > > 
+> > > > Which one exactly? I'm not aware of a problem with the existing code at
+> > > > all.
+> > > 
+> > > Clock shuffling.
+> > 
+> > What's the problem with that ? It replaces clocks. Where _is_ the
+> > problem ?
+> 
+> The problem is that it's not optimal to have clocks switching furiously.
+> This is something John notes as an issue in the unchanged
+> kernel/time/clocksource.c file.
 
-Well, because cfag12864b is the generic one I think it should be in
-the /dev directory (whatever if you use or don't it / whatever if it
-is useless or not).
+I don't see that behaviour on my machines and nobody complains about
+that. I don't care about stale comments. Point me to a bug report
+instead of your perception of what's optimal and not.
 
->
-> /dev/fbcfag12864b is very easy to "manipulate by hand" too.
->
+Working is not necessary optimal, but your vision of optimal is not
+necessarily working either.
 
-Yep, IMO we should add a Kconfig option instead of mixing both by
-default (cfag12864b and fbcfag12864b); anyway I think having
-cfag12864b & fbcfag12864b is better than mixing it all in one module.
+	tglx
 
-It is a good idea that adds many advantages; althought I don't know if
-other people will agree with adding it. I have no problem coding the
-fbcfag12864b module in my free time; but I prefer to remain the other
-modules as they are now and add the fbcfag12864b later in time: I'm
-waiting them to get into one of the -rcs without more radical changes.
+

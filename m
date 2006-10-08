@@ -1,51 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWJHHpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWJHHtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWJHHpx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWJHHpx
+	id S1750884AbWJHHtd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWJHHtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:45:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:11732 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750873AbWJHHpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:45:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=KkVQmhPO2qEOxztxMt58Oauf4a3qp9YBIT4UYq7AF45Niv+nx0GFUt98k5ubV8lsDHse4xaBAmeLHaDOMC3lHQuAWYjZ+2xV1tMc6MP8mfFfOYthSRrbJt2+ClOwZKA7PT52WloeilSulsPnoQ4kshtyQyQjozP9xjMQ+fM8TO0=
-Message-ID: <84144f020610080045s6d2d1b06o6fc78bfb8fbf4d77@mail.gmail.com>
-Date: Sun, 8 Oct 2006 10:45:50 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: 2.6.19-rc1: known regressions (v2)
-Cc: "Trond Myklebust" <Trond.Myklebust@netapp.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061008063943.GB6755@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 8 Oct 2006 03:49:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8581 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750873AbWJHHtc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:49:32 -0400
+Date: Sun, 8 Oct 2006 00:49:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andy Whitcroft <apw@shadowen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: Panic in pci_call_probe from 2.6.18-mm2 and 2.6.18-mm3
+Message-Id: <20061008004922.5d727cba.akpm@osdl.org>
+In-Reply-To: <4528A26F.9000804@mbligh.org>
+References: <4528A26F.9000804@mbligh.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <EXSVLRB01xe0ymQ1WE900000265@exsvlrb01.hq.netapp.com>
-	 <20061008045522.GG29474@stusta.de>
-	 <1160283948.10192.3.camel@lade.trondhjem.org>
-	 <20061008063943.GB6755@stusta.de>
-X-Google-Sender-Auth: 37ba324e36ea64bd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
+On Sun, 08 Oct 2006 00:02:07 -0700
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
 
-On Sun, Oct 08, 2006 at 01:05:48AM -0400, Trond Myklebust wrote:
-> > In any case, what the fuck gives you the right to appoint yourself judge
-> > and jury over kernel regressions?
+> Not sure if you've seen this already ... catching up on test results.
 
-On 10/8/06, Adrian Bunk <bunk@stusta.de> wrote:
-> I've given this right myself - everyone can always send any bug list he
-> wants to linux-kernel.
+Nope.
 
-I don't see what the problem here is. As stated in the bug report, a
-patch signed off by you broke something in the kernel which is not yet
-fixed in -git. Aside from calling people "guilty", what Adrian is
-doing is a service to us all.
+> This was on NUMA-Q, on both -mm2 and -mm3. -mm1 didn't suffer from this
+> problem.
+> 
+> Full logs:
+> 
+> mm2 - http://test.kernel.org/abat/50727/debug/console.log
+> mm3 - http://test.kernel.org/abat/51442/debug/console.log
+> 
+> config - http://test.kernel.org/abat/51442/build/dotconfig
+> 
+> I'm guessing from the 00000004 that the pcibus_to_node(dev->bus)
+> is failing because bus->sysdata is NULL. The disassembly and
+> structure offsets seem to line up for that.
+> 
+> #define pcibus_to_node(bus) (
+> 	(struct pci_sysdata *)((bus)->sysdata))->node
+> 
+> struct pci_sysdata {
+>          int             domain;         /* PCI domain */
+>          int             node;           /* NUMA node */
+> };
+> 
+> 
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 
+> 00000004
 
-                                               Pekka
+I don't see anything in the mm1->mm2 additions which might have caused
+this.  Don't know, sorry.  Bisection time?
+
+
+>   printing eip:
+> c02060d4
+> *pde = 0042c001
+> *pte = 00000000
+> Oops: 0000 [#1]
+> SMP
+> last sysfs file:
+> Modules linked in:
+> CPU:    2
+> EIP:    0060:[<c02060d4>]    Not tainted VLI
+> EFLAGS: 00010286   (2.6.18-mm2-autokern1 #1)
+> EIP is at pci_call_probe+0x19/0xb5
+> eax: 00000000   ebx: e778b400   ecx: e7400030   edx: c03b89a0
+> esi: e778b400   edi: 0000ffff   ebp: e69a2fa0   esp: e740dea4
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, ti=e740c000 task=e7400030 task.ti=e740c000)
+> Stack: ffffffed e778b400 c03b89a0 c02061a3 c03b89a0 e778b400 c03b873c 
+> c03b89a0
+>         e778b400 c03b89d4 c02061d6 c03b89a0 e778b400 e778b400 c03b89d4 
+> e778b448
+>         c0224800 e778b448 c03b89d4 e778b448 00000000 c03b89d4 c0224936 
+> e69a2fa0
+> Call Trace:
+>   [<c02061a3>] __pci_device_probe+0x33/0x47
+>   [<c02061d6>] pci_device_probe+0x1f/0x34
+>   [<c0224800>] really_probe+0x31/0xb9
+>   [<c0224936>] driver_probe_device+0x93/0x9c
+>   [<c02249b5>] __driver_attach+0x0/0x7c
+>   [<c02249fc>] __driver_attach+0x47/0x7c
+>   [<c0223e98>] bus_for_each_dev+0x47/0x6d
+>   [<c01fd05a>] kobject_add+0xa9/0xf2
+>   [<c0224a45>] driver_attach+0x14/0x18
+>   [<c02249b5>] __driver_attach+0x0/0x7c
+>   [<c022437b>] bus_add_driver+0x53/0xd0
+>   [<c0224d99>] driver_register+0x74/0x77
+>   [<c02063ea>] __pci_register_driver+0x6b/0x7a
+>   [<c04146c3>] qla1280_init+0xc/0xf
+>   [<c04007ff>] do_initcalls+0x55/0xe8
+>   [<c0184095>] proc_mkdir+0x12/0x16
+>   [<c0135136>] init_irq_proc+0x21/0x2f
+>   [<c01003b8>] init+0x0/0x148
+>   [<c010040d>] init+0x55/0x148
+>   [<c01033c7>] kernel_thread_helper+0x7/0x10

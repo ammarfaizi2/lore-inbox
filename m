@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWJHVdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWJHVg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWJHVdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWJHVdo
+	id S932066AbWJHVg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJHVg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:33:44 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:59093 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751447AbWJHVdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:33:43 -0400
-Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
-From: Daniel Walker <dwalker@mvista.com>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160342483.5686.104.camel@localhost.localdomain>
-References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net>
-	 <1160301340.22911.27.camel@localhost.localdomain>
-	 <1160318750.3693.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319112.5686.8.camel@localhost.localdomain>
-	 <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160322376.5686.25.camel@localhost.localdomain>
-	 <1160323597.3693.62.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160324354.5686.41.camel@localhost.localdomain>
-	 <1160324846.3693.78.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160326451.5686.51.camel@localhost.localdomain>
-	 <1160328400.3693.100.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160333127.5686.58.camel@localhost.localdomain>
-	 <1160342108.3693.144.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160342483.5686.104.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 14:33:41 -0700
-Message-Id: <1160343221.3693.154.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 8 Oct 2006 17:36:27 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:24375 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751488AbWJHVg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:36:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JGELQezwSTfgK2WbQUlc1Wicxtfuai7BRq4podO+3CjKC479kzsm8aJQqlqtVHqyiKiub4pix/v5+cGS4S+Iu0f4byeh55cDY5Fn+IkZJ4yAx1bUpKwLCFzVLUV8VdjCS0Dd+6QixKXs3zXOe/SuCW1/4kJQKvHkxN+FIOJd9+o=
+Message-ID: <653402b90610081436w34d692ecv2dd9801c451ab490@mail.gmail.com>
+Date: Sun, 8 Oct 2006 23:36:26 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [PATCH 2.6.19-rc1 V9] drivers: add LCD support
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061008211550.GE4152@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061006002950.49b25189.maxextreme@gmail.com>
+	 <20061008182438.GA4033@ucw.cz>
+	 <653402b90610081137g7885fc85h54e5e94de682a246@mail.gmail.com>
+	 <20061008191217.GA3788@elf.ucw.cz>
+	 <653402b90610081312m32fcf7ecx9929ae9dc4768c17@mail.gmail.com>
+	 <20061008211550.GE4152@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 23:21 +0200, Thomas Gleixner wrote:
-> On Sun, 2006-10-08 at 14:15 -0700, Daniel Walker wrote:
-> > On Sun, 2006-10-08 at 20:45 +0200, Thomas Gleixner wrote:
-> > 
-> > > > I'm not moving the kernel/timer.c clocksource user back into
-> > > > kernel/time/clocksource.c . That code completely belongs with the
-> > > > generic time of day changes. The code is directly coupled, and in fact
-> > > > it improves the timekeeping clock switching code to have it that way.
-> > > 
-> > > I don't see any reason, why it must be added to timer.c. You can achieve
-> > > the same result with calling the code outside, except that the compiler
-> > > might miss some inline optimization. The switch clock code is not a
-> > > hotpath and so it does not matter whether it is called here or there.
-> > 
-> > It wouldn't be as clean to integrate the two. The hotpath is improved
-> > (which is what I was referring too above.)
-> 
-> Sorry, where is which hotpath improved ?
+On 10/8/06, Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Yep... but when we have /dev/fbcfag12864b ... do we need
+> /dev/cfag12864bX ? I think it is useless at that point.
+>
 
-The hotpath in update_wall_time() kernel/timer.c which involves clock
-switching.
+Well, because cfag12864b is the generic one I think it should be in
+the /dev directory (whatever if you use or don't it / whatever if it
+is useless or not).
 
-Daniel
+>
+> /dev/fbcfag12864b is very easy to "manipulate by hand" too.
+>
 
+Yep, IMO we should add a Kconfig option instead of mixing both by
+default (cfag12864b and fbcfag12864b); anyway I think having
+cfag12864b & fbcfag12864b is better than mixing it all in one module.
+
+It is a good idea that adds many advantages; althought I don't know if
+other people will agree with adding it. I have no problem coding the
+fbcfag12864b module in my free time; but I prefer to remain the other
+modules as they are now and add the fbcfag12864b later in time: I'm
+waiting them to get into one of the -rcs without more radical changes.

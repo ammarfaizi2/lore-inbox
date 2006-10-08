@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWJHTX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWJHTX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWJHTX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWJHTX3
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:23:29 -0400
-Received: from mail.gmx.net ([213.165.64.20]:28804 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751350AbWJHTX2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751337AbWJHTX2 (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 8 Oct 2006 15:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWJHTX2
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 8 Oct 2006 15:23:28 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48515 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751337AbWJHTX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 15:23:27 -0400
 X-Authenticated: #1045983
 From: Helge Deller <deller@gmx.de>
 To: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] [kernel/ subdirectory] constifications
-Date: Sun, 8 Oct 2006 21:21:49 +0200
+Subject: [PATCH] [mm/ subdirectory] constifications
+Date: Sun, 8 Oct 2006 21:20:57 +0200
 User-Agent: KMail/1.9.5
 X-Face: *4/{KL3=jWs!v\UO#3e7~Vb1~CL@oP'~|*/M$!9`tb2[;fY@)WscF2iV7`,a$141g'o,7X
 	?Bt1Wb:L7K6z-<?-+-13|S_ixrq58*E`)ZkSe~NSI?u=89G'J<n]7\?[)LCCBZc}~[j(e}
@@ -25,7 +25,7 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610082121.49925.deller@gmx.de>
+Message-Id: <200610082120.57709.deller@gmx.de>
 X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -250,3 +250,4 @@ index 53608a5..c9b6edb 100644
  	.open    = schedstat_open,
  	.read    = seq_read,
  	.llseek  = seq_lseek,
+

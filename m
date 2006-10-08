@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWJHWx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWJHWzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWJHWx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 18:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWJHWx5
+	id S932085AbWJHWzF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 18:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWJHWzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 18:53:57 -0400
-Received: from www.osadl.org ([213.239.205.134]:56512 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932084AbWJHWx4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 18:53:56 -0400
-Subject: Re: + clocksource-increase-initcall-priority.patch added to -mm
-	tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160345593.3693.180.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-References: <200610070153.k971ren4020838@shell0.pdx.osdl.net>
-	 <1160294812.22911.8.camel@localhost.localdomain>
-	 <1160302797.22911.37.camel@localhost.localdomain>
-	 <1160319033.3693.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319234.5686.12.camel@localhost.localdomain>
-	 <1160322317.3693.47.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160323127.5686.37.camel@localhost.localdomain>
-	 <1160324288.3693.71.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160326363.5686.48.camel@localhost.localdomain>
-	 <1160327879.3693.97.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160334205.5686.72.camel@localhost.localdomain>
-	 <1160339986.3693.135.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160340722.5686.85.camel@localhost.localdomain>
-	 <1160342112.3693.146.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160342424.5686.102.camel@localhost.localdomain>
-	 <1160343099.3693.153.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160343506.5686.113.camel@localhost.localdomain>
-	 <1160345593.3693.180.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain
+	Sun, 8 Oct 2006 18:55:05 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:30376 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932085AbWJHWzE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 18:55:04 -0400
+Message-ID: <45298184.1050006@web.de>
 Date: Mon, 09 Oct 2006 00:53:56 +0200
-Message-Id: <1160348036.5686.155.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+From: Jan Kiszka <jan.kiszka@web.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Willy Tarreau <w@1wt.eu>
+CC: linux-kernel@vger.kernel.org, Willy Tarreau <wtarreau@hera.kernel.org>
+Subject: Re: 2.4.x: i386/x86_64 bitops clobberings
+References: <452970AF.8020605@web.de> <20061008224440.GA30172@1wt.eu>
+In-Reply-To: <20061008224440.GA30172@1wt.eu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig482D501C0D7113736C6155AF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 15:13 -0700, Daniel Walker wrote:
-> On Sun, 2006-10-08 at 23:38 +0200, Thomas Gleixner wrote:
-> 
-> > 
-> > I don't see that behaviour on my machines and nobody complains about
-> > that. I don't care about stale comments. Point me to a bug report
-> > instead of your perception of what's optimal and not.
-> 
-> Let both do this. Lets discuss empirical behavior. Otherwise we aren't
-> making any progress. 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig482D501C0D7113736C6155AF
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Go, grep the LKML archives and let those who had problems test your
-modifications. Come back when they confirm that it does not change
-anything.
+Willy Tarreau wrote:
+> Hi Jan,
+>=20
+> On Sun, Oct 08, 2006 at 11:42:07PM +0200, Jan Kiszka wrote:
+>> Hi,
+>>
+>> after going through debugging hell with some out-of-tree code, I
+>> realised that this patch
+>>
+>> http://www.kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git=
+;a=3Dcommit;h=3D92934bcbf96bc9dc931c40ca5f1a57685b7b813b
+>>
+>> makes a difference: current 2.6 works with the following code sequence=
 
-You want to change behaviour of the current code, so it's your job to
-verify that it does not break anything.
+>> as expected (printk is executed), 2.4 fails.
+>>
+>>
+>> #include <asm/bitops.h>
+>> #include <linux/module.h>
+>>
+>> unsigned long a =3D 1;
+>>
+>> int module_init(void)
+>> {
+>> 	unsigned long b =3D 0;
+>> 	int x;
+>>
+>> 	x =3D __test_and_set_bit(0, &b);
+>> 	if (__test_and_set_bit(0, &a))
+>> 		printk("x =3D %d\n", x);
+>>
+>> 	return -1;
+>> }
+>>
+>>
+>> There will likely be a way to work around my issue. Nevertheless, I
+>> wondered if that patch was already considered for 2.4 inclusion. Or is=
 
-I have been there and done that with the ARM interrupt code
-http://www.linutronix.de/index.php?page=testing
+>> there no risk that in-tree code is affected?
+>=20
+> While I remember some discussion on the subject for 2.6, I don't
+> recall anything similiar in 2.4. Wouldn't you happen to build with
+> gcc-3.4 ? IIRC, the clobbering changed around this version. Could
 
-I know what I'm talking about.
+I used gcc 3.3.6-13 (Debian).
 
-	tglx
+> you confirm that the patch you pointed above fixes the problem for
+> your case ?
+
+Yes. I ported the x86 part back to 2.4.33 and my problem disappeared.
+
+Jan
 
 
+--------------enig482D501C0D7113736C6155AF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD0DBQFFKYGFniDOoMHTA+kRAiEMAJjpvdaPiebKBX0djSCT4miap/R0AJjIETeN
+O2L1J4NXz6rkeY7NV4jk
+=gU0k
+-----END PGP SIGNATURE-----
+
+--------------enig482D501C0D7113736C6155AF--

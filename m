@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWJHVnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWJHVpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWJHVnl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWJHVnl
+	id S1751488AbWJHVpR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJHVpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:43:41 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:30601 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP id S932073AbWJHVnk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:43:40 -0400
-Message-ID: <452970AF.8020605@web.de>
-Date: Sun, 08 Oct 2006 23:42:07 +0200
-From: Jan Kiszka <jan.kiszka@web.de>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: 2.4.x: i386/x86_64 bitops clobberings
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBE4F6381060BAC674C8C7479"
+	Sun, 8 Oct 2006 17:45:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:52124 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751488AbWJHVpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:45:15 -0400
+Subject: Re: BIOS THRM-Throttling and driver timings
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Keith Chew <keith.chew@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061008211821.GA4280@elf.ucw.cz>
+References: <20f65d530610030729o42658bd6hcc204f8deac4a33e@mail.gmail.com>
+	 <1159886437.2891.532.camel@laptopd505.fenrus.org>
+	 <20061008211821.GA4280@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 08 Oct 2006 23:45:06 +0200
+Message-Id: <1160343907.3000.183.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBE4F6381060BAC674C8C7479
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sun, 2006-10-08 at 23:18 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > We have a motherboard that has Thermal Throttling in the BIOS (which
+> > > we cannot disable). This causes the CPU usage to go up and down when
+> > > the CPU temperature reaches (and stays around) the Throttling
+> > > temperature point.
+> > > 
+> > > What we would like to know is whether this will affect the timings in
+> > > drivers, eg the wireless drivers we are using. What can we check in
+> > > drivers' code that will tell us that its operations may be affected
+> > > the throttling?
+> > > 
+> > > In the past few days, we noticed that some of the linux units we
+> > > deployed freezes after deveral hours of operation, we are now trying
+> > > to reproduce the problem in our test environment. Some insight on the
+> > > affect of throttling will help us narrow down the search.
+> 
+> > in general linux should be ok with this happening. However for specific
+> > cases... you'll need to provide more information; you're not
+> > mentioning
+> 
+> Really? AFAICT P4 will happily slow down behind our backs, making at
+> least udelays() with interrupts disabled sleep for too long.
 
-Hi,
-
-after going through debugging hell with some out-of-tree code, I
-realised that this patch
-
-http://www.kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
-commit;h=3D92934bcbf96bc9dc931c40ca5f1a57685b7b813b
-
-makes a difference: current 2.6 works with the following code sequence
-as expected (printk is executed), 2.4 fails.
-
-
-#include <asm/bitops.h>
-#include <linux/module.h>
-
-unsigned long a =3D 1;
-
-int module_init(void)
-{
-	unsigned long b =3D 0;
-	int x;
-
-	x =3D __test_and_set_bit(0, &b);
-	if (__test_and_set_bit(0, &a))
-		printk("x =3D %d\n", x);
-
-	return -1;
-}
-
-
-There will likely be a way to work around my issue. Nevertheless, I
-wondered if that patch was already considered for 2.4 inclusion. Or is
-there no risk that in-tree code is affected?
-
-Jan
+it will during thermal throttle yes. but udelay() and co as API never
+have  been super accurate; they mostly promise at least this much delay
 
 
 
---------------enigBE4F6381060BAC674C8C7479
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFKXCvniDOoMHTA+kRAg9oAJ9PA6pYrdr42KbuOb/LuMjkc0SARgCcD/jE
-llTy8UyHXgZDh9JL7MvQJUQ=
-=e74T
------END PGP SIGNATURE-----
-
---------------enigBE4F6381060BAC674C8C7479--

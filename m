@@ -1,27 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932880AbWJGWhg (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 7 Oct 2006 18:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWJGWhg
+	id S1750759AbWJHCYM (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 7 Oct 2006 22:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWJHCYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 18:37:36 -0400
-Received: from c-69-139-22-104.hsd1.de.comcast.net ([69.139.22.104]:53257 "HELO
-	c-69-139-22-104.hsd1.de.comcast.net") by vger.kernel.org with SMTP
-	id S932880AbWJGWhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 18:37:35 -0400
-Date: Sun, 8 Oct 2006 13:44:21 -0400
-From: Rene Rich <mailkxtc@julieburchill.org.uk>
-Reply-To: Rene Rich <mailkxtc@julieburchill.org.uk>
-Message-ID: <936199972171.763056061576@julieburchill.org.uk>
+	Sat, 7 Oct 2006 22:24:12 -0400
+Received: from [211.211.39.252] ([211.211.39.252]:18188 "HELO 211.211.39.252")
+	by vger.kernel.org with SMTP id S1750755AbWJHCYL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 22:24:11 -0400
+From: "Willie Kincaid" <a-tsushimhxr@fa3.so-net.ne.jp>
+Reply-To: "Willie Kincaid" <a-tsushimhxr@fa3.so-net.ne.jp>
+Message-ID: <4007897428.9196435154@fa3.so-net.ne.jp>
+Date: Sat, 7 Oct 2006 22:33:21 -0400
 To: <linux-kernel@vger.kernel.org>
-Subject: greatest Justt Teenie and refined Ladies  Youur !
+Subject: cuumshots on  courteous Girlss.
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932880AbWJGWhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750759AbWJHCYM@vger.kernel.org>
 
 
-dear  suckiing olldman cockk!
-http://chicks40.com
+trump Eighteeens suucking olddman coock!
+http://14horny.com
 

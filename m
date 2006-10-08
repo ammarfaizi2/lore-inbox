@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWJHBmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWJHBj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWJHBmX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Oct 2006 21:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWJHBmX
+	id S1750717AbWJHBj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Oct 2006 21:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWJHBj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Oct 2006 21:42:23 -0400
-Received: from xenotime.net ([66.160.160.81]:26310 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750727AbWJHBmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Oct 2006 21:42:22 -0400
-Date: Sat, 7 Oct 2006 18:43:46 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Marcel Siegert <mws@twisted-brains.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.19-rc1 fix compilation/linking error in
- arch/x86_64_kernel/traps.c
-Message-Id: <20061007184346.d29aa7e0.rdunlap@xenotime.net>
-In-Reply-To: <452816A9.3080208@twisted-brains.org>
-References: <452816A9.3080208@twisted-brains.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Oct 2006 21:39:56 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:34944 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750717AbWJHBjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Oct 2006 21:39:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=s0wLR5NDQzrrtCX/7x5r8Rriu3m3MiUIALwDIy1CDzg6AIpNovZkCyx/yfCVl/HaKoFf8gZXk5Q05FFs0CKHl6Hdvz/+RpWiIfr04L71J5fT9VP538JDsFEFDLnI8zpIi0xSdf+qzwzxILMtq9wIwtVm6MfcOtOn/FC7ecY79UQ=  ;
+Message-ID: <452856E4.60705@yahoo.com.au>
+Date: Sun, 08 Oct 2006 11:39:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 3/3] mm: add arch_alloc_page
+References: <20061007105758.14024.70048.sendpatchset@linux.site>	<20061007105824.14024.85405.sendpatchset@linux.site> <20061007134345.0fa1d250.akpm@osdl.org>
+In-Reply-To: <20061007134345.0fa1d250.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 07 Oct 2006 23:05:45 +0200 Marcel Siegert wrote:
+Andrew Morton wrote:
 
-> hi linus,
-> 
-> the following compilation error:
-> 
-> CC      arch/x86_64/kernel/traps.o
-> arch/x86_64/kernel/traps.c: In function 'print_trace_warning_symbol':
-> arch/x86_64/kernel/traps.c:375: warning: implicit declaration of function 'print_symbol'
-> 
-> causing the following linking error
-> arch/x86_64/kernel/built-in.o: In function `print_trace_warning_symbol':
-> traps.c:(.text+0x2f85): undefined reference to `print_symbol'
-> make: *** [vmlinux] Error 1
-> 
-> is being fixed with the following patch.
-> 
-> 
-> 
-> Description: fix missing include of kallsyms.h in arch/x86_64/kernel/traps.c
+>On Sat,  7 Oct 2006 15:06:04 +0200 (CEST)
+>Nick Piggin <npiggin@suse.de> wrote:
+>
+>
+>>Add an arch_alloc_page to match arch_free_page.
+>>
+>
+>umm.. why?
+>
 
+I had a future patch to more kernel_map_pages into it, but couldn't
+decide if that's a generic kernel feature that is only implemented in
+2 architectures, or an architecture speicifc feature. So I left it out.
 
-see:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=4b0ff1a94cba36a35734c84f377e49cacc77f293
+But at least Martin wanted a hook here for his volatile pages patches,
+so I thought I'd submit this patch anyway.
 
-or just use current git (or -gitN patch)
+--
 
----
-~Randy
+Send instant messages to your online friends http://au.messenger.yahoo.com 

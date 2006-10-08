@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWJHKzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWJHLL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbWJHKzv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 06:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWJHKzv
+	id S1751083AbWJHLL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 07:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWJHLL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 06:55:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57267 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751076AbWJHKzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 06:55:50 -0400
-Subject: Re: [patch] honour MNT_NOEXEC for access()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jakub Jelinek <jakub@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-In-Reply-To: <4528C0B0.4070002@aknet.ru>
-References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru>
-	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>
-	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
-	 <45229A99.6060703@aknet.ru>
-	 <1159899820.2891.542.camel@laptopd505.fenrus.org>
-	 <4522AEA1.5060304@aknet.ru>
-	 <1159900934.2891.548.camel@laptopd505.fenrus.org>
-	 <4522B4F9.8000301@aknet.ru>
-	 <20061003210037.GO20982@devserv.devel.redhat.com>
-	 <45240640.4070104@aknet.ru>  <45269BEE.7050008@aknet.ru>
-	 <1160170464.12835.4.camel@localhost.localdomain>
-	 <4526C7F4.6090706@redhat.com> <45278D2A.4020605@aknet.ru>
-	 <4527D64A.7060002@redhat.com>  <4527FC8B.8010208@aknet.ru>
-	 <1160296364.3000.167.camel@laptopd505.fenrus.org>
-	 <4528C0B0.4070002@aknet.ru>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 08 Oct 2006 12:55:45 +0200
-Message-Id: <1160304945.3000.175.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 8 Oct 2006 07:11:27 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:57996 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751083AbWJHLL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 07:11:27 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sun, 8 Oct 2006 13:10:27 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [GIT PULL] ieee1394 update (was 2.6.19-rc1: known regressions (v2))
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Adrian Bunk <bunk@stusta.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20061007214620.GB8810@stusta.de>
+Message-ID: <tkrat.6f789c8fb76aa7c3@s5r6.in-berlin.de>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+ <20061007214620.GB8810@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 13:11 +0400, Stas Sergeev wrote:
-> Hello.
-> 
-> Arjan van de Ven wrote:
-> >> but ld.so seems to be
-> >> the special case - it is a kernel helper after all,
-> > in what way is ld.so special in ANY way?
-> It is a kernel helper. Kernel does all the security
-> checks before invoking it. However, when invoked
-> directly, it have to do these checks itself. So it is
-> special in a way that it have to do the security checks
-> which otherwise only the kernel should do.
-
-wrong. 
-It's "special" only a little bit when the kernel invokes it, but not
-really. The *application* is what decides to use which file. And for
-example LSB application use another ld.so than the normal one.
-(So that the LSB ld.so can translate from the LSB abi to what is on the
-system).
-
-But when invoked manually.. there is even LESS special about it... it
-could be ANY file on the system. And it's no different from any other
-file in /bin, /usr/bin etc etc
-
-> Otherwise, please tell me, how can you solve the problem
-> of ld.so started directly, can execute the files you do
-> not have an exec permission for?
-
->  The MNT_NOEXEC hack of
-> mmap doesn't solve that.
-
-denying PROT_EXEC of non-"x" files does (somewhat). It's never fool
-proof obviously, as long as you need to allow jits.
-
-> Then ld.so can just use that to solve all those permission
-> problems.
-
-this is just entirely a wrong assumption; one based on the assumption
-that ld.so is something special, that it isn't.
+Adrian Bunk wrote:
+> This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18
+> that are not yet fixed Linus' tree.
+[...]
+> Subject    : strange ieee1394 messages
+> References : http://lkml.org/lkml/2006/10/5/154
+> Submitter  : "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
+> Guilty     : Stefan Richter <stefanr@s5r6.in-berlin.de>
+>              commit d2f119fe319528da8c76a1107459d6f478cbf28c
+> Handled-By : Stefan Richter <stefanr@s5r6.in-berlin.de>
+> Patch      : http://lkml.org/lkml/2006/10/6/235
+> Status     : harmless, patch available
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Linus, please pull from the upstream-linus branch at
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git upstream-linus
+
+to receive the following patch...
+
+Stefan Richter:
+      ieee1394: nodemgr: fix startup of knodemgrd
+
+ drivers/ieee1394/nodemgr.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+...or just apply it from this mail.
+
+
+Date: Fri, 6 Oct 2006 19:49:52 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: ieee1394: nodemgr: fix startup of knodemgrd
+
+Revert a thinko in commit d2f119fe319528da8c76a1107459d6f478cbf28c:
+When knodemgrd starts, it needs to sleep until host->generation was
+incremented above its initial value of 0.  My wrong logic caused it to
+start sending requests when the bus wasn't completely ready.  Seen as
+"AT dma reset ctx=0, aborting transmission" messages in 2.6.19-rc1.
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+Index: linux/drivers/ieee1394/nodemgr.c
+===================================================================
+--- linux.orig/drivers/ieee1394/nodemgr.c	2006-10-06 19:20:00.000000000 +0200
++++ linux/drivers/ieee1394/nodemgr.c	2006-10-06 19:26:28.000000000 +0200
+@@ -1614,7 +1614,7 @@ static int nodemgr_host_thread(void *__h
+ {
+ 	struct host_info *hi = (struct host_info *)__hi;
+ 	struct hpsb_host *host = hi->host;
+-	unsigned int g, generation = get_hpsb_generation(host) - 1;
++	unsigned int g, generation = 0;
+ 	int i, reset_cycles = 0;
+ 
+ 	/* Setup our device-model entries */
+
 

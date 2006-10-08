@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWJHUXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWJHUYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWJHUXt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 16:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWJHUXt
+	id S1751453AbWJHUYa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 16:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWJHUY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 16:23:49 -0400
-Received: from rs384.securehostserver.com ([72.22.69.69]:44553 "HELO
-	rs384.securehostserver.com") by vger.kernel.org with SMTP
-	id S1751446AbWJHUXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 16:23:49 -0400
-Subject: [RFC][PATCH 1/2] grab swap token reordered
-From: Ashwin Chaugule <ashwin.chaugule@celunite.com>
-Reply-To: ashwin.chaugule@celunite.com
+	Sun, 8 Oct 2006 16:24:29 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:8910 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751450AbWJHUY1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 16:24:27 -0400
+Date: Sun, 8 Oct 2006 21:24:24 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>
-In-Reply-To: <20061002005905.a97a7b90.akpm@osdl.org>
-References: <1159555312.2141.13.camel@localhost.localdomain>
-	 <20061001155608.0a464d4c.akpm@osdl.org> <1159774552.13651.80.camel@lappy>
-	 <20061002005905.a97a7b90.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 09 Oct 2006 01:53:41 +0530
-Message-Id: <1160339021.17751.23.camel@localhost.localdomain>
+Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Matthew Wilcox <willy@parisc-linux.org>
+Subject: Re: [PATCH] Consolidate check_signature
+Message-ID: <20061008202423.GC29920@ftp.linux.org.uk>
+References: <11600679551209-git-send-email-matthew@wil.cx> <11600679552794-git-send-email-matthew@wil.cx> <20061008132147.958dc6a8.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061008132147.958dc6a8.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 08, 2006 at 01:21:47PM -0700, Andrew Morton wrote:
+> On Thu, 05 Oct 2006 11:05:55 -0600
+> Matthew Wilcox <matthew@wil.cx> wrote:
+> 
+> > There's nothing arch-specific about check_signature(), so move it to
+> > <linux/io.h>.  Use a cross between the Alpha and i386 implementations
+> > as the generic one.
+> 
+> It wuld have been nice to have uninlined it too.  And to have given
+> it a less crappy name.
 
-This patch makes sure the contention for the token happens _before_ any
-read-in and kicks the swap-token algo only when the VM is under
-pressure.
-
-
-
-Signed-off-by: Ashwin Chaugule <ashwin.chaugule@celunite.com>
-
---
-diff --git a/mm/filemap.c b/mm/filemap.c
-index afcdc72..c17b2ab 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1479,7 +1479,6 @@ no_cached_page:
- 	 * effect.
- 	 */
- 	error = page_cache_read(file, pgoff);
--	grab_swap_token();
- 
- 	/*
- 	 * The page we want has now been added to the page cache.
-diff --git a/mm/memory.c b/mm/memory.c
-index 92a3ebd..4a877e9 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1974,6 +1974,7 @@ static int do_swap_page(struct mm_struct
- 	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-+		grab_swap_token(); /* Contend for token _before_ read-in */
-  		swapin_readahead(entry, address, vma);
-  		page = read_swap_cache_async(entry, vma, address);
- 		if (!page) {
-@@ -1991,7 +1992,6 @@ static int do_swap_page(struct mm_struct
- 		/* Had to read the page from swap area: Major fault */
- 		ret = VM_FAULT_MAJOR;
- 		count_vm_event(PGMAJFAULT);
--		grab_swap_token();
- 	}
- 
- 	delayacct_clear_flag(DELAYACCT_PF_SWAPIN);
---
-
+memcmp_withio(), to follow the general style?

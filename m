@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWJHRTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWJHRSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWJHRTn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 13:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWJHRTn
+	id S1751286AbWJHRSE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 13:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWJHRSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 13:19:43 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:24971 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751290AbWJHRTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 13:19:42 -0400
-Date: Sun, 8 Oct 2006 19:19:40 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Hugo Vanwoerkom <rociobarroso@att.net.mx>
-Cc: ocilent1@gmail.com, Chris Wedgwood <cw@f00f.org>,
-       linux list <linux-kernel@vger.kernel.org>, ck@vds.kolivas.org,
-       Lee Revell <rlrevell@joe-job.com>, dsd@gentoo.org
-Subject: Re: [ck] Re: sound skips on 2.6.18-ck1
-Message-ID: <20061008171940.GA30095@rhlx01.fht-esslingen.de>
-References: <200606181204.29626.ocilent1@gmail.com> <20060719063344.GA1677@tuatara.stupidest.org> <44BE37E8.2040706@att.net.mx> <45281E90.2080502@att.net.mx> <452924D3.9070907@att.net.mx>
+	Sun, 8 Oct 2006 13:18:04 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:28599 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751286AbWJHRSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 13:18:01 -0400
+Subject: Re: + clocksource-increase-initcall-priority.patch added to -mm
+	tree
+From: Daniel Walker <dwalker@mvista.com>
+To: tglx@linutronix.de
+Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160326363.5686.48.camel@localhost.localdomain>
+References: <200610070153.k971ren4020838@shell0.pdx.osdl.net>
+	 <1160294812.22911.8.camel@localhost.localdomain>
+	 <1160302797.22911.37.camel@localhost.localdomain>
+	 <1160319033.3693.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160319234.5686.12.camel@localhost.localdomain>
+	 <1160322317.3693.47.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160323127.5686.37.camel@localhost.localdomain>
+	 <1160324288.3693.71.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160326363.5686.48.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 08 Oct 2006 10:17:59 -0700
+Message-Id: <1160327879.3693.97.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452924D3.9070907@att.net.mx>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2006-10-08 at 18:52 +0200, Thomas Gleixner wrote:
+> On Sun, 2006-10-08 at 09:18 -0700, Daniel Walker wrote:
+> > > Early bootup Instrumentation is really not a good argument to make that
+> > > fragile time related stuff even more complex. There is no problem to
+> > > register reliable clocksources in early bootup, but do not make this
+> > > mandatory. Not every system is an ARM SoC, where you can and must rely
+> > > on the one source which is available usually right when the CPU comes
+> > > up.
+> > 
+> > It's not mandatory, it's just preferred.. As I said above, to avoid
+> > churn. I don't like the churn at boot up, and I tried to make sure there
+> > was none added in the patch set. 
+> 
+> What churn at bootup ? The clocksources _can_ be switched and it does
+> not matter, when this is done. We had the trouble with the early
+> registration a couple of month ago, and there is no reason to
+> reintroduce it. On systems which have exactly one clocksource, you can
+> register them early in bootup, but please do not touch the x86 setup for
+> no good reason.
 
-On Sun, Oct 08, 2006 at 11:18:27AM -0500, Hugo Vanwoerkom wrote:
-> I know nothing about quirks.c but I adapted the patch that worked (TM) 
-> under 2.6.17 to 2.6.18 and it solves the situation for me.
-> I attach the reworked patch and my lspci.
+There was a special case inside kernel/time/clocksource.c to prevent
+clock switching during boot up. If you remove that (which I have) then
+you will end up with clock switching happening a few times during bootup
+(whenever a new highest rated clock is registered), that's the churn I'm
+referring to.
 
-[...diff...]
+The churn is not optimal. I've used postcore to prevent it, and make the
+API usable earlier. So there is a reason for the change. 
 
-Ah, right, that stuff.
+Daniel
 
-IIRC that VIA on-board off-board on-again thing has still been rearing
-its ugly head after 2.6.17, with a longish recent discussion on LKML
-(~3 weeks ago?) where people were annoyed that it still had so many different
-ways of breaking no matter how hard you tried to find a generic mechanism
-that successfully applies to all devices out there.
-As such I'm not surprised in the least that it's still not working for you.
-
-Of course I don't know the thread by heart right now, but if you don't
-manage to find it, then I'll try to dig it up.
-
-Andreas Mohr

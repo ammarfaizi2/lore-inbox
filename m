@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJHTkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWJHTlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWJHTkb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWJHTkb
+	id S1751362AbWJHTlh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWJHTlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:40:31 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:51693 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1751359AbWJHTkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:40:31 -0400
-Date: Sun, 8 Oct 2006 12:40:29 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-In-Reply-To: <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.64.0610081233170.28503@twinlark.arctic.org>
-References: <20060930180157.GA25761@Krystal> <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
+	Sun, 8 Oct 2006 15:41:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24761 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751362AbWJHTlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 15:41:36 -0400
+Date: Sun, 8 Oct 2006 21:41:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: /sys/.../power/state Re: [linux-usb-devel] error to be returned while suspended
+Message-ID: <20061008194124.GB4042@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071916.27315.oliver@neukum.org> <200610071703.24599.david-b@pacbell.net> <200610081524.09946.oliver@neukum.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200610081524.09946.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Oct 2006, dean gaudet wrote:
+Hi!
 
-> On Sat, 30 Sep 2006, Mathieu Desnoyers wrote:
-> 
-> > - Optimized
+> > > The power management functions without 
+> > > timeout are also exported. For other power control features like
+> > > cpu frequency considerable effort has been made to export them to
+> > > user space.
 > > 
-> > static int my_open(struct inode *inode, struct file *file)
-> > {
-> >    0:   55                      push   %ebp
-> >    1:   89 e5                   mov    %esp,%ebp
-> >    3:   83 ec 0c                sub    $0xc,%esp
-> >         MARK(subsys_mark1, "%d %p", 1, NULL);
-> >    6:   b0 00                   mov    $0x0,%al <-- immediate load 0 in al
-> >    8:   84 c0                   test   %al,%al
-> >    a:   75 07                   jne    13 <my_open+0x13>
+> > Yes, and many of us use the much lighter weight kernel based control
+> > models by preference.   Why waste hundreds of Kbytes of userspace for
+> > a daemon when a few hundred bytes of kernel code can implement a
+> > better and more reactive kernel policy for cpufreq?
 > 
-> why not replace the mov+test with "xor %eax,%eax" and then change the 0x75 
-> to a 0x74 to change from jne to je when you want to enable the marker?
-> 
-> i.e. disabled:
-> 
-> 	31 c0	xor %eax,%eax
-> 	75 07	jne 13
-> 
-> enabled:
-> 
-> 	31 c0	xor %eax,%eax
-> 	74 07	je 13
+> That's an important aspect. How about implementing autosuspend
+> first and keeping the sysfs-based suspension for now? If autosuspend
 
-actually... why even destroy the register... i bet this is the best 
-choice:
+Current sysfs-based suspension allows people to do bad stuff to
+drivers, like confusing them, oopsing them, etc. It is so broken that
+it can not be fixed. (When I suspend my USB this way, I end up with
+dead USB. When I suspend my sound card, I get any soundcard users in
+unrecoverable D state.)
 
-	39 c0	cmp %eax,%eax
-	75 07	jne 13
-
-that satisfies the macro-op fusion rules on core2 as well... now you 
-shouldn't even ask gcc for a register you should just hardwire %eax so it 
-doesn't get confused (probably need to tell it "cc" is modified).
-
--dean
+Now... you can prove me wrong, but that likely means auditing all the
+drivers with suspend() and/or resume() methods. I'm not prepared to do
+that work... are you?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

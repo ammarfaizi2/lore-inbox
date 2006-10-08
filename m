@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWJHSq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWJHStM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWJHSq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 14:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWJHSq1
+	id S1751336AbWJHStM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 14:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWJHStL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 14:46:27 -0400
-Received: from thing.hostingexpert.com ([67.15.235.34]:43438 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751323AbWJHSq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 14:46:26 -0400
-Message-ID: <45294778.8020802@linuxtv.org>
-Date: Sun, 08 Oct 2006 14:46:16 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: stable@kernel.org
-CC: linux-kernel@vger.kernel.org,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Yeasah Pell <yeasah@schwide.net>, Steven Toth <stoth@hauppauge.com>
-Subject: [2.6.17.y PATCH 2/2] cx24123: fix PLL divisor setup
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 8 Oct 2006 14:49:11 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38636 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751336AbWJHStK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 14:49:10 -0400
+Date: Sun, 8 Oct 2006 20:40:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: akpm@osdl.org, dwalker@mvista.com, johnstul@us.ibm.com,
+       zippel@linux-m68k.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
+Message-ID: <20061008184028.GA16437@elte.hu>
+References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net> <1160301340.22911.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160301340.22911.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From df9b6db4d2168cd82f8590d2f9a2d3580cdf7233 Mon Sep 17 00:00:00 2001
-From: Yeasah Pell <yeasah@schwide.net>
-Date: Tue, 3 Oct 2006 21:57:08 -0400
-Subject: [PATCH] cx24123: fix PLL divisor setup
 
-The cx24109 datasheet says: "NOTE: if A=0, then N=N+1"
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-The current code is the result of a misinterpretation of the datasheet to
-mean exactly the opposite of the requirement -- The actual value of N is 1 greater than the value written when A is 0, so 1 needs to be *subtracted*
-from it to compensate.
+> On Fri, 2006-10-06 at 18:53 -0700, akpm@osdl.org wrote:
+> > Adds a generic sched_clock, along with a boot time override for the 
+> > scheduler clocksource (sched_clocksource).  Hopefully the config 
+> > option would eventually be removed.
+> 
+> Again, this belongs into the clocksource code and not into sched.c
+> 
+> Your patch series scatters clock source related code snippets all over 
+> the place. This becomes simply a maintenance nightmare.
 
-Signed-off-by: Yeasah Pell <yeasah@schwide.net>
-Signed-off-by: Steven Toth <stoth@hauppauge.com>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
----
- drivers/media/dvb/frontends/cx24123.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+seconded.
 
-diff --git a/drivers/media/dvb/frontends/cx24123.c b/drivers/media/dvb/frontends/cx24123.c
-index 691dc84..afb08ff 100644
---- a/drivers/media/dvb/frontends/cx24123.c
-+++ b/drivers/media/dvb/frontends/cx24123.c
-@@ -579,8 +579,8 @@ static int cx24123_pll_calculate(struct 
- 	ndiv = ( ((p->frequency * vco_div * 10) / (2 * XTAL / 1000)) / 32) & 0x1ff;
- 	adiv = ( ((p->frequency * vco_div * 10) / (2 * XTAL / 1000)) % 32) & 0x1f;
- 
--	if (adiv == 0)
--		ndiv++;
-+	if (adiv == 0 && ndiv > 0)
-+		ndiv--;
- 
- 	/* control bits 11, refdiv 11, charge pump polarity 1, charge pump current, ndiv, adiv */
- 	state->pllarg = (3 << 19) | (3 << 17) | (1 << 16) | (pump << 14) | (ndiv << 5) | adiv;
+	Ingo

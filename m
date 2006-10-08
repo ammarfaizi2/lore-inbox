@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWJHVby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWJHVdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWJHVby (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWJHVby
+	id S932065AbWJHVdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWJHVdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:31:54 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:21633 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751458AbWJHVbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:31:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=mocAIsv7QQ6GP+CUqL22tEZQuZHaU50TbXmP5s10o1MA7ivsRKS05uB9eOqIIF47uzA73KNDCae0xyZgFWh2Xb4FS+Lk1qqEioisLP75n2cehC+w1GgGpCsxOY+VletemLbwYGgiBXR6G6JEfuCWPW+cgUx+5tfkqT4XNfkSNwc=
-Date: Mon, 9 Oct 2006 01:31:37 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] DAC960: memmove for overlapping areas
-Message-ID: <20061008213137.GA5347@martell.zuzino.mipt.ru>
+	Sun, 8 Oct 2006 17:33:44 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:59093 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751447AbWJHVdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:33:43 -0400
+Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
+From: Daniel Walker <dwalker@mvista.com>
+To: tglx@linutronix.de
+Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160342483.5686.104.camel@localhost.localdomain>
+References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net>
+	 <1160301340.22911.27.camel@localhost.localdomain>
+	 <1160318750.3693.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160319112.5686.8.camel@localhost.localdomain>
+	 <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160322376.5686.25.camel@localhost.localdomain>
+	 <1160323597.3693.62.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160324354.5686.41.camel@localhost.localdomain>
+	 <1160324846.3693.78.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160326451.5686.51.camel@localhost.localdomain>
+	 <1160328400.3693.100.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160333127.5686.58.camel@localhost.localdomain>
+	 <1160342108.3693.144.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <1160342483.5686.104.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 08 Oct 2006 14:33:41 -0700
+Message-Id: <1160343221.3693.154.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+On Sun, 2006-10-08 at 23:21 +0200, Thomas Gleixner wrote:
+> On Sun, 2006-10-08 at 14:15 -0700, Daniel Walker wrote:
+> > On Sun, 2006-10-08 at 20:45 +0200, Thomas Gleixner wrote:
+> > 
+> > > > I'm not moving the kernel/timer.c clocksource user back into
+> > > > kernel/time/clocksource.c . That code completely belongs with the
+> > > > generic time of day changes. The code is directly coupled, and in fact
+> > > > it improves the timekeeping clock switching code to have it that way.
+> > > 
+> > > I don't see any reason, why it must be added to timer.c. You can achieve
+> > > the same result with calling the code outside, except that the compiler
+> > > might miss some inline optimization. The switch clock code is not a
+> > > hotpath and so it does not matter whether it is called here or there.
+> > 
+> > It wouldn't be as clean to integrate the two. The hotpath is improved
+> > (which is what I was referring too above.)
+> 
+> Sorry, where is which hotpath improved ?
 
- drivers/block/DAC960.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The hotpath in update_wall_time() kernel/timer.c which involves clock
+switching.
 
---- a/drivers/block/DAC960.h
-+++ b/drivers/block/DAC960.h
-@@ -4379,8 +4379,8 @@ static inline void DAC960_P_To_PD_Transl
- static inline void DAC960_P_To_PD_TranslateDeviceState(void *DeviceState)
- {
-   memcpy(DeviceState + 2, DeviceState + 3, 1);
--  memcpy(DeviceState + 4, DeviceState + 5, 2);
--  memcpy(DeviceState + 6, DeviceState + 8, 4);
-+  memmove(DeviceState + 4, DeviceState + 5, 2);
-+  memmove(DeviceState + 6, DeviceState + 8, 4);
- }
- 
- static inline
+Daniel
 

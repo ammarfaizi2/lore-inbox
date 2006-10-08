@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWJHTD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWJHTOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWJHTD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWJHTD2
+	id S1751346AbWJHTOF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWJHTOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:03:28 -0400
-Received: from www.osadl.org ([213.239.205.134]:53181 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751342AbWJHTD0 (ORCPT
+	Sun, 8 Oct 2006 15:14:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30395 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751337AbWJHTOC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:03:26 -0400
-Subject: Re: + clocksource-increase-initcall-priority.patch added to -mm
-	tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160327879.3693.97.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-References: <200610070153.k971ren4020838@shell0.pdx.osdl.net>
-	 <1160294812.22911.8.camel@localhost.localdomain>
-	 <1160302797.22911.37.camel@localhost.localdomain>
-	 <1160319033.3693.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319234.5686.12.camel@localhost.localdomain>
-	 <1160322317.3693.47.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160323127.5686.37.camel@localhost.localdomain>
-	 <1160324288.3693.71.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160326363.5686.48.camel@localhost.localdomain>
-	 <1160327879.3693.97.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 21:03:25 +0200
-Message-Id: <1160334205.5686.72.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 15:14:02 -0400
+Date: Sun, 8 Oct 2006 21:13:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bryce Harrington <bryce@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, shaohua.li@intel.com,
+       hotplug_sig@osdl.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: Status on CPU hotplug issues
+Message-ID: <20061008191350.GB3788@elf.ucw.cz>
+References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org> <20060317084653.GA4515@in.ibm.com> <20060317010412.3243364c.akpm@osdl.org> <20061006231012.GH22139@osdl.org> <20061006162924.344090f8.akpm@osdl.org> <20061007102419.GB30034@elf.ucw.cz> <20061007202521.GA24743@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061007202521.GA24743@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 10:17 -0700, Daniel Walker wrote:
-> There was a special case inside kernel/time/clocksource.c to prevent
-> clock switching during boot up. If you remove that (which I have) then
-> you will end up with clock switching happening a few times during bootup
-> (whenever a new highest rated clock is registered), that's the churn I'm
-> referring to.
+Hi!
+
+> > > > > How well tested is this?  From my reading, this will cause
+> > > > > enable_nonboot_cpus() to panic.  Is that intended?
+> > > > 
+> > > > I wanted to give you an update on results of cpu testing I've done on
+> > > > recent kernels and several architectures.  Since -rc1 is out, I wanted
+> > > > to give added visibility to the few issues that remain.
+> > > > 
+> > > > The full results are available here:
+> > > > 
+> > > >     http://crucible.osdl.org/runs/hotplug_report.html
+> > > > 
+> > > > This is actually a report for cpu hotplug tests generated hourly,
+> > > > however we run it against all of the kernel -git snapshots posted to
+> > > > kernel.org.  Whereever you see a blank square, it indicates the kernel
+> > > > either failed to build or boot.
+> > 
+> > So... patch-2.6.18-git4 failed to boot on all architectures? I'm
+> > seeing very little green fields there... actually I only see two green
+> > fields in whole table.
 > 
-> The churn is not optimal. I've used postcore to prevent it, and make the
-> API usable earlier. So there is a reason for the change. 
+> No, it failed to build due to a patching issue that has since been fixed
+> (I can rerun those older runs if there is interest.)
 
-Yes, a bad one. The disabling had a totally different reason and you are
-not listening at all.
+Reruning few of them and deleting rest from table would be nice.
 
-You just introduce a problem again, because it does not happen on your
-machines and you think, that some not yet available instrumentation code
-needs high resolution time stamps. 
+> > > iirc Pavel did some testing a month or two ago and was seeing userspace
+> > > misbehaviour?
+> > 
+> > Pavel did some testing (like two threads trying to plug/unplug cpus at
+> > the same time), and seen machines dying real fast; but that was fixed,
+> > IIRC, and I did not really torture it after that.
+> 
+> If this test is available, I could include it in my test runs if you
+> think it would be worth tracking.
 
-The reason why this was delayed into late boot is simply that the
-unstable, unsynchronized TSC's made way too much trouble and the pmtimer
-can not be initialized early.
-
-I'm not going to accept that. Your change might work on 5 machines you
-have tested on, but we start over with the same breakage we solved
-already. 
-
-This early boot instrumentation code can work with low resolution time
-information quite well and none of the boot code does need any high res
-time information. Boot code is different from a running system and has
-different requirements. 
-
-This is a solution for a nonexisting problem, which just brings back
-already solved ones.
-
-	tglx
-
-
-
+Is shell script acceptable form of a test?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

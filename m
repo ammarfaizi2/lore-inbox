@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWJHNlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWJHNlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWJHNlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 09:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWJHNlr
+	id S1751152AbWJHNlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 09:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWJHNlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 09:41:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50658 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751129AbWJHNlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 09:41:46 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Muli Ben-Yehuda <muli@il.ibm.com>, Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/3] x86_64 irq fixes
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	<20061006155021.GE14186@rhun.haifa.ibm.com>
-	<m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-	<20061006202324.GJ14186@rhun.haifa.ibm.com>
-	<m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
-	<20061007080315.GM14186@rhun.haifa.ibm.com>
-	<m14pugxe47.fsf@ebiederm.dsl.xmission.com>
-	<20061007175926.GN14186@rhun.haifa.ibm.com>
-Date: Sun, 08 Oct 2006 07:39:38 -0600
-In-Reply-To: <20061007175926.GN14186@rhun.haifa.ibm.com> (Muli Ben-Yehuda's
-	message of "Sat, 7 Oct 2006 19:59:26 +0200")
-Message-ID: <m1k63budt1.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Oct 2006 09:41:49 -0400
+Received: from hentges.net ([81.169.178.128]:44972 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1751152AbWJHNls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 09:41:48 -0400
+Subject: Re: sky2 (was Re: 2.6.18-mm2)
+From: Matthias Hentges <oe@hentges.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <1160250529.4575.7.camel@mhcln03>
+References: <20060928155053.7d8567ae.akpm@osdl.org>
+	 <451C5599.80402@garzik.org> <20060928161956.5262e5d3@freekitty>
+	 <1159930628.16765.9.camel@mhcln03>
+	 <20061003202643.0e0ceab2@localhost.localdomain>
+	 <1160250529.4575.7.camel@mhcln03>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4FPqPrOf/PZbCF96FVDp"
+Date: Sun, 08 Oct 2006 15:41:45 +0200
+Message-Id: <1160314905.4575.21.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <muli@il.ibm.com> writes:
 
-> On Sat, Oct 07, 2006 at 10:52:24AM -0600, Eric W. Biederman wrote:
->
->> Can you try CONFIG_CPU_HOTPLUG?  That will force genapic to be set
->> to genapic_physflat instead of genapic_flat.
->
-> Yep, it boots with CONFIG_CPU_HOTPLUG!
->
->> If genapic_physflat works we will have to decide what to do about
->> genapic_flat.
->
-> I'm happy to test any follow-on patches to make it work without
-> CONFIG_CPU_HOTPLUG.
+--=-4FPqPrOf/PZbCF96FVDp
+Content-Type: multipart/mixed; boundary="=-PTavlHUZzryen5Gvt8cH"
 
-Ok.  I have found a fairly clean way to structure the code that
-should restore the previous behavior of the genapic_flat allowing
-lowest priority interrupt delivery to work, and getting lucky
-and avoiding your hardware that does not do what the software
-tells it to :)
 
-I still need to dig in and remove the BUG_ON in the interrupt
-reception path, but that is a separate problem.
+--=-PTavlHUZzryen5Gvt8cH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I also found another small bug in the pci_enable_irq because
-of some code I failed to remove earlier, and the patches overlap
-so I have made this a small patch series.
+Hi Stephen,
 
-I have tested the code as best I can, and confirmation that this
-fixes the original problem would be great.  But I don't see how
-it could fail to fix the problem, as it restores genapic_flat to
-global vector allocation.
+I believe I have identified the problem. The freeze only happens when
+your debug patch to work around sky2 PCIe error messages is applied.
+Without your patch (attached) I get _tons_ of error messages and the NIC
+dies every few seconds / minutes (reproduceable!), but the system
+recovers just fine from a NIC crash.
 
-Eric
+I have verified this behavior (works fine w/o debug patch, freezes with
+patch applied) with:
+- 2.6.19-rc1-git4=20
+- 2.6.18-git something=20
+- 2.6.18-mm3
+ =20
+--=20
+Matthias 'CoreDump' Hentges=20
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-PTavlHUZzryen5Gvt8cH
+Content-Disposition: attachment; filename=sky2-pcie.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=sky2-pcie.patch; charset=ISO-8859-15
+
+LS0tIHNreTIuYy5vcmlnCTIwMDYtMDktMzAgMDE6NTA6MzUuMDAwMDAwMDAwICswMjAwDQorKysg
+c2t5Mi5jCTIwMDYtMDktMzAgMDE6NTA6MzguMDAwMDAwMDAwICswMjAwDQpAQCAtMjQ2Myw2ICsy
+NDYzLDcgQEANCiANCiAJc2t5Ml93cml0ZTgoaHcsIEIwX0NUU1QsIENTX01SU1RfQ0xSKTsNCiAN
+CisjZGVmaW5lIFBFWF9VTkNfRVJSX1NUQVQgMHgxMDQgICAgICAgICAvKiBQQ0kgZXh0ZW5kZWQg
+ZXJyb3IgY2FwYWJsaXR5ICovDQogCS8qIGNsZWFyIGFueSBQRVggZXJyb3JzICovDQogCWlmIChw
+Y2lfZmluZF9jYXBhYmlsaXR5KGh3LT5wZGV2LCBQQ0lfQ0FQX0lEX0VYUCkpIHsNCiAJCWh3LT5l
+cnJfY2FwID0gcGNpX2ZpbmRfZXh0X2NhcGFiaWxpdHkoaHctPnBkZXYsIFBDSV9FWFRfQ0FQX0lE
+X0VSUik7DQpAQCAtMjQ3MCw2ICsyNDcxLDE2IEBADQogCQkJc2t5Ml9wY2lfd3JpdGUzMihodywN
+CiAJCQkJCSBody0+ZXJyX2NhcCArIFBDSV9FUlJfVU5DT1JfU1RBVFVTLA0KIAkJCQkJIDB4ZmZm
+ZmZmZmZVTCk7DQorICAgICAgICAgICAgICAgZWxzZQ0KKyAgICAgICAgICAgICAgICAgICAgICAg
+cHJpbnRrKEtFUk5fRVJSIFBGWCAicGNpIGV4cHJlc3MgZm91bmQgYnV0IG5vdCBleHRlbmRlZCBl
+cnJvciBzdXBwb3J0P1xuIik7DQorICAgICAgICAgICAgICAgDQorICAgICAgICAgICAgICAgaWYg
+KGh3LT5lcnJfY2FwICsgUENJX0VSUl9VTkNPUl9TVEFUVVMgIT0gUEVYX1VOQ19FUlJfU1RBVCkg
+ew0KKyAgICAgICAgICAgICAgICAgICAgICAgDQorICAgICAgICAgICAgICAgICAgICAgICBwcmlu
+dGsoS0VSTl9FUlIgUEZYICJwY2kgZXhwcmVzcyBlcnJvciBzdGF0dXMgcmVnaXN0ZXIgZml4ZWQg
+ZnJvbSAlI3ggdG8gJSN4XG4iLA0KKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh3LT5l
+cnJfY2FwLCBQRVhfVU5DX0VSUl9TVEFUIC0gUENJX0VSUl9VTkNPUl9TVEFUVVMpOw0KKyAgICAg
+ICAgICAgICAgICAgICAgICAgaHctPmVycl9jYXAgPSBQRVhfVU5DX0VSUl9TVEFUIC0gUENJX0VS
+Ul9VTkNPUl9TVEFUVVM7DQorICAgICAgICAgICAgICAgfQ0KKwkJCQkJIA0KIAl9DQogDQogCWh3
+LT5wbWRfdHlwZSA9IHNreTJfcmVhZDgoaHcsIEIyX1BNRF9UWVApOw0K
+
+
+--=-PTavlHUZzryen5Gvt8cH--
+
+--=-4FPqPrOf/PZbCF96FVDp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFKQAYAq2P5eLUP5IRAiePAKCQHsUMZyqdf67lZDAKfI/M93BA7QCeMz3M
+aQRRZ0XWWYK8YTnBFINoor0=
+=6Hi7
+-----END PGP SIGNATURE-----
+
+--=-4FPqPrOf/PZbCF96FVDp--
+

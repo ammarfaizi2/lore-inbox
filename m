@@ -1,87 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWJHHOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWJHH1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWJHHOg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWJHHOg
+	id S1750869AbWJHH1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWJHH1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:14:36 -0400
-Received: from lug-owl.de ([195.71.106.12]:28360 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750861AbWJHHOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:14:35 -0400
-Date: Sun, 8 Oct 2006 09:14:33 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Andrew Morton <akpm@osdl.org>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sct@redhat.com, adilger@clusterfs.com, linux-ext3@vger.kernel.org
-Subject: Re: 2.6.18-mm2: ext3 BUG?
-Message-ID: <20061008071433.GC30283@lug-owl.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Jiri Slaby <jirislaby@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	sct@redhat.com, adilger@clusterfs.com, linux-ext3@vger.kernel.org
-References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org> <4525925C.6060807@gmail.com> <20061005171428.636c087c.akpm@osdl.org> <20061008063330.GA30283@lug-owl.de>
+	Sun, 8 Oct 2006 03:27:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35599 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750758AbWJHH1l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:27:41 -0400
+Date: Sun, 8 Oct 2006 07:27:26 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Misha Tomushev <misha@fabric7.com>
+Cc: Jeff Garzik <jeff@garzik.org>, KERNEL Linux <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 6/10] VIOC: New Network Device Driver
+Message-ID: <20061008072726.GA5589@ucw.cz>
+References: <200610051105.51259.misha@fabric7.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZNveOOYjKturpEFp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061008063330.GA30283@lug-owl.de>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+In-Reply-To: <200610051105.51259.misha@fabric7.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---ZNveOOYjKturpEFp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2006-10-08 08:33:30 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de> wr=
-ote:
-> Just to add, I've seen right this, too, on Debian's 2.6.17-2-686, with
-> a 00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE
-> (rev 01) (8086:7111) PATA controller with a ST3300822A disk. That's
-> healthy from smartmontool's point of view. The machine has 192MB RAM, an
-> Intel P3 processor and is idle during daytime, busy with fetching
-> backups at night. I'm using this filesystem with faubackup, lots of
-> small files, lots of hard links and a number of large files.  Some of
-> the posts below mention large files, too.  My impression would be that
-> it happens when unlink()ing large files.  Oh, and it's a LV, not a
-> direct partition.
+> +	ecmd->phy_address = 0;	/* !!! Stole from e1000 */
+> +	ecmd->speed = 3;	/* !!! Stole from e1000 */
 
-Another thing to add:  I don't think this corruption is related to the
-PIIX4 controller. For some days (when we put the machines that were
-backed-up into production), we tried to work with an external USB HDD.
-(The backup box is off-site and only has limited bandwidth, so the
-idea was to move the USB HDD to the main site if we were on fire
-there. We gave up this idea due to too small USB performance.)
+Eh?
 
-However, I've seen this problem twice with the USB-attached disk, too.
-It's the exact same disk, we just threw away the case.
+> +static void vnic_get_regs(struct net_device *netdev,
+> +			  struct ethtool_regs *regs, void *p)
+> +{
+> +	struct vnic_device *vnicdev = netdev->priv;
+> +	struct vioc_device *viocdev = vnicdev->viocdev;
+> +	char *regs_buff = p;
+> +
+> +	memset(regs_buff, 0, VNIC_REGS_CNT * VNIC_REGS_LINE_LEN);
+> +
+> +	regs->version = 1;
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_GLOBAL, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_GLOBAL, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_DEBUG, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_DEBUG, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_FABRIC, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_FABRIC, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_VNIC_EN, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_VNIC_EN, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_PORT_EN, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_PORT_EN, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_BMC_VNIC_CFG, VIOC_BMC, 0),
+> +		VIOC_READ_REG(VREG_BMC_VNIC_CFG, VIOC_BMC, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_IHCU_RXDQEN, VIOC_IHCU, 0),
+> +		VIOC_READ_REG(VREG_IHCU_RXDQEN, VIOC_IHCU, 0, viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id),
+> +		VIOC_READ_REG(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id,
+> +			      viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +	sprintf(regs_buff, "%08Lx = %08x\n",
+> +		GETRELADDR(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id),
+> +		VIOC_READ_REG(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id,
+> +			      viocdev));
+> +	regs_buff += strlen(regs_buff);
+> +
+> +}
 
-MfG, JBG
-
---=20
-      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
-Signature of:                http://catb.org/~esr/faqs/smart-questions.html
-the second  :
-
---ZNveOOYjKturpEFp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD4DBQFFKKVZHb1edYOZ4bsRApQFAJYvZyZ4nLRIUOxe7b36DK/vfkfFAKCEaxst
-eUnLmFDJBmdmd0XJp/HdFA==
-=WtJU
------END PGP SIGNATURE-----
-
---ZNveOOYjKturpEFp--
+This looks ugly. What interface is that?
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

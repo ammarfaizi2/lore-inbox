@@ -1,96 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWJHHDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWJHHGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWJHHDe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWJHHDe
+	id S1750849AbWJHHGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWJHHGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:03:34 -0400
-Received: from dvhart.com ([64.146.134.43]:1417 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1750842AbWJHHDd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:03:33 -0400
-Message-ID: <4528A26F.9000804@mbligh.org>
-Date: Sun, 08 Oct 2006 00:02:07 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Sun, 8 Oct 2006 03:06:34 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:19845 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1750849AbWJHHGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:06:33 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Sun, 8 Oct 2006 09:07:16 +0200
+User-Agent: KMail/1.8
+Cc: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Panic in pci_call_probe from 2.6.18-mm2 and 2.6.18-mm3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610080907.16443.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if you've seen this already ... catching up on test results.
+Am Sonntag, 8. Oktober 2006 04:03 schrieb Alan Stern:
+> On Sat, 7 Oct 2006, David Brownell wrote:
+> 
+> > On Saturday 07 October 2006 10:16 am, Oliver Neukum wrote:
+> > 
+> > > > > I dare say that the commonest scenario involving USB is a laptop with
+> > > > > an input device attached. Input devices are for practical purposes always
+> > > > > opened. A simple resume upon open and suspend upon close is useless.
+> 
+> You are distorting what I said.  The "resume upon open and suspend upon
 
-This was on NUMA-Q, on both -mm2 and -mm3. -mm1 didn't suffer from this
-problem.
+Sorry.
 
-Full logs:
+> close" scheme was not intended for things like input devices, which are
+> more or less permanently open.  It was intended for things like
+> fingerprint readers or printers, which spend most of their time not being
+> used.
 
-mm2 - http://test.kernel.org/abat/50727/debug/console.log
-mm3 - http://test.kernel.org/abat/51442/debug/console.log
+OK.
 
-config - http://test.kernel.org/abat/51442/build/dotconfig
+> > That is, the standard model is useless?  I think you've made
+> > a few strange leaps of logic there ... care to fill in those
+> > gaps and explain just _why_ that standard model is "useless"???
+> > 
+> > Recall by the way that the autosuspend stuff kicked off with
+> > discussions about exactly how to make sure that Linux could
+> > get the power savings inherent in suspending USB root hubs,
+> > with remote wakeup enabling use of the mouse on that keyboard.
+> > (I remember Len Brown talking to me a few years back about how
+> > that was the "last" 2W per controller easily available to save
+> > power on Centrino laptops ... now we're almost ready to claim
+> > that savings.)
+> 
+> The most obvious model for suspending keyboards or mice is an inactivity 
+> timeout (with the timeout limit set from userspace), but other policies 
+> certainly could be useful in specific circumstances.
 
-I'm guessing from the 00000004 that the pcibus_to_node(dev->bus)
-is failing because bus->sysdata is NULL. The disassembly and
-structure offsets seem to line up for that.
+The simplicity is much reduced if each class of devices needs to have
+its own method of determining activity. And if you don't find a good way
+for some devices, users with these are out in the rain and can do nothing
+about it if suspension cannot be triggered from user space.
 
-#define pcibus_to_node(bus) (
-	(struct pci_sysdata *)((bus)->sysdata))->node
+> Considering that we have virtually no autosuspend capability now, taking
+> the first few simple steps will be a big help.  Just getting an
 
-struct pci_sysdata {
-         int             domain;         /* PCI domain */
-         int             node;           /* NUMA node */
-};
+No question about that.
 
+> infrastructure in place is a good start, even without a userspace API.  
+> Later on, when we have a better idea of what we want, bells and whistles
+> can be added.
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 
-00000004
-  printing eip:
-c02060d4
-*pde = 0042c001
-*pte = 00000000
-Oops: 0000 [#1]
-SMP
-last sysfs file:
-Modules linked in:
-CPU:    2
-EIP:    0060:[<c02060d4>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.18-mm2-autokern1 #1)
-EIP is at pci_call_probe+0x19/0xb5
-eax: 00000000   ebx: e778b400   ecx: e7400030   edx: c03b89a0
-esi: e778b400   edi: 0000ffff   ebp: e69a2fa0   esp: e740dea4
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, ti=e740c000 task=e7400030 task.ti=e740c000)
-Stack: ffffffed e778b400 c03b89a0 c02061a3 c03b89a0 e778b400 c03b873c 
-c03b89a0
-        e778b400 c03b89d4 c02061d6 c03b89a0 e778b400 e778b400 c03b89d4 
-e778b448
-        c0224800 e778b448 c03b89d4 e778b448 00000000 c03b89d4 c0224936 
-e69a2fa0
-Call Trace:
-  [<c02061a3>] __pci_device_probe+0x33/0x47
-  [<c02061d6>] pci_device_probe+0x1f/0x34
-  [<c0224800>] really_probe+0x31/0xb9
-  [<c0224936>] driver_probe_device+0x93/0x9c
-  [<c02249b5>] __driver_attach+0x0/0x7c
-  [<c02249fc>] __driver_attach+0x47/0x7c
-  [<c0223e98>] bus_for_each_dev+0x47/0x6d
-  [<c01fd05a>] kobject_add+0xa9/0xf2
-  [<c0224a45>] driver_attach+0x14/0x18
-  [<c02249b5>] __driver_attach+0x0/0x7c
-  [<c022437b>] bus_add_driver+0x53/0xd0
-  [<c0224d99>] driver_register+0x74/0x77
-  [<c02063ea>] __pci_register_driver+0x6b/0x7a
-  [<c04146c3>] qla1280_init+0xc/0xf
-  [<c04007ff>] do_initcalls+0x55/0xe8
-  [<c0184095>] proc_mkdir+0x12/0x16
-  [<c0135136>] init_irq_proc+0x21/0x2f
-  [<c01003b8>] init+0x0/0x148
-  [<c010040d>] init+0x55/0x148
-  [<c01033c7>] kernel_thread_helper+0x7/0x10
+I've never said that autosuspend is a bad idea. For many devices it is
+simple and painless. But it is insufficient. Therefore I think removing
+the ability to explicitely request a suspension from user space is wrong.
+
+> Even Oliver has admitted that the implementation issues are very tricky 
+> and he doesn't know the best approach to take.
+
+If so many people cannot come up with a good design, doesn't that indicate
+there's no single method that satisfies all needs?
+
+	Regards
+		Oliver

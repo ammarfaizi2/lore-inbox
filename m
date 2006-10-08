@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWJHHNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWJHHNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWJHHNK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWJHHNK
+	id S1750863AbWJHHNo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWJHHNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:13:10 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57351 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750853AbWJHHNI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:13:08 -0400
-Date: Sun, 8 Oct 2006 07:12:54 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org
-Subject: x60 backlight Re: [discuss] 2.6.19-rc1: known regressions (v2)
-Message-ID: <20061008071254.GA5672@ucw.cz>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061007214620.GB8810@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Oct 2006 03:13:44 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:12198 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1750859AbWJHHNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:13:43 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Sun, 8 Oct 2006 09:14:26 +0200
+User-Agent: KMail/1.8
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071916.27315.oliver@neukum.org> <200610071703.24599.david-b@pacbell.net>
+In-Reply-To: <200610071703.24599.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061007214620.GB8810@stusta.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610080914.26315.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Sonntag, 8. Oktober 2006 02:03 schrieb David Brownell:
+> On Saturday 07 October 2006 10:16 am, Oliver Neukum wrote:
+> 
+> > > > I dare say that the commonest scenario involving USB is a laptop with
+> > > > an input device attached. Input devices are for practical purposes always
+> > > > opened. A simple resume upon open and suspend upon close is useless.
+> 
+> That is, the standard model is useless?  I think you've made
 
-On Sat 07-10-06 23:46:21, Adrian Bunk wrote:
-> This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18
-> that are not yet fixed Linus' tree.
-> 
-> If you find your name in the Cc header, you are either submitter of one
-> of the bugs, maintainer of an affectected subsystem or driver, a patch
-> of you was declared guilty for a breakage or I'm considering you in any
-> other way possibly involved with one or more of these issues.
-> 
-> Due to the huge amount of recipients, please trim the Cc when answering.
-...
-> Subject    : T60 stops triggering any ACPI events
-> References : http://lkml.org/lkml/2006/10/4/425
-> Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
-> Status     : unknown
-> 
-> 
-> Subject    : thinkpad x60: brightness no longer adjustable in 2.6.18-git
-> References : http://lkml.org/lkml/2006/10/2/300
-> Submitter  : Pavel Machek <pavel@ucw.cz>
-> Status     : unknown, related to the issue above?
+To be precise a simple implementation of autosuspend is useless.
+The idea can be expanded as I wrote if you care to read a bit further.
+But still I find the idea to have drawbacks for input devices.
 
-Strange, problem went away after reboot. I guess I'll write it off as
-an acpi glitch... there's definitely something strange going on with
-backlight around s2ram: during normal operation, backlight changes are
-fast. After s2ram, backlight change from keyboard takes 300msec or so.
+That is not to say that autosuspend is bad in all cases, but there are
+unavoidable cases in which it is not optimal, which leads me to conclude
+that suspension for a device must remain triggerable from user space.
 
--- 
-Thanks for all the (sleeping) penguins.
+	Regards
+		Oliver
+ 

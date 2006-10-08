@@ -1,103 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWJHH1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWJHHpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWJHH1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 03:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWJHH1m
+	id S1750879AbWJHHpx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 03:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWJHHpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 03:27:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35599 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750758AbWJHH1l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 03:27:41 -0400
-Date: Sun, 8 Oct 2006 07:27:26 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Misha Tomushev <misha@fabric7.com>
-Cc: Jeff Garzik <jeff@garzik.org>, KERNEL Linux <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/10] VIOC: New Network Device Driver
-Message-ID: <20061008072726.GA5589@ucw.cz>
-References: <200610051105.51259.misha@fabric7.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Oct 2006 03:45:53 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:11732 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750873AbWJHHpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 03:45:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=KkVQmhPO2qEOxztxMt58Oauf4a3qp9YBIT4UYq7AF45Niv+nx0GFUt98k5ubV8lsDHse4xaBAmeLHaDOMC3lHQuAWYjZ+2xV1tMc6MP8mfFfOYthSRrbJt2+ClOwZKA7PT52WloeilSulsPnoQ4kshtyQyQjozP9xjMQ+fM8TO0=
+Message-ID: <84144f020610080045s6d2d1b06o6fc78bfb8fbf4d77@mail.gmail.com>
+Date: Sun, 8 Oct 2006 10:45:50 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: 2.6.19-rc1: known regressions (v2)
+Cc: "Trond Myklebust" <Trond.Myklebust@netapp.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061008063943.GB6755@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610051105.51259.misha@fabric7.com>
-User-Agent: Mutt/1.5.9i
+References: <EXSVLRB01xe0ymQ1WE900000265@exsvlrb01.hq.netapp.com>
+	 <20061008045522.GG29474@stusta.de>
+	 <1160283948.10192.3.camel@lade.trondhjem.org>
+	 <20061008063943.GB6755@stusta.de>
+X-Google-Sender-Auth: 37ba324e36ea64bd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Trond,
 
+On Sun, Oct 08, 2006 at 01:05:48AM -0400, Trond Myklebust wrote:
+> > In any case, what the fuck gives you the right to appoint yourself judge
+> > and jury over kernel regressions?
 
-> +	ecmd->phy_address = 0;	/* !!! Stole from e1000 */
-> +	ecmd->speed = 3;	/* !!! Stole from e1000 */
+On 10/8/06, Adrian Bunk <bunk@stusta.de> wrote:
+> I've given this right myself - everyone can always send any bug list he
+> wants to linux-kernel.
 
-Eh?
+I don't see what the problem here is. As stated in the bug report, a
+patch signed off by you broke something in the kernel which is not yet
+fixed in -git. Aside from calling people "guilty", what Adrian is
+doing is a service to us all.
 
-> +static void vnic_get_regs(struct net_device *netdev,
-> +			  struct ethtool_regs *regs, void *p)
-> +{
-> +	struct vnic_device *vnicdev = netdev->priv;
-> +	struct vioc_device *viocdev = vnicdev->viocdev;
-> +	char *regs_buff = p;
-> +
-> +	memset(regs_buff, 0, VNIC_REGS_CNT * VNIC_REGS_LINE_LEN);
-> +
-> +	regs->version = 1;
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_GLOBAL, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_GLOBAL, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_DEBUG, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_DEBUG, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_FABRIC, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_FABRIC, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_VNIC_EN, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_VNIC_EN, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_PORT_EN, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_PORT_EN, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_BMC_VNIC_CFG, VIOC_BMC, 0),
-> +		VIOC_READ_REG(VREG_BMC_VNIC_CFG, VIOC_BMC, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_IHCU_RXDQEN, VIOC_IHCU, 0),
-> +		VIOC_READ_REG(VREG_IHCU_RXDQEN, VIOC_IHCU, 0, viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id),
-> +		VIOC_READ_REG(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id,
-> +			      viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +	sprintf(regs_buff, "%08Lx = %08x\n",
-> +		GETRELADDR(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id),
-> +		VIOC_READ_REG(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id,
-> +			      viocdev));
-> +	regs_buff += strlen(regs_buff);
-> +
-> +}
-
-This looks ugly. What interface is that?
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+                                               Pekka

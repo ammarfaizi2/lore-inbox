@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWJHSAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWJHSEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWJHSAe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 14:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWJHSAe
+	id S1751304AbWJHSEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 14:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWJHSEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 14:00:34 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:18048 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1751301AbWJHSAd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 14:00:33 -0400
-Date: Sun, 8 Oct 2006 19:59:58 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+	Sun, 8 Oct 2006 14:04:41 -0400
+Received: from lug-owl.de ([195.71.106.12]:57787 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751304AbWJHSEl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 14:04:41 -0400
+Date: Sun, 8 Oct 2006 20:04:37 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, linux-pm@osdl.org
-Subject: Re: x60 backlight Re: [discuss] 2.6.19-rc1: known regressions (v2)
-Message-ID: <20061008175958.GA30377@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061008173809.GE6755@stusta.de>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1: known regressions (v2)
+Message-ID: <20061008180437.GO30283@lug-owl.de>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Pekka Enberg <penberg@cs.helsinki.fi>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>,
+	linux-kernel@vger.kernel.org
+References: <EXSVLRB01xe0ymQ1WE900000265@exsvlrb01.hq.netapp.com> <20061008045522.GG29474@stusta.de> <1160283948.10192.3.camel@lade.trondhjem.org> <20061008063943.GB6755@stusta.de> <84144f020610080045s6d2d1b06o6fc78bfb8fbf4d77@mail.gmail.com> <20061008172859.GD6755@stusta.de> <20061008173445.GN30283@lug-owl.de> <20061008175908.GG6755@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3CPNNdwcm6TTSOVC"
 Content-Disposition: inline
-In-Reply-To: <20061008173809.GE6755@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061008175908.GG6755@stusta.de>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Adrian Bunk <bunk@stusta.de>:
-> Subject: Re: x60 backlight Re: [discuss] 2.6.19-rc1: known regressions (v2)
-> 
-> On Sun, Oct 08, 2006 at 07:12:54AM +0000, Pavel Machek wrote:
-> > 
-> > On Sat 07-10-06 23:46:21, Adrian Bunk wrote:
-> > > This email lists some known regressions in 2.6.19-rc1 compared to 2.6.18
-> > > that are not yet fixed Linus' tree.
-> > > 
-> > ...
-> > > Subject    : T60 stops triggering any ACPI events
-> > > References : http://lkml.org/lkml/2006/10/4/425
-> > > Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
-> > > Status     : unknown
 
-This was on a pre -rc1 git tree.
-I've been using -rc1 since it's out and does not happen to me anymore.
-So we probably can write this off as a memory corruption
-issue that got fixed in between.
+--3CPNNdwcm6TTSOVC
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-MST
+On Sun, 2006-10-08 19:59:08 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> > Read the bug report: Seems it
+> > was actually caused by a non-initialized variable introduced by a
+> > patch to util-linux.
+>=20
+> It was the sum of two independent bugs, and one of them was a kernel bug.
+
+Without reading the sources but only the bug report, my impression is
+that the kernel code is correct.
+
+MfG, JBG
+
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+Signature of:         "really soon now":      an unspecified period of time=
+, likly to
+the second  :                                 be greater than any reasonabl=
+e definition
+                                              of "soon".
+
+--3CPNNdwcm6TTSOVC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFKT21Hb1edYOZ4bsRAkdjAJ0V3hVkPjhzj+k7U6DLsE4qKzt3SACfcABB
+62XXldvJ6nqVLdbXMmNlDkY=
+=QNII
+-----END PGP SIGNATURE-----
+
+--3CPNNdwcm6TTSOVC--

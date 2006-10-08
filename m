@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWJHThG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJHTkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWJHThG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWJHThF
+	id S1751359AbWJHTkb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWJHTkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:37:05 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25755 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751358AbWJHThE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:37:04 -0400
-Date: Sun, 8 Oct 2006 21:36:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, David Brownell <david-b@pacbell.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Message-ID: <20061008193648.GA4042@elf.ucw.cz>
-References: <200610071703.24599.david-b@pacbell.net> <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org>
+	Sun, 8 Oct 2006 15:40:31 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:51693 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1751359AbWJHTkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 15:40:31 -0400
+Date: Sun, 8 Oct 2006 12:40:29 -0700 (PDT)
+From: dean gaudet <dean@arctic.org>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
+In-Reply-To: <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.64.0610081233170.28503@twinlark.arctic.org>
+References: <20060930180157.GA25761@Krystal> <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0610072153510.15825-100000@netrider.rowland.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 8 Oct 2006, dean gaudet wrote:
 
-> > That is, the standard model is useless?  I think you've made
-> > a few strange leaps of logic there ... care to fill in those
-> > gaps and explain just _why_ that standard model is "useless"???
+> On Sat, 30 Sep 2006, Mathieu Desnoyers wrote:
+> 
+> > - Optimized
 > > 
-> > Recall by the way that the autosuspend stuff kicked off with
-> > discussions about exactly how to make sure that Linux could
-> > get the power savings inherent in suspending USB root hubs,
-> > with remote wakeup enabling use of the mouse on that keyboard.
-> > (I remember Len Brown talking to me a few years back about how
-> > that was the "last" 2W per controller easily available to save
-> > power on Centrino laptops ... now we're almost ready to claim
-> > that savings.)
+> > static int my_open(struct inode *inode, struct file *file)
+> > {
+> >    0:   55                      push   %ebp
+> >    1:   89 e5                   mov    %esp,%ebp
+> >    3:   83 ec 0c                sub    $0xc,%esp
+> >         MARK(subsys_mark1, "%d %p", 1, NULL);
+> >    6:   b0 00                   mov    $0x0,%al <-- immediate load 0 in al
+> >    8:   84 c0                   test   %al,%al
+> >    a:   75 07                   jne    13 <my_open+0x13>
 > 
-> The most obvious model for suspending keyboards or mice is an inactivity 
-> timeout (with the timeout limit set from userspace), but other policies 
-> certainly could be useful in specific circumstances.
+> why not replace the mov+test with "xor %eax,%eax" and then change the 0x75 
+> to a 0x74 to change from jne to je when you want to enable the marker?
 > 
-> Considering that we have virtually no autosuspend capability now, taking
-> the first few simple steps will be a big help.  Just getting an
-> infrastructure in place is a good start, even without a userspace API.  
-> Later on, when we have a better idea of what we want, bells and whistles
-> can be added.
+> i.e. disabled:
+> 
+> 	31 c0	xor %eax,%eax
+> 	75 07	jne 13
+> 
+> enabled:
+> 
+> 	31 c0	xor %eax,%eax
+> 	74 07	je 13
 
-<AOL>Mee too</AOL>
+actually... why even destroy the register... i bet this is the best 
+choice:
 
-Please, lets do few "autosuspend" things, and when we know how it
-looks, we can think about doing something more advanced.
+	39 c0	cmp %eax,%eax
+	75 07	jne 13
 
-								Pavel 
+that satisfies the macro-op fusion rules on core2 as well... now you 
+shouldn't even ask gcc for a register you should just hardwire %eax so it 
+doesn't get confused (probably need to tell it "cc" is modified).
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-dean

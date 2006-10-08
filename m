@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWJHStM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWJHSv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWJHStM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 14:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWJHStL
+	id S1751335AbWJHSv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 14:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWJHSv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 14:49:11 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38636 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751336AbWJHStK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 14:49:10 -0400
-Date: Sun, 8 Oct 2006 20:40:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: akpm@osdl.org, dwalker@mvista.com, johnstul@us.ibm.com,
-       zippel@linux-m68k.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
-Message-ID: <20061008184028.GA16437@elte.hu>
-References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net> <1160301340.22911.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160301340.22911.27.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 8 Oct 2006 14:51:57 -0400
+Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:8090 "EHLO
+	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751335AbWJHSv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 14:51:56 -0400
+Message-ID: <452948AD.8030600@gmail.com>
+Date: Sun, 08 Oct 2006 21:51:25 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+MIME-Version: 1.0
+To: "raise.sail@gmail.com" <raise.sail@gmail.com>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>, greg <greg@kroah.com>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver	Interface
+ 0.3.2 (core)
+References: <200609291624123283320@gmail.com>		<20060929095913.f1b6f79d.rdunlap@xenotime.net>	<d120d5000609291035q7dad5f7fqcb38d4d8b3b211e5@mail.gmail.com> <45286B85.90402@gmail.com>
+In-Reply-To: <45286B85.90402@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(I didn't get Dmitry's original mail, so replying here)
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
+raise.sail@gmail.com wrote:
+> Dmitry Torokhov wrote:
+>> Then there is issue with automatic loading of these sub-drivers. How
+>> do they get loaded? Or we force everything to be built-in making HID
+>> module very fat (like psmouse got pretty fat, but with HID prtential
+>> for it to get very fat is much bigger).
+>>
+>> The better way would be to split hid-input into a library module that
+>> parses hid usages and reports and is shared between device-specific
+>> modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
 
-> On Fri, 2006-10-06 at 18:53 -0700, akpm@osdl.org wrote:
-> > Adds a generic sched_clock, along with a boot time override for the 
-> > scheduler clocksource (sched_clocksource).  Hopefully the config 
-> > option would eventually be removed.
-> 
-> Again, this belongs into the clocksource code and not into sched.c
-> 
-> Your patch series scatters clock source related code snippets all over 
-> the place. This becomes simply a maintenance nightmare.
+One possibility is to do that with symbol_request() and friends. That
+would not be pretty though, imho.
 
-seconded.
+DVB subsystem uses that currently to load frontend modules dynamically,
+see dvb_attach() and dvb_frontend_detach() in
+drivers/media/dvb/dvb-core/dvbdev.h and
+drivers/media/dvb/dvb-core/dvb_frontend.c.
 
-	Ingo
+-- 
+Anssi Hannula
+

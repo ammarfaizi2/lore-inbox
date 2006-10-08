@@ -1,86 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWJHTTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJHTWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWJHTTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 15:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWJHTTw
+	id S1751355AbWJHTWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 15:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWJHTWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 15:19:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31943 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751351AbWJHTTv (ORCPT
+	Sun, 8 Oct 2006 15:22:20 -0400
+Received: from pat.uio.no ([129.240.10.4]:4567 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751355AbWJHTWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 15:19:51 -0400
-Date: Sun, 8 Oct 2006 21:19:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] error to be returned while suspended
-Message-ID: <20061008191937.GE3788@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071249.48194.oliver@neukum.org> <20061007110824.GA4277@ucw.cz> <200610071916.27315.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610071916.27315.oliver@neukum.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 8 Oct 2006 15:22:18 -0400
+Subject: Re: BUG when doing parallel NFS mounts (WAS: Re: Merge window
+	closed: v2.6.19-rc1)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Osterlund <petero2@telia.com>
+Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m31wpihc4u.fsf@telia.com>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	 <m37izbhvvb.fsf@telia.com> <m3mz86hm39.fsf@telia.com>
+	 <1160332545.11233.3.camel@lade.trondhjem.org>  <m31wpihc4u.fsf@telia.com>
+Content-Type: multipart/mixed; boundary="=-3gjP7hbLsl2JLu3lYS0M"
+Date: Sun, 08 Oct 2006 15:21:59 -0400
+Message-Id: <1160335319.11233.12.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.218, required 12,
+	autolearn=disabled, AWL 1.65, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > OK, let me state the basics.
-> > > 
-> > > To get real power savings, we:
-> > > - blank the display
-> > > - spin down the hard drive
-> > > - put the CPU into an ACPI sleep state
-> > > 
-> > > To do the latter well, we need to make sure there's no DMA. It is
-> > > important that less or little DMA will not help. We need no DMA.
-> > > So we need to handle the commonest scenarios fully.
-> > > 
-> > > I dare say that the commonest scenario involving USB is a laptop with
-> > > an input device attached. Input devices are for practical purposes always
-> > > opened. A simple resume upon open and suspend upon close is useless.
+--=-3gjP7hbLsl2JLu3lYS0M
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Sun, 2006-10-08 at 20:54 +0200, Peter Osterlund wrote:
+> Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> 
+> > On Sun, 2006-10-08 at 17:19 +0200, Peter Osterlund wrote:
+> > > > kernel BUG at fs/nfs/client.c:352!
 > > 
-> > Okay, but you can simply do autosuspend with remote wakeup completely
-> > inside input driver. You do ot need it to be controlled from X... at
-> > most you need one variable ('autosuspend_inactivity_timeout')
-> > controlled from userland.
-> > 
-> > That's what we already do for hdd spindown... you simply tell disk to
-> > aitospindown after X seconds of inactivity.
+> > Does the following patch fix it?
 > 
-> The firmware in the drive supplies this function. It's hardly by choice
-> that it is made available. The power management functions without
-> timeout are also exported. For other power control features like
-> cpu frequency considerable effort has been made to export them to
-> user space.
-> 
-> A simple timeout solution has drawbacks.
-> 
-> - there's no guarantee the user wants wakeup (think laptop on
-> crowded table)
+> Yes it does. Thanks!
 
-If you do not want wakeups (=> do not want any input from that
-device), then close that device.
+Hmm... There would appear to be another bug there. After breaking out of
+the loop, the task state is left as TASK_INTERRUPTIBLE. Let's just
+replace the whole thing with a wait_on_event_interruptible.
 
-> - you want to suspend immediately when you blank the screen (or switch to
-> a text console)
+Cheers,
+  Trond
 
-I kind-of understand "when you blank", but I do not think this
-mandatory. Why would you want to suspend when switching to text
-console? Am I no longer allowed to use gpm?
+--=-3gjP7hbLsl2JLu3lYS0M
+Content-Disposition: inline; filename=linux-2.6.19-002-fix_nfs_get_client.dif
+Content-Type: message/rfc822; name=linux-2.6.19-002-fix_nfs_get_client.dif
 
-> - you want to consider all devices' activity. I am not pleased if my mouse
-> becomes less responsive just because I used only the keyboard for a
-> few minutes. Coordinating this inside the driver is hard as some input
-> devices might well be not usb (eg. bluetooth mouse, usb tablet)
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+Date: Sun, 8 Oct 2006 14:33:24 -0400
+Subject: NFS: Fix typo in nfs_get_client()
+Message-Id: <1160335297.11233.11.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Yep, that would be nice; but not at price of /sys/.../power/state like
-monstrosity that never ever worked properly.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+NFS_CS_INITING > NFS_CS_READY, so instead of waiting for the structure to
+get initialised, we currently immediately jump out of the loop without ever
+sleeping.
+
+It is also possible to break out of the loop while still in
+TASK_INTERRUPTIBLE. Replace by wait_event_interruptible, which doesn't
+suffer from these problems.
+
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
+
+ fs/nfs/client.c |   24 +++++-------------------
+ 1 files changed, 5 insertions(+), 19 deletions(-)
+
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 6e4e48c..013cdbc 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -322,25 +322,11 @@ found_client:
+ 	if (new)
+ 		nfs_free_client(new);
+ 
+-	if (clp->cl_cons_state == NFS_CS_INITING) {
+-		DECLARE_WAITQUEUE(myself, current);
+-
+-		add_wait_queue(&nfs_client_active_wq, &myself);
+-
+-		for (;;) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			if (signal_pending(current) ||
+-			    clp->cl_cons_state > NFS_CS_READY)
+-				break;
+-			schedule();
+-		}
+-
+-		remove_wait_queue(&nfs_client_active_wq, &myself);
+-
+-		if (signal_pending(current)) {
+-			nfs_put_client(clp);
+-			return ERR_PTR(-ERESTARTSYS);
+-		}
++	error = wait_event_interruptible(&nfs_client_active_wq,
++				clp->cl_cons_state != NFS_CS_INITING);
++	if (error < 0) {
++		nfs_put_client(clp);
++		return ERR_PTR(-ERESTARTSYS);
+ 	}
+ 
+ 	if (clp->cl_cons_state < NFS_CS_READY) {
+
+--=-3gjP7hbLsl2JLu3lYS0M--
+

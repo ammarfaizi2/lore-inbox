@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWJHGnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWJHGu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWJHGnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 02:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWJHGnU
+	id S1750841AbWJHGu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 02:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWJHGu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 02:43:20 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27868 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750792AbWJHGnT (ORCPT
+	Sun, 8 Oct 2006 02:50:58 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:32449 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1750835AbWJHGu6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 02:43:19 -0400
-Date: Sun, 8 Oct 2006 08:43:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Alex Romosan <romosan@sycorax.lbl.gov>,
-       linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org, linux-pm@osdl.org
-Subject: Re: 2.6.19-rc1 regression: airo suspend fails
-Message-ID: <20061008064303.GA3111@elf.ucw.cz>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <871wpmoyjv.fsf@sycorax.lbl.gov> <20061006184706.GR16812@stusta.de> <1160250771.24902.6.camel@kleikamp.austin.ibm.com>
+	Sun, 8 Oct 2006 02:50:58 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Sun, 8 Oct 2006 08:51:40 +0200
+User-Agent: KMail/1.8
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071916.27315.oliver@neukum.org> <200610071703.24599.david-b@pacbell.net>
+In-Reply-To: <200610071703.24599.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1160250771.24902.6.camel@kleikamp.austin.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200610080851.40568.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Am Sonntag, 8. Oktober 2006 02:03 schrieb David Brownell:
+> > A simple timeout solution has drawbacks.
+> 
+> Plus lots of advantages, including the not-to-be-underrated simplicity.
 
-> > > it breaks suspend when the airo module is loaded:
-> > > 
-> > > kernel: Stopping tasks: =================================================================================
-> > > kernel:  stopping tasks timed out after 20 seconds (1 tasks remaining):
-> > > kernel:   eth1
-> > > kernel: Restarting tasks...<6> Strange, eth1 not stopped
-> > > 
-> > > if i remove the airo module suspend works normally (this is on a
-> > > thinkpad t40).
-> > 
-> > Thanks for your report.
-> > 
-> > Let's try to figure out what broke it.
-> 
-> I believe it was broken by:
-> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=3b4c7d640376dbccfe80fc4f7b8772ecc7de28c5
-> 
-> I have seen this in the -mm tree, but didn't follow up at the time.  I
-> was able to fix it with the following patch.  I don't know if it's the
-> best fix, but it seems to follow the same logic as the original code.
-> 
-> 
-> The airo driver used to break out of while loop if there were any signals
-> pending.  Since it no longer checks for signals, it at least needs to check
-> if it needs to be frozen.
-> 
-> Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+That simplicity means setting up timers in kernel space and determining when
+a device is "active". You only simplify the interface.
 
-ACK. Please push it to akpm or airo maintainers...
+> > - there's no guarantee the user wants wakeup (think laptop on crowded table)
+> 
+> In which case the /sys/devices/.../power/wakeup flag can be
+> marked as disabled.  No wakeup ... but of course, no power
+> savings either.  (One can still unplug the mouse...)
 
-								Pavel
+I can have suspend without wakeup. It just means that I need to
+hit a key to make X notice me again.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> > - you want to suspend immediately when you blank the screen (or switch to
+> > a text console)
+> 
+> Unrelated to USB or any other specific subsystem; the system
+
+That is exactly the point.
+
+> suspends by "echo mem > /sys/power/state" regardless.  (That is,
+> once the bugs in ACPI, and sometimes drivers, get fixed.)
+
+What allows you to assume that I want to suspend the whole system?
+That power/latency tradeoff is not a policy to be set in kernel.
+
+> > - you want to consider all devices' activity. I am not pleased if my mouse
+> > becomes less responsive just because I used only the keyboard for a
+> > few minutes. Coordinating this inside the driver is hard as some input
+> > devices might well be not usb (eg. bluetooth mouse, usb tablet)
+> 
+> The reasons X11 becomes unresponsive have very little to do with USB
+> or autosuspend; happens all the time with PS2 mice, trackpads, etc.
+> Again, those issues are unrelated to USB, or to the API you said you
+> wanted to see.
+
+I did not speak about X11. I can keep X pretty busy with keyboard and
+touchpad. Nevertheless my mouse has no business going to sleep even
+if I don't move it and it is the only usb device.

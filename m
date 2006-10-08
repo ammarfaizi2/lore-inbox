@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWJHNCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWJHNUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWJHNCM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 09:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWJHNCM
+	id S1751139AbWJHNUh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 09:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWJHNUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 09:02:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47806 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751133AbWJHNCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 09:02:11 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>,
-       gregkh@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] HT_IRQ must depend on PCI
-References: <20061008040638.GF29474@stusta.de>
-Date: Sun, 08 Oct 2006 07:00:31 -0600
-In-Reply-To: <20061008040638.GF29474@stusta.de> (Adrian Bunk's message of
-	"Sun, 8 Oct 2006 06:06:38 +0200")
-Message-ID: <m1odsnufm8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 8 Oct 2006 09:20:37 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:39429 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751139AbWJHNUg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 09:20:36 -0400
+Message-ID: <4528FBA5.9010701@aknet.ru>
+Date: Sun, 08 Oct 2006 17:22:45 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jakub Jelinek <jakub@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [patch] honour MNT_NOEXEC for access()
+References: <4516B721.5070801@redhat.com> <4522B4F9.8000301@aknet.ru>	 <20061003210037.GO20982@devserv.devel.redhat.com>	 <45240640.4070104@aknet.ru> <45269BEE.7050008@aknet.ru>	 <1160170464.12835.4.camel@localhost.localdomain>	 <4527A93D.1050203@aknet.ru> <45284694.7060100@goop.org>	 <4528C06E.5090902@aknet.ru> <4528CB5B.1020807@goop.org> <9a8748490610080339t668095b9v15c4d0040dabae89@mail.gmail.com>
+In-Reply-To: <9a8748490610080339t668095b9v15c4d0040dabae89@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+Hello.
 
-Looks good to me.
+Jesper Juhl wrote:
+> As I see it, what we can resonably do with 'noexec' is
+> - make execve() fail.
+Done. 
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> - make access(), faccessat() return EACCESS for files stored on
+> 'noexec' filesystems.
+Done now in -mm.
 
-> CONFIG_PCI=n, CONFIG_HT_IRQ=y results in the following compile error:
->
-> <--  snip  -->
->
-> ...
->   LD      vmlinux
-> arch/i386/mach-generic/built-in.o: In function `apicid_to_node':
-> summit.c:(.text+0x53): undefined reference to `apicid_2_node'
-> arch/i386/kernel/built-in.o: In function `arch_setup_ht_irq':
-> (.text+0xcf79): undefined reference to `write_ht_irq_low'
-> arch/i386/kernel/built-in.o: In function `arch_setup_ht_irq':
-> (.text+0xcf85): undefined reference to `write_ht_irq_high'
-> arch/i386/kernel/built-in.o: In function `k7nops':
-> alternative.c:(.data+0x1358): undefined reference to `mask_ht_irq'
-> alternative.c:(.data+0x1360): undefined reference to `unmask_ht_irq'
-> make[1]: *** [vmlinux] Error 1
->
-> <--  snip  -->
->
-> Bug report by Jesper Juhl.
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-2.6/drivers/pci/Kconfig.old	2006-10-08 05:55:51.000000000 +0200
-> +++ linux-2.6/drivers/pci/Kconfig	2006-10-08 05:56:14.000000000 +0200
-> @@ -55,7 +55,7 @@
->  config HT_IRQ
->  	bool "Interrupts on hypertransport devices"
->  	default y
-> -	depends on X86_LOCAL_APIC && X86_IO_APIC
-> +	depends on PCI && X86_LOCAL_APIC && X86_IO_APIC
->  	help
->  	   This allows native hypertransport devices to use interrupts.
->  
+> - make mmap(...PROT_EXEC...) fail for files stored on 'noexec' filesystems.
+Even for MAP_PRIVATE?
+But in what way the "noexec" is better than "chmod -x",
+which does _not_ make the PROT_EXEC to fail?
+
+> Since we can't really prevent things like perl/php/bash/tcl/whatever
+> scripts from being executed/interpreted from there with this
+> mechanism, let's not worry about that.  Leave that for things like
+> SELinux to deal with.
+Exactly, but isn't it the same with mmap? (MAP_PRIVATE at least)
+Since you can't prevent the prog to simply read() the data into
+an anonymously mapped space, you can just as well leave that to
+selinux too.
+

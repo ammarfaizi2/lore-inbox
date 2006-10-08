@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWJHRsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWJHR7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWJHRsH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 13:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWJHRsH
+	id S1751298AbWJHR7O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 13:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWJHR7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 13:48:07 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9231 "HELO
+	Sun, 8 Oct 2006 13:59:14 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14863 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751296AbWJHRsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 13:48:05 -0400
-Date: Sun, 8 Oct 2006 19:47:59 +0200
+	id S1751298AbWJHR7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 13:59:13 -0400
+Date: Sun, 8 Oct 2006 19:59:08 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>, pavel@suse.cz
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org
-Subject: Re: Funky "Blue screen" issue while rebooting from X with 2.6.18-git21
-Message-ID: <20061008174759.GF6755@stusta.de>
-References: <9a8748490610041316w3ad442a6rf8f5fc5189fd72ac@mail.gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1: known regressions (v2)
+Message-ID: <20061008175908.GG6755@stusta.de>
+References: <EXSVLRB01xe0ymQ1WE900000265@exsvlrb01.hq.netapp.com> <20061008045522.GG29474@stusta.de> <1160283948.10192.3.camel@lade.trondhjem.org> <20061008063943.GB6755@stusta.de> <84144f020610080045s6d2d1b06o6fc78bfb8fbf4d77@mail.gmail.com> <20061008172859.GD6755@stusta.de> <20061008173445.GN30283@lug-owl.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9a8748490610041316w3ad442a6rf8f5fc5189fd72ac@mail.gmail.com>
+In-Reply-To: <20061008173445.GN30283@lug-owl.de>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 10:16:41PM +0200, Jesper Juhl wrote:
-> I have a strange "problem" with 2.6.18-git21 that I've never had with
-> any previous kernel. If I open up an xterm in X, su to root and
-> 'reboot' (or 'shutdown -r now') I instantly get a blue screen that
-> persists until the box actually reboots.
+On Sun, Oct 08, 2006 at 07:34:46PM +0200, Jan-Benedict Glaw wrote:
+> On Sun, 2006-10-08 19:28:59 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> > On Sun, Oct 08, 2006 at 10:45:50AM +0300, Pekka Enberg wrote:
+> > > On Sun, Oct 08, 2006 at 01:05:48AM -0400, Trond Myklebust wrote:
+> > > >> In any case, what the fuck gives you the right to appoint yourself judge
+> > > >> and jury over kernel regressions?
+> > > 
+> > > On 10/8/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > > >I've given this right myself - everyone can always send any bug list he
+> > > >wants to linux-kernel.
+> > > 
+> > > I don't see what the problem here is. As stated in the bug report, a
+> > > patch signed off by you broke something in the kernel which is not yet
+> > > fixed in -git. Aside from calling people "guilty", what Adrian is
+> > > doing is a service to us all.
+> > 
+> > It seems the word "Guilty" was considered offensive by some people?
+> 
+> I'd find it offensive, too, when I'd be called "guilty" because a
+> patch broke something that was buggy.
 
-Pavel, is this a known issue or should Jesper bisect?
+Some people have no problem being called
 
-> With previous kernels (all that I can remember, latest tested being
-> 2.6.18-git15 (then I jumped from -git15 to -git21)) what happened was
-> that X would die and I would be returned to text mode so that I could
-> actually see all the shutdown messages from my init scripts (which is
-> very nice).
+  Didn't do anything, the scurvy lad. Ahoy!
+
+while other people consider the word "Guilty" quite offensive.
+
+All I can say is that my list is not meant in any was as an offence - 
+bugs always happen when writing software, and the intention of my list 
+is simply to summarize as much information as possible about known 
+regressions.
+
+> Read the bug report: Seems it
+> was actually caused by a non-initialized variable introduced by a
+> patch to util-linux.
+
+It was the sum of two independent bugs, and one of them was a kernel bug.
+
+> > This wasn't my intention, and I've replaced it with "Caused-By".
 > 
-> I don't really know what info would be relevant to provide regarding
-> this issue, so please ask for any info you need.
+> Made-visible-by :)
 > 
-> I can start testing kernels between 2.6.18-git15 and 2.6.18-git21
-> and/or  doing git bisects if anyone thinks it will be useful. If you
-> want that, please speak up, since I would rather not build and
-> test-boot a lot of kernels for no reason if nobody wants the info. But
-> if it will be useful I'll be happy to do it.
-> 
-> Anyway, there's a bug somewhere, let's squash it ;-)
+> MfG, JBG
 
 cu
 Adrian

@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWJHVl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWJHVnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWJHVl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 17:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWJHVl4
+	id S932073AbWJHVnl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 17:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWJHVnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 17:41:56 -0400
-Received: from www.osadl.org ([213.239.205.134]:3520 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751487AbWJHVlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 17:41:55 -0400
-Subject: Re: + clocksource-add-generic-sched_clock.patch added to -mm tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, johnstul@us.ibm.com, mingo@elte.hu, zippel@linux-m68k.org,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160343221.3693.154.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-References: <200610070153.k971ruEZ020872@shell0.pdx.osdl.net>
-	 <1160301340.22911.27.camel@localhost.localdomain>
-	 <1160318750.3693.12.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160319112.5686.8.camel@localhost.localdomain>
-	 <1160321570.3693.34.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160322376.5686.25.camel@localhost.localdomain>
-	 <1160323597.3693.62.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160324354.5686.41.camel@localhost.localdomain>
-	 <1160324846.3693.78.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160326451.5686.51.camel@localhost.localdomain>
-	 <1160328400.3693.100.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160333127.5686.58.camel@localhost.localdomain>
-	 <1160342108.3693.144.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <1160342483.5686.104.camel@localhost.localdomain>
-	 <1160343221.3693.154.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Date: Sun, 08 Oct 2006 23:41:55 +0200
-Message-Id: <1160343715.5686.118.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 17:43:41 -0400
+Received: from fmmailgate03.web.de ([217.72.192.234]:30601 "EHLO
+	fmmailgate03.web.de") by vger.kernel.org with ESMTP id S932073AbWJHVnk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 17:43:40 -0400
+Message-ID: <452970AF.8020605@web.de>
+Date: Sun, 08 Oct 2006 23:42:07 +0200
+From: Jan Kiszka <jan.kiszka@web.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Willy Tarreau <wtarreau@hera.kernel.org>
+Subject: 2.4.x: i386/x86_64 bitops clobberings
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBE4F6381060BAC674C8C7479"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-08 at 14:33 -0700, Daniel Walker wrote:
-> On Sun, 2006-10-08 at 23:21 +0200, Thomas Gleixner wrote:
-> > On Sun, 2006-10-08 at 14:15 -0700, Daniel Walker wrote:
-> > > On Sun, 2006-10-08 at 20:45 +0200, Thomas Gleixner wrote:
-> > > 
-> > > > > I'm not moving the kernel/timer.c clocksource user back into
-> > > > > kernel/time/clocksource.c . That code completely belongs with the
-> > > > > generic time of day changes. The code is directly coupled, and in fact
-> > > > > it improves the timekeeping clock switching code to have it that way.
-> > > > 
-> > > > I don't see any reason, why it must be added to timer.c. You can achieve
-> > > > the same result with calling the code outside, except that the compiler
-> > > > might miss some inline optimization. The switch clock code is not a
-> > > > hotpath and so it does not matter whether it is called here or there.
-> > > 
-> > > It wouldn't be as clean to integrate the two. The hotpath is improved
-> > > (which is what I was referring too above.)
-> > 
-> > Sorry, where is which hotpath improved ?
-> 
-> The hotpath in update_wall_time() kernel/timer.c which involves clock
-> switching.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBE4F6381060BAC674C8C7479
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-And why the heck does this require to move _clocksource_ related code
-including sysfs hackery into timer.c ? Your improvement works with
-extern code as well.
+Hi,
 
-	tglx
+after going through debugging hell with some out-of-tree code, I
+realised that this patch
+
+http://www.kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+commit;h=3D92934bcbf96bc9dc931c40ca5f1a57685b7b813b
+
+makes a difference: current 2.6 works with the following code sequence
+as expected (printk is executed), 2.4 fails.
 
 
+#include <asm/bitops.h>
+#include <linux/module.h>
+
+unsigned long a =3D 1;
+
+int module_init(void)
+{
+	unsigned long b =3D 0;
+	int x;
+
+	x =3D __test_and_set_bit(0, &b);
+	if (__test_and_set_bit(0, &a))
+		printk("x =3D %d\n", x);
+
+	return -1;
+}
+
+
+There will likely be a way to work around my issue. Nevertheless, I
+wondered if that patch was already considered for 2.4 inclusion. Or is
+there no risk that in-tree code is affected?
+
+Jan
+
+
+
+--------------enigBE4F6381060BAC674C8C7479
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFKXCvniDOoMHTA+kRAg9oAJ9PA6pYrdr42KbuOb/LuMjkc0SARgCcD/jE
+llTy8UyHXgZDh9JL7MvQJUQ=
+=e74T
+-----END PGP SIGNATURE-----
+
+--------------enigBE4F6381060BAC674C8C7479--

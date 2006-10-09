@@ -1,90 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWJIUWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWJIUXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWJIUWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWJIUWo
+	id S964822AbWJIUXg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWJIUXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:22:44 -0400
-Received: from asia.telenet-ops.be ([195.130.137.74]:36583 "EHLO
-	asia.telenet-ops.be") by vger.kernel.org with ESMTP id S964817AbWJIUWn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:22:43 -0400
-Date: Mon, 9 Oct 2006 22:22:37 +0200
-Message-Id: <200610092022.k99KMbtC031450@anakin.of.borg>
+	Mon, 9 Oct 2006 16:23:34 -0400
+Received: from hoboe2bl1.telenet-ops.be ([195.130.137.73]:46512 "EHLO
+	hoboe2bl1.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S964822AbWJIUXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:23:33 -0400
+Date: Mon, 9 Oct 2006 22:23:31 +0200
+Message-Id: <200610092023.k99KNVoQ031477@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux/PA-RISC <parisc-linux@parisc-linux.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 562] m68k/HP300: Enable HIL configuration options
+Subject: [PATCH 617] m68k/Atari: Interrupt updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enable HIL configuration options on HP300
+Misc Atari fixes:
+  - initialize correct number of atari irqs
+  - silence vbl interrupt until it's used by atafb
+  - use mdelay() to read clock if necessary
 
-Signed-Off-By: Kars de Jong <jongk@linux-m68k.org>
+Signed-Off-By: Roman Zippel <zippel@linux-m68k.org>
 Signed-Off-By: Geert Uytterhoeven <geert@linux-m68k.org>
 
 ---
- keyboard/Kconfig |    4 ++--
- misc/Kconfig     |    2 +-
- mouse/Kconfig    |    2 +-
- serio/Kconfig    |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ atari/ataints.c |    9 +++++++--
+ atari/time.c    |    9 +++++++--
+ kernel/ints.c   |    1 +
+ 3 files changed, 15 insertions(+), 4 deletions(-)
 
---- linux/drivers/input/keyboard/Kconfig	2005/06/18 16:15:57	1.1.1.12
-+++ linux/drivers/input/keyboard/Kconfig	2005/08/29 19:17:44	1.2
-@@ -154,7 +154,7 @@ config KEYBOARD_AMIGA
+--- linux/arch/m68k/atari/ataints.c	2006/01/28 21:33:28	1.14
++++ linux/arch/m68k/atari/ataints.c	2006/09/03 14:52:16	1.15
+@@ -332,6 +332,9 @@ static void atari_shutdown_irq(unsigned 
+ 	atari_disable_irq(irq);
+ 	atari_turnoff_irq(irq);
+ 	m68k_irq_shutdown(irq);
++
++	if (irq == IRQ_AUTO_4)
++	    vectors[VEC_INT4] = falcon_hblhandler;
+ }
  
- config KEYBOARD_HIL_OLD
- 	tristate "HP HIL keyboard support (simple driver)"
--	depends on GSC
-+	depends on GSC || HP300
- 	default y
- 	help
- 	  The "Human Interface Loop" is a older, 8-channel USB-like
-@@ -171,7 +171,7 @@ config KEYBOARD_HIL_OLD
+ static struct irq_controller atari_irq_controller = {
+@@ -356,7 +359,7 @@ static struct irq_controller atari_irq_c
  
- config KEYBOARD_HIL
- 	tristate "HP HIL keyboard support"
--	depends on GSC
-+	depends on GSC || HP300
- 	default y
- 	select HP_SDC
- 	select HIL_MLC
---- linux/drivers/input/misc/Kconfig	2005/06/18 16:15:58	1.1.1.12
-+++ linux/drivers/input/misc/Kconfig	2005/08/29 19:17:44	1.2
-@@ -51,7 +51,7 @@ config INPUT_UINPUT
+ void __init atari_init_IRQ(void)
+ {
+-	m68k_setup_user_interrupt(VEC_USER, 192, NULL);
++	m68k_setup_user_interrupt(VEC_USER, NUM_ATARI_SOURCES - IRQ_USER, NULL);
+ 	m68k_setup_irq_controller(&atari_irq_controller, 1, NUM_ATARI_SOURCES - 1);
  
- config HP_SDC_RTC
- 	tristate "HP SDC Real Time Clock"       
--	depends on GSC
-+	depends on GSC || HP300
- 	select HP_SDC
- 	help
- 	  Say Y here if you want to support the built-in real time clock
---- linux/drivers/input/mouse/Kconfig	2005/06/18 16:15:58	1.1.1.18
-+++ linux/drivers/input/mouse/Kconfig	2005/08/29 19:17:44	1.2
-@@ -129,7 +129,7 @@ config MOUSE_VSXXXAA
+ 	/* Initialize the MFP(s) */
+@@ -403,8 +406,10 @@ void __init atari_init_IRQ(void)
+ 		 * gets overruns)
+ 		 */
  
- config MOUSE_HIL
- 	tristate "HIL pointers (mice etc)."     
--	depends on GSC
-+	depends on GSC || HP300
- 	select HP_SDC
- 	select HIL_MLC
- 	help
---- linux/drivers/input/serio/Kconfig	2005/08/29 14:19:56	1.1.1.17
-+++ linux/drivers/input/serio/Kconfig	2005/08/29 19:17:45	1.5
-@@ -112,7 +112,7 @@ config SERIO_GSCPS2
+-		if (!MACH_IS_HADES)
++		if (!MACH_IS_HADES) {
+ 			vectors[VEC_INT2] = falcon_hblhandler;
++			vectors[VEC_INT4] = falcon_hblhandler;
++		}
+ 	}
  
- config HP_SDC
- 	tristate "HP System Device Controller i8042 Support"
--	depends on GSC && SERIO
-+	depends on (GSC || HP300) && SERIO
- 	default y
- 	---help---
- 	  This option enables supports for the the "System Device
+ 	if (ATARIHW_PRESENT(PCM_8BIT) && ATARIHW_PRESENT(MICROWIRE)) {
+--- linux/arch/m68k/atari/time.c	2006/01/14 23:07:09	1.1.1.7
++++ linux/arch/m68k/atari/time.c	2006/09/03 14:52:16	1.9
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
++#include <linux/delay.h>
+ 
+ #include <asm/atariints.h>
+ 
+@@ -212,8 +213,12 @@ int atari_tt_hwclk( int op, struct rtc_t
+      * additionally the RTC_SET bit is set to prevent an update cycle.
+      */
+ 
+-    while( RTC_READ(RTC_FREQ_SELECT) & RTC_UIP )
+-        schedule_timeout_interruptible(HWCLK_POLL_INTERVAL);
++    while( RTC_READ(RTC_FREQ_SELECT) & RTC_UIP ) {
++	if (in_atomic() || irqs_disabled())
++	    mdelay(1);
++	else
++	    schedule_timeout_interruptible(HWCLK_POLL_INTERVAL);
++    }
+ 
+     local_irq_save(flags);
+     RTC_WRITE( RTC_CONTROL, ctrl | RTC_SET );
+--- linux/arch/m68k/kernel/ints.c	2006/01/31 00:57:35	1.10
++++ linux/arch/m68k/kernel/ints.c	2006/09/03 14:52:17	1.11
+@@ -132,6 +132,7 @@ void __init m68k_setup_user_interrupt(un
+ {
+ 	int i;
+ 
++	BUG_ON(IRQ_USER + cnt >= NR_IRQS);
+ 	m68k_first_user_vec = vec;
+ 	for (i = 0; i < cnt; i++)
+ 		irq_controller[IRQ_USER + i] = &user_irq_controller;
 
 Gr{oetje,eeting}s,
 

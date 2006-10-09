@@ -1,77 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933004AbWJIT1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932956AbWJIT1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933004AbWJIT1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 15:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932956AbWJIT1b
+	id S932956AbWJIT1e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 15:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933006AbWJIT1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 15:27:31 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:36287 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S933004AbWJIT1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 15:27:31 -0400
-Date: Mon, 9 Oct 2006 20:27:30 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
+	Mon, 9 Oct 2006 15:27:34 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:19353 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S932956AbWJIT1c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 15:27:32 -0400
+Date: Mon, 9 Oct 2006 21:27:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roger While <simrw@sim-basis.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] dlm gfp_t annotations
-Message-ID: <20061009192730.GU29920@ftp.linux.org.uk>
+Subject: Re: menuconfig bust in 2.6.19rc1-git5
+Message-ID: <20061009192731.GB9937@uranus.ravnborg.org>
+References: <6.1.1.1.2.20061009092219.02b0bec0@192.168.6.12> <20061009094609.GA6703@uranus.ravnborg.org> <6.1.1.1.2.20061009125614.02a6e000@192.168.6.12>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <6.1.1.1.2.20061009125614.02a6e000@192.168.6.12>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- fs/dlm/lowcomms.c |    6 +++---
- fs/dlm/lowcomms.h |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+On Mon, Oct 09, 2006 at 01:03:07PM +0200, Roger While wrote:
+> Aaagh, sorry, false alarm.
+> There was a dud (0 byte) /usr/include/ncurses/ncurses.h on the system :-(
+> (However /usr/include/ncurses.h is perfectly OK)
+Thanks for the feedback.
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 23f5ce1..7bcea7c 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -174,7 +174,7 @@ static int nodeid_to_addr(int nodeid, st
- 	return 0;
- }
- 
--static struct nodeinfo *nodeid2nodeinfo(int nodeid, int alloc)
-+static struct nodeinfo *nodeid2nodeinfo(int nodeid, gfp_t alloc)
- {
- 	struct nodeinfo *ni;
- 	int r;
-@@ -726,7 +726,7 @@ static int init_sock(void)
- }
- 
- 
--static struct writequeue_entry *new_writequeue_entry(int allocation)
-+static struct writequeue_entry *new_writequeue_entry(gfp_t allocation)
- {
- 	struct writequeue_entry *entry;
- 
-@@ -748,7 +748,7 @@ static struct writequeue_entry *new_writ
- 	return entry;
- }
- 
--void *dlm_lowcomms_get_buffer(int nodeid, int len, int allocation, char **ppc)
-+void *dlm_lowcomms_get_buffer(int nodeid, int len, gfp_t allocation, char **ppc)
- {
- 	struct writequeue_entry *e;
- 	int offset = 0;
-diff --git a/fs/dlm/lowcomms.h b/fs/dlm/lowcomms.h
-index 6c04bb0..2d045e0 100644
---- a/fs/dlm/lowcomms.h
-+++ b/fs/dlm/lowcomms.h
-@@ -19,7 +19,7 @@ void dlm_lowcomms_exit(void);
- int dlm_lowcomms_start(void);
- void dlm_lowcomms_stop(void);
- int dlm_lowcomms_close(int nodeid);
--void *dlm_lowcomms_get_buffer(int nodeid, int len, int allocation, char **ppc);
-+void *dlm_lowcomms_get_buffer(int nodeid, int len, gfp_t allocation, char **ppc);
- void dlm_lowcomms_commit_buffer(void *mh);
- 
- #endif				/* __LOWCOMMS_DOT_H__ */
--- 
-1.4.2.GIT
+> Maybe check-lxdialog.sh should 'test -s' the includes ?
+This is an uncommon bug - and we cannot check for all sorts of busted
+systems. So unless this proves to be common I will resist to include
+such a check.
 
+	Sam

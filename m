@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWJIKL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWJIK0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWJIKL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 06:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWJIKL6
+	id S1751768AbWJIK0j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 06:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWJIK0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 06:11:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35466 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751763AbWJIKL5 (ORCPT
+	Mon, 9 Oct 2006 06:26:39 -0400
+Received: from mail.suse.de ([195.135.220.2]:1944 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751768AbWJIK0j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 06:11:57 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0610061015570.14591@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0610061015570.14591@schroedinger.engr.sgi.com>  <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com> <20061006141704.GH2563@parisc-linux.org> 
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, torvalds@osdl.org, akpm@osdl.org,
-       sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 09 Oct 2006 11:11:36 +0100
-Message-ID: <7795.1160388696@redhat.com>
+	Mon, 9 Oct 2006 06:26:39 -0400
+Date: Mon, 9 Oct 2006 12:26:35 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+Message-ID: <20061009102635.GC3487@wotan.suse.de>
+References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site> <20061007134407.6aa4dd26.akpm@osdl.org> <1160351174.14601.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160351174.14601.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
+On Mon, Oct 09, 2006 at 09:46:13AM +1000, Benjamin Herrenschmidt wrote:
+> 
+> > - So is the plan here to migrate all code over to using
+> >   vm_operations.fault() and to finally remove vm_operations.nopage and
+> >   .nopfn?  If so, that'd be nice.
+> 
+> Agreed. That would also allow to pass down knowledge of wether we can be
+> interruptible or not (coming from userland or not). Useful in a few case
+> when dealing with strange hw mappings.
+> 
+> Now, fault() still returns a struct page and thus doesn't quite fix the
+> problem I'm exposing in my "User switchable HW mappings & cie" mail I
+> posted today in which case we need to either duplicate the truncate
+> logic in no_pfn() or get rid of no_pfn() and set the PTE from the fault
+> handler . I tend to prefer the later provided that it's strictly limited
+> for mappings that do not have a struct page though.
 
-> Why so complicated and why do it at all? We already have fls and ffs 
-> amoung the bit operations and those map to cpu instructions on arches 
-> that support these. fls can be used as a log 2 facilities. If you need 
-> another name and further refine it then just add an inline function.
+The truncate logic can't be duplicated because it works on struct pages.
 
-There are a number of reasons:
+What sounds best, if you use nopfn, is to do your own internal
+synchronisation against your unmap call. Obviously you can't because you
+have no ->nopfn_done call with which to drop locks ;)
 
- (1) There are a bunch of independent log2 implementations lying around in the
-     code.  It'd be nice to just have one set that anyone can use.
+So, hmm yes I have a good idea for how fault() could take over ->nopfn as
+well: just return NULL, set the fault type to VM_FAULT_MINOR, and have
+the ->fault handler install the pte. It will require a new helper along
+the lines of vm_insert_page.
 
- (2) Not everyone realises that fls() can be used to do log2().
-
- (3) ilog2(n) != fls(n)
-
-     This means that the asm-optimised version for one might be less optimal
-     for the other (for example, ilog2() produces an undefined result if n <=
-     1, fls() must return 0).
-
- (4) There are occasions when you might want to take a log2 of a constant.
-     With the totally inline asm approach, it would always execute some code,
-     though it should be unnecessary.  What I've done permits you to avoid that
-     as the answer is always going to be the same.
-
- (5) fls() and fls64() can't be used to initialise a variable at compile time,
-     ilog2() can.
-
-David
+I'll code that up in my next patchset.

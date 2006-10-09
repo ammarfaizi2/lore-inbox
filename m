@@ -1,362 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932861AbWJIOMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932895AbWJIOQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932861AbWJIOMK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932900AbWJIOLx
+	id S932895AbWJIOQE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932890AbWJIOPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:11:53 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:33265 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932903AbWJIOLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 10:11:24 -0400
-Date: Mon, 9 Oct 2006 07:10:15 -0700
+	Mon, 9 Oct 2006 10:15:37 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:61695 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932874AbWJIOLc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 10:11:32 -0400
+Date: Mon, 9 Oct 2006 07:10:25 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200610091410.k99EAFQ4026103@frankl.hpl.hp.com>
+Message-Id: <200610091410.k99EAORY026218@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 08/21] 2.6.18 perfmon2 : session allocation
+Subject: [PATCH 17/21] 2.6.18 perfmon2 : modified powerpc files
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This file contains some resource accounting functions for:
-	- sampling buffer memory managment
-	- context management
-
-pfm_reserve_buf_space(size_t size), pfm_release_buf_space(size_t size):
-	- keep track of memory used for sampling buffers
-	- there is a per process limit set using the RLIMIT_MEMLOCK attribute
-	- there is a global limit controlled by perfmon and configurable via /sys/kernel/perfmon/buf_size_max
+This patch contains the modified powerpc files.
 
 
-pfm_reserve_session(struct pfm_context *ctx, u32 cpu), pfm_release_session(struct pfm_context *ctx, u32 cpu):
-	- keep track of per-thread and system-wide sessions
-	- handles mutual exclusion between per-thread and system-wide context
-	- ensure no two system-wide context can be bound to the same CPU
+The modified files are as follows:
 
-(this patch was missing from my previous posting on LKML).
+arch/powerpc/Kconfig:
+	- add link to perfmon menuconfig options
+
+arch/powerpc/Makefile:
+	- add perfmon subdir
+
+arch/powerpc/kernel/entry_64.S:
+	- add hook for extra work before kernel exit. Need to block a thread after a overflow with
+	  user level notification. Also needed to do some bookeeeping, such as reset certain counters
+	  and cleanup in some difficult corner cases
+
+arch/powerpc/kernel/process.c:
+	- add hook in exit_thread() to cleanup perfmon2 context
+	- add hook in copy_thread() to cleanup perfmon2 context in child (perfmon2 context
+	  is never inherited)
+	- add hook in __switch_to() for PMU state save/restore
+
+arch/powerpc/kernel/systbl.S:
+	- add new system calls definitions
+
+include/asm-powerpc/thread_info.h:
+	- add TIF_PERFMON which is used for PMU context switching in __switch_to()
+
+include/asm-powerpc/unistd.h:
+	- add new system calls
 
 
---- linux-2.6.18.base/perfmon/perfmon_res.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/perfmon/perfmon_res.c	2006-09-25 12:10:13.000000000 -0700
-@@ -0,0 +1,318 @@
-+/*
-+ * perfmon_res.c:  perfmon2 resource allocations
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
-+ *
-+ * More information about perfmon available at:
-+ * 	http://perfmon2.sf.net
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of version 2 of the GNU General Public
-+ * License as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307 USA
-+ */
-+#include <linux/spinlock.h>
+
+
+diff -urp linux-2.6.18.base/arch/powerpc/Kconfig linux-2.6.18/arch/powerpc/Kconfig
+--- linux-2.6.18.base/arch/powerpc/Kconfig	2006-09-21 23:45:09.000000000 -0700
++++ linux-2.6.18/arch/powerpc/Kconfig	2006-09-22 01:58:48.000000000 -0700
+@@ -320,6 +320,9 @@ config NOT_COHERENT_CACHE
+ 	bool
+ 	depends on 4xx || 8xx || E200
+ 	default y
++
++source "arch/powerpc/perfmon/Kconfig"
++
+ endmenu
+ 
+ source "init/Kconfig"
+diff -urp linux-2.6.18.base/arch/powerpc/Makefile linux-2.6.18/arch/powerpc/Makefile
+--- linux-2.6.18.base/arch/powerpc/Makefile	2006-09-21 23:45:09.000000000 -0700
++++ linux-2.6.18/arch/powerpc/Makefile	2006-09-22 01:58:48.000000000 -0700
+@@ -134,6 +134,7 @@ core-y				+= arch/powerpc/kernel/ \
+ 				   arch/powerpc/platforms/
+ core-$(CONFIG_MATH_EMULATION)	+= arch/powerpc/math-emu/
+ core-$(CONFIG_XMON)		+= arch/powerpc/xmon/
++core-$(CONFIG_PERFMON)		+= arch/powerpc/perfmon/
+ 
+ drivers-$(CONFIG_OPROFILE)	+= arch/powerpc/oprofile/
+ 
+diff -urp linux-2.6.18.base/arch/powerpc/kernel/entry_64.S linux-2.6.18/arch/powerpc/kernel/entry_64.S
+--- linux-2.6.18.base/arch/powerpc/kernel/entry_64.S	2006-09-21 23:45:09.000000000 -0700
++++ linux-2.6.18/arch/powerpc/kernel/entry_64.S	2006-09-22 01:58:48.000000000 -0700
+@@ -568,6 +568,9 @@ user_work:
+ 	b	.ret_from_except_lite
+ 
+ 1:	bl	.save_nvgprs
++#ifdef CONFIG_PERFMON
++	bl	.ppc64_pfm_handle_work
++#endif /* CONFIG_PERFMON */
+ 	li	r3,0
+ 	addi	r4,r1,STACK_FRAME_OVERHEAD
+ 	bl	.do_signal
+diff -urp linux-2.6.18.base/arch/powerpc/kernel/process.c linux-2.6.18/arch/powerpc/kernel/process.c
+--- linux-2.6.18.base/arch/powerpc/kernel/process.c	2006-09-21 23:45:09.000000000 -0700
++++ linux-2.6.18/arch/powerpc/kernel/process.c	2006-09-22 01:58:48.000000000 -0700
+@@ -34,6 +34,7 @@
+ #include <linux/mqueue.h>
+ #include <linux/hardirq.h>
+ #include <linux/utsname.h>
 +#include <linux/perfmon.h>
-+#include <linux/module.h>
-+
-+static struct pfm_sessions pfm_sessions;
-+
-+static __cacheline_aligned_in_smp DEFINE_SPINLOCK(pfm_sessions_lock);
-+
-+/*
-+ * sampling buffer allocated by perfmon must be
-+ * checked against max usage thresholds for security
-+ * reasons.
-+ *
-+ * The first level check is against the system wide limit
-+ * as indicated by the system administrator in /proc/sys/kernel/perfmon
-+ *
-+ * The second level check is on a per-process basis using
-+ * RLIMIT_MEMLOCK limit.
-+ *
-+ * Operating on the current task only.
-+ */
-+int pfm_reserve_buf_space(size_t size)
-+{
-+	struct mm_struct *mm;
-+	unsigned long locked;
-+	unsigned long buf_mem, buf_mem_max;
-+
-+	spin_lock(&pfm_sessions_lock);
-+
-+	/*
-+	 * check against global buffer limit
-+	 */
-+	buf_mem_max = pfm_controls.smpl_buf_size_max;
-+	buf_mem = pfm_sessions.pfs_cur_smpl_buf_mem + size;
-+
-+	if (buf_mem <= buf_mem_max) {
-+		pfm_sessions.pfs_cur_smpl_buf_mem = buf_mem;
-+
-+		PFM_DBG("buf_mem_max=%lu current_buf_mem=%lu",
-+			buf_mem_max,
-+			buf_mem);
-+	}
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	if (buf_mem > buf_mem_max) {
-+		PFM_DBG("smpl buffer memory threshold reached");
-+		return -ENOMEM;
-+	}
-+
-+	/*
-+	 * check against RLIMIT_MEMLOCK
-+	 */
-+	mm = get_task_mm(current);
-+
-+	down_write(&mm->mmap_sem);
-+
-+	locked  = mm->locked_vm << PAGE_SHIFT;
-+	locked += size;
-+
-+	if (locked > current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur) {
-+
-+		PFM_DBG("RLIMIT_MEMLOCK reached ask_locked=%lu rlim_cur=%lu",
-+			locked,
-+			current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur);
-+
-+		up_write(&mm->mmap_sem);
-+		mmput(mm);
-+		goto unres;
-+	}
-+
-+	mm->locked_vm = locked >> PAGE_SHIFT;
-+
-+	up_write(&mm->mmap_sem);
-+
-+	mmput(mm);
-+
-+	return 0;
-+
-+unres:
-+	/*
-+	 * remove global buffer memory allocation
-+	 */
-+	spin_lock(&pfm_sessions_lock);
-+
-+	pfm_sessions.pfs_cur_smpl_buf_mem -= size;
-+
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	return -ENOMEM;
-+}
-+
-+void pfm_release_buf_space(size_t size)
-+{
-+	struct mm_struct *mm;
-+
-+	mm = get_task_mm(current);
-+	if (mm) {
-+		down_write(&mm->mmap_sem);
-+
-+		mm->locked_vm -= size >> PAGE_SHIFT;
-+		PFM_DBG("locked_vm=%lu size=%zu", mm->locked_vm, size);
-+		up_write(&mm->mmap_sem);
-+
-+		mmput(mm);
-+	}
-+
-+	spin_lock(&pfm_sessions_lock);
-+
-+	pfm_sessions.pfs_cur_smpl_buf_mem -= size;
-+
-+	spin_unlock(&pfm_sessions_lock);
-+}
-+
-+int pfm_reserve_session(struct pfm_context *ctx, u32 cpu)
-+{
-+	int is_system;
-+
-+	is_system = ctx->flags.system;
-+
-+	/*
-+	 * validy checks on cpu_mask have been done upstream
-+	 */
-+	spin_lock(&pfm_sessions_lock);
-+
-+	PFM_DBG("in sys_sessions=%u task_sessions=%u syswide=%d cpu=%u",
-+		pfm_sessions.pfs_sys_sessions,
-+		pfm_sessions.pfs_task_sessions,
-+		is_system,
-+		cpu);
-+
-+	if (pfm_arch_reserve_session(&pfm_sessions, ctx, cpu))
-+		goto abort;
-+
-+	if (is_system) {
-+
-+		BUG_ON(cpu != smp_processor_id());
-+
-+		/*
-+		 * cannot mix system wide and per-task sessions
-+		 */
-+		if (pfm_sessions.pfs_task_sessions > 0) {
-+			PFM_DBG("system wide imppossible, %u conflicting"
-+				"task_sessions\n",
-+			  	pfm_sessions.pfs_task_sessions);
-+			goto abort_undo;
-+		}
-+
-+		if (cpu_isset(cpu, pfm_sessions.pfs_sys_cpumask)) {
-+			PFM_DBG("syswide not possible, conflicting session "
-+				"on CPU%u\n", cpu);
-+			goto abort_undo;
-+		}
-+
-+		PFM_DBG("reserving syswide session on CPU%u currently "
-+			"on CPU%u\n",
-+			cpu,
-+			smp_processor_id());
-+
-+		cpu_set(cpu, pfm_sessions.pfs_sys_cpumask);
-+
-+		pfm_sessions.pfs_sys_sessions++ ;
-+	} else {
-+		if (pfm_sessions.pfs_sys_sessions)
-+			goto abort_undo;
-+		pfm_sessions.pfs_task_sessions++;
-+	}
-+
-+	PFM_DBG("out sys_sessions=%u task_sessions=%u syswide=%d cpu=%u",
-+		pfm_sessions.pfs_sys_sessions,
-+		pfm_sessions.pfs_task_sessions,
-+		is_system,
-+		cpu);
-+
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	return 0;
-+
-+abort_undo:
-+	/*
-+	 * must undo arch-specific reservation
-+	 */
-+	pfm_arch_release_session(&pfm_sessions, ctx, cpu);
-+abort:
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	return -EBUSY;
-+}
-+
-+int pfm_release_session(struct pfm_context *ctx, u32 cpu)
-+{
-+	int is_system;
-+
-+	is_system = ctx->flags.system;
-+
-+	/*
-+	 * validy checks on cpu_mask have been done upstream
-+	 */
-+	spin_lock(&pfm_sessions_lock);
-+
-+	PFM_DBG("in sys_sessions=%u task_sessions=%u syswide=%d cpu=%u",
-+		pfm_sessions.pfs_sys_sessions,
-+		pfm_sessions.pfs_task_sessions,
-+		is_system, cpu);
-+
-+	if (is_system) {
-+		cpu_clear(cpu, pfm_sessions.pfs_sys_cpumask);
-+
-+		pfm_sessions.pfs_sys_sessions--;
-+	} else {
-+		pfm_sessions.pfs_task_sessions--;
-+	}
-+
-+	pfm_arch_release_session(&pfm_sessions, ctx, cpu);
-+
-+	PFM_DBG("out sys_sessions=%u task_sessions=%u syswide=%d cpu=%u",
-+		pfm_sessions.pfs_sys_sessions,
-+		pfm_sessions.pfs_task_sessions,
-+		is_system, cpu);
-+
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	return 0;
-+}
-+
-+static struct _pfm_pmu_config empty_config={
-+	.pmu_name = "Unknown",
-+	.version = "0.0"
-+};
-+
-+ssize_t pfm_sysfs_session_show(char *buf, size_t sz, int what)
-+{
-+	struct _pfm_pmu_config *p;
-+	ssize_t ret = -EINVAL;
-+
-+	spin_lock(&pfm_sessions_lock);
-+
-+	if (pfm_pmu_conf)
-+		p = pfm_pmu_conf;
-+	else
-+		p = &empty_config;
-+
-+	switch(what) {
-+		case 0: ret = snprintf(buf, sz, "%u\n", pfm_sessions.pfs_task_sessions);
-+			break;
-+		case 1: ret = snprintf(buf, sz, "%u\n", pfm_sessions.pfs_sys_sessions);
-+			break;
-+		case 2: ret = snprintf(buf, sz, "%zu\n", pfm_sessions.pfs_cur_smpl_buf_mem);
-+			break;
-+	}
-+
-+	spin_unlock(&pfm_sessions_lock);
-+
-+	return ret;
-+}
-+int pfm_sessions_block(void)
-+{
-+	int ret = 0;
-+
-+	spin_lock(&pfm_sessions_lock);
-+
-+	if (pfm_sessions.pfs_task_sessions || pfm_sessions.pfs_sys_sessions)
-+		ret = -1;
-+
-+	pfm_pmu_conf_get(0);
-+
-+	/* disable creation of new contexts */
-+	atomic_inc(&perfmon_disabled);
-+
-+	spin_unlock(&pfm_sessions_lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL(pfm_sessions_block);
-+
-+void pfm_sessions_unblock(void)
-+{
-+	atomic_dec(&perfmon_disabled);
-+	pfm_pmu_conf_put();
-+}
-+EXPORT_SYMBOL(pfm_sessions_unblock);
-+
-+
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -325,6 +326,9 @@ struct task_struct *__switch_to(struct t
+ 		new_thread->start_tb = current_tb;
+ 	}
+ #endif
++	if (test_tsk_thread_flag(new, TIF_PERFMON_CTXSW)
++	    || test_tsk_thread_flag(prev, TIF_PERFMON_CTXSW))
++		pfm_ctxsw(prev, new);
+ 
+ 	local_irq_save(flags);
+ 
+@@ -464,6 +468,7 @@ void show_regs(struct pt_regs * regs)
+ void exit_thread(void)
+ {
+ 	discard_lazy_cpu_state();
++	pfm_exit_thread(current);
+ }
+ 
+ void flush_thread(void)
+@@ -575,6 +580,7 @@ int copy_thread(int nr, unsigned long cl
+ 	kregs->nip = (unsigned long)ret_from_fork;
+ 	p->thread.last_syscall = -1;
+ #endif
++	pfm_copy_thread(p);
+ 
+ 	return 0;
+ }
+Only in linux-2.6.18/arch/powerpc: perfmon
+Only in linux-2.6.18/include/asm-powerpc: perfmon.h
+diff -urp linux-2.6.18.base/include/asm-powerpc/systbl.h linux-2.6.18/include/asm-powerpc/systbl.h
+--- linux-2.6.18.base/include/asm-powerpc/systbl.h	2006-09-21 23:45:36.000000000 -0700
++++ linux-2.6.18/include/asm-powerpc/systbl.h	2006-09-22 02:27:07.000000000 -0700
+@@ -304,3 +304,15 @@ SYSCALL_SPU(fchmodat)
+ SYSCALL_SPU(faccessat)
+ COMPAT_SYS_SPU(get_robust_list)
+ COMPAT_SYS_SPU(set_robust_list)
++SYSCALL(pfm_create_context)
++SYSCALL(pfm_write_pmcs)
++SYSCALL(pfm_write_pmds)
++SYSCALL(pfm_read_pmds)
++SYSCALL(pfm_load_context)
++SYSCALL(pfm_start)
++SYSCALL(pfm_stop)
++SYSCALL(pfm_restart)
++SYSCALL(pfm_create_evtsets)
++SYSCALL(pfm_getinfo_evtsets)
++SYSCALL(pfm_delete_evtsets)
++SYSCALL(pfm_unload_context)
+diff -urp linux-2.6.18.base/include/asm-powerpc/thread_info.h linux-2.6.18/include/asm-powerpc/thread_info.h
+--- linux-2.6.18.base/include/asm-powerpc/thread_info.h	2006-09-21 23:45:36.000000000 -0700
++++ linux-2.6.18/include/asm-powerpc/thread_info.h	2006-09-22 01:58:48.000000000 -0700
+@@ -122,6 +122,8 @@ static inline struct thread_info *curren
+ #define TIF_RESTOREALL		12	/* Restore all regs (implies NOERROR) */
+ #define TIF_NOERROR		14	/* Force successful syscall return */
+ #define TIF_RESTORE_SIGMASK	15	/* Restore signal mask in do_signal */
++#define TIF_PERFMON_WORK	10	/* work for pfm_handle_work() */
++#define TIF_PERFMON_CTXSW	20	/* perfmon needs ctxsw calls */
+ 
+ /* as above, but as bit values */
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+@@ -139,9 +141,12 @@ static inline struct thread_info *curren
+ #define _TIF_NOERROR		(1<<TIF_NOERROR)
+ #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
+ #define _TIF_SYSCALL_T_OR_A	(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP)
++#define _TIF_PERFMON_WORK	(1<<TIF_PERFMON_WORK)
++#define _TIF_PERFMON_CTXSW	(1<<TIF_PERFMON_CTXSW)
+ 
+ #define _TIF_USER_WORK_MASK	(_TIF_NOTIFY_RESUME | _TIF_SIGPENDING | \
+-				 _TIF_NEED_RESCHED | _TIF_RESTORE_SIGMASK)
++				 _TIF_NEED_RESCHED | _TIF_RESTORE_SIGMASK | \
++				 _TIF_PERFMON_WORK)
+ #define _TIF_PERSYSCALL_MASK	(_TIF_RESTOREALL|_TIF_NOERROR)
+ 
+ /* Bits in local_flags */
+diff -urp linux-2.6.18.base/include/asm-powerpc/unistd.h linux-2.6.18/include/asm-powerpc/unistd.h
+--- linux-2.6.18.base/include/asm-powerpc/unistd.h	2006-09-21 23:45:36.000000000 -0700
++++ linux-2.6.18/include/asm-powerpc/unistd.h	2006-09-22 02:04:28.000000000 -0700
+@@ -323,10 +323,22 @@
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
+-
++#define __NR_pfm_create_context	301
++#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++#define __NR_pfm_start		(__NR_pfm_create_context+5)
++#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
++ 
+ #ifdef __KERNEL__
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		312
+ 
+ #define __NR__exit __NR_exit
+ #define NR_syscalls	__NR_syscalls

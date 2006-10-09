@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932923AbWJISU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932998AbWJISWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932923AbWJISU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 14:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932994AbWJISU0
+	id S932998AbWJISWi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 14:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932997AbWJISWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 14:20:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33772 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932923AbWJISUX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 14:20:23 -0400
-Date: Mon, 9 Oct 2006 11:20:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Fix IO error reporting on fsync()
-Message-Id: <20061009112011.b8c84e54.akpm@osdl.org>
-In-Reply-To: <20061009114040.GI17620@atrey.karlin.mff.cuni.cz>
-References: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz>
-	<20061006230609.c04e78bc.akpm@osdl.org>
-	<20061009114040.GI17620@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 9 Oct 2006 14:22:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14000 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932998AbWJISWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 14:22:37 -0400
+Subject: Re: [PATCH] [kernel/ subdirectory] constifications
+From: Arjan van de Ven <arjan@infradead.org>
+To: Helge Deller <deller@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200610092016.18362.deller@gmx.de>
+References: <200610082121.49925.deller@gmx.de>
+	 <1160377169.3000.189.camel@laptopd505.fenrus.org>
+	 <200610092016.18362.deller@gmx.de>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 09 Oct 2006 20:22:34 +0200
+Message-Id: <1160418154.3000.244.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 13:40:41 +0200
-Jan Kara <jack@suse.cz> wrote:
+On Mon, 2006-10-09 at 20:16 +0200, Helge Deller wrote:
+> On Monday 09 October 2006 08:59, Arjan van de Ven wrote:
+> > On Sun, 2006-10-08 at 21:21 +0200, Helge Deller wrote:
+> > > - completely constify string arrays,  thus move them to the rodata section
+> > 
+> > note that gcc 4.1 and later will do this automatically for static things
+> > at least...
+> 
+> Are you sure ?
+> 
+> At least with gcc-4.1.0 from SUSE 10.1 the strings array _pointers_ are not moved into the rodata section without the second "const":
+> const static char * const x[] = { "value1", "value2" };
+> 
 
-> > What about putting an address_space* into the buffer_head?  Transfer the
-> > EIO state into the address_space within, say, __remove_assoc_queue()?
->   Yes, that's of course possible. But it enlarges each buffer head by 4
-> bytes (or 8 on 64-bit arch).
+hmm I could have sworn GCC does this automatic nowadays as long as it
+can prove you're not writing to the thing (eg static and not passing the
+pointer to some external function).....
 
-I suspect we could get that back by removing buffer_head.b_bdev.  That's
-not a trivial thing to do, but should be feasible.
+(even if gcc does this perfect I'm still in favor of the explicit const,
+just to catch stupid code with a warning)
 
-We can't just do bh->b_page->mapping->host->i_sb->s_bdev because of races
-with trunate, plus the general horror of it all.  But I expect that all
-callers of submit_bh() have the blockdev* easily available by other means,
-so adding a `struct block_device*' argument to submit_bh() would get us
-there.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

@@ -1,58 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWJILJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWJILLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751803AbWJILJn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWJILJn
+	id S1751832AbWJILLA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWJILLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:09:43 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:46516 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751803AbWJILJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 07:09:42 -0400
-Date: Mon, 9 Oct 2006 13:10:12 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
-       Castet Matthieu <castet.matthieu@free.fr>
-Subject: Re: [Alsa-devel] [PATCH] Driver core: Don't ignore error returns
- from probing
-Message-ID: <20061009131012.3ba21242@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L0.0610061400180.1311-100000@netrider.rowland.org>
-References: <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
-	<Pine.LNX.4.44L0.0610061400180.1311-100000@netrider.rowland.org>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 9 Oct 2006 07:11:00 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64702 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751832AbWJILK7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 07:10:59 -0400
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061009110007.GA3592@wotan.suse.de>
+References: <20061007105758.14024.70048.sendpatchset@linux.site>
+	 <20061007105853.14024.95383.sendpatchset@linux.site>
+	 <20061007134407.6aa4dd26.akpm@osdl.org>
+	 <1160351174.14601.3.camel@localhost.localdomain>
+	 <20061009102635.GC3487@wotan.suse.de>
+	 <1160391014.10229.16.camel@localhost.localdomain>
+	 <20061009110007.GA3592@wotan.suse.de>
+Content-Type: text/plain
+Date: Mon, 09 Oct 2006 21:10:13 +1000
+Message-Id: <1160392214.10229.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Oct 2006 14:12:49 -0400 (EDT),
-Alan Stern <stern@rowland.harvard.edu> wrote:
 
-> I'm still not sure why bus_attach_device() was split off from 
-> bus_add_device() in the first place.  Was it just so that the 
-> kobject_uevent() call could go in between?
+> Yep, I see. You just need to be careful about the PFNMAP logic, so
+> the VM knows whether the pte is backed by a struct page or not.
 
-I think yes. This was added in
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115092084915731&w=2
+I still need to properly get my head around that one. I can't easily
+change the VMA during the "switch" but I can tweak the flags on the
+first nopage after one... 
 
-> This looks okay, but it would be better if bus_remove_device() did not
-> directly call bus_delete_device().  Just add an extra call inside
-> device_del(), so that everything remains symmetrical.
+> And going the pageless route means that you must disallow MAP_PRIVATE
+> PROT_WRITE mappings, I trust that isn't a problem for you?
+
+Should not but I need to look more closely.
+
+> I guess the helper looks something like the following...
 > 
-> While I'm harping on style issues, you should also capitalize AttachError
-> so that it matches the form of the other statement labels nearby.  And in
-> bus_remove_device() you should put all the code inside the "if" block
-> instead of returning when dev->bus isn't set, just as the neighboring
-> subroutines do.
+> --
+> 
+> Index: linux-2.6/include/linux/mm.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/mm.h
+> +++ linux-2.6/include/linux/mm.h
+> @@ -1105,6 +1105,7 @@ unsigned long vmalloc_to_pfn(void *addr)
+>  int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
+>  			unsigned long pfn, unsigned long size, pgprot_t);
+>  int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
+> +int vm_insert_pfn(struct vm_area_struct *, unsigned long addr, unsigned long pfn);
+>  
+>  struct page *follow_page(struct vm_area_struct *, unsigned long address,
+>  			unsigned int foll_flags);
+> Index: linux-2.6/mm/memory.c
+> ===================================================================
+> --- linux-2.6.orig/mm/memory.c
+> +++ linux-2.6/mm/memory.c
+> @@ -1267,6 +1267,44 @@ int vm_insert_page(struct vm_area_struct
+>  }
+>  EXPORT_SYMBOL(vm_insert_page);
+>  
+> +/**
+> + * vm_insert_pfn - insert single pfn into user vma
+> + * @vma: user vma to map to
+> + * @addr: target user address of this page
+> + * @pfn: source kernel pfn
+> + *
+> + * Similar to vm_inert_page, this allows drivers to insert individual pages
+> + * they've allocated into a user vma. Same comments apply
+> + */
+> +int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr, unsigned long pfn)
+> +{
+> +	struct mm_struct *mm = vma->vm_mm;
+> +	int retval;
+> +	pte_t *pte;
+> +	spinlock_t *ptl;
+> +
+> +	BUG_ON(is_cow_mapping(vma->vm_flags));
+> +
+> +	retval = -ENOMEM;
+> +	pte = get_locked_pte(mm, addr, &ptl);
+> +	if (!pte)
+> +		goto out;
+> +	retval = -EBUSY;
+> +	if (!pte_none(*pte))
+> +		goto out_unlock;
+> +
+> +	/* Ok, finally just insert the thing.. */
+> +	set_pte_at(mm, addr, pte, pfn_pte(pfn, vma->vm_page_prot));
+> +
+> +	vma->vm_flags |= VM_PFNMAP;
+> +	retval = 0;
+> +out_unlock:
+> +	pte_unmap_unlock(pte, ptl);
+> +out:
+> +	return retval;
+> +}
+> +EXPORT_SYMBOL(vm_insert_pfn);
 
-OK, new patch on the way.
+It also needs update_mmu_cache() I suppose.
 
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+>  /*
+>   * maps a range of physical memory into the requested pages. the old
+>   * mappings are removed. any references to nonexistent pages results
+

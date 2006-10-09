@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932999AbWJITrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933012AbWJITth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932999AbWJITrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 15:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933012AbWJITrM
+	id S933012AbWJITth (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 15:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933017AbWJITtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 15:47:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932999AbWJITrL (ORCPT
+	Mon, 9 Oct 2006 15:49:36 -0400
+Received: from www.osadl.org ([213.239.205.134]:33998 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S933012AbWJITtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 15:47:11 -0400
-Message-ID: <452AA716.7060701@sandeen.net>
-Date: Mon, 09 Oct 2006 14:46:30 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       esandeen@redhat.com, Badari Pulavarty <pbadari@us.ibm.com>,
-       Jan Kara <jack@ucw.cz>
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061002194711.GA1815@redhat.com>	<20061003052219.GA15563@redhat.com>	<4521F865.6060400@sandeen.net> <20061002231945.f2711f99.akpm@osdl.org>
-In-Reply-To: <20061002231945.f2711f99.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 9 Oct 2006 15:49:36 -0400
+Subject: Re: [PATCH 01/10] -mm: clocksource: increase initcall priority
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: john stultz <johnstul@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1160421857.30532.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+References: <20061006185439.667702000@mvista.com>
+	 <20061006185456.261581000@mvista.com>
+	 <1160419851.5458.17.camel@localhost.localdomain>
+	 <1160421857.30532.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Mon, 09 Oct 2006 21:49:38 +0200
+Message-Id: <1160423379.5686.236.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 03 Oct 2006 00:43:01 -0500
-> Eric Sandeen <sandeen@sandeen.net> wrote:
+On Mon, 2006-10-09 at 12:24 -0700, Daniel Walker wrote:
+> > So, the question becomes: Do we want to start using arch specific
+> > clocksources as early as possible, with the potential that we'll replace
+> > it when a better one shows up later? It would allow for finer grained
+> > timekeeping early in boot, which sounds nice, but I'm not sure how great
+> > the real need is for that.
 > 
->> Dave Jones wrote:
->>
->>> So I managed to reproduce it with an 'fsx foo' and a
->>> 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
->>> a vanilla 2.6.18 with none of the Fedora patches..
->>>
->>> I'll give 2.6.18-git a try next.
->>>
->>> 		Dave
->>>
->>> ----------- [cut here ] --------- [please bite here ] ---------
->>> Kernel BUG at fs/buffer.c:2791
->> I had thought/hoped that this was fixed by Jan's patch at 
->> http://lkml.org/lkml/2006/9/7/236 from the thread started at 
->> http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
->> first by going through that new codepath....
+> My main motivation is that I'm assuming other uses of the interface will
+> exist. Then anything that uses the interface after postcore will avoid
+> switching clocks later.
+
+What does it matter, when clocks switch? That's a one time event.
+
+The boot code is different and there is nothing which requires the
+availability of that interface in the early boot process.
+
+> If I for instance, just return clocksource_jiffies until the system is
+> fully booted then any thing that got a clock early, even during part of
+> device_initcall, would end up switching to a new clock when boot up
+> finished. I think that was acceptable when just timekeeping might have
+> been using the interface, but I don't know that it would scale well from
+> 1 to 2 to 5 users of the interface. Then you would have several clock
+> switches happened after boot up .
+
+What are the 5 users of that interface ? 
+
+There is one existing user, one artifical you try to create for
+sched_clock and some handwaving about instrumentation. Even when we have
+5 users, then the switching of clocks does not matter anything. This
+happens the same way, when I load the highest rated clock source as a
+module during init.
+
+> > I suspect it might actually cause more shuffling, as some clocksources
+> > (well, just the TSC, really.. its such a pain...) are not disqualified
+> > until later because we don't know if the system will enter C3, or change
+> > cpufreq, etc..  By waiting longer, we increase the chance that those
+> > disqualifying actions will occur before we install it.
 > 
-> Yes, Jan's patch is supposed to fix that !buffer_mapped() assertion.  iirc,
-> Badari was hitting that BUG and was able to confirm that Jan's patch
-> (3998b9301d3d55be8373add22b6bc5e11c1d9b71 in post-2.6.18 mainline) fixed
-> it.
+> This is something I've struggled with, but it's still and issue with the
+> current code to a lesser degree. Like cpufreq isn't likely to be used
+> during bootup, but acpi sleep states might be..
 
-Looking at some BH traces*, it appears that what Dave hit is a truncate
-racing with a sync...
+Lesser degree ? You have an issue, which was not there before you made
+the changes. This is simply regression and the ignoring of that
+regression is wilful breakage.
 
-truncate ...
-  ext3_invalidate_page
-    journal_invalidatepage
-      journal_unmap buffer
+> The current code can be classified as avoiding shuffle, but not
+> eliminating it. Like with the acpi_pm timer, I was thinking I'd just put
+> it back into device_initcall and assume shuffling might happen in rare
+> cases.
 
-going off at the same time as
+Great. We install TSC in early boot and pmtimer in late boot. Now we
+have the fun of unsynced TSCs and time going backwards again, until we
+get pmtimer loaded. I have explained it to you already, but that is the
+reason why that stuff was moved into late boot.
 
-sync ...
-  journal_dirty_data
-    sync_dirty_buffer
-      submit_bh <-- finds unmapped buffer, boom.
+Also you have not yet once given an explanation other than the "magic
+churn", why this is necessary. There is no churn. The clocksource layer
+is designed to allow the replacement of clock sources and it does not
+hurt at all. It does also not matter if there are 1 ore 100 users.
 
-I'm not sure what should be coordinating this, and I'm not sure why
-we've not yet seen it on a stock kernel, but only FC6... I haven't found
-anything in FC6 that looks like it may affect this.
+	tglx
 
--Eric
 
-*http://people.redhat.com/esandeen/traces/davej_ext3_oops1.txt

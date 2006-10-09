@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWJIVBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWJIVES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbWJIVBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWJIVBy
+	id S964861AbWJIVES (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWJIVES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:01:54 -0400
-Received: from main.gmane.org ([80.91.229.2]:11461 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964860AbWJIVBx (ORCPT
+	Mon, 9 Oct 2006 17:04:18 -0400
+Received: from gate.crashing.org ([63.228.1.57]:45257 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964861AbWJIVER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:01:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
-Date: 09 Oct 2006 22:55:55 +0200
-Message-ID: <87k639fbtw.fsf@willow.rfc1149.net>
-References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr> <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr> <20061006203919.GS2563@parisc-linux.org> <5267.1160381168@redhat.com> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr> <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com> <11639.1160398461@redhat.com> <Pine.LNX.4.61.0610092159340.23379@yvahk01.tjqt.qr>
+	Mon, 9 Oct 2006 17:04:17 -0400
+Subject: Re: User switchable HW mappings & cie
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>,
+       linux-mm@kvack.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>,
+       Linus Torvalds <torvalds@osdl.org>, Nick Piggin <npiggin@suse.de>
+In-Reply-To: <200610092036.50010.ioe-lkml@rameria.de>
+References: <1160347065.5926.52.camel@localhost.localdomain>
+	 <452A35FF.50009@tungstengraphics.com>
+	 <1160394662.10229.30.camel@localhost.localdomain>
+	 <200610092036.50010.ioe-lkml@rameria.de>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 07:03:49 +1000
+Message-Id: <1160427829.7752.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jan" == Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+On Mon, 2006-10-09 at 20:36 +0200, Ingo Oeser wrote:
+> Hi all,
+> 
+> On Monday, 9. October 2006 13:51, Benjamin Herrenschmidt wrote:
+> > > One problem that occurs is that the rule for ptes with non-backing 
+> > > struct pages
+> > > Which I think was introduced in 2.6.16:
+> > > 
+> > >     pfn_of_page == vma->vm_pgoff + ((addr - vma->vm_start) >> PAGE_SHIFT)
+> > > 
+> > > cannot be honored, at least not with the DRM memory manager, since the 
+> > > graphics object will be associated with a vma and not the underlying 
+> > > physical address. User space will have vma->vm_pgoff as a handle to the 
+> > > object, which may move around in graphics memory.
+> > 
+> > That's a problem with VM_PFNMAP set indeed. get_user_pages() is a
+> > non-issue with VM_IO set too but I'm not sure about other code path that
+> > might try to hit here... though I think we don't hit that if MAP_SHARED,
+> > Nick ?
+> 
+> Istn't this just a non-linear PFN mapping, you are describing here?
+> 
+> Nick: 
+> 	Cant your new fault consolidation code handle that?
+> 	AFAICS your new .fault handler just gets the
+> 	vma and pgoff and install the matching PTE via install_THINGIE()
+> 	or vm_insert_THINGIE()
+> 
+> Or do I miss sth. here?
 
->>  That only offsets the problem a bit.  You still have to derive
->> uint32_t from somewhere.
+It is somewhat yes.
 
-Jan> The compiler could make it available as a 'fundamental type' -
-Jan> i.e.  available without any headers, like 'int' and 'long'.
+Ben.
 
-The compiler isn't allowed to pollute your namespace with symbols like
-that. What if someone defines uint32_t as a function for example in
-her code? (yes, this would be sick, but is allowed by default)
-
-  Sam
--- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
 

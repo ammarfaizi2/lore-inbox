@@ -1,116 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWJISSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751721AbWJISQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbWJISSW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 14:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932811AbWJISSW
+	id S1751721AbWJISQW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 14:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbWJISQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 14:18:22 -0400
-Received: from ext-103.mv.fabric7.com ([68.120.107.103]:59013 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S932327AbWJISSV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 14:18:21 -0400
-From: Misha Tomushev <misha@fabric7.com>
-Reply-To: misha@fabric7.com
-Organization: Fabric7 Systems
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 6/10] VIOC: New Network Device Driver
-Date: Mon, 9 Oct 2006 11:09:39 -0700
-User-Agent: KMail/1.5.1
-Cc: Jeff Garzik <jeff@garzik.org>, KERNEL Linux <linux-kernel@vger.kernel.org>
-References: <200610051105.51259.misha@fabric7.com> <20061008072726.GA5589@ucw.cz>
-In-Reply-To: <20061008072726.GA5589@ucw.cz>
+	Mon, 9 Oct 2006 14:16:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:29393 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751214AbWJISQW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 14:16:22 -0400
+X-Authenticated: #1045983
+From: Helge Deller <deller@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] [kernel/ subdirectory] constifications
+Date: Mon, 9 Oct 2006 20:16:18 +0200
+User-Agent: KMail/1.9.5
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200610082121.49925.deller@gmx.de> <1160377169.3000.189.camel@laptopd505.fenrus.org>
+In-Reply-To: <1160377169.3000.189.camel@laptopd505.fenrus.org>
+X-Face: *4/{KL3=jWs!v\UO#3e7~Vb1~CL@oP'~|*/M$!9`tb2[;fY@)WscF2iV7`,a$141g'o,=?utf-8?q?7X=0A=09=3FBt1Wb=3AL7K6z-?=<?-+-13|S_ixrq58*E`)ZkSe~NSI?u=89G'J<n]7\?[)LCCBZc}~[j(=?utf-8?q?e=7D=0A=09=60-QV=7B=23=25=26=5B=3F=5EfAke6t8QbP=3Bb=27XB?=,ZU84HeThMrO(@/K.`jxq9P({V(AzezCKMxk\F2^p^+"=?utf-8?q?=0A=09=5B?="ppalbA!zy-l)^Qa3*u/Z-1W3,o?2fes2_d\u=1\E9N+~Qo
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610091109.39793.misha@fabric7.com>
-X-OriginalArrivalTime: 09 Oct 2006 18:18:18.0739 (UTC) FILETIME=[4BB29430:01C6EBCF]
+Message-Id: <200610092016.18362.deller@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 October 2006 12:27 am, Pavel Machek wrote:
-> Hi!
->
-> > +	ecmd->phy_address = 0;	/* !!! Stole from e1000 */
-> > +	ecmd->speed = 3;	/* !!! Stole from e1000 */
->
-> Eh?
-You are right. Will fix.
->
-> > +static void vnic_get_regs(struct net_device *netdev,
-> > +			  struct ethtool_regs *regs, void *p)
-> > +{
-> > +	struct vnic_device *vnicdev = netdev->priv;
-> > +	struct vioc_device *viocdev = vnicdev->viocdev;
-> > +	char *regs_buff = p;
-> > +
-> > +	memset(regs_buff, 0, VNIC_REGS_CNT * VNIC_REGS_LINE_LEN);
-> > +
-> > +	regs->version = 1;
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_GLOBAL, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_GLOBAL, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_DEBUG, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_DEBUG, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_FABRIC, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_FABRIC, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_VNIC_EN, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_VNIC_EN, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_PORT_EN, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_PORT_EN, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_BMC_VNIC_CFG, VIOC_BMC, 0),
-> > +		VIOC_READ_REG(VREG_BMC_VNIC_CFG, VIOC_BMC, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_IHCU_RXDQEN, VIOC_IHCU, 0),
-> > +		VIOC_READ_REG(VREG_IHCU_RXDQEN, VIOC_IHCU, 0, viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id),
-> > +		VIOC_READ_REG(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id,
-> > +			      viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > +		GETRELADDR(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id),
-> > +		VIOC_READ_REG(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id,
-> > +			      viocdev));
-> > +	regs_buff += strlen(regs_buff);
-> > +
-> > +}
->
-> This looks ugly. What interface is that?
-This is the interface between  the driver and ethtool.
-Using the text buffer is one way to keep changed limited to one side (driver). Ultimately, I think that this ethtool function (dumping hw registers) should become more generic,
-as opposed to what it is now - unique for every individual driver.
-> 							Pavel
+On Monday 09 October 2006 08:59, Arjan van de Ven wrote:
+> On Sun, 2006-10-08 at 21:21 +0200, Helge Deller wrote:
+> > - completely constify string arrays,  thus move them to the rodata section
+> 
+> note that gcc 4.1 and later will do this automatically for static things
+> at least...
 
--- 
-Misha Tomushev
-misha@fabric7.com
+Are you sure ?
 
+At least with gcc-4.1.0 from SUSE 10.1 the strings array _pointers_ are not moved into the rodata section without the second "const":
+const static char * const x[] = { "value1", "value2" };
 
+Helge

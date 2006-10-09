@@ -1,193 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWJILcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWJILc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWJILcz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWJILcz
+	id S932449AbWJILc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWJILc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:32:55 -0400
-Received: from mail.suse.de ([195.135.220.2]:3748 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932448AbWJILcy (ORCPT
+	Mon, 9 Oct 2006 07:32:56 -0400
+Received: from mail.uni-bonn.de ([131.220.15.112]:47522 "EHLO uni-bonn.de")
+	by vger.kernel.org with ESMTP id S932446AbWJILcy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 9 Oct 2006 07:32:54 -0400
-Date: Mon, 9 Oct 2006 13:32:35 +0200
-From: Holger Macht <hmacht@suse.de>
-To: linux-acpi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: [PATCH] Add support for the generic backlight device to the IBM ACPI driver
-Message-ID: <20061009113235.GA4444@homac.suse.de>
-Mail-Followup-To: linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, len.brown@intel.com
+X-Hashcash: 1:20:061009:linux-kernel@vger.kernel.org::zfpNJ01QbMW1bXm8:0000000000000000000000000000000000iAe
+X-Hashcash: 1:20:061009:linux-ide@vger.kernel.org::WVGNBPD7oVPzzEmq:0000000000000000000000000000000000009zjF
+X-Hashcash: 1:20:061009:hdaps-devel@lists.sourceforge.net::1RDWwfAe8VvwqXaU:00000000000000000000000000002OFn
+From: Elias Oltmanns <oltmanns@uni-bonn.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-ide@vger.kernel.org, hdaps-devel@lists.sourceforge.net
+Subject: Debugging strange system lockups possibly triggered by ATA commands
+Mail-Copies-To: nobody
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	hdaps-devel@lists.sourceforge.net
+Date: Mon, 09 Oct 2006 13:32:37 +0200
+Message-ID: <877iz9ohbe.fsf@denkblock.local>
+User-Agent: Gnus/5.110006 (No Gnus v0.6)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for the generic backlight interface below
-/sys/class/backlight. The patch keeps the procfs brightness handling for
-backward compatibility. For this to archive, the patch adds two generic
-functions brightness_get and brightness_set to be used both by the procfs
-related and the sysfs related methods.
+Hi there,
 
-Signed-off-by: Holger Macht <hmacht@suse.de>
----
+recently, I've adapted the hdaps_protect patch to make it work with
+kernel 2.6.18. This patch adds a file "protect" to the queue directory
+of block devices managed by ide or libata in sysfs. Depending on the
+drive's capabilities or a module/kernel parameter, an IDLE IMMEDIATE
+with UNLOAD feature or a STANDBY IMMEDIATE command is issued when ever
+a positive value is written to this "protect" file. After completion
+of this command, the request queue of the respective device is stopped
+in order to prevent it from performing further IO operations. The
+queue is started again after a certain timeout has elapsed, that is,
+as many seconds as the positive number that has originally been
+written to the "protect" file.
 
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index 0f9d4be..6e47501 100644
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -200,6 +200,7 @@ config ACPI_ASUS
- config ACPI_IBM
- 	tristate "IBM ThinkPad Laptop Extras"
- 	depends on X86
-+	select BACKLIGHT
- 	---help---
- 	  This is a Linux ACPI driver for the IBM ThinkPad laptops. It adds
- 	  support for Fn-Fx key combinations, Bluetooth control, video
-diff --git a/drivers/acpi/ibm_acpi.c b/drivers/acpi/ibm_acpi.c
-index 15fc124..1160f92 100644
---- a/drivers/acpi/ibm_acpi.c
-+++ b/drivers/acpi/ibm_acpi.c
-@@ -78,6 +78,7 @@ #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
-+#include <linux/backlight.h>
- #include <asm/uaccess.h>
- 
- #include <acpi/acpi_drivers.h>
-@@ -243,6 +244,8 @@ struct ibm_struct {
- 
- static struct proc_dir_entry *proc_dir = NULL;
- 
-+static struct backlight_device *ibm_backlight_device;
-+
- #define onoff(status,bit) ((status) & (1 << (bit)) ? "on" : "off")
- #define enabled(status,bit) ((status) & (1 << (bit)) ? "enabled" : "disabled")
- #define strlencmp(a,b) (strncmp((a), (b), strlen(b)))
-@@ -1381,12 +1384,22 @@ static int ecdump_write(char *buf)
- 
- static int brightness_offset = 0x31;
- 
-+static int brightness_get(struct backlight_device *bd)
-+{
-+       u8 level;
-+       if (!acpi_ec_read(brightness_offset, &level))
-+               return -EIO;
-+       
-+       level &= 0x7;
-+       return level;
-+}
-+
- static int brightness_read(char *p)
- {
- 	int len = 0;
--	u8 level;
-+	int level;
- 
--	if (!acpi_ec_read(brightness_offset, &level)) {
-+	if ((level = brightness_get(NULL)) < 0) {
- 		len += sprintf(p + len, "level:\t\tunreadable\n");
- 	} else {
- 		len += sprintf(p + len, "level:\t\t%d\n", level & 0x7);
-@@ -1401,16 +1414,34 @@ static int brightness_read(char *p)
- #define BRIGHTNESS_UP	4
- #define BRIGHTNESS_DOWN	5
- 
--static int brightness_write(char *buf)
-+static int brightness_set(int value)
- {
- 	int cmos_cmd, inc, i;
--	u8 level;
-+	int current_value = brightness_get(NULL);
-+	
-+	value &= 7;
-+	
-+	cmos_cmd = value > current_value ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
-+	inc = value > current_value ? 1 : -1;
-+	for (i = current_value; i != value; i += inc) {
-+		if (!cmos_eval(cmos_cmd))
-+			return -EIO;
-+		if (!acpi_ec_write(brightness_offset, i + inc))
-+			return -EIO;
-+	}
-+	
-+	return 0;
-+}
-+
-+static int brightness_write(char *buf)
-+{
-+	int level;
- 	int new_level;
- 	char *cmd;
- 
- 	while ((cmd = next_cmd(&buf))) {
--		if (!acpi_ec_read(brightness_offset, &level))
--			return -EIO;
-+		if ((level = brightness_get(NULL)) < 0)
-+			return level;
- 		level &= 7;
- 
- 		if (strlencmp(cmd, "up") == 0) {
-@@ -1423,19 +1454,17 @@ static int brightness_write(char *buf)
- 		} else
- 			return -EINVAL;
- 
--		cmos_cmd = new_level > level ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
--		inc = new_level > level ? 1 : -1;
--		for (i = level; i != new_level; i += inc) {
--			if (!cmos_eval(cmos_cmd))
--				return -EIO;
--			if (!acpi_ec_write(brightness_offset, i + inc))
--				return -EIO;
--		}
-+		brightness_set(new_level);
- 	}
- 
- 	return 0;
- }
- 
-+static int brightness_update_status(struct backlight_device *bd)
-+{
-+	return brightness_set(bd->props->brightness);
-+}
-+
- static int volume_offset = 0x30;
- 
- static int volume_read(char *p)
-@@ -1965,10 +1994,20 @@ IBM_PARAM(brightness);
- IBM_PARAM(volume);
- IBM_PARAM(fan);
- 
-+static struct backlight_properties ibm_backlight_data = {
-+        .owner          = THIS_MODULE,
-+        .get_brightness = brightness_get,
-+        .update_status  = brightness_update_status,
-+        .max_brightness = 7,
-+};
-+
- static void acpi_ibm_exit(void)
- {
- 	int i;
- 
-+	if (ibm_backlight_device)
-+		backlight_device_unregister(ibm_backlight_device);
-+
- 	for (i = ARRAY_SIZE(ibms) - 1; i >= 0; i--)
- 		ibm_exit(&ibms[i]);
- 
-@@ -2036,6 +2075,14 @@ #endif
- 		}
- 	}
- 
-+	ibm_backlight_device = backlight_device_register("ibm", NULL,
-+							 &ibm_backlight_data);
-+        if (IS_ERR(ibm_backlight_device)) {
-+		printk(IBM_ERR "Could not register ibm backlight device\n");
-+		ibm_backlight_device = NULL;
-+		acpi_ibm_exit();
-+	}
-+	
- 	return 0;
- }
+The purpose of this patch is to provide an interface to unload the
+disk heads on request from user space, e.g., in order to minimise the
+chance for the heads to hit the platter in certain situations like
+a laptop sliding off the lap. This makes it imperative to insert the
+unload command at the head of the request queue.
+
+Testing the patch, I experienced some nasty system lockups which I
+cannot quite reliably reproduce, let alone having an idea as to what
+might be the cause. Since these lockups occurred on my machine
+regardless whether I used the ide piix driver in vanilla 2.6.18 or the
+ata_piix driver with pata support enabled in Jeff Garzik's git tree
+(upstream-linus as of 2006-09-29), and since the ide related part of
+the patch had to be changed very little from 2.6.17 to 2.6.18, there
+seem to be two options: Either I've missed an important change in the
+way io requests and the request queue have to be handled in 2.6.18, or
+the patch just demonstrates a flaw somewhere else in the kernel. The
+former seems quite likely considering that I'm rather superficially
+acquainted with the relevant api. The latter does not seem completely
+unlikely, at least, as the problem occurs on ide as well as libata.
+
+Unfortunately, my system just froze without displaying a panic
+message. Moreover, the lockup appears to be hard to reproduce. Here
+are some details about some of the tests I've performed so far:
+
+
+1. vanilla 2.6.18:
+------------------
+I used my standard configuration for self compiled kernels and make
+oldconfig to adjust it to 2.6.18. Basically, that means a highly
+modularised kernel with ramdisk and initrd support compiled in - by
+that time I hadn't realised yet that ramdisk support isn't needed for
+initramfs support anymore. Amongst the modules: ide-core, ide-disk,
+ide-generic, piix, no sata support. With the hdaps_protect patch applied, I
+could reliably reproduce the system freeze by the following steps:
+Boot into single user mode
+# modprobe ibm-acpi
+# while true; do echo -n 1 > /sys/block/hda/queue/protect; \
+> echo -n 0 > /sys/block/hda/queue/protect; done
+The system freezes and there is no way to reactivate it, except a cold
+reset. Note that there was no freeze without ibm-acpi being loaded,
+even modprobe ibm-acpi; modprobe -r ibm-acpi and the while loop did
+not lead to a freeze. However, switching to the external monitor and
+back again after loading ibm-acpi prevents the system from freezing
+too which makes the whole thing even more difficult.
+
+
+2. Branch upstream-linus from Jeff Garzik's git tree as of 2006-09-29:
+----------------------------------------------------------------------
+Here I used almost the identical configuration except that I disabled
+ide support completely and enabled sata support and the module
+ata_piix. Besides, #define ATA_ENABLE_PATA was set in
+include/linux/libata.h.
+With this setup the system shew the same behavior as described above.
+
+
+3. Vanilla 2.6.18 with stripped configuration:
+----------------------------------------------
+In the hope to provide a minimal test case, I stripped the
+configuration considerably, disabling several subsystems lke scsi, a
+lot of networking stuff, and so on. Additionally, I disabled
+ide-generic and ramdisk support, as I'm using initramfs anyway. The
+module ibm_acpi was still included.
+Regrettably, the freeze was not reproducible anymore.
+
+4. Branch upstream-linus from Jeff Garzik's git tree as of 2006-10-09:
+----------------------------------------------------------------------
+Exact same config as in 2. Problem is not reproducible as in 3. and
+I'm currently working on this system.
+
+
+Admittedly, I'm completely lost at this point. That's why I'm asking
+you for advice and suggestions how to debug this problem. If you want
+to have a look at the patch in question, please see:
+1. applying to vanilla 2.6.18
+   <http://www.uni-bonn.de/~oltmanns/linux/hdaps_protect-2.6.18-20060922-3.patch>
+2. applying to Jeff's git tree as in examples 2. and 4. above:
+   <http://www.uni-bonn.de/~oltmanns/linux/hdaps_protect-2.6.18-20060922-pata-2.patch>
+
+A slightly stripped version of the patch is available too, which has
+been verified to trigger the described problem in exactly the same way
+as the original but lacks the IDLE IMMEDIATE feature (leaving the
+STANDBY IMMEDIATE option only) in order to make it (hopefully) more
+readable and easier to understand. You can find this version of the
+patch which applies to vanilla 2.6.18 here:
+<http://www.uni-bonn.de/~oltmanns/linux/hdaps_protect-stripped-2.6.18-1.patch>
+
+Kind regards and thanks for your help in advance,
+
+Elias

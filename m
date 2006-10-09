@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWJIUII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWJIUKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWJIUII (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWJIUII
+	id S964797AbWJIUKR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWJIUKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:08:08 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:50319 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964801AbWJIUIE (ORCPT
+	Mon, 9 Oct 2006 16:10:17 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:14746 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964797AbWJIUKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:08:04 -0400
-Date: Mon, 9 Oct 2006 22:00:38 +0200 (MEST)
+	Mon, 9 Oct 2006 16:10:15 -0400
+Date: Mon, 9 Oct 2006 22:08:30 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David Howells <dhowells@redhat.com>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Matthew Wilcox <matthew@wil.cx>,
-       torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
- the kernel [try #4] 
-In-Reply-To: <11639.1160398461@redhat.com>
-Message-ID: <Pine.LNX.4.61.0610092159340.23379@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr> 
- <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
- <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr> <20061006203919.GS2563@parisc-linux.org>
- <5267.1160381168@redhat.com> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr>
- <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com>  <11639.1160398461@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Helge Deller <deller@gmx.de>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [kernel/ subdirectory] constifications
+In-Reply-To: <1160418154.3000.244.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0610092206400.23379@yvahk01.tjqt.qr>
+References: <200610082121.49925.deller@gmx.de>  <1160377169.3000.189.camel@laptopd505.fenrus.org>
+  <200610092016.18362.deller@gmx.de> <1160418154.3000.244.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-7550219-1160424510=:23379"
 X-Spam-Report: Content analysis: 0.0 points, 6.0 required
 	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
->> typedef uint32_t __u32;
+--1283855629-7550219-1160424510=:23379
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+
+>> > > - completely constify string arrays,  thus move them to the rodata section
+>> > 
+>> > note that gcc 4.1 and later will do this automatically for static things
+>> > at least...
+>> 
+>> Are you sure ?
+>> 
+>> At least with gcc-4.1.0 from SUSE 10.1 the strings array _pointers_ are not moved into the rodata section without the second "const":
+>> const static char * const x[] = { "value1", "value2" };
 >
->That only offsets the problem a bit.  You still have to derive uint32_t from
->somewhere.
+>hmm I could have sworn GCC does this automatic nowadays as long as it
+>can prove you're not writing to the thing (eg static and not passing the
+>pointer to some external function).....
 
-The compiler could make it available as a 'fundamental type' - i.e. 
-available without any headers, like 'int' and 'long'.
+Arjan seems right:
+22:07 ichi:/dev/shm > cat test.c
+#include <stdio.h>
+static const char *x[] = {"0", "1", NULL};
+int main(void) {
+    int i;
+    for(i = 0; i < 3; ++i)
+        printf("%s\n", x[i]);
+    return 0;
+}
+22:07 ichi:/dev/shm > cc test.c -c && nm test.o | grep x
+00000000 d x
+22:07 ichi:/dev/shm > cc test.c -c -O2 && nm test.o | grep x
+00000000 r x
+
+>(even if gcc does this perfect I'm still in favor of the explicit const,
+>just to catch stupid code with a warning)
+
+Me² (read: ack)
+
 
 
 	-`J'
 -- 
+--1283855629-7550219-1160424510=:23379--

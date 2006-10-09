@@ -1,427 +1,468 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932903AbWJIOOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWJIONb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932903AbWJIOOF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932877AbWJIOLj
+	id S1751881AbWJIONb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932881AbWJIOLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:11:39 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:31985 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932881AbWJIOLT (ORCPT
+	Mon, 9 Oct 2006 10:11:42 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:32241 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932882AbWJIOLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 9 Oct 2006 10:11:19 -0400
-Date: Mon, 9 Oct 2006 07:10:21 -0700
+Date: Mon, 9 Oct 2006 07:10:27 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200610091410.k99EAL7h026179@frankl.hpl.hp.com>
+Message-Id: <200610091410.k99EARCR026245@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 14/21] 2.6.18 perfmon2 : default sampling format
+Subject: [PATCH 19/21] 2.6.18 perfmon2 : modified x86_64 files
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch contains the modified x86_64 files.
 
-This file implements the default sampling buffer format.
+The modified files are as follows:
 
-in this format, the buffer is composed of two major sections:
-	- a buffer header
-	- the samples
+arch/x86_64/Kconfig:
 
-Each sample is composed of:
-	- a fixed size header
-	- an optional variable size body containing the values
-	  of PMDs of interest as specified by user per counter
+	- add link to configuration menu in arch/x86_64/perfmon/Kconfig
+arch/x86_64/Makefile:
+	- add perfmon subdir
 
-The sample header contains:
-	- the PID, TID
-	- CPU where the PMU interrupt occurred
-	- active event set number
-	- a unique timestamp for the CPU where the interrupt occurred
-	- the index of the PMD register that overflowed
-	- the last reset value of that overflowd PMD
+arch/x86_64/ia32/ia32entry.S:
+	- add system call entry points for 32-bit ABI
+	
+arch/x86_64/kernel/apic.c:
+	- add hook to call pfm_handle_switch_timeout() on timer tick for timeout based
+	  set multiplexing
 
-Samples are stored contiguously. No aggregation is made. When multiple
-counters overflow at the same time, multiple samples are written but
-they have the same timestamp.
+arch/x86_64/kernel/entry.S:
+	- add pmu_interrupt stub
 
-When the end of the buffer is reached, monitoring is stopped. A user
-notification may be requested. Otherwise the buffer has reached its
-saturation point until a pfm_restart() is issued.
+arch/x86_64/kernel/i8259.c:
+	- PMU interrupt vector gate initialization
 
-The format works for all architectures in both 32-bit and 64-bit.
-Samples for all events sets are store in the same buffer.
+arch/x86_64/kernel/process.c:
+	- add hook in exit_thread() to cleanup perfmon2 context
+	- add hook in copy_thread() to cleanup perfmon2 context in child (perfmon2 context
+	  is never inherited)
+	- add hook in __switch_to() for PMU state save/restore
+
+arch/x86_64/kernel/signal.c:
+	- add hook for extra work before kernel exit. Need to block a thread after a overflow with
+	  user level notification. Also needed to do some bookeeeping, such as reset certain counters
+	  and cleanup in some difficult corner cases
+
+arch/x86_64/kernel/nmi.c:
+	- when nmi watchdog is using a performance counter, it needs to share the PMU with perfmon.
+	  This means that perfmon works with one less counters (AMD K8), and it must use the NMI
+	  interrupt vector rather than a lower priority vector. In nmi_watchdog_tick() we need to check
+	  if the NMI counter overflowed. If so, then this is a NMI watchdog event, otherwise, we forward
+	  to perfmon. The current code does not work with Intel P4 (EM64T).
+
+include/asm-x86_64/hw_irq.h:
+	- define PMU interrupt vector
+
+include/asm-x86_64/irq.h:
+	- update FIRST_SYSTEM_VECTOR
+
+include/asm-x86_64/thread_info.h:
+	- add TIF_PERFMON which is used for PMU context switching in __switch_to()
+
+include/asm-x86_64/unistd.h:
+	- add new system calls
 
 
-
-
---- linux-2.6.18.base/perfmon/perfmon_dfl_smpl.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/perfmon/perfmon_dfl_smpl.c	2006-09-25 12:08:55.000000000 -0700
-@@ -0,0 +1,283 @@
-+/*
-+ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file implements the new default sampling buffer format
-+ * for the perfmon2 subsystem.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of version 2 of the GNU General Public
-+ * License as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307 USA
-+ */
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/sysctl.h>
+diff -urp linux-2.6.18.base/arch/x86_64/Kconfig linux-2.6.18/arch/x86_64/Kconfig
+--- linux-2.6.18.base/arch/x86_64/Kconfig	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/Kconfig	2006-09-22 01:58:48.000000000 -0700
+@@ -540,6 +540,8 @@ config K8_NB
+ 	def_bool y
+ 	depends on AGP_AMD64 || IOMMU || (PCI && NUMA)
+ 
++source "arch/x86_64/perfmon/Kconfig"
 +
+ endmenu
+ 
+ #
+diff -urp linux-2.6.18.base/arch/x86_64/Makefile linux-2.6.18/arch/x86_64/Makefile
+--- linux-2.6.18.base/arch/x86_64/Makefile	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/Makefile	2006-09-22 01:58:48.000000000 -0700
+@@ -67,6 +67,7 @@ core-y					+= arch/x86_64/kernel/ \
+ 					   arch/x86_64/crypto/
+ core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
+ drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
++drivers-$(CONFIG_PERFMON)		+= arch/x86_64/perfmon/
+ drivers-$(CONFIG_OPROFILE)		+= arch/x86_64/oprofile/
+ 
+ boot := arch/x86_64/boot
+diff -urp linux-2.6.18.base/arch/x86_64/ia32/ia32entry.S linux-2.6.18/arch/x86_64/ia32/ia32entry.S
+--- linux-2.6.18.base/arch/x86_64/ia32/ia32entry.S	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/ia32/ia32entry.S	2006-09-22 02:24:26.000000000 -0700
+@@ -713,4 +713,16 @@ ia32_sys_call_table:
+ 	.quad sys_tee
+ 	.quad compat_sys_vmsplice
+ 	.quad compat_sys_move_pages
+-ia32_syscall_end:		
++ 	.quad sys_pfm_create_context
++ 	.quad sys_pfm_write_pmcs
++ 	.quad sys_pfm_write_pmds
++	.quad sys_pfm_read_pmds
++	.quad sys_pfm_load_context
++ 	.quad sys_pfm_start
++ 	.quad sys_pfm_stop
++ 	.quad sys_pfm_restart
++ 	.quad sys_pfm_create_evtsets
++ 	.quad sys_pfm_getinfo_evtsets
++ 	.quad sys_pfm_delete_evtsets
++ 	.quad sys_pfm_unload_context
++ia32_syscall_end:
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/apic.c linux-2.6.18/arch/x86_64/kernel/apic.c
+--- linux-2.6.18.base/arch/x86_64/kernel/apic.c	2006-09-21 23:48:08.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/apic.c	2006-09-22 01:58:48.000000000 -0700
+@@ -25,6 +25,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sysdev.h>
+ #include <linux/module.h>
 +#include <linux/perfmon.h>
-+#include <linux/perfmon_dfl_smpl.h>
-+
-+MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("new perfmon default sampling format");
-+MODULE_LICENSE("GPL");
-+
-+static int pfm_dfl_fmt_validate(u32 ctx_flags, u16 npmds, void *data)
-+{
-+	struct pfm_dfl_smpl_arg *arg = data;
-+	u64 min_buf_size;
-+
-+	if (data == NULL) {
-+		PFM_DBG("no argument passed");
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * sanity check in case size_t is smaller then u64
-+	 */
-+#if BITS_PER_LONG == 4
-+#define MAX_SIZE_T	(1ULL<<(sizeof(size_t)<<3))
-+	if (sizeof(size_t) < sizeof(arg->buf_size)) {
-+		if (arg->buf_size >= MAX_SIZE_T)
-+			return -ETOOBIG;
-+	}
+ 
+ #include <asm/atomic.h>
+ #include <asm/smp.h>
+@@ -942,6 +943,7 @@ void setup_APIC_extened_lvt(unsigned cha
+ void smp_local_timer_interrupt(struct pt_regs *regs)
+ {
+ 	profile_tick(CPU_PROFILING, regs);
++ 	pfm_handle_switch_timeout();
+ #ifdef CONFIG_SMP
+ 	update_process_times(user_mode(regs));
+ #endif
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/entry.S linux-2.6.18/arch/x86_64/kernel/entry.S
+--- linux-2.6.18.base/arch/x86_64/kernel/entry.S	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/entry.S	2006-09-22 02:22:46.000000000 -0700
+@@ -270,7 +270,7 @@ sysret_careful:
+ sysret_signal:
+ 	TRACE_IRQS_ON
+ 	sti
+-	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP),%edx
++	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
+ 	jz    1f
+ 
+ 	/* Really a signal */
+@@ -382,7 +382,7 @@ int_very_careful:
+ 	jmp int_restore_rest
+ 	
+ int_signal:
+-	testl $(_TIF_NOTIFY_RESUME|_TIF_SIGPENDING|_TIF_SINGLESTEP),%edx
++	testl $(_TIF_NOTIFY_RESUME|_TIF_SIGPENDING|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
+ 	jz 1f
+ 	movq %rsp,%rdi		# &ptregs -> arg1
+ 	xorl %esi,%esi		# oldset -> arg2
+@@ -600,7 +600,7 @@ retint_careful:
+ 	jmp retint_check
+ 	
+ retint_signal:
+-	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP),%edx
++	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
+ 	jz    retint_swapgs
+ 	TRACE_IRQS_ON
+ 	sti
+@@ -691,6 +691,10 @@ END(error_interrupt)
+ ENTRY(spurious_interrupt)
+ 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
+ END(spurious_interrupt)
++#ifdef CONFIG_PERFMON
++ENTRY(pmu_interrupt)
++	apicinterrupt LOCAL_PERFMON_VECTOR,smp_pmu_interrupt
 +#endif
-+	
+ #endif
+ 				
+ /*
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/i8259.c linux-2.6.18/arch/x86_64/kernel/i8259.c
+--- linux-2.6.18.base/arch/x86_64/kernel/i8259.c	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/i8259.c	2006-09-25 08:49:39.000000000 -0700
+@@ -12,6 +12,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sysdev.h>
+ #include <linux/bitops.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/acpi.h>
+ #include <asm/atomic.h>
+@@ -588,6 +589,11 @@ void __init init_IRQ(void)
+ 	/* IPI vectors for APIC spurious and error interrupts */
+ 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
+ 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
++
++#ifdef CONFIG_PERFMON
++	set_intr_gate(LOCAL_PERFMON_VECTOR, pmu_interrupt);
++#endif
++
+ #endif
+ 
+ 	/*
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/nmi.c linux-2.6.18/arch/x86_64/kernel/nmi.c
+--- linux-2.6.18.base/arch/x86_64/kernel/nmi.c	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/nmi.c	2006-09-25 09:21:37.000000000 -0700
+@@ -20,6 +20,7 @@
+ #include <linux/nmi.h>
+ #include <linux/sysctl.h>
+ #include <linux/kprobes.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/nmi.h>
+@@ -355,7 +356,7 @@ static void setup_k7_watchdog(void)
+ 	unsigned int evntsel;
+ 
+ 	nmi_perfctr_msr = MSR_K7_PERFCTR0;
+-
++printk("NMI installed K7 mode\n");
+ 	for(i = 0; i < 4; ++i) {
+ 		/* Simulator may not support it */
+ 		if (checking_wrmsrl(MSR_K7_EVNTSEL0+i, 0UL)) {
+@@ -531,6 +532,21 @@ void __kprobes nmi_watchdog_tick(struct 
+ 	int sum;
+ 	int touched = 0;
+ 
++#ifdef CONFIG_PERFMON
 +	/*
-+	 * compute min buf size. npmds is the maximum number
-+	 * of implemented PMD registers.
++	 * check if real NMI watchdog or perfmon
++	 * We do this for K8 processors only at the moment
 +	 */
-+	min_buf_size = sizeof(struct pfm_dfl_smpl_hdr)
-+	             + (sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64)));
-+
-+	PFM_DBG("validate ctx_flags=0x%x flags=0x%x npmds=%u "
-+		   "min_buf_size=%llu buf_size=%llu\n",
-+		   ctx_flags,
-+		   arg->buf_flags,
-+		   npmds,
-+		   (unsigned long long)min_buf_size,
-+		   (unsigned long long)arg->buf_size);
-+
-+	/*
-+	 * must hold at least the buffer header + one minimally sized entry
-+	 */
-+	if (arg->buf_size < min_buf_size)
-+		return -EINVAL;
-+
-+
-+
-+	return 0;
-+}
-+
-+static int pfm_dfl_fmt_get_size(u32 flags, void *data, size_t *size)
-+{
-+	struct pfm_dfl_smpl_arg *arg = data;
-+
-+	/*
-+	 * size has been validated in default_validate
-+	 * we can never loose bits from buf_size.
-+	 */
-+	*size = (size_t)arg->buf_size;
-+
-+	return 0;
-+}
-+
-+static int pfm_dfl_fmt_init(struct pfm_context *ctx, void *buf, u32 ctx_flags,
-+			    u16 npmds, void *data)
-+{
-+	struct pfm_dfl_smpl_hdr *hdr;
-+	struct pfm_dfl_smpl_arg *arg = data;
-+
-+	hdr = buf;
-+
-+	hdr->hdr_version = PFM_DFL_SMPL_VERSION;
-+	hdr->hdr_buf_size = arg->buf_size;
-+	hdr->hdr_buf_flags = arg->buf_flags;
-+	hdr->hdr_cur_offs = sizeof(*hdr);
-+	hdr->hdr_overflows = 0;
-+	hdr->hdr_count = 0;
-+	hdr->hdr_min_buf_space = sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64));
-+
-+	PFM_DBG("buffer=%p buf_size=%llu hdr_size=%zu hdr_version=%u.%u "
-+		  "min_space=%llu npmds=%u",
-+		  buf,
-+		  (unsigned long long)hdr->hdr_buf_size,
-+		  sizeof(*hdr),
-+		  PFM_VERSION_MAJOR(hdr->hdr_version),
-+		  PFM_VERSION_MINOR(hdr->hdr_version),
-+		  (unsigned long long)hdr->hdr_min_buf_space,
-+		  npmds);
-+
-+	return 0;
-+}
-+
-+static int pfm_dfl_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
-+			       unsigned long ip, u64 tstamp, void *data)
-+{
-+	struct pfm_dfl_smpl_hdr *hdr;
-+	struct pfm_dfl_smpl_entry *ent;
-+	void *cur, *last;
-+	u64 *e;
-+	size_t entry_size, min_size;
-+	u16 npmds, i;
-+	u16 ovfl_pmd;
-+
-+	hdr = buf;
-+	cur = buf+hdr->hdr_cur_offs;
-+	last = buf+hdr->hdr_buf_size;
-+	ovfl_pmd = arg->ovfl_pmd;
-+	min_size = hdr->hdr_min_buf_space;
-+
-+	/*
-+	 * precheck for sanity
-+	 */
-+	if ((last - cur) < min_size)
-+		goto full;
-+
-+	npmds = arg->num_smpl_pmds;
-+
-+	ent = (struct pfm_dfl_smpl_entry *)cur;
-+
-+	entry_size = sizeof(*ent) + (npmds << 3);
-+
-+	/* position for first pmd */
-+	e = (u64 *)(ent+1);
-+
-+	hdr->hdr_count++;
-+
-+	PFM_DBG_ovfl("count=%llu cur=%p last=%p free_bytes=%zu ovfl_pmd=%d "
-+		       "npmds=%u",
-+		       (unsigned long long)hdr->hdr_count,
-+		       cur, last,
-+		       (last-cur),
-+		       ovfl_pmd,
-+		       npmds);
-+
-+	/*
-+	 * current = task running at the time of the overflow.
-+	 *
-+	 * per-task mode:
-+	 * 	- this is usually the task being monitored.
-+	 * 	  Under certain conditions, it might be a different task
-+	 *
-+	 * system-wide:
-+	 * 	- this is not necessarily the task controlling the session
-+	 */
-+	ent->pid = current->pid;
-+	ent->ovfl_pmd = ovfl_pmd;
-+	ent->last_reset_val = arg->pmd_last_reset;
-+
-+	/*
-+	 * where did the fault happen (includes slot number)
-+	 */
-+	ent->ip = ip;
-+
-+	ent->tstamp = tstamp;
-+	ent->cpu = smp_processor_id();
-+	ent->set = arg->active_set;
-+	ent->tgid = current->tgid;
-+
-+	/*
-+	 * selectively store PMDs in increasing index number
-+	 */
-+	if (npmds) {
-+		u64 *val = arg->smpl_pmds_values;
-+		for(i=0; i < npmds; i++) {
-+			*e++ = *val++;
++	if (nmi_perfctr_msr == MSR_K7_PERFCTR0) {
++		unsigned long val;
++		rdmsrl(nmi_perfctr_msr, val);
++		if (val & (1ULL<<47)) {
++			pfm_handle_nmi(regs);
++			return;
 +		}
 +	}
++#endif
 +
-+	/*
-+	 * update position for next entry
-+	 */
-+	hdr->hdr_cur_offs += entry_size;
-+	cur += entry_size;
+ 	sum = read_pda(apic_timer_irqs);
+ 	if (__get_cpu_var(nmi_touch)) {
+ 		__get_cpu_var(nmi_touch) = 0;
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/process.c linux-2.6.18/arch/x86_64/kernel/process.c
+--- linux-2.6.18.base/arch/x86_64/kernel/process.c	2006-09-21 23:48:08.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/process.c	2006-09-22 01:58:48.000000000 -0700
+@@ -36,6 +36,7 @@
+ #include <linux/random.h>
+ #include <linux/notifier.h>
+ #include <linux/kprobes.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -350,6 +351,7 @@ void exit_thread(void)
+ 		t->io_bitmap_max = 0;
+ 		put_cpu();
+ 	}
++	pfm_exit_thread(me);
+ }
+ 
+ void flush_thread(void)
+@@ -456,6 +458,8 @@ int copy_thread(int nr, unsigned long cl
+ 	asm("mov %%es,%0" : "=m" (p->thread.es));
+ 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
+ 
++	pfm_copy_thread(p);
 +
-+	/*
-+	 * post check to avoid losing the last sample
-+	 */
-+	if ((last - cur) < min_size)
-+		goto full;
+ 	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+ 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+ 		if (!p->thread.io_bitmap_ptr) {
+@@ -526,6 +530,10 @@ static noinline void __switch_to_xtra(st
+ 		 */
+ 		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+ 	}
 +
-+	/* reset before returning from interrupt handler */
-+	arg->ovfl_ctrl = PFM_OVFL_CTRL_RESET;
++	if (test_tsk_thread_flag(next_p, TIF_PERFMON_CTXSW)
++	    || test_tsk_thread_flag(prev_p, TIF_PERFMON_CTXSW))
++		pfm_ctxsw(prev_p, next_p);
+ }
+ 
+ /*
+@@ -614,13 +622,12 @@ __switch_to(struct task_struct *prev_p, 
+ 	unlazy_fpu(prev_p);
+ 	write_pda(kernelstack,
+ 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+-
+-	/*
+-	 * Now maybe reload the debug registers and handle I/O bitmaps
+-	 */
+-	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
+-	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
+-		__switch_to_xtra(prev_p, next_p, tss);
++  	/*
++ 	 * Now maybe reload the debug registers and handle I/O bitmaps
++  	 */
++ 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
++ 	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW)))
++ 		__switch_to_xtra(prev_p, next_p, tss);
+ 
+ 	return prev_p;
+ }
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/setup64.c linux-2.6.18/arch/x86_64/kernel/setup64.c
+--- linux-2.6.18.base/arch/x86_64/kernel/setup64.c	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/setup64.c	2006-09-22 01:58:48.000000000 -0700
+@@ -11,6 +11,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/bitops.h>
+ #include <linux/module.h>
++#include <linux/perfmon.h>
+ #include <asm/bootsetup.h>
+ #include <asm/pda.h>
+ #include <asm/pgtable.h>
+@@ -290,4 +291,6 @@ void __cpuinit cpu_init (void)
+ 	set_debugreg(0UL, 7);
+ 
+ 	fpu_init(); 
 +
-+	return 0;
-+full:
-+	PFM_DBG_ovfl("sampling buffer full free=%zu, count=%llu",
-+		     last-cur,
-+		     (unsigned long long)hdr->hdr_count);
++	pfm_init_percpu();
+ }
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/signal.c linux-2.6.18/arch/x86_64/kernel/signal.c
+--- linux-2.6.18.base/arch/x86_64/kernel/signal.c	2006-09-21 23:45:12.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/signal.c	2006-09-22 01:58:48.000000000 -0700
+@@ -22,6 +22,7 @@
+ #include <linux/stddef.h>
+ #include <linux/personality.h>
+ #include <linux/compiler.h>
++#include <linux/perfmon.h>
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
+ #include <asm/i387.h>
+@@ -481,15 +482,17 @@ void do_notify_resume(struct pt_regs *re
+ {
+ #ifdef DEBUG_SIG
+ 	printk("do_notify_resume flags:%x rip:%lx rsp:%lx caller:%lx pending:%lx\n",
+-	       thread_info_flags, regs->rip, regs->rsp, __builtin_return_address(0),signal_pending(current)); 
++			thread_info_flags, regs->rip, regs->rsp, __builtin_return_address(0),signal_pending(current)); 
+ #endif
+-	       
+ 	/* Pending single-step? */
+ 	if (thread_info_flags & _TIF_SINGLESTEP) {
+ 		regs->eflags |= TF_MASK;
+ 		clear_thread_flag(TIF_SINGLESTEP);
+ 	}
+ 
++	if (thread_info_flags & _TIF_PERFMON_WORK)
++		pfm_handle_work();
 +
-+	/*
-+	 * increment number of buffer overflows.
-+	 * important to detect duplicate set of samples.
-+	 */
-+	hdr->hdr_overflows++;
+ 	/* deal with pending signal delivery */
+ 	if (thread_info_flags & _TIF_SIGPENDING)
+ 		do_signal(regs,oldset);
+diff -urp linux-2.6.18.base/arch/x86_64/kernel/smpboot.c linux-2.6.18/arch/x86_64/kernel/smpboot.c
+--- linux-2.6.18.base/arch/x86_64/kernel/smpboot.c	2006-09-22 00:15:10.000000000 -0700
++++ linux-2.6.18/arch/x86_64/kernel/smpboot.c	2006-09-22 02:57:05.000000000 -0700
+@@ -46,6 +46,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/thread_info.h>
+ #include <linux/module.h>
++#include <linux/perfmon.h>
+ 
+ #include <linux/delay.h>
+ #include <linux/mc146818rtc.h>
+@@ -1275,6 +1276,7 @@ int __cpu_disable(void)
+ 	cpu_clear(cpu, cpu_online_map);
+ 	remove_cpu_from_maps();
+ 	fixup_irqs(cpu_online_map);
++	pfm_cpu_disable();
+ 	return 0;
+ }
+ 
+@@ -1315,3 +1317,4 @@ void __cpu_die(unsigned int cpu)
+ 	BUG();
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
 +
-+	/*
-+	 * request notification and masking of monitoring.
-+	 * Notification is still subject to the overflowed
-+	 * register having the FL_NOTIFY flag set.
-+	 */
-+	arg->ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY| PFM_OVFL_CTRL_MASK;
-+
-+	return -ENOBUFS; /* we are full, sorry */
-+}
-+
-+static int pfm_dfl_fmt_restart(int is_active, pfm_flags_t *ovfl_ctrl, void *buf)
-+{
-+	struct pfm_dfl_smpl_hdr *hdr;
-+
-+	hdr = buf;
-+
-+	hdr->hdr_count = 0;
-+	hdr->hdr_cur_offs = sizeof(*hdr);
-+
-+	*ovfl_ctrl = PFM_OVFL_CTRL_RESET;
-+
-+	return 0;
-+}
-+
-+static int pfm_dfl_fmt_exit(void *buf)
-+{
-+	return 0;
-+}
-+
-+static struct pfm_smpl_fmt dfl_fmt={
-+	.fmt_name = "default",
-+	.fmt_uuid = PFM_DFL_SMPL_UUID,
-+	.fmt_arg_size = sizeof(struct pfm_dfl_smpl_arg),
-+	.fmt_validate = pfm_dfl_fmt_validate,
-+	.fmt_getsize = pfm_dfl_fmt_get_size,
-+	.fmt_init = pfm_dfl_fmt_init,
-+	.fmt_handler = pfm_dfl_fmt_handler,
-+	.fmt_restart = pfm_dfl_fmt_restart,
-+	.fmt_exit = pfm_dfl_fmt_exit,
-+	.fmt_flags = PFM_FMT_BUILTIN_FLAG,
-+	.owner = THIS_MODULE
-+};
-+
-+static int pfm_dfl_fmt_init_module(void)
-+{
-+	return pfm_fmt_register(&dfl_fmt);
-+}
-+
-+static void pfm_dfl_fmt_cleanup_module(void)
-+{
-+	pfm_fmt_unregister(dfl_fmt.fmt_uuid);
-+}
-+
-+module_init(pfm_dfl_fmt_init_module);
-+module_exit(pfm_dfl_fmt_cleanup_module);
---- linux-2.6.18.base/include/linux/perfmon_dfl_smpl.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/include/linux/perfmon_dfl_smpl.h	2006-09-25 12:16:02.000000000 -0700
-@@ -0,0 +1,82 @@
-+/*
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file implements the new dfl sampling buffer format
-+ * for perfmon2 subsystem.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of version 2 of the GNU General Public
-+ * License as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307 USA
-+  */
-+#ifndef __PERFMON_DFL_SMPL_H__
-+#define __PERFMON_DFL_SMPL_H__ 1
-+
-+#define PFM_DFL_SMPL_UUID { \
-+	0xd1, 0x39, 0xb2, 0x9e, 0x62, 0xe8, 0x40, 0xe4,\
-+	0xb4, 0x02, 0x73, 0x07, 0x87, 0x92, 0xe9, 0x37}
-+
-+/*
-+ * format specific parameters (passed at context creation)
-+ */
-+struct pfm_dfl_smpl_arg {
-+	__u64 buf_size;		/* size of the buffer in bytes */
-+	__u32 buf_flags;	/* buffer specific flags */
-+	__u32 reserved1;	/* for future use */
-+	__u64 reserved[6];	/* for future use */
-+};
-+
-+/*
-+ * This header is at the beginning of the sampling buffer returned to the user.
-+ * It is directly followed by the first record.
-+ */
-+struct pfm_dfl_smpl_hdr {
-+	__u64 hdr_count;	/* how many valid entries */
-+	__u64 hdr_cur_offs;	/* current offset from top of buffer */
-+	__u64 hdr_overflows;	/* #overflows for buffer */
-+	__u64 hdr_buf_size;	/* bytes in the buffer */
-+	__u64 hdr_min_buf_space;/* minimal buffer size (internal use) */
-+	__u32 hdr_version;	/* smpl format version */
-+	__u32 hdr_buf_flags;	/* copy of buf_flags */
-+	__u64 hdr_reserved[10];	/* for future use */
-+};
-+
-+/*
-+ * Entry header in the sampling buffer.  The header is directly followed
-+ * with the values of the PMD registers of interest saved in increasing
-+ * index order: PMD4, PMD5, and so on. How many PMDs are present depends
-+ * on how the session was programmed.
-+ *
-+ * In the case where multiple counters overflow at the same time, multiple
-+ * entries are written consecutively.
-+ *
-+ * last_reset_value member indicates the initial value of the overflowed PMD.
-+ */
-+struct pfm_dfl_smpl_entry {
-+	__u32	pid;		/* thread id (for NPTL, this is gettid()) */
-+	__u16	ovfl_pmd;	/* index of overflowed PMD for this sample */
-+	__u16	reserved;	/* for future use */
-+	__u64	last_reset_val;	/* initial value of overflowed PMD */
-+	__u64	ip;		/* where did the overflow interrupt happened  */
-+	__u64	tstamp;		/* overflow timetamp */
-+	__u16	cpu;		/* cpu on which the overfow occurred */
-+	__u16	set;		/* event set active when overflow ocurred   */
-+	__u32	tgid;		/* thread group id (for NPTL, this is getpid())*/
-+};
-+
-+#define PFM_DFL_SMPL_VERSION_MAJ 1U
-+#define PFM_DFL_SMPL_VERSION_MIN 0U
-+#define PFM_DFL_SMPL_VERSION (((PFM_DFL_SMPL_VERSION_MAJ&0xffff)<<16)|\
-+				(PFM_DFL_SMPL_VERSION_MIN & 0xffff))
-+
-+#endif /* __PERFMON_DFL_SMPL_H__ */
+Only in linux-2.6.18/arch/x86_64: perfmon
+diff -urp linux-2.6.18.base/include/asm-x86_64/hw_irq.h linux-2.6.18/include/asm-x86_64/hw_irq.h
+--- linux-2.6.18.base/include/asm-x86_64/hw_irq.h	2006-09-21 23:45:38.000000000 -0700
++++ linux-2.6.18/include/asm-x86_64/hw_irq.h	2006-09-22 01:58:48.000000000 -0700
+@@ -64,6 +64,7 @@ struct hw_interrupt_type;
+  * sources per level' errata.
+  */
+ #define LOCAL_TIMER_VECTOR	0xef
++#define LOCAL_PERFMON_VECTOR	0xee
+ 
+ /*
+  * First APIC vector available to drivers: (vectors 0x30-0xee)
+Only in linux-2.6.18/include/asm-x86_64: perfmon.h
+Only in linux-2.6.18/include/asm-x86_64: perfmon_p4_pebs_smpl.h
+diff -urp linux-2.6.18.base/include/asm-x86_64/thread_info.h linux-2.6.18/include/asm-x86_64/thread_info.h
+--- linux-2.6.18.base/include/asm-x86_64/thread_info.h	2006-09-21 23:48:08.000000000 -0700
++++ linux-2.6.18/include/asm-x86_64/thread_info.h	2006-09-22 02:01:55.000000000 -0700
+@@ -114,6 +114,7 @@ static inline struct thread_info *stack_
+ #define TIF_IRET		5	/* force IRET */
+ #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
+ #define TIF_SECCOMP		8	/* secure computing */
++#define TIF_PERFMON_WORK	9	/* work for pfm_handle_work() */
+ /* 16 free */
+ #define TIF_IA32		17	/* 32bit process */ 
+ #define TIF_FORK		18	/* ret_from_fork */
+@@ -121,6 +122,7 @@ static inline struct thread_info *stack_
+ #define TIF_MEMDIE		20
+ #define TIF_DEBUG		21	/* uses debug registers */
+ #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
++#define TIF_PERFMON_CTXSW	23	/* perfmon needs ctxsw calls */
+ 
+ #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
+@@ -135,6 +137,8 @@ static inline struct thread_info *stack_
+ #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
+ #define _TIF_DEBUG		(1<<TIF_DEBUG)
+ #define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
++#define _TIF_PERFMON_WORK	(1<<TIF_PERFMON_WORK)
++#define _TIF_PERFMON_CTXSW	(1<<TIF_PERFMON_CTXSW)
+ 
+ /* work to do on interrupt/exception return */
+ #define _TIF_WORK_MASK \
+@@ -143,7 +147,7 @@ static inline struct thread_info *stack_
+ #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
+ 
+ /* flags to check in __switch_to() */
+-#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
++#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP|_TIF_PERFMON_CTXSW)
+ 
+ #define PREEMPT_ACTIVE     0x10000000
+ 
+diff -urp linux-2.6.18.base/include/asm-x86_64/unistd.h linux-2.6.18/include/asm-x86_64/unistd.h
+--- linux-2.6.18.base/include/asm-x86_64/unistd.h	2006-09-21 23:45:38.000000000 -0700
++++ linux-2.6.18/include/asm-x86_64/unistd.h	2006-09-22 02:00:55.000000000 -0700
+@@ -619,10 +619,34 @@ __SYSCALL(__NR_sync_file_range, sys_sync
+ __SYSCALL(__NR_vmsplice, sys_vmsplice)
+ #define __NR_move_pages		279
+ __SYSCALL(__NR_move_pages, sys_move_pages)
+-
++#define __NR_pfm_create_context	280
++ __SYSCALL(__NR_pfm_create_context, sys_pfm_create_context)
++#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++__SYSCALL(__NR_pfm_write_pmcs, sys_pfm_write_pmcs)
++#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++__SYSCALL(__NR_pfm_write_pmds, sys_pfm_write_pmds)
++#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++__SYSCALL(__NR_pfm_read_pmds, sys_pfm_read_pmds)
++#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++__SYSCALL(__NR_pfm_load_context, sys_pfm_load_context)
++#define __NR_pfm_start		(__NR_pfm_create_context+5)
++__SYSCALL(__NR_pfm_start, sys_pfm_start)
++#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++__SYSCALL(__NR_pfm_stop, sys_pfm_stop)
++#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++__SYSCALL(__NR_pfm_restart, sys_pfm_restart)
++#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++__SYSCALL(__NR_pfm_create_evtsets, sys_pfm_create_evtsets)
++#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++__SYSCALL(__NR_pfm_getinfo_evtsets, sys_pfm_getinfo_evtsets)
++#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++__SYSCALL(__NR_pfm_delete_evtsets, sys_pfm_delete_evtsets)
++#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
++__SYSCALL(__NR_pfm_unload_context, sys_pfm_unload_context)
++  
+ #ifdef __KERNEL__
+ 
+-#define __NR_syscall_max __NR_move_pages
++#define __NR_syscall_max __NR_pfm_unload_context
+ 
+ #ifndef __NO_STUBS
+ 

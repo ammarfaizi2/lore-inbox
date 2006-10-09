@@ -1,74 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWJIUKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWJIULd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWJIUKR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWJIUKR
+	id S964810AbWJIULd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWJIULd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:10:17 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:14746 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964797AbWJIUKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:10:15 -0400
-Date: Mon, 9 Oct 2006 22:08:30 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Helge Deller <deller@gmx.de>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [kernel/ subdirectory] constifications
-In-Reply-To: <1160418154.3000.244.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0610092206400.23379@yvahk01.tjqt.qr>
-References: <200610082121.49925.deller@gmx.de>  <1160377169.3000.189.camel@laptopd505.fenrus.org>
-  <200610092016.18362.deller@gmx.de> <1160418154.3000.244.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-7550219-1160424510=:23379"
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 9 Oct 2006 16:11:33 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:55270 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S964806AbWJIULc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:11:32 -0400
+Date: Mon, 9 Oct 2006 16:10:48 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: linux-kernel@vger.kernel.org
+Cc: notting@redhat.com, akpm@osdl.org, torvalds@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: [PATCH] Introduce vfs_listxattr
+Message-ID: <20061009201048.GA4707@filer.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+From: Bill Nottingham <notting@redhat.com>
 
---1283855629-7550219-1160424510=:23379
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+This patch moves code out of fs/xattr.c:listxattr into a new function -
+vfs_listxattr. The code for vfs_listxattr was originally submitted by Bill
+Nottingham <notting@redhat.com> to Unionfs.
 
->> > > - completely constify string arrays,  thus move them to the rodata section
->> > 
->> > note that gcc 4.1 and later will do this automatically for static things
->> > at least...
->> 
->> Are you sure ?
->> 
->> At least with gcc-4.1.0 from SUSE 10.1 the strings array _pointers_ are not moved into the rodata section without the second "const":
->> const static char * const x[] = { "value1", "value2" };
->
->hmm I could have sworn GCC does this automatic nowadays as long as it
->can prove you're not writing to the thing (eg static and not passing the
->pointer to some external function).....
+Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Arjan seems right:
-22:07 ichi:/dev/shm > cat test.c
-#include <stdio.h>
-static const char *x[] = {"0", "1", NULL};
-int main(void) {
-    int i;
-    for(i = 0; i < 3; ++i)
-        printf("%s\n", x[i]);
-    return 0;
-}
-22:07 ichi:/dev/shm > cc test.c -c && nm test.o | grep x
-00000000 d x
-22:07 ichi:/dev/shm > cc test.c -c -O2 && nm test.o | grep x
-00000000 r x
-
->(even if gcc does this perfect I'm still in favor of the explicit const,
->just to catch stupid code with a warning)
-
-Me² (read: ack)
-
-
-
-	-`J'
+diff -r 0231458fbb78 fs/xattr.c
+--- a/fs/xattr.c	Sat Oct 07 16:46:17 2006 -0400
++++ b/fs/xattr.c	Sat Oct 07 17:36:18 2006 -0400
+@@ -135,6 +135,26 @@ vfs_getxattr(struct dentry *dentry, char
+ }
+ EXPORT_SYMBOL_GPL(vfs_getxattr);
+ 
++ssize_t
++vfs_listxattr(struct dentry *d, char *list, size_t size)
++{
++	ssize_t error;
++
++	error = security_inode_listxattr(d);
++	if (error)
++		return error;
++	error = -EOPNOTSUPP;
++	if (d->d_inode->i_op && d->d_inode->i_op->listxattr) {
++		error = d->d_inode->i_op->listxattr(d, list, size);
++	} else {
++		error = security_inode_listsecurity(d->d_inode, list, size);
++		if (size && error > size)
++			error = -ERANGE;
++	}
++	return error;
++}
++EXPORT_SYMBOL_GPL(vfs_listxattr);
++
+ int
+ vfs_removexattr(struct dentry *dentry, char *name)
+ {
+@@ -346,17 +366,7 @@ listxattr(struct dentry *d, char __user 
+ 			return -ENOMEM;
+ 	}
+ 
+-	error = security_inode_listxattr(d);
+-	if (error)
+-		goto out;
+-	error = -EOPNOTSUPP;
+-	if (d->d_inode->i_op && d->d_inode->i_op->listxattr) {
+-		error = d->d_inode->i_op->listxattr(d, klist, size);
+-	} else {
+-		error = security_inode_listsecurity(d->d_inode, klist, size);
+-		if (size && error > size)
+-			error = -ERANGE;
+-	}
++	error = vfs_listxattr(d, klist, size);
+ 	if (error > 0) {
+ 		if (size && copy_to_user(list, klist, error))
+ 			error = -EFAULT;
+@@ -365,7 +375,6 @@ listxattr(struct dentry *d, char __user 
+ 		   than XATTR_LIST_MAX bytes. Not possible. */
+ 		error = -E2BIG;
+ 	}
+-out:
+ 	kfree(klist);
+ 	return error;
+ }
+diff -r 0231458fbb78 include/linux/xattr.h
+--- a/include/linux/xattr.h	Sat Oct 07 16:46:17 2006 -0400
++++ b/include/linux/xattr.h	Sat Oct 07 17:32:43 2006 -0400
+@@ -41,6 +41,7 @@ struct xattr_handler {
+ };
+ 
+ ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
++ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
+ int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
+ int vfs_removexattr(struct dentry *, char *);
+ 
 -- 
---1283855629-7550219-1160424510=:23379--
+UNIX is user-friendly ... it's just selective about who it's friends are

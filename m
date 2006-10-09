@@ -1,94 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWJIUX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWJIUZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWJIUX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWJIUX7
+	id S964812AbWJIUZA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWJIUZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:23:59 -0400
-Received: from assei2bl6.telenet-ops.be ([195.130.133.69]:37302 "EHLO
-	assei2bl6.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S964818AbWJIUX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:23:58 -0400
-Date: Mon, 9 Oct 2006 22:23:56 +0200
-Message-Id: <200610092023.k99KNurB031487@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 625] m68k/Apollo: Remove obsolete arch/m68k/apollo/dma.c
+	Mon, 9 Oct 2006 16:25:00 -0400
+Received: from gw.ptr-62-65-141-133.customer.ch.netstream.com ([62.65.141.133]:43532
+	"HELO schottelius.org") by vger.kernel.org with SMTP
+	id S964812AbWJIUY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:24:59 -0400
+Date: Mon, 9 Oct 2006 22:18:06 +0200
+From: Nico Schottelius <nico-kernel20061009@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Net] Kernel renams eth0 -> eth7
+Message-ID: <20061009201806.GA5723@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel20061009@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.18-1-486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused arch/m68k/apollo/dma.c, which was obsoleted by the move to the
-generic DMA API.
 
-Signed-Off-By: Geert Uytterhoeven <geert@linux-m68k.org>
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----
- dma.c |   50 --------------------------------------------------
- 1 file changed, 50 deletions(-)
+Hello!
 
---- linux-2.6.18/arch/m68k/apollo/dma.c	2004-05-24 11:13:22.000000000 +0200
-+++ linux-m68k-2.6.18/arch/m68k/apollo/dma.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,50 +0,0 @@
--#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/mm.h>
--#include <linux/kd.h>
--#include <linux/tty.h>
--#include <linux/console.h>
--
--#include <asm/setup.h>
--#include <asm/bootinfo.h>
--#include <asm/system.h>
--#include <asm/pgtable.h>
--#include <asm/apollodma.h>
--#include <asm/io.h>
--
--/* note only works for 16 Bit 1 page DMA's */
--
--static unsigned short next_free_xlat_entry=0;
--
--unsigned short dma_map_page(unsigned long phys_addr,int count,int type) {
--
--	unsigned long page_aligned_addr=phys_addr & (~((1<<12)-1));
--	unsigned short start_map_addr=page_aligned_addr >> 10;
--	unsigned short free_xlat_entry, *xlat_map_entry;
--	int i;
--
--	free_xlat_entry=next_free_xlat_entry;
--	for(i=0,xlat_map_entry=addr_xlat_map+(free_xlat_entry<<2);i<8;i++,xlat_map_entry++) {
--#if 0
--		printk("phys_addr: %x, page_aligned_addr: %x, start_map_addr: %x\n",phys_addr,page_aligned_addr,start_map_addr+i);
--#endif
--		out_be16(xlat_map_entry, start_map_addr+i);
--	}
--
--	next_free_xlat_entry+=2;
--	if(next_free_xlat_entry>125)
--		next_free_xlat_entry=0;
--
--#if 0
--	printk("next_free_xlat_entry: %d\n",next_free_xlat_entry);
--#endif
--
--	return free_xlat_entry<<10;
--}
--
--void dma_unmap_page(unsigned short dma_addr) {
--
--	return ;
--
--}
--
+I am runnig 2.6.17.13 on a Geode, with 3 natsemi ports onboard
+and 4 ports in a pci card (soekris net4801).
 
-Gr{oetje,eeting}s,
+The strange thing is, that it currently renames eth0 to eth7
+and eth1 to eth8 (or somehow different).
 
-						Geert
+Have a look at [0] for dmesg output. You'll see this:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+---------------------------------------------------------------------------=
+-----
+[   64.643627] natsemi eth0: NatSemi DP8381[56] at 0xa0000000
+(0000:00:06.0), 00:00:24:c5:69:5c, IRQ 10, port TP.
+[   64.676833] natsemi eth1: NatSemi DP8381[56] at 0xa0001000
+(0000:00:07.0), 00:00:24:c5:69:5d, IRQ 10, port TP.
+[   64.710006] natsemi eth2: NatSemi DP8381[56] at 0xa0002000
+(0000:00:08.0), 00:00:24:c5:69:5e, IRQ 10, port TP.
+[   64.743402] natsemi eth3: NatSemi DP8381[56] at 0xa4000000
+(0000:01:00.0), 00:00:24:c4:fd:14, IRQ 5, port TP.
+[   64.776463] natsemi eth4: NatSemi DP8381[56] at 0xa4001000
+(0000:01:01.0), 00:00:24:c4:fd:15, IRQ 11, port TP.
+[   64.809891] natsemi eth5: NatSemi DP8381[56] at 0xa4002000
+(0000:01:02.0), 00:00:24:c4:fd:16, IRQ 5, port TP.
+[   64.842982] natsemi eth6: NatSemi DP8381[56] at 0xa4003000
+(0000:01:03.0), 00:00:24:c4:fd:17, IRQ 11, port TP.
+---------------------------------------------------------------------------=
+-----
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+which is correct. Later you see this:
+---------------------------------------------------------------------------=
+-----
+[  122.142761] eth8: DSPCFG accepted after 0 usec.
+[  122.156411] eth8: link up.
+[  122.164584] eth8: Setting full-duplex based on negotiated link
+capability.
+[  122.719529] eth8: remaining active for wake-on-lan
+[  122.927613] eth8: DSPCFG accepted after 0 usec.
+[  122.941269] eth8: link up.
+---------------------------------------------------------------------------=
+-----
+which feels really strange, because eth0 and eth1 simply
+'disappeared'.
+
+More information about the device can be found at [1]
+
+My questions are:
+
+   - why is it getting renamed and why did it not happen some boots
+     (before I moved) before (like in [2])?
+  =20
+   - how can I tell the kernel NOT to rename it anymore / what
+     must I fix?
+
+Any hints appreciated.
+
+Sincerly
+
+Nico
+
+[0]: http://unix.schottelius.org/zwerg/dmesg.renamed.eth0%2c1
+[1]: http://unix.schottelius.org/zwerg/
+[2]: http://unix.schottelius.org/zwerg/dmesg
+
+--=20
+``...if there's one thing about Linux users, they're do-ers, not whiners.''
+(A quotation of Andy Patrizio I completely agree with)
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFKq5+uL75KpiFGIwRAtg4AJ0aDnlbgFmVFCPLktMVKGO1O21PogCgz7yR
+jAqOEH8TbrOjrA85zaLYL6Q=
+=+LAi
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

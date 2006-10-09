@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932991AbWJIRVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932992AbWJIRYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932991AbWJIRVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 13:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932992AbWJIRVb
+	id S932992AbWJIRYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 13:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932994AbWJIRYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 13:21:31 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:10116 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932991AbWJIRVa
+	Mon, 9 Oct 2006 13:24:01 -0400
+Received: from rubidium.solidboot.com ([81.22.244.175]:49894 "EHLO
+	mail.solidboot.com") by vger.kernel.org with ESMTP id S932992AbWJIRYA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 13:21:30 -0400
-Date: Mon, 9 Oct 2006 19:22:01 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Luca Tettamanti <kronos.it@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-git] Fix error handling in create_files()
-Message-ID: <20061009192201.140eae35@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20061009170357.GA16816@dreamland.darkstar.lan>
-References: <20061009164017.GA13698@dreamland.darkstar.lan>
-	<20061009164820.GA22630@suse.de>
-	<20061009170357.GA16816@dreamland.darkstar.lan>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 9 Oct 2006 13:24:00 -0400
+Date: Mon, 9 Oct 2006 20:23:50 +0300
+From: Timo Teras <timo.teras@solidboot.com>
+To: Timo Teras <timo.teras@solidboot.com>, drzeus-list@drzeus.cx,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MMC: Select only one voltage bit in OCR response
+Message-ID: <20061009172350.GC1637@mail.solidboot.com>
+References: <20061009150044.GB1637@mail.solidboot.com> <20061009165317.GA6431@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009165317.GA6431@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 19:03:57 +0200,
-Luca Tettamanti <kronos.it@gmail.com> wrote:
+On Mon, Oct 09, 2006 at 05:53:17PM +0100, Russell King wrote:
+> On Mon, Oct 09, 2006 at 06:00:44PM +0300, Timo Teras wrote:
+> > The card might go to inactive state (according to specification), if
+> > there are unsupported bits set in the OCR.
+> 
+> NAK.  This breaks some MMC cards.
 
-> While we are at it: is it safe to always call sysfs_remove_group even if
-> the preceding sysfs_create_group failed?
+I see. But if we do send an OCR with an unsupported bit set, the card will
+go to inactive state and is unusable. This problem is masked on controllers
+with only 3.3V support, but I'm working with a controller supporting several
+different voltages.
 
-No, it will oops in remove_dir(). (See also the recent discussion in
-"drivers/base: error handling fixes" - drivers/base/topology.c has
-problems in that area as well...)
+For example, I have a card giving an OCR reply of 0x0ff80080. The current
+code will reply to this with 0x00000180 which is clearly incorrect.
 
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+Maybe something like "ocr &= 3 << bit;" would be more approriate?
+
+Cheers,
+  Timo

@@ -1,84 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932802AbWJINKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932805AbWJINZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932802AbWJINKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 09:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932801AbWJINKz
+	id S932805AbWJINZH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 09:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932806AbWJINZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 09:10:55 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:4069 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932799AbWJINKy (ORCPT
+	Mon, 9 Oct 2006 09:25:07 -0400
+Received: from holoclan.de ([62.75.158.126]:6584 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S932805AbWJINZD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 09:10:54 -0400
-Date: Mon, 9 Oct 2006 15:09:34 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
- the kernel [try #4]
-In-Reply-To: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.62.0610091508240.16048@pademelon.sonytel.be>
-References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
- <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr> <20061006203919.GS2563@parisc-linux.org>
- <5267.1160381168@redhat.com> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr>
- <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com> <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr>
+	Mon, 9 Oct 2006 09:25:03 -0400
+Date: Mon, 9 Oct 2006 15:24:30 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: warning at drivers/pci/msi.c:680/pci_enable_msi() - DWARF2 unwinder stuck at syscall_call+0x7/0xb
+Message-ID: <20061009132430.GB6413@gimli>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  I currently play around with various options to localize
+	my acpi problem and found the following recurring BUG warning: Oct 9
+	15:11:55 gimli kernel: [ 2671.631000] BUG: warning at
+	drivers/pci/msi.c:680/pci_enable_msi() Oct 9 15:11:55 gimli kernel: [
+	2671.632000] [<c0103bd9>] dump_trace+0x69/0x1af Oct 9 15:11:55 gimli
+	kernel: [ 2671.632000] [<c0103d37>] show_trace_log_lvl+0x18/0x2c Oct 9
+	15:11:55 gimli kernel: [ 2671.632000] [<c01043d6>] show_trace+0xf/0x11
+	Oct 9 15:11:55 gimli kernel: [ 2671.632000] [<c01044d9>]
+	dump_stack+0x15/0x17 Oct 9 15:11:55 gimli kernel: [ 2671.632000]
+	[<c0211c5e>] pci_enable_msi+0x78/0x22e Oct 9 15:11:55 gimli kernel: [
+	2671.634000] [<c0275d8d>] e1000_open+0x64/0x176 Oct 9 15:11:55 gimli
+	kernel: [ 2671.636000] [<c02b8ec1>] dev_open+0x2b/0x62 Oct 9 15:11:55
+	gimli kernel: [ 2671.638000] [<c02b79cf>] dev_change_flags+0x47/0xe4 Oct
+	9 15:11:55 gimli kernel: [ 2671.640000] [<c02eba8b>]
+	devinet_ioctl+0x252/0x556 Oct 9 15:11:55 gimli kernel: [ 2671.643000]
+	[<c02aec3a>] sock_ioctl+0x19e/0x1c2 Oct 9 15:11:55 gimli kernel: [
+	2671.645000] [<c0169a3f>] do_ioctl+0x1f/0x62 Oct 9 15:11:55 gimli
+	kernel: [ 2671.646000] [<c0169cc7>] vfs_ioctl+0x245/0x257 Oct 9 15:11:55
+	gimli kernel: [ 2671.647000] [<c0169d25>] sys_ioctl+0x4c/0x67 Oct 9
+	15:11:55 gimli kernel: [ 2671.647000] [<c0102dc3>] syscall_call+0x7/0xb
+	Oct 9 15:11:55 gimli kernel: [ 2671.647000] DWARF2 unwinder stuck at
+	syscall_call+0x7/0xb Oct 9 15:11:55 gimli kernel: [ 2671.647000] Oct 9
+	15:11:55 gimli kernel: [ 2671.647000] Leftover inexact backtrace: Oct 9
+	15:11:55 gimli kernel: [ 2671.647000] Oct 9 15:11:55 gimli kernel: [
+	2671.648000] ======================= [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006, Jan Engelhardt wrote:
-> >> > > > Were you planning on porting Linux to a machine with
-> >> > > > non-8-bit-bytes any
-> >> > > > time soon?  Because there's a lot more to fix than this.
-> >> > > 
-> >> > > I am considering the case [assuming 8-bit-byte machines] where
-> >> > > sizeof(u32) is not 4. Though I suppose GCC will probably make a
-> >> > > 32-bit
-> >> > > type up if the hardware does not know one.
-> >> > 
-> >> > If the machine has 8-bit bytes, how can sizeof(u32) be anything other
-> >> > than 4?
-> >> 
-> >> typedef unsigned int u32;
-> >> 
-> >> Though this should not be seen in the linux kernel.
-> >
-> > Well, uhh, actually...
-> >
-> > All presently-supported architectures do exactly that.  Well, some do:
-> >
-> > typedef unsigned int __u32;
-> > #ifdef __KERNEL__
-> > typedef __u32 u32;
-> > #endif
-> 
-> Ouch ouch ouch. It should better be
-> 
-> typedef uint32_t __u32;
+I currently play around with various options to localize my acpi problem and
+found the following recurring BUG warning:
 
-You mean
+Oct  9 15:11:55 gimli kernel: [ 2671.631000] BUG: warning at drivers/pci/msi.c:680/pci_enable_msi()
+Oct  9 15:11:55 gimli kernel: [ 2671.632000]  [<c0103bd9>] dump_trace+0x69/0x1af
+Oct  9 15:11:55 gimli kernel: [ 2671.632000]  [<c0103d37>] show_trace_log_lvl+0x18/0x2c
+Oct  9 15:11:55 gimli kernel: [ 2671.632000]  [<c01043d6>] show_trace+0xf/0x11
+Oct  9 15:11:55 gimli kernel: [ 2671.632000]  [<c01044d9>] dump_stack+0x15/0x17
+Oct  9 15:11:55 gimli kernel: [ 2671.632000]  [<c0211c5e>] pci_enable_msi+0x78/0x22e
+Oct  9 15:11:55 gimli kernel: [ 2671.634000]  [<c0275d8d>] e1000_open+0x64/0x176
+Oct  9 15:11:55 gimli kernel: [ 2671.636000]  [<c02b8ec1>] dev_open+0x2b/0x62
+Oct  9 15:11:55 gimli kernel: [ 2671.638000]  [<c02b79cf>] dev_change_flags+0x47/0xe4
+Oct  9 15:11:55 gimli kernel: [ 2671.640000]  [<c02eba8b>] devinet_ioctl+0x252/0x556
+Oct  9 15:11:55 gimli kernel: [ 2671.643000]  [<c02aec3a>] sock_ioctl+0x19e/0x1c2
+Oct  9 15:11:55 gimli kernel: [ 2671.645000]  [<c0169a3f>] do_ioctl+0x1f/0x62
+Oct  9 15:11:55 gimli kernel: [ 2671.646000]  [<c0169cc7>] vfs_ioctl+0x245/0x257
+Oct  9 15:11:55 gimli kernel: [ 2671.647000]  [<c0169d25>] sys_ioctl+0x4c/0x67
+Oct  9 15:11:55 gimli kernel: [ 2671.647000]  [<c0102dc3>] syscall_call+0x7/0xb
+Oct  9 15:11:55 gimli kernel: [ 2671.647000] DWARF2 unwinder stuck at syscall_call+0x7/0xb
+Oct  9 15:11:55 gimli kernel: [ 2671.647000]
+Oct  9 15:11:55 gimli kernel: [ 2671.647000] Leftover inexact backtrace:
+Oct  9 15:11:55 gimli kernel: [ 2671.647000]
+Oct  9 15:11:55 gimli kernel: [ 2671.648000]  =======================
 
-#ifdef __KERNEL__
-typedef __u32 u32;
-#else
-// Assumed we did #include <stdint.h> before
-typedef uint32_t __u32;
-#endif
+this one happened when undocking for the second time in sequence but I found
+the same several times in the log in conjunction with suspend2ram 
 
-?
+it never happens on first suspend (or dock/undock) after booting but very
+often on second sometimes not before third time 
 
-Gr{oetje,eeting}s,
+when it has occured I can still suspend and resume, but after that no 
+ACPI events are generated anymore
 
-						Geert
 
+gruss
+  mlo
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Dipl.-Ing. Martin Lorenz
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

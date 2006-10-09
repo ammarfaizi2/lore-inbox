@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWJIDdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWJIDey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWJIDdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 23:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWJIDdW
+	id S932221AbWJIDey (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 23:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWJIDey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 23:33:22 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:53893 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932220AbWJIDdV (ORCPT
+	Sun, 8 Oct 2006 23:34:54 -0400
+Received: from xenotime.net ([66.160.160.81]:32192 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932221AbWJIDex (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 23:33:21 -0400
-Message-Id: <200610090209.k9929IdP009924@laptop13.inf.utfsm.cl>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch] honour MNT_NOEXEC for access() 
-In-Reply-To: Message from Stas Sergeev <stsp@aknet.ru> 
-   of "Sun, 08 Oct 2006 13:11:12 +0400." <4528C0B0.4070002@aknet.ru> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Sun, 08 Oct 2006 22:09:18 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Sun, 08 Oct 2006 22:09:27 -0400 (CLT)
+	Sun, 8 Oct 2006 23:34:53 -0400
+Date: Sun, 8 Oct 2006 20:36:17 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] kernel-doc: fix function name in usercopy.c
+Message-Id: <20061008203617.f3ca1270.rdunlap@xenotime.net>
+In-Reply-To: <20061009032851.GA5344@martell.zuzino.mipt.ru>
+References: <20061008194429.c98d7387.rdunlap@xenotime.net>
+	<20061009032851.GA5344@martell.zuzino.mipt.ru>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev <stsp@aknet.ru> wrote:
-> Arjan van de Ven wrote:
-> >> but ld.so seems to be
-> >> the special case - it is a kernel helper after all,
-> > in what way is ld.so special in ANY way?
+On Mon, 9 Oct 2006 07:28:51 +0400 Alexey Dobriyan wrote:
 
-> It is a kernel helper.
+> On Sun, Oct 08, 2006 at 07:44:29PM -0700, Randy Dunlap wrote:
+> >  /**
+> > - * strlen_user: - Get the size of a string in user space.
+> > + * strnlen_user: - Get the size of a string in user space.
+> 
+> It's better to not spend time fixing mismatches, but to teach kernel-doc
+> extract function name from function itself.
+> 
+> 	/**
+> 	 * Get the size of a string in user space.
+> 	 * @foo: bar
+> 	 */
+> 	 size_t strnlen_user()
 
-Right. But what prevents anybody to have a hacked, non-testing, ld.so lying
-around?
+OK, maybe a good idea.  I'll add that to the wish list.
+However, we have seen examples of:
 
->                        Kernel does all the security
-> checks before invoking it. However, when invoked
-> directly, it have to do these checks itself. So it is
-> special in a way that it have to do the security checks
-> which otherwise only the kernel should do.
+/**
+ * doc for foo
+ */
+int foo(int arg)
+{
+}
 
-It just can't do them (reliably at least) in general. Call it a Unix/POSIX
-design failure...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+then someone inserts a new function bar() between the kernel-doc
+and foo().  How would we catch that (automated)?
+other than by our review process?
 
+---
+~Randy

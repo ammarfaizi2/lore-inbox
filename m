@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932953AbWJIQDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932955AbWJIQJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932953AbWJIQDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 12:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932954AbWJIQDX
+	id S932955AbWJIQJz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 12:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932957AbWJIQJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 12:03:23 -0400
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:22544 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S932953AbWJIQDW convert rfc822-to-8bit (ORCPT
+	Mon, 9 Oct 2006 12:09:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12240 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932955AbWJIQJy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 12:03:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 9 Oct 2006 12:09:54 -0400
+Date: Mon, 9 Oct 2006 09:08:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc7-mm1
+Message-ID: <20061009160856.GA21862@kroah.com>
+References: <20060919012848.4482666d.akpm@osdl.org> <45100272.505@mbligh.org> <20060919093122.d8923263.akpm@osdl.org> <45128BB5.2040004@shadowen.org> <20061007202628.GA30404@kroah.com> <452A4108.2060502@shadowen.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannothandle IRQ -1"
-Date: Mon, 9 Oct 2006 11:02:45 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D18@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <1160408360.3000.227.camel@laptopd505.fenrus.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannothandle IRQ -1"
-Thread-Index: AcbruR6uLY8cHgzNR3+RfwqvZCJPMwAALgOQ
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Muli Ben-Yehuda" <muli@il.ibm.com>, "Ingo Molnar" <mingo@elte.hu>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Rajesh Shah" <rajesh.shah@intel.com>, "Andi Kleen" <ak@muc.de>,
-       "Luck, Tony" <tony.luck@intel.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-       "Badari Pulavarty" <pbadari@gmail.com>,
-       "Roland Dreier" <rdreier@cisco.com>
-X-OriginalArrivalTime: 09 Oct 2006 16:02:46.0651 (UTC) FILETIME=[5C986CB0:01C6EBBC]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452A4108.2060502@shadowen.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2006-10-09 at 10:28 -0500, Protasevich, Natalie wrote:
+On Mon, Oct 09, 2006 at 01:31:04PM +0100, Andy Whitcroft wrote:
+> Greg KH wrote:
+> > On Thu, Sep 21, 2006 at 01:55:17PM +0100, Andy Whitcroft wrote:
+> >> Andrew Morton wrote:
+> >>> On Tue, 19 Sep 2006 07:45:06 -0700
+> >>> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> >>>
+> >>>>> - It took maybe ten hours solid work to get this dogpile vaguely
+> >>>>>   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
+> >>>>>   I guess it's worth briefly testing if you're keen.
+> >>>> PPC64 blades shit themselves in a strange way. Possibly the udev
+> >>>> breakage you mentioned? Hard to tell really if people are going to
+> >>>> go around breaking userspace compatibility ;-(
+> >>> What version of udev is it running?
+> >> Ok, this is not a blade, but a ppc lpar.  Its running the following
+> >> version of udev:
+> >>
+> >> udevinfo, version 021_bk
+> >>
+> >> (Assuming of course the help for udev info -V is not lying when it says
+> >> "-V       print udev version".)
+> > 
+> > What distro shipped 021_bk for a version of udev?  What is running on
+> > this machine?
+> > 
+> > (yeah, I know this is a old message, but I'm trying to fix up the udev
+> > issues right now...)
 > 
-> > I'd like also to question current policies of user space 
-> irqbalanced. 
-> > It seems to just go round-robin without much heuristics involved.
+> Hmmm.  The machine claims to be running SuSE.  We have it recorded as
+> SLES9, but I actually can't find any way to tell from the machine which
+> actual release thereof it is.
 > 
-> only for the timer interrupt and only because "people" didn't 
-> want to see it bound to a specific CPU. For all others 
-> there's quite some heuristics actually
+> This version of ud
+> gekko-lp1:~ # udevinfo -V
+> udevinfo, version 021_bk
+> gekko-lp1:~ # rpm -qa | grep udev
+> udev-021-36.32
+> 
+> This seems to be the correct version for the first GA of SLES9.
 
-Ah, this explains a lot. I was planning to try binding the timer to a
-CPU or a node (as soon as get a system for testing).
+Ah, ok, thanks.  But udev on SLES9 does not actually control /dev, only
+/dev/disk/, which is not used for booting in any manner, so you should
+not have any issues with that old udev.
 
-> 
-> >  We are
-> > seeing loss of timer interrupts on our systems - and the more 
-> > processors the more noticeable it is, but it starts even on 8x 
-> > partitions; on 48x system I see about 50% loss, on both ia32 and 
-> > x86_64 (haven't checked on
-> > ia64 yet). With say 16 threads it is unsettling to see 70% overall 
-> > idle time, and still only 40-50% of interrupts go through. System's 
-> > time is not affected, so the problem is on the back burner 
-> for now :) 
-> > It's not clear yet whether this is software or hardware fault,
-> 
-> I'd call it a hardware fault. But them I'm biased.
+thanks,
 
-It is the main suspect for now, yes (I tend to be biased this way too :)
-Those are NUMA machines that run as non-NUMA sometimes, and I still need
-to sort out if it happens in both cases, or either and all the aspects
-that may have come into play.  
+greg k-h

@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWJIHkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWJIHkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWJIHkt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJIHks
+	id S932322AbWJIHkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWJIHkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:40:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56737 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932323AbWJIHkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:40:47 -0400
-Date: Mon, 9 Oct 2006 00:40:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg KH <greg@kroah.com>, Ashok Raj <ashok.raj@intel.com>,
-       Nathan Lynch <nathanl@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] sysfs: allow removal of nonexistent sysfs groups.
-Message-Id: <20061009004014.11ed8df2.akpm@osdl.org>
-In-Reply-To: <20061009072920.GB6936@osiris.boeblingen.de.ibm.com>
-References: <20061004130554.GA25974@havoc.gtf.org>
-	<20061004172434.1a2ddb71@gondolin.boeblingen.de.ibm.com>
-	<20061005081705.GA6920@osiris.boeblingen.de.ibm.com>
-	<4524E983.6010208@garzik.org>
-	<20061005124848.GB6920@osiris.boeblingen.de.ibm.com>
-	<45250161.4060002@garzik.org>
-	<20061005131623.GC6920@osiris.boeblingen.de.ibm.com>
-	<20061009072920.GB6936@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 9 Oct 2006 03:40:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61871 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932322AbWJIHkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 03:40:41 -0400
+Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot
+	handle IRQ -1"
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@gmail.com>, Roland Dreier <rdreier@cisco.com>
+In-Reply-To: <m1hcyerpjc.fsf@ebiederm.dsl.xmission.com>
+References: <20061005212216.GA10912@rhun.haifa.ibm.com>
+	 <m11wpl328i.fsf@ebiederm.dsl.xmission.com>
+	 <20061006155021.GE14186@rhun.haifa.ibm.com>
+	 <m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
+	 <20061006202324.GJ14186@rhun.haifa.ibm.com>
+	 <m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
+	 <20061007080315.GM14186@rhun.haifa.ibm.com>
+	 <m14pugxe47.fsf@ebiederm.dsl.xmission.com>
+	 <Pine.LNX.4.64.0610071154510.3952@g5.osdl.org>
+	 <1160249585.3000.159.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0610071255480.3952@g5.osdl.org>
+	 <m1hcyerpjc.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 09 Oct 2006 09:40:05 +0200
+Message-Id: <1160379606.3000.195.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 09:29:20 +0200
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > So yes, having software say "We want to steer this particular interrupt to 
+> > this L3 cache domain" sounds eminently sane.
+> >
+> > Having software specify which L1 cache domain it wants to pollute is 
+> > likely just crazy micro-management.
 > 
-> This patch makes it safe to call sysfs_remove_group() with a name group
-> that doesn't exist. Needed to make fix cpu hotplug stuff in topology code.
+> The current interrupt delivery abstraction in the kernel is a
+> set of cpus an interrupt can be delivered to.  Which seem sufficient
+> to the cause of aiming at a cache domain.  Frequently the lower
+> levels of interrupt delivery map this to a single cpu because of
+> hardware limitations but in certain cases we can honor a multiple cpu
+> request.
 > 
+> I believe the scheduler has knowledge about different locality domains
+> for NUMA and everything else.  So what is wanting on our side is some
+> architecture? work to do the broad steering by default.
 
-Surely an attempt to remove a non-existent entry is a bug, and this
-(racy-looking) patch just covers that up?
 
-> ---
->  fs/sysfs/group.c |    5 ++++-
->  1 files changed, 4 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6/fs/sysfs/group.c
-> ===================================================================
-> --- linux-2.6.orig/fs/sysfs/group.c	2006-10-09 09:15:25.000000000 +0200
-> +++ linux-2.6/fs/sysfs/group.c	2006-10-09 09:25:23.000000000 +0200
-> @@ -68,9 +68,12 @@
->  {
->  	struct dentry * dir;
->  
-> -	if (grp->name)
-> +	if (grp->name) {
-> +		if (!sysfs_dirent_exist(kobj->dentry->d_fsdata, grp->name))
-> +			return;
->  		dir = lookup_one_len(grp->name, kobj->dentry,
->  				strlen(grp->name));
-> +	}
->  	else
->  		dir = dget(kobj->dentry);
->  
+well normally this is the job of the userspace IRQ balancer to get
+right; the thing is undergoing a redesign right now to be smarter and
+deal better with dual/quad core, numa etc etc, but as a principle thing
+this is best done in userspace (simply because there's higher level
+information there, like "is this interrupt for a network device", so
+that policy can take that into account)
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+

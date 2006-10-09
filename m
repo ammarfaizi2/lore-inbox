@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932925AbWJIPJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932926AbWJIPOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932925AbWJIPJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932929AbWJIPJN
+	id S932926AbWJIPOB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932928AbWJIPOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:09:13 -0400
-Received: from xenotime.net ([66.160.160.81]:49619 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932922AbWJIPJM (ORCPT
+	Mon, 9 Oct 2006 11:14:01 -0400
+Received: from xenotime.net ([66.160.160.81]:62680 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932926AbWJIPOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:09:12 -0400
-Date: Mon, 9 Oct 2006 08:10:37 -0700
+	Mon, 9 Oct 2006 11:14:00 -0400
+Date: Mon, 9 Oct 2006 08:15:27 -0700
 From: Randy Dunlap <rdunlap@xenotime.net>
-To: Stefan Seyfried <seife@suse.de>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org
-Subject: Re: [patch 1/2] libata: _GTF support
-Message-Id: <20061009081037.620bb5e3.rdunlap@xenotime.net>
-In-Reply-To: <20061009114150.GA32716@suse.de>
-References: <20060927223441.205181000@localhost.localdomain>
-	<20060927153627.c931de2d.kristen.c.accardi@intel.com>
-	<20061009114150.GA32716@suse.de>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: [PATCH v2] kernel-doc: drop various "inline"  qualifiers
+Message-Id: <20061009081527.d37a1c22.rdunlap@xenotime.net>
+In-Reply-To: <200610091500.24131.eike-kernel@sf-tec.de>
+References: <20061008200851.47eb99da.rdunlap@xenotime.net>
+	<200610091500.24131.eike-kernel@sf-tec.de>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,51 +26,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 13:41:50 +0200 Stefan Seyfried wrote:
+On Mon, 9 Oct 2006 15:00:18 +0200 Rolf Eike Beer wrote:
 
-> On Wed, Sep 27, 2006 at 03:36:27PM -0700, Kristen Carlson Accardi wrote:
-> > _GTF is an acpi method that is used to reinitialize the drive.  It returns
-> > a task file containing ata commands that are sent back to the drive to restore
-> > it to boot up defaults.
-> > 
-> > Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-> > 
-> > ---
-> >  Documentation/kernel-parameters.txt |    5 
->  
-> > --- 2.6-mm.orig/Documentation/kernel-parameters.txt
-> > +++ 2.6-mm/Documentation/kernel-parameters.txt
-> > @@ -48,6 +48,7 @@ parameter is applicable:
-> >  	ISAPNP	ISA PnP code is enabled.
-> >  	ISDN	Appropriate ISDN support is enabled.
-> >  	JOY	Appropriate joystick support is enabled.
-> > +	LIBATA  Libata driver is enabled
-> >  	LP	Printer support is enabled.
-> >  	LOOP	Loopback device support is enabled.
-> >  	M68k	M68k architecture is enabled.
-> > @@ -1013,6 +1014,10 @@ and is between 256 and 4096 characters. 
-> >  			emulation library even if a 387 maths coprocessor
-> >  			is present.
-> >  
-> > +	noacpi		[LIBATA] Disables use of ACPI in libata suspend/resume
-> > +			when set.
-> > +			Format: <int>
-> 
-> this will confuse users that already think they can disable ACPI with "noacpi"
-> (instead of "acpi=off") and that already fight with "noapic". I have seen too
-> many confusions of this kind in bugreports.
-> 
-> Couldn't it be made "libata=noacpi" like we have "pci=noacpi" already?
-
-It only applies to the libata module, so it could be more fully
-documented as "libata.noacpi=1" to disable ACPI for libata.
-We don't usually do that in Documentation/kernel-parameters.txt,
-but there are a few cases/examples of doing so.
-
-Of course, that's for libata built-in the kernel image.  If libata
-is a loadable module, it's just
-	modprobe libata noacpi=1
-or set it in /etc/modprobe.conf.
+> The inline status of a function is not of much help for a developer, that's 
+> right. But I would like to see the the __must_check in the documentation. 
+> This it what makes a difference, the inline stuff is extraneous.
 
 ---
-~Randy
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Drop __inline, __always_inline, and noinline in the
+produced kernel-doc output, similar to other pseudo directives.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/kernel-doc |    3 +++
+ 1 files changed, 3 insertions(+)
+
+--- linux-2619-rc1g3.orig/scripts/kernel-doc
++++ linux-2619-rc1g3/scripts/kernel-doc
+@@ -1518,6 +1518,9 @@ sub dump_function($$) {
+     $prototype =~ s/^asmlinkage +//;
+     $prototype =~ s/^inline +//;
+     $prototype =~ s/^__inline__ +//;
++    $prototype =~ s/^__inline +//;
++    $prototype =~ s/^__always_inline +//;
++    $prototype =~ s/^noinline +//;
+     $prototype =~ s/__devinit +//;
+     $prototype =~ s/^#define +//; #ak added
+     $prototype =~ s/__attribute__ \(\([a-z,]*\)\)//;

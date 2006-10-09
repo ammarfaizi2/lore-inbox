@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWJIWxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWJIXCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWJIWxc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 18:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWJIWxb
+	id S1751915AbWJIXCA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 19:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWJIXCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 18:53:31 -0400
-Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:8446 "EHLO
-	pne-smtpout4-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1751910AbWJIWx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 18:53:29 -0400
-Message-ID: <452AD2D9.3090001@gmail.com>
-Date: Tue, 10 Oct 2006 01:53:13 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-CC: "raise.sail@gmail.com" <raise.sail@gmail.com>, greg <greg@kroah.com>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver Interface
- 0.3.2 (core)
-References: <200609291624123283320@gmail.com> <45286B85.90402@gmail.com> <452948AD.8030600@gmail.com> <200610082342.26110.dtor@insightbb.com>
-In-Reply-To: <200610082342.26110.dtor@insightbb.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 19:02:00 -0400
+Received: from deeprooted.net ([216.254.16.51]:36552 "EHLO paris.hilman.org")
+	by vger.kernel.org with ESMTP id S1751914AbWJIXB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 19:01:59 -0400
+Message-Id: <20061009230146.234622000@mvista.com>
+User-Agent: quilt/0.45-1
+Date: Mon, 09 Oct 2006 16:01:46 -0700
+From: Kevin Hilman <khilman@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18-rt5 1/1] ARM: Use IRQF_NODELAY for XScale oprofile interrupt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Sunday 08 October 2006 14:51, Anssi Hannula wrote:
->> (I didn't get Dmitry's original mail, so replying here)
->>
->> raise.sail@gmail.com wrote:
->>> Dmitry Torokhov wrote:
->>>> Then there is issue with automatic loading of these sub-drivers. How
->>>> do they get loaded? Or we force everything to be built-in making HID
->>>> module very fat (like psmouse got pretty fat, but with HID prtential
->>>> for it to get very fat is much bigger).
->>>>
->>>> The better way would be to split hid-input into a library module that
->>>> parses hid usages and reports and is shared between device-specific
->>>> modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
->> One possibility is to do that with symbol_request() and friends. That
->> would not be pretty though, imho.
->>
->> DVB subsystem uses that currently to load frontend modules dynamically,
->> see dvb_attach() and dvb_frontend_detach() in
->> drivers/media/dvb/dvb-core/dvbdev.h and
->> drivers/media/dvb/dvb-core/dvb_frontend.c.
->>
-> 
-> Unfortunately this does not quite work when hid is built-in and the rest
-> are modules :(
-> 
+Convert XScale performance monitor unit (PMU) interrupt used by
+oprofile to IRQF_NODELAY.  PMU results not useful if ISR is run as
+thread.
 
-How so? I see nothing obvious.
+Signed-off-by: Kevin Hilman <khilman@mvista.com>
 
--- 
-Anssi Hannula
-
+Index: dev/arch/arm/oprofile/op_model_xscale.c
+===================================================================
+--- dev.orig/arch/arm/oprofile/op_model_xscale.c
++++ dev/arch/arm/oprofile/op_model_xscale.c
+@@ -383,8 +383,9 @@ static int xscale_pmu_start(void)
+ {
+ 	int ret;
+ 	u32 pmnc = read_pmnc();
++	int irq_flags = IRQF_DISABLED | IRQF_NODELAY;
+ 
+-	ret = request_irq(XSCALE_PMU_IRQ, xscale_pmu_interrupt, IRQF_DISABLED,
++	ret = request_irq(XSCALE_PMU_IRQ, xscale_pmu_interrupt, irq_flags,
+ 			"XScale PMU", (void *)results);
+ 
+ 	if (ret < 0) {
+--

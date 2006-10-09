@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbWJIBxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWJIB7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751595AbWJIBxM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 21:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWJIBxM
+	id S1751608AbWJIB7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 21:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWJIB7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 21:53:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:5343 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751595AbWJIBxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 21:53:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=KQl6A1AJeGO+Bs7w/8aM9si8JMkYKV6e3s/ic3odBDbXMBOJV8ANHAyDeDRInNHkiOx0IMVKCg7NK2xWa8aZpNl1mtPRBBZVHS42mxE8MJPwEmXxvgC7OtpU6xOW9fMEpxovL6bPjVfwdECKaZu6/3UwY2Yt1ttTbD27ikTfIbQ=
-Date: Mon, 9 Oct 2006 05:52:57 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64: use BUILD_BUG_ON in FPU code
-Message-ID: <20061009015257.GB5346@martell.zuzino.mipt.ru>
+	Sun, 8 Oct 2006 21:59:40 -0400
+Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:17348
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751607AbWJIB7k (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 21:59:40 -0400
+Message-Id: <200610090158.k991wZZu017745@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Tony Finch <dot@dotat.at>
+Cc: David Woodhouse <dwmw2@infradead.org>, Dennis Heuer <dh@triple-media.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: sunifdef instead of unifdef
+In-Reply-To: Your message of "Thu, 05 Oct 2006 17:05:04 BST."
+             <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
+From: Valdis.Kletnieks@vt.edu
+References: <20061005150816.76ca18c2.dh@triple-media.com> <1160059253.26064.69.camel@pmac.infradead.org>
+            <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="==_Exmh_1160359114_2875P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 08 Oct 2006 21:58:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+--==_Exmh_1160359114_2875P
+Content-Type: text/plain; charset=us-ascii
 
- arch/x86_64/kernel/i387.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+On Thu, 05 Oct 2006 17:05:04 BST, Tony Finch said:
 
---- a/arch/x86_64/kernel/i387.c
-+++ b/arch/x86_64/kernel/i387.c
-@@ -82,11 +82,8 @@ int save_i387(struct _fpstate __user *bu
- 	struct task_struct *tsk = current;
- 	int err = 0;
- 
--	{ 
--		extern void bad_user_i387_struct(void); 
--		if (sizeof(struct user_i387_struct) != sizeof(tsk->thread.i387.fxsave))
--			bad_user_i387_struct();
--	} 
-+	BUILD_BUG_ON(sizeof(struct user_i387_struct) !=
-+			sizeof(tsk->thread.i387.fxsave));
- 
- 	if ((unsigned long)buf % 16) 
- 		printk("save_i387: bad fpstate %p\n",buf); 
+> already in serious trouble: for example, my unifdef was written so that I
+> could understand xterm's frightening pty handling....)
 
+Well, that code *does* warn you:
+
+* If you think you know what all of this code is doing, you are
+* probably very mistaken.  There be serious and nasty dragons here.
+
+:)
+
+--==_Exmh_1160359114_2875P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFKazKcC3lWbTT17ARAuYJAJ9yXGyNcJKs9yES7TxdXfmQ2okz2wCgyiEC
+XWgXY28S/Ge/G08GKGyzsLI=
+=Y3FB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1160359114_2875P--

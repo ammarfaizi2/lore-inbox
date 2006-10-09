@@ -1,121 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932993AbWJITDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933000AbWJITPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932993AbWJITDy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 15:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWJITDy
+	id S933000AbWJITPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 15:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933004AbWJITPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 15:03:54 -0400
-Received: from hera.kernel.org ([140.211.167.34]:16818 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932993AbWJITDx (ORCPT
+	Mon, 9 Oct 2006 15:15:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43919 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933000AbWJITPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 15:03:53 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH 6/10] VIOC: New Network Device Driver
-Date: Mon, 9 Oct 2006 12:03:24 -0700
-Organization: OSDL
-Message-ID: <20061009120324.56bac955@freekitty>
-References: <200610051105.51259.misha@fabric7.com>
-	<20061008072726.GA5589@ucw.cz>
-	<200610091109.39793.misha@fabric7.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1160420605 22041 10.8.0.54 (9 Oct 2006 19:03:25 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Mon, 9 Oct 2006 19:03:25 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Mon, 9 Oct 2006 15:15:14 -0400
+Date: Mon, 9 Oct 2006 12:14:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: User switchable HW mappings & cie
+In-Reply-To: <452A35FF.50009@tungstengraphics.com>
+Message-ID: <Pine.LNX.4.64.0610091151380.3952@g5.osdl.org>
+References: <1160347065.5926.52.camel@localhost.localdomain>
+ <452A35FF.50009@tungstengraphics.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-44270651-1160421255=:3952"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 11:09:39 -0700
-Misha Tomushev <misha@fabric7.com> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> On Sunday 08 October 2006 12:27 am, Pavel Machek wrote:
-> > Hi!
-> >
-> > > +	ecmd->phy_address = 0;	/* !!! Stole from e1000 */
-> > > +	ecmd->speed = 3;	/* !!! Stole from e1000 */
-> >
-> > Eh?
-> You are right. Will fix.
-> >
-> > > +static void vnic_get_regs(struct net_device *netdev,
-> > > +			  struct ethtool_regs *regs, void *p)
-> > > +{
-> > > +	struct vnic_device *vnicdev = netdev->priv;
-> > > +	struct vioc_device *viocdev = vnicdev->viocdev;
-> > > +	char *regs_buff = p;
-> > > +
-> > > +	memset(regs_buff, 0, VNIC_REGS_CNT * VNIC_REGS_LINE_LEN);
-> > > +
-> > > +	regs->version = 1;
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_GLOBAL, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_GLOBAL, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_DEBUG, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_DEBUG, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_DEBUGPRIV, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_FABRIC, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_FABRIC, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_VNIC_EN, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_VNIC_EN, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_PORT_EN, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_PORT_EN, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_BMC_VNIC_CFG, VIOC_BMC, 0),
-> > > +		VIOC_READ_REG(VREG_BMC_VNIC_CFG, VIOC_BMC, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_IHCU_RXDQEN, VIOC_IHCU, 0),
-> > > +		VIOC_READ_REG(VREG_IHCU_RXDQEN, VIOC_IHCU, 0, viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id),
-> > > +		VIOC_READ_REG(VREG_VENG_VLANTAG, VIOC_VENG, vnicdev->vnic_id,
-> > > +			      viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +	sprintf(regs_buff, "%08Lx = %08x\n",
-> > > +		GETRELADDR(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id),
-> > > +		VIOC_READ_REG(VREG_VENG_TXD_CTL, VIOC_VENG, vnicdev->vnic_id,
-> > > +			      viocdev));
-> > > +	regs_buff += strlen(regs_buff);
-> > > +
-> > > +}
-> >
-> > This looks ugly. What interface is that?
-> This is the interface between  the driver and ethtool.
-> Using the text buffer is one way to keep changed limited to one side (driver). Ultimately, I think that this ethtool function (dumping hw registers) should become more generic,
-> as opposed to what it is now - unique for every individual driver.
-> > 							Pavel
+--21872808-44270651-1160421255=:3952
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+
+
+
+On Mon, 9 Oct 2006, Thomas Hellström wrote:
 > 
+> One problem that occurs is that the rule for ptes with non-backing struct
+> pages
+> Which I think was introduced in 2.6.16:
+> 
+>    pfn_of_page == vma->vm_pgoff + ((addr - vma->vm_start) >> PAGE_SHIFT)
 
-Please just dump binary like other drivers.  The code for ethtool allows per device
-decode. Move the decode to there.  
+No.
 
-Yes, ethtool source does need a more generic register description language.
+No such rule exists.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+The above is true only fora _very_ special case, namely the case of 
+allowing a COW-mapping of a non-backing-store set. And the _only_ case 
+where that even makes sense is /dev/mem, and quite frankly, even there the 
+only reason it exists is just one or two legacy programs that really did 
+use COW mappings on something that really shouldn't be COW-mapped.
+
+(I think the only program that did was actually something that tried to 
+read the BIOS tables and mapped /dev/mem privately but read-write, and 
+then edited the BIOS mappings in place).
+
+So _especially_ with 2.6.16+, using a non-backing-store mapping is really 
+really easy: you just use
+
+	int vm_insert_page(struct vm_area_struct *vma, unsigned long addr, struct page *page)
+
+and you're done (if a ref-counted page is what is wanted).
+
+That one requires a "struct page *", because all current users had that as 
+their standard setup (ie direct rendering etc), but the thing is, the VM 
+these days really doesn't care.
+
+However, if you don't want to have a ref-counted page, you just use 
+VM_PFNMAP, and insert any random pte you damn well want.
+
+Once you have set VM_PFNMAP, and the mapping is _not_ a cow mapping, the 
+page something points to will never actually be used for anything but 
+mapping (modulo bugs, of course, but the new VM is a hell of a lot more 
+straightforward in this, and the whole "vm_normal_page()" thing is really 
+trivial).
+
+So you never have any "struct page *" associated with it at all, and no 
+refcounting is taking place - you always act purely on a pfn and a page 
+protection thing (ie effectively a "pte_t").
+
+NOTE! The important part here is really to just understand the fact that 
+COW mappings are special. So you need to make sure that you always map 
+such a thing "shared" (and if you have security issues, it obviously needs 
+to be just marked read-only - "shared" does _not_ imply that it might be 
+read-write).
+
+COW-mappings (and _only_ cow-mappings) have the added rule of how the page 
+offsets need to be handled, since otherwise there is no way to distinguish 
+between somethign that got mapped originally, and something that got 
+COW'ed (where the latter _does_ need reference counting, of course, since 
+it's a regular page that has been copied into the address space).
+
+It's probably also a good idea to map such things as VM_DONTCOPY, since 
+they probably don't make sense across forks, and it slows down forking to 
+copy the page tables. And add a VM_INSERTPAGE, although right now that 
+doesn't actually do anything special (but it was originally meant to be a 
+"we've done single-page random things, and so you can't _assume_ the 
+virtual-address/pg_off thing to hold", so setting it is a good idea just 
+for consistency).
+
+Anyway, so right now you can use "vm_insert_page()" and it will increment 
+the page count and add things to the rmap lists, which is what current 
+users want. But if you don't have a normal page, you should be able to 
+basically avoid that part entirely, and just use
+
+	set_pte_at(mm, addr, pte, make-up-a-pte-here);
+
+and you're done (of course, you need to use all the appropriate magic to 
+set up the pte, ie you'd normally have something like
+
+	pte = get_locked_pte(mm, addr, &ptl);
+	..
+	pte_unmap_unlock(pte, ptl);
+
+around it). Note that "vm_insert_page()" is _not_ for VM_PFNMAP mappings, 
+exactly because it does actually increment page counts. It's for a 
+"normal" mapping that just wants to insert a reference-counted page.
+
+		Linus
+--21872808-44270651-1160421255=:3952--

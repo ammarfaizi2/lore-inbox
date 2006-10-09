@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWJIEiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWJIE7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWJIEiA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 00:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWJIEiA
+	id S1751647AbWJIE7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 00:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWJIE7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 00:38:00 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:20746 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S932234AbWJIEh7 (ORCPT
+	Mon, 9 Oct 2006 00:59:34 -0400
+Received: from xenotime.net ([66.160.160.81]:59014 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751622AbWJIE7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 00:37:59 -0400
-Message-ID: <4529D2AD.9080509@aknet.ru>
-Date: Mon, 09 Oct 2006 08:40:13 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [patch] honour MNT_NOEXEC for access()
-References: <200610090209.k9929IdP009924@laptop13.inf.utfsm.cl>
-In-Reply-To: <200610090209.k9929IdP009924@laptop13.inf.utfsm.cl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 9 Oct 2006 00:59:33 -0400
+Date: Sun, 8 Oct 2006 22:00:57 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] kernel-doc: make parameter description indentation uniform
+Message-Id: <20061008220057.bcc89888.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Horst H. von Brand wrote:
-> Right. But what prevents anybody to have a hacked, non-testing, ld.so lying
-> around?
-Having "noexec" on every user-writable mount can
-kind of make that difficult - you can't easily run
-the ld.so you just copied in.
+- In parameter descriptions, strip all whitespace between the parameter
+  name (e.g., @len) and its description so that the description is
+  indented uniformly in text and man page modes.  Previously, spaces
+  or tabs (which are used for cleaner source code viewing) affected
+  the produced output in a negative way.
 
-> It just can't do them (reliably at least) in general.
-Certainly it can't, now and then.
-Right now the check is to see whether the mmap(PROT_EXEC)
-fails. I wanted to change that to something that at least
-won't break other apps, but of course without adding any
-extra reliability.
+Before (man mode):
+       to            Destination address, in user space.
+       from        Source address, in kernel space.
+       n              Number of bytes to copy.
 
+After (man mode):
+       to          Destination address, in user space.
+       from        Source address, in kernel space.
+       n           Number of bytes to copy.
+
+- Fix/clarify a few function description comments.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/kernel-doc |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
+
+--- linux-2619-rc1g3.orig/scripts/kernel-doc
++++ linux-2619-rc1g3/scripts/kernel-doc
+@@ -1262,7 +1262,9 @@ sub output_intro_text(%) {
+ }
+ 
+ ##
+-# generic output function for typedefs
++# generic output function for all types (function, struct/union, typedef, enum);
++# calls the generated, variable output_ function name based on
++# functype and output_mode
+ sub output_declaration {
+     no strict 'refs';
+     my $name = shift;
+@@ -1278,8 +1280,7 @@ sub output_declaration {
+ }
+ 
+ ##
+-# generic output function - calls the right one based
+-# on current output mode.
++# generic output function - calls the right one based on current output mode.
+ sub output_intro {
+     no strict 'refs';
+     my $func = "output_intro_".$output_mode;
+@@ -1782,8 +1783,9 @@ sub process_file($) {
+ 		$in_doc_sect = 1;
+ 		$contents = $newcontents;
+ 		if ($contents ne "") {
+-		    if (substr($contents, 0, 1) eq " ") {
+-			$contents = substr($contents, 1);
++		    while ((substr($contents, 0, 1) eq " ") ||
++			substr($contents, 0, 1) eq "\t") {
++			    $contents = substr($contents, 1);
+ 		    }
+ 		    $contents .= "\n";
+ 		}
+
+
+---

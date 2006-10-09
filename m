@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932940AbWJIPcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932935AbWJIPcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932940AbWJIPcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932939AbWJIPcl
+	id S932935AbWJIPcK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932942AbWJIPcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:32:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:9088 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932940AbWJIPcj (ORCPT
+	Mon, 9 Oct 2006 11:32:09 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:30633 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S932935AbWJIPcH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:32:39 -0400
-Subject: Re: 2.6.19-rc1: known regressions (v2) - xfrm_register_mode
-From: Steve Fox <drfickle@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, Mel Gorman <mel@skynet.ie>,
-       Vivek Goyal <vgoyal@in.ibm.com>
-In-Reply-To: <20061007214620.GB8810@stusta.de>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
-	 <20061007214620.GB8810@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 09 Oct 2006 10:32:34 -0500
-Message-Id: <1160407954.1984.11.camel@flooterbu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Mon, 9 Oct 2006 11:32:07 -0400
+Date: Mon, 9 Oct 2006 17:31:33 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
+ the kernel [try #4]
+In-Reply-To: <200610091727.34780.arnd.bergmann@de.ibm.com>
+Message-ID: <Pine.LNX.4.62.0610091729420.16048@pademelon.sonytel.be>
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
+ <200610091652.26209.arnd.bergmann@de.ibm.com> <Pine.LNX.4.62.0610091705070.16048@pademelon.sonytel.be>
+ <200610091727.34780.arnd.bergmann@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-07 at 23:46 +0200, Adrian Bunk wrote:
-> Subject    : oops in xfrm_register_mode
-> References : http://lkml.org/lkml/2006/10/4/170
-> Submitter  : Steve Fox <drfickle@us.ibm.com>
-> Status     : unknown
+On Mon, 9 Oct 2006, Arnd Bergmann wrote:
+> On Monday 09 October 2006 17:05, Geert Uytterhoeven wrote:
+> > On Mon, 9 Oct 2006, Arnd Bergmann wrote:
+> > > On Monday 09 October 2006 15:09, Geert Uytterhoeven wrote:
+> > > > On Mon, 9 Oct 2006, Jan Engelhardt wrote:
+> > > > > 
+> > > > > Ouch ouch ouch. It should better be
+> > > > > 
+> > > > > typedef uint32_t __u32;
+> > > > 
+> > > > You mean
+> > > > 
+> > > > #ifdef __KERNEL__
+> > > > typedef __u32 u32;
+> > > > #else
+> > > > // Assumed we did #include <stdint.h> before
+> > > > typedef uint32_t __u32;
+> > > > #endif
+> > > 
+> > > Why should that be a valid assumption? Right now, it works
+> > > if you don't include stdint.h in advance.
+> > 
+> > According to C99 section 7.18 you need to include <stdint.h> first.
+> 
+> Sorry, I need to rephrase: you can include <linux/types.h> without
+> including <stdint.h> first, and many people do that.
+> Relying on uint32_t would mean we break existing source.
 
-Status: Vivek and Mel have both created patches which fix the boot
-issue, but it is not clear to me if either of these are acceptable
-fixes.
+IC.
 
--- 
+Well, I meant that of course you have to include <stdint.h> at the top of
+<linux/types.h>. I just thought inside that particular #ifdef wasn't the right
+place.
 
-Steve Fox
-IBM Linux Technology Center
+Problem solved :-)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

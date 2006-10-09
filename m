@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWJILO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWJILTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWJILO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWJILO4
+	id S932401AbWJILTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWJILTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:14:56 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:22532 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932401AbWJILOz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 07:14:55 -0400
-Date: Mon, 9 Oct 2006 21:14:46 +1000
-To: akinobu.mita@gmail.com, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/2] crypto: fix crypto_alloc_{tfm,base}() return value
-Message-ID: <20061009111446.GA22020@gondor.apana.org.au>
-References: <20061009085812.GA6020@localhost>
+	Mon, 9 Oct 2006 07:19:09 -0400
+Received: from mx2.suse.de ([195.135.220.15]:13293 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932401AbWJILTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 07:19:08 -0400
+Date: Mon, 9 Oct 2006 13:19:06 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+Message-ID: <20061009111906.GA26824@wotan.suse.de>
+References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site> <20061007134407.6aa4dd26.akpm@osdl.org> <1160351174.14601.3.camel@localhost.localdomain> <20061009102635.GC3487@wotan.suse.de> <1160391014.10229.16.camel@localhost.localdomain> <20061009110007.GA3592@wotan.suse.de> <1160392214.10229.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061009085812.GA6020@localhost>
+In-Reply-To: <1160392214.10229.19.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 05:58:12PM +0900, Akinobu Mita wrote:
-> crypto_alloc_tfm() and crypto_alloc_base() are suppose to return error code
-> as pointer on failures. But there are some cases where they return NULL
-> (for example, crypto_alloc_tfm() returns NULL on kzalloc() failure)
+On Mon, Oct 09, 2006 at 09:10:13PM +1000, Benjamin Herrenschmidt wrote:
 > 
-> This patch fixes that wrong return value, and also fixes tcrypt so that it can
-> detect error code correctly.
+> > Yep, I see. You just need to be careful about the PFNMAP logic, so
+> > the VM knows whether the pte is backed by a struct page or not.
+> 
+> I still need to properly get my head around that one. I can't easily
+> change the VMA during the "switch" but I can tweak the flags on the
+> first nopage after one... 
 
-Actually, crypto_alloc_tfm is an obsolete function which is supposed
-to maintain its previous semantics of returning NULL or success.
+You'll want to clear VM_PFNMAP after unmapping all pages from it, before
+switching to struct page backing.
 
-I don't quite see where the problem with crypto_alloc_base is.
+> 
+> > And going the pageless route means that you must disallow MAP_PRIVATE
+> > PROT_WRITE mappings, I trust that isn't a problem for you?
+> 
+> Should not but I need to look more closely.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+If you do need to, then if your pfns are contiguous in virtual memory,
+and you can spare vm_pgoff, then you can use remap_pfn_range's method
+of setting vm_pgoff to the first pfn.
+
+I can add a bit of sanity checking for that as well.
+
+> > +	/* Ok, finally just insert the thing.. */
+> > +	set_pte_at(mm, addr, pte, pfn_pte(pfn, vma->vm_page_prot));
+> > +
+> > +	vma->vm_flags |= VM_PFNMAP;
+> > +	retval = 0;
+> > +out_unlock:
+> > +	pte_unmap_unlock(pte, ptl);
+> > +out:
+> > +	return retval;
+> > +}
+> > +EXPORT_SYMBOL(vm_insert_pfn);
+> 
+> It also needs update_mmu_cache() I suppose.
+
+Hmm, but it might not be called from a pagefault. Can we get away
+with not calling it? Or is it required by some architectures?

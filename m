@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWJILv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbWJILzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWJILv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWJILv4
+	id S932633AbWJILzM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWJILzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:51:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:42943 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932606AbWJILvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 07:51:55 -0400
-Subject: Re: User switchable HW mappings & cie
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
-Cc: linux-mm@kvack.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>,
-       Linus Torvalds <torvalds@osdl.org>, Nick Piggin <npiggin@suse.de>
-In-Reply-To: <452A35FF.50009@tungstengraphics.com>
-References: <1160347065.5926.52.camel@localhost.localdomain>
-	 <452A35FF.50009@tungstengraphics.com>
-Content-Type: text/plain
-Date: Mon, 09 Oct 2006 21:51:01 +1000
-Message-Id: <1160394662.10229.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 07:55:12 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:61943 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S932633AbWJILzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 07:55:11 -0400
+Date: Mon, 9 Oct 2006 20:55:26 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 1/2] crypto: fix crypto_alloc_{tfm,base}() return value
+Message-ID: <20061009115526.GA10857@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>
+References: <20061009085812.GA6020@localhost> <20061009111446.GA22020@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009111446.GA22020@gondor.apana.org.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 09, 2006 at 09:14:46PM +1000, Herbert Xu wrote:
 
-> I'm very much for this approach, possibly with the extension that we 
-> could have a multiple-page version as well, as populating the whole vma 
-> sometimes may be cheaper than populating each pte with a fault. That 
-> would basically be an io_remap_pfn_range() which is safe when the 
-> mmap_sem is taken in read mode (from do_no_page).
-> 
-> One problem that occurs is that the rule for ptes with non-backing 
-> struct pages
-> Which I think was introduced in 2.6.16:
-> 
->     pfn_of_page == vma->vm_pgoff + ((addr - vma->vm_start) >> PAGE_SHIFT)
-> 
-> cannot be honored, at least not with the DRM memory manager, since the 
-> graphics object will be associated with a vma and not the underlying 
-> physical address. User space will have vma->vm_pgoff as a handle to the 
-> object, which may move around in graphics memory.
+> Actually, crypto_alloc_tfm is an obsolete function which is supposed
+> to maintain its previous semantics of returning NULL or success.
 
-That's a problem with VM_PFNMAP set indeed. get_user_pages() is a
-non-issue with VM_IO set too but I'm not sure about other code path that
-might try to hit here... though I think we don't hit that if MAP_SHARED,
-Nick ?
+I misunderstood about crypto_alloc_tfm().
 
-Ben.
+BTW, ecryptfs and reiser4 are still using crypto_alloc_tfm().
+Should we mark it as __deprecated?
 
+> I don't quite see where the problem with crypto_alloc_base is.
+
+- __crypto_alloc_tfm() should return -ENOMEM on kzalloc() failure.
+  But it returns NULL.
+
+- crypto_alloc_base() may not return -EINTR on signal_pending()
+
+I'll fix the patch and resend with more clear description later.
 

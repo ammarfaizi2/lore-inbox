@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWJIPzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWJIP4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751723AbWJIPzS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751890AbWJIPzR
+	id S932640AbWJIP4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWJIP4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:55:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:27325 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751723AbWJIPzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:55:16 -0400
-Subject: Re: 2.6.18-mm3: Panic during boot on NUMA-Q
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Sukadev Bhattiprolu <sukadev@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160408385.8205.4.camel@localhost.localdomain>
-References: <20061006235937.GA13241@us.ibm.com>
-	 <1160408385.8205.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 09 Oct 2006 08:54:53 -0700
-Message-Id: <1160409293.17103.1.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 11:56:17 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:2425 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932640AbWJIP4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 11:56:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=huk0eYSV4caqF9EW0R0sczBdTbKqTgaCE8Skqqx01E4/BpdDzHHDnKJtaU+KEHAnBZSMNO7sBJua4aKRefYPqhlhftr8rIrYm/pXtyU6jELpUo13q4feYgi/TZorwx48xVWK/GEj0myzPCaVjN02Sl85WFtSjqIqBOu0iDi+VIA=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [linux-usb-devel] error to be returned while suspended
+Date: Mon, 9 Oct 2006 08:56:08 -0700
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0610051631550.7144-100000@iolanthe.rowland.org> <200610071703.24599.david-b@pacbell.net> <200610080840.59432.oliver@neukum.org>
+In-Reply-To: <200610080840.59432.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200610090856.09776.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-09 at 08:39 -0700, Dave Hansen wrote:
-> On Fri, 2006-10-06 at 16:59 -0700, Sukadev Bhattiprolu wrote:
-> > Panic on boot with 2.6.18-mm3 on 4-CPU (PIII, 700Mhz) NUMAQ system.
+On Saturday 07 October 2006 11:40 pm, Oliver Neukum wrote:
+> Am Sonntag, 8. Oktober 2006 02:03 schrieben Sie:
+> > On Saturday 07 October 2006 10:16 am, Oliver Neukum wrote:
 > > 
-> > This machine boots fine with 2.6.18-mm1 with an almost identical config
-> > file.
+> > > > > I dare say that the commonest scenario involving USB is a laptop with
+> > > > > an input device attached. Input devices are for practical purposes always
+> > > > > opened. A simple resume upon open and suspend upon close is useless.
 > > 
-> > config file, lspci-vvv and complete dmesg attached. 
-> > 
-> > Pls let me know if you need more info.
+> > That is, the standard model is useless?  I think you've made
+> > a few strange leaps of logic there ... care to fill in those
+> > gaps and explain just _why_ that standard model is "useless"???
 > 
-> It would be really helpful to isolate down where this started happening?
-> Did it occur in -mm2?  mainline 2.6.18?
-> 
-> If you can isolate it to -mm, try a bisection.
+> If a device is always opened, as mice are, it will not be suspended.
 
-Martin reported the same on -mm2.
+Of course it wiill be suspended, as part of system-wide suspend.
+That's the standard model.
 
-Thanks,
-Badari
+> Yet they can be without any data to deliver forever.
 

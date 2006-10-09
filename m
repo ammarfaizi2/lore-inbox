@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932901AbWJIOPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932877AbWJIOOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932901AbWJIOPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932829AbWJIOLb
+	id S932877AbWJIOOG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932869AbWJIOLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:11:31 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:29425 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932874AbWJIOLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 10:11:07 -0400
-Date: Mon, 9 Oct 2006 07:10:17 -0700
+	Mon, 9 Oct 2006 10:11:37 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59391 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932877AbWJIOLS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 10:11:18 -0400
+Date: Mon, 9 Oct 2006 07:10:12 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200610091410.k99EAHJb026129@frankl.hpl.hp.com>
+Message-Id: <200610091410.k99EACEq026064@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 10/21] 2.6.18 perfmon2 : PMU context switch support
+Subject: [PATCH 05/21] 2.6.18 perfmon2 : sampling format support
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the PMU context switch routines.
+This files contains the sampling format support.
 
-For per-thread contexts, the PMU state must be saved and restored on
-context switch. For systm-wide context we may need to intervene on
-certain architectures to cleanup certain registers.
+Perfmon2 supports an in-kernel sampling buffer for performance
+reasons. Yet to ensure maximum flexibility to applications,
+the formats is which infmration is recorded into the kernel
+buffer is not specified by the interface. Instead it is
+delegated to a kernel plug-in modules called sampling formats.
 
-The PMU context switch code is concentrated into a single routine
-named pfm_ctxsw() which is called from __switch_to().
+Each formats controls:
+	- what is recorded in the the sampling buffer
+	- how the information is recorded
+	- when to notify the application to extract the information
+	- how the buffer is exported to user level
+	- hoe the buffer is allocated
 
-Because accessing PMU registers is usually much more expensive
-than accessing general registers, we take great care at minimizing
-the number of register accesses using various lazy save/restore schemes
-for both UP and SMP kernels.
+Each format is identified via a 128-bit UUID which can be requested
+when the context is created with pfm_create_context().
+
+The interface comes with a simple default sampling format. It records
+information sequentially in the buffer. Each entry, called sample,
+is composed of a fixed size header and a variable size body where
+the values of PMDS can be recorded based upon the user's request.
+
+Sampling formats can be dynamically registered with perfmon. The management
+of sampling formats is implemented in perfmon_fmt.c:
+
+pfm_register_smpl_fmt(struct pfm_smpl_fmt *fmt):
+	- register a new sampling format
+		
+pfm_unregister_smpl_fmt(pfm_uuid_t uuid):
+	- unregister a sampling format
+
+It is possible to list the available formats by looking at /sys/kernel/perfmon/formats.
 
 
 
---- linux-2.6.18.base/perfmon/perfmon_ctxsw.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/perfmon/perfmon_ctxsw.c	2006-09-26 02:32:47.000000000 -0700
-@@ -0,0 +1,344 @@
+
+
+--- linux-2.6.18.base/perfmon/perfmon_fmt.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18/perfmon/perfmon_fmt.c	2006-09-25 12:09:46.000000000 -0700
+@@ -0,0 +1,245 @@
 +/*
-+ * perfmon_cxtsw.c: perfmon2 context switch code
++ * perfmon_fmt.c: perfmon2 sampling buffer format management
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -75,311 +97,303 @@ for both UP and SMP kernels.
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 + * 02111-1307 USA
-+ */
-+#include <linux/kernel.h>
++  */
++#include <linux/module.h>
 +#include <linux/perfmon.h>
 +
-+/*
-+ * used only in UP mode
-+ */
-+void pfm_save_prev_context(struct pfm_context *ctxp)
-+{
-+	struct pfm_event_set *set;
++static __cacheline_aligned_in_smp DEFINE_SPINLOCK(pfm_smpl_fmt_lock);
++static LIST_HEAD(pfm_smpl_fmt_list);
++static pfm_uuid_t null_uuid;
 +
-+	/*
-+	 * in UP per-thread, due to lazy save
-+	 * there could be a context from another
-+	 * task. We need to push it first before
-+	 * installing our new state
-+	 */
-+	set = ctxp->active_set;
-+	pfm_modview_begin(set);
-+	pfm_save_pmds(ctxp, set);
-+	set->view->set_status &= ~PFM_SETVFL_ACTIVE;
-+	pfm_modview_end(set);
-+	/*
-+	 * do not clear ownership because we rewrite
-+	 * right away
-+	 */
++static inline int pfm_uuid_cmp(pfm_uuid_t a, pfm_uuid_t b)
++{
++	return memcmp(a, b, sizeof(a));
 +}
 +
-+void pfm_save_pmds(struct pfm_context *ctx, struct pfm_event_set *set)
++static inline int fmt_is_mod(struct pfm_smpl_fmt *f)
 +{
-+	u64 val, hw_val, *pmds, ovfl_mask;
-+	u64 *used_mask, *cnt_mask;
-+	u16 i, num;
++	return !(f->fmt_flags & PFM_FMTFL_IS_BUILTIN);
++}
 +
-+	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	num = set->nused_pmds;
-+	cnt_mask = pfm_pmu_conf->cnt_pmds;
-+	used_mask = set->used_pmds;
-+	pmds = set->view->set_pmds;
++int pfm_use_smpl_fmt(pfm_uuid_t uuid)
++{
++	return pfm_uuid_cmp(uuid, null_uuid);
++}
 +
-+	for (i = 0; num; i++) {
-+		if (pfm_bv_isset(used_mask, i)) {
-+			hw_val = val = pfm_read_pmd(ctx, i);
-+			if (likely(pfm_bv_isset(cnt_mask, i)))
-+				val = (pmds[i] & ~ovfl_mask) |
-+					(hw_val & ovfl_mask);
-+			pmds[i] = val;
-+			num--;
-+		}
++static struct pfm_smpl_fmt *__pfm_find_smpl_fmt(pfm_uuid_t uuid)
++{
++	struct pfm_smpl_fmt * entry;
++
++	list_for_each_entry(entry, &pfm_smpl_fmt_list, fmt_list) {
++		if (!pfm_uuid_cmp(uuid, entry->fmt_uuid))
++			return entry;
 +	}
++	return NULL;
 +}
 +
-+/*
-+ * interrupts are masked
-+ */
-+static void __pfm_ctxswin_thread(struct task_struct *task,
-+				 struct pfm_context *ctx, u64 now)
++static struct pfm_smpl_fmt *pfm_find_fmt_name(char *name)
 +{
-+	u64 cur_act;
-+	struct pfm_event_set *set;
-+	int reload_pmcs, reload_pmds;
++	struct pfm_smpl_fmt * entry;
 +
-+	BUG_ON(!task->mm);
++	list_for_each_entry(entry, &pfm_smpl_fmt_list, fmt_list) {
++		if (!strcmp(entry->fmt_name, name))
++			return entry;
++	}
++	return NULL;
++}
++/*
++ * find a buffer format based on its uuid
++ */
++struct pfm_smpl_fmt *pfm_smpl_fmt_get(pfm_uuid_t uuid)
++{
++	struct pfm_smpl_fmt * fmt;
++
++	spin_lock(&pfm_smpl_fmt_lock);
++
++	fmt = __pfm_find_smpl_fmt(uuid);
 +
 +	/*
-+	 * we need to lock context because it could be accessed
-+	 * from another CPU
++	 * increase module refcount
 +	 */
-+	spin_lock(&ctx->lock);
++	if (fmt && fmt_is_mod(fmt) && !try_module_get(fmt->owner))
++		fmt = NULL;
 +
-+	cur_act = __get_cpu_var(pmu_activation_number);
++	spin_unlock(&pfm_smpl_fmt_lock);
 +
-+	set = ctx->active_set;
++	return fmt;
++}
 +
-+	/*
-+	 * in case fo zombie, we do not complete ctswin of the
-+	 * PMU, and we force a call to pfm_handle_work() to finish
-+	 * cleanup, i.e., free context + smpl_buff. The reason for
-+	 * deferring to pfm_handle_work() is that it is not possible
-+	 * to vfree() with interrupts disabled.
-+	 */
-+	if (unlikely(ctx->state == PFM_CTX_ZOMBIE)) {
-+		ctx->flags.work_type = PFM_WORK_ZOMBIE;
-+		set_tsk_thread_flag(task, TIF_PERFMON_WORK);
-+		spin_unlock(&ctx->lock);
++void pfm_smpl_fmt_put(struct pfm_smpl_fmt *fmt)
++{
++	if (fmt == NULL || !fmt_is_mod(fmt))
 +		return;
-+	}
++	BUG_ON(fmt->owner == NULL);
 +
-+	if (set->flags & PFM_SETFL_TIME_SWITCH)
-+		__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
-+
-+	/*
-+	 * if we were the last user of the PMU on that CPU,
-+	 * then nothing to do except restore psr
-+	 */
-+	if (ctx->last_cpu == smp_processor_id() && ctx->last_act == cur_act) {
-+		/*
-+		 * check for forced reload conditions
-+		 */
-+		reload_pmcs = set->priv_flags & PFM_SETFL_PRIV_MOD_PMCS;
-+		reload_pmds = set->priv_flags & PFM_SETFL_PRIV_MOD_PMDS;
-+	} else {
-+#ifndef CONFIG_SMP
-+		struct pfm_context *ctxp;
-+		ctxp = __get_cpu_var(pmu_ctx);
-+		if (ctxp)
-+			pfm_save_prev_context(ctxp);
-+#endif
-+		reload_pmcs = 1;
-+		reload_pmds = 1;
-+	}
-+	/* consumed */
-+	set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
-+
-+	if (reload_pmds)
-+		pfm_arch_restore_pmds(ctx, set);
-+
-+	/*
-+	 * need to check if had in-flight interrupt in
-+	 * pfm_ctxswout_thread(). If at least one bit set, then we must replay
-+	 * the interrupt to avoid losing some important performance data.
-+	 *
-+	 * npend_ovfls is cleared in interrupt handler
-+	 */
-+	if (set->npend_ovfls) {
-+		pfm_arch_resend_irq();
-+		__get_cpu_var(pfm_stats).pfm_ovfl_intr_replay_count++;
-+	}
-+
-+	if (reload_pmcs)
-+		pfm_arch_restore_pmcs(ctx, set);
-+
-+	/*
-+	 * record current activation for this context
-+	 */
-+	pfm_inc_activation();
-+	pfm_set_last_cpu(ctx, smp_processor_id());
-+	pfm_set_activation(ctx);
-+
-+	/*
-+	 * establish new ownership.
-+	 */
-+	pfm_set_pmu_owner(task, ctx);
-+
-+	pfm_arch_ctxswin_thread(task, ctx, set);
-+	/*
-+	 * set->duration does not count when context in MASKED state.
-+	 * set->duration_start is reset in unmask_monitoring()
-+	 */
-+	set->duration_start = now;
-+
-+	spin_unlock(&ctx->lock);
++	spin_lock(&pfm_smpl_fmt_lock);
++	module_put(fmt->owner);
++	spin_unlock(&pfm_smpl_fmt_lock);
 +}
 +
++int pfm_fmt_register(struct pfm_smpl_fmt *fmt)
++{
++	int ret = 0;
++
++	if (atomic_read(&perfmon_disabled)) {
++		PFM_INFO("perfmon disabled, cannot add sampling format");
++		return -ENOSYS;
++	}
++
++	/* some sanity checks */
++	if (fmt == NULL) {
++		PFM_INFO("perfmon: NULL format for register");
++		return -EINVAL;
++	}
++
++	if (fmt->fmt_name == NULL) {
++		PFM_INFO("perfmon: format has no name");
++		return -EINVAL;
++	}
++	if (!pfm_uuid_cmp(fmt->fmt_uuid, null_uuid)) {
++		PFM_INFO("perfmon: format %s has null uuid", fmt->fmt_name);
++		return -EINVAL;
++	}
++
++	if (fmt->fmt_qdepth > PFM_MAX_MSGS) {
++		PFM_INFO("perfmon: format %s requires %u msg queue depth (max %d)",
++		       fmt->fmt_name,
++		       fmt->fmt_qdepth,
++		       PFM_MAX_MSGS);
++		return -EINVAL;
++	}
++
++	/*
++	 * fmt is missing the initialization of .owner = THIS_MODULE
++	 * this is only valid when format is compiled as a module
++	 */
++	if (fmt->owner == NULL && fmt_is_mod(fmt)) {
++		PFM_INFO("format %s has no module owner", fmt->fmt_name);
++		return -EINVAL;
++	}
++	/*
++	 * we need at least a handler
++	 */
++	if (fmt->fmt_handler == NULL) {
++		PFM_INFO("format %s has no handler", fmt->fmt_name);
++		return -EINVAL;
++	}
++
++	/*
++	 * format argument size cannot be bigger than PAGE_SIZE
++	 */
++	if (fmt->fmt_arg_size > PAGE_SIZE) {
++		PFM_INFO("format %s arguments too big", fmt->fmt_name);
++		return -EINVAL;
++	}
++
++	spin_lock(&pfm_smpl_fmt_lock);
++
++	if (__pfm_find_smpl_fmt(fmt->fmt_uuid)) {
++		PFM_INFO("duplicate sampling format %s", fmt->fmt_name);
++		ret = -EBUSY;
++		goto out;
++	}
++
++	/*
++	 * because of sysfs, we cannot have two formats with the same name
++	 */
++	if (pfm_find_fmt_name(fmt->fmt_name)) {
++		PFM_INFO("duplicate sampling format name %s", fmt->fmt_name);
++		ret = -EBUSY;
++		goto out;
++	}
++
++	ret = pfm_sysfs_add_fmt(fmt);
++	if (ret) {
++		PFM_INFO("sysfs cannot add format entry for %s", fmt->fmt_name);
++		goto out;
++	}
++
++	list_add(&fmt->fmt_list, &pfm_smpl_fmt_list);
++
++	PFM_INFO("added sampling format %s", fmt->fmt_name);
++out:
++	spin_unlock(&pfm_smpl_fmt_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL(pfm_fmt_register);
++
++int pfm_fmt_unregister(pfm_uuid_t uuid)
++{
++	struct pfm_smpl_fmt *fmt;
++	int ret = 0;
++
++	spin_lock(&pfm_smpl_fmt_lock);
++
++	fmt = __pfm_find_smpl_fmt(uuid);
++	if (!fmt) {
++		PFM_INFO("unregister failed, unknown format");
++		ret = -EINVAL;
++		goto out;
++	}
++	list_del_init(&fmt->fmt_list);
++
++	pfm_sysfs_remove_fmt(fmt);
++
++	PFM_INFO("removed sampling format: %s", fmt->fmt_name);
++
++out:
++	spin_unlock(&pfm_smpl_fmt_lock);
++	return ret;
++
++}
++EXPORT_SYMBOL(pfm_fmt_unregister);
++
 +/*
-+ * interrupts are masked, runqueue lock is held.
++ * we defer adding the builtin formats to /sys/kernel/perfmon/formats
++ * until after the pfm sysfs subsystem is initialized. This function
++ * is called from pfm_sysfs_init()
++ */
++void pfm_sysfs_builtin_fmt_add(void)
++{
++	struct pfm_smpl_fmt * entry;
++
++	/*
++	 * locking not needed, kernel not fully booted
++	 * when called
++	 */
++	list_for_each_entry(entry, &pfm_smpl_fmt_list, fmt_list) {
++		pfm_sysfs_add_fmt(entry);
++	}
++}
+--- linux-2.6.18.base/include/linux/perfmon_fmt.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18/include/linux/perfmon_fmt.h	2006-09-25 12:16:12.000000000 -0700
+@@ -0,0 +1,88 @@
++/*
++ * Copyright (c) 2001-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * In UP. we simply stop monitoring and leave the state
-+ * in place, i.e., lazy save
++ * Interface for custom sampling buffer format modules
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of version 2 of the GNU General Public
++ * License as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++ * 02111-1307 USA
++  */
++#ifndef __PERFMON_FMT_H__
++#define __PERFMON_FMT_H__ 1
++
++#include <linux/kobject.h>
++
++struct pfm_ovfl_arg {
++	u16 ovfl_pmd;	/* index of overflowed PMD  */
++	u16 active_set;	/* set active at the time of the overflow */
++	pfm_flags_t ovfl_ctrl;	/* control flags */
++	u64 pmd_last_reset;	/* last reset value of overflowed PMD */
++	u64 smpl_pmds_values[PFM_MAX_PMDS]; 	/* values of other PMDs */
++	u64 pmd_eventid;	/* eventid associated with PMD */
++	u16 num_smpl_pmds;	/* number of PMDS in smpl_pmd_values */
++};
++
++/*
++ * ovfl_ctrl bitmask of flags
 + */
-+static void __pfm_ctxswout_thread(struct task_struct *task,
-+				  struct pfm_context *ctx, u64 now)
-+{
-+	struct pfm_event_set *set;
-+	int need_save_pmds;
++#define PFM_OVFL_CTRL_NOTIFY	0x1	/* notify user */
++#define PFM_OVFL_CTRL_RESET	0x2	/* reset overflowed pmds */
++#define PFM_OVFL_CTRL_MASK	0x4	/* mask monitoring */
 +
-+	/*
-+	 * we need to lock context because it could be accessed
-+	 * from another CPU
-+	 */
-+	spin_lock(&ctx->lock);
 +
-+	set = ctx->active_set;
++typedef int (*fmt_validate_t )(u32 flags, u16 npmds, void *arg);
++typedef	int (*fmt_getsize_t)(u32 flags, void *arg, size_t *size);
++typedef int (*fmt_init_t)(struct pfm_context *ctx, void *buf, u32 flags, u16 nmpds, void *arg);
++typedef int (*fmt_restart_t)(int is_active, pfm_flags_t *ovfl_ctrl, void *buf);
++typedef int (*fmt_exit_t)(void *buf);
++typedef int (*fmt_handler_t)(void *buf, struct pfm_ovfl_arg *arg,
++			     unsigned long ip, u64 stamp, void *data);
 +
-+	pfm_modview_begin(set);
++struct pfm_smpl_fmt {
++	char		*fmt_name;	/* name of the format (required) */
++	pfm_uuid_t	fmt_uuid;	/* 128-bit unique id (required) */
++	size_t		fmt_arg_size;	/* size of fmt args for ctx create */
++	pfm_flags_t	fmt_flags;	/* format specific flags */
 +
-+	/*
-+	 * stop monitoring and collect any pending
-+	 * overflow information into set_povfl_pmds
-+	 * and set_npend_ovfls for use on ctxswin_thread()
-+	 * to potentially replay the PMU interrupt
-+	 *
-+	 * The key point is that we cannot afford to loose a PMU
-+	 * interrupt. We cannot cancel in-flight interrupts, therefore
-+	 * we let them happen and be treated as spurious and then we
-+	 * replay them on ctxsw in.
-+	 */
-+	need_save_pmds = pfm_arch_ctxswout_thread(task, ctx, set);
++	fmt_validate_t	fmt_validate;	/* validate context flags */
++	fmt_getsize_t	fmt_getsize;	/* get size for sampling buffer */
++	fmt_init_t	fmt_init;	/* initialize buffer area */
++	fmt_handler_t	fmt_handler;	/* overflow handler (required) */
++	fmt_restart_t	fmt_restart;	/* restart after notification  */
++	fmt_exit_t	fmt_exit;	/* context termination */
 +
-+	/*
-+	 * accumulate only when set is actively monitoring,
-+	 */
-+	if (ctx->state == PFM_CTX_LOADED)
-+		set->duration += now - set->duration_start;
++	struct list_head fmt_list;	/* internal use only */
 +
-+#ifdef CONFIG_SMP
-+	/*
-+	 * in SMP, release ownership of this PMU.
-+	 * PMU interrupts are masked, so nothing
-+	 * can happen.
-+	 */
-+	pfm_set_pmu_owner(NULL, NULL);
++	struct kobject	kobj;		/* sysfs internal use only */
++	struct module	*owner;		/* pointer to module owner */
++	u32		fmt_qdepth;	/* Max notify queue depth (required) */
++};
++#define to_smpl_fmt(n) container_of(n, struct pfm_smpl_fmt, kobj)
 +
-+	/*
-+	 * On some architectures, it is necessary to read the
-+	 * PMD registers to check for pending overflow in
-+	 * pfm_arch_ctxswout_thread(). In that case, saving of
-+	 * the PMDs  may be  done there and not here.
-+	 */
-+	if (need_save_pmds)
-+		pfm_save_pmds(ctx, set);
++#define PFM_FMTFL_IS_BUILTIN	0x1	/* fmt is compiled in */
++/*
++ * we need to know whether the format is builtin or compiled
++ * as a module
++ */
++#ifdef MODULE
++#define PFM_FMT_BUILTIN_FLAG	0	/* not built as a module */
++#else
++#define PFM_FMT_BUILTIN_FLAG	PFM_PMUFL_IS_BUILTIN /* built as a module */
 +#endif
-+	pfm_modview_end(set);
 +
-+	/*
-+	 * clear cpuinfo, cpuinfo is used in
-+	 * per task mode with the set time switch flag.
-+	 */
-+	__get_cpu_var(pfm_syst_info) = 0;
++int pfm_fmt_register(struct pfm_smpl_fmt *fmt);
++int pfm_fmt_unregister(pfm_uuid_t uuid);
++void pfm_sysfs_builtin_fmt_add(void);
 +
-+	spin_unlock(&ctx->lock);
-+}
-+
-+/*
-+ * no need to lock the context. To operate on a system-wide
-+ * context, the task has to run on the monitored CPU. In the
-+ * case of close issued on another CPU, an IPI is sent but
-+ * this routine runs with interrupts masked, so we are
-+ * protected
-+ * 
-+ * On some architectures, such as IA-64, it may be necessary
-+ * to intervene during the context even in system-wide mode
-+ * to modify some machine state.
-+ */
-+static void __pfm_ctxsw_sys(struct task_struct *prev,
-+			    struct task_struct *next)
-+{
-+	struct pfm_context *ctx;
-+	struct pfm_event_set *set;
-+
-+	ctx = __get_cpu_var(pmu_ctx);
-+	if (!ctx) {
-+		pr_info("prev=%d tif=%d ctx=%p next=%d tif=%d ctx=%p\n",
-+			prev->pid,
-+			test_tsk_thread_flag(prev, TIF_PERFMON_CTXSW),
-+			prev->pfm_context,
-+			next->pid,
-+			test_tsk_thread_flag(next, TIF_PERFMON_CTXSW),
-+			next->pfm_context);
-+		BUG_ON(!ctx);
-+	}
-+
-+	set = ctx->active_set;
-+
-+	/*
-+	 * propagate TIF_PERFMON_CTXSW to ensure that:
-+	 * - previous task has TIF_PERFMON_CTXSW cleared, in case it is
-+	 *   scheduled onto another CPU where there is syswide monitoring
-+	 * - next task has TIF_PERFMON_CTXSW set to ensure it will come back
-+	 *   here when context switched out
-+	 */
-+	clear_tsk_thread_flag(prev, TIF_PERFMON_CTXSW);
-+	set_tsk_thread_flag(next, TIF_PERFMON_CTXSW);
-+
-+	/*
-+	 * nothing to do until actually started
-+	 * XXX: assumes no mean to start from user level
-+	 */
-+	if (!ctx->flags.started)
-+		return;
-+
-+	pfm_arch_ctxswout_sys(prev, ctx, set);
-+	pfm_arch_ctxswin_sys(next, ctx, set);
-+}
-+
-+/*
-+ * come here when either prev or next has TIF_PERFMON_CTXSW flag set
-+ * Note that this is not because a task has TIF_PERFMON_CTXSW set that
-+ * it has a context attached, e.g., in system-wide on certain arch.
-+ */
-+void __pfm_ctxsw(struct task_struct *prev, struct task_struct *next)
-+{
-+	struct pfm_context *ctxp, *ctxn;
-+	u64 now;
-+
-+	now = sched_clock();
-+
-+	ctxp = prev->pfm_context;
-+	ctxn = next->pfm_context;
-+PFM_DBG("[%d] ctxp=%p [%d] ctxn=%p", prev->pid, ctxp, next->pid, ctxn);
-+	if (ctxp)
-+		__pfm_ctxswout_thread(prev, ctxp, now);
-+
-+	if (ctxn)
-+		__pfm_ctxswin_thread(next, ctxn, now);
-+
-+	/*
-+	 * given that prev and next can never be the same, this
-+	 * test is checking that ctxp == ctxn == NULL which is
-+	 * an indication we have an active system-wide session on
-+	 * this CPU
-+	 */
-+	if (ctxp == ctxn)
-+		__pfm_ctxsw_sys(prev, next);
-+
-+	__get_cpu_var(pfm_stats).pfm_ctxsw_count++;
-+	__get_cpu_var(pfm_stats).pfm_ctxsw_ns += sched_clock() - now;
-+}
++#endif /* __PERFMON_FMT_H__ */

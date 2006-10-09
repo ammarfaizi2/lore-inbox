@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWJIKDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWJIKFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbWJIKDm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 06:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWJIKDm
+	id S1751753AbWJIKFO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 06:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWJIKFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 06:03:42 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:5603 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1751014AbWJIKDl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 06:03:41 -0400
-Date: Mon, 09 Oct 2006 12:05:05 +0200
-To: "Jens Axboe" <jens.axboe@oracle.com>
-Subject: Re: [PATCH 8/11] 2.6.18-mm3 pktcdvd: bio write congestion control
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "petero2@telia.com" <petero2@telia.com>
-Content-Type: text/plain; charset=iso-8859-15
-MIME-Version: 1.0
-References: <op.tguqidxpiudtyh@master> <20061003152859.GQ7778@kernel.dk>
-Content-Transfer-Encoding: 7bit
-Message-ID: <op.tg5a1kuoiudtyh@master>
-In-Reply-To: <20061003152859.GQ7778@kernel.dk>
-User-Agent: Opera Mail/9.00 (Win32)
+	Mon, 9 Oct 2006 06:05:14 -0400
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:42941 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S1751753AbWJIKFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 06:05:12 -0400
+Date: Mon, 9 Oct 2006 14:06:33 +0400
+Message-Id: <200610091006.k99A6X7I032599@vass.7ka.mipt.ru>
+From: "Vasily Tarasov" <vtaras@openvz.org>
+To: "Jens Axboe" <axboe@suse.de>
+CC: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] block layer: useless elevator_type field in elevator_type structure
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Mon, 09 Oct 2006 14:05:14 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+elevator_type field in elevator_type structure is useless:
+it isn't used anywhere in kernel sources.
 
-the idea was to give the user/admin the ability to control
-cpu load and memory consumption while the driver write to
-DVD / CD, at least for testing purposes.
-Maybe move this interface into debugfs?
+Signed-off-by: Vasily Tarasov <vtaras@openvz.org>
+--
 
--Thomas
-
-
-Am 03.10.2006, 17:29 Uhr, schrieb Jens Axboe <jens.axboe@oracle.com>:
-
-> On Tue, Oct 03 2006, Thomas Maier wrote:
->> Hello,
->>
->> this patch adds the ability to control the size of the drivers
->> bio write queue.
->
-> imho, this should not be a configuration option. The driver is perfectly
-> capable of sizing this queue appropriately (determined by the device)
-> without user interaction. Basically the option just needs to prevent the
-> system from falling over, just choose some low sane value.
->
-
-
+--- linux-2.6.18/include/linux/elevator.h.orig	2006-10-09 12:31:58.000000000 +0400
++++ linux-2.6.18/include/linux/elevator.h	2006-10-09 12:32:46.000000000 +0400
+@@ -66,7 +66,6 @@ struct elevator_type
+ {
+ 	struct list_head list;
+ 	struct elevator_ops ops;
+-	struct elevator_type *elevator_type;
+ 	struct elv_fs_entry *elevator_attrs;
+ 	char elevator_name[ELV_NAME_MAX];
+ 	struct module *elevator_owner;

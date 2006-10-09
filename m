@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWJIJFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbWJIJJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWJIJFs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 05:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWJIJFs
+	id S1751620AbWJIJJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 05:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWJIJJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 05:05:48 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:4548 "EHLO
+	Mon, 9 Oct 2006 05:09:18 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:58074 "EHLO
 	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S932423AbWJIJFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 05:05:47 -0400
-Date: Mon, 9 Oct 2006 18:06:03 +0900
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, "Digi International, Inc" <Eng.Linux@digi.com>
-Subject: [PATCH] epca: privent from panic on tty_register_driver() failure
-Message-ID: <20061009090603.GA6278@localhost>
+	id S1751660AbWJIJJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 05:09:18 -0400
+Date: Mon, 9 Oct 2006 18:09:33 +0900
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH] usb devio: handle class_device_create() error
+Message-ID: <20061009090933.GA6325@localhost>
 Mail-Followup-To: akinobu.mita@gmail.com, linux-kernel@vger.kernel.org,
-	akpm@osdl.org, "Digi International, Inc" <Eng.Linux@digi.com>
+	linux-usb-devel@lists.sourceforge.net,
+	Greg Kroah-Hartman <gregkh@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,78 +25,46 @@ From: akinobu.mita@gmail.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes epca fail on initialization failure instead of panic.
+This patch adds missing class_device_create() error check,
+and makes notifier return NOTIFY_BAD.
 
-Cc: "Digi International, Inc" <Eng.Linux@digi.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
- drivers/char/epca.c |   32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ drivers/usb/core/devio.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Index: work-fault-inject/drivers/char/epca.c
+Index: work-fault-inject/drivers/usb/core/devio.c
 ===================================================================
---- work-fault-inject.orig/drivers/char/epca.c	2006-10-09 15:06:32.000000000 +0900
-+++ work-fault-inject/drivers/char/epca.c	2006-10-09 15:09:14.000000000 +0900
-@@ -1160,6 +1160,7 @@ static int __init pc_init(void)
- 	int crd;
- 	struct board_info *bd;
- 	unsigned char board_id = 0;
-+	int err = -ENOMEM;
+--- work-fault-inject.orig/drivers/usb/core/devio.c	2006-10-09 15:06:27.000000000 +0900
++++ work-fault-inject/drivers/usb/core/devio.c	2006-10-09 15:09:23.000000000 +0900
+@@ -1588,15 +1588,18 @@ const struct file_operations usbfs_devic
+ 	.release =	usbdev_release,
+ };
  
- 	int pci_boards_found, pci_count;
+-static void usbdev_add(struct usb_device *dev)
++static int usbdev_add(struct usb_device *dev)
+ {
+ 	int minor = ((dev->bus->busnum-1) * 128) + (dev->devnum-1);
  
-@@ -1167,13 +1168,11 @@ static int __init pc_init(void)
+ 	dev->class_dev = class_device_create(usb_device_class, NULL,
+ 				MKDEV(USB_DEVICE_MAJOR, minor), &dev->dev,
+ 				"usbdev%d.%d", dev->bus->busnum, dev->devnum);
++	if (IS_ERR(dev->class_dev))
++		return PTR_ERR(dev->class_dev);
  
- 	pc_driver = alloc_tty_driver(MAX_ALLOC);
- 	if (!pc_driver)
--		return -ENOMEM;
-+		goto out1;
+ 	dev->class_dev->class_data = dev;
++	return 0;
+ }
  
- 	pc_info = alloc_tty_driver(MAX_ALLOC);
--	if (!pc_info) {
--		put_tty_driver(pc_driver);
--		return -ENOMEM;
--	}
-+	if (!pc_info)
-+		goto out2;
- 
- 	/* -----------------------------------------------------------------------
- 		If epca_setup has not been ran by LILO set num_cards to defaults; copy
-@@ -1373,11 +1372,17 @@ static int __init pc_init(void)
- 
- 	} /* End for each card */
- 
--	if (tty_register_driver(pc_driver))
--		panic("Couldn't register Digi PC/ driver");
-+	err = tty_register_driver(pc_driver);
-+	if (err) {
-+		printk(KERN_ERR "Couldn't register Digi PC/ driver");
-+		goto out3;
-+	}
- 
--	if (tty_register_driver(pc_info))
--		panic("Couldn't register Digi PC/ info ");
-+	err = tty_register_driver(pc_info);
-+	if (err) {
-+		printk(KERN_ERR "Couldn't register Digi PC/ info ");
-+		goto out4;
-+	}
- 
- 	/* -------------------------------------------------------------------
- 	   Start up the poller to check for events on all enabled boards
-@@ -1388,6 +1393,15 @@ static int __init pc_init(void)
- 	mod_timer(&epca_timer, jiffies + HZ/25);
- 	return 0;
- 
-+out4:
-+	tty_unregister_driver(pc_driver);
-+out3:
-+	put_tty_driver(pc_driver);
-+out2:
-+	put_tty_driver(pc_info);
-+out1:
-+	return err;
-+
- } /* End pc_init */
- 
- /* ------------------ Begin post_fep_init  ---------------------- */
+ static void usbdev_remove(struct usb_device *dev)
+@@ -1609,7 +1612,8 @@ static int usbdev_notify(struct notifier
+ {
+ 	switch (action) {
+ 	case USB_DEVICE_ADD:
+-		usbdev_add(dev);
++		if (usbdev_add(dev))
++			return NOTIFY_BAD;
+ 		break;
+ 	case USB_DEVICE_REMOVE:
+ 		usbdev_remove(dev);

@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWJIHfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWJIHkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWJIHfy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWJIHfy
+	id S932323AbWJIHkt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJIHks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:35:54 -0400
-Received: from mx1.suse.de ([195.135.220.2]:23786 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932306AbWJIHfx (ORCPT
+	Mon, 9 Oct 2006 03:40:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56737 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932323AbWJIHkr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:35:53 -0400
-Message-ID: <4529FBBE.9070206@suse.de>
-Date: Mon, 09 Oct 2006 09:35:26 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       ak@suse.de, horms@verge.net.au, lace@jankratochvil.net, hpa@zytor.com,
-       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
-       maneesh@in.ibm.com
-Subject: Re: [PATCH 1/12] i386: Distinguish absolute symbols
-References: <20061003170032.GA30036@in.ibm.com> <20061003170413.GA3164@in.ibm.com> <20061006233547.43888a48.akpm@osdl.org> <20061008164713.GA7149@in.ibm.com>
-In-Reply-To: <20061008164713.GA7149@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 9 Oct 2006 03:40:47 -0400
+Date: Mon, 9 Oct 2006 00:40:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Greg KH <greg@kroah.com>, Ashok Raj <ashok.raj@intel.com>,
+       Nathan Lynch <nathanl@austin.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] sysfs: allow removal of nonexistent sysfs groups.
+Message-Id: <20061009004014.11ed8df2.akpm@osdl.org>
+In-Reply-To: <20061009072920.GB6936@osiris.boeblingen.de.ibm.com>
+References: <20061004130554.GA25974@havoc.gtf.org>
+	<20061004172434.1a2ddb71@gondolin.boeblingen.de.ibm.com>
+	<20061005081705.GA6920@osiris.boeblingen.de.ibm.com>
+	<4524E983.6010208@garzik.org>
+	<20061005124848.GB6920@osiris.boeblingen.de.ibm.com>
+	<45250161.4060002@garzik.org>
+	<20061005131623.GC6920@osiris.boeblingen.de.ibm.com>
+	<20061009072920.GB6936@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> looks odd.  What's the point in putting a gap before __smp_alt_end?  Moving
->> __smp_alt_end to before the ALIGN doesn't prevent the warning.
->>
+On Mon, 9 Oct 2006 09:29:20 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-> Please find attached a patch for the same. I am also copying Gerd Hoffmann,
-> who introduced this ALIGN. Gerd, can you please confirm that above ALIGN()
-> is not required and the patch attached should be fine.
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> This patch makes it safe to call sysfs_remove_group() with a name group
+> that doesn't exist. Needed to make fix cpu hotplug stuff in topology code.
+> 
 
-The data between __smp_alt_start and __smp_alt_end will be released at
-boot time in some cases (UP machine, kernel without CPU_HOTPLUG, ...).
+Surely an attempt to remove a non-existent entry is a bug, and this
+(racy-looking) patch just covers that up?
 
-Releasing memory works at page granularity only, thats why I added the
-alignment.  I think you can't simply drop it.
-
-> o There seems to be one extra ALIGN(4096) before symbol __smp_alt_end. The
->   only usage of __smp_alt_end is to mark the end of smp alternative
->   sections so that this memory can be freed. As a physical page is freed
->   one has to just make sure that there is no other data on the same page
->   where __smp_alt_end is pointing. There is already a ALIGN(4096) after
->   this section which should take care of the above issue. Hence it looks
->   like the ALIGN(4096) before __smp_alt_end is redundant and not required.
-
-Hmm, ok, it should work then.  How about adding a comment to make sure
-the align after __smp_alt_end doesn't get dropped by accident?
-
-cheers,
-
-  Gerd
-
--- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+> ---
+>  fs/sysfs/group.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletion(-)
+> 
+> Index: linux-2.6/fs/sysfs/group.c
+> ===================================================================
+> --- linux-2.6.orig/fs/sysfs/group.c	2006-10-09 09:15:25.000000000 +0200
+> +++ linux-2.6/fs/sysfs/group.c	2006-10-09 09:25:23.000000000 +0200
+> @@ -68,9 +68,12 @@
+>  {
+>  	struct dentry * dir;
+>  
+> -	if (grp->name)
+> +	if (grp->name) {
+> +		if (!sysfs_dirent_exist(kobj->dentry->d_fsdata, grp->name))
+> +			return;
+>  		dir = lookup_one_len(grp->name, kobj->dentry,
+>  				strlen(grp->name));
+> +	}
+>  	else
+>  		dir = dget(kobj->dentry);
+>  

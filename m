@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWJIVEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWJIVEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbWJIVEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWJIVEJ
+	id S964863AbWJIVEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWJIVEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:04:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:43465 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964858AbWJIVEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:04:06 -0400
-Subject: Re: [patch 4/5] mm: add vm_insert_pfn helpler
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061009140447.13840.20975.sendpatchset@linux.site>
-References: <20061009140354.13840.71273.sendpatchset@linux.site>
-	 <20061009140447.13840.20975.sendpatchset@linux.site>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 07:03:05 +1000
-Message-Id: <1160427785.7752.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 9 Oct 2006 17:04:51 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:60047 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964863AbWJIVEu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 17:04:50 -0400
+Message-ID: <452AB97B.5040309@drzeus.cx>
+Date: Mon, 09 Oct 2006 23:04:59 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+MIME-Version: 1.0
+To: pHilipp Zabel <philipp.zabel@gmail.com>
+CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Use own work queue
+References: <20061001124240.16996.34557.stgit@poseidon.drzeus.cx> <74d0deb30610070717k17079940ybedbf94dc8af8460@mail.gmail.com>
+In-Reply-To: <74d0deb30610070717k17079940ybedbf94dc8af8460@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+pHilipp Zabel wrote:
+> 
+> This patch makes pxamci stop working for me on a HTC Magician (PXA272).
+> Switching from 2.6.18 to 2.6.19-rc1 I got a kernel panic:
+> 
+> mmc0: clock 0Hz busmode 1 powermode 0 cs 0  Vdd 0 width 0
+> PXAMCI: clkrt = 0 cmdat = 0
+> VFS: Cannot open root device "mmcblk0p2" or unknown-block(0,0)
+> Please append a correct "root=" boot option
+> Kernel panic - not syncing: VFS: Unable to mount root fs on
+> unknown-block(0,0)
+> 
+> After removing this patch from 2.6.19-rc1, everything is working again.
+> Are there any changes to pxamci.c needed to be compatible with it?
+> 
 
-> +	vma->vm_flags |= VM_PFNMAP;
+No, the drivers shouldn't be affected. As this is a root device, my
+guess would be that you have a race in your bootup that is causing problem.
 
-I wouldn't do that here. I would keep that to the caller (and set it
-before setting the PTE along with a wmb maybe to make sure it's visible
-before the PTE no ?)
+Are you using initrd for this device? And could you get a complete dmesg
+dump?
 
-Cheers,
-Ben.
-
-
+Rgds
+Pierre

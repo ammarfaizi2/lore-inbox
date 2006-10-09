@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932900AbWJIOMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932903AbWJIOOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932900AbWJIOMK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932865AbWJIOLv
+	id S932903AbWJIOOF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932877AbWJIOLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:11:51 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:54527 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932857AbWJIOK5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 10:10:57 -0400
-Date: Mon, 9 Oct 2006 07:10:18 -0700
+	Mon, 9 Oct 2006 10:11:39 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:31985 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932881AbWJIOLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 10:11:19 -0400
+Date: Mon, 9 Oct 2006 07:10:21 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200610091410.k99EAI57026142@frankl.hpl.hp.com>
+Message-Id: <200610091410.k99EAL7h026179@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 11/21] 2.6.18 perfmon2 : file related operations support
+Subject: [PATCH 14/21] 2.6.18 perfmon2 : default sampling format
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the new generic file related functions.
 
-A perfmon2 context is identified by a file descriptor and
-we leverage certain kernel mechanisms related to files.
-In particular we use:
-	- read
-	- select, poll
-	- fcntl
-	- close
-	- mmap
+This file implements the default sampling buffer format.
 
-Support for those operations is implemented in perfmon_file.c.
+in this format, the buffer is composed of two major sections:
+	- a buffer header
+	- the samples
+
+Each sample is composed of:
+	- a fixed size header
+	- an optional variable size body containing the values
+	  of PMDs of interest as specified by user per counter
+
+The sample header contains:
+	- the PID, TID
+	- CPU where the PMU interrupt occurred
+	- active event set number
+	- a unique timestamp for the CPU where the interrupt occurred
+	- the index of the PMD register that overflowed
+	- the last reset value of that overflowd PMD
+
+Samples are stored contiguously. No aggregation is made. When multiple
+counters overflow at the same time, multiple samples are written but
+they have the same timestamp.
+
+When the end of the buffer is reached, monitoring is stopped. A user
+notification may be requested. Otherwise the buffer has reached its
+saturation point until a pfm_restart() is issued.
+
+The format works for all architectures in both 32-bit and 64-bit.
+Samples for all events sets are store in the same buffer.
 
 
-pfm_read():
-	- implements the callback for the read() operation. It is used to extract
-	  overflow notification messages. Only one message can be extracted per call.
-	  This can be a blocking call is the file is setup that way.
-
-pfm_poll():
-	- support for poll() and select()
-	
-pfm_fasync():
-	- support for FASYNC for fcntl(). Is used to received asynchronous notifications via SIGIO
-
-pfm_mmap():
-	- handle remapping read-only of the kernel sampling buffer to userland
 
 
-
-
---- linux-2.6.18.base/perfmon/perfmon_file.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/perfmon/perfmon_file.c	2006-09-25 12:09:28.000000000 -0700
-@@ -0,0 +1,756 @@
+--- linux-2.6.18.base/perfmon/perfmon_dfl_smpl.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18/perfmon/perfmon_dfl_smpl.c	2006-09-25 12:08:55.000000000 -0700
+@@ -0,0 +1,283 @@
 +/*
-+ * perfmon_file.c: perfmon2 file input/output functions
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
 + * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * More information about perfmon available at:
-+ * 	http://perfmon2.sf.net
++ * This file implements the new default sampling buffer format
++ * for the perfmon2 subsystem.
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of version 2 of the GNU General Public
@@ -92,721 +79,349 @@ pfm_mmap():
 + * 02111-1307 USA
 + */
 +#include <linux/kernel.h>
++#include <linux/types.h>
 +#include <linux/module.h>
-+#include <linux/file.h>
-+#include <linux/poll.h>
-+#include <linux/vfs.h>
-+#include <linux/pagemap.h>
-+#include <linux/mount.h>
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <linux/sysctl.h>
++
 +#include <linux/perfmon.h>
++#include <linux/perfmon_dfl_smpl.h>
 +
-+#define PFMFS_MAGIC 0xa0b4d889	/* perfmon filesystem magic number */
++MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
++MODULE_DESCRIPTION("new perfmon default sampling format");
++MODULE_LICENSE("GPL");
 +
-+static int pfmfs_delete_dentry(struct dentry *dentry)
++static int pfm_dfl_fmt_validate(u32 ctx_flags, u16 npmds, void *data)
 +{
-+	return 1;
-+}
++	struct pfm_dfl_smpl_arg *arg = data;
++	u64 min_buf_size;
 +
-+static struct dentry_operations pfmfs_dentry_operations = {
-+	.d_delete = pfmfs_delete_dentry,
-+};
-+
-+
-+
-+static union pfm_msg *pfm_get_next_msg(struct pfm_context *ctx)
-+{
-+	union pfm_msg *msg;
-+
-+	PFM_DBG("ctx=%p head=%d tail=%d",
-+		ctx,
-+		ctx->msgq_head,
-+		ctx->msgq_tail);
-+
-+	if (PFM_CTXQ_EMPTY(ctx))
-+		return NULL;
-+
-+	/*
-+	 * get oldest message
-+	 */
-+	msg = ctx->msgq+ctx->msgq_head;
-+
-+	/*
-+	 * and move forward
-+	 */
-+	ctx->msgq_head = (ctx->msgq_head+1) % PFM_MAX_MSGS;
-+
-+	PFM_DBG("ctx=%p head=%d tail=%d type=%d",
-+		ctx,
-+		ctx->msgq_head,
-+		ctx->msgq_tail,
-+		msg->type);
-+
-+	return msg;
-+}
-+
-+static struct page *pfm_buf_map_pagefault(struct vm_area_struct *vma,
-+					  unsigned long address, int *type)
-+{
-+	void *kaddr;
-+	struct pfm_context *ctx;
-+	struct page *page;
-+	size_t size;
-+
-+	ctx = vma->vm_private_data;
-+	if (ctx == NULL) {
-+		PFM_DBG("no ctx");
-+		return NOPAGE_SIGBUS;
-+	}
-+	size = ctx->smpl_size;
-+
-+	if ( (address < (unsigned long) vma->vm_start) ||
-+	     (address >= (unsigned long) (vma->vm_start + size)) )
-+		return NOPAGE_SIGBUS;
-+
-+	kaddr = ctx->smpl_addr + (address - vma->vm_start);
-+
-+	if (type)
-+		*type = VM_FAULT_MINOR;
-+
-+	page = vmalloc_to_page(kaddr);
-+	get_page(page);
-+
-+	PFM_DBG("[%d] start=%p ref_count=%d",
-+		current->pid,
-+		kaddr, page_count(page));
-+
-+	return page;
-+}
-+
-+/*
-+ * we do not have a close callback because, the locked
-+ * memory accounting must be done when the actual buffer 
-+ * is freed. Munmap does not free the page backing the vma
-+ * because they may still be in use by the PMU interrupt handler.
-+ */
-+struct vm_operations_struct pfm_buf_map_vm_ops = {
-+	.nopage	= pfm_buf_map_pagefault,
-+};
-+
-+static int pfm_mmap_buffer(struct pfm_context *ctx, struct vm_area_struct *vma,
-+			   size_t size)
-+{
-+	if (ctx->smpl_addr == NULL) {
-+		PFM_DBG("no sampling buffer to map");
++	if (data == NULL) {
++		PFM_DBG("no argument passed");
 +		return -EINVAL;
 +	}
 +
-+	if (size > ctx->smpl_size) {
-+		PFM_DBG("mmap size=%zu >= actual buf size=%zu",
-+			size,
-+			ctx->smpl_size);
-+		return -EINVAL;
++	/*
++	 * sanity check in case size_t is smaller then u64
++	 */
++#if BITS_PER_LONG == 4
++#define MAX_SIZE_T	(1ULL<<(sizeof(size_t)<<3))
++	if (sizeof(size_t) < sizeof(arg->buf_size)) {
++		if (arg->buf_size >= MAX_SIZE_T)
++			return -ETOOBIG;
 +	}
++#endif
++	
++	/*
++	 * compute min buf size. npmds is the maximum number
++	 * of implemented PMD registers.
++	 */
++	min_buf_size = sizeof(struct pfm_dfl_smpl_hdr)
++	             + (sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64)));
 +
-+	vma->vm_ops = &pfm_buf_map_vm_ops;
-+	vma->vm_private_data = ctx;
++	PFM_DBG("validate ctx_flags=0x%x flags=0x%x npmds=%u "
++		   "min_buf_size=%llu buf_size=%llu\n",
++		   ctx_flags,
++		   arg->buf_flags,
++		   npmds,
++		   (unsigned long long)min_buf_size,
++		   (unsigned long long)arg->buf_size);
++
++	/*
++	 * must hold at least the buffer header + one minimally sized entry
++	 */
++	if (arg->buf_size < min_buf_size)
++		return -EINVAL;
++
++
 +
 +	return 0;
 +}
 +
-+static int pfm_mmap(struct file *file, struct vm_area_struct *vma)
++static int pfm_dfl_fmt_get_size(u32 flags, void *data, size_t *size)
 +{
-+	size_t size;
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	int ret;
++	struct pfm_dfl_smpl_arg *arg = data;
 +
-+
-+	ctx  = file->private_data;
-+	size = (vma->vm_end - vma->vm_start);
-+
-+	if (ctx == NULL)
-+		return -EINVAL;
-+
-+	ret = -EINVAL;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if (vma->vm_flags & VM_WRITE) {
-+		PFM_DBG("cannot map buffer for writing");
-+		goto done;
-+	}
-+
-+	PFM_DBG("vm_pgoff=%lu size=%zu vm_start=0x%lx",
-+		vma->vm_pgoff,
-+		size,
-+		vma->vm_start);
-+
-+	if (vma->vm_pgoff == 0) {
-+		ret = pfm_mmap_buffer(ctx, vma, size);
-+
-+	} else {
-+		ret = pfm_mmap_set(ctx, vma, size);
-+	}
 +	/*
-+	 * marked the vma as special (important on the free side)
++	 * size has been validated in default_validate
++	 * we can never loose bits from buf_size.
 +	 */
-+	if (ret == 0)
-+		vma->vm_flags |= VM_RESERVED;
++	*size = (size_t)arg->buf_size;
 +
-+	PFM_DBG("ret=%d vma_flags=0x%lx vma_start=0x%lx vma_size=%lu",
-+		ret,
-+		vma->vm_flags,
-+		vma->vm_start,
-+		vma->vm_end-vma->vm_start);
-+done:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	return ret;
++	return 0;
 +}
 +
-+ssize_t __pfm_read(struct pfm_context *ctx, union pfm_msg *msg_buf, int non_block)
++static int pfm_dfl_fmt_init(struct pfm_context *ctx, void *buf, u32 ctx_flags,
++			    u16 npmds, void *data)
 +{
-+	union pfm_msg *msg;
-+	ssize_t ret = 0;
-+	unsigned long flags;
-+	DECLARE_WAITQUEUE(wait, current);
++	struct pfm_dfl_smpl_hdr *hdr;
++	struct pfm_dfl_smpl_arg *arg = data;
++
++	hdr = buf;
++
++	hdr->hdr_version = PFM_DFL_SMPL_VERSION;
++	hdr->hdr_buf_size = arg->buf_size;
++	hdr->hdr_buf_flags = arg->buf_flags;
++	hdr->hdr_cur_offs = sizeof(*hdr);
++	hdr->hdr_overflows = 0;
++	hdr->hdr_count = 0;
++	hdr->hdr_min_buf_space = sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64));
++
++	PFM_DBG("buffer=%p buf_size=%llu hdr_size=%zu hdr_version=%u.%u "
++		  "min_space=%llu npmds=%u",
++		  buf,
++		  (unsigned long long)hdr->hdr_buf_size,
++		  sizeof(*hdr),
++		  PFM_VERSION_MAJOR(hdr->hdr_version),
++		  PFM_VERSION_MINOR(hdr->hdr_version),
++		  (unsigned long long)hdr->hdr_min_buf_space,
++		  npmds);
++
++	return 0;
++}
++
++static int pfm_dfl_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
++			       unsigned long ip, u64 tstamp, void *data)
++{
++	struct pfm_dfl_smpl_hdr *hdr;
++	struct pfm_dfl_smpl_entry *ent;
++	void *cur, *last;
++	u64 *e;
++	size_t entry_size, min_size;
++	u16 npmds, i;
++	u16 ovfl_pmd;
++
++	hdr = buf;
++	cur = buf+hdr->hdr_cur_offs;
++	last = buf+hdr->hdr_buf_size;
++	ovfl_pmd = arg->ovfl_pmd;
++	min_size = hdr->hdr_min_buf_space;
 +
 +	/*
-+	 * we must masks interrupts to avoid a race condition
-+	 * with the PMU interrupt handler.
++	 * precheck for sanity
 +	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
++	if ((last - cur) < min_size)
++		goto full;
 +
-+	if(PFM_CTXQ_EMPTY(ctx) == 0)
-+		goto fast_path;
-+retry:
-+	/*
-+	 * check non-blocking read. we include it
-+	 * in the loop in case another thread modifies
-+	 * the propoerty of the file while the current thread
-+	 * is looping here
-+	 */
++	npmds = arg->num_smpl_pmds;
 +
-+      	ret = -EAGAIN;
-+	if(non_block)
-+		goto abort_locked;
++	ent = (struct pfm_dfl_smpl_entry *)cur;
 +
-+	/*
-+	 * put ourself on the wait queue
-+	 */
-+	add_wait_queue(&ctx->msgq_wait, &wait);
++	entry_size = sizeof(*ent) + (npmds << 3);
 +
-+	for (;;) {
-+		/*
-+		 * check wait queue
-+		 */
-+		set_current_state(TASK_INTERRUPTIBLE);
++	/* position for first pmd */
++	e = (u64 *)(ent+1);
 +
-+		PFM_DBG("head=%d tail=%d",
-+			ctx->msgq_head,
-+			ctx->msgq_tail);
++	hdr->hdr_count++;
 +
-+		spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+		/*
-+		 * wait for message
-+		 */
-+		schedule();
-+
-+		spin_lock_irqsave(&ctx->lock, flags);
-+
-+		/*
-+		 * check pending signals
-+		 */
-+		ret = -ERESTARTSYS;
-+		if(signal_pending(current))
-+			break;
-+
-+		ret = 0;
-+		if(PFM_CTXQ_EMPTY(ctx) == 0)
-+			break;
-+	}
-+
-+	set_current_state(TASK_RUNNING);
-+
-+	remove_wait_queue(&ctx->msgq_wait, &wait);
-+
-+	PFM_DBG("back to running ret=%zd", ret);
-+
-+	if (ret < 0)
-+		goto abort_locked;
-+
-+fast_path:
++	PFM_DBG_ovfl("count=%llu cur=%p last=%p free_bytes=%zu ovfl_pmd=%d "
++		       "npmds=%u",
++		       (unsigned long long)hdr->hdr_count,
++		       cur, last,
++		       (last-cur),
++		       ovfl_pmd,
++		       npmds);
 +
 +	/*
-+	 * extract message from queue
++	 * current = task running at the time of the overflow.
 +	 *
-+	 * it is possible that the message was stolen by another thread
-+	 * before we could protect the context after schedule()
-+	 */
-+	msg = pfm_get_next_msg(ctx);
-+	if (unlikely(msg == NULL))
-+		goto retry;
-+
-+	/*
-+	 * we must make a local copy before we unlock
-+	 * to ensure that the message queue cannot fill
-+	 * (overwriting our message) up before
-+	 * we do copy_to_user() which cannot be done
-+	 * with interrupts masked.
-+	 */
-+	*msg_buf = *msg;
-+
-+	ret = sizeof(*msg);
-+
-+	PFM_DBG("type=%d size=%zu", msg->type, ret);
-+
-+abort_locked:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	/*
-+	 * ret = EAGAIN when non-blocking and nothing is
-+	 * in thequeue.
++	 * per-task mode:
++	 * 	- this is usually the task being monitored.
++	 * 	  Under certain conditions, it might be a different task
 +	 *
-+	 * ret = ERESTARTSYS when signal pending
-+	 *
-+	 * otherwise ret = size of message
++	 * system-wide:
++	 * 	- this is not necessarily the task controlling the session
 +	 */
-+	return ret;
-+}
-+
-+static ssize_t pfm_read(struct file *filp, char __user *buf, size_t size,
-+			loff_t *ppos)
-+{
-+	struct pfm_context *ctx;
-+	union pfm_msg msg_buf;
-+	int non_block, ret;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("no ctx for pfm_read");
-+		return -EINVAL;
-+	}
++	ent->pid = current->pid;
++	ent->ovfl_pmd = ovfl_pmd;
++	ent->last_reset_val = arg->pmd_last_reset;
 +
 +	/*
-+	 * cannot extract partial messages.
-+	 * check even when there is no message
-+	 *
-+	 * cannot extract more than one message per call. Bytes
-+	 * above sizeof(msg) are ignored.
++	 * where did the fault happen (includes slot number)
 +	 */
-+	if (size < sizeof(msg_buf)) {
-+		PFM_DBG("message is too small size=%zu must be >=%zu)",
-+			size,
-+			sizeof(msg_buf));
-+		return -EINVAL;
-+	}
++	ent->ip = ip;
 +
-+	non_block = filp->f_flags & O_NONBLOCK;
-+
-+	ret =  __pfm_read(ctx, &msg_buf, non_block);
-+	if (ret > 0) {
-+  		if(copy_to_user(buf, &msg_buf, sizeof(msg_buf)))
-+			ret = -EFAULT;
-+	}
-+	return ret;
-+}
-+
-+static ssize_t pfm_write(struct file *file, const char __user *ubuf,
-+			  size_t size, loff_t *ppos)
-+{
-+	PFM_DBG("pfm_write called");
-+	return -EINVAL;
-+}
-+
-+static unsigned int pfm_poll(struct file *filp, poll_table * wait)
-+{
-+	struct pfm_context *ctx;
-+	unsigned long flags;
-+	unsigned int mask = 0;
-+
-+	if (filp->f_op != &pfm_file_ops) {
-+		PFM_ERR("pfm_poll bad magic");
-+		return 0;
-+	}
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_poll no ctx");
-+		return 0;
-+	}
-+
-+
-+	PFM_DBG("before poll_wait");
-+
-+	poll_wait(filp, &ctx->msgq_wait, wait);
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	if (PFM_CTXQ_EMPTY(ctx) == 0)
-+		mask =  POLLIN | POLLRDNORM;
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	PFM_DBG("after poll_wait mask=0x%x", mask);
-+
-+	return mask;
-+}
-+
-+static int pfm_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-+	  	     unsigned long arg)
-+{
-+	PFM_DBG("pfm_ioctl called");
-+	return -EINVAL;
-+}
-+
-+/*
-+ * interrupt cannot be masked when entering this function
-+ */
-+static inline int __pfm_fasync(int fd, struct file *filp,
-+			       struct pfm_context *ctx, int on)
-+{
-+	int ret;
-+
-+	ret = fasync_helper (fd, filp, on, &ctx->async_queue);
-+
-+	PFM_DBG("fd=%d on=%d async_q=%p ret=%d",
-+		fd,
-+		on,
-+		ctx->async_queue, ret);
-+
-+	return ret;
-+}
-+
-+static int pfm_fasync(int fd, struct file *filp, int on)
-+{
-+	struct pfm_context *ctx;
-+	int ret;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_fasync no ctx");
-+		return -EBADF;
-+	}
++	ent->tstamp = tstamp;
++	ent->cpu = smp_processor_id();
++	ent->set = arg->active_set;
++	ent->tgid = current->tgid;
 +
 +	/*
-+	 * we cannot mask interrupts during this call because this may
-+	 * may go to sleep if memory is not readily avalaible.
-+	 *
-+	 * We are protected from the context disappearing by the
-+	 * get_fd()/put_fd() done in caller. Serialization of this function
-+	 * is ensured by caller.
++	 * selectively store PMDs in increasing index number
 +	 */
-+	ret = __pfm_fasync(fd, filp, ctx, on);
-+
-+	PFM_DBG("pfm_fasync called on fd=%d on=%d async_queue=%p ret=%d",
-+		fd,
-+		on,
-+		ctx->async_queue, ret);
-+
-+	return ret;
-+}
-+
-+#ifdef CONFIG_SMP
-+static void __pfm_close_remote_cpu(void *info)
-+{
-+	struct pfm_context *ctx = info;
-+
-+	BUG_ON(ctx == NULL);
-+
-+	if (__get_cpu_var(pmu_ctx) != ctx) {
-+		PFM_ERR("%s CPU%d unexpected ctx %p instead of %p",
-+			__FUNCTION__,
-+			smp_processor_id(),
-+			__get_cpu_var(pmu_ctx), ctx);
-+		return;
-+	}
-+	/*
-+	 * we cannot call pfm_release_session()
-+	 * from an IPI handler because it may, itself, issue
-+	 * IPI, defer to calling CPU
-+	 */
-+	__pfm_unload_context(ctx, 1);
-+	/*
-+	 * we cannot free context here because we are in_interrupt().
-+	 * we free on the calling CPU
-+	 */
-+}
-+
-+static int pfm_close_remote_cpu(struct pfm_context *ctx)
-+{
-+	BUG_ON(irqs_disabled());
-+	return smp_call_function_single(ctx->cpu, __pfm_close_remote_cpu,
-+				       ctx, 0, 1);
-+}
-+#endif /* CONFIG_SMP */
-+
-+/*
-+ * called either on explicit close() or from exit_files().
-+ * Only the LAST user of the file gets to this point, i.e., it is
-+ * called only ONCE.
-+ *
-+ * IMPORTANT: we get called ONLY when the refcnt on the file gets to zero
-+ * (fput()),i.e, last task to access the file. Nobody else can access the
-+ * file at this point.
-+ *
-+ * When called from exit_files(), the VMA has been freed because exit_mm()
-+ * is executed before exit_files().
-+ *
-+ * When called from exit_files(), the current task is not yet ZOMBIE but we
-+ * flush the PMU state to the context.
-+ */
-+int __pfm_close(struct pfm_context *ctx, struct file *filp)
-+{
-+	unsigned long flags;
-+	int state;	
-+	int can_free = 1, can_unload = 1;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	state = ctx->state;
-+
-+	PFM_DBG("state=%d", state);
-+
-+	/*
-+	 * check if unload is needed
-+	 */
-+	if (state == PFM_CTX_UNLOADED)
-+		goto doit;
-+
-+#ifdef CONFIG_SMP
-+	/*
-+	 * we need to release the resource on the ORIGINAL cpu.
-+	 * we need to release the context lock to avoid deadlocks
-+	 * on the original CPU, especially in the context switch
-+	 * routines. It is safe to unlock because we are in close,
-+	 * in other words, there is no more access from user level.
-+	 * we can also unmask interrupts on this CPU because the
-+	 * context is running on the original CPU. Context will be
-+	 * unloaded and the session will be released on the original
-+	 * CPU. Upon return, the caller is guaranteed that the context
-+	 * is gone from original CPU.
-+	 */
-+	if (ctx->flags.system && ctx->cpu != smp_processor_id()) {
-+		spin_unlock_irqrestore(&ctx->lock, flags);
-+		pfm_close_remote_cpu(ctx);
-+		pfm_release_session(ctx, ctx->cpu);
-+		goto free_it;
-+	}
-+
-+	if (!ctx->flags.system && ctx->task != current) {
-+		/*
-+		 * switch context to zombie state
-+		 */
-+		ctx->state = PFM_CTX_ZOMBIE;
-+
-+		PFM_DBG("zombie ctx for [%d]", ctx->task->pid);
-+		/*
-+		 * must check if other thread is using block overflow
-+		 * notification mode. If so make sure it will not block
-+		 * because there will not be any pfm_restart() issued.
-+		 * When the thread notices the ZOMBIE state, it will clean
-+		 * up what is left of the context
-+		 */
-+		if (state == PFM_CTX_MASKED && ctx->flags.block) {
-+			/*
-+		 	* force task to wake up from MASKED state
-+		 	*/
-+			PFM_DBG("waking up [%d]", ctx->task->pid);
-+
-+			complete(&ctx->restart_complete);
++	if (npmds) {
++		u64 *val = arg->smpl_pmds_values;
++		for(i=0; i < npmds; i++) {
++			*e++ = *val++;
 +		}
-+		/*
-+		 * we release the resource even though, PMU may be in use
-+		 * by other thread. This is safe because on ctxsw it will
-+		 * notice and cleanup.
-+		 */
-+		pfm_release_session(ctx, 0);
-+		can_unload = can_free = 0;
 +	}
-+#endif
-+	if (can_unload)
-+		__pfm_unload_context(ctx, 0);
-+doit:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+#ifdef CONFIG_SMP
-+free_it:
-+#endif
-+	if (can_free)
-+		pfm_context_free(ctx);
++
++	/*
++	 * update position for next entry
++	 */
++	hdr->hdr_cur_offs += entry_size;
++	cur += entry_size;
++
++	/*
++	 * post check to avoid losing the last sample
++	 */
++	if ((last - cur) < min_size)
++		goto full;
++
++	/* reset before returning from interrupt handler */
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_RESET;
++
++	return 0;
++full:
++	PFM_DBG_ovfl("sampling buffer full free=%zu, count=%llu",
++		     last-cur,
++		     (unsigned long long)hdr->hdr_count);
++
++	/*
++	 * increment number of buffer overflows.
++	 * important to detect duplicate set of samples.
++	 */
++	hdr->hdr_overflows++;
++
++	/*
++	 * request notification and masking of monitoring.
++	 * Notification is still subject to the overflowed
++	 * register having the FL_NOTIFY flag set.
++	 */
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY| PFM_OVFL_CTRL_MASK;
++
++	return -ENOBUFS; /* we are full, sorry */
++}
++
++static int pfm_dfl_fmt_restart(int is_active, pfm_flags_t *ovfl_ctrl, void *buf)
++{
++	struct pfm_dfl_smpl_hdr *hdr;
++
++	hdr = buf;
++
++	hdr->hdr_count = 0;
++	hdr->hdr_cur_offs = sizeof(*hdr);
++
++	*ovfl_ctrl = PFM_OVFL_CTRL_RESET;
++
 +	return 0;
 +}
 +
-+static int pfm_close(struct inode *inode, struct file *filp)
++static int pfm_dfl_fmt_exit(void *buf)
 +{
-+	struct pfm_context *ctx;
-+
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("no ctx");
-+		return -EBADF;
-+	}
-+	return __pfm_close(ctx, filp);
++	return 0;
 +}
 +
-+static int pfm_no_open(struct inode *irrelevant, struct file *dontcare)
++static struct pfm_smpl_fmt dfl_fmt={
++	.fmt_name = "default",
++	.fmt_uuid = PFM_DFL_SMPL_UUID,
++	.fmt_arg_size = sizeof(struct pfm_dfl_smpl_arg),
++	.fmt_validate = pfm_dfl_fmt_validate,
++	.fmt_getsize = pfm_dfl_fmt_get_size,
++	.fmt_init = pfm_dfl_fmt_init,
++	.fmt_handler = pfm_dfl_fmt_handler,
++	.fmt_restart = pfm_dfl_fmt_restart,
++	.fmt_exit = pfm_dfl_fmt_exit,
++	.fmt_flags = PFM_FMT_BUILTIN_FLAG,
++	.owner = THIS_MODULE
++};
++
++static int pfm_dfl_fmt_init_module(void)
 +{
-+	return -ENXIO;
++	return pfm_fmt_register(&dfl_fmt);
 +}
 +
++static void pfm_dfl_fmt_cleanup_module(void)
++{
++	pfm_fmt_unregister(dfl_fmt.fmt_uuid);
++}
++
++module_init(pfm_dfl_fmt_init_module);
++module_exit(pfm_dfl_fmt_cleanup_module);
+--- linux-2.6.18.base/include/linux/perfmon_dfl_smpl.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18/include/linux/perfmon_dfl_smpl.h	2006-09-25 12:16:02.000000000 -0700
+@@ -0,0 +1,82 @@
 +/*
-+ * pfm_flush() is called from filp_close() on every call to
-+ * close(). pfm_close() is only invoked when the last user
-+ * calls close(). pfm_close() is never invoked without
-+ * pfm_flush() being invoked first.
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * Partially free resources:
-+ * 	- remove from fasync queue
-+ */
-+static int pfm_flush(struct file *filp, fl_owner_t id)
-+{
-+	struct pfm_context *ctx;
++ * This file implements the new dfl sampling buffer format
++ * for perfmon2 subsystem.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of version 2 of the GNU General Public
++ * License as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++ * 02111-1307 USA
++  */
++#ifndef __PERFMON_DFL_SMPL_H__
++#define __PERFMON_DFL_SMPL_H__ 1
 +
-+	ctx = filp->private_data;
-+	if (ctx == NULL) {
-+		PFM_ERR("pfm_flush no ctx");
-+		return -EBADF;
-+	}
-+
-+	/*
-+	 * remove our file from the async queue, if we use this mode.
-+	 * This can be done without the context being protected. We come
-+	 * here when the context has become unreacheable by other tasks.
-+	 *
-+	 * We may still have active monitoring at this point and we may
-+	 * end up in pfm_overflow_handler(). However, fasync_helper()
-+	 * operates with interrupts disabled and it cleans up the
-+	 * queue. If the PMU handler is called prior to entering
-+	 * fasync_helper() then it will send a signal. If it is
-+	 * invoked after, it will find an empty queue and no
-+	 * signal will be sent. In both case, we are safe
-+	 */
-+	if (filp->f_flags & FASYNC) {
-+		PFM_DBG("cleaning up async_queue=%p", ctx->async_queue);
-+		__pfm_fasync (-1, filp, ctx, 0);
-+	}
-+	return 0;
-+}
-+
-+const struct file_operations pfm_file_ops = {
-+	.llseek = no_llseek,
-+	.read = pfm_read,
-+	.write = pfm_write,
-+	.poll = pfm_poll,
-+	.ioctl = pfm_ioctl,
-+	.open = pfm_no_open, /* special open to disallow open via /proc */
-+	.fasync = pfm_fasync,
-+	.release = pfm_close,
-+	.flush= pfm_flush,
-+	.mmap = pfm_mmap
-+};
-+
-+static int pfmfs_get_sb(struct file_system_type *fs_type,
-+			int flags, const char *dev_name,
-+			void *data, struct vfsmount *mnt)
-+{
-+	return get_sb_pseudo(fs_type, "pfm:", NULL, PFMFS_MAGIC, mnt);
-+}
-+
-+static struct file_system_type pfm_fs_type = {
-+	.name     = "pfmfs",
-+	.get_sb   = pfmfs_get_sb,
-+	.kill_sb  = kill_anon_super,
-+};
-+
++#define PFM_DFL_SMPL_UUID { \
++	0xd1, 0x39, 0xb2, 0x9e, 0x62, 0xe8, 0x40, 0xe4,\
++	0xb4, 0x02, 0x73, 0x07, 0x87, 0x92, 0xe9, 0x37}
 +
 +/*
-+ * pfmfs should _never_ be mounted by userland - too much of security hassle,
-+ * no real gain from having the whole whorehouse mounted. So we don't need
-+ * any operations on the root directory. However, we need a non-trivial
-+ * d_name - pfm: will go nicely and kill the special-casing in procfs.
++ * format specific parameters (passed at context creation)
 + */
-+static struct vfsmount *pfmfs_mnt;
++struct pfm_dfl_smpl_arg {
++	__u64 buf_size;		/* size of the buffer in bytes */
++	__u32 buf_flags;	/* buffer specific flags */
++	__u32 reserved1;	/* for future use */
++	__u64 reserved[6];	/* for future use */
++};
 +
-+int __init pfm_init_fs(void)
-+{
-+	int err = register_filesystem(&pfm_fs_type);
-+	if (!err) {
-+		pfmfs_mnt = kern_mount(&pfm_fs_type);
-+		err = PTR_ERR(pfmfs_mnt);
-+		if (IS_ERR(pfmfs_mnt))
-+			unregister_filesystem(&pfm_fs_type);
-+		else
-+			err = 0;
-+	}
-+	return err;
-+}
++/*
++ * This header is at the beginning of the sampling buffer returned to the user.
++ * It is directly followed by the first record.
++ */
++struct pfm_dfl_smpl_hdr {
++	__u64 hdr_count;	/* how many valid entries */
++	__u64 hdr_cur_offs;	/* current offset from top of buffer */
++	__u64 hdr_overflows;	/* #overflows for buffer */
++	__u64 hdr_buf_size;	/* bytes in the buffer */
++	__u64 hdr_min_buf_space;/* minimal buffer size (internal use) */
++	__u32 hdr_version;	/* smpl format version */
++	__u32 hdr_buf_flags;	/* copy of buf_flags */
++	__u64 hdr_reserved[10];	/* for future use */
++};
 +
-+static void __exit exit_pfm_fs(void)
-+{
-+	unregister_filesystem(&pfm_fs_type);
-+	mntput(pfmfs_mnt);
-+}
++/*
++ * Entry header in the sampling buffer.  The header is directly followed
++ * with the values of the PMD registers of interest saved in increasing
++ * index order: PMD4, PMD5, and so on. How many PMDs are present depends
++ * on how the session was programmed.
++ *
++ * In the case where multiple counters overflow at the same time, multiple
++ * entries are written consecutively.
++ *
++ * last_reset_value member indicates the initial value of the overflowed PMD.
++ */
++struct pfm_dfl_smpl_entry {
++	__u32	pid;		/* thread id (for NPTL, this is gettid()) */
++	__u16	ovfl_pmd;	/* index of overflowed PMD for this sample */
++	__u16	reserved;	/* for future use */
++	__u64	last_reset_val;	/* initial value of overflowed PMD */
++	__u64	ip;		/* where did the overflow interrupt happened  */
++	__u64	tstamp;		/* overflow timetamp */
++	__u16	cpu;		/* cpu on which the overfow occurred */
++	__u16	set;		/* event set active when overflow ocurred   */
++	__u32	tgid;		/* thread group id (for NPTL, this is getpid())*/
++};
 +
-+int pfm_alloc_fd(struct file **cfile)
-+{
-+	int fd, ret = 0;
-+	struct file *file = NULL;
-+	struct inode * inode;
-+	char name[32];
-+	struct qstr this;
++#define PFM_DFL_SMPL_VERSION_MAJ 1U
++#define PFM_DFL_SMPL_VERSION_MIN 0U
++#define PFM_DFL_SMPL_VERSION (((PFM_DFL_SMPL_VERSION_MAJ&0xffff)<<16)|\
++				(PFM_DFL_SMPL_VERSION_MIN & 0xffff))
 +
-+	fd = get_unused_fd();
-+	if (fd < 0)
-+		return -ENFILE;
-+
-+	ret = -ENFILE;
-+
-+	file = get_empty_filp();
-+	if (!file)
-+		goto out;
-+
-+	/*
-+	 * allocate a new inode
-+	 */
-+	inode = new_inode(pfmfs_mnt->mnt_sb);
-+	if (!inode)
-+		goto out;
-+
-+	PFM_DBG("new inode ino=%ld @%p", inode->i_ino, inode);
-+
-+	inode->i_sb = pfmfs_mnt->mnt_sb;
-+	inode->i_mode = S_IFCHR|S_IRUGO;
-+	inode->i_uid = current->fsuid;
-+	inode->i_gid = current->fsgid;
-+
-+	sprintf(name, "[%lu]", inode->i_ino);
-+	this.name = name;
-+	this.hash = inode->i_ino;
-+	this.len = strlen(name);
-+
-+	ret = -ENOMEM;
-+
-+	/*
-+	 * allocate a new dcache entry
-+	 */
-+	file->f_dentry = d_alloc(pfmfs_mnt->mnt_sb->s_root, &this);
-+	if (!file->f_dentry)
-+		goto out;
-+
-+	file->f_dentry->d_op = &pfmfs_dentry_operations;
-+
-+	d_add(file->f_dentry, inode);
-+	file->f_vfsmnt = mntget(pfmfs_mnt);
-+	file->f_mapping = inode->i_mapping;
-+
-+	file->f_op = &pfm_file_ops;
-+	file->f_mode = FMODE_READ;
-+	file->f_flags = O_RDONLY;
-+	file->f_pos  = 0;
-+
-+	*cfile = file;
-+
-+	return fd;
-+out:
-+	if (file)
-+		put_filp(file);
-+	put_unused_fd(fd);
-+	return ret;
-+}
++#endif /* __PERFMON_DFL_SMPL_H__ */

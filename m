@@ -1,115 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWJILLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWJILOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751832AbWJILLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWJILLA
+	id S932352AbWJILOE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWJILOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:11:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:64702 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751832AbWJILK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 07:10:59 -0400
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061009110007.GA3592@wotan.suse.de>
-References: <20061007105758.14024.70048.sendpatchset@linux.site>
-	 <20061007105853.14024.95383.sendpatchset@linux.site>
-	 <20061007134407.6aa4dd26.akpm@osdl.org>
-	 <1160351174.14601.3.camel@localhost.localdomain>
-	 <20061009102635.GC3487@wotan.suse.de>
-	 <1160391014.10229.16.camel@localhost.localdomain>
-	 <20061009110007.GA3592@wotan.suse.de>
-Content-Type: text/plain
-Date: Mon, 09 Oct 2006 21:10:13 +1000
-Message-Id: <1160392214.10229.19.camel@localhost.localdomain>
+	Mon, 9 Oct 2006 07:14:04 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:6687 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932352AbWJILOD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 07:14:03 -0400
+Date: Mon, 9 Oct 2006 13:14:34 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Castet Matthieu <castet.matthieu@free.fr>,
+       Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH] Driver core: Don't ignore bus_attach_device() retval
+Message-ID: <20061009131434.6e3ff0e2@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <Pine.LNX.4.44L0.0610061400180.1311-100000@netrider.rowland.org>
+References: <20061006131443.473c203c@gondolin.boeblingen.de.ibm.com>
+	<Pine.LNX.4.44L0.0610061400180.1311-100000@netrider.rowland.org>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> Yep, I see. You just need to be careful about the PFNMAP logic, so
-> the VM knows whether the pte is backed by a struct page or not.
+Check for return value of bus_attach_device() in device_add(). Add a
+function bus_delete_device() that undos the effects of bus_add_device().
+bus_remove_device() now undos the effects of bus_attach_device() only.
+device_del() now calls bus_remove_device(), kobject_uevent(),
+bus_delete_device() which makes it symmetric to the call sequence in
+device_add().
 
-I still need to properly get my head around that one. I can't easily
-change the VMA during the "switch" but I can tweak the flags on the
-first nopage after one... 
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> And going the pageless route means that you must disallow MAP_PRIVATE
-> PROT_WRITE mappings, I trust that isn't a problem for you?
+---
+ drivers/base/base.h |    1 +
+ drivers/base/bus.c  |   31 ++++++++++++++++++++++---------
+ drivers/base/core.c |    7 ++++++-
+ 3 files changed, 29 insertions(+), 10 deletions(-)
 
-Should not but I need to look more closely.
-
-> I guess the helper looks something like the following...
-> 
-> --
-> 
-> Index: linux-2.6/include/linux/mm.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/mm.h
-> +++ linux-2.6/include/linux/mm.h
-> @@ -1105,6 +1105,7 @@ unsigned long vmalloc_to_pfn(void *addr)
->  int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
->  			unsigned long pfn, unsigned long size, pgprot_t);
->  int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
-> +int vm_insert_pfn(struct vm_area_struct *, unsigned long addr, unsigned long pfn);
->  
->  struct page *follow_page(struct vm_area_struct *, unsigned long address,
->  			unsigned int foll_flags);
-> Index: linux-2.6/mm/memory.c
-> ===================================================================
-> --- linux-2.6.orig/mm/memory.c
-> +++ linux-2.6/mm/memory.c
-> @@ -1267,6 +1267,44 @@ int vm_insert_page(struct vm_area_struct
->  }
->  EXPORT_SYMBOL(vm_insert_page);
->  
-> +/**
-> + * vm_insert_pfn - insert single pfn into user vma
-> + * @vma: user vma to map to
-> + * @addr: target user address of this page
-> + * @pfn: source kernel pfn
-> + *
-> + * Similar to vm_inert_page, this allows drivers to insert individual pages
-> + * they've allocated into a user vma. Same comments apply
-> + */
-> +int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr, unsigned long pfn)
-> +{
-> +	struct mm_struct *mm = vma->vm_mm;
-> +	int retval;
-> +	pte_t *pte;
-> +	spinlock_t *ptl;
-> +
-> +	BUG_ON(is_cow_mapping(vma->vm_flags));
-> +
-> +	retval = -ENOMEM;
-> +	pte = get_locked_pte(mm, addr, &ptl);
-> +	if (!pte)
-> +		goto out;
-> +	retval = -EBUSY;
-> +	if (!pte_none(*pte))
-> +		goto out_unlock;
-> +
-> +	/* Ok, finally just insert the thing.. */
-> +	set_pte_at(mm, addr, pte, pfn_pte(pfn, vma->vm_page_prot));
-> +
-> +	vma->vm_flags |= VM_PFNMAP;
-> +	retval = 0;
-> +out_unlock:
-> +	pte_unmap_unlock(pte, ptl);
-> +out:
-> +	return retval;
-> +}
-> +EXPORT_SYMBOL(vm_insert_pfn);
-
-It also needs update_mmu_cache() I suppose.
-
->  /*
->   * maps a range of physical memory into the requested pages. the old
->   * mappings are removed. any references to nonexistent pages results
-
+--- linux.orig/drivers/base/base.h
++++ linux/drivers/base/base.h
+@@ -17,6 +17,7 @@ extern int attribute_container_init(void
+ 
+ extern int bus_add_device(struct device * dev);
+ extern int bus_attach_device(struct device * dev);
++extern void bus_delete_device(struct device * dev);
+ extern void bus_remove_device(struct device * dev);
+ extern struct bus_type *get_bus(struct bus_type * bus);
+ extern void put_bus(struct bus_type * bus);
+--- linux.orig/drivers/base/bus.c
++++ linux/drivers/base/bus.c
+@@ -360,7 +360,7 @@ static void device_remove_attrs(struct b
+  *	bus_add_device - add device to bus
+  *	@dev:	device being added
+  *
+- *	- Add the device to its bus's list of devices.
++ *	- Add attributes.
+  *	- Create link to device's bus.
+  */
+ int bus_add_device(struct device * dev)
+@@ -424,26 +424,39 @@ int bus_attach_device(struct device * de
+ }
+ 
+ /**
++ *     bus_delete_device - undo bus_add_device
++ *     @dev:   device being deleted
++ *
++ *     - Remove symlink from bus's directory.
++ *     - Remove attributes.
++ *     - Drop reference taken in bus_add_device().
++ */
++void bus_delete_device(struct device * dev)
++{
++	if (dev->bus) {
++		sysfs_remove_link(&dev->kobj, "subsystem");
++		sysfs_remove_link(&dev->kobj, "bus");
++		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
++		device_remove_attrs(dev->bus, dev);
++		put_bus(dev->bus);
++	}
++}
++
++/**
+  *	bus_remove_device - remove device from bus
+  *	@dev:	device to be removed
+  *
+- *	- Remove symlink from bus's directory.
+  *	- Delete device from bus's list.
+  *	- Detach from its driver.
+- *	- Drop reference taken in bus_add_device().
+  */
+ void bus_remove_device(struct device * dev)
+ {
+ 	if (dev->bus) {
+-		sysfs_remove_link(&dev->kobj, "subsystem");
+-		sysfs_remove_link(&dev->kobj, "bus");
+-		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
+-		device_remove_attrs(dev->bus, dev);
+ 		dev->is_registered = 0;
+ 		klist_del(&dev->knode_bus);
+-		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
++		pr_debug("bus %s: remove device %s\n", dev->bus->name,
++			 dev->bus_id);
+ 		device_release_driver(dev);
+-		put_bus(dev->bus);
+ 	}
+ }
+ 
+--- linux.orig/drivers/base/core.c
++++ linux/drivers/base/core.c
+@@ -479,7 +479,9 @@ int device_add(struct device *dev)
+ 	if ((error = bus_add_device(dev)))
+ 		goto BusError;
+ 	kobject_uevent(&dev->kobj, KOBJ_ADD);
+-	bus_attach_device(dev);
++	error = bus_attach_device(dev);
++	if (error)
++		goto AttachError;
+ 	if (parent)
+ 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
+ 
+@@ -498,6 +500,8 @@ int device_add(struct device *dev)
+  	kfree(class_name);
+ 	put_device(dev);
+ 	return error;
++ AttachError:
++	bus_delete_device(dev);
+  BusError:
+ 	device_pm_remove(dev);
+  PMError:
+@@ -620,6 +624,7 @@ void device_del(struct device * dev)
+ 	bus_remove_device(dev);
+ 	device_pm_remove(dev);
+ 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
++	bus_delete_device(dev);
+ 	kobject_del(&dev->kobj);
+ 	if (parent)
+ 		put_device(parent);

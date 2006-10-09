@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933001AbWJISwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWJITBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933001AbWJISwq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 14:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932995AbWJISwq
+	id S964781AbWJITBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 15:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWJITBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 14:52:46 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:64644 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S933001AbWJISwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 14:52:45 -0400
-Date: Mon, 9 Oct 2006 14:52:43 -0400
-From: "George G. Davis" <gdavis@mvista.com>
-To: linux-kernel@vger.kernel.org
-Cc: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] Make sure UART is powered up when dumping MCTRL status
-Message-ID: <20061009185243.GL21011@mvista.com>
+	Mon, 9 Oct 2006 15:01:53 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:2432 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964781AbWJITBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 15:01:53 -0400
+Subject: Re: [PATCH 04/10] -mm: clocksource: add some new API calls
+From: john stultz <johnstul@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061006185456.681979000@mvista.com>
+References: <20061006185439.667702000@mvista.com>
+	 <20061006185456.681979000@mvista.com>
+Content-Type: text/plain
+Date: Mon, 09 Oct 2006 12:01:50 -0700
+Message-Id: <1160420510.5458.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since serial devices are powered down when not in use and some of those
-devices cannot be accessed when powered down, we need to enable power
-around calls to get_mcrtl() when dumping port state via uart_line_info().
-This resolves hangs observed on some machines while reading serial device
-registers when a port is powered off.
+On Fri, 2006-10-06 at 11:54 -0700, Daniel Walker wrote:
+> plain text document attachment (clocksource_user_api.patch)
+> originally used plist but removed it in this patch, and used a sorted list 
+> which is just as fast with a lot less memory overhead.
+> 
+> Introduces some new API calls,
+> 
+> - clocksource_get_clock()
+> 	Allows a clock lookup by name.
+> - clocksource_rating_change()
+> 	Used by a clocksource to signal a rating change. Replaces 
+> 	reselect_clocksource()
 
-Signed-off-by: George G. Davis <gdavis@mvista.com>
+Adds ns2cyc interface. Just to keep things in logical chunks, maybe
+would that chunk be better added with the patch that uses it?
 
- drivers/serial/serial_core.c |   11 +++++++++++
- 1 files changed, 11 insertions(+)
+> I also moved the the clock source list to a plist, which removes some lookup
+> overhead in the average case.
 
-
-Index: linux-2.6/drivers/serial/serial_core.c
-===================================================================
---- linux-2.6.orig/drivers/serial/serial_core.c
-+++ linux-2.6/drivers/serial/serial_core.c
-@@ -1652,6 +1652,7 @@ static const char *uart_type(struct uart
- static int uart_line_info(char *buf, struct uart_driver *drv, int i)
- {
- 	struct uart_state *state = drv->state + i;
-+	int pm_state;
- 	struct uart_port *port = state->port;
- 	char stat_buf[32];
- 	unsigned int status;
-@@ -1674,9 +1675,16 @@ static int uart_line_info(char *buf, str
- 
- 	if(capable(CAP_SYS_ADMIN))
- 	{
-+		mutex_lock(&state->mutex);
-+		pm_state = state->pm_state;
-+		if (pm_state)
-+			uart_change_pm(state, 0);
- 		spin_lock_irq(&port->lock);
- 		status = port->ops->get_mctrl(port);
- 		spin_unlock_irq(&port->lock);
-+		if (pm_state)
-+			uart_change_pm(state, pm_state);
-+		mutex_unlock(&state->mutex);
- 
- 		ret += sprintf(buf + ret, " tx:%d rx:%d",
- 				port->icount.tx, port->icount.rx);
-@@ -2071,6 +2079,9 @@ uart_configure_port(struct uart_driver *
- 
- 		uart_report_port(drv, port);
- 
-+		/* Power up port for set_mctrl() */
-+		uart_change_pm(state, 0);
-+
- 		/*
- 		 * Ensure that the modem control lines are de-activated.
- 		 * We probably don't need a spinlock around this, but
+Probably need to update the header, as you don't use a plist now. :)
 
 
-FYI: I've posted the above to the linux-serial mailing list but have not
-received any additional feedback after reworking to incorporate changes
-recommended via that mailing list.  That thread ends here:
+> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-http://www.spinics.net/lists/linux-serial/msg00196.html
 
-I'm now posting this reworked version to linux-kernel to move this along.
+Otherwise this patch looks like a good cleanup to me.
 
-TIA for comments/feedback!
+Acked-by: John Stultz <johnstul@us.ibm.com>
 
---
-Regards,
-George
+thanks
+-john
+
+
+
+

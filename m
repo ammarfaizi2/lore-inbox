@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWJIVLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWJIVjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWJIVLI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWJIVLI
+	id S1751637AbWJIVjB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWJIVjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:11:08 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:26966 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S964867AbWJIVLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:11:05 -0400
-Date: Mon, 9 Oct 2006 14:10:13 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
-Message-ID: <20061009211013.GP6485@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20061009140354.13840.71273.sendpatchset@linux.site> <20061009140414.13840.90825.sendpatchset@linux.site>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009140414.13840.90825.sendpatchset@linux.site>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Mon, 9 Oct 2006 17:39:00 -0400
+Received: from xenotime.net ([66.160.160.81]:5506 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751637AbWJIVi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 17:38:59 -0400
+Date: Mon, 9 Oct 2006 14:40:24 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Bryce Harrington <bryce@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       vatsa@in.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       shaohua.li@intel.com, hotplug_sig@osdl.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: Status on CPU hotplug issues
+Message-Id: <20061009144024.6364b6ba.rdunlap@xenotime.net>
+In-Reply-To: <20061007215749.GC4277@ucw.cz>
+References: <20060316174447.GA8184@in.ibm.com>
+	<20060316170814.02fa55a1.akpm@osdl.org>
+	<20060317084653.GA4515@in.ibm.com>
+	<20060317010412.3243364c.akpm@osdl.org>
+	<20061006231012.GH22139@osdl.org>
+	<20061007215749.GC4277@ucw.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+On Sat, 7 Oct 2006 21:57:49 +0000 Pavel Machek wrote:
 
-On Mon, Oct 09, 2006 at 06:12:26PM +0200, Nick Piggin wrote:
-> Complexity and documentation issues aside, the locking protocol fails
-> in the case where we would like to invalidate pagecache inside i_size.
-That pretty much describes part of what ocfs2_data_convert_worker() does.
-It's called when another node wants to take a lock at an incompatible level
-on an inodes data.
+> Hi!
+> 
+> > 1.  Oops offlining cpu twice on AMD64 (but not on EM64t)
+> >     with the 2.6.18-git22 kernel
+> > 
+> >     Reported to hotplug lists 10/05:
+> >       http://lists.osdl.org/pipermail/hotplug_sig/2006-October/000680.html
+> > 
+> >     To recreate: offline, online, and then offline a CPU, then oopses
+> >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.console
+> >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.2/proc/config
+> > 
+> >     Here's a snippet of the oops:
+> > 
+> > # echo 0 > /sys/devices/system/cpu/cpu1/online
+> > 
+> >  Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+> >  [<ffffffff80255287>] __drain_pages+0x29/0x5f
+> > PGD 7e56d067 PUD 7ee80067 PMD 0
+> > Oops: 0000 [1] PREEMPT SMP
+> > CPU 0
+> > Modules linked in:
+> > Pid: 7203, comm: bash Tainted: G   M  2.6.18-git22 #1
+>                                  ~~~~~
+> kernel is unhappy here. Forced module unload?
 
-This involves up to two steps, depending on the level of the lock requested.
+Machine check exception.  'G' is Good, same place where 'P'
+for proprietary would be.  But yes, kernel or machine is unhappy.
 
-1) It always syncs dirty data.
-
-2) If it's dropping due to writes on another node, then pages will be
-   invalidated and mappings torn down.
-
-
-There's actually an ocfs2 patch to support shared writeable mappings in via
-the ->page_mkwrite() callback, but I haven't pushed it upstream due to a bug
-I found during some later testing. I believe the bug is a VM issue, and your
-description of the race Andrea identified leads me to wonder if you all
-might have just found it and fixed it for me :)
-
-
-In short, I have an MPI test program which rotates through a set of
-processes which have mmaped a pre-formatted file. One process writes some
-data, the rest verify that they see the new data. When I run multiple
-processes on multiple nodes, I will sometimes find that one of the processes
-fails because it sees stale data.
-
-
-FWIW, the overall approach taken in the patch below seems fine to me, though
-I'm no VM expert :)
-
-Not having ocfs2_data_convert_worker() call unmap_mapping_range() directly,
-is ok as long as the intent of the function is preserved. You seem to be
-doing this by having truncate_inode_pages() unmap instead.
-
-Thanks,
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+---
+~Randy

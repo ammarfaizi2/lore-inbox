@@ -1,109 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWJIHx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWJIH5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWJIHx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWJIHx0
+	id S932339AbWJIH5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWJIH5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:53:26 -0400
-Received: from thing.hostingexpert.com ([67.15.235.34]:20156 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932329AbWJIHx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:53:26 -0400
-Message-ID: <4529FFDC.5080708@linuxtv.org>
-Date: Mon, 09 Oct 2006 03:53:00 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Mon, 9 Oct 2006 03:57:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:13460 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932339AbWJIH5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 03:57:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=LRPQaPAUkk1kRAqBD9ijISQq/HhiOziDAUzbbSbKgqFSjj5AZDAl4pXxF124yOw1JrB/3z+KJJgpgzaZRz8hh8FJBVcjlxVaVl2yI7+cDo9NFzDm5qGCJfbcfGCBI6d27FNCPcC3Y0gB+BsvaY9sOhxsUNDW56Donevb/Rm3VU4=
+Message-ID: <452A00CC.4080205@gmail.com>
+Date: Mon, 09 Oct 2006 16:57:00 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linus Torvalds <torvalds@osdl.org>, v4l-dvb-maintainer@linuxtv.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [v4l-dvb-maintainer] 2.6.19-rc1: DVB frontend selection causes
- compile errors
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061009003146.GA3172@stusta.de>
-In-Reply-To: <20061009003146.GA3172@stusta.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Joe Jin <lkmaillist@gmail.com>
+CC: linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] libata: skip reset on bus not a device
+References: <215036450609292206pd16c7cxa1c5c77ee52c050e@mail.gmail.com>	 <451E7BD2.7020002@gmail.com>	 <215036450609301849h64551749uf6b4a3e48c57fe15@mail.gmail.com>	 <4529BCC4.8060906@gmail.com>	 <215036450610082354q34b906bdp54a3b9cee52a5855@mail.gmail.com>	 <4529F391.3030504@gmail.com> <20061009070652.GE10832@htj.dyndns.org> <215036450610090044n56ec3a9dg62573a16d63ab00c@mail.gmail.com>
+In-Reply-To: <215036450610090044n56ec3a9dg62573a16d63ab00c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> The DVB frontend selection changes in 2.6.19-rc1 are giving me the 
-> following compile error:
+Joe Jin wrote:
+>> > It's against libata development tree.  So, you downloaded the tar.gz 
+>> and
+>> > tested it?
 > 
-> <--  snip  -->
+> no, but at latest kernel 2.6.19-rc1 use the same tree as you said, and
+> it also can worked
+
+I see.  It's irrelevant anyway.
+
+>> And, one more thing to try.  The following patch should fix your
+>> problem.  It's against v2.6.18.
+>>
 > 
-> ...
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `dvb_init':
-> saa7134-dvb.c:(.text+0x91d94): undefined reference to `tda10086_attach'
-> saa7134-dvb.c:(.text+0x91db0): undefined reference to `tda826x_attach'
-> make: *** [.tmp_vmlinux1] Error 1
+> while applied the patch, error info gone :)
 > 
-> <--  snip  -->
-> 
-> .config attached.
-> 
-> cu
-> Adrian
+> A question: if the status register return 0xFF means the device not exist?
+> why not use ata_devchk()?
 
+Many SATA controllers emulate TF registers and pass devchk even when no 
+device is attached.  I don't know whether the two conditions can happen 
+together - 0xFF status is usually seen on PATA.  Anyways, it's more 
+reliable to test 0xFF.  Also, that's what driver/ide has been doing for 
+a long long time and we don't want to deviate from it if possible.
 
-Adrian,
-
-Does this fix it for you?
-
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-
-diff -r 7efa405e2d66 linux/drivers/media/dvb/frontends/tda10086.h
---- a/drivers/media/dvb/frontends/tda10086.h	Fri Oct 06 17:12:00 2006 -0300
-+++ b/drivers/media/dvb/frontends/tda10086.h	Mon Oct 09 03:43:28 2006 -0400
-@@ -35,7 +35,16 @@ struct tda10086_config
- 	u8 invert;
- };
- 
-+#if defined(CONFIG_DVB_TDA10086) || defined(CONFIG_DVB_TDA10086_MODULE)
- extern struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
- 					    struct i2c_adapter* i2c);
-+#else
-+static inline struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
-+						   struct i2c_adapter* i2c)
-+{
-+	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
-+	return NULL;
-+}
-+#endif // CONFIG_DVB_TDA10086
- 
- #endif // TDA10086_H
-diff -r 7efa405e2d66 linux/drivers/media/dvb/frontends/tda826x.h
---- a/drivers/media/dvb/frontends/tda826x.h	Fri Oct 06 17:12:00 2006 -0300
-+++ b/drivers/media/dvb/frontends/tda826x.h	Mon Oct 09 03:43:28 2006 -0400
-@@ -35,6 +35,19 @@
-  * @param has_loopthrough Set to 1 if the card has a loopthrough RF connector.
-  * @return FE pointer on success, NULL on failure.
-  */
--extern struct dvb_frontend *tda826x_attach(struct dvb_frontend *fe, int addr, struct i2c_adapter *i2c, int has_loopthrough);
-+#if defined(CONFIG_DVB_TDA826X) || defined(CONFIG_DVB_TDA826X_MODULE)
-+extern struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe, int addr,
-+					   struct i2c_adapter *i2c,
-+					   int has_loopthrough);
-+#else
-+static inline struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe,
-+						  int addr,
-+						  struct i2c_adapter *i2c,
-+						  int has_loopthrough)
-+{
-+	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
-+	return NULL;
-+}
-+#endif // CONFIG_DVB_TDA826X
- 
--#endif
-+#endif // __DVB_TDA826X_H__
+-- 
+tejun

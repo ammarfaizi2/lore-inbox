@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWJIQkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWJIQrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932929AbWJIQkU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 12:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932956AbWJIQkT
+	id S932112AbWJIQrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 12:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbWJIQrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 12:40:19 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:28083 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932929AbWJIQkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 12:40:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=K3jNFYqMRR+sD0txeoTMMD3kudHK/6O/RlxOoiBAtMcvX+OM3SOmU/GxgRthPRnwDHgcIV1VryKL9fkBAoDqYY9sHDgKz+RYxTC2l+OIN4kJ3F/mE+/nfTVTFJjVJGJgM0CLCCTITvYAtazAb90lq+kn9ZUhcoSaWk520/mmGIc=
-Date: Mon, 9 Oct 2006 18:40:17 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.19-git] Fix error handling in create_files()
-Message-ID: <20061009164017.GA13698@dreamland.darkstar.lan>
+	Mon, 9 Oct 2006 12:47:12 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:18388 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932112AbWJIQrK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 12:47:10 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
+Date: Mon, 9 Oct 2006 18:47:03 +0200
+User-Agent: KMail/1.9.4
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <200610091727.34780.arnd.bergmann@de.ibm.com> <Pine.LNX.4.62.0610091729420.16048@pademelon.sonytel.be>
+In-Reply-To: <Pine.LNX.4.62.0610091729420.16048@pademelon.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610091847.05441.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-current code in create_files() detects an error iff the last
-sysfs_add_file fails:
+On Monday 09 October 2006 17:31, Geert Uytterhoeven wrote:
+> Well, I meant that of course you have to include <stdint.h> at the top of
+> <linux/types.h>. I just thought inside that particular #ifdef wasn't the right
+> place.
+> 
 
-for (attr = grp->attrs; *attr && !error; attr++) {
-        error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
-}
-if (error)
-        remove_files(dir,grp);
+That has the potential of breaking other source files that don't expect
+linux/types.h to bring in the whole stdint.h file.
 
-In order to do the proper cleanup upon failure 'error' must be checked on
-every iteration.
+Also, it may break some other linux header files that include <linux/types.h>
+and expect to get stuff like uid_t, which you don't get if a glibc header is
+included first, because of __KERNEL_STRICT_NAMES.
 
-Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
-
----
- fs/sysfs/group.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/sysfs/group.c b/fs/sysfs/group.c
-index 122145b..1c490d6 100644
---- a/fs/sysfs/group.c
-+++ b/fs/sysfs/group.c
-@@ -33,6 +33,8 @@ static int create_files(struct dentry * 
- 
- 	for (attr = grp->attrs; *attr && !error; attr++) {
- 		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
-+		if (error)
-+			break;
- 	}
- 	if (error)
- 		remove_files(dir,grp);
-
-
-Luca
--- 
-Recursion n.:
-	See Recursion.
+	Arnd <><

@@ -1,169 +1,299 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWJIT3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933010AbWJITbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWJIT3o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 15:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWJIT3o
+	id S933010AbWJITbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 15:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933011AbWJITbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 15:29:44 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:41919 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964782AbWJIT3n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 15:29:43 -0400
-Date: Mon, 9 Oct 2006 20:29:43 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] tifm __iomem annotations, NULL noise removal
-Message-ID: <20061009192943.GX29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Oct 2006 15:31:18 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:46755 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S933010AbWJITbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 15:31:17 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Mon, 9 Oct 2006 15:30:26 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] standardize definition of sema_init()
+Message-ID: <Pine.LNX.4.64.0610091527310.27241@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed off by: Robert P. J. Day <rpjday@mindspring.com>
 ---
- drivers/misc/tifm_7xx1.c |   13 +++++++------
- drivers/misc/tifm_core.c |    2 +-
- drivers/mmc/tifm_sd.c    |   14 +++++++-------
- 3 files changed, 15 insertions(+), 14 deletions(-)
+  There doesn't *appear* to be any reason for the various definitions
+of sema_init() not to be in the standard form, but I'm willing to be
+convinced otherwise.
 
-diff --git a/drivers/misc/tifm_7xx1.c b/drivers/misc/tifm_7xx1.c
-index b174866..1ba8754 100644
---- a/drivers/misc/tifm_7xx1.c
-+++ b/drivers/misc/tifm_7xx1.c
-@@ -48,7 +48,7 @@ static void tifm_7xx1_remove_media(void 
- 			printk(KERN_INFO DRIVER_NAME
- 			       ": demand removing card from socket %d\n", cnt);
- 			sock = fm->sockets[cnt];
--			fm->sockets[cnt] = 0;
-+			fm->sockets[cnt] = NULL;
- 			fm->remove_mask &= ~(1 << cnt);
- 
- 			writel(0x0e00, sock->addr + SOCK_CONTROL);
-@@ -118,7 +118,7 @@ static irqreturn_t tifm_7xx1_isr(int irq
- 	return IRQ_HANDLED;
- }
- 
--static tifm_media_id tifm_7xx1_toggle_sock_power(char *sock_addr, int is_x2)
-+static tifm_media_id tifm_7xx1_toggle_sock_power(char __iomem *sock_addr, int is_x2)
+diff --git a/include/asm-alpha/semaphore.h b/include/asm-alpha/semaphore.h
+index 1a6295f..8c3c6dd 100644
+--- a/include/asm-alpha/semaphore.h
++++ b/include/asm-alpha/semaphore.h
+@@ -34,14 +34,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init(struct semaphore *sem, int val)
  {
- 	unsigned int s_state;
- 	int cnt;
-@@ -163,7 +163,8 @@ static tifm_media_id tifm_7xx1_toggle_so
- 	return (readl(sock_addr + SOCK_PRESENT_STATE) >> 4) & 7;
+-	/*
+-	 * Logically,
+-	 *   *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+-	 * except that gcc produces better initializing by parts yet.
+-	 */
+-
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
  }
- 
--inline static char *tifm_7xx1_sock_addr(char *base_addr, unsigned int sock_num)
-+inline static char __iomem *
-+tifm_7xx1_sock_addr(char __iomem *base_addr, unsigned int sock_num)
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-arm/semaphore.h b/include/asm-arm/semaphore.h
+index d5dc624..7394cb1 100644
+--- a/include/asm-arm/semaphore.h
++++ b/include/asm-arm/semaphore.h
+@@ -32,9 +32,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init(struct semaphore *sem, int val)
  {
- 	return base_addr + ((sock_num + 1) << 10);
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
  }
-@@ -176,7 +177,7 @@ static void tifm_7xx1_insert_media(void 
- 	char *card_name = "xx";
- 	int cnt, ok_to_register;
- 	unsigned int insert_mask;
--	struct tifm_dev *new_sock = 0;
-+	struct tifm_dev *new_sock = NULL;
- 
- 	if (!class_device_get(&fm->cdev))
- 		return;
-@@ -230,7 +231,7 @@ static void tifm_7xx1_insert_media(void 
- 				if (!ok_to_register ||
- 					    device_register(&new_sock->dev)) {
- 					spin_lock_irqsave(&fm->lock, flags);
--					fm->sockets[cnt] = 0;
-+					fm->sockets[cnt] = NULL;
- 					spin_unlock_irqrestore(&fm->lock,
- 								flags);
- 					tifm_free_device(&new_sock->dev);
-@@ -390,7 +391,7 @@ static void tifm_7xx1_remove(struct pci_
- 
- 	tifm_remove_adapter(fm);
- 
--	pci_set_drvdata(dev, 0);
-+	pci_set_drvdata(dev, NULL);
- 
- 	iounmap(fm->addr);
- 	pci_intx(dev, 0);
-diff --git a/drivers/misc/tifm_core.c b/drivers/misc/tifm_core.c
-index cca5f85..ee32613 100644
---- a/drivers/misc/tifm_core.c
-+++ b/drivers/misc/tifm_core.c
-@@ -157,7 +157,7 @@ struct tifm_dev *tifm_alloc_device(struc
- 		dev->wq = create_singlethread_workqueue(dev->wq_name);
- 		if (!dev->wq) {
- 			kfree(dev);
--			return 0;
-+			return NULL;
- 		}
- 		dev->dev.parent = fm->dev;
- 		dev->dev.bus = &tifm_bus_type;
-diff --git a/drivers/mmc/tifm_sd.c b/drivers/mmc/tifm_sd.c
-index 6d23dc0..2bacff6 100644
---- a/drivers/mmc/tifm_sd.c
-+++ b/drivers/mmc/tifm_sd.c
-@@ -501,13 +501,13 @@ static void tifm_sd_end_cmd(void *data)
- 	struct tifm_dev *sock = host->dev;
- 	struct mmc_host *mmc = tifm_get_drvdata(sock);
- 	struct mmc_request *mrq;
--	struct mmc_data *r_data = 0;
-+	struct mmc_data *r_data = NULL;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&sock->lock, flags);
- 
- 	mrq = host->req;
--	host->req = 0;
-+	host->req = NULL;
- 	host->state = IDLE;
- 
- 	if (!mrq) {
-@@ -546,7 +546,7 @@ static void tifm_sd_request_nodma(struct
- 	struct tifm_dev *sock = host->dev;
- 	unsigned long flags;
- 	struct mmc_data *r_data = mrq->cmd->data;
--	char *t_buffer = 0;
-+	char *t_buffer = NULL;
- 
- 	if (r_data) {
- 		t_buffer = kmap(r_data->sg->page);
-@@ -613,13 +613,13 @@ static void tifm_sd_end_cmd_nodma(void *
- 	struct tifm_dev *sock = host->dev;
- 	struct mmc_host *mmc = tifm_get_drvdata(sock);
- 	struct mmc_request *mrq;
--	struct mmc_data *r_data = 0;
-+	struct mmc_data *r_data = NULL;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&sock->lock, flags);
- 
- 	mrq = host->req;
--	host->req = 0;
-+	host->req = NULL;
- 	host->state = IDLE;
- 
- 	if (!mrq) {
-@@ -644,7 +644,7 @@ static void tifm_sd_end_cmd_nodma(void *
- 			r_data->bytes_xfered += r_data->blksz -
- 				readl(sock->addr + SOCK_MMCSD_BLOCK_LEN) + 1;
- 		}
--		host->buffer = 0;
-+		host->buffer = NULL;
- 		host->buffer_pos = 0;
- 		host->buffer_size = 0;
- 	}
-@@ -895,7 +895,7 @@ static void tifm_sd_remove(struct tifm_d
- 		sock->addr + SOCK_DMA_FIFO_INT_ENABLE_CLEAR);
- 	writel(0, sock->addr + SOCK_DMA_FIFO_INT_ENABLE_SET);
- 
--	tifm_set_drvdata(sock, 0);
-+	tifm_set_drvdata(sock, NULL);
- 	mmc_free_host(mmc);
+
+ static inline void init_MUTEX(struct semaphore *sem)
+diff --git a/include/asm-arm26/semaphore.h b/include/asm-arm26/semaphore.h
+index 1fda543..84ad0e3 100644
+--- a/include/asm-arm26/semaphore.h
++++ b/include/asm-arm26/semaphore.h
+@@ -18,7 +18,7 @@ struct semaphore {
+ 	wait_queue_head_t wait;
+ };
+
+-#define __SEMAPHORE_INIT(name, n)					\
++#define __SEMAPHORE_INITIALIZER(name, n)					\
+ {									\
+ 	.count		= ATOMIC_INIT(n),				\
+ 	.sleepers	= 0,						\
+@@ -33,9 +33,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init(struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
  }
- 
--- 
-1.4.2.GIT
+
+ static inline void init_MUTEX(struct semaphore *sem)
+diff --git a/include/asm-avr32/semaphore.h b/include/asm-avr32/semaphore.h
+index ef99ddc..7391408 100644
+--- a/include/asm-avr32/semaphore.h
++++ b/include/asm-avr32/semaphore.h
+@@ -40,9 +40,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-i386/semaphore.h b/include/asm-i386/semaphore.h
+index 4e34a46..0945d0f 100644
+--- a/include/asm-i386/semaphore.h
++++ b/include/asm-i386/semaphore.h
+@@ -63,15 +63,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-m32r/semaphore.h b/include/asm-m32r/semaphore.h
+index 41e45d7..d114364 100644
+--- a/include/asm-m32r/semaphore.h
++++ b/include/asm-m32r/semaphore.h
+@@ -39,15 +39,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesnt. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-mips/semaphore.h b/include/asm-mips/semaphore.h
+index 3d6aa7c..cba043a 100644
+--- a/include/asm-mips/semaphore.h
++++ b/include/asm-mips/semaphore.h
+@@ -53,8 +53,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-powerpc/semaphore.h b/include/asm-powerpc/semaphore.h
+index 57369d2..ca3ea7d 100644
+--- a/include/asm-powerpc/semaphore.h
++++ b/include/asm-powerpc/semaphore.h
+@@ -39,8 +39,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-s390/semaphore.h b/include/asm-s390/semaphore.h
+index dbce058..ad8c949 100644
+--- a/include/asm-s390/semaphore.h
++++ b/include/asm-s390/semaphore.h
+@@ -37,8 +37,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sh/semaphore.h b/include/asm-sh/semaphore.h
+index 489f784..209103d 100644
+--- a/include/asm-sh/semaphore.h
++++ b/include/asm-sh/semaphore.h
+@@ -41,15 +41,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sh64/semaphore.h b/include/asm-sh64/semaphore.h
+index 4695264..b2f3f57 100644
+--- a/include/asm-sh64/semaphore.h
++++ b/include/asm-sh64/semaphore.h
+@@ -48,15 +48,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesnt. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sparc/semaphore.h b/include/asm-sparc/semaphore.h
+index f74ba31..79d4121 100644
+--- a/include/asm-sparc/semaphore.h
++++ b/include/asm-sparc/semaphore.h
+@@ -30,9 +30,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic24_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sparc64/semaphore.h b/include/asm-sparc64/semaphore.h
+index 093dcc6..8a7c201 100644
+--- a/include/asm-sparc64/semaphore.h
++++ b/include/asm-sparc64/semaphore.h
+@@ -30,8 +30,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-x86_64/semaphore.h b/include/asm-x86_64/semaphore.h
+index 1194888..504a3ac 100644
+--- a/include/asm-x86_64/semaphore.h
++++ b/include/asm-x86_64/semaphore.h
+@@ -64,15 +64,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-xtensa/semaphore.h b/include/asm-xtensa/semaphore.h
+index f10c348..017d892 100644
+--- a/include/asm-xtensa/semaphore.h
++++ b/include/asm-xtensa/semaphore.h
+@@ -37,9 +37,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+
 

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWJIVBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWJIVBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWJIVBA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWJIVBA
+	id S964860AbWJIVBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWJIVBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:01:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:36809 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964857AbWJIVA7 (ORCPT
+	Mon, 9 Oct 2006 17:01:54 -0400
+Received: from main.gmane.org ([80.91.229.2]:11461 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964860AbWJIVBx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:00:59 -0400
-Subject: Re: [rfc] 2.6.19-rc1-git5: consolidation of file backed fault
-	handlers
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1160427472.7752.15.camel@localhost.localdomain>
-References: <20061009140354.13840.71273.sendpatchset@linux.site>
-	 <1160427472.7752.15.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 07:00:38 +1000
-Message-Id: <1160427638.7752.17.camel@localhost.localdomain>
+	Mon, 9 Oct 2006 17:01:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Samuel Tardieu <sam@rfc1149.net>
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
+Date: 09 Oct 2006 22:55:55 +0200
+Message-ID: <87k639fbtw.fsf@willow.rfc1149.net>
+References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr> <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr> <20061006203919.GS2563@parisc-linux.org> <5267.1160381168@redhat.com> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr> <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com> <11639.1160398461@redhat.com> <Pine.LNX.4.61.0610092159340.23379@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 06:57 +1000, Benjamin Herrenschmidt wrote:
-> On Mon, 2006-10-09 at 18:12 +0200, Nick Piggin wrote:
-> > OK, I've cleaned up and further improved this patchset, removed duplication
-> > while retaining legacy nopage handling, restored page_mkwrite to the ->fault
-> > path (due to lack of users upstream to attempt a conversion), converted the
-> > rest of the filesystems to use ->fault, restored MAP_POPULATE and population
-> > of remap_file_pages pages, replaced nopfn completely, and removed
-> > NOPAGE_REFAULT because that can be done easily with ->fault.
-> 
-> What is the replacement ?
+>>>>> "Jan" == Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
-I see ... so we now use PTR_ERR to return errors and NULL for refault...
-good for me but Andrew may want more...
+>>  That only offsets the problem a bit.  You still have to derive
+>> uint32_t from somewhere.
 
-Ben
+Jan> The compiler could make it available as a 'fundamental type' -
+Jan> i.e.  available without any headers, like 'int' and 'long'.
 
+The compiler isn't allowed to pollute your namespace with symbols like
+that. What if someone defines uint32_t as a function for example in
+her code? (yes, this would be sick, but is allowed by default)
+
+  Sam
+-- 
+Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
 

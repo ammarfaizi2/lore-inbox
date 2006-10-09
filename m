@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWJIVx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWJIV7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWJIVx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWJIVx3
+	id S964910AbWJIV7w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWJIV7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:53:29 -0400
-Received: from mx2.quantum.com ([146.174.252.112]:12767 "EHLO mx2.quantum.com")
-	by vger.kernel.org with ESMTP id S964889AbWJIVx1 (ORCPT
+	Mon, 9 Oct 2006 17:59:52 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:998 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964910AbWJIV7v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:53:27 -0400
-Message-ID: <452AC4BE.6090905@xfs.org>
-Date: Mon, 09 Oct 2006 16:53:02 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-References: <20061004165655.GD22010@schatzie.adilger.int>
-In-Reply-To: <20061004165655.GD22010@schatzie.adilger.int>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 9 Oct 2006 17:59:51 -0400
+Subject: Re: 2.6.18 ext3 panic.
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Eric Sandeen <sandeen@sandeen.net>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
+       Jan Kara <jack@ucw.cz>
+In-Reply-To: <452AA716.7060701@sandeen.net>
+References: <20061002194711.GA1815@redhat.com>
+	 <20061003052219.GA15563@redhat.com>	<4521F865.6060400@sandeen.net>
+	 <20061002231945.f2711f99.akpm@osdl.org>  <452AA716.7060701@sandeen.net>
+Content-Type: text/plain
+Date: Mon, 09 Oct 2006 14:59:25 -0700
+Message-Id: <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Oct 2006 21:53:04.0003 (UTC) FILETIME=[4BE9D530:01C6EBED]
-X-Spam-Score: 0.00%
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> For ext4 we are exploring the possibility of directories being larger
-> than 2GB in size.  For ext3/ext4 the 2GB limit is about 50M files, and
-> the 2-level htree limit is about 25M files (this is a kernel code and not
-> disk format limit).
+On Mon, 2006-10-09 at 14:46 -0500, Eric Sandeen wrote:
+> Andrew Morton wrote:
+> > On Tue, 03 Oct 2006 00:43:01 -0500
+> > Eric Sandeen <sandeen@sandeen.net> wrote:
+> > 
+> >> Dave Jones wrote:
+> >>
+> >>> So I managed to reproduce it with an 'fsx foo' and a
+> >>> 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
+> >>> a vanilla 2.6.18 with none of the Fedora patches..
+> >>>
+> >>> I'll give 2.6.18-git a try next.
+> >>>
+> >>> 		Dave
+> >>>
+> >>> ----------- [cut here ] --------- [please bite here ] ---------
+> >>> Kernel BUG at fs/buffer.c:2791
+> >> I had thought/hoped that this was fixed by Jan's patch at 
+> >> http://lkml.org/lkml/2006/9/7/236 from the thread started at 
+> >> http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
+> >> first by going through that new codepath....
+> > 
+> > Yes, Jan's patch is supposed to fix that !buffer_mapped() assertion.  iirc,
+> > Badari was hitting that BUG and was able to confirm that Jan's patch
+> > (3998b9301d3d55be8373add22b6bc5e11c1d9b71 in post-2.6.18 mainline) fixed
+> > it.
 > 
-> Amusingly (or not) some users of very large filesystems hit this limit
-> with their HPC batch jobs because they have 10,000 or 128,000 processes
-> creating files in a directory on an hourly basis (job restart files,
-> data dumps for visualization, etc) and it is not always easy to change
-> the apps.
+> Looking at some BH traces*, it appears that what Dave hit is a truncate
+> racing with a sync...
 > 
-> My question (esp. for XFS folks) is if anyone has looked at this problem
-> before, and what kind of problems they might have hit in userspace and in
-> the kernel due to "large" directory sizes (i.e. > 2GB).  It appears at
-> first glance that 64-bit systems will do OK because off_t is a long
-> (for telldir output), but that 32-bit systems would need to use O_LARGEFILE
-> when opening the file in order to be able to read the full directory
-> contents.  It might also be possible to return -EFBIG only in the case
-> that telldir is used beyond 2GB (the LFS spec doesn't really talk about
-> large directories at all).
+> truncate ...
+>   ext3_invalidate_page
+>     journal_invalidatepage
+>       journal_unmap buffer
+> 
+> going off at the same time as
+> 
+> sync ...
+>   journal_dirty_data
+>     sync_dirty_buffer
+>       submit_bh <-- finds unmapped buffer, boom.
 > 
 
-My first thought is to run screaming for the hills when user's want this.
-In a previous life we had a customer in the US Gov who decided to
-put all their 700 million files in one directory. Then they had a
-double disk unreported raid failure (raid vendors fault). The
-filesystem repair ran for 7 days and a heck of a lot of files
-ended up in lost+found. Fortunately they had the huge amount of
-memory and process address space available to run repair.
+I don't understand how this can happen ..
 
-Anyone who does this and has any sense does not allow any sort of
-scanning of the namespace (i.e. anything using readdir). You tend
-to run out of process address space before you have read the
-directory.
+journal_unmap_buffer() zapping the buffer since its not attached to any
+transaction. 
 
-You might want to think about keeping the directory a little
-more contiguous than individual disk blocks. XFS does have
-code in it to allocate the directory in chunks larger than
-a single file system block. It does not get used on linux
-because the code was written under the assumption you can
-see the whole chunk as a single piece of memory which does not
-work to well in the linux kernel.
+journal_unmap_buffer():[fs/jbd/transaction.c:1789] not on any
+transaction: zap
+     b_state:0x10402f b_jlist:BJ_None cpu:0 b_count:3 b_blocknr:52735707
+     b_jbd:1 b_frozen_data:0000000000000000
+b_committed_data:0000000000000000
+     b_transaction:0 b_next_transaction:0 b_cp_transaction:0
+b_trans_is_running:0
+     b_trans_is_comitting:0 b_jcount:2 pg_dirty:1
 
-Steve
+
+journal_dirty_data() would do submit_bh() ONLY if its part of the older
+transaction.
+
+I need to take a closer look to understand the race.
+
+BTW, is this 1k or 2k filesystem ? How easy is to reproduce the
+problem ?
+
+Thanks,
+Badari
+
+
+

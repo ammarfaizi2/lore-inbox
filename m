@@ -1,116 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWJIUZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWJIU1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWJIUZA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWJIUZA
+	id S964815AbWJIU1o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWJIU1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:25:00 -0400
-Received: from gw.ptr-62-65-141-133.customer.ch.netstream.com ([62.65.141.133]:43532
-	"HELO schottelius.org") by vger.kernel.org with SMTP
-	id S964812AbWJIUY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:24:59 -0400
-Date: Mon, 9 Oct 2006 22:18:06 +0200
-From: Nico Schottelius <nico-kernel20061009@schottelius.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [Net] Kernel renams eth0 -> eth7
-Message-ID: <20061009201806.GA5723@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel20061009@schottelius.org>,
-	LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
-Content-Disposition: inline
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.18-1-486
+	Mon, 9 Oct 2006 16:27:44 -0400
+Received: from hoboe2bl1.telenet-ops.be ([195.130.137.73]:42936 "EHLO
+	hoboe2bl1.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S964815AbWJIU1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:27:43 -0400
+Date: Mon, 9 Oct 2006 22:27:42 +0200
+Message-Id: <200610092027.k99KRgw3031527@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 567] m68k/MVME167: SERIAL167 is no longer broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- SERIAL167 is no longer broken
+- Removed some unused variables from the driver to fix compiler warnings
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-Off-By: Kars de Jong <jongk@linux-m68k.org>
+Signed-Off-By: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Hello!
+---
+ arch/m68k/Kconfig        |    2 +-
+ drivers/char/serial167.c |    2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-I am runnig 2.6.17.13 on a Geode, with 3 natsemi ports onboard
-and 4 ports in a pci card (soekris net4801).
+--- linux/arch/m68k/Kconfig	2005/08/29 14:16:21	1.1.1.28
++++ linux/arch/m68k/Kconfig	2005/10/11 18:56:37	1.30
+@@ -613,7 +613,7 @@ config MVME147_SCC
+ 
+ config SERIAL167
+ 	bool "CD2401 support for MVME166/7 serial ports"
+-	depends on MVME16x && BROKEN
++	depends on MVME16x
+ 	help
+ 	  This is the driver for the serial ports on the Motorola MVME166,
+ 	  167, and 172 boards.  Everyone using one of these boards should say
+--- linux/drivers/char/serial167.c	2004/12/29 23:46:03	1.1.1.17
++++ linux/drivers/char/serial167.c	2005/10/11 18:56:37	1.10
+@@ -1450,7 +1450,6 @@ cy_tiocmget(struct tty_struct *tty, stru
+   volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
+   unsigned long flags;
+   unsigned char status;
+-  unsigned int result;
+ 
+     channel = info->line;
+ 
+@@ -1474,7 +1473,6 @@ cy_tiocmset(struct tty_struct *tty, stru
+   int channel;
+   volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
+   unsigned long flags;
+-  unsigned int arg;
+ 	  
+     channel = info->line;
+ 
 
-The strange thing is, that it currently renames eth0 to eth7
-and eth1 to eth8 (or somehow different).
+Gr{oetje,eeting}s,
 
-Have a look at [0] for dmesg output. You'll see this:
+						Geert
 
----------------------------------------------------------------------------=
------
-[   64.643627] natsemi eth0: NatSemi DP8381[56] at 0xa0000000
-(0000:00:06.0), 00:00:24:c5:69:5c, IRQ 10, port TP.
-[   64.676833] natsemi eth1: NatSemi DP8381[56] at 0xa0001000
-(0000:00:07.0), 00:00:24:c5:69:5d, IRQ 10, port TP.
-[   64.710006] natsemi eth2: NatSemi DP8381[56] at 0xa0002000
-(0000:00:08.0), 00:00:24:c5:69:5e, IRQ 10, port TP.
-[   64.743402] natsemi eth3: NatSemi DP8381[56] at 0xa4000000
-(0000:01:00.0), 00:00:24:c4:fd:14, IRQ 5, port TP.
-[   64.776463] natsemi eth4: NatSemi DP8381[56] at 0xa4001000
-(0000:01:01.0), 00:00:24:c4:fd:15, IRQ 11, port TP.
-[   64.809891] natsemi eth5: NatSemi DP8381[56] at 0xa4002000
-(0000:01:02.0), 00:00:24:c4:fd:16, IRQ 5, port TP.
-[   64.842982] natsemi eth6: NatSemi DP8381[56] at 0xa4003000
-(0000:01:03.0), 00:00:24:c4:fd:17, IRQ 11, port TP.
----------------------------------------------------------------------------=
------
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-which is correct. Later you see this:
----------------------------------------------------------------------------=
------
-[  122.142761] eth8: DSPCFG accepted after 0 usec.
-[  122.156411] eth8: link up.
-[  122.164584] eth8: Setting full-duplex based on negotiated link
-capability.
-[  122.719529] eth8: remaining active for wake-on-lan
-[  122.927613] eth8: DSPCFG accepted after 0 usec.
-[  122.941269] eth8: link up.
----------------------------------------------------------------------------=
------
-which feels really strange, because eth0 and eth1 simply
-'disappeared'.
-
-More information about the device can be found at [1]
-
-My questions are:
-
-   - why is it getting renamed and why did it not happen some boots
-     (before I moved) before (like in [2])?
-  =20
-   - how can I tell the kernel NOT to rename it anymore / what
-     must I fix?
-
-Any hints appreciated.
-
-Sincerly
-
-Nico
-
-[0]: http://unix.schottelius.org/zwerg/dmesg.renamed.eth0%2c1
-[1]: http://unix.schottelius.org/zwerg/
-[2]: http://unix.schottelius.org/zwerg/dmesg
-
---=20
-``...if there's one thing about Linux users, they're do-ers, not whiners.''
-(A quotation of Andy Patrizio I completely agree with)
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFKq5+uL75KpiFGIwRAtg4AJ0aDnlbgFmVFCPLktMVKGO1O21PogCgz7yR
-jAqOEH8TbrOjrA85zaLYL6Q=
-=+LAi
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

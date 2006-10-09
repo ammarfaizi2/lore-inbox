@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWJIUhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWJIUjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWJIUhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWJIUhP
+	id S964839AbWJIUjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWJIUjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:37:15 -0400
-Received: from mx2.suse.de ([195.135.220.15]:11981 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964837AbWJIUhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:37:13 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: David Howells <dhowells@redhat.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Matthew Wilcox <matthew@wil.cx>, torvalds@osdl.org, akpm@osdl.org,
-       sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
-References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr>
-	<Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
-	<20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com>
-	<Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr>
-	<20061006203919.GS2563@parisc-linux.org> <5267.1160381168@redhat.com>
-	<Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr>
-	<EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com>
-	<11639.1160398461@redhat.com>
-	<Pine.LNX.4.61.0610092159340.23379@yvahk01.tjqt.qr>
-X-Yow: Where's SANDY DUNCAN?
-Date: Mon, 09 Oct 2006 22:36:47 +0200
-In-Reply-To: <Pine.LNX.4.61.0610092159340.23379@yvahk01.tjqt.qr> (Jan
-	Engelhardt's message of "Mon, 9 Oct 2006 22:00:38 +0200 (MEST)")
-Message-ID: <je4pudns4g.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 9 Oct 2006 16:39:25 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:43159 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964839AbWJIUjY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:39:24 -0400
+Date: Mon, 9 Oct 2006 21:39:25 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, notting@redhat.com, akpm@osdl.org,
+       torvalds@osdl.org, hch@infradead.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Introduce vfs_listxattr
+Message-ID: <20061009203925.GY29920@ftp.linux.org.uk>
+References: <20061009201048.GA4707@filer.fsl.cs.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009201048.GA4707@filer.fsl.cs.sunysb.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+On Mon, Oct 09, 2006 at 04:10:48PM -0400, Josef Sipek wrote:
+> From: Bill Nottingham <notting@redhat.com>
+> 
+> This patch moves code out of fs/xattr.c:listxattr into a new function -
+> vfs_listxattr. The code for vfs_listxattr was originally submitted by Bill
+> Nottingham <notting@redhat.com> to Unionfs.
 
->>> typedef uint32_t __u32;
->>
->>That only offsets the problem a bit.  You still have to derive uint32_t from
->>somewhere.
->
-> The compiler could make it available as a 'fundamental type' - i.e. 
-> available without any headers, like 'int' and 'long'.
+Makes sense, regardless of unionfs.
 
-The compiler is not allowed to define uint32_t without including
-<stdint.h> first.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+ACKed-by: Al Viro <viro@zeniv.linux.org.uk>

@@ -1,55 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWJIUrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWJIUuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWJIUrH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 16:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWJIUrH
+	id S964845AbWJIUuz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 16:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWJIUuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 16:47:07 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:40425 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964844AbWJIUrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 16:47:04 -0400
-Date: Mon, 9 Oct 2006 16:46:44 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, notting@redhat.com, torvalds@osdl.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Introduce vfs_listxattr
-Message-ID: <20061009204644.GB4707@filer.fsl.cs.sunysb.edu>
-References: <20061009201048.GA4707@filer.fsl.cs.sunysb.edu> <20061009133332.5c8285ce.akpm@osdl.org>
+	Mon, 9 Oct 2006 16:50:55 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15817 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964845AbWJIUuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 16:50:54 -0400
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Thomas Hellstrom <thomas@tungstengraphics.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061009135254.GA19784@wotan.suse.de>
+References: <20061009110007.GA3592@wotan.suse.de>
+	 <1160392214.10229.19.camel@localhost.localdomain>
+	 <20061009111906.GA26824@wotan.suse.de>
+	 <1160393579.10229.24.camel@localhost.localdomain>
+	 <20061009114527.GB26824@wotan.suse.de>
+	 <1160394571.10229.27.camel@localhost.localdomain>
+	 <20061009115836.GC26824@wotan.suse.de>
+	 <1160395671.10229.35.camel@localhost.localdomain>
+	 <20061009121417.GA3785@wotan.suse.de>
+	 <452A50C2.9050409@tungstengraphics.com>
+	 <20061009135254.GA19784@wotan.suse.de>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 06:50:36 +1000
+Message-Id: <1160427036.7752.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009133332.5c8285ce.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 01:33:32PM -0700, Andrew Morton wrote:
-> On Mon, 9 Oct 2006 16:10:48 -0400
-> Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
+On Mon, 2006-10-09 at 15:52 +0200, Nick Piggin wrote:
+> On Mon, Oct 09, 2006 at 03:38:10PM +0200, Thomas Hellstrom wrote:
+> > Nick Piggin wrote:
+> > >On Mon, Oct 09, 2006 at 10:07:50PM +1000, Benjamin Herrenschmidt wrote:
+> > >
+> > >Ok I guess that would work. I was kind of thinking that one needs to
+> > >hold the mmap_sem for writing when changing the flags, but so long
+> > >as everyone *else* does, then I guess you can get exclusion from just
+> > >the read lock. And your per-object mutex would prevent concurrent
+> > >nopages from modifying it.
+> > 
+> > Wouldn't that confuse concurrent readers?
 > 
-> > This patch moves code out of fs/xattr.c:listxattr into a new function -
-> > vfs_listxattr. The code for vfs_listxattr was originally submitted by Bill
-> > Nottingham <notting@redhat.com> to Unionfs.
+> I think it should be safe so long as the entire mapping has been
+> unmapped. After that, there is no read path that should care about
+> that flag bit. So long as it is well commented (and maybe done via
+> a helper in mm/memory.c), I can't yet see a problem with it.
+
+Should be fine then. Migration does
+
+	- take object mutex
+	- unmap_mapping_range() -> remove all PTEs for all mappings to
+          that object
+	- do whatever is needed for actual migration (copy data etc...)
+	- release object mutex
+
+And nopage() does
+
+	- take object mutex
+	- check object flags consistency, possibly update VMA
+          (also possibly updaet VMA pgprot too while at it for cacheable
+           vs. non cacheable, though it's not strictly necessary if we
+           use the helper)
+	- if object is in ram
+		- get struct page
+		- drop mutex
+		- return struct page
+	- else
+		- get pfn
+		- use helper to install PTE
+		- drop mutex
+		- return NOPAGE_REFAULT
+
+We don't strictly have to return struct page when the object is in ram
+but I feel like it's better for accounting.
+
+Now there is still the question of where that RAM comes from, how it
+gets accounted, and wether there is any way we can make it swappable
+(which complicates things but would be nice as objects can be fairly big
+and we may end up using a significant amount of physical memory with the
+graphic objects).
+
+> > Could it be an option to make it safe for the fault handler to 
+> > temporarily drop the mmap_sem read lock given that some conditions TBD 
+> > are met?
+> > In that case it can retake the mmap_sem write lock, do the VMA flags 
+> > modifications, downgrade and do the pte modifications using a helper, or 
+> > even use remap_pfn_range() during the time the write lock is held?
 > 
-> That tells us what the patch does.  In general, please be sure to also tell
-> us *why* you prepared a patch.
->
-> Does this patch allow unionfs to be loaded into an otherwise unpatched
-> kernel.org kernel?  If so, that seems to be a good reason for including
-> this patch into the mainline kernel.
+> When you drop and retake the mmap_sem, you need to start again from
+> find_vma. At which point you technically probably want to start again
+> from the architecture specfic fault code. It sounds difficult but I
+> won't say it can't be done.
 
-Sorry about that. The reason for this submission is to make the listxattr
-code in fs/xattr.c a little cleaner (as well as to clean up some code in
-Unionfs.)
+I can be done with returning NOPAGE_REFAULT but as you said, I don't
+think it's necessary.
 
-Currently, Unionfs has vfs_listxattr defined in its code. I think that's
-very ugly, and I'd like to see it (re)moved. The logical place to put it, is
-along side of all the other vfs_*xattr functions. Overall, I think this
-patch is benefitial for both kernel.org kernel and Unionfs.
+Cheers,
+Ben.
 
-Josef "Jeff" Sipek.
 
--- 
-Humans were created by water to transport it upward.

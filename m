@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWJIVGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWJIVLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWJIVGk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWJIVGk
+	id S964867AbWJIVLI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWJIVLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:06:40 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50633 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964862AbWJIVGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:06:39 -0400
-Subject: Re: User switchable HW mappings & cie
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>,
-       linux-mm@kvack.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>
-In-Reply-To: <Pine.LNX.4.64.0610091151380.3952@g5.osdl.org>
-References: <1160347065.5926.52.camel@localhost.localdomain>
-	 <452A35FF.50009@tungstengraphics.com>
-	 <Pine.LNX.4.64.0610091151380.3952@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 07:06:23 +1000
-Message-Id: <1160427983.7752.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 17:11:08 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:26966 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964867AbWJIVLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 17:11:05 -0400
+Date: Mon, 9 Oct 2006 14:10:13 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
+Message-ID: <20061009211013.GP6485@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20061009140354.13840.71273.sendpatchset@linux.site> <20061009140414.13840.90825.sendpatchset@linux.site>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009140414.13840.90825.sendpatchset@linux.site>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Nick,
 
-> Anyway, so right now you can use "vm_insert_page()" and it will increment 
-> the page count and add things to the rmap lists, which is what current 
-> users want. But if you don't have a normal page, you should be able to 
-> basically avoid that part entirely, and just use
-> 
-> 	set_pte_at(mm, addr, pte, make-up-a-pte-here);
-> 
-> and you're done (of course, you need to use all the appropriate magic to 
-> set up the pte, ie you'd normally have something like
-> 
-> 	pte = get_locked_pte(mm, addr, &ptl);
-> 	..
-> 	pte_unmap_unlock(pte, ptl);
-> 
-> around it). Note that "vm_insert_page()" is _not_ for VM_PFNMAP mappings, 
-> exactly because it does actually increment page counts. It's for a 
-> "normal" mapping that just wants to insert a reference-counted page.
+On Mon, Oct 09, 2006 at 06:12:26PM +0200, Nick Piggin wrote:
+> Complexity and documentation issues aside, the locking protocol fails
+> in the case where we would like to invalidate pagecache inside i_size.
+That pretty much describes part of what ocfs2_data_convert_worker() does.
+It's called when another node wants to take a lock at an incompatible level
+on an inodes data.
 
-Yes, that's why we want a vm_insert_pfn() as I really don't want to see
-PTE manipulations proliferate in drivers :) Nick is coming up with an
-implementation faster than I can think about the code anyway ;)
+This involves up to two steps, depending on the level of the lock requested.
 
-Cheers,
-Ben.
+1) It always syncs dirty data.
+
+2) If it's dropping due to writes on another node, then pages will be
+   invalidated and mappings torn down.
 
 
+There's actually an ocfs2 patch to support shared writeable mappings in via
+the ->page_mkwrite() callback, but I haven't pushed it upstream due to a bug
+I found during some later testing. I believe the bug is a VM issue, and your
+description of the race Andrea identified leads me to wonder if you all
+might have just found it and fixed it for me :)
+
+
+In short, I have an MPI test program which rotates through a set of
+processes which have mmaped a pre-formatted file. One process writes some
+data, the rest verify that they see the new data. When I run multiple
+processes on multiple nodes, I will sometimes find that one of the processes
+fails because it sees stale data.
+
+
+FWIW, the overall approach taken in the patch below seems fine to me, though
+I'm no VM expert :)
+
+Not having ocfs2_data_convert_worker() call unmap_mapping_range() directly,
+is ok as long as the intent of the function is preserved. You seem to be
+doing this by having truncate_inode_pages() unmap instead.
+
+Thanks,
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

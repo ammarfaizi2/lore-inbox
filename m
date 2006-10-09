@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932910AbWJIQXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWJIQkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932910AbWJIQXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 12:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932962AbWJIQXa
+	id S932929AbWJIQkU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 12:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932956AbWJIQkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 12:23:30 -0400
-Received: from smtp.gentoo.org ([140.211.166.183]:34515 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S932910AbWJIQX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 12:23:29 -0400
-From: Mike Frysinger <vapier@gentoo.org>
-Organization: wh0rd.org
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [patch] pull in linux/types.h in linux/nbd.h
-Date: Mon, 9 Oct 2006 12:23:27 -0400
-User-Agent: KMail/1.9.4
-Cc: Paul.Clements@steeleye.com, linux-kernel@vger.kernel.org
-References: <200610082012.27879.vapier@gentoo.org> <Pine.LNX.4.61.0610090912030.12485@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610090912030.12485@yvahk01.tjqt.qr>
+	Mon, 9 Oct 2006 12:40:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:28083 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932929AbWJIQkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 12:40:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=K3jNFYqMRR+sD0txeoTMMD3kudHK/6O/RlxOoiBAtMcvX+OM3SOmU/GxgRthPRnwDHgcIV1VryKL9fkBAoDqYY9sHDgKz+RYxTC2l+OIN4kJ3F/mE+/nfTVTFJjVJGJgM0CLCCTITvYAtazAb90lq+kn9ZUhcoSaWk520/mmGIc=
+Date: Mon, 9 Oct 2006 18:40:17 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.19-git] Fix error handling in create_files()
+Message-ID: <20061009164017.GA13698@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2113852.RNY8uFpfUq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610091223.28070.vapier@gentoo.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2113852.RNY8uFpfUq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello,
+current code in create_files() detects an error iff the last
+sysfs_add_file fails:
 
-On Monday 09 October 2006 03:12, Jan Engelhardt wrote:
-> >the nbd header uses __be32 and such types but doesnt actually include the
-> >header that defines these things (linux/types.h); so lets include it
->
-> Hm, <linux/cdev.h> uses struct kobject and should therefore include
-> <linux/kobejct.h>, can  you make a patch for that too? Thanks.
+for (attr = grp->attrs; *attr && !error; attr++) {
+        error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+}
+if (error)
+        remove_files(dir,grp);
 
-linux/cdev.h isnt exported to userspace so i dont really care about it ... =
-if=20
-you do, feel free to write the patch yourself. Thanks.
-=2Dmike
+In order to do the proper cleanup upon failure 'error' must be checked on
+every iteration.
 
---nextPart2113852.RNY8uFpfUq
-Content-Type: application/pgp-signature
+Signed-Off-By: Luca Tettamanti <kronos.it@gmail.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+---
+ fs/sysfs/group.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-iQIVAwUARSp3f0FjO5/oN/WBAQJxNA//bpyehiE00jc+I25r9Ne6+o3uaJSItvcg
-O4w+GRvW/ckoB2l4tzEcwotDV7HuqNA4UBYbKeYnnhcru6gBWi8kp1UnlbW1REFa
-8DU/sHKdwdTkHIU8kSevHfgIHikcYoRQhN/bt6dkTfr5vAuvSn+78JDZqwcarVKb
-FDXR/D5j2pzL5ssi+7B9w1e6g2QLF9qEy7gqedVcR5h+4YGFSI51OMJUdB07fagy
-sVHDxRog4AS5zrUZeA8j+Xo6T7pRuH95j1ATVTLSOCqj68Y+Ir0QrdvyjqC7dEJe
-amWmlFSCuGB08CHFEYYqXuUJphw4Paee9VOFtnGOdznooRo/5igAXz9hVmCZw+P4
-kk6WCHCJ6eHwqtirPpj4XqQE1Zj54rwEByXvSJpKIJ3dd/bgjHBebSkFLv3TWJgq
-CzY2YtwbzphiEylIb1c7OiqcuMm5if7yIc2jZCeMKWrOtf/7jiQcoFic9a/VMr/V
-sSV5D71BfoQ9WcVqDWwLuwKBc1n5IFWe4C+w0+YshU7KiFNd119CPmDQLcdt0tQ7
-WghLiFsRI9OHenACSCyrj9T/Yh7Zd7TFGCUKVfDLPMGgN+Ot631bgPon3uLlnVx+
-5wfGIPlgw2m73ENWWmYo0V5yGJ90HUpEGjQup7rVmetwM075aVu0lExy7qtLiyPf
-BoyZPLBz7Pw=
-=9pyi
------END PGP SIGNATURE-----
+diff --git a/fs/sysfs/group.c b/fs/sysfs/group.c
+index 122145b..1c490d6 100644
+--- a/fs/sysfs/group.c
++++ b/fs/sysfs/group.c
+@@ -33,6 +33,8 @@ static int create_files(struct dentry * 
+ 
+ 	for (attr = grp->attrs; *attr && !error; attr++) {
+ 		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
++		if (error)
++			break;
+ 	}
+ 	if (error)
+ 		remove_files(dir,grp);
 
---nextPart2113852.RNY8uFpfUq--
+
+Luca
+-- 
+Recursion n.:
+	See Recursion.

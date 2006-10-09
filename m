@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbWJINGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932798AbWJINIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932739AbWJINGe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 09:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932787AbWJINGd
+	id S932798AbWJINIk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 09:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWJINIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 09:06:33 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:46539 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S932739AbWJINGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 09:06:33 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH] kernel-doc: fix function name in usercopy.c
-Date: Mon, 9 Oct 2006 15:07:36 +0200
-User-Agent: KMail/1.9.4
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <20061008194429.c98d7387.rdunlap@xenotime.net> <20061009032851.GA5344@martell.zuzino.mipt.ru> <20061008203617.f3ca1270.rdunlap@xenotime.net>
-In-Reply-To: <20061008203617.f3ca1270.rdunlap@xenotime.net>
+	Mon, 9 Oct 2006 09:08:40 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:38053 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932796AbWJINIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 09:08:39 -0400
+Message-ID: <452A49D5.4060904@s5r6.in-berlin.de>
+Date: Mon, 09 Oct 2006 15:08:37 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart29022953.itjAfBExOR";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Adrian Bunk <bunk@stusta.de>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [2.6.19 patch] ATA must depend on BLOCK
+References: <20061008231621.GM6755@stusta.de>
+In-Reply-To: <20061008231621.GM6755@stusta.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610091507.36988.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart29022953.itjAfBExOR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Adrian Bunk wrote:
+> This patch fixes the following compile error with CONFIG_ATA=y, 
+> CONFIG_BLOCK=n:
+[...]
+>  config ATA
+>  	tristate "ATA device support"
+> +	depends on BLOCK
+>  	depends on !(M32R || M68K) || BROKEN
+>  	depends on !SUN4 || BROKEN
+>  	select SCSI
 
-Randy Dunlap wrote:
-> On Mon, 9 Oct 2006 07:28:51 +0400 Alexey Dobriyan wrote:
-> > On Sun, Oct 08, 2006 at 07:44:29PM -0700, Randy Dunlap wrote:
-> > >  /**
-> > > - * strlen_user: - Get the size of a string in user space.
-> > > + * strnlen_user: - Get the size of a string in user space.
-> >
-> > It's better to not spend time fixing mismatches, but to teach kernel-doc
-> > extract function name from function itself.
-> >
-> > 	/**
-> > 	 * Get the size of a string in user space.
-> > 	 * @foo: bar
-> > 	 */
-> > 	 size_t strnlen_user()
->
-> OK, maybe a good idea.  I'll add that to the wish list.
-> However, we have seen examples of:
->
-> /**
->  * doc for foo
->  */
-> int foo(int arg)
-> {
-> }
->
-> then someone inserts a new function bar() between the kernel-doc
-> and foo().  How would we catch that (automated)?
-> other than by our review process?
+The Kconfig isn't broken but the tool which generated the .config.
 
-Warn if the function signature of the documented function does not match th=
-e=20
-function and throw away the manpage then.
+"config ATA\ select SCSI" implies a dependency of ATA on SCSI. SCSI
+depends on BLOCK.
 
-Eike
+Therefore "select SCSI" && "config SCSI\ depends on BLOCK" implies
+either "config ATA\ select BLOCK" or "config ATA\ depends on BLOCK".
 
---nextPart29022953.itjAfBExOR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFKkmYXKSJPmm5/E4RAk70AJ9PG+jK04iq+b0wvuocS5vpHCTOAQCgnW5D
-e/eVPR9yc+50IEg5pURvlQ8=
-=fISa
------END PGP SIGNATURE-----
-
---nextPart29022953.itjAfBExOR--
+{Ignore all what I said if ATA code directly uses the block API. Usages
+of the block API to manipulate SCSI data structures, particularly the
+request queue, does not necessarily count as independent usage of the
+block API though.}
+-- 
+Stefan Richter
+-=====-=-==- =-=- -=---
+http://arcgraph.de/sr/

@@ -1,47 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWJILpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWJILpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbWJILpc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 07:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWJILpc
+	id S932552AbWJILpM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 07:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWJILpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 07:45:32 -0400
-Received: from ns2.suse.de ([195.135.220.15]:21890 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932580AbWJILpb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 07:45:31 -0400
-Date: Mon, 9 Oct 2006 13:45:27 +0200
-From: Nick Piggin <npiggin@suse.de>
+	Mon, 9 Oct 2006 07:45:12 -0400
+Received: from relay.gothnet.se ([82.193.160.251]:53536 "EHLO
+	GOTHNET-SMTP2.gothnet.se") by vger.kernel.org with ESMTP
+	id S932552AbWJILpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 07:45:11 -0400
+Message-ID: <452A35FF.50009@tungstengraphics.com>
+Date: Mon, 09 Oct 2006 13:43:59 +0200
+From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-Message-ID: <20061009114527.GB26824@wotan.suse.de>
-References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site> <20061007134407.6aa4dd26.akpm@osdl.org> <1160351174.14601.3.camel@localhost.localdomain> <20061009102635.GC3487@wotan.suse.de> <1160391014.10229.16.camel@localhost.localdomain> <20061009110007.GA3592@wotan.suse.de> <1160392214.10229.19.camel@localhost.localdomain> <20061009111906.GA26824@wotan.suse.de> <1160393579.10229.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160393579.10229.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+CC: linux-mm@kvack.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: User switchable HW mappings & cie
+References: <1160347065.5926.52.camel@localhost.localdomain>
+In-Reply-To: <1160347065.5926.52.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-BitDefender-Scanner: Mail not scanned due to license constraints
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 09:32:59PM +1000, Benjamin Herrenschmidt wrote:
-> > 
-> > You'll want to clear VM_PFNMAP after unmapping all pages from it, before
-> > switching to struct page backing.
-> 
-> Which means having a list of all vma's ... I suppose I can look at the
-> truncate code to do that race free but I was hoping I could avoid it
-> (that's the whole point of using unmap_mapping_range() in fact).
+Benjamin Herrenschmidt wrote:
 
-Yeah I don't think there is any other way to do it.
+>Hi !
+>
+>I'd like to kick a discussion about some issues I've been having along
+>with some proposed solutions related to mapping of bits of hardware in
+>smarter ways than simply doing a io_remap_pfn_range() and the problems,
+>generally caused by get_user_pages().
+>
+>  
+>
+...
 
-> > > It also needs update_mmu_cache() I suppose.
-> > 
-> > Hmm, but it might not be called from a pagefault. Can we get away
-> > with not calling it? Or is it required by some architectures?
-> 
-> I think some architectures might be upset if it's not called...
+>The Tungstengrpahics folks (Thomas is on CC) have been working on some
+>better memory management to properly handle those things in the DRM. One
+>of the things we want to do here is similar to what the SPUs do with
+>local store: have a single VMA associated with an object, and have the
+>PTEs transparently changed to map either video memory, system memory,
+>AGP memory, etc... (the different in cache attributes can be ignored at
+>this stage, we can discuss it separately if interested).
+>
+>I've been suggesting a similar approach as we use for SPUs. That is what
+>would make the most sense from a user standpoint: user code access their
+>"objects" via a single virtual pointer and the DRM takes care of
+>migrating it when necessary (for example migrating it to video RAM when
+>it needs to be used by the engine and "swap" it back to main memory when
+>not).
+>
+>
+>  
+>
+...
 
-But would any get upset if it is called from !pagefault path?
+>The base idea is that we would have the no_page() function of SPU's or
+>the DRM either return a struct page when the object is backed to main
+>memory, or install the PTE directly (using the helper to hide some of
+>the low level TLB flushing logic etc...) and then return NOPAGE_REFAULT
+>when hitting the hardware. The helper basically is a one-page version of
+>io_remap_pfn_range() with the added "feature" of not doing anything if
+>the PTE has been set by somebody else (handle the race case) instead of
+>BUG'ing as the current io_remap_pfn_range() does.
+>
+>  
+>
+I'm very much for this approach, possibly with the extension that we 
+could have a multiple-page version as well, as populating the whole vma 
+sometimes may be cheaper than populating each pte with a fault. That 
+would basically be an io_remap_pfn_range() which is safe when the 
+mmap_sem is taken in read mode (from do_no_page).
+
+One problem that occurs is that the rule for ptes with non-backing 
+struct pages
+Which I think was introduced in 2.6.16:
+
+    pfn_of_page == vma->vm_pgoff + ((addr - vma->vm_start) >> PAGE_SHIFT)
+
+cannot be honored, at least not with the DRM memory manager, since the 
+graphics object will be associated with a vma and not the underlying 
+physical address. User space will have vma->vm_pgoff as a handle to the 
+object, which may move around in graphics memory.
+
+/Thomas
+
+
+
+
+

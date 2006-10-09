@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932932AbWJIP0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932933AbWJIP1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932932AbWJIP0v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932934AbWJIP0v
+	id S932933AbWJIP1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932934AbWJIP1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:26:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:62657 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932932AbWJIP0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:26:51 -0400
-Date: Mon, 9 Oct 2006 16:26:47 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] mv64630_pic NULL noise removal
-Message-ID: <20061009152647.GR29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Oct 2006 11:27:40 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:32951 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932933AbWJIP1j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 11:27:39 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
+Date: Mon, 9 Oct 2006 17:27:32 +0200
+User-Agent: KMail/1.9.4
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <200610091652.26209.arnd.bergmann@de.ibm.com> <Pine.LNX.4.62.0610091705070.16048@pademelon.sonytel.be>
+In-Reply-To: <Pine.LNX.4.62.0610091705070.16048@pademelon.sonytel.be>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610091727.34780.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- arch/ppc/syslib/mv64360_pic.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+On Monday 09 October 2006 17:05, Geert Uytterhoeven wrote:
+> 
+> On Mon, 9 Oct 2006, Arnd Bergmann wrote:
+> > On Monday 09 October 2006 15:09, Geert Uytterhoeven wrote:
+> > > On Mon, 9 Oct 2006, Jan Engelhardt wrote:
+> > > > 
+> > > > Ouch ouch ouch. It should better be
+> > > > 
+> > > > typedef uint32_t __u32;
+> > > 
+> > > You mean
+> > > 
+> > > #ifdef __KERNEL__
+> > > typedef __u32 u32;
+> > > #else
+> > > // Assumed we did #include <stdint.h> before
+> > > typedef uint32_t __u32;
+> > > #endif
+> > 
+> > Why should that be a valid assumption? Right now, it works
+> > if you don't include stdint.h in advance.
+> 
+> According to C99 section 7.18 you need to include <stdint.h> first.
 
-diff --git a/arch/ppc/syslib/mv64360_pic.c b/arch/ppc/syslib/mv64360_pic.c
-index 3f6d162..5104386 100644
---- a/arch/ppc/syslib/mv64360_pic.c
-+++ b/arch/ppc/syslib/mv64360_pic.c
-@@ -380,7 +380,7 @@ mv64360_register_hdlrs(void)
- 	/* Clear old errors and register CPU interface error intr handler */
- 	mv64x60_write(&bh, MV64x60_CPU_ERR_CAUSE, 0);
- 	if ((rc = request_irq(MV64x60_IRQ_CPU_ERR + mv64360_irq_base,
--		mv64360_cpu_error_int_handler, IRQF_DISABLED, CPU_INTR_STR, 0)))
-+		mv64360_cpu_error_int_handler, IRQF_DISABLED, CPU_INTR_STR, NULL)))
- 		printk(KERN_WARNING "Can't register cpu error handler: %d", rc);
- 
- 	mv64x60_write(&bh, MV64x60_CPU_ERR_MASK, 0);
-@@ -389,7 +389,7 @@ mv64360_register_hdlrs(void)
- 	/* Clear old errors and register internal SRAM error intr handler */
- 	mv64x60_write(&bh, MV64360_SRAM_ERR_CAUSE, 0);
- 	if ((rc = request_irq(MV64360_IRQ_SRAM_PAR_ERR + mv64360_irq_base,
--		mv64360_sram_error_int_handler,IRQF_DISABLED,SRAM_INTR_STR, 0)))
-+		mv64360_sram_error_int_handler,IRQF_DISABLED,SRAM_INTR_STR, NULL)))
- 		printk(KERN_WARNING "Can't register SRAM error handler: %d",rc);
- 
- 	/* Clear old errors and register PCI 0 error intr handler */
--- 
-1.4.2.GIT
+Sorry, I need to rephrase: you can include <linux/types.h> without
+including <stdint.h> first, and many people do that.
+Relying on uint32_t would mean we break existing source.
+
+	Arnd <><

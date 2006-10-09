@@ -1,118 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbWJIJeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWJIJhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbWJIJeU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 05:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbWJIJeU
+	id S1751742AbWJIJhg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 05:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWJIJhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 05:34:20 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:51483 "EHLO
+	Mon, 9 Oct 2006 05:37:36 -0400
+Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:37668 "EHLO
 	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1751728AbWJIJeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 05:34:19 -0400
+	id S1751735AbWJIJhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 05:37:35 -0400
 X-IronPort-Anti-Spam-Filtered: true
 X-IronPort-Anti-Spam-Result: AQAAAHi0KUWMEQ0
 X-IronPort-AV: i="4.09,280,1157320800"; 
-   d="scan'208"; a="4030936:sNHT53438288"
-Date: Mon, 9 Oct 2006 11:34:16 +0200
+   d="scan'208"; a="4031075:sNHT47817768"
+Date: Mon, 9 Oct 2006 11:37:33 +0200
 From: Joerg Roedel <joro-lkml@zlug.org>
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
        David Miller <davem@davemloft.net>
-Subject: [PATCH 01/02 V2] net/ipv6: seperate sit driver to extra module
-Message-ID: <20061009093416.GA11901@zlug.org>
+Subject: [PATCH 02/02 V2] net/ipv6: seperate sit driver to extra module (addrconf.c changes)
+Message-ID: <20061009093733.GB11901@zlug.org>
+References: <20061009093416.GA11901@zlug.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="VS++wcV0S1rZb1Fb"
+Content-Type: multipart/mixed; boundary="LyciRD1jyfeSSjG0"
 Content-Disposition: inline
+In-Reply-To: <20061009093416.GA11901@zlug.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---VS++wcV0S1rZb1Fb
+--LyciRD1jyfeSSjG0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-This is the changed version of the patch making the sit driver
-configurable as a seperate module.
+Decond part of the patch. It contains changes to to net/ipv6/addrconf.c
+to remove sit specific code if the sit driver it not selected.
+There are no changes to previous sumbit. This patch is resubmitted for
+completeness.
 
-Changes:
-- spelling fixes in Kconfig
-- changed "If unsure, say N" to "If unsure, say Y" for consistency
-
---VS++wcV0S1rZb1Fb
+--LyciRD1jyfeSSjG0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_sit_as_module
+Content-Disposition: attachment; filename=patch_sit_as_module_addrconf
 
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/af_inet6.c linux-2.6.18/net/ipv6/af_inet6.c
---- linux-2.6.18-vanilla/net/ipv6/af_inet6.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/af_inet6.c	2006-10-05 16:55:02.000000000 +0200
-@@ -849,7 +849,6 @@ static int __init inet6_init(void)
- 	err = addrconf_init();
- 	if (err)
- 		goto addrconf_fail;
--	sit_init();
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/addrconf.c linux-2.6.18/net/ipv6/addrconf.c
+--- linux-2.6.18-vanilla/net/ipv6/addrconf.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/addrconf.c	2006-10-06 11:04:04.000000000 +0200
+@@ -389,8 +389,10 @@ static struct inet6_dev * ipv6_add_dev(s
+ 	ndev->regen_timer.data = (unsigned long) ndev;
+ 	if ((dev->flags&IFF_LOOPBACK) ||
+ 	    dev->type == ARPHRD_TUNNEL ||
+-	    dev->type == ARPHRD_NONE ||
+-	    dev->type == ARPHRD_SIT) {
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
++	    dev->type == ARPHRD_SIT ||
++#endif
++	    dev->type == ARPHRD_NONE) {
+ 		printk(KERN_INFO
+ 		       "%s: Disabled Privacy Extensions\n",
+ 		       dev->name);
+@@ -1522,8 +1524,10 @@ addrconf_prefix_route(struct in6_addr *p
+ 	   This thing is done here expecting that the whole
+ 	   class of non-broadcast devices need not cloning.
+ 	 */
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 	if (dev->type == ARPHRD_SIT && (dev->flags&IFF_POINTOPOINT))
+ 		rtmsg.rtmsg_flags |= RTF_NONEXTHOP;
++#endif
  
- 	/* Init v6 extension headers. */
- 	ipv6_rthdr_init();
-@@ -920,7 +919,6 @@ static void __exit inet6_exit(void)
-  	raw6_proc_exit();
- #endif
- 	/* Cleanup code parts. */
--	sit_cleanup();
- 	ip6_flowlabel_cleanup();
- 	addrconf_cleanup();
- 	ip6_route_cleanup();
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Kconfig linux-2.6.18/net/ipv6/Kconfig
---- linux-2.6.18-vanilla/net/ipv6/Kconfig	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/Kconfig	2006-10-09 11:16:37.000000000 +0200
-@@ -126,6 +126,19 @@ config INET6_XFRM_MODE_TUNNEL
- 
- 	  If unsure, say Y.
- 
-+config IPV6_SIT
-+	tristate "IPv6: IPv6-in-IPv4 tunnel (SIT driver)"
-+	depends on IPV6
-+	default y
-+	---help---
-+	  Tunneling means encapsulating data of one protocol type within
-+	  another protocol and sending it over a channel that understands the
-+	  encapsulating protocol. This driver implements encapsulation of IPv6
-+	  into IPv4 packets. This is useful if you want to connect two IPv6
-+	  networks over an IPv4-only path.
-+
-+	  Saying M here will produce a module called sit.ko. If unsure, say Y.
-+
- config IPV6_TUNNEL
- 	tristate "IPv6: IPv6-in-IPv6 tunnel"
- 	select INET6_TUNNEL
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Makefile linux-2.6.18/net/ipv6/Makefile
---- linux-2.6.18-vanilla/net/ipv6/Makefile	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/Makefile	2006-10-05 17:10:42.000000000 +0200
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_IPV6) += ipv6.o
- 
--ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o sit.o \
-+ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o \
- 		route.o ip6_fib.o ipv6_sockglue.o ndisc.o udp.o raw.o \
- 		protocol.o icmp.o mcast.o reassembly.o tcp_ipv6.o \
- 		exthdrs.o sysctl_net_ipv6.o datagram.o proc.o \
-@@ -24,6 +24,7 @@ obj-$(CONFIG_INET6_XFRM_MODE_TRANSPORT) 
- obj-$(CONFIG_INET6_XFRM_MODE_TUNNEL) += xfrm6_mode_tunnel.o
- obj-$(CONFIG_NETFILTER)	+= netfilter/
- 
-+obj-$(CONFIG_IPV6_SIT) += sit.o
- obj-$(CONFIG_IPV6_TUNNEL) += ip6_tunnel.o
- 
- obj-y += exthdrs_core.o
-diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/sit.c linux-2.6.18/net/ipv6/sit.c
---- linux-2.6.18-vanilla/net/ipv6/sit.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18/net/ipv6/sit.c	2006-10-05 16:55:02.000000000 +0200
-@@ -850,3 +850,6 @@ int __init sit_init(void)
- 	inet_del_protocol(&sit_protocol, IPPROTO_IPV6);
- 	goto out;
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
  }
-+
-+module_init(sit_init);
-+module_exit(sit_cleanup);
+@@ -1545,6 +1549,7 @@ static void addrconf_add_mroute(struct n
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
+ }
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void sit_route_add(struct net_device *dev)
+ {
+ 	struct in6_rtmsg rtmsg;
+@@ -1561,6 +1566,7 @@ static void sit_route_add(struct net_dev
+ 
+ 	ip6_route_add(&rtmsg, NULL, NULL, NULL);
+ }
++#endif
+ 
+ static void addrconf_add_lroute(struct net_device *dev)
+ {
+@@ -1831,6 +1837,7 @@ int addrconf_set_dstaddr(void __user *ar
+ 	if (dev == NULL)
+ 		goto err_exit;
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 	if (dev->type == ARPHRD_SIT) {
+ 		struct ifreq ifr;
+ 		mm_segment_t	oldfs;
+@@ -1860,6 +1867,7 @@ int addrconf_set_dstaddr(void __user *ar
+ 			err = dev_open(dev);
+ 		}
+ 	}
++#endif
+ 
+ err_exit:
+ 	rtnl_unlock();
+@@ -1993,6 +2001,7 @@ int addrconf_del_ifaddr(void __user *arg
+ 	return err;
+ }
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void sit_add_v4_addrs(struct inet6_dev *idev)
+ {
+ 	struct inet6_ifaddr * ifp;
+@@ -2061,6 +2070,7 @@ static void sit_add_v4_addrs(struct inet
+ 		}
+         }
+ }
++#endif
+ 
+ static void init_loopback(struct net_device *dev)
+ {
+@@ -2124,6 +2134,7 @@ static void addrconf_dev_config(struct n
+ 		addrconf_add_linklocal(idev, &addr);
+ }
+ 
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ static void addrconf_sit_config(struct net_device *dev)
+ {
+ 	struct inet6_dev *idev;
+@@ -2149,6 +2160,7 @@ static void addrconf_sit_config(struct n
+ 	} else
+ 		sit_route_add(dev);
+ }
++#endif
+ 
+ static inline int
+ ipv6_inherit_linklocal(struct inet6_dev *idev, struct net_device *link_dev)
+@@ -2243,9 +2255,11 @@ static int addrconf_notify(struct notifi
+ 		}
+ 
+ 		switch(dev->type) {
++#if defined(CONFIG_IPV6_SIT) || defined(CONFIG_IPV6_SIT_MODULE)
+ 		case ARPHRD_SIT:
+ 			addrconf_sit_config(dev);
+ 			break;
++#endif
+ 		case ARPHRD_TUNNEL6:
+ 			addrconf_ip6_tnl_config(dev);
+ 			break;
 
---VS++wcV0S1rZb1Fb--
+--LyciRD1jyfeSSjG0--

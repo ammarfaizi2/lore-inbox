@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932857AbWJIOMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932853AbWJIOKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932857AbWJIOMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932893AbWJIOL7
+	id S932853AbWJIOKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932829AbWJIOKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:11:59 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:33265 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932861AbWJIOLZ (ORCPT
+	Mon, 9 Oct 2006 10:10:36 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:25841 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S932853AbWJIOKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 10:11:25 -0400
-Date: Mon, 9 Oct 2006 07:10:14 -0700
+	Mon, 9 Oct 2006 10:10:34 -0400
+Date: Mon, 9 Oct 2006 07:10:11 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200610091410.k99EAE9Z026090@frankl.hpl.hp.com>
+Message-Id: <200610091410.k99EABcN026051@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 07/21] 2.6.18 perfmon2 : event sets and multiplexing support
+Subject: [PATCH 04/21] 2.6.18 perfmon2 : sysfs support
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the event set and multiplexing support.
+This patch contains the sysfs support.
 
-On many PMU models, there is not enough counter to collect
-certain metric in one run. Even on those that have potentially
-lots of counters, e.g. P4 with 18, there are oftentimes constraints
-which make measuring certain event together impossible. In those
-situation the user has n choice but to measure with multiple
-runs which is not always practical and prone to errors.
+We use the sysfs interface fot two reasons:
+	- perfmon2 administration
+	- user level information
 
-One way to alleviate the problem is to introduce the notion
-of an event set. Each set encapsulates the entire PMU state.
-If a PMU has M counters then each set can define M events. 
-Multiple sets can be defined. They are then multiplexed onto
-the actual PMU such that only one is active at any time.
-The collected counts can then be scaled to get an *estimate*
-of what they would have been had each event been measured across
-the entire run. It is important to note that this remains an
-estimate. The faster we can switch, the smaller the blind spots are
-but the higher the overhead is.
+Perfmon2 creates new directories in /sys:
+	- /sys/kernel/perfmon: for adminstration and global information
+	- /sys/devices/system/cpu/cpuXX/perfmon: per-cpu statistics (debugging)
 
-Sets and set switching can be implemented at the user level. Yet
-by having kernel support for it, we can signification improve
-performance especially for non self-monitoring per-thread context where
-we guarantee switching always occurs in the context of the monitored thread.
+In /sys/kernel/perfmon we find:
+	- arg_size_max (R/W): maximum size of vector arguments in bytes
+	- buf_size_max (R/W):  maximum aggregated size of all smapling buffers
+	- smpl_buffer_mem (R): current consumption of buf_size_max
+	- debug (R/W) : enable perfmon2 debugging messages
+	- debug_ovfl (R/W): enable perfmon2 interrupt debugging messages
+	- formats/	: information about available sampling formats
+	- pmc_max_fast_arg (R): how many vector arguments can be processed on the stack for pfarg_pmc_t
+	- pmd_max_fast_arg (R):  how many vector arguments can be processed on the stack for pfarg_pmd_t
 
-By default, any perfmon2 context is created with a default set, i.e., set0.
-Set can be dynamically created/deleted with specific system calls. A set
-is identified by a simple number (0-65535). The number determines the
-position of the set in an ordered list. The order in the list determines
-the switch order. Switching occurs in a round-robin fashion.
+	- reset_stats (W):  reset statistics
+	- sys_group (R/W): which user group is allowed to create systemwide perfmon2 contexts
+	- task_group (R/W): which user group is allowed to create per-thread perfmon2 contexts
+	- sys_sessions_count (R):  number of active per-thread contexts
+	- task_sessions_count (R): number of active system-wide contexts
+	- version (R): perfmon2 version
 
-Switching can be triggered by a timeout or after a certain number of overflows.
-The type of switching as well as the timeout is determined per set.
-The timeout granularity is determined by that of the timer tick. The actual
-timeout value is returned to the user.
+In /sys/kernel/perfmon/pmu_desc (created at first use of subsystem):
+	- model (R): name of active PMU description module
+	- counter_width	(R): PMU HW counter width
+	- one subdirs for each pmd or pmc register
 
-The file perfmon_sets.c implements:
-	- set-related back-end system calls: __pfm_create_evtsets(), __pfm_delete_evtsets(), __pfm_getinfo_evtsets()
-	- set switching: pfm_switch_sets(), __pfm_handle_switch_timeout()
+In /sys/kernel/perfmon/pmu_desc/pmdX:
+	- addr	 (R) : hardware address or index of register
+	- dfl_val (R): default value
+	- name    (R): logical name
+	- rsvd_msk(R): reserved bits 
+
+In /sys/kernel/perfmon/pmu_desc/pmcX:
+	- addr	 (R) : hardware address or index of register
+	- dfl_val (R): default value
+	- name    (R): logical name
+	- rsvd_msk(R): reserved bits 
+
+The statistics we maintained in /sys/system/devices/cpu/cpuXX are mostly
+for debugging purposes at this point. Added/removed on CPU hotplug events.
 
 
 
 
---- linux-2.6.18.base/perfmon/perfmon_sets.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18/perfmon/perfmon_sets.c	2006-09-25 12:10:45.000000000 -0700
-@@ -0,0 +1,1009 @@
+--- linux-2.6.18.base/perfmon/perfmon_sysfs.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18/perfmon/perfmon_sysfs.c	2006-09-25 12:11:05.000000000 -0700
+@@ -0,0 +1,893 @@
 +/*
-+ * perfmon_sets.c: perfmon2 event sets and multiplexing functions
++ * perfmon_proc.c: perfmon2 /proc interface
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -103,975 +110,859 @@ The file perfmon_sets.c implements:
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 + * 02111-1307 USA
 +  */
++#include <linux/config.h>
 +#include <linux/module.h>
 +#include <linux/kernel.h>
-+#include <linux/vmalloc.h>
++#include <linux/smp_lock.h>
++#include <linux/proc_fs.h>
++#include <linux/list.h>
++#include <linux/version.h>
 +#include <linux/perfmon.h>
-+#include <linux/pagemap.h>
++#include <linux/device.h>
++#include <linux/cpu.h>
 +
-+static kmem_cache_t		*pfm_set_cachep;
-+static kmem_cache_t		*pfm_lg_set_cachep;
++#include <asm/bitops.h>
++#include <asm/errno.h>
++#include <asm/processor.h>
 +
-+/*
-+ * reload reference overflow switch thresholds
-+ */
-+static void pfm_reload_switch_thresholds(struct pfm_event_set *set)
++struct pfm_attribute {
++	struct attribute attr;
++	ssize_t (*show)(void *, char *);
++	ssize_t (*store)(void *, const char *, size_t);
++};
++#define to_attr(n) container_of(n, struct pfm_attribute, attr);
++
++#define PFM_RO_ATTR(_name) \
++struct pfm_attribute attr_##_name = __ATTR_RO(_name)
++
++#define PFM_RW_ATTR(_name,_mode,_show,_store) 			\
++struct pfm_attribute attr_##_name = __ATTR(_name,_mode,_show,_store);
++
++static int pfm_sysfs_init_done;	/* true when pfm_sysfs_init() completed */
++
++int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu);
++
++struct pfm_controls pfm_controls = {
++	.sys_group = PFM_GROUP_PERM_ANY,
++	.task_group = PFM_GROUP_PERM_ANY,
++	.arg_size_max = PAGE_SIZE,
++	.smpl_buf_size_max = ~0,
++};
++EXPORT_SYMBOL(pfm_controls);
++
++DECLARE_PER_CPU(struct pfm_stats, pfm_stats);
++
++static struct kobject pfm_kernel_kobj, pfm_kernel_fmt_kobj;
++
++static void pfm_reset_stats(int cpu)
 +{
-+	u64 *mask;
-+	u16 i, max_cnt_pmd, first_cnt_pmd;
++	struct pfm_stats *st;
 +
-+	mask = set->used_pmds;
-+	first_cnt_pmd = pfm_pmu_conf->first_cnt_pmd;
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
 +
-+	for (i = first_cnt_pmd; i< max_cnt_pmd; i++) {
-+		if (pfm_bv_isset(mask, i)) {
-+			set->pmds[i].ovflsw_thres = set->pmds[i].ovflsw_ref_thres;
-+			PFM_DBG("pmd%u set%u ovflsw_thres=%llu",
-+				i,
-+				set->id,
-+				(unsigned long long)set->pmds[i].ovflsw_thres);
-+		}
-+	}
++	st = &per_cpu(pfm_stats, cpu);
++	/*
++	 * cannot use memset because of kobj member
++	 */
++	st->pfm_ovfl_intr_replay_count = 0;
++	st->pfm_ovfl_intr_regular_count = 0;
++	st->pfm_ovfl_intr_all_count = 0;
++	st->pfm_ovfl_intr_ns = 0;
++	st->pfm_ovfl_intr_phase1 = 0;
++	st->pfm_ovfl_intr_phase2 = 0;
++	st->pfm_ovfl_intr_phase3 = 0;
++	st->pfm_ovfl_intr_nmi_count = 0;
++	st->pfm_fmt_handler_calls = 0;
++	st->pfm_fmt_handler_ns = 0;
++	st->pfm_set_switch_count = 0;
++	st->pfm_set_switch_ns = 0;
++	st->pfm_ctxsw_count = 0;
++	st->pfm_ctxsw_ns = 0;
++	st->pfm_handle_timeout_count = 0;
 +}
 +
 +
-+/*
-+ * ensures that all id_next sets exists such that the round-robin
-+ * will work correctly, i.e., next dangling references.
-+ */
-+int pfm_prepare_sets(struct pfm_context *ctx, struct pfm_event_set *act_set)
++static ssize_t pfm_fmt_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
 +{
-+	struct pfm_event_set *set1, *set2;
-+	u16 max_cnt_pmd;
-+#define is_last_set(s, c)	((s)->list.next == &(c)->list)
++	struct pfm_smpl_fmt *fmt = to_smpl_fmt(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(fmt, buf) : -EIO;
++}
 +
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++static ssize_t pfm_pmu_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct _pfm_pmu_config *pmu= to_pmu(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(pmu, buf) : -EIO;
++}
 +
-+	list_for_each_entry(set1, &ctx->list, list) {
++static ssize_t pfm_stats_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct pfm_stats *st = to_stats(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(st, buf) : -EIO;
++}
 +
-+		if (is_last_set(set1, ctx))
-+			set2 = list_entry(ctx->list.next,
-+					  struct pfm_event_set, list);
-+		else
-+			set2 = list_entry(set1->list.next,
-+					  struct pfm_event_set, list);
-+		/*
-+		 * switch_next is used during actual switching
-+		 * so we prepare its value here. When no explicit next
-+		 * is requested, the field is initialized with the address
-+		 * of the next element in the ordered list
-+		 */
-+		if (set1->flags & PFM_SETFL_EXPL_NEXT) {
-+			list_for_each_entry(set2, &ctx->list, list) {
-+				if (set2->id == set1->id_next)
-+					break;
-+			}
-+			if (set2 == NULL) {
-+				PFM_DBG("set%u points to set%u "
-+					"which does not exist",
-+					set1->id,
-+					set1->id_next);
-+				return -EINVAL;
-+			}
++static ssize_t pfm_regs_attr_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct pfm_reg_desc *reg = to_reg(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->show ? attribute->show(reg, buf) : -EIO;
++}
++
++static ssize_t pfm_stats_attr_store(struct kobject *kobj,
++		struct attribute *attr, const char *buf, size_t count)
++{
++	struct pfm_stats *st = to_stats(kobj);
++	struct pfm_attribute *attribute = to_attr(attr);
++	return attribute->store ? attribute->store(st, buf, count) : -EIO;
++}
++
++static struct sysfs_ops pfm_fmt_sysfs_ops = {
++	.show = pfm_fmt_attr_show
++};
++
++static struct sysfs_ops pfm_pmu_sysfs_ops = {
++	.show = pfm_pmu_attr_show
++};
++
++static struct sysfs_ops pfm_stats_sysfs_ops = {
++	.show  = pfm_stats_attr_show,
++	.store = pfm_stats_attr_store
++};
++
++static struct sysfs_ops pfm_regs_sysfs_ops = {
++	.show  = pfm_regs_attr_show
++};
++
++static struct kobj_type pfm_fmt_ktype = {
++	.sysfs_ops = &pfm_fmt_sysfs_ops,
++};
++
++static struct kobj_type pfm_pmu_ktype = {
++	.sysfs_ops = &pfm_pmu_sysfs_ops,
++};
++
++static struct kobj_type pfm_stats_ktype = {
++	.sysfs_ops = &pfm_stats_sysfs_ops,
++};
++
++static struct kobj_type pfm_regs_ktype = {
++	.sysfs_ops = &pfm_regs_sysfs_ops,
++};
++
++decl_subsys_name(pfm_fmt, pfm_fmt, &pfm_fmt_ktype, NULL);
++decl_subsys_name(pfm_pmu, pfm_pmu, &pfm_pmu_ktype, NULL);
++decl_subsys_name(pfm_stats, pfm_stats, &pfm_stats_ktype, NULL);
++decl_subsys_name(pfm_regs, pfm_regs, &pfm_regs_ktype, NULL);
++
++static ssize_t version_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u.%u\n",  PFM_VERSION_MAJ, PFM_VERSION_MIN);
++}
++
++static ssize_t pmd_max_fast_arg_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMD_STK_ARG);
++}
++
++static ssize_t pmc_max_fast_arg_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%u\n",  PFM_PMC_STK_ARG);
++}
++
++
++
++static ssize_t task_sessions_count_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 0);
++}
++
++static ssize_t sys_sessions_count_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 1);
++}
++
++static ssize_t smpl_buffer_mem_show(void *info, char *buf)
++{
++	return pfm_sysfs_session_show(buf, PAGE_SIZE, 2);
++}
++
++static ssize_t debug_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug);
++}
++
++static ssize_t debug_store(void *info, const char *buf, size_t sz)
++{
++	int d, i;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.debug = d;
++
++	if (d == 0) {
++		for_each_online_cpu(i) {
++			pfm_reset_stats(i);
 +		}
-+		/*
-+		 * update field used during actual switching
-+		 */
-+		set1->sw_next = set2;
-+
-+		PFM_DBG("set%u sw_next=%u", set1->id, set2->id);
-+
-+		/*
-+		 * cleanup bitvectors
-+		 */
-+		bitmap_zero(ulp(set1->ovfl_pmds), max_cnt_pmd);
-+		bitmap_zero(ulp(set1->povfl_pmds), max_cnt_pmd);
-+		set1->npend_ovfls = 0;
-+		/*
-+		 * we cannot just use plain clear because of arch-specific flags
-+		 */
-+		set1->priv_flags &= ~(PFM_SETFL_PRIV_MOD_BOTH|PFM_SETFL_PRIV_SWITCH);
-+
-+		/*
-+		 * reset activation and elapsed ns
-+		 */
-+		set1->duration = 0;
-+
-+		pfm_modview_begin(set1);
-+
-+		set1->view->set_runs = 0;
-+
-+		pfm_modview_end(set1);
 +	}
++	return sz;
++}
++
++static ssize_t debug_ovfl_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug_ovfl);
++}
++
++static ssize_t debug_ovfl_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.debug_ovfl = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t reset_stats_show(void *info, char *buf)
++{
++	buf[0]='0';
++	buf[1]='\0';
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t reset_stats_store(void *info, const char *buf, size_t count)
++{
++	int i;
++
++	for_each_online_cpu(i) {
++		pfm_reset_stats(i);
++	}
++	return count;
++}
++
++static ssize_t sys_group_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.sys_group);
++}
++
++static ssize_t sys_group_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.sys_group = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t task_group_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.task_group);
++}
++
++static ssize_t task_group_store(void *info, const char *buf, size_t sz)
++{
++	int d;
++
++	if (sscanf(buf,"%d", &d) != 1)
++		return -EINVAL;
++
++	pfm_controls.task_group = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t buf_size_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%zu\n", pfm_controls.smpl_buf_size_max);
++}
++
++static ssize_t buf_size_store(void *info, const char *buf, size_t sz)
++{
++	size_t d;
++
++	if (sscanf(buf,"%zu", &d) != 1)
++		return -EINVAL;
 +	/*
-+	 * setting PFM_CPUINFO_TIME_SWITCH, triggers
-+	 * further checking if __pfm_handle_switch_timeout().
-+	 * switch timeout is effectively decremented only when
-+	 * monitoring has been activated via pfm_start() or
-+	 * any user level equivalent.
++	 * we impose a page as the minimum
 +	 */
-+	if (act_set->flags & PFM_SETFL_OVFL_SWITCH) {
-+		pfm_reload_switch_thresholds(act_set);
-+	} else if (act_set->flags & PFM_SETFL_TIME_SWITCH) {
-+		act_set->timeout_sw_left = act_set->timeout_sw_ref;
-+		PFM_DBG("arming timeout for set%u", act_set->id);
-+		if (ctx->flags.system)
-+			__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
++	if (d < PAGE_SIZE)
++		return -EINVAL;
++
++	pfm_controls.smpl_buf_size_max = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++static ssize_t arg_size_show(void *info, char *buf)
++{
++	return snprintf(buf, PAGE_SIZE, "%zu\n", pfm_controls.arg_size_max);
++}
++
++static ssize_t arg_size_store(void *info, const char *buf, size_t sz)
++{
++	size_t d;
++
++	if (sscanf(buf,"%zu", &d) != 1)
++		return -EINVAL;
++
++	/*
++	 * we impose a page as the minimum.
++	 *
++	 * This limit may be smaller than the stack buffer
++	 * available and that is fine.
++	 */
++	if (d < PAGE_SIZE)
++		return -EINVAL;
++
++	pfm_controls.arg_size_max = d;
++
++	return strnlen(buf, PAGE_SIZE);
++}
++
++/*
++ * /sys/kernel/perfmon attributes
++ */
++static PFM_RO_ATTR(version);
++static PFM_RO_ATTR(task_sessions_count);
++static PFM_RO_ATTR(sys_sessions_count);
++static PFM_RO_ATTR(smpl_buffer_mem);
++static PFM_RO_ATTR(pmd_max_fast_arg);
++static PFM_RO_ATTR(pmc_max_fast_arg);
++
++static PFM_RW_ATTR(debug, 0644, debug_show, debug_store);
++static PFM_RW_ATTR(debug_ovfl, 0644, debug_ovfl_show, debug_ovfl_store);
++static PFM_RW_ATTR(reset_stats, 0644, reset_stats_show, reset_stats_store);
++static PFM_RW_ATTR(sys_group, 0644, sys_group_show, sys_group_store);
++static PFM_RW_ATTR(task_group, 0644, task_group_show, task_group_store);
++static PFM_RW_ATTR(buf_size_max, 0644, buf_size_show, buf_size_store);
++static PFM_RW_ATTR(arg_size_max, 0644, arg_size_show, arg_size_store);
++
++static struct attribute *pfm_kernel_attrs[] = {
++	&attr_version.attr,
++	&attr_task_sessions_count.attr,
++	&attr_sys_sessions_count.attr,
++	&attr_smpl_buffer_mem.attr,
++	&attr_pmd_max_fast_arg.attr,
++	&attr_pmc_max_fast_arg.attr,
++	&attr_debug.attr,
++	&attr_debug_ovfl.attr,
++	&attr_reset_stats.attr,
++	&attr_sys_group.attr,
++	&attr_task_group.attr,
++	&attr_buf_size_max.attr,
++	&attr_arg_size_max.attr,
++	NULL
++};
++
++static struct attribute_group pfm_kernel_attr_group = {
++	.attrs = pfm_kernel_attrs,
++};
++
++int __init pfm_init_sysfs(void)
++{
++	int ret;
++	int done_fmt = 0, done_pmu = 0, done_stats = 0, done_regs = 0;
++	int done_kobj_fmt = 0, done_kobj_kernel = 0;
++	int i, cpu = -1;
++	
++	ret = subsystem_register(&pfm_fmt_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_fmt_subsys: %d", ret);
++		goto error;
++	}
++	done_fmt = 1;
++
++	ret = subsystem_register(&pfm_pmu_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_pmu_subsys: %d", ret);
++		goto error;
++	}
++	done_pmu = 1;
++
++	ret = subsystem_register(&pfm_stats_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_stats_subsys: %d", ret);
++		goto error;
++	}
++	done_stats = 1;
++
++	ret = subsystem_register(&pfm_regs_subsys);
++	if (ret) {
++		PFM_INFO("cannot register pfm_regs_subsys: %d", ret);
++		goto error;
++	}
++	done_regs = 1;
++
++
++	kobject_init(&pfm_kernel_kobj);
++	kobject_init(&pfm_kernel_fmt_kobj);
++
++	pfm_kernel_kobj.parent = &kernel_subsys.kset.kobj;
++	kobject_set_name(&pfm_kernel_kobj, "perfmon");
++
++	pfm_kernel_fmt_kobj.parent = &pfm_kernel_kobj;
++	kobject_set_name(&pfm_kernel_fmt_kobj, "formats");
++
++	ret = kobject_add(&pfm_kernel_kobj);
++	if (ret) {
++		PFM_INFO("cannot add kernel object: %d", ret);
++		goto error;
++	}
++	done_kobj_kernel = 1;
++
++	ret = kobject_add(&pfm_kernel_fmt_kobj);
++	if (ret) {
++		PFM_INFO("cannot add fmt object: %d", ret);
++		goto error;
++	}
++	done_kobj_fmt = 1;
++
++	ret = sysfs_create_group(&pfm_kernel_kobj, &pfm_kernel_attr_group);
++	if (ret) {
++		PFM_INFO("cannot create kernel group");
++		goto error;
 +	}
 +
++	/*
++	 * must be set before builtin_fmt and
++	 * add_pmu() calls
++	 */
++	pfm_sysfs_init_done = 1;
++
++	pfm_sysfs_builtin_fmt_add();
++
++	if (pfm_pmu_conf)
++		pfm_sysfs_add_pmu(pfm_pmu_conf);
++
++	for_each_online_cpu(cpu) {
++		ret = pfm_sysfs_add_cpu(cpu);
++		if (ret)
++			goto error;
++	}
 +	return 0;
++error:
++	if (done_fmt)
++		subsystem_unregister(&pfm_fmt_subsys);
++	if (done_pmu)
++		subsystem_unregister(&pfm_pmu_subsys);
++	if (done_stats)
++		subsystem_unregister(&pfm_stats_subsys);
++	if (done_regs)
++		subsystem_unregister(&pfm_regs_subsys);
++	if (done_kobj_kernel)
++		kobject_del(&pfm_kernel_kobj);
++	if (done_kobj_fmt)
++		kobject_del(&pfm_kernel_fmt_kobj);
++
++	for (i=0; i < cpu; i++)
++		pfm_sysfs_del_cpu(i);
++
++	return ret;
 +}
 +
 +/*
-+ * called from *_timer_interrupt(). task == current
++ * per-cpu perfmon stats attributes
 + */
-+void __pfm_handle_switch_timeout(void)
-+{
-+	struct pfm_event_set *set;
-+	struct pfm_context *ctx;
-+	unsigned long flags;
++#define PFM_DECL_STATS_ATTR(name) \
++static ssize_t name##_show(void *info, char *buf) \
++{ \
++	struct pfm_stats *st = info;\
++	return snprintf(buf, PAGE_SIZE, "%llu\n", \
++			(unsigned long long)st->pfm_##name); \
++} \
++static PFM_RO_ATTR(name)
 +
-+	/*
-+	 * The timer tick check is operating on each
-+	 * CPU. Not all CPUs have time switching enabled
-+	 * hence we need to check.
-+	 */
-+	ctx  = __get_cpu_var(pmu_ctx);
-+	if (ctx == NULL)
-+		return;
-+
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	set = ctx->active_set;
-+	BUG_ON(set == NULL);
-+
-+	/*
-+	 * we decrement only when attached and not masked or zombie
-+	 */
-+	if (ctx->state != PFM_CTX_LOADED)
-+		goto done;
-+
-+	/*
-+	 * do not decrement timeout unless monitoring is active.
-+	 */
-+	if (!ctx->flags.started && !pfm_arch_is_active(ctx))
-+		goto done;
-+
-+	set->timeout_sw_left--;
-+
-+	__get_cpu_var(pfm_stats).pfm_handle_timeout_count++;
-+
-+	if (!set->timeout_sw_left)
-+		pfm_switch_sets(ctx, NULL, PFM_PMD_RESET_SHORT, 0);
-+done:
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+}
++PFM_DECL_STATS_ATTR(ovfl_intr_replay_count);
++PFM_DECL_STATS_ATTR(ovfl_intr_all_count);
++PFM_DECL_STATS_ATTR(ovfl_intr_ns);
++PFM_DECL_STATS_ATTR(fmt_handler_calls);
++PFM_DECL_STATS_ATTR(fmt_handler_ns);
++PFM_DECL_STATS_ATTR(set_switch_count);
++PFM_DECL_STATS_ATTR(set_switch_ns);
++PFM_DECL_STATS_ATTR(ctxsw_count);
++PFM_DECL_STATS_ATTR(ctxsw_ns);
++PFM_DECL_STATS_ATTR(handle_timeout_count);
++PFM_DECL_STATS_ATTR(ovfl_intr_nmi_count);
 +
 +/*
-+ *
-+ * always operating on the current task
-+ *
-+ * input:
-+ * 	- new_set: new set to switch to, if NULL follow normal chain
++ * per-reg attributes
 + */
-+void pfm_switch_sets(struct pfm_context *ctx,
-+		    struct pfm_event_set *new_set,
-+		    int reset_mode,
-+		    int no_restart)
++static ssize_t name_show(void *info, char *buf)
++{ 
++	struct pfm_reg_desc *reg = info;
++	return snprintf(buf, PAGE_SIZE, "%s\n", reg->desc);
++}
++static PFM_RO_ATTR(name);
++
++static ssize_t dfl_val_show(void *info, char *buf)
++{ 
++	struct pfm_reg_desc *reg = info;
++	return snprintf(buf, PAGE_SIZE, "0x%llx\n",
++			(unsigned long long)reg->dfl_val);
++}
++static PFM_RO_ATTR(dfl_val);
++
++static ssize_t rsvd_msk_show(void *info, char *buf)
++{ 
++	struct pfm_reg_desc *reg = info;
++	return snprintf(buf, PAGE_SIZE, "0x%llx\n",
++			(unsigned long long)reg->rsvd_msk);
++}
++static PFM_RO_ATTR(rsvd_msk);
++
++static ssize_t addr_show(void *info, char *buf)
++{ 
++	struct pfm_reg_desc *reg = info;
++	return snprintf(buf, PAGE_SIZE, "0x%lx\n", reg->hw_addr);
++}
++static PFM_RO_ATTR(addr);
++
++static ssize_t ovfl_intr_spurious_count_show(void *info, char *buf)
 +{
-+	struct pfm_event_set *set;
-+	u64 switch_count;
-+	u64 now, end;
-+	unsigned long info = 0;
-+	u32 new_flags;
-+	int is_system, state, is_active;
-+
-+	now = sched_clock();
-+	set = ctx->active_set;
-+	is_active = ctx->flags.started || pfm_arch_is_active(ctx);
-+
-+	BUG_ON(!ctx->flags.system && ctx->task != current);
-+
-+	/*
-+	 * if no set is explicitely requested,
-+	 * use the set_switch_next field
-+	 */
-+	if (new_set == NULL) {
-+		/*
-+	 	 * we use round-robin unless the user specified
-+		 * a particular set to go to.
-+	 	 */
-+		new_set = set->sw_next;
-+		BUG_ON(new_set == NULL);
-+	}
-+
-+	PFM_DBG("state=%d prev_set=%u prev_runs=%llu new_set=%u "
-+		  "new_runs=%llu reset_mode=%d reset_pmds=%llx",
-+		  ctx->state,
-+		  set->id,
-+		  (unsigned long long)set->view->set_runs,
-+		  new_set->id,
-+		  (unsigned long long)new_set->view->set_runs,
-+		  reset_mode,
-+		  (unsigned long long)new_set->reset_pmds[0]);
-+
-+	/*
-+	 * nothing more to do
-+	 */
-+	if (new_set == set)
-+		return;
-+
-+	is_system = ctx->flags.system;
-+	state = ctx->state;
-+	new_flags = new_set->flags;
-+	switch_count = __get_cpu_var(pfm_stats).pfm_set_switch_count;
-+
-+	pfm_modview_begin(set);
-+
-+	new_set->view->set_runs++;
-+
-+	if (is_active) {
-+		/*
-+		 * stop current set
-+		 */
-+		if (is_system)
-+			info = __get_cpu_var(pfm_syst_info);
-+
-+		pfm_arch_stop(current, ctx, set);
-+
-+		pfm_save_pmds(ctx, set);
-+
-+		/*
-+	 	 * compute elapsed ns for active set
-+	 	 */
-+		set->duration += now - set->duration_start;
-+		set->view->set_status &= ~PFM_SETVFL_ACTIVE;
-+
-+	}
-+	pfm_modview_end(set);
-+
-+	switch_count++;
-+
-+	pfm_arch_restore_pmds(ctx, new_set);
-+
-+	/*
-+	 * if masked, we must restore the pmcs such that they
-+	 * do not capture anything.
-+	 */
-+	pfm_arch_restore_pmcs(ctx, new_set);
-+
-+	new_set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
-+
-+	/*
-+	 * reload switch threshold
-+	 */
-+	if (new_flags & PFM_SETFL_OVFL_SWITCH)
-+		pfm_reload_switch_thresholds(new_set);
-+
-+	/*
-+	 * reset timeout for new set
-+	 */
-+	if (new_flags & PFM_SETFL_TIME_SWITCH)
-+		new_set->timeout_sw_left = new_set->timeout_sw_ref;
-+
-+	/*
-+	 * reset overflowed PMD registers
-+	 */
-+	if (reset_mode != PFM_PMD_RESET_NONE
-+	    && !bitmap_empty(ulp(new_set->reset_pmds), pfm_pmu_conf->max_pmd))
-+		pfm_reset_pmds(ctx, new_set, reset_mode);
-+
-+	/*
-+	 * this is needed when coming from pfm_start()
-+	 */
-+	if (no_restart)
-+		goto skip_restart;
-+
-+	/*
-+	 * reactivate monitoring
-+	 */
-+	if (is_system) {
-+		info  &= ~PFM_CPUINFO_TIME_SWITCH;
-+
-+		if (new_flags & PFM_SETFL_TIME_SWITCH)
-+			info |= PFM_CPUINFO_TIME_SWITCH;
-+
-+		__get_cpu_var(pfm_syst_info) = info;
-+
-+		PFM_DBG("new_set=%u info=0x%lx flags=0x%x",
-+			new_set->id,
-+			info,
-+			new_flags);
-+	}
-+
-+	if (is_active) {
-+		pfm_arch_start(current, ctx, new_set);
-+		new_set->duration_start = now;
-+	}
-+
-+skip_restart:
-+	end = sched_clock();
-+	ctx->active_set = new_set;
-+	new_set->view->set_status |= PFM_SETVFL_ACTIVE;
-+
-+	__get_cpu_var(pfm_stats).pfm_set_switch_count = switch_count;
-+	__get_cpu_var(pfm_stats).pfm_set_switch_ns += end - now;
++	struct pfm_stats *st = info;
++	return snprintf(buf, PAGE_SIZE, "%llu\n",
++			(unsigned long long)(st->pfm_ovfl_intr_all_count
++					     - st->pfm_ovfl_intr_regular_count));
 +}
 +
-+static int pfm_setfl_sane(struct pfm_context *ctx, u32 flags)
++static ssize_t ovfl_intr_regular_count_show(void *info, char *buf)
 +{
-+#define PFM_SETFL_BOTH_SWITCH	(PFM_SETFL_OVFL_SWITCH|PFM_SETFL_TIME_SWITCH)
++	struct pfm_stats *st = info;
++	return snprintf(buf, PAGE_SIZE, "%llu\n",
++			(unsigned long long)(st->pfm_ovfl_intr_regular_count
++					     - st->pfm_ovfl_intr_replay_count));
++}
++
++static PFM_RO_ATTR(ovfl_intr_spurious_count);
++static PFM_RO_ATTR(ovfl_intr_regular_count);
++
++static struct attribute *pfm_cpu_attrs[] = {
++	&attr_ovfl_intr_spurious_count.attr,
++	&attr_ovfl_intr_replay_count.attr,
++	&attr_ovfl_intr_regular_count.attr,
++	&attr_ovfl_intr_all_count.attr,
++	&attr_ovfl_intr_ns.attr,
++	&attr_fmt_handler_calls.attr,
++	&attr_fmt_handler_ns.attr,
++	&attr_set_switch_count.attr,
++	&attr_set_switch_ns.attr,
++	&attr_ctxsw_count.attr,
++	&attr_ctxsw_ns.attr,
++	&attr_handle_timeout_count.attr,
++	&attr_ovfl_intr_nmi_count.attr,
++	NULL
++};
++
++static struct attribute_group pfm_cpu_attr_group = {
++	.attrs = pfm_cpu_attrs,
++};
++
++int pfm_sysfs_add_cpu(int mycpu)
++{
++	struct sys_device *cpudev;
++	struct pfm_stats *st;
 +	int ret;
 +
-+	ret = pfm_arch_setfl_sane(ctx, flags);
++	cpudev = get_cpu_sysdev(mycpu);
++	if (!cpudev)
++		return -EINVAL;
++
++	st = &per_cpu(pfm_stats, mycpu);
++
++	kobject_init(&st->kobj);
++
++	st->kobj.parent = &cpudev->kobj;
++	kobject_set_name(&st->kobj, "perfmon");
++	kobj_set_kset_s(st, pfm_stats_subsys);
++
++	ret = kobject_add(&st->kobj);
 +	if (ret)
 +		return ret;
 +
-+	if ((flags & PFM_SETFL_BOTH_SWITCH) == PFM_SETFL_BOTH_SWITCH) {
-+		PFM_DBG("both switch ovfl and switch time are set");
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
++	ret = sysfs_create_group(&st->kobj, &pfm_cpu_attr_group);
++	if (ret)
++		kobject_del(&st->kobj);
 +
-+/*
-+ * it is never possible to change the identification of an existing set
-+ */
-+static int __pfm_change_evtset(struct pfm_context *ctx,
-+				  struct pfm_event_set *set,
-+				  struct pfarg_setdesc *req)
-+{
-+	u32 flags;
-+	u16 set_id, set_id_next;
-+	unsigned long ji;
-+	int ret;
++	pfm_reset_stats(mycpu);
 +
-+	BUG_ON(ctx->state == PFM_CTX_LOADED);
-+
-+	set_id = req->set_id;
-+	set_id_next = req->set_id_next;
-+	flags = req->set_flags;
-+
-+	ret = pfm_setfl_sane(ctx, flags);
-+	if (ret) {
-+		PFM_DBG("invalid flags 0x%x set %u", flags, set_id);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * commit changes
-+	 *
-+	 * note that we defer checking the validity of set_id_next until the
-+	 * context is actually attached. This is the only moment where we can
-+	 * safely assess the sanity of the sets because sets cannot be changed
-+	 * or deleted once the context is attached
-+	 */
-+	set->id = set_id;
-+	set->id_next = set_id_next;
-+	set->flags = flags;
-+	set->priv_flags = 0;
-+	set->sw_next = NULL;
-+
-+	/*
-+	 * XXX: what about set_priv_flags
-+	 */
-+
-+	/*
-+	 * reset pointer to next set
-+	 */
-+	set->sw_next = NULL;
-+
-+	ji = usecs_to_jiffies(req->set_timeout);
-+
-+	/*
-+	 * verify that timeout is not 0
-+	 */
-+	if (!ji && (flags & PFM_SETFL_TIME_SWITCH) != 0) {
-+		PFM_DBG("invalid timeout=0");
-+		return -EINVAL;
-+	}
-+
-+	set->timeout_sw_ref = set->timeout_sw_left = ji;
-+
-+	/*
-+	 * return actual timeout in usecs
-+	 */
-+	req->set_timeout = jiffies_to_usecs(ji);
-+
-+	PFM_DBG("set %u flags=0x%x id_next=%u req_usec=%u"
-+		"jiffies=%lu runs=%llu HZ=%u TICK_NSEC=%lu eff_usec=%u",
-+		set_id,
-+		flags,
-+		set_id_next,
-+		req->set_timeout,
-+		ji,
-+		(unsigned long long)set->view->set_runs,
-+		HZ, TICK_NSEC,
-+		req->set_timeout);
-+
-+	return 0;
-+}
-+
-+/*
-+ * this function does not modify the next field
-+ */
-+void pfm_init_evtset(struct pfm_event_set *set)
-+{
-+	u64 *impl_pmcs;
-+	u16 i, max_pmc;
-+
-+	max_pmc = pfm_pmu_conf->max_pmc;
-+	impl_pmcs =  pfm_pmu_conf->impl_pmcs;
-+
-+	/*
-+	 * install default values for all PMC  registers
-+	 */
-+	for (i=0; i < max_pmc;  i++) {
-+		if (pfm_bv_isset(impl_pmcs, i)) {
-+			set->pmcs[i] = pfm_pmu_conf->pmc_desc[i].dfl_val;
-+			PFM_DBG("set%u pmc%u=0x%llx",
-+				set->id,
-+				i,
-+				(unsigned long long)set->pmcs[i]);
-+		}
-+	}
-+
-+	/*
-+	 * PMD registers are set to 0 when the event set is allocated,
-+	 * hence we do not need to explicitely initialize them.
-+	 *
-+	 * For virtual PMD registers (i.e., those tied to a SW resource)
-+	 * their value becomes meaningful once the context is attached.
-+	 */
-+}
-+
-+struct pfm_event_set *pfm_find_set(struct pfm_context *ctx, u16 set_id,
-+					  int alloc)
-+{
-+	kmem_cache_t *cachep;
-+	struct pfm_event_set *set, *new_set, *prev;
-+	unsigned long offs;
-+	size_t view_size;
-+	void *view;
-+
-+	PFM_DBG("looking for set=%u", set_id);
-+
-+
-+	/*
-+	 * shortcut for set 0: always exist, cannot be removed
-+	 */
-+	if (set_id == 0 && !alloc)
-+		return list_entry(ctx->list.next, struct pfm_event_set, list);
-+
-+	prev = NULL;
-+	list_for_each_entry(set, &ctx->list, list) {
-+		if (set->id == set_id)
-+			return set;
-+		if (set->id > set_id)
-+			break;
-+		prev = set;
-+	}
-+
-+	if (!alloc)
-+		return NULL;
-+
-+	might_sleep();
-+
-+	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
-+
-+	/*
-+	 * we are holding the context spinlock and interrupts
-+	 * are unmasked. We must use SLAB_ATOMIC as we cannot
-+	 * sleep.
-+	 */
-+	new_set = kmem_cache_zalloc(cachep, SLAB_ATOMIC);
-+	if (!new_set)
-+		return NULL;
-+
-+	if (ctx->flags.mapset) {
-+		view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-+		view      = kmalloc(view_size, SLAB_ATOMIC);
-+		if (view == NULL) {
-+			PFM_DBG("cannot allocate set view");
-+			kmem_cache_free(cachep, new_set);
-+			return NULL;
-+		}
-+		offs = PFM_SET_REMAP_BASE
-+		     + (set_id*PFM_SET_REMAP_SCALAR);
-+	} else {
-+		view_size = sizeof(struct pfm_set_view);
-+		view = (struct pfm_set_view *)(new_set+1);
-+		offs = 0;
-+	}
-+
-+	memset(view, 0, sizeof(struct pfm_set_view));
-+
-+	new_set->id = set_id;
-+	new_set->view = view;
-+	new_set->mmap_offset = offs;
-+
-+	INIT_LIST_HEAD(&new_set->list);
-+
-+	if (prev == NULL) {
-+		list_add(&(new_set->list), &ctx->list);
-+	} else {
-+		PFM_DBG("add after set=%u", prev->id);
-+		list_add(&(new_set->list), &prev->list);
-+	}
-+	PFM_DBG("set_id=%u size=%zu view=%p remap=%d mmap_offs=%lu",
-+			set_id,
-+			view_size,
-+			view,
-+			ctx->flags.mapset,
-+			new_set->mmap_offset);
-+	return new_set;
-+}
-+
-+
-+/*
-+ * context is unloaded for this command. Interrupts are enabled
-+ */
-+int __pfm_create_evtsets(struct pfm_context *ctx, struct pfarg_setdesc *req,
-+			int count)
-+{
-+	struct pfm_event_set *set;
-+	u16 set_id;
-+	int i, ret;
-+
-+	for (i = 0; i < count; i++, req++) {
-+		set_id = req->set_id;
-+
-+		PFM_DBG("set_id=%u", set_id);
-+
-+		set = pfm_find_set(ctx, set_id, 1);
-+		if (set == NULL)
-+			goto error_mem;
-+
-+		ret = __pfm_change_evtset(ctx, set, req);
-+		if (ret)
-+			goto error_params;
-+
-+		pfm_init_evtset(set);
-+	}
-+	return 0;
-+error_mem:
-+	PFM_DBG("cannot allocate set %u", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -ENOMEM;
-+error_params:
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
 +	return ret;
 +}
 +
-+int __pfm_getinfo_evtsets(struct pfm_context *ctx, struct pfarg_setinfo *req,
-+				 int count)
++void pfm_sysfs_del_cpu(int mycpu)
 +{
-+	struct pfm_event_set *set;
-+	int i, is_system, is_loaded;
-+	u16 set_id;
-+	int max_cnt_pmd;
-+	u64 end;
++	struct sys_device *cpudev;
++	struct pfm_stats *st;
 +
-+	end = sched_clock();
-+	is_system = ctx->flags.system;
-+	is_loaded = ctx->state == PFM_CTX_LOADED;
-+	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++	cpudev = get_cpu_sysdev(mycpu);
++	if (!cpudev)
++		return;
 +
-+	for (i = 0; i < count; i++, req++) {
++	st = &per_cpu(pfm_stats, mycpu);
++	kobject_del(&st->kobj);
 +
-+		set_id = req->set_id;
++	sysfs_remove_group(&st->kobj, &pfm_cpu_attr_group);
++}
 +
-+		PFM_DBG("set_id=%u", set_id);
++static ssize_t uuid_show(void *data, char *buf)
++{
++	struct pfm_smpl_fmt *fmt = data;
 +
-+		list_for_each_entry(set, &ctx->list, list) {
-+			if (set->id == set_id)
-+				goto found;
-+			if (set->id > set_id)
-+				goto error;
-+		}
-+found:
-+		/*
-+		 * compute leftover timeout
-+		 */
-+		req->set_flags = set->flags;
-+		req->set_timeout = jiffies_to_usecs(set->timeout_sw_left);
-+		req->set_runs = set->view->set_runs;
-+		req->set_act_duration = set->duration;
-+		req->set_mmap_offset = set->mmap_offset;
++	return snprintf(buf, PAGE_SIZE, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x"
++			   "-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
++			fmt->fmt_uuid[0],
++			fmt->fmt_uuid[1],
++			fmt->fmt_uuid[2],
++			fmt->fmt_uuid[3],
++			fmt->fmt_uuid[4],
++			fmt->fmt_uuid[5],
++			fmt->fmt_uuid[6],
++			fmt->fmt_uuid[7],
++			fmt->fmt_uuid[8],
++			fmt->fmt_uuid[9],
++			fmt->fmt_uuid[10],
++			fmt->fmt_uuid[11],
++			fmt->fmt_uuid[12],
++			fmt->fmt_uuid[13],
++			fmt->fmt_uuid[14],
++			fmt->fmt_uuid[15]);
++}
++PFM_RO_ATTR(uuid);
 +
-+		/*
-+		 * adjust for active set if needed
-+		 */
-+		if (is_system && is_loaded && ctx->flags.started
-+		    && set == ctx->active_set)
-+			req->set_act_duration  += end - set->duration_start;
++/*
++ * when a sampling format module is inserted, we populate
++ * sysfs with some information
++ */
++int pfm_sysfs_add_fmt(struct pfm_smpl_fmt *fmt)
++{
++	int ret;
 +
-+		/*
-+		 * copy the list of pmds which last overflowed for
-+		 * the set
-+		 */
-+		bitmap_copy(ulp(req->set_ovfl_pmds),
-+			    ulp(set->ovfl_pmds),
-+			    max_cnt_pmd);
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+		/*
-+		 * copy bitmask of available PMU registers
-+		 */
-+		bitmap_copy(ulp(req->set_avail_pmcs),
-+			    ulp(pfm_pmu_conf->impl_pmcs),
-+			    pfm_pmu_conf->max_pmc);
++	kobject_init(&fmt->kobj);
++	kobject_set_name(&fmt->kobj, fmt->fmt_name);
++	kobj_set_kset_s(fmt, pfm_fmt_subsys);
++	fmt->kobj.parent = &pfm_kernel_fmt_kobj;
 +
-+		bitmap_copy(ulp(req->set_avail_pmds),
-+			    ulp(pfm_pmu_conf->impl_pmds),
-+			    pfm_pmu_conf->max_pmd);
++	ret = kobject_add(&fmt->kobj);
++	if (ret)
++		return ret;
 +
-+		pfm_retflag_set(req->set_flags, 0);
++	ret = sysfs_create_file(&fmt->kobj, &attr_uuid.attr);
++	if (ret)
++		kobject_del(&fmt->kobj);
 +
-+		PFM_DBG("set %u flags=0x%x eff_usec=%u runs=%llu",
-+			set_id,
-+			set->flags,
-+			req->set_timeout,
-+			(unsigned long long)set->view->set_runs);
-+	}
-+	return 0;
-+error:
-+	PFM_DBG("set %u not found", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -EINVAL;
++	return ret;
 +}
 +
 +/*
-+ * context is unloaded for this command. Interrupts are enabled
++ * when a sampling format module is removed, its information
++ * must also be removed from sysfs
 + */
-+int __pfm_delete_evtsets(struct pfm_context *ctx, void *arg, int count)
++int pfm_sysfs_remove_fmt(struct pfm_smpl_fmt *fmt)
 +{
-+	struct pfarg_setdesc *req = arg;
-+	struct pfm_event_set *set;
-+	kmem_cache_t *cachep;
-+	u16 set_id;
-+	size_t view_size;
-+	int i;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	/* delete operation only works when context is detached */
-+	BUG_ON(ctx->state != PFM_CTX_UNLOADED);
++	sysfs_remove_file(&fmt->kobj, &attr_uuid.attr);
++	kobject_del(&fmt->kobj);
 +
-+	view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
-+
-+	if (ctx->flags.mapset)
-+		cachep = pfm_set_cachep;
-+	else
-+		cachep = pfm_lg_set_cachep;
-+
-+	for (i = 0; i < count; i++, req++) {
-+		set_id = req->set_id;
-+
-+		/*
-+		 * cannot remove set 0
-+		 */
-+		if (set_id == 0)
-+			goto error;
-+
-+		list_for_each_entry(set, &ctx->list, list) {
-+			if (set->id == set_id)
-+				goto found;
-+			if (set->id > set_id)
-+				goto error;
-+		}
-+		goto error;
-+found:
-+		/*
-+		 * clear active set if necessary.
-+		 * will be updated when context is loaded
-+		 */
-+		if (set == ctx->active_set)
-+			ctx->active_set = NULL;
-+
-+		list_del(&set->list);
-+
-+		if (ctx->flags.mapset)
-+			kfree(set->view);
-+		kmem_cache_free(cachep, set);
-+
-+		pfm_retflag_set(req->set_flags, 0);
-+
-+		PFM_DBG("deleted set_id=%u", set_id);
-+	}
-+	return 0;
-+error:
-+	PFM_DBG("set_id=%u not found or invalid", set_id);
-+	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
-+	return -EINVAL;
-+}
-+
-+/*
-+ * called from pfm_context_free() to free all sets
-+ */
-+void pfm_free_sets(struct pfm_context *ctx)
-+{
-+	struct pfm_event_set *set, *tmp;
-+	kmem_cache_t *cachep;
-+	int use_remap;
-+
-+	use_remap = ctx->flags.mapset;
-+
-+	if (use_remap)
-+		cachep = pfm_set_cachep;
-+	else
-+		cachep = pfm_lg_set_cachep;
-+
-+	list_for_each_entry_safe(set, tmp, &ctx->list, list) {
-+		list_del(&set->list);
-+		if (use_remap)
-+			kfree(set->view);
-+		kmem_cache_free(cachep, set);
-+	}
-+}
-+
-+int pfm_sets_init(void)
-+{
-+
-+	pfm_lg_set_cachep = kmem_cache_create("pfm_large_event_set",
-+			sizeof(struct pfm_event_set)+sizeof(struct pfm_set_view),
-+			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
-+	if (pfm_lg_set_cachep == NULL) {
-+		PFM_ERR("cannot initialize large event set slab");
-+		return -ENOMEM;
-+	}
-+
-+	pfm_set_cachep = kmem_cache_create("pfm_event_set",
-+			sizeof(struct pfm_event_set),
-+			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
-+	if (pfm_set_cachep == NULL) {
-+		PFM_ERR("cannot initialize event set slab");
-+		return -ENOMEM;
-+	}
 +	return 0;
 +}
 +
-+static struct page *pfm_view_map_pagefault(struct vm_area_struct *vma,
-+					   unsigned long address, int *type)
-+{
-+	void *kaddr;
-+	struct page *page;
-+
-+	kaddr = vma->vm_private_data;
-+	if (kaddr == NULL) {
-+		PFM_DBG("no view");
-+		return NOPAGE_SIGBUS;
-+	}
-+
-+	if ( (address < (unsigned long) vma->vm_start) ||
-+	     (address >= (unsigned long) (vma->vm_start + PAGE_SIZE)) )
-+		return NOPAGE_SIGBUS;
-+
-+	kaddr += (address - vma->vm_start);
-+
-+	if (type)
-+		*type = VM_FAULT_MINOR;
-+
-+	page = virt_to_page(kaddr);
-+	get_page(page);
-+
-+	PFM_DBG("[%d] start=%p ref_count=%d",
-+		  current->pid,
-+		  kaddr, page_count(page));
-+
-+	return page;
-+}
-+struct vm_operations_struct pfm_view_map_vm_ops = {
-+	.nopage	= pfm_view_map_pagefault,
++static struct attribute *pfm_reg_attrs[] = {
++	&attr_name.attr,
++	&attr_dfl_val.attr,
++	&attr_rsvd_msk.attr,
++	&attr_addr.attr,
++	NULL
 +};
 +
-+int pfm_mmap_set(struct pfm_context *ctx, struct vm_area_struct *vma,
-+		 size_t size)
++static struct attribute_group pfm_reg_attr_group = {
++	.attrs = pfm_reg_attrs,
++};
++
++static ssize_t counter_width_show(void *info, char *buf)
 +{
-+	struct pfm_event_set *set;
-+	u16 set_id;
++	struct _pfm_pmu_config *p = info;
++	return snprintf(buf, PAGE_SIZE, "%d\n", p->counter_width);
++}
++static PFM_RO_ATTR(counter_width);
 +
-+	if (!ctx->flags.mapset) {
-+		PFM_DBG("context does not use set remapping");
-+		return -EINVAL;
++static ssize_t model_show(void *info, char *buf)
++{
++	struct _pfm_pmu_config *p = info;
++	return snprintf(buf, PAGE_SIZE, "%s\n", p->pmu_name);
++}
++static PFM_RO_ATTR(model);
++
++static struct attribute *pfm_pmu_desc_attrs[] = {
++	&attr_model.attr,
++	&attr_counter_width.attr,
++	NULL
++};
++
++static struct attribute_group pfm_pmu_desc_attr_group = {
++	.attrs = pfm_pmu_desc_attrs,
++};
++
++static int pfm_sysfs_add_pmu_regs(struct _pfm_pmu_config *pmu)
++{
++	struct pfm_reg_desc *reg;
++	unsigned int i, j, k;
++	int ret;
++	char reg_name[8];
++
++	reg = pmu->pmc_desc;
++	for(i=0; i < pmu->max_pmc; i++, reg++) {
++
++		if (!(reg->type & PFM_REG_I))
++			continue;
++
++		kobject_init(&reg->kobj);
++
++		reg->kobj.parent = &pmu->kobj;
++		snprintf(reg_name, sizeof(reg_name), "pmc%u", i);
++		kobject_set_name(&reg->kobj, reg_name);
++		kobj_set_kset_s(reg, pfm_regs_subsys);
++
++		ret = kobject_add(&reg->kobj);
++		if (ret)
++			goto undo_pmcs;
++
++		ret = sysfs_create_group(&reg->kobj, &pfm_reg_attr_group);
++		if (ret) {
++			kobject_del(&reg->kobj);
++			goto undo_pmcs;
++		}
 +	}
 +
-+	if (vma->vm_pgoff < PFM_SET_REMAP_OFFS
-+			|| vma->vm_pgoff >= PFM_SET_REMAP_OFFS_MAX) {
-+		PFM_DBG("invalid offset %lu", vma->vm_pgoff);
-+		return -EINVAL;
++	reg = pmu->pmd_desc;
++	for(j=0; j < pmu->max_pmd; j++, reg++) {
++
++		if (!(reg->type & PFM_REG_I))
++			continue;
++
++		kobject_init(&reg->kobj);
++
++		reg->kobj.parent = &pmu->kobj;
++		snprintf(reg_name, sizeof(reg_name), "pmd%u", j);
++		kobject_set_name(&reg->kobj, reg_name);
++		kobj_set_kset_s(reg, pfm_regs_subsys);
++
++		ret = kobject_add(&reg->kobj);
++		if (ret)
++			goto undo_pmds;
++
++		ret = sysfs_create_group(&reg->kobj, &pfm_reg_attr_group);
++		if (ret) {
++			kobject_del(&reg->kobj);
++			goto undo_pmds;
++		}
++	}
++	return 0;
++undo_pmds:
++	reg = pmu->pmd_desc;
++	for(k = 0; k < j; k++, reg++) {
++		if (!(reg->type & PFM_REG_I))
++			continue;
++		sysfs_remove_group(&reg->kobj, &pfm_reg_attr_group);
++		kobject_del(&reg->kobj);
++	}
++undo_pmcs:
++	reg = pmu->pmc_desc;
++	for(k=0; k < i; k++, reg++) {
++		if (!(reg->type & PFM_REG_I))
++			continue;
++		sysfs_remove_group(&reg->kobj, &pfm_reg_attr_group);
++		kobject_del(&reg->kobj);
++	}
++	return ret;
++}
++
++static int pfm_sysfs_del_pmu_regs(struct _pfm_pmu_config *pmu)
++{
++	struct pfm_reg_desc *reg;
++	unsigned int i;
++
++	reg = pmu->pmc_desc;
++	for(i=0; i < pmu->max_pmc; i++, reg++) {
++
++		if (!(reg->type & PFM_REG_I))
++			continue;
++
++		sysfs_remove_group(&reg->kobj, &pfm_reg_attr_group);
++		kobject_del(&reg->kobj);
 +	}
 +
-+	if (size != PAGE_SIZE) {
-+		PFM_DBG("size %zu must be page size", size);
-+		return -EINVAL;
++	reg = pmu->pmd_desc;
++	for(i=0; i < pmu->max_pmd; i++, reg++) {
++
++		if (!(reg->type & PFM_REG_I))
++			continue;
++
++		sysfs_remove_group(&reg->kobj, &pfm_reg_attr_group);
++		kobject_del(&reg->kobj);
 +	}
-+
-+	set_id = (u16)(vma->vm_pgoff - PFM_SET_REMAP_OFFS);
-+	set = pfm_find_set(ctx, set_id, 0);
-+	if (set == NULL) {
-+		PFM_DBG("set=%u is undefined", set_id);
-+		return -EINVAL;
-+	}
-+
-+	PFM_DBG("mmaping set_id=%u", set_id);
-+
-+	vma->vm_ops = &pfm_view_map_vm_ops;
-+	vma->vm_private_data = set->view;
-+
 +	return 0;
 +}
 +
-+asmlinkage long sys_pfm_create_evtsets(int fd, struct pfarg_setdesc __user *ureq, int count)
++/*
++ * when a PMU description module is inserted, we create
++ * a pmu_desc subdir in sysfs and we populate it with
++ * PMU specific information, such as register mappings
++ */
++int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu)
 +{
-+	struct pfm_context *ctx;
-+	struct pfarg_setdesc *req;
-+	void *fptr;
-+	unsigned long flags;
-+	size_t sz;
 +	int ret;
 +
-+	if (count < 0 || count >= PFM_MAX_ARG_COUNT(ureq))
-+		return -EINVAL;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
++	kobject_init(&pmu->kobj);
++	kobject_set_name(&pmu->kobj, "pmu_desc");
++	kobj_set_kset_s(pmu, pfm_pmu_subsys);
++	pmu->kobj.parent = &pfm_kernel_kobj;
 +
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req, &fptr);
++	ret = kobject_add(&pmu->kobj);
 +	if (ret)
-+		goto error;
++		return ret;
 +
-+	/*
-+	 * must mask interrupts because we do not know the state of context,
-+	 * could be attached and we could be getting PMU interrupts. So
-+	 * we mask and lock context and we check and possibly relax masking
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
++	ret = sysfs_create_group(&pmu->kobj, &pfm_pmu_desc_attr_group);
++	if (ret)
++		kobject_del(&pmu->kobj);
 +
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (!ret) {
-+		/*
-+		 * context must be UNLOADED for command to work, this is
-+		 * guaranteed by pfm_check_task_state() so we can safely
-+		 * unmask interrupts as there will not be a race with PMU
-+		 * interrupts.
-+		 * We disable preemption because we still hold the spinlock
-+		 */
-+		preempt_disable();
-+		local_irq_restore(flags);
-+		ret = __pfm_create_evtsets(ctx, req, count);
-+		spin_unlock(&ctx->lock);
-+		preempt_enable();
-+	} else
-+		spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(fptr);
-+
-+error:
-+	pfm_put_ctx(ctx);
-+
++	ret = pfm_sysfs_add_pmu_regs(pmu);
++	if (ret) {
++		sysfs_remove_group(&pmu->kobj, &pfm_pmu_desc_attr_group);
++                kobject_del(&pmu->kobj);
++	}
 +	return ret;
 +}
 +
-+asmlinkage long  sys_pfm_getinfo_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
++/*
++ * when a PMU description module is removed, we also remove
++ * all its information from sysfs, i.e., the pmu_desc subdir
++ * disappears
++ */
++int pfm_sysfs_remove_pmu(struct _pfm_pmu_config *pmu)
 +{
-+	struct pfm_context *ctx;
-+	struct pfarg_setinfo *req;
-+	void *fptr;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
++	if (pfm_sysfs_init_done == 0)
++		return 0;
 +
-+	if (count < 0 || count >= PFM_MAX_ARG_COUNT(ureq))
-+		return -EINVAL;
++	pfm_sysfs_del_pmu_regs(pmu);
++	sysfs_remove_group(&pmu->kobj, &pfm_pmu_desc_attr_group);
++	kobject_del(&pmu->kobj);
 +
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req, &fptr);
-+	if (ret)
-+		goto error;
-+
-+	/*
-+	 * this command operate even when context is loaded, so we need
-+	 * to keep interrupts masked to avoid a race with PMU interrupt
-+	 * which may switch active set
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, 0, &flags);
-+	if (!ret)
-+		ret = __pfm_getinfo_evtsets(ctx, req, count);
-+
-+	spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(fptr);
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
-+}
-+
-+asmlinkage long sys_pfm_delete_evtsets(int fd, struct pfarg_setinfo __user *ureq, int count)
-+{
-+	struct pfm_context *ctx;
-+	struct pfarg_setinfo *req;
-+	void *fptr;
-+	unsigned long flags;
-+	size_t sz;
-+	int ret;
-+
-+	if (count < 0 || count >= PFM_MAX_ARG_COUNT(ureq))
-+		return -EINVAL;
-+
-+	ctx = pfm_get_ctx(fd);
-+	if (ctx == NULL)
-+		return -EBADF;
-+
-+	sz = count*sizeof(*ureq);
-+
-+	ret = pfm_get_args(ureq, sz, 0, NULL, (void **)&req, &fptr);
-+	if (ret)
-+		goto error;
-+
-+	/*
-+	 * must mask interrupts because we do not know the state of context,
-+	 * could be attached and we could be getting PMU interrupts
-+	 */
-+	spin_lock_irqsave(&ctx->lock, flags);
-+
-+	ret = pfm_check_task_state(ctx, PFM_CMD_UNLOADED, &flags);
-+	if (!ret) {
-+		/*
-+		 * context must be UNLOADED for command to work, this is
-+		 * guaranteed by pfm_check_task_state() so we can safely
-+		 * unmask interrupts
-+		 */
-+		preempt_disable();
-+		local_irq_restore(flags);
-+		ret = __pfm_delete_evtsets(ctx, req, count);
-+		spin_unlock(&ctx->lock);
-+		preempt_enable();
-+	} else
-+		spin_unlock_irqrestore(&ctx->lock, flags);
-+
-+	if (copy_to_user(ureq, req, sz))
-+		ret = -EFAULT;
-+
-+	kfree(fptr);
-+
-+error:
-+	pfm_put_ctx(ctx);
-+
-+	return ret;
++	return 0;
 +}

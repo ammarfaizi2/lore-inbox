@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932935AbWJIPcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932946AbWJIPcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932935AbWJIPcK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932942AbWJIPcJ
+	id S932946AbWJIPcP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932944AbWJIPcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:32:09 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:30633 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932935AbWJIPcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:32:07 -0400
-Date: Mon, 9 Oct 2006 17:31:33 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
- the kernel [try #4]
-In-Reply-To: <200610091727.34780.arnd.bergmann@de.ibm.com>
-Message-ID: <Pine.LNX.4.62.0610091729420.16048@pademelon.sonytel.be>
-References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
- <200610091652.26209.arnd.bergmann@de.ibm.com> <Pine.LNX.4.62.0610091705070.16048@pademelon.sonytel.be>
- <200610091727.34780.arnd.bergmann@de.ibm.com>
+	Mon, 9 Oct 2006 11:32:15 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:44740 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932937AbWJIPcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 11:32:11 -0400
+Date: Mon, 9 Oct 2006 11:32:07 -0400
+From: Chris Mason <chris.mason@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: [CFT] new patch and reject merging tool
+Message-ID: <20061009153207.GU8689@think.oraclecorp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006, Arnd Bergmann wrote:
-> On Monday 09 October 2006 17:05, Geert Uytterhoeven wrote:
-> > On Mon, 9 Oct 2006, Arnd Bergmann wrote:
-> > > On Monday 09 October 2006 15:09, Geert Uytterhoeven wrote:
-> > > > On Mon, 9 Oct 2006, Jan Engelhardt wrote:
-> > > > > 
-> > > > > Ouch ouch ouch. It should better be
-> > > > > 
-> > > > > typedef uint32_t __u32;
-> > > > 
-> > > > You mean
-> > > > 
-> > > > #ifdef __KERNEL__
-> > > > typedef __u32 u32;
-> > > > #else
-> > > > // Assumed we did #include <stdint.h> before
-> > > > typedef uint32_t __u32;
-> > > > #endif
-> > > 
-> > > Why should that be a valid assumption? Right now, it works
-> > > if you don't include stdint.h in advance.
-> > 
-> > According to C99 section 7.18 you need to include <stdint.h> first.
-> 
-> Sorry, I need to rephrase: you can include <linux/types.h> without
-> including <stdint.h> first, and many people do that.
-> Relying on uint32_t would mean we break existing source.
+Hello everyone,
 
-IC.
+I've reworked my rej code somewhat into a new utility that can apply
+unified diffs and git diffs (git patch support is from Brendan Cully).
 
-Well, I meant that of course you have to include <stdint.h> at the top of
-<linux/types.h>. I just thought inside that particular #ifdef wasn't the right
-place.
+It has a mode for auto-resolving rejects, but by default it is as safe
+as patch, and much faster than rej was.
 
-Problem solved :-)
+Download locations and details are here:
 
-Gr{oetje,eeting}s,
+http://oss.oracle.com/~mason/mpatch/
 
-						Geert
+-chris
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

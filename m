@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWJIE7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWJIFon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751647AbWJIE7e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 00:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWJIE7e
+	id S932228AbWJIFon (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 01:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWJIFom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 00:59:34 -0400
-Received: from xenotime.net ([66.160.160.81]:59014 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751622AbWJIE7d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 00:59:33 -0400
-Date: Sun, 8 Oct 2006 22:00:57 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] kernel-doc: make parameter description indentation uniform
-Message-Id: <20061008220057.bcc89888.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 01:44:42 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27020 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932228AbWJIFom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 01:44:42 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@gmail.com>
+Subject: [PATCH 1/1] x86_64 irq:  Scream but don't die if we receive an unexpected irq
+References: <20061005212216.GA10912@rhun.haifa.ibm.com>
+	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610060855220.3952@g5.osdl.org>
+	<m1hcyh1hqz.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610061102010.3952@g5.osdl.org>
+Date: Sun, 08 Oct 2006 23:41:59 -0600
+In-Reply-To: <Pine.LNX.4.64.0610061102010.3952@g5.osdl.org> (Linus Torvalds's
+	message of "Fri, 6 Oct 2006 11:08:08 -0700 (PDT)")
+Message-ID: <m1psd2rqoo.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
-- In parameter descriptions, strip all whitespace between the parameter
-  name (e.g., @len) and its description so that the description is
-  indented uniformly in text and man page modes.  Previously, spaces
-  or tabs (which are used for cleaner source code viewing) affected
-  the produced output in a negative way.
+Due to code bugs or misbehaving hardware it is possible that we
+can receive an interrupt that we have not mapped into a linux irq.
+Calling BUG when that happens is very rude, and if the problem
+is mild enough prevents anything else from getting done.
 
-Before (man mode):
-       to            Destination address, in user space.
-       from        Source address, in kernel space.
-       n              Number of bytes to copy.
+So instead of calling BUG just scream loudly about the problem
+and continue running.  We don't have enough knowledge to know
+which interrupt triggered this behavior so we don't acknowledge it.
+This will likely prevent a recurrence of the problem by jamming
+up the works with an unacknowledged interrupt.
 
-After (man mode):
-       to          Destination address, in user space.
-       from        Source address, in kernel space.
-       n           Number of bytes to copy.
+If the interrupt was something important it is quite possible
+that nothing productive will happen past this point.  But
+it is now at least possible to keep working if the kernel
+can survive without the interrupt we dropped on the floor.
 
-- Fix/clarify a few function description comments.
+Solutions like irqpoll should generally make dropped irqs non-fatal.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- scripts/kernel-doc |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+ arch/x86_64/kernel/irq.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
---- linux-2619-rc1g3.orig/scripts/kernel-doc
-+++ linux-2619-rc1g3/scripts/kernel-doc
-@@ -1262,7 +1262,9 @@ sub output_intro_text(%) {
- }
+diff --git a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
+index b8a407f..dff68eb 100644
+--- a/arch/x86_64/kernel/irq.c
++++ b/arch/x86_64/kernel/irq.c
+@@ -114,16 +114,16 @@ asmlinkage unsigned int do_IRQ(struct pt
+ 	irq_enter();
+ 	irq = __get_cpu_var(vector_irq)[vector];
  
- ##
--# generic output function for typedefs
-+# generic output function for all types (function, struct/union, typedef, enum);
-+# calls the generated, variable output_ function name based on
-+# functype and output_mode
- sub output_declaration {
-     no strict 'refs';
-     my $name = shift;
-@@ -1278,8 +1280,7 @@ sub output_declaration {
- }
+-	if (unlikely(irq >= NR_IRQS)) {
+-		printk(KERN_EMERG "%s: cannot handle IRQ %d\n",
+-					__FUNCTION__, irq);
+-		BUG();
+-	}
+-
+ #ifdef CONFIG_DEBUG_STACKOVERFLOW
+ 	stack_overflow_check(regs);
+ #endif
+-	generic_handle_irq(irq);
++
++	if (likely(irq < NR_IRQS))
++		generic_handle_irq(irq);
++	else
++		printk(KERN_EMERG "%s: %d.%d No irq handler for vector\n",
++			__func__, smp_processor_id(), vector);
++
+ 	irq_exit();
  
- ##
--# generic output function - calls the right one based
--# on current output mode.
-+# generic output function - calls the right one based on current output mode.
- sub output_intro {
-     no strict 'refs';
-     my $func = "output_intro_".$output_mode;
-@@ -1782,8 +1783,9 @@ sub process_file($) {
- 		$in_doc_sect = 1;
- 		$contents = $newcontents;
- 		if ($contents ne "") {
--		    if (substr($contents, 0, 1) eq " ") {
--			$contents = substr($contents, 1);
-+		    while ((substr($contents, 0, 1) eq " ") ||
-+			substr($contents, 0, 1) eq "\t") {
-+			    $contents = substr($contents, 1);
- 		    }
- 		    $contents .= "\n";
- 		}
+ 	set_irq_regs(old_regs);
+-- 
+1.4.2.rc3.g7e18e-dirty
 
-
----

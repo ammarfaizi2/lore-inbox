@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWJID2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWJIDdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWJID2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 23:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWJID2Z
+	id S932220AbWJIDdW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 23:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWJIDdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 23:28:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:7063 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932218AbWJID2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 23:28:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=d6ZaTWAs7kHjf2f7IdUZewD6LSMuhNBqhCGW5SCHLuXhcSRJPR42KQalMeOOulXExXX4M4vJkyt4+iA85bhCeRplEmHMjBb5dg2dSgOJGwX/oBVZInlM8a58rC6DkdtHfpIbF7OmEBYie/E9cRqz2A3TIW5vLvJG8lbVRVfFBP8=
-Message-ID: <4529C1E9.2020308@gmail.com>
-Date: Mon, 09 Oct 2006 11:28:41 +0800
-From: Liyu <raise.sail@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-CC: "Zephaniah E. Hull" <warp@aehallh.com>, greg <greg@kroah.com>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>, Liyu <raise.sail@gmail.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver	Interface
- 0.3.2 (core)
-References: <200609291624123283320@gmail.com> <45286B85.90402@gmail.com>	<20061008124146.GA4710@aehallh.com> <200610081009.23978.dtor@insightbb.com>
-In-Reply-To: <200610081009.23978.dtor@insightbb.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Oct 2006 23:33:22 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53893 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932220AbWJIDdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 23:33:21 -0400
+Message-Id: <200610090209.k9929IdP009924@laptop13.inf.utfsm.cl>
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [patch] honour MNT_NOEXEC for access() 
+In-Reply-To: Message from Stas Sergeev <stsp@aknet.ru> 
+   of "Sun, 08 Oct 2006 13:11:12 +0400." <4528C0B0.4070002@aknet.ru> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Sun, 08 Oct 2006 22:09:18 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Sun, 08 Oct 2006 22:09:27 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Yes, I'd consider it a bug. Tearing down and re-creating input device
-> generates proper hotplug notifications and userspace needs to respect
-> them as capabilities may change even if ids stay the same. For example
-> playing with atkbd's scroll attribute will regenerate an input device
-> with[out] scroll capabilities but its input_id structure will stay the
-> same. 
->   
-    So many people said I have some wrongs here ;) it should be truth.
+Stas Sergeev <stsp@aknet.ru> wrote:
+> Arjan van de Ven wrote:
+> >> but ld.so seems to be
+> >> the special case - it is a kernel helper after all,
+> > in what way is ld.so special in ANY way?
 
-    I found our focus is howto or when send notification to userspace.
-Intuitional, to reload such device is rather ugly means, it should have
-one hotplug message for this case,
-and userspace handle it. If only look from design, I will agree with my
-argument, however, if also look from compatibility, I think I must agree
-your arguments.
+> It is a kernel helper.
 
-    At last, you win! :D
-   
-    I am going to reload.
-   
+Right. But what prevents anybody to have a hacked, non-testing, ld.so lying
+around?
 
-PS: I found a behavior of usb subsystem, I can not sure whether it is
-normal.
-    After I remove usbhid.ko, the uhci_hcd will reset device repeatly.
-   
+>                        Kernel does all the security
+> checks before invoking it. However, when invoked
+> directly, it have to do these checks itself. So it is
+> special in a way that it have to do the security checks
+> which otherwise only the kernel should do.
 
-usbcore: registered new driver usbhid
-/usr/src/redhat/BUILD/linux-2.6.18/drivers/usb/input/hid-core.c:
-v2.6:USB HID core driver
-usb 5-2: reset low speed USB device using uhci_hcd and address 3
-usb 5-2: reset low speed USB device using uhci_hcd and address 3
-usb 5-2: reset low speed USB device using uhci_hcd and address 3
-usb 5-2: reset low speed USB device using uhci_hcd and address 3
-usb 5-2: reset low speed USB device using uhci_hcd and address 3
+It just can't do them (reliably at least) in general. Call it a Unix/POSIX
+design failure...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
 
-    Goodluck.
-
--Liyu

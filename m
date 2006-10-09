@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWJIIEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWJIIEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWJIIEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 04:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJIIEL
+	id S932325AbWJIIEU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 04:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWJIIET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 04:04:11 -0400
-Received: from mail.suse.de ([195.135.220.2]:31361 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932243AbWJIIEJ (ORCPT
+	Mon, 9 Oct 2006 04:04:19 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54227 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932325AbWJIIES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 04:04:09 -0400
+	Mon, 9 Oct 2006 04:04:18 -0400
 From: Neil Brown <neilb@suse.de>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Date: Mon, 9 Oct 2006 11:00:21 +1000
+To: Czigola Gabor <czigola@elte.hu>
+Date: Mon, 9 Oct 2006 10:40:13 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17705.40741.552103.194329@cse.unsw.edu.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       steved@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] lockdep: annotate nfs/nfsd in-kernel sockets
-In-Reply-To: message from Peter Zijlstra on Friday October 6
-References: <1160146860.2792.111.camel@taijtu>
+Message-ID: <17705.39533.439604.522302@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: root MD array is still in use upon shutdown possible fix
+In-Reply-To: message from Czigola Gabor on Friday October 6
+References: <Pine.LNX.4.64.0610062006460.25341@kamorka>
 X-Mailer: VM 7.19 under Emacs 21.4.1
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
@@ -29,40 +27,32 @@ X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday October 6, a.p.zijlstra@chello.nl wrote:
+On Friday October 6, czigola@elte.hu wrote:
+> Hi!
 > 
-> Stick NFS sockets in their own class to avoid some lockdep warnings.
-> NFS sockets are never exposed to user-space, and will hence not trigger
-> certain code paths that would otherwise pose deadlock scenarios.
+> When my root filesystem is on an MD (RAID5) array, I can't cleanly shut 
+> down (trying to change the array ro, even when nothing else than the 
+> kernel threads and init and one bash are running, and the root fs is ro 
+> remounted), because I've got "md: md0 still in use" kernel messages. 
+> Usually it doesn't cause any problems, but it possibly could leave the 
+> array in an inconsistent state (resync required after reboot).
 
-I'm a bit bothered that the changelog entry does mention what sort of
-lockdep warning are begin avoided, and that 'svc_reclassify_socket'
-doesn't contain the work 'lock', yet is it really the locks that are
-being reclassified.  However
+When your machine shuts down, all md arrays are automatically switched to
+read-only *after* the root filesystem has been unmounted.  You should
+get a message 
+    md: stopping all md devices.
 
-Acked-by: NeilBrown <neilb@suse.de>
+if you get e.g.
+    md: md0 still in use.
+*after* that message then there might be a problem.  Otherwise
+everything should be fine.
+
+That being said, it is possible that your patch is OK.  I've been
+meaning to review the rules for switching an array to read-only for
+ages, but it never got to the top of the todo list.  e.g. do you want
+to be able to switch an array to read-only when a filesystem is
+mounted read-write off it.  If you don't, how do you check?  If you
+do, what about in-flight write requests?  Do you need to wait for them
+to complete? How? It isn't as straight forward as one might like.
 
 NeilBrown
-
-> +
-> +static inline void svc_reclassify_socket(struct socket *sock)
-> +{
-> +	struct sock *sk = sock->sk;
-> +	BUG_ON(sk->sk_lock.owner != NULL);
-> +	switch (sk->sk_family) {
-> +		case AF_INET:
-> +			sock_lock_init_class_and_name(sk,
-> +				"slock-AF_INET-NFSD", &svc_slock_key[0],
-> +				"sk_lock-AF_INET-NFSD", &svc_key[0]);
-> +			break;
-> +
-> +		case AF_INET6:
-> +			sock_lock_init_class_and_name(sk,
-> +				"slock-AF_INET6-NFSD", &svc_slock_key[1],
-> +				"sk_lock-AF_INET6-NFSD", &svc_key[1]);
-> +			break;
-> +
-> +		default:
-> +			BUG();
-> +	}
-> +}

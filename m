@@ -1,79 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932902AbWJIOrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932912AbWJIOs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932902AbWJIOrz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 10:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751885AbWJIOrz
+	id S932912AbWJIOs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 10:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932910AbWJIOs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 10:47:55 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:54242 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751880AbWJIOry (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 10:47:54 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Try to avoid a pessimistic vmalloc() recursion
-Date: Mon, 9 Oct 2006 16:47:55 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <20061006114947.GC14533@atrey.karlin.mff.cuni.cz> <20061006230609.c04e78bc.akpm@osdl.org>
-In-Reply-To: <20061006230609.c04e78bc.akpm@osdl.org>
+	Mon, 9 Oct 2006 10:48:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7145 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751886AbWJIOsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 10:48:55 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@gmail.com>, Roland Dreier <rdreier@cisco.com>
+Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot handle IRQ -1"
+References: <20061005212216.GA10912@rhun.haifa.ibm.com>
+	<m11wpl328i.fsf@ebiederm.dsl.xmission.com>
+	<20061006155021.GE14186@rhun.haifa.ibm.com>
+	<m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
+	<20061006202324.GJ14186@rhun.haifa.ibm.com>
+	<m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
+	<20061007080315.GM14186@rhun.haifa.ibm.com>
+	<m14pugxe47.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610071154510.3952@g5.osdl.org>
+	<1160249585.3000.159.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0610071255480.3952@g5.osdl.org>
+	<m1hcyerpjc.fsf@ebiederm.dsl.xmission.com>
+	<1160379606.3000.195.camel@laptopd505.fenrus.org>
+Date: Mon, 09 Oct 2006 08:46:08 -0600
+In-Reply-To: <1160379606.3000.195.camel@laptopd505.fenrus.org> (Arjan van de
+	Ven's message of "Mon, 09 Oct 2006 09:40:05 +0200")
+Message-ID: <m1y7rpr1hr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bEmKFdQVyb6wnS/"
-Message-Id: <200610091647.55184.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_bEmKFdQVyb6wnS/
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Arjan van de Ven <arjan@infradead.org> writes:
 
-__vmalloc_area_node() is a litle bit pessimist when allocating space for=20
-storing struct page pointers.
+>> > So yes, having software say "We want to steer this particular interrupt to 
+>> > this L3 cache domain" sounds eminently sane.
+>> >
+>> > Having software specify which L1 cache domain it wants to pollute is 
+>> > likely just crazy micro-management.
+>> 
+>> The current interrupt delivery abstraction in the kernel is a
+>> set of cpus an interrupt can be delivered to.  Which seem sufficient
+>> to the cause of aiming at a cache domain.  Frequently the lower
+>> levels of interrupt delivery map this to a single cpu because of
+>> hardware limitations but in certain cases we can honor a multiple cpu
+>> request.
+>> 
+>> I believe the scheduler has knowledge about different locality domains
+>> for NUMA and everything else.  So what is wanting on our side is some
+>> architecture? work to do the broad steering by default.
+>
+>
+> well normally this is the job of the userspace IRQ balancer to get
+> right; the thing is undergoing a redesign right now to be smarter and
+> deal better with dual/quad core, numa etc etc, but as a principle thing
+> this is best done in userspace (simply because there's higher level
+> information there, like "is this interrupt for a network device", so
+> that policy can take that into account)
 
-When allocating more than 4 MB on ia32, or 2 MB on x86_64, =A0
-__vmalloc_area_node() has to allocate more than PAGE_SIZE bytes to store=20
-pointers to =A0page structs. This means that two TLB translations are neede=
-d to=20
-access data.
+So far I have seen all of that higher level information in the kernel,
+and it has to export it to user space for the user space daemon to
+do anything about it.
 
-This patch tries a kmalloc() call, then only if this first attempt failed, =
-a=20
-vmalloc() is performed. (Later, at vfree() time we chose kfree() or vfree()=
-=20
-with a test on flags & VM_VPAGES : no change is needed)=20
+The only time I have seen user space control being useful is when
+there isn't a proper default policy so at least you can distribute
+things between the cache domains properly.  So far I have been
+more tempted to turn it off as it will routinely change which
+NUMA node an irq is pointing at, which is not at all ideal
+for performance, and I haven't seen a way (short of replacing it)
+to tell the user space irq balancer that it got it's default policy
+wrong.
 
-Most of the time, the first kmalloc() should be OK, so we reduce TLB usage.
+It is quite possible I don't have the whole story, but so far it
+just feels like we are making a questionable decision by pushing
+things out to user space.  If nothing else it seems to make changes
+more difficult in the irq handling infrastructure because we
+have to maintain stable interfaces.  Things like per cpu counters
+for every irq start to look really questionable when you scale
+the system up in size.
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
---Boundary-00=_bEmKFdQVyb6wnS/
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="vmalloc.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline;
-	filename="vmalloc.patch"
-
---- linux-2.6.18/mm/vmalloc.c	2006-10-09 13:58:13.000000000 +0200
-+++ linux-2.6.18-ed/mm/vmalloc.c	2006-10-09 14:04:11.000000000 +0200
-@@ -426,12 +426,12 @@
- 	array_size = (nr_pages * sizeof(struct page *));
- 
- 	area->nr_pages = nr_pages;
-+	pages = kmalloc_node(array_size, (gfp_mask & ~__GFP_HIGHMEM), node);
- 	/* Please note that the recursion is strictly bounded. */
--	if (array_size > PAGE_SIZE) {
-+	if (!pages && array_size > PAGE_SIZE) {
- 		pages = __vmalloc_node(array_size, gfp_mask, PAGE_KERNEL, node);
- 		area->flags |= VM_VPAGES;
--	} else
--		pages = kmalloc_node(array_size, (gfp_mask & ~__GFP_HIGHMEM), node);
-+	}
- 	area->pages = pages;
- 	if (!area->pages) {
- 		remove_vm_area(area->addr);
-
---Boundary-00=_bEmKFdQVyb6wnS/--
+Eric

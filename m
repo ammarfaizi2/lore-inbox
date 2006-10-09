@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWJIK0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWJIK1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWJIK0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 06:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWJIK0j
+	id S1751787AbWJIK1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 06:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWJIK1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 06:26:39 -0400
-Received: from mail.suse.de ([195.135.220.2]:1944 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751768AbWJIK0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 06:26:39 -0400
-Date: Mon, 9 Oct 2006 12:26:35 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-Message-ID: <20061009102635.GC3487@wotan.suse.de>
-References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site> <20061007134407.6aa4dd26.akpm@osdl.org> <1160351174.14601.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Oct 2006 06:27:07 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:41094 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751781AbWJIK1G convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 06:27:06 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
+Date: Mon, 9 Oct 2006 12:26:59 +0200
+User-Agent: KMail/1.9.4
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       David Howells <dhowells@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
+       torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr> <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com>
+In-Reply-To: <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1160351174.14601.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610091227.02310.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 09:46:13AM +1000, Benjamin Herrenschmidt wrote:
+On Monday 09 October 2006 11:51, Kyle Moffett wrote:
+>    #if defined(CONFIG_ARCH_HAS_64BIT_WORD)
+>    typedef unsigned long  __u64;
+>    typedef   signed long  __s64;
+>    #elif defined(__GNUC__)
+>    __extension__ typedef unsigned long long __u64;
+>    __extension__ typedef   signed long long __s64;
+>    #endif
 > 
-> > - So is the plan here to migrate all code over to using
-> >   vm_operations.fault() and to finally remove vm_operations.nopage and
-> >   .nopfn?  If so, that'd be nice.
-> 
-> Agreed. That would also allow to pass down knowledge of wether we can be
-> interruptible or not (coming from userland or not). Useful in a few case
-> when dealing with strange hw mappings.
-> 
-> Now, fault() still returns a struct page and thus doesn't quite fix the
-> problem I'm exposing in my "User switchable HW mappings & cie" mail I
-> posted today in which case we need to either duplicate the truncate
-> logic in no_pfn() or get rid of no_pfn() and set the PTE from the fault
-> handler . I tend to prefer the later provided that it's strictly limited
-> for mappings that do not have a struct page though.
 
-The truncate logic can't be duplicated because it works on struct pages.
+Well, some architectures currently expext __u64/__s64 to be
+long long even with 64 bits. Changing that will likely cause
+a number of new compiler warnings about conversion between
+these. Of course it would be nice to clean these up, since
+it's already a pain to printk() a variable of type u64.
 
-What sounds best, if you use nopfn, is to do your own internal
-synchronisation against your unmap call. Obviously you can't because you
-have no ->nopfn_done call with which to drop locks ;)
+More importantly, your code has the problem that it relies
+on a CONFIG_* symbol, which will break when user space includes
+the file, because that does not have config.h.
 
-So, hmm yes I have a good idea for how fault() could take over ->nopfn as
-well: just return NULL, set the fault type to VM_FAULT_MINOR, and have
-the ->fault handler install the pte. It will require a new helper along
-the lines of vm_insert_page.
-
-I'll code that up in my next patchset.
+	Arnd <><

@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWJIHkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWJIHmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbWJIHkm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWJIHkm
+	id S932317AbWJIHmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJIHmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:40:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61871 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932322AbWJIHkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:40:41 -0400
-Subject: Re: 2.6.19-rc1 genirq causes either boot hang or "do_IRQ: cannot
-	handle IRQ -1"
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, Andi Kleen <ak@muc.de>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@gmail.com>, Roland Dreier <rdreier@cisco.com>
-In-Reply-To: <m1hcyerpjc.fsf@ebiederm.dsl.xmission.com>
-References: <20061005212216.GA10912@rhun.haifa.ibm.com>
-	 <m11wpl328i.fsf@ebiederm.dsl.xmission.com>
-	 <20061006155021.GE14186@rhun.haifa.ibm.com>
-	 <m1d5951gm7.fsf@ebiederm.dsl.xmission.com>
-	 <20061006202324.GJ14186@rhun.haifa.ibm.com>
-	 <m1y7rtxb7z.fsf@ebiederm.dsl.xmission.com>
-	 <20061007080315.GM14186@rhun.haifa.ibm.com>
-	 <m14pugxe47.fsf@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.64.0610071154510.3952@g5.osdl.org>
-	 <1160249585.3000.159.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0610071255480.3952@g5.osdl.org>
-	 <m1hcyerpjc.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 09 Oct 2006 09:40:05 +0200
-Message-Id: <1160379606.3000.195.camel@laptopd505.fenrus.org>
+	Mon, 9 Oct 2006 03:42:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32162 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932317AbWJIHmY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 03:42:24 -0400
+Date: Mon, 9 Oct 2006 00:42:09 -0700
+From: Bryce Harrington <bryce@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, shaohua.li@intel.com,
+       hotplug_sig@osdl.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: Status on CPU hotplug issues
+Message-ID: <20061009074209.GB27474@osdl.org>
+References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org> <20060317084653.GA4515@in.ibm.com> <20060317010412.3243364c.akpm@osdl.org> <20061006231012.GH22139@osdl.org> <20061006162924.344090f8.akpm@osdl.org> <20061007102419.GB30034@elf.ucw.cz> <20061007202521.GA24743@osdl.org> <20061008191350.GB3788@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061008191350.GB3788@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So yes, having software say "We want to steer this particular interrupt to 
-> > this L3 cache domain" sounds eminently sane.
-> >
-> > Having software specify which L1 cache domain it wants to pollute is 
-> > likely just crazy micro-management.
+On Sun, Oct 08, 2006 at 09:13:50PM +0200, Pavel Machek wrote:
+> > > So... patch-2.6.18-git4 failed to boot on all architectures? I'm
+> > > seeing very little green fields there... actually I only see two green
+> > > fields in whole table.
+> > 
+> > No, it failed to build due to a patching issue that has since been fixed
+> > (I can rerun those older runs if there is interest.)
 > 
-> The current interrupt delivery abstraction in the kernel is a
-> set of cpus an interrupt can be delivered to.  Which seem sufficient
-> to the cause of aiming at a cache domain.  Frequently the lower
-> levels of interrupt delivery map this to a single cpu because of
-> hardware limitations but in certain cases we can honor a multiple cpu
-> request.
+> Reruning few of them and deleting rest from table would be nice.
+
+I've requeued a few.  The runs will auto-expunge from the results in a
+week or two.
+
+> > > > iirc Pavel did some testing a month or two ago and was seeing userspace
+> > > > misbehaviour?
+> > > 
+> > > Pavel did some testing (like two threads trying to plug/unplug cpus at
+> > > the same time), and seen machines dying real fast; but that was fixed,
+> > > IIRC, and I did not really torture it after that.
+> > 
+> > If this test is available, I could include it in my test runs if you
+> > think it would be worth tracking.
 > 
-> I believe the scheduler has knowledge about different locality domains
-> for NUMA and everything else.  So what is wanting on our side is some
-> architecture? work to do the broad steering by default.
+> Is shell script acceptable form of a test?
 
+Yes.  In fact all the tests are shell scripts so far.
 
-well normally this is the job of the userspace IRQ balancer to get
-right; the thing is undergoing a redesign right now to be smarter and
-deal better with dual/quad core, numa etc etc, but as a principle thing
-this is best done in userspace (simply because there's higher level
-information there, like "is this interrupt for a network device", so
-that policy can take that into account)
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Bryce

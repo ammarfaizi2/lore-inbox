@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751900AbWJIWw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751898AbWJIWv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751900AbWJIWw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 18:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWJIWw1
+	id S1751898AbWJIWv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 18:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWJIWv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 18:52:27 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:406 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751900AbWJIWw0 (ORCPT
+	Mon, 9 Oct 2006 18:51:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:726 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751898AbWJIWv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 18:52:26 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Date: Tue, 10 Oct 2006 00:52:09 +0200
-User-Agent: KMail/1.9.1
-Cc: Stefan Seyfried <seife@suse.de>, Jiri Kosina <jikos@jikos.cz>,
-       linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz> <20060930114817.GA26217@suse.de> <20061008184230.GC4033@ucw.cz>
-In-Reply-To: <20061008184230.GC4033@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 18:51:57 -0400
+Date: Mon, 9 Oct 2006 18:50:36 -0400
+From: Dave Jones <davej@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Eric Sandeen <sandeen@sandeen.net>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
+       Jan Kara <jack@ucw.cz>
+Subject: Re: 2.6.18 ext3 panic.
+Message-ID: <20061009225036.GC26728@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Eric Sandeen <sandeen@sandeen.net>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
+	Jan Kara <jack@ucw.cz>
+References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net> <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net> <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610100052.10008.rjw@sisk.pl>
+In-Reply-To: <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 8 October 2006 20:42, Pavel Machek wrote:
-> Hi!
-> 
-> > > boot -> suspend -> (un)plug battery -> resume
-> > > 
-> > > The problem arises in both cases - i.e. suspend with battery plugged in, 
-> > > and resume with battery unplugged, or vice versa.
-> > > 
-> > > After resume, when the battery status has changed (plugged in -> unplegged 
-> > > or unplugged -> plugged in) during the time when the system was sleeping, 
-> > > the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
-> > > the current state).
-> > 
-> > Is this also needed if you use "platform" method? Also with suspend-to-RAM?
-> > 
-> > > The following patch adds ->resume method to the ACPI battery handler, which
-> > > has the only aim - to check whether the battery state has changed during sleep, 
-> > > and if so, update the ACPI internal data structures, so that information 
-> > > published through /proc/acpi/battery/*/* is correct even after suspend/resume
-> > > cycle, during which the battery was removed/inserted.
-> > 
-> > Although it generally is a good idea to add suspend and resume methods to
-> > all ACPI drivers, it would be interesting to know if you still need this
-> > when using the correct method (platform) instead of the incorrect default
-> > method (shutdown).
-> > 
-> > echo "platform" > /sys/power/disk
-> > echo "disk" > /sys/power/state
-> 
-> Maybe we should change the default in 2.6.20 or so?
+On Mon, Oct 09, 2006 at 02:59:25PM -0700, Badari Pulavarty wrote:
 
-Well, I think swsusp should work with "shutdown" just as well.  If it doesn't,
-that means there are some bugs in the ACPI code which should be fixed.
-By using "platform" as the default method we'll be hiding those bugs IMHO.
+ > journal_dirty_data() would do submit_bh() ONLY if its part of the older
+ > transaction.
+ > 
+ > I need to take a closer look to understand the race.
+ > 
+ > BTW, is this 1k or 2k filesystem ?
 
-OTOH that may be desirable. ;-)
+(18:41:11:davej@gelk:~)$ sudo tune2fs -l /dev/md0  | grep size
+Block size:               1024
+Fragment size:            1024
+Inode size:               128
+(18:41:16:davej@gelk:~)$ 
 
-Greetings,
-Rafael
+ > How easy is to reproduce the problem ?
 
+I can reproduce it within a few hours of stressing, but only
+on that one box.  I've not figured out exactly what's so
+special about it yet (though the 1k block thing may be it).
+I had been thinking it was a raid0 only thing, as none of
+my other boxes have that.
+
+I'm not entirely sure how it got set up that way either.
+The Fedora installer being too smart for its own good perhaps.
+
+	Dave
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+http://www.codemonkey.org.uk

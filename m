@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWJIDfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWJIDm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWJIDfc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 23:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWJIDfb
+	id S1751621AbWJIDm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 23:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWJIDm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 23:35:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:46761 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932226AbWJIDf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 23:35:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JdATSDoV1B48l6RHUckdPNUhf65UAhintgJcoNz4W7whiLl8GDrcey6Aa6b89CCRVjcW6drAUkiVAFubo8n2k2c4uvS1j7MOjLq7l3N4mcPga5zyjYJNcwBBHDFKghi6tAOKZRMlltm06izThH/i6B9fNXL9OmAi/V7wFKBe+L4=
-Message-ID: <4529C38A.2000708@gmail.com>
-Date: Mon, 09 Oct 2006 11:35:38 +0800
-From: Liyu <raise.sail@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
+	Sun, 8 Oct 2006 23:42:29 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:40547 "EHLO
+	asav10.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751619AbWJIDm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 23:42:28 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AR4FAKphKUWBTg
+From: Dmitry Torokhov <dtor@insightbb.com>
 To: Anssi Hannula <anssi.hannula@gmail.com>
-CC: "raise.sail@gmail.com" <raise.sail@gmail.com>, greg <greg@kroah.com>,
+Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple =?iso-8859-1?q?Driver=09Interface_0=2E3=2E2?= (core)
+Date: Sun, 8 Oct 2006 23:42:25 -0400
+User-Agent: KMail/1.9.3
+Cc: "raise.sail@gmail.com" <raise.sail@gmail.com>, greg <greg@kroah.com>,
        Randy Dunlap <rdunlap@xenotime.net>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
        LKML <linux-kernel@vger.kernel.org>,
        linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver	Interface
- 0.3.2 (core)
-References: <200609291624123283320@gmail.com>		<20060929095913.f1b6f79d.rdunlap@xenotime.net>	<d120d5000609291035q7dad5f7fqcb38d4d8b3b211e5@mail.gmail.com>	<45286B85.90402@gmail.com> <452948AD.8030600@gmail.com>
+References: <200609291624123283320@gmail.com> <45286B85.90402@gmail.com> <452948AD.8030600@gmail.com>
 In-Reply-To: <452948AD.8030600@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610082342.26110.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anssi Hannula wrote:
+On Sunday 08 October 2006 14:51, Anssi Hannula wrote:
+> (I didn't get Dmitry's original mail, so replying here)
+> 
+> raise.sail@gmail.com wrote:
+> > Dmitry Torokhov wrote:
+> >> Then there is issue with automatic loading of these sub-drivers. How
+> >> do they get loaded? Or we force everything to be built-in making HID
+> >> module very fat (like psmouse got pretty fat, but with HID prtential
+> >> for it to get very fat is much bigger).
+> >>
+> >> The better way would be to split hid-input into a library module that
+> >> parses hid usages and reports and is shared between device-specific
+> >> modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
+> 
 > One possibility is to do that with symbol_request() and friends. That
 > would not be pretty though, imho.
->
+> 
 > DVB subsystem uses that currently to load frontend modules dynamically,
 > see dvb_attach() and dvb_frontend_detach() in
 > drivers/media/dvb/dvb-core/dvbdev.h and
 > drivers/media/dvb/dvb-core/dvb_frontend.c.
->
->   
-This means also can load module dynamically. In apparently, I think it
-have two weaknesses:
-   
-    1. It require module have one exported symbol at least.
-    2. We must handle life cycle of module by myself.
+> 
 
-Is it right?
+Unfortunately this does not quite work when hid is built-in and the rest
+are modules :(
 
-Goodluck
-
--Liyu
+-- 
+Dmitry

@@ -1,73 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWJIJcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbWJIJeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbWJIJcL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 05:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbWJIJcK
+	id S1751741AbWJIJeU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 05:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbWJIJeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 05:32:10 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:24465 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751710AbWJIJcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 05:32:09 -0400
-Date: Mon, 9 Oct 2006 11:32:42 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: akinobu.mita@gmail.com (Akinobu Mita)
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] driver core: handle bus_attach_device() failure
-Message-ID: <20061009113242.08ab11f0@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20061009091201.GA6448@localhost>
-References: <20061009091201.GA6448@localhost>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 9 Oct 2006 05:34:20 -0400
+Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:51483 "EHLO
+	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
+	id S1751728AbWJIJeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 05:34:19 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AQAAAHi0KUWMEQ0
+X-IronPort-AV: i="4.09,280,1157320800"; 
+   d="scan'208"; a="4030936:sNHT53438288"
+Date: Mon, 9 Oct 2006 11:34:16 +0200
+From: Joerg Roedel <joro-lkml@zlug.org>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       David Miller <davem@davemloft.net>
+Subject: [PATCH 01/02 V2] net/ipv6: seperate sit driver to extra module
+Message-ID: <20061009093416.GA11901@zlug.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 18:12:01 +0900,
-akinobu.mita@gmail.com (Akinobu Mita) wrote:
 
-> This patch handles bus_attach_device() failure in device_add().
-> 
-> Cc: Greg Kroah-Hartman <gregkh@suse.de>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> 
->  drivers/base/core.c |   22 ++++++++++++++++------
->  1 file changed, 16 insertions(+), 6 deletions(-)
-> 
-> Index: 2.6-mm/drivers/base/core.c
-> ===================================================================
-> --- 2.6-mm.orig/drivers/base/core.c	2006-10-03 22:58:40.000000000 +0900
-> +++ 2.6-mm/drivers/base/core.c	2006-10-09 16:57:52.000000000 +0900
-> @@ -530,7 +530,9 @@ int device_add(struct device *dev)
->  	if ((error = bus_add_device(dev)))
->  		goto BusError;
->  	kobject_uevent(&dev->kobj, KOBJ_ADD);
-> -	bus_attach_device(dev);
-> +	if ((error = bus_attach_device(dev)))
-> +		goto BusAttachError;
-> +
->  	if (parent)
->  		klist_add_tail(&dev->knode_parent, &parent->klist_children);
->  
-> @@ -548,6 +550,8 @@ int device_add(struct device *dev)
->   Done:
->  	put_device(dev);
->  	return error;
-> + BusAttachError:
-> +	bus_remove_device(dev);
->   BusError:
->  	device_pm_remove(dev);
->   PMError:
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This won't quite work :)
+This is the changed version of the patch making the sit driver
+configurable as a seperate module.
 
-See also
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116008235424179&w=2 ff.
-for a discussion on it. I'll send an updated patch soon :)
+Changes:
+- spelling fixes in Kconfig
+- changed "If unsure, say N" to "If unsure, say Y" for consistency
 
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_sit_as_module
+
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/af_inet6.c linux-2.6.18/net/ipv6/af_inet6.c
+--- linux-2.6.18-vanilla/net/ipv6/af_inet6.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/af_inet6.c	2006-10-05 16:55:02.000000000 +0200
+@@ -849,7 +849,6 @@ static int __init inet6_init(void)
+ 	err = addrconf_init();
+ 	if (err)
+ 		goto addrconf_fail;
+-	sit_init();
+ 
+ 	/* Init v6 extension headers. */
+ 	ipv6_rthdr_init();
+@@ -920,7 +919,6 @@ static void __exit inet6_exit(void)
+  	raw6_proc_exit();
+ #endif
+ 	/* Cleanup code parts. */
+-	sit_cleanup();
+ 	ip6_flowlabel_cleanup();
+ 	addrconf_cleanup();
+ 	ip6_route_cleanup();
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Kconfig linux-2.6.18/net/ipv6/Kconfig
+--- linux-2.6.18-vanilla/net/ipv6/Kconfig	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/Kconfig	2006-10-09 11:16:37.000000000 +0200
+@@ -126,6 +126,19 @@ config INET6_XFRM_MODE_TUNNEL
+ 
+ 	  If unsure, say Y.
+ 
++config IPV6_SIT
++	tristate "IPv6: IPv6-in-IPv4 tunnel (SIT driver)"
++	depends on IPV6
++	default y
++	---help---
++	  Tunneling means encapsulating data of one protocol type within
++	  another protocol and sending it over a channel that understands the
++	  encapsulating protocol. This driver implements encapsulation of IPv6
++	  into IPv4 packets. This is useful if you want to connect two IPv6
++	  networks over an IPv4-only path.
++
++	  Saying M here will produce a module called sit.ko. If unsure, say Y.
++
+ config IPV6_TUNNEL
+ 	tristate "IPv6: IPv6-in-IPv6 tunnel"
+ 	select INET6_TUNNEL
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/Makefile linux-2.6.18/net/ipv6/Makefile
+--- linux-2.6.18-vanilla/net/ipv6/Makefile	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/Makefile	2006-10-05 17:10:42.000000000 +0200
+@@ -4,7 +4,7 @@
+ 
+ obj-$(CONFIG_IPV6) += ipv6.o
+ 
+-ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o sit.o \
++ipv6-objs :=	af_inet6.o anycast.o ip6_output.o ip6_input.o addrconf.o \
+ 		route.o ip6_fib.o ipv6_sockglue.o ndisc.o udp.o raw.o \
+ 		protocol.o icmp.o mcast.o reassembly.o tcp_ipv6.o \
+ 		exthdrs.o sysctl_net_ipv6.o datagram.o proc.o \
+@@ -24,6 +24,7 @@ obj-$(CONFIG_INET6_XFRM_MODE_TRANSPORT) 
+ obj-$(CONFIG_INET6_XFRM_MODE_TUNNEL) += xfrm6_mode_tunnel.o
+ obj-$(CONFIG_NETFILTER)	+= netfilter/
+ 
++obj-$(CONFIG_IPV6_SIT) += sit.o
+ obj-$(CONFIG_IPV6_TUNNEL) += ip6_tunnel.o
+ 
+ obj-y += exthdrs_core.o
+diff -upr -X linux-2.6.18/Documentation/dontdiff linux-2.6.18-vanilla/net/ipv6/sit.c linux-2.6.18/net/ipv6/sit.c
+--- linux-2.6.18-vanilla/net/ipv6/sit.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/net/ipv6/sit.c	2006-10-05 16:55:02.000000000 +0200
+@@ -850,3 +850,6 @@ int __init sit_init(void)
+ 	inet_del_protocol(&sit_protocol, IPPROTO_IPV6);
+ 	goto out;
+ }
++
++module_init(sit_init);
++module_exit(sit_cleanup);
+
+--VS++wcV0S1rZb1Fb--

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932919AbWJIPWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932928AbWJIPXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932919AbWJIPWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932928AbWJIPWP
+	id S932928AbWJIPXO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932933AbWJIPXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:22:15 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:35768 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932919AbWJIPWP
+	Mon, 9 Oct 2006 11:23:14 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38328 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932928AbWJIPXN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:22:15 -0400
-Date: Mon, 9 Oct 2006 16:22:09 +0100
+	Mon, 9 Oct 2006 11:23:13 -0400
+Date: Mon, 9 Oct 2006 16:23:09 +0100
 From: Al Viro <viro@ftp.linux.org.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] extern doesn't make sense on a definition of function...
-Message-ID: <20061009152209.GP29920@ftp.linux.org.uk>
+Subject: [PATCH] trivial iomem annotations (arch/powerpc/platfroms/parsemi/pci.c)
+Message-ID: <20061009152309.GQ29920@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,23 +24,83 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- arch/powerpc/kernel/irq.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pasemi/pci.c |   26 +++++++++++++-------------
+ 1 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
-index 829ac18..5e37bf1 100644
---- a/arch/powerpc/kernel/irq.c
-+++ b/arch/powerpc/kernel/irq.c
-@@ -572,8 +572,8 @@ unsigned int irq_create_mapping(struct i
- }
- EXPORT_SYMBOL_GPL(irq_create_mapping);
+diff --git a/arch/powerpc/platforms/pasemi/pci.c b/arch/powerpc/platforms/pasemi/pci.c
+index 4679c52..39020c1 100644
+--- a/arch/powerpc/platforms/pasemi/pci.c
++++ b/arch/powerpc/platforms/pasemi/pci.c
+@@ -35,17 +35,17 @@ #define PA_PXP_CFA(bus, devfn, off) (((b
  
--extern unsigned int irq_create_of_mapping(struct device_node *controller,
--					  u32 *intspec, unsigned int intsize)
-+unsigned int irq_create_of_mapping(struct device_node *controller,
-+				   u32 *intspec, unsigned int intsize)
+ #define CONFIG_OFFSET_VALID(off) ((off) < 4096)
+ 
+-static unsigned long pa_pxp_cfg_addr(struct pci_controller *hose,
++static void volatile __iomem *pa_pxp_cfg_addr(struct pci_controller *hose,
+ 				       u8 bus, u8 devfn, int offset)
  {
- 	struct irq_host *host;
- 	irq_hw_number_t hwirq;
+-	return ((unsigned long)hose->cfg_data) + PA_PXP_CFA(bus, devfn, offset);
++	return hose->cfg_data + PA_PXP_CFA(bus, devfn, offset);
+ }
+ 
+ static int pa_pxp_read_config(struct pci_bus *bus, unsigned int devfn,
+ 			      int offset, int len, u32 *val)
+ {
+ 	struct pci_controller *hose;
+-	unsigned long addr;
++	void volatile __iomem *addr;
+ 
+ 	hose = pci_bus_to_host(bus);
+ 	if (!hose)
+@@ -62,13 +62,13 @@ static int pa_pxp_read_config(struct pci
+ 	 */
+ 	switch (len) {
+ 	case 1:
+-		*val = in_8((u8 *)addr);
++		*val = in_8(addr);
+ 		break;
+ 	case 2:
+-		*val = in_le16((u16 *)addr);
++		*val = in_le16(addr);
+ 		break;
+ 	default:
+-		*val = in_le32((u32 *)addr);
++		*val = in_le32(addr);
+ 		break;
+ 	}
+ 
+@@ -79,7 +79,7 @@ static int pa_pxp_write_config(struct pc
+ 			       int offset, int len, u32 val)
+ {
+ 	struct pci_controller *hose;
+-	unsigned long addr;
++	void volatile __iomem *addr;
+ 
+ 	hose = pci_bus_to_host(bus);
+ 	if (!hose)
+@@ -96,16 +96,16 @@ static int pa_pxp_write_config(struct pc
+ 	 */
+ 	switch (len) {
+ 	case 1:
+-		out_8((u8 *)addr, val);
+-		(void) in_8((u8 *)addr);
++		out_8(addr, val);
++		(void) in_8(addr);
+ 		break;
+ 	case 2:
+-		out_le16((u16 *)addr, val);
+-		(void) in_le16((u16 *)addr);
++		out_le16(addr, val);
++		(void) in_le16(addr);
+ 		break;
+ 	default:
+-		out_le32((u32 *)addr, val);
+-		(void) in_le32((u32 *)addr);
++		out_le32(addr, val);
++		(void) in_le32(addr);
+ 		break;
+ 	}
+ 	return PCIBIOS_SUCCESSFUL;
 -- 
 1.4.2.GIT
+

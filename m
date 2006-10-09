@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932927AbWJIPGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932925AbWJIPJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932927AbWJIPGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 11:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932926AbWJIPGN
+	id S932925AbWJIPJN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 11:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932929AbWJIPJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 11:06:13 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:6815 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932923AbWJIPGM (ORCPT
+	Mon, 9 Oct 2006 11:09:13 -0400
+Received: from xenotime.net ([66.160.160.81]:49619 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932922AbWJIPJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 11:06:12 -0400
-Date: Mon, 9 Oct 2006 17:05:48 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
- the kernel [try #4]
-In-Reply-To: <200610091652.26209.arnd.bergmann@de.ibm.com>
-Message-ID: <Pine.LNX.4.62.0610091705070.16048@pademelon.sonytel.be>
-References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr>
- <Pine.LNX.4.62.0610091508240.16048@pademelon.sonytel.be>
- <200610091652.26209.arnd.bergmann@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Oct 2006 11:09:12 -0400
+Date: Mon, 9 Oct 2006 08:10:37 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Stefan Seyfried <seife@suse.de>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org
+Subject: Re: [patch 1/2] libata: _GTF support
+Message-Id: <20061009081037.620bb5e3.rdunlap@xenotime.net>
+In-Reply-To: <20061009114150.GA32716@suse.de>
+References: <20060927223441.205181000@localhost.localdomain>
+	<20060927153627.c931de2d.kristen.c.accardi@intel.com>
+	<20061009114150.GA32716@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006, Arnd Bergmann wrote:
-> On Monday 09 October 2006 15:09, Geert Uytterhoeven wrote:
-> > On Mon, 9 Oct 2006, Jan Engelhardt wrote:
-> > > 
-> > > Ouch ouch ouch. It should better be
-> > > 
-> > > typedef uint32_t __u32;
+On Mon, 9 Oct 2006 13:41:50 +0200 Stefan Seyfried wrote:
+
+> On Wed, Sep 27, 2006 at 03:36:27PM -0700, Kristen Carlson Accardi wrote:
+> > _GTF is an acpi method that is used to reinitialize the drive.  It returns
+> > a task file containing ata commands that are sent back to the drive to restore
+> > it to boot up defaults.
 > > 
-> > You mean
+> > Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 > > 
-> > #ifdef __KERNEL__
-> > typedef __u32 u32;
-> > #else
-> > // Assumed we did #include <stdint.h> before
-> > typedef uint32_t __u32;
-> > #endif
+> > ---
+> >  Documentation/kernel-parameters.txt |    5 
+>  
+> > --- 2.6-mm.orig/Documentation/kernel-parameters.txt
+> > +++ 2.6-mm/Documentation/kernel-parameters.txt
+> > @@ -48,6 +48,7 @@ parameter is applicable:
+> >  	ISAPNP	ISA PnP code is enabled.
+> >  	ISDN	Appropriate ISDN support is enabled.
+> >  	JOY	Appropriate joystick support is enabled.
+> > +	LIBATA  Libata driver is enabled
+> >  	LP	Printer support is enabled.
+> >  	LOOP	Loopback device support is enabled.
+> >  	M68k	M68k architecture is enabled.
+> > @@ -1013,6 +1014,10 @@ and is between 256 and 4096 characters. 
+> >  			emulation library even if a 387 maths coprocessor
+> >  			is present.
+> >  
+> > +	noacpi		[LIBATA] Disables use of ACPI in libata suspend/resume
+> > +			when set.
+> > +			Format: <int>
 > 
-> Why should that be a valid assumption? Right now, it works
-> if you don't include stdint.h in advance.
+> this will confuse users that already think they can disable ACPI with "noacpi"
+> (instead of "acpi=off") and that already fight with "noapic". I have seen too
+> many confusions of this kind in bugreports.
+> 
+> Couldn't it be made "libata=noacpi" like we have "pci=noacpi" already?
 
-According to C99 section 7.18 you need to include <stdint.h> first.
+It only applies to the libata module, so it could be more fully
+documented as "libata.noacpi=1" to disable ACPI for libata.
+We don't usually do that in Documentation/kernel-parameters.txt,
+but there are a few cases/examples of doing so.
 
-Gr{oetje,eeting}s,
+Of course, that's for libata built-in the kernel image.  If libata
+is a loadable module, it's just
+	modprobe libata noacpi=1
+or set it in /etc/modprobe.conf.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+---
+~Randy

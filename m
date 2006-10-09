@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWJIB7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWJICsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751608AbWJIB7k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 21:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWJIB7k
+	id S932199AbWJICsA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 22:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWJICr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 21:59:40 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:17348
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751607AbWJIB7k (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 21:59:40 -0400
-Message-Id: <200610090158.k991wZZu017745@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Tony Finch <dot@dotat.at>
-Cc: David Woodhouse <dwmw2@infradead.org>, Dennis Heuer <dh@triple-media.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sunifdef instead of unifdef
-In-Reply-To: Your message of "Thu, 05 Oct 2006 17:05:04 BST."
-             <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
-From: Valdis.Kletnieks@vt.edu
-References: <20061005150816.76ca18c2.dh@triple-media.com> <1160059253.26064.69.camel@pmac.infradead.org>
-            <Pine.LNX.4.64.0610051648200.28237@hermes-2.csi.cam.ac.uk>
+	Sun, 8 Oct 2006 22:47:59 -0400
+Received: from xenotime.net ([66.160.160.81]:27822 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751623AbWJICr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 22:47:58 -0400
+Date: Sun, 8 Oct 2006 19:44:29 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] kernel-doc: fix function name in usercopy.c
+Message-Id: <20061008194429.c98d7387.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1160359114_2875P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 08 Oct 2006 21:58:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1160359114_2875P
-Content-Type: text/plain; charset=us-ascii
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-On Thu, 05 Oct 2006 17:05:04 BST, Tony Finch said:
+Fix kernel-doc function name in usercopy.c.
 
-> already in serious trouble: for example, my unifdef was written so that I
-> could understand xterm's frightening pty handling....)
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ arch/i386/lib/usercopy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Well, that code *does* warn you:
+--- linux-2619-rc1g3.orig/arch/i386/lib/usercopy.c
++++ linux-2619-rc1g3/arch/i386/lib/usercopy.c
+@@ -179,7 +179,7 @@ __clear_user(void __user *to, unsigned l
+ EXPORT_SYMBOL(__clear_user);
+ 
+ /**
+- * strlen_user: - Get the size of a string in user space.
++ * strnlen_user: - Get the size of a string in user space.
+  * @s: The string to measure.
+  * @n: The maximum valid length
+  *
 
-* If you think you know what all of this code is doing, you are
-* probably very mistaken.  There be serious and nasty dragons here.
 
-:)
-
---==_Exmh_1160359114_2875P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFKazKcC3lWbTT17ARAuYJAJ9yXGyNcJKs9yES7TxdXfmQ2okz2wCgyiEC
-XWgXY28S/Ge/G08GKGyzsLI=
-=Y3FB
------END PGP SIGNATURE-----
-
---==_Exmh_1160359114_2875P--
+---

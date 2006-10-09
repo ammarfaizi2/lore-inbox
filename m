@@ -1,33 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbWJIMyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932763AbWJIM7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbWJIMyu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 08:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbWJIMyt
+	id S932763AbWJIM7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 08:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbWJIM7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 08:54:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21898 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932723AbWJIMys (ORCPT
+	Mon, 9 Oct 2006 08:59:36 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:5808 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S932763AbWJIM7f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 08:54:48 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr> 
-References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr>  <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <20061006133414.9972.79007.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.61.0610062232210.30417@yvahk01.tjqt.qr> <20061006203919.GS2563@parisc-linux.org> <5267.1160381168@redhat.com> <Pine.LNX.4.61.0610091032470.24127@yvahk01.tjqt.qr> <EE65413A-0E34-40DA-9037-72423C18CD0C@mac.com> 
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Matthew Wilcox <matthew@wil.cx>,
-       torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4] 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 09 Oct 2006 13:54:21 +0100
-Message-ID: <11639.1160398461@redhat.com>
+	Mon, 9 Oct 2006 08:59:35 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH] kernel-doc: drop __must_check and various "inline"  qualifiers
+Date: Mon, 9 Oct 2006 15:00:18 +0200
+User-Agent: KMail/1.9.4
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+References: <20061008200851.47eb99da.rdunlap@xenotime.net>
+In-Reply-To: <20061008200851.47eb99da.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1235731.fTfNZWmWVe";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610091500.24131.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+--nextPart1235731.fTfNZWmWVe
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> typedef uint32_t __u32;
+Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+>
+> Drop __inline, __always_inline, noinline, and __must_check in the
+> produced kernel-doc output, similar to other pseudo directives.
 
-That only offsets the problem a bit.  You still have to derive uint32_t from
-somewhere.
+The inline status of a function is not of much help for a developer, that's=
+=20
+right. But I would like to see the the __must_check in the documentation.=20
+This it what makes a difference, the inline stuff is extraneous.
 
-David
+Eike
+
+--nextPart1235731.fTfNZWmWVe
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFKkfoXKSJPmm5/E4RAu4hAJ9DDF2jOW+96cII5PonBzQ2lag/KgCbB+yY
+ImLkpQSt4WXMIhklbKh1dKM=
+=6FJ0
+-----END PGP SIGNATURE-----
+
+--nextPart1235731.fTfNZWmWVe--

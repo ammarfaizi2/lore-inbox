@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWJIHmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWJIHof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWJIHmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWJIHmY
+	id S932326AbWJIHof (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWJIHof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:42:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32162 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932317AbWJIHmY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:42:24 -0400
-Date: Mon, 9 Oct 2006 00:42:09 -0700
-From: Bryce Harrington <bryce@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, vatsa@in.ibm.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, shaohua.li@intel.com,
-       hotplug_sig@osdl.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: Status on CPU hotplug issues
-Message-ID: <20061009074209.GB27474@osdl.org>
-References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org> <20060317084653.GA4515@in.ibm.com> <20060317010412.3243364c.akpm@osdl.org> <20061006231012.GH22139@osdl.org> <20061006162924.344090f8.akpm@osdl.org> <20061007102419.GB30034@elf.ucw.cz> <20061007202521.GA24743@osdl.org> <20061008191350.GB3788@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Oct 2006 03:44:35 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:8652 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932326AbWJIHoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 03:44:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IMfA5S5qE62M66Gwv2hVvrXwuz7bA1KfvRXSjezfh4TjaSnW0b2fvc6Bl/LI3bWr0HYRCaCjl1Xi/+xiACkRlQ3zOQELZyCAUVVCnrYnsIJ0OU3po7GEwnKhEaqrBwYh/dOzhVrArT2qzxXaQVURJyOUbRgVkvx3xYijibK5atk=
+Message-ID: <215036450610090044n56ec3a9dg62573a16d63ab00c@mail.gmail.com>
+Date: Mon, 9 Oct 2006 15:44:32 +0800
+From: "Joe Jin" <lkmaillist@gmail.com>
+To: "Tejun Heo" <htejun@gmail.com>
+Subject: Re: [PATCH] libata: skip reset on bus not a device
+Cc: linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       "Jeff Garzik" <jgarzik@pobox.com>
+In-Reply-To: <20061009070652.GE10832@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061008191350.GB3788@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+References: <215036450609292206pd16c7cxa1c5c77ee52c050e@mail.gmail.com>
+	 <451E7BD2.7020002@gmail.com>
+	 <215036450609301849h64551749uf6b4a3e48c57fe15@mail.gmail.com>
+	 <4529BCC4.8060906@gmail.com>
+	 <215036450610082354q34b906bdp54a3b9cee52a5855@mail.gmail.com>
+	 <4529F391.3030504@gmail.com> <20061009070652.GE10832@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 08, 2006 at 09:13:50PM +0200, Pavel Machek wrote:
-> > > So... patch-2.6.18-git4 failed to boot on all architectures? I'm
-> > > seeing very little green fields there... actually I only see two green
-> > > fields in whole table.
-> > 
-> > No, it failed to build due to a patching issue that has since been fixed
-> > (I can rerun those older runs if there is interest.)
-> 
-> Reruning few of them and deleting rest from table would be nice.
+> > It's against libata development tree.  So, you downloaded the tar.gz and
+> > tested it?
 
-I've requeued a few.  The runs will auto-expunge from the results in a
-week or two.
+no, but at latest kernel 2.6.19-rc1 use the same tree as you said, and
+it also can worked
 
-> > > > iirc Pavel did some testing a month or two ago and was seeing userspace
-> > > > misbehaviour?
-> > > 
-> > > Pavel did some testing (like two threads trying to plug/unplug cpus at
-> > > the same time), and seen machines dying real fast; but that was fixed,
-> > > IIRC, and I did not really torture it after that.
-> > 
-> > If this test is available, I could include it in my test runs if you
-> > think it would be worth tracking.
-> 
-> Is shell script acceptable form of a test?
 
-Yes.  In fact all the tests are shell scripts so far.
+>
+> And, one more thing to try.  The following patch should fix your
+> problem.  It's against v2.6.18.
+>
 
-Bryce
+while applied the patch, error info gone :)
+
+A question: if the status register return 0xFF means the device not exist?
+why not use ata_devchk()?
+
+thanks
+
+-Joe

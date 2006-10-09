@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWJIVjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWJIVsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWJIVjB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 17:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWJIVjA
+	id S964883AbWJIVsv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 17:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWJIVsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 17:39:00 -0400
-Received: from xenotime.net ([66.160.160.81]:5506 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751637AbWJIVi7 (ORCPT
+	Mon, 9 Oct 2006 17:48:51 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:29654 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S964883AbWJIVsu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 17:38:59 -0400
-Date: Mon, 9 Oct 2006 14:40:24 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Bryce Harrington <bryce@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       vatsa@in.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       shaohua.li@intel.com, hotplug_sig@osdl.org,
-       lhcs-devel@lists.sourceforge.net
-Subject: Re: Status on CPU hotplug issues
-Message-Id: <20061009144024.6364b6ba.rdunlap@xenotime.net>
-In-Reply-To: <20061007215749.GC4277@ucw.cz>
-References: <20060316174447.GA8184@in.ibm.com>
-	<20060316170814.02fa55a1.akpm@osdl.org>
-	<20060317084653.GA4515@in.ibm.com>
-	<20060317010412.3243364c.akpm@osdl.org>
-	<20061006231012.GH22139@osdl.org>
-	<20061007215749.GC4277@ucw.cz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 9 Oct 2006 17:48:50 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: linux-kernel@vger.kernel.org
+Subject: [2.16.19-rc1] Section mismatch warnings
+Date: Tue, 10 Oct 2006 00:48:43 +0300
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4391823.htPeEAkvjT";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610100048.49550.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Oct 2006 21:57:49 +0000 Pavel Machek wrote:
+--nextPart4391823.htPeEAkvjT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi!
-> 
-> > 1.  Oops offlining cpu twice on AMD64 (but not on EM64t)
-> >     with the 2.6.18-git22 kernel
-> > 
-> >     Reported to hotplug lists 10/05:
-> >       http://lists.osdl.org/pipermail/hotplug_sig/2006-October/000680.html
-> > 
-> >     To recreate: offline, online, and then offline a CPU, then oopses
-> >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.console
-> >       http://crucible.osdl.org/runs/2397/sysinfo/amd01.2/proc/config
-> > 
-> >     Here's a snippet of the oops:
-> > 
-> > # echo 0 > /sys/devices/system/cpu/cpu1/online
-> > 
-> >  Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
-> >  [<ffffffff80255287>] __drain_pages+0x29/0x5f
-> > PGD 7e56d067 PUD 7ee80067 PMD 0
-> > Oops: 0000 [1] PREEMPT SMP
-> > CPU 0
-> > Modules linked in:
-> > Pid: 7203, comm: bash Tainted: G   M  2.6.18-git22 #1
->                                  ~~~~~
-> kernel is unhappy here. Forced module unload?
+Hi;
 
-Machine check exception.  'G' is Good, same place where 'P'
-for proprietary would be.  But yes, kernel or machine is unhappy.
+I'm not sure they are already reported but there it is;
 
----
-~Randy
+Kernel: arch/i386/boot/bzImage is ready  (#2)
+  Building modules, stage 2.
+  MODPOST 1384 modules
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.da=
+ta:=20
+from .text between 'acpi_processor_power_init' (at offset 0x14d7)=20
+and 'acpi_processor_power_exit'
+WARNING: drivers/atm/fore_200e.o - Section mismatch: reference to .init.tex=
+t:=20
+from .text between 'fore200e_initialize' (at offset 0x21ab)=20
+and 'fore200e_monitor_putc'
+WARNING: drivers/atm/horizon.o - Section mismatch: reference to .init.text:=
+=20
+from .text between 'hrz_probe' (at offset 0x1476) and 'hrz_remove_one'
+WARNING: drivers/atm/lanai.o - Section mismatch: reference to .init.text:=20
+from .text between 'sram_test_pass' (at offset 0x160)=20
+and 'sram_test_and_clear'
+WARNING: drivers/atm/zatm.o - Section mismatch: reference to .init.text:=20
+from .text after 'zatm_init_one' (at offset 0x1dcb)
+WARNING: drivers/atm/zatm.o - Section mismatch: reference to .init.text:=20
+from .text after 'zatm_init_one' (at offset 0x1dd8)
+WARNING: drivers/net/sis900.o - Section mismatch: reference=20
+to .init.text:sis900_mii_probe from .text between 'sis900_probe' (at offset=
+=20
+0x479) and 'sis900_default_phy'
+WARNING: drivers/net/sunhme.o - Section mismatch: reference to .init.text:=
+=20
+from .text between 'happy_meal_pci_probe' (at offset 0x271d)=20
+and 'happy_meal_pci_remove'
+
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart4391823.htPeEAkvjT
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFKsPBy7E6i0LKo6YRAtFAAJ4gGeVDtzrwrPITfJGH01OcNYj/IwCfXJR6
+E3LhdNaPVxE2wAke0OucwYo=
+=sePq
+-----END PGP SIGNATURE-----
+
+--nextPart4391823.htPeEAkvjT--

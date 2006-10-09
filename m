@@ -1,68 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWJIHuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWJIHx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWJIHuo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 03:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWJIHun
+	id S932329AbWJIHx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 03:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWJIHx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 03:50:43 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:42122 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP id S932335AbWJIHun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 03:50:43 -0400
-Date: Mon, 9 Oct 2006 09:49:15 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg KH <greg@kroah.com>, Ashok Raj <ashok.raj@intel.com>,
-       Nathan Lynch <nathanl@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] sysfs: allow removal of nonexistent sysfs groups.
-Message-ID: <20061009074915.GD6936@osiris.boeblingen.de.ibm.com>
-References: <20061004130554.GA25974@havoc.gtf.org> <20061004172434.1a2ddb71@gondolin.boeblingen.de.ibm.com> <20061005081705.GA6920@osiris.boeblingen.de.ibm.com> <4524E983.6010208@garzik.org> <20061005124848.GB6920@osiris.boeblingen.de.ibm.com> <45250161.4060002@garzik.org> <20061005131623.GC6920@osiris.boeblingen.de.ibm.com> <20061009072920.GB6936@osiris.boeblingen.de.ibm.com> <20061009004014.11ed8df2.akpm@osdl.org>
+	Mon, 9 Oct 2006 03:53:26 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:20156 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S932329AbWJIHx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 03:53:26 -0400
+Message-ID: <4529FFDC.5080708@linuxtv.org>
+Date: Mon, 09 Oct 2006 03:53:00 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009004014.11ed8df2.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linus Torvalds <torvalds@osdl.org>, v4l-dvb-maintainer@linuxtv.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [v4l-dvb-maintainer] 2.6.19-rc1: DVB frontend selection causes
+ compile errors
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <20061009003146.GA3172@stusta.de>
+In-Reply-To: <20061009003146.GA3172@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 12:40:14AM -0700, Andrew Morton wrote:
-> On Mon, 9 Oct 2006 09:29:20 +0200
-> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+Adrian Bunk wrote:
+> The DVB frontend selection changes in 2.6.19-rc1 are giving me the 
+> following compile error:
 > 
-> > From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> > 
-> > This patch makes it safe to call sysfs_remove_group() with a name group
-> > that doesn't exist. Needed to make fix cpu hotplug stuff in topology code.
-> > 
+> <--  snip  -->
 > 
-> Surely an attempt to remove a non-existent entry is a bug, and this
-> (racy-looking) patch just covers that up?
+> ...
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function `dvb_init':
+> saa7134-dvb.c:(.text+0x91d94): undefined reference to `tda10086_attach'
+> saa7134-dvb.c:(.text+0x91db0): undefined reference to `tda826x_attach'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> <--  snip  -->
+> 
+> .config attached.
+> 
+> cu
+> Adrian
 
-It just tries to keep cpu hotplug code in drivers/base/topology.c simple. Since
-otherwise one would have to remember if sysfs_create_group() succeeded or not.
-Hmm.. thinking again, this patch looks indeed racy.
 
-> > Index: linux-2.6/fs/sysfs/group.c
-> > ===================================================================
-> > --- linux-2.6.orig/fs/sysfs/group.c	2006-10-09 09:15:25.000000000 +0200
-> > +++ linux-2.6/fs/sysfs/group.c	2006-10-09 09:25:23.000000000 +0200
-> > @@ -68,9 +68,12 @@
-> >  {
-> >  	struct dentry * dir;
-> >  
-> > -	if (grp->name)
-> > +	if (grp->name) {
-> > +		if (!sysfs_dirent_exist(kobj->dentry->d_fsdata, grp->name))
-> > +			return;
-> >  		dir = lookup_one_len(grp->name, kobj->dentry,
-> >  				strlen(grp->name));
-> > +	}
-> >  	else
-> >  		dir = dget(kobj->dentry);
-> >  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Adrian,
+
+Does this fix it for you?
+
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+
+diff -r 7efa405e2d66 linux/drivers/media/dvb/frontends/tda10086.h
+--- a/drivers/media/dvb/frontends/tda10086.h	Fri Oct 06 17:12:00 2006 -0300
++++ b/drivers/media/dvb/frontends/tda10086.h	Mon Oct 09 03:43:28 2006 -0400
+@@ -35,7 +35,16 @@ struct tda10086_config
+ 	u8 invert;
+ };
+ 
++#if defined(CONFIG_DVB_TDA10086) || defined(CONFIG_DVB_TDA10086_MODULE)
+ extern struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
+ 					    struct i2c_adapter* i2c);
++#else
++static inline struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
++						   struct i2c_adapter* i2c)
++{
++	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
++	return NULL;
++}
++#endif // CONFIG_DVB_TDA10086
+ 
+ #endif // TDA10086_H
+diff -r 7efa405e2d66 linux/drivers/media/dvb/frontends/tda826x.h
+--- a/drivers/media/dvb/frontends/tda826x.h	Fri Oct 06 17:12:00 2006 -0300
++++ b/drivers/media/dvb/frontends/tda826x.h	Mon Oct 09 03:43:28 2006 -0400
+@@ -35,6 +35,19 @@
+  * @param has_loopthrough Set to 1 if the card has a loopthrough RF connector.
+  * @return FE pointer on success, NULL on failure.
+  */
+-extern struct dvb_frontend *tda826x_attach(struct dvb_frontend *fe, int addr, struct i2c_adapter *i2c, int has_loopthrough);
++#if defined(CONFIG_DVB_TDA826X) || defined(CONFIG_DVB_TDA826X_MODULE)
++extern struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe, int addr,
++					   struct i2c_adapter *i2c,
++					   int has_loopthrough);
++#else
++static inline struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe,
++						  int addr,
++						  struct i2c_adapter *i2c,
++						  int has_loopthrough)
++{
++	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
++	return NULL;
++}
++#endif // CONFIG_DVB_TDA826X
+ 
+-#endif
++#endif // __DVB_TDA826X_H__

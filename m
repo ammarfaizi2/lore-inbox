@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWJIBvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbWJIBxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWJIBvN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Oct 2006 21:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751593AbWJIBvN
+	id S1751595AbWJIBxM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Oct 2006 21:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWJIBxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Oct 2006 21:51:13 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:62439 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751589AbWJIBvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Oct 2006 21:51:12 -0400
-Message-Id: <200610090149.k991niYB009787@laptop13.inf.utfsm.cl>
-To: Adrian Bunk <bunk@stusta.de>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1: known regressions (v2) 
-In-Reply-To: Message from Jan-Benedict Glaw <jbglaw@lug-owl.de> 
-   of "Sun, 08 Oct 2006 19:34:46 +0200." <20061008173445.GN30283@lug-owl.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Sun, 08 Oct 2006 21:49:44 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 08 Oct 2006 21:49:47 -0400 (CLT)
+	Sun, 8 Oct 2006 21:53:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:5343 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751595AbWJIBxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Oct 2006 21:53:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=KQl6A1AJeGO+Bs7w/8aM9si8JMkYKV6e3s/ic3odBDbXMBOJV8ANHAyDeDRInNHkiOx0IMVKCg7NK2xWa8aZpNl1mtPRBBZVHS42mxE8MJPwEmXxvgC7OtpU6xOW9fMEpxovL6bPjVfwdECKaZu6/3UwY2Yt1ttTbD27ikTfIbQ=
+Date: Mon, 9 Oct 2006 05:52:57 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86_64: use BUILD_BUG_ON in FPU code
+Message-ID: <20061009015257.GB5346@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> On Sun, 2006-10-08 19:28:59 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-[...]
+ arch/x86_64/kernel/i387.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-> I'd find it offensive, too, when I'd be called "guilty" because a
-> patch broke something that was buggy. Read the bug report: Seems it
-> was actually caused by a non-initialized variable introduced by a
-> patch to util-linux.
-> 
-> > This wasn't my intention, and I've replaced it with "Caused-By".
-> 
-> Made-visible-by :)
+--- a/arch/x86_64/kernel/i387.c
++++ b/arch/x86_64/kernel/i387.c
+@@ -82,11 +82,8 @@ int save_i387(struct _fpstate __user *bu
+ 	struct task_struct *tsk = current;
+ 	int err = 0;
+ 
+-	{ 
+-		extern void bad_user_i387_struct(void); 
+-		if (sizeof(struct user_i387_struct) != sizeof(tsk->thread.i387.fxsave))
+-			bad_user_i387_struct();
+-	} 
++	BUILD_BUG_ON(sizeof(struct user_i387_struct) !=
++			sizeof(tsk->thread.i387.fxsave));
+ 
+ 	if ((unsigned long)buf % 16) 
+ 		printk("save_i387: bad fpstate %p\n",buf); 
 
-Git-bisected-to?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

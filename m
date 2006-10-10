@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030581AbWJJWsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWJJW7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030581AbWJJWsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 18:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030578AbWJJWsJ
+	id S1030276AbWJJW7n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 18:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWJJW7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 18:48:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1975
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030617AbWJJWsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 18:48:06 -0400
-Date: Tue, 10 Oct 2006 15:48:07 -0700 (PDT)
-Message-Id: <20061010.154807.106772407.davem@davemloft.net>
-To: viro@ftp.linux.org.uk
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 13/16] Finish annotations of struct vlan_ethhdr
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <E1GXQFT-00005R-VE@ZenIV.linux.org.uk>
-References: <E1GXQFT-00005R-VE@ZenIV.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 10 Oct 2006 18:59:43 -0400
+Received: from gw.goop.org ([64.81.55.164]:29864 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030276AbWJJW7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 18:59:41 -0400
+Message-ID: <452C25D9.3060108@goop.org>
+Date: Tue, 10 Oct 2006 15:59:37 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       tim.c.chen@linux.intel.com, Andrew Morton <akpm@osdl.org>,
+       herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+References: <B41635854730A14CA71C92B36EC22AAC3F4CAB@mssmsx411> <Pine.LNX.4.58.0610101712370.10398@gandalf.stny.rr.com>
+In-Reply-To: <Pine.LNX.4.58.0610101712370.10398@gandalf.stny.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 23:38:55 +0100
+Steven Rostedt wrote:
+> In todays world, SMP is becoming more and more common (still waiting to
+> get that DualCore cell phone).  So that means that writing to a variable
+> is going to carry more weight than it use to, and gcc needs to take note
+> of this.  So, to avoid a short condition jump by adding a write to
+> memory, is not going to save anying.
+>   
 
-> From: Alexey Dobriyan <adobriyan@gmail.com>
-> Date: Wed, 28 Dec 2005 22:27:10 +0300
-> 
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+In general shared variables are going to be pretty rare, and its 
+reasonable for gcc to assume they aren't.  But it would be nice to have 
+a good way to solve cases like this (though it seems like (condition) && 
+__warn_once is the right way to go here anyway).
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    J

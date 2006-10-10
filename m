@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030669AbWJJXWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030646AbWJJX0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030669AbWJJXWd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 19:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWJJXWd
+	id S1030646AbWJJX0g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 19:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWJJX0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 19:22:33 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:43435 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030641AbWJJXWc (ORCPT
+	Tue, 10 Oct 2006 19:26:36 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:50347 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1030646AbWJJX0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 19:22:32 -0400
-Date: Tue, 10 Oct 2006 19:22:31 -0400
+	Tue, 10 Oct 2006 19:26:35 -0400
+Date: Tue, 10 Oct 2006 19:26:34 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+To: adaplas@pol.net, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SCSI: minor bug fixes and cleanups
-Message-ID: <20061010232231.GA19015@havoc.gtf.org>
+Subject: [PATCH] atyfb, rivafb: minor fixes
+Message-ID: <20061010232634.GA19328@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,195 +23,207 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-BusLogic: use kzalloc(), remove cast to/from void*
+aty128fb: return an error in the unlikely event that we cannot calculate
+some key PLL info
 
-aic7xxx_old: fix typo in cast
-
-NCR53c406a: ifdef out static built code
-
-fd_mcs: ifdef out static built code
-
-ncr53c8xx: ifdef out static built code
+rivafb:
+* call CalcStateExt() directly, rather than via function pointers, since
+  CalcStateExt() is the only value ever assigned to ->CalcStateExt().
+* propagate error return back from CalcVClock() through callers
 
 Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/scsi/BusLogic.c       |   12 ++++++------
- drivers/scsi/NCR53c406a.c     |    5 +++++
- drivers/scsi/aic7xxx_old.c    |    2 +-
- drivers/scsi/fd_mcs.c         |    2 ++
- drivers/scsi/ncr53c8xx.c      |   19 +++++++++++--------
+ drivers/video/aty/aty128fb.c  |    5 +++++
+ drivers/video/riva/fbdev.c    |   22 +++++++++++++++++-----
+ drivers/video/riva/riva_hw.c  |   12 ++++++------
+ drivers/video/riva/riva_hw.h  |   17 ++++++++++++++++-
 
-diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
-index 7c59bba..689dc4c 100644
---- a/drivers/scsi/BusLogic.c
-+++ b/drivers/scsi/BusLogic.c
-@@ -2186,21 +2186,21 @@ #endif
+diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
+index 276a215..3feddf8 100644
+--- a/drivers/video/aty/aty128fb.c
++++ b/drivers/video/aty/aty128fb.c
+@@ -1333,6 +1333,8 @@ static int aty128_var_to_pll(u32 period_
+ 	if (vclk * 12 < c.ppll_min)
+ 		vclk = c.ppll_min/12;
  
- 	if (BusLogic_ProbeOptions.NoProbe)
- 		return -ENODEV;
--	BusLogic_ProbeInfoList = (struct BusLogic_ProbeInfo *)
--	    kmalloc(BusLogic_MaxHostAdapters * sizeof(struct BusLogic_ProbeInfo), GFP_ATOMIC);
-+	BusLogic_ProbeInfoList =
-+	    kzalloc(BusLogic_MaxHostAdapters * sizeof(struct BusLogic_ProbeInfo), GFP_KERNEL);
- 	if (BusLogic_ProbeInfoList == NULL) {
- 		BusLogic_Error("BusLogic: Unable to allocate Probe Info List\n", NULL);
- 		return -ENOMEM;
++	pll->post_divider = -1;
++
+ 	/* now, find an acceptable divider */
+ 	for (i = 0; i < sizeof(post_dividers); i++) {
+ 		output_freq = post_dividers[i] * vclk;
+@@ -1342,6 +1344,9 @@ static int aty128_var_to_pll(u32 period_
+ 		}
  	}
--	memset(BusLogic_ProbeInfoList, 0, BusLogic_MaxHostAdapters * sizeof(struct BusLogic_ProbeInfo));
--	PrototypeHostAdapter = (struct BusLogic_HostAdapter *)
--	    kmalloc(sizeof(struct BusLogic_HostAdapter), GFP_ATOMIC);
+ 
++	if (pll->post_divider < 0)
++		return -EINVAL;
 +
-+	PrototypeHostAdapter =
-+	    kzalloc(sizeof(struct BusLogic_HostAdapter), GFP_KERNEL);
- 	if (PrototypeHostAdapter == NULL) {
- 		kfree(BusLogic_ProbeInfoList);
- 		BusLogic_Error("BusLogic: Unable to allocate Prototype " "Host Adapter\n", NULL);
- 		return -ENOMEM;
- 	}
--	memset(PrototypeHostAdapter, 0, sizeof(struct BusLogic_HostAdapter));
+ 	/* calculate feedback divider */
+ 	n = c.ref_divider * output_freq;
+ 	d = c.ref_clk;
+diff --git a/drivers/video/riva/fbdev.c b/drivers/video/riva/fbdev.c
+index a433cc7..1fdfb64 100644
+--- a/drivers/video/riva/fbdev.c
++++ b/drivers/video/riva/fbdev.c
+@@ -774,11 +774,12 @@ static void riva_load_state(struct riva_
+  * CALLED FROM:
+  * rivafb_set_par()
+  */
+-static void riva_load_video_mode(struct fb_info *info)
++static int riva_load_video_mode(struct fb_info *info)
+ {
+ 	int bpp, width, hDisplaySize, hDisplay, hStart,
+ 	    hEnd, hTotal, height, vDisplay, vStart, vEnd, vTotal, dotClock;
+ 	int hBlankStart, hBlankEnd, vBlankStart, vBlankEnd;
++	int rc;
+ 	struct riva_par *par = info->par;
+ 	struct riva_regs newmode;
+ 	
+@@ -884,8 +885,10 @@ static void riva_load_video_mode(struct 
+ 	else
+ 		newmode.misc_output |= 0x80;	
+ 
+-	par->riva.CalcStateExt(&par->riva, &newmode.ext, bpp, width,
+-				  hDisplaySize, height, dotClock);
++	rc = CalcStateExt(&par->riva, &newmode.ext, bpp, width,
++			  hDisplaySize, height, dotClock);
++	if (rc)
++		goto out;
+ 
+ 	newmode.ext.scale = NV_RD32(par->riva.PRAMDAC, 0x00000848) &
+ 		0xfff000ff;
+@@ -917,8 +920,12 @@ static void riva_load_video_mode(struct 
+ 	par->current_state = newmode;
+ 	riva_load_state(par, &par->current_state);
+ 	par->riva.LockUnlock(&par->riva, 0); /* important for HW cursor */
 +
- #ifdef MODULE
- 	if (BusLogic != NULL)
- 		BusLogic_Setup(BusLogic);
-diff --git a/drivers/scsi/NCR53c406a.c b/drivers/scsi/NCR53c406a.c
-index d461381..8578555 100644
---- a/drivers/scsi/NCR53c406a.c
-+++ b/drivers/scsi/NCR53c406a.c
-@@ -220,9 +220,11 @@ #endif				/* USE_BIOS */
- static unsigned short ports[] = { 0x230, 0x330, 0x280, 0x290, 0x330, 0x340, 0x300, 0x310, 0x348, 0x350 };
- #define PORT_COUNT ARRAY_SIZE(ports)
- 
-+#ifndef MODULE
- /* possible interrupt channels */
- static unsigned short intrs[] = { 10, 11, 12, 15 };
- #define INTR_COUNT ARRAY_SIZE(intrs)
-+#endif /* !MODULE */
- 
- /* signatures for NCR 53c406a based controllers */
- #if USE_BIOS
-@@ -605,6 +607,7 @@ #endif
- 	return 0;
- }
- 
-+#ifndef MODULE
- /* called from init/main.c */
- static int __init NCR53c406a_setup(char *str)
- {
-@@ -661,6 +664,8 @@ static int __init NCR53c406a_setup(char 
- 
- __setup("ncr53c406a=", NCR53c406a_setup);
- 
-+#endif /* !MODULE */
++out:
+ 	rivafb_blank(FB_BLANK_UNBLANK, info);
+ 	NVTRACE_LEAVE();
 +
- static const char *NCR53c406a_info(struct Scsi_Host *SChost)
- {
- 	DEB(printk("NCR53c406a_info called\n"));
-diff --git a/drivers/scsi/aic7xxx_old.c b/drivers/scsi/aic7xxx_old.c
-index bcd7fff..46eed10 100644
---- a/drivers/scsi/aic7xxx_old.c
-+++ b/drivers/scsi/aic7xxx_old.c
-@@ -2646,7 +2646,7 @@ static void aic7xxx_done_cmds_complete(s
- 
- 	while (p->completeq.head != NULL) {
- 		cmd = p->completeq.head;
--		p->completeq.head = (struct scsi_Cmnd *) cmd->host_scribble;
-+		p->completeq.head = (struct scsi_cmnd *) cmd->host_scribble;
- 		cmd->host_scribble = NULL;
- 		cmd->scsi_done(cmd);
- 	}
-diff --git a/drivers/scsi/fd_mcs.c b/drivers/scsi/fd_mcs.c
-index ef8285c..668569e 100644
---- a/drivers/scsi/fd_mcs.c
-+++ b/drivers/scsi/fd_mcs.c
-@@ -294,6 +294,7 @@ static struct Scsi_Host *hosts[FD_MAX_HO
- static int user_fifo_count = 0;
- static int user_fifo_size = 0;
- 
-+#ifndef MODULE
- static int __init fd_mcs_setup(char *str)
- {
- 	static int done_setup = 0;
-@@ -311,6 +312,7 @@ static int __init fd_mcs_setup(char *str
++	return rc;
  }
  
- __setup("fd_mcs=", fd_mcs_setup);
-+#endif /* !MODULE */
- 
- static void print_banner(struct Scsi_Host *shpnt)
+ static void riva_update_var(struct fb_var_screeninfo *var, struct fb_videomode *modedb)
+@@ -1286,12 +1293,15 @@ static int rivafb_check_var(struct fb_va
+ static int rivafb_set_par(struct fb_info *info)
  {
-diff --git a/drivers/scsi/ncr53c8xx.c b/drivers/scsi/ncr53c8xx.c
-index 6cc2bc2..5a88fa0 100644
---- a/drivers/scsi/ncr53c8xx.c
-+++ b/drivers/scsi/ncr53c8xx.c
-@@ -589,10 +589,12 @@ #define map_scsi_sg_data(np, cmd)	__map_
- static struct ncr_driver_setup
- 	driver_setup			= SCSI_NCR_DRIVER_SETUP;
+ 	struct riva_par *par = info->par;
++	int rc = 0;
  
-+#ifndef MODULE
- #ifdef	SCSI_NCR_BOOT_COMMAND_LINE_SUPPORT
- static struct ncr_driver_setup
- 	driver_safe_setup __initdata	= SCSI_NCR_DRIVER_SAFE_SETUP;
- #endif
-+#endif /* !MODULE */
- 
- #define initverbose (driver_setup.verbose)
- #define bootverbose (np->verbose)
-@@ -641,6 +643,13 @@ #ifdef SCSI_NCR_IARB_SUPPORT
- #define OPT_IARB		26
- #endif
- 
-+#ifdef MODULE
-+#define	ARG_SEP	' '
-+#else
-+#define	ARG_SEP	','
-+#endif
+ 	NVTRACE_ENTER();
+ 	/* vgaHWunlock() + riva unlock (0x7F) */
+ 	CRTCout(par, 0x11, 0xFF);
+ 	par->riva.LockUnlock(&par->riva, 0);
+-	riva_load_video_mode(info);
++	rc = riva_load_video_mode(info);
++	if (rc)
++		goto out;
+ 	if(!(info->flags & FBINFO_HWACCEL_DISABLED))
+ 		riva_setup_accel(info);
+ 	
+@@ -1304,8 +1314,10 @@ static int rivafb_set_par(struct fb_info
+ 		info->pixmap.scan_align = 1;
+ 	else
+ 		info->pixmap.scan_align = 4;
 +
-+#ifndef MODULE
- static char setup_token[] __initdata = 
- 	"tags:"   "mpar:"
- 	"spar:"   "disc:"
-@@ -660,12 +669,6 @@ #ifdef SCSI_NCR_IARB_SUPPORT
- #endif
- 	;	/* DONNOT REMOVE THIS ';' */
- 
--#ifdef MODULE
--#define	ARG_SEP	' '
--#else
--#define	ARG_SEP	','
--#endif
--
- static int __init get_setup_token(char *p)
- {
- 	char *cur = setup_token;
-@@ -682,7 +685,6 @@ static int __init get_setup_token(char *
- 	return 0;
++out:
+ 	NVTRACE_LEAVE();
+-	return 0;
++	return rc;
  }
  
--
- static int __init sym53c8xx__setup(char *str)
- {
- #ifdef SCSI_NCR_BOOT_COMMAND_LINE_SUPPORT
-@@ -804,6 +806,7 @@ #endif
- #endif /* SCSI_NCR_BOOT_COMMAND_LINE_SUPPORT */
- 	return 1;
+ /**
+diff --git a/drivers/video/riva/riva_hw.c b/drivers/video/riva/riva_hw.c
+index b6f8690..c1f092c 100644
+--- a/drivers/video/riva/riva_hw.c
++++ b/drivers/video/riva/riva_hw.c
+@@ -1227,7 +1227,7 @@ (
+  * Calculate extended mode parameters (SVGA) and save in a 
+  * mode state structure.
+  */
+-static void CalcStateExt
++int CalcStateExt
+ (
+     RIVA_HW_INST  *chip,
+     RIVA_HW_STATE *state,
+@@ -1249,7 +1249,8 @@ (
+      * Extended RIVA registers.
+      */
+     pixelDepth = (bpp + 1)/8;
+-    CalcVClock(dotClock, &VClk, &m, &n, &p, chip);
++    if (!CalcVClock(dotClock, &VClk, &m, &n, &p, chip))
++    	return -EINVAL;
+ 
+     switch (chip->Architecture)
+     {
+@@ -1327,6 +1328,8 @@ (
+     state->pitch1   =
+     state->pitch2   =
+     state->pitch3   = pixelDepth * width;
++
++    return 0;
  }
-+#endif /* !MODULE */
- 
- /*===================================================================
- **
-@@ -8321,12 +8324,12 @@ char *ncr53c8xx;	/* command line passed 
- module_param(ncr53c8xx, charp, 0);
- #endif
- 
-+#ifndef MODULE
- static int __init ncr53c8xx_setup(char *str)
- {
- 	return sym53c8xx__setup(str);
- }
- 
--#ifndef MODULE
- __setup("ncr53c8xx=", ncr53c8xx_setup);
- #endif
- 
+ /*
+  * Load fixed function state and pre-calculated/stored state.
+@@ -2026,7 +2029,6 @@ (
+      */
+     chip->Busy            = nv3Busy;
+     chip->ShowHideCursor  = ShowHideCursor;
+-    chip->CalcStateExt    = CalcStateExt;
+     chip->LoadStateExt    = LoadStateExt;
+     chip->UnloadStateExt  = UnloadStateExt;
+     chip->SetStartAddress = SetStartAddress3;
+@@ -2084,7 +2086,6 @@ (
+      */
+     chip->Busy            = nv4Busy;
+     chip->ShowHideCursor  = ShowHideCursor;
+-    chip->CalcStateExt    = CalcStateExt;
+     chip->LoadStateExt    = LoadStateExt;
+     chip->UnloadStateExt  = UnloadStateExt;
+     chip->SetStartAddress = SetStartAddress;
+@@ -2186,7 +2187,6 @@ #endif
+      */
+     chip->Busy            = nv10Busy;
+     chip->ShowHideCursor  = ShowHideCursor;
+-    chip->CalcStateExt    = CalcStateExt;
+     chip->LoadStateExt    = LoadStateExt;
+     chip->UnloadStateExt  = UnloadStateExt;
+     chip->SetStartAddress = SetStartAddress;
+diff --git a/drivers/video/riva/riva_hw.h b/drivers/video/riva/riva_hw.h
+index a1e71a6..c2769f7 100644
+--- a/drivers/video/riva/riva_hw.h
++++ b/drivers/video/riva/riva_hw.h
+@@ -463,7 +463,6 @@ typedef struct _riva_hw_inst
+      * Common chip functions.
+      */
+     int  (*Busy)(struct _riva_hw_inst *);
+-    void (*CalcStateExt)(struct _riva_hw_inst *,struct _riva_hw_state *,int,int,int,int,int);
+     void (*LoadStateExt)(struct _riva_hw_inst *,struct _riva_hw_state *);
+     void (*UnloadStateExt)(struct _riva_hw_inst *,struct _riva_hw_state *);
+     void (*SetStartAddress)(struct _riva_hw_inst *,U032);
+@@ -528,6 +527,22 @@ typedef struct _riva_hw_state
+     U032 pitch2;
+     U032 pitch3;
+ } RIVA_HW_STATE;
++
++/*
++ * function prototypes
++ */
++
++extern int CalcStateExt
++(
++    RIVA_HW_INST  *chip,
++    RIVA_HW_STATE *state,
++    int            bpp,
++    int            width,
++    int            hDisplaySize,
++    int            height,
++    int            dotClock
++);
++
+ /*
+  * External routines.
+  */

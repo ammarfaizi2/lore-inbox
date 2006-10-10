@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWJJNQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWJJNRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWJJNQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 09:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWJJNQY
+	id S1750731AbWJJNRg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 09:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWJJNRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 09:16:24 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61600 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750728AbWJJNQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 09:16:24 -0400
-Date: Tue, 10 Oct 2006 15:16:03 +0200
-From: Jan Kara <jack@suse.cz>
-To: Eric Sandeen <sandeen@sandeen.net>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
-       Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061010131603.GL23622@atrey.karlin.mff.cuni.cz>
-References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net> <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net> <20061009224050.GD30283@lug-owl.de>
+	Tue, 10 Oct 2006 09:17:36 -0400
+Received: from tomts25.bellnexxia.net ([209.226.175.188]:183 "EHLO
+	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750731AbWJJNRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 09:17:34 -0400
+Date: Tue, 10 Oct 2006 09:17:29 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: dean gaudet <dean@arctic.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
+Message-ID: <20061010131729.GC6200@Krystal>
+References: <20060930180157.GA25761@Krystal> <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061009224050.GD30283@lug-owl.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0610081223150.28503@twinlark.arctic.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 09:12:58 up 48 days, 10:21,  4 users,  load average: 0.22, 0.92, 1.18
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2006-10-09 14:46:30 -0500, Eric Sandeen <sandeen@sandeen.net> wrote:
-> > Andrew Morton wrote:
-> > > On Tue, 03 Oct 2006 00:43:01 -0500
-> > > Eric Sandeen <sandeen@sandeen.net> wrote:
-> > > > Dave Jones wrote:
-> > > > > So I managed to reproduce it with an 'fsx foo' and a
-> > > > > 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
-> > > > > a vanilla 2.6.18 with none of the Fedora patches..
-> > > > >
-> > > > > I'll give 2.6.18-git a try next.
-> > > > >
-> > > > > ----------- [cut here ] --------- [please bite here ] ---------
-> > > > > Kernel BUG at fs/buffer.c:2791
-> > > > I had thought/hoped that this was fixed by Jan's patch at 
-> > > > http://lkml.org/lkml/2006/9/7/236 from the thread started at 
-> > > > http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
-> > > > first by going through that new codepath....
-> > > 
-> > > Yes, Jan's patch is supposed to fix that !buffer_mapped() assertion.  iirc,
-> > > Badari was hitting that BUG and was able to confirm that Jan's patch
-> > > (3998b9301d3d55be8373add22b6bc5e11c1d9b71 in post-2.6.18 mainline) fixed
-> > > it.
-> > 
-> > Looking at some BH traces*, it appears that what Dave hit is a truncate
-> > racing with a sync...
-> > 
-> > truncate ...
-> >   ext3_invalidate_page
-> >     journal_invalidatepage
-> >       journal_unmap buffer
-> > 
-> > going off at the same time as
-> > 
-> > sync ...
-> >   journal_dirty_data
-> >     sync_dirty_buffer
-> >       submit_bh <-- finds unmapped buffer, boom.
+* dean gaudet (dean@arctic.org) wrote:
+> On Sat, 30 Sep 2006, Mathieu Desnoyers wrote:
 > 
-> Is this possibly related to the issues that are discussed in another
-> thread? We're seeing problems while unlinking large files (usually get
-> it within some hours with 200MB files, but couldn't yet reproduce it
-> with 20MB.)
-  I don't think this is related (BTW: I've run your test for 5 hours
-without any luck ;( Maybe I'll try again for some longer time...).
+> > - Optimized
+> > 
+> > static int my_open(struct inode *inode, struct file *file)
+> > {
+> >    0:   55                      push   %ebp
+> >    1:   89 e5                   mov    %esp,%ebp
+> >    3:   83 ec 0c                sub    $0xc,%esp
+> >         MARK(subsys_mark1, "%d %p", 1, NULL);
+> >    6:   b0 00                   mov    $0x0,%al <-- immediate load 0 in al
+> >    8:   84 c0                   test   %al,%al
+> >    a:   75 07                   jne    13 <my_open+0x13>
+> 
+> why not replace the mov+test with "xor %eax,%eax" and then change the 0x75 
+> to a 0x74 to change from jne to je when you want to enable the marker?
+> 
+> i.e. disabled:
+> 
+> 	31 c0	xor %eax,%eax
+> 	75 07	jne 13
+> 
+> enabled:
+> 
+> 	31 c0	xor %eax,%eax
+> 	74 07	je 13
+> 
+> it would save 2 bytes, 1 instruction and avoid partial register writes... 
+> and still has the nice property that a single byte store into the code is 
+> required for enable/disable (which sounds like a great property -- i 
+> assume you were deliberately going for that).
+> 
+> i assume there's probably no reason to tie the sequence to eax either -- 
+> you could let gcc choose it (or maybe you already do).
+> 
+Hi dean,
 
-									Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Yes, good idea. I effectively did the 1 byte write to make sure it could be
+coherent for any code alignment on the machine. The only problem with modifying
+the jne into a je is this : How can we take a pointer to this assembly
+instruction when it is generated by gcc ? We can always search for an
+instruction pattern after the inline assembly, but we have no guarantee that
+gcc will not put any code between the inline asm and the actual jne.
+
+Mathieu
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

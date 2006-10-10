@@ -1,105 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWJJJII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbWJJJLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbWJJJII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 05:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWJJJII
+	id S965119AbWJJJLs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 05:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWJJJLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 05:08:08 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:62217 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S965117AbWJJJIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 05:08:05 -0400
-Date: Tue, 10 Oct 2006 11:08:03 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Hans de Goede <j.w.r.degoede@hhs.nl>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
-Message-Id: <20061010110803.1a70b576.khali@linux-fr.org>
-In-Reply-To: <452B4B59.1050606@hhs.nl>
-References: <20061010065359.GA21576@havoc.gtf.org>
-	<452B4B59.1050606@hhs.nl>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Oct 2006 05:11:48 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:48815 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S965119AbWJJJLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 05:11:47 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [RFC] Avoid PIT SMP lockups
+Date: Tue, 10 Oct 2006 12:11:48 +0300
+User-Agent: KMail/1.9.5
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+References: <1160170736.6140.31.camel@localhost.localdomain>
+In-Reply-To: <1160170736.6140.31.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1284729.SMJNeGL6Di";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610101211.48757.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hans, Jeff,
+--nextPart1284729.SMJNeGL6Di
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> You (Jean) already mailed me about this and it was on my todo list,
-> but I'm currently rather busy with work. So it looks like Jeff beat
-> me to it.
-> 
-> Jeff's patch looks fine, please apply. Thanks Jeff!
+07 Eki 2006 Cts 00:38 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=B1=
+=C5=9Ft=C4=B1:=20
+> S.=C3=87a=C4=9Flar: Could you give it a whirl to see if it changes your v=
+mware
+> issue?
 
-The patch isn't wrong per se, but it could be made more simple, and is
-incomplete in comparison to what was done for all other hardware
-monitoring drivers:
+Nothing changes inside the vmware, same panics occured as like before :(
 
-* We want to create all the files before registering with the hwmon
-  class, this closes a race condition.
-* We want to delete all the device files at regular cleanup time (after
-  unregistering with the hwmon class).
-* It's OK to call device_create_file() on a non-existent file, so the
-  error path can be simplified.
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-I'd like the abituguru driver to behave the same as all other hardware
-monitoring drivers to lower the maintenance effort. Can either you
-or Jeff work up a compliant patch? 
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
-Thanks.
+--nextPart1284729.SMJNeGL6Di
+Content-Type: application/pgp-signature
 
->  drivers/hwmon/abituguru.c |   30 +++++++++++++++++++++++++-----
->  1 file changed, 25 insertions(+), 5 deletions(-)
-> 
-> 2b10f648c8ed965369976eb7925b922ee187ce21
-> diff --git a/drivers/hwmon/abituguru.c b/drivers/hwmon/abituguru.c
-> index e5cb0fd..3ded982 100644
-> --- a/drivers/hwmon/abituguru.c
-> +++ b/drivers/hwmon/abituguru.c
-> @@ -1271,14 +1271,34 @@ static int __devinit abituguru_probe(str
->  		res = PTR_ERR(data->class_dev);
->  		goto abituguru_probe_error;
->  	}
-> -	for (i = 0; i < sysfs_attr_i; i++)
-> -		device_create_file(&pdev->dev, &data->sysfs_attr[i].dev_attr);
-> -	for (i = 0; i < ARRAY_SIZE(abituguru_sysfs_attr); i++)
-> -		device_create_file(&pdev->dev,
-> -			&abituguru_sysfs_attr[i].dev_attr);
-> +	for (i = 0; i < sysfs_attr_i; i++) {
-> +		res = device_create_file(&pdev->dev,
-> +					 &data->sysfs_attr[i].dev_attr);
-> +		if (res) {
-> +			for (j = 0; j < i; j++)
-> +				device_remove_file(&pdev->dev,
-> +					 	&data->sysfs_attr[j].dev_attr);
-> +			goto err_devreg;
-> +		}
-> +	}
-> +	for (i = 0; i < ARRAY_SIZE(abituguru_sysfs_attr); i++) {
-> +		res = device_create_file(&pdev->dev,
-> +					 &abituguru_sysfs_attr[i].dev_attr);
-> +		if (res) {
-> +			for (j = 0; j < i; j++)
-> +				device_remove_file(&pdev->dev,
-> +					 &abituguru_sysfs_attr[j].dev_attr);
-> +			goto err_attr_i;
-> +		}
-> +	}
->  
->  	return 0;
->  
-> +err_attr_i:
-> +	for (i = 0; i < sysfs_attr_i; i++)
-> +		device_remove_file(&pdev->dev, &data->sysfs_attr[i].dev_attr);
-> +err_devreg:
-> +	hwmon_device_unregister(data->class_dev);
->  abituguru_probe_error:
->  	kfree(data);
->  	return res;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
+iD8DBQBFK2PUy7E6i0LKo6YRAva/AKC7J5t5h+L499UNettM97NPClkXdwCghvQb
+PaBetlb6R/DLA3ZGzRK2pfU=
+=H7TG
+-----END PGP SIGNATURE-----
 
--- 
-Jean Delvare
+--nextPart1284729.SMJNeGL6Di--

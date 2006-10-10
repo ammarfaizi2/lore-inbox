@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWJJEck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWJJEi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWJJEck (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 00:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWJJEck
+	id S964970AbWJJEi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 00:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWJJEi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 00:32:40 -0400
-Received: from ozlabs.org ([203.10.76.45]:37022 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964960AbWJJEck (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 00:32:40 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Oct 2006 00:38:58 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31386
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964967AbWJJEi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 00:38:57 -0400
+Date: Mon, 09 Oct 2006 21:38:56 -0700 (PDT)
+Message-Id: <20061009.213856.28787525.davem@davemloft.net>
+To: joro-lkml@zlug.org
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 01/02 V2] net/ipv6: seperate sit driver to extra module
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061009093416.GA11901@zlug.org>
+References: <20061009093416.GA11901@zlug.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17707.8801.395100.35054@cargo.ozlabs.ibm.com>
-Date: Tue, 10 Oct 2006 14:32:33 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: greg@kroah.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Why is device_create_file __must_check?
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing a bunch of warnings about not checking the return value
-from device_create_file() for code like this (from
-arch/powerpc/kernel/pci_64.c):
+From: Joerg Roedel <joro-lkml@zlug.org>
+Date: Mon, 9 Oct 2006 11:34:16 +0200
 
-static ssize_t pci_show_devspec(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct pci_dev *pdev;
-	struct device_node *np;
+> This is the changed version of the patch making the sit driver
+> configurable as a seperate module.
+> 
+> Changes:
+> - spelling fixes in Kconfig
+> - changed "If unsure, say N" to "If unsure, say Y" for consistency
 
-	pdev = to_pci_dev (dev);
-	np = pci_device_to_OF_node(pdev);
-	if (np == NULL || np->full_name == NULL)
-		return 0;
-	return sprintf(buf, "%s", np->full_name);
-}
-static DEVICE_ATTR(devspec, S_IRUGO, pci_show_devspec, NULL);
+Joerg, when you make resubmissions, please always restate the full
+changelog and all signed-off-by lines.
 
-void pcibios_add_platform_entries(struct pci_dev *pdev)
-{
-	device_create_file(&pdev->dev, &dev_attr_devspec);
-}
+If you want to say "Changed since last version" do that seperately
+at the top of the email, right before the main changelog entry and
+the patch itself.
 
-What bad thing could happen if device_create_file fails, other than
-that the "devspec" file doesn't appear in sysfs?  I don't see how the
-error could lead to any null pointer dereference later on or anything
-like that.  If some bad thing could happen, how do I avert that?  If
-nothing bad will happen, why does device_create_file have __must_check
-on it?
+I wanted to apply this latest version of these two patches, but I
+cannot because the full changelog isn't here.  Please get this
+into a mergable form for me.
 
-Paul.
+Thanks a lot.
+

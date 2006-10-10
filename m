@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWJJRUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWJJRP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWJJRUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWJJRTa
+	id S964811AbWJJRP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWJJRP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:19:30 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7306 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964849AbWJJRQF (ORCPT
+	Tue, 10 Oct 2006 13:15:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57737 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964826AbWJJRPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:16:05 -0400
-Date: Tue, 10 Oct 2006 10:15:15 -0700
+	Tue, 10 Oct 2006 13:15:41 -0400
+Date: Tue, 10 Oct 2006 10:13:50 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,53 +18,30 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Yeasah Pell <yeasah@schwide.net>, Steven Toth <stoth@hauppauge.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 11/19] Video: cx24123: fix PLL divisor setup
-Message-ID: <20061010171515.GL6339@kroah.com>
-References: <20061010165621.394703368@quad.kroah.org>
+       alan@lxorguk.ukuu.org.uk
+Subject: [patch 00/19] 2.6.17-stable review
+Message-ID: <20061010171350.GA6339@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="video-cx24123-fix-pll-divisor-setup.patch"
-In-Reply-To: <20061010171350.GA6339@kroah.com>
+Content-Disposition: inline
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+This is the start of the stable review cycle for the 2.6.17.14 release.
+There are 19 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a Signed-off-by: line to the patch, please respond with it.
 
-------------------
-From: Yeasah Pell <yeasah@schwide.net>
+These patches are sent out with a number of different people on the Cc:
+line.  If you wish to be a reviewer, please email stable@kernel.org to
+add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-The cx24109 datasheet says: "NOTE: if A=0, then N=N+1"
+Responses should be made by Thursday, Octover 12, 18:00:00 UTC.
+Anything received after that time might be too late.
 
-The current code is the result of a misinterpretation of the datasheet to
-mean exactly the opposite of the requirement -- The actual value of N is 1 greater than the value written when A is 0, so 1 needs to be *subtracted*
-from it to compensate.
+thanks,
 
-Signed-off-by: Yeasah Pell <yeasah@schwide.net>
-Signed-off-by: Steven Toth <stoth@hauppauge.com>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/media/dvb/frontends/cx24123.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.17.13.orig/drivers/media/dvb/frontends/cx24123.c
-+++ linux-2.6.17.13/drivers/media/dvb/frontends/cx24123.c
-@@ -579,8 +579,8 @@ static int cx24123_pll_calculate(struct 
- 	ndiv = ( ((p->frequency * vco_div * 10) / (2 * XTAL / 1000)) / 32) & 0x1ff;
- 	adiv = ( ((p->frequency * vco_div * 10) / (2 * XTAL / 1000)) % 32) & 0x1f;
- 
--	if (adiv == 0)
--		ndiv++;
-+	if (adiv == 0 && ndiv > 0)
-+		ndiv--;
- 
- 	/* control bits 11, refdiv 11, charge pump polarity 1, charge pump current, ndiv, adiv */
- 	state->pllarg = (3 << 19) | (3 << 17) | (1 << 16) | (pump << 14) | (ndiv << 5) | adiv;
-
---
+the -stable release team

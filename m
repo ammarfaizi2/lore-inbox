@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWJJUfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWJJUhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbWJJUfc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 16:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWJJUfc
+	id S1030305AbWJJUhz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 16:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWJJUhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 16:35:32 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:45019 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1030302AbWJJUfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 16:35:31 -0400
-Date: Tue, 10 Oct 2006 13:35:11 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-Cc: akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Allow more than PAGESIZE data read in configfs
-Message-ID: <20061010203511.GF7911@ca-server1.us.oracle.com>
-Mail-Followup-To: Chandra Seetharaman <sekharan@us.ibm.com>, akpm@osdl.org,
-	ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Tue, 10 Oct 2006 16:37:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65411 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030305AbWJJUhz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 16:37:55 -0400
+Date: Tue, 10 Oct 2006 13:36:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>,
+       Bryan Henderson <hbryan@us.ibm.com>, Andries Brouwer <aebr@win.tue.nl>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] ext3: fsid for statvfs
+Message-Id: <20061010133636.6217a11b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610101131001.10574@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.64.0610101131001.10574@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 11:20:43AM -0700, Chandra Seetharaman wrote:
-> Currently, maximum amount of data that can be read from a configfs
-> attribute file is limited to PAGESIZE bytes. This is a limitation for
-> some of the usages of configfs.
+On Tue, 10 Oct 2006 11:32:13 +0300 (EEST)
+Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
 
-	NAK.  This forces a complex and inappropriate interface on the
-majority of users, and doesn't honor configfs' simplicity-first design.
-	I understand Chandra's concerns, but this patch isn't the right
-way to do it.
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
+> 
+> Update ext3_statfs to return an FSID that is a 64 bit XOR of the 128 bit
+> filesystem UUID as suggested by Andreas Dilger. See the following Bugzilla
+> entry for details:
+> 
+>   http://bugzilla.kernel.org/show_bug.cgi?id=136
+> 
+> Cc: Andreas Dilger <adilger@clusterfs.com>
+> Cc: Stephen Tweedie <sct@redhat.com>
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Joel
+Deja vu.  Gosh, has it really been four years?
 
--- 
+Combatants cc'ed ;)
 
-Dort wo man Bücher verbrennt, verbrennt man am Ende auch Mensch.
-(Wherever they burn books, they will also end up burning people.)
-	- Heinrich Heine
+> 
+>  fs/ext3/super.c |    5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> Index: 2.6/fs/ext3/super.c
+> ===================================================================
+> --- 2.6.orig/fs/ext3/super.c
+> +++ 2.6/fs/ext3/super.c
+> @@ -2385,6 +2385,7 @@ static int ext3_statfs (struct dentry * 
+>  	struct ext3_super_block *es = sbi->s_es;
+>  	ext3_fsblk_t overhead;
+>  	int i;
+> +	u64 fsid;
+>  
+>  	if (test_opt (sb, MINIX_DF))
+>  		overhead = 0;
+> @@ -2431,6 +2432,10 @@ static int ext3_statfs (struct dentry * 
+>  	buf->f_files = le32_to_cpu(es->s_inodes_count);
+>  	buf->f_ffree = percpu_counter_sum(&sbi->s_freeinodes_counter);
+>  	buf->f_namelen = EXT3_NAME_LEN;
+> +	fsid = le64_to_cpup((void *)es->s_uuid) ^
+> +	       le64_to_cpup((void *)es->s_uuid + sizeof(u64));
+> +	buf->f_fsid.val[0] = fsid & 0xFFFFFFFFUL;
+> +	buf->f_fsid.val[1] = (fsid >> 32) & 0xFFFFFFFFUL;
+>  	return 0;
+>  }
+>  
 
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+ext2 and ext4 would need patching too...

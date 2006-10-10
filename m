@@ -1,33 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWJJTbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWJJTfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWJJTbw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWJJTbv
+	id S1030220AbWJJTfA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWJJTfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:31:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32732 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030224AbWJJTbu (ORCPT
+	Tue, 10 Oct 2006 15:35:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15581 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030220AbWJJTe7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:31:50 -0400
-Date: Tue, 10 Oct 2006 12:30:27 -0700
+	Tue, 10 Oct 2006 15:34:59 -0400
+Date: Tue, 10 Oct 2006 12:34:49 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, torvalds@osdl.org,
-       Greg KH <gregkh@suse.de>, Justin Forbes <jmforbes@linuxtx.org>,
-       linux-kernel@vger.kernel.org, Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Krufky <mkrufky@linuxtv.org>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] [patch 07/19] invalidate_complete_page() race fix
-Message-Id: <20061010123027.f37fe3bb.akpm@osdl.org>
-In-Reply-To: <20061010191418.GB11171@kroah.com>
-References: <20061010165621.394703368@quad.kroah.org>
-	<20061010171451.GH6339@kroah.com>
-	<Pine.LNX.4.64.0610101909450.18380@blonde.wat.veritas.com>
-	<20061010191418.GB11171@kroah.com>
+To: Olof Johansson <olof@lixom.net>
+Cc: linux-kernel@vger.kernel.org, Vadim Lobanov <vlobanov@speakeasy.net>,
+       linuxppc-dev@ozlabs.org
+Subject: Re: BUG() in copy_fdtable() with 64K pages (2.6.19-rc1-mm1)
+Message-Id: <20061010123449.7be924f0.akpm@osdl.org>
+In-Reply-To: <20061010121519.447d62f8@localhost.localdomain>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	<20061010121519.447d62f8@localhost.localdomain>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -35,34 +26,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 12:14:18 -0700
-Greg KH <greg@kroah.com> wrote:
+On Tue, 10 Oct 2006 12:15:19 -0500
+Olof Johansson <olof@lixom.net> wrote:
 
-> On Tue, Oct 10, 2006 at 07:12:54PM +0100, Hugh Dickins wrote:
-> > On Tue, 10 Oct 2006, Greg KH wrote:
-> > 
-> > > -stable review patch.  If anyone has any objections, please let us know.
-> > > 
-> > > ------------------
-> > > From: Andrew Morton <akpm@osdl.org>
-> > > 
-> > > If a CPU faults this page into pagetables after invalidate_mapping_pages()
-> > > checked page_mapped(), invalidate_complete_page() will still proceed to remove
-> > > the page from pagecache.  This leaves the page-faulting process with a
-> > > detached page.  If it was MAP_SHARED then file data loss will ensue.
-> > > 
-> > > Fix that up by checking the page's refcount after taking tree_lock.
-> > 
-> > I may have lost the plot, but I think this patch has already proved
-> > to cause problems for NFS in 2.6.18: not good to put it into 2.6.17
-> > stable while it's awaiting refinement for 2.6.18 stable.
+> I keep hitting this on -rc1-mm1. The system comes up but I can't login
+> since login hits it.
 > 
-> Ok, I've dropped it now.
+> Bisect says that fdtable-implement-new-pagesize-based-fdtable-allocator.patch is at fault.
 > 
+> CONFIG_PPC_64K_PAGES=y is required for it to fail, with 4K pages it's fine.
+> 
+> (Hardware is a Quad G5, 1GB RAM, g5_defconfig + CONFIG_PPC_64K_PAGES, defaults 
+> on all new options)
+> 
+> 
+> 
+> kernel BUG in copy_fdtable at fs/file.c:138!
 
-It needs invalidate_inode_pages2-ignore-page-refcounts.patch as well.
-
-This patch (invalidate_complete_page() race fix) fixes a cramfs unmount
-race and, iirc, a pagefault-vs-invalidate race which Nick was seeing.
-So applying both patches would make 2.6.17 a better place, but we could live
-without them.
+OK, thanks.  I put the revert patch into
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/hot-fixes/

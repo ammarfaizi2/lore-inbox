@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWJJI2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWJJIcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbWJJI2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWJJI2R
+	id S965103AbWJJIcP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWJJIcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:28:17 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:30599 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965084AbWJJI2Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:28:16 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
-Subject: [PATCH] spufs: fix  support for read/write on cntl
-Date: Tue, 10 Oct 2006 10:27:29 +0200
-User-Agent: KMail/1.9.4
-Cc: "Paul Mackerras" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3E7@jptkyxms38.jp.sony.com>
-In-Reply-To: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3E7@jptkyxms38.jp.sony.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 04:32:15 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:44013 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965103AbWJJIcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 04:32:14 -0400
+Date: Tue, 10 Oct 2006 11:32:13 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: [PATCH] ext3: fsid for statvfs
+Message-ID: <Pine.LNX.4.64.0610101131001.10574@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101027.30329.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This fixes a memory leak introduced by "spufs: add support
-for read/write oncntl", which was missing a call to simple_attr_close.
+Update ext3_statfs to return an FSID that is a 64 bit XOR of the 128 bit
+filesystem UUID as suggested by Andreas Dilger. See the following Bugzilla
+entry for details:
 
-Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+  http://bugzilla.kernel.org/show_bug.cgi?id=136
 
+Cc: Andreas Dilger <adilger@clusterfs.com>
+Cc: Stephen Tweedie <sct@redhat.com>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
-On Tuesday 10 October 2006 08:49, Noguchi, Masato wrote:
-> Oops,
-> I'm so sorry. I mistake to send wrong patch.
+ fs/ext3/super.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-Ok, no worries. Paul, please use this patch instead.
-
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+Index: 2.6/fs/ext3/super.c
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
-@@ -246,6 +246,7 @@ static int spufs_cntl_open(struct inode 
+--- 2.6.orig/fs/ext3/super.c
++++ 2.6/fs/ext3/super.c
+@@ -2385,6 +2385,7 @@ static int ext3_statfs (struct dentry * 
+ 	struct ext3_super_block *es = sbi->s_es;
+ 	ext3_fsblk_t overhead;
+ 	int i;
++	u64 fsid;
  
- static struct file_operations spufs_cntl_fops = {
- 	.open = spufs_cntl_open,
-+	.release = simple_attr_close,
- 	.read = simple_attr_read,
- 	.write = simple_attr_write,
- 	.mmap = spufs_cntl_mmap,
+ 	if (test_opt (sb, MINIX_DF))
+ 		overhead = 0;
+@@ -2431,6 +2432,10 @@ static int ext3_statfs (struct dentry * 
+ 	buf->f_files = le32_to_cpu(es->s_inodes_count);
+ 	buf->f_ffree = percpu_counter_sum(&sbi->s_freeinodes_counter);
+ 	buf->f_namelen = EXT3_NAME_LEN;
++	fsid = le64_to_cpup((void *)es->s_uuid) ^
++	       le64_to_cpup((void *)es->s_uuid + sizeof(u64));
++	buf->f_fsid.val[0] = fsid & 0xFFFFFFFFUL;
++	buf->f_fsid.val[1] = (fsid >> 32) & 0xFFFFFFFFUL;
+ 	return 0;
+ }
+ 

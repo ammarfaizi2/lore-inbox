@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWJJOn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750698AbWJJOzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWJJOn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 10:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWJJOn7
+	id S1750698AbWJJOzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 10:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWJJOzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 10:43:59 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:58753 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S932130AbWJJOn6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 10:43:58 -0400
-Date: Tue, 10 Oct 2006 16:43:30 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>
-Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-Message-ID: <20061010144330.GA28175@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061009095051.38ed9f22@freekitty>
+	Tue, 10 Oct 2006 10:55:24 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:15039 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750698AbWJJOzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 10:55:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=ZTLn7JhuA8xwfXZmYSogGpl7peHtQJK8kLpC7H2U+17pdN9j+tRDwTQTngsaR623sywH1yHGPEZj8Ss+CjHcLT7ItDrF6S4CatGYCpJNcGPSsl4ES6zv0w3mNvcBYLGecQqamYJpDtVvjUqmv0iky5Qk005GEZ4qO3D4B79cOQ4=
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the
+	sony_acpi driver
+From: Richard Hughes <hughsient@gmail.com>
+To: Yu Luming <luming.yu@gmail.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+       ismail@pardus.org.tr
+In-Reply-To: <200610102232.46627.luming.yu@gmail.com>
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com>
+	 <20061005103657.GA4474@ucw.cz> <20061006211751.GA31887@lists.us.dell.com>
+	 <200610102232.46627.luming.yu@gmail.com>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 15:47:26 +0100
+Message-Id: <1160491646.6174.36.camel@hughsie-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009095051.38ed9f22@freekitty>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Stephen Hemminger <shemminger@osdl.org>:
-> Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-> 
-> On Mon, 9 Oct 2006 19:47:05 +0200
-> "Michael S. Tsirkin" <mst@mellanox.co.il> wrote:
-> 
-> > Hi!
-> > I'm trying to build a network device driver supporting a very large MTU (around 64K)
-> > on top of an infiniband connection, and I've hit a couple of issues I'd
-> > appreciate some feedback on:
-> > 
-> > 1. On the send side,
-> >    I've set NETIF_F_SG, but hardware does not support checksum offloading,
-> >    and I see "dropping NETIF_F_SG since no checksum feature" warning,
-> >    and I seem to be getting large packets all in one chunk.
-> >    The reason I've set NETIF_F_SG, is because I'm concerned that under real life
-> >    stress Linux won't be able to allocate 64K of continuous memory.
-> > 
-> >    Is this concern of mine valid? I saw in-tree drivers allocating at least 8K.
-> >    What's the best way to enable S/G on send side?
-> >    Is checksum offloading really required for S/G?
-> 
-> Yes, in the current implementation, Linux needs checksum offload. But there
-> is no reason, your driver can't compute the checksum in software.
+On Tue, 2006-10-10 at 22:32 +0800, Yu Luming wrote:
+> >From my understanding, a cute userspace App shouldn't have this kind
+> of logic:
+>         if (is  DELL )
+>                 invoke libsmbios
+>         if (is  foo)
+>                 invoke libfoo,
+>         if (is bar)
+>                 invoke libbar,
+>         ....
+>         else
+>                 operate on /sys/class/backlight/ ,.,..
 
-Are there drivers that do this already? Couldn't find any such beast ...
+This is what HAL has at the moment[1]. And it's hell to maintain, but
+works for a lot of users.
 
-I'm worried whether an extra pass over data won't eat up all of
-the performance gains I get from the large MTU ...
+> It should be:
+>         just write/read  file in  /sys/class/backlight ,....
 
-> >    What are the helpers legal for fragmented skb?
+That would make things much easier IMO.
 
-BTW, I found skb_put_frags in sky2 which seems generic enough - I even wander
-why isn't this in net/core.
+Richard.
 
-Thanks!
+[1]
+http://gitweb.freedesktop.org/?p=hal.git;a=blob;h=3ff9284be440a7197b0de9b5f0234761c3397cb1;hb=dbffafacbf7b9143d82547b9eabe61d1a5b8fffc;f=tools/linux/hal-system-lcd-get-brightness-linux
 
--- 
-MST

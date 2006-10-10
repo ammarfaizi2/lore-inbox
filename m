@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWJJIK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWJJIKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbWJJIK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJJIK6
+	id S965073AbWJJIKx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWJJIKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:10:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30955 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965085AbWJJIK4 (ORCPT
+	Tue, 10 Oct 2006 04:10:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10411 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965073AbWJJIKw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:10:56 -0400
-Date: Tue, 10 Oct 2006 01:10:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miguel Ojeda" <maxextreme@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1
-Message-Id: <20061010011052.f22a55da.akpm@osdl.org>
-In-Reply-To: <653402b90610100031i5132083ewba1240d01981f4ae@mail.gmail.com>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<653402b90610100031i5132083ewba1240d01981f4ae@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 04:10:52 -0400
+Date: Tue, 10 Oct 2006 01:01:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Manu Abraham <abraham.manu@gmail.com>
+Cc: Amit Choudhary <amit2030@gmail.com>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
+Subject: Re: [stable] [PATCH 2.6.19-rc1] drivers/media/dvb/bt8xx/dvb-bt8xx.c: check kmalloc() return value.
+Message-ID: <20061010080110.GA20169@kroah.com>
+References: <20061008231034.e50118df.amit2030@gmail.com> <452A09A1.8040808@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452A09A1.8040808@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 07:31:23 +0000
-"Miguel Ojeda" <maxextreme@gmail.com> wrote:
-
-> On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > +# drivers-add-lcd-support.patch: Pavel says use fbcon
-> > +drivers-add-lcd-support.patch
-> > +drivers-add-lcd-support-update.patch
-> >
+On Mon, Oct 09, 2006 at 12:34:41PM +0400, Manu Abraham wrote:
+> Amit Choudhary wrote:
+> > Description: Check the return value of kmalloc() in function frontend_init(), in file drivers/media/dvb/bt8xx/dvb-bt8xx.c.
+> > 
+> > Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+> > 
+> > diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+> > index fb6c4cc..14e69a7 100644
+> > --- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+> > +++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+> > @@ -665,6 +665,10 @@ static void frontend_init(struct dvb_bt8
+> >  	case BTTV_BOARD_TWINHAN_DST:
+> >  		/*	DST is not a frontend driver !!!		*/
+> >  		state = (struct dst_state *) kmalloc(sizeof (struct dst_state), GFP_KERNEL);
+> > +		if (!state) {
+> > +			printk("dvb_bt8xx: No memory\n");
+> > +			break;
+> > +		}
+> >  		/*	Setup the Card					*/
+> >  		state->config = &dst_config;
+> >  		state->i2c = card->i2c_adapter;
+> > -
 > 
-> Has the # a special meaning?
-
-It's a comment separator ;)
-
-> I'm going to work on offering the fbcon feature as Pavel requested.
-
-Thanks.  It does sound like making the thing an fbdev is the right way to go.
-
-> suggested 2 ways.
 > 
-> Pavel's idea: Change the driver so the cfag12864b module will be just
-> a framebuffer device, removing access through /dev/cfag12864b.
-> 
-> My idea: Code a new module called "fbcfag12864b", which will depend on
-> cfag12864b and will be the framebuffer device. This way we have both
-> devices, and they doesn't affect each other as they are different
-> things. So the ks0108 and cfag12864b can stay without any changes.
-> Also, if we finally decide we don't want the raw cfag12864b module, it
-> is easy to remove it from the cfag12864b and the fbcafg12864b will
-> continue working.
-> 
-> Is there anyone who can decide which idea is better? If not, I will
-> code it my way. Also, if the Pavel's idea will be the chosen one, it
-> will be easier to put the fbcfag12864b code into the cfag12864b rather
-> than the opposite.
+> Signed-off-by: Manu Abraham <manu@linuxtv.org>
 
-I'd have thought that once the device is accessible as an fbdev, there's so
-much other software and kernel infrastructure to support that, there's
-little point in offering an alternative way of presenting the device to
-userspace.
+Care to send the full patch in a format that we can apply it to the
+-stable tree?
+
+thanks,
+
+greg k-h

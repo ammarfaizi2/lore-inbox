@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbWJJMRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932980AbWJJMSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbWJJMRB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 08:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWJJMRB
+	id S932980AbWJJMSe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 08:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWJJMSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 08:17:01 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:28385 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S965137AbWJJMRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 08:17:00 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Tue, 10 Oct 2006 08:15:01 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Andreas Schwab <schwab@suse.de>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] ixgb:  Delete IXGB_DBG() macro and call pr_debug()
- directly.
-In-Reply-To: <je4pucxtc6.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.64.0610100814020.7689@localhost.localdomain>
-References: <Pine.LNX.4.64.0610100738540.7436@localhost.localdomain>
- <je4pucxtc6.fsf@sykes.suse.de>
+	Tue, 10 Oct 2006 08:18:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932980AbWJJMSe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 08:18:34 -0400
+Message-ID: <452B8F92.6000307@RedHat.com>
+Date: Tue, 10 Oct 2006 08:18:26 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 Red Hat/1.0.5-0.1.el4 SeaMonkey/1.0.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+CC: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
+References: <1160170629.5453.34.camel@lade.trondhjem.org>	 <2069.1160473410@redhat.com> <1160480576.5466.27.camel@lade.trondhjem.org>
+In-Reply-To: <1160480576.5466.27.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006, Andreas Schwab wrote:
 
-> "Robert P. J. Day" <rpjday@mindspring.com> writes:
->
-> > Remove the minimally-useful definition of IXGB_DBG() and have
-> > ixgb_main.c call pr_debug() directly.
-> >
-> > Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> > ---
-> > diff --git a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
-> > index 50ffe90..fb9fde5 100644
-> > --- a/drivers/net/ixgb/ixgb.h
-> > +++ b/drivers/net/ixgb/ixgb.h
-> > @@ -77,12 +77,6 @@ #include "ixgb_hw.h"
-> >  #include "ixgb_ee.h"
-> >  #include "ixgb_ids.h"
-> >
-> > -#ifdef _DEBUG_DRIVER_
-> > -#define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
->                                                ^^^^^^^^
-> > -#else
-> > -#define IXGB_DBG(args...)
-> > -#endif
-> > -
-> >  #define PFX "ixgb: "
-> >  #define DPRINTK(nlevel, klevel, fmt, args...) \
-> >  	(void)((NETIF_MSG_##nlevel & adapter->msg_enable) && \
-> > diff --git a/drivers/net/ixgb/ixgb_main.c b/drivers/net/ixgb/ixgb_main.c
-> > index e09f575..d063e84 100644
-> > --- a/drivers/net/ixgb/ixgb_main.c
-> > +++ b/drivers/net/ixgb/ixgb_main.c
-> > @@ -1948,7 +1948,7 @@ #endif
-> >
-> >  			/* All receives must fit into a single buffer */
-> >
-> > -			IXGB_DBG("Receive packet consumed multiple buffers "
-> > +			pr_debug("Receive packet consumed multiple buffers "
->
-> Would perhaps be useful to retain the "ixgb:" prefix.
 
-crap, you're right.  my bad.  back into the breech ... argh.  that's
-what happens when there's only decaf left in the house.
+Trond Myklebust wrote:
+> 
+> No. Invalidatepage does precisely the wrong thing: it invalidates dirty
+> data instead of committing it to disk. If you need to have the data
+> invalidated, then you should call truncate_inode_pages().
+Just curious... would it make sense to call truncate_inode_pages()
+to purge the the readdir cache? Meaning, in nfs_revalidate_mapping()
+truncate_inode_pages() would be called for S_ISDIR inodes?
 
-rday
+It seems to me that it would be more of a decisive why to ensure
+the readdir cache is purged...
+
+steved.
+

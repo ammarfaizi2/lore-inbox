@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWJJKrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751555AbWJJKuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWJJKrl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 06:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWJJKrk
+	id S1751555AbWJJKuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 06:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWJJKuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 06:47:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:34614 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751441AbWJJKrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 06:47:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=s2dVEIkDCwEfRuq/9Poa4Y0xDWk33FiR/NUuv2tSNvDmeG/K29B/8d24btiAiioZ5dE49IT8UkYe5HXyjBerCg0RBwBcsXqWZkhBn6Fc3L5zNdzOiLkyIuiXblppOIRz8DoDvj/SfA84zzYT0auV8cIxMov56ebNL3KKz+DTwmU=
-Message-ID: <9a0545880610100347hc2ce930w2b1bce7aab00f486@mail.gmail.com>
-Date: Tue, 10 Oct 2006 03:47:38 -0700
-From: "Steve Hindle" <mech422@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Abit AI-7, 2.6.18-mm3 requires 'pci=routeirq'
+	Tue, 10 Oct 2006 06:50:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62374 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751555AbWJJKuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 06:50:03 -0400
+Date: Tue, 10 Oct 2006 12:49:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: =?iso-8859-1?Q?Fr=E9d=E9ric?= Riss <frederic.riss@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, len.brown@intel.com
+Subject: Re: 2.6.18 suspend regression on Intel Macs
+Message-ID: <20061010104948.GE31598@elf.ucw.cz>
+References: <1160417982.5142.45.camel@funkylaptop> <20061010103910.GD31598@elf.ucw.cz> <1160476889.3000.282.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1160476889.3000.282.camel@laptopd505.fenrus.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I finally figured out why my box was hard locking... I seems
-to require 'pci=routeirq' boot option.  So far, I've only tested it
-with 2.6.18-mm3 but it appears to be working well.
+Hi!
 
-For googles benefit: Machine crash under heavy I/O load Abit AI-7 2.6.16 2.6.18
+> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=115005083610700&w=2
+> > > http://bugme.osdl.org/show_bug.cgi?id=6670
+> > > 
+> > > The symptom is:
+> > >     irq 9: nobody cared (try booting with the "irqpoll" option)
+> > >     Disabling IRQ #9
+> > > when the system comes out of sleep, making ACPI non-functional.
+> > > 
+> > > Two days after having released 2.6.17, Linus commited a fix for this
+> > > issue in his tree (commit 5603509137940f4cbc577281cee62110d4097b1b):
+> > 
+> > If fix was in 2.6.18-gitX, yes, that probably counts as a regression
+> 
+> "fix" for some value of the word.
+> The problem is that this is very much against the spec, and also quite
+> likely breaks a bunch of machines...
+> 
+> If we do this we probably should at least key this of some DMI
+> identification for the mac mini..
 
-One last thing - I noticed I also get a 'pciquirk' claming that ICH4
-has reserved a region - but the machine has an ICH5/ICH5R in it...
+Do we have reports of machines breaking?
 
-Thanks to everyone for a great system and all their hard work!
-Steve
+But okay, basing it on DMI works for me. (Do those crappy Apple
+machines have a DMI?)
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

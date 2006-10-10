@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWJJRfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWJJRhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWJJRfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWJJRfv
+	id S1751022AbWJJRhu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWJJRhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:35:51 -0400
-Received: from mga01.intel.com ([192.55.52.88]:63511 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1751018AbWJJRfv (ORCPT
+	Tue, 10 Oct 2006 13:37:50 -0400
+Received: from xenotime.net ([66.160.160.81]:57518 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751006AbWJJRht (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:35:51 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,291,1157353200"; 
-   d="scan'208"; a="144245477:sNHT23460563"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Hugepage regression
-Date: Tue, 10 Oct 2006 10:35:50 -0700
-Message-ID: <000001c6ec92$871e5450$cb34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 10 Oct 2006 13:37:49 -0400
+Date: Tue, 10 Oct 2006 10:39:15 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jeremy Higdon <jeremy@sgi.com>, Pat Gefre <pfg@sgi.com>
+Subject: Re: [PATCH 2/2] ioc4: Enable build on non-SN2
+Message-Id: <20061010103915.f412d770.rdunlap@xenotime.net>
+In-Reply-To: <20061010120928.V71367@pkunk.americas.sgi.com>
+References: <20061010120928.V71367@pkunk.americas.sgi.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcbsTLYvYoVO2YrMTYq7JdTAQAnksgARVAzQ
-In-Reply-To: <20061010091552.GF18681@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Tuesday, October 10, 2006 2:16 AM
-> > > It seems commit fe1668ae5bf0145014c71797febd9ad5670d5d05 causes a
-> > > hugepage regression.  A git bisect points the finger at that commit
-> > > for causing an oops in the 'alloc-instantiate-race' test from the
-> > > libhugetlbfs testsuite.
-> > > 
-> > > Still looking to determine the reason it breaks things.
-> > > 
-> > 
-> > It's assuming that unmap_hugepage_range() is always freeing these pages. 
-> > If the page is shared by another mapping, bad things will happen: the
-> > threads fight over page->lru.
-> > 
-> > Doing
-> > 
-> > +	if (page_count(page) == 1)
-> > 		list_add(&page->lru, &page_list);
-> > 
-> > might help.  But then we miss the tlb flush in rare racy conditions.
-> 
-> Well, there'd need to be an else doing a put_page(), too.
-> 
-> Looks like the fundamental problem is that a list is not a suitable
-> data structure for gathering here, since it's not truly local.  We
-> should probably change it to a small array, like in the normal tlb
-> gather structure.  If we run out of space we can force the tlb flush
-> and keep going.
+On Tue, 10 Oct 2006 12:11:16 -0500 (CDT) Brent Casavant wrote:
+
+> Index: top/drivers/Kconfig
+> ===================================================================
+> --- top.orig/drivers/Kconfig	2006-10-09 17:41:25.000000000 -0500
+> +++ top/drivers/Kconfig	2006-10-09 17:47:50.415607888 -0500
+> @@ -14,6 +14,10 @@
+>  
+>  source "drivers/block/Kconfig"
+>  
+> +# misc before ide - BLK_DEV_SGIIOC4 depends on SGI_IOC4
+> +
+> +source "drivers/misc/Kconfig"
+> +
+>  source "drivers/ide/Kconfig"
+>  
+>  source "drivers/scsi/Kconfig"
+> @@ -52,8 +56,6 @@
+>  
+>  source "drivers/hwmon/Kconfig"
+>  
+> -source "drivers/misc/Kconfig"
+> -
+>  source "drivers/mfd/Kconfig"
+>  
+>  source "drivers/media/Kconfig"
+
+Mostly curious:  did you observe that this is required?
+I always thought that Roman said that unknown config variables
+caused a rescan by kconfig.  IOW, I thought that it wouldn't
+be observable by a user.  Just wondering..
 
 
-With the pending shared page table for hugetlb currently sitting in -mm,
-we serialize the all hugetlb unmap with a per file i_mmap_lock.  This
-race could well be solved by that pending patch?
+> Index: top/drivers/misc/Kconfig
+> ===================================================================
+> --- top.orig/drivers/misc/Kconfig	2006-10-09 17:41:25.000000000 -0500
+> +++ top/drivers/misc/Kconfig	2006-10-09 17:48:56.555631075 -0500
+> @@ -28,6 +28,18 @@
+>  
+>  	  If unsure, say N.
+>  
+> +config SGI_IOC4
+> +	tristate "SGI IOC4 Base IO support"
+> +	default m
+> +	---help---
+> +	This option enables basic support for the IOC4 chip on certain
+> +	SGI IO controller cards (IO9, IO10, and PCI-RT).  This option
+> +	does not enable any specific functions on such a card, but provides
+> +	necessary infrastructure for other drivers to utilize.
+> +
+> +	If you have an SGI Altix with an IOC4-based card say Y.
+> +	Otherwise say N.
 
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/broken-out/shared-page-table-for-hugetlb-page-v
-4.patch
+The lines under ---help--- should be indented by 2 spaces (by
+convention) (and even though they were not when in the /sn/ subdir).
 
-- Ken
+
+>  config TIFM_CORE
+>  	tristate "TI Flash Media interface support (EXPERIMENTAL)"
+>  	depends on EXPERIMENTAL
+
+
+
+---
+~Randy

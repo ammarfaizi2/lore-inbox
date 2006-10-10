@@ -1,124 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWJJGR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWJJGRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWJJGR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWJJGR1
+	id S964991AbWJJGRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWJJGRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:17:27 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:65167 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964969AbWJJGR0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:17:26 -0400
-Message-ID: <452B3B00.5080209@drzeus.cx>
-Date: Tue, 10 Oct 2006 08:17:36 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Tue, 10 Oct 2006 02:17:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48650 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964991AbWJJGRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 02:17:50 -0400
+Date: Tue, 10 Oct 2006 08:17:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [2.6.19 patch] drivers/char/specialix.c: fix the baud conversion
+Message-ID: <20061010061747.GC3650@stusta.de>
+References: <20061008221818.GL6755@stusta.de> <20061009063744.GB2877@bitwizard.nl>
 MIME-Version: 1.0
-To: philipl@overt.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 1/1] mmc: Add support for mmc v4 high speed mode
-References: <21173.67.169.45.37.1159940502.squirrel@overt.org>
-In-Reply-To: <21173.67.169.45.37.1159940502.squirrel@overt.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009063744.GB2877@bitwizard.nl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-philipl@overt.org wrote:
-> Hi Pierre,
->
-> I couldn't wait to do this, so here's the updated diff :-)
->
-> I've taken your previous comments to heart and I believe that
-> this can probably just be a single diff, but if you want me to
-> split it out, just ask.
->   
+On Mon, Oct 09, 2006 at 08:37:45AM +0200, Rogier Wolff wrote:
+> On Mon, Oct 09, 2006 at 12:18:19AM +0200, Adrian Bunk wrote:
+> > +       if (baud == 38400) {
+> >                 if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
+> >                         baud ++;
+> >                 if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
+> >                         baud += 2;
+> >         }
+> > 
+> > Increasing the index for baud_table[] by 1 or 2 is quite different from 
+> > increasing baud by 1 or 2.
+> 
+> In that range, 
+> 	baud <<= 1; 
+> and
+> 	baud <<= 2; 
+> 
+> should work. 
 
-This patch is small and self contained, so it will do just fine.
+Thanks for the hint.
 
-> This adds support for the high-speed modes defined by mmc v4
-> (assuming the host controller is up to it). On a TI sdhci controller,
-> it improves read speed from 1.3MBps to 2.3MBps. The TI controller can
-> only go up to 24MHz, but everything helps. Another person has taken
-> this basic patch and used it on a Nokia 770 to get a bigger boost
-> because that controller can run at 48MHZ.
->
-> Thanks,
->
-> --phil
->
-> Signed-off-by: Philip Langdale <philipl@overt.org>
-> ---
->
->  drivers/mmc/mmc.c            |  110 ++++++++++++++++++++++++++++++++++++++++++-
->  include/linux/mmc/card.h     |    8 +++
->  include/linux/mmc/protocol.h |   16 +++++-
->  3 files changed, 129 insertions(+), 5 deletions(-)
->
-> diff -urN /usr/src/linux-2.6.18/drivers/mmc/mmc.c linux-2.6.18-mmc4/drivers/mmc/mmc.c
-> --- /usr/src/linux-2.6.18/drivers/mmc/mmc.c	2006-09-19 20:42:06.000000000 -0700
-> +++ linux-2.6.18-mmc4/drivers/mmc/mmc.c	2006-10-03 22:14:05.000000000 -0700
-> @@ -4,6 +4,7 @@
->   *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
->   *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
->   *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
-> + *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License version 2 as
-> @@ -427,6 +428,30 @@
->  		}
->  	}
->
-> +	/* Activate highspeed MMC v4 support. */
-> +	if (card->csd.mmca_vsn == CSD_SPEC_VER_4) {
-> +		struct mmc_command cmd;
-> +
-> +                /*
-> +                 * Arg breakdown:
-> +                 * [31:26] Set to 0
-> +                 * [25:24] Access: Write Byte (0x03)
-> +                 * [23:16] Index: HS_TIMING (0xB9)
-> +                 * [15:08] Value: True (0x01)
-> +                 * [07:03] Set to 0
-> +                 * [02:00] Cmd Set: Standard (0x00)
-> +                 */
-> +		cmd.opcode = MMC_SWITCH;
-> +	 	cmd.arg = 0x03B90100;
->   
+What about the patch below?
 
-I'd prefer some defines and shifts here. Also, this should be done at
-init, not at select. The reason SD does it is that the spec says it
-drops out of wide mode when it gets unselected.
+> 	Roger. 
 
-> @@ -1032,8 +1125,19 @@
->  	unsigned int max_dtr = host->f_max;
->
->  	list_for_each_entry(card, &host->cards, node)
-> -		if (!mmc_card_dead(card) && max_dtr > card->csd.max_dtr)
-> -			max_dtr = card->csd.max_dtr;
-> +		if (!mmc_card_dead(card)) {
-> +			if (mmc_card_highspeed(card))
-> +				if ((card->ext_csd.card_type & EXT_CSD_CARD_TYPE_52) &&
-> +				    max_dtr > 52000000)
-> +					max_dtr = 52000000;
-> +				else if ((card->ext_csd.card_type & EXT_CSD_CARD_TYPE_26) &&
-> +					 max_dtr > 26000000)
-> +					max_dtr = 26000000;
-> +				else /* mmc v4 spec says this cannot happen */
-> +					BUG_ON(card->ext_csd.card_type == 0);
-> +			else if (max_dtr > card->csd.max_dtr)
-> +				max_dtr = card->csd.max_dtr;
-> +		}
->
->  	pr_debug("%s: selected %d.%03dMHz transfer rate\n",
->  		 mmc_hostname(host),
->   
+cu
+Adrian
 
-A "max_dtr" int the mmc_ext_csd structure would be nicer here. And you
-cannot do a kernel BUG because the card is broken. You should mark it as
-dead.
 
-Rgds
-Pierre
+<--  snip  -->
 
+
+This patch corrects the following bugs introduced by
+commit 67cc0161ecc9ebee6eba4af6cbfdba028090b1b9:
+- remove one remaining and now incorrect baud_table[] usage
+- "baud +=" must become "baud <<="
+
+The former bug was spotted by the Coverity checker.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/char/specialix.c |   15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+--- linux-2.6/drivers/char/specialix.c.old	2006-10-10 08:04:48.000000000 +0200
++++ linux-2.6/drivers/char/specialix.c	2006-10-10 08:06:25.000000000 +0200
+@@ -183,11 +183,6 @@
+ 
+ static struct tty_driver *specialix_driver;
+ 
+-static unsigned long baud_table[] =  {
+-	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
+-	9600, 19200, 38400, 57600, 115200, 0,
+-};
+-
+ static struct specialix_board sx_board[SX_NBOARD] =  {
+ 	{ 0, SX_IOBASE1,  9, },
+ 	{ 0, SX_IOBASE2, 11, },
+@@ -1090,9 +1085,9 @@
+ 
+ 	if (baud == 38400) {
+ 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
+-			baud ++;
++			baud <<= 1;
+ 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
+-			baud += 2;
++			baud <<= 2;
+ 	}
+ 
+ 	if (!baud) {
+@@ -1150,11 +1145,9 @@
+ 	sx_out(bp, CD186x_RBPRL, tmp & 0xff);
+ 	sx_out(bp, CD186x_TBPRL, tmp & 0xff);
+ 	spin_unlock_irqrestore(&bp->lock, flags);
+-	if (port->custom_divisor) {
++	if (port->custom_divisor)
+ 		baud = (SX_OSCFREQ + port->custom_divisor/2) / port->custom_divisor;
+-		baud = ( baud + 5 ) / 10;
+-	} else
+-		baud = (baud_table[baud] + 5) / 10;   /* Estimated CPS */
++	baud = (baud + 5) / 10;
+ 
+ 	/* Two timer ticks seems enough to wakeup something like SLIP driver */
+ 	tmp = ((baud + HZ/2) / HZ) * 2 - CD186x_NFIFO;

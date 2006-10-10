@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbWJJVsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030506AbWJJV4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030521AbWJJVsH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbWJJVsE
+	id S1030506AbWJJV4b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWJJVqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:48:04 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:30651 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030516AbWJJVrs
+	Tue, 10 Oct 2006 17:46:44 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:25019 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030510AbWJJVqi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:47:48 -0400
+	Tue, 10 Oct 2006 17:46:38 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] gfp annotations: scsi_error
+Subject: [PATCH] mtd: remove several bogus casts to void * in iounmap() argument
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXPRz-0007On-D6@ZenIV.linux.org.uk>
+Message-Id: <E1GXPQr-0007Mu-9j@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 22:47:47 +0100
+Date: Tue, 10 Oct 2006 22:46:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/scsi/scsi_error.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/mtd/maps/physmap.c     |    2 +-
+ drivers/mtd/nand/cs553x_nand.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
-index 3d355d0..aff1b0c 100644
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -495,7 +495,7 @@ static int scsi_send_eh_cmnd(struct scsi
- 	memcpy(scmd->cmnd, cmnd, cmnd_size);
+diff --git a/drivers/mtd/maps/physmap.c b/drivers/mtd/maps/physmap.c
+index bc7cc71..d171776 100644
+--- a/drivers/mtd/maps/physmap.c
++++ b/drivers/mtd/maps/physmap.c
+@@ -62,7 +62,7 @@ #endif
+ 	}
  
- 	if (copy_sense) {
--		int gfp_mask = GFP_ATOMIC;
-+		gfp_t gfp_mask = GFP_ATOMIC;
+ 	if (info->map.virt != NULL)
+-		iounmap((void *)info->map.virt);
++		iounmap(info->map.virt);
  
- 		if (shost->hostt->unchecked_isa_dma)
- 			gfp_mask |= __GFP_DMA;
+ 	if (info->res != NULL) {
+ 		release_resource(info->res);
+diff --git a/drivers/mtd/nand/cs553x_nand.c b/drivers/mtd/nand/cs553x_nand.c
+index e0a1d38..94924d5 100644
+--- a/drivers/mtd/nand/cs553x_nand.c
++++ b/drivers/mtd/nand/cs553x_nand.c
+@@ -249,7 +249,7 @@ static int __init cs553x_init_one(int cs
+ 	goto out;
+ 
+ out_ior:
+-	iounmap((void *)this->IO_ADDR_R);
++	iounmap(this->IO_ADDR_R);
+ out_mtd:
+ 	kfree(new_mtd);
+ out:
 -- 
 1.4.2.GIT
 

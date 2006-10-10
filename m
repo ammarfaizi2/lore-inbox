@@ -1,114 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030631AbWJJXQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030639AbWJJXQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030631AbWJJXQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 19:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030639AbWJJXQe
+	id S1030639AbWJJXQi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 19:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030640AbWJJXQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 19:16:34 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:34729
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1030631AbWJJXQc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 19:16:32 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] trivial iomem annotations (arch/powerpc/platfroms/parsemi/pci.c)
-Date: Wed, 11 Oct 2006 01:16:05 +0200
-User-Agent: KMail/1.9.4
-References: <20061009152309.GQ29920@ftp.linux.org.uk>
-In-Reply-To: <20061009152309.GQ29920@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 19:16:38 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:26795 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1030639AbWJJXQh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 19:16:37 -0400
+Date: Tue, 10 Oct 2006 19:16:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: neilb@cse.unsw.edu.au, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] MD: conditionalize some code
+Message-ID: <20061010231631.GA18222@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610110116.05870.mb@bu3sch.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 October 2006 17:23, Al Viro wrote:
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> ---
->  arch/powerpc/platforms/pasemi/pci.c |   26 +++++++++++++-------------
->  1 files changed, 13 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/powerpc/platforms/pasemi/pci.c b/arch/powerpc/platforms/pasemi/pci.c
-> index 4679c52..39020c1 100644
-> --- a/arch/powerpc/platforms/pasemi/pci.c
-> +++ b/arch/powerpc/platforms/pasemi/pci.c
-> @@ -35,17 +35,17 @@ #define PA_PXP_CFA(bus, devfn, off) (((b
->  
->  #define CONFIG_OFFSET_VALID(off) ((off) < 4096)
->  
-> -static unsigned long pa_pxp_cfg_addr(struct pci_controller *hose,
-> +static void volatile __iomem *pa_pxp_cfg_addr(struct pci_controller *hose,
->  				       u8 bus, u8 devfn, int offset)
->  {
-> -	return ((unsigned long)hose->cfg_data) + PA_PXP_CFA(bus, devfn, offset);
-> +	return hose->cfg_data + PA_PXP_CFA(bus, devfn, offset);
->  }
->  
->  static int pa_pxp_read_config(struct pci_bus *bus, unsigned int devfn,
->  			      int offset, int len, u32 *val)
->  {
->  	struct pci_controller *hose;
-> -	unsigned long addr;
-> +	void volatile __iomem *addr;
 
-I think you should drop all these new "volatile"s.
+The autorun code is only used if this module is built into the static
+kernel image.  Adjust #ifdefs accordingly.
 
->  	hose = pci_bus_to_host(bus);
->  	if (!hose)
-> @@ -62,13 +62,13 @@ static int pa_pxp_read_config(struct pci
->  	 */
->  	switch (len) {
->  	case 1:
-> -		*val = in_8((u8 *)addr);
-> +		*val = in_8(addr);
->  		break;
->  	case 2:
-> -		*val = in_le16((u16 *)addr);
-> +		*val = in_le16(addr);
->  		break;
->  	default:
-> -		*val = in_le32((u32 *)addr);
-> +		*val = in_le32(addr);
->  		break;
->  	}
->  
-> @@ -79,7 +79,7 @@ static int pa_pxp_write_config(struct pc
->  			       int offset, int len, u32 val)
->  {
->  	struct pci_controller *hose;
-> -	unsigned long addr;
-> +	void volatile __iomem *addr;
->  
->  	hose = pci_bus_to_host(bus);
->  	if (!hose)
-> @@ -96,16 +96,16 @@ static int pa_pxp_write_config(struct pc
->  	 */
->  	switch (len) {
->  	case 1:
-> -		out_8((u8 *)addr, val);
-> -		(void) in_8((u8 *)addr);
-> +		out_8(addr, val);
-> +		(void) in_8(addr);
->  		break;
->  	case 2:
-> -		out_le16((u16 *)addr, val);
-> -		(void) in_le16((u16 *)addr);
-> +		out_le16(addr, val);
-> +		(void) in_le16(addr);
->  		break;
->  	default:
-> -		out_le32((u32 *)addr, val);
-> -		(void) in_le32((u32 *)addr);
-> +		out_le32(addr, val);
-> +		(void) in_le32(addr);
->  		break;
->  	}
->  	return PCIBIOS_SUCCESSFUL;
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
--- 
-Greetings Michael.
+---
+
+ drivers/md/md.c               |    4 +++-
+
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 57fa64f..c75cdf9 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -3368,6 +3368,7 @@ out:
+ 	return err;
+ }
+ 
++#ifndef MODULE
+ static void autorun_array(mddev_t *mddev)
+ {
+ 	mdk_rdev_t *rdev;
+@@ -3482,6 +3483,7 @@ static void autorun_devices(int part)
+ 	}
+ 	printk(KERN_INFO "md: ... autorun DONE.\n");
+ }
++#endif /* !MODULE */
+ 
+ static int get_version(void __user * arg)
+ {
+@@ -5592,7 +5594,7 @@ static void autostart_arrays(int part)
+ 	autorun_devices(part);
+ }
+ 
+-#endif
++#endif /* !MODULE */
+ 
+ static __exit void md_exit(void)
+ {

@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWJJIKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbWJJILg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbWJJIKx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWJJIKx
+	id S965097AbWJJILg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJJILf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:10:53 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10411 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965073AbWJJIKw (ORCPT
+	Tue, 10 Oct 2006 04:11:35 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:20162 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965095AbWJJILd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:10:52 -0400
-Date: Tue, 10 Oct 2006 01:01:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: Amit Choudhary <amit2030@gmail.com>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
-Subject: Re: [stable] [PATCH 2.6.19-rc1] drivers/media/dvb/bt8xx/dvb-bt8xx.c: check kmalloc() return value.
-Message-ID: <20061010080110.GA20169@kroah.com>
-References: <20061008231034.e50118df.amit2030@gmail.com> <452A09A1.8040808@gmail.com>
+	Tue, 10 Oct 2006 04:11:33 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
+Subject: Re: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
+Date: Tue, 10 Oct 2006 10:11:25 +0200
+User-Agent: KMail/1.9.4
+Cc: "Paul Mackerras" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
+References: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3D7@jptkyxms38.jp.sony.com>
+In-Reply-To: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3D7@jptkyxms38.jp.sony.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <452A09A1.8040808@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610101011.27949.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 12:34:41PM +0400, Manu Abraham wrote:
-> Amit Choudhary wrote:
-> > Description: Check the return value of kmalloc() in function frontend_init(), in file drivers/media/dvb/bt8xx/dvb-bt8xx.c.
-> > 
-> > Signed-off-by: Amit Choudhary <amit2030@gmail.com>
-> > 
-> > diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> > index fb6c4cc..14e69a7 100644
-> > --- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> > +++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> > @@ -665,6 +665,10 @@ static void frontend_init(struct dvb_bt8
-> >  	case BTTV_BOARD_TWINHAN_DST:
-> >  		/*	DST is not a frontend driver !!!		*/
-> >  		state = (struct dst_state *) kmalloc(sizeof (struct dst_state), GFP_KERNEL);
-> > +		if (!state) {
-> > +			printk("dvb_bt8xx: No memory\n");
-> > +			break;
-> > +		}
-> >  		/*	Setup the Card					*/
-> >  		state->config = &dst_config;
-> >  		state->i2c = card->i2c_adapter;
-> > -
-> 
-> 
-> Signed-off-by: Manu Abraham <manu@linuxtv.org>
+On Tuesday 10 October 2006 08:00, Noguchi, Masato wrote:
+> After applying these patches, it seems the kernel leaks memory.
+> No doubt you forget to call simple_attr_close on "[PATCH 09/14]
+> spufs: add support for read/write oncntl".
 
-Care to send the full patch in a format that we can apply it to the
--stable tree?
+Ok, thanks for pointing this out.
+ 
+> Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-thanks,
+Paul, please apply.
 
-greg k-h
+	Arnd <><

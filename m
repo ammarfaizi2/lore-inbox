@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751909AbWJJCPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751983AbWJJCTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751909AbWJJCPh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 22:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751979AbWJJCPh
+	id S1751983AbWJJCTk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 22:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWJJCTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 22:15:37 -0400
-Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:37058 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S1751316AbWJJCPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 22:15:36 -0400
-X-Trace: 53616c7465645f5f50e6a3e1e0bc0a4428f87adc22a08f5675be8ec0086993b6e89418c207721a33086e2d0840802b1538eb98f8361361aa4413473ed1c99eb613963e4acbff7f47361ade957c3ac4b6a4d4b15a863af9b35f77f07093694540
-Message-ID: <452B0240.60203@xfs.org>
-Date: Mon, 09 Oct 2006 21:15:28 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 9 Oct 2006 22:19:40 -0400
+Received: from alnrmhc11.comcast.net ([204.127.225.91]:57276 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751983AbWJJCTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 22:19:40 -0400
+Message-ID: <452B033A.3080404@comcast.net>
+Date: Mon, 09 Oct 2006 22:19:38 -0400
+From: Ed Sweetman <safemode2@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
 MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com>
-In-Reply-To: <20061010015512.GQ11034@melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org
+Subject: patch to 2.6.18-mm3 for missing libata Kconfig options
+Content-Type: multipart/mixed;
+ boundary="------------030401070702070102020904"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+This is a multi-part message in MIME format.
+--------------030401070702070102020904
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-My recollection is that it used to default to on, it was disabled
-because it needs to map the buffer into a single contiguous chunk
-of kernel memory. This was placing a lot of pressure on the memory
-remapping code, so we made it not default to on as reworking the
-code to deal with non contig memory was looking like a major
-effort.
+  I believe the following options are missing in the current setup of 
+how libata is configured and selected in the kernel config program.  
+First, a clarification as to just what needs to be selected to actually 
+use libata governed drives. Second, since libata is being treated as a 
+alternative to scsi and ide, it should have the same options as those 
+until it fully replaces ide and the general blk devices can be moved to 
+a "shared" config option.
 
-Steve
+So I just wrote up a little patch to the ata driver's Kconfig that adds 
+in the "missing" blk dev selection options so a user doesn't have to do 
+what they had to do when ata was under scsi's low level drivers in the 
+first place, which somewhat negates the whole movement of ata out of 
+scsi.   This should clear up a lot of confusion among users who are 
+coming to libata from ide and dont really get or want to get why it has 
+anything to do with selecting scsi drivers.   
 
+Hopefully this shared code between scsi and ata will be moved to a more 
+"general block device" option when ide is removed and everything is seen 
+as scsi devices anyway so we wont have to refer to them as "scsi devices". 
 
-David Chinner wrote:
-> On Mon, Oct 09, 2006 at 04:53:02PM -0500, Steve Lord wrote:
->> You might want to think about keeping the directory a little
->> more contiguous than individual disk blocks. XFS does have
->> code in it to allocate the directory in chunks larger than
->> a single file system block. It does not get used on linux
->> because the code was written under the assumption you can
->> see the whole chunk as a single piece of memory which does not
->> work to well in the linux kernel.
-> 
-> This code is enabled and seems to work in Linux. I don't know if it
-> passes xfsqa  so I don't know how reliable this feature is. TO check
-> it all I did was run a quick test on a x86_64 kernel (4k page
-> size) using 16k directory blocks (4 pages):
+this patch is against 2.6.18-mm3.  
 
+--------------030401070702070102020904
+Content-Type: text/plain;
+ name="libata_kconfig.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libata_kconfig.patch"
 
+--- ./linux-2.6.18/drivers/ata/Kconfig	2006-10-09 22:09:35.000000000 -0400
++++ ../linux-2.6.18/drivers/ata/Kconfig	2006-10-09 22:04:02.000000000 -0400
+@@ -15,9 +15,38 @@
+ 	  the name of your ATA host adapter (the card inside your computer
+ 	  that "speaks" the ATA protocol, also called ATA controller),
+ 	  because you will be asked for it.
++	  NOTE: 
++	  You will also need to select the ata device interface drivers below, 
++	  to actually use the drives that libata detects.
+ 
+ if ATA
+ 
++config ATA_DISK
++	tristate "ATA Disk Support"
++	select BLK_DEV_SD
++	depends on SCSI
++	---help---
++	    Select this if you have ata disk drives. Devices will be
++	    connected to traditional scsi device nodes. eg. sda
++
++	
++config ATA_OPTICAL
++	tristate "ATA CD/DVD Rom Support"
++	select BLK_DEV_SR
++	depends on SCSI
++	---help---
++	    Select this if you have ata CD/DVD optical drives. Devices 
++	    will be connected to traditional scsi device nodes. eg. sr0
++	
++config ATA_GENERIC
++	tristate "ATA Generic support (CD/DVD Writer)"
++	select BLK_DEV_SG
++	depends on SCSI
++	---help---
++	    Select this if you have ata optical writers or anything 
++	    supported by libata that's not a disk drive. Devices will be 
++	    connected to the traditional scsi device nodes. eg. sg0
++	    
+ config SATA_AHCI
+ 	tristate "AHCI SATA support"
+ 	depends on PCI
 
-> 
-> # mkfs.xfs -f -n size=16384 /dev/ubd/1
-> .....
-> # xfs_db -r -c "sb 0" -c "p dirblklog" /dev/ubd/1
-> dirblklog = 2
-> # mount /dev/ubd/1 /mnt/xfs
-> # for i in `seq 0 1 100000`; do touch fred.$i; done
-> # umount /mnt/xfs
-> # mount /mnt/xfs
-> # ls /mnt/xfs |wc -l
-> 100000
-> # rm -rf /mnt/xfs/*
-> # ls /mnt/xfs |wc -l
-> 0
-> # umount /mnt/xfs
-> #
-> 
-> Cheers,
-> 
-> Dave.
-
+--------------030401070702070102020904--

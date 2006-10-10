@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030546AbWJJVww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWJJVtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030546AbWJJVww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030560AbWJJVwu
+	id S1030527AbWJJVtU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbWJJVss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:52:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030559AbWJJVwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:52:44 -0400
-Date: Tue, 10 Oct 2006 14:52:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.19-rc1-mm1
-Message-Id: <20061010145235.b86c7bad.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0610101444y5cf127c5y8a9e4c64640e0b8c@mail.gmail.com>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<6bffcb0e0610100909t3a33d4ecwdae27a27b15d60e3@mail.gmail.com>
-	<20061010120441.3cd3f8ff.akpm@osdl.org>
-	<6bffcb0e0610101444y5cf127c5y8a9e4c64640e0b8c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 17:48:48 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32187 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030518AbWJJVsS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:48:18 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] openprom NULL noise removal
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1GXPST-0007Pt-Dt@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 10 Oct 2006 22:48:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 23:44:04 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 
-> BTW. Kernel hangs while running Cyclictest
-> (http://rt.wiki.kernel.org/index.php/Cyclictest)
-> cyclictest -t 10 -l 100000
-> (or "bin/autotest tests/cyclictest/control" in autotest). I don't see
-> nothing special on tty (currently my sysklogd is broken, FC6
-> problem..)
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ drivers/sbus/char/openprom.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-cc added.
+diff --git a/drivers/sbus/char/openprom.c b/drivers/sbus/char/openprom.c
+index 2f69876..81ba2d7 100644
+--- a/drivers/sbus/char/openprom.c
++++ b/drivers/sbus/char/openprom.c
+@@ -630,7 +630,7 @@ static int openprom_ioctl(struct inode *
+ 	case OPROMPATH2NODE:
+ 		if ((file->f_mode & FMODE_READ) == 0)
+ 			return -EPERM;
+-		return openprom_sunos_ioctl(inode, file, cmd, arg, 0);
++		return openprom_sunos_ioctl(inode, file, cmd, arg, NULL);
+ 
+ 	case OPIOCGET:
+ 	case OPIOCNEXTPROP:
+-- 
+1.4.2.GIT
+
+

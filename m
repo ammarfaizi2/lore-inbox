@@ -1,66 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWJJGL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWJJGR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWJJGL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWJJGL1
+	id S964969AbWJJGR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWJJGR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:11:27 -0400
-Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:58858 "EHLO
-	lin5.shipmail.org") by vger.kernel.org with ESMTP id S965006AbWJJGL0
+	Tue, 10 Oct 2006 02:17:27 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:65167 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964969AbWJJGR0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:11:26 -0400
-Message-ID: <452B398C.4030507@tungstengraphics.com>
-Date: Tue, 10 Oct 2006 08:11:24 +0200
-From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: sv, en-us, en
+	Tue, 10 Oct 2006 02:17:26 -0400
+Message-ID: <452B3B00.5080209@drzeus.cx>
+Date: Tue, 10 Oct 2006 08:17:36 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-References: <20061009110007.GA3592@wotan.suse.de>	 <1160392214.10229.19.camel@localhost.localdomain>	 <20061009111906.GA26824@wotan.suse.de>	 <1160393579.10229.24.camel@localhost.localdomain>	 <20061009114527.GB26824@wotan.suse.de>	 <1160394571.10229.27.camel@localhost.localdomain>	 <20061009115836.GC26824@wotan.suse.de>	 <1160395671.10229.35.camel@localhost.localdomain>	 <20061009121417.GA3785@wotan.suse.de>	 <452A50C2.9050409@tungstengraphics.com>	 <20061009135254.GA19784@wotan.suse.de> <1160427036.7752.13.camel@localhost.localdomain>
-In-Reply-To: <1160427036.7752.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: philipl@overt.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 1/1] mmc: Add support for mmc v4 high speed mode
+References: <21173.67.169.45.37.1159940502.squirrel@overt.org>
+In-Reply-To: <21173.67.169.45.37.1159940502.squirrel@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+philipl@overt.org wrote:
+> Hi Pierre,
+>
+> I couldn't wait to do this, so here's the updated diff :-)
+>
+> I've taken your previous comments to heart and I believe that
+> this can probably just be a single diff, but if you want me to
+> split it out, just ask.
+>   
 
->
->>>Could it be an option to make it safe for the fault handler to 
->>>temporarily drop the mmap_sem read lock given that some conditions TBD 
->>>are met?
->>>In that case it can retake the mmap_sem write lock, do the VMA flags 
->>>modifications, downgrade and do the pte modifications using a helper, or 
->>>even use remap_pfn_range() during the time the write lock is held?
->>>      
->>>
->>When you drop and retake the mmap_sem, you need to start again from
->>find_vma. At which point you technically probably want to start again
->>from the architecture specfic fault code. It sounds difficult but I
->>won't say it can't be done.
->>    
->>
->
->I can be done with returning NOPAGE_REFAULT but as you said, I don't
->think it's necessary.
->  
->
-Still, even with NOPAGE_REFAULT or the equivalent with the new fault() code,
-in the case we need to take this route, (and it looks like we won't have 
-to),
-I guess we still need to restart from find_vma() in the fault()/nopage() 
-handler to make sure the VMA is still present. The object mutex need to 
-be dropped as well to avoid deadlocks. Sounds complicated.
+This patch is small and self contained, so it will do just fine.
 
->Cheers,
->Ben.
+> This adds support for the high-speed modes defined by mmc v4
+> (assuming the host controller is up to it). On a TI sdhci controller,
+> it improves read speed from 1.3MBps to 2.3MBps. The TI controller can
+> only go up to 24MHz, but everything helps. Another person has taken
+> this basic patch and used it on a Nokia 770 to get a bigger boost
+> because that controller can run at 48MHZ.
 >
+> Thanks,
 >
->  
+> --phil
 >
-/Thomas
+> Signed-off-by: Philip Langdale <philipl@overt.org>
+> ---
+>
+>  drivers/mmc/mmc.c            |  110 ++++++++++++++++++++++++++++++++++++++++++-
+>  include/linux/mmc/card.h     |    8 +++
+>  include/linux/mmc/protocol.h |   16 +++++-
+>  3 files changed, 129 insertions(+), 5 deletions(-)
+>
+> diff -urN /usr/src/linux-2.6.18/drivers/mmc/mmc.c linux-2.6.18-mmc4/drivers/mmc/mmc.c
+> --- /usr/src/linux-2.6.18/drivers/mmc/mmc.c	2006-09-19 20:42:06.000000000 -0700
+> +++ linux-2.6.18-mmc4/drivers/mmc/mmc.c	2006-10-03 22:14:05.000000000 -0700
+> @@ -4,6 +4,7 @@
+>   *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
+>   *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
+>   *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
+> + *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License version 2 as
+> @@ -427,6 +428,30 @@
+>  		}
+>  	}
+>
+> +	/* Activate highspeed MMC v4 support. */
+> +	if (card->csd.mmca_vsn == CSD_SPEC_VER_4) {
+> +		struct mmc_command cmd;
+> +
+> +                /*
+> +                 * Arg breakdown:
+> +                 * [31:26] Set to 0
+> +                 * [25:24] Access: Write Byte (0x03)
+> +                 * [23:16] Index: HS_TIMING (0xB9)
+> +                 * [15:08] Value: True (0x01)
+> +                 * [07:03] Set to 0
+> +                 * [02:00] Cmd Set: Standard (0x00)
+> +                 */
+> +		cmd.opcode = MMC_SWITCH;
+> +	 	cmd.arg = 0x03B90100;
+>   
+
+I'd prefer some defines and shifts here. Also, this should be done at
+init, not at select. The reason SD does it is that the spec says it
+drops out of wide mode when it gets unselected.
+
+> @@ -1032,8 +1125,19 @@
+>  	unsigned int max_dtr = host->f_max;
+>
+>  	list_for_each_entry(card, &host->cards, node)
+> -		if (!mmc_card_dead(card) && max_dtr > card->csd.max_dtr)
+> -			max_dtr = card->csd.max_dtr;
+> +		if (!mmc_card_dead(card)) {
+> +			if (mmc_card_highspeed(card))
+> +				if ((card->ext_csd.card_type & EXT_CSD_CARD_TYPE_52) &&
+> +				    max_dtr > 52000000)
+> +					max_dtr = 52000000;
+> +				else if ((card->ext_csd.card_type & EXT_CSD_CARD_TYPE_26) &&
+> +					 max_dtr > 26000000)
+> +					max_dtr = 26000000;
+> +				else /* mmc v4 spec says this cannot happen */
+> +					BUG_ON(card->ext_csd.card_type == 0);
+> +			else if (max_dtr > card->csd.max_dtr)
+> +				max_dtr = card->csd.max_dtr;
+> +		}
+>
+>  	pr_debug("%s: selected %d.%03dMHz transfer rate\n",
+>  		 mmc_hostname(host),
+>   
+
+A "max_dtr" int the mmc_ext_csd structure would be nicer here. And you
+cannot do a kernel BUG because the card is broken. You should mark it as
+dead.
+
+Rgds
+Pierre
 

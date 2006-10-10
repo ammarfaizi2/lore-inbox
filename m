@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWJJS5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWJJS6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWJJS5I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 14:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWJJS5I
+	id S1751080AbWJJS6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 14:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWJJS6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 14:57:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751082AbWJJS5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 14:57:05 -0400
-Date: Tue, 10 Oct 2006 11:56:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 1/2] round_jiffies infrastructure
-Message-Id: <20061010115652.4ef068bd.akpm@osdl.org>
-In-Reply-To: <1160496210.3000.310.camel@laptopd505.fenrus.org>
-References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
-	<1160496210.3000.310.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 14:58:16 -0400
+Received: from pas38-1-82-67-71-117.fbx.proxad.net ([82.67.71.117]:45701 "EHLO
+	siegfried.gbfo.org") by vger.kernel.org with ESMTP id S1751080AbWJJS6O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 14:58:14 -0400
+Date: Tue, 10 Oct 2006 20:57:47 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@gmail.com>
+X-X-Sender: saffroy@erda.mds
+To: Vivek Goyal <vgoyal@in.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce] kdump2gdb: analyze kdumps with gdb (well, almost)
+In-Reply-To: <20061009132855.GA25559@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0610091958170.9250@erda.mds>
+References: <Pine.LNX.4.64.0610061742270.9250@erda.mds> <20061009132855.GA25559@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 18:03:30 +0200
-Arjan van de Ven <arjan@linux.intel.com> wrote:
+Hello Vivek,
 
-> @@ -80,6 +80,56 @@ tvec_base_t boot_tvec_bases;
->  EXPORT_SYMBOL(boot_tvec_bases);
->  static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = &boot_tvec_bases;
->  
-> +unsigned long __round_jiffies(unsigned long T, int CPU)
-> +{
-> +	int rem;
-> +	int original  = T;
-> +	rem = T % HZ;
-> +	if (rem < HZ/4)
-> +		T = T - rem;
-> +	else
-> +		T = T - rem + HZ;
-> +	/* we don't want all cpus firing at once hitting the same lock/memory */
-> +	T += CPU * 3;
-> +	if (T <= jiffies) /* rounding ate our timeout entirely */
-> +		return original;
-> +	return T;
-> +}
-> +EXPORT_SYMBOL_GPL(__round_jiffies);
-> +
+On Mon, 9 Oct 2006, Vivek Goyal wrote:
 
-c'mon Arjan.  If we're going to create new, kernel-wide,
-exported-to-modules infrastructure then it deserves slightly more than zero
-documentation.
+> On Fri, Oct 06, 2006 at 06:42:00PM +0200, Jean-Marc Saffroy wrote:
+>> Hello folks,
+>>
+>> Following earlier discussions on how nice it would be to use gdb on kdump
+>> cores, I took some time and wrote a small tool to do just that:
+>>   http://jeanmarc.saffroy.free.fr/kdump2gdb/
+>>
+>> The main limitation is that there is absolutely no backtrace of
+>> non-running tasks yet, but I will try to see how it can be done. Also, it
+>> works only on x86-64, but people are welcome to contribute ports. :)
+>
+> Hi Jean,
+>
+> Interesting stuff. Documentation/kdump/gdbmacros.txt already seems to
+> be containing various macros for seeing the back traces of non-running
+> threads. Won't these help?
 
-Some commentary explaining/justifying the magic numbers in there would be
-useful too.  The HZ/4, the cpu*3.
+Not quite, they need an update for 2.6.18:
 
-And coding style too, please: consistent spacing around arithmetic
-operators, variables are lower case, constants are upper case.
+(gdb) source kernel/linux-2.6.18/Documentation/kdump/gdbmacros.txt
+(gdb) btt
+There is no member named pid_list.
+
+BTW I think these macro could use the $task->thread_group list to find 
+threads in a process (at least it seems to work for my own "ps" macro).
+
+Anyway, genuine gdb backtraces would be worlds better, so I'll take some 
+time to see how to add it. Given a proper thread context, gdb can display 
+function params and locals in each frame (if they are not optimized out).
+
+The macros you mention remain useful in adverse conditions (I used similar 
+tricks in the past, with lcrash), but I suspect that on average gdb will 
+do its job as expected.
+
+
+Cheers,
+
+-- 
+saffroy@gmail.com

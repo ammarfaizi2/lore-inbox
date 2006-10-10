@@ -1,122 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWJJQEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWJJQEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWJJQEt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWJJQEt
+	id S932162AbWJJQEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWJJQEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:04:49 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:9345 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932179AbWJJQEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:04:48 -0400
-Subject: [patch 1/2] round_jiffies infrastructure
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu, akpm@osdl.org
-In-Reply-To: <1160496165.3000.308.camel@laptopd505.fenrus.org>
-References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 10 Oct 2006 18:03:30 +0200
-Message-Id: <1160496210.3000.310.camel@laptopd505.fenrus.org>
+	Tue, 10 Oct 2006 12:04:08 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:20381 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932162AbWJJQEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 12:04:05 -0400
+Date: Tue, 10 Oct 2006 12:03:59 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: markus.lidel@shadowconnect.com, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] I2O: handle a few sysfs errors
+Message-ID: <20061010160359.GA21592@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@linux.intel.com>
-Subject: round_jiffies infrastructure
-
-This patch introduces a round_jiffies() function as well as a
-round_jiffies_relative() function. These functions round a jiffies value
-to the next whole second. The primary purpose of this rounding is to
-cause all "we don't care exactly when" timers to happen at the same jiffy.
-This avoids multiple timers to fire within the second for no real reason;
-with dynamic ticks these extra timers cause wakeups from deep sleep
-CPU sleep states and thus waste power. 
-
-The exact wakeup moment is skewed by the cpu number, to avoid all
-cpus from waking up at the exact same time (and hitting the same 
-lock/cachelines there)
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
 
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-Index: linux-2.6.19-rc1-git6/include/linux/timer.h
-===================================================================
---- linux-2.6.19-rc1-git6.orig/include/linux/timer.h
-+++ linux-2.6.19-rc1-git6/include/linux/timer.h
-@@ -98,4 +98,10 @@ extern void run_local_timers(void);
- struct hrtimer;
- extern int it_real_fn(struct hrtimer *);
- 
-+unsigned long __round_jiffies(unsigned long T, int CPU);
-+unsigned long __round_jiffies_relative(unsigned long T, int CPU);
-+unsigned long round_jiffies(unsigned long T);
-+unsigned long round_jiffies_relative(unsigned long T);
-+
-+
- #endif
-Index: linux-2.6.19-rc1-git6/kernel/timer.c
-===================================================================
---- linux-2.6.19-rc1-git6.orig/kernel/timer.c
-+++ linux-2.6.19-rc1-git6/kernel/timer.c
-@@ -80,6 +80,56 @@ tvec_base_t boot_tvec_bases;
- EXPORT_SYMBOL(boot_tvec_bases);
- static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = &boot_tvec_bases;
- 
-+unsigned long __round_jiffies(unsigned long T, int CPU)
-+{
-+	int rem;
-+	int original  = T;
-+	rem = T % HZ;
-+	if (rem < HZ/4)
-+		T = T - rem;
-+	else
-+		T = T - rem + HZ;
-+	/* we don't want all cpus firing at once hitting the same lock/memory */
-+	T += CPU * 3;
-+	if (T <= jiffies) /* rounding ate our timeout entirely */
-+		return original;
-+	return T;
-+}
-+EXPORT_SYMBOL_GPL(__round_jiffies);
-+
-+unsigned long __round_jiffies_relative(unsigned long T, int CPU)
-+{
-+	int rem;
-+	int original = T;
-+	T=T+jiffies;
-+	rem = T % HZ;
-+	if (rem < HZ/4)
-+		T = T - rem;
-+	else
-+		T = T - rem + HZ;
-+	/* we don't want all cpus firing at once hitting the same lock/memory */
-+	T += CPU * 3;
-+	T = T-jiffies;
-+	if (T<=0) /* rounding ate our delay entirely, don't round */
-+		return original;
-+	return T;
-+}
-+EXPORT_SYMBOL_GPL(__round_jiffies_relative);
-+
-+unsigned long round_jiffies(unsigned long T)
-+{
-+	return __round_jiffies(T, raw_smp_processor_id());
-+}
-+EXPORT_SYMBOL_GPL(round_jiffies);
-+
-+unsigned long round_jiffies_relative(unsigned long T)
-+{
-+	return __round_jiffies_relative(T, raw_smp_processor_id());
-+}
-+EXPORT_SYMBOL_GPL(round_jiffies_relative);
-+
-+
-+
- static inline void set_running_timer(tvec_base_t *base,
- 					struct timer_list *timer)
+---
+
+This was just the low-hanging fruit.  There are more unchecked-return
+calls in there.
+
+ drivers/message/i2o/bus-osm.c  |   12 ++++++++++--
+ drivers/message/i2o/exec-osm.c |   17 ++++++++++++++---
+ 2 files changed, 24 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/message/i2o/bus-osm.c b/drivers/message/i2o/bus-osm.c
+index ac06f10..d96c687 100644
+--- a/drivers/message/i2o/bus-osm.c
++++ b/drivers/message/i2o/bus-osm.c
+@@ -80,18 +80,26 @@ static DEVICE_ATTR(scan, S_IWUSR, NULL, 
+  *	@dev: device to verify if it is a I2O Bus Adapter device
+  *
+  *	Because we want all Bus Adapters always return 0.
++ *	Except when we fail.  Then we are sad.
+  *
+- *	Returns 0.
++ *	Returns 0, except when we fail to excel.
+  */
+ static int i2o_bus_probe(struct device *dev)
  {
-
+ 	struct i2o_device *i2o_dev = to_i2o_device(get_device(dev));
++	int rc;
+ 
+-	device_create_file(dev, &dev_attr_scan);
++	rc = device_create_file(dev, &dev_attr_scan);
++	if (rc)
++		goto err_out;
+ 
+ 	osm_info("device added (TID: %03x)\n", i2o_dev->lct_data.tid);
+ 
+ 	return 0;
++
++err_out:
++	put_device(dev);
++	return rc;
+ };
+ 
+ /**
+diff --git a/drivers/message/i2o/exec-osm.c b/drivers/message/i2o/exec-osm.c
+index 7bd4d85..91f95d1 100644
+--- a/drivers/message/i2o/exec-osm.c
++++ b/drivers/message/i2o/exec-osm.c
+@@ -325,13 +325,24 @@ static DEVICE_ATTR(product_id, S_IRUGO, 
+ static int i2o_exec_probe(struct device *dev)
+ {
+ 	struct i2o_device *i2o_dev = to_i2o_device(dev);
++	int rc;
+ 
+-	i2o_event_register(i2o_dev, &i2o_exec_driver, 0, 0xffffffff);
++	rc = i2o_event_register(i2o_dev, &i2o_exec_driver, 0, 0xffffffff);
++	if (rc) goto err_out;
+ 
+-	device_create_file(dev, &dev_attr_vendor_id);
+-	device_create_file(dev, &dev_attr_product_id);
++	rc = device_create_file(dev, &dev_attr_vendor_id);
++	if (rc) goto err_evtreg;
++	rc = device_create_file(dev, &dev_attr_product_id);
++	if (rc) goto err_vid;
+ 
+ 	return 0;
++
++err_vid:
++	device_remove_file(dev, &dev_attr_vendor_id);
++err_evtreg:
++	i2o_event_register(to_i2o_device(dev), &i2o_exec_driver, 0, 0);
++err_out:
++	return rc;
+ };
+ 
+ /**

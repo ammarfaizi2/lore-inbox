@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWJJFP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWJJFSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWJJFP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 01:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWJJFP6
+	id S964982AbWJJFSL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 01:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWJJFSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 01:15:58 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:43810 "EHLO
-	asav13.insightbb.com") by vger.kernel.org with ESMTP
-	id S964981AbWJJFP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 01:15:58 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AY8CAP7IKkWMByw
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver Interface 0.3.2 (core)
-Date: Tue, 10 Oct 2006 01:15:39 -0400
-User-Agent: KMail/1.9.3
-Cc: "raise.sail@gmail.com" <raise.sail@gmail.com>, greg <greg@kroah.com>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-References: <200609291624123283320@gmail.com> <200610082342.26110.dtor@insightbb.com> <452AD2D9.3090001@gmail.com>
-In-Reply-To: <452AD2D9.3090001@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 01:18:10 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3025 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964982AbWJJFSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 01:18:09 -0400
+Subject: Re: 2.6.19-rc1: known regressions (v3)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061010051019.GB3650@stusta.de>
+References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org>
+	 <20061010051019.GB3650@stusta.de>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 15:16:46 +1000
+Message-Id: <1160457406.32237.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610100115.41449.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 October 2006 18:53, Anssi Hannula wrote:
-> Dmitry Torokhov wrote:
-> > On Sunday 08 October 2006 14:51, Anssi Hannula wrote:
-> >> (I didn't get Dmitry's original mail, so replying here)
-> >>
-> >> raise.sail@gmail.com wrote:
-> >>> Dmitry Torokhov wrote:
-> >>>> Then there is issue with automatic loading of these sub-drivers. How
-> >>>> do they get loaded? Or we force everything to be built-in making HID
-> >>>> module very fat (like psmouse got pretty fat, but with HID prtential
-> >>>> for it to get very fat is much bigger).
-> >>>>
-> >>>> The better way would be to split hid-input into a library module that
-> >>>> parses hid usages and reports and is shared between device-specific
-> >>>> modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
-> >> One possibility is to do that with symbol_request() and friends. That
-> >> would not be pretty though, imho.
-> >>
-> >> DVB subsystem uses that currently to load frontend modules dynamically,
-> >> see dvb_attach() and dvb_frontend_detach() in
-> >> drivers/media/dvb/dvb-core/dvbdev.h and
-> >> drivers/media/dvb/dvb-core/dvb_frontend.c.
-> >>
-> > 
-> > Unfortunately this does not quite work when hid is built-in and the rest
-> > are modules :(
-> > 
-> 
-> How so? I see nothing obvious.
-> 
 
-If hid (and hcd) is compiled in it will try binging to devices before
-userspace is up and symbol_request will not work. You could try
-playing with initramfs but it is kind of a hassle.
+> Subject    : sleep/wakeup on powerbooks apparently busted
+> References : http://lkml.org/lkml/2006/10/5/13
+> Submitter  : Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Handled-By : Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Status     : Benjamin will investigate
 
--- 
-Dmitry
+Could be a long standing problem with some powerpc platform drivers not
+properly updated to Russel King changes from last year (still using
+struct device_driver instead of struct platform_driver). A patch will be
+sent to Linus shortly by Paulus which makes it work for us. More field
+testing will be needed.
+
+Ben.
+
+

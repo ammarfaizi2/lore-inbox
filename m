@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWJJB7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWJJCAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWJJB7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 21:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWJJB7Q
+	id S964915AbWJJCAy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 22:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWJJCAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 21:59:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59600 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964914AbWJJB7N (ORCPT
+	Mon, 9 Oct 2006 22:00:54 -0400
+Received: from gate.crashing.org ([63.228.1.57]:12494 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964915AbWJJCAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 21:59:13 -0400
-Date: Tue, 10 Oct 2006 11:59:02 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Kai Germaschewski <kai@germaschewski.name>,
-       Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kbuild: allow multi-word $M in Makefile.modpost
-Message-ID: <20061010015902.GZ28796@sgi.com>
+	Mon, 9 Oct 2006 22:00:53 -0400
+Subject: Re: faults and signals
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Nick Piggin <npiggin@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1160445510.32237.50.camel@localhost.localdomain>
+References: <20061009140354.13840.71273.sendpatchset@linux.site>
+	 <20061009140447.13840.20975.sendpatchset@linux.site>
+	 <1160427785.7752.19.camel@localhost.localdomain>
+	 <452AEC8B.2070008@yahoo.com.au>
+	 <1160442685.32237.27.camel@localhost.localdomain>
+	 <452AF546.4000901@yahoo.com.au>
+	 <1160445510.32237.50.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 12:00:01 +1000
+Message-Id: <1160445601.32237.53.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people want to do crazy things like pass multiple directories
-as the value of $(SUBDIRS) or $M.  Mostly this kinda works, except
-that Makefile.modpost constructs a modpost commandline which fails
-modpost's argument parsing.  This patch fixes that little wrinkle.
 
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
----
+> Yes. Tho it's also fairly easy to just add an argument to the wrapper
+> and fix all archs... but yeah, I will play around.
 
- scripts/Makefile.modpost |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Actually, user_mode(ptregs) is standard, we could add a ptregs arg to
+the wrapper... or just get rid of it and fix archs, it's not like it was
+that hard. There aren't that many callers :)
 
-Index: linux-git-20061009/scripts/Makefile.modpost
-===================================================================
---- linux-git-20061009.orig/scripts/Makefile.modpost	2006-10-09 17:01:57.000000000 +1000
-+++ linux-git-20061009/scripts/Makefile.modpost	2006-10-10 11:41:20.952515917 +1000
-@@ -44,7 +44,7 @@ include scripts/Kbuild.include
- include scripts/Makefile.lib
- 
- kernelsymfile := $(objtree)/Module.symvers
--modulesymfile := $(KBUILD_EXTMOD)/Module.symvers
-+modulesymfile := $(firstword $(KBUILD_EXTMOD))/Module.symvers
- 
- # Step 1), find all modules listed in $(MODVERDIR)/
- __modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+Is there any reason why we actually need that wrapper ?
+
+Ben.
 
 
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.

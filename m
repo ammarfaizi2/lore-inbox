@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWJJExZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWJJEzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWJJExZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 00:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWJJExZ
+	id S964972AbWJJEzi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 00:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWJJEzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 00:53:25 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50375 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964950AbWJJExY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 00:53:24 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: vgoyal@in.ibm.com, "H. Peter Anvin" <hpa@zytor.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-References: <20061004214403.e7d9f23b.akpm@osdl.org>
-	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
-	<20061004233137.97451b73.akpm@osdl.org>
-	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
-	<20061005235909.75178c09.akpm@osdl.org>
-	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
-	<20061006183846.GF19756@in.ibm.com> <4526A66B.4030805@zytor.com>
-	<m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
-	<4526D084.1030700@zytor.com> <20061009143345.GB17572@in.ibm.com>
-	<20061009201418.81bf0acd.akpm@osdl.org>
-Date: Mon, 09 Oct 2006 22:51:19 -0600
-In-Reply-To: <20061009201418.81bf0acd.akpm@osdl.org> (Andrew Morton's message
-	of "Mon, 9 Oct 2006 20:14:18 -0700")
-Message-ID: <m1d590pyd4.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 10 Oct 2006 00:55:38 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5642 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964972AbWJJEzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 00:55:37 -0400
+Date: Tue, 10 Oct 2006 06:55:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Judith Lebzelter <judith@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add Kconfig dependency !VT for VIOCONS
+Message-ID: <20061010045534.GA3650@stusta.de>
+References: <20061006180549.GB3684@shell0.pdx.osdl.net> <20061006200007.GD3684@shell0.pdx.osdl.net> <20061006143437.f7338860.rdunlap@xenotime.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061006143437.f7338860.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Fri, Oct 06, 2006 at 02:34:37PM -0700, Randy Dunlap wrote:
+> On Fri, 6 Oct 2006 13:00:07 -0700 Judith Lebzelter wrote:
+> 
+> > Actually, this gets rid of the CONFIG_VIOCONS from my .config, but 
+> > then I get another warning when I build:
+> > 
+> > Warning! Found recursive dependency: VT VIOCONS VT
+> > 
+> > Can anyone suggest something?
+> 
+> I think that your patch is mostly good/correct, but one more line
+> is needed on the VT side:  a deletion.
+> 
+> This works for me:
+> 
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Make allmodconfig .config build successfully by making VIOCONS
+> available only if VT=n.  VT need not check VIOCONS.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> ---
+>  arch/powerpc/platforms/iseries/Kconfig |    2 +-
+>  drivers/char/Kconfig                   |    1 -
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+> 
+> --- linux-2619-rc1g2.orig/arch/powerpc/platforms/iseries/Kconfig
+> +++ linux-2619-rc1g2/arch/powerpc/platforms/iseries/Kconfig
+> @@ -3,7 +3,7 @@ menu "iSeries device drivers"
+>  	depends on PPC_ISERIES
+>  
+>  config VIOCONS
+> -	tristate "iSeries Virtual Console Support (Obsolete)"
+> +	tristate "iSeries Virtual Console Support (Obsolete)" if !VT
+>  	help
+>...
+>  config VT
+>  	bool "Virtual terminal" if EMBEDDED
 
-> On Mon, 9 Oct 2006 10:33:45 -0400
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
->
->> Please find attached the regenerated patch.
->
-> Somewhere amongst the six versions of this patch, the kernel broke.  Seems
-> that the kernel command line isn't getting recognised.  The machine is
-> running LILO and RH FC1.
+With this dependency on EMBEDDED, you could as well simply remove 
+VIOCONS...
 
-Ugh.  That is no fun :(
+>  	select INPUT
+> -	default y if !VIOCONS
 
-Eric
+Removing the "default y" is wrong.
+
+>  	---help---
+>  	  If you say Y here, you will get support for terminal devices with
+>  	  display and keyboard devices. These are called "virtual" because you
+>...
+> ~Randy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

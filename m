@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWJJLmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWJJLnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWJJLmX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 07:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbWJJLmX
+	id S1030179AbWJJLnH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 07:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWJJLnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 07:42:23 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:41345 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030178AbWJJLmW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 07:42:22 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
-Date: Tue, 10 Oct 2006 13:42:16 +0200
-User-Agent: KMail/1.9.4
-Cc: Andreas Schwab <schwab@suse.de>, David Howells <dhowells@redhat.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Matthew Wilcox <matthew@wil.cx>,
-       torvalds@osdl.org, akpm@osdl.org, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <Pine.LNX.4.61.0610091416290.4279@yvahk01.tjqt.qr> <je4pudns4g.fsf@sykes.suse.de> <Pine.LNX.4.61.0610101140490.19891@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610101140490.19891@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 07:43:07 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:25953 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1030179AbWJJLnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 07:43:03 -0400
+X-IronPort-AV: i="4.09,289,1157353200"; 
+   d="scan'208"; a="416638476:sNHT41967176"
+Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Steve Dickson <SteveD@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <2069.1160473410@redhat.com>
+References: <1160170629.5453.34.camel@lade.trondhjem.org>
+	 <2069.1160473410@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101342.18934.arnd.bergmann@de.ibm.com>
+Organization: Network Appliance Inc
+Date: Tue, 10 Oct 2006 07:42:56 -0400
+Message-Id: <1160480576.5466.27.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 10 Oct 2006 11:43:13.0958 (UTC) FILETIME=[44F5CC60:01C6EC61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 11:41, Jan Engelhardt wrote:
-> >The compiler is not allowed to define uint32_t without including
-> ><stdint.h> first.
+On Tue, 2006-10-10 at 10:43 +0100, David Howells wrote:
+> Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
 > 
-> Well no problem, stdint.h may just have
+> > -	if (PagePrivate(page) && !try_to_release_page(page, 0))
+> > +	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
 > 
-> typedef __secret_compiler_provided_uint32_t uint32_t;
-> 
+> This can't be the right way to fix things.  try_to_release_page() may fail
+> whatever GFP flags you give it.  If the page *must* be invalidated at this
+> point then you _must_ call the invalidatepage() op, not the releasepage() op.
 
-But it doesn't, and there's nothing the kernel can do about this
-for existing gcc versions.
+No. Invalidatepage does precisely the wrong thing: it invalidates dirty
+data instead of committing it to disk. If you need to have the data
+invalidated, then you should call truncate_inode_pages().
 
-	Arnd <><
+Trond

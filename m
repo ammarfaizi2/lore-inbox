@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWJJHpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752001AbWJJHwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965080AbWJJHpi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWJJHpi
+	id S1752001AbWJJHwb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWJJHwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:45:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27362 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965080AbWJJHpi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:45:38 -0400
-Date: Tue, 10 Oct 2006 00:45:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-mm@kvack.org
-Subject: Re: 2.6.19-rc1-mm1
-Message-Id: <20061010004526.c7088e79.akpm@osdl.org>
-In-Reply-To: <1160464800.3000.264.camel@laptopd505.fenrus.org>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<1160464800.3000.264.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Oct 2006 03:52:31 -0400
+Received: from mail-in-13.arcor-online.net ([151.189.21.53]:49305 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1752001AbWJJHwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 03:52:30 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: "Allen Martin" <AMartin@nvidia.com>
+Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+Date: Tue, 10 Oct 2006 09:52:28 +0200
+User-Agent: KMail/1.9.4
+Cc: "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, jeff@garzik.org
+References: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1333816.Ofur7ZDYHh";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610100952.31913.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 09:20:00 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+--nextPart1333816.Ofur7ZDYHh
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Tue, 2006-10-10 at 00:09 -0700, Andrew Morton wrote:
-> > +htlb-forget-rss-with-pt-sharing.patch
+Am Dienstag 10 Oktober 2006 08:44 schrieb Allen Martin:
+> > > Unfortunately it doesn't work for me on MCP51 if I change
+> >
+> > GENERIC to
+> >
+> > > ADMA. So I wonder whether MCP51 has ADMA mode or what needs
+> >
+> > to be done
+> >
+> > > to get NCQ working. :-(
+> >
 
-Which I didn't write.  cc's added.
+> > If that doesn't provide any insight, maybe the docs Jeff has
+> > provide the answer for whether or not the MCP5x/MCP61
+> > controllers have the same interface as the CK804/MCP04..
+>
+> No, only CK804 and MCP04 support ADMA.  We'll be publishing some patches
+> for NCQ support for MCP55/MCP61 soon.
 
-> if it's ok to ignore RSS,
+That's great news! I hope you don't forget the MCP51, as well, as you didn'=
+t=20
+mention it. :-)
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-We'd prefer not to.  But what's the alternative?
+--nextPart1333816.Ofur7ZDYHh
+Content-Type: application/pgp-signature
 
-> can we consider the shared pagetables for
-> normal pages patch?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-Has been repeatedly considered, but Hugh keeps finding bugs in it.
+iD8DBQBFK1E/xU2n/+9+t5gRAhBeAJ9VnJ99I6uNesna0uXF2nGukCgKEQCgx8Gp
+JC9wmOtyDgasbUBPjDLKX3U=
+=Oirh
+-----END PGP SIGNATURE-----
 
-> It saves quite a bit of memory on even desktop
-> workloads as well as avoiding several (soft) pagefaults.
-> 
-> So.. what does RSS actually mean? Can we ignore it somewhat for
-> shared-readonly mappings ? 
-
-We'd prefer to go the other way, and implement RLIMIT_RSS wouldn't we?
+--nextPart1333816.Ofur7ZDYHh--

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWJJRMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWJJRQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWJJRMy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWJJRMy
+	id S964874AbWJJRQg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWJJRQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:12:54 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:44203 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1750989AbWJJRMx (ORCPT
+	Tue, 10 Oct 2006 13:16:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51593 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964806AbWJJRPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:12:53 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH 2/5] fdtable: Make fdarray and fdsets equal in size.
-Date: Tue, 10 Oct 2006 19:12:56 +0200
-User-Agent: KMail/1.9.4
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610052151.04490.vlobanov@speakeasy.net>
-In-Reply-To: <200610052151.04490.vlobanov@speakeasy.net>
+	Tue, 10 Oct 2006 13:15:35 -0400
+Date: Tue, 10 Oct 2006 10:14:38 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Trond Myklebust <Trond.Myklebust@netapp.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 04/19] LOCKD: Fix a deadlock in nlm_traverse_files()
+Message-ID: <20061010171438.GE6339@kroah.com>
+References: <20061010165621.394703368@quad.kroah.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101912.56280.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="lockd-fix-a-deadlock-in-nlm_traverse_files.patch"
+In-Reply-To: <20061010171350.GA6339@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 October 2006 06:51, Vadim Lobanov wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> -	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nr + 1));
-> -	if (nfds > NR_OPEN)
-> -		nfds = NR_OPEN;
-> -
-> -  	new_openset = alloc_fdset(nfds);
-> -  	new_execset = alloc_fdset(nfds);
-> -  	if (!new_openset || !new_execset)
-> -  		goto out;
-> -	fdt->open_fds = new_openset;
-> -	fdt->close_on_exec = new_execset;
-> -	fdt->max_fdset = nfds;
-> -
->  	nfds = NR_OPEN_DEFAULT;
->  	/*
->  	 * Expand to the max in easy steps, and keep expanding it until
-> @@ -271,15 +254,21 @@ static struct fdtable *alloc_fdtable(int
->  				nfds = NR_OPEN;
->    		}
->  	} while (nfds <= nr);
+------------------
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
 
-If I understand well, we may allocate very small fdset, while previous minimum 
-size was L1_CACHE_BYTES bytes. (512 bits for a 64 bytes cache line)
+nlm_traverse_files() is not allowed to hold the nlm_file_mutex while calling
+nlm_inspect file, since it may end up calling nlm_release_file() when
+releaseing the blocks.
 
-If you check commit 0c9e63fd38a2fb2181668a0cdd622a3c23cfd567, 
-(http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=0c9e63fd38a2fb2181668a0cdd622a3c23cfd567 ) 
-you'll find this comment of mine :
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-3) Reduce size of allocated fdset.  Currently two full pages are
-   allocated, that is 32768 bits on x86 for example, and way too much.  The
-   minimum is now L1_CACHE_BYTES.
+---
+ fs/lockd/svcsubs.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-This minimum is mandatory to be sure two tasks wont share the same cache line 
-to store their fdset (and possibly do lot of cache line ping pongs)
+--- linux-2.6.17.13.orig/fs/lockd/svcsubs.c
++++ linux-2.6.17.13/fs/lockd/svcsubs.c
+@@ -238,19 +238,22 @@ static int
+ nlm_traverse_files(struct nlm_host *host, int action)
+ {
+ 	struct nlm_file	*file, **fp;
+-	int		i;
++	int i, ret = 0;
+ 
+ 	mutex_lock(&nlm_file_mutex);
+ 	for (i = 0; i < FILE_NRHASH; i++) {
+ 		fp = nlm_files + i;
+ 		while ((file = *fp) != NULL) {
++			file->f_count++;
++			mutex_unlock(&nlm_file_mutex);
++
+ 			/* Traverse locks, blocks and shares of this file
+ 			 * and update file->f_locks count */
+-			if (nlm_inspect_file(host, file, action)) {
+-				mutex_unlock(&nlm_file_mutex);
+-				return 1;
+-			}
++			if (nlm_inspect_file(host, file, action))
++				ret = 1;
+ 
++			mutex_lock(&nlm_file_mutex);
++			file->f_count--;
+ 			/* No more references to this file. Let go of it. */
+ 			if (!file->f_blocks && !file->f_locks
+ 			 && !file->f_shares && !file->f_count) {
+@@ -263,7 +266,7 @@ nlm_traverse_files(struct nlm_host *host
+ 		}
+ 	}
+ 	mutex_unlock(&nlm_file_mutex);
+-	return 0;
++	return ret;
+ }
+ 
+ /*
 
-Eric
-
+--

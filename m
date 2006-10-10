@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWJJQkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWJJQlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWJJQkI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWJJQkI
+	id S1030194AbWJJQlv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWJJQlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:40:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42129 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030192AbWJJQkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:40:06 -0400
-Date: Tue, 10 Oct 2006 18:39:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stefan Seyfried <seife@suse.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Jiri Kosina <jikos@jikos.cz>,
-       linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Message-ID: <20061010163951.GA31779@elf.ucw.cz>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz> <20060930114817.GA26217@suse.de> <20061008184230.GC4033@ucw.cz> <200610100052.10008.rjw@sisk.pl> <20061010121045.GQ19765@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061010121045.GQ19765@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 10 Oct 2006 12:41:51 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:54926 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030194AbWJJQlu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 12:41:50 -0400
+Subject: Re: ext3 fsx failures on 2.6.19-rc1
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jan Kara <jack@suse.cz>
+Cc: akpm@osdl.org, esandeen@redhat.com, ext4 <linux-ext4@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <20061010123059.GJ23622@atrey.karlin.mff.cuni.cz>
+References: <1160436605.17103.27.camel@dyn9047017100.beaverton.ibm.com>
+	 <20061010123059.GJ23622@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 09:41:27 -0700
+Message-Id: <1160498487.17103.30.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > echo "platform" > /sys/power/disk
-> > > > echo "disk" > /sys/power/state
-> > > 
-> > > Maybe we should change the default in 2.6.20 or so?
-> > 
-> > Well, I think swsusp should work with "shutdown" just as well.  If it doesn't,
-> > that means there are some bugs in the ACPI code which should be fixed.
-> > By using "platform" as the default method we'll be hiding those bugs IMHO.
+On Tue, 2006-10-10 at 14:30 +0200, Jan Kara wrote:
+>   Hi,
 > 
-> I'm not really intimately familiar with the ACPI spec, but IIRC those AML
-> methods executed by pm_ops->prepare and pm_ops->finish are mandatory for
-> suspending ACPI enabled machines. So using "platform" as a default
-> seems
+> > I am having fsx failures on 2.6.19-rc1.
+>   :(
+> 
+> > I don't have any useful information at this time to track it down.
+> > I am running 4 copies of fsx (+ fsstress) on a 1k filesystem and
+> > one copy of fsx dies.
+>   How long does it take? 
 
-With "shutdown" we are not *suspending* machine. We are just saving
-its state, and then restoring it. ACPI BIOS should not need to know.
+Random. It happens any where from 1 hours to 6 hours.
 
-We want both "platform" _and_ "shutdown" to work.
-									Pavel
+> 
+> > fsx-linux[20667]: segfault at 00000000ffffffff rip 00002af0fe031690 rsp
+> > 00007fffacc03b88 error 4
+> > 
+> > READ BAD DATA: offset = 0xa352, size = 0x5fef
+> > OFFSET  GOOD    BAD     RANGE
+> > 0x df90 0x48e4  0x0000  0x   70
+> > operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+>   Hmm, so fsx-linux wrote something and read back zeros. Strange. Do you
+> know what that 'segfault' message means? I cannot find it in my copy of
+> fsx-linux...
+> 
+> 							
+fsx got a segmentation fault and died. These are the messages in the
+dmesg.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thanks,
+Badari
+

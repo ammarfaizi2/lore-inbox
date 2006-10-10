@@ -1,41 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWJJXwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWJJXxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWJJXwp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 19:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWJJXwp
+	id S932279AbWJJXxS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 19:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWJJXxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 19:52:45 -0400
-Received: from mga07.intel.com ([143.182.124.22]:33194 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932284AbWJJXwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 19:52:44 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,291,1157353200"; 
-   d="scan'208"; a="129378433:sNHT7438906972"
-Message-ID: <452C3237.6010708@linux.intel.com>
-Date: Wed, 11 Oct 2006 01:52:23 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 10 Oct 2006 19:53:18 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:675 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932279AbWJJXxQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 19:53:16 -0400
+From: Neil Brown <neilb@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Date: Wed, 11 Oct 2006 09:53:11 +1000
 MIME-Version: 1.0
-To: Paul Dickson <paul@permanentmail.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 2/2] round_jiffies users
-References: <1160496165.3000.308.camel@laptopd505.fenrus.org>	<1160496210.3000.310.camel@laptopd505.fenrus.org>	<1160496263.3000.312.camel@laptopd505.fenrus.org> <20061010154717.e2c4c149.paul@permanentmail.com>
-In-Reply-To: <20061010154717.e2c4c149.paul@permanentmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17708.12903.712376.255113@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MD: conditionalize some code
+In-Reply-To: message from Jeff Garzik on Tuesday October 10
+References: <20061010231631.GA18222@havoc.gtf.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Dickson wrote:
-> On Tue, 10 Oct 2006 18:04:23 +0200, Arjan van de Ven wrote:
+On Tuesday October 10, jeff@garzik.org wrote:
 > 
->> +			mod_timer(&adapter->phy_info_timer, round_jiffies(jiffies + 2 * HZ));
+> The autorun code is only used if this module is built into the static
+> kernel image.  Adjust #ifdefs accordingly.
 > 
-> Shouldn't round_jiffies_relative be used for some of these, a la:
-> 
->   +			mod_timer(&adapter->phy_info_timer, round_jiffies_relative(2 * HZ));
-> 
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-mod_timer() takes an absolute jiffies value as argument, so... no :)
+Acked-by: NeilBrown <neilb@suse.de>
+
+Thanks,
+NeilBrown
+
+> 
+> ---
+> 
+>  drivers/md/md.c               |    4 +++-
+> 
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 57fa64f..c75cdf9 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+> @@ -3368,6 +3368,7 @@ out:
+>  	return err;
+>  }
+>  
+> +#ifndef MODULE
+>  static void autorun_array(mddev_t *mddev)
+>  {
+>  	mdk_rdev_t *rdev;
+> @@ -3482,6 +3483,7 @@ static void autorun_devices(int part)
+>  	}
+>  	printk(KERN_INFO "md: ... autorun DONE.\n");
+>  }
+> +#endif /* !MODULE */
+>  
+>  static int get_version(void __user * arg)
+>  {
+> @@ -5592,7 +5594,7 @@ static void autostart_arrays(int part)
+>  	autorun_devices(part);
+>  }
+>  
+> -#endif
+> +#endif /* !MODULE */
+>  
+>  static __exit void md_exit(void)
+>  {

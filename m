@@ -1,444 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWJJDOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWJJDQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWJJDOb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 23:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWJJDO3
+	id S964947AbWJJDQB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 23:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWJJDPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 23:14:29 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33453 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964916AbWJJDOC
+	Mon, 9 Oct 2006 23:15:18 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:36269 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964911AbWJJDOc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 23:14:02 -0400
+	Mon, 9 Oct 2006 23:14:32 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 21/25] nfsd: NFSv{2,3} trivial endianness annotations for error values
+Subject: [PATCH 24/25] nfsd: misc endianness annotations
 Cc: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
-Message-Id: <E1GX849-0004HH-Aw@ZenIV.linux.org.uk>
+Message-Id: <E1GX84d-0004IC-De@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 04:14:01 +0100
+Date: Tue, 10 Oct 2006 04:14:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- fs/nfsd/nfs2acl.c  |    6 +++---
- fs/nfsd/nfs3acl.c  |    4 ++--
- fs/nfsd/nfs3proc.c |   46 +++++++++++++++++++++++++---------------------
- fs/nfsd/nfsproc.c  |   40 +++++++++++++++++++++-------------------
- 4 files changed, 51 insertions(+), 45 deletions(-)
+ fs/nfsd/export.c            |    4 ++--
+ fs/nfsd/lockd.c             |    2 +-
+ fs/nfsd/nfs4callback.c      |    2 +-
+ fs/nfsd/nfs4state.c         |    4 ++--
+ fs/nfsd/nfscache.c          |    8 ++++----
+ fs/nfsd/nfssvc.c            |    2 +-
+ include/linux/nfsd/cache.h  |    6 +++---
+ include/linux/nfsd/export.h |    2 +-
+ include/linux/nfsd/nfsd.h   |    2 +-
+ include/linux/nfsd/nfsfh.h  |    2 +-
+ include/linux/nfsd/state.h  |    2 +-
+ 11 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/fs/nfsd/nfs2acl.c b/fs/nfsd/nfs2acl.c
-index fd5397d..e3eca08 100644
---- a/fs/nfsd/nfs2acl.c
-+++ b/fs/nfsd/nfs2acl.c
-@@ -35,7 +35,7 @@ static __be32 nfsacld_proc_getacl(struct
+diff --git a/fs/nfsd/export.c b/fs/nfsd/export.c
+index e13fa23..f37df46 100644
+--- a/fs/nfsd/export.c
++++ b/fs/nfsd/export.c
+@@ -1148,12 +1148,12 @@ exp_find(struct auth_domain *clp, int fs
+  * for a given NFSv4 client.   The root is defined to be the
+  * export point with fsid==0
+  */
+-int
++__be32
+ exp_pseudoroot(struct auth_domain *clp, struct svc_fh *fhp,
+ 	       struct cache_req *creq)
  {
- 	svc_fh *fh;
- 	struct posix_acl *acl;
--	int nfserr = 0;
-+	__be32 nfserr = 0;
+ 	struct svc_export *exp;
+-	int rv;
++	__be32 rv;
+ 	u32 fsidv[2];
  
- 	dprintk("nfsd: GETACL(2acl)   %s\n", SVCFH_fmt(&argp->fh));
- 
-@@ -102,7 +102,7 @@ static __be32 nfsacld_proc_setacl(struct
- 		struct nfsd_attrstat *resp)
+ 	mk_fsid_v1(fsidv, 0);
+diff --git a/fs/nfsd/lockd.c b/fs/nfsd/lockd.c
+index 7b889ff..7ab9c1a 100644
+--- a/fs/nfsd/lockd.c
++++ b/fs/nfsd/lockd.c
+@@ -25,7 +25,7 @@ #define NFSDDBG_FACILITY		NFSDDBG_LOCKD
+ static u32
+ nlm_fopen(struct svc_rqst *rqstp, struct nfs_fh *f, struct file **filp)
  {
- 	svc_fh *fh;
--	int nfserr = 0;
-+	__be32 nfserr = 0;
- 
- 	dprintk("nfsd: SETACL(2acl)   %s\n", SVCFH_fmt(&argp->fh));
- 
-@@ -143,7 +143,7 @@ static __be32 nfsacld_proc_getattr(struc
- static __be32 nfsacld_proc_access(struct svc_rqst *rqstp, struct nfsd3_accessargs *argp,
- 		struct nfsd3_accessres *resp)
- {
--	int nfserr;
-+	__be32 nfserr;
- 
- 	dprintk("nfsd: ACCESS(2acl)   %s 0x%x\n",
- 			SVCFH_fmt(&argp->fh),
-diff --git a/fs/nfsd/nfs3acl.c b/fs/nfsd/nfs3acl.c
-index 78b2c83..fcad289 100644
---- a/fs/nfsd/nfs3acl.c
-+++ b/fs/nfsd/nfs3acl.c
-@@ -33,7 +33,7 @@ static __be32 nfsd3_proc_getacl(struct s
- {
- 	svc_fh *fh;
- 	struct posix_acl *acl;
--	int nfserr = 0;
-+	__be32 nfserr = 0;
- 
- 	fh = fh_copy(&resp->fh, &argp->fh);
- 	if ((nfserr = fh_verify(rqstp, &resp->fh, 0, MAY_NOP)))
-@@ -98,7 +98,7 @@ static __be32 nfsd3_proc_setacl(struct s
- 		struct nfsd3_attrstat *resp)
- {
- 	svc_fh *fh;
--	int nfserr = 0;
-+	__be32 nfserr = 0;
- 
- 	fh = fh_copy(&resp->fh, &argp->fh);
- 	nfserr = fh_verify(rqstp, &resp->fh, 0, MAY_SATTR);
-diff --git a/fs/nfsd/nfs3proc.c b/fs/nfsd/nfs3proc.c
-index a12663f..64db601 100644
---- a/fs/nfsd/nfs3proc.c
-+++ b/fs/nfsd/nfs3proc.c
-@@ -56,7 +56,8 @@ static __be32
- nfsd3_proc_getattr(struct svc_rqst *rqstp, struct nfsd_fhandle  *argp,
- 					   struct nfsd3_attrstat *resp)
- {
--	int	err, nfserr;
-+	int	err;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: GETATTR(3)  %s\n",
- 		SVCFH_fmt(&argp->fh));
-@@ -80,7 +81,7 @@ static __be32
- nfsd3_proc_setattr(struct svc_rqst *rqstp, struct nfsd3_sattrargs *argp,
- 					   struct nfsd3_attrstat  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: SETATTR(3)  %s\n",
- 				SVCFH_fmt(&argp->fh));
-@@ -98,7 +99,7 @@ static __be32
- nfsd3_proc_lookup(struct svc_rqst *rqstp, struct nfsd3_diropargs *argp,
- 					  struct nfsd3_diropres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: LOOKUP(3)   %s %.*s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -122,7 +123,7 @@ static __be32
- nfsd3_proc_access(struct svc_rqst *rqstp, struct nfsd3_accessargs *argp,
- 					  struct nfsd3_accessres *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: ACCESS(3)   %s 0x%x\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -141,7 +142,7 @@ static __be32
- nfsd3_proc_readlink(struct svc_rqst *rqstp, struct nfsd3_readlinkargs *argp,
- 					   struct nfsd3_readlinkres *resp)
- {
--	int nfserr;
-+	__be32 nfserr;
- 
- 	dprintk("nfsd: READLINK(3) %s\n", SVCFH_fmt(&argp->fh));
- 
-@@ -159,7 +160,7 @@ static __be32
- nfsd3_proc_read(struct svc_rqst *rqstp, struct nfsd3_readargs *argp,
- 				        struct nfsd3_readres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 	u32	max_blocksize = svc_max_payload(rqstp);
- 
- 	dprintk("nfsd: READ(3) %s %lu bytes at %lu\n",
-@@ -199,7 +200,7 @@ static __be32
- nfsd3_proc_write(struct svc_rqst *rqstp, struct nfsd3_writeargs *argp,
- 					 struct nfsd3_writeres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: WRITE(3)    %s %d bytes at %ld%s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -229,7 +230,7 @@ nfsd3_proc_create(struct svc_rqst *rqstp
- {
- 	svc_fh		*dirfhp, *newfhp = NULL;
- 	struct iattr	*attr;
 -	u32		nfserr;
 +	__be32		nfserr;
+ 	struct svc_fh	fh;
  
- 	dprintk("nfsd: CREATE(3)   %s %.*s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -269,7 +270,7 @@ static __be32
- nfsd3_proc_mkdir(struct svc_rqst *rqstp, struct nfsd3_createargs *argp,
- 					 struct nfsd3_diropres   *resp)
+ 	/* must initialize before using! but maxsize doesn't matter */
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 75314ed..8da6c13 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -461,7 +461,7 @@ nfs4_cb_null(struct rpc_task *task, void
  {
--	int	nfserr;
-+	__be32	nfserr;
+ 	struct nfs4_client *clp = (struct nfs4_client *)task->tk_msg.rpc_argp;
+ 	struct nfs4_callback *cb = &clp->cl_callback;
+-	u32 addr = htonl(cb->cb_addr);
++	__be32 addr = htonl(cb->cb_addr);
  
- 	dprintk("nfsd: MKDIR(3)    %s %.*s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -289,7 +290,7 @@ static __be32
- nfsd3_proc_symlink(struct svc_rqst *rqstp, struct nfsd3_symlinkargs *argp,
- 					   struct nfsd3_diropres    *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
+ 	dprintk("NFSD: nfs4_cb_null task->tk_status %d\n", task->tk_status);
  
- 	dprintk("nfsd: SYMLINK(3)  %s %.*s -> %.*s\n",
- 				SVCFH_fmt(&argp->ffh),
-@@ -311,7 +312,8 @@ static __be32
- nfsd3_proc_mknod(struct svc_rqst *rqstp, struct nfsd3_mknodargs *argp,
- 					 struct nfsd3_diropres  *resp)
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index ae1d477..2e468c9 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -713,7 +713,7 @@ out_err:
+ __be32
+ nfsd4_setclientid(struct svc_rqst *rqstp, struct nfsd4_setclientid *setclid)
  {
--	int	nfserr, type;
-+	__be32	nfserr;
-+	int type;
- 	dev_t	rdev = 0;
+-	u32 			ip_addr = rqstp->rq_addr.sin_addr.s_addr;
++	__be32 			ip_addr = rqstp->rq_addr.sin_addr.s_addr;
+ 	struct xdr_netobj 	clname = { 
+ 		.len = setclid->se_namelen,
+ 		.data = setclid->se_name,
+@@ -878,7 +878,7 @@ out:
+ __be32
+ nfsd4_setclientid_confirm(struct svc_rqst *rqstp, struct nfsd4_setclientid_confirm *setclientid_confirm)
+ {
+-	u32 ip_addr = rqstp->rq_addr.sin_addr.s_addr;
++	__be32 ip_addr = rqstp->rq_addr.sin_addr.s_addr;
+ 	struct nfs4_client *conf, *unconf;
+ 	nfs4_verifier confirm = setclientid_confirm->sc_confirm; 
+ 	clientid_t * clid = &setclientid_confirm->sc_clientid;
+diff --git a/fs/nfsd/nfscache.c b/fs/nfsd/nfscache.c
+index fdf7cf3..6100bbe 100644
+--- a/fs/nfsd/nfscache.c
++++ b/fs/nfsd/nfscache.c
+@@ -29,7 +29,7 @@ #include <linux/nfsd/cache.h>
+  */
+ #define CACHESIZE		1024
+ #define HASHSIZE		64
+-#define REQHASH(xid)		((((xid) >> 24) ^ (xid)) & (HASHSIZE-1))
++#define REQHASH(xid)		(((((__force __u32)xid) >> 24) ^ ((__force __u32)xid)) & (HASHSIZE-1))
  
- 	dprintk("nfsd: MKNOD(3)    %s %.*s\n",
-@@ -347,7 +349,7 @@ static __be32
- nfsd3_proc_remove(struct svc_rqst *rqstp, struct nfsd3_diropargs *argp,
- 					  struct nfsd3_attrstat  *resp)
+ static struct hlist_head *	hash_list;
+ static struct list_head 	lru_head;
+@@ -127,8 +127,8 @@ nfsd_cache_lookup(struct svc_rqst *rqstp
+ 	struct hlist_node	*hn;
+ 	struct hlist_head 	*rh;
+ 	struct svc_cacherep	*rp;
+-	u32			xid = rqstp->rq_xid,
+-				proto =  rqstp->rq_prot,
++	__be32			xid = rqstp->rq_xid;
++	u32			proto =  rqstp->rq_prot,
+ 				vers = rqstp->rq_vers,
+ 				proc = rqstp->rq_proc;
+ 	unsigned long		age;
+@@ -258,7 +258,7 @@ found_entry:
+  * In this case, nfsd_cache_update is called with statp == NULL.
+  */
+ void
+-nfsd_cache_update(struct svc_rqst *rqstp, int cachetype, u32 *statp)
++nfsd_cache_update(struct svc_rqst *rqstp, int cachetype, __be32 *statp)
  {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: REMOVE(3)   %s %.*s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -367,7 +369,7 @@ static __be32
- nfsd3_proc_rmdir(struct svc_rqst *rqstp, struct nfsd3_diropargs *argp,
- 					 struct nfsd3_attrstat  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: RMDIR(3)    %s %.*s\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -383,7 +385,7 @@ static __be32
- nfsd3_proc_rename(struct svc_rqst *rqstp, struct nfsd3_renameargs *argp,
- 					  struct nfsd3_renameres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: RENAME(3)   %s %.*s ->\n",
- 				SVCFH_fmt(&argp->ffh),
-@@ -405,7 +407,7 @@ static __be32
- nfsd3_proc_link(struct svc_rqst *rqstp, struct nfsd3_linkargs *argp,
- 					struct nfsd3_linkres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: LINK(3)     %s ->\n",
- 				SVCFH_fmt(&argp->ffh));
-@@ -428,7 +430,8 @@ static __be32
- nfsd3_proc_readdir(struct svc_rqst *rqstp, struct nfsd3_readdirargs *argp,
- 					   struct nfsd3_readdirres  *resp)
- {
--	int		nfserr, count;
-+	__be32		nfserr;
-+	int		count;
- 
- 	dprintk("nfsd: READDIR(3)  %s %d bytes at %d\n",
- 				SVCFH_fmt(&argp->fh),
-@@ -463,7 +466,8 @@ static __be32
- nfsd3_proc_readdirplus(struct svc_rqst *rqstp, struct nfsd3_readdirargs *argp,
- 					       struct nfsd3_readdirres  *resp)
- {
--	int	nfserr, count = 0;
-+	__be32	nfserr;
-+	int	count = 0;
- 	loff_t	offset;
- 	int	i;
- 	caddr_t	page_addr = NULL;
-@@ -521,7 +525,7 @@ static __be32
- nfsd3_proc_fsstat(struct svc_rqst * rqstp, struct nfsd_fhandle    *argp,
- 					   struct nfsd3_fsstatres *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: FSSTAT(3)   %s\n",
- 				SVCFH_fmt(&argp->fh));
-@@ -538,7 +542,7 @@ static __be32
- nfsd3_proc_fsinfo(struct svc_rqst * rqstp, struct nfsd_fhandle    *argp,
- 					   struct nfsd3_fsinfores *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 	u32	max_blocksize = svc_max_payload(rqstp);
- 
- 	dprintk("nfsd: FSINFO(3)   %s\n",
-@@ -580,7 +584,7 @@ static __be32
- nfsd3_proc_pathconf(struct svc_rqst * rqstp, struct nfsd_fhandle      *argp,
- 					     struct nfsd3_pathconfres *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: PATHCONF(3) %s\n",
- 				SVCFH_fmt(&argp->fh));
-@@ -623,7 +627,7 @@ static __be32
- nfsd3_proc_commit(struct svc_rqst * rqstp, struct nfsd3_commitargs *argp,
- 					   struct nfsd3_commitres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: COMMIT(3)   %s %u@%Lu\n",
- 				SVCFH_fmt(&argp->fh),
-diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
-index 03ab682..ec983b7 100644
---- a/fs/nfsd/nfsproc.c
-+++ b/fs/nfsd/nfsproc.c
-@@ -36,16 +36,16 @@ nfsd_proc_null(struct svc_rqst *rqstp, v
- 	return nfs_ok;
+ 	struct svc_cacherep *rp;
+ 	struct kvec	*resv = &rqstp->rq_res.head[0], *cachv;
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+index 8067118..0aaccb0 100644
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -491,7 +491,7 @@ out:
  }
  
--static int
--nfsd_return_attrs(int err, struct nfsd_attrstat *resp)
-+static __be32
-+nfsd_return_attrs(__be32 err, struct nfsd_attrstat *resp)
+ int
+-nfsd_dispatch(struct svc_rqst *rqstp, u32 *statp)
++nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp)
  {
- 	if (err) return err;
- 	return nfserrno(vfs_getattr(resp->fh.fh_export->ex_mnt,
- 				    resp->fh.fh_dentry,
- 				    &resp->stat));
- }
--static int
--nfsd_return_dirop(int err, struct nfsd_diropres *resp)
-+static __be32
-+nfsd_return_dirop(__be32 err, struct nfsd_diropres *resp)
- {
- 	if (err) return err;
- 	return nfserrno(vfs_getattr(resp->fh.fh_export->ex_mnt,
-@@ -60,7 +60,7 @@ static __be32
- nfsd_proc_getattr(struct svc_rqst *rqstp, struct nfsd_fhandle  *argp,
- 					  struct nfsd_attrstat *resp)
- {
--	int nfserr;
-+	__be32 nfserr;
- 	dprintk("nfsd: GETATTR  %s\n", SVCFH_fmt(&argp->fh));
+ 	struct svc_procedure	*proc;
+ 	kxdrproc_t		xdr;
+diff --git a/include/linux/nfsd/cache.h b/include/linux/nfsd/cache.h
+index c3a3557..007480c 100644
+--- a/include/linux/nfsd/cache.h
++++ b/include/linux/nfsd/cache.h
+@@ -26,14 +26,14 @@ struct svc_cacherep {
+ 				c_type,		/* status, buffer */
+ 				c_secure : 1;	/* req came from port < 1024 */
+ 	struct sockaddr_in	c_addr;
+-	u32			c_xid;
++	__be32			c_xid;
+ 	u32			c_prot;
+ 	u32			c_proc;
+ 	u32			c_vers;
+ 	unsigned long		c_timestamp;
+ 	union {
+ 		struct kvec	u_vec;
+-		u32		u_status;
++		__be32		u_status;
+ 	}			c_u;
+ };
  
- 	fh_copy(&resp->fh, &argp->fh);
-@@ -76,7 +76,7 @@ static __be32
- nfsd_proc_setattr(struct svc_rqst *rqstp, struct nfsd_sattrargs *argp,
- 					  struct nfsd_attrstat  *resp)
- {
--	int nfserr;
-+	__be32 nfserr;
- 	dprintk("nfsd: SETATTR  %s, valid=%x, size=%ld\n",
- 		SVCFH_fmt(&argp->fh),
- 		argp->attrs.ia_valid, (long) argp->attrs.ia_size);
-@@ -96,7 +96,7 @@ static __be32
- nfsd_proc_lookup(struct svc_rqst *rqstp, struct nfsd_diropargs *argp,
- 					 struct nfsd_diropres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
+@@ -75,7 +75,7 @@ #define RC_DELAY		(HZ/5)
+ void	nfsd_cache_init(void);
+ void	nfsd_cache_shutdown(void);
+ int	nfsd_cache_lookup(struct svc_rqst *, int);
+-void	nfsd_cache_update(struct svc_rqst *, int, u32 *);
++void	nfsd_cache_update(struct svc_rqst *, int, __be32 *);
  
- 	dprintk("nfsd: LOOKUP   %s %.*s\n",
- 		SVCFH_fmt(&argp->fh), argp->len, argp->name);
-@@ -116,7 +116,7 @@ static __be32
- nfsd_proc_readlink(struct svc_rqst *rqstp, struct nfsd_readlinkargs *argp,
- 					   struct nfsd_readlinkres *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
+ #endif /* __KERNEL__ */
+ #endif /* NFSCACHE_H */
+diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
+index 27666f5..045e38c 100644
+--- a/include/linux/nfsd/export.h
++++ b/include/linux/nfsd/export.h
+@@ -117,7 +117,7 @@ struct svc_export *	exp_parent(struct au
+ 				   struct cache_req *reqp);
+ int			exp_rootfh(struct auth_domain *, 
+ 					char *path, struct knfsd_fh *, int maxsize);
+-int			exp_pseudoroot(struct auth_domain *, struct svc_fh *fhp, struct cache_req *creq);
++__be32			exp_pseudoroot(struct auth_domain *, struct svc_fh *fhp, struct cache_req *creq);
+ __be32			nfserrno(int errno);
  
- 	dprintk("nfsd: READLINK %s\n", SVCFH_fmt(&argp->fh));
+ extern struct cache_detail svc_export_cache;
+diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
+index 19a3c83..68d29b6 100644
+--- a/include/linux/nfsd/nfsd.h
++++ b/include/linux/nfsd/nfsd.h
+@@ -64,7 +64,7 @@ extern struct svc_serv		*nfsd_serv;
+  * Function prototypes.
+  */
+ int		nfsd_svc(unsigned short port, int nrservs);
+-int		nfsd_dispatch(struct svc_rqst *rqstp, u32 *statp);
++int		nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp);
  
-@@ -136,7 +136,7 @@ static __be32
- nfsd_proc_read(struct svc_rqst *rqstp, struct nfsd_readargs *argp,
- 				       struct nfsd_readres  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: READ    %s %d bytes at %d\n",
- 		SVCFH_fmt(&argp->fh),
-@@ -176,7 +176,7 @@ static __be32
- nfsd_proc_write(struct svc_rqst *rqstp, struct nfsd_writeargs *argp,
- 					struct nfsd_attrstat  *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 	int	stable = 1;
- 
- 	dprintk("nfsd: WRITE    %s %d bytes at %d\n",
-@@ -206,7 +206,8 @@ nfsd_proc_create(struct svc_rqst *rqstp,
- 	struct iattr	*attr = &argp->attrs;
- 	struct inode	*inode;
- 	struct dentry	*dchild;
--	int		nfserr, type, mode;
-+	int		type, mode;
-+	__be32		nfserr;
- 	dev_t		rdev = 0, wanted = new_decode_dev(attr->ia_size);
- 
- 	dprintk("nfsd: CREATE   %s %.*s\n",
-@@ -352,7 +353,7 @@ static __be32
- nfsd_proc_remove(struct svc_rqst *rqstp, struct nfsd_diropargs *argp,
- 					 void		       *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: REMOVE   %s %.*s\n", SVCFH_fmt(&argp->fh),
- 		argp->len, argp->name);
-@@ -367,7 +368,7 @@ static __be32
- nfsd_proc_rename(struct svc_rqst *rqstp, struct nfsd_renameargs *argp,
- 				  	 void		        *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: RENAME   %s %.*s -> \n",
- 		SVCFH_fmt(&argp->ffh), argp->flen, argp->fname);
-@@ -385,7 +386,7 @@ static __be32
- nfsd_proc_link(struct svc_rqst *rqstp, struct nfsd_linkargs *argp,
- 				void			    *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: LINK     %s ->\n",
- 		SVCFH_fmt(&argp->ffh));
-@@ -406,7 +407,7 @@ nfsd_proc_symlink(struct svc_rqst *rqstp
- 				          void			  *resp)
- {
- 	struct svc_fh	newfh;
--	int		nfserr;
-+	__be32		nfserr;
- 
- 	dprintk("nfsd: SYMLINK  %s %.*s -> %.*s\n",
- 		SVCFH_fmt(&argp->ffh), argp->flen, argp->fname,
-@@ -434,7 +435,7 @@ static __be32
- nfsd_proc_mkdir(struct svc_rqst *rqstp, struct nfsd_createargs *argp,
- 					struct nfsd_diropres   *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: MKDIR    %s %.*s\n", SVCFH_fmt(&argp->fh), argp->len, argp->name);
- 
-@@ -458,7 +459,7 @@ static __be32
- nfsd_proc_rmdir(struct svc_rqst *rqstp, struct nfsd_diropargs *argp,
- 				 	void		      *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: RMDIR    %s %.*s\n", SVCFH_fmt(&argp->fh), argp->len, argp->name);
- 
-@@ -474,7 +475,8 @@ static __be32
- nfsd_proc_readdir(struct svc_rqst *rqstp, struct nfsd_readdirargs *argp,
- 					  struct nfsd_readdirres  *resp)
- {
--	int		nfserr, count;
-+	int		count;
-+	__be32		nfserr;
- 	loff_t		offset;
- 
- 	dprintk("nfsd: READDIR  %s %d bytes at %d\n",
-@@ -513,7 +515,7 @@ static __be32
- nfsd_proc_statfs(struct svc_rqst * rqstp, struct nfsd_fhandle   *argp,
- 					  struct nfsd_statfsres *resp)
- {
--	int	nfserr;
-+	__be32	nfserr;
- 
- 	dprintk("nfsd: STATFS   %s\n", SVCFH_fmt(&argp->fh));
- 
+ /* nfsd/vfs.c */
+ int		fh_lock_parent(struct svc_fh *, struct dentry *);
+diff --git a/include/linux/nfsd/nfsfh.h b/include/linux/nfsd/nfsfh.h
+index 749bad1..f3b51d6 100644
+--- a/include/linux/nfsd/nfsfh.h
++++ b/include/linux/nfsd/nfsfh.h
+@@ -157,7 +157,7 @@ #ifdef CONFIG_NFSD_V3
+ 	__u64			fh_post_size;	/* i_size */
+ 	unsigned long		fh_post_blocks; /* i_blocks */
+ 	unsigned long		fh_post_blksize;/* i_blksize */
+-	__u32			fh_post_rdev[2];/* i_rdev */
++	__be32			fh_post_rdev[2];/* i_rdev */
+ 	struct timespec		fh_post_atime;	/* i_atime */
+ 	struct timespec		fh_post_mtime;	/* i_mtime */
+ 	struct timespec		fh_post_ctime;	/* i_ctime */
+diff --git a/include/linux/nfsd/state.h b/include/linux/nfsd/state.h
+index a597e2e..c3673f4 100644
+--- a/include/linux/nfsd/state.h
++++ b/include/linux/nfsd/state.h
+@@ -125,7 +125,7 @@ struct nfs4_client {
+ 	char                    cl_recdir[HEXDIR_LEN]; /* recovery dir */
+ 	nfs4_verifier		cl_verifier; 	/* generated by client */
+ 	time_t                  cl_time;        /* time of last lease renewal */
+-	u32			cl_addr; 	/* client ipaddress */
++	__be32			cl_addr; 	/* client ipaddress */
+ 	struct svc_cred		cl_cred; 	/* setclientid principal */
+ 	clientid_t		cl_clientid;	/* generated by server */
+ 	nfs4_verifier		cl_confirm;	/* generated by server */
 -- 
 1.4.2.GIT
 

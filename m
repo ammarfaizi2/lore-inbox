@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWJJHcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWJJHg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWJJHcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWJJHcS
+	id S965075AbWJJHg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWJJHg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:32:18 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:52878 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S965078AbWJJHcQ (ORCPT
+	Tue, 10 Oct 2006 03:36:59 -0400
+Received: from mga09.intel.com ([134.134.136.24]:48139 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S965075AbWJJHg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:32:16 -0400
-Date: Tue, 10 Oct 2006 03:32:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: chas@cmf.nrl.navy.mil, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] atm/firestream: handle thrown error
-Message-ID: <20061010073215.GA23340@havoc.gtf.org>
+	Tue, 10 Oct 2006 03:36:58 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,287,1157353200"; 
+   d="scan'208"; a="142674158:sNHT18269398"
+Date: Tue, 10 Oct 2006 00:36:28 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [ANNOUNCE] Huge/large/super pages wiki and IRC channel
+Message-ID: <20061010073628.GJ4422@goober>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A group of us have been collecting information about huge pages in all
+their various incarnations on a wiki and discussing them on IRC.  The
+wiki includes papers, patches, and user feedback.  Come join us!
 
-gcc emits the following warning:
+http://linux-mm.org/HugePages
 
-drivers/atm/firestream.c: In function ‘fs_open’:
-drivers/atm/firestream.c:870: warning: ‘tmc0’ may be used uninitialized in this function
+Server: irc.oftc.net
+Channel: #hugepages
 
-This indicates a real bug.  We should check make_rate() return value for
-potential errors.
-
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
----
-
- drivers/atm/firestream.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/atm/firestream.c b/drivers/atm/firestream.c
-index 40ab9b6..697ad82 100644
---- a/drivers/atm/firestream.c
-+++ b/drivers/atm/firestream.c
-@@ -1002,6 +1002,10 @@ static int fs_open(struct atm_vcc *atm_v
- 					r = ROUND_UP;
- 				}
- 				error = make_rate (pcr, r, &tmc0, NULL);
-+				if (error) {
-+					kfree(tc);
-+					return error;
-+				}
- 			}
- 			fs_dprintk (FS_DEBUG_OPEN, "pcr = %d.\n", pcr);
- 		}
+-VAL

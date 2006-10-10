@@ -1,95 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWJJQiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWJJQjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWJJQiK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWJJQiK
+	id S932225AbWJJQjN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWJJQjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:38:10 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:39558 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S932197AbWJJQiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:38:09 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Tue, 10 Oct 2006 12:36:25 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Auke Kok <auke-jan.h.kok@intel.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] ixgb: Delete IXGB_DBG() macro and call pr_debug()
- directly.
-In-Reply-To: <452BC6C9.3050902@intel.com>
-Message-ID: <Pine.LNX.4.64.0610101227170.9699@localhost.localdomain>
-References: <Pine.LNX.4.64.0610100816440.7711@localhost.localdomain>
- <452BC6C9.3050902@intel.com>
+	Tue, 10 Oct 2006 12:39:13 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:22747 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932213AbWJJQjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 12:39:11 -0400
+From: Christian <christiand59@web.de>
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+Subject: Re: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known regressions)
+Date: Tue, 10 Oct 2006 18:37:10 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <1449F58C868D8D4E9C72945771150BDF1536ED@SAUSEXMB1.amd.com>
+In-Reply-To: <1449F58C868D8D4E9C72945771150BDF1536ED@SAUSEXMB1.amd.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610101837.10292.christiand59@web.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:176b6e6b41629db5898eee8167b5e3a0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006, Auke Kok wrote:
-
-> Robert P. J. Day wrote:
-> > Delete the minimally-useful IXGB_DBG() macro and call pr_debug()
-> > directly from the main routine.
-> >
-> > Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> > ---
-> > diff --git a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
-> > index 50ffe90..fb9fde5 100644
-> > --- a/drivers/net/ixgb/ixgb.h
-> > +++ b/drivers/net/ixgb/ixgb.h
-> > @@ -77,12 +77,6 @@ #include "ixgb_hw.h"
-> >  #include "ixgb_ee.h"
-> >  #include "ixgb_ids.h"
-> >
-> > -#ifdef _DEBUG_DRIVER_
-> > -#define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
-> > -#else
-> > -#define IXGB_DBG(args...)
-> > -#endif
-> > -
-> >  #define PFX "ixgb: "
-> >  #define DPRINTK(nlevel, klevel, fmt, args...) \
-> >  	(void)((NETIF_MSG_##nlevel & adapter->msg_enable) && \
-> > diff --git a/drivers/net/ixgb/ixgb_main.c b/drivers/net/ixgb/ixgb_main.c
-> > index e09f575..eada685 100644
-> > --- a/drivers/net/ixgb/ixgb_main.c
-> > +++ b/drivers/net/ixgb/ixgb_main.c
-> > @@ -1948,7 +1948,7 @@ #endif
-> >
-> >  			/* All receives must fit into a single buffer */
-> >
-> > -			IXGB_DBG("Receive packet consumed multiple buffers "
-> > +			pr_debug("ixgb: Receive packet consumed multiple
-> > buffers "
-> >  					 "length<%x>\n", length);
-> >
-> >  			dev_kfree_skb_irq(skb);
-> >
-> > --
-> >
-> >   all right ... what did i mess up *this* time?  :-)  it's good
-> > practice.  that's my story and i'm sticking to it.
+Am Dienstag, 10. Oktober 2006 16:59 schrieb Langsdorf, Mark:
+> > I have an AMD K8 system and I'm unable to get cpufreq working
+> > with 2.6.19-rc1.
+> > The cpufreq sysfs directory is missing under
+> > /sys/devices/system/cpu/cpu0/.
+> > 2.6.18 works as expected.
 >
-> We should really use dev_dbg() instead, as it retains the 'ethX:'
-> annotation afaics.
+> What error message are you getting from `dmesg | grep power` ?
 
-i actually tried to use that first, but it wasn't clear to me what i
-would use as that first argument to dev_dbg(), given the definitions
-in include/linux/device.h:
+dmesg | grep power
+[   17.852383] powernow-k8: Found 2 AMD Athlon(tm) 64 X2 Dual Core Processor 
+3800+ processors (version 2.00.00)
+[   17.852403] powernow-k8: MP systems not supported by PSB BIOS structure
+[   17.852428] powernow-k8: MP systems not supported by PSB BIOS structure
 
-#define dev_dbg(dev, format, arg...)            \
-        dev_printk(KERN_DEBUG , dev , format , ## arg)
+Haven't seen this before.
 
-#define dev_printk(level, dev, format, arg...)  \
-        printk(level "%s %s: " format , dev_driver_string(dev) ,
-        (dev)->bus_id , ## arg)
+-Christian
 
-  if someone wants to tell me what, in the context of ixgb_main.c, i
-would use as that "dev" argument, i'm all for that.
-
-rday

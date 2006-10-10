@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752001AbWJJHwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbWJJHzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752001AbWJJHwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWJJHwb
+	id S965087AbWJJHzt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbWJJHzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:52:31 -0400
-Received: from mail-in-13.arcor-online.net ([151.189.21.53]:49305 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1752001AbWJJHwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:52:30 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: "Allen Martin" <AMartin@nvidia.com>
-Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-Date: Tue, 10 Oct 2006 09:52:28 +0200
-User-Agent: KMail/1.9.4
-Cc: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, jeff@garzik.org
-References: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1333816.Ofur7ZDYHh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 10 Oct 2006 03:55:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:17546 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965084AbWJJHzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 03:55:48 -0400
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in
+	the kernel [try #4]
+From: David Woodhouse <dwmw2@infradead.org>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+In-Reply-To: <200610091847.05441.arnd.bergmann@de.ibm.com>
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr>
+	 <200610091727.34780.arnd.bergmann@de.ibm.com>
+	 <Pine.LNX.4.62.0610091729420.16048@pademelon.sonytel.be>
+	 <200610091847.05441.arnd.bergmann@de.ibm.com>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 08:55:33 +0100
+Message-Id: <1160466933.7920.25.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610100952.31913.prakash@punnoor.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1333816.Ofur7ZDYHh
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 2006-10-09 at 18:47 +0200, Arnd Bergmann wrote:
+> That has the potential of breaking other source files that don't expect
+> linux/types.h to bring in the whole stdint.h file.
 
-Am Dienstag 10 Oktober 2006 08:44 schrieb Allen Martin:
-> > > Unfortunately it doesn't work for me on MCP51 if I change
-> >
-> > GENERIC to
-> >
-> > > ADMA. So I wonder whether MCP51 has ADMA mode or what needs
-> >
-> > to be done
-> >
-> > > to get NCQ working. :-(
-> >
+I don't think we need to care about those. Userspace in _general_
+shouldn't be including our header files -- this is only for low-level
+system stuff, and that can be expected to deal with the fact that we
+define and use some standard C types from last century.
 
-> > If that doesn't provide any insight, maybe the docs Jeff has
-> > provide the answer for whether or not the MCP5x/MCP61
-> > controllers have the same interface as the CK804/MCP04..
->
-> No, only CK804 and MCP04 support ADMA.  We'll be publishing some patches
-> for NCQ support for MCP55/MCP61 soon.
+> Also, it may break some other linux header files that include <linux/types.h>
+> and expect to get stuff like uid_t, which you don't get if a glibc header is
+> included first, because of __KERNEL_STRICT_NAMES.
 
-That's great news! I hope you don't forget the MCP51, as well, as you didn'=
-t=20
-mention it. :-)
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+We have that problem already, don't we?
 
---nextPart1333816.Ofur7ZDYHh
-Content-Type: application/pgp-signature
+-- 
+dwmw2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFK1E/xU2n/+9+t5gRAhBeAJ9VnJ99I6uNesna0uXF2nGukCgKEQCgx8Gp
-JC9wmOtyDgasbUBPjDLKX3U=
-=Oirh
------END PGP SIGNATURE-----
-
---nextPart1333816.Ofur7ZDYHh--

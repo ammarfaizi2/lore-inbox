@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030549AbWJJVvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030518AbWJJVt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030549AbWJJVvF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030537AbWJJVu4
+	id S1030518AbWJJVt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030531AbWJJVt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:50:56 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33191
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030532AbWJJVuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:50:17 -0400
-Date: Tue, 10 Oct 2006 14:50:17 -0700 (PDT)
-Message-Id: <20061010.145017.40575796.davem@davemloft.net>
-To: joro-lkml@zlug.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/02 V3] net/ipv6: seperate sit driver to extra module
- (addrconf.c changes)
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061010154355.GD27455@zlug.org>
-References: <20061010153745.GA27455@zlug.org>
-	<20061010154355.GD27455@zlug.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 17:49:57 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:42939 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030534AbWJJVts
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:49:48 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] use %zu for size_t
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1GXPTv-0007Sf-HP@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 10 Oct 2006 22:49:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joerg Roedel <joro-lkml@zlug.org>
-Date: Tue, 10 Oct 2006 17:43:55 +0200
 
-> This patch contains the changes to net/ipv6/addrconf.c to remove sit
-> specific code if the sit driver is not selected.
-> 
-> Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
-> Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ drivers/scsi/dc395x.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Applied, thanks a lot.
+diff --git a/drivers/scsi/dc395x.c b/drivers/scsi/dc395x.c
+index 23f5e41..e95b367 100644
+--- a/drivers/scsi/dc395x.c
++++ b/drivers/scsi/dc395x.c
+@@ -1219,7 +1219,7 @@ static void dump_register_info(struct Ad
+ 			    	srb, srb->cmd, srb->cmd->pid,
+ 				srb->cmd->cmnd[0], srb->cmd->device->id,
+ 			       	srb->cmd->device->lun);
+-		printk("  sglist=%p cnt=%i idx=%i len=%Zd\n",
++		printk("  sglist=%p cnt=%i idx=%i len=%zu\n",
+ 		       srb->segment_x, srb->sg_count, srb->sg_index,
+ 		       srb->total_xfer_length);
+ 		printk("  state=0x%04x status=0x%02x phase=0x%02x (%sconn.)\n",
+-- 
+1.4.2.GIT
+
+

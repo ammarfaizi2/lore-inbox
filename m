@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWJJVFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWJJVG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWJJVFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWJJVFU
+	id S1030394AbWJJVG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbWJJVG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:05:20 -0400
-Received: from mga01.intel.com ([192.55.52.88]:29249 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1030362AbWJJVFS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:05:18 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,291,1157353200"; 
-   d="scan'208"; a="2666163:sNHT23730390"
-Content-class: urn:content-classes:message
+	Tue, 10 Oct 2006 17:06:57 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:55190 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030390AbWJJVGz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:06:55 -0400
+Date: Tue, 10 Oct 2006 16:06:53 -0500
+To: akpm@osdl.org
+Cc: jeff@garzik.org, Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH 10/21]: powerpc/cell spidernet  fix error interrupt print
+Message-ID: <20061010210653.GG4381@austin.ibm.com>
+References: <20061010204946.GW4381@austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-Date: Wed, 11 Oct 2006 01:05:03 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC3F4CAB@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-thread-index: AcbspzeMvSKTItYmTeC+rhGAbbHBDQABjRcg
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Jeremy Fitzhardinge" <jeremy@goop.org>,
-       "Steven Rostedt" <rostedt@goodmis.org>
-Cc: <tim.c.chen@linux.intel.com>, "Andrew Morton" <akpm@osdl.org>,
-       <herbert@gondor.apana.org.au>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Oct 2006 21:05:12.0340 (UTC) FILETIME=[C6AE9540:01C6ECAF]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061010204946.GW4381@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
------Original Message-----
-From: Jeremy Fitzhardinge [mailto:jeremy@goop.org] 
-Sent: Wednesday, October 11, 2006 12:04 AM
-To: Steven Rostedt
-Cc: tim.c.chen@linux.intel.com; Andrew Morton;
-herbert@gondor.apana.org.au; linux-kernel@vger.kernel.org; Ananiev,
-Leonid I
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+The print message associated with the descriptor chain end interrupt
+prints a bogs value. Fix that.
 
-Steven Rostedt wrote:
-> Holy crap!  I wonder where else in the kernel gcc is doing this. 
-Jeremy Fitzhardinge wrote:
-> annotation which makes gcc consider writes to the variable relatively
-expensive
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: James K Lewis <jklewis@us.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
 
-I should underline that cache miss is a result of invalidating of cache
-line with __warn_once in each other CPUs performed by hw for cache
-coherence.
-__warn_once is a common data. It is costly to test-and-modify it just in
-SMP. But it is not costly to write to the variable in memory just after
-reading it. As a compiler have understood source code. 
-A read-and-modify for common variable are performed under lock usually.
+----
+ drivers/net/spider_net.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Leonid
-
-Steven Rostedt wrote:
-> Holy crap!  I wonder where else in the kernel gcc is doing this. (of
-> course I'm using gcc4 so I don't know).  Is there another gcc
-attribute
-> to actually tell gcc that a variable is really mostly read only
-(besides
-> placing it in a mostly read only elf section)?
->   
-
-That would be nice, but I don't know of one (apart from "volatile", 
-which has its own downsides).  Once could imagine an annotation which 
-makes gcc consider writes to the variable relatively expensive, so that 
-it avoids generating unnecessary/excessive writes.
-
-    J
+Index: linux-2.6.18-mm2/drivers/net/spider_net.c
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-10-10 12:52:42.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-10-10 12:58:08.000000000 -0500
+@@ -1356,7 +1356,7 @@ spider_net_handle_error_irq(struct spide
+ 		if (netif_msg_intr(card))
+ 			pr_err("got descriptor chain end interrupt, "
+ 			       "restarting DMAC %c.\n",
+-			       'D'+i-SPIDER_NET_GDDDCEINT);
++			       'D'-(i-SPIDER_NET_GDDDCEINT)/3);
+ 		spider_net_refill_rx_chain(card);
+ 		spider_net_enable_rxdmac(card);
+ 		show_error = 0;

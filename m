@@ -1,61 +1,1123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWJJRJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWJJRLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWJJRJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWJJRJ4
+	id S1750973AbWJJRLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWJJRLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:09:56 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:55681 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750956AbWJJRJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:09:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W8m6fs20BVLajGqMjktt7iGGhQaxIFQj9INJydWuNtPbV1SWfo8vIzBFsIoPYKnDj5UUOs5aaTKgg98VKlTUaRQViwAGUwt798Co+lEem+qOdC52MW4BZbYDfUcuUxSJZv0dHji9cdb0jBguLKvFz0Q2QD9d+lnh2RNusPSgbKU=
-Message-ID: <d120d5000610101009h49904afeq61b8e7f5dab79346@mail.gmail.com>
-Date: Tue, 10 Oct 2006 13:09:53 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "John Stultz" <johnstul@us.ibm.com>
-Subject: Re: Keyboard Stuttering
-Cc: "Frank Sorenson" <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
-       "David Gerber" <dg-lkml@zapek.com>
-In-Reply-To: <200610061218.36883.dg-lkml@zapek.com>
+	Tue, 10 Oct 2006 13:11:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14486 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750961AbWJJRLX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 13:11:23 -0400
+Date: Tue, 10 Oct 2006 12:11:16 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: Andrew Morton <akpm@osdl.org>, Jeremy Higdon <jeremy@sgi.com>,
+       Pat Gefre <pfg@sgi.com>
+Subject: [PATCH 2/2] ioc4: Enable build on non-SN2
+Message-ID: <20061010120928.V71367@pkunk.americas.sgi.com>
+Organization: Silicon Graphics, Inc.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610061218.36883.dg-lkml@zapek.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/6/06, David Gerber <dg-lkml@zapek.com> wrote:
-> > I'm experiencing some severe keyboard stuttering on my laptop.  The
-> > problem is particularly bad in X, and I believe it also occurs at the
-> > console, though I'm having a difficult time verifying that.  The problem
-> > shows up as repeated characters (not regular key-repeat-related), and
-> > sometimes dropped key presses.
->
-> (I'm not subscribed to the list, CC: to me if needed)
->
-> Same problem here. Intel Core 2 Duo with 2.6.19-rc1 x86_64 SMP. Happens on
-> 2.6.17 too. I use 'noapic' as a workaround but that disables one of the CPU
-> core of course.
->
-> I cannot reproduce the problem within the console nor gdm. Only on the X
-> desktop.
->
+The SGI PCI-RT card, based on the SGI IOC4 chip, will be made available
+on Altix XE (x86_64) platforms in the near future.  As such it is now a
+misnomer for the IOC4 base device driver to live under drivers/sn, and
+would complicate builds for non-SN2.
 
-John,
+This patch moves the IOC4 base driver code from drivers/sn to drivers/misc,
+and updates the associated Makefiles and Kconfig files to allow building
+on non-SN2 configs.  Due to the resulting change in link order, it is now
+necessary to use late_initcall() for IOC4 subdriver initialization.
 
-It looks like the only clocksource available on David's box is
-"jiffies" although the processor shows that it supporst tsc and PM
-timer is enabled and I think that this is what causes keyboard
-stuttering in X. See http://bugzilla.kernel.org/show_bug.cgi?id=7291.
-I believe clocksources is your turf, could you please take a look at
-this.
-
-Thanks!
-
--- 
-Dmitry
+Acked-by: Pat Gefre <pfg@sgi.com>
+Acked-by: Jeremy Higdon <jeremy@sgi.com>
+Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+---
+ drivers/sn/ioc4.c            |  474 ---------------------------------------
+ drivers/Kconfig              |    6
+ drivers/ide/pci/sgiioc4.c    |    2
+ drivers/misc/Kconfig         |   12
+ drivers/misc/Makefile        |    1
+ drivers/misc/ioc4.c          |  474 +++++++++++++++++++++++++++++++++++++++
+ drivers/serial/ioc4_serial.c |    2
+ drivers/sn/Kconfig           |   12
+ drivers/sn/Makefile          |    1
+ 9 files changed, 493 insertions(+), 491 deletions(-)
+---
+Index: top/drivers/misc/ioc4.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ top/drivers/misc/ioc4.c	2006-10-09 17:47:50.411607402 -0500
+@@ -0,0 +1,474 @@
++/*
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ * Copyright (C) 2005-2006 Silicon Graphics, Inc.  All Rights Reserved.
++ */
++
++/* This file contains the master driver module for use by SGI IOC4 subdrivers.
++ *
++ * It allocates any resources shared between multiple subdevices, and
++ * provides accessor functions (where needed) and the like for those
++ * resources.  It also provides a mechanism for the subdevice modules
++ * to support loading and unloading.
++ *
++ * Non-shared resources (e.g. external interrupt A_INT_OUT register page
++ * alias, serial port and UART registers) are handled by the subdevice
++ * modules themselves.
++ *
++ * This is all necessary because IOC4 is not implemented as a multi-function
++ * PCI device, but an amalgamation of disparate registers for several
++ * types of device (ATA, serial, external interrupts).  The normal
++ * resource management in the kernel doesn't have quite the right interfaces
++ * to handle this situation (e.g. multiple modules can't claim the same
++ * PCI ID), thus this IOC4 master module.
++ */
++
++#include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/ioc4.h>
++#include <linux/ktime.h>
++#include <linux/mutex.h>
++#include <linux/time.h>
++#include <asm/sn/addrs.h>
++#include <asm/sn/clksupport.h>
++#include <asm/sn/shub_mmr.h>
++
++/***************
++ * Definitions *
++ ***************/
++
++/* Tweakable values */
++
++/* PCI bus speed detection/calibration */
++#define IOC4_CALIBRATE_COUNT 63		/* Calibration cycle period */
++#define IOC4_CALIBRATE_CYCLES 256	/* Average over this many cycles */
++#define IOC4_CALIBRATE_DISCARD 2	/* Discard first few cycles */
++#define IOC4_CALIBRATE_LOW_MHZ 25	/* Lower bound on bus speed sanity */
++#define IOC4_CALIBRATE_HIGH_MHZ 75	/* Upper bound on bus speed sanity */
++#define IOC4_CALIBRATE_DEFAULT_MHZ 66	/* Assumed if sanity check fails */
++
++/************************
++ * Submodule management *
++ ************************/
++
++static DEFINE_MUTEX(ioc4_mutex);
++
++static LIST_HEAD(ioc4_devices);
++static LIST_HEAD(ioc4_submodules);
++
++/* Register an IOC4 submodule */
++int
++ioc4_register_submodule(struct ioc4_submodule *is)
++{
++	struct ioc4_driver_data *idd;
++
++	mutex_lock(&ioc4_mutex);
++	list_add(&is->is_list, &ioc4_submodules);
++
++	/* Initialize submodule for each IOC4 */
++	if (!is->is_probe)
++		goto out;
++
++	list_for_each_entry(idd, &ioc4_devices, idd_list) {
++		if (is->is_probe(idd)) {
++			printk(KERN_WARNING
++			       "%s: IOC4 submodule %s probe failed "
++			       "for pci_dev %s",
++			       __FUNCTION__, module_name(is->is_owner),
++			       pci_name(idd->idd_pdev));
++		}
++	}
++ out:
++	mutex_unlock(&ioc4_mutex);
++	return 0;
++}
++
++/* Unregister an IOC4 submodule */
++void
++ioc4_unregister_submodule(struct ioc4_submodule *is)
++{
++	struct ioc4_driver_data *idd;
++
++	mutex_lock(&ioc4_mutex);
++	list_del(&is->is_list);
++
++	/* Remove submodule for each IOC4 */
++	if (!is->is_remove)
++		goto out;
++
++	list_for_each_entry(idd, &ioc4_devices, idd_list) {
++		if (is->is_remove(idd)) {
++			printk(KERN_WARNING
++			       "%s: IOC4 submodule %s remove failed "
++			       "for pci_dev %s.\n",
++			       __FUNCTION__, module_name(is->is_owner),
++			       pci_name(idd->idd_pdev));
++		}
++	}
++ out:
++	mutex_unlock(&ioc4_mutex);
++}
++
++/*********************
++ * Device management *
++ *********************/
++
++#define IOC4_CALIBRATE_LOW_LIMIT \
++	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_LOW_MHZ)
++#define IOC4_CALIBRATE_HIGH_LIMIT \
++	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_HIGH_MHZ)
++#define IOC4_CALIBRATE_DEFAULT \
++	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_DEFAULT_MHZ)
++
++#define IOC4_CALIBRATE_END \
++	(IOC4_CALIBRATE_CYCLES + IOC4_CALIBRATE_DISCARD)
++
++#define IOC4_INT_OUT_MODE_TOGGLE 0x7	/* Toggle INT_OUT every COUNT+1 ticks */
++
++/* Determines external interrupt output clock period of the PCI bus an
++ * IOC4 is attached to.  This value can be used to determine the PCI
++ * bus speed.
++ *
++ * IOC4 has a design feature that various internal timers are derived from
++ * the PCI bus clock.  This causes IOC4 device drivers to need to take the
++ * bus speed into account when setting various register values (e.g. INT_OUT
++ * register COUNT field, UART divisors, etc).  Since this information is
++ * needed by several subdrivers, it is determined by the main IOC4 driver,
++ * even though the following code utilizes external interrupt registers
++ * to perform the speed calculation.
++ */
++static void
++ioc4_clock_calibrate(struct ioc4_driver_data *idd)
++{
++	union ioc4_int_out int_out;
++	union ioc4_gpcr gpcr;
++	unsigned int state, last_state = 1;
++	struct timespec start_ts, end_ts;
++	uint64_t start, end, period;
++	unsigned int count = 0;
++
++	/* Enable output */
++	gpcr.raw = 0;
++	gpcr.fields.dir = IOC4_GPCR_DIR_0;
++	gpcr.fields.int_out_en = 1;
++	writel(gpcr.raw, &idd->idd_misc_regs->gpcr_s.raw);
++
++	/* Reset to power-on state */
++	writel(0, &idd->idd_misc_regs->int_out.raw);
++	mmiowb();
++
++	/* Set up square wave */
++	int_out.raw = 0;
++	int_out.fields.count = IOC4_CALIBRATE_COUNT;
++	int_out.fields.mode = IOC4_INT_OUT_MODE_TOGGLE;
++	int_out.fields.diag = 0;
++	writel(int_out.raw, &idd->idd_misc_regs->int_out.raw);
++	mmiowb();
++
++	/* Check square wave period averaged over some number of cycles */
++	do {
++		int_out.raw = readl(&idd->idd_misc_regs->int_out.raw);
++		state = int_out.fields.int_out;
++		if (!last_state && state) {
++			count++;
++			if (count == IOC4_CALIBRATE_END) {
++				ktime_get_ts(&end_ts);
++				break;
++			} else if (count == IOC4_CALIBRATE_DISCARD)
++				ktime_get_ts(&start_ts);
++		}
++		last_state = state;
++	} while (1);
++
++	/* Calculation rearranged to preserve intermediate precision.
++	 * Logically:
++	 * 1. "end - start" gives us the measurement period over all
++	 *    the square wave cycles.
++	 * 2. Divide by number of square wave cycles to get the period
++	 *    of a square wave cycle.
++	 * 3. Divide by 2*(int_out.fields.count+1), which is the formula
++	 *    by which the IOC4 generates the square wave, to get the
++	 *    period of an IOC4 INT_OUT count.
++	 */
++	end = end_ts.tv_sec * NSEC_PER_SEC + end_ts.tv_nsec;
++	start = start_ts.tv_sec * NSEC_PER_SEC + start_ts.tv_nsec;
++	period = (end - start) /
++		(IOC4_CALIBRATE_CYCLES * 2 * (IOC4_CALIBRATE_COUNT + 1));
++
++	/* Bounds check the result. */
++	if (period > IOC4_CALIBRATE_LOW_LIMIT ||
++	    period < IOC4_CALIBRATE_HIGH_LIMIT) {
++		printk(KERN_INFO
++		       "IOC4 %s: Clock calibration failed.  Assuming"
++		       "PCI clock is %d ns.\n",
++		       pci_name(idd->idd_pdev),
++		       IOC4_CALIBRATE_DEFAULT / IOC4_EXTINT_COUNT_DIVISOR);
++		period = IOC4_CALIBRATE_DEFAULT;
++	} else {
++		printk(KERN_DEBUG
++		       "IOC4 %s: PCI clock is %ld ns.\n",
++		       pci_name(idd->idd_pdev),
++		       period / IOC4_EXTINT_COUNT_DIVISOR);
++	}
++
++	/* Remember results.  We store the extint clock period rather
++	 * than the PCI clock period so that greater precision is
++	 * retained.  Divide by IOC4_EXTINT_COUNT_DIVISOR to get
++	 * PCI clock period.
++	 */
++	idd->count_period = period;
++}
++
++/* There are three variants of IOC4 cards: IO9, IO10, and PCI-RT.
++ * Each brings out different combinations of IOC4 signals, thus.
++ * the IOC4 subdrivers need to know to which we're attached.
++ *
++ * We look for the presence of a SCSI (IO9) or SATA (IO10) controller
++ * on the same PCI bus at slot number 3 to differentiate IO9 from IO10.
++ * If neither is present, it's a PCI-RT.
++ */
++static unsigned int
++ioc4_variant(struct ioc4_driver_data *idd)
++{
++	struct pci_dev *pdev = NULL;
++	int found = 0;
++
++	/* IO9: Look for a QLogic ISP 12160 at the same bus and slot 3. */
++	do {
++		pdev = pci_get_device(PCI_VENDOR_ID_QLOGIC,
++				      PCI_DEVICE_ID_QLOGIC_ISP12160, pdev);
++		if (pdev &&
++		    idd->idd_pdev->bus->number == pdev->bus->number &&
++		    3 == PCI_SLOT(pdev->devfn))
++			found = 1;
++		pci_dev_put(pdev);
++	} while (pdev && !found);
++	if (NULL != pdev)
++		return IOC4_VARIANT_IO9;
++
++	/* IO10: Look for a Vitesse VSC 7174 at the same bus and slot 3. */
++	pdev = NULL;
++	do {
++		pdev = pci_get_device(PCI_VENDOR_ID_VITESSE,
++				      PCI_DEVICE_ID_VITESSE_VSC7174, pdev);
++		if (pdev &&
++		    idd->idd_pdev->bus->number == pdev->bus->number &&
++		    3 == PCI_SLOT(pdev->devfn))
++			found = 1;
++		pci_dev_put(pdev);
++	} while (pdev && !found);
++	if (NULL != pdev)
++		return IOC4_VARIANT_IO10;
++
++	/* PCI-RT: No SCSI/SATA controller will be present */
++	return IOC4_VARIANT_PCI_RT;
++}
++
++/* Adds a new instance of an IOC4 card */
++static int
++ioc4_probe(struct pci_dev *pdev, const struct pci_device_id *pci_id)
++{
++	struct ioc4_driver_data *idd;
++	struct ioc4_submodule *is;
++	uint32_t pcmd;
++	int ret;
++
++	/* Enable IOC4 and take ownership of it */
++	if ((ret = pci_enable_device(pdev))) {
++		printk(KERN_WARNING
++		       "%s: Failed to enable IOC4 device for pci_dev %s.\n",
++		       __FUNCTION__, pci_name(pdev));
++		goto out;
++	}
++	pci_set_master(pdev);
++
++	/* Set up per-IOC4 data */
++	idd = kmalloc(sizeof(struct ioc4_driver_data), GFP_KERNEL);
++	if (!idd) {
++		printk(KERN_WARNING
++		       "%s: Failed to allocate IOC4 data for pci_dev %s.\n",
++		       __FUNCTION__, pci_name(pdev));
++		ret = -ENODEV;
++		goto out_idd;
++	}
++	idd->idd_pdev = pdev;
++	idd->idd_pci_id = pci_id;
++
++	/* Map IOC4 misc registers.  These are shared between subdevices
++	 * so the main IOC4 module manages them.
++	 */
++	idd->idd_bar0 = pci_resource_start(idd->idd_pdev, 0);
++	if (!idd->idd_bar0) {
++		printk(KERN_WARNING
++		       "%s: Unable to find IOC4 misc resource "
++		       "for pci_dev %s.\n",
++		       __FUNCTION__, pci_name(idd->idd_pdev));
++		ret = -ENODEV;
++		goto out_pci;
++	}
++	if (!request_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs),
++			    "ioc4_misc")) {
++		printk(KERN_WARNING
++		       "%s: Unable to request IOC4 misc region "
++		       "for pci_dev %s.\n",
++		       __FUNCTION__, pci_name(idd->idd_pdev));
++		ret = -ENODEV;
++		goto out_pci;
++	}
++	idd->idd_misc_regs = ioremap(idd->idd_bar0,
++				     sizeof(struct ioc4_misc_regs));
++	if (!idd->idd_misc_regs) {
++		printk(KERN_WARNING
++		       "%s: Unable to remap IOC4 misc region "
++		       "for pci_dev %s.\n",
++		       __FUNCTION__, pci_name(idd->idd_pdev));
++		ret = -ENODEV;
++		goto out_misc_region;
++	}
++
++	/* Failsafe portion of per-IOC4 initialization */
++
++	/* Detect card variant */
++	idd->idd_variant = ioc4_variant(idd);
++	printk(KERN_INFO "IOC4 %s: %s card detected.\n", pci_name(pdev),
++	       idd->idd_variant == IOC4_VARIANT_IO9 ? "IO9" :
++	       idd->idd_variant == IOC4_VARIANT_PCI_RT ? "PCI-RT" :
++	       idd->idd_variant == IOC4_VARIANT_IO10 ? "IO10" : "unknown");
++
++	/* Initialize IOC4 */
++	pci_read_config_dword(idd->idd_pdev, PCI_COMMAND, &pcmd);
++	pci_write_config_dword(idd->idd_pdev, PCI_COMMAND,
++			       pcmd | PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
++
++	/* Determine PCI clock */
++	ioc4_clock_calibrate(idd);
++
++	/* Disable/clear all interrupts.  Need to do this here lest
++	 * one submodule request the shared IOC4 IRQ, but interrupt
++	 * is generated by a different subdevice.
++	 */
++	/* Disable */
++	writel(~0, &idd->idd_misc_regs->other_iec.raw);
++	writel(~0, &idd->idd_misc_regs->sio_iec);
++	/* Clear (i.e. acknowledge) */
++	writel(~0, &idd->idd_misc_regs->other_ir.raw);
++	writel(~0, &idd->idd_misc_regs->sio_ir);
++
++	/* Track PCI-device specific data */
++	idd->idd_serial_data = NULL;
++	pci_set_drvdata(idd->idd_pdev, idd);
++
++	mutex_lock(&ioc4_mutex);
++	list_add_tail(&idd->idd_list, &ioc4_devices);
++
++	/* Add this IOC4 to all submodules */
++	list_for_each_entry(is, &ioc4_submodules, is_list) {
++		if (is->is_probe && is->is_probe(idd)) {
++			printk(KERN_WARNING
++			       "%s: IOC4 submodule 0x%s probe failed "
++			       "for pci_dev %s.\n",
++			       __FUNCTION__, module_name(is->is_owner),
++			       pci_name(idd->idd_pdev));
++		}
++	}
++	mutex_unlock(&ioc4_mutex);
++
++	return 0;
++
++out_misc_region:
++	release_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs));
++out_pci:
++	kfree(idd);
++out_idd:
++	pci_disable_device(pdev);
++out:
++	return ret;
++}
++
++/* Removes a particular instance of an IOC4 card. */
++static void
++ioc4_remove(struct pci_dev *pdev)
++{
++	struct ioc4_submodule *is;
++	struct ioc4_driver_data *idd;
++
++	idd = pci_get_drvdata(pdev);
++
++	/* Remove this IOC4 from all submodules */
++	mutex_lock(&ioc4_mutex);
++	list_for_each_entry(is, &ioc4_submodules, is_list) {
++		if (is->is_remove && is->is_remove(idd)) {
++			printk(KERN_WARNING
++			       "%s: IOC4 submodule 0x%s remove failed "
++			       "for pci_dev %s.\n",
++			       __FUNCTION__, module_name(is->is_owner),
++			       pci_name(idd->idd_pdev));
++		}
++	}
++	mutex_unlock(&ioc4_mutex);
++
++	/* Release resources */
++	iounmap(idd->idd_misc_regs);
++	if (!idd->idd_bar0) {
++		printk(KERN_WARNING
++		       "%s: Unable to get IOC4 misc mapping for pci_dev %s. "
++		       "Device removal may be incomplete.\n",
++		       __FUNCTION__, pci_name(idd->idd_pdev));
++	}
++	release_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs));
++
++	/* Disable IOC4 and relinquish */
++	pci_disable_device(pdev);
++
++	/* Remove and free driver data */
++	mutex_lock(&ioc4_mutex);
++	list_del(&idd->idd_list);
++	mutex_unlock(&ioc4_mutex);
++	kfree(idd);
++}
++
++static struct pci_device_id ioc4_id_table[] = {
++	{PCI_VENDOR_ID_SGI, PCI_DEVICE_ID_SGI_IOC4, PCI_ANY_ID,
++	 PCI_ANY_ID, 0x0b4000, 0xFFFFFF},
++	{0}
++};
++
++static struct pci_driver ioc4_driver = {
++	.name = "IOC4",
++	.id_table = ioc4_id_table,
++	.probe = ioc4_probe,
++	.remove = ioc4_remove,
++};
++
++MODULE_DEVICE_TABLE(pci, ioc4_id_table);
++
++/*********************
++ * Module management *
++ *********************/
++
++/* Module load */
++static int __devinit
++ioc4_init(void)
++{
++	return pci_register_driver(&ioc4_driver);
++}
++
++/* Module unload */
++static void __devexit
++ioc4_exit(void)
++{
++	pci_unregister_driver(&ioc4_driver);
++}
++
++module_init(ioc4_init);
++module_exit(ioc4_exit);
++
++MODULE_AUTHOR("Brent Casavant - Silicon Graphics, Inc. <bcasavan@sgi.com>");
++MODULE_DESCRIPTION("PCI driver master module for SGI IOC4 Base-IO Card");
++MODULE_LICENSE("GPL");
++
++EXPORT_SYMBOL(ioc4_register_submodule);
++EXPORT_SYMBOL(ioc4_unregister_submodule);
+Index: top/drivers/sn/ioc4.c
+===================================================================
+--- top.orig/drivers/sn/ioc4.c	2006-10-09 17:41:25.000000000 -0500
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,474 +0,0 @@
+-/*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * Copyright (C) 2005-2006 Silicon Graphics, Inc.  All Rights Reserved.
+- */
+-
+-/* This file contains the master driver module for use by SGI IOC4 subdrivers.
+- *
+- * It allocates any resources shared between multiple subdevices, and
+- * provides accessor functions (where needed) and the like for those
+- * resources.  It also provides a mechanism for the subdevice modules
+- * to support loading and unloading.
+- *
+- * Non-shared resources (e.g. external interrupt A_INT_OUT register page
+- * alias, serial port and UART registers) are handled by the subdevice
+- * modules themselves.
+- *
+- * This is all necessary because IOC4 is not implemented as a multi-function
+- * PCI device, but an amalgamation of disparate registers for several
+- * types of device (ATA, serial, external interrupts).  The normal
+- * resource management in the kernel doesn't have quite the right interfaces
+- * to handle this situation (e.g. multiple modules can't claim the same
+- * PCI ID), thus this IOC4 master module.
+- */
+-
+-#include <linux/errno.h>
+-#include <linux/module.h>
+-#include <linux/pci.h>
+-#include <linux/ioc4.h>
+-#include <linux/ktime.h>
+-#include <linux/mutex.h>
+-#include <linux/time.h>
+-#include <asm/sn/addrs.h>
+-#include <asm/sn/clksupport.h>
+-#include <asm/sn/shub_mmr.h>
+-
+-/***************
+- * Definitions *
+- ***************/
+-
+-/* Tweakable values */
+-
+-/* PCI bus speed detection/calibration */
+-#define IOC4_CALIBRATE_COUNT 63		/* Calibration cycle period */
+-#define IOC4_CALIBRATE_CYCLES 256	/* Average over this many cycles */
+-#define IOC4_CALIBRATE_DISCARD 2	/* Discard first few cycles */
+-#define IOC4_CALIBRATE_LOW_MHZ 25	/* Lower bound on bus speed sanity */
+-#define IOC4_CALIBRATE_HIGH_MHZ 75	/* Upper bound on bus speed sanity */
+-#define IOC4_CALIBRATE_DEFAULT_MHZ 66	/* Assumed if sanity check fails */
+-
+-/************************
+- * Submodule management *
+- ************************/
+-
+-static DEFINE_MUTEX(ioc4_mutex);
+-
+-static LIST_HEAD(ioc4_devices);
+-static LIST_HEAD(ioc4_submodules);
+-
+-/* Register an IOC4 submodule */
+-int
+-ioc4_register_submodule(struct ioc4_submodule *is)
+-{
+-	struct ioc4_driver_data *idd;
+-
+-	mutex_lock(&ioc4_mutex);
+-	list_add(&is->is_list, &ioc4_submodules);
+-
+-	/* Initialize submodule for each IOC4 */
+-	if (!is->is_probe)
+-		goto out;
+-
+-	list_for_each_entry(idd, &ioc4_devices, idd_list) {
+-		if (is->is_probe(idd)) {
+-			printk(KERN_WARNING
+-			       "%s: IOC4 submodule %s probe failed "
+-			       "for pci_dev %s",
+-			       __FUNCTION__, module_name(is->is_owner),
+-			       pci_name(idd->idd_pdev));
+-		}
+-	}
+- out:
+-	mutex_unlock(&ioc4_mutex);
+-	return 0;
+-}
+-
+-/* Unregister an IOC4 submodule */
+-void
+-ioc4_unregister_submodule(struct ioc4_submodule *is)
+-{
+-	struct ioc4_driver_data *idd;
+-
+-	mutex_lock(&ioc4_mutex);
+-	list_del(&is->is_list);
+-
+-	/* Remove submodule for each IOC4 */
+-	if (!is->is_remove)
+-		goto out;
+-
+-	list_for_each_entry(idd, &ioc4_devices, idd_list) {
+-		if (is->is_remove(idd)) {
+-			printk(KERN_WARNING
+-			       "%s: IOC4 submodule %s remove failed "
+-			       "for pci_dev %s.\n",
+-			       __FUNCTION__, module_name(is->is_owner),
+-			       pci_name(idd->idd_pdev));
+-		}
+-	}
+- out:
+-	mutex_unlock(&ioc4_mutex);
+-}
+-
+-/*********************
+- * Device management *
+- *********************/
+-
+-#define IOC4_CALIBRATE_LOW_LIMIT \
+-	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_LOW_MHZ)
+-#define IOC4_CALIBRATE_HIGH_LIMIT \
+-	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_HIGH_MHZ)
+-#define IOC4_CALIBRATE_DEFAULT \
+-	(1000*IOC4_EXTINT_COUNT_DIVISOR/IOC4_CALIBRATE_DEFAULT_MHZ)
+-
+-#define IOC4_CALIBRATE_END \
+-	(IOC4_CALIBRATE_CYCLES + IOC4_CALIBRATE_DISCARD)
+-
+-#define IOC4_INT_OUT_MODE_TOGGLE 0x7	/* Toggle INT_OUT every COUNT+1 ticks */
+-
+-/* Determines external interrupt output clock period of the PCI bus an
+- * IOC4 is attached to.  This value can be used to determine the PCI
+- * bus speed.
+- *
+- * IOC4 has a design feature that various internal timers are derived from
+- * the PCI bus clock.  This causes IOC4 device drivers to need to take the
+- * bus speed into account when setting various register values (e.g. INT_OUT
+- * register COUNT field, UART divisors, etc).  Since this information is
+- * needed by several subdrivers, it is determined by the main IOC4 driver,
+- * even though the following code utilizes external interrupt registers
+- * to perform the speed calculation.
+- */
+-static void
+-ioc4_clock_calibrate(struct ioc4_driver_data *idd)
+-{
+-	union ioc4_int_out int_out;
+-	union ioc4_gpcr gpcr;
+-	unsigned int state, last_state = 1;
+-	struct timespec start_ts, end_ts;
+-	uint64_t start, end, period;
+-	unsigned int count = 0;
+-
+-	/* Enable output */
+-	gpcr.raw = 0;
+-	gpcr.fields.dir = IOC4_GPCR_DIR_0;
+-	gpcr.fields.int_out_en = 1;
+-	writel(gpcr.raw, &idd->idd_misc_regs->gpcr_s.raw);
+-
+-	/* Reset to power-on state */
+-	writel(0, &idd->idd_misc_regs->int_out.raw);
+-	mmiowb();
+-
+-	/* Set up square wave */
+-	int_out.raw = 0;
+-	int_out.fields.count = IOC4_CALIBRATE_COUNT;
+-	int_out.fields.mode = IOC4_INT_OUT_MODE_TOGGLE;
+-	int_out.fields.diag = 0;
+-	writel(int_out.raw, &idd->idd_misc_regs->int_out.raw);
+-	mmiowb();
+-
+-	/* Check square wave period averaged over some number of cycles */
+-	do {
+-		int_out.raw = readl(&idd->idd_misc_regs->int_out.raw);
+-		state = int_out.fields.int_out;
+-		if (!last_state && state) {
+-			count++;
+-			if (count == IOC4_CALIBRATE_END) {
+-				ktime_get_ts(&end_ts);
+-				break;
+-			} else if (count == IOC4_CALIBRATE_DISCARD)
+-				ktime_get_ts(&start_ts);
+-		}
+-		last_state = state;
+-	} while (1);
+-
+-	/* Calculation rearranged to preserve intermediate precision.
+-	 * Logically:
+-	 * 1. "end - start" gives us the measurement period over all
+-	 *    the square wave cycles.
+-	 * 2. Divide by number of square wave cycles to get the period
+-	 *    of a square wave cycle.
+-	 * 3. Divide by 2*(int_out.fields.count+1), which is the formula
+-	 *    by which the IOC4 generates the square wave, to get the
+-	 *    period of an IOC4 INT_OUT count.
+-	 */
+-	end = end_ts.tv_sec * NSEC_PER_SEC + end_ts.tv_nsec;
+-	start = start_ts.tv_sec * NSEC_PER_SEC + start_ts.tv_nsec;
+-	period = (end - start) /
+-		(IOC4_CALIBRATE_CYCLES * 2 * (IOC4_CALIBRATE_COUNT + 1));
+-
+-	/* Bounds check the result. */
+-	if (period > IOC4_CALIBRATE_LOW_LIMIT ||
+-	    period < IOC4_CALIBRATE_HIGH_LIMIT) {
+-		printk(KERN_INFO
+-		       "IOC4 %s: Clock calibration failed.  Assuming"
+-		       "PCI clock is %d ns.\n",
+-		       pci_name(idd->idd_pdev),
+-		       IOC4_CALIBRATE_DEFAULT / IOC4_EXTINT_COUNT_DIVISOR);
+-		period = IOC4_CALIBRATE_DEFAULT;
+-	} else {
+-		printk(KERN_DEBUG
+-		       "IOC4 %s: PCI clock is %ld ns.\n",
+-		       pci_name(idd->idd_pdev),
+-		       period / IOC4_EXTINT_COUNT_DIVISOR);
+-	}
+-
+-	/* Remember results.  We store the extint clock period rather
+-	 * than the PCI clock period so that greater precision is
+-	 * retained.  Divide by IOC4_EXTINT_COUNT_DIVISOR to get
+-	 * PCI clock period.
+-	 */
+-	idd->count_period = period;
+-}
+-
+-/* There are three variants of IOC4 cards: IO9, IO10, and PCI-RT.
+- * Each brings out different combinations of IOC4 signals, thus.
+- * the IOC4 subdrivers need to know to which we're attached.
+- *
+- * We look for the presence of a SCSI (IO9) or SATA (IO10) controller
+- * on the same PCI bus at slot number 3 to differentiate IO9 from IO10.
+- * If neither is present, it's a PCI-RT.
+- */
+-static unsigned int
+-ioc4_variant(struct ioc4_driver_data *idd)
+-{
+-	struct pci_dev *pdev = NULL;
+-	int found = 0;
+-
+-	/* IO9: Look for a QLogic ISP 12160 at the same bus and slot 3. */
+-	do {
+-		pdev = pci_get_device(PCI_VENDOR_ID_QLOGIC,
+-				      PCI_DEVICE_ID_QLOGIC_ISP12160, pdev);
+-		if (pdev &&
+-		    idd->idd_pdev->bus->number == pdev->bus->number &&
+-		    3 == PCI_SLOT(pdev->devfn))
+-			found = 1;
+-		pci_dev_put(pdev);
+-	} while (pdev && !found);
+-	if (NULL != pdev)
+-		return IOC4_VARIANT_IO9;
+-
+-	/* IO10: Look for a Vitesse VSC 7174 at the same bus and slot 3. */
+-	pdev = NULL;
+-	do {
+-		pdev = pci_get_device(PCI_VENDOR_ID_VITESSE,
+-				      PCI_DEVICE_ID_VITESSE_VSC7174, pdev);
+-		if (pdev &&
+-		    idd->idd_pdev->bus->number == pdev->bus->number &&
+-		    3 == PCI_SLOT(pdev->devfn))
+-			found = 1;
+-		pci_dev_put(pdev);
+-	} while (pdev && !found);
+-	if (NULL != pdev)
+-		return IOC4_VARIANT_IO10;
+-
+-	/* PCI-RT: No SCSI/SATA controller will be present */
+-	return IOC4_VARIANT_PCI_RT;
+-}
+-
+-/* Adds a new instance of an IOC4 card */
+-static int
+-ioc4_probe(struct pci_dev *pdev, const struct pci_device_id *pci_id)
+-{
+-	struct ioc4_driver_data *idd;
+-	struct ioc4_submodule *is;
+-	uint32_t pcmd;
+-	int ret;
+-
+-	/* Enable IOC4 and take ownership of it */
+-	if ((ret = pci_enable_device(pdev))) {
+-		printk(KERN_WARNING
+-		       "%s: Failed to enable IOC4 device for pci_dev %s.\n",
+-		       __FUNCTION__, pci_name(pdev));
+-		goto out;
+-	}
+-	pci_set_master(pdev);
+-
+-	/* Set up per-IOC4 data */
+-	idd = kmalloc(sizeof(struct ioc4_driver_data), GFP_KERNEL);
+-	if (!idd) {
+-		printk(KERN_WARNING
+-		       "%s: Failed to allocate IOC4 data for pci_dev %s.\n",
+-		       __FUNCTION__, pci_name(pdev));
+-		ret = -ENODEV;
+-		goto out_idd;
+-	}
+-	idd->idd_pdev = pdev;
+-	idd->idd_pci_id = pci_id;
+-
+-	/* Map IOC4 misc registers.  These are shared between subdevices
+-	 * so the main IOC4 module manages them.
+-	 */
+-	idd->idd_bar0 = pci_resource_start(idd->idd_pdev, 0);
+-	if (!idd->idd_bar0) {
+-		printk(KERN_WARNING
+-		       "%s: Unable to find IOC4 misc resource "
+-		       "for pci_dev %s.\n",
+-		       __FUNCTION__, pci_name(idd->idd_pdev));
+-		ret = -ENODEV;
+-		goto out_pci;
+-	}
+-	if (!request_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs),
+-			    "ioc4_misc")) {
+-		printk(KERN_WARNING
+-		       "%s: Unable to request IOC4 misc region "
+-		       "for pci_dev %s.\n",
+-		       __FUNCTION__, pci_name(idd->idd_pdev));
+-		ret = -ENODEV;
+-		goto out_pci;
+-	}
+-	idd->idd_misc_regs = ioremap(idd->idd_bar0,
+-				     sizeof(struct ioc4_misc_regs));
+-	if (!idd->idd_misc_regs) {
+-		printk(KERN_WARNING
+-		       "%s: Unable to remap IOC4 misc region "
+-		       "for pci_dev %s.\n",
+-		       __FUNCTION__, pci_name(idd->idd_pdev));
+-		ret = -ENODEV;
+-		goto out_misc_region;
+-	}
+-
+-	/* Failsafe portion of per-IOC4 initialization */
+-
+-	/* Detect card variant */
+-	idd->idd_variant = ioc4_variant(idd);
+-	printk(KERN_INFO "IOC4 %s: %s card detected.\n", pci_name(pdev),
+-	       idd->idd_variant == IOC4_VARIANT_IO9 ? "IO9" :
+-	       idd->idd_variant == IOC4_VARIANT_PCI_RT ? "PCI-RT" :
+-	       idd->idd_variant == IOC4_VARIANT_IO10 ? "IO10" : "unknown");
+-
+-	/* Initialize IOC4 */
+-	pci_read_config_dword(idd->idd_pdev, PCI_COMMAND, &pcmd);
+-	pci_write_config_dword(idd->idd_pdev, PCI_COMMAND,
+-			       pcmd | PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
+-
+-	/* Determine PCI clock */
+-	ioc4_clock_calibrate(idd);
+-
+-	/* Disable/clear all interrupts.  Need to do this here lest
+-	 * one submodule request the shared IOC4 IRQ, but interrupt
+-	 * is generated by a different subdevice.
+-	 */
+-	/* Disable */
+-	writel(~0, &idd->idd_misc_regs->other_iec.raw);
+-	writel(~0, &idd->idd_misc_regs->sio_iec);
+-	/* Clear (i.e. acknowledge) */
+-	writel(~0, &idd->idd_misc_regs->other_ir.raw);
+-	writel(~0, &idd->idd_misc_regs->sio_ir);
+-
+-	/* Track PCI-device specific data */
+-	idd->idd_serial_data = NULL;
+-	pci_set_drvdata(idd->idd_pdev, idd);
+-
+-	mutex_lock(&ioc4_mutex);
+-	list_add_tail(&idd->idd_list, &ioc4_devices);
+-
+-	/* Add this IOC4 to all submodules */
+-	list_for_each_entry(is, &ioc4_submodules, is_list) {
+-		if (is->is_probe && is->is_probe(idd)) {
+-			printk(KERN_WARNING
+-			       "%s: IOC4 submodule 0x%s probe failed "
+-			       "for pci_dev %s.\n",
+-			       __FUNCTION__, module_name(is->is_owner),
+-			       pci_name(idd->idd_pdev));
+-		}
+-	}
+-	mutex_unlock(&ioc4_mutex);
+-
+-	return 0;
+-
+-out_misc_region:
+-	release_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs));
+-out_pci:
+-	kfree(idd);
+-out_idd:
+-	pci_disable_device(pdev);
+-out:
+-	return ret;
+-}
+-
+-/* Removes a particular instance of an IOC4 card. */
+-static void
+-ioc4_remove(struct pci_dev *pdev)
+-{
+-	struct ioc4_submodule *is;
+-	struct ioc4_driver_data *idd;
+-
+-	idd = pci_get_drvdata(pdev);
+-
+-	/* Remove this IOC4 from all submodules */
+-	mutex_lock(&ioc4_mutex);
+-	list_for_each_entry(is, &ioc4_submodules, is_list) {
+-		if (is->is_remove && is->is_remove(idd)) {
+-			printk(KERN_WARNING
+-			       "%s: IOC4 submodule 0x%s remove failed "
+-			       "for pci_dev %s.\n",
+-			       __FUNCTION__, module_name(is->is_owner),
+-			       pci_name(idd->idd_pdev));
+-		}
+-	}
+-	mutex_unlock(&ioc4_mutex);
+-
+-	/* Release resources */
+-	iounmap(idd->idd_misc_regs);
+-	if (!idd->idd_bar0) {
+-		printk(KERN_WARNING
+-		       "%s: Unable to get IOC4 misc mapping for pci_dev %s. "
+-		       "Device removal may be incomplete.\n",
+-		       __FUNCTION__, pci_name(idd->idd_pdev));
+-	}
+-	release_region(idd->idd_bar0, sizeof(struct ioc4_misc_regs));
+-
+-	/* Disable IOC4 and relinquish */
+-	pci_disable_device(pdev);
+-
+-	/* Remove and free driver data */
+-	mutex_lock(&ioc4_mutex);
+-	list_del(&idd->idd_list);
+-	mutex_unlock(&ioc4_mutex);
+-	kfree(idd);
+-}
+-
+-static struct pci_device_id ioc4_id_table[] = {
+-	{PCI_VENDOR_ID_SGI, PCI_DEVICE_ID_SGI_IOC4, PCI_ANY_ID,
+-	 PCI_ANY_ID, 0x0b4000, 0xFFFFFF},
+-	{0}
+-};
+-
+-static struct pci_driver ioc4_driver = {
+-	.name = "IOC4",
+-	.id_table = ioc4_id_table,
+-	.probe = ioc4_probe,
+-	.remove = ioc4_remove,
+-};
+-
+-MODULE_DEVICE_TABLE(pci, ioc4_id_table);
+-
+-/*********************
+- * Module management *
+- *********************/
+-
+-/* Module load */
+-static int __devinit
+-ioc4_init(void)
+-{
+-	return pci_register_driver(&ioc4_driver);
+-}
+-
+-/* Module unload */
+-static void __devexit
+-ioc4_exit(void)
+-{
+-	pci_unregister_driver(&ioc4_driver);
+-}
+-
+-module_init(ioc4_init);
+-module_exit(ioc4_exit);
+-
+-MODULE_AUTHOR("Brent Casavant - Silicon Graphics, Inc. <bcasavan@sgi.com>");
+-MODULE_DESCRIPTION("PCI driver master module for SGI IOC4 Base-IO Card");
+-MODULE_LICENSE("GPL");
+-
+-EXPORT_SYMBOL(ioc4_register_submodule);
+-EXPORT_SYMBOL(ioc4_unregister_submodule);
+Index: top/drivers/misc/Makefile
+===================================================================
+--- top.orig/drivers/misc/Makefile	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/misc/Makefile	2006-10-09 17:47:50.415607888 -0500
+@@ -8,3 +8,4 @@
+ obj-$(CONFIG_LKDTM)		+= lkdtm.o
+ obj-$(CONFIG_TIFM_CORE)       	+= tifm_core.o
+ obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
++obj-$(CONFIG_SGI_IOC4)		+= ioc4.o
+Index: top/drivers/sn/Makefile
+===================================================================
+--- top.orig/drivers/sn/Makefile	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/sn/Makefile	2006-10-09 17:47:50.415607888 -0500
+@@ -3,5 +3,4 @@
+ #
+ #
+ 
+-obj-$(CONFIG_SGI_IOC4) += ioc4.o
+ obj-$(CONFIG_SGI_IOC3) += ioc3.o
+Index: top/drivers/Kconfig
+===================================================================
+--- top.orig/drivers/Kconfig	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/Kconfig	2006-10-09 17:47:50.415607888 -0500
+@@ -14,6 +14,10 @@
+ 
+ source "drivers/block/Kconfig"
+ 
++# misc before ide - BLK_DEV_SGIIOC4 depends on SGI_IOC4
++
++source "drivers/misc/Kconfig"
++
+ source "drivers/ide/Kconfig"
+ 
+ source "drivers/scsi/Kconfig"
+@@ -52,8 +56,6 @@
+ 
+ source "drivers/hwmon/Kconfig"
+ 
+-source "drivers/misc/Kconfig"
+-
+ source "drivers/mfd/Kconfig"
+ 
+ source "drivers/media/Kconfig"
+Index: top/drivers/ide/pci/sgiioc4.c
+===================================================================
+--- top.orig/drivers/ide/pci/sgiioc4.c	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/ide/pci/sgiioc4.c	2006-10-09 17:47:50.419608373 -0500
+@@ -774,7 +774,7 @@
+ 	ioc4_unregister_submodule(&ioc4_ide_submodule);
+ }
+ 
+-module_init(ioc4_ide_init);
++late_initcall(ioc4_ide_init); /* Call only after IDE init is done */
+ module_exit(ioc4_ide_exit);
+ 
+ MODULE_AUTHOR("Aniket Malatpure/Jeremy Higdon");
+Index: top/drivers/serial/ioc4_serial.c
+===================================================================
+--- top.orig/drivers/serial/ioc4_serial.c	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/serial/ioc4_serial.c	2006-10-09 17:47:50.419608373 -0500
+@@ -2935,7 +2935,7 @@
+ 	uart_unregister_driver(&ioc4_uart_rs422);
+ }
+ 
+-module_init(ioc4_serial_init);
++late_initcall(ioc4_serial_init); /* Call only after tty init is done */
+ module_exit(ioc4_serial_exit);
+ 
+ MODULE_AUTHOR("Pat Gefre - Silicon Graphics Inc. (SGI) <pfg@sgi.com>");
+Index: top/drivers/misc/Kconfig
+===================================================================
+--- top.orig/drivers/misc/Kconfig	2006-10-09 17:41:25.000000000 -0500
++++ top/drivers/misc/Kconfig	2006-10-09 17:48:56.555631075 -0500
+@@ -28,6 +28,18 @@
+ 
+ 	  If unsure, say N.
+ 
++config SGI_IOC4
++	tristate "SGI IOC4 Base IO support"
++	default m
++	---help---
++	This option enables basic support for the IOC4 chip on certain
++	SGI IO controller cards (IO9, IO10, and PCI-RT).  This option
++	does not enable any specific functions on such a card, but provides
++	necessary infrastructure for other drivers to utilize.
++
++	If you have an SGI Altix with an IOC4-based card say Y.
++	Otherwise say N.
++
+ config TIFM_CORE
+ 	tristate "TI Flash Media interface support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+Index: top/drivers/sn/Kconfig
+===================================================================
+--- top.orig/drivers/sn/Kconfig	2006-10-09 17:46:07.000000000 -0500
++++ top/drivers/sn/Kconfig	2006-10-09 17:48:23.203585091 -0500
+@@ -5,18 +5,6 @@
+ menu "SN Devices"
+ 	depends on SGI_SN
+ 
+-config SGI_IOC4
+-	tristate "SGI IOC4 Base IO support"
+-	default m
+-	---help---
+-	This option enables basic support for the IOC4 chip on certain
+-	SGI IO controller cards (IO9, IO10, and PCI-RT).  This option
+-	does not enable any specific functions on such a card, but provides
+-	necessary infrastructure for other drivers to utilize.
+-
+-	If you have an SGI Altix with an IOC4-based card say Y.
+-	Otherwise say N.
+-
+ config SGI_IOC3
+ 	tristate "SGI IOC3 Base IO support"
+ 	default m

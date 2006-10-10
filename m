@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWJJKBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWJJKhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWJJKBw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 06:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWJJKBv
+	id S1751425AbWJJKhi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 06:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWJJKhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 06:01:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44461 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965149AbWJJKBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 06:01:51 -0400
-Subject: Re: [PATCH] apparent typo in ixgb.h, "_DEBUG_DRIVER_" looks wrong
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       trivial@kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610100522240.6146@localhost.localdomain>
-References: <Pine.LNX.4.64.0610100219590.3442@localhost.localdomain>
-	 <20061010091501.GA5369@martell.zuzino.mipt.ru>
-	 <Pine.LNX.4.64.0610100522240.6146@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 10 Oct 2006 12:01:46 +0200
-Message-Id: <1160474506.3000.280.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 10 Oct 2006 06:37:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38589 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751425AbWJJKhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 06:37:37 -0400
+Date: Tue, 10 Oct 2006 12:37:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Miguel Ojeda <maxextreme@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 V9] drivers: add LCD support
+Message-ID: <20061010103723.GC31598@elf.ucw.cz>
+References: <20061006002950.49b25189.maxextreme@gmail.com> <20061008182438.GA4033@ucw.cz> <653402b90610081137g7885fc85h54e5e94de682a246@mail.gmail.com> <20061008191217.GA3788@elf.ucw.cz> <653402b90610081312m32fcf7ecx9929ae9dc4768c17@mail.gmail.com> <20061008211550.GE4152@elf.ucw.cz> <653402b90610081436w34d692ecv2dd9801c451ab490@mail.gmail.com> <20061008220722.GG4152@elf.ucw.cz> <653402b90610081545n51cdfbcej469990279f6d018c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <653402b90610081545n51cdfbcej469990279f6d018c@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 05:28 -0400, Robert P. J. Day wrote:
-> On Tue, 10 Oct 2006, Alexey Dobriyan wrote:
-> 
-> > On Tue, Oct 10, 2006 at 02:27:34AM -0400, Robert P. J. Day wrote:
-> > > I'm *guessing* that "_DEBUG_DRIVER_" should really be
-> > > "DEBUG_DRIVER" here, since there is no other occurrence of the
-> > > former anywhere in the source tree.
+Hi!
+
+> >What is advantage of /dev/cfag12864bX over /dev/fbcfag12864b ?
 > >
-> > Since it's debugging guard, underscored or not... doesn't matter.
-> > Convert to pr_debug or dev_dbg of you want to deal with it.
+> >(And I guess you should invent better name... /dev/fbaux0?)
 > >
-> > > --- a/drivers/net/ixgb/ixgb.h
-> > > +++ b/drivers/net/ixgb/ixgb.h
-> > > @@ -77,7 +77,7 @@ #include "ixgb_hw.h"
-> > >  #include "ixgb_ee.h"
-> > >  #include "ixgb_ids.h"
-> > >
-> > > -#ifdef _DEBUG_DRIVER_
-> > > +#ifdef DEBUG_DRIVER
-> > >  #define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
-> > >  #else
-> > >  #define IXGB_DBG(args...)
+> >
+> >I do not think we need a Kconfig option, and I do not think we need
+> >/dev/cfag12864bX . Just use /dev/fbaux0, always.
+> >
 > 
-> but what you're suggesting is not equivalent.  i submitted that patch
-> to fix what *seems* to be an obvious, innocuous typo, to bring that
-> one header file into sync with the rest of the source tree, nothing
-> more.
+> One is the pure device, the other one is the framebuffer device. I
+> think having both is better than just one. There is no advantage, they
+> are different.
+
+No, having two different interfaces when one would be enough is
+stupid.
+
+Face it... you are writing driver for framebuffer. (Small, slow,
+black&white, but still framebuffer).
+
+> Maybe someone doesn't need any of the framebuffer advantages and just
+> wants to write to it directly, for better performance, for example:
+> The LCD needs to change 8 pixels (1 byte) every write, if you modify a
+> single pixel at the framebuffer device you will write more times than
+> you need for the same result (right? I'm not sure of this); the LCD
+> is
+
+Wrong, I think you only need to change 1bit, so framebuffer device
+actually performs better.
+
+> >I do not think it is suitable for -rc at this point, and it does not
+> >have chance before 2.6.20-rc1, anyway.
 > 
-> if all debugging should now use either of pr_debug() or dev_dbg(),
-> that's fine but i notice that both of those macros will be defined
-> only if "DEBUG" is defined, not "DEBUG_DRIVER".  so making the change
-> you suggest would *not* be a trivial change.
-> 
-> what's the current standard for debugging directives in the kernel?
+> No? Why not? Time is not a problem, I would want to know why are you
+> saying that.
 
-to use pr_debug or dev_dbg.
-Yes it'll mean a slight change for this driver, but just do it. 
-
-
+Bad user<->kernel interface is good enough reason for the patch not to
+be merged anywhere.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

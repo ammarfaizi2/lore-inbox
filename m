@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWJJF0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWJJFcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWJJF0K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 01:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWJJF0K
+	id S964989AbWJJFcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 01:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWJJFcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 01:26:10 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:57667 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964985AbWJJF0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 01:26:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dhf1muYxoZ1mnSKKO/JsPCRhIQ9I1+w7w+xIcys8UWoLT0vVSIThH+yt891IkltF7jJeLOhrEyJZFZ0JjcaJyLS5TGxQLF2PddzV44umWeWUl37g48E9wsYvbUVIqfz09UW8wpKxOMW6dPK/DSVgI6E49tylHPzdxyn2Abn1+vo=
-Message-ID: <309a667c0610092226q7c92b325qcf262e7df56c27a@mail.gmail.com>
-Date: Tue, 10 Oct 2006 10:56:07 +0530
-From: "Devesh Sharma" <devesh28@gmail.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Subject: Re: Compiling dependent module
+	Tue, 10 Oct 2006 01:32:15 -0400
+Received: from adelie.ubuntu.com ([82.211.81.139]:18380 "EHLO
+	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S964989AbWJJFcP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 01:32:15 -0400
+Subject: [PATCH] kbuild: Allow header_install to work with O=
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061007181936.GA5937@uranus.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 01:31:56 -0400
+Message-Id: <1160458316.5205.53.camel@gullible>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <309a667c0610070512y47718898i4a664ef6cce7c312@mail.gmail.com>
-	 <20061007181936.GA5937@uranus.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello sam, thanks for replying,
+Without this patch, doing:
 
-I have another doubt in the same,
-generally when we compile any external kernel module which uses some
-kernel symbol, there we don't see any such warnings even though we are
-compiling our module separately?  So compiling a dependent module
-separately is similar to compiling a external kernel module.
-Why such warninigs are being observed here in dependent module while compiling?
+make O=/foo/build INSTALL_HDR_PATH=/foo/install-headers headers_install
 
-On 10/7/06, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Sat, Oct 07, 2006 at 05:42:47PM +0530, Devesh Sharma wrote:
-> > Hello all,
-> >
-> > I have a situation where, I have one parent module in ../hello/
-> > directory which exports one symbol (g_my_export). I have a dependent
-> > module in ../hello1/ directory. Both have it's own makefiles.
-> > Compiling of parent module (hello.ko) is fine, but during compilation
-> > of dependent module (hello1.ko) I see a warning that g_my_export is
-> > undefined.
-> >
-> > On the other hand when I do depmod -a and modprobe, dependent module
-> > inserts successfully in kernel.
-> >
-> > I want to remove compile time warning. What should I do?
->
-> Compile both module in same go.
-> See Documentation/kbuild/modules.txt for a description.
->
-> In short create a kbuild file that points to both modules
-> so kbuild knows about both modules when it builds them.
->
->         Sam
->
+Doesn't work.
+
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+
+---
+ Makefile                     |    2 +-
+ scripts/Makefile.headersinst |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 274b780..f9e3f61 100644
+--- a/Makefile
++++ b/Makefile
+@@ -932,7 +932,7 @@ headers_install_all: include/linux/versi
+ 
+ PHONY += headers_install
+ headers_install: include/linux/version.h scripts_basic FORCE
+-	@if [ ! -r include/asm-$(ARCH)/Kbuild ]; then \
++	@if [ ! -r $(srctree)/include/asm-$(ARCH)/Kbuild ]; then \
+ 	  echo '*** Error: Headers not exportable for this architecture ($(ARCH))'; \
+ 	  exit 1 ; fi
+ 	$(Q)$(MAKE) $(build)=scripts scripts/unifdef
+diff --git a/scripts/Makefile.headersinst b/scripts/Makefile.headersinst
+index 6a026f6..f1c3057 100644
+--- a/scripts/Makefile.headersinst
++++ b/scripts/Makefile.headersinst
+@@ -168,7 +168,7 @@ ifdef GENASM
+ 	$(call cmd,gen)
+ 
+ else
+-$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
++$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(obj)/%.h $(KBUILDFILES)
+ 	$(call cmd,o_hdr_install)
+ 
+ $(header-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
+
+

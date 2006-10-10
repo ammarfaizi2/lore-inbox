@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbWJJMBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWJJMKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbWJJMBN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 08:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWJJMBN
+	id S965132AbWJJMKU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 08:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWJJMKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 08:01:13 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:23008 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S965138AbWJJMBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 08:01:12 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Tue, 10 Oct 2006 07:59:35 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-cc: trivial@kernel.org
-Subject: [PATCH] ixgb:  Delete IXGB_DBG() macro and call pr_debug() directly.
-Message-ID: <Pine.LNX.4.64.0610100738540.7436@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+	Tue, 10 Oct 2006 08:10:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11176 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965132AbWJJMKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 08:10:18 -0400
+Date: Tue, 10 Oct 2006 13:10:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+Message-ID: <20061010121003.GA19322@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nick Piggin <npiggin@suse.de>,
+	Linux Memory Management <linux-mm@kvack.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061007105853.14024.95383.sendpatchset@linux.site>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the minimally-useful definition of IXGB_DBG() and have
-ixgb_main.c call pr_debug() directly.
+On Sat, Oct 07, 2006 at 03:06:32PM +0200, Nick Piggin wrote:
+> +/*
+> + * fault_data is filled in the the pagefault handler and passed to the
+> + * vma's ->fault function. That function is responsible for filling in
+> + * 'type', which is the type of fault if a page is returned, or the type
+> + * of error if NULL is returned.
+> + */
+> +struct fault_data {
+> +	struct vm_area_struct *vma;
+> +	unsigned long address;
+> +	pgoff_t pgoff;
+> +	unsigned int flags;
+> +
+> +	int type;
+> +};
+>  
+>  /*
+>   * These are the virtual MM functions - opening of an area, closing and
+> @@ -203,6 +221,7 @@ extern pgprot_t protection_map[16];
+>  struct vm_operations_struct {
+>  	void (*open)(struct vm_area_struct * area);
+>  	void (*close)(struct vm_area_struct * area);
+> +	struct page * (*fault)(struct fault_data * data);
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
----
-diff --git a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
-index 50ffe90..fb9fde5 100644
---- a/drivers/net/ixgb/ixgb.h
-+++ b/drivers/net/ixgb/ixgb.h
-@@ -77,12 +77,6 @@ #include "ixgb_hw.h"
- #include "ixgb_ee.h"
- #include "ixgb_ids.h"
+Please pass the vma as an explicit first argument so that all vm_operations
+operate on a vma.  It's also much cleaner to have the separate between the
+the object operated on (the vma) and all the fault details (struct fault_data).
 
--#ifdef _DEBUG_DRIVER_
--#define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
--#else
--#define IXGB_DBG(args...)
--#endif
--
- #define PFX "ixgb: "
- #define DPRINTK(nlevel, klevel, fmt, args...) \
- 	(void)((NETIF_MSG_##nlevel & adapter->msg_enable) && \
-diff --git a/drivers/net/ixgb/ixgb_main.c b/drivers/net/ixgb/ixgb_main.c
-index e09f575..d063e84 100644
---- a/drivers/net/ixgb/ixgb_main.c
-+++ b/drivers/net/ixgb/ixgb_main.c
-@@ -1948,7 +1948,7 @@ #endif
-
- 			/* All receives must fit into a single buffer */
-
--			IXGB_DBG("Receive packet consumed multiple buffers "
-+			pr_debug("Receive packet consumed multiple buffers "
- 					 "length<%x>\n", length);
-
- 			dev_kfree_skb_irq(skb);
-
---
-
-  ok, one more time ...
-
-rday

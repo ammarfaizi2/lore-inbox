@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWJJKvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbWJJLTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbWJJKvW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 06:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbWJJKvW
+	id S932727AbWJJLTI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 07:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932870AbWJJLTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 06:51:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63910 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932617AbWJJKvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 06:51:21 -0400
-Date: Tue, 10 Oct 2006 12:50:56 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Stefan Seyfried <seife@suse.de>, Jiri Kosina <jikos@jikos.cz>,
-       linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Message-ID: <20061010105056.GC30881@elf.ucw.cz>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz> <20060930114817.GA26217@suse.de> <20061008184230.GC4033@ucw.cz> <200610100052.10008.rjw@sisk.pl>
+	Tue, 10 Oct 2006 07:19:08 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:29149 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S932727AbWJJLTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 07:19:05 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Tue, 10 Oct 2006 07:17:43 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org
+Subject: [PATCH] ixgb.h: Redefine IXGB_DBG() macro to use pr_debug().
+Message-ID: <Pine.LNX.4.64.0610100713350.7179@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610100052.10008.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 2006-10-10 00:52:09, Rafael J. Wysocki wrote:
-> On Sunday, 8 October 2006 20:42, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > boot -> suspend -> (un)plug battery -> resume
-> > > > 
-> > > > The problem arises in both cases - i.e. suspend with battery plugged in, 
-> > > > and resume with battery unplugged, or vice versa.
-> > > > 
-> > > > After resume, when the battery status has changed (plugged in -> unplegged 
-> > > > or unplugged -> plugged in) during the time when the system was sleeping, 
-> > > > the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
-> > > > the current state).
-> > > 
-> > > Is this also needed if you use "platform" method? Also with suspend-to-RAM?
-> > > 
-> > > > The following patch adds ->resume method to the ACPI battery handler, which
-> > > > has the only aim - to check whether the battery state has changed during sleep, 
-> > > > and if so, update the ACPI internal data structures, so that information 
-> > > > published through /proc/acpi/battery/*/* is correct even after suspend/resume
-> > > > cycle, during which the battery was removed/inserted.
-> > > 
-> > > Although it generally is a good idea to add suspend and resume methods to
-> > > all ACPI drivers, it would be interesting to know if you still need this
-> > > when using the correct method (platform) instead of the incorrect default
-> > > method (shutdown).
-> > > 
-> > > echo "platform" > /sys/power/disk
-> > > echo "disk" > /sys/power/state
-> > 
-> > Maybe we should change the default in 2.6.20 or so?
-> 
-> Well, I think swsusp should work with "shutdown" just as well.  If it doesn't,
-> that means there are some bugs in the ACPI code which should be fixed.
-> By using "platform" as the default method we'll be hiding those bugs IMHO.
-> 
-> OTOH that may be desirable. ;-)
+Simplify the definition of IXGB_DBG() to be based on pr_debug().
 
-You are right. We probably want both: suspend/resume method in battery
-driver _and_ platform mode used by default.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+---
+diff --git a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
+index 50ffe90..16e6c3d 100644
+--- a/drivers/net/ixgb/ixgb.h
++++ b/drivers/net/ixgb/ixgb.h
+@@ -77,11 +77,7 @@ #include "ixgb_hw.h"
+ #include "ixgb_ee.h"
+ #include "ixgb_ids.h"
+
+-#ifdef _DEBUG_DRIVER_
+-#define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
+-#else
+-#define IXGB_DBG(args...)
+-#endif
++#define IXGB_DBG(args...) pr_debug("ixgb: ", args)
+
+ #define PFX "ixgb: "
+ #define DPRINTK(nlevel, klevel, fmt, args...) \

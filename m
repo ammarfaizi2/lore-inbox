@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWJJRRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWJJRRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWJJRRE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWJJRQG
+	id S964806AbWJJRRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWJJRRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:16:06 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53641 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964816AbWJJRPi (ORCPT
+	Tue, 10 Oct 2006 13:17:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10634 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964816AbWJJRQI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:15:38 -0400
-Date: Tue, 10 Oct 2006 10:14:25 -0700
+	Tue, 10 Oct 2006 13:16:08 -0400
+Date: Tue, 10 Oct 2006 10:15:31 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,15 +18,15 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Nikita Danilov <danilov@gmail.com>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>,
+       alan@lxorguk.ukuu.org.uk, joerg@hydrops.han.de,
+       Daniel Drake <dsd@gentoo.org>, Jeff Garzik <jeff@garzik.org>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 02/19] NFS: Fix a potential deadlock in nfs_release_page
-Message-ID: <20061010171425.GC6339@kroah.com>
+Subject: [patch 15/19] xirc2ps_cs: Cannot reset card in atomic context
+Message-ID: <20061010171531.GP6339@kroah.com>
 References: <20061010165621.394703368@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="nfs-fix-a-potential-deadlock-in-nfs_release_page.patch"
+Content-Disposition: inline; filename="xirc2ps_cs-cannot-reset-card-in-atomic-context.patch"
 In-Reply-To: <20061010171350.GA6339@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,37 +35,76 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Nikita Danilov <nikita@clusterfs.com>
+From: Joerg Ahrens <joerg@hydrops.han.de>
 
-nfs_wb_page() waits on request completion and, as a result, is not safe to be
-called from nfs_release_page() invoked by VM scanner as part of GFP_NOFS
-allocation. Fix possible deadlock by analyzing gfp mask and refusing to
-release page if __GFP_FS is not set.
+I am using a Xircom CEM33 pcmcia NIC which has occasional hardware problems.
+If the netdev watchdog detects a transmit timeout, do_reset is called which
+msleeps - this is illegal in atomic context.
 
-Signed-off-by: Nikita Danilov <danilov@gmail.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+This patch schedules the timeout handling as a workqueue item.
+
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- fs/nfs/file.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/pcmcia/xirc2ps_cs.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- linux-2.6.17.13.orig/fs/nfs/file.c
-+++ linux-2.6.17.13/fs/nfs/file.c
-@@ -325,7 +325,13 @@ static void nfs_invalidate_page(struct p
+--- linux-2.6.17.13.orig/drivers/net/pcmcia/xirc2ps_cs.c
++++ linux-2.6.17.13/drivers/net/pcmcia/xirc2ps_cs.c
+@@ -345,6 +345,7 @@ typedef struct local_info_t {
+     void __iomem *dingo_ccr; /* only used for CEM56 cards */
+     unsigned last_ptr_value; /* last packets transmitted value */
+     const char *manf_str;
++    struct work_struct tx_timeout_task;
+ } local_info_t;
  
- static int nfs_release_page(struct page *page, gfp_t gfp)
+ /****************
+@@ -352,6 +353,7 @@ typedef struct local_info_t {
+  */
+ static int do_start_xmit(struct sk_buff *skb, struct net_device *dev);
+ static void do_tx_timeout(struct net_device *dev);
++static void xirc2ps_tx_timeout_task(void *data);
+ static struct net_device_stats *do_get_stats(struct net_device *dev);
+ static void set_addresses(struct net_device *dev);
+ static void set_multicast_list(struct net_device *dev);
+@@ -589,6 +591,7 @@ xirc2ps_probe(struct pcmcia_device *link
+ #ifdef HAVE_TX_TIMEOUT
+     dev->tx_timeout = do_tx_timeout;
+     dev->watchdog_timeo = TX_TIMEOUT;
++    INIT_WORK(&local->tx_timeout_task, xirc2ps_tx_timeout_task, dev);
+ #endif
+ 
+     return xirc2ps_config(link);
+@@ -1341,17 +1344,24 @@ xirc2ps_interrupt(int irq, void *dev_id,
+ /*====================================================================*/
+ 
+ static void
+-do_tx_timeout(struct net_device *dev)
++xirc2ps_tx_timeout_task(void *data)
  {
--	return !nfs_wb_page(page->mapping->host, page);
-+	if (gfp & __GFP_FS)
-+		return !nfs_wb_page(page->mapping->host, page);
-+	else
-+		/*
-+		 * Avoid deadlock on nfs_wait_on_request().
-+		 */
-+		return 0;
+-    local_info_t *lp = netdev_priv(dev);
+-    printk(KERN_NOTICE "%s: transmit timed out\n", dev->name);
+-    lp->stats.tx_errors++;
++    struct net_device *dev = data;
+     /* reset the card */
+     do_reset(dev,1);
+     dev->trans_start = jiffies;
+     netif_wake_queue(dev);
  }
  
- struct address_space_operations nfs_file_aops = {
++static void
++do_tx_timeout(struct net_device *dev)
++{
++    local_info_t *lp = netdev_priv(dev);
++    lp->stats.tx_errors++;
++    printk(KERN_NOTICE "%s: transmit timed out\n", dev->name);
++    schedule_work(&lp->tx_timeout_task);
++}
++
+ static int
+ do_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
 
 --

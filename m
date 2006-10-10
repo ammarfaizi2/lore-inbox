@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWJJHkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWJJHpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbWJJHkq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWJJHkq
+	id S965080AbWJJHpi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWJJHpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:40:46 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:58254 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S965079AbWJJHkp (ORCPT
+	Tue, 10 Oct 2006 03:45:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27362 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965080AbWJJHpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:40:45 -0400
-Date: Tue, 10 Oct 2006 03:40:44 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: wim@iguana.be, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] watchdog/iTCO_wdt: fix bug related to gcc uninit warning
-Message-ID: <20061010074044.GA23501@havoc.gtf.org>
+	Tue, 10 Oct 2006 03:45:38 -0400
+Date: Tue, 10 Oct 2006 00:45:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.19-rc1-mm1
+Message-Id: <20061010004526.c7088e79.akpm@osdl.org>
+In-Reply-To: <1160464800.3000.264.camel@laptopd505.fenrus.org>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	<1160464800.3000.264.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Oct 2006 09:20:00 +0200
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-gcc emits the following warning:
+> On Tue, 2006-10-10 at 00:09 -0700, Andrew Morton wrote:
+> > +htlb-forget-rss-with-pt-sharing.patch
 
-drivers/char/watchdog/iTCO_wdt.c: In function ‘iTCO_wdt_ioctl’:
-drivers/char/watchdog/iTCO_wdt.c:429: warning: ‘time_left’ may be used uninitialized in this function
+Which I didn't write.  cc's added.
 
-This indicates a condition near enough to a bug, to want to fix.
-iTCO_wdt_get_timeleft() stores a value in 'time_left' iff
-iTCO_version==(1 or 2).  This driver only supports versions
-1 or 2, so this is ok.  However, since (a) the return value of
-iTCO_wdt_get_timeleft() is handled anyway, (b) it fixes the warning,
-and (c) it future-proofs the driver, we go ahead and add the obvious
-return value.
+> if it's ok to ignore RSS,
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+We'd prefer not to.  But what's the alternative?
 
----
+> can we consider the shared pagetables for
+> normal pages patch?
 
- drivers/char/watchdog/iTCO_wdt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Has been repeatedly considered, but Hugh keeps finding bugs in it.
 
-diff --git a/drivers/char/watchdog/iTCO_wdt.c b/drivers/char/watchdog/iTCO_wdt.c
-index aaac94d..bf5cd55 100644
---- a/drivers/char/watchdog/iTCO_wdt.c
-+++ b/drivers/char/watchdog/iTCO_wdt.c
-@@ -355,7 +355,8 @@ static int iTCO_wdt_get_timeleft (int *t
- 		spin_unlock(&iTCO_wdt_private.io_lock);
- 
- 		*time_left = (val8 * 6) / 10;
--	}
-+	} else
-+		return -EINVAL;
- 	return 0;
- }
- 
-@@ -426,7 +427,6 @@ static int iTCO_wdt_ioctl (struct inode 
- {
- 	int new_options, retval = -EINVAL;
- 	int new_heartbeat;
--	int time_left;
- 	void __user *argp = (void __user *)arg;
- 	int __user *p = argp;
- 	static struct watchdog_info ident = {
-@@ -486,6 +486,8 @@ static int iTCO_wdt_ioctl (struct inode 
- 
- 		case WDIOC_GETTIMELEFT:
- 		{
-+			int time_left;
-+
- 			if (iTCO_wdt_get_timeleft(&time_left))
- 				return -EINVAL;
- 
+> It saves quite a bit of memory on even desktop
+> workloads as well as avoiding several (soft) pagefaults.
+> 
+> So.. what does RSS actually mean? Can we ignore it somewhat for
+> shared-readonly mappings ? 
+
+We'd prefer to go the other way, and implement RLIMIT_RSS wouldn't we?

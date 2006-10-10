@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWJJQ6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWJJRBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWJJQ6E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWJJQ6E
+	id S964770AbWJJRBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWJJRBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:58:04 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:41356 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1750721AbWJJQ6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:58:02 -0400
-Date: Tue, 10 Oct 2006 18:56:57 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Jeff Garzik <jeff@garzik.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/net/irda/donauboe.c broken in current git tree
-Message-ID: <Pine.LNX.4.64.0610101849010.5959@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Oct 2006 13:01:04 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:33486 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1750921AbWJJRBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 13:01:02 -0400
+Subject: Re: [patch 2/2] round_jiffies users
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Ingo Oeser <netdev@axxeo.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       akpm@osdl.org, mingo@elte.hu
+In-Reply-To: <200610101847.39604.netdev@axxeo.de>
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	 <1160496210.3000.310.camel@laptopd505.fenrus.org>
+	 <1160496263.3000.312.camel@laptopd505.fenrus.org>
+	 <200610101847.39604.netdev@axxeo.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Oct 2006 18:59:50 +0200
+Message-Id: <1160499590.3000.323.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Tue, 2006-10-10 at 18:47 +0200, Ingo Oeser wrote:
+> Hi Arjan,
+> 
+> Arjan van de Ven wrote:
+> > Index: linux-2.6.19-rc1-git6/mm/slab.c
+> > ===================================================================
+> > --- linux-2.6.19-rc1-git6.orig/mm/slab.c
+> > +++ linux-2.6.19-rc1-git6/mm/slab.c
+> > @@ -926,7 +926,7 @@ static void __devinit start_cpu_timer(in
+> >  	if (keventd_up() && reap_work->func == NULL) {
+> >  		init_reap_node(cpu);
+> >  		INIT_WORK(reap_work, cache_reap, NULL);
+> > -		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
+> > +		schedule_delayed_work_on(cpu, reap_work, __round_jiffies_relative(HZ, cpu));
+> >  	}
+> >  }
+> >  
+> 
+> Did you changed the behavior by intention?
+> You seem to miss the factor "3" here. This hunk should read:
 
-your commit c31f28e778ab299a5035ea2bda64f245b8915d7c (which currently is 
-in mainline) broke drivers/net/irda/donauboe.c, as it removes 
-toshoboe_invalid_dev(), but this is called from toshoboe_interrupt() 
-(your patch removed reference to it only from toshoboe_probeinterrupt().
+Hi,
 
-I guess the fix below is appropriate .. ?
+actually.. not really; the __round_jiffies_relative function just takes
+a CPU number, and internally takes care of spreading things around based
+on CPU number (eg it does the *3 internally); it's cleaner that way, the
+callers don't need to bother by how much to spread for each cpu etc
+etc... So the patch is correct as is.
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
 
-diff --git a/drivers/net/irda/donauboe.c b/drivers/net/irda/donauboe.c
-index 636d063..14cc217 100644
---- a/drivers/net/irda/donauboe.c
-+++ b/drivers/net/irda/donauboe.c
-@@ -1158,9 +1158,6 @@ toshoboe_interrupt (int irq, void *dev_i
-   __u8 irqstat;
-   struct sk_buff *skb = NULL;
- 
--  if (self == NULL && toshoboe_invalid_dev(irq))
--    return IRQ_NONE;
--
-   irqstat = INB (OBOE_ISR);
- 
- /* was it us */
+Greetings,
+   Arjan van de Ven
 
--- 
-Jiri Kosina
+

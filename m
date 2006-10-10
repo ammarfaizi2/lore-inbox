@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbWJJVsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030507AbWJJVsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030522AbWJJVsB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030496AbWJJVre
+	id S1030507AbWJJVsE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbWJJVsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:47:34 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:26811 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030516AbWJJVrS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:47:18 -0400
-To: torvalds@osdl.org
-Subject: [PATCH] acpi NULL noise removal
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXPRV-0007Nt-BT@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 22:47:17 +0100
+	Tue, 10 Oct 2006 17:48:00 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49035
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030522AbWJJVrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:47:55 -0400
+Date: Tue, 10 Oct 2006 14:47:53 -0700 (PDT)
+Message-Id: <20061010.144753.57160083.davem@davemloft.net>
+To: joro-lkml@zlug.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/02 V3] net/ipv6: seperate sit driver to extra module
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061010153745.GA27455@zlug.org>
+References: <20061010153745.GA27455@zlug.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Joerg Roedel <joro-lkml@zlug.org>
+Date: Tue, 10 Oct 2006 17:37:45 +0200
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- drivers/acpi/cm_sbs.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+> This patch removes the driver of the IPv6-in-IPv4 tunnel driver (sit)
+> from the IPv6 module. It adds an option to Kconfig which makes it
+> possible to compile it as a seperate module.
+> 
+> Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
 
-diff --git a/drivers/acpi/cm_sbs.c b/drivers/acpi/cm_sbs.c
-index a01ce67..4a9b7bf 100644
---- a/drivers/acpi/cm_sbs.c
-+++ b/drivers/acpi/cm_sbs.c
-@@ -67,7 +67,7 @@ void acpi_unlock_ac_dir(struct proc_dir_
- 		lock_ac_dir_cnt--;
- 	if (lock_ac_dir_cnt == 0 && acpi_ac_dir_param && acpi_ac_dir) {
- 		remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
--		acpi_ac_dir = 0;
-+		acpi_ac_dir = NULL;
- 	}
- 	mutex_unlock(&cm_sbs_mutex);
- }
-@@ -99,7 +99,7 @@ void acpi_unlock_battery_dir(struct proc
- 	if (lock_battery_dir_cnt == 0 && acpi_battery_dir_param
- 	    && acpi_battery_dir) {
- 		remove_proc_entry(ACPI_BATTERY_CLASS, acpi_root_dir);
--		acpi_battery_dir = 0;
-+		acpi_battery_dir = NULL;
- 	}
- 	mutex_unlock(&cm_sbs_mutex);
- 	return;
--- 
-1.4.2.GIT
-
-
+Applied, thanks.

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWJJTkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWJJTmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWJJTkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWJJTkA
+	id S1030229AbWJJTmH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWJJTmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:40:00 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62126 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030229AbWJJTj5 (ORCPT
+	Tue, 10 Oct 2006 15:42:07 -0400
+Received: from gw.goop.org ([64.81.55.164]:25735 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030229AbWJJTmE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:39:57 -0400
-Date: Tue, 10 Oct 2006 12:39:51 -0700
-From: Paul Jackson <pj@sgi.com>
+	Tue, 10 Oct 2006 15:42:04 -0400
+Message-ID: <452BF781.4080409@goop.org>
+Date: Tue, 10 Oct 2006 12:41:53 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: davem@sunset.davemloft.net, linux-kernel@vger.kernel.org,
-       vonbrand@inf.utfsm.cl
-Subject: Re: Sparc64 stopped building - sigset_t unrecognized in compat.h
-Message-Id: <20061010123951.41bb5283.pj@sgi.com>
-In-Reply-To: <20061010123744.403dbea7.akpm@osdl.org>
-References: <20061010115940.4c25ae83.pj@sgi.com>
-	<20061010123744.403dbea7.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1
+References: <20061010000928.9d2d519a.akpm@osdl.org>	<452BE1DC.9030503@goop.org> <20061010122511.8232e9d5.akpm@osdl.org>
+In-Reply-To: <20061010122511.8232e9d5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.6.19-rc1-mm1 builds OK on sparc64.
+Andrew Morton wrote:
+> I didn't do anything to fix it.  But I haven't tested it recently - it
+> might have repaired itself ;)
+>   
 
-Good - I won't worry about 2.6.18-mm3 anymore.
+Surely the way to check it just throw it in and see who screams...
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> My plan was to pathetically spam the powerpc guys with it once all the
+> above is merged up.  I took a close look and couldn't see why it was
+> failing.
+>   
+
+Oh, I thought it turned out to be some other problem.  Er, something 
+about numa memory stuff?
+
+    J

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWJJVb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWJJVh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030439AbWJJVb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWJJVb5
+	id S1030456AbWJJVh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWJJVh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:31:57 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:3070 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030439AbWJJVb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:31:56 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=ZxpIBI1VTQTPxkrPLbGNZn7e1bSTyfx8GX1HTm6NKtjlY0YMxxAhGrHxwtWyyCC/K
-	Dk5V43t/CGUiJoqSVc7uw==
-Message-ID: <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
-Date: Tue, 10 Oct 2006 14:31:43 -0700
-From: "Paul Menage" <menage@google.com>
-To: "Chandra Seetharaman" <sekharan@us.ibm.com>, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in configfs
-In-Reply-To: <20061010203511.GF7911@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 10 Oct 2006 17:37:28 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:52691 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030456AbWJJVh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:37:27 -0400
+Date: Tue, 10 Oct 2006 14:36:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: torvalds@osdl.org, massad@gmail.com, linux-kernel@vger.kernel.org,
+       trivial@kernel.org, hc@mivu.no, dtor@mail.ru
+Subject: Re: [PATCH] itmtouch: fix inverted flag to indicate touch location
+ correctly
+Message-Id: <20061010143636.9ce38722.pj@sgi.com>
+In-Reply-To: <20061004204114.e2906ead.rdunlap@xenotime.net>
+References: <7f9863480610041736k2fe84c6bqd1d9740868dedf7d@mail.gmail.com>
+	<Pine.LNX.4.64.0610041913050.3952@g5.osdl.org>
+	<20061004204114.e2906ead.rdunlap@xenotime.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
-	 <20061010203511.GF7911@ca-server1.us.oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/10/06, Joel Becker <Joel.Becker@oracle.com> wrote:
-> On Tue, Oct 10, 2006 at 11:20:43AM -0700, Chandra Seetharaman wrote:
-> > Currently, maximum amount of data that can be read from a configfs
-> > attribute file is limited to PAGESIZE bytes. This is a limitation for
-> > some of the usages of configfs.
+Randy, commenting on a patch of Mark Assad <massad@gmail.com>:
 >
->         NAK.  This forces a complex and inappropriate interface on the
-> majority of users, and doesn't honor configfs' simplicity-first design.
+> Sure, if you use SMTP to gmail instead of the web interface.
+> The web interface isn't decent for sending patches.
 
-How is the seq_file interface complex and inappropriate? For the
-configfs clients it's basically a drop-in replacement for sprintf(),
-as Chandra's patches show.
 
-Paul
+If you're going that route, another option is to use my sendpatchset
+utility:
+
+  http://www.speakeasy.org/~pj99/sgi/sendpatchset
+
+It has hooks (read the code - it's a script) for directly feeding
+patches to the gmail SMTP agent.  See the embedded usage statement
+for instructions on using it.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

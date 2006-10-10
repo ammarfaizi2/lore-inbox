@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWJJTFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWJJTGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWJJTFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWJJTFG
+	id S932200AbWJJTGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWJJTGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:05:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50898 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751103AbWJJTFB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:05:01 -0400
-Date: Tue, 10 Oct 2006 12:04:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1
-Message-Id: <20061010120441.3cd3f8ff.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0610100909t3a33d4ecwdae27a27b15d60e3@mail.gmail.com>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<6bffcb0e0610100909t3a33d4ecwdae27a27b15d60e3@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 15:06:39 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:19895 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932169AbWJJTGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 15:06:38 -0400
+Date: Tue, 10 Oct 2006 14:06:30 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Jeremy Higdon <jeremy@sgi.com>,
+       Pat Gefre <pfg@sgi.com>
+Subject: Re: [PATCH 2/2] ioc4: Enable build on non-SN2
+In-Reply-To: <Pine.LNX.4.61.0610102042290.17718@yvahk01.tjqt.qr>
+Message-ID: <20061010140429.O71367@pkunk.americas.sgi.com>
+References: <20061010120928.V71367@pkunk.americas.sgi.com>
+ <20061010103915.f412d770.rdunlap@xenotime.net> <20061010131916.D71367@pkunk.americas.sgi.com>
+ <Pine.LNX.4.61.0610102042290.17718@yvahk01.tjqt.qr>
+Organization: Silicon Graphics, Inc.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 18:09:31 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+On Tue, 10 Oct 2006, Jan Engelhardt wrote:
 
-> On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> >> Mostly curious:  did you observe that this is required?
+> >> I always thought that Roman said that unknown config variables
+> >> caused a rescan by kconfig.  IOW, I thought that it wouldn't
+> >> be observable by a user.  Just wondering..
 > >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
-> >
+> >If it causes a rescan (I don't rightly know) it must have changed.
+> >I caught a bit of flak for an incorrectly ordered config statement
+> >once before, but that was a few years ago.
 > 
-> This looks strange
-> ps aux | grep t3
-> root      4305 81.6  0.1   5952  2596 pts/7    R+   17:54   2:44
-> python ./rt-tester.py t3-l1-pi-steal.tst
-> michal    4351  0.0  0.0   3908   760 pts/5    R+   17:58   0:00 grep t3
-> [michal@euridica ~]$ ps aux | grep creat
-> root      3934 87.3  0.0   1652   496 pts/4    R    17:25  28:37 creat05
-> michal    4353  0.0  0.0   3912   772 pts/5    S+   17:58   0:00 grep creat
-> 
-> python ./rt-tester.py t3-l1-pi-steal.tst and creat05 (from LTP) are
-> always in running state (creat05 since 28 minutes). I don't have any
-> idea why this happens.
-> 
+> I am sure it causes a rescan, because activating 
+> CONFIG_NETFILTER for example makes some options available that are 
+> defined before NETFILTER, such as IP_ROUTE_FWMARK, IP_VS, 
+> NETFILTER_XT_TARGET_CONNMARK and NETFILTER_XT_TARGET_NOTRACK, and 
+> activating NETFILTER _will_ cause a rescan with `make oldconfig` - I 
+> just tried. (Things are a little different with menuconfig/xconfig and 
+> such of course)
 
-The fdtable patches might have some problems.
+In my case I think it was the menuconfig or xconfig that someone
+complained about (I don't rightly remember which one).  In any case,
+for the patch at hand, I could find no particular reason that
+the drivers/misc Kconfig line couldn't be moved up to preserve peace
+and harmony.
 
-http://userweb.kernel.org/~akpm/mp.bz2 is 2.6.19-rc1-mm1 without those
-patches.  Does it work better?  
+Brent
 
-Thanks.
+-- 
+Brent Casavant                          All music is folk music.  I ain't
+bcasavan@sgi.com                        never heard a horse sing a song.
+Silicon Graphics, Inc.                    -- Louis Armstrong

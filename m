@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWJJJT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWJJJaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965126AbWJJJT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 05:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWJJJT2
+	id S965114AbWJJJaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 05:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWJJJaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 05:19:28 -0400
-Received: from smtp1.versatel.nl ([62.58.50.88]:59540 "EHLO smtp1.versatel.nl")
-	by vger.kernel.org with ESMTP id S965126AbWJJJT1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 05:19:27 -0400
-Message-ID: <452B6569.7050404@hhs.nl>
-Date: Tue, 10 Oct 2006 11:18:33 +0200
-From: Hans de Goede <j.w.r.degoede@hhs.nl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 10 Oct 2006 05:30:07 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:38870 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S965114AbWJJJaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 05:30:03 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Tue, 10 Oct 2006 05:28:40 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH] apparent typo in ixgb.h, "_DEBUG_DRIVER_" looks wrong
+In-Reply-To: <20061010091501.GA5369@martell.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0610100522240.6146@localhost.localdomain>
+References: <Pine.LNX.4.64.0610100219590.3442@localhost.localdomain>
+ <20061010091501.GA5369@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Jean Delvare <khali@linux-fr.org>
-CC: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
-References: <20061010065359.GA21576@havoc.gtf.org>	<452B4B59.1050606@hhs.nl> <20061010110803.1a70b576.khali@linux-fr.org>
-In-Reply-To: <20061010110803.1a70b576.khali@linux-fr.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Oct 2006, Alexey Dobriyan wrote:
 
+> On Tue, Oct 10, 2006 at 02:27:34AM -0400, Robert P. J. Day wrote:
+> > I'm *guessing* that "_DEBUG_DRIVER_" should really be
+> > "DEBUG_DRIVER" here, since there is no other occurrence of the
+> > former anywhere in the source tree.
+>
+> Since it's debugging guard, underscored or not... doesn't matter.
+> Convert to pr_debug or dev_dbg of you want to deal with it.
+>
+> > --- a/drivers/net/ixgb/ixgb.h
+> > +++ b/drivers/net/ixgb/ixgb.h
+> > @@ -77,7 +77,7 @@ #include "ixgb_hw.h"
+> >  #include "ixgb_ee.h"
+> >  #include "ixgb_ids.h"
+> >
+> > -#ifdef _DEBUG_DRIVER_
+> > +#ifdef DEBUG_DRIVER
+> >  #define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
+> >  #else
+> >  #define IXGB_DBG(args...)
 
-Jean Delvare wrote:
-> Hi Hans, Jeff,
-> 
->> You (Jean) already mailed me about this and it was on my todo list,
->> but I'm currently rather busy with work. So it looks like Jeff beat
->> me to it.
->>
->> Jeff's patch looks fine, please apply. Thanks Jeff!
-> 
-> The patch isn't wrong per se, but it could be made more simple, and is
-> incomplete in comparison to what was done for all other hardware
-> monitoring drivers:
-> 
-> * We want to create all the files before registering with the hwmon
->   class, this closes a race condition.
+but what you're suggesting is not equivalent.  i submitted that patch
+to fix what *seems* to be an obvious, innocuous typo, to bring that
+one header file into sync with the rest of the source tree, nothing
+more.
 
-OK
+if all debugging should now use either of pr_debug() or dev_dbg(),
+that's fine but i notice that both of those macros will be defined
+only if "DEBUG" is defined, not "DEBUG_DRIVER".  so making the change
+you suggest would *not* be a trivial change.
 
-> * We want to delete all the device files at regular cleanup time (after
->   unregistering with the hwmon class).
+what's the current standard for debugging directives in the kernel?
 
-Is this really nescesarry? AFAIK the files get deleted when the device gets deleted.
-
-> * It's OK to call device_create_file() on a non-existent file, so the
->   error path can be simplified.
-> 
-
-?? You mean device_remove_file I assume?
-
-> I'd like the abituguru driver to behave the same as all other hardware
-> monitoring drivers to lower the maintenance effort. Can either you
-> or Jeff work up a compliant patch? 
-> 
-
-I understand Jeff any chance you can do a new revision of your patch? Otherwise I'll take care of it as time permits.
-
-Regards,
-
-Hans
+rday

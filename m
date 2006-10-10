@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWJJFOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWJJFP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbWJJFOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 01:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWJJFOL
+	id S964981AbWJJFP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 01:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWJJFP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 01:14:11 -0400
-Received: from ozlabs.org ([203.10.76.45]:53154 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964980AbWJJFOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 01:14:10 -0400
+	Tue, 10 Oct 2006 01:15:58 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:43810 "EHLO
+	asav13.insightbb.com") by vger.kernel.org with ESMTP
+	id S964981AbWJJFP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 01:15:58 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AY8CAP7IKkWMByw
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [linux-usb-devel] [PATCH] usb/hid: The HID Simple Driver Interface 0.3.2 (core)
+Date: Tue, 10 Oct 2006 01:15:39 -0400
+User-Agent: KMail/1.9.3
+Cc: "raise.sail@gmail.com" <raise.sail@gmail.com>, greg <greg@kroah.com>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+References: <200609291624123283320@gmail.com> <200610082342.26110.dtor@insightbb.com> <452AD2D9.3090001@gmail.com>
+In-Reply-To: <452AD2D9.3090001@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17707.11292.661824.337474@cargo.ozlabs.ibm.com>
-Date: Tue, 10 Oct 2006 15:14:04 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Why is device_create_file __must_check?
-In-Reply-To: <20061009214936.a2788702.akpm@osdl.org>
-References: <17707.8801.395100.35054@cargo.ozlabs.ibm.com>
-	<20061009214936.a2788702.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200610100115.41449.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+On Monday 09 October 2006 18:53, Anssi Hannula wrote:
+> Dmitry Torokhov wrote:
+> > On Sunday 08 October 2006 14:51, Anssi Hannula wrote:
+> >> (I didn't get Dmitry's original mail, so replying here)
+> >>
+> >> raise.sail@gmail.com wrote:
+> >>> Dmitry Torokhov wrote:
+> >>>> Then there is issue with automatic loading of these sub-drivers. How
+> >>>> do they get loaded? Or we force everything to be built-in making HID
+> >>>> module very fat (like psmouse got pretty fat, but with HID prtential
+> >>>> for it to get very fat is much bigger).
+> >>>>
+> >>>> The better way would be to split hid-input into a library module that
+> >>>> parses hid usages and reports and is shared between device-specific
+> >>>> modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
+> >> One possibility is to do that with symbol_request() and friends. That
+> >> would not be pretty though, imho.
+> >>
+> >> DVB subsystem uses that currently to load frontend modules dynamically,
+> >> see dvb_attach() and dvb_frontend_detach() in
+> >> drivers/media/dvb/dvb-core/dvbdev.h and
+> >> drivers/media/dvb/dvb-core/dvb_frontend.c.
+> >>
+> > 
+> > Unfortunately this does not quite work when hid is built-in and the rest
+> > are modules :(
+> > 
+> 
+> How so? I see nothing obvious.
+> 
 
-> There are no super-strong reasons here, but if device_create_file() fails
-> then the required control files aren't there and the subsystem isn't
-> working as intended.  If it's in a module then we should fail the modprobe. 
-> If it's a bootup thing then best we can do is to panic.  Or at least log
-> the event.
+If hid (and hcd) is compiled in it will try binging to devices before
+userspace is up and symbol_request will not work. You could try
+playing with initramfs but it is kind of a hassle.
 
-In the case of the windfarm driver, the sysfs files are reporting
-things like cpu voltage, current, temperature etc. which can be
-interesting to know about, but the sysfs files are not essential to
-the operation of the driver.  So just some cheesy printk would do in
-that sort of situation, I guess.
-
-> The most common cause of this is a programming error: we tried to create
-> the same entry twice.   We want to know about that.
-
-In that case a WARN_ON inside device_create_file when the duplicate is
-detected would be better - less code, and only one place where the
-check needs to be done.  The WARN_ON will give us a backtrace so we
-can see where the second creation attempt happened.
-
-> Because it can fail.  We need to take _some_ action if the setup failed - at
-> least report it so the user (and the kernel developers) know that something
-> is going wrong.
-
-So we have to add printks in all sorts of places where the
-device_create_file has never failed before.  If you're that concerned,
-why not add a WARN_ON(error) in device_create_file() ?
-
-Paul.
+-- 
+Dmitry

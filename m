@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWJJTGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWJJTGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWJJTGk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWJJTGj
+	id S932169AbWJJTGp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWJJTGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:06:39 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:19895 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932169AbWJJTGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:06:38 -0400
-Date: Tue, 10 Oct 2006 14:06:30 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeremy Higdon <jeremy@sgi.com>,
-       Pat Gefre <pfg@sgi.com>
-Subject: Re: [PATCH 2/2] ioc4: Enable build on non-SN2
-In-Reply-To: <Pine.LNX.4.61.0610102042290.17718@yvahk01.tjqt.qr>
-Message-ID: <20061010140429.O71367@pkunk.americas.sgi.com>
-References: <20061010120928.V71367@pkunk.americas.sgi.com>
- <20061010103915.f412d770.rdunlap@xenotime.net> <20061010131916.D71367@pkunk.americas.sgi.com>
- <Pine.LNX.4.61.0610102042290.17718@yvahk01.tjqt.qr>
-Organization: Silicon Graphics, Inc.
+	Tue, 10 Oct 2006 15:06:45 -0400
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:37006 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP id S932169AbWJJTGo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 15:06:44 -0400
+Message-ID: <452BEF41.9060402@grupopie.com>
+Date: Tue, 10 Oct 2006 20:06:41 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adam Jerome <abj@novell.com>
+CC: linux-kernel@vger.kernel.org, Akpm@osdl.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 002/001] /kernel: /proc/kallsyms reports lower-case	types
+ for some non-exported symbols       (Resend #1)
+References: <452B7079.3C0A.0073.0@novell.com>
+In-Reply-To: <452B7079.3C0A.0073.0@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006, Jan Engelhardt wrote:
+Adam Jerome wrote:
+> This patch addresses incorrect symbol type information reported through /proc/kallsyms.
+> A lowercase character should designate the symbol as local (or non-exported).  An
+> uppercase character should designate the symbol as global (or external). Without this
+> patch, some non-exported symbols are incorrectly assigned an upper-case designation in
+> /proc/kallsyms.  This patch corrects this condition by converting non-exported symbols
+> types to lower case when appropriate and eliminates the superfluous upcase_if_global
+> function
 
-> >> Mostly curious:  did you observe that this is required?
-> >> I always thought that Roman said that unknown config variables
-> >> caused a rescan by kconfig.  IOW, I thought that it wouldn't
-> >> be observable by a user.  Just wondering..
-> >
-> >If it causes a rescan (I don't rightly know) it must have changed.
-> >I caught a bit of flak for an incorrectly ordered config statement
-> >once before, but that was a few years ago.
-> 
-> I am sure it causes a rescan, because activating 
-> CONFIG_NETFILTER for example makes some options available that are 
-> defined before NETFILTER, such as IP_ROUTE_FWMARK, IP_VS, 
-> NETFILTER_XT_TARGET_CONNMARK and NETFILTER_XT_TARGET_NOTRACK, and 
-> activating NETFILTER _will_ cause a rescan with `make oldconfig` - I 
-> just tried. (Things are a little different with menuconfig/xconfig and 
-> such of course)
+After looking at this patch I thought "this is all wrong: we should fix 
+this at build time and not at run-time". The module infrastructure is a 
+little hard to follow, though (Rusty CC'ed).
 
-In my case I think it was the menuconfig or xconfig that someone
-complained about (I don't rightly remember which one).  In any case,
-for the patch at hand, I could find no particular reason that
-the drivers/misc Kconfig line couldn't be moved up to preserve peace
-and harmony.
+Anyway, it looks like doing the case correction in add_kallsyms should 
+at least avoid the "is_exported" call at every module symbol at every 
+"cat /proc/kallsyms". It would be done only once at module loading 
+(doing it at build time would be even better, though).
 
-Brent
+"is_exported" does a linear search inside the symbols of one module, so 
+the time it takes to "cat" all the symbols in a module grows O(N^2). 
+Although there aren't that many symbols in each module, a quick grep 
+shows that "usbcore", for instance, has 876 symbols in /proc/kallsyms.
+
+The st_info field seems to be used only to display the type in 
+"/proc/kallsyms" and in mod_find_symname to ignore undefined symbols 
+(this would have to be adjusted if the case of the 'U' symbol is changed).
+
+This has actually very little to do with the patch in question, because 
+this behavior was already in place before the patch. Maybe some 
+benchmarks of "cat /proc/kallsyms" with both the is_exported call and 
+without it can show if this really matters in the end.
 
 -- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong
+Paulo Marques - www.grupopie.com
+
+"The face of a child can say it all, especially the
+mouth part of the face."

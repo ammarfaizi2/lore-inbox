@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWJJHCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWJJHDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWJJHCP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWJJHCP
+	id S965055AbWJJHDg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWJJHDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:02:15 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:12430 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S965051AbWJJHCO (ORCPT
+	Tue, 10 Oct 2006 03:03:36 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:13966 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S965055AbWJJHDf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:02:14 -0400
-Date: Tue, 10 Oct 2006 03:02:13 -0400
+	Tue, 10 Oct 2006 03:03:35 -0400
+Date: Tue, 10 Oct 2006 03:03:34 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: minyard@acm.org, Andrew Morton <akpm@osdl.org>,
+To: tigran@veritas.com, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ipmi: handle sysfs errors
-Message-ID: <20061010070213.GA22049@havoc.gtf.org>
+Subject: [PATCH] x86/microcode: handle sysfs errors
+Message-ID: <20061010070334.GA22084@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,175 +28,35 @@ Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/char/ipmi/ipmi_msghandler.c |  122 +++++++++++++++++++++++++++---------
- 1 file changed, 93 insertions(+), 29 deletions(-)
+Note that the driver code API must be fixed to actually check the return
+code of the ->add() hook, for this patch to be of any real use.
 
-cf8f730ca9ec3636609ca08b357c615c689b86df
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 2455e8d..34a4fd1 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -1928,13 +1928,8 @@ static ssize_t guid_show(struct device *
- 			(long long) bmc->guid[8]);
- }
+ arch/i386/kernel/microcode.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+a95aa9d762b6571bf52b50e47b4d2793eb649b1c
+diff --git a/arch/i386/kernel/microcode.c b/arch/i386/kernel/microcode.c
+index bca92be..441f140 100644
+--- a/arch/i386/kernel/microcode.c
++++ b/arch/i386/kernel/microcode.c
+@@ -656,14 +656,18 @@ static struct attribute_group mc_attr_gr
  
--static void
--cleanup_bmc_device(struct kref *ref)
-+static void remove_files(struct bmc_device *bmc)
+ static int mc_sysdev_add(struct sys_device *sys_dev)
  {
--	struct bmc_device *bmc;
--
--	bmc = container_of(ref, struct bmc_device, refcount);
--
- 	device_remove_file(&bmc->dev->dev,
- 			   &bmc->device_id_attr);
- 	device_remove_file(&bmc->dev->dev,
-@@ -1951,12 +1946,23 @@ cleanup_bmc_device(struct kref *ref)
- 			   &bmc->manufacturer_id_attr);
- 	device_remove_file(&bmc->dev->dev,
- 			   &bmc->product_id_attr);
-+
- 	if (bmc->id.aux_firmware_revision_set)
- 		device_remove_file(&bmc->dev->dev,
- 				   &bmc->aux_firmware_rev_attr);
- 	if (bmc->guid_set)
- 		device_remove_file(&bmc->dev->dev,
- 				   &bmc->guid_attr);
-+}
-+
-+static void
-+cleanup_bmc_device(struct kref *ref)
-+{
-+	struct bmc_device *bmc;
-+
-+	bmc = container_of(ref, struct bmc_device, refcount);
-+
-+	remove_files(bmc);
- 	platform_device_unregister(bmc->dev);
- 	kfree(bmc);
- }
-@@ -1977,6 +1983,79 @@ static void ipmi_bmc_unregister(ipmi_smi
- 	mutex_unlock(&ipmidriver_mutex);
- }
+-	int cpu = sys_dev->id;
++	int err, cpu = sys_dev->id;
+ 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
  
-+static int create_files(struct bmc_device *bmc)
-+{
-+	int err;
+ 	if (!cpu_online(cpu))
+ 		return 0;
 +
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->device_id_attr);
-+	if (err) goto out;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->provides_dev_sdrs_attr);
-+	if (err) goto out_devid;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->revision_attr);
-+	if (err) goto out_sdrs;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->firmware_rev_attr);
-+	if (err) goto out_rev;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->version_attr);
-+	if (err) goto out_firm;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->add_dev_support_attr);
-+	if (err) goto out_version;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->manufacturer_id_attr);
-+	if (err) goto out_add_dev;
-+	err = device_create_file(&bmc->dev->dev,
-+			   &bmc->product_id_attr);
-+	if (err) goto out_manu;
-+	if (bmc->id.aux_firmware_revision_set) {
-+		err = device_create_file(&bmc->dev->dev,
-+				   &bmc->aux_firmware_rev_attr);
-+		if (err) goto out_prod_id;
-+	}
-+	if (bmc->guid_set) {
-+		err = device_create_file(&bmc->dev->dev,
-+				   &bmc->guid_attr);
-+		if (err) goto out_aux_firm;
-+	}
+ 	pr_debug("Microcode:CPU %d added\n", cpu);
+ 	memset(uci, 0, sizeof(*uci));
+-	sysfs_create_group(&sys_dev->kobj, &mc_attr_group);
 +
-+	return 0;
-+
-+out_aux_firm:
-+	if (bmc->id.aux_firmware_revision_set)
-+		device_remove_file(&bmc->dev->dev,
-+				   &bmc->aux_firmware_rev_attr);
-+out_prod_id:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->product_id_attr);
-+out_manu:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->manufacturer_id_attr);
-+out_add_dev:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->add_dev_support_attr);
-+out_version:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->version_attr);
-+out_firm:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->firmware_rev_attr);
-+out_rev:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->revision_attr);
-+out_sdrs:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->provides_dev_sdrs_attr);
-+out_devid:
-+	device_remove_file(&bmc->dev->dev,
-+			   &bmc->device_id_attr);
-+out:
-+	return err;
-+}
-+
- static int ipmi_bmc_register(ipmi_smi_t intf)
- {
- 	int               rv;
-@@ -2051,7 +2130,6 @@ static int ipmi_bmc_register(ipmi_smi_t 
- 		bmc->provides_dev_sdrs_attr.attr.mode = S_IRUGO;
- 		bmc->provides_dev_sdrs_attr.show = provides_dev_sdrs_show;
++	err = sysfs_create_group(&sys_dev->kobj, &mc_attr_group);
++	if (err)
++		return err;
  
--
- 		bmc->revision_attr.attr.name = "revision";
- 		bmc->revision_attr.attr.owner = THIS_MODULE;
- 		bmc->revision_attr.attr.mode = S_IRUGO;
-@@ -2093,28 +2171,14 @@ static int ipmi_bmc_register(ipmi_smi_t 
- 		bmc->aux_firmware_rev_attr.attr.mode = S_IRUGO;
- 		bmc->aux_firmware_rev_attr.show = aux_firmware_rev_show;
- 
--		device_create_file(&bmc->dev->dev,
--				   &bmc->device_id_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->provides_dev_sdrs_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->revision_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->firmware_rev_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->version_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->add_dev_support_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->manufacturer_id_attr);
--		device_create_file(&bmc->dev->dev,
--				   &bmc->product_id_attr);
--		if (bmc->id.aux_firmware_revision_set)
--			device_create_file(&bmc->dev->dev,
--					   &bmc->aux_firmware_rev_attr);
--		if (bmc->guid_set)
--			device_create_file(&bmc->dev->dev,
--					   &bmc->guid_attr);
-+		rv = create_files(bmc);
-+		if (rv) {
-+			mutex_lock(&ipmidriver_mutex);
-+			platform_device_unregister(bmc->dev);
-+			mutex_unlock(&ipmidriver_mutex);
-+
-+			return rv;
-+		}
- 
- 		printk(KERN_INFO
- 		       "ipmi: Found new BMC (man_id: 0x%6.6x, "
+ 	microcode_init_cpu(cpu);
+ 	return 0;

@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWJJTI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWJJTMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWJJTI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWJJTI0
+	id S932240AbWJJTMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWJJTMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:08:26 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:42078 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932198AbWJJTIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:08:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=sxrs23Uw3je4vpgoFprwULHtrt4rubqfad+QYSccIXzgbcLCGdzsilTO7XkqCggtCTU4pdwF+CgqUffNxGVHhbDKgfJ7YdH1ib2mnwZQKBvHBm1YqMsgCuw92bJSmUjE9dbLi1HOo78CBX8E10h9OW8U7s1duu2ahSpiC+BHIAY=
-Subject: Re: 2.6.18 suspend regression on Intel Macs
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric?= Riss <frederic.riss@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, len.brown@intel.com
-In-Reply-To: <Pine.LNX.4.64.0610100830370.3952@g5.osdl.org>
-References: <1160417982.5142.45.camel@funkylaptop>
-	 <20061010103910.GD31598@elf.ucw.cz>
-	 <1160476889.3000.282.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0610100830370.3952@g5.osdl.org>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 10 Oct 2006 21:08:15 +0200
-Message-Id: <1160507296.5134.4.camel@funkylaptop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Tue, 10 Oct 2006 15:12:53 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:8129 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932240AbWJJTMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 15:12:52 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Tue, 10 Oct 2006 21:12:39 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.19-rc1 2/3] ieee1394: coding style in hosts.c
+To: linux1394-devel@lists.sourceforge.net
+cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <tkrat.f3f45c410340f9b2@s5r6.in-berlin.de>
+Message-ID: <tkrat.1904a2df7d282ffa@s5r6.in-berlin.de>
+References: <20061010064805.GA21310@havoc.gtf.org>
+ <452B5BEE.4050407@s5r6.in-berlin.de> <452B979C.9030001@garzik.org>
+ <tkrat.f3f45c410340f9b2@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 10 octobre 2006 à 08:33 -0700, Linus Torvalds a écrit :
-> > If we do this we probably should at least key this of some DMI
-> > identification for the mac mini..
-> 
-> No. That would be silly.
-> 
-> Having _conditional_ code is not only bigger, it's orders of magnitude 
-> more complex and likely to break. It's much better to say: "We know at 
-> least one machine needs this" than it is to say "We know machine X needs 
-> this", because the latter has extra complexity that just doesn't buy you 
-> anything.
-> 
-> It's much better to treat everybody the same, if that works. That way, you 
-> don't have different code-paths.
+Some 80-columns pedantry, and touch up of a // comment.
 
-So what's the plan? Should/Will the ACPI guys remove the bit-preserving
-change brought in with the latest ACPICA merge?
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+Index: linux-2.6.19-rc1/drivers/ieee1394/hosts.c
+===================================================================
+--- linux-2.6.19-rc1.orig/drivers/ieee1394/hosts.c	2006-10-10 19:07:36.000000000 +0200
++++ linux-2.6.19-rc1/drivers/ieee1394/hosts.c	2006-10-10 19:31:37.000000000 +0200
+@@ -43,9 +43,10 @@ static void delayed_reset_bus(void * __r
+ 
+ 	CSR_SET_BUS_INFO_GENERATION(host->csr.rom, generation);
+ 	if (csr1212_generate_csr_image(host->csr.rom) != CSR1212_SUCCESS) {
+-		/* CSR image creation failed, reset generation field and do not
+-		 * issue a bus reset. */
+-		CSR_SET_BUS_INFO_GENERATION(host->csr.rom, host->csr.generation);
++		/* CSR image creation failed.
++		 * Reset generation field and do not issue a bus reset. */
++		CSR_SET_BUS_INFO_GENERATION(host->csr.rom,
++					    host->csr.generation);
+ 		return;
+ 	}
+ 
+@@ -53,7 +54,8 @@ static void delayed_reset_bus(void * __r
+ 
+ 	host->update_config_rom = 0;
+ 	if (host->driver->set_hw_config_rom)
+-		host->driver->set_hw_config_rom(host, host->csr.rom->bus_info_data);
++		host->driver->set_hw_config_rom(host,
++						host->csr.rom->bus_info_data);
+ 
+ 	host->csr.gen_timestamp[host->csr.generation] = jiffies;
+ 	hpsb_reset_bus(host, SHORT_RESET);
+@@ -69,7 +71,8 @@ static int dummy_devctl(struct hpsb_host
+ 	return -1;
+ }
+ 
+-static int dummy_isoctl(struct hpsb_iso *iso, enum isoctl_cmd command, unsigned long arg)
++static int dummy_isoctl(struct hpsb_iso *iso, enum isoctl_cmd command,
++			unsigned long arg)
+ {
+ 	return -1;
+ }
+@@ -150,7 +151,7 @@ struct hpsb_host *hpsb_alloc_host(struct
+ 	init_timer(&h->timeout);
+ 	h->timeout.data = (unsigned long) h;
+ 	h->timeout.function = abort_timedouts;
+-	h->timeout_interval = HZ / 20; // 50ms by default
++	h->timeout_interval = HZ / 20; /* 50ms, half of minimum SPLIT_TIMEOUT */
+ 
+ 	h->topology_map = h->csr.topology_map + 3;
+ 	h->speed_map = (u8 *)(h->csr.speed_map + 2);
+@@ -225,7 +240,8 @@ int hpsb_update_config_rom_image(struct 
+ 	if (time_before(jiffies, host->csr.gen_timestamp[next_gen] + 60 * HZ))
+ 		/* Wait 60 seconds from the last time this generation number was
+ 		 * used. */
+-		reset_delay = (60 * HZ) + host->csr.gen_timestamp[next_gen] - jiffies;
++		reset_delay =
++			(60 * HZ) + host->csr.gen_timestamp[next_gen] - jiffies;
+ 	else
+ 		/* Wait 1 second in case some other code wants to change the
+ 		 * Config ROM in the near future. */
 
-Fred.
 

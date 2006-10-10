@@ -1,99 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWJJB6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWJJB7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWJJB6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 21:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWJJB6L
+	id S964837AbWJJB7H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 21:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWJJB7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 21:58:11 -0400
-Received: from mga05.intel.com ([192.55.52.89]:11576 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964896AbWJJB6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 21:58:11 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,286,1157353200"; 
-   d="scan'208"; a="143930119:sNHT673744337"
-Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
-In-Reply-To: <20061004103408.1a38b8ad.akpm@osdl.org>
-References: <1159916644.8035.35.camel@localhost.localdomain>
-	 <4522FB04.1080001@goop.org>
-	 <1159919263.8035.65.camel@localhost.localdomain>
-	 <45233B1E.3010100@goop.org>
-	 <1159968095.8035.76.camel@localhost.localdomain>
-	 <20061004093025.ab235eaa.akpm@osdl.org>
-	 <1159978929.8035.109.camel@localhost.localdomain>
-	 <20061004103408.1a38b8ad.akpm@osdl.org>
+	Mon, 9 Oct 2006 21:59:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:718 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964837AbWJJB7E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 21:59:04 -0400
+Subject: Re: faults and signals
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Nick Piggin <npiggin@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <452AF546.4000901@yahoo.com.au>
+References: <20061009140354.13840.71273.sendpatchset@linux.site>
+	 <20061009140447.13840.20975.sendpatchset@linux.site>
+	 <1160427785.7752.19.camel@localhost.localdomain>
+	 <452AEC8B.2070008@yahoo.com.au>
+	 <1160442685.32237.27.camel@localhost.localdomain>
+	 <452AF546.4000901@yahoo.com.au>
 Content-Type: text/plain
-Organization: Intel
-Date: Mon, 09 Oct 2006 18:09:01 -0700
-Message-Id: <1160442541.4548.15.camel@localhost.localdomain>
+Date: Tue, 10 Oct 2006 11:58:30 +1000
+Message-Id: <1160445510.32237.50.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-04 at 10:34 -0700, Andrew Morton wrote:
 
-> > > Please don't just ignore my questions.  *why* are we getting a cache miss
-> > > rate on that integer which is causing measurable performance changes?  If
-> > > we're reading it that frequently then the variable should be in cache(!).
-> > > 
-> > 
-> > The point is valid, __warn_once should be in cache, unless something
-> > evicts it. What I have found so far is with patch by Andrew and Leonid
-> > that avoid looking up the __warn_once integer, the cache miss rate is
-> > reduced to the level before.  
-
+> Yep, the flags field should be able to do that for you. Since we have
+> the handle_mm_fault wrapper for machine faults, it isn't too hard to
+> change the arguments: we should probably turn `write_access` into a
+> flag so we don't have to push too many arguments onto the stack.
 > 
-> I see, thanks.  How very peculiar.
-> 
-> I wonder if we just got unlucky and that particular benchmark with that
-> particular kernel build just happens to reach the cache system's
-> associativity threshold, and this one extra cacheline took it over the
-> edge.  Or something.
-> 
+> This way we can distinguish get_user_pages faults. And your
+> architecture will have to switch over to using __handle_mm_fault, and
+> distinguish kernel faults. Something like that?
+
+Yes. Tho it's also fairly easy to just add an argument to the wrapper
+and fix all archs... but yeah, I will play around.
+
+Ben.
 
 
-We believe we found the real cause of the performance regression: 
-it is precisely a self-inflicted cache line conflict on __warn_once
-global variable thanks to the older gcc (v3.4.5) backend assembly code
-optimizer.  The newer version of gcc (v4.1.0) does not suffer the same
-problem.
-
-We fall in the trap of thinking the __warn_once variable 
-is truly read mostly and is written only once in the very very unlikely
-case of bug triggering. But the compiler is doing something which
-turns the following innocent read only looking code into 
-write always assembly code. The compiler is doing so to avoid a
-conditional jump.
-
-
-The original "C" code looks very innocent:
-
-    if (WARN_ON(__ret_warn_once));
-        __warn_once = 0;
-
-The equivalent asm code generated by gcc looks like:
-
-    temp = 0;
-    if (!WARN_ON(__ret_warn_once))
-        temp = __warn_once;
-    __warn_once = temp;
-
-
-As a result, a global variable is being written from all CPUs 
-everywhere and caused excessive cache line bouncing on SMP.  
-We measured that HITM event increased by 75% and 
-read-for-ownership event increased by 50%. Adding a
-__read_mostly directive to __warn_once didn't help 
-because gcc still generate assembly code that write to 
-that global variable.
-
-Thanks.
-
-Tim

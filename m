@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWJJTfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWJJTgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWJJTfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWJJTfA
+	id S1030225AbWJJTgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWJJTgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:35:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15581 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030220AbWJJTe7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:34:59 -0400
-Date: Tue, 10 Oct 2006 12:34:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olof Johansson <olof@lixom.net>
-Cc: linux-kernel@vger.kernel.org, Vadim Lobanov <vlobanov@speakeasy.net>,
-       linuxppc-dev@ozlabs.org
-Subject: Re: BUG() in copy_fdtable() with 64K pages (2.6.19-rc1-mm1)
-Message-Id: <20061010123449.7be924f0.akpm@osdl.org>
-In-Reply-To: <20061010121519.447d62f8@localhost.localdomain>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<20061010121519.447d62f8@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 10 Oct 2006 15:36:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:20868
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030225AbWJJTgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 15:36:43 -0400
+Date: Tue, 10 Oct 2006 12:36:44 -0700 (PDT)
+Message-Id: <20061010.123644.10299128.davem@davemloft.net>
+To: pj@sgi.com
+Cc: davem@sunset.davemloft.net, linux-kernel@vger.kernel.org,
+       vonbrand@inf.utfsm.cl, akpm@osdl.org
+Subject: Re: Sparc64 stopped building - sigset_t unrecognized in compat.h
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061010115940.4c25ae83.pj@sgi.com>
+References: <20061010115940.4c25ae83.pj@sgi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 12:15:19 -0500
-Olof Johansson <olof@lixom.net> wrote:
+From: Paul Jackson <pj@sgi.com>
+Date: Tue, 10 Oct 2006 11:59:40 -0700
 
-> I keep hitting this on -rc1-mm1. The system comes up but I can't login
-> since login hits it.
+> Sometime on or about the change to include/linux/compat.h:
 > 
-> Bisect says that fdtable-implement-new-pagesize-based-fdtable-allocator.patch is at fault.
+>     changeset:   39069:fefadae8104d
+>     parent:      38900:a2856d056930
+>     user:        David S. Miller <davem@sunset.davemloft.net>
+>     date:        Tue Oct  3 04:24:18 2006 +0700
+>     summary:     [SPARC64]: Move signal compat bits to new header file.
 > 
-> CONFIG_PPC_64K_PAGES=y is required for it to fail, with 4K pages it's fine.
+> which added the line:
 > 
-> (Hardware is a Quad G5, 1GB RAM, g5_defconfig + CONFIG_PPC_64K_PAGES, defaults 
-> on all new options)
+>     extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
 > 
-> 
-> 
-> kernel BUG in copy_fdtable at fs/file.c:138!
+> my crosstool compile of sparc64 for 2.6.18-mm3 stopped building.
 
-OK, thanks.  I put the revert patch into
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/hot-fixes/
+And then there is a changeset I made right after that one which
+fixes the build by removing the asm/signal.h include from asm/compat.h.

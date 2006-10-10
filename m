@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWJJOcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWJJOdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWJJOcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 10:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWJJOcv
+	id S932090AbWJJOdu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 10:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWJJOdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 10:32:51 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:54975 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932127AbWJJOcu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 10:32:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=ebwjhoKA9FdpQA1KLwEXKNKUwnLHpnknmcn+u6uhk5dyqksBQx8uL48KHz7FuEMVVYgvcWH42k+5oElkzPWaeEs3rJ/d+VffQ+akUcL2gLBAM9vyrVoI8ub5C/4427xY6DFgioLtGpEDeYJP7C7GLAslHUaOa7n+FY5nfoQc3j0=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Date: Tue, 10 Oct 2006 22:32:46 +0800
-User-Agent: KMail/1.8.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061005103657.GA4474@ucw.cz> <20061006211751.GA31887@lists.us.dell.com>
-In-Reply-To: <20061006211751.GA31887@lists.us.dell.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 10 Oct 2006 10:33:50 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:59073 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932090AbWJJOdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 10:33:49 -0400
+Date: Tue, 10 Oct 2006 15:33:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] 2.6.19-rc1-git5: consolidation of file backed fault handlers
+Message-ID: <20061010143342.GA5580@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nick Piggin <npiggin@suse.de>,
+	Linux Memory Management <linux-mm@kvack.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610102232.46627.luming.yu@gmail.com>
+In-Reply-To: <20061010121314.19693.75503.sendpatchset@linux.site>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Please move it into the kernel where it belongs, and use lcd
-> > brightness subsystem like everyone else.
->
-> We've been through this before.
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114067198323596&w=2
->
-> In addition, the SMI call used to change the backlight level *may*
-> require (if configured by the sysadmin in BIOS), a password be
-> entered.
->
-> This begs for a common userspace app that can grok libsmbios and
-> kernel interfaces both, and use the appropriate method on each, rather
-> than just putting it all in the kernel
+On Tue, Oct 10, 2006 at 04:21:32PM +0200, Nick Piggin wrote:
+> This patchset is against 2.6.19-rc1-mm1 up to
+> numa-add-zone_to_nid-function-swap_prefetch.patch (ie. no readahead stuff,
+> which causes big rejects and would be much easier to fix in readahead
+> patches than here). Other than this feature, the -mm specific stuff is
+> pretty simple (mainly straightforward filesystem conversions).
+> 
+> Changes since last round:
+> - trimmed the cc list, no big changes since last time.
+> - fix the few buglets preventing it from actually booting
+> - reinstate filemap_nopage and filemap_populate, because they're exported
+>   symbols even though no longer used in the tree. Schedule for removal.
 
->From my understanding, a cute userspace App shouldn't have this kind
-of logic:
-	if (is  DELL )
-		invoke libsmbios
-	if (is  foo)
-		invoke libfoo,
-	if (is bar)
-		invoke libbar,
-	....
-	else
-		operate on /sys/class/backlight/ ,.,..
-
-It should be:
-	just write/read  file in  /sys/class/backlight ,....
-
-Right?
-
-Thanks,
-Luming
-
-
+Just kill them and the whole ->populate methods.  We have a better API that
+replaces them 100% with your patch, and they've never been a widespread
+API.
 

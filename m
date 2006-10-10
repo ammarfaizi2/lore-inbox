@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWJJNuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWJJN6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWJJNuR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 09:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWJJNuQ
+	id S1750794AbWJJN6n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 09:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWJJN6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 09:50:16 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:11372 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750792AbWJJNuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 09:50:14 -0400
+	Tue, 10 Oct 2006 09:58:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:23712 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750772AbWJJN6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 09:58:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=Dc01j5mEYCd6lTKVlBp6T6E9ENypY6guwViSqJaVVc+DSLNt9l5vUHec7NN9ZEYB1xhGbXFz7Hhqc8mD7RNnfmeYTroftVS89UeKMC/Gao9yjdKa08Z4xJz4wqAhTm71Z9vPmsS7RydhSwZqmQzyUWp1iAsAFSsjOT3Ax7YG9dw=
-Date: Tue, 10 Oct 2006 17:49:56 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] drivers/ide: fix error return bugs, interface
-Message-ID: <20061010134956.GA5347@martell.zuzino.mipt.ru>
-References: <20061010131639.GA8523@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PhTyn35+Hkk+ZykYRxbjnq0ADHa5vp1VZ1yK4om6ut7roBgPZ0fkKgWiGU6hKk6MQk2Mm5/YRi/Juc8/efDV/fPw1mUjz0aNkuNbwTPaQkzR5XiRiJmWy9xjJSwD5lv8m6VmHy1gMsb5xEHhF1jXZujn4fK/twO2BkoR2oUK7oY=
+Message-ID: <d120d5000610100658l6d80c7c7p84d31da317d457dd@mail.gmail.com>
+Date: Tue, 10 Oct 2006 09:58:39 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: [PATCH] input: handle sysfs errors
+Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061010064939.GA21385@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061010131639.GA8523@havoc.gtf.org>
-User-Agent: Mutt/1.5.11
+References: <20061010064939.GA21385@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- a/drivers/ide/pci/cs5530.c
-> +++ b/drivers/ide/pci/cs5530.c
-> @@ -250,7 +250,9 @@ static unsigned int __devinit init_chips
->  	 */
->  
->  	pci_set_master(cs5530_0);
-> -	pci_set_mwi(cs5530_0);
-> +	if (pci_set_mwi(cs5530_0))
-> +		dev_printk(KERN_WARNING, &cs5530_0->dev,
-> +			   "MWI enable failed\n");
+On 10/10/06, Jeff Garzik <jeff@garzik.org> wrote:
+>
+> -       device_create_file(&serio->dev, &atkbd_attr_extra);
+> -       device_create_file(&serio->dev, &atkbd_attr_scroll);
+> -       device_create_file(&serio->dev, &atkbd_attr_set);
+> -       device_create_file(&serio->dev, &atkbd_attr_softrepeat);
+> -       device_create_file(&serio->dev, &atkbd_attr_softraw);
+> +       err = device_create_file(&serio->dev, &atkbd_attr_extra);
+> +       if (err) goto fail_serio;
 
-Use dev_warn()
+I have a patch that converts atkbd to attribute group and also one
+that handles errors from input_register_drevice. I will add sysfs
+error checks there as well.
 
+-- 
+Dmitry

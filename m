@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030513AbWJJVtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030555AbWJJVvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030513AbWJJVtb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbWJJVtV
+	id S1030555AbWJJVvt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbWJJVux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:49:21 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:36027 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030518AbWJJVtS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:49:18 -0400
-To: torvalds@osdl.org
-Subject: [PATCH] strndup() would better take size_t, not int
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXPTR-0007Rw-Ga@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 22:49:17 +0100
+	Tue, 10 Oct 2006 17:50:53 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34215
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030537AbWJJVum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:50:42 -0400
+Date: Tue, 10 Oct 2006 14:50:41 -0700 (PDT)
+Message-Id: <20061010.145041.35356630.davem@davemloft.net>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __iomem annotations in sunzilog
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <E1GXPP5-0007Jv-4R@ZenIV.linux.org.uk>
+References: <E1GXPP5-0007Jv-4R@ZenIV.linux.org.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 10 Oct 2006 22:44:47 +0100
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- net/irda/irias_object.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-diff --git a/net/irda/irias_object.c b/net/irda/irias_object.c
-index a154b1d..56292ab 100644
---- a/net/irda/irias_object.c
-+++ b/net/irda/irias_object.c
-@@ -43,7 +43,7 @@ struct ias_value irias_missing = { IAS_M
-  *
-  * Faster, check boundary... Jean II
-  */
--static char *strndup(char *str, int max)
-+static char *strndup(char *str, size_t max)
- {
- 	char *new_str;
- 	int len;
--- 
-1.4.2.GIT
-
-
+Signed-off-by: David S. Miller <davem@davemloft.net>

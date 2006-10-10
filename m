@@ -1,47 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbWJJWR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030589AbWJJWR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030593AbWJJWR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 18:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbWJJWRz
+	id S1030589AbWJJWR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 18:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030595AbWJJWR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 10 Oct 2006 18:17:56 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:39870 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030589AbWJJWRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 10 Oct 2006 18:17:55 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13536
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030591AbWJJWRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 18:17:53 -0400
-Date: Tue, 10 Oct 2006 15:17:51 -0700 (PDT)
-Message-Id: <20061010.151751.90998930.davem@davemloft.net>
-To: simoneau@ele.uri.edu
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [sparc64] 2.6.18 unaligned accesses in eth1394
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061010132943.GB18539@ele.uri.edu>
-References: <20061005211543.GA18539@ele.uri.edu>
-	<20061009.183607.63736982.davem@davemloft.net>
-	<20061010132943.GB18539@ele.uri.edu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Oct 2006 15:17:32 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, mark.fasheh@oracle.com
+Subject: Re: [PATCH 1/5] Fix a module count leak.
+Message-ID: <20061010221732.GL7911@ca-server1.us.oracle.com>
+Mail-Followup-To: Chandra Seetharaman <sekharan@us.ibm.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+	mark.fasheh@oracle.com
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain> <20061010182049.20990.84496.sendpatchset@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061010182049.20990.84496.sendpatchset@localhost.localdomain>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Will Simoneau <simoneau@ele.uri.edu>
-Date: Tue, 10 Oct 2006 09:29:43 -0400
+Obviously a bug.  I've pulled it into my tree and it should appear in
+OCFS2's ALL branch very shortly.
 
-> I still get:
+Joel
+
+On Tue, Oct 10, 2006 at 11:20:49AM -0700, Chandra Seetharaman wrote:
+> check_perm() does not drop the reference to the module when kmalloc()
+> failure occurs. This patch fixes the problem.
 > 
-> Kernel unaligned access at TPC[10162164] ether1394_reset_priv+0x2c/0xe0 [eth1394]
-> Kernel unaligned access at TPC[10163148] ether1394_data_handler+0xdd0/0x1060 [eth1394]
+> Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+> --
 > 
-> The second one triggers on every packet received, the first only triggers once in a while.
+>  fs/configfs/file.c |   16 +++++++++-------
+>  1 files changed, 9 insertions(+), 7 deletions(-)
 > 
-> If you want more gdb info or a disassembly just ask.
+> Index: linux-2.6.18/fs/configfs/file.c
+> ===================================================================
+> --- linux-2.6.18.orig/fs/configfs/file.c
+> +++ linux-2.6.18/fs/configfs/file.c
+> @@ -275,14 +275,15 @@ static int check_perm(struct inode * ino
+>  	 * it in file->private_data for easy access.
+>  	 */
+>  	buffer = kmalloc(sizeof(struct configfs_buffer),GFP_KERNEL);
+> -	if (buffer) {
+> -		memset(buffer,0,sizeof(struct configfs_buffer));
+> -		init_MUTEX(&buffer->sem);
+> -		buffer->needs_read_fill = 1;
+> -		buffer->ops = ops;
+> -		file->private_data = buffer;
+> -	} else
+> +	if (!buffer) {
+>  		error = -ENOMEM;
+> +		goto Enomem;
+> +	}
+> +	memset(buffer,0,sizeof(struct configfs_buffer));
+> +	init_MUTEX(&buffer->sem);
+> +	buffer->needs_read_fill = 1;
+> +	buffer->ops = ops;
+> +	file->private_data = buffer;
+>  	goto Done;
+>  
+>   Einval:
+> @@ -290,6 +291,7 @@ static int check_perm(struct inode * ino
+>  	goto Done;
+>   Eaccess:
+>  	error = -EACCES;
+> + Enomem:
+>  	module_put(attr->ca_owner);
+>   Done:
+>  	if (error && item)
+> 
+> -- 
+> 
+> ----------------------------------------------------------------------
+>     Chandra Seetharaman               | Be careful what you choose....
+>               - sekharan@us.ibm.com   |      .......you may get it.
+> ----------------------------------------------------------------------
 
-Hmmm, can you do me a favor?  Build ieee1394 and eth1394 statically
-into your kernel, reproduce, and post the kernel log messages
-and the vmlinux image somewhere where I can fetch them.
+-- 
 
-I should be able to fix this once I have that.
+"I almost ran over an angel
+ He had a nice big fat cigar.
+ 'In a sense,' he said, 'You're alone here
+ So if you jump, you'd best jump far.'"
 
-Thanks a lot.
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

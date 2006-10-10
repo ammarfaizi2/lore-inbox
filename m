@@ -1,62 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWJJGpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWJJGqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbWJJGpf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbWJJGpf
+	id S965029AbWJJGqh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWJJGqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:45:35 -0400
-Received: from main.gmane.org ([80.91.229.2]:9159 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965024AbWJJGpe (ORCPT
+	Tue, 10 Oct 2006 02:46:37 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:47757 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S965029AbWJJGqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:45:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Reinhard Tartler <siretart@tauware.de>
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Date: Tue, 10 Oct 2006 08:29:09 +0200
-Message-ID: <87wt783cqy.fsf@hermes.olymp.tauware.de>
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org>
+	Tue, 10 Oct 2006 02:46:36 -0400
+Date: Tue, 10 Oct 2006 02:46:26 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: mhalcrow@us.ibm.com, phillip@hellewell.homeip.net,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: herbert@gondor.apana.org.au
+Subject: [PATCH] ecryptfs: reduce legacy API usage
+Message-ID: <20061010064626.GA21155@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl01.83.171.151.131.ip-pool.nefkom.net
-X-Url: http://tauware.de
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-Cancel-Lock: sha1:4CpNNCAQtLHT72OBFrMhGb7gWgg=
-Cc: hostap@shmoo.com
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso <tytso@mit.edu> writes:
 
-> On Mon, Oct 02, 2006 at 05:00:31PM -0400, Dan Williams wrote:
->> Distributions _are_ shipping those tools already.  The problem is more
->> with older distributions where, for example, the kernel gets upgraded
->> but other stuff does not.  If a kernel upgrade happens, then the distro
->> needs to make sure userspace works with it.  That's nothing new.
->
-> Um, *which* distro's are shipping it already?  RHEL4?  SLES10?  I
-> thought we saw a note saying that even Debian **unstable** didn't have
-> a new enough version of the wireless-tools....
+Use modern crypto APIs.
 
-Debian is currently in (pre-) freeze mode, and new upstream versions of
-core packages are uploaded very very carefully. To see whats going on
-with the wireless-tools package, see [1, 2].
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-[3] shows that 29pre10 was uploaded to experimental on Thu,  4 May 2006
+---
 
-So you are right, debian unstable doesn't ship the latest version,
-because that would have the potential to make problems with the release
-of debian 4.0 (aka etch). The updated package however is there. If this
-package should go to etch, because 2.6.18 is likely to be the kernel
-etch ships, then both the maintainer and the release team needs to be
-convinced about that.
+This doesn't completely remove the legacy API usage from the filesystem,
+but it moves the effort forward, and should be a self-contained change.
 
-[1] http://packages.debian.org/wireless-tools
-[2] http://packages.qa.debian.org/wireless-tools
-[3] http://packages.qa.debian.org/w/wireless-tools/news/20060504T210628Z.html
+ fs/ecryptfs/crypto.c               |   63 ++++++++++++++++++++++---------------
+ fs/ecryptfs/ecryptfs_kernel.h      |    9 ++---
 
--- 
-Gruesse/greetings,
-Reinhard Tartler, KeyID 945348A4
-
+diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
+index ed35a97..6b62792 100644
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -96,23 +96,27 @@ static int ecryptfs_calculate_md5(char *
+ {
+ 	int rc = 0;
+ 	struct scatterlist sg;
++	struct hash_desc desc = {
++		.tfm = crypt_stat->hash,
++		.flags = CRYPTO_TFM_REQ_MAY_SLEEP,
++	};
+ 
+-	mutex_lock(&crypt_stat->cs_md5_tfm_mutex);
++	mutex_lock(&crypt_stat->cs_hash_mutex);
+ 	sg_init_one(&sg, (u8 *)src, len);
+-	if (!crypt_stat->md5_tfm) {
+-		crypt_stat->md5_tfm =
+-			crypto_alloc_tfm("md5", CRYPTO_TFM_REQ_MAY_SLEEP);
+-		if (!crypt_stat->md5_tfm) {
+-			rc = -ENOMEM;
++	if (!desc.tfm) {
++		desc.tfm = crypto_alloc_hash("md5", 0, CRYPTO_ALG_ASYNC);
++		if (IS_ERR(desc.tfm)) {
++			rc = PTR_ERR(desc.tfm);
+ 			ecryptfs_printk(KERN_ERR, "Error attempting to "
+ 					"allocate crypto context\n");
+ 			goto out;
+ 		}
++		crypt_stat->hash = desc.tfm;
+ 	}
+-	crypto_digest_init(crypt_stat->md5_tfm);
+-	crypto_digest_update(crypt_stat->md5_tfm, &sg, 1);
+-	crypto_digest_final(crypt_stat->md5_tfm, dst);
+-	mutex_unlock(&crypt_stat->cs_md5_tfm_mutex);
++	crypto_hash_init(&desc);
++	crypto_hash_update(&desc, &sg, len);
++	crypto_hash_final(&desc, dst);
++	mutex_unlock(&crypt_stat->cs_hash_mutex);
+ out:
+ 	return rc;
+ }
+@@ -178,7 +182,7 @@ ecryptfs_init_crypt_stat(struct ecryptfs
+ 	memset((void *)crypt_stat, 0, sizeof(struct ecryptfs_crypt_stat));
+ 	mutex_init(&crypt_stat->cs_mutex);
+ 	mutex_init(&crypt_stat->cs_tfm_mutex);
+-	mutex_init(&crypt_stat->cs_md5_tfm_mutex);
++	mutex_init(&crypt_stat->cs_hash_mutex);
+ 	ECRYPTFS_SET_FLAG(crypt_stat->flags, ECRYPTFS_STRUCT_INITIALIZED);
+ }
+ 
+@@ -191,9 +195,9 @@ ecryptfs_init_crypt_stat(struct ecryptfs
+ void ecryptfs_destruct_crypt_stat(struct ecryptfs_crypt_stat *crypt_stat)
+ {
+ 	if (crypt_stat->tfm)
+-		crypto_free_tfm(crypt_stat->tfm);
+-	if (crypt_stat->md5_tfm)
+-		crypto_free_tfm(crypt_stat->md5_tfm);
++		crypto_free_blkcipher(crypt_stat->tfm);
++	if (crypt_stat->hash)
++		crypto_free_hash(crypt_stat->hash);
+ 	memset(crypt_stat, 0, sizeof(struct ecryptfs_crypt_stat));
+ }
+ 
+@@ -270,6 +274,11 @@ static int encrypt_scatterlist(struct ec
+ 			       unsigned char *iv)
+ {
+ 	int rc = 0;
++	struct blkcipher_desc desc = {
++		.tfm = crypt_stat->tfm,
++		.info = iv,
++		.flags = CRYPTO_TFM_REQ_MAY_SLEEP,
++	};
+ 
+ 	BUG_ON(!crypt_stat || !crypt_stat->tfm
+ 	       || !ECRYPTFS_CHECK_FLAG(crypt_stat->flags,
+@@ -282,7 +291,7 @@ static int encrypt_scatterlist(struct ec
+ 	}
+ 	/* Consider doing this once, when the file is opened */
+ 	mutex_lock(&crypt_stat->cs_tfm_mutex);
+-	rc = crypto_cipher_setkey(crypt_stat->tfm, crypt_stat->key,
++	rc = crypto_blkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
+ 				  crypt_stat->key_size);
+ 	if (rc) {
+ 		ecryptfs_printk(KERN_ERR, "Error setting key; rc = [%d]\n",
+@@ -292,7 +301,7 @@ static int encrypt_scatterlist(struct ec
+ 		goto out;
+ 	}
+ 	ecryptfs_printk(KERN_DEBUG, "Encrypting [%d] bytes.\n", size);
+-	crypto_cipher_encrypt_iv(crypt_stat->tfm, dest_sg, src_sg, size, iv);
++	crypto_blkcipher_encrypt_iv(&desc, dest_sg, src_sg, size);
+ 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
+ out:
+ 	return rc;
+@@ -676,11 +685,16 @@ static int decrypt_scatterlist(struct ec
+ 			       unsigned char *iv)
+ {
+ 	int rc = 0;
++	struct blkcipher_desc desc = {
++		.tfm = crypt_stat->tfm,
++		.info = iv,
++		.flags = CRYPTO_TFM_REQ_MAY_SLEEP,
++	};
+ 
+ 	/* Consider doing this once, when the file is opened */
+ 	mutex_lock(&crypt_stat->cs_tfm_mutex);
+-	rc = crypto_cipher_setkey(crypt_stat->tfm, crypt_stat->key,
+-				  crypt_stat->key_size);
++	rc = crypto_blkcipher_setkey(crypt_stat->tfm, crypt_stat->key,
++				     crypt_stat->key_size);
+ 	if (rc) {
+ 		ecryptfs_printk(KERN_ERR, "Error setting key; rc = [%d]\n",
+ 				rc);
+@@ -689,8 +703,7 @@ static int decrypt_scatterlist(struct ec
+ 		goto out;
+ 	}
+ 	ecryptfs_printk(KERN_DEBUG, "Decrypting [%d] bytes.\n", size);
+-	rc = crypto_cipher_decrypt_iv(crypt_stat->tfm, dest_sg, src_sg, size,
+-				      iv);
++	rc = crypto_blkcipher_decrypt_iv(&desc, dest_sg, src_sg, size);
+ 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
+ 	if (rc) {
+ 		ecryptfs_printk(KERN_ERR, "Error decrypting; rc = [%d]\n",
+@@ -775,16 +788,18 @@ int ecryptfs_init_crypt_ctx(struct ecryp
+ 		goto out;
+ 	}
+ 	mutex_lock(&crypt_stat->cs_tfm_mutex);
+-	crypt_stat->tfm = crypto_alloc_tfm(crypt_stat->cipher,
+-					   ECRYPTFS_DEFAULT_CHAINING_MODE
+-					   | CRYPTO_TFM_REQ_WEAK_KEY);
++	crypt_stat->tfm = crypto_alloc_blkcipher(crypt_stat->cipher, 0,
++						 CRYPTO_ALG_ASYNC);
+ 	mutex_unlock(&crypt_stat->cs_tfm_mutex);
+-	if (!crypt_stat->tfm) {
++	if (IS_ERR(crypt_stat->tfm)) {
++		rc = PTR_ERR(crypt_stat->tfm);
+ 		ecryptfs_printk(KERN_ERR, "cryptfs: init_crypt_ctx(): "
+ 				"Error initializing cipher [%s]\n",
+ 				crypt_stat->cipher);
+ 		goto out;
+ 	}
++	crypto_blkcipher_set_flags(crypt_stat->tfm,
++		ECRYPTFS_DEFAULT_CHAINING_MODE | CRYPTO_TFM_REQ_WEAK_KEY);
+ 	rc = 0;
+ out:
+ 	return rc;
+diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
+index 872c995..eb45400 100644
+--- a/fs/ecryptfs/ecryptfs_kernel.h
++++ b/fs/ecryptfs/ecryptfs_kernel.h
+@@ -29,6 +29,7 @@ #define ECRYPTFS_KERNEL_H
+ #include <keys/user-type.h>
+ #include <linux/fs.h>
+ #include <linux/scatterlist.h>
++#include <linux/crypto.h>
+ 
+ /* Version verification for shared data structures w/ userspace */
+ #define ECRYPTFS_VERSION_MAJOR 0x00
+@@ -204,15 +205,15 @@ #define ECRYPTFS_KEY_VALID          0x00
+ 	size_t extent_shift;
+ 	unsigned int extent_mask;
+ 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat;
+-	struct crypto_tfm *tfm;
+-	struct crypto_tfm *md5_tfm; /* Crypto context for generating
+-				     * the initialization vectors */
++	struct crypto_blkcipher *tfm;
++	struct crypto_hash *hash; /* Crypto context for generating
++				   * the initialization vectors */
+ 	unsigned char cipher[ECRYPTFS_MAX_CIPHER_NAME_SIZE];
+ 	unsigned char key[ECRYPTFS_MAX_KEY_BYTES];
+ 	unsigned char root_iv[ECRYPTFS_MAX_IV_BYTES];
+ 	unsigned char keysigs[ECRYPTFS_MAX_NUM_KEYSIGS][ECRYPTFS_SIG_SIZE_HEX];
+ 	struct mutex cs_tfm_mutex;
+-	struct mutex cs_md5_tfm_mutex;
++	struct mutex cs_hash_mutex;
+ 	struct mutex cs_mutex;
+ };
+ 

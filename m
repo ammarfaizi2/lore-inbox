@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWJJDxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWJJEck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWJJDxt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 23:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWJJDxs
+	id S964960AbWJJEck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 00:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWJJEck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 23:53:48 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:19729 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964940AbWJJDxr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 23:53:47 -0400
-Date: Tue, 10 Oct 2006 13:53:39 +1000
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/2] crypto: fix crypto_alloc_{tfm,base}() return value
-Message-ID: <20061010035339.GA29279@gondor.apana.org.au>
-References: <20061009085812.GA6020@localhost> <20061009111446.GA22020@gondor.apana.org.au> <20061009115526.GA10857@localhost>
-Mime-Version: 1.0
+	Tue, 10 Oct 2006 00:32:40 -0400
+Received: from ozlabs.org ([203.10.76.45]:37022 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964960AbWJJEck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 00:32:40 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009115526.GA10857@localhost>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17707.8801.395100.35054@cargo.ozlabs.ibm.com>
+Date: Tue, 10 Oct 2006 14:32:33 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: greg@kroah.com
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Why is device_create_file __must_check?
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 08:55:26PM +0900, Akinobu Mita wrote:
-> 
-> I misunderstood about crypto_alloc_tfm().
-> 
-> BTW, ecryptfs and reiser4 are still using crypto_alloc_tfm().
-> Should we mark it as __deprecated?
+I am seeing a bunch of warnings about not checking the return value
+from device_create_file() for code like this (from
+arch/powerpc/kernel/pci_64.c):
 
-Probably.  Although anybody using crypto_alloc_tfm will probably
-also use the old crypto interface which gives plenty of warnings
-already.
+static ssize_t pci_show_devspec(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct pci_dev *pdev;
+	struct device_node *np;
 
-> - __crypto_alloc_tfm() should return -ENOMEM on kzalloc() failure.
->   But it returns NULL.
-> 
-> - crypto_alloc_base() may not return -EINTR on signal_pending()
-> 
-> I'll fix the patch and resend with more clear description later.
+	pdev = to_pci_dev (dev);
+	np = pci_device_to_OF_node(pdev);
+	if (np == NULL || np->full_name == NULL)
+		return 0;
+	return sprintf(buf, "%s", np->full_name);
+}
+static DEVICE_ATTR(devspec, S_IRUGO, pci_show_devspec, NULL);
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+void pcibios_add_platform_entries(struct pci_dev *pdev)
+{
+	device_create_file(&pdev->dev, &dev_attr_devspec);
+}
+
+What bad thing could happen if device_create_file fails, other than
+that the "devspec" file doesn't appear in sysfs?  I don't see how the
+error could lead to any null pointer dereference later on or anything
+like that.  If some bad thing could happen, how do I avert that?  If
+nothing bad will happen, why does device_create_file have __must_check
+on it?
+
+Paul.

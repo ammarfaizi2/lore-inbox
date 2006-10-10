@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWJJUPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWJJUUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWJJUPi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 16:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWJJUPi
+	id S1030270AbWJJUUi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 16:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030273AbWJJUUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 16:15:38 -0400
-Received: from mga07.intel.com ([143.182.124.22]:3866 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1030269AbWJJUPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 16:15:37 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,291,1157353200"; 
-   d="scan'208"; a="129295555:sNHT77253582"
-Message-ID: <452BFEFB.1090402@foo-projects.org>
-Date: Tue, 10 Oct 2006 13:13:47 -0700
-From: Auke Kok <sofar@foo-projects.org>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Tue, 10 Oct 2006 16:20:38 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:20668 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030271AbWJJUUg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 16:20:36 -0400
+Date: Tue, 10 Oct 2006 15:20:34 -0500
+To: Olof Johansson <olof@lixom.net>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Vadim Lobanov <vlobanov@speakeasy.net>
+Subject: Re: BUG() in copy_fdtable() with 64K pages (2.6.19-rc1-mm1)
+Message-ID: <20061010202034.GV4381@austin.ibm.com>
+References: <20061010000928.9d2d519a.akpm@osdl.org> <20061010121519.447d62f8@localhost.localdomain>
 MIME-Version: 1.0
-To: Martin Naskovski <skopje@freeshell.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Intel 965 chipset motherboards + SATA
-References: <Pine.NEB.4.62.0610101918540.24206@norge.freeshell.org>
-In-Reply-To: <Pine.NEB.4.62.0610101918540.24206@norge.freeshell.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Oct 2006 20:15:34.0193 (UTC) FILETIME=[D7916A10:01C6ECA8]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061010121519.447d62f8@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Naskovski wrote:
-> I have an ASUS P5B Deluxe/Core 2 Duo/Intel 965/all SATA (Plextor DVD+ 
-> Seagate HD) configuration setup - and as of now, no distribution out 
-> there can install on this configuration.
+On Tue, Oct 10, 2006 at 12:15:19PM -0500, Olof Johansson wrote:
+> I keep hitting this on -rc1-mm1. The system comes up but I can't login
+> since login hits it.
 > 
-> Information on whether this issue has been fixed is, at best, dubious on 
-> various Linux forums.
+> Bisect says that fdtable-implement-new-pagesize-based-fdtable-allocator.patch is at fault.
 > 
-> /Does/ the Linux kernel support this configuration? Can it 
-> install/recognize this hardware configuration?
+> CONFIG_PPC_64K_PAGES=y is required for it to fail, with 4K pages it's fine.
+> 
+> (Hardware is a Quad G5, 1GB RAM, g5_defconfig + CONFIG_PPC_64K_PAGES, defaults 
+> on all new options)
+> 
+> 
+> 
+> kernel BUG in copy_fdtable at fs/file.c:138!
 
-sure, I'm running one right here =D
+FWIW, I too was hitting this bug, during init:
 
-> I'm sorry to ask this question here, but all I need is a correct answer 
-> - I've never posted here to ask questions, but this issue has been 
-> bugging me quite a bit.
+[   41.659823] Freeing unused kernel memory: 320k freed
+INIT: version 2.86 bootin[   42.509322] kernel BUG in copy_fdtable at fs/file.c:138!
 
-Distro's are struggling to catch up with the flood of new drivers since 2.6.18rc that 
-support these new chipsets.
+and of course systm does not come up.
 
-You'll probably install just fine on IDE first and switch to a manually compiled kernel 
-(2.6.18 recommended) afterwards. Once the distro's catch up you'll have forgotten all 
-the pain :)
+--linas
 
-Cheers,
 
-Auke

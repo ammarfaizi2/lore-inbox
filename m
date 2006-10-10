@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030618AbWJJWiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWJJWiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030618AbWJJWiu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 18:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030619AbWJJWio
+	id S1030609AbWJJWiv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 18:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030612AbWJJWim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 18:38:44 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:61058 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030609AbWJJWiQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 18:38:16 -0400
-To: torvalds@osdl.org
-Subject: [PATCH 9/16] fs/fat endianness annotations
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXQEp-0008WD-Se@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 23:38:15 +0100
+	Tue, 10 Oct 2006 18:38:42 -0400
+Received: from mail.impinj.com ([206.169.229.170]:9821 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S932172AbWJJWif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 18:38:35 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Subject: Re: BUG in filp_close() (was: Re: 2.6.19-rc1-mm1)
+Date: Tue, 10 Oct 2006 15:38:36 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Olof Johansson <olof@lixom.net>,
+       Andrew Morton <akpm@osdl.org>
+References: <20061010000928.9d2d519a.akpm@osdl.org> <1160495269.9864.18.camel@kleikamp.austin.ibm.com> <1160518024.28923.33.camel@kleikamp.austin.ibm.com>
+In-Reply-To: <1160518024.28923.33.camel@kleikamp.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610101538.36358.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: Sat, 24 Dec 2005 14:31:04 -0500
+On Tuesday 10 October 2006 15:07, Dave Kleikamp wrote:
+> On Tue, 2006-10-10 at 10:47 -0500, Dave Kleikamp wrote:
+> > On Tue, 2006-10-10 at 00:09 -0700, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc
+> > >1/2.6.19-rc1-mm1/
+> >
+> > I'm seeing an exception in filp_close(), called from sys_dup2().  I have
+> > only seen it when I try to start up a java application (Lotus
+> > Workplace).
+> >
+> > I suspect that it may be related to the fdtable work, but I haven't
+> > investigated it too closely.
+>
+> Still don't know exactly what's going on here.  In case it helps, this
+> is the call to dup2() from strace output:
+>
+> 1419  open("/dev/null", O_RDWR)         = 7
+> 1419  getrlimit(RLIMIT_NOFILE, {rlim_cur=1024, rlim_max=1024}) = 0
+> 1419  dup2(7, 524)                      = 524
+> 1419  dup2(7, 525 <unfinished ...>
+>
+> > > +fdtable-delete-pointless-code-in-dup_fd.patch
+> > > +fdtable-make-fdarray-and-fdsets-equal-in-size.patch
+> > > +fdtable-remove-the-free_files-field.patch
+> > > +fdtable-implement-new-pagesize-based-fdtable-allocator.patch
+> > >
+> > >  Redo the fdtable code.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- fs/fat/inode.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+D'oh!!! Everybody who hit this bug can feel free to call me a moron now! (And 
+Andrew will probably take me up on that offer, for all the residual flak he 
+caught. :)) The problem is in the following logic:
++        nr++;
++        nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
++        nr = roundup_pow_of_two(nr);
++        nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
++        if (nr > NR_OPEN)
++                nr = NR_OPEN;
+The problem is that roundup_pow_of_two() will not necessarily bring the array 
+up to the necessary size, and we get an array overflow. This is clearly 
+visible in the example above: dup2(..., 524) with a PAGE_SIZE of 4K. (Thanks 
+for sending that in, Dave.) Let me think about the best way to fix this 
+computation, and I'll send out a patch for you folks to test to see if it 
+fixes your problem, if you'll oblige.
 
-diff --git a/fs/fat/inode.c b/fs/fat/inode.c
-index 0457380..4613cb2 100644
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -384,7 +384,7 @@ static int fat_fill_inode(struct inode *
- 				      le16_to_cpu(de->cdate)) + secs;
- 		inode->i_ctime.tv_nsec = csecs * 10000000;
- 		inode->i_atime.tv_sec =
--			date_dos2unix(le16_to_cpu(0), le16_to_cpu(de->adate));
-+			date_dos2unix(0, le16_to_cpu(de->adate));
- 		inode->i_atime.tv_nsec = 0;
- 	} else
- 		inode->i_ctime = inode->i_atime = inode->i_mtime;
--- 
-1.4.2.GIT
-
-
+-- Vadim Lobanov, idiot of the day

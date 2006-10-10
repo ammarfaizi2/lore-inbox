@@ -1,99 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWJJGsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWJJGtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWJJGsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWJJGsI
+	id S965037AbWJJGtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWJJGtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:48:08 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:51341 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S965036AbWJJGsH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:48:07 -0400
-Date: Tue, 10 Oct 2006 02:48:05 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: bcollins@debian.org, stefanr@s5r6.in-berlin.de,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] firewire: handle sysfs errors
-Message-ID: <20061010064805.GA21310@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Oct 2006 02:49:12 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:30900 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S965037AbWJJGtL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 02:49:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
+Date: Tue, 10 Oct 2006 15:49:08 +0900
+Message-ID: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3E7@jptkyxms38.jp.sony.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
+Thread-Index: Acbn017kJVRp07XQSdCva5gHDa6iKQEVg9JgAAL9auA=
+From: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Cc: "Paul Mackerras" <paulus@samba.org>,
+       "Arnd Bergmann" <arnd.bergmann@de.ibm.com>, <linuxppc-dev@ozlabs.org>,
+       <cbe-oss-dev@ozlabs.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Oct 2006 06:49:08.0801 (UTC) FILETIME=[2FA08310:01C6EC38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oops,
+I'm so sorry. I mistake to send wrong patch.
+Correct version is below:
 
-Handle sysfs, driver core errors.
-
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
 
 ---
 
- drivers/ieee1394/nodemgr.c         |   36 ++++++++++++++++++++++++++++--------
+Index:
+linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+---
+linux-2.6.18-arnd-20061004.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+@@ -246,6 +246,7 @@ static int spufs_cntl_open(struct inode
 
-diff --git a/drivers/ieee1394/nodemgr.c b/drivers/ieee1394/nodemgr.c
-index 8e7b83f..8628e3f 100644
---- a/drivers/ieee1394/nodemgr.c
-+++ b/drivers/ieee1394/nodemgr.c
-@@ -414,9 +414,11 @@ static BUS_ATTR(destroy_node, S_IWUSR | 
- 
- static ssize_t fw_set_rescan(struct bus_type *bus, const char *buf, size_t count)
- {
-+	int rc;
-+
- 	if (simple_strtoul(buf, NULL, 10) == 1)
--		bus_rescan_devices(&ieee1394_bus_type);
--	return count;
-+		rc = bus_rescan_devices(&ieee1394_bus_type);
-+	return rc < 0 ? rc : count;
- }
- static ssize_t fw_get_rescan(struct bus_type *bus, char *buf)
- {
-@@ -576,13 +578,23 @@ static struct driver_attribute *const fw
- };
- 
- 
--static void nodemgr_create_drv_files(struct hpsb_protocol_driver *driver)
-+static int nodemgr_create_drv_files(struct hpsb_protocol_driver *driver)
- {
- 	struct device_driver *drv = &driver->driver;
--	int i;
-+	int i, j, rc;
- 
--	for (i = 0; i < ARRAY_SIZE(fw_drv_attrs); i++)
--		driver_create_file(drv, fw_drv_attrs[i]);
-+	for (i = 0; i < ARRAY_SIZE(fw_drv_attrs); i++) {
-+		rc = driver_create_file(drv, fw_drv_attrs[i]);
-+		if (rc)
-+			goto err_out;
-+	}
-+
-+	return 0;
-+
-+err_out:
-+	for (j = 0; j < i; j++)
-+		driver_remove_file(drv, fw_drv_attrs[j]);
-+	return rc;
- }
- 
- 
-@@ -1166,9 +1178,17 @@ int hpsb_register_protocol(struct hpsb_p
- 
- 	/* This will cause a probe for devices */
- 	ret = driver_register(&driver->driver);
--	if (!ret)
--		nodemgr_create_drv_files(driver);
-+	if (ret)
-+		return ret;
-+
-+	ret = nodemgr_create_drv_files(driver);
-+	if (ret)
-+		goto err_out;
-+
-+	return 0;
- 
-+err_out:
-+	driver_unregister(&driver->driver);
- 	return ret;
- }
- 
+ static struct file_operations spufs_cntl_fops = {
+ 	.open = spufs_cntl_open,
++	.release = simple_attr_close,
+ 	.read = simple_attr_read,
+ 	.write = simple_attr_write,
+ 	.mmap = spufs_cntl_mmap,
+
+
+> -----Original Message-----
+> From: Noguchi, Masato
+> Sent: Tuesday, October 10, 2006 3:00 PM
+> To: 'Arnd Bergmann'
+> Cc: Paul Mackerras; Arnd Bergmann; linuxppc-dev@ozlabs.org;
+> cbe-oss-dev@ozlabs.org; linux-kernel@vger.kernel.org
+> Subject: RE: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for
+read/write
+> oncntl
+> 
+> After applying these patches, it seems the kernel leaks memory.
+> No doubt you forget to call simple_attr_close on "[PATCH 09/14]
+> spufs: add support for read/write oncntl".
+> 
+> Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
+> 
+> ---
+> 
+> Index:
+linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+> ===================================================================
+> ---
+>
+linux-2.6.18-arnd-20061004.orig/arch/powerpc/platforms/cell/spufs/file.c
+> +++
+linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+> @@ -246,6 +246,7 @@ static int spufs_cntl_open(struct inode
+> 
+>  static struct file_operations spufs_cntl_fops = {
+>  	.open = spufs_cntl_open,
+> +	.close = simple_attr_close,
+>  	.read = simple_attr_read,
+>  	.write = simple_attr_write,
+>  	.mmap = spufs_cntl_mmap,
+> 
+
+

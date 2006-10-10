@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWJJCKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751909AbWJJCPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWJJCKH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 22:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWJJCJn
+	id S1751909AbWJJCPh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 22:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751979AbWJJCPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 22:09:43 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:47077 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751909AbWJJCJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 22:09:40 -0400
-Date: Mon, 9 Oct 2006 14:00:13 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 06/14] uml: make UML_SETJMP always safe
-Message-ID: <20061009180013.GB4931@ccure.user-mode-linux.org>
-References: <20061005213212.17268.7409.stgit@memento.home.lan> <20061005213852.17268.13871.stgit@memento.home.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061005213852.17268.13871.stgit@memento.home.lan>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 9 Oct 2006 22:15:37 -0400
+Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:37058 "EHLO
+	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1751316AbWJJCPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 22:15:36 -0400
+X-Trace: 53616c7465645f5f50e6a3e1e0bc0a4428f87adc22a08f5675be8ec0086993b6e89418c207721a33086e2d0840802b1538eb98f8361361aa4413473ed1c99eb613963e4acbff7f47361ade957c3ac4b6a4d4b15a863af9b35f77f07093694540
+Message-ID: <452B0240.60203@xfs.org>
+Date: Mon, 09 Oct 2006 21:15:28 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: David Chinner <dgc@sgi.com>
+CC: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: Directories > 2GB
+References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com>
+In-Reply-To: <20061010015512.GQ11034@melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 11:38:52PM +0200, Paolo 'Blaisorblade' Giarrusso wrote:
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> 
-> If enable is moved by GCC in a register its value may not be preserved after
-> coming back there with longjmp(). So, mark it as volatile to prevent this; this
-> is suggested (it seems) in info gcc, when it talks about -Wuninitialized. I
-> re-read this and it seems to say something different, but I still believe this
-> may be needed.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> ---
-> 
->  arch/um/include/longjmp.h |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> diff --git a/arch/um/include/longjmp.h b/arch/um/include/longjmp.h
-> index e93c6d3..e860bc5 100644
-> --- a/arch/um/include/longjmp.h
-> +++ b/arch/um/include/longjmp.h
-> @@ -12,7 +12,8 @@ #define UML_LONGJMP(buf, val) do { \
->  } while(0)
->  
->  #define UML_SETJMP(buf) ({ \
-> -	int n, enable;	   \
-> +	int n;	   \
-> +	volatile int enable;	\
->  	enable = get_signals(); \
->  	n = setjmp(*buf); \
->  	if(n != 0) \
+Hi Dave,
 
-I agree with this, but not entirely with your reasoning.  The
--Wuninitialized documentation just talks about when gcc emits a
-warning.
+My recollection is that it used to default to on, it was disabled
+because it needs to map the buffer into a single contiguous chunk
+of kernel memory. This was placing a lot of pressure on the memory
+remapping code, so we made it not default to on as reworking the
+code to deal with non contig memory was looking like a major
+effort.
 
-What we want is a guarantee that enable is not cached in a register,
-but is stored in memory.  What documentation I can find seems to imply
-that is the case ("accesses to volatile objects must have settled
-before the next sequence point").
+Steve
 
-However, given the prevailing opinion that essentially all volatile
-declarations are hiding bugs, I wouldn't mind a bit of review of this
-from someone holding this opinion.
 
-				Jeff
+David Chinner wrote:
+> On Mon, Oct 09, 2006 at 04:53:02PM -0500, Steve Lord wrote:
+>> You might want to think about keeping the directory a little
+>> more contiguous than individual disk blocks. XFS does have
+>> code in it to allocate the directory in chunks larger than
+>> a single file system block. It does not get used on linux
+>> because the code was written under the assumption you can
+>> see the whole chunk as a single piece of memory which does not
+>> work to well in the linux kernel.
+> 
+> This code is enabled and seems to work in Linux. I don't know if it
+> passes xfsqa  so I don't know how reliable this feature is. TO check
+> it all I did was run a quick test on a x86_64 kernel (4k page
+> size) using 16k directory blocks (4 pages):
+
+
+
+> 
+> # mkfs.xfs -f -n size=16384 /dev/ubd/1
+> .....
+> # xfs_db -r -c "sb 0" -c "p dirblklog" /dev/ubd/1
+> dirblklog = 2
+> # mount /dev/ubd/1 /mnt/xfs
+> # for i in `seq 0 1 100000`; do touch fred.$i; done
+> # umount /mnt/xfs
+> # mount /mnt/xfs
+> # ls /mnt/xfs |wc -l
+> 100000
+> # rm -rf /mnt/xfs/*
+> # ls /mnt/xfs |wc -l
+> 0
+> # umount /mnt/xfs
+> #
+> 
+> Cheers,
+> 
+> Dave.
+

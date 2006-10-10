@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWJJWik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWJJWrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWJJWik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 18:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWJJWik
+	id S1030621AbWJJWrc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 18:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030605AbWJJWrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 18:38:40 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:62082 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932267AbWJJWig
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 18:38:36 -0400
-To: torvalds@osdl.org
-Subject: [PATCH 11/16] smbfs endianness annotations
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXQF9-00004u-U7@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 23:38:35 +0100
+	Tue, 10 Oct 2006 18:47:31 -0400
+Received: from rune.pobox.com ([208.210.124.79]:62404 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S1030586AbWJJWra (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 18:47:30 -0400
+Date: Tue, 10 Oct 2006 15:47:17 -0700
+From: Paul Dickson <paul@permanentmail.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       akpm@osdl.org, mingo@elte.hu
+Subject: Re: [patch 2/2] round_jiffies users
+Message-Id: <20061010154717.e2c4c149.paul@permanentmail.com>
+In-Reply-To: <1160496263.3000.312.camel@laptopd505.fenrus.org>
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	<1160496210.3000.310.camel@laptopd505.fenrus.org>
+	<1160496263.3000.312.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Date: Sat, 24 Dec 2005 14:32:38 -0500
+On Tue, 10 Oct 2006 18:04:23 +0200, Arjan van de Ven wrote:
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- include/linux/smb_fs.h |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+> +			mod_timer(&adapter->phy_info_timer, round_jiffies(jiffies + 2 * HZ));
 
-diff --git a/include/linux/smb_fs.h b/include/linux/smb_fs.h
-index 367d6c3..13b3af5 100644
---- a/include/linux/smb_fs.h
-+++ b/include/linux/smb_fs.h
-@@ -43,17 +43,17 @@ static inline struct smb_inode_info *SMB
- 
- /* macro names are short for word, double-word, long value (?) */
- #define WVAL(buf,pos) \
--	(le16_to_cpu(get_unaligned((u16 *)((u8 *)(buf) + (pos)))))
-+	(le16_to_cpu(get_unaligned((__le16 *)((u8 *)(buf) + (pos)))))
- #define DVAL(buf,pos) \
--	(le32_to_cpu(get_unaligned((u32 *)((u8 *)(buf) + (pos)))))
-+	(le32_to_cpu(get_unaligned((__le32 *)((u8 *)(buf) + (pos)))))
- #define LVAL(buf,pos) \
--	(le64_to_cpu(get_unaligned((u64 *)((u8 *)(buf) + (pos)))))
-+	(le64_to_cpu(get_unaligned((__le64 *)((u8 *)(buf) + (pos)))))
- #define WSET(buf,pos,val) \
--	put_unaligned(cpu_to_le16((u16)(val)), (u16 *)((u8 *)(buf) + (pos)))
-+	put_unaligned(cpu_to_le16((u16)(val)), (__le16 *)((u8 *)(buf) + (pos)))
- #define DSET(buf,pos,val) \
--	put_unaligned(cpu_to_le32((u32)(val)), (u32 *)((u8 *)(buf) + (pos)))
-+	put_unaligned(cpu_to_le32((u32)(val)), (__le32 *)((u8 *)(buf) + (pos)))
- #define LSET(buf,pos,val) \
--	put_unaligned(cpu_to_le64((u64)(val)), (u64 *)((u8 *)(buf) + (pos)))
-+	put_unaligned(cpu_to_le64((u64)(val)), (__le64 *)((u8 *)(buf) + (pos)))
- 
- /* where to find the base of the SMB packet proper */
- #define smb_base(buf) ((u8 *)(((u8 *)(buf))+4))
--- 
-1.4.2.GIT
+Shouldn't round_jiffies_relative be used for some of these, a la:
 
+  +			mod_timer(&adapter->phy_info_timer, round_jiffies_relative(2 * HZ));
+
+	-Paul
 

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751992AbWJJCsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWJJC4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751992AbWJJCsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 22:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751993AbWJJCsi
+	id S1751994AbWJJC4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 22:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWJJC4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 22:48:38 -0400
-Received: from gate.crashing.org ([63.228.1.57]:55502 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751992AbWJJCsi (ORCPT
+	Mon, 9 Oct 2006 22:56:33 -0400
+Received: from gate.crashing.org ([63.228.1.57]:63438 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751994AbWJJC4c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 22:48:38 -0400
+	Mon, 9 Oct 2006 22:56:32 -0400
 Subject: Re: ptrace and pfn mappings
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Nick Piggin <npiggin@suse.de>
@@ -17,16 +17,17 @@ Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
        Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061010022310.GC15822@wotan.suse.de>
+In-Reply-To: <1160448466.32237.59.camel@localhost.localdomain>
 References: <20061009140354.13840.71273.sendpatchset@linux.site>
 	 <20061009140447.13840.20975.sendpatchset@linux.site>
 	 <1160427785.7752.19.camel@localhost.localdomain>
 	 <452AEC8B.2070008@yahoo.com.au>
 	 <1160442987.32237.34.camel@localhost.localdomain>
 	 <20061010022310.GC15822@wotan.suse.de>
+	 <1160448466.32237.59.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 10 Oct 2006 12:47:46 +1000
-Message-Id: <1160448466.32237.59.camel@localhost.localdomain>
+Date: Tue, 10 Oct 2006 12:56:08 +1000
+Message-Id: <1160448968.32237.68.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
@@ -34,36 +35,48 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Switch the mm and do a copy_from_user? (rather than the GUP).
-> Sounds pretty ugly :P
+> > What if you hold your per-object lock over the operation? (I guess
+> > it would have to nest *inside* mmap_sem, but that should be OK).
 > 
-> Can you do a get_user_pfns, and do a copy_from_user on the pfn
-> addresses? In other words, is the memory / mmio at the end of a
-> given address the same from the perspective of any process? It
-> is for physical memory of course, which is why get_user_pages
-> works...
-
-Doesn't help with the racyness.
-
-> > That means that the ptracing process will temporarily be running in the
-> > kernel using a task->active_mm different from task->mm which might have
-> > funny side effects due to assumptions that this won't happen here or
-> > there, though I don't see any fundamental reasons why it couldn't be
-> > made to work.
-> > 
-> > That do you guys think ? Any better idea ? The problem with mappings
-> > like what SPUfs or the DRM want is that they can change (be remapped
-> > between HW and backup memory, as described in previous emails), thus we
-> > don't want to get struct pages even if available and peek at them as
-> > they might not be valid anymore, same with PFNs (we could imagine
-> > ioremap'ing those PFN's but that would be racy too). The only way that
-> > is guaranteed not to be racy is to do exactly what a user do, that is do
-> > user accesses via the target process vm itself....
+> Over the ptrace operation ? how so ?
 > 
-> What if you hold your per-object lock over the operation? (I guess
-> it would have to nest *inside* mmap_sem, but that should be OK).
 
-Over the ptrace operation ? how so ?
+Or do you mean the migration ? Well, we have so far managed to avoid
+walking the VMAs and thus avoid the mmap_sem during that migration, so
+yes, we do take the object lock but not the mmap_sem.
+
+The problem is that a get_user_pfn() (or get_user_pages if we are on the
+memory backstore, besides, how do you decide from access_process_vm
+which one to call ?) will peek PTEs and just use that if they are
+populated. Thus, if the migration races with it, we are stuffed.
+
+Even if we took the mmap_sem for writing during the migration on all
+affected VMAs (which I'm trying very hard to avoid, it's a very risky
+thing to do taking it on multiple VMAs, think about lock ordering
+issues, and it's just plain horrid), we would still at one point return
+an array of struct pages or pfn's that may be out of date unless we
+-also- do all the copies / accesses with that semaphore held. Now if
+that is the case, you gotta hope that the ptracing process doesn't also
+have one of those things mmap'ed (and in the case of SPUfs/gdb, it will
+to get to the spu program text afaik) or the copy_to_user to return the
+data read will be deadly.
+
+So all I see is more cans of worms... the only think that would "just
+work" would be to switch the mm and just do the accesses, letting normal
+faults do their job. This needs a temporary page in kernel memory to
+copy to/form but that's fine. The SPU might get context switched in the
+meantime, but that's not a problem, the data will be right.
+
+So yes, there might be other issues with switching the active_mm like
+that, and I yet have to find them (if some comes on top of your mind,
+please share) but it doesn't at this point seem worse than the
+get_user_page/pfn situation.
+
+(We could also make sure the whole switch/copy/switchback is done while
+holding the mmap sem of both current and target mm's for writing to
+avoid more complications I suppose, if we always take the ptracer first,
+the target being sigstopped, we should avoid AB/BA type deadlock
+scenarios unless I've missed something subtle).
 
 Ben.
 

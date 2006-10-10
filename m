@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWJJMKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWJJMNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWJJMKt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 08:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWJJMKt
+	id S965150AbWJJMNL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 08:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWJJMNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 08:10:49 -0400
-Received: from ns.suse.de ([195.135.220.2]:21148 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965135AbWJJMKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 08:10:48 -0400
-Date: Tue, 10 Oct 2006 14:10:45 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Jiri Kosina <jikos@jikos.cz>,
-       linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Message-ID: <20061010121045.GQ19765@suse.de>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz> <20060930114817.GA26217@suse.de> <20061008184230.GC4033@ucw.cz> <200610100052.10008.rjw@sisk.pl>
+	Tue, 10 Oct 2006 08:13:11 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:34754 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965135AbWJJMNI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 08:13:08 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH 1/4] LOG2: Implement a general integer log2 facility in the kernel [try #4]
+Date: Tue, 10 Oct 2006 14:12:57 +0200
+User-Agent: KMail/1.9.4
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, David Howells <dhowells@redhat.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, sfr@canb.auug.org.au,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+References: <Pine.LNX.4.61.0610062250090.30417@yvahk01.tjqt.qr> <200610091847.05441.arnd.bergmann@de.ibm.com> <1160466933.7920.25.camel@pmac.infradead.org>
+In-Reply-To: <1160466933.7920.25.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200610100052.10008.rjw@sisk.pl>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-9-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610101413.00952.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 12:52:09AM +0200, Rafael J. Wysocki wrote:
-> On Sunday, 8 October 2006 20:42, Pavel Machek wrote:
- 
-> > > echo "platform" > /sys/power/disk
-> > > echo "disk" > /sys/power/state
-> > 
-> > Maybe we should change the default in 2.6.20 or so?
+On Tuesday 10 October 2006 09:55, David Woodhouse wrote:
+> On Mon, 2006-10-09 at 18:47 +0200, Arnd Bergmann wrote:
+> > That has the potential of breaking other source files that don't expect
+> > linux/types.h to bring in the whole stdint.h file.
 > 
-> Well, I think swsusp should work with "shutdown" just as well.  If it doesn't,
-> that means there are some bugs in the ACPI code which should be fixed.
-> By using "platform" as the default method we'll be hiding those bugs IMHO.
+> I don't think we need to care about those. Userspace in _general_
+> shouldn't be including our header files -- this is only for low-level
+> system stuff, and that can be expected to deal with the fact that we
+> define and use some standard C types from last century.
 
-I'm not really intimately familiar with the ACPI spec, but IIRC those AML
-methods executed by pm_ops->prepare and pm_ops->finish are mandatory for
-suspending ACPI enabled machines. So using "platform" as a default seems
-reasonable (assuming that on non-ACPI machines, pm_ops->{prepare,finish} will
-be a noop anyway)
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Some of our headers are traditionally included by libc headers.
+E.g. sys/stat.h might include asm/stat.h, but must not include
+stdint.h.
+
+It's somewhat different for file that are completely outside
+of the scope of posix, e.g. <mtd/*.h>, that don't give any
+guarantees about what they include.
+
+> > Also, it may break some other linux header files that include <linux/types.h>
+> > and expect to get stuff like uid_t, which you don't get if a glibc header is
+> > included first, because of __KERNEL_STRICT_NAMES.
+> 
+> We have that problem already, don't we?
+
+It would get worse.
+
+An application can now do
+
+#include <linux/types.h>
+#include <linux/signal.h>
+#include <stdint.h>
+
+but not
+
+#include <stdint.h>
+#include <linux/types.h>
+#include <linux/signal.h>
+
+If <linux/types.h> includes <stdint.h> itself, the first examples breaks
+as well.
+
+I'd prefer to clean up all of our headers so they work with
+__KERNEL_STRICT_NAMES and in any order, but that's a lot of work and in
+the meantime we should make sure we don't make matters worse.
+
+	Arnd <><

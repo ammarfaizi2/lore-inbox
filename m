@@ -1,101 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWJJID0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbWJJIEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWJJID0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWJJIDZ
+	id S965083AbWJJIEf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWJJIEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:03:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4022 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965089AbWJJIDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:03:24 -0400
-Subject: Re: 2.6.19-rc1-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-mm@kvack.org
-In-Reply-To: <20061010004526.c7088e79.akpm@osdl.org>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	 <1160464800.3000.264.camel@laptopd505.fenrus.org>
-	 <20061010004526.c7088e79.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 10 Oct 2006 10:03:21 +0200
-Message-Id: <1160467401.3000.276.camel@laptopd505.fenrus.org>
+	Tue, 10 Oct 2006 04:04:35 -0400
+Received: from bay0-omc2-s14.bay0.hotmail.com ([65.54.246.150]:20404 "EHLO
+	bay0-omc2-s14.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S965083AbWJJIEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 04:04:34 -0400
+Message-ID: <BAY103-F11FF69B652F14B9D679376B2170@phx.gbl>
+X-Originating-IP: [85.36.106.198]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.19-rc1 warning: process  used the removed sysctl system call
+Date: Tue, 10 Oct 2006 10:04:32 +0200
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 10 Oct 2006 08:04:34.0158 (UTC) FILETIME=[B8F330E0:01C6EC42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 00:45 -0700, Andrew Morton wrote:
+Hello everybody,
 
-> > if it's ok to ignore RSS,
-> 
-> We'd prefer not to.  But what's the alternative?
+I have compiled 2.6.19-rc1 on my new shiny slackware 11.0 and I see
+these messages:
 
-it's a good question; today (2.6.18) we have some defacto behavior of
-RSS; 2.6.19-rc1-mm1 has a somewhat different one. Either can be entirely
-valid; and we can obviously implement either. We can go even further and
-remove more from RSS to help save memory and pagefaults (both help
-desktop performance) by going the shared pagetable road
-> 
-> > can we consider the shared pagetables for
-> > normal pages patch?
-> 
-> Has been repeatedly considered, but Hugh keeps finding bugs in it.
+root@Calimero:~# dmesg  | grep warning
+warning: process `touch' used the removed sysctl system call
+warning: process `touch' used the removed sysctl system call
+warning: process `dd' used the removed sysctl system call
+warning: process `alsactl' used the removed sysctl system call
+warning: process `kde-config' used the removed sysctl system call
 
-the latest one I tried looked relatively simple (earlier ones were very
-complex) so maybe Hugh can find time to give it another lookover?
+I think this is because of 'CONFIG_SYSCTL_SYSCALL is not set'
+(I have just copied .config from 2.6.18 to 2.6.19-rc1 and run
+make bzImage && make modules)
 
-> 
-> > It saves quite a bit of memory on even desktop
-> > workloads as well as avoiding several (soft) pagefaults.
-> > 
-> > So.. what does RSS actually mean? Can we ignore it somewhat for
-> > shared-readonly mappings ? 
-> 
-> We'd prefer to go the other way, and implement RLIMIT_RSS wouldn't we?
+This is my .config:
 
-Well... that again depends on how we define RSS. implementing the rlimit
-doesn't mean we can't NOT count certain things (like the hugetlb pages
-in the patch above, or shared read only pagecache pages) to be part of
-it. It's a fundamental "what does it mean" thing.
-You can argue that RSS means "all memory that the application has in
-it's address space", you can argue "all such memory except a few cases",
-you can argue "all memory that is private/exclusive to the
-application"... 
-This is not a pointless piss-in-the-wind discussion; unless we define
-rather specific what it really means, the RLIMIT doesn't mean anything
-either.
+# General setup
+#
+CONFIG_LOCALVERSION=""
+# CONFIG_LOCALVERSION_AUTO is not set
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+# CONFIG_IPC_NS is not set
+CONFIG_BSD_PROCESS_ACCT=y
+# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+# CONFIG_TASKSTATS is not set
+# CONFIG_UTS_NS is not set
+# CONFIG_AUDIT is not set
+# CONFIG_IKCONFIG is not set
+# CONFIG_RELAY is not set
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_SYSCTL=y
+# CONFIG_EMBEDDED is not set
+CONFIG_UID16=y
+# CONFIG_SYSCTL_SYSCALL is not set
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_VM_EVENT_COUNTERS=y
+CONFIG_RT_MUTEXES=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
 
-We need to consider at least if any of the following are part of rss:
-* VM_IO io mmaped device stuff 
-* Non-linear mappings
-* Shared hugetlb memory that shares pagetables
-* Shared hugetlb memory
-* Hugetlb memory in general
-* Shared normal memory that shares pagetables
-* Shared normal memory (file backed; eg pagecache)
-* Shared normal memory (anonymous/non-file-backed)
-* Sysv/ipc shared memory
-* Not shared normal memory
+My env: Slackware 11.0 + linux 2.6.19-rc1
 
-I don't think posix or anything else helps us here so we can vote or
-otherwise reason which make sense and which don't. I hope the outcome is
-reasonably consistent ;)
+Linux Calimero 2.6.19-rc1 #1 PREEMPT Thu Oct 5 15:26:06 CEST 2006 i686 
+pentium3 i386 GNU/Linux
 
-I know the desktop guys at least consider RSS useless as measure of "how
-much memory does my desktop app take"; especially since they have many
-shared libraries and they consider it unfair that each app pays the full
-price in terms of RSS for those. So personally I'm not unhappy with a
-definition that comes down to "all memory that's private to the app";
-although it is a change from what 2.6.18 does.
+Gnu C                  3.4.6
+Gnu make               3.81
+binutils               2.15.92.0.2
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.38
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Linux C++ Library      6.0.3
+Procps                 3.2.7
+Net-tools              1.60
+Kbd                    1.12
 
+dd & touch from GNU coreutils 5.97
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

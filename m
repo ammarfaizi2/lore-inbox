@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWJJPP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWJJPQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWJJPP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 11:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWJJPPZ
+	id S1750840AbWJJPQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 11:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWJJPQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 11:15:25 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:7066 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750838AbWJJPPZ (ORCPT
+	Tue, 10 Oct 2006 11:16:48 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:8858 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750840AbWJJPQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 11:15:25 -0400
-Date: Tue, 10 Oct 2006 11:15:21 -0400
+	Tue, 10 Oct 2006 11:16:48 -0400
+Date: Tue, 10 Oct 2006 11:16:47 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: rpurdie@rpsys.net, Andrew Morton <akpm@osdl.org>,
+To: jejb@steeleye.com, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] drivers/led: handle sysfs errors
-Message-ID: <20061010151521.GA15618@havoc.gtf.org>
+Subject: [PATCH] drivers/mca: handle sysfs errors
+Message-ID: <20061010151647.GA15678@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,105 +23,72 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Also includes a kmalloc->kzalloc cleanup.
 
 Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/leds/led-class.c     |   26 +++++++++++++++++++++-----
- drivers/leds/ledtrig-timer.c |   16 ++++++++++++++--
+ drivers/mca/mca-bus.c |   28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index aecbbe2..3c17112 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -91,6 +91,8 @@ EXPORT_SYMBOL_GPL(led_classdev_resume);
-  */
- int led_classdev_register(struct device *parent, struct led_classdev *led_cdev)
+diff --git a/drivers/mca/mca-bus.c b/drivers/mca/mca-bus.c
+index 09baa43..da862e4 100644
+--- a/drivers/mca/mca-bus.c
++++ b/drivers/mca/mca-bus.c
+@@ -100,6 +100,7 @@ static DEVICE_ATTR(pos, S_IRUGO, mca_sho
+ int __init mca_register_device(int bus, struct mca_device *mca_dev)
  {
+ 	struct mca_bus *mca_bus = mca_root_busses[bus];
 +	int rc;
-+
- 	led_cdev->class_dev = class_device_create(leds_class, NULL, 0,
- 						parent, "%s", led_cdev->name);
- 	if (unlikely(IS_ERR(led_cdev->class_dev)))
-@@ -99,8 +101,10 @@ int led_classdev_register(struct device 
- 	class_set_devdata(led_cdev->class_dev, led_cdev);
  
- 	/* register the attributes */
--	class_device_create_file(led_cdev->class_dev,
--				&class_device_attr_brightness);
-+	rc = class_device_create_file(led_cdev->class_dev,
-+				      &class_device_attr_brightness);
+ 	mca_dev->dev.parent = &mca_bus->dev;
+ 	mca_dev->dev.bus = &mca_bus_type;
+@@ -108,13 +109,23 @@ int __init mca_register_device(int bus, 
+ 	mca_dev->dev.dma_mask = &mca_dev->dma_mask;
+ 	mca_dev->dev.coherent_dma_mask = mca_dev->dma_mask;
+ 
+-	if (device_register(&mca_dev->dev))
+-		return 0;
++	rc = device_register(&mca_dev->dev);
 +	if (rc)
 +		goto err_out;
  
- 	/* add to the list of leds */
- 	write_lock(&leds_list_lock);
-@@ -110,16 +114,28 @@ int led_classdev_register(struct device 
- #ifdef CONFIG_LEDS_TRIGGERS
- 	rwlock_init(&led_cdev->trigger_lock);
+-	device_create_file(&mca_dev->dev, &dev_attr_id);
+-	device_create_file(&mca_dev->dev, &dev_attr_pos);
++	rc = device_create_file(&mca_dev->dev, &dev_attr_id);
++	if (rc) goto err_out_devreg;
++	rc = device_create_file(&mca_dev->dev, &dev_attr_pos);
++	if (rc) goto err_out_id;
  
--	led_trigger_set_default(led_cdev);
-+	rc = class_device_create_file(led_cdev->class_dev,
-+				      &class_device_attr_trigger);
-+	if (rc)
-+		goto err_out_led_list;
- 
--	class_device_create_file(led_cdev->class_dev,
--				&class_device_attr_trigger);
-+	led_trigger_set_default(led_cdev);
- #endif
- 
- 	printk(KERN_INFO "Registered led device: %s\n",
- 			led_cdev->class_dev->class_id);
- 
- 	return 0;
+ 	return 1;
 +
-+#ifdef CONFIG_LEDS_TRIGGERS
-+err_out_led_list:
-+	class_device_remove_file(led_cdev->class_dev,
-+				&class_device_attr_brightness);
-+	list_del(&led_cdev->node);
-+#endif
++err_out_id:
++	device_remove_file(&mca_dev->dev, &dev_attr_id);
++err_out_devreg:
++	device_unregister(&mca_dev->dev);
 +err_out:
-+	class_device_unregister(led_cdev->class_dev);
-+	return rc;
- }
- EXPORT_SYMBOL_GPL(led_classdev_register);
- 
-diff --git a/drivers/leds/ledtrig-timer.c b/drivers/leds/ledtrig-timer.c
-index 179c287..29a8818 100644
---- a/drivers/leds/ledtrig-timer.c
-+++ b/drivers/leds/ledtrig-timer.c
-@@ -123,6 +123,7 @@ static CLASS_DEVICE_ATTR(delay_off, 0644
- static void timer_trig_activate(struct led_classdev *led_cdev)
- {
- 	struct timer_trig_data *timer_data;
-+	int rc;
- 
- 	timer_data = kzalloc(sizeof(struct timer_trig_data), GFP_KERNEL);
- 	if (!timer_data)
-@@ -134,10 +135,21 @@ static void timer_trig_activate(struct l
- 	timer_data->timer.function = led_timer_function;
- 	timer_data->timer.data = (unsigned long) led_cdev;
- 
--	class_device_create_file(led_cdev->class_dev,
-+	rc = class_device_create_file(led_cdev->class_dev,
- 				&class_device_attr_delay_on);
--	class_device_create_file(led_cdev->class_dev,
-+	if (rc) goto err_out;
-+	rc = class_device_create_file(led_cdev->class_dev,
- 				&class_device_attr_delay_off);
-+	if (rc) goto err_out_delayon;
-+
-+	return;
-+
-+err_out_delayon:
-+	class_device_remove_file(led_cdev->class_dev,
-+				&class_device_attr_delay_on);
-+err_out:
-+	led_cdev->trigger_data = NULL;
-+	kfree(timer_data);
++	return 0;
  }
  
- static void timer_trig_deactivate(struct led_classdev *led_cdev)
+ /* */
+@@ -130,13 +141,16 @@ struct mca_bus * __devinit mca_attach_bu
+ 		return NULL;
+ 	}
+ 
+-	mca_bus = kmalloc(sizeof(struct mca_bus), GFP_KERNEL);
++	mca_bus = kzalloc(sizeof(struct mca_bus), GFP_KERNEL);
+ 	if (!mca_bus)
+ 		return NULL;
+-	memset(mca_bus, 0, sizeof(struct mca_bus));
++
+ 	sprintf(mca_bus->dev.bus_id,"mca%d",bus);
+ 	sprintf(mca_bus->name,"Host %s MCA Bridge", bus ? "Secondary" : "Primary");
+-	device_register(&mca_bus->dev);
++	if (device_register(&mca_bus->dev)) {
++		kfree(mca_bus);
++		return NULL;
++	}
+ 
+ 	mca_root_busses[bus] = mca_bus;
+ 

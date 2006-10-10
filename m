@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWJJJh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWJJJnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030180AbWJJJh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 05:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbWJJJh2
+	id S965129AbWJJJnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 05:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWJJJnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 05:37:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5087 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030180AbWJJJhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 05:37:25 -0400
-Date: Tue, 10 Oct 2006 10:37:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SCSI sd: fix module init/exit error handling
-Message-ID: <20061010093706.GJ395@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jeff@garzik.org>, linux-scsi@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20061004093254.GA15585@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061004093254.GA15585@havoc.gtf.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 10 Oct 2006 05:43:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20366 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965129AbWJJJnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 05:43:42 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1160170629.5453.34.camel@lade.trondhjem.org> 
+References: <1160170629.5453.34.camel@lade.trondhjem.org> 
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: Andrew Morton <akpm@osdl.org>, Steve Dickson <SteveD@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VM: Fix the gfp_mask in invalidate_complete_page2 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 10 Oct 2006 10:43:30 +0100
+Message-ID: <2069.1160473410@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2006 at 05:32:54AM -0400, Jeff Garzik wrote:
-> 
-> - Properly handle and unwind errors in init_sd().  Fixes leaks on error,
->   if class_register() or scsi_register_driver() failed.
-> 
-> - Ensure that exit_sd() execution order is the perfect inverse of
->   initialization order.
-> 
-> FIXME:  If some-but-not-all register_blkdev() calls fail, we wind up
-> calling unregister_blkdev() for block devices we did not register.
-> This was a pre-existing bug.
-> 
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
 
-Ok.
+> -	if (PagePrivate(page) && !try_to_release_page(page, 0))
+> +	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
 
+This can't be the right way to fix things.  try_to_release_page() may fail
+whatever GFP flags you give it.  If the page *must* be invalidated at this
+point then you _must_ call the invalidatepage() op, not the releasepage() op.
+
+What is currently there allows an instikill to take place on a page at this
+point, but defers the kill on pages that are busy until all the pages have
+been scanned once, thus giving I/O time to happen on busy pages whilst reaping
+pages that can be made immediately available.
+
+David

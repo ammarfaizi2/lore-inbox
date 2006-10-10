@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWJJQpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWJJQsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWJJQpn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWJJQpm
+	id S1030204AbWJJQsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWJJQsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:45:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33664 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030197AbWJJQpm (ORCPT
+	Tue, 10 Oct 2006 12:48:05 -0400
+Received: from mail.axxeo.de ([82.100.226.146]:61394 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1030199AbWJJQsB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:45:42 -0400
-Date: Tue, 10 Oct 2006 09:31:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: Amit Choudhary <amit2030@gmail.com>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
-Subject: Re: [stable] [PATCH 2.6.19-rc1] drivers/media/dvb/bt8xx/dvb-bt8xx.c: check kmalloc() return value.
-Message-ID: <20061010163116.GC3614@kroah.com>
-References: <20061008231034.e50118df.amit2030@gmail.com> <452A09A1.8040808@gmail.com> <20061010080110.GA20169@kroah.com> <452B81A2.6060905@gmail.com>
+	Tue, 10 Oct 2006 12:48:01 -0400
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [patch 2/2] round_jiffies users
+Date: Tue, 10 Oct 2006 18:47:39 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
+       akpm@osdl.org, mingo@elte.hu
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org> <1160496210.3000.310.camel@laptopd505.fenrus.org> <1160496263.3000.312.camel@laptopd505.fenrus.org>
+In-Reply-To: <1160496263.3000.312.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <452B81A2.6060905@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610101847.39604.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 03:18:58PM +0400, Manu Abraham wrote:
-> Greg KH wrote:
-> > On Mon, Oct 09, 2006 at 12:34:41PM +0400, Manu Abraham wrote:
-> >> Amit Choudhary wrote:
-> >>> Description: Check the return value of kmalloc() in function frontend_init(), in file drivers/media/dvb/bt8xx/dvb-bt8xx.c.
-> >>>
-> >>> Signed-off-by: Amit Choudhary <amit2030@gmail.com>
-> >>>
-> >>> diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> >>> index fb6c4cc..14e69a7 100644
-> >>> --- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> >>> +++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-> >>> @@ -665,6 +665,10 @@ static void frontend_init(struct dvb_bt8
-> >>>  	case BTTV_BOARD_TWINHAN_DST:
-> >>>  		/*	DST is not a frontend driver !!!		*/
-> >>>  		state = (struct dst_state *) kmalloc(sizeof (struct dst_state), GFP_KERNEL);
-> >>> +		if (!state) {
-> >>> +			printk("dvb_bt8xx: No memory\n");
-> >>> +			break;
-> >>> +		}
-> >>>  		/*	Setup the Card					*/
-> >>>  		state->config = &dst_config;
-> >>>  		state->i2c = card->i2c_adapter;
-> >>> -
-> >>
-> >> Signed-off-by: Manu Abraham <manu@linuxtv.org>
-> > 
-> > Care to send the full patch in a format that we can apply it to the
-> > -stable tree?
-> > 
-> 
-> 
->  dvb-bt8xx.c |    4 ++++
->  1 files changed, 4 insertions(+)
-> 
-> 
-> Thanks,
+Hi Arjan,
 
-Um, can you resend it with the proper description and signed-off-by:
-lines so that it can be applied correctly?
+Arjan van de Ven wrote:
+> Index: linux-2.6.19-rc1-git6/mm/slab.c
+> ===================================================================
+> --- linux-2.6.19-rc1-git6.orig/mm/slab.c
+> +++ linux-2.6.19-rc1-git6/mm/slab.c
+> @@ -926,7 +926,7 @@ static void __devinit start_cpu_timer(in
+>  	if (keventd_up() && reap_work->func == NULL) {
+>  		init_reap_node(cpu);
+>  		INIT_WORK(reap_work, cache_reap, NULL);
+> -		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
+> +		schedule_delayed_work_on(cpu, reap_work, __round_jiffies_relative(HZ, cpu));
+>  	}
+>  }
+>  
 
-And does this solve a real bug, or is it just added error condition
-checks?  If the latter, I don't think it's ok for -stable right now.
+Did you changed the behavior by intention?
+You seem to miss the factor "3" here. This hunk should read:
 
-thanks,
+--- linux-2.6.19-rc1-git6.orig/mm/slab.c
++++ linux-2.6.19-rc1-git6/mm/slab.c
+@@ -926,7 +926,7 @@ static void __devinit start_cpu_timer(in
+ 	if (keventd_up() && reap_work->func == NULL) {
+ 		init_reap_node(cpu);
+ 		INIT_WORK(reap_work, cache_reap, NULL);
+-		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
++		schedule_delayed_work_on(cpu, reap_work, __round_jiffies_relative(HZ, 3 * cpu));
+ 	}
+ }
+ 
 
-greg k-h
+In case you apply it:
+
+Signed-off-by: Ingo Oese <netdev@axxeo.de>
+
+
+Regards
+
+Ingo Oeser

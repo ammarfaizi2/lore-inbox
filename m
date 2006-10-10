@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWJJT3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWJJTaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbWJJT3c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWJJT3c
+	id S1030222AbWJJTaK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWJJTaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:29:32 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:10688 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030219AbWJJT3b (ORCPT
+	Tue, 10 Oct 2006 15:30:10 -0400
+Received: from mga01.intel.com ([192.55.52.88]:29741 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030222AbWJJTaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:29:31 -0400
-Date: Tue, 10 Oct 2006 20:59:13 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Greg KH <gregkh@suse.de>
-cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Chuck Lever <chuck.lever@oracle.com>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>
-Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC traffic
-In-Reply-To: <20061010171429.GD6339@kroah.com>
-Message-ID: <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
-References: <20061010165621.394703368@quad.kroah.org> <20061010171429.GD6339@kroah.com>
+	Tue, 10 Oct 2006 15:30:08 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,291,1157353200"; 
+   d="scan'208"; a="144296164:sNHT21428246"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>
+Cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Hugepage regression
+Date: Tue, 10 Oct 2006 12:30:07 -0700
+Message-ID: <000101c6eca2$7e84fe60$cb34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcbsoNunZiHMtnHETdC+/w8B4doNFgAADO3g
+In-Reply-To: <Pine.LNX.4.64.0610101958270.21452@blonde.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote on Tuesday, October 10, 2006 12:18 PM
+> On Tue, 10 Oct 2006, Chen, Kenneth W wrote:
+> > 
+> > With the pending shared page table for hugetlb currently sitting in -mm,
+> > we serialize the all hugetlb unmap with a per file i_mmap_lock.  This
+> > race could well be solved by that pending patch?
+> > 
+> >
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/broken-out/shared-page-table-for-hugetlb-page-v
+4.patch
+> 
+> Hey, nice try, Ken!  But I don't think we can let you sneak shared
+> pagetables into 2.6.19 that way ;)
 
->Some hardware uses port 664 for its hardware-based IPMI listener.  Teach
->the RPC client to avoid using that port by raising the default minimum port
->number to 665.
-
-Eh, that does look more like a quick hack. What if there were enough
-manufacturers around to use various parts, like manuf. A using 664, B using 800
-and C using 1000? Then the port range would have to be cut down again and
-again.
+It wasn't my intention to sneak in shared page table, though it does
+sort of look like so.
 
 
-	-`J'
--- 
-[A
+> Yes, I'd expect your i_mmap_lock to solve the problem: and since
+> you're headed in that direction anyway, it makes most sense to use
+> that solution rather than get into defining arrays, or sacrificing
+> the lazy flush, or risking page_count races.
+> 
+> So please extract the __unmap_hugepage_range mods from your shared
+> pagetable patch, and use that to fix the bug.
+
+OK, I was about to do so too.
+
+
+> But again, I protest
+> the "if (vma->vm_file)" in your unmap_hugepage_range - how would a
+> hugepage area ever have NULL vma->vm_file?
+
+It's coming from do_mmap_pgoff(), file->f_op->mmap can fail with error
+code (e.g. not enough hugetlb page) and in the error recovery path, it
+nulls out vma->vm_file first before calls down to unmap_region().  I
+asked that question before: can we reverse that order (call unmap_region
+and then nulls out vma->vmfile and fput)?
+
+unmap_and_free_vma:
+        if (correct_wcount)
+                atomic_inc(&inode->i_writecount);
+        vma->vm_file = NULL;
+        fput(file);
+
+        /* Undo any partial mapping done by a device driver. */
+        unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
+

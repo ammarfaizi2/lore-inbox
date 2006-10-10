@@ -1,76 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030595AbWJJWZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030603AbWJJWgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030595AbWJJWZa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 18:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030579AbWJJWZ3
+	id S1030603AbWJJWgr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 18:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030607AbWJJWgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 18:25:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:48806 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030595AbWJJWZ2
+	Tue, 10 Oct 2006 18:36:47 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:49282 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030603AbWJJWgq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 18:25:28 -0400
-Subject: Re: 2.6.18 ext3 panic.
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Eric Sandeen <esandeen@redhat.com>
-Cc: Jan Kara <jack@suse.cz>, Dave Jones <davej@redhat.com>,
-       Eric Sandeen <sandeen@sandeen.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <452C18A6.3070607@redhat.com>
-References: <20061002194711.GA1815@redhat.com>
-	 <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net>
-	 <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net>
-	 <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>
-	 <20061009225036.GC26728@redhat.com>
-	 <20061010141145.GM23622@atrey.karlin.mff.cuni.cz>
-	 <452C18A6.3070607@redhat.com>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 15:25:06 -0700
-Message-Id: <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 18:36:46 -0400
+To: torvalds@osdl.org
+Subject: [patches] misc endianness annotations
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1GXQDN-0008Tj-RA@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 10 Oct 2006 23:36:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 17:03 -0500, Eric Sandeen wrote:
-> Jan Kara wrote:
-> 
-> >   I think it's really the 1KB block size that makes it happen.
-> > I've looked at journal_dirty_data() code and I think the following can
-> > happen:
-> >   sync() eventually ends up in journal_dirty_data(bh) as Eric writes.
-> > There is finds dirty buffer attached to the comitting transaction. So it drops
-> > all locks and calls sync_dirty_buffer(bh).
-> >   Now in other process, file is truncated so that 'bh' gets just after EOF.
-> > As we have 1kb buffers, it can happen that bh is in the partially
-> > truncated page. Buffer is marked unmapped and clean. But in a moment the page
-> > is marked dirty and msync() is called. That eventually calls
-> > set_page_dirty() and all buffers in the page are marked dirty.
-> >   The first process now wakes up, locks the buffer, clears the dirty bit
-> > and does submit_bh() - Oops.
-> 
-> Hm, just FWIW I have a couple traces* of the buffer getting unmapped
-> -before- journal_submit_data_buffers ever even finds it...
-> 
->  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout,
-> adding to array pid 1836
->      b_state:0x114025 b_jlist:BJ_SyncData cpu:0 b_count:2 b_blocknr:27130
->      b_jbd:1 b_frozen_data:0000000000000000
-> b_committed_data:0000000000000000
->      b_transaction:1 b_next_transaction:0 b_cp_transaction:0
-> b_trans_is_running:0
->      b_trans_is_comitting:1 b_jcount:0 pg_dirty:0
-> 
-> so it's already unmapped at this point.  Could
-> journal_submit_data_buffers benefit from some buffer_mapped checks?  Or
-> is that just a bandaid too late...
-
-Hmm..
-
-b_state: 0x114025 
-               ^
-means BH_Mapped. Isn't it ?
-
-Thanks,
-Badari
-
+	Assorted trivial endianness annotations that had been sitting in my tree
+for a long, long time...

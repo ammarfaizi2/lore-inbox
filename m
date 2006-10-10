@@ -1,101 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751983AbWJJCTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751979AbWJJCXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751983AbWJJCTk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 22:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWJJCTk
+	id S1751979AbWJJCXR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 22:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWJJCXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 22:19:40 -0400
-Received: from alnrmhc11.comcast.net ([204.127.225.91]:57276 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751983AbWJJCTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 22:19:40 -0400
-Message-ID: <452B033A.3080404@comcast.net>
-Date: Mon, 09 Oct 2006 22:19:38 -0400
-From: Ed Sweetman <safemode2@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: patch to 2.6.18-mm3 for missing libata Kconfig options
-Content-Type: multipart/mixed;
- boundary="------------030401070702070102020904"
+	Mon, 9 Oct 2006 22:23:17 -0400
+Received: from ns1.suse.de ([195.135.220.2]:41146 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751979AbWJJCXQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 22:23:16 -0400
+Date: Tue, 10 Oct 2006 04:23:10 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: ptrace and pfn mappings
+Message-ID: <20061010022310.GC15822@wotan.suse.de>
+References: <20061009140354.13840.71273.sendpatchset@linux.site> <20061009140447.13840.20975.sendpatchset@linux.site> <1160427785.7752.19.camel@localhost.localdomain> <452AEC8B.2070008@yahoo.com.au> <1160442987.32237.34.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160442987.32237.34.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030401070702070102020904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Oct 10, 2006 at 11:16:27AM +1000, Benjamin Herrenschmidt wrote:
+> And the last of my "issues" here:
+> 
+> get_user_pages() can't handle pfn mappings, thus access_process_vm()
+> can't, and thus ptrace can't. When they were limited to dodgy /dev/mem
+> things, it was probably ok. But with more drivers needing that, like the
+> DRM, sound drivers, and now with SPU problem state registers and local
+> store mapped that way, it's becoming a real issues to be unable to
+> access any of those mappings from gdb.
+> 
+> The "easy" way out I can see, but it may have all sort of bad side
+> effects I haven't thought about at this point, is to switch the mm in
+> access_process_vm (at least if it's hitting such a VMA).
 
-  I believe the following options are missing in the current setup of 
-how libata is configured and selected in the kernel config program.  
-First, a clarification as to just what needs to be selected to actually 
-use libata governed drives. Second, since libata is being treated as a 
-alternative to scsi and ide, it should have the same options as those 
-until it fully replaces ide and the general blk devices can be moved to 
-a "shared" config option.
+Switch the mm and do a copy_from_user? (rather than the GUP).
+Sounds pretty ugly :P
 
-So I just wrote up a little patch to the ata driver's Kconfig that adds 
-in the "missing" blk dev selection options so a user doesn't have to do 
-what they had to do when ata was under scsi's low level drivers in the 
-first place, which somewhat negates the whole movement of ata out of 
-scsi.   This should clear up a lot of confusion among users who are 
-coming to libata from ide and dont really get or want to get why it has 
-anything to do with selecting scsi drivers.   
+Can you do a get_user_pfns, and do a copy_from_user on the pfn
+addresses? In other words, is the memory / mmio at the end of a
+given address the same from the perspective of any process? It
+is for physical memory of course, which is why get_user_pages
+works...
 
-Hopefully this shared code between scsi and ata will be moved to a more 
-"general block device" option when ide is removed and everything is seen 
-as scsi devices anyway so we wont have to refer to them as "scsi devices". 
+> That means that the ptracing process will temporarily be running in the
+> kernel using a task->active_mm different from task->mm which might have
+> funny side effects due to assumptions that this won't happen here or
+> there, though I don't see any fundamental reasons why it couldn't be
+> made to work.
+> 
+> That do you guys think ? Any better idea ? The problem with mappings
+> like what SPUfs or the DRM want is that they can change (be remapped
+> between HW and backup memory, as described in previous emails), thus we
+> don't want to get struct pages even if available and peek at them as
+> they might not be valid anymore, same with PFNs (we could imagine
+> ioremap'ing those PFN's but that would be racy too). The only way that
+> is guaranteed not to be racy is to do exactly what a user do, that is do
+> user accesses via the target process vm itself....
 
-this patch is against 2.6.18-mm3.  
-
---------------030401070702070102020904
-Content-Type: text/plain;
- name="libata_kconfig.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libata_kconfig.patch"
-
---- ./linux-2.6.18/drivers/ata/Kconfig	2006-10-09 22:09:35.000000000 -0400
-+++ ../linux-2.6.18/drivers/ata/Kconfig	2006-10-09 22:04:02.000000000 -0400
-@@ -15,9 +15,38 @@
- 	  the name of your ATA host adapter (the card inside your computer
- 	  that "speaks" the ATA protocol, also called ATA controller),
- 	  because you will be asked for it.
-+	  NOTE: 
-+	  You will also need to select the ata device interface drivers below, 
-+	  to actually use the drives that libata detects.
- 
- if ATA
- 
-+config ATA_DISK
-+	tristate "ATA Disk Support"
-+	select BLK_DEV_SD
-+	depends on SCSI
-+	---help---
-+	    Select this if you have ata disk drives. Devices will be
-+	    connected to traditional scsi device nodes. eg. sda
-+
-+	
-+config ATA_OPTICAL
-+	tristate "ATA CD/DVD Rom Support"
-+	select BLK_DEV_SR
-+	depends on SCSI
-+	---help---
-+	    Select this if you have ata CD/DVD optical drives. Devices 
-+	    will be connected to traditional scsi device nodes. eg. sr0
-+	
-+config ATA_GENERIC
-+	tristate "ATA Generic support (CD/DVD Writer)"
-+	select BLK_DEV_SG
-+	depends on SCSI
-+	---help---
-+	    Select this if you have ata optical writers or anything 
-+	    supported by libata that's not a disk drive. Devices will be 
-+	    connected to the traditional scsi device nodes. eg. sg0
-+	    
- config SATA_AHCI
- 	tristate "AHCI SATA support"
- 	depends on PCI
-
---------------030401070702070102020904--
+What if you hold your per-object lock over the operation? (I guess
+it would have to nest *inside* mmap_sem, but that should be OK).

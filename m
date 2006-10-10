@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWJJGuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWJJGwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWJJGuY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWJJGuY
+	id S965045AbWJJGwg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWJJGwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:50:24 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:23246 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965040AbWJJGuW (ORCPT
+	Tue, 10 Oct 2006 02:52:36 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.143]:54342 "EHLO
+	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
+	id S965042AbWJJGwf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:50:22 -0400
-Date: Tue, 10 Oct 2006 08:42:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Neil Brown <neilb@suse.de>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: md deadlock (was Re: 2.6.18-mm2)
-Message-ID: <20061010064228.GA6311@elte.hu>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <6bffcb0e0609280454n34d40c0la8786e1eba6dcdf3@mail.gmail.com> <1159531923.28131.80.camel@taijtu> <17693.5913.393686.223172@cse.unsw.edu.au> <1159538597.28131.97.camel@taijtu> <1159796858.28131.149.camel@taijtu> <17707.6447.329255.930851@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17707.6447.329255.930851@cse.unsw.edu.au>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 10 Oct 2006 02:52:35 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+Date: Mon, 9 Oct 2006 23:52:34 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com>
+In-Reply-To: <4527C7AB.9080801@garzik.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+Thread-Index: AcbqJVvqilpedgsaSpWKQsR977Hn+wCEmT5w
+From: "Allen Martin" <AMartin@nvidia.com>
+To: "Jeff Garzik" <jeff@garzik.org>, "Robert Hancock" <hancockr@shaw.ca>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
+       <prakash@punnoor.de>
+X-OriginalArrivalTime: 10 Oct 2006 06:52:23.0593 (UTC) FILETIME=[A3BB6990:01C6EC38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > -Jeff will probably cringe at how I implemented the 
+> > bmdma_stop/start/status/setup functions. This kludge of toggling 
+> > ATA_FLAG_MMIO off for the call into libata was needed since this 
+> > controller is almost what libata calls ATA_FLAG_MMIO, but not quite 
+> > (the ATA taskfile registers are MMIO but the BMDMA 
+> registers are PIO). 
+> > This is also why I needed the patch to libata-sff.c to use the 
+> > adapter's bmdma_status function rather than hardcoded 
+> ata_bmdma_status.
+> 
+> *shrug*  I don't cringe if that's the most expedient way to 
+> do something.
+> 
+> But I really don't think that is necessary.  I will take a 
+> look at docs and see how things match up, when I am much more 
+> awake.  Most likely you need to be using another set of 
+> registers, and be all MMIO, all the time.
 
-* Neil Brown <neilb@suse.de> wrote:
+You shouldn't be touching BM registers when ADMA is enabled, it can
+cause bad things to happen.
 
-> --- .prev/include/linux/mutex.h	2006-10-10 12:37:04.000000000 +1000
-> +++ ./include/linux/mutex.h	2006-10-10 12:40:20.000000000 +1000
-> @@ -125,8 +125,9 @@ extern int fastcall mutex_lock_interrupt
->  
->  #ifdef CONFIG_DEBUG_LOCK_ALLOC
->  extern void mutex_lock_nested(struct mutex *lock, unsigned int subclass);
-> +extern int mutex_lock_interruptible_nested(struct mutex *lock, unsigned int subclass);
->  #else
-> -# define mutex_lock_nested(lock, subclass) mutex_lock(lock)
-> +# define mutex_lock_interruptible_nested(lock, subclass) mutex_interruptible_lock(lock)
->  #endif
+You should be using BM registers when doing ATAPI protocol though, as it
+doesn't work through ADMA.  So I wouldn't say you should be using MMIO
+all the time.
 
->  EXPORT_SYMBOL_GPL(mutex_lock_nested);
-> +int __sched
-> +mutex_lock_interruptible_nested(struct mutex *lock, unsigned int subclass)
-> +{
-> +	might_sleep();
-> +	return __mutex_lock_common(lock, TASK_INTERRUPTIBLE, subclass);
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(mutex_lock_interruptible_nested);
-
-looks good to me. (small style nit: maybe insert a newline after the 
-first EXPORT_SYMBOL_GPL line)
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+-Allen
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

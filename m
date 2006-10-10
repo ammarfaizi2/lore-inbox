@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWJJRQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWJJRRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWJJRQg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 13:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWJJRQJ
+	id S964871AbWJJRRr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 13:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWJJRRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 13:16:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52617 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964796AbWJJRPg (ORCPT
+	Tue, 10 Oct 2006 13:17:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40587 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964881AbWJJRR2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 13:15:36 -0400
-Date: Tue, 10 Oct 2006 10:14:43 -0700
+	Tue, 10 Oct 2006 13:17:28 -0400
+Date: Tue, 10 Oct 2006 10:15:56 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,14 +18,15 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Trond Myklebust <Trond.Myklebust@netapp.com>,
+       alan@lxorguk.ukuu.org.uk, roberto.castagnola@gmail.com,
+       Daniel Drake <dsd@gentoo.org>, Dmitry Torokhov <dtor@mail.ru>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 05/19] NFS: More page cache revalidation fixups
-Message-ID: <20061010171443.GF6339@kroah.com>
+Subject: [patch 19/19] Input: logips2pp - fix button mapping for MX300
+Message-ID: <20061010171556.GT6339@kroah.com>
 References: <20061010165621.394703368@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="nfs-more-page-cache-revalidation-fixups.patch"
+Content-Disposition: inline; filename="input-logips2pp-fix-button-mapping-for-mx300.patch"
 In-Reply-To: <20061010171350.GA6339@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,58 +35,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
+From: Roberto Castagnola <roberto.castagnola@gmail.com>
 
-Whenever the directory changes, we want to make sure that we always
-invalidate its page cache. Fix up update_changeattr() and
-nfs_mark_for_revalidate() so that they do so.
+MX300 does not have an EXTRA_BTN - it is a simple wheel mouse with
+an additional task-switcher button, which is reported as side button
+(and not task button).
 
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- fs/nfs/nfs4proc.c      |   10 +++++-----
- include/linux/nfs_fs.h |    6 +++++-
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/input/mouse/logips2pp.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- linux-2.6.17.13.orig/fs/nfs/nfs4proc.c
-+++ linux-2.6.17.13/fs/nfs/nfs4proc.c
-@@ -185,15 +185,15 @@ static void renew_lease(const struct nfs
- 	spin_unlock(&clp->cl_lock);
- }
- 
--static void update_changeattr(struct inode *inode, struct nfs4_change_info *cinfo)
-+static void update_changeattr(struct inode *dir, struct nfs4_change_info *cinfo)
- {
--	struct nfs_inode *nfsi = NFS_I(inode);
-+	struct nfs_inode *nfsi = NFS_I(dir);
- 
--	spin_lock(&inode->i_lock);
--	nfsi->cache_validity |= NFS_INO_INVALID_ATTR;
-+	spin_lock(&dir->i_lock);
-+	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_REVAL_PAGECACHE|NFS_INO_INVALID_DATA;
- 	if (cinfo->before == nfsi->change_attr && cinfo->atomic)
- 		nfsi->change_attr = cinfo->after;
--	spin_unlock(&inode->i_lock);
-+	spin_unlock(&dir->i_lock);
- }
- 
- struct nfs4_opendata {
---- linux-2.6.17.13.orig/include/linux/nfs_fs.h
-+++ linux-2.6.17.13/include/linux/nfs_fs.h
-@@ -234,8 +234,12 @@ static inline int nfs_caches_unstable(st
- 
- static inline void nfs_mark_for_revalidate(struct inode *inode)
- {
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
- 	spin_lock(&inode->i_lock);
--	NFS_I(inode)->cache_validity |= NFS_INO_INVALID_ATTR | NFS_INO_INVALID_ACCESS;
-+	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_ACCESS;
-+	if (S_ISDIR(inode->i_mode))
-+		nfsi->cache_validity |= NFS_INO_REVAL_PAGECACHE|NFS_INO_INVALID_DATA;
- 	spin_unlock(&inode->i_lock);
- }
- 
+--- linux-2.6.17.13.orig/drivers/input/mouse/logips2pp.c
++++ linux-2.6.17.13/drivers/input/mouse/logips2pp.c
+@@ -238,8 +238,7 @@ static struct ps2pp_info *get_model_info
+ 		{ 100,	PS2PP_KIND_MX,					/* MX510 */
+ 				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
+ 				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN },
+-		{ 111,  PS2PP_KIND_MX,					/* MX300 */
+-				PS2PP_WHEEL | PS2PP_EXTRA_BTN | PS2PP_TASK_BTN },
++		{ 111,  PS2PP_KIND_MX,	PS2PP_WHEEL | PS2PP_SIDE_BTN },	/* MX300 reports task button as side */
+ 		{ 112,	PS2PP_KIND_MX,					/* MX500 */
+ 				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
+ 				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN },
 
 --

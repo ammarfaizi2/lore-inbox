@@ -1,31 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWJJSnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWJJSqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWJJSnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 14:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWJJSnP
+	id S1751079AbWJJSqu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 14:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWJJSqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 14:43:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030211AbWJJSnO (ORCPT
+	Tue, 10 Oct 2006 14:46:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37068 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751079AbWJJSqt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 14:43:14 -0400
-Date: Tue, 10 Oct 2006 11:42:53 -0700
+	Tue, 10 Oct 2006 14:46:49 -0400
+Date: Tue, 10 Oct 2006 11:46:18 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Dave Jones <davej@redhat.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Eric Sandeen <sandeen@sandeen.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com
-Subject: Re: 2.6.18 ext3 panic.
-Message-Id: <20061010114253.3f76c428.akpm@osdl.org>
-In-Reply-To: <20061010141145.GM23622@atrey.karlin.mff.cuni.cz>
-References: <20061002194711.GA1815@redhat.com>
-	<20061003052219.GA15563@redhat.com>
-	<4521F865.6060400@sandeen.net>
-	<20061002231945.f2711f99.akpm@osdl.org>
-	<452AA716.7060701@sandeen.net>
-	<1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>
-	<20061009225036.GC26728@redhat.com>
-	<20061010141145.GM23622@atrey.karlin.mff.cuni.cz>
+To: vgoyal@in.ibm.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+Message-Id: <20061010114618.9f520f90.akpm@osdl.org>
+In-Reply-To: <20061010143044.GA9645@in.ibm.com>
+References: <20061004233137.97451b73.akpm@osdl.org>
+	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+	<20061005235909.75178c09.akpm@osdl.org>
+	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
+	<20061006183846.GF19756@in.ibm.com>
+	<4526A66B.4030805@zytor.com>
+	<m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
+	<4526D084.1030700@zytor.com>
+	<20061009143345.GB17572@in.ibm.com>
+	<20061009201418.81bf0acd.akpm@osdl.org>
+	<20061010143044.GA9645@in.ibm.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -33,68 +39,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 16:11:45 +0200
-Jan Kara <jack@suse.cz> wrote:
+On Tue, 10 Oct 2006 10:30:44 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-> > On Mon, Oct 09, 2006 at 02:59:25PM -0700, Badari Pulavarty wrote:
+> On Mon, Oct 09, 2006 at 08:14:18PM -0700, Andrew Morton wrote:
+> > On Mon, 9 Oct 2006 10:33:45 -0400
+> > Vivek Goyal <vgoyal@in.ibm.com> wrote:
 > > 
-> >  > journal_dirty_data() would do submit_bh() ONLY if its part of the older
-> >  > transaction.
-> >  > 
-> >  > I need to take a closer look to understand the race.
-> >  > 
-> >  > BTW, is this 1k or 2k filesystem ?
+> > > Please find attached the regenerated patch.
 > > 
-> > (18:41:11:davej@gelk:~)$ sudo tune2fs -l /dev/md0  | grep size
-> > Block size:               1024
-> > Fragment size:            1024
-> > Inode size:               128
-> > (18:41:16:davej@gelk:~)$ 
+> > Somewhere amongst the six versions of this patch, the kernel broke.  Seems
+> > that the kernel command line isn't getting recognised.  The machine is
+> > running LILO and RH FC1.
 > > 
-> >  > How easy is to reproduce the problem ?
+> > I'll consolidate the patches which I have now and then I'll drop them.
 > > 
-> > I can reproduce it within a few hours of stressing, but only
-> > on that one box.  I've not figured out exactly what's so
-> > special about it yet (though the 1k block thing may be it).
-> > I had been thinking it was a raid0 only thing, as none of
-> > my other boxes have that.
-> > 
-> > I'm not entirely sure how it got set up that way either.
-> > The Fedora installer being too smart for its own good perhaps.
->   I think it's really the 1KB block size that makes it happen.
-> I've looked at journal_dirty_data() code and I think the following can
-> happen:
->   sync() eventually ends up in journal_dirty_data(bh) as Eric writes.
-> There is finds dirty buffer attached to the comitting transaction. So it drops
-> all locks and calls sync_dirty_buffer(bh).
->   Now in other process, file is truncated so that 'bh' gets just after EOF.
-> As we have 1kb buffers, it can happen that bh is in the partially
-> truncated page. Buffer is marked unmapped and clean. But in a moment the page
-> is marked dirty and msync() is called. That eventually calls
-> set_page_dirty() and all buffers in the page are marked dirty.
->   The first process now wakes up, locks the buffer, clears the dirty bit
-> and does submit_bh() - Oops.
 > 
->   This is essentially the same problem Badari found but in a different
-> place. There are two places that are arguably wrong...
->   1) We mark buffer dirty after EOF. But actually that may be needed -
-> or what is the expected behaviour when we write into mmapped file after
-> EOF, then extend the file and do msync()?
+> Hi Andrew,
+> 
+> I will find a machine having lilo and look into the issue. 
 
-yup.
+Thanks.
 
->   2) We submit a buffer after EOF for IO. This should be clearly avoided
-> but getting the needed info from bh is really ugly...
+> Instead of dropping all the patches, can't we just drop the last patch which
+> adds an elf header.
 
-Things like __block_write_full_page() avoid this by checking the block's
-offset against i_size.  (Not racy against truncate-down because the page is
-locked, not racy against truncate-up because the bh is zero and
-up-to-date).
+Yes, that patch was the cause.
 
-But for jbd writeout we don't hold the page lock, so checking against
-bh->b_page->host->i_size is a bit racy.
+> Most likely this issue should be happening because of
+> that patch. Rest of the patches should be harmless.
 
-hm.  But we do lock the buffers in journal_invalidatepage(), so checking
-i_size after locking the buffer in the writeout path might get us there.
+Those patches had reached my tolerance threshold and other people want to
+make changes to vmlinux.lds.S, and having large and uncertain changes in
+there makes that harder for them.
 
-
+Resend them when you think they're ready for another run please.

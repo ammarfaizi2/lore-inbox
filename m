@@ -1,173 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWJJNhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWJJNiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWJJNhP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 09:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJJNhP
+	id S1750762AbWJJNiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 09:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWJJNiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 09:37:15 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:29078 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750749AbWJJNhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 09:37:13 -0400
-Date: Tue, 10 Oct 2006 09:37:11 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: dmitry.torokhov@gmail.com, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] input: handle sysfs errors
-Message-ID: <20061010133710.GA10299@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Oct 2006 09:38:19 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:30440 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1750762AbWJJNiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 09:38:18 -0400
+From: Matthew Wilcox <matthew@wil.cx>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Matthew Wilcox <matthew@wil.cx>
+Subject: [PATCH] [PCI] Prevent user config space access during power state transitions
+Reply-To: Matthew Wilcox <matthew@wil.cx>
+Date: Tue, 10 Oct 2006 07:38:17 -0600
+Message-Id: <1160487497203-git-send-email-matthew@wil.cx>
+X-Mailer: git-send-email 1.4.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Section 5.3 of PCI Bus Power Management 1.2 states:
 
+  There is a minimum recovery time requirement of 200 µs between when
+  a function is programmed from D2 to D0 and when the function can be
+  next accessed as a target (including PCI configuration accesses). If
+  an access is attempted in violation of the specified minimum recovery
+  time, undefined system behavior may result.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+We have to prevent the user running lspci during this time, and
+fortunately we already have the pci_block_user_cfg_access() API to
+do this.
 
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 ---
+ drivers/pci/pci.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
- drivers/input/evdev.c    |   14 +++++++++++---
- drivers/input/joydev.c   |   13 ++++++++++---
- drivers/input/mousedev.c |   16 +++++++++++++---
- drivers/input/tsdev.c    |   14 +++++++++++---
- 4 files changed, 45 insertions(+), 12 deletions(-)
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index a544997..1bb059a 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -366,6 +366,11 @@ pci_set_power_state(struct pci_dev *dev,
+ 		break;
+ 	}
+ 
++	/* We have to prevent accesses to config space while transitioning
++	 * between power states
++	 */
++	pci_block_user_cfg_access(dev);
++
+ 	/* enter specified state */
+ 	pci_write_config_word(dev, pm + PCI_PM_CTRL, pmcsr);
+ 
+@@ -383,6 +388,9 @@ pci_set_power_state(struct pci_dev *dev,
+ 	if (platform_pci_set_power_state)
+ 		platform_pci_set_power_state(dev, state);
+ 
++	/* Should be safe to allow userspace access to the device again now */
++	pci_unblock_user_cfg_access(dev);
++
+ 	dev->current_state = state;
+ 
+ 	/* According to section 5.4.1 of the "PCI BUS POWER MANAGEMENT
+-- 
+1.4.1.1
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 6439f37..f35051b 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -621,7 +621,7 @@ static struct input_handle *evdev_connec
- {
- 	struct evdev *evdev;
- 	struct class_device *cdev;
--	int minor;
-+	int minor, rc;
- 
- 	for (minor = 0; minor < EVDEV_MINORS && evdev_table[minor]; minor++);
- 	if (minor == EVDEV_MINORS) {
-@@ -650,10 +650,18 @@ static struct input_handle *evdev_connec
- 			dev->cdev.dev, evdev->name);
- 
- 	/* temporary symlink to keep userspace happy */
--	sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
--			  evdev->name);
-+	rc = sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
-+			       evdev->name);
-+	if (rc)
-+		goto err_out;
- 
- 	return &evdev->handle;
-+
-+err_out:
-+	class_device_destroy(&input_class,
-+			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
-+	evdev_free(evdev);
-+	return NULL;
- }
- 
- static void evdev_disconnect(struct input_handle *handle)
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 9f3529a..5260632 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -470,7 +470,7 @@ static struct input_handle *joydev_conne
- {
- 	struct joydev *joydev;
- 	struct class_device *cdev;
--	int i, j, t, minor;
-+	int i, j, t, minor, rc;
- 
- 	for (minor = 0; minor < JOYDEV_MINORS && joydev_table[minor]; minor++);
- 	if (minor == JOYDEV_MINORS) {
-@@ -539,10 +539,17 @@ static struct input_handle *joydev_conne
- 			dev->cdev.dev, joydev->name);
- 
- 	/* temporary symlink to keep userspace happy */
--	sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
--			  joydev->name);
-+	rc = sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
-+			       joydev->name);
-+	if (rc)
-+		goto err_out;
- 
- 	return &joydev->handle;
-+
-+err_out:
-+	class_device_destroy(&input_class, MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
-+	joydev_free(joydev);
-+	return NULL;
- }
- 
- static void joydev_disconnect(struct input_handle *handle)
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index a22a74a..77e8596 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -629,7 +629,7 @@ static struct input_handle *mousedev_con
- {
- 	struct mousedev *mousedev;
- 	struct class_device *cdev;
--	int minor = 0;
-+	int minor = 0, rc;
- 
- 	for (minor = 0; minor < MOUSEDEV_MINORS && mousedev_table[minor]; minor++);
- 	if (minor == MOUSEDEV_MINORS) {
-@@ -661,10 +661,20 @@ static struct input_handle *mousedev_con
- 			dev->cdev.dev, mousedev->name);
- 
- 	/* temporary symlink to keep userspace happy */
--	sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
--			  mousedev->name);
-+	rc = sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
-+			       mousedev->name);
-+	if (rc)
-+		goto err_out;
- 
- 	return &mousedev->handle;
-+
-+err_out:
-+	class_device_destroy(&input_class,
-+			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
-+	if (mousedev_mix.open)
-+		input_close_device(&mousedev->handle);
-+	mousedev_free(mousedev);
-+	return NULL;
- }
- 
- static void mousedev_disconnect(struct input_handle *handle)
-diff --git a/drivers/input/tsdev.c b/drivers/input/tsdev.c
-index a730c46..49e34ce 100644
---- a/drivers/input/tsdev.c
-+++ b/drivers/input/tsdev.c
-@@ -372,7 +372,7 @@ static struct input_handle *tsdev_connec
- {
- 	struct tsdev *tsdev;
- 	struct class_device *cdev;
--	int minor, delta;
-+	int minor, delta, rc;
- 
- 	for (minor = 0; minor < TSDEV_MINORS / 2 && tsdev_table[minor]; minor++);
- 	if (minor >= TSDEV_MINORS / 2) {
-@@ -416,10 +416,18 @@ static struct input_handle *tsdev_connec
- 			dev->cdev.dev, tsdev->name);
- 
- 	/* temporary symlink to keep userspace happy */
--	sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
--			  tsdev->name);
-+	rc = sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
-+			       tsdev->name);
-+	if (rc)
-+		goto err_out;
- 
- 	return &tsdev->handle;
-+
-+err_out:
-+	class_device_destroy(&input_class,
-+			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
-+	tsdev_free(tsdev);
-+	return NULL;
- }
- 
- static void tsdev_disconnect(struct input_handle *handle)

@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWJJBzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWJJB6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWJJBzg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 21:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWJJBzg
+	id S964896AbWJJB6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 21:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWJJB6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 21:55:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1488 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964898AbWJJBzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 21:55:35 -0400
-Date: Tue, 10 Oct 2006 11:55:12 +1000
-From: David Chinner <dgc@sgi.com>
-To: Steve Lord <lord@xfs.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-Message-ID: <20061010015512.GQ11034@melbourne.sgi.com>
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org>
+	Mon, 9 Oct 2006 21:58:11 -0400
+Received: from mga05.intel.com ([192.55.52.89]:11576 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964896AbWJJB6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 21:58:11 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,286,1157353200"; 
+   d="scan'208"; a="143930119:sNHT673744337"
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, leonid.i.ananiev@intel.com
+In-Reply-To: <20061004103408.1a38b8ad.akpm@osdl.org>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	 <4522FB04.1080001@goop.org>
+	 <1159919263.8035.65.camel@localhost.localdomain>
+	 <45233B1E.3010100@goop.org>
+	 <1159968095.8035.76.camel@localhost.localdomain>
+	 <20061004093025.ab235eaa.akpm@osdl.org>
+	 <1159978929.8035.109.camel@localhost.localdomain>
+	 <20061004103408.1a38b8ad.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel
+Date: Mon, 09 Oct 2006 18:09:01 -0700
+Message-Id: <1160442541.4548.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452AC4BE.6090905@xfs.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 04:53:02PM -0500, Steve Lord wrote:
-> You might want to think about keeping the directory a little
-> more contiguous than individual disk blocks. XFS does have
-> code in it to allocate the directory in chunks larger than
-> a single file system block. It does not get used on linux
-> because the code was written under the assumption you can
-> see the whole chunk as a single piece of memory which does not
-> work to well in the linux kernel.
+On Wed, 2006-10-04 at 10:34 -0700, Andrew Morton wrote:
 
-This code is enabled and seems to work in Linux. I don't know if it
-passes xfsqa  so I don't know how reliable this feature is. TO check
-it all I did was run a quick test on a x86_64 kernel (4k page
-size) using 16k directory blocks (4 pages):
+> > > Please don't just ignore my questions.  *why* are we getting a cache miss
+> > > rate on that integer which is causing measurable performance changes?  If
+> > > we're reading it that frequently then the variable should be in cache(!).
+> > > 
+> > 
+> > The point is valid, __warn_once should be in cache, unless something
+> > evicts it. What I have found so far is with patch by Andrew and Leonid
+> > that avoid looking up the __warn_once integer, the cache miss rate is
+> > reduced to the level before.  
 
-# mkfs.xfs -f -n size=16384 /dev/ubd/1
-.....
-# xfs_db -r -c "sb 0" -c "p dirblklog" /dev/ubd/1
-dirblklog = 2
-# mount /dev/ubd/1 /mnt/xfs
-# for i in `seq 0 1 100000`; do touch fred.$i; done
-# umount /mnt/xfs
-# mount /mnt/xfs
-# ls /mnt/xfs |wc -l
-100000
-# rm -rf /mnt/xfs/*
-# ls /mnt/xfs |wc -l
-0
-# umount /mnt/xfs
-#
+> 
+> I see, thanks.  How very peculiar.
+> 
+> I wonder if we just got unlucky and that particular benchmark with that
+> particular kernel build just happens to reach the cache system's
+> associativity threshold, and this one extra cacheline took it over the
+> edge.  Or something.
+> 
 
-Cheers,
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+We believe we found the real cause of the performance regression: 
+it is precisely a self-inflicted cache line conflict on __warn_once
+global variable thanks to the older gcc (v3.4.5) backend assembly code
+optimizer.  The newer version of gcc (v4.1.0) does not suffer the same
+problem.
+
+We fall in the trap of thinking the __warn_once variable 
+is truly read mostly and is written only once in the very very unlikely
+case of bug triggering. But the compiler is doing something which
+turns the following innocent read only looking code into 
+write always assembly code. The compiler is doing so to avoid a
+conditional jump.
+
+
+The original "C" code looks very innocent:
+
+    if (WARN_ON(__ret_warn_once));
+        __warn_once = 0;
+
+The equivalent asm code generated by gcc looks like:
+
+    temp = 0;
+    if (!WARN_ON(__ret_warn_once))
+        temp = __warn_once;
+    __warn_once = temp;
+
+
+As a result, a global variable is being written from all CPUs 
+everywhere and caused excessive cache line bouncing on SMP.  
+We measured that HITM event increased by 75% and 
+read-for-ownership event increased by 50%. Adding a
+__read_mostly directive to __warn_once didn't help 
+because gcc still generate assembly code that write to 
+that global variable.
+
+Thanks.
+
+Tim

@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWJJTui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWJJUDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWJJTui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWJJTuh
+	id S1030240AbWJJUDw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 16:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWJJUDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:50:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19908 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030234AbWJJTuh (ORCPT
+	Tue, 10 Oct 2006 16:03:52 -0400
+Received: from gw.goop.org ([64.81.55.164]:59574 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030240AbWJJUDv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:50:37 -0400
-Date: Tue, 10 Oct 2006 21:50:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: =?iso-8859-1?Q?Fr=E9d=E9ric?= Riss <frederic.riss@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, len.brown@intel.com
-Subject: Re: 2.6.18 suspend regression on Intel Macs
-Message-ID: <20061010195022.GA32134@elf.ucw.cz>
-References: <1160417982.5142.45.camel@funkylaptop> <20061010103910.GD31598@elf.ucw.cz> <1160476889.3000.282.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0610100830370.3952@g5.osdl.org> <1160507296.5134.4.camel@funkylaptop> <1160509121.3000.327.camel@laptopd505.fenrus.org> <1160509584.5134.11.camel@funkylaptop>
+	Tue, 10 Oct 2006 16:03:51 -0400
+Message-ID: <452BFCAC.5040802@goop.org>
+Date: Tue, 10 Oct 2006 13:03:56 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160509584.5134.11.camel@funkylaptop>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: tim.c.chen@linux.intel.com, Andrew Morton <akpm@osdl.org>,
+       herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       leonid.i.ananiev@intel.com
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+References: <1159916644.8035.35.camel@localhost.localdomain>	 <4522FB04.1080001@goop.org>	 <1159919263.8035.65.camel@localhost.localdomain>	 <45233B1E.3010100@goop.org>	 <1159968095.8035.76.camel@localhost.localdomain>	 <20061004093025.ab235eaa.akpm@osdl.org>	 <1159978929.8035.109.camel@localhost.localdomain>	 <20061004103408.1a38b8ad.akpm@osdl.org>	 <1160442541.4548.15.camel@localhost.localdomain> <1160485474.22525.6.camel@localhost.localdomain>
+In-Reply-To: <1160485474.22525.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Steven Rostedt wrote:
+> Holy crap!  I wonder where else in the kernel gcc is doing this. (of
+> course I'm using gcc4 so I don't know).  Is there another gcc attribute
+> to actually tell gcc that a variable is really mostly read only (besides
+> placing it in a mostly read only elf section)?
+>   
 
-> > > So what's the plan? Should/Will the ACPI guys remove the bit-preserving
-> > > change brought in with the latest ACPICA merge?
-> > 
-> > 
-> > it sounds like a good idea to at least put the workaround back for now,
-> > until a more elegant solution (maybe something can be done to make it
-> > not needed anymore) is found...
-> > (or until it shows it breaks other machines at which point
-> > reconsideration is also needed)
-> 
-> The workaround hasn't been removed. It's still there,
-> drivers/acpi/pci_link.c:
-> 788 
-> 789 /* Make sure SCI is enabled again (Apple firmware bug?) */
-> 790 acpi_set_register(ACPI_BITREG_SCI_ENABLE, 1, ACPI_MTX_DO_NOT_LOCK);
-> 791 
-> 
-> The thing is acpi_set_register doesn't permit anymore to write the SCI
-> bit since the last ACPI merge. Or maybe you meant that the
-> acpi_hw_register_write modifications should be reverted until a better
-> solution is found?
+That would be nice, but I don't know of one (apart from "volatile", 
+which has its own downsides).  Once could imagine an annotation which 
+makes gcc consider writes to the variable relatively expensive, so that 
+it avoids generating unnecessary/excessive writes.
 
-Maybe you can just create a patch that modifies ACPI not to mask the
-SCI bit? Reverting big chunk of ACPI code is likely not the right
-solution.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+    J

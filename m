@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWJJI0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWJJI2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965081AbWJJI0O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWJJI0O
+	id S965084AbWJJI2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWJJI2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:26:14 -0400
-Received: from gate.crashing.org ([63.228.1.57]:20691 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965081AbWJJI0N (ORCPT
+	Tue, 10 Oct 2006 04:28:17 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:30599 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965084AbWJJI2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:26:13 -0400
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
-Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <452B398C.4030507@tungstengraphics.com>
-References: <20061009110007.GA3592@wotan.suse.de>
-	 <1160392214.10229.19.camel@localhost.localdomain>
-	 <20061009111906.GA26824@wotan.suse.de>
-	 <1160393579.10229.24.camel@localhost.localdomain>
-	 <20061009114527.GB26824@wotan.suse.de>
-	 <1160394571.10229.27.camel@localhost.localdomain>
-	 <20061009115836.GC26824@wotan.suse.de>
-	 <1160395671.10229.35.camel@localhost.localdomain>
-	 <20061009121417.GA3785@wotan.suse.de>
-	 <452A50C2.9050409@tungstengraphics.com>
-	 <20061009135254.GA19784@wotan.suse.de>
-	 <1160427036.7752.13.camel@localhost.localdomain>
-	 <452B398C.4030507@tungstengraphics.com>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 17:55:31 +1000
-Message-Id: <1160466932.6177.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 10 Oct 2006 04:28:16 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
+Subject: [PATCH] spufs: fix  support for read/write on cntl
+Date: Tue, 10 Oct 2006 10:27:29 +0200
+User-Agent: KMail/1.9.4
+Cc: "Paul Mackerras" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
+References: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3E7@jptkyxms38.jp.sony.com>
+In-Reply-To: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3E7@jptkyxms38.jp.sony.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610101027.30329.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
 
-> Still, even with NOPAGE_REFAULT or the equivalent with the new fault() code,
-> in the case we need to take this route, (and it looks like we won't have 
-> to),
-> I guess we still need to restart from find_vma() in the fault()/nopage() 
-> handler to make sure the VMA is still present. The object mutex need to 
-> be dropped as well to avoid deadlocks. Sounds complicated.
+This fixes a memory leak introduced by "spufs: add support
+for read/write oncntl", which was missing a call to simple_attr_close.
 
-But as we said, it should be enough to do the flag change with the
-object mutex held as long as it's after unmap_mapped_ranges()
+Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-Ben.
+---
 
+On Tuesday 10 October 2006 08:49, Noguchi, Masato wrote:
+> Oops,
+> I'm so sorry. I mistake to send wrong patch.
 
+Ok, no worries. Paul, please use this patch instead.
+
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+@@ -246,6 +246,7 @@ static int spufs_cntl_open(struct inode 
+ 
+ static struct file_operations spufs_cntl_fops = {
+ 	.open = spufs_cntl_open,
++	.release = simple_attr_close,
+ 	.read = simple_attr_read,
+ 	.write = simple_attr_write,
+ 	.mmap = spufs_cntl_mmap,

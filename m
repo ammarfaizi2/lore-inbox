@@ -1,398 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWJJShn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWJJSlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWJJShn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 14:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWJJShn
+	id S1030213AbWJJSlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 14:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWJJSlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 14:37:43 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:59553 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030202AbWJJShm (ORCPT
+	Tue, 10 Oct 2006 14:41:05 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:41911 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030213AbWJJSlD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 14:37:42 -0400
-Subject: Re: [RFC] v2 - [PATCH] filesystem helpers for custom 'struct file's
-From: Dave Hansen <haveblue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: hch@infradead.org
-In-Reply-To: <20061010182428.9A9C5285@localhost.localdomain>
-References: <20061010182428.9A9C5285@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-ZeJfcxazJ6NTZg8H3GCt"
-Date: Tue, 10 Oct 2006 11:37:36 -0700
-Message-Id: <1160505456.9566.10.camel@localhost.localdomain>
+	Tue, 10 Oct 2006 14:41:03 -0400
+Date: Tue, 10 Oct 2006 13:39:43 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] ecryptfs: reduce legacy API usage
+Message-ID: <20061010183943.GA4673@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20061010064626.GA21155@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061010064626.GA21155@havoc.gtf.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 10, 2006 at 02:46:26AM -0400, Jeff Garzik wrote:
+> Use modern crypto APIs.
+> 
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
---=-ZeJfcxazJ6NTZg8H3GCt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+With this patch, I ran across a problem:
 
-I forgot to refresh that one last time.  Here's the version that
-actually removed the f_init function.
-
-
-
---=-ZeJfcxazJ6NTZg8H3GCt
-Content-Disposition: attachment; filename=B0-helpers-for-custom-struct_files.patch
-Content-Type: text/x-patch; name=B0-helpers-for-custom-struct_files.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-
-This version takes into account some of Christoph's comments.
-
---
-
-Some filesystems forego the vfs and may_open() and create their
-own 'struct file's.
-
-This patch creates a couple of helper functions which can be
-used by these filesystems, and will provide a unified place
-which the r/o bind mount code may patch.
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+Oct 10 13:21:24 localhost mount.ecryptfs: Mount opts: [ecryptfs_sig=7fa06f4b66fcde02,ecryptfs_cipher=aes,ecryptfs_key_bytes=16] 
+Oct 10 13:21:28 localhost kernel: ecryptfs_init_crypt_ctx: cryptfs: init_crypt_ctx(): Error initializing cipher [aes]
+Oct 10 13:21:28 localhost kernel: BUG: unable to handle kernel NULL pointer dereference at virtual address 00000006
+Oct 10 13:21:28 localhost kernel:  printing eip:
+Oct 10 13:21:28 localhost kernel: f8a8ff10
+Oct 10 13:21:28 localhost kernel: *pde = 00000000
+Oct 10 13:21:28 localhost kernel: Oops: 0000 [#1]
+Oct 10 13:21:28 localhost kernel: PREEMPT 
+Oct 10 13:21:28 localhost kernel: Modules linked in: ecryptfs dummy l2cap bluetooth twofish twofish_common serpent aes blowfish ecb sha256 cry
+pto_null cryptomgr joydev snd_intel8x0m wlan_scan_sta ath_pci ath_rate_sample wlan ath_hal(P) genrtc
+Oct 10 13:21:28 localhost kernel: CPU:    0
+Oct 10 13:21:28 localhost kernel: EIP:    0060:[<f8a8ff10>]    Tainted: P      VLI
+Oct 10 13:21:28 localhost kernel: EFLAGS: 00010286   (2.6.19-rc1 #116)
+Oct 10 13:21:28 localhost kernel: EIP is at decrypt_scatterlist+0x50/0x110 [ecryptfs]
+Oct 10 13:21:28 localhost kernel: eax: 00000010   ebx: f2a44b84   ecx: fffffffe   edx: f2a44bd8
+Oct 10 13:21:28 localhost kernel: esi: f2a44c48   edi: 00001000   ebp: e5f33bf4   esp: e5f33bb8
+Oct 10 13:21:29 localhost kernel: ds: 007b   es: 007b   ss: 0068
+Oct 10 13:21:29 localhost kernel: Process cat (pid: 5888, ti=e5f32000 task=ec246a70 task.ti=e5f32000)
+Oct 10 13:21:29 localhost kernel: Stack: fffffffe f2a44bd8 00000010 00000bf4 fffffffe e5f33c78 00000200 e5f33c14 
+Oct 10 13:21:29 localhost kernel:        fffffffe e5f33c78 00000200 e5f33c14 f2a44b84 00000000 c140d020 e5f33c30 
+Oct 10 13:21:29 localhost kernel:        f8a9006b f2a44b84 e5f33c10 e5f33c20 00001000 e5f33c78 c13a7860 00000000 
+Oct 10 13:21:29 localhost kernel: Call Trace:
+Oct 10 13:21:29 localhost kernel:  [<f8a9006b>] ecryptfs_decrypt_page_offset+0x4b/0x50 [ecryptfs]
+Oct 10 13:21:29 localhost kernel:  [<f8a8fd08>] ecryptfs_decrypt_page+0x168/0x320 [ecryptfs]
+Oct 10 13:21:29 localhost kernel:  [<f8a8deef>] ecryptfs_readpage+0xaf/0x100 [ecryptfs]
+Oct 10 13:21:29 localhost kernel:  [<c0149250>] read_pages+0x80/0xf0
+Oct 10 13:21:29 localhost kernel:  [<c0149445>] __do_page_cache_readahead+0x185/0x1c0
+Oct 10 13:21:29 localhost kernel:  [<c01495bf>] blockable_page_cache_readahead+0x4f/0xd0
+Oct 10 13:21:29 localhost kernel:  [<c01497fc>] page_cache_readahead+0x10c/0x1d0
+Oct 10 13:21:29 localhost kernel:  [<c0142a0c>] do_generic_mapping_read+0x40c/0x520
+Oct 10 13:21:29 localhost kernel:  [<c0142d47>] generic_file_aio_read+0x147/0x220
+Oct 10 13:21:29 localhost kernel:  [<f8a8a389>] ecryptfs_read_update_atime+0x39/0x80 [ecryptfs]
+Oct 10 13:21:29 localhost kernel:  [<c016324f>] do_sync_read+0xdf/0x130
+Oct 10 13:21:29 localhost kernel:  [<c0163468>] vfs_read+0x1c8/0x1d0
+Oct 10 13:21:29 localhost kernel:  [<c01637bb>] sys_read+0x4b/0x80
+Oct 10 13:21:29 localhost kernel:  [<c0103353>] syscall_call+0x7/0xb
+Oct 10 13:21:29 localhost kernel:  [<b7f338de>] 0xb7f338de
+Oct 10 13:21:29 localhost kernel:  =======================
+Oct 10 13:21:29 localhost kernel: Code: 45 e4 89 f0 c7 45 dc 00 02 00 00 c7 45 ec 00 02 00 00 e8 74 04 9e c7 8b 4b 2c 8d 53 54 8b 43 1c 89 54 
+24 04 89 0c 24 89 44 24 08 <ff> 51 08 85 c0 75 59 89 7c 24 08 b8 43 33 a9 f8 89 44 24 04 c7 
+Oct 10 13:21:29 localhost kernel: EIP: [<f8a8ff10>] decrypt_scatterlist+0x50/0x110 [ecryptfs] SS:ESP 0068:e5f33bb8
 ---
 
- lxc-dave/include/linux/file.h |    6 +++
- lxc-dave/fs/file_table.c      |   18 +++++++++
- lxc-dave/fs/hugetlbfs/inode.c |   22 ++++-------
- lxc-dave/mm/shmem.c           |   22 ++++-------
- lxc-dave/mm/tiny-shmem.c      |   24 ++++--------
- lxc-dave/net/socket.c         |   82 +++++++++++++++++-------------------------
- 6 files changed, 85 insertions(+), 89 deletions(-)
+parse_tag_3_packet() does not check the return code from
+ecryptfs_init_crypt_ctx(). Here is a patch to fix that issue; this
+prevents the oops. But reading an encrypted file still does not
+work.
 
-diff -puN include/linux/file.h~B0-helpers-for-custom-struct_files include/linux/file.h
---- lxc/include/linux/file.h~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/include/linux/file.h	2006-10-10 11:29:45.000000000 -0700
-@@ -67,6 +67,12 @@ struct files_struct {
- extern void FASTCALL(__fput(struct file *));
- extern void FASTCALL(fput(struct file *));
- 
-+struct file_operations;
-+struct vfsmount;
-+struct dentry;
-+extern struct file *alloc_file(struct vfsmount *, struct dentry *dentry,
-+		mode_t mode, const struct file_operations *fop);
-+
- static inline void fput_light(struct file *file, int fput_needed)
- {
- 	if (unlikely(fput_needed))
-diff -puN fs/file_table.c~B0-helpers-for-custom-struct_files fs/file_table.c
---- lxc/fs/file_table.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/fs/file_table.c	2006-10-10 11:29:40.000000000 -0700
-@@ -140,6 +140,24 @@ fail:
- 
- EXPORT_SYMBOL(get_empty_filp);
- 
-+struct file *alloc_file(struct vfsmount *mnt,  struct dentry *dentry,
-+		mode_t mode, const struct file_operations *fop)
-+{
-+	struct file *file;
-+
-+	file = get_empty_filp();
-+	if (!file)
-+		return NULL;
-+
-+	file->f_vfsmnt = mntget(mnt);
-+	file->f_dentry = dentry;
-+	file->f_mapping = dentry->d_inode->i_mapping;
-+	file->f_mode = mode;
-+	file->f_op = fop;
-+	return file;
-+}
-+EXPORT_SYMBOL(alloc_file);
-+
- void fastcall fput(struct file *file)
- {
- 	if (atomic_dec_and_test(&file->f_count))
-diff -puN fs/hugetlbfs/inode.c~B0-helpers-for-custom-struct_files fs/hugetlbfs/inode.c
---- lxc/fs/hugetlbfs/inode.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/fs/hugetlbfs/inode.c	2006-10-10 10:55:14.000000000 -0700
-@@ -764,16 +764,11 @@ struct file *hugetlb_zero_setup(size_t s
- 	if (!dentry)
- 		goto out_shm_unlock;
- 
--	error = -ENFILE;
--	file = get_empty_filp();
--	if (!file)
--		goto out_dentry;
--
- 	error = -ENOSPC;
- 	inode = hugetlbfs_get_inode(root->d_sb, current->fsuid,
- 				current->fsgid, S_IFREG | S_IRWXUGO, 0);
- 	if (!inode)
--		goto out_file;
-+		goto out_dentry;
- 
- 	error = -ENOMEM;
- 	if (hugetlb_reserve_pages(inode, 0, size >> HPAGE_SHIFT))
-@@ -782,17 +777,18 @@ struct file *hugetlb_zero_setup(size_t s
- 	d_instantiate(dentry, inode);
- 	inode->i_size = size;
- 	inode->i_nlink = 0;
--	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
--	file->f_dentry = dentry;
--	file->f_mapping = inode->i_mapping;
--	file->f_op = &hugetlbfs_file_operations;
--	file->f_mode = FMODE_WRITE | FMODE_READ;
-+
-+	error = -ENFILE;
-+	file = alloc_file(hugetlbfs_vfsmount, dentry,
-+			FMODE_WRITE | FMODE_READ,
-+			&hugetlbfs_file_operations);
-+	if (!file)
-+		goto out_inode;
-+
- 	return file;
- 
- out_inode:
- 	iput(inode);
--out_file:
--	put_filp(file);
- out_dentry:
- 	dput(dentry);
- out_shm_unlock:
-diff -puN mm/shmem.c~B0-helpers-for-custom-struct_files mm/shmem.c
---- lxc/mm/shmem.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/mm/shmem.c	2006-10-10 10:55:14.000000000 -0700
-@@ -2464,29 +2464,25 @@ struct file *shmem_file_setup(char *name
- 	if (!dentry)
- 		goto put_memory;
- 
--	error = -ENFILE;
--	file = get_empty_filp();
--	if (!file)
--		goto put_dentry;
--
- 	error = -ENOSPC;
- 	inode = shmem_get_inode(root->d_sb, S_IFREG | S_IRWXUGO, 0);
- 	if (!inode)
--		goto close_file;
-+		goto put_dentry;
-+
-+	error = -ENFILE;
-+	file = alloc_file(shm_mnt, dentry, FMODE_WRITE | FMODE_READ,
-+				&shmem_file_operations);
-+	if (!file)
-+		goto put_inode;
- 
- 	SHMEM_I(inode)->flags = flags & VM_ACCOUNT;
- 	d_instantiate(dentry, inode);
- 	inode->i_size = size;
- 	inode->i_nlink = 0;	/* It is unlinked */
--	file->f_vfsmnt = mntget(shm_mnt);
--	file->f_dentry = dentry;
--	file->f_mapping = inode->i_mapping;
--	file->f_op = &shmem_file_operations;
--	file->f_mode = FMODE_WRITE | FMODE_READ;
- 	return file;
- 
--close_file:
--	put_filp(file);
-+put_inode:
-+	iput(inode);
- put_dentry:
- 	dput(dentry);
- put_memory:
-diff -puN mm/tiny-shmem.c~B0-helpers-for-custom-struct_files mm/tiny-shmem.c
---- lxc/mm/tiny-shmem.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/mm/tiny-shmem.c	2006-10-10 10:55:14.000000000 -0700
-@@ -66,24 +66,19 @@ struct file *shmem_file_setup(char *name
- 	if (!dentry)
- 		goto put_memory;
- 
--	error = -ENFILE;
--	file = get_empty_filp();
--	if (!file)
--		goto put_dentry;
--
- 	error = -ENOSPC;
- 	inode = ramfs_get_inode(root->d_sb, S_IFREG | S_IRWXUGO, 0);
- 	if (!inode)
--		goto close_file;
-+		goto put_dentry;
- 
- 	d_instantiate(dentry, inode);
--	inode->i_nlink = 0;	/* It is unlinked */
-+	error = -ENFILE;
-+	file = alloc_file(shm_mnt, dentry, FMODE_WRITE | FMODE_READ,
-+			&ramfs_file_operations);
-+	if (!file)
-+		goto put_inode;
- 
--	file->f_vfsmnt = mntget(shm_mnt);
--	file->f_dentry = dentry;
--	file->f_mapping = inode->i_mapping;
--	file->f_op = &ramfs_file_operations;
--	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	inode->i_nlink = 0;	/* It is unlinked */
- 
- 	/* notify everyone as to the change of file size */
- 	error = do_truncate(dentry, size, 0, file);
-@@ -91,9 +86,8 @@ struct file *shmem_file_setup(char *name
- 		goto close_file;
- 
- 	return file;
--
--close_file:
--	put_filp(file);
-+put_inode:
-+	iput(inode);
- put_dentry:
- 	dput(dentry);
- put_memory:
-diff -puN net/socket.c~B0-helpers-for-custom-struct_files net/socket.c
---- lxc/net/socket.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
-+++ lxc-dave/net/socket.c	2006-10-10 10:55:14.000000000 -0700
-@@ -330,26 +330,10 @@ static struct dentry_operations sockfs_d
-  *	but we take care of internal coherence yet.
-  */
- 
--static int sock_alloc_fd(struct file **filep)
--{
--	int fd;
--
--	fd = get_unused_fd();
--	if (likely(fd >= 0)) {
--		struct file *file = get_empty_filp();
--
--		*filep = file;
--		if (unlikely(!file)) {
--			put_unused_fd(fd);
--			return -ENFILE;
--		}
--	} else
--		*filep = NULL;
--	return fd;
--}
--
--static int sock_attach_fd(struct socket *sock, struct file *file)
-+struct file *sock_alloc_file(struct socket *sock)
- {
-+	struct file *file;
-+	struct dentry *dentry;
- 	struct qstr this;
- 	char name[32];
- 
-@@ -357,40 +341,39 @@ static int sock_attach_fd(struct socket 
- 	this.name = name;
- 	this.hash = SOCK_INODE(sock)->i_ino;
- 
--	file->f_dentry = d_alloc(sock_mnt->mnt_sb->s_root, &this);
--	if (unlikely(!file->f_dentry))
--		return -ENOMEM;
--
--	file->f_dentry->d_op = &sockfs_dentry_operations;
--	d_add(file->f_dentry, SOCK_INODE(sock));
--	file->f_vfsmnt = mntget(sock_mnt);
--	file->f_mapping = file->f_dentry->d_inode->i_mapping;
--
-+	dentry = d_alloc(sock_mnt->mnt_sb->s_root, &this);
-+	if (unlikely(!dentry))
-+		return ERR_PTR(-ENOMEM);
-+
-+	dentry->d_op = &sockfs_dentry_operations;
-+	d_add(dentry, SOCK_INODE(sock));
-+	file = alloc_file(sock_mnt, dentry, FMODE_READ | FMODE_WRITE,
-+			&socket_file_ops);
-+	if (!file) {
-+		dput(dentry);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	SOCK_INODE(sock)->i_fop = &socket_file_ops;
- 	sock->file = file;
--	file->f_op = SOCK_INODE(sock)->i_fop = &socket_file_ops;
--	file->f_mode = FMODE_READ | FMODE_WRITE;
- 	file->f_flags = O_RDWR;
- 	file->f_pos = 0;
- 	file->private_data = sock;
- 
--	return 0;
-+	return file;
- }
- 
- int sock_map_fd(struct socket *sock)
- {
- 	struct file *newfile;
--	int fd = sock_alloc_fd(&newfile);
-+	int fd = get_unused_fd();
- 
--	if (likely(fd >= 0)) {
--		int err = sock_attach_fd(sock, newfile);
-+	newfile = sock_alloc_file(sock);
- 
--		if (unlikely(err < 0)) {
--			put_filp(newfile);
--			put_unused_fd(fd);
--			return err;
--		}
--		fd_install(fd, newfile);
-+	if (IS_ERR(newfile)) {
-+		put_unused_fd(fd);
-+		return PTR_ERR(newfile);
- 	}
-+	fd_install(fd, newfile);
- 	return fd;
- }
- 
-@@ -1355,35 +1338,37 @@ asmlinkage long sys_accept(int fd, struc
- 	 */
- 	__module_get(newsock->ops->owner);
- 
--	newfd = sock_alloc_fd(&newfile);
-+	newfd = get_unused_fd();
- 	if (unlikely(newfd < 0)) {
- 		err = newfd;
- 		sock_release(newsock);
- 		goto out_put;
- 	}
- 
--	err = sock_attach_fd(newsock, newfile);
--	if (err < 0)
-+	newfile = sock_alloc_file(newsock);
-+	if (IS_ERR(newfile)) {
-+		err = PTR_ERR(newfile);
- 		goto out_fd;
-+	}
- 
- 	err = security_socket_accept(sock, newsock);
- 	if (err)
--		goto out_fd;
-+		goto out_file;
- 
- 	err = sock->ops->accept(sock, newsock, sock->file->f_flags);
- 	if (err < 0)
--		goto out_fd;
-+		goto out_file;
- 
- 	if (upeer_sockaddr) {
- 		if (newsock->ops->getname(newsock, (struct sockaddr *)address,
- 					  &len, 2) < 0) {
- 			err = -ECONNABORTED;
--			goto out_fd;
-+			goto out_file;
- 		}
- 		err = move_addr_to_user(address, len, upeer_sockaddr,
- 					upeer_addrlen);
- 		if (err < 0)
--			goto out_fd;
-+			goto out_file;
- 	}
- 
- 	/* File flags are not inherited via accept() unlike another OSes. */
-@@ -1397,8 +1382,9 @@ out_put:
- 	fput_light(sock->file, fput_needed);
- out:
- 	return err;
--out_fd:
-+out_file:
- 	fput(newfile);
-+out_fd:
- 	put_unused_fd(newfd);
- 	goto out_put;
- }
-diff -puN fs/proc/base.c~B0-helpers-for-custom-struct_files fs/proc/base.c
-_
+---
 
---=-ZeJfcxazJ6NTZg8H3GCt--
+Check the return code from the cryptographic context initializer.
+
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+
+---
+
+ fs/ecryptfs/keystore.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+dd04668dddad4efc44dcfa6fc392a6aeabf30256
+diff --git a/fs/ecryptfs/keystore.c b/fs/ecryptfs/keystore.c
+index ba45478..5ca3836 100644
+--- a/fs/ecryptfs/keystore.c
++++ b/fs/ecryptfs/keystore.c
+@@ -273,7 +273,12 @@ parse_tag_3_packet(struct ecryptfs_crypt
+ 		crypt_stat->key_size =
+ 			(*new_auth_tok)->session_key.encrypted_key_size;
+ 	}
+-	ecryptfs_init_crypt_ctx(crypt_stat);
++	rc = ecryptfs_init_crypt_ctx(crypt_stat);
++	if (rc) {
++		printk(KERN_ERR "Error initializing the cryptographic context; "
++		       "rc = [%d]\n", rc);
++		goto out_free;
++	}
+ 	/* S2K identifier 3 (from RFC2440) */
+ 	if (unlikely(data[(*packet_size)++] != 0x03)) {
+ 		ecryptfs_printk(KERN_ERR, "Only S2K ID 3 is currently "
+-- 
+1.3.3
 

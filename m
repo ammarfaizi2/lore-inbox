@@ -1,67 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030640AbWJJXcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWJJXen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030640AbWJJXcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 19:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWJJXcS
+	id S1030348AbWJJXen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 19:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWJJXen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 19:32:18 -0400
-Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:33424 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1030680AbWJJXcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 19:32:16 -0400
-Date: Wed, 11 Oct 2006 01:32:14 +0200
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Paul Wouters <paul@xelerance.com>
-Cc: fedora-xen@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: more random device badness in 2.6.18 :(
-Message-ID: <20061010233214.GA20863@boogie.lpds.sztaki.hu>
-References: <Pine.LNX.4.63.0610101944010.21866@tla.xelerance.com> <20061010205051.GB14865@boogie.lpds.sztaki.hu> <Pine.LNX.4.63.0610102257100.27986@tla.xelerance.com>
+	Tue, 10 Oct 2006 19:34:43 -0400
+Received: from mga01.intel.com ([192.55.52.88]:1549 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030348AbWJJXel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 19:34:41 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,291,1157353200"; 
+   d="scan'208"; a="144395969:sNHT19530714"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>
+Cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Hugepage regression
+Date: Tue, 10 Oct 2006 16:34:40 -0700
+Message-ID: <000301c6ecc4$a83af8a0$cb34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0610102257100.27986@tla.xelerance.com>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcbsoNunZiHMtnHETdC+/w8B4doNFgAIInpg
+In-Reply-To: <Pine.LNX.4.64.0610101958270.21452@blonde.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 11:03:58PM +0200, Paul Wouters wrote:
+Hugh Dickins wrote on Tuesday, October 10, 2006 12:18 PM
+> Yes, I'd expect your i_mmap_lock to solve the problem: and since
+> you're headed in that direction anyway, it makes most sense to use
+> that solution rather than get into defining arrays, or sacrificing
+> the lazy flush, or risking page_count races.
+> 
+> So please extract the __unmap_hugepage_range mods from your shared
+> pagetable patch, and use that to fix the bug.
 
-> Why is this happening in userland?
 
-Because whether the provided data is "random enough" is a policy
-decision, and policy does not belong in the kernel.
+OK, here is a bug fix patch fixing earlier "bug fix" patch :-(
 
-> Will rng-tools run on every bare Linux
-> system now? Including embedded systems?
 
-Why not? Alternatively you can always create your own version. Open
-source does not mean you get everything for free; it means you _can_ do
-the work if you want to.
+[patch] hugetlb: fix linked list corruption in unmap_hugepage_range
 
-> How about xen guests who don't have
-> direct access to the host's hardware (or software) random?
+commit fe1668ae5bf0145014c71797febd9ad5670d5d05 causes kernel to oops with
+libhugetlbfs test suite.  The problem is that hugetlb pages can be shared
+by multiple mappings. Multiple threads can fight over page->lru in the unmap
+path and bad things happen.  We now serialize __unmap_hugepage_range to void
+concurrent linked list manipulation.  Such serialization is also needed for
+shared page table page on hugetlb area. This patch will fixed the bug and
+also serve as a prepatch for shared page table.
 
-If they don't have access to the host's hardware, then they do not have a
-/dev/hw_random device. What's your question? And how that's different
-from machines not having a hw rng at all?
 
-> Why is this entropy management not part of the kernel? So for Openswan to
-> work correctly, it would need to depend on another daemon that may or may
-> not be available and/or running?
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-No. It only has to depend on /dev/(u)random. How the entropy is obtained
-(from /dev/hw_random, from the soundcard's white noise or from
-elsewhere) is none of Openswan's business.  Tha'ts up to the system
-administrator or distribution maker to decide and set up.
+--- ./fs/hugetlbfs/inode.c.orig	2006-10-05 10:25:20.000000000 -0700
++++ ./fs/hugetlbfs/inode.c	2006-10-10 14:27:48.000000000 -0700
+@@ -293,7 +293,7 @@ hugetlb_vmtruncate_list(struct prio_tree
+ 		if (h_vm_pgoff >= h_pgoff)
+ 			v_offset = 0;
+ 
+-		unmap_hugepage_range(vma,
++		__unmap_hugepage_range(vma,
+ 				vma->vm_start + v_offset, vma->vm_end);
+ 	}
+ }
+--- ./mm/hugetlb.c.orig	2006-10-05 10:25:21.000000000 -0700
++++ ./mm/hugetlb.c	2006-10-10 14:27:48.000000000 -0700
+@@ -356,8 +356,8 @@ nomem:
+ 	return -ENOMEM;
+ }
+ 
+-void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
+-			  unsigned long end)
++void __unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
++			    unsigned long end)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+@@ -398,6 +398,24 @@ void unmap_hugepage_range(struct vm_area
+ 	}
+ }
+ 
++void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start,
++			  unsigned long end)
++{
++	/*
++	 * It is undesirable to test vma->vm_file as it should be non-null
++	 * for valid hugetlb area. However, vm_file will be NULL in the error
++	 * cleanup path of do_mmap_pgoff. When hugetlbfs ->mmap method fails,
++	 * do_mmap_pgoff() nullifies vma->vm_file before calling this function
++	 * to clean up. Since no pte has actually been setup, it is safe to
++	 * do nothing in this case.
++	 */
++	if (vma->vm_file) {
++		spin_lock(&vma->vm_file->f_mapping->i_mmap_lock);
++		__unmap_hugepage_range(vma, start, end);
++		spin_unlock(&vma->vm_file->f_mapping->i_mmap_lock);
++	}
++}
++
+ static int hugetlb_cow(struct mm_struct *mm, struct vm_area_struct *vma,
+ 			unsigned long address, pte_t *ptep, pte_t pte)
+ {
+--- ./include/linux/hugetlb.h.orig	2006-10-05 10:25:21.000000000 -0700
++++ ./include/linux/hugetlb.h	2006-10-10 13:08:48.000000000 -0700
+@@ -17,6 +17,7 @@ int hugetlb_sysctl_handler(struct ctl_ta
+ int copy_hugetlb_page_range(struct mm_struct *, struct mm_struct *, struct vm_area_struct *);
+ int follow_hugetlb_page(struct mm_struct *, struct vm_area_struct *, struct page **, struct vm_area_struct **, unsigned long *, int
+*, int);
+ void unmap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
++void __unmap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
+ int hugetlb_prefault(struct address_space *, struct vm_area_struct *);
+ int hugetlb_report_meminfo(char *);
+ int hugetlb_report_node_meminfo(int, char *);
 
-> I still believe /dev/random should just give the best random possible for
-> the machine. Wether that is software random, or a piece of hardware, should
-> not matter. That's the kernel's internal state and functioning.
 
-Gabor
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------

@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWJJIkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWJJIjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWJJIkI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWJJIkI
+	id S965096AbWJJIjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWJJIjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:40:08 -0400
-Received: from relay.gothnet.se ([82.193.160.251]:18960 "EHLO
-	GOTHNET-SMTP2.gothnet.se") by vger.kernel.org with ESMTP
-	id S965107AbWJJIkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:40:06 -0400
-Message-ID: <452B5C54.6080704@tungstengraphics.com>
-Date: Tue, 10 Oct 2006 10:39:48 +0200
-From: Thomas Hellstrom <thomas@tungstengraphics.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
+	Tue, 10 Oct 2006 04:39:18 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:37597 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S965096AbWJJIjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 04:39:18 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <452B5BEE.4050407@s5r6.in-berlin.de>
+Date: Tue, 10 Oct 2006 10:38:06 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-References: <20061009110007.GA3592@wotan.suse.de>	 <1160392214.10229.19.camel@localhost.localdomain>	 <20061009111906.GA26824@wotan.suse.de>	 <1160393579.10229.24.camel@localhost.localdomain>	 <20061009114527.GB26824@wotan.suse.de>	 <1160394571.10229.27.camel@localhost.localdomain>	 <20061009115836.GC26824@wotan.suse.de>	 <1160395671.10229.35.camel@localhost.localdomain>	 <20061009121417.GA3785@wotan.suse.de>	 <452A50C2.9050409@tungstengraphics.com>	 <20061009135254.GA19784@wotan.suse.de>	 <1160427036.7752.13.camel@localhost.localdomain>	 <452B398C.4030507@tungstengraphics.com> <1160466932.6177.0.camel@localhost.localdomain>
-In-Reply-To: <1160466932.6177.0.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jeff Garzik <jeff@garzik.org>
+CC: bcollins@debian.org, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] firewire: handle sysfs errors
+References: <20061010064805.GA21310@havoc.gtf.org>
+In-Reply-To: <20061010064805.GA21310@havoc.gtf.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-BitDefender-Scanner: Mail not scanned due to license constraints
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>Still, even with NOPAGE_REFAULT or the equivalent with the new fault() code,
->>in the case we need to take this route, (and it looks like we won't have 
->>to),
->>I guess we still need to restart from find_vma() in the fault()/nopage() 
->>handler to make sure the VMA is still present. The object mutex need to 
->>be dropped as well to avoid deadlocks. Sounds complicated.
+Jeff Garzik wrote:
+> Handle sysfs, driver core errors.
 > 
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
 > 
-> But as we said, it should be enough to do the flag change with the
-> object mutex held as long as it's after unmap_mapped_ranges()
+> ---
 > 
-> Ben.
+>  drivers/ieee1394/nodemgr.c         |   36 ++++++++++++++++++++++++++++--------
 > 
-> 
-Agreed.
-/Thomas
+> diff --git a/drivers/ieee1394/nodemgr.c b/drivers/ieee1394/nodemgr.c
+> index 8e7b83f..8628e3f 100644
+> --- a/drivers/ieee1394/nodemgr.c
+> +++ b/drivers/ieee1394/nodemgr.c
+> @@ -414,9 +414,11 @@ static BUS_ATTR(destroy_node, S_IWUSR | 
+>  
+>  static ssize_t fw_set_rescan(struct bus_type *bus, const char *buf, size_t count)
+>  {
+> +	int rc;
+> +
+>  	if (simple_strtoul(buf, NULL, 10) == 1)
+> -		bus_rescan_devices(&ieee1394_bus_type);
+> -	return count;
+> +		rc = bus_rescan_devices(&ieee1394_bus_type);
+> +	return rc < 0 ? rc : count;
+>  }
 
+gcc 3.4.1-4mdk says:
 
+drivers/ieee1394/nodemgr.c: In function `fw_set_rescan':
+drivers/ieee1394/nodemgr.c:417: warning: 'rc' might be used
+uninitialized in this function
 
+The rest of the patch looks OK.
+
+I get a lot more warn_unused_result warnings at other places in
+ieee1394/nodemgr.c and ieee1394/hosts.c though. I could fix them all up
+and fix this new warning in fw_set_rescan too if you don't mind...
+-- 
+Stefan Richter
+-=====-=-==- =-=- -=-=-
+http://arcgraph.de/sr/

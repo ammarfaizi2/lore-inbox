@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWJJObQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWJJOcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWJJObQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 10:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWJJObQ
+	id S932127AbWJJOcw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 10:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWJJOcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 10:31:16 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:25246 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750820AbWJJObP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 10:31:15 -0400
-Date: Tue, 10 Oct 2006 10:30:44 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-Message-ID: <20061010143044.GA9645@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061004233137.97451b73.akpm@osdl.org> <m14pui4w7t.fsf@ebiederm.dsl.xmission.com> <20061005235909.75178c09.akpm@osdl.org> <m1bqop38nw.fsf@ebiederm.dsl.xmission.com> <20061006183846.GF19756@in.ibm.com> <4526A66B.4030805@zytor.com> <m1ac49z2fl.fsf@ebiederm.dsl.xmission.com> <4526D084.1030700@zytor.com> <20061009143345.GB17572@in.ibm.com> <20061009201418.81bf0acd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Oct 2006 10:32:51 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:54975 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932127AbWJJOcu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 10:32:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ebwjhoKA9FdpQA1KLwEXKNKUwnLHpnknmcn+u6uhk5dyqksBQx8uL48KHz7FuEMVVYgvcWH42k+5oElkzPWaeEs3rJ/d+VffQ+akUcL2gLBAM9vyrVoI8ub5C/4427xY6DFgioLtGpEDeYJP7C7GLAslHUaOa7n+FY5nfoQc3j0=
+From: Yu Luming <luming.yu@gmail.com>
+Organization: gmail
+To: Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
+Date: Tue, 10 Oct 2006 22:32:46 +0800
+User-Agent: KMail/1.8.2
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+       ismail@pardus.org.tr
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061005103657.GA4474@ucw.cz> <20061006211751.GA31887@lists.us.dell.com>
+In-Reply-To: <20061006211751.GA31887@lists.us.dell.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20061009201418.81bf0acd.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610102232.46627.luming.yu@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 08:14:18PM -0700, Andrew Morton wrote:
-> On Mon, 9 Oct 2006 10:33:45 -0400
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> 
-> > Please find attached the regenerated patch.
-> 
-> Somewhere amongst the six versions of this patch, the kernel broke.  Seems
-> that the kernel command line isn't getting recognised.  The machine is
-> running LILO and RH FC1.
-> 
-> I'll consolidate the patches which I have now and then I'll drop them.
-> 
+> > Please move it into the kernel where it belongs, and use lcd
+> > brightness subsystem like everyone else.
+>
+> We've been through this before.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114067198323596&w=2
+>
+> In addition, the SMI call used to change the backlight level *may*
+> require (if configured by the sysadmin in BIOS), a password be
+> entered.
+>
+> This begs for a common userspace app that can grok libsmbios and
+> kernel interfaces both, and use the appropriate method on each, rather
+> than just putting it all in the kernel
 
-Hi Andrew,
+>From my understanding, a cute userspace App shouldn't have this kind
+of logic:
+	if (is  DELL )
+		invoke libsmbios
+	if (is  foo)
+		invoke libfoo,
+	if (is bar)
+		invoke libbar,
+	....
+	else
+		operate on /sys/class/backlight/ ,.,..
 
-I will find a machine having lilo and look into the issue. 
+It should be:
+	just write/read  file in  /sys/class/backlight ,....
 
-Instead of dropping all the patches, can't we just drop the last patch which
-adds an elf header. Most likely this issue should be happening because of
-that patch. Rest of the patches should be harmless.
+Right?
 
-Thanks
-Vivek
+Thanks,
+Luming
+
+
+

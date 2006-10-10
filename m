@@ -1,57 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWJJJen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWJJJgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbWJJJen (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 05:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWJJJem
+	id S965142AbWJJJgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 05:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWJJJgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 05:34:42 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:57611 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S965134AbWJJJem
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 05:34:42 -0400
-Date: Tue, 10 Oct 2006 11:34:41 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Hans de Goede <j.w.r.degoede@hhs.nl>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
-Message-Id: <20061010113441.24b19b99.khali@linux-fr.org>
-In-Reply-To: <452B6569.7050404@hhs.nl>
-References: <20061010065359.GA21576@havoc.gtf.org>
-	<452B4B59.1050606@hhs.nl>
-	<20061010110803.1a70b576.khali@linux-fr.org>
-	<452B6569.7050404@hhs.nl>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 10 Oct 2006 05:36:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:735 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965137AbWJJJge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 05:36:34 -0400
+Date: Tue, 10 Oct 2006 10:36:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Henne <henne@nachtwindheim.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi: remove hosts.h
+Message-ID: <20061010093630.GH395@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Henne <henne@nachtwindheim.de>, Andrew Morton <akpm@osdl.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <45236F31.3070602@nachtwindheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45236F31.3070602@nachtwindheim.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans,
+On Wed, Oct 04, 2006 at 10:22:09AM +0200, Henne wrote:
+> Remove the obsolete hosts.h file under drivers/scsi.
+> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-> > * We want to delete all the device files at regular cleanup time (after
-> >   unregistering with the hwmon class).
+Ok.  I thought we had remove this one long time ago.
+
 > 
-> Is this really nescesarry? AFAIK the files get deleted when the device
-> gets deleted.
-
-The point is that the device shouldn't be deleted if we were following
-the device driver model. After all the uGuru device exists in your
-system before the abituguru driver is loaded, and is still there after
-the driver is unloaded.
-
-Now I agree that for now it won't make a difference, be we are
-preparing for the future, and all other hardware monitoring drivers
-were updated that way already.
-
-> > * It's OK to call device_create_file() on a non-existent file, so the
-> >   error path can be simplified.
+> ---
 > 
-> ?? You mean device_remove_file I assume?
-
-Oops, yes, that was a typo, sorry.
-
-Thanks,
--- 
-Jean Delvare
+>  b/drivers/scsi/dpt_i2o.c       |    2 +-
+>  b/drivers/scsi/dpti.h          |    2 +-
+>  b/drivers/scsi/ips.c           |    6 ------
+>  b/drivers/scsi/pcmcia/nsp_cs.c |    1 -
+>  drivers/scsi/hosts.h           |    2 --
+>  5 files changed, 2 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/scsi/dpt_i2o.c b/drivers/scsi/dpt_i2o.c
+> index 7b3bd34..b20b376 100644
+> --- a/drivers/scsi/dpt_i2o.c
+> +++ b/drivers/scsi/dpt_i2o.c
+> @@ -2212,7 +2212,7 @@ static s32 adpt_scsi_register(adpt_hba* 
+>  	 */
+>  	host->io_port = 0;
+>  	host->n_io_port = 0;
+> -				/* see comments in hosts.h */
+> +				/* see comments in scsi_host.h */
+>  	host->max_id = 16;
+>  	host->max_lun = 256;
+>  	host->max_channel = pHba->top_scsi_channel + 1;
+> diff --git a/drivers/scsi/dpti.h b/drivers/scsi/dpti.h
+> index 2ad2a89..2899832 100644
+> --- a/drivers/scsi/dpti.h
+> +++ b/drivers/scsi/dpti.h
+> @@ -44,7 +44,7 @@ static int adpt_device_reset(struct scsi
+>  
+>  
+>  /*
+> - * struct scsi_host_template (see hosts.h)
+> + * struct scsi_host_template (see scsi/scsi_host.h)
+>   */
+>  
+>  #define DPT_DRIVER_NAME	"Adaptec I2O RAID"
+> diff --git a/drivers/scsi/hosts.h b/drivers/scsi/hosts.h
+> deleted file mode 100644
+> index c27264b..0000000
+> --- a/drivers/scsi/hosts.h
+> +++ /dev/null
+> @@ -1,2 +0,0 @@
+> -#warning "This file is obsolete, please use <scsi/scsi_host.h> instead"
+> -#include <scsi/scsi_host.h>
+> diff --git a/drivers/scsi/ips.c b/drivers/scsi/ips.c
+> index 3c63928..ea03dd7 100644
+> --- a/drivers/scsi/ips.c
+> +++ b/drivers/scsi/ips.c
+> @@ -182,14 +182,8 @@ #include <linux/types.h>
+>  #include <linux/dma-mapping.h>
+>  
+>  #include <scsi/sg.h>
+> -
+>  #include "scsi.h"
+> -
+> -#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
+> -#include "hosts.h"
+> -#else
+>  #include <scsi/scsi_host.h>
+> -#endif
+>  
+>  #include "ips.h"
+>  
+> diff --git a/drivers/scsi/pcmcia/nsp_cs.c b/drivers/scsi/pcmcia/nsp_cs.c
+> index 0d4c04e..053303d 100644
+> --- a/drivers/scsi/pcmcia/nsp_cs.c
+> +++ b/drivers/scsi/pcmcia/nsp_cs.c
+> @@ -80,7 +80,6 @@ static int       free_ports = 0;
+>  module_param(free_ports, bool, 0);
+>  MODULE_PARM_DESC(free_ports, "Release IO ports after configuration? (default: 0 (=no))");
+>  
+> -/* /usr/src/linux/drivers/scsi/hosts.h */
+>  static struct scsi_host_template nsp_driver_template = {
+>  	.proc_name	         = "nsp_cs",
+>  	.proc_info		 = nsp_proc_info,
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+---end quoted text---

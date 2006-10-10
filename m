@@ -1,32 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWJJTgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWJJThx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWJJTgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 15:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWJJTgo
+	id S1030226AbWJJThx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 15:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWJJThx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 15:36:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:20868
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030225AbWJJTgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 15:36:43 -0400
-Date: Tue, 10 Oct 2006 12:36:44 -0700 (PDT)
-Message-Id: <20061010.123644.10299128.davem@davemloft.net>
-To: pj@sgi.com
-Cc: davem@sunset.davemloft.net, linux-kernel@vger.kernel.org,
-       vonbrand@inf.utfsm.cl, akpm@osdl.org
+	Tue, 10 Oct 2006 15:37:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18654 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030226AbWJJThw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 15:37:52 -0400
+Date: Tue, 10 Oct 2006 12:37:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: "David S. Miller" <davem@sunset.davemloft.net>,
+       linux-kernel@vger.kernel.org,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
 Subject: Re: Sparc64 stopped building - sigset_t unrecognized in compat.h
-From: David Miller <davem@davemloft.net>
+Message-Id: <20061010123744.403dbea7.akpm@osdl.org>
 In-Reply-To: <20061010115940.4c25ae83.pj@sgi.com>
 References: <20061010115940.4c25ae83.pj@sgi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
-Date: Tue, 10 Oct 2006 11:59:40 -0700
+On Tue, 10 Oct 2006 11:59:40 -0700
+Paul Jackson <pj@sgi.com> wrote:
 
 > Sometime on or about the change to include/linux/compat.h:
 > 
@@ -42,5 +43,7 @@ Date: Tue, 10 Oct 2006 11:59:40 -0700
 > 
 > my crosstool compile of sparc64 for 2.6.18-mm3 stopped building.
 
-And then there is a changeset I made right after that one which
-fixes the build by removing the asm/signal.h include from asm/compat.h.
+That build error came from the CONFIG_BLOCK patches and Dave's change was
+intended to fix it rather than creating it.
+
+2.6.19-rc1-mm1 builds OK on sparc64.

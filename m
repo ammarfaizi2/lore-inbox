@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWJJIcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWJJIkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWJJIcP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWJJIcP
+	id S965107AbWJJIkI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWJJIkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:32:15 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:44013 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965103AbWJJIcO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:32:14 -0400
-Date: Tue, 10 Oct 2006 11:32:13 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-cc: sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: [PATCH] ext3: fsid for statvfs
-Message-ID: <Pine.LNX.4.64.0610101131001.10574@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Oct 2006 04:40:08 -0400
+Received: from relay.gothnet.se ([82.193.160.251]:18960 "EHLO
+	GOTHNET-SMTP2.gothnet.se") by vger.kernel.org with ESMTP
+	id S965107AbWJJIkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 04:40:06 -0400
+Message-ID: <452B5C54.6080704@tungstengraphics.com>
+Date: Tue, 10 Oct 2006 10:39:48 +0200
+From: Thomas Hellstrom <thomas@tungstengraphics.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+References: <20061009110007.GA3592@wotan.suse.de>	 <1160392214.10229.19.camel@localhost.localdomain>	 <20061009111906.GA26824@wotan.suse.de>	 <1160393579.10229.24.camel@localhost.localdomain>	 <20061009114527.GB26824@wotan.suse.de>	 <1160394571.10229.27.camel@localhost.localdomain>	 <20061009115836.GC26824@wotan.suse.de>	 <1160395671.10229.35.camel@localhost.localdomain>	 <20061009121417.GA3785@wotan.suse.de>	 <452A50C2.9050409@tungstengraphics.com>	 <20061009135254.GA19784@wotan.suse.de>	 <1160427036.7752.13.camel@localhost.localdomain>	 <452B398C.4030507@tungstengraphics.com> <1160466932.6177.0.camel@localhost.localdomain>
+In-Reply-To: <1160466932.6177.0.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-BitDefender-Scanner: Mail not scanned due to license constraints
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+Benjamin Herrenschmidt wrote:
+>>Still, even with NOPAGE_REFAULT or the equivalent with the new fault() code,
+>>in the case we need to take this route, (and it looks like we won't have 
+>>to),
+>>I guess we still need to restart from find_vma() in the fault()/nopage() 
+>>handler to make sure the VMA is still present. The object mutex need to 
+>>be dropped as well to avoid deadlocks. Sounds complicated.
+> 
+> 
+> But as we said, it should be enough to do the flag change with the
+> object mutex held as long as it's after unmap_mapped_ranges()
+> 
+> Ben.
+> 
+> 
+Agreed.
+/Thomas
 
-Update ext3_statfs to return an FSID that is a 64 bit XOR of the 128 bit
-filesystem UUID as suggested by Andreas Dilger. See the following Bugzilla
-entry for details:
 
-  http://bugzilla.kernel.org/show_bug.cgi?id=136
 
-Cc: Andreas Dilger <adilger@clusterfs.com>
-Cc: Stephen Tweedie <sct@redhat.com>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
-
- fs/ext3/super.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-Index: 2.6/fs/ext3/super.c
-===================================================================
---- 2.6.orig/fs/ext3/super.c
-+++ 2.6/fs/ext3/super.c
-@@ -2385,6 +2385,7 @@ static int ext3_statfs (struct dentry * 
- 	struct ext3_super_block *es = sbi->s_es;
- 	ext3_fsblk_t overhead;
- 	int i;
-+	u64 fsid;
- 
- 	if (test_opt (sb, MINIX_DF))
- 		overhead = 0;
-@@ -2431,6 +2432,10 @@ static int ext3_statfs (struct dentry * 
- 	buf->f_files = le32_to_cpu(es->s_inodes_count);
- 	buf->f_ffree = percpu_counter_sum(&sbi->s_freeinodes_counter);
- 	buf->f_namelen = EXT3_NAME_LEN;
-+	fsid = le64_to_cpup((void *)es->s_uuid) ^
-+	       le64_to_cpup((void *)es->s_uuid + sizeof(u64));
-+	buf->f_fsid.val[0] = fsid & 0xFFFFFFFFUL;
-+	buf->f_fsid.val[1] = (fsid >> 32) & 0xFFFFFFFFUL;
- 	return 0;
- }
- 

@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030506AbWJJV4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbWJJV4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030506AbWJJV4b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWJJVqo
+	id S1030510AbWJJV4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbWJJVrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:46:44 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:25019 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030510AbWJJVqi
+	Tue, 10 Oct 2006 17:47:14 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26299 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030496AbWJJVrI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:46:38 -0400
+	Tue, 10 Oct 2006 17:47:08 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] mtd: remove several bogus casts to void * in iounmap() argument
+Subject: [PATCH] passing pointer to setup_timer() should be via unsigned long
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXPQr-0007Mu-9j@ZenIV.linux.org.uk>
+Message-Id: <E1GXPRL-0007Nk-Av@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 22:46:37 +0100
+Date: Tue, 10 Oct 2006 22:47:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/mtd/maps/physmap.c     |    2 +-
- drivers/mtd/nand/cs553x_nand.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/sdhci.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mtd/maps/physmap.c b/drivers/mtd/maps/physmap.c
-index bc7cc71..d171776 100644
---- a/drivers/mtd/maps/physmap.c
-+++ b/drivers/mtd/maps/physmap.c
-@@ -62,7 +62,7 @@ #endif
- 	}
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index 6d02434..9a7d39b 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -1329,7 +1329,7 @@ static int __devinit sdhci_probe_slot(st
+ 	tasklet_init(&host->finish_tasklet,
+ 		sdhci_tasklet_finish, (unsigned long)host);
  
- 	if (info->map.virt != NULL)
--		iounmap((void *)info->map.virt);
-+		iounmap(info->map.virt);
+-	setup_timer(&host->timer, sdhci_timeout_timer, (long)host);
++	setup_timer(&host->timer, sdhci_timeout_timer, (unsigned long)host);
  
- 	if (info->res != NULL) {
- 		release_resource(info->res);
-diff --git a/drivers/mtd/nand/cs553x_nand.c b/drivers/mtd/nand/cs553x_nand.c
-index e0a1d38..94924d5 100644
---- a/drivers/mtd/nand/cs553x_nand.c
-+++ b/drivers/mtd/nand/cs553x_nand.c
-@@ -249,7 +249,7 @@ static int __init cs553x_init_one(int cs
- 	goto out;
- 
- out_ior:
--	iounmap((void *)this->IO_ADDR_R);
-+	iounmap(this->IO_ADDR_R);
- out_mtd:
- 	kfree(new_mtd);
- out:
+ 	ret = request_irq(host->irq, sdhci_irq, IRQF_SHARED,
+ 		host->slot_descr, host);
 -- 
 1.4.2.GIT
 

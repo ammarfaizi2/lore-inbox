@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWJJF5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWJJGAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWJJF5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 01:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWJJF5Q
+	id S965003AbWJJGAT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWJJGAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 01:57:16 -0400
-Received: from gate.crashing.org ([63.228.1.57]:30673 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965002AbWJJF5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 01:57:15 -0400
-Subject: Re: driver,platform,firmware,system, data data data ....
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <452B3417.7050106@keyaccess.nl>
-References: <1160451368.32237.78.camel@localhost.localdomain>
-	 <452B3417.7050106@keyaccess.nl>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 15:57:00 +1000
-Message-Id: <1160459820.32237.112.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 02:00:18 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:64936 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S965003AbWJJGAR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 02:00:17 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
+Date: Tue, 10 Oct 2006 15:00:14 +0900
+Message-ID: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3D7@jptkyxms38.jp.sony.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
+Thread-Index: Acbn017kJVRp07XQSdCva5gHDa6iKQEVg9Jg
+From: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Cc: "Paul Mackerras" <paulus@samba.org>,
+       "Arnd Bergmann" <arnd.bergmann@de.ibm.com>, <linuxppc-dev@ozlabs.org>,
+       <cbe-oss-dev@ozlabs.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Oct 2006 06:00:14.0453 (UTC) FILETIME=[5A9E8A50:01C6EC31]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 07:48 +0200, Rene Herman wrote:
-> Benjamin Herrenschmidt wrote:
-> 
-> [ device->platform_data ]
-> 
-> > So except for the size of the patch and boredom of going through all
-> > of them fixing them, do you see any reason why this later one
-> > shouldn't be moved out to platform_driver ? (I haven't actually
-> > checked at all the occurences in the tree though).
-> 
-> You'll find it being used in drivers/base/isa.c for one. I only used it 
-> there because it was available and made for slightly nicer code though. 
-> If platform_data is going away (and assuming you wouldn't want similar 
-> abuse of your new system_data) it wouldn't be a problem to move the 
-> driver pointer to the private struct isa_dev as in the attached.
+After applying these patches, it seems the kernel leaks memory.
+No doubt you forget to call simple_attr_close on "[PATCH 09/14]
+spufs: add support for read/write oncntl".
 
-Ah thanks, I missed that use.
+Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
 
-Well, we'll see what Greg has to say but thanks for the patch.
+---
 
-Cheers,
-Ben.
+Index:
+linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+---
+linux-2.6.18-arnd-20061004.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6.18-arnd-20061004/arch/powerpc/platforms/cell/spufs/file.c
+@@ -246,6 +246,7 @@ static int spufs_cntl_open(struct inode 
+ 
+ static struct file_operations spufs_cntl_fops = {
+ 	.open = spufs_cntl_open,
++	.close = simple_attr_close,
+ 	.read = simple_attr_read,
+ 	.write = simple_attr_write,
+ 	.mmap = spufs_cntl_mmap,
+
 
 

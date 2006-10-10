@@ -1,74 +1,398 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWJJSgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWJJShn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWJJSgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 14:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWJJSgg
+	id S1030202AbWJJShn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 14:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWJJShn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 14:36:36 -0400
-Received: from mail.impinj.com ([206.169.229.170]:32387 "EHLO earth.impinj.com")
-	by vger.kernel.org with ESMTP id S965104AbWJJSgf (ORCPT
+	Tue, 10 Oct 2006 14:37:43 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:59553 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030202AbWJJShm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 14:36:35 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH 2/5] fdtable: Make fdarray and fdsets equal in size.
-Date: Tue, 10 Oct 2006 11:36:34 -0700
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610052151.04490.vlobanov@speakeasy.net> <200610101912.56280.dada1@cosmosbay.com>
-In-Reply-To: <200610101912.56280.dada1@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101136.34341.vlobanov@speakeasy.net>
+	Tue, 10 Oct 2006 14:37:42 -0400
+Subject: Re: [RFC] v2 - [PATCH] filesystem helpers for custom 'struct file's
+From: Dave Hansen <haveblue@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: hch@infradead.org
+In-Reply-To: <20061010182428.9A9C5285@localhost.localdomain>
+References: <20061010182428.9A9C5285@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-ZeJfcxazJ6NTZg8H3GCt"
+Date: Tue, 10 Oct 2006 11:37:36 -0700
+Message-Id: <1160505456.9566.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 10:12, Eric Dumazet wrote:
-> On Friday 06 October 2006 06:51, Vadim Lobanov wrote:
-> > -	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nr + 1));
-> > -	if (nfds > NR_OPEN)
-> > -		nfds = NR_OPEN;
-> > -
-> > -  	new_openset = alloc_fdset(nfds);
-> > -  	new_execset = alloc_fdset(nfds);
-> > -  	if (!new_openset || !new_execset)
-> > -  		goto out;
-> > -	fdt->open_fds = new_openset;
-> > -	fdt->close_on_exec = new_execset;
-> > -	fdt->max_fdset = nfds;
-> > -
-> >  	nfds = NR_OPEN_DEFAULT;
-> >  	/*
-> >  	 * Expand to the max in easy steps, and keep expanding it until
-> > @@ -271,15 +254,21 @@ static struct fdtable *alloc_fdtable(int
-> >  				nfds = NR_OPEN;
-> >    		}
-> >  	} while (nfds <= nr);
->
-> If I understand well, we may allocate very small fdset, while previous
-> minimum size was L1_CACHE_BYTES bytes. (512 bits for a 64 bytes cache line)
->
-> If you check commit 0c9e63fd38a2fb2181668a0cdd622a3c23cfd567,
-> (http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=com
->mit;h=0c9e63fd38a2fb2181668a0cdd622a3c23cfd567 ) you'll find this comment of
-> mine :
->
-> 3) Reduce size of allocated fdset.  Currently two full pages are
->    allocated, that is 32768 bits on x86 for example, and way too much.  The
->    minimum is now L1_CACHE_BYTES.
->
-> This minimum is mandatory to be sure two tasks wont share the same cache
-> line to store their fdset (and possibly do lot of cache line ping pongs)
 
-Good point. This should be easy to fix -- we can simply bump up the allocation 
-'nr' when calling alloc_fdmem() for the fdset. Since we won't cross a page 
-size, the rest of the code will still stay the same.
+--=-ZeJfcxazJ6NTZg8H3GCt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I'll code this up once I track down why other folks are experiencing oopses.
+I forgot to refresh that one last time.  Here's the version that
+actually removed the f_init function.
 
-> Eric
 
--- Vadim Lobanov
+
+--=-ZeJfcxazJ6NTZg8H3GCt
+Content-Disposition: attachment; filename=B0-helpers-for-custom-struct_files.patch
+Content-Type: text/x-patch; name=B0-helpers-for-custom-struct_files.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+
+This version takes into account some of Christoph's comments.
+
+--
+
+Some filesystems forego the vfs and may_open() and create their
+own 'struct file's.
+
+This patch creates a couple of helper functions which can be
+used by these filesystems, and will provide a unified place
+which the r/o bind mount code may patch.
+
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+
+ lxc-dave/include/linux/file.h |    6 +++
+ lxc-dave/fs/file_table.c      |   18 +++++++++
+ lxc-dave/fs/hugetlbfs/inode.c |   22 ++++-------
+ lxc-dave/mm/shmem.c           |   22 ++++-------
+ lxc-dave/mm/tiny-shmem.c      |   24 ++++--------
+ lxc-dave/net/socket.c         |   82 +++++++++++++++++-------------------------
+ 6 files changed, 85 insertions(+), 89 deletions(-)
+
+diff -puN include/linux/file.h~B0-helpers-for-custom-struct_files include/linux/file.h
+--- lxc/include/linux/file.h~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/include/linux/file.h	2006-10-10 11:29:45.000000000 -0700
+@@ -67,6 +67,12 @@ struct files_struct {
+ extern void FASTCALL(__fput(struct file *));
+ extern void FASTCALL(fput(struct file *));
+ 
++struct file_operations;
++struct vfsmount;
++struct dentry;
++extern struct file *alloc_file(struct vfsmount *, struct dentry *dentry,
++		mode_t mode, const struct file_operations *fop);
++
+ static inline void fput_light(struct file *file, int fput_needed)
+ {
+ 	if (unlikely(fput_needed))
+diff -puN fs/file_table.c~B0-helpers-for-custom-struct_files fs/file_table.c
+--- lxc/fs/file_table.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/fs/file_table.c	2006-10-10 11:29:40.000000000 -0700
+@@ -140,6 +140,24 @@ fail:
+ 
+ EXPORT_SYMBOL(get_empty_filp);
+ 
++struct file *alloc_file(struct vfsmount *mnt,  struct dentry *dentry,
++		mode_t mode, const struct file_operations *fop)
++{
++	struct file *file;
++
++	file = get_empty_filp();
++	if (!file)
++		return NULL;
++
++	file->f_vfsmnt = mntget(mnt);
++	file->f_dentry = dentry;
++	file->f_mapping = dentry->d_inode->i_mapping;
++	file->f_mode = mode;
++	file->f_op = fop;
++	return file;
++}
++EXPORT_SYMBOL(alloc_file);
++
+ void fastcall fput(struct file *file)
+ {
+ 	if (atomic_dec_and_test(&file->f_count))
+diff -puN fs/hugetlbfs/inode.c~B0-helpers-for-custom-struct_files fs/hugetlbfs/inode.c
+--- lxc/fs/hugetlbfs/inode.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/fs/hugetlbfs/inode.c	2006-10-10 10:55:14.000000000 -0700
+@@ -764,16 +764,11 @@ struct file *hugetlb_zero_setup(size_t s
+ 	if (!dentry)
+ 		goto out_shm_unlock;
+ 
+-	error = -ENFILE;
+-	file = get_empty_filp();
+-	if (!file)
+-		goto out_dentry;
+-
+ 	error = -ENOSPC;
+ 	inode = hugetlbfs_get_inode(root->d_sb, current->fsuid,
+ 				current->fsgid, S_IFREG | S_IRWXUGO, 0);
+ 	if (!inode)
+-		goto out_file;
++		goto out_dentry;
+ 
+ 	error = -ENOMEM;
+ 	if (hugetlb_reserve_pages(inode, 0, size >> HPAGE_SHIFT))
+@@ -782,17 +777,18 @@ struct file *hugetlb_zero_setup(size_t s
+ 	d_instantiate(dentry, inode);
+ 	inode->i_size = size;
+ 	inode->i_nlink = 0;
+-	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
+-	file->f_dentry = dentry;
+-	file->f_mapping = inode->i_mapping;
+-	file->f_op = &hugetlbfs_file_operations;
+-	file->f_mode = FMODE_WRITE | FMODE_READ;
++
++	error = -ENFILE;
++	file = alloc_file(hugetlbfs_vfsmount, dentry,
++			FMODE_WRITE | FMODE_READ,
++			&hugetlbfs_file_operations);
++	if (!file)
++		goto out_inode;
++
+ 	return file;
+ 
+ out_inode:
+ 	iput(inode);
+-out_file:
+-	put_filp(file);
+ out_dentry:
+ 	dput(dentry);
+ out_shm_unlock:
+diff -puN mm/shmem.c~B0-helpers-for-custom-struct_files mm/shmem.c
+--- lxc/mm/shmem.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/mm/shmem.c	2006-10-10 10:55:14.000000000 -0700
+@@ -2464,29 +2464,25 @@ struct file *shmem_file_setup(char *name
+ 	if (!dentry)
+ 		goto put_memory;
+ 
+-	error = -ENFILE;
+-	file = get_empty_filp();
+-	if (!file)
+-		goto put_dentry;
+-
+ 	error = -ENOSPC;
+ 	inode = shmem_get_inode(root->d_sb, S_IFREG | S_IRWXUGO, 0);
+ 	if (!inode)
+-		goto close_file;
++		goto put_dentry;
++
++	error = -ENFILE;
++	file = alloc_file(shm_mnt, dentry, FMODE_WRITE | FMODE_READ,
++				&shmem_file_operations);
++	if (!file)
++		goto put_inode;
+ 
+ 	SHMEM_I(inode)->flags = flags & VM_ACCOUNT;
+ 	d_instantiate(dentry, inode);
+ 	inode->i_size = size;
+ 	inode->i_nlink = 0;	/* It is unlinked */
+-	file->f_vfsmnt = mntget(shm_mnt);
+-	file->f_dentry = dentry;
+-	file->f_mapping = inode->i_mapping;
+-	file->f_op = &shmem_file_operations;
+-	file->f_mode = FMODE_WRITE | FMODE_READ;
+ 	return file;
+ 
+-close_file:
+-	put_filp(file);
++put_inode:
++	iput(inode);
+ put_dentry:
+ 	dput(dentry);
+ put_memory:
+diff -puN mm/tiny-shmem.c~B0-helpers-for-custom-struct_files mm/tiny-shmem.c
+--- lxc/mm/tiny-shmem.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/mm/tiny-shmem.c	2006-10-10 10:55:14.000000000 -0700
+@@ -66,24 +66,19 @@ struct file *shmem_file_setup(char *name
+ 	if (!dentry)
+ 		goto put_memory;
+ 
+-	error = -ENFILE;
+-	file = get_empty_filp();
+-	if (!file)
+-		goto put_dentry;
+-
+ 	error = -ENOSPC;
+ 	inode = ramfs_get_inode(root->d_sb, S_IFREG | S_IRWXUGO, 0);
+ 	if (!inode)
+-		goto close_file;
++		goto put_dentry;
+ 
+ 	d_instantiate(dentry, inode);
+-	inode->i_nlink = 0;	/* It is unlinked */
++	error = -ENFILE;
++	file = alloc_file(shm_mnt, dentry, FMODE_WRITE | FMODE_READ,
++			&ramfs_file_operations);
++	if (!file)
++		goto put_inode;
+ 
+-	file->f_vfsmnt = mntget(shm_mnt);
+-	file->f_dentry = dentry;
+-	file->f_mapping = inode->i_mapping;
+-	file->f_op = &ramfs_file_operations;
+-	file->f_mode = FMODE_WRITE | FMODE_READ;
++	inode->i_nlink = 0;	/* It is unlinked */
+ 
+ 	/* notify everyone as to the change of file size */
+ 	error = do_truncate(dentry, size, 0, file);
+@@ -91,9 +86,8 @@ struct file *shmem_file_setup(char *name
+ 		goto close_file;
+ 
+ 	return file;
+-
+-close_file:
+-	put_filp(file);
++put_inode:
++	iput(inode);
+ put_dentry:
+ 	dput(dentry);
+ put_memory:
+diff -puN net/socket.c~B0-helpers-for-custom-struct_files net/socket.c
+--- lxc/net/socket.c~B0-helpers-for-custom-struct_files	2006-10-10 10:54:31.000000000 -0700
++++ lxc-dave/net/socket.c	2006-10-10 10:55:14.000000000 -0700
+@@ -330,26 +330,10 @@ static struct dentry_operations sockfs_d
+  *	but we take care of internal coherence yet.
+  */
+ 
+-static int sock_alloc_fd(struct file **filep)
+-{
+-	int fd;
+-
+-	fd = get_unused_fd();
+-	if (likely(fd >= 0)) {
+-		struct file *file = get_empty_filp();
+-
+-		*filep = file;
+-		if (unlikely(!file)) {
+-			put_unused_fd(fd);
+-			return -ENFILE;
+-		}
+-	} else
+-		*filep = NULL;
+-	return fd;
+-}
+-
+-static int sock_attach_fd(struct socket *sock, struct file *file)
++struct file *sock_alloc_file(struct socket *sock)
+ {
++	struct file *file;
++	struct dentry *dentry;
+ 	struct qstr this;
+ 	char name[32];
+ 
+@@ -357,40 +341,39 @@ static int sock_attach_fd(struct socket 
+ 	this.name = name;
+ 	this.hash = SOCK_INODE(sock)->i_ino;
+ 
+-	file->f_dentry = d_alloc(sock_mnt->mnt_sb->s_root, &this);
+-	if (unlikely(!file->f_dentry))
+-		return -ENOMEM;
+-
+-	file->f_dentry->d_op = &sockfs_dentry_operations;
+-	d_add(file->f_dentry, SOCK_INODE(sock));
+-	file->f_vfsmnt = mntget(sock_mnt);
+-	file->f_mapping = file->f_dentry->d_inode->i_mapping;
+-
++	dentry = d_alloc(sock_mnt->mnt_sb->s_root, &this);
++	if (unlikely(!dentry))
++		return ERR_PTR(-ENOMEM);
++
++	dentry->d_op = &sockfs_dentry_operations;
++	d_add(dentry, SOCK_INODE(sock));
++	file = alloc_file(sock_mnt, dentry, FMODE_READ | FMODE_WRITE,
++			&socket_file_ops);
++	if (!file) {
++		dput(dentry);
++		return ERR_PTR(-ENOMEM);
++	}
++	SOCK_INODE(sock)->i_fop = &socket_file_ops;
+ 	sock->file = file;
+-	file->f_op = SOCK_INODE(sock)->i_fop = &socket_file_ops;
+-	file->f_mode = FMODE_READ | FMODE_WRITE;
+ 	file->f_flags = O_RDWR;
+ 	file->f_pos = 0;
+ 	file->private_data = sock;
+ 
+-	return 0;
++	return file;
+ }
+ 
+ int sock_map_fd(struct socket *sock)
+ {
+ 	struct file *newfile;
+-	int fd = sock_alloc_fd(&newfile);
++	int fd = get_unused_fd();
+ 
+-	if (likely(fd >= 0)) {
+-		int err = sock_attach_fd(sock, newfile);
++	newfile = sock_alloc_file(sock);
+ 
+-		if (unlikely(err < 0)) {
+-			put_filp(newfile);
+-			put_unused_fd(fd);
+-			return err;
+-		}
+-		fd_install(fd, newfile);
++	if (IS_ERR(newfile)) {
++		put_unused_fd(fd);
++		return PTR_ERR(newfile);
+ 	}
++	fd_install(fd, newfile);
+ 	return fd;
+ }
+ 
+@@ -1355,35 +1338,37 @@ asmlinkage long sys_accept(int fd, struc
+ 	 */
+ 	__module_get(newsock->ops->owner);
+ 
+-	newfd = sock_alloc_fd(&newfile);
++	newfd = get_unused_fd();
+ 	if (unlikely(newfd < 0)) {
+ 		err = newfd;
+ 		sock_release(newsock);
+ 		goto out_put;
+ 	}
+ 
+-	err = sock_attach_fd(newsock, newfile);
+-	if (err < 0)
++	newfile = sock_alloc_file(newsock);
++	if (IS_ERR(newfile)) {
++		err = PTR_ERR(newfile);
+ 		goto out_fd;
++	}
+ 
+ 	err = security_socket_accept(sock, newsock);
+ 	if (err)
+-		goto out_fd;
++		goto out_file;
+ 
+ 	err = sock->ops->accept(sock, newsock, sock->file->f_flags);
+ 	if (err < 0)
+-		goto out_fd;
++		goto out_file;
+ 
+ 	if (upeer_sockaddr) {
+ 		if (newsock->ops->getname(newsock, (struct sockaddr *)address,
+ 					  &len, 2) < 0) {
+ 			err = -ECONNABORTED;
+-			goto out_fd;
++			goto out_file;
+ 		}
+ 		err = move_addr_to_user(address, len, upeer_sockaddr,
+ 					upeer_addrlen);
+ 		if (err < 0)
+-			goto out_fd;
++			goto out_file;
+ 	}
+ 
+ 	/* File flags are not inherited via accept() unlike another OSes. */
+@@ -1397,8 +1382,9 @@ out_put:
+ 	fput_light(sock->file, fput_needed);
+ out:
+ 	return err;
+-out_fd:
++out_file:
+ 	fput(newfile);
++out_fd:
+ 	put_unused_fd(newfd);
+ 	goto out_put;
+ }
+diff -puN fs/proc/base.c~B0-helpers-for-custom-struct_files fs/proc/base.c
+_
+
+--=-ZeJfcxazJ6NTZg8H3GCt--
+

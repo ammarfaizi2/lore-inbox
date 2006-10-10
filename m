@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030686AbWJJXb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030640AbWJJXcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030686AbWJJXb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 19:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWJJXb5
+	id S1030640AbWJJXcS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 19:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWJJXcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 19:31:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3794 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030345AbWJJXb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 19:31:56 -0400
-Date: Wed, 11 Oct 2006 09:31:24 +1000
-From: David Chinner <dgc@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, Steve Lord <lord@xfs.org>,
-       David Chinner <dgc@sgi.com>, linux-fsdevel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-Message-ID: <20061010233124.GX11034@melbourne.sgi.com>
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com> <452B0240.60203@xfs.org> <20061010091904.GA395@infradead.org>
-Mime-Version: 1.0
+	Tue, 10 Oct 2006 19:32:18 -0400
+Received: from boogie.lpds.sztaki.hu ([193.224.70.237]:33424 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1030680AbWJJXcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 19:32:16 -0400
+Date: Wed, 11 Oct 2006 01:32:14 +0200
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Paul Wouters <paul@xelerance.com>
+Cc: fedora-xen@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: more random device badness in 2.6.18 :(
+Message-ID: <20061010233214.GA20863@boogie.lpds.sztaki.hu>
+References: <Pine.LNX.4.63.0610101944010.21866@tla.xelerance.com> <20061010205051.GB14865@boogie.lpds.sztaki.hu> <Pine.LNX.4.63.0610102257100.27986@tla.xelerance.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061010091904.GA395@infradead.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.63.0610102257100.27986@tla.xelerance.com>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 10:19:04AM +0100, Christoph Hellwig wrote:
-> On Mon, Oct 09, 2006 at 09:15:28PM -0500, Steve Lord wrote:
-> > Hi Dave,
-> > 
-> > My recollection is that it used to default to on, it was disabled
-> > because it needs to map the buffer into a single contiguous chunk
-> > of kernel memory. This was placing a lot of pressure on the memory
-> > remapping code, so we made it not default to on as reworking the
-> > code to deal with non contig memory was looking like a major
-> > effort.
-> 
-> Exactly.  The code works but tends to go OOM pretty fast at least
-> when the dir blocksize code is bigger than the page size.  I should
-> give the code a spin on my ppc box with 64k pages if it works better
-> there.
+On Tue, Oct 10, 2006 at 11:03:58PM +0200, Paul Wouters wrote:
 
-The pagebuf code doesn't use high-order allocations anymore; it uses
-scatter lists and remapping to allow physically discontiguous pages
-in a multi-page buffer. That is, the pages are sourced via
-find_or_create_page() from the address space of the backing device,
-and then mapped via vmap() to provide a virtually contigous mapping
-of the multi-page buffer.
+> Why is this happening in userland?
 
-So I don't think this problem exists anymore...
+Because whether the provided data is "random enough" is a policy
+decision, and policy does not belong in the kernel.
 
-Cheers,
+> Will rng-tools run on every bare Linux
+> system now? Including embedded systems?
 
-Dave.
+Why not? Alternatively you can always create your own version. Open
+source does not mean you get everything for free; it means you _can_ do
+the work if you want to.
+
+> How about xen guests who don't have
+> direct access to the host's hardware (or software) random?
+
+If they don't have access to the host's hardware, then they do not have a
+/dev/hw_random device. What's your question? And how that's different
+from machines not having a hw rng at all?
+
+> Why is this entropy management not part of the kernel? So for Openswan to
+> work correctly, it would need to depend on another daemon that may or may
+> not be available and/or running?
+
+No. It only has to depend on /dev/(u)random. How the entropy is obtained
+(from /dev/hw_random, from the soundcard's white noise or from
+elsewhere) is none of Openswan's business.  Tha'ts up to the system
+administrator or distribution maker to decide and set up.
+
+> I still believe /dev/random should just give the best random possible for
+> the machine. Wether that is software random, or a piece of hardware, should
+> not matter. That's the kernel's internal state and functioning.
+
+Gabor
+
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

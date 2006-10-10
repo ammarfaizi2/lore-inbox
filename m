@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWJJEzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWJJE64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWJJEzi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 00:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWJJEzi
+	id S964973AbWJJE64 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 00:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWJJE64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 00:55:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5642 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964972AbWJJEzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 00:55:37 -0400
-Date: Tue, 10 Oct 2006 06:55:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Judith Lebzelter <judith@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add Kconfig dependency !VT for VIOCONS
-Message-ID: <20061010045534.GA3650@stusta.de>
-References: <20061006180549.GB3684@shell0.pdx.osdl.net> <20061006200007.GD3684@shell0.pdx.osdl.net> <20061006143437.f7338860.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061006143437.f7338860.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 10 Oct 2006 00:58:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:52688 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964973AbWJJE6z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 00:58:55 -0400
+Subject: Re: ptrace and pfn mappings
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20061010034606.GJ15822@wotan.suse.de>
+References: <20061009140354.13840.71273.sendpatchset@linux.site>
+	 <20061009140447.13840.20975.sendpatchset@linux.site>
+	 <1160427785.7752.19.camel@localhost.localdomain>
+	 <452AEC8B.2070008@yahoo.com.au>
+	 <1160442987.32237.34.camel@localhost.localdomain>
+	 <20061010022310.GC15822@wotan.suse.de>
+	 <1160448466.32237.59.camel@localhost.localdomain>
+	 <20061010025821.GE15822@wotan.suse.de>
+	 <1160451656.32237.83.camel@localhost.localdomain>
+	 <20061010034606.GJ15822@wotan.suse.de>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 14:58:15 +1000
+Message-Id: <1160456295.32237.99.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 06, 2006 at 02:34:37PM -0700, Randy Dunlap wrote:
-> On Fri, 6 Oct 2006 13:00:07 -0700 Judith Lebzelter wrote:
-> 
-> > Actually, this gets rid of the CONFIG_VIOCONS from my .config, but 
-> > then I get another warning when I build:
-> > 
-> > Warning! Found recursive dependency: VT VIOCONS VT
-> > 
-> > Can anyone suggest something?
-> 
-> I think that your patch is mostly good/correct, but one more line
-> is needed on the VT side:  a deletion.
-> 
-> This works for me:
-> 
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Make allmodconfig .config build successfully by making VIOCONS
-> available only if VT=n.  VT need not check VIOCONS.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> ---
->  arch/powerpc/platforms/iseries/Kconfig |    2 +-
->  drivers/char/Kconfig                   |    1 -
->  2 files changed, 1 insertion(+), 2 deletions(-)
-> 
-> --- linux-2619-rc1g2.orig/arch/powerpc/platforms/iseries/Kconfig
-> +++ linux-2619-rc1g2/arch/powerpc/platforms/iseries/Kconfig
-> @@ -3,7 +3,7 @@ menu "iSeries device drivers"
->  	depends on PPC_ISERIES
->  
->  config VIOCONS
-> -	tristate "iSeries Virtual Console Support (Obsolete)"
-> +	tristate "iSeries Virtual Console Support (Obsolete)" if !VT
->  	help
->...
->  config VT
->  	bool "Virtual terminal" if EMBEDDED
 
-With this dependency on EMBEDDED, you could as well simply remove 
-VIOCONS...
+> Since we decided it would be better to make a new function or some arch
+> specfic hooks rather than switch mm's in the kernel? ;)
+> 
+> No, I don't know. Your idea might be reasonable, but I really haven't
+> thought about it much.
 
->  	select INPUT
-> -	default y if !VIOCONS
+Another option is to take the PTE lock while doing the accesses for that
+PFN... might work. We still need a temp kernel buffer but that would
+sort-of do the trick.
 
-Removing the "default y" is wrong.
+Ben.
 
->  	---help---
->  	  If you say Y here, you will get support for terminal devices with
->  	  display and keyboard devices. These are called "virtual" because you
->...
-> ~Randy
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

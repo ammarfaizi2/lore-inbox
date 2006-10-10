@@ -1,230 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWJJUqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWJJUsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbWJJUqh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 16:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWJJUqh
+	id S1030337AbWJJUsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 16:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWJJUsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 16:46:37 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:50241 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030329AbWJJUqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 16:46:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=A97LP8+BQ3KORVg6Hh5dr3NuJlp9t+v/oP/Zg013bXEHiHbyuojL/4wn+dbD/HQVo/ksFqqBBC9zwMCvnvwd+OnoNTu2ijed3kKpx7O3OcZroyLx5rpN8vn0Uw0qyFvBsi6h+oPxdrY+Y+yeVgeOb6ayetZS2lu1dyfPockauxA=
-Message-ID: <452C06A6.4030408@gmail.com>
-Date: Tue, 10 Oct 2006 16:46:30 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: akpm@osdl.org, jgarzik@pobox.com
-CC: linville@tuxdriver.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] airo.c: check returned values
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 10 Oct 2006 16:48:36 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:63708 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1030337AbWJJUsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 16:48:35 -0400
+Subject: Re: [patch 1/2] round_jiffies infrastructure
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <20061010115652.4ef068bd.akpm@osdl.org>
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	 <1160496210.3000.310.camel@laptopd505.fenrus.org>
+	 <20061010115652.4ef068bd.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Oct 2006 22:48:00 +0200
+Message-Id: <1160513281.3000.333.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-create_proc_entry() can fail and return NULL in setup_proc_entry(), the
-result must be checked before dereferencing. (Coverity ID 1443)
 
-init_wifidev() & setup_proc_entry() can also fail in _init_airo_card().
+> c'mon Arjan.  If we're going to create new, kernel-wide,
+> exported-to-modules infrastructure then it deserves slightly more than zero
+> documentation.
 
-This adds the checks & cleanup code and removes some whitespace.
+ok I had a weak moment; updated patch below
+(lightly tested because current 2.6.19-rc1-git6 dies on x86_64 with an
+interrupt issue within a few minutes even unpatched on my machines)
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
 
- airo.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 72 insertions(+), 26 deletions(-)
+From: Arjan van de Ven <arjan@linux.intel.com>
+Subject: round_jiffies infrastructure
 
-diff --git a/drivers/net/wireless/airo.c b/drivers/net/wireless/airo.c
-index 0a33c8a..9d5427a 100644
---- a/drivers/net/wireless/airo.c
-+++ b/drivers/net/wireless/airo.c
-@@ -2897,6 +2897,8 @@ static struct net_device *_init_airo_car
- 		goto err_out_map;
- 	}
- 	ai->wifidev = init_wifidev(ai, dev);
-+	if (!ai->wifidev)
-+		goto err_out_reg;
+This patch introduces a round_jiffies() function as well as a
+round_jiffies_relative() function. These functions round a jiffies value
+to the next whole second. The primary purpose of this rounding is to
+cause all "we don't care exactly when" timers to happen at the same
+jiffy.
+This avoids multiple timers to fire within the second for no real
+reason; with dynamic ticks these extra timers cause wakeups from deep
+sleep CPU sleep states and thus waste power. 
+
+The exact wakeup moment is skewed by the cpu number, to avoid all
+cpus from waking up at the exact same time (and hitting the same 
+lock/cachelines there)
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+
+
+
+Index: linux-2.6.19-rc1-git6/include/linux/timer.h
+===================================================================
+--- linux-2.6.19-rc1-git6.orig/include/linux/timer.h
++++ linux-2.6.19-rc1-git6/include/linux/timer.h
+@@ -98,4 +98,10 @@ extern void run_local_timers(void);
+ struct hrtimer;
+ extern int it_real_fn(struct hrtimer *);
  
- 	set_bit(FLAG_REGISTERED,&ai->flags);
- 	airo_print_info(dev->name, "MAC enabled %x:%x:%x:%x:%x:%x",
-@@ -2908,11 +2910,18 @@ static struct net_device *_init_airo_car
- 		for( i = 0; i < MAX_FIDS; i++ )
- 			ai->fids[i] = transmit_allocate(ai,AIRO_DEF_MTU,i>=MAX_FIDS/2);
- 
--	setup_proc_entry( dev, dev->priv ); /* XXX check for failure */
-+	if (setup_proc_entry(dev, dev->priv) < 0)
-+		goto err_out_wifi;
++unsigned long __round_jiffies(unsigned long j, int cpu);
++unsigned long __round_jiffies_relative(unsigned long j, int cpu);
++unsigned long round_jiffies(unsigned long j);
++unsigned long round_jiffies_relative(unsigned long j);
 +
- 	netif_start_queue(dev);
- 	SET_MODULE_OWNER(dev);
- 	return dev;
- 
-+err_out_wifi:
-+	unregister_netdev(ai->wifidev);
-+	free_netdev(ai->wifidev);
-+err_out_reg:
-+	unregister_netdev(dev);
- err_out_map:
- 	if (test_bit(FLAG_MPI,&ai->flags) && pci) {
- 		pci_free_consistent(pci, PCI_SHARED_LEN, ai->shared, ai->shared_dma);
-@@ -4495,91 +4504,128 @@ static int setup_proc_entry( struct net_
- 	apriv->proc_entry = create_proc_entry(apriv->proc_name,
- 					      S_IFDIR|airo_perm,
- 					      airo_entry);
--        apriv->proc_entry->uid = proc_uid;
--        apriv->proc_entry->gid = proc_gid;
--        apriv->proc_entry->owner = THIS_MODULE;
-+	if (!apriv->proc_entry)
-+		goto fail;
-+	apriv->proc_entry->uid = proc_uid;
-+	apriv->proc_entry->gid = proc_gid;
-+	apriv->proc_entry->owner = THIS_MODULE;
- 
- 	/* Setup the StatsDelta */
- 	entry = create_proc_entry("StatsDelta",
- 				  S_IFREG | (S_IRUGO&proc_perm),
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_stats_delta;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_statsdelta_ops);
- 
- 	/* Setup the Stats */
- 	entry = create_proc_entry("Stats",
- 				  S_IFREG | (S_IRUGO&proc_perm),
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_stats;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_stats_ops);
- 
- 	/* Setup the Status */
- 	entry = create_proc_entry("Status",
- 				  S_IFREG | (S_IRUGO&proc_perm),
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_status;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_status_ops);
- 
- 	/* Setup the Config */
- 	entry = create_proc_entry("Config",
- 				  S_IFREG | proc_perm,
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_config;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_config_ops);
- 
- 	/* Setup the SSID */
- 	entry = create_proc_entry("SSID",
- 				  S_IFREG | proc_perm,
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_ssid;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_SSID_ops);
- 
- 	/* Setup the APList */
- 	entry = create_proc_entry("APList",
- 				  S_IFREG | proc_perm,
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_aplist;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_APList_ops);
- 
- 	/* Setup the BSSList */
- 	entry = create_proc_entry("BSSList",
- 				  S_IFREG | proc_perm,
- 				  apriv->proc_entry);
-+	if (!entry)
-+		goto fail_bsslist;
- 	entry->uid = proc_uid;
- 	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_BSSList_ops);
- 
- 	/* Setup the WepKey */
- 	entry = create_proc_entry("WepKey",
- 				  S_IFREG | proc_perm,
- 				  apriv->proc_entry);
--        entry->uid = proc_uid;
--        entry->gid = proc_gid;
-+	if (!entry)
-+		goto fail_wepkey;
-+	entry->uid = proc_uid;
-+	entry->gid = proc_gid;
- 	entry->data = dev;
--        entry->owner = THIS_MODULE;
-+	entry->owner = THIS_MODULE;
- 	SETPROC_OPS(entry, proc_wepkey_ops);
- 
- 	return 0;
 +
-+fail_wepkey:
-+	remove_proc_entry("BSSList", apriv->proc_entry);
-+fail_bsslist:
-+	remove_proc_entry("APList", apriv->proc_entry);
-+fail_aplist:
-+	remove_proc_entry("SSID", apriv->proc_entry);
-+fail_ssid:
-+	remove_proc_entry("Config", apriv->proc_entry);
-+fail_config:
-+	remove_proc_entry("Status", apriv->proc_entry);
-+fail_status:
-+	remove_proc_entry("Stats", apriv->proc_entry);
-+fail_stats:
-+	remove_proc_entry("StatsDelta", apriv->proc_entry);
-+fail_stats_delta:
-+	remove_proc_entry(apriv->proc_name, airo_entry);
-+fail:
-+	return -ENOMEM;
- }
+ #endif
+Index: linux-2.6.19-rc1-git6/kernel/timer.c
+===================================================================
+--- linux-2.6.19-rc1-git6.orig/kernel/timer.c
++++ linux-2.6.19-rc1-git6/kernel/timer.c
+@@ -80,6 +80,139 @@ tvec_base_t boot_tvec_bases;
+ EXPORT_SYMBOL(boot_tvec_bases);
+ static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = &boot_tvec_bases;
  
- static int takedown_proc_entry( struct net_device *dev,
-
++/**
++ * __round_jiffies - function to round jiffies to a full second
++ * @j: the time in (absolute) jiffies that should be rounded
++ * @cpu: the processor number on which the timeout will happen
++ *
++ * __round_jiffies rounds an absolute time in the future (in jiffies)
++ * up or down to (approximately) full seconds. This is useful for timers
++ * for which the exact time they fire does not matter too much, as long as
++ * they fire approximately every X seconds.
++ *
++ * By rounding these timers to whole seconds, all such timers will fire
++ * at the same time, rather than at various times spread out. The goal
++ * of this is to have the CPU wake up less, which saves power.
++ *
++ * The exact rounding is skewed for each processor to avoid all
++ * processors firing at the exact same time, which could lead
++ * to lock contention or spurious cache line bouncing.
++ *
++ * The return value is the rounded version of the "j" parameter.
++ */
++unsigned long __round_jiffies(unsigned long j, int cpu)
++{
++	int rem;
++	int original  = j;
++
++	/*
++	 * We don't want all cpus firing their timers at once hitting the
++	 * same lock or cachelines, so we skew each extra cpu with an extra
++	 * 3 jiffies. This 3 jiffies came originally from the mm/ code which
++	 * already did this.
++	 * The skew is done by adding 3*cpunr, then round, then subtract this
++	 * extra offset again.
++	 */
++	j += cpu * 3;
++
++	rem = j % HZ;
++
++	/*
++	 * If the target jiffie is just after a whole second (which can happen
++	 * due to delays of the timer irq, long irq off times etc etc) then
++	 * we should round down to the whole second, not up. Use 1/4th second
++	 * as cutoff for this rounding as an extreme upper bound for this.
++	 */
++	if (rem < HZ/4) /* round down */
++		j = j - rem;
++	else /* round up */
++		j = j - rem + HZ;
++
++	/* now that we have rounded, subtract the extra skew again */
++	j -= cpu * 3;
++
++	if (j <= jiffies) /* rounding ate our timeout entirely; */
++		return original;
++	return j;
++}
++EXPORT_SYMBOL_GPL(__round_jiffies);
++
++/**
++ * __round_jiffies_relative - function to round jiffies to a full second
++ * @j: the time in (relative) jiffies that should be rounded
++ * @cpu: the processor number on which the timeout will happen
++ *
++ * __round_jiffies_relative rounds a time delta  in the future (in jiffies)
++ * up or down to (approximately) full seconds. This is useful for timers
++ * for which the exact time they fire does not matter too much, as long as
++ * they fire approximately every X seconds.
++ *
++ * By rounding these timers to whole seconds, all such timers will fire
++ * at the same time, rather than at various times spread out. The goal
++ * of this is to have the CPU wake up less, which saves power.
++ *
++ * The exact rounding is skewed for each processor to avoid all
++ * processors firing at the exact same time, which could lead
++ * to lock contention or spurious cache line bouncing.
++ *
++ * The return value is the rounded version of the "j" parameter.
++ */
++unsigned long __round_jiffies_relative(unsigned long j, int cpu)
++{
++	/*
++	 * In theory the following code can skip a jiffy in case jiffies
++	 * increments right between the addition and the later subtraction.
++	 * However since the entire point of this function is to use approximate
++	 * timeouts, it's entirely ok to not handle that.
++	 */
++	return  __round_jiffies(j + jiffies, cpu) - jiffies;
++}
++EXPORT_SYMBOL_GPL(__round_jiffies_relative);
++
++/**
++ * round_jiffies - function to round jiffies to a full second
++ * @j: the time in (absolute) jiffies that should be rounded
++ *
++ * round_jiffies rounds an absolute time in the future (in jiffies)
++ * up or down to (approximately) full seconds. This is useful for timers
++ * for which the exact time they fire does not matter too much, as long as
++ * they fire approximately every X seconds.
++ *
++ * By rounding these timers to whole seconds, all such timers will fire
++ * at the same time, rather than at various times spread out. The goal
++ * of this is to have the CPU wake up less, which saves power.
++ *
++ * The return value is the rounded version of the "j" parameter.
++ */
++unsigned long round_jiffies(unsigned long j)
++{
++	return __round_jiffies(j, raw_smp_processor_id());
++}
++EXPORT_SYMBOL_GPL(round_jiffies);
++
++/**
++ * round_jiffies_relative - function to round jiffies to a full second
++ * @j: the time in (relative) jiffies that should be rounded
++ *
++ * round_jiffies_relative rounds a time delta  in the future (in jiffies)
++ * up or down to (approximately) full seconds. This is useful for timers
++ * for which the exact time they fire does not matter too much, as long as
++ * they fire approximately every X seconds.
++ *
++ * By rounding these timers to whole seconds, all such timers will fire
++ * at the same time, rather than at various times spread out. The goal
++ * of this is to have the CPU wake up less, which saves power.
++ *
++ * The return value is the rounded version of the "j" parameter.
++ */
++unsigned long round_jiffies_relative(unsigned long j)
++{
++	return __round_jiffies_relative(j, raw_smp_processor_id());
++}
++EXPORT_SYMBOL_GPL(round_jiffies_relative);
++
++
++
+ static inline void set_running_timer(tvec_base_t *base,
+ 					struct timer_list *timer)
+ {
 

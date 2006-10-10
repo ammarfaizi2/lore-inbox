@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWJJMrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbWJJMs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWJJMrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 08:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWJJMrJ
+	id S965135AbWJJMs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 08:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWJJMs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 08:47:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.237]:40332 "EHLO
+	Tue, 10 Oct 2006 08:48:26 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:59790 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965000AbWJJMrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 08:47:07 -0400
+	id S965135AbWJJMsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 08:48:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=t5g2lFXh71qJPTUxt13lC3/JYbajhCZbcCoBO26y8l51wjUjYFCGIweNXgpL1T78/M7RaB3qKGj6fuiVM/UrLW3U8eJ/KQqTRyY+IzdRyc75jul14E9gXLzy4aTwSupaxDPz0b8AwKuksN/YMHrZUfW6Q/n5aAsNVI0yeoWxkkE=
-Date: Tue, 10 Oct 2006 21:47:20 +0900
+        b=uTdzcLo4eidJta2ukN1fuN8jU3GgOh9Lp2UjPNLYjH8Ms6WXhjoG6cHqfasCrODCEFZpuYU6wqhgJZw1ZdciKEmIL84M4sXdbda/R43aMnHvodwtU41moZL2sz6g2kBpu6NkfQ0hq71YmNFzwYD49Tatpc4CY+QkVrdRjpDoBVA=
+Date: Tue, 10 Oct 2006 21:48:40 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: Herbert Xu <herbert@gondor.apana.org.au>,
        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH] crypto: fix crypto_alloc_base() return value
-Message-ID: <20061010124720.GA17432@localhost>
+Subject: [PATCH] crypto: mark crypto_alloc_tfm() __deprecated
+Message-ID: <20061010124840.GB17432@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
 	linux-kernel@vger.kernel.org,
 	Herbert Xu <herbert@gondor.apana.org.au>,
@@ -31,72 +31,44 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes crypto_alloc_base() return proper return value.
-
-- If kzalloc() failure happens within __crypto_alloc_tfm(),
-  crypto_alloc_base() returns NULL. But crypto_alloc_base()
-  is supposed to return error code as pointer. So this patch
-  makes it return -ENOMEM in that case.
-
-- crypto_alloc_base() is suppose to return -EINTR, if it is
-  interrupted by signal. But it may not return -EINTR.
+This patch marks crypto_alloc_tfm() as __deprecated.
+And converts from crypto_alloc_tfm() to crypto_alloc_comp() in
+tcrypt crypto testing module.
 
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: "David S. Miller" <davem@davemloft.net>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
- crypto/api.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ crypto/tcrypt.c        |    4 ++--
+ include/linux/crypto.h |    3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-Index: work-fault-inject/crypto/api.c
+Index: work-fault-inject/include/linux/crypto.h
 ===================================================================
---- work-fault-inject.orig/crypto/api.c
-+++ work-fault-inject/crypto/api.c
-@@ -331,7 +331,7 @@ struct crypto_tfm *__crypto_alloc_tfm(st
- 	tfm_size = sizeof(*tfm) + crypto_ctxsize(alg, flags);
- 	tfm = kzalloc(tfm_size, GFP_KERNEL);
- 	if (tfm == NULL)
--		goto out;
-+		goto out_err;
- 
- 	tfm->__crt_alg = alg;
- 
-@@ -355,6 +355,7 @@ cra_init_failed:
- 	crypto_exit_ops(tfm);
- out_free_tfm:
- 	kfree(tfm);
-+out_err:
- 	tfm = ERR_PTR(err);
- out:
- 	return tfm;
-@@ -414,14 +415,14 @@ struct crypto_tfm *crypto_alloc_base(con
- 		struct crypto_alg *alg;
- 
- 		alg = crypto_alg_mod_lookup(alg_name, type, mask);
--		err = PTR_ERR(alg);
--		tfm = ERR_PTR(err);
--		if (IS_ERR(alg))
-+		if (IS_ERR(alg)) {
-+			err = PTR_ERR(alg);
- 			goto err;
-+		}
- 
- 		tfm = __crypto_alloc_tfm(alg, 0);
- 		if (!IS_ERR(tfm))
--			break;
-+			return tfm;
- 
- 		crypto_mod_put(alg);
- 		err = PTR_ERR(tfm);
-@@ -433,9 +434,9 @@ err:
- 			err = -EINTR;
- 			break;
- 		}
--	};
-+	}
- 
--	return tfm;
-+	return ERR_PTR(err);
- }
- EXPORT_SYMBOL_GPL(crypto_alloc_base);
+--- work-fault-inject.orig/include/linux/crypto.h
++++ work-fault-inject/include/linux/crypto.h
+@@ -367,7 +367,8 @@ struct crypto_attr_alg {
+  * Transform user interface.
+  */
   
+-struct crypto_tfm *crypto_alloc_tfm(const char *alg_name, u32 tfm_flags);
++struct crypto_tfm *crypto_alloc_tfm(const char *alg_name, u32 tfm_flags)
++	__deprecated;
+ struct crypto_tfm *crypto_alloc_base(const char *alg_name, u32 type, u32 mask);
+ void crypto_free_tfm(struct crypto_tfm *tfm);
+ 
+Index: work-fault-inject/crypto/tcrypt.c
+===================================================================
+--- work-fault-inject.orig/crypto/tcrypt.c
++++ work-fault-inject/crypto/tcrypt.c
+@@ -765,8 +765,8 @@ static void test_deflate(void)
+ 	memcpy(tvmem, deflate_comp_tv_template, tsize);
+ 	tv = (void *)tvmem;
+ 
+-	tfm = crypto_alloc_tfm("deflate", 0);
+-	if (tfm == NULL) {
++	tfm = crypto_alloc_comp("deflate", 0, CRYPTO_ALG_ASYNC);
++	if (IS_ERR(tfm)) {
+ 		printk("failed to load transform for deflate\n");
+ 		return;
+ 	}

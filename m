@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030503AbWJJV6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbWJJV6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030503AbWJJV6n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030504AbWJJVpM
+	id S1030511AbWJJV6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWJJVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:45:12 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31940 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030501AbWJJVpH
+	Tue, 10 Oct 2006 17:45:30 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32708 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030493AbWJJVp2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:45:07 -0400
+	Tue, 10 Oct 2006 17:45:28 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] fix misannotations in loop.c
+Subject: [PATCH] hwdep_compat missed __user annotations
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXPPP-0007KI-5E@ZenIV.linux.org.uk>
+Message-Id: <E1GXPPj-0007Kg-5i@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 10 Oct 2006 22:45:07 +0100
+Date: Tue, 10 Oct 2006 22:45:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/block/loop.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ sound/core/hwdep_compat.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index d6bb8da..19a09a1 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -295,7 +295,7 @@ fail:
-  * and do_lo_send_write().
-  */
- static int __do_lo_send_write(struct file *file,
--		u8 __user *buf, const int len, loff_t pos)
-+		u8 *buf, const int len, loff_t pos)
+diff --git a/sound/core/hwdep_compat.c b/sound/core/hwdep_compat.c
+index 938f775..3827c0c 100644
+--- a/sound/core/hwdep_compat.c
++++ b/sound/core/hwdep_compat.c
+@@ -33,7 +33,7 @@ struct snd_hwdep_dsp_image32 {
+ static int snd_hwdep_dsp_load_compat(struct snd_hwdep *hw,
+ 				     struct snd_hwdep_dsp_image32 __user *src)
  {
- 	ssize_t bw;
- 	mm_segment_t old_fs = get_fs();
-@@ -324,7 +324,7 @@ static int do_lo_send_direct_write(struc
- 		struct bio_vec *bvec, int bsize, loff_t pos, struct page *page)
- {
- 	ssize_t bw = __do_lo_send_write(lo->lo_backing_file,
--			(u8 __user *)kmap(bvec->bv_page) + bvec->bv_offset,
-+			kmap(bvec->bv_page) + bvec->bv_offset,
- 			bvec->bv_len, pos);
- 	kunmap(bvec->bv_page);
- 	cond_resched();
-@@ -351,7 +351,7 @@ static int do_lo_send_write(struct loop_
- 			bvec->bv_offset, bvec->bv_len, pos >> 9);
- 	if (likely(!ret))
- 		return __do_lo_send_write(lo->lo_backing_file,
--				(u8 __user *)page_address(page), bvec->bv_len,
-+				page_address(page), bvec->bv_len,
- 				pos);
- 	printk(KERN_ERR "loop: Transfer error at byte offset %llu, "
- 			"length %i.\n", (unsigned long long)pos, bvec->bv_len);
+-	struct snd_hwdep_dsp_image *dst;
++	struct snd_hwdep_dsp_image __user *dst;
+ 	compat_caddr_t ptr;
+ 	u32 val;
+ 
 -- 
 1.4.2.GIT
 

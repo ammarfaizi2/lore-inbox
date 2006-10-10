@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbWJJIEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWJJIK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbWJJIEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWJJIEf
+	id S965085AbWJJIK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJJIK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:04:35 -0400
-Received: from bay0-omc2-s14.bay0.hotmail.com ([65.54.246.150]:20404 "EHLO
-	bay0-omc2-s14.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S965083AbWJJIEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:04:34 -0400
-Message-ID: <BAY103-F11FF69B652F14B9D679376B2170@phx.gbl>
-X-Originating-IP: [85.36.106.198]
-X-Originating-Email: [pupilla@hotmail.com]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc1 warning: process  used the removed sysctl system call
-Date: Tue, 10 Oct 2006 10:04:32 +0200
+	Tue, 10 Oct 2006 04:10:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30955 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965085AbWJJIK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 04:10:56 -0400
+Date: Tue, 10 Oct 2006 01:10:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miguel Ojeda" <maxextreme@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1
+Message-Id: <20061010011052.f22a55da.akpm@osdl.org>
+In-Reply-To: <653402b90610100031i5132083ewba1240d01981f4ae@mail.gmail.com>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	<653402b90610100031i5132083ewba1240d01981f4ae@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 10 Oct 2006 08:04:34.0158 (UTC) FILETIME=[B8F330E0:01C6EC42]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+On Tue, 10 Oct 2006 07:31:23 +0000
+"Miguel Ojeda" <maxextreme@gmail.com> wrote:
 
-I have compiled 2.6.19-rc1 on my new shiny slackware 11.0 and I see
-these messages:
+> On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > +# drivers-add-lcd-support.patch: Pavel says use fbcon
+> > +drivers-add-lcd-support.patch
+> > +drivers-add-lcd-support-update.patch
+> >
+> 
+> Has the # a special meaning?
 
-root@Calimero:~# dmesg  | grep warning
-warning: process `touch' used the removed sysctl system call
-warning: process `touch' used the removed sysctl system call
-warning: process `dd' used the removed sysctl system call
-warning: process `alsactl' used the removed sysctl system call
-warning: process `kde-config' used the removed sysctl system call
+It's a comment separator ;)
 
-I think this is because of 'CONFIG_SYSCTL_SYSCALL is not set'
-(I have just copied .config from 2.6.18 to 2.6.19-rc1 and run
-make bzImage && make modules)
+> I'm going to work on offering the fbcon feature as Pavel requested.
 
-This is my .config:
+Thanks.  It does sound like making the thing an fbdev is the right way to go.
 
-# General setup
-#
-CONFIG_LOCALVERSION=""
-# CONFIG_LOCALVERSION_AUTO is not set
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-# CONFIG_IPC_NS is not set
-CONFIG_BSD_PROCESS_ACCT=y
-# CONFIG_BSD_PROCESS_ACCT_V3 is not set
-# CONFIG_TASKSTATS is not set
-# CONFIG_UTS_NS is not set
-# CONFIG_AUDIT is not set
-# CONFIG_IKCONFIG is not set
-# CONFIG_RELAY is not set
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_SYSCTL=y
-# CONFIG_EMBEDDED is not set
-CONFIG_UID16=y
-# CONFIG_SYSCTL_SYSCALL is not set
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_HOTPLUG=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_ELF_CORE=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_SLAB=y
-CONFIG_VM_EVENT_COUNTERS=y
-CONFIG_RT_MUTEXES=y
-# CONFIG_TINY_SHMEM is not set
-CONFIG_BASE_SMALL=0
-# CONFIG_SLOB is not set
+> suggested 2 ways.
+> 
+> Pavel's idea: Change the driver so the cfag12864b module will be just
+> a framebuffer device, removing access through /dev/cfag12864b.
+> 
+> My idea: Code a new module called "fbcfag12864b", which will depend on
+> cfag12864b and will be the framebuffer device. This way we have both
+> devices, and they doesn't affect each other as they are different
+> things. So the ks0108 and cfag12864b can stay without any changes.
+> Also, if we finally decide we don't want the raw cfag12864b module, it
+> is easy to remove it from the cfag12864b and the fbcafg12864b will
+> continue working.
+> 
+> Is there anyone who can decide which idea is better? If not, I will
+> code it my way. Also, if the Pavel's idea will be the chosen one, it
+> will be easier to put the fbcfag12864b code into the cfag12864b rather
+> than the opposite.
 
-My env: Slackware 11.0 + linux 2.6.19-rc1
-
-Linux Calimero 2.6.19-rc1 #1 PREEMPT Thu Oct 5 15:26:06 CEST 2006 i686 
-pentium3 i386 GNU/Linux
-
-Gnu C                  3.4.6
-Gnu make               3.81
-binutils               2.15.92.0.2
-util-linux             2.12r
-mount                  2.12r
-module-init-tools      3.2.2
-e2fsprogs              1.38
-Linux C Library        2.3.6
-Dynamic linker (ldd)   2.3.6
-Linux C++ Library      6.0.3
-Procps                 3.2.7
-Net-tools              1.60
-Kbd                    1.12
-
-dd & touch from GNU coreutils 5.97
-
-
+I'd have thought that once the device is accessible as an fbdev, there's so
+much other software and kernel infrastructure to support that, there's
+little point in offering an alternative way of presenting the device to
+userspace.

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWJJE64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWJJFFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWJJE64 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 00:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWJJE64
+	id S964978AbWJJFFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 01:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWJJFFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 00:58:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:52688 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964973AbWJJE6z (ORCPT
+	Tue, 10 Oct 2006 01:05:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9698 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964978AbWJJFFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 00:58:55 -0400
-Subject: Re: ptrace and pfn mappings
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061010034606.GJ15822@wotan.suse.de>
-References: <20061009140354.13840.71273.sendpatchset@linux.site>
-	 <20061009140447.13840.20975.sendpatchset@linux.site>
-	 <1160427785.7752.19.camel@localhost.localdomain>
-	 <452AEC8B.2070008@yahoo.com.au>
-	 <1160442987.32237.34.camel@localhost.localdomain>
-	 <20061010022310.GC15822@wotan.suse.de>
-	 <1160448466.32237.59.camel@localhost.localdomain>
-	 <20061010025821.GE15822@wotan.suse.de>
-	 <1160451656.32237.83.camel@localhost.localdomain>
-	 <20061010034606.GJ15822@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 10 Oct 2006 14:58:15 +1000
-Message-Id: <1160456295.32237.99.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 01:05:37 -0400
+Date: Mon, 9 Oct 2006 22:04:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is device_create_file __must_check?
+Message-ID: <20061010050453.GA5479@kroah.com>
+References: <17707.8801.395100.35054@cargo.ozlabs.ibm.com> <20061009214936.a2788702.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009214936.a2788702.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Since we decided it would be better to make a new function or some arch
-> specfic hooks rather than switch mm's in the kernel? ;)
+On Mon, Oct 09, 2006 at 09:49:36PM -0700, Andrew Morton wrote:
+> On Tue, 10 Oct 2006 14:32:33 +1000
+> Paul Mackerras <paulus@samba.org> wrote:
 > 
-> No, I don't know. Your idea might be reasonable, but I really haven't
-> thought about it much.
+> > I am seeing a bunch of warnings about not checking the return value
+> > from device_create_file() for code like this (from
+> > arch/powerpc/kernel/pci_64.c):
+> > 
+> > static ssize_t pci_show_devspec(struct device *dev,
+> > 		struct device_attribute *attr, char *buf)
+> > {
+> > 	struct pci_dev *pdev;
+> > 	struct device_node *np;
+> > 
+> > 	pdev = to_pci_dev (dev);
+> > 	np = pci_device_to_OF_node(pdev);
+> > 	if (np == NULL || np->full_name == NULL)
+> > 		return 0;
+> > 	return sprintf(buf, "%s", np->full_name);
+> > }
+> > static DEVICE_ATTR(devspec, S_IRUGO, pci_show_devspec, NULL);
+> > 
+> > void pcibios_add_platform_entries(struct pci_dev *pdev)
+> > {
+> > 	device_create_file(&pdev->dev, &dev_attr_devspec);
+> > }
+> > 
+> > What bad thing could happen if device_create_file fails, other than
+> > that the "devspec" file doesn't appear in sysfs?
+> 
+> There are no super-strong reasons here, but if device_create_file() fails
+> then the required control files aren't there and the subsystem isn't
+> working as intended.  If it's in a module then we should fail the modprobe. 
+> If it's a bootup thing then best we can do is to panic.  Or at least log
+> the event.
+> 
+> The most common cause of this is a programming error: we tried to create
+> the same entry twice.   We want to know about that.
 
-Another option is to take the PTE lock while doing the accesses for that
-PFN... might work. We still need a temp kernel buffer but that would
-sort-of do the trick.
+Exactly, that's the most common cause here (different programmers trying
+to create the same file in the same place.)  That needs to error out so
+that it is caught properly.
 
-Ben.
+thanks,
 
-
+greg k-h

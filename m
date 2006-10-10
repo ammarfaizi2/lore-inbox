@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbWJJVFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWJJVFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030382AbWJJVFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 17:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWJJVFI
+	id S1030362AbWJJVFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 17:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWJJVFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 17:05:08 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:11186 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030362AbWJJVFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 17:05:06 -0400
-Date: Tue, 10 Oct 2006 16:05:00 -0500
-To: akpm@osdl.org
-Cc: jeff@garzik.org, Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH 9/21]: powerpc/cell spidernet bogus rx interrupt bit
-Message-ID: <20061010210459.GF4381@austin.ibm.com>
-References: <20061010204946.GW4381@austin.ibm.com>
+	Tue, 10 Oct 2006 17:05:20 -0400
+Received: from mga01.intel.com ([192.55.52.88]:29249 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030362AbWJJVFS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 17:05:18 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,291,1157353200"; 
+   d="scan'208"; a="2666163:sNHT23730390"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061010204946.GW4381@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+Date: Wed, 11 Oct 2006 01:05:03 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC3F4CAB@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+thread-index: AcbspzeMvSKTItYmTeC+rhGAbbHBDQABjRcg
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Jeremy Fitzhardinge" <jeremy@goop.org>,
+       "Steven Rostedt" <rostedt@goodmis.org>
+Cc: <tim.c.chen@linux.intel.com>, "Andrew Morton" <akpm@osdl.org>,
+       <herbert@gondor.apana.org.au>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Oct 2006 21:05:12.0340 (UTC) FILETIME=[C6AE9540:01C6ECAF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The current receive interrupt mask sets a bogus bit that doesn't even
-belong to the definition of this register. Remove it.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-Cc: James K Lewis <jklewis@us.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
+-----Original Message-----
+From: Jeremy Fitzhardinge [mailto:jeremy@goop.org] 
+Sent: Wednesday, October 11, 2006 12:04 AM
+To: Steven Rostedt
+Cc: tim.c.chen@linux.intel.com; Andrew Morton;
+herbert@gondor.apana.org.au; linux-kernel@vger.kernel.org; Ananiev,
+Leonid I
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
 
-----
- drivers/net/spider_net.h |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Steven Rostedt wrote:
+> Holy crap!  I wonder where else in the kernel gcc is doing this. 
+Jeremy Fitzhardinge wrote:
+> annotation which makes gcc consider writes to the variable relatively
+expensive
 
-Index: linux-2.6.18-mm2/drivers/net/spider_net.h
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.h	2006-10-10 12:51:26.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.h	2006-10-10 12:54:06.000000000 -0500
-@@ -332,9 +332,8 @@ enum spider_net_int2_status {
- 				  (1 << SPIDER_NET_GDTDCEINT) | \
- 				  (1 << SPIDER_NET_GDTFDCINT) )
- 
--/* we rely on flagged descriptor interrupts*/
--#define SPIDER_NET_RXINT	( (1 << SPIDER_NET_GDAFDCINT) | \
--				  (1 << SPIDER_NET_GRMFLLINT) )
-+/* We rely on flagged descriptor interrupts */
-+#define SPIDER_NET_RXINT	( (1 << SPIDER_NET_GDAFDCINT) )
- 
- #define SPIDER_NET_ERRINT	( 0xffffffff & \
- 				  (~SPIDER_NET_TXINT) & \
+I should underline that cache miss is a result of invalidating of cache
+line with __warn_once in each other CPUs performed by hw for cache
+coherence.
+__warn_once is a common data. It is costly to test-and-modify it just in
+SMP. But it is not costly to write to the variable in memory just after
+reading it. As a compiler have understood source code. 
+A read-and-modify for common variable are performed under lock usually.
+
+Leonid
+
+Steven Rostedt wrote:
+> Holy crap!  I wonder where else in the kernel gcc is doing this. (of
+> course I'm using gcc4 so I don't know).  Is there another gcc
+attribute
+> to actually tell gcc that a variable is really mostly read only
+(besides
+> placing it in a mostly read only elf section)?
+>   
+
+That would be nice, but I don't know of one (apart from "volatile", 
+which has its own downsides).  Once could imagine an annotation which 
+makes gcc consider writes to the variable relatively expensive, so that 
+it avoids generating unnecessary/excessive writes.
+
+    J

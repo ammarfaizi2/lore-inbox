@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWJJGon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWJJGpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbWJJGon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 02:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWJJGon
+	id S965024AbWJJGpf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 02:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbWJJGpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 02:44:43 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:15925 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S965023AbWJJGom convert rfc822-to-8bit (ORCPT
+	Tue, 10 Oct 2006 02:45:35 -0400
+Received: from main.gmane.org ([80.91.229.2]:9159 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965024AbWJJGpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 02:44:42 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-Date: Mon, 9 Oct 2006 23:44:35 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
-In-Reply-To: <4527CDCC.1080209@shaw.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-Thread-Index: AcbqKSAn2IPwppfeQqGEvj/OP0AsTACDdweA
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Robert Hancock" <hancockr@shaw.ca>,
-       "Prakash Punnoor" <prakash@punnoor.de>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
-       <jeff@garzik.org>
-X-OriginalArrivalTime: 10 Oct 2006 06:44:24.0840 (UTC) FILETIME=[865F8080:01C6EC37]
+	Tue, 10 Oct 2006 02:45:34 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Reinhard Tartler <siretart@tauware.de>
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Date: Tue, 10 Oct 2006 08:29:09 +0200
+Message-ID: <87wt783cqy.fsf@hermes.olymp.tauware.de>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl01.83.171.151.131.ip-pool.nefkom.net
+X-Url: http://tauware.de
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+Cancel-Lock: sha1:4CpNNCAQtLHT72OBFrMhGb7gWgg=
+Cc: hostap@shmoo.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Unfortunately it doesn't work for me on MCP51 if I change 
-> GENERIC to 
-> > ADMA. So I wonder whether MCP51 has ADMA mode or what needs 
-> to be done 
-> > to get NCQ working. :-(
-> 
-> What happened when you tried it? It would be useful if you 
-> could change the #undef in these lines:
-> 
->   53 #undef ATA_DEBUG                /* debugging output */
->   54 #undef ATA_VERBOSE_DEBUG        /* yet more debugging output */
-> 
-> in include/linux/libata.h to #define and rebuild and try it 
-> then, that will spew out a bunch more output and I can see if 
-> any reasonable looking values are showing up at all. I was 
-> capturing this output the crude way, booting with vga=6 to 
-> get a smaller font and taking a picture of the screen :-) 
-> Also, maybe post the lspci -v output from the SATA controller..
-> 
-> If that doesn't provide any insight, maybe the docs Jeff has 
-> provide the answer for whether or not the MCP5x/MCP61 
-> controllers have the same interface as the CK804/MCP04..
+Theodore Tso <tytso@mit.edu> writes:
 
-No, only CK804 and MCP04 support ADMA.  We'll be publishing some patches
-for NCQ support for MCP55/MCP61 soon.
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+> On Mon, Oct 02, 2006 at 05:00:31PM -0400, Dan Williams wrote:
+>> Distributions _are_ shipping those tools already.  The problem is more
+>> with older distributions where, for example, the kernel gets upgraded
+>> but other stuff does not.  If a kernel upgrade happens, then the distro
+>> needs to make sure userspace works with it.  That's nothing new.
+>
+> Um, *which* distro's are shipping it already?  RHEL4?  SLES10?  I
+> thought we saw a note saying that even Debian **unstable** didn't have
+> a new enough version of the wireless-tools....
+
+Debian is currently in (pre-) freeze mode, and new upstream versions of
+core packages are uploaded very very carefully. To see whats going on
+with the wireless-tools package, see [1, 2].
+
+[3] shows that 29pre10 was uploaded to experimental on Thu,  4 May 2006
+
+So you are right, debian unstable doesn't ship the latest version,
+because that would have the potential to make problems with the release
+of debian 4.0 (aka etch). The updated package however is there. If this
+package should go to etch, because 2.6.18 is likely to be the kernel
+etch ships, then both the maintainer and the release team needs to be
+convinced about that.
+
+[1] http://packages.debian.org/wireless-tools
+[2] http://packages.qa.debian.org/wireless-tools
+[3] http://packages.qa.debian.org/w/wireless-tools/news/20060504T210628Z.html
+
+-- 
+Gruesse/greetings,
+Reinhard Tartler, KeyID 945348A4
+

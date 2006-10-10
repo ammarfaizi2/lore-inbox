@@ -1,62 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWJJMhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWJJMrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbWJJMhG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 08:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWJJMhG
+	id S965000AbWJJMrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 08:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWJJMrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 08:37:06 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:17564 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964902AbWJJMhC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 08:37:02 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Date: Tue, 10 Oct 2006 14:37:17 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, Jiri Kosina <jikos@jikos.cz>,
-       linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz> <200610100052.10008.rjw@sisk.pl> <20061010121045.GQ19765@suse.de>
-In-Reply-To: <20061010121045.GQ19765@suse.de>
+	Tue, 10 Oct 2006 08:47:09 -0400
+Received: from wx-out-0506.google.com ([66.249.82.237]:40332 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965000AbWJJMrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 08:47:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=t5g2lFXh71qJPTUxt13lC3/JYbajhCZbcCoBO26y8l51wjUjYFCGIweNXgpL1T78/M7RaB3qKGj6fuiVM/UrLW3U8eJ/KQqTRyY+IzdRyc75jul14E9gXLzy4aTwSupaxDPz0b8AwKuksN/YMHrZUfW6Q/n5aAsNVI0yeoWxkkE=
+Date: Tue, 10 Oct 2006 21:47:20 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH] crypto: fix crypto_alloc_base() return value
+Message-ID: <20061010124720.GA17432@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610101437.18219.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 10 October 2006 14:10, Stefan Seyfried wrote:
-> On Tue, Oct 10, 2006 at 12:52:09AM +0200, Rafael J. Wysocki wrote:
-> > On Sunday, 8 October 2006 20:42, Pavel Machek wrote:
->  
-> > > > echo "platform" > /sys/power/disk
-> > > > echo "disk" > /sys/power/state
-> > > 
-> > > Maybe we should change the default in 2.6.20 or so?
-> > 
-> > Well, I think swsusp should work with "shutdown" just as well.  If it doesn't,
-> > that means there are some bugs in the ACPI code which should be fixed.
-> > By using "platform" as the default method we'll be hiding those bugs IMHO.
-> 
-> I'm not really intimately familiar with the ACPI spec, but IIRC those AML
-> methods executed by pm_ops->prepare and pm_ops->finish are mandatory for
-> suspending ACPI enabled machines. So using "platform" as a default seems
-> reasonable (assuming that on non-ACPI machines, pm_ops->{prepare,finish} will
-> be a noop anyway)
+This patch makes crypto_alloc_base() return proper return value.
 
-Well, what swsusp does is not really a suspend operation.  It is, roughly, a
-"save the contents of memory and power off" thing.  During the "resume" we do
-something like "restore the contents of memory and use it as the initial
-data", but the state of devices (ie. hardware) is not expected to be saved.
+- If kzalloc() failure happens within __crypto_alloc_tfm(),
+  crypto_alloc_base() returns NULL. But crypto_alloc_base()
+  is supposed to return error code as pointer. So this patch
+  makes it return -ENOMEM in that case.
 
-Moreover, I'm starting to think that it's actually wrong to assume that the
-hardware state will be saved and the drivers that make such an assumption
-need fixing.
+- crypto_alloc_base() is suppose to return -EINTR, if it is
+  interrupted by signal. But it may not return -EINTR.
 
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+ crypto/api.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+Index: work-fault-inject/crypto/api.c
+===================================================================
+--- work-fault-inject.orig/crypto/api.c
++++ work-fault-inject/crypto/api.c
+@@ -331,7 +331,7 @@ struct crypto_tfm *__crypto_alloc_tfm(st
+ 	tfm_size = sizeof(*tfm) + crypto_ctxsize(alg, flags);
+ 	tfm = kzalloc(tfm_size, GFP_KERNEL);
+ 	if (tfm == NULL)
+-		goto out;
++		goto out_err;
+ 
+ 	tfm->__crt_alg = alg;
+ 
+@@ -355,6 +355,7 @@ cra_init_failed:
+ 	crypto_exit_ops(tfm);
+ out_free_tfm:
+ 	kfree(tfm);
++out_err:
+ 	tfm = ERR_PTR(err);
+ out:
+ 	return tfm;
+@@ -414,14 +415,14 @@ struct crypto_tfm *crypto_alloc_base(con
+ 		struct crypto_alg *alg;
+ 
+ 		alg = crypto_alg_mod_lookup(alg_name, type, mask);
+-		err = PTR_ERR(alg);
+-		tfm = ERR_PTR(err);
+-		if (IS_ERR(alg))
++		if (IS_ERR(alg)) {
++			err = PTR_ERR(alg);
+ 			goto err;
++		}
+ 
+ 		tfm = __crypto_alloc_tfm(alg, 0);
+ 		if (!IS_ERR(tfm))
+-			break;
++			return tfm;
+ 
+ 		crypto_mod_put(alg);
+ 		err = PTR_ERR(tfm);
+@@ -433,9 +434,9 @@ err:
+ 			err = -EINTR;
+ 			break;
+ 		}
+-	};
++	}
+ 
+-	return tfm;
++	return ERR_PTR(err);
+ }
+ EXPORT_SYMBOL_GPL(crypto_alloc_base);
+  

@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWJJUKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWJJUMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWJJUKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 16:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWJJUKc
+	id S1030259AbWJJUMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 16:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbWJJUMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 16:10:32 -0400
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:23179 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1030257AbWJJUKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 16:10:32 -0400
-Date: Tue, 10 Oct 2006 21:10:09 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: RE: Hugepage regression
-In-Reply-To: <000101c6eca2$7e84fe60$cb34030a@amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.64.0610102045190.24759@blonde.wat.veritas.com>
-References: <000101c6eca2$7e84fe60$cb34030a@amr.corp.intel.com>
+	Tue, 10 Oct 2006 16:12:09 -0400
+Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:47753 "EHLO
+	hachi.dashjr.org") by vger.kernel.org with ESMTP id S1030259AbWJJUMI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 16:12:08 -0400
+From: Luke -Jr <luke@dashjr.org>
+Organization: -Jr Family
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IP routing with fwmark
+Date: Tue, 10 Oct 2006 15:12:01 -0500
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Oct 2006 20:09:55.0706 (UTC) FILETIME=[0DD065A0:01C6ECA8]
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610101512.02207.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006, Chen, Kenneth W wrote:
-> Hugh Dickins wrote on Tuesday, October 10, 2006 12:18 PM
-> 
-> > But again, I protest
-> > the "if (vma->vm_file)" in your unmap_hugepage_range - how would a
-> > hugepage area ever have NULL vma->vm_file?
-> 
-> It's coming from do_mmap_pgoff(), file->f_op->mmap can fail with error
-> code (e.g. not enough hugetlb page) and in the error recovery path, it
-> nulls out vma->vm_file first before calls down to unmap_region().
+Having trouble getting my routing rules to work. Basically, I just want to 
+lock a connection to use a single network interface. The common and only 
+method (compatible with IP forwarding) seems to be using CONNMARK to keep 
+track of the interface each connection is assigned to.
+However, for some reason, it appears the Linux IP routing table is not 
+correctly processing the fwmark rules:
+12:     from all fwmark 0xa lookup inet_sbc
+Both inet_sbc and main tables have a default route set. If I prepend "prohibit 
+default" into *either* of the tables (main or inet_sbc), the packet is 
+dropped. Since a packet only has a single route, this suggests that Linux is 
+doing two routing lookups, and only processing the fwmark rules in the first 
+one (which, if not an error, is ignored and overridden by the later lookup).
 
-I stand corrected: thanks.
+Any other possibilities, suggestions, ideas, or fixes? Or should I post more 
+details?
 
-> I asked that question before:
+Thanks,
 
-So you did, on Oct 2nd: sorry, that got lost amidst the overload in
-my mailbox, I've just forwarded it to myself again, to check later
-on what else I may have missed.  (I am aware that I've still not
-scrutinized the patches you sent out a day or two later, now in -mm.)
-
-> can we reverse that order (call unmap_region
-> and then nulls out vma->vmfile and fput)?
-
-I'm pretty sure we cannot: the ordering is quite intentional, that if
-a driver ->mmap failed, then it'd be wrong to call down to driver in
-the unmap_region (if a driver is nicely behaved, that unmap_region
-shouldn't be unnecessary; but some do rely on us clearing ptes there).
-
-Okay, last refuge of all who've made a fool of themselves:
-may I ask you to add a comment in your unmap_hugepage_range,
-pointing to how the do_mmap_pgoff error case NULLifies vm_file?
-
-(Or else change hugetlbfs_file_mmap to set VM_HUGETLB only once it's
-succeeded: but that smacks of me refusing to accept I was wrong.)
-
-Hugh
-
-> 
-> unmap_and_free_vma:
->         if (correct_wcount)
->                 atomic_inc(&inode->i_writecount);
->         vma->vm_file = NULL;
->         fput(file);
-> 
->         /* Undo any partial mapping done by a device driver. */
->         unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
+Luke-Jr (CC replies please)

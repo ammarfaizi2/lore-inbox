@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWJJQnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWJJQnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWJJQnH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWJJQnG
+	id S1030201AbWJJQnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWJJQnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:43:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41703 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030196AbWJJQnE (ORCPT
+	Tue, 10 Oct 2006 12:43:24 -0400
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:3326 "EHLO
+	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1030202AbWJJQnW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:43:04 -0400
-Date: Tue, 10 Oct 2006 18:42:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: IPWireless drivers 
-Message-ID: <20061010164249.GA31814@elf.ucw.cz>
+	Tue, 10 Oct 2006 12:43:22 -0400
+X-BigFish: VP
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Subject: RE: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
+ regressions)
+Date: Tue, 10 Oct 2006 11:43:08 -0500
+Message-ID: <1449F58C868D8D4E9C72945771150BDF1536EF@SAUSEXMB1.amd.com>
+In-Reply-To: <200610101837.10292.christiand59@web.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
+ regressions)
+Thread-Index: AcbsiqQuJx2E1lJBRtKnlGhBMpysnAAAAuaQ
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: "Christian" <christiand59@web.de>
+cc: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 10 Oct 2006 16:43:08.0733 (UTC)
+ FILETIME=[2AAE8ED0:01C6EC8B]
+X-WSS-ID: 693512161L85492054-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I was asked for IPWireless drivers, but Patrik used email address that
-does not work. Anyway, here's the pointer, perhaps other people want
-to use them, too?
-
-To: Patrik Israelsson <patrik@israelsson.org>
-Subject: Re: IPWireless drivers
-X-Warning: Reading this can be dangerous to your mental health.
-
-Hi!
-
-> > I've been looking for Linux drivers for the IPWireless PCMCIA 3G modem, 
-> > and a quick googling yielded a mail discussion in LKML started by you. 
-> > Since I can't seem to find these drivers anywhere, I felt the need to 
-> > contact you - sorry for taking up your time ;)
+> Am Dienstag, 10. Oktober 2006 16:59 schrieb Langsdorf, Mark:
+> > > I have an AMD K8 system and I'm unable to get cpufreq working
+> > > with 2.6.19-rc1.
+> > > The cpufreq sysfs directory is missing under
+> > > /sys/devices/system/cpu/cpu0/.
+> > > 2.6.18 works as expected.
+> >
+> > What error message are you getting from `dmesg | grep power` ?
 > 
-> Do you have url of that discussion?
-
-It would be still useful. Another person from czech republic is there,
-and I may be able to get modem from him.
-
-> > You said in the LKML mail that there are drivers available for linux 
-> > 2.6.12, but not for 2.6.16. Where did you find the 2.6.12 drivers? I would 
-> > be very grateful if you have them lying around somewhere and/or could 
-> > point me to where they can be obtained.
+> dmesg | grep power
+> [   17.852383] powernow-k8: Found 2 AMD Athlon(tm) 64 X2 Dual 
+> Core Processor 
+> 3800+ processors (version 2.00.00)
+> [   17.852403] powernow-k8: MP systems not supported by PSB 
+> BIOS structure
+> [   17.852428] powernow-k8: MP systems not supported by PSB 
+> BIOS structure
 > 
-> They were obtained from t-mobile czech republic, and not by
-> me. t-mobile said they would get newer version. I'll take a look at
-> their site.
+> Haven't seen this before.
 
-Got it. Try
-http://t-mobile.cz/Web/ClientFunction.DownloadFile.axd?FileID=2f0a8bc5-b60d-406a-8dde-8b002706799a 
+I thought I cleaned that message out in v2.0.
 
-it is linked from 
+The BIOS failed to supply _PSS objects that Linux could
+recognize.  The powernow-k8 driver tried to use a PSB 
+table, but MP/dual-core systems can't use PSB tables.  
+The driver errored out.
 
-http://t-mobile.cz/Web/Residential/TarifySluzby/Internet-a-e-mail/co-delat-kdyz-nelze-pouzit-wnw-manager.aspx
+If you can get it to work with 2.6.18 and it doesn't work
+with 2.6.19-rc1, the most likely culprit is a change in the
+ACPI subsystem.
 
-link is "Ovladac pro ... 4G ... Linux".
+Can you get decompiled dumps of the DSDT?  See the ACPI
+pages on sourceforge if you need instructions. 
 
-Driver is GPL, can you post it to lkml when you get it from their
-.rar, etc?
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-Mark Langsdorf
+AMD, Inc.
+
+

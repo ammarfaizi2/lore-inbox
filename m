@@ -1,72 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWJJDQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWJJDQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWJJDQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Oct 2006 23:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWJJDPK
+	id S964948AbWJJDQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Oct 2006 23:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWJJDPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Oct 2006 23:15:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964927AbWJJDOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Oct 2006 23:14:49 -0400
-Date: Mon, 9 Oct 2006 20:14:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
-       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
-Message-Id: <20061009201418.81bf0acd.akpm@osdl.org>
-In-Reply-To: <20061009143345.GB17572@in.ibm.com>
-References: <20061004214403.e7d9f23b.akpm@osdl.org>
-	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
-	<20061004233137.97451b73.akpm@osdl.org>
-	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
-	<20061005235909.75178c09.akpm@osdl.org>
-	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
-	<20061006183846.GF19756@in.ibm.com>
-	<4526A66B.4030805@zytor.com>
-	<m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
-	<4526D084.1030700@zytor.com>
-	<20061009143345.GB17572@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Oct 2006 23:15:14 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38317 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964921AbWJJDOm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Oct 2006 23:14:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 25/25] nfsd: nfs_replay_me
+Cc: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
+Message-Id: <E1GX84n-0004IO-ED@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 10 Oct 2006 04:14:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006 10:33:45 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-> Please find attached the regenerated patch.
+We are using NFS_REPLAY_ME as a special error value that is never leaked
+to clients.  That works fine; the only problem is mixing host- and network-
+endian values in the same objects.  Network-endian equivalent would work
+just as fine; switch to it.
 
-Somewhere amongst the six versions of this patch, the kernel broke.  Seems
-that the kernel command line isn't getting recognised.  The machine is
-running LILO and RH FC1.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ fs/nfsd/nfs4proc.c        |    6 +++---
+ fs/nfsd/nfs4state.c       |    4 ++--
+ include/linux/nfsd/nfsd.h |    1 +
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
-I'll consolidate the patches which I have now and then I'll drop them.
-
-They are (were), in order:
-
-i386-distinguish-absolute-symbols.patch
-i386-distinguish-absolute-symbols-fix.patch
-i386-align-data-section-to-4k-boundary.patch
-i386-define-__pa_symbol-2.patch
-i386-setupc-reserve-kernel-memory-starting-from-_text.patch
-i386-config_physical_start-cleanup.patch
-make-linux-elfh-safe-to-be-included-in-assembly-files.patch
-elf-add-elfosabi_standalone-to-elfh.patch
-kallsyms-generate-relocatable-symbols.patch
-i386-relocatable-kernel-support.patch
-i386-implement-config_physical_align.patch
-i386-boot-add-an-elf-header-to-bzimage.patch
-i386-boot-add-an-elf-header-to-bzimage-fix.patch
-i386-boot-add-an-elf-header-to-bzimage-update-2.patch
-i386-boot-add-an-elf-header-to-bzimage-fix-fix.patch
-i386-boot-add-an-elf-header-to-bzimage-fix-fix-fix.patch
-i386-boot-add-an-elf-header-to-bzimage-fix-fix-fix-fix.patch
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 9f403a6..2a2551b 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -178,7 +178,7 @@ nfsd4_open(struct svc_rqst *rqstp, struc
+ 
+ 	/* check seqid for replay. set nfs4_owner */
+ 	status = nfsd4_process_open1(open);
+-	if (status == NFSERR_REPLAY_ME) {
++	if (status == nfserr_replay_me) {
+ 		struct nfs4_replay *rp = &open->op_stateowner->so_replay;
+ 		fh_put(current_fh);
+ 		current_fh->fh_handle.fh_size = rp->rp_openfh_len;
+@@ -189,7 +189,7 @@ nfsd4_open(struct svc_rqst *rqstp, struc
+ 			dprintk("nfsd4_open: replay failed"
+ 				" restoring previous filehandle\n");
+ 		else
+-			status = NFSERR_REPLAY_ME;
++			status = nfserr_replay_me;
+ 	}
+ 	if (status)
+ 		goto out;
+@@ -938,7 +938,7 @@ nfsd4_proc_compound(struct svc_rqst *rqs
+ 		}
+ 
+ encode_op:
+-		if (op->status == NFSERR_REPLAY_ME) {
++		if (op->status == nfserr_replay_me) {
+ 			op->replay = &replay_owner->so_replay;
+ 			nfsd4_encode_replay(resp, op);
+ 			status = op->status = op->replay->rp_status;
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 2e468c9..293b649 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -1477,7 +1477,7 @@ nfsd4_process_open1(struct nfsd4_open *o
+ 	}
+ 	if (open->op_seqid == sop->so_seqid - 1) {
+ 		if (sop->so_replay.rp_buflen)
+-			return NFSERR_REPLAY_ME;
++			return nfserr_replay_me;
+ 		/* The original OPEN failed so spectacularly
+ 		 * that we don't even have replay data saved!
+ 		 * Therefore, we have no choice but to continue
+@@ -2233,7 +2233,7 @@ check_replay:
+ 	if (seqid == sop->so_seqid - 1) {
+ 		dprintk("NFSD: preprocess_seqid_op: retransmission?\n");
+ 		/* indicate replay to calling function */
+-		return NFSERR_REPLAY_ME;
++		return nfserr_replay_me;
+ 	}
+ 	printk("NFSD: preprocess_seqid_op: bad seqid (expected %d, got %d)\n",
+ 			sop->so_seqid, seqid);
+diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
+index 68d29b6..eb23114 100644
+--- a/include/linux/nfsd/nfsd.h
++++ b/include/linux/nfsd/nfsd.h
+@@ -238,6 +238,7 @@ #define	nfserr_reclaim_bad	__constant_ht
+ #define	nfserr_badname		__constant_htonl(NFSERR_BADNAME)
+ #define	nfserr_cb_path_down	__constant_htonl(NFSERR_CB_PATH_DOWN)
+ #define	nfserr_locked		__constant_htonl(NFSERR_LOCKED)
++#define	nfserr_replay_me	__constant_htonl(NFSERR_REPLAY_ME)
+ 
+ /* error codes for internal use */
+ /* if a request fails due to kmalloc failure, it gets dropped.
+-- 
+1.4.2.GIT
 

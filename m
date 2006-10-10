@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWJJS5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWJJS5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWJJS5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 14:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWJJS5c
+	id S1751082AbWJJS5I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 14:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWJJS5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 14:57:32 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:48877 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751086AbWJJS5b (ORCPT
+	Tue, 10 Oct 2006 14:57:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60111 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751082AbWJJS5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 14:57:31 -0400
-Date: Tue, 10 Oct 2006 20:53:39 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Brent Casavant <bcasavan@sgi.com>
-cc: Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeremy Higdon <jeremy@sgi.com>,
-       Pat Gefre <pfg@sgi.com>
-Subject: Re: [PATCH 2/2] ioc4: Enable build on non-SN2
-In-Reply-To: <20061010131916.D71367@pkunk.americas.sgi.com>
-Message-ID: <Pine.LNX.4.61.0610102042290.17718@yvahk01.tjqt.qr>
-References: <20061010120928.V71367@pkunk.americas.sgi.com>
- <20061010103915.f412d770.rdunlap@xenotime.net> <20061010131916.D71367@pkunk.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 10 Oct 2006 14:57:05 -0400
+Date: Tue, 10 Oct 2006 11:56:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [patch 1/2] round_jiffies infrastructure
+Message-Id: <20061010115652.4ef068bd.akpm@osdl.org>
+In-Reply-To: <1160496210.3000.310.camel@laptopd505.fenrus.org>
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	<1160496210.3000.310.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Oct 2006 18:03:30 +0200
+Arjan van de Ven <arjan@linux.intel.com> wrote:
 
->> Mostly curious:  did you observe that this is required?
->> I always thought that Roman said that unknown config variables
->> caused a rescan by kconfig.  IOW, I thought that it wouldn't
->> be observable by a user.  Just wondering..
->
->If it causes a rescan (I don't rightly know) it must have changed.
->I caught a bit of flak for an incorrectly ordered config statement
->once before, but that was a few years ago.
+> @@ -80,6 +80,56 @@ tvec_base_t boot_tvec_bases;
+>  EXPORT_SYMBOL(boot_tvec_bases);
+>  static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = &boot_tvec_bases;
+>  
+> +unsigned long __round_jiffies(unsigned long T, int CPU)
+> +{
+> +	int rem;
+> +	int original  = T;
+> +	rem = T % HZ;
+> +	if (rem < HZ/4)
+> +		T = T - rem;
+> +	else
+> +		T = T - rem + HZ;
+> +	/* we don't want all cpus firing at once hitting the same lock/memory */
+> +	T += CPU * 3;
+> +	if (T <= jiffies) /* rounding ate our timeout entirely */
+> +		return original;
+> +	return T;
+> +}
+> +EXPORT_SYMBOL_GPL(__round_jiffies);
+> +
 
-I am sure it causes a rescan, because activating 
-CONFIG_NETFILTER for example makes some options available that are 
-defined before NETFILTER, such as IP_ROUTE_FWMARK, IP_VS, 
-NETFILTER_XT_TARGET_CONNMARK and NETFILTER_XT_TARGET_NOTRACK, and 
-activating NETFILTER _will_ cause a rescan with `make oldconfig` - I 
-just tried. (Things are a little different with menuconfig/xconfig and 
-such of course)
+c'mon Arjan.  If we're going to create new, kernel-wide,
+exported-to-modules infrastructure then it deserves slightly more than zero
+documentation.
 
->> The lines under ---help--- should be indented by 2 spaces (by
->> convention) (and even though they were not when in the /sn/ subdir).
->
->Thanks for catching that... I just blindly copied from one spot
->to another.  I'll resend.
+Some commentary explaining/justifying the magic numbers in there would be
+useful too.  The HZ/4, the cpu*3.
 
-Not tabs?
-
-
-	-`J'
--- 
+And coding style too, please: consistent spacing around arithmetic
+operators, variables are lower case, constants are upper case.

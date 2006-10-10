@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWJJQQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWJJQVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWJJQQF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 12:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWJJQQF
+	id S1030184AbWJJQVn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 12:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWJJQVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 12:16:05 -0400
-Received: from mga01.intel.com ([192.55.52.88]:45106 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1030186AbWJJQQC (ORCPT
+	Tue, 10 Oct 2006 12:21:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32921 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030184AbWJJQVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 12:16:02 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,291,1157353200"; 
-   d="scan'208"; a="2593067:sNHT22660659"
-Message-ID: <452BC6C9.3050902@intel.com>
-Date: Tue, 10 Oct 2006 09:14:01 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] ixgb: Delete IXGB_DBG() macro and call pr_debug() directly.
-References: <Pine.LNX.4.64.0610100816440.7711@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0610100816440.7711@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 10 Oct 2006 12:21:42 -0400
+Date: Tue, 10 Oct 2006 09:21:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Theodore Tso <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1
+Message-Id: <20061010092134.ccccd88b.akpm@osdl.org>
+In-Reply-To: <20061010121950.GA25809@thunk.org>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	<20061010121950.GA25809@thunk.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Oct 2006 16:16:01.0753 (UTC) FILETIME=[60ED1C90:01C6EC87]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert P. J. Day wrote:
-> Delete the minimally-useful IXGB_DBG() macro and call pr_debug()
-> directly from the main routine.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> ---
-> diff --git a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
-> index 50ffe90..fb9fde5 100644
-> --- a/drivers/net/ixgb/ixgb.h
-> +++ b/drivers/net/ixgb/ixgb.h
-> @@ -77,12 +77,6 @@ #include "ixgb_hw.h"
->  #include "ixgb_ee.h"
->  #include "ixgb_ids.h"
-> 
-> -#ifdef _DEBUG_DRIVER_
-> -#define IXGB_DBG(args...) printk(KERN_DEBUG "ixgb: " args)
-> -#else
-> -#define IXGB_DBG(args...)
-> -#endif
-> -
->  #define PFX "ixgb: "
->  #define DPRINTK(nlevel, klevel, fmt, args...) \
->  	(void)((NETIF_MSG_##nlevel & adapter->msg_enable) && \
-> diff --git a/drivers/net/ixgb/ixgb_main.c b/drivers/net/ixgb/ixgb_main.c
-> index e09f575..eada685 100644
-> --- a/drivers/net/ixgb/ixgb_main.c
-> +++ b/drivers/net/ixgb/ixgb_main.c
-> @@ -1948,7 +1948,7 @@ #endif
-> 
->  			/* All receives must fit into a single buffer */
-> 
-> -			IXGB_DBG("Receive packet consumed multiple buffers "
-> +			pr_debug("ixgb: Receive packet consumed multiple buffers "
->  					 "length<%x>\n", length);
-> 
->  			dev_kfree_skb_irq(skb);
-> 
-> --
-> 
->   all right ... what did i mess up *this* time?  :-)  it's good
-> practice.  that's my story and i'm sticking to it.
+On Tue, 10 Oct 2006 08:19:50 -0400
+Theodore Tso <tytso@mit.edu> wrote:
 
-We should really use dev_dbg() instead, as it retains the 'ethX:' annotation afaics.
+> On Tue, Oct 10, 2006 at 12:09:28AM -0700, Andrew Morton wrote:
+> > 
+> > - Added the ext4 filesystem.  Quick usage instructions:
+> > 
+> >   - Grab updated e2fsprogs from
+> >     ftp://ftp.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs-interim/
+> > 
+> >   - It's still mke2fs -j /dev/hda1
+> > 
+> >   - mount /dev/hda1 /wherever -t ext4dev
+> > 
+> >   - To enable extents,
+> > 
+> > 	mount /dev/hda1 /wherever -t ext4dev -o extents
+> 
+> Looks like you didn't take the updated patch from Shaggy which
+> requires that you use tune2fs -O extents first?
 
-I'll have to see what looks best and also handle e100 and e1000.
+Nope.  That would have made extents inaccessible with the e2fsprogs I was
+using and I didn't have time to test e2fsprogs-interim.
 
-Thanks,
+>  (This requires the
+> e2fsprogs-interim patches.)
 
-Auke
+OK.
+
+> The plan is that mount -o extents is not going to be the long-term way
+> that extents will be enabled.  I can imagine a -o noextents option,
+> which might be used with remount to do an on-line rollback from
+> extents to non-extents, but normally you shouldn't need to use a mount
+> option to enable a feature that are filesystem format-related.  Those
+> should be implied by the appropriate flags in the superblock.
+> 
+> Mount -o nobh is a different story, since that's just a implementation
+> detail --- although for ext4, maybe we should just make nobh a
+> default, since that way more people will test it and hopefully,
+> eventually nobh will be the only way of doing things, right?
+
+nobh might be inefficient with large PAGE_SIZE and small files (or just
+small writes).
+
+> >     Making the journal larger than the mke2fs default often helps
+> >     performance with metadata-intensive workloads.
+> 
+> The default was increased significantly in e2fsprogs 1.40; if someone
+> who has their favorite metadata-intesive benchmark could test and see
+> if we should be using even larger defaults for certain "mke2fs -T 
+> <workload-type>" configurations, I'd really appreciate it.
+> 
+> 					- Ted

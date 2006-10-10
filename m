@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbWJJILg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbWJJI0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbWJJILg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 04:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJJILf
+	id S965081AbWJJI0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 04:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWJJI0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 04:11:35 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:20162 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965095AbWJJILd (ORCPT
+	Tue, 10 Oct 2006 04:26:14 -0400
+Received: from gate.crashing.org ([63.228.1.57]:20691 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965081AbWJJI0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 04:11:33 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: "Noguchi, Masato" <Masato.Noguchi@jp.sony.com>
-Subject: Re: [Cbe-oss-dev] [PATCH 09/14] spufs: add support for read/write oncntl
-Date: Tue, 10 Oct 2006 10:11:25 +0200
-User-Agent: KMail/1.9.4
-Cc: "Paul Mackerras" <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
-References: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3D7@jptkyxms38.jp.sony.com>
-In-Reply-To: <C3DCD550FB9ACD4D911D1271DD8CFDD20113D3D7@jptkyxms38.jp.sony.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 04:26:13 -0400
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
+Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <452B398C.4030507@tungstengraphics.com>
+References: <20061009110007.GA3592@wotan.suse.de>
+	 <1160392214.10229.19.camel@localhost.localdomain>
+	 <20061009111906.GA26824@wotan.suse.de>
+	 <1160393579.10229.24.camel@localhost.localdomain>
+	 <20061009114527.GB26824@wotan.suse.de>
+	 <1160394571.10229.27.camel@localhost.localdomain>
+	 <20061009115836.GC26824@wotan.suse.de>
+	 <1160395671.10229.35.camel@localhost.localdomain>
+	 <20061009121417.GA3785@wotan.suse.de>
+	 <452A50C2.9050409@tungstengraphics.com>
+	 <20061009135254.GA19784@wotan.suse.de>
+	 <1160427036.7752.13.camel@localhost.localdomain>
+	 <452B398C.4030507@tungstengraphics.com>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 17:55:31 +1000
+Message-Id: <1160466932.6177.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101011.27949.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 08:00, Noguchi, Masato wrote:
-> After applying these patches, it seems the kernel leaks memory.
-> No doubt you forget to call simple_attr_close on "[PATCH 09/14]
-> spufs: add support for read/write oncntl".
 
-Ok, thanks for pointing this out.
- 
-> Signed-off-by: Masato Noguchi <Masato.Noguchi@jp.sony.com>
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+> Still, even with NOPAGE_REFAULT or the equivalent with the new fault() code,
+> in the case we need to take this route, (and it looks like we won't have 
+> to),
+> I guess we still need to restart from find_vma() in the fault()/nopage() 
+> handler to make sure the VMA is still present. The object mutex need to 
+> be dropped as well to avoid deadlocks. Sounds complicated.
 
-Paul, please apply.
+But as we said, it should be enough to do the flag change with the
+object mutex held as long as it's after unmap_mapped_ranges()
 
-	Arnd <><
+Ben.
+
+

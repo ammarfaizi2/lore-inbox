@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWJJH2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWJJHbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWJJH2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 03:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWJJH2Q
+	id S965074AbWJJHbY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 03:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWJJHbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 03:28:16 -0400
-Received: from smtp2.versatel.nl ([62.58.50.89]:21727 "EHLO smtp2.versatel.nl")
-	by vger.kernel.org with ESMTP id S965072AbWJJH2Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 03:28:16 -0400
-Message-ID: <452B4B59.1050606@hhs.nl>
-Date: Tue, 10 Oct 2006 09:27:21 +0200
-From: Hans de Goede <j.w.r.degoede@hhs.nl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 10 Oct 2006 03:31:24 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:9144 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965074AbWJJHbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 03:31:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hreg7RreyyYOhX4wH05ZFponv5sSVhZyM1VWd3vzer88qZ0dda3Ch+nB8q6+57uppsVwjIXsxlrK0KCRMacrLjBRv0FHT/teMT6oc6WpqkyQnwNA/e/qIihvV7lNzay2vILS10LSeTHBx5QRlKlBGvpzOvFohxeKWt1zEYRe8PY=
+Message-ID: <653402b90610100031i5132083ewba1240d01981f4ae@mail.gmail.com>
+Date: Tue, 10 Oct 2006 07:31:23 +0000
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.19-rc1-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061010000928.9d2d519a.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: khali@linux-fr.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
-References: <20061010065359.GA21576@havoc.gtf.org>
-In-Reply-To: <20061010065359.GA21576@havoc.gtf.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061010000928.9d2d519a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean, Jeff,
+On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> +# drivers-add-lcd-support.patch: Pavel says use fbcon
+> +drivers-add-lcd-support.patch
+> +drivers-add-lcd-support-update.patch
+>
 
-You (Jean) already mailed me about this and it was on my todo list, but I'm currently rather busy with work. So it looks like Jeff beat me to it.
+Has the # a special meaning?
 
-Jeff's patch looks fine, please apply. Thanks Jeff!
+I'm going to work on offering the fbcon feature as Pavel requested. We
+suggested 2 ways.
 
-Regards,
+Pavel's idea: Change the driver so the cfag12864b module will be just
+a framebuffer device, removing access through /dev/cfag12864b.
 
-Hans
+My idea: Code a new module called "fbcfag12864b", which will depend on
+cfag12864b and will be the framebuffer device. This way we have both
+devices, and they doesn't affect each other as they are different
+things. So the ks0108 and cfag12864b can stay without any changes.
+Also, if we finally decide we don't want the raw cfag12864b module, it
+is easy to remove it from the cfag12864b and the fbcafg12864b will
+continue working.
 
-Signed-off-by: Hans de Goede <j.w.r.degoede@hhs.nl>
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
----
-
- drivers/hwmon/abituguru.c |   30 +++++++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 5 deletions(-)
-
-2b10f648c8ed965369976eb7925b922ee187ce21
-diff --git a/drivers/hwmon/abituguru.c b/drivers/hwmon/abituguru.c
-index e5cb0fd..3ded982 100644
---- a/drivers/hwmon/abituguru.c
-+++ b/drivers/hwmon/abituguru.c
-@@ -1271,14 +1271,34 @@ static int __devinit abituguru_probe(str
- 		res = PTR_ERR(data->class_dev);
- 		goto abituguru_probe_error;
- 	}
--	for (i = 0; i < sysfs_attr_i; i++)
--		device_create_file(&pdev->dev, &data->sysfs_attr[i].dev_attr);
--	for (i = 0; i < ARRAY_SIZE(abituguru_sysfs_attr); i++)
--		device_create_file(&pdev->dev,
--			&abituguru_sysfs_attr[i].dev_attr);
-+	for (i = 0; i < sysfs_attr_i; i++) {
-+		res = device_create_file(&pdev->dev,
-+					 &data->sysfs_attr[i].dev_attr);
-+		if (res) {
-+			for (j = 0; j < i; j++)
-+				device_remove_file(&pdev->dev,
-+					 	&data->sysfs_attr[j].dev_attr);
-+			goto err_devreg;
-+		}
-+	}
-+	for (i = 0; i < ARRAY_SIZE(abituguru_sysfs_attr); i++) {
-+		res = device_create_file(&pdev->dev,
-+					 &abituguru_sysfs_attr[i].dev_attr);
-+		if (res) {
-+			for (j = 0; j < i; j++)
-+				device_remove_file(&pdev->dev,
-+					 &abituguru_sysfs_attr[j].dev_attr);
-+			goto err_attr_i;
-+		}
-+	}
- 
- 	return 0;
- 
-+err_attr_i:
-+	for (i = 0; i < sysfs_attr_i; i++)
-+		device_remove_file(&pdev->dev, &data->sysfs_attr[i].dev_attr);
-+err_devreg:
-+	hwmon_device_unregister(data->class_dev);
- abituguru_probe_error:
- 	kfree(data);
- 	return res;
-
+Is there anyone who can decide which idea is better? If not, I will
+code it my way. Also, if the Pavel's idea will be the chosen one, it
+will be easier to put the fbcfag12864b code into the cfag12864b rather
+than the opposite.

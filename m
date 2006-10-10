@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWJJJTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWJJJT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965125AbWJJJTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 05:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWJJJTM
+	id S965126AbWJJJT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 05:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWJJJT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 05:19:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26513 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965125AbWJJJTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 05:19:10 -0400
-Date: Tue, 10 Oct 2006 10:19:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steve Lord <lord@xfs.org>
-Cc: David Chinner <dgc@sgi.com>, linux-fsdevel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-Message-ID: <20061010091904.GA395@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steve Lord <lord@xfs.org>, David Chinner <dgc@sgi.com>,
-	linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-	linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com> <452B0240.60203@xfs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452B0240.60203@xfs.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 10 Oct 2006 05:19:28 -0400
+Received: from smtp1.versatel.nl ([62.58.50.88]:59540 "EHLO smtp1.versatel.nl")
+	by vger.kernel.org with ESMTP id S965126AbWJJJT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 05:19:27 -0400
+Message-ID: <452B6569.7050404@hhs.nl>
+Date: Tue, 10 Oct 2006 11:18:33 +0200
+From: Hans de Goede <j.w.r.degoede@hhs.nl>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jean Delvare <khali@linux-fr.org>
+CC: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
+References: <20061010065359.GA21576@havoc.gtf.org>	<452B4B59.1050606@hhs.nl> <20061010110803.1a70b576.khali@linux-fr.org>
+In-Reply-To: <20061010110803.1a70b576.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 09:15:28PM -0500, Steve Lord wrote:
-> Hi Dave,
+
+
+Jean Delvare wrote:
+> Hi Hans, Jeff,
 > 
-> My recollection is that it used to default to on, it was disabled
-> because it needs to map the buffer into a single contiguous chunk
-> of kernel memory. This was placing a lot of pressure on the memory
-> remapping code, so we made it not default to on as reworking the
-> code to deal with non contig memory was looking like a major
-> effort.
+>> You (Jean) already mailed me about this and it was on my todo list,
+>> but I'm currently rather busy with work. So it looks like Jeff beat
+>> me to it.
+>>
+>> Jeff's patch looks fine, please apply. Thanks Jeff!
+> 
+> The patch isn't wrong per se, but it could be made more simple, and is
+> incomplete in comparison to what was done for all other hardware
+> monitoring drivers:
+> 
+> * We want to create all the files before registering with the hwmon
+>   class, this closes a race condition.
 
-Exactly.  The code works but tends to go OOM pretty fast at least
-when the dir blocksize code is bigger than the page size.  I should
-give the code a spin on my ppc box with 64k pages if it works better
-there.
+OK
 
+> * We want to delete all the device files at regular cleanup time (after
+>   unregistering with the hwmon class).
+
+Is this really nescesarry? AFAIK the files get deleted when the device gets deleted.
+
+> * It's OK to call device_create_file() on a non-existent file, so the
+>   error path can be simplified.
+> 
+
+?? You mean device_remove_file I assume?
+
+> I'd like the abituguru driver to behave the same as all other hardware
+> monitoring drivers to lower the maintenance effort. Can either you
+> or Jeff work up a compliant patch? 
+> 
+
+I understand Jeff any chance you can do a new revision of your patch? Otherwise I'll take care of it as time permits.
+
+Regards,
+
+Hans

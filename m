@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWJJEtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWJJExZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbWJJEtl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 00:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWJJEtl
+	id S964950AbWJJExZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 00:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWJJExZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 00:49:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37297 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964944AbWJJEtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 00:49:40 -0400
-Date: Mon, 9 Oct 2006 21:49:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Why is device_create_file __must_check?
-Message-Id: <20061009214936.a2788702.akpm@osdl.org>
-In-Reply-To: <17707.8801.395100.35054@cargo.ozlabs.ibm.com>
-References: <17707.8801.395100.35054@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Oct 2006 00:53:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50375 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964950AbWJJExY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 00:53:24 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: vgoyal@in.ibm.com, "H. Peter Anvin" <hpa@zytor.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ak@suse.de,
+       horms@verge.net.au, lace@jankratochvil.net, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
+Subject: Re: [PATCH 12/12] i386 boot: Add an ELF header to bzImage
+References: <20061004214403.e7d9f23b.akpm@osdl.org>
+	<m1ejtnb893.fsf@ebiederm.dsl.xmission.com>
+	<20061004233137.97451b73.akpm@osdl.org>
+	<m14pui4w7t.fsf@ebiederm.dsl.xmission.com>
+	<20061005235909.75178c09.akpm@osdl.org>
+	<m1bqop38nw.fsf@ebiederm.dsl.xmission.com>
+	<20061006183846.GF19756@in.ibm.com> <4526A66B.4030805@zytor.com>
+	<m1ac49z2fl.fsf@ebiederm.dsl.xmission.com>
+	<4526D084.1030700@zytor.com> <20061009143345.GB17572@in.ibm.com>
+	<20061009201418.81bf0acd.akpm@osdl.org>
+Date: Mon, 09 Oct 2006 22:51:19 -0600
+In-Reply-To: <20061009201418.81bf0acd.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 9 Oct 2006 20:14:18 -0700")
+Message-ID: <m1d590pyd4.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006 14:32:33 +1000
-Paul Mackerras <paulus@samba.org> wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> I am seeing a bunch of warnings about not checking the return value
-> from device_create_file() for code like this (from
-> arch/powerpc/kernel/pci_64.c):
-> 
-> static ssize_t pci_show_devspec(struct device *dev,
-> 		struct device_attribute *attr, char *buf)
-> {
-> 	struct pci_dev *pdev;
-> 	struct device_node *np;
-> 
-> 	pdev = to_pci_dev (dev);
-> 	np = pci_device_to_OF_node(pdev);
-> 	if (np == NULL || np->full_name == NULL)
-> 		return 0;
-> 	return sprintf(buf, "%s", np->full_name);
-> }
-> static DEVICE_ATTR(devspec, S_IRUGO, pci_show_devspec, NULL);
-> 
-> void pcibios_add_platform_entries(struct pci_dev *pdev)
-> {
-> 	device_create_file(&pdev->dev, &dev_attr_devspec);
-> }
-> 
-> What bad thing could happen if device_create_file fails, other than
-> that the "devspec" file doesn't appear in sysfs?
+> On Mon, 9 Oct 2006 10:33:45 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+>
+>> Please find attached the regenerated patch.
+>
+> Somewhere amongst the six versions of this patch, the kernel broke.  Seems
+> that the kernel command line isn't getting recognised.  The machine is
+> running LILO and RH FC1.
 
-There are no super-strong reasons here, but if device_create_file() fails
-then the required control files aren't there and the subsystem isn't
-working as intended.  If it's in a module then we should fail the modprobe. 
-If it's a bootup thing then best we can do is to panic.  Or at least log
-the event.
+Ugh.  That is no fun :(
 
-The most common cause of this is a programming error: we tried to create
-the same entry twice.   We want to know about that.
-
->  I don't see how the
-> error could lead to any null pointer dereference later on or anything
-> like that.  If some bad thing could happen, how do I avert that?  If
-> nothing bad will happen, why does device_create_file have __must_check
-> on it?
-
-Because it can fail.  We need to take _some_ action if the setup failed - at
-least report it so the user (and the kernel developers) know that something
-is going wrong.
-
+Eric

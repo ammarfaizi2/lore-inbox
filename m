@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWJKKmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWJKKsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWJKKmT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 06:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWJKKmS
+	id S1751177AbWJKKsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 06:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWJKKsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 06:42:18 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46040 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751175AbWJKKmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 06:42:17 -0400
-Date: Wed, 11 Oct 2006 12:42:02 +0200
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sct@redhat.com, adilger@clusterfs.com, linux-ext4@vger.kernel.org
-Subject: Re: 2.6.18-mm2: ext3 BUG?
-Message-ID: <20061011104201.GD6865@atrey.karlin.mff.cuni.cz>
-References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org> <4525925C.6060807@gmail.com> <20061005171428.636c087c.akpm@osdl.org> <20061008063330.GA30283@lug-owl.de> <20061010070933.GE30283@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Oct 2006 06:48:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:18423 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751177AbWJKKsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 06:48:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G3B2y/AWwsdEH8SdE51bOYsn4R7m56CZwvjzLcY+P4wCh71t957m/LhCOQhcXXm4IpNvBEvU+ke2lrBMP/dgiY609TSvl7pxBJyuzNH8feDMW82AaSplIab+6mSaUXS9anwLAJHoF2CQZvPm7nx/nzSR0Jr63MTkjCXEFtSRHDo=
+Message-ID: <6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
+Date: Wed, 11 Oct 2006 12:48:20 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Neil Brown" <neilb@suse.de>
+Subject: Re: 2.6.19-rc1-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, "Pavel Machek" <pavel@ucw.cz>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <17708.33450.608010.113968@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061010070933.GE30283@lug-owl.de>
-User-Agent: Mutt/1.5.9i
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	 <6bffcb0e0610100610p6eb65726of92b85f7d49e80bb@mail.gmail.com>
+	 <6bffcb0e0610100704m32ccc6bakb446671f04b04c2b@mail.gmail.com>
+	 <17708.33450.608010.113968@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 2006-10-08 08:33:30 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> > On Thu, 2006-10-05 17:14:28 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > In one case, there was a test case mentioned. I'll run that on my
-> > affected box in a non-productive LV, like this:
-> > 
-> > dd bs=1M count=200 if=/dev/zero of=test0
-> > while :; do
-> > 	echo "cp 0-1"; cp test0 test1 || break
-> > 	echo "cp 1-2"; cp test1 test2 || break
-> > 	echo "cp 2-3"; cp test2 test3 || break
-> > 	echo "cp 3-4"; cp test3 test4 || break
-> > 	echo "od 0" ; od test0 || break
-> > 	echo "rm 1"; rm test1 || break
-> > 	echo "rm 2"; rm test2 || break
-> > 	echo "rm 3"; rm test3 || break
-> > 	echo "rm 4"; rm test4 || break
-> > done
-> 
-> While I could reproduce it with a 200MB file, it seems I can't break
-> it with a 10MB file.
-  Hmm, I was running the test for several ours without any problem...
-The kernel is 2.6.17.6, ext3 in ordered data mode, standard SATA disk. I'm
-now running it again and trying my luck ;). What is your testing environment?
+On 11/10/06, Neil Brown <neilb@suse.de> wrote:
+> On Tuesday October 10, michal.k.k.piotrowski@gmail.com wrote:
+> > On 10/10/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > > Hi,
+> > >
+> > > On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > >
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
+> > > >
+> > >
+> > > Kernel 2.6.19-rc1-mm1 + Neil's avoid_lockdep_warning_in_md.patch
+> > > (http://www.ussg.iu.edu/hypermail/linux/kernel/0610.1/0642.html)
+> > >
+> > > (I'll try to reproduce this without Neil's patch).
+> >
+> > I can't reproduce this without Neil's patch.
+> >
+>
+> Despite this circumstantial evidence, I don't see how my patch could
+> possible have an effect here....
+>
+> Looking at the code, starting at _cpu_down in the CONFIG_HOTPLUG_CPU
+> case, the call notifier chain 'cpu_chain' contains
+> workqueue_cpu_callback which does 'mutex_lock(&workqueue_mutex)' in
+> the "DOWN_PREPARE" case and mutex_unlock(&workqueue_mutex) in the
+> DOWN_FAILED and DEAD cases.
+>
+> blocking_notifier_call_chain is
+>         down_read(&nh->rwsem);
+>         ret = notifier_call_chain(&nh->head, val, v);
+>         up_read(&nh->rwsem);
+>
+> and so holds ->rwsem while calling the callback.
+> So the locking sequence ends up as:
+>
+>  down_read(&cpu_chain.rwsem);
+>  mutex_lock(&workqueue_mutex);
+>  up_read(&cpu_chain.rwsem);
+>
+>  down_read(&cpu_chain.rwsem);
+>  mutex_unlock(&workqueue_mutex);
+>  up_read(&workqueue_mutex);
+>
+> and lockdep doesn't seem to like this.  It sees workqueue_mutex
+> claimed while cpu_chain.rwsem is held. and then it sees
+> cpu_chain.rwsem claimed while workqueue_mutex is held, which looks a
+> bit like a class ABBA deadlock.
+> Of course because it is a 'down_read' rather than a 'down', it isn't
+> really a dead lock.
+>
+> I don't know how to tell lockdep to do the right thing, but I'll leave
+> that up to Ingo et al.
+>
+> Why it didn't trigger without my patch I cannot imagine.  Are you sure
+> the config was identical (you didn't remove CONFIG_HOTPLUG_CPU or
+> anything did you?).
 
-								Honza
+No, I didn't remove CONFIG_HOTPLUG_CPU or anything else.
+
+I didn't do enough testing - only a few hibernatins.
+
+>
+> NeilBrown
+>
+
+Regards,
+Michal
+
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

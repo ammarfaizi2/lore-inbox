@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWJKMvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWJKMvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWJKMvR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 08:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJKMvR
+	id S1751246AbWJKMvH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 08:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJKMvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 08:51:17 -0400
-Received: from thunk.org ([69.25.196.29]:6787 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751247AbWJKMvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 08:51:15 -0400
-Date: Wed, 11 Oct 2006 08:51:08 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1
-Message-ID: <20061011125108.GH27591@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061010000928.9d2d519a.akpm@osdl.org> <452C616D.7040701@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452C616D.7040701@us.ibm.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Wed, 11 Oct 2006 08:51:07 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:58604 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1751247AbWJKMuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 08:50:44 -0400
+Subject: [PATCH 2/3] drivers/scsi/megaraid.c: Replacing yield() with a
+	better alternative
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: James.Bottomley@steeleye.com,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 18:24:03 +0530
+Message-Id: <1160571243.19143.322.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 08:13:49PM -0700, Badari Pulavarty wrote:
-> Hi Ted,
-> 
-> e2fsprogs-1.39-tyt1-rollup.patch doesn't compile. (seems to be missing 
-> percent.c). Can
-> you role up new version ? I had to apply individual patches to get it 
-> working ..
+For this driver cond_resched() seems to be a better
+alternative
 
-OK, fixed.  I've also created a slightly new structure in:
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/drivers/scsi/megaraid.c linux-2.6.19-rc1/drivers/scsi/megaraid.c
+--- linux-2.6.19-rc1-orig/drivers/scsi/megaraid.c	2006-10-05 14:00:51.000000000 +0530
++++ linux-2.6.19-rc1/drivers/scsi/megaraid.c	2006-10-11 17:57:02.000000000 +0530
+@@ -1755,7 +1755,8 @@ __mega_busywait_mbox (adapter_t *adapter
+ 	for (counter = 0; counter < 10000; counter++) {
+ 		if (!mbox->m_in.busy)
+ 			return 0;
+-		udelay(100); yield();
++		udelay(100); 
++		cond_resched();
+ 	}
+ 	return -1;		/* give up after 1 second */
+ }
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs-interim
 
-Each new version will be its own directory, i.e., e2fsprogs-1.39-tyt1,
-with a symlink LATEST pointing at the most recent directory.
-
-Within each directory, there will be a tarball of the complete
-sources, as requested by akpm, as well a broken-out tar.gz file and a
-single file that has all of the patches rolled up.  I've regenerated
-the rollup patches this time with feeling (and the -N diff option :-),
-so once the new structure gets mirrored out from master.kernel.org to
-ftp.kernel.org, you should be able to get the fixed rollup patch, as
-well as a pre-patched tarball.
-
-Regards,
-
-						- Ted

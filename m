@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161579AbWJKWcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWJKWgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161579AbWJKWcH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161581AbWJKWcG
+	id S965213AbWJKWgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 18:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbWJKWgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:32:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161571AbWJKWcC (ORCPT
+	Wed, 11 Oct 2006 18:36:45 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:52973 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S965213AbWJKWgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:32:02 -0400
-Date: Wed, 11 Oct 2006 15:29:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-pcmcia@lists.infradead.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCMCIA: handle sysfs, PCI errors
-Message-Id: <20061011152905.f0c5c067.akpm@osdl.org>
-In-Reply-To: <20061011214955.GA22109@havoc.gtf.org>
-References: <20061011214955.GA22109@havoc.gtf.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 11 Oct 2006 18:36:44 -0400
+Date: Wed, 11 Oct 2006 18:36:34 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Nick Piggin <npiggin@suse.de>
+Subject: Re: RSS accounting (was: Re: 2.6.19-rc1-mm1)
+Message-ID: <20061011223634.GB18665@kvack.org>
+References: <1160574913.3000.378.camel@laptopd505.fenrus.org> <000101c6ed58$e01d2830$1680030a@amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000101c6ed58$e01d2830$1680030a@amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 11, 2006 at 10:15:39AM -0700, Chen, Kenneth W wrote:
+> I'm more inclined to define RSS as "how much ram does my application
+> cause to be used".  To monitor process's working set size, We already
+> have /proc/<pid>/smaps.  Whether we can use working set size in an
+> intelligent way in mm is an interesting question. Though, so far such
+> accounting is not utilized at all.
 
-Some of these were already fixed in pcmcia-ds-must_check-fixes.patch and
-i82092-wire-up-errors-from-pci_register_driver.patch:
+If that is the case, it would make sense to account such things as page 
+tables and other kernel allocations against the RSS, which would be useful.  
+That said, it's possible to keep semantics fairly close to those currently 
+implemented by tracking RSS differently for shared vs private areas -- 
+those vmas which are shared could be placed on a list and then summed when 
+RSS is read.  That said, I'm not sure it is a good idea, as the cost of 
+obtaining RSS for tools like top is exactly why we have the current 
+counters maintained to provide O(1) semantics.
 
-static int __init init_pcmcia_bus(void)
-{
-	int ret;
+All of the old semantics are covered by smaps, though, so I'd agree with 
+any changes to make RSS reflect allocations incurred by this process.
 
-	spin_lock_init(&pcmcia_dev_list_lock);
-
-	ret = bus_register(&pcmcia_bus_type);
-	if (ret < 0) {
-		printk(KERN_WARNING "pcmcia: bus_register error: %d\n", ret);
-		return ret;
-	}
-	ret = class_interface_register(&pcmcia_bus_interface);
-	if (ret < 0) {
-		printk(KERN_WARNING
-			"pcmcia: class_interface_register error: %d\n", ret);
-		bus_unregister(&pcmcia_bus_type);
-		return ret;
-	}
-
-	pcmcia_setup_ioctl();
-
-	return 0;
-}
-
-
-and
-
-static int i82092aa_module_init(void)
-{
-	return pci_register_driver(&i82092aa_pci_drv);
-}
-
-I queued the rest for Dominik-spamming.
+		-ben
+-- 
+"Time is of no importance, Mr. President, only life is important."
+Don't Email: <dont@kvack.org>.

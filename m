@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbWJKSpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWJKSrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965224AbWJKSpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 14:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbWJKSpu
+	id S1160995AbWJKSrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 14:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbWJKSrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 14:45:50 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:5323 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965224AbWJKSpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 14:45:49 -0400
-Message-ID: <452D3BB6.8040200@zytor.com>
-Date: Wed, 11 Oct 2006 11:45:10 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use %p for pointers
-References: <E1GXPU5-0007Ss-HU@ZenIV.linux.org.uk> <Pine.LNX.4.61.0610111316120.26779@yvahk01.tjqt.qr> <20061011145441.GB29920@ftp.linux.org.uk>
-In-Reply-To: <20061011145441.GB29920@ftp.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 11 Oct 2006 14:47:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18891 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1160995AbWJKSrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 14:47:22 -0400
+Subject: Re: it821x eats CPU?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Heinz Ulrich Stille <hus@design-d.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200610070927.13713.hus@design-d.de>
+References: <200610070927.13713.hus@design-d.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Oct 2006 20:13:41 +0100
+Message-Id: <1160594021.16513.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> 
-> %p will do no such thing in the kernel.  As for the difference...  %x
-> might happen to work on some architectures (where sizeof(void *)==sizeof(int)),
-> but it's not portable _and_ not right.  %p is proper C for that...
+Ar Sad, 2006-10-07 am 09:27 +0200, ysgrifennodd Heinz Ulrich Stille:
+> Looking through the logs I notices that it821x was in "smart" mode,
+> so I restarted the system with "noraid=1" to get into "pass through".
+> Now everything is back to normal. A large dd did about 40MB/s without
+> disturbing other processes.
 
-It's really too bad gcc bitches about %#p, because that's arguably The 
-Right Thing.
+In some configurations the it821x driver was not enabling DMA in smart
+mode.
 
-	-hpa
+> Wasn't smart mode the one supposed to be the one reducing CPU load?
+
+For RAID1 yes, otherwise not measurably at all.
+
+

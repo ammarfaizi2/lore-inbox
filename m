@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWJKO5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbWJKPCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161072AbWJKO5j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWJKO5i
+	id S965184AbWJKPCL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 11:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbWJKPCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:57:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50182 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161072AbWJKO5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:57:38 -0400
-Date: Wed, 11 Oct 2006 16:57:35 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christian <christiand59@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known regressions)
-Message-ID: <20061011145735.GM721@stusta.de>
-References: <Pine.LNX.4.64.0610042017340.3952@g5.osdl.org> <200610101418.27549.christiand59@web.de> <20061011042306.GE721@stusta.de> <200610111130.02683.christiand59@web.de>
-MIME-Version: 1.0
+	Wed, 11 Oct 2006 11:02:10 -0400
+Received: from dev.mellanox.co.il ([194.90.237.44]:50562 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S965184AbWJKPCJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 11:02:09 -0400
+Date: Wed, 11 Oct 2006 17:01:03 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Steven Whitehouse <steve@chygwyn.com>
+Cc: David Miller <davem@davemloft.net>, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       openib-general@openib.org, rolandd@cisco.com
+Subject: Re: Dropping NETIF_F_SG since no checksum feature.
+Message-ID: <20061011150103.GF4888@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20061011090926.GA15393@fogou.chygwyn.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610111130.02683.christiand59@web.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061011090926.GA15393@fogou.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 11:30:01AM +0200, Christian wrote:
-> Am Mittwoch, 11. Oktober 2006 06:23 schrieb Adrian Bunk:
-> > On Tue, Oct 10, 2006 at 02:18:26PM +0200, Christian wrote:
-> > >...
-> > > I've also noticed an infiniband related problem. I have to disable
-> > > Infiniband in the config to get the kernel to compile. Can't say more
-> > > since I'm not using any Infinband stuff and therefore don't need it
-> > > anyway.
-> > >...
+Quoting Steven Whitehouse <steve@chygwyn.com>:
+> > ssize_t tcp_sendpage(struct socket *sock, struct page *page, int offset,
+> >                      size_t size, int flags)
+> > {
+> >         ssize_t res;
+> >         struct sock *sk = sock->sk;
+> > 
+> >         if (!(sk->sk_route_caps & NETIF_F_SG) ||
+> >             !(sk->sk_route_caps & NETIF_F_ALL_CSUM))
+> >                 return sock_no_sendpage(sock, page, offset, size, flags);
+> > 
+> > 
+> > So, it seems that if I set NETIF_F_SG but clear NETIF_F_ALL_CSUM,
+> > data will be copied over rather than sent directly.
+> > So why does dev.c have to force set NETIF_F_SG to off then?
 > >
-> > Please send the .config for this bug.
-> >
-> > cu
-> > Adrian
-> 
-> This is the build error:
-> 
-> Kernel: arch/x86_64/boot/bzImage is ready  (#5)
->   MODPOST 1602 modules
-> WARNING: Can't handle masks in drivers/ide/pci/atiixp:FFFF05
-> WARNING: "to_qp_state_str" [drivers/infiniband/hw/amso1100/iw_c2.ko] 
-> undefined!
-> WARNING: "to_event_str" [drivers/infiniband/hw/amso1100/iw_c2.ko] undefined!
-> make[1]: *** [__modpost] Fehler 1
-> make: *** [modules] Fehler 2
->...
+> I agree with that analysis,
 
-Thanks.
+So, would you Ack something like the following then?
 
-This was a known bug that was fixed in Linus' tree yesterday.
+======================
 
-cu
-Adrian
+Enabling NETIF_F_SG without NETIF_F_ALL_CSUM actually seems to work fine by
+doing an old-fashioned data copy in tcp_sendpage.
+And for devices that do not calculate IP checksum in hardware (e.g. InfiniBand)
+calculating the checksum for all packets in network driver is worse than have
+the CPU piggyback the checksum compitation with the copy process.
+Finally, note that NETIF_F_SG is necessary to be able to allocate skbs >
+PAGE_SIZE on busy systems.
+
+So, let's allow that combination, again, for drivers that want it.
+
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+
+---
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index d4a1ec3..2d731a0 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2930,14 +2930,6 @@ #endif
+ 		}
+  	}
+ 
+-	/* Fix illegal SG+CSUM combinations. */
+-	if ((dev->features & NETIF_F_SG) &&
+-	    !(dev->features & NETIF_F_ALL_CSUM)) {
+-		printk(KERN_NOTICE "%s: Dropping NETIF_F_SG since no checksum feature.\n",
+-		       dev->name);
+-		dev->features &= ~NETIF_F_SG;
+-	}
+-
+ 	/* TSO requires that SG is present as well. */
+ 	if ((dev->features & NETIF_F_TSO) &&
+ 	    !(dev->features & NETIF_F_SG)) {
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+MST

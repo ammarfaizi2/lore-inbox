@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030734AbWJKAjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWJKAns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030734AbWJKAjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 20:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030738AbWJKAjM
+	id S1030421AbWJKAns (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 20:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030730AbWJKAns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 20:39:12 -0400
-Received: from gw.goop.org ([64.81.55.164]:16809 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030734AbWJKAjL (ORCPT
+	Tue, 10 Oct 2006 20:43:48 -0400
+Received: from mx2.suse.de ([195.135.220.15]:30119 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030421AbWJKAnr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 20:39:11 -0400
-Message-ID: <452C3D36.7020306@goop.org>
-Date: Tue, 10 Oct 2006 17:39:18 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
-MIME-Version: 1.0
+	Tue, 10 Oct 2006 20:43:47 -0400
+Date: Wed, 11 Oct 2006 02:43:33 +0200
+From: Nick Piggin <npiggin@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stas Sergeev <stsp@aknet.ru>, Zachary Amsden <zach@vmware.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Jan Beulich <jbeulich@novell.com>, Andi Kleen <ak@suse.de>
-Subject: [PATCH 2.6.19-rc1-mm1] espfix Use scaling addressing mode rather
- than shifting in PER_CPU
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SPAM: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+Message-ID: <20061011004333.GA25430@wotan.suse.de>
+References: <20061007105758.14024.70048.sendpatchset@linux.site> <20061007105853.14024.95383.sendpatchset@linux.site> <20061010121003.GA19322@infradead.org> <20061010121327.GA2431@wotan.suse.de> <20061010105236.2ef0268b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061010105236.2ef0268b.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the x86 scaling addressing mode rather than shifting to
-multiplying by 4 in PER_CPU().
+On Tue, Oct 10, 2006 at 10:52:36AM -0700, Andrew Morton wrote:
+> On Tue, 10 Oct 2006 14:13:27 +0200
+> Nick Piggin <npiggin@suse.de> wrote:
+> > 
+> > Hmm... I agree it is more consistent, but OTOH if we're passing a
+> > structure I thought it may as well just go in there. But I will
+> > change unless anyone comes up with an objection.
+> 
+> I'd agree that it's more attractive to have the vma* in the argument list,
+> but it presumably adds runtime cost: cycles and stack depth.  I don't how
+> much though.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Stas Sergeev <stsp@aknet.ru>
-Cc: Zachary Amsden <zach@vmware.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Jan Beulich <jbeulich@novell.com>
-Cc: Andi Kleen <ak@muc.de>
+Possibly, though I considered it might end up in a register, and
+considering that the vma is used both before and after the call, and
+in filemap_nopage, it's quite possible that it saves a load and does
+not harm stack depth. Maybe?
 
-diff -r ea4549dd86a4 include/asm-i386/percpu.h
---- a/include/asm-i386/percpu.h	Tue Oct 10 16:36:02 2006 -0700
-+++ b/include/asm-i386/percpu.h	Tue Oct 10 16:37:59 2006 -0700
-@@ -19,8 +19,7 @@
-  */
- #ifdef CONFIG_SMP
- #define PER_CPU(var, cpu) \
--	shll $2, cpu; \
--	movl __per_cpu_offset(cpu), cpu; \
-+	movl __per_cpu_offset(,cpu,4), cpu;	\
- 	addl $per_cpu__/**/var, cpu;
- #else /* ! SMP */
- #define PER_CPU(var, cpu) \
-
-
+I don't know, I guess we can tweak it while it is in -mm?

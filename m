@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161477AbWJKVOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161474AbWJKVQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161477AbWJKVOe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161467AbWJKVOd
+	id S1161474AbWJKVQo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161441AbWJKVQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:14:33 -0400
-Received: from av1.karneval.cz ([81.27.192.123]:29461 "EHLO av1.karneval.cz")
-	by vger.kernel.org with ESMTP id S1161491AbWJKVOb (ORCPT
+	Wed, 11 Oct 2006 17:16:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17571 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161442AbWJKVJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:14:31 -0400
-Message-id: <32432w23aaa423@karneval.cz>
-Subject: [PATCH 4/4] Char: mxser_new, clean macros
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
-Date: Wed, 11 Oct 2006 23:14:17 +0200 (CEST)
+	Wed, 11 Oct 2006 17:09:02 -0400
+Date: Wed, 11 Oct 2006 14:08:35 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, alan@lxorguk.ukuu.org.uk,
+       Greg KH <gregkh@suse.de>, Nick Piggin <npiggin@suse.de>
+Subject: [patch 58/67] mm: bug in set_page_dirty_buffers
+Message-ID: <20061011210835.GG16627@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="mm-bug-in-set_page_dirty_buffers.patch"
+In-Reply-To: <20061011210310.GA16627@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, clean macros
 
-Celan redundant macros.
+-stable review patch.  If anyone has any objections, please let us know.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+------------------
+From: Nick Piggin <npiggin@suse.de>
+
+This was triggered, but not the fault of, the dirty page accounting
+patches. Suitable for -stable as well, after it goes upstream.
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000004c
+EIP is at _spin_lock+0x12/0x66
+Call Trace:
+ [<401766e7>] __set_page_dirty_buffers+0x15/0xc0
+ [<401401e7>] set_page_dirty+0x2c/0x51
+ [<40140db2>] set_page_dirty_balance+0xb/0x3b
+ [<40145d29>] __do_fault+0x1d8/0x279
+ [<40147059>] __handle_mm_fault+0x125/0x951
+ [<401133f1>] do_page_fault+0x440/0x59f
+ [<4034d0c1>] error_code+0x39/0x40
+ [<08048a33>] 0x8048a33
+ =======================
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit b2090dd621f58423950e8e79b0959889d26a8227
-tree 5ebc4d2634f17976de978d236ae5f59d28c7ef06
-parent f745e78bdca36ec5e27de25694a4417a45ffb5de
-author Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 22:59:14 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 22:59:14 +0200
+ fs/buffer.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
- drivers/char/mxser_new.c |   12 ++----------
- 1 files changed, 2 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index 8c62f80..d212ae6 100644
---- a/drivers/char/mxser_new.c
-+++ b/drivers/char/mxser_new.c
-@@ -54,11 +54,10 @@ #define	MXSERMAJOR	 174
- #define	MXSERCUMAJOR	 175
- 
- #define	MXSER_EVENT_TXLOW	1
--#define	MXSER_EVENT_HANGUP	2
- 
- #define MXSER_BOARDS		4	/* Max. boards */
--#define MXSER_PORTS		32	/* Max. ports */
- #define MXSER_PORTS_PER_BOARD	8	/* Max. ports per board */
-+#define MXSER_PORTS		(MXSER_BOARDS * MXSER_PORTS_PER_BOARD)
- #define MXSER_ISR_PASS_LIMIT	99999L
- 
- #define	MXSER_ERR_IOADDR	-1
-@@ -66,9 +65,6 @@ #define	MXSER_ERR_IRQ		-2
- #define	MXSER_ERR_IRQ_CONFLIT	-3
- #define	MXSER_ERR_VECTOR	-4
- 
--#define SERIAL_TYPE_NORMAL	1
--#define SERIAL_TYPE_CALLOUT	2
--
- #define WAKEUP_CHARS		256
- 
- #define UART_MCR_AFE		0x20
-@@ -365,14 +361,10 @@ static void process_txrx_fifo(struct mxs
- static void mxser_do_softint(void *private_)
+--- linux-2.6.18.orig/fs/buffer.c
++++ linux-2.6.18/fs/buffer.c
+@@ -838,7 +838,10 @@ EXPORT_SYMBOL(mark_buffer_dirty_inode);
+  */
+ int __set_page_dirty_buffers(struct page *page)
  {
- 	struct mxser_port *info = private_;
--	struct tty_struct *tty;
--
--	tty = info->tty;
-+	struct tty_struct *tty = info->tty;
+-	struct address_space * const mapping = page->mapping;
++	struct address_space * const mapping = page_mapping(page);
++
++	if (unlikely(!mapping))
++		return !TestSetPageDirty(page);
  
- 	if (test_and_clear_bit(MXSER_EVENT_TXLOW, &info->event))
- 		tty_wakeup(tty);
--	if (test_and_clear_bit(MXSER_EVENT_HANGUP, &info->event))
--		tty_hangup(tty);
- }
- 
- static unsigned char mxser_get_msr(int baseaddr, int mode, int port)
+ 	spin_lock(&mapping->private_lock);
+ 	if (page_has_buffers(page)) {
+
+--

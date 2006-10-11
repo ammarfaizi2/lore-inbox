@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWJKRVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWJKRXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWJKRVg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWJKRVg
+	id S1161146AbWJKRXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWJKRXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:21:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57282 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161087AbWJKRVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:21:35 -0400
-Subject: Re: [2.6 patch] drivers/scsi/dpt_i2o.c: remove dead code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20061011145222.GL721@stusta.de>
-References: <20061008231627.GO6755@stusta.de>
-	 <1160578300.16513.15.camel@localhost.localdomain>
-	 <20061011145222.GL721@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Oct 2006 18:45:54 +0100
-Message-Id: <1160588754.16513.53.camel@localhost.localdomain>
+	Wed, 11 Oct 2006 13:23:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2997 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161146AbWJKRXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:23:35 -0400
+Date: Wed, 11 Oct 2006 18:23:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Subject: Re: [patch 0/2] Introduce round_jiffies() to save spurious wakeups
+Message-ID: <20061011172331.GA13099@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjan@linux.intel.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see the point of the suggested place for the pci_dev_put()
-> since pci_dev_get() has never been executed in this case, or do I miss 
-> anything?
+On Tue, Oct 10, 2006 at 06:02:45PM +0200, Arjan van de Ven wrote:
+> Hi,
+> 
+> the following 2 patches will introduce the round_jiffies() api and users
+> thereof. 
+> 
+> The general idea is that by rounding the jiffies for certain timers to
+> the next whole second will make those timers all happen at the same
+> time; and thus reduce the number of times the cpu has to wake up to
+> service timers (this assumes a tickless kernel)
+> 
+> Obviously only timers where the exact time of firing isn't so important
+> can do this; several of the recurring "always live" timers of the kernel
+> are of this kind, they want "about once a second" or "about once every 4
+> seconds" and such, and don't really care about the exact jiffy in which
+> they fire.
+> 
+> An alternative would have been to introduce mod_timer_rounded() or
+> somesuch APIs (but there's many variants that take jiffies); I feel that
+> an explicit caller based rounding actually is quite reasonable.
 
-Correct, thats what I get for being away and reading 4000 emails when I
-get back
-
-Alan
+I think the API you proposed is horrible.  Having jiffies exposed in
+ani API is a mistake, and adding more makes this problem worse.  I'd suggest
+to start with Alan's patches that add a timer variant that takes a miliseconds
+argument instead of jiffies and add a _rounded varaint to it that has
+a new parameter that specifies the precision.
 

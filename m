@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWJKHBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWJKHCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWJKHBx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 03:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWJKHBw
+	id S932450AbWJKHCk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 03:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWJKHCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 03:01:52 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:24846 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932447AbWJKHBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 03:01:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=XBijFiG7tq1pi9H4o0IeZOrDXvF9bkxd1F9+OjDlOUZ3y9Xr1Xg4++rgyoniDDSh1W5PQiWnxBEBL26SlAGwRXc2ucuoQTOHL89w0aWugk4OcRPyDYaNZ564akLMT22Tve+nm6AeS2iulLzqbKCAf1RmuQUcE5g87JgCq47Ae8w=
-Date: Wed, 11 Oct 2006 00:01:47 -0700
-From: Amit Choudhary <amit2030@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.19-rc1] drivers/media/video/se401.c: fix memory leak.
-Message-Id: <20061011000147.61081f5d.amit2030@gmail.com>
-Organization: X
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+	Wed, 11 Oct 2006 03:02:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57000 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932450AbWJKHCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 03:02:39 -0400
+Subject: Re: [PATCH 2.6.19-rc1-mm1] Export jiffies_to_timespec()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <452C3CA6.2060403@goop.org>
+References: <452C3CA6.2060403@goop.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 11 Oct 2006 09:02:27 +0200
+Message-Id: <1160550147.3000.349.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: In function usb_se401_remove_disconnected() [drivers/media/video/se401.c], se401->sbuf[i].data was freed only when se401->urb[i] existed. This could result in a memory leak because sbuf[i].data is allocated before urb[i]. Let's assume that the memory gets exhausted while allocating for urb[i] Now, some event results in calling of usb_se401_remove_disconnected(). This will free sbuf[i].data only for those 'i' for which an urb exists. Since, we could not allocate all urb[i] as memory got exhausted, some of sbuf[i].data would never be freed at all.
+On Tue, 2006-10-10 at 17:36 -0700, Jeremy Fitzhardinge wrote:
+> Export jiffies_to_timespec; previously modules used the inlined header version.
 
-Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+any chance you'll tell us which modules? :)
 
-diff --git a/drivers/media/video/se401.c b/drivers/media/video/se401.c
-index d411a27..7d598e0 100644
---- a/drivers/media/video/se401.c
-+++ b/drivers/media/video/se401.c
-@@ -881,15 +881,18 @@ static void usb_se401_remove_disconnecte
- 
- 	se401->dev = NULL;
- 
--	for (i=0; i<SE401_NUMSBUF; i++)
-+	for (i=0; i<SE401_NUMSBUF; i++) {
- 		if (se401->urb[i]) {
- 			usb_kill_urb(se401->urb[i]);
- 			usb_free_urb(se401->urb[i]);
- 			se401->urb[i] = NULL;
--			kfree(se401->sbuf[i].data);
- 		}
-+		kfree(se401->sbuf[i].data);
-+		se401->sbuf[i].data=NULL;
-+	}
- 	for (i=0; i<SE401_NUMSCRATCH; i++) {
- 		kfree(se401->scratch[i].data);
-+		se401->scratch[i].data=NULL;
- 	}
- 	if (se401->inturb) {
- 		usb_kill_urb(se401->inturb);
+

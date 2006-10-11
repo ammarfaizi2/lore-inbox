@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWJKTIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWJKTIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161251AbWJKTIr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWJKTIr
+	id S932459AbWJKTIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWJKTIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:08:47 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:25286 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932467AbWJKTIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:08:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GJTE4SxlIaFarjpYiEf5gRhzbo5wqPevvWPjLKEWyZPIbBC9JyeL7M4wQkecPZvNHlmZg2Xrb2hiEBc29YVzVqITDivehMkeRENjMz92D8lL2DpDVTs4WkVZAsWsWCJHuJ4dbe5JrZGlmUs2Iix8vC5s8OsjfYKmsLV6MlgLUx8=
-Message-ID: <d120d5000610111208h6b6f2e49se771be4e50568f54@mail.gmail.com>
-Date: Wed, 11 Oct 2006 15:08:43 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Yu Luming" <luming.yu@gmail.com>
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Cc: "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "Alessandro Guido" <alessandro.guido@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, len.brown@intel.com,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr
-In-Reply-To: <200610120048.19953.luming.yu@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 15:08:32 -0400
+Received: from 1wt.eu ([62.212.114.60]:32516 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932459AbWJKTIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:08:31 -0400
+Date: Wed, 11 Oct 2006 20:24:15 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SOT] GIT usage question
+Message-ID: <20061011182415.GE5050@1wt.eu>
+References: <452D3DFA.6010408@tls.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com>
-	 <20061010212341.GA31972@srcf.ucam.org>
-	 <200610102320.13952.dtor@insightbb.com>
-	 <200610120048.19953.luming.yu@gmail.com>
+In-Reply-To: <452D3DFA.6010408@tls.msk.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/11/06, Yu Luming <luming.yu@gmail.com> wrote:
-> > > It would have to be DMI-based to some extent - not all Sonys use the
-> > > same keys for the same purpose. Misery ensues.
-> >
-> > Then we need to add keymap table to the sonypi's input device so that
-> > keymap can be changed from userspace.
-> If some key is physically broken, I agree configurable keymap is the only
-> solution. But, I don't see any other benefit of doing so, if we expect
-> platform specific driver report meaningful key code to input layer.
->
+On Wed, Oct 11, 2006 at 10:54:50PM +0400, Michael Tokarev wrote:
+> For quite some time I'm trying to understand if it's possible
+> to extract changes from some subsystem's GIT tree compared to
+> some version of linux kernel.
+> 
+> For example, let's say I want to see if my SATA controller will
+> work with current libata, but without all the pain of trying
+> current 2.6.19-pre/rc instabilities.  Libata changes are quite
+> local for the subsystem, so in theory, or at least how I see
+> it, that should be possible.
+> 
+> So I have 3 remote branches in my local GIT tree:
+> 
+>  o origin which points to Linus's 2.6.19-pre
+>  o libata, which is current libata tree
+>  o 2.6.18 release -- the kernel I'm running right now.
+> 
+> I want to get changes *for libata subsystem* in origin or
+> libata (libata is just changes which are on the way to Linus,
+> and current difference is very minor), to apply against 2.6.18.
+> Ie, in short, changes which went to origin *from* libata.
+> 
+> Is it possible?
 
-As Matthew said different Sony models use different mapping. DMI-based
-keymap solution requires kernel upgrade every time new model is out
-whereas configurable keymap can be loaded easily form userspace. Also
-user might want to remap keys to do different stuff. For example I
-never change brigtness on my laptop now that I found settings that I
-like. So I could map one key to start kmail and another one to build
-kernel for example ;)
+If I understand what you want to do, you just have to do this :
 
--- 
-Dmitry
+$ git-checkout 2.6.18
+$ git-pull . libata
+
+This will merge in 2.6.18 everything that's in libata. If you
+want to check before what will be merged :
+
+$ git-log 2.6.18..libata
+or :
+$ git-diff 2.6.18..libata
+
+or also to review the patches one at a time :
+
+$ git-format-patch -k -m 2.6.18..libata
+
+then read all the files.
+
+Hoping it helps
+willy
+

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161555AbWJKWLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161557AbWJKWMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161555AbWJKWLt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJKWLt
+	id S1161557AbWJKWMM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 18:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJKWML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:11:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25305 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161555AbWJKWLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:11:48 -0400
-Subject: Re: [patch 48/67] Fix VIDIOC_ENUMSTD bug
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Greg KH <gregkh@suse.de>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       stable@kernel.org, torvalds@osdl.org,
-       Sascha Hauer <s.hauer@pengutronix.de>
-In-Reply-To: <452D6703.7070900@linuxtv.org>
-References: <10090.1160603175@lwn.net>  <452D6703.7070900@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 11 Oct 2006 19:10:49 -0300
-Message-Id: <1160604649.20624.4.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Wed, 11 Oct 2006 18:12:11 -0400
+Received: from ns1.suse.de ([195.135.220.2]:43919 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161556AbWJKWMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 18:12:07 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] m68k: more workarounds for recent binutils idiocy
+References: <E1GXlNt-0004Xc-Fi@ZenIV.linux.org.uk>
+X-Yow: Disco oil bussing will create a throbbing naugahide pipeline running
+ straight to the tropics from the rug producing regions
+ and devalue the dollar!
+Date: Thu, 12 Oct 2006 00:12:05 +0200
+In-Reply-To: <E1GXlNt-0004Xc-Fi@ZenIV.linux.org.uk> (Al Viro's message of
+	"Wed, 11 Oct 2006 22:13:01 +0100")
+Message-ID: <jek636o62y.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qua, 2006-10-11 às 17:49 -0400, Michael Krufky escreveu:
-> Jonathan Corbet wrote:
-> >> So any application which passes in index=0 gets EINVAL right off the bat
-> >> - and, in fact, this is what happens to mplayer.  So I think the
-> >> following patch is called for, and maybe even appropriate for a 2.6.18.x
-> >> stable release.
-> > 
-> > The fix is worth having, though I guess I'm no longer 100% sure it's
-> > necessary for -stable, since I don't think anything in-tree other than
-> > vivi uses this interface in 2.6.18.
-True. No real reason to fix into stable. On the other hand, it won't
-hurt -stable to have this fix.
+Al Viro <viro@ftp.linux.org.uk> writes:
 
-> > If you are going to include it,
-> > though, it makes sense to put in Sascha's fix too - both are needed to
-> > make the new v4l2 ioctl() interface operate as advertised.
+> cretinous thing doesn't believe that (%a0)+ is one macro argument and
+> splits it in two; worked around by quoting the argument...
 
-> This is fine with me...  I have added cc to Mauro, he might want to add
-> his sign-off as well.
-By applying patch 48 into -stable, for sure Sascha fix is required.
+What version are you using?  Works rather fine here with 2.17.
 
-> 
-> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+Andreas.
 
-Cheers, 
-Mauro.
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

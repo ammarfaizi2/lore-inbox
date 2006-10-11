@@ -1,90 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161450AbWJKVVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161500AbWJKVUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161450AbWJKVVY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161423AbWJKVHy
+	id S1161500AbWJKVUt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161490AbWJKVTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:07:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10145 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161421AbWJKVHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:07:17 -0400
-Date: Wed, 11 Oct 2006 14:06:44 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 37/67] powerpc: fix building gdb against asm/ptrace.h
-Message-ID: <20061011210644.GL16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
+	Wed, 11 Oct 2006 17:19:37 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:28340 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161368AbWJKVTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:19:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pVN51GAwDsZubKWXSQJEdkqBirExgMzJO6a4IZZxPqrP3fpAjBVEVzixYYqfEGb8MZ+OJwQik3t4NrC1WdUr6EbEv6+ETFwtuq8odrP7oDYPW/h/34LyYGDVGYqRPcgc90iuL6WNSGH0aHBPBa+l312PJmQY40CkJ/KoIoGbSFk=
+Message-ID: <76ee5f990610111418t459055d8xcdf49d8513af36c0@mail.gmail.com>
+Date: Wed, 11 Oct 2006 23:18:50 +0200
+From: "Jens Kubieziel" <kubieziel@googlemail.com>
+To: linux-kernel@vger.kernel.org
+Subject: no OOM-Killer at high RAM and Swapusage
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="0015-powerpc-fix-building-gdb-against-asm-ptrace.h.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
--stable review patch.  If anyone has any objections, please let us know.
+I recently had a problem with my Sun Fire v40z (24 GB RAM and four
+dual core Opterons). This machine runs on a plain 2.6.15 kernel. A
+user started Java-processes (java -Xmx 20000m ...). However after some
+time I realised that this machine was unresponsive (screen session
+didn't respond and no new SSH connection). A htop gave me the
+following information:
 
-------------------
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+load: 12.78/11.09/8.25
+MEM:  23616/23738MB
+Swap: 2000/2000MB
+Tasks: 402 total, 17 running
 
-Ulrich Weigand found a bug with the current version of the
-asm-powerpc/ptrace.h that prevents building at least the
-SPU target version of gdb, since some ptrace opcodes are
-not defined.
+The machine was rebootet because it went unresponsive.
 
-The problem seems to have originated in the merging of 32 and
-64 bit versions of that file, the problem is that some opcodes
-are only valid on 64 bit kernels, but are also used by 32 bit
-programs, so they can't depends on the __powerpc64__ symbol.
+I would normally expect that the OOM-killer start at some point and
+kills processes. Obviously this didn't happen here. Could you tell why
+this didn't happen? What information could I provide furthermore? What
+criteria are there for starting the OOM-killer (links to docs are
+appreciated)?
 
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- include/asm-powerpc/ptrace.h |    4 ----
- 1 file changed, 4 deletions(-)
-
---- linux-2.6.18.orig/include/asm-powerpc/ptrace.h
-+++ linux-2.6.18/include/asm-powerpc/ptrace.h
-@@ -215,12 +215,10 @@ do {									      \
- #define PTRACE_GETVRREGS	18
- #define PTRACE_SETVRREGS	19
- 
--#ifndef __powerpc64__
- /* Get/set all the upper 32-bits of the SPE registers, accumulator, and
-  * spefscr, in one go */
- #define PTRACE_GETEVRREGS	20
- #define PTRACE_SETEVRREGS	21
--#endif /* __powerpc64__ */
- 
- /*
-  * Get or set a debug register. The first 16 are DABR registers and the
-@@ -235,7 +233,6 @@ do {									      \
- #define PPC_PTRACE_GETFPREGS	0x97	/* Get FPRs 0 - 31 */
- #define PPC_PTRACE_SETFPREGS	0x96	/* Set FPRs 0 - 31 */
- 
--#ifdef __powerpc64__
- /* Calls to trace a 64bit program from a 32bit program */
- #define PPC_PTRACE_PEEKTEXT_3264 0x95
- #define PPC_PTRACE_PEEKDATA_3264 0x94
-@@ -243,6 +240,5 @@ do {									      \
- #define PPC_PTRACE_POKEDATA_3264 0x92
- #define PPC_PTRACE_PEEKUSR_3264  0x91
- #define PPC_PTRACE_POKEUSR_3264  0x90
--#endif /* __powerpc64__ */
- 
- #endif /* _ASM_POWERPC_PTRACE_H */
-
---
+Thanks for any hints
+Jens

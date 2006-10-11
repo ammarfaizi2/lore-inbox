@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161190AbWJKWxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWJKXDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161190AbWJKWxB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161201AbWJKWxB
+	id S1161201AbWJKXDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 19:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWJKXDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:53:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44489 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161190AbWJKWxA (ORCPT
+	Wed, 11 Oct 2006 19:03:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34189 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161201AbWJKXDf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:53:00 -0400
-Date: Wed, 11 Oct 2006 15:52:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, LKML <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: Re: sysfs & ALSA card
-Message-ID: <20061011225231.GA30151@kroah.com>
-References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz> <20061007062458.GF23366@kroah.com> <20061007074440.GA9304@kroah.com> <1160225730.19302.1.camel@localhost> <20061007191228.GA31396@vrfy.org> <Pine.LNX.4.61.0610090820230.8665@tm8103.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0610090820230.8665@tm8103.perex-int.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 11 Oct 2006 19:03:35 -0400
+Date: Wed, 11 Oct 2006 16:03:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 Time: Avoid PIT SMP lockups
+Message-Id: <20061011160328.f3e7043a.akpm@osdl.org>
+In-Reply-To: <1160606911.5973.36.camel@localhost.localdomain>
+References: <1160596462.5973.12.camel@localhost.localdomain>
+	<20061011142646.eb41fac3.akpm@osdl.org>
+	<1160606911.5973.36.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 08:24:55AM +0200, Jaroslav Kysela wrote:
-> On Sat, 7 Oct 2006, Kay Sievers wrote:
-> 
-> > On Sat, Oct 07, 2006 at 02:55:31PM +0200, Kay Sievers wrote:
-> > > On Sat, 2006-10-07 at 00:44 -0700, Greg KH wrote: 
-> > > >  $ tree /sys/class/sound/
-> > > >  /sys/class/sound/
-> > > >  |-- Audigy2 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2
-> > > >  |-- admmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/admmidi1
-> > 
-> > > > Yeah, I picked the wrong name for the card, it should be "card1" instead
-> > > > of "Audigy2" here, but you get the idea.
-> > > 
-> > > That looks nice. Yeah, it should something that matches to the C1 in the
-> > > other names.
-> > 
-> > This works fine for me with two soundcards and connect/disconnect
-> > module load/unload.
-> > 
-> > All devices are in a flat list in the class directory, also the card%i
-> > ones:
-> >   $ tree /sys/class/sound/
-> >   /sys/class/sound/
-> >   |-- adsp -> ../../devices/pci0000:00/0000:00:1e.2/card0/adsp
-> 
-> ....
-> 
-> > In the /sys/devices hierarchy all devices belonging to the same card are
-> > nicely below the card device:
-> >   $ ls -l /sys/devices/pci0000:00/0000:00:1e.2/card0
-> >   total 0
-> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 0-0:AD1981B
-> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 adsp
-> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 audio
-> 
-> ....
-> 
-> The implementation looks good (Acked-by: Jaroslav Kysela <perex@suse.cz>).
-> Please, fix this small typo:
-> 
-> > --- linux-2.6.orig/sound/core/sound.c
-> > +++ linux-2.6/sound/core/sound.c
-> > @@ -268,11 +268,10 @@ int snd_register_device(int type, struct
-> >  	snd_minors[minor] = preg;
-> >  	if (card)
-> >  		device = card->dev;
-> > -	preg->class_dev = class_device_create(sound_class, NULL,
-> > -					      MKDEV(major, minor),
-> > -					      device, "%s", name);
-> > -	if (preg->class_dev)
-> > -		class_set_devdata(preg->class_dev, private_data);
-> > +	preg->dev = device_create(sound_class, device, MKDEV(major, minor),
-> > +				  "%s", name);
-> > +	if (preg->dev)
-> > +		dev_get_drvdata(preg->dev);
-> 
-> I think, it should be:
-> 
-> 	if (preg->dev)
-> 		dev_set_drvdata(preg->dev, private_data);
+On Wed, 11 Oct 2006 15:48:31 -0700
+john stultz <johnstul@us.ibm.com> wrote:
 
-Ick, you are correct, sorry about that.
+> > Wouldn't it be better to fix the livelock?  What's causing it?
+> 
+> I spent a few days trying to narrow this down, and I haven't been able
+> to do so to my satisfaction.
+> 
+> At this point, my suspicion is that because the PIT io-read is very slow
+> (~18us), and done while holding a lock. It would be possible that one
+> cpu calling gettimeofday would do the following:
+> 
+> grab xtime sequence read lock
+> grab i8253 spin lock
+> do port io (very slow)
+> release i8253 spin lock
+> realize xtime has been grabed and repeat
+> 
+> While another cpu does the following after in a timer interrupt:
+> Grabs xtime sequence write lock
+> spins trying to grab i8253 spin lock
+> 
+> Assuming the first thread can reacquire the i8253 lock before the
+> second, you could have both threads potentially spinning forever.
 
-I've fixed it now in my tree.
+Is there any actual need to hold xtime_lock while doing the port IO?  I'd
+have thought it would suffice to do
 
-thanks,
+	temp = port_io
+	write_seqlock(xtime_lock);
+	xtime = muck_with(temp);
+	write_sequnlock(xtime_lock);
 
-greg k-h
+?

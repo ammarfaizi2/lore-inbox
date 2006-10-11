@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWJKJWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWJKJZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWJKJWB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 05:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWJKJWA
+	id S1750826AbWJKJZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 05:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWJKJZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 05:22:00 -0400
-Received: from mail.suse.de ([195.135.220.2]:26861 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750750AbWJKJV7 (ORCPT
+	Wed, 11 Oct 2006 05:25:32 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:54776 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750785AbWJKJZb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 05:21:59 -0400
-Date: Wed, 11 Oct 2006 11:21:58 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
-Message-ID: <20061011092158.GA28449@wotan.suse.de>
-References: <20061010121314.19693.75503.sendpatchset@linux.site> <20061010121332.19693.37204.sendpatchset@linux.site> <20061010213843.4478ddfc.akpm@osdl.org> <452C838A.70806@yahoo.com.au> <20061010230042.3d4e4df1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Oct 2006 05:25:31 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
+Date: Wed, 11 Oct 2006 11:25:09 +0200
+User-Agent: KMail/1.9.4
+Cc: jschopp <jschopp@austin.ibm.com>, Linas Vepstas <linas@austin.ibm.com>,
+       akpm@osdl.org, jeff@garzik.org, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+References: <20061010204946.GW4381@austin.ibm.com> <452C2AAA.5070001@austin.ibm.com> <452C4CE0.5010607@am.sony.com>
+In-Reply-To: <452C4CE0.5010607@am.sony.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061010230042.3d4e4df1.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610111125.10902.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 11:00:42PM -0700, Andrew Morton wrote:
-> On Wed, 11 Oct 2006 15:39:22 +1000
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Wednesday 11 October 2006 03:46, Geoff Levand wrote:
+> > 
+> > The others look good, but this one complicates the code and doesn't have any benefit.  20 
+> > for 21 isn't bad.
 > 
-> > But I see that it does read twice. Do you want that behaviour retained? It
-> > seems like at this level it would be logical to read it once and let lower
-> > layers take care of any retries?
+> Is the motivation for this change to improve performance by reducing the overhead
+> of the mapping calls?  If so, there may be some benefit for some systems.  Could
+> you please elaborate?
 > 
-> argh.  Linus has good-sounding reasons for retrying the pagefault-path's
-> read a single time, but I forget what they are.  Something to do with
-> networked filesystems?  (adds cc)
 
-While you're there, can anyone tell me why we want an external
-ptracer to be able to access pages that are outside i_size? I
-haven't removed the logic of course, but I'm curious about the
-history and usage of such a thing.
+>From what I understand, this patch drastically reduces the number of
+I/O PTEs that are needed in the iommu. With the current static IOMMU
+mapping, it should only make a difference during initialization, but
+any platform that uses a dynamic mapping of iommu entries will benefit
+a lot from it, because:
 
+- the card can do better prefetching of consecutive memory
+- there are more I/O ptes available for other drivers.
 
+	Arnd <><

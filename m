@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWJKR0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWJKRaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161152AbWJKR0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbWJKR0q
+	id S1161144AbWJKRaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:30:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWJKRaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:26:46 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13502 "EHLO
+	Wed, 11 Oct 2006 13:30:25 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15550 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161152AbWJKR0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:26:45 -0400
-Subject: Re: [PATCH 3/3] drivers/scsi/NCR5380.c: Replacing yield() with a
-	better alternative
+	id S1161144AbWJKRaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:30:24 -0400
+Subject: Re: The Future of ReiserFS development
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, James.Bottomley@steeleye.com,
-       kernel Janitors <kernel-janitors@lists.osdl.org>
-In-Reply-To: <1160571242.19143.320.camel@amol.verismonetworks.com>
-References: <1160571242.19143.320.camel@amol.verismonetworks.com>
+To: Kobajashi Zaghi <kobajashi@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
+References: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Oct 2006 18:52:55 +0100
-Message-Id: <1160589175.16513.58.camel@localhost.localdomain>
+Date: Wed, 11 Oct 2006 18:56:44 +0100
+Message-Id: <1160589404.16513.61.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-11 am 18:24 +0530, ysgrifennodd Amol Lad:
-> For this driver schedule_timeout_schedule() seems to be a better
-> alternative. 
+Ar Mer, 2006-10-11 am 10:53 +0200, ysgrifennodd Kobajashi Zaghi:
+> Hi!
 > 
-> *Please see if the function should be called with 1 jiffy delay or more
-> is better*
+> Hans Reiser arrested on suspicion of murder.
+> 
+> http://sfgate.com/cgi-bin/article.cgi?f=/c/a/2006/10/10/BAGERLM3RR15.DTL
+> 
+> What is the plan? Could i
+> migrate from reiserfs to another journaling filesystem? How will this
+> trouble affect reiserfs development?
 
-You want cond_resched() for this driver as its polling the hardware for
-a change that should occur very soon. (Actually you want to throw the
-hardware in the bin)
+Reiserfs is written by a team of people at Namesys, and particularly
+with reiserfs3 people at SuSE and elsewhere as well. 
 
 Alan
-

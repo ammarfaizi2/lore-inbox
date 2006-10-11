@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S964969AbWJBUTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1161183AbWJKTlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWJBUTL (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 2 Oct 2006 16:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWJBUTL
+	id S1161183AbWJKTlA (ORCPT <rfc822;akpm@zip.com.au>);
+	Wed, 11 Oct 2006 15:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161184AbWJKTlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:19:11 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:40200 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964969AbWJBUTJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:19:09 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 02 Oct 2006 20:19:08.0300 (UTC) FILETIME=[03E18CC0:01C6E660]
-Content-class: urn:content-classes:message
-Subject: Re: highest russsian Teenies!
-Date: Mon, 2 Oct 2006 16:19:08 -0400
-Message-ID: <Pine.LNX.4.61.0610021617460.17784@chaos.analogic.com>
-In-Reply-To: <501365441506.640801849327@islandrecord.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: highest russsian Teenies!
-thread-index: AcbmYAQAAqTJWTpgRmSmaVttEVLrLg==
-References: <501365441506.640801849327@islandrecord.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 11 Oct 2006 15:41:00 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:9447 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161182AbWJKTk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:40:58 -0400
+Subject: funny looking equation
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-net@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 15:40:55 -0400
+Message-Id: <1160595655.5512.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was just testing some of my parsing code on all the .c and .h files in
+the Linux kernel, and I came up with this little equation:
 
-Maybe just a spell-checker as a filter??
+from 2.6.18 drivers/atm/eni.c:1272
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+---
+                        int div;
 
-Thank you.
+                        if (!*pcr) *pcr = eni_dev->tx_bw+reserved;
+                        for (*pre = 3; *pre >= 0; (*pre)--)
+                                if (TS_CLOCK/pre_div[*pre]/64 > -*pcr) break;
+                        if (*pre < 3) (*pre)++; /* else fail later */
+                        div = pre_div[*pre]*-*pcr;
+                                    ^^^^^^^^^^^^^
+    This could really do with some spaces and a couple of parenthesis.
+
+                        DPRINTK("max div %d\n",div);
+                        *res = (TS_CLOCK+div-1)/div-1;
+---
+
+
+Oh well, this isn't a bug.  Just something that someone might want to
+clean up the next time they touch that code.
+
+-- Steve
+
+

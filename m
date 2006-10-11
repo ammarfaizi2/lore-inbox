@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161252AbWJKUlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161262AbWJKUqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161252AbWJKUlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJKUlZ
+	id S1161262AbWJKUqL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 16:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWJKUqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:41:25 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:4874 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161252AbWJKUlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:41:24 -0400
-Date: Wed, 11 Oct 2006 16:41:22 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Bug in PCI core
-Message-ID: <Pine.LNX.4.44L0.0610111632240.6353-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Oct 2006 16:46:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39908 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161262AbWJKUqK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 16:46:10 -0400
+Date: Wed, 11 Oct 2006 13:43:51 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Paolo Abeni <paolo.abeni@email.it>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Re: [PATCH] usbmon: add binary interface
+Message-Id: <20061011134351.0c79445a.zaitcev@redhat.com>
+In-Reply-To: <20061011194443.GA3935@ucw.cz>
+References: <1160557065.9547.12.camel@localhost.localdomain>
+	<20061011194443.GA3935@ucw.cz>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.4; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a PCI device is suspended, its driver calls pci_save_state() so that
-the config space can be restored when the device is resumed.  Then the
-driver calls pci_set_power_state().
+On Wed, 11 Oct 2006 19:44:43 +0000, Pavel Machek <pavel@suse.cz> wrote:
 
-However pci_set_power_state() calls pci_block_user_cfg_access(), and that 
-routine calls pci_save_state() again.  This overwrites the saved state 
-with data in which memory, I/O, and bus master accesses are disabled.  As 
-a result, when the device is resumed it doesn't work.
+> Does it mean text interface is now deprecated? Or perhaps ioctl should
+> be added to text interface too? Or maybe we do not need binary
+> interface if we allow resizing on text interface?
 
-Obviously pci_block_user_cfg_access() needs to be fixed.  I don't know the 
-right way to fix it; hopefully somebody else does.
+I haven't reviewed Paolo's patch yet, but with that in mind:
+ - No, text is not deprecated yet. That is only possible when a simplified
+   command-line tool is written and distributed (e.g. usbmon(8)).
+ - No, I do not think an ioctl in debugfs or a text API is a good idea.
+ - Resizing on text interface magnifies sprintf contribution to CPU burn,
+   so once we have the binary one, there's only disadvantage and
+   no advantage in implementing that.
 
-Alan Stern
-
+-- Pete

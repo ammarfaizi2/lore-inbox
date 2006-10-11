@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161209AbWJKUQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161222AbWJKURN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161209AbWJKUQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWJKUQZ
+	id S1161222AbWJKURN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 16:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWJKURM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:16:25 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:33573 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161209AbWJKUQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:16:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DFh2BzaXdJ9DJx7obguc5vWOykxLEq05MSVOExkjyBMvahRoBz5oRkWau8OdZ+eAr26B/ez6olU6oPbzVeLenznhfKAEzyMsAvZS3ZgkP5ndK78eJynefQ2KSL9iZFenoxAgJWkbWG7JrSkC1U83cP7z2BRC2Y2fxBg/+4Rqn9E=
-Message-ID: <d120d5000610111316o1d4c1f4fu10b5fc9cd643dd3d@mail.gmail.com>
-Date: Wed, 11 Oct 2006 16:16:22 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Early keyboard initialization?
-Cc: "Samuel Thibault" <samuel.thibault@ens-lyon.org>,
-       linux-kernel@vger.kernel.org, "Greg KH" <gregkh@suse.de>
-In-Reply-To: <20061011130832.c9e9b4d5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 11 Oct 2006 16:17:12 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:58525 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161217AbWJKURK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 16:17:10 -0400
+Subject: [PATCH] null dereference in fs/jbd2/journal.c
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>,
+       Eric Sesterhenn <snakebyte@gmx.de>
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 15:17:07 -0500
+Message-Id: <1160597827.12884.15.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061006204254.GD5489@bouh.residence.ens-lyon.fr>
-	 <200610072158.55659.dtor@insightbb.com>
-	 <20061011130832.c9e9b4d5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/11/06, Andrew Morton <akpm@osdl.org> wrote:
+This is Eric Sesterhenn's jbd patch applied to jbd2.
+Commit: 41716c7c21b15e7ecf14f0caf1eef3980707fb74
 
-> Anyway, I'll duck this.  Samuel, an appropriate way to make this happen
-> would be to talk Dmitry into a patch, let it cook in his tree for a couple
-> of months, then merge it into 2.6.20-early.
->
+His words:
 
-I don't have anything against having keyboards initialized early, I
-just want hardware to work the same way if possible, at least for more
-common hardware. And there are increasing number of USB keyboards in
-the wild.
+Since commit d1807793e1e7e502e3dc047115e9dbc3b50e4534 we dereference a NULL
+pointer.  Coverity id #1432.  We set journal to NULL, and use it directly
+afterwards.
+
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 10db92c..c60f378 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -725,6 +725,7 @@ journal_t * jbd2_journal_init_dev(struct
+ 			__FUNCTION__);
+ 		kfree(journal);
+ 		journal = NULL;
++		goto out;
+ 	}
+ 	journal->j_dev = bdev;
+ 	journal->j_fs_dev = fs_dev;
+@@ -735,7 +736,7 @@ journal_t * jbd2_journal_init_dev(struct
+ 	J_ASSERT(bh != NULL);
+ 	journal->j_sb_buffer = bh;
+ 	journal->j_superblock = (journal_superblock_t *)bh->b_data;
+-
++out:
+ 	return journal;
+ }
+ 
 
 -- 
-Dmitry
+David Kleikamp
+IBM Linux Technology Center
+

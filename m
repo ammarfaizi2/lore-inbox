@@ -1,130 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWJKFuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWJKF63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030279AbWJKFuS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 01:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWJKFuR
+	id S1030280AbWJKF63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 01:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWJKF63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 01:50:17 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:28062 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030279AbWJKFuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 01:50:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=r2SdlRTcaC77jaPIQfykBc6U1udO/BKugSQBKmvh94jkKTBsFKbWDGvd3dtjkUje+dqoNTP1RQmhbTmJXlni3jK5RQ+r0s5RSjChkowZml9fG73C5jJyZNmKOvpn1IG1UYvdqorft5I4lW/wmKCH46bAp3ZXWpap7H9D2KLKILk=  ;
-Message-ID: <452C8613.7080708@yahoo.com.au>
-Date: Wed, 11 Oct 2006 15:50:11 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
-X-Accept-Language: en
+	Wed, 11 Oct 2006 01:58:29 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:11152 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030280AbWJKF62
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 01:58:28 -0400
+Message-ID: <452C87FB.6080302@drzeus.cx>
+Date: Wed, 11 Oct 2006 07:58:19 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nick Piggin <npiggin@suse.de>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
-References: <20061010121314.19693.75503.sendpatchset@linux.site>	<20061010121332.19693.37204.sendpatchset@linux.site> <20061010221304.6bef249f.akpm@osdl.org>
-In-Reply-To: <20061010221304.6bef249f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: philipl@overt.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 1/1] mmc: Add support for mmc v4 high speed mode
+References: <21173.67.169.45.37.1159940502.squirrel@overt.org>    <452B3B00.5080209@drzeus.cx> <11208.67.169.45.37.1160545100.squirrel@overt.org>
+In-Reply-To: <11208.67.169.45.37.1160545100.squirrel@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+philipl@overt.org wrote:
+>> Pierre Ossman wrote:
+>>     
+>>> +	 	cmd.arg = 0x03B90100;
+>>>
+>>>       
+>> I'd prefer some defines and shifts here. Also, this should be done at
+>> init, not at select. The reason SD does it is that the spec says it
+>> drops out of wide mode when it gets unselected.
+>>     
+>
+> I have done this, but your suggestion somewhat contradicts your original
+> suggestion to remove the defines. Essentially, my updated change restores
+> the relevant definitions from my very first diff. I hope this is what you
+> wanted. I prefer to have the #defines, so I'm not complaining.
+>   
 
->On Tue, 10 Oct 2006 16:21:49 +0200 (CEST)
->Nick Piggin <npiggin@suse.de> wrote:
->
->
->>--- linux-2.6.orig/mm/filemap.c
->>+++ linux-2.6/mm/filemap.c
->>@@ -1392,9 +1392,10 @@ struct page *filemap_nopage(struct vm_ar
->> 	unsigned long size, pgoff;
->> 	int did_readaround = 0, majmin = VM_FAULT_MINOR;
->> 
->>+	BUG_ON(!(area->vm_flags & VM_CAN_INVALIDATE));
->>+
->> 	pgoff = ((address-area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
->> 
->>-retry_all:
->> 	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
->> 	if (pgoff >= size)
->> 		goto outside_data_content;
->>@@ -1416,7 +1417,7 @@ retry_all:
->> 	 * Do we have something in the page cache already?
->> 	 */
->> retry_find:
->>-	page = find_get_page(mapping, pgoff);
->>+	page = find_lock_page(mapping, pgoff);
->>
->
->Here's a little problem.  Locking the page in the pagefault handler takes
->our deadlock while writing from a mmapped copy of the page into the same
->page from "extremely hard to hit" to "super-easy to hit".  Try running
->write-deadlock-demo.c from
->http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz
->
->It conveniently deadlocks while holding mmap_sem, so `ps' get stuck too.
->
->So this whole idea of locking the page in the fault handler is off the
->table until we fix that deadlock for real.
->
+I know I can be a bit unclear some times, so feel free to be utterly
+confused. :)
 
-OK. Can it sit in -mm for now, though? Or is this deadlock less theoretical
-than it sounds? At any rate, thanks for catching this.
+What I don't like is defines used for structure offsets where those
+fields will be transformed into a normal C structure. I.e. the defines
+will only be used once.
 
->  Coincidentally I started coding
->a fix for that a couple of weeks ago, but spend too much time with my nose
->in other people's crap to get around to writing my own crap.
->
->The basic idea is
->
->- revert the recent changes to the core write() code (the ones which
->  killed writev() performance, especially on NFS overwrites).
->
->- clean some stuff up
->
->- modify the core of write() so that instead of doing copy_from_user(),
->  we do inc_preempt_count();copy_from_user_inatomic().  So we never enter
->  the pagefault handler while holding the lock on the pagecache page.
->
->  If the fault happens, we run commit_write() on however much stuff we
->  managed to copy and then go back and try to fault the target page back in
->  again.  Repeat for ten times then give up.
->
+In this case, it's protocol opcodes, which are far more vital to have
+readable. Currently we only use this in one place, but this will
+probably grow. If I understand things correctly, switching to 4-bit and
+8-bit bus also uses the SWITCH command?
 
-Without looking at any code, perhaps we could instead run get_user_pages
-and copy the memory that way.
+> I also moved the explaination of the MMC_SWITCH argument to protocol.h I
+> think it's worth documenting somewhere.
+>   
 
-We'd still want to do try the initial copy_from_user, because the TLB is
-quite likely to exist or at least the pte will exist so the low level TLB
-refill can reach it - so we don't want to walk the pagetables manually if
-we can help it.
+A variant of this would be to do a macro. But this is fine as well.
 
-At that point, if we end up doing the get_user_pages thing, do we even need
-to do the intermediate commit_write()? Or just do the whole copy (the 
-partial
-copied data is going to be in cache on physically indexed caches anyway, so
-it will be very low cost to copy again). And it should be a reasonably
-unlikely path... but I'll instrument it.
-
->  It gets tricky because it means that we'll need to go back to zeroing
->  out the uncopied part of the pagecache page before
->  commit_write+unlock_page().  This will resurrect the recently-fixed
->  problem where userspace can fleetingly see a bunch of zeroes in pagecache
->  where it expected to see either the old data or the new data.
+> I have moved this work into the read_ext_csd function and renamed it
+> process_ext_csd.
 >
->  But I don't think that problem was terribly serious, and we can improve
->  the situation quite a lot by not doing that zeroing if the page is
->  already up-to-date.
+>   
+
+Looks good.
+
+>> A "max_dtr" int the mmc_ext_csd structure would be nicer here. And you
+>> cannot do a kernel BUG because the card is broken. You should mark it as
+>> dead.
+>>     
 >
->Anyway, if you're feeling up to it I'll document the patches I have and hand
->them over - they're not making much progress here.
+> I have replaced storing the CARD_TYPE value with storing a dtr based on
+> the CARD_TYPE which should achieve what you wanted. I've replaced the
+> BUG with marking the card as bad.
 >
+>   
 
-Yeah I'll have a go.
+Very nice. This is a lot less confusing when someone else will be
+mucking about with the clock selection routines (e.g. adding SDIO support).
 
---
+> Finally, as pointed out by Jarkko, I added the missing MMC_CMD flags to
+> the calls to MMC_SWITCH and MMC_SEND_EXT_CSD;
+>   
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Rgds
+Pierre
+

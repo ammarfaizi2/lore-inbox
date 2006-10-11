@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWJKXHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbWJKXNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161275AbWJKXHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 19:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWJKXHH
+	id S1161265AbWJKXNc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 19:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWJKXNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 19:07:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28878 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161266AbWJKXHE (ORCPT
+	Wed, 11 Oct 2006 19:13:31 -0400
+Received: from mx1.suse.de ([195.135.220.2]:53660 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161265AbWJKXNa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 19:07:04 -0400
-Date: Wed, 11 Oct 2006 16:04:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Jonathan Corbet <corbet@lwn.net>, torvalds@osdl.org,
-       Sascha Hauer <s.hauer@pengutronix.de>, Greg KH <gregkh@suse.de>,
-       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] [patch 48/67] Fix VIDIOC_ENUMSTD bug
-Message-ID: <20061011230444.GC26135@kroah.com>
-References: <10090.1160603175@lwn.net> <452D6703.7070900@linuxtv.org> <1160604649.20624.4.camel@praia>
+	Wed, 11 Oct 2006 19:13:30 -0400
+Date: Wed, 11 Oct 2006 16:13:19 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dmitry Torokhov <dtor@insightbb.com>,
+       Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Early keyboard initialization?
+Message-ID: <20061011231319.GC28589@suse.de>
+References: <20061006204254.GD5489@bouh.residence.ens-lyon.fr> <200610072158.55659.dtor@insightbb.com> <20061011130832.c9e9b4d5.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160604649.20624.4.camel@praia>
+In-Reply-To: <20061011130832.c9e9b4d5.akpm@osdl.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 07:10:49PM -0300, Mauro Carvalho Chehab wrote:
-> Em Qua, 2006-10-11 ?s 17:49 -0400, Michael Krufky escreveu:
-> > Jonathan Corbet wrote:
-> > >> So any application which passes in index=0 gets EINVAL right off the bat
-> > >> - and, in fact, this is what happens to mplayer.  So I think the
-> > >> following patch is called for, and maybe even appropriate for a 2.6.18.x
-> > >> stable release.
+On Wed, Oct 11, 2006 at 01:08:32PM -0700, Andrew Morton wrote:
+> On Sat, 7 Oct 2006 21:58:54 -0400
+> Dmitry Torokhov <dtor@insightbb.com> wrote:
+> 
+> > On Friday 06 October 2006 16:42, Samuel Thibault wrote:
+> > > Hi,
 > > > 
-> > > The fix is worth having, though I guess I'm no longer 100% sure it's
-> > > necessary for -stable, since I don't think anything in-tree other than
-> > > vivi uses this interface in 2.6.18.
-> True. No real reason to fix into stable. On the other hand, it won't
-> hurt -stable to have this fix.
+> > > Is there any reason for initializing the input layer and keyboards so
+> > > late?  Since prevents from being able to perform alt-sysrqs early, and
+> > > blind people who use speakup would like to get early control over the
+> > > speech.  Here is the patch that they use.
+> > >
 > 
-> > > If you are going to include it,
-> > > though, it makes sense to put in Sascha's fix too - both are needed to
-> > > make the new v4l2 ioctl() interface operate as advertised.
+> It'd be nice to get sysrq working as early as poss.
 > 
-> > This is fine with me...  I have added cc to Mauro, he might want to add
-> > his sign-off as well.
-> By applying patch 48 into -stable, for sure Sascha fix is required.
+> > It looks like the change will only work for non-USB input devices since
+> > USB subsystem is initialized much later.
 > 
-> > 
-> > Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+> USB is usually modular (isn't it?)
+> 
+> > Greg, is there a reason why USB can't be initialized earlier?
+> 
+> Greg's in hiding.
 
-Thanks, now added.
+Yeah, under this huge pile of "real work" stuff that I have right now,
+sorry about the delay...
+
+It would be fine to get USB working earlier, but we need PCI, and pretty
+much everything else up and working first in order for it to be there,
+so I don't know how well it would work out.
+
+And yes, it is annoying about how some machines you are locked out of
+keyboard support for a long time, I don't know what to really do about
+it.
+
+Feel free to mess with the linking order if you want to try to reduce
+the delay and see how it works out.
+
+thanks,
 
 greg k-h

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161184AbWJKTpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161185AbWJKTrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161184AbWJKTpr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161185AbWJKTpq
+	id S1161185AbWJKTrI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161188AbWJKTrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:45:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9121 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161184AbWJKTpp (ORCPT
+	Wed, 11 Oct 2006 15:47:07 -0400
+Received: from xenotime.net ([66.160.160.81]:15242 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161185AbWJKTrD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:45:45 -0400
-Date: Wed, 11 Oct 2006 12:39:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       eranian@hpl.hp.com, david.mosberger@acm.org
-Subject: Re: [PATCH] Add carta_random32() library routine
-Message-Id: <20061011123906.1f120324.akpm@osdl.org>
-In-Reply-To: <452D4491.30806@garzik.org>
-References: <200610111900.k9BJ01M4021853@hera.kernel.org>
-	<452D4491.30806@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 11 Oct 2006 15:47:03 -0400
+Date: Wed, 11 Oct 2006 12:48:28 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org
+Subject: Re: funny looking equation
+Message-Id: <20061011124828.46b287e2.rdunlap@xenotime.net>
+In-Reply-To: <1160595655.5512.6.camel@localhost.localdomain>
+References: <1160595655.5512.6.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Oct 2006 15:22:57 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
+On Wed, 11 Oct 2006 15:40:55 -0400 Steven Rostedt wrote:
 
-> Linux Kernel Mailing List wrote:
-> > commit e0ab2928cc2202f13f0574d4c6f567f166d307eb
-> > tree 3df0b8e340b1a98cd8a2daa19672ff008e8fb7f9
-> > parent b611967de4dc5c52049676c4369dcac622a7cdfe
-> > author Stephane Eranian <eranian@hpl.hp.com> 1160554905 -0700
-> > committer Linus Torvalds <torvalds@g5.osdl.org> 1160590461 -0700
-> > 
-> > [PATCH] Add carta_random32() library routine
-> > 
-> > This is a follow-up patch based on the review for perfmon2.  This patch
-> > adds the carta_random32() library routine + carta_random32.h header file.
-> > 
-> > This is fast, simple, and efficient pseudo number generator algorithm.  We
-> > use it in perfmon2 to randomize the sampling periods.  In this context, we
-> > do not need any fancy randomizer.
+> I was just testing some of my parsing code on all the .c and .h files in
+> the Linux kernel, and I came up with this little equation:
 > 
-> hrm, does this really warrant inclusion into every kernel build, on 
-> every platform?
+> from 2.6.18 drivers/atm/eni.c:1272
 > 
+> 
+> ---
+>                         int div;
+> 
+>                         if (!*pcr) *pcr = eni_dev->tx_bw+reserved;
+>                         for (*pre = 3; *pre >= 0; (*pre)--)
+>                                 if (TS_CLOCK/pre_div[*pre]/64 > -*pcr) break;
+>                         if (*pre < 3) (*pre)++; /* else fail later */
+>                         div = pre_div[*pre]*-*pcr;
+>                                     ^^^^^^^^^^^^^
+>     This could really do with some spaces and a couple of parenthesis.
+> 
+>                         DPRINTK("max div %d\n",div);
+>                         *res = (TS_CLOCK+div-1)/div-1;
+> ---
+> 
+> 
+> Oh well, this isn't a bug.  Just something that someone might want to
+> clean up the next time they touch that code.
 
-probly not really.  But putting it into lib.a has problems, and making it a
-loadable module has problems, and making it Kconfigurable has problems. 
-And it's only 150-odd bytes.
+and break the if-lines into kernel style.
 
-It'd be better to just start to use it.  There are a number of callers of
-get_random_bytes() who just don't need such fanciness (and degradation or
-/dev/urandom), such as ext2/3/4's Orlov allocator. 
+---
+~Randy

@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWJKXDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161272AbWJKXGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161201AbWJKXDg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 19:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWJKXDg
+	id S1161272AbWJKXGu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 19:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161273AbWJKXGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 19:03:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34189 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161201AbWJKXDf (ORCPT
+	Wed, 11 Oct 2006 19:06:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16334 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161272AbWJKXGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 19:03:35 -0400
-Date: Wed, 11 Oct 2006 16:03:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 Time: Avoid PIT SMP lockups
-Message-Id: <20061011160328.f3e7043a.akpm@osdl.org>
-In-Reply-To: <1160606911.5973.36.camel@localhost.localdomain>
-References: <1160596462.5973.12.camel@localhost.localdomain>
-	<20061011142646.eb41fac3.akpm@osdl.org>
-	<1160606911.5973.36.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 19:06:48 -0400
+Date: Wed, 11 Oct 2006 16:01:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Greg KH <gregkh@suse.de>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] [patch 06/67] Video: cx24123: fix PLL divisor setup
+Message-ID: <20061011230125.GB26135@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org> <20061011210353.GG16627@kroah.com> <452D5EF7.80303@linuxtv.org> <20061011212959.GA18006@suse.de> <452D63D4.6050300@linuxtv.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452D63D4.6050300@linuxtv.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Oct 2006 15:48:31 -0700
-john stultz <johnstul@us.ibm.com> wrote:
+On Wed, Oct 11, 2006 at 05:36:20PM -0400, Michael Krufky wrote:
+> Greg KH wrote:
+> > On Wed, Oct 11, 2006 at 05:15:35PM -0400, Michael Krufky wrote:
+> >> Greg KH wrote:
+> >>> -stable review patch.  If anyone has any objections, please let us know.
+> >>>
+> >>> ------------------
+> >>> From: Yeasah Pell <yeasah@schwide.net>
+> >>>
+> >>> The cx24109 datasheet says: "NOTE: if A=0, then N=N+1"
+> >>>
+> >>> The current code is the result of a misinterpretation of the datasheet to
+> >>> mean exactly the opposite of the requirement -- The actual value of N is 1
+> >>> greater than the value written when A is 0, so 1 needs to be *subtracted*
+> >>> from it to compensate.
+> >>>
+> >>> Signed-off-by: Yeasah Pell <yeasah@schwide.net>
+> >>> Signed-off-by: Steven Toth <stoth@hauppauge.com>
+> >>> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+> >>> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> >> Greg,
+> >>
+> >> When you apply this patch to your 2.6.18.y tree (and also to your
+> >> 2.6.17.y tree) , can you please preceed the patch title with 'DVB'
+> >> instead of 'VIDEO' ?
+> >>
+> >> I'll be sure to specify the subsystem, instead of only the driver name
+> >> in future patches.
+> > 
+> > Yes, it's better for you to specifiy it, instead of having me guess at
+> > what it should be classified as :)
+> > 
+> > I'll try to go edit the existing patches to fix this,
+> 
+> OOPS!  I just saw your -stable commit.
+> 
+> Slight misunderstanding, Greg...
+> 
+> Out of those six patches that I sent to you, only "cx24123: fix PLL
+> divisor setup" is a DVB patch... The remaining 5 patches are V4L patches.
+> 
+> Sorry for the confusion.
 
-> > Wouldn't it be better to fix the livelock?  What's causing it?
-> 
-> I spent a few days trying to narrow this down, and I haven't been able
-> to do so to my satisfaction.
-> 
-> At this point, my suspicion is that because the PIT io-read is very slow
-> (~18us), and done while holding a lock. It would be possible that one
-> cpu calling gettimeofday would do the following:
-> 
-> grab xtime sequence read lock
-> grab i8253 spin lock
-> do port io (very slow)
-> release i8253 spin lock
-> realize xtime has been grabed and repeat
-> 
-> While another cpu does the following after in a timer interrupt:
-> Grabs xtime sequence write lock
-> spins trying to grab i8253 spin lock
-> 
-> Assuming the first thread can reacquire the i8253 lock before the
-> second, you could have both threads potentially spinning forever.
+Ok, can you check this latest change to make sure I got it right this
+time?  And the .17 patches were all DVB: right?
 
-Is there any actual need to hold xtime_lock while doing the port IO?  I'd
-have thought it would suffice to do
+thanks,
 
-	temp = port_io
-	write_seqlock(xtime_lock);
-	xtime = muck_with(temp);
-	write_sequnlock(xtime_lock);
-
-?
+greg k-h

@@ -1,36 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161384AbWJKVaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWJKVbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161384AbWJKVaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161520AbWJKVag
+	id S1422632AbWJKVbX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161394AbWJKVaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:30:36 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:19908 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161384AbWJKVa0 (ORCPT
+	Wed, 11 Oct 2006 17:30:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34206 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161383AbWJKVFO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:30:26 -0400
-Date: Wed, 11 Oct 2006 23:30:05 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] m68k: more workarounds for recent binutils idiocy
-In-Reply-To: <E1GXlNt-0004Xc-Fi@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0610112319320.7817@scrub.home>
-References: <E1GXlNt-0004Xc-Fi@ZenIV.linux.org.uk>
+	Wed, 11 Oct 2006 17:05:14 -0400
+Date: Wed, 11 Oct 2006 14:04:58 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Jeff Garzik <jeff@garzik.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 19/67] mv643xx_eth: fix obvious typo, which caused build breakage
+Message-ID: <20061011210458.GT16627@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="mv643xx_eth-fix-obvious-typo-which-caused-build-breakage.patch"
+In-Reply-To: <20061011210310.GA16627@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 11 Oct 2006, Al Viro wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> cretinous thing doesn't believe that (%a0)+ is one macro argument and
-> splits it in two; worked around by quoting the argument...
+------------------
+From: Jeff Garzik <jeff@garzik.org>
 
-NAK, this is a bug in binutils and is fixed there already (at least in 
-CVS).
+The last minute fix submitted by the author fixed a bug, but
+broke the driver build.
 
-bye, Roman
+Noticed by Al Viro, since I can't build on said platform.
+
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+---
+ drivers/net/mv643xx_eth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.18.orig/drivers/net/mv643xx_eth.c
++++ linux-2.6.18/drivers/net/mv643xx_eth.c
+@@ -385,7 +385,7 @@ static int mv643xx_eth_receive_queue(str
+ 	struct pkt_info pkt_info;
+ 
+ 	while (budget-- > 0 && eth_port_receive(mp, &pkt_info) == ETH_OK) {
+-		dma_unmap_single(NULL, pkt_info.buf_ptr, RX_SKB_SIZE,
++		dma_unmap_single(NULL, pkt_info.buf_ptr, ETH_RX_SKB_SIZE,
+ 							DMA_FROM_DEVICE);
+ 		mp->rx_desc_count--;
+ 		received_packets++;
+
+--

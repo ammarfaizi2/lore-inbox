@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWJKRgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161162AbWJKRim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161160AbWJKRgH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWJKRgH
+	id S1161162AbWJKRim (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWJKRim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:36:07 -0400
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:43448 "EHLO
-	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1161162AbWJKRgE convert rfc822-to-8bit (ORCPT
+	Wed, 11 Oct 2006 13:38:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11230 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161162AbWJKRil (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:36:04 -0400
-X-BigFish: VP
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 11 Oct 2006 13:38:41 -0400
+Date: Wed, 11 Oct 2006 10:38:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
+In-Reply-To: <20061011172120.GC5259@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0610111031020.3952@g5.osdl.org>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+ <20061010121332.19693.37204.sendpatchset@linux.site> <20061010213843.4478ddfc.akpm@osdl.org>
+ <452C838A.70806@yahoo.com.au> <20061010230042.3d4e4df1.akpm@osdl.org>
+ <Pine.LNX.4.64.0610110916540.3952@g5.osdl.org> <20061011165717.GB5259@wotan.suse.de>
+ <Pine.LNX.4.64.0610111007000.3952@g5.osdl.org> <20061011172120.GC5259@wotan.suse.de>
 MIME-Version: 1.0
-Subject: RE: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
- regressions)
-Date: Wed, 11 Oct 2006 12:33:39 -0500
-Message-ID: <1449F58C868D8D4E9C72945771150BDF1536FD@SAUSEXMB1.amd.com>
-In-Reply-To: <200610111606.13180.christiand59@web.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
- regressions)
-Thread-Index: AcbtPsEromMjWDkAT+qERX8PV++jLwAHFAUg
-From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-To: "Christian" <christiand59@web.de>
-cc: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 11 Oct 2006 17:33:40.0308 (UTC)
- FILETIME=[640DF140:01C6ED5B]
-X-WSS-ID: 6933F57E1L85618687-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It seems that my first try exceeded the LKML size limit. So 
-> hopefully you should get my decompiled DSDT now as a bzip
-> compressed file.
-
-Right then.  You're completely missing the _PCT, _PPC, and
-_PSS packages, as well as the CPU scope they're normally
-defined in.  powernow-k8 is not going to work on this system.
-
-If you boot with the 2.6.18 kernel, do you get the same
-decompiled DSDT?  If not, there's an ACPI regression you
-need to report to Len Brown.
-
-Have you upgraded the processors or BIOS on the box?
-
--Mark Langsdorf
-AMD, Inc.
 
 
+On Wed, 11 Oct 2006, Nick Piggin wrote:
+> 
+> I mean filemap_nopage does *two* synchronous reads when finding a !uptodate
+> page. This is despite the comment saying that it retries once on error.
+
+Ahh. 
+
+Yes, now that you point to the actual code, that does look ugly.
+
+I think it's related to the
+
+	ClearPageError(page);
+
+thing, and probably related to that function being rather old and having 
+gone through several re-organizations. I suspect we used to fall through 
+to the error handling code regardless of whether we did the read ourselves 
+etc.
+
+Are you saying that something like this would be preferable?
+
+		Linus
+
+---
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 3464b68..e5ecf42 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -1496,6 +1496,8 @@ page_not_uptodate:
+ 		goto success;
+ 	}
+ 
++	/* Clear any potential old errors, and try to read.. */
++	ClearPageError(page);
+ 	error = mapping->a_ops->readpage(file, page);
+ 	if (!error) {
+ 		wait_on_page_locked(page);
+@@ -1526,21 +1528,12 @@ page_not_uptodate:
+ 		unlock_page(page);
+ 		goto success;
+ 	}
+-	ClearPageError(page);
+-	error = mapping->a_ops->readpage(file, page);
+-	if (!error) {
+-		wait_on_page_locked(page);
+-		if (PageUptodate(page))
+-			goto success;
+-	} else if (error == AOP_TRUNCATED_PAGE) {
+-		page_cache_release(page);
+-		goto retry_find;
+-	}
+ 
+ 	/*
+ 	 * Things didn't work out. Return zero to tell the
+ 	 * mm layer so, possibly freeing the page cache page first.
+ 	 */
++	unlock_page(page);
+ 	shrink_readahead_size_eio(file, ra);
+ 	page_cache_release(page);
+ 	return NOPAGE_SIGBUS;

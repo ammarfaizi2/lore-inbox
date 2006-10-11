@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWJKOti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWJKOw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWJKOti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWJKOth
+	id S1161064AbWJKOw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030583AbWJKOw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:49:37 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:23998 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030452AbWJKOth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:49:37 -0400
-Date: Wed, 11 Oct 2006 10:49:36 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
-       Castet Matthieu <castet.matthieu@free.fr>,
-       Akinobu Mita <akinobu.mita@gmail.com>
-Subject: Re: [PATCH] Driver core: Don't ignore bus_attach_device() retval
-In-Reply-To: <20061009131434.6e3ff0e2@gondolin.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0610111036290.5690-100000@iolanthe.rowland.org>
+	Wed, 11 Oct 2006 10:52:26 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45318 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030564AbWJKOwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 10:52:25 -0400
+Date: Wed, 11 Oct 2006 16:52:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/dpt_i2o.c: remove dead code
+Message-ID: <20061011145222.GL721@stusta.de>
+References: <20061008231627.GO6755@stusta.de> <1160578300.16513.15.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160578300.16513.15.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Oct 2006, Cornelia Huck wrote:
-
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Wed, Oct 11, 2006 at 03:51:40PM +0100, Alan Cox wrote:
+> Ar Llu, 2006-10-09 am 01:16 +0200, ysgrifennodd Adrian Bunk:
+> > The Coverity checker spotted this dead code introduced by
+> > commit a07f353701acae77e023f6270e8af353b37af7c4.
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> Check for return value of bus_attach_device() in device_add(). Add a
-> function bus_delete_device() that undos the effects of bus_add_device().
-> bus_remove_device() now undos the effects of bus_attach_device() only.
-> device_del() now calls bus_remove_device(), kobject_uevent(),
-> bus_delete_device() which makes it symmetric to the call sequence in
-> device_add().
+> Semi-NAK
+> 
+> Its not dead jim, its in the wrong location
+> 
+> >  	while ((pDev = pci_get_device( PCI_DPT_VENDOR_ID, PCI_ANY_ID, pDev))) {
+> >  		if(pDev->device == PCI_DPT_DEVICE_ID ||
+> >  		   pDev->device == PCI_DPT_RAPTOR_DEVICE_ID){
+> >  			if(adpt_install_hba(sht, pDev) ){
+> >  				PERROR("Could not Init an I2O RAID device\n");
+> >  				PERROR("Will not try to detect others.\n");
+> 
+> ------------------------> pci_dev_put()
+> 
+> is needed there instead I think.
+>...
 
-You know, I'm not so sure device registration should fail when 
-bus_attach_device() returns an error.
+The current code is:
 
-After all, the device really is there even if it's not working properly.  
-In the Windows device manager it would show up with a big red X through 
-it, but it _would_ show up.
 
-Furthermore there are subtle problems that can arise.  In effect, the
-device is registered for a brief time (while the driver is probed) and
-then unregistered without giving the bus subsystem a chance to prepare for
-the removal.  With USB this can lead to problems; if the driver called
-usb_set_interface() then child devices would be created below the one
-being probed -- and they would never get removed.
+        /* search for all Adatpec I2O RAID cards */
+        while ((pDev = pci_get_device( PCI_DPT_VENDOR_ID, PCI_ANY_ID, pDev))) {
+                if(pDev->device == PCI_DPT_DEVICE_ID ||
+                   pDev->device == PCI_DPT_RAPTOR_DEVICE_ID){
+                        if(adpt_install_hba(sht, pDev) ){
+                                PERROR("Could not Init an I2O RAID device\n");
+                                PERROR("Will not try to detect others.\n");
+                                return hba_count-1;
+                        }
+                        pci_dev_get(pDev);
+                }
+        }
+        if (pDev)
+                pci_dev_put(pDev);
 
-Has this question been raised before?  Is there any reason not to 
-register a device even when probing fails?
 
-In fact, we might want to separate driver probing from device_add()  
-entirely.  That is, make them available as two separate function calls.  
-That way the subsystem driver will have a chance to create attribute files
-before a uevent is generated and a driver is loaded.  (That should help
-udev to work better.)  This would require a larger change, though --
-probably requiring an alternate version of device_add().
+I don't see the point of the suggested place for the pci_dev_put()
+since pci_dev_get() has never been executed in this case, or do I miss 
+anything?
 
-Alan Stern
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

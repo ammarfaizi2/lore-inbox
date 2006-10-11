@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWJKVbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWJKV3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161383AbWJKVbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161490AbWJKV36
+	id S1161401AbWJKV3s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161393AbWJKVFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:29:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:37534 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161384AbWJKVFP (ORCPT
+	Wed, 11 Oct 2006 17:05:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:13726 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161385AbWJKVEl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:05:15 -0400
-Date: Wed, 11 Oct 2006 14:04:46 -0700
+	Wed, 11 Oct 2006 17:04:41 -0400
+Date: Wed, 11 Oct 2006 14:03:56 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       mm-commits@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, pbadari@us.ibm.com, jack@suse.cz,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 16/67] jbd: fix commit of ordered data buffers
-Message-ID: <20061011210446.GQ16627@kroah.com>
+       alan@lxorguk.ukuu.org.uk,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Mike Isely <isely@pobox.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 07/67] Video: pvrusb2: Solve mutex deadlock
+Message-ID: <20061011210356.GH16627@kroah.com>
 References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="jbd-fix-commit-of-ordered-data-buffers.patch"
+Content-Disposition: inline; filename="video-pvrusb2-solve-mutex-deadlock.patch"
 In-Reply-To: <20061011210310.GA16627@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -36,236 +36,143 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Jan Kara <jack@suse.cz>
+From: Mike Isely <isely@pobox.com>
 
-Original commit code assumes, that when a buffer on BJ_SyncData list is
-locked, it is being written to disk.  But this is not true and hence it can
-lead to a potential data loss on crash.  Also the code didn't count with
-the fact that journal_dirty_data() can steal buffers from committing
-transaction and hence could write buffers that no longer belong to the
-committing transaction.  Finally it could possibly happen that we tried
-writing out one buffer several times.
+There is a mutex ordering problem between the pvrusb2 driver and the
+v4l core.  Two different pathways take mutexes in opposing orders and
+this (under rare circumstances) can cause a deadlock.  The two mutexes
+in question are videodev_lock in the v4l core and device_lock inside
+the pvrusb2 driver.  The device_lock instance in the driver protects a
+private global array of context pointers which had been implemented in
+advance of v4l core changes which eliminate the video_set_drvdata()
+and video_get_drvdata() functions.
 
-The patch below tries to solve these problems by a complete rewrite of the
-data commit code.  We go through buffers on t_sync_datalist, lock buffers
-needing write out and store them in an array.  Buffers are also immediately
-refiled to BJ_Locked list or unfiled (if the write out is completed).  When
-the array is full or we have to block on buffer lock, we submit all
-accumulated buffers for IO.
+This patch restores the use of video_get_drvdata() and
+video_set_drvdata(), eliminating the need for the array and the mutex.
+(This is actually a patch to restore the previous implementation.)  We
+can do this for 2.6.18 since those functions are in fact still
+present.  A better (and larger) solution will be done for later
+kernels.
 
-[suitable for 2.6.18.x around the 2.6.19-rc2 timeframe]
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mike Isely <isely@pobox.com>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
----
- fs/jbd/commit.c |  182 ++++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 113 insertions(+), 69 deletions(-)
-
---- linux-2.6.18.orig/fs/jbd/commit.c
-+++ linux-2.6.18/fs/jbd/commit.c
-@@ -160,6 +160,117 @@ static int journal_write_commit_record(j
- 	return (ret == -EIO);
+--- a/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
++++ b/drivers/media/video/pvrusb2/pvrusb2-v4l2.c
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/version.h>
++#include <linux/videodev.h>
+ #include "pvrusb2-context.h"
+ #include "pvrusb2-hdw.h"
+ #include "pvrusb2.h"
+@@ -35,21 +36,11 @@ struct pvr2_v4l2_dev;
+ struct pvr2_v4l2_fh;
+ struct pvr2_v4l2;
+ 
+-/* V4L no longer provide the ability to set / get a private context pointer
+-   (i.e. video_get_drvdata / video_set_drvdata), which means we have to
+-   concoct our own context locating mechanism.  Supposedly this is intended
+-   to simplify driver implementation.  It's not clear to me how that can
+-   possibly be true.  Our solution here is to maintain a lookup table of
+-   our context instances, indexed by the minor device number of the V4L
+-   device.  See pvr2_v4l2_open() for some implications of this approach. */
+-static struct pvr2_v4l2_dev *devices[256];
+-static DEFINE_MUTEX(device_lock);
+ 
+ struct pvr2_v4l2_dev {
+ 	struct pvr2_v4l2 *v4lp;
+ 	struct video_device *vdev;
+ 	struct pvr2_context_stream *stream;
+-	int ctxt_idx;
+ 	enum pvr2_config config;
+ };
+ 
+@@ -703,12 +694,6 @@ static void pvr2_v4l2_dev_destroy(struct
+ {
+ 	printk(KERN_INFO "pvrusb2: unregistering device video%d [%s]\n",
+ 	       dip->vdev->minor,pvr2_config_get_name(dip->config));
+-	if (dip->ctxt_idx >= 0) {
+-		mutex_lock(&device_lock);
+-		devices[dip->ctxt_idx] = NULL;
+-		dip->ctxt_idx = -1;
+-		mutex_unlock(&device_lock);
+-	}
+ 	video_unregister_device(dip->vdev);
  }
  
-+void journal_do_submit_data(struct buffer_head **wbuf, int bufs)
-+{
-+	int i;
-+
-+	for (i = 0; i < bufs; i++) {
-+		wbuf[i]->b_end_io = end_buffer_write_sync;
-+		/* We use-up our safety reference in submit_bh() */
-+		submit_bh(WRITE, wbuf[i]);
-+	}
-+}
-+
-+/*
-+ *  Submit all the data buffers to disk
-+ */
-+static void journal_submit_data_buffers(journal_t *journal,
-+				transaction_t *commit_transaction)
-+{
-+	struct journal_head *jh;
-+	struct buffer_head *bh;
-+	int locked;
-+	int bufs = 0;
-+	struct buffer_head **wbuf = journal->j_wbuf;
-+
-+	/*
-+	 * Whenever we unlock the journal and sleep, things can get added
-+	 * onto ->t_sync_datalist, so we have to keep looping back to
-+	 * write_out_data until we *know* that the list is empty.
-+	 *
-+	 * Cleanup any flushed data buffers from the data list.  Even in
-+	 * abort mode, we want to flush this out as soon as possible.
-+	 */
-+write_out_data:
-+	cond_resched();
-+	spin_lock(&journal->j_list_lock);
-+
-+	while (commit_transaction->t_sync_datalist) {
-+		jh = commit_transaction->t_sync_datalist;
-+		bh = jh2bh(jh);
-+		locked = 0;
-+
-+		/* Get reference just to make sure buffer does not disappear
-+		 * when we are forced to drop various locks */
-+		get_bh(bh);
-+		/* If the buffer is dirty, we need to submit IO and hence
-+		 * we need the buffer lock. We try to lock the buffer without
-+		 * blocking. If we fail, we need to drop j_list_lock and do
-+		 * blocking lock_buffer().
-+		 */
-+		if (buffer_dirty(bh)) {
-+			if (test_set_buffer_locked(bh)) {
-+				BUFFER_TRACE(bh, "needs blocking lock");
-+				spin_unlock(&journal->j_list_lock);
-+				/* Write out all data to prevent deadlocks */
-+				journal_do_submit_data(wbuf, bufs);
-+				bufs = 0;
-+				lock_buffer(bh);
-+				spin_lock(&journal->j_list_lock);
-+			}
-+			locked = 1;
-+		}
-+		/* We have to get bh_state lock. Again out of order, sigh. */
-+		if (!inverted_lock(journal, bh)) {
-+			jbd_lock_bh_state(bh);
-+			spin_lock(&journal->j_list_lock);
-+		}
-+		/* Someone already cleaned up the buffer? */
-+		if (!buffer_jbd(bh)
-+			|| jh->b_transaction != commit_transaction
-+			|| jh->b_jlist != BJ_SyncData) {
-+			jbd_unlock_bh_state(bh);
-+			if (locked)
-+				unlock_buffer(bh);
-+			BUFFER_TRACE(bh, "already cleaned up");
-+			put_bh(bh);
-+			continue;
-+		}
-+		if (locked && test_clear_buffer_dirty(bh)) {
-+			BUFFER_TRACE(bh, "needs writeout, adding to array");
-+			wbuf[bufs++] = bh;
-+			__journal_file_buffer(jh, commit_transaction,
-+						BJ_Locked);
-+			jbd_unlock_bh_state(bh);
-+			if (bufs == journal->j_wbufsize) {
-+				spin_unlock(&journal->j_list_lock);
-+				journal_do_submit_data(wbuf, bufs);
-+				bufs = 0;
-+				goto write_out_data;
-+			}
-+		}
-+		else {
-+			BUFFER_TRACE(bh, "writeout complete: unfile");
-+			__journal_unfile_buffer(jh);
-+			jbd_unlock_bh_state(bh);
-+			if (locked)
-+				unlock_buffer(bh);
-+			journal_remove_journal_head(bh);
-+			/* Once for our safety reference, once for
-+			 * journal_remove_journal_head() */
-+			put_bh(bh);
-+			put_bh(bh);
-+		}
-+
-+		if (lock_need_resched(&journal->j_list_lock)) {
-+			spin_unlock(&journal->j_list_lock);
-+			goto write_out_data;
-+		}
-+	}
-+	spin_unlock(&journal->j_list_lock);
-+	journal_do_submit_data(wbuf, bufs);
-+}
-+
- /*
-  * journal_commit_transaction
-  *
-@@ -313,80 +424,13 @@ void journal_commit_transaction(journal_
- 	 * Now start flushing things to disk, in the order they appear
- 	 * on the transaction lists.  Data blocks go first.
- 	 */
--
- 	err = 0;
--	/*
--	 * Whenever we unlock the journal and sleep, things can get added
--	 * onto ->t_sync_datalist, so we have to keep looping back to
--	 * write_out_data until we *know* that the list is empty.
--	 */
--	bufs = 0;
--	/*
--	 * Cleanup any flushed data buffers from the data list.  Even in
--	 * abort mode, we want to flush this out as soon as possible.
--	 */
--write_out_data:
--	cond_resched();
--	spin_lock(&journal->j_list_lock);
--
--	while (commit_transaction->t_sync_datalist) {
--		struct buffer_head *bh;
--
--		jh = commit_transaction->t_sync_datalist;
--		commit_transaction->t_sync_datalist = jh->b_tnext;
--		bh = jh2bh(jh);
--		if (buffer_locked(bh)) {
--			BUFFER_TRACE(bh, "locked");
--			if (!inverted_lock(journal, bh))
--				goto write_out_data;
--			__journal_temp_unlink_buffer(jh);
--			__journal_file_buffer(jh, commit_transaction,
--						BJ_Locked);
--			jbd_unlock_bh_state(bh);
--			if (lock_need_resched(&journal->j_list_lock)) {
--				spin_unlock(&journal->j_list_lock);
--				goto write_out_data;
--			}
--		} else {
--			if (buffer_dirty(bh)) {
--				BUFFER_TRACE(bh, "start journal writeout");
--				get_bh(bh);
--				wbuf[bufs++] = bh;
--				if (bufs == journal->j_wbufsize) {
--					jbd_debug(2, "submit %d writes\n",
--							bufs);
--					spin_unlock(&journal->j_list_lock);
--					ll_rw_block(SWRITE, bufs, wbuf);
--					journal_brelse_array(wbuf, bufs);
--					bufs = 0;
--					goto write_out_data;
--				}
--			} else {
--				BUFFER_TRACE(bh, "writeout complete: unfile");
--				if (!inverted_lock(journal, bh))
--					goto write_out_data;
--				__journal_unfile_buffer(jh);
--				jbd_unlock_bh_state(bh);
--				journal_remove_journal_head(bh);
--				put_bh(bh);
--				if (lock_need_resched(&journal->j_list_lock)) {
--					spin_unlock(&journal->j_list_lock);
--					goto write_out_data;
--				}
--			}
+@@ -800,33 +785,10 @@ static int pvr2_v4l2_open(struct inode *
+ 	struct pvr2_v4l2 *vp;
+ 	struct pvr2_hdw *hdw;
+ 
+-	mutex_lock(&device_lock);
+-	/* MCI 7-Jun-2006 Even though we're just doing what amounts to an
+-	   atomic read of the device mapping array here, we still need the
+-	   mutex.  The problem is that there is a tiny race possible when
+-	   we register the device.  We can't update the device mapping
+-	   array until after the device has been registered, owing to the
+-	   fact that we can't know the minor device number until after the
+-	   registration succeeds.  And if another thread tries to open the
+-	   device in the window of time after registration but before the
+-	   map is updated, then it will get back an erroneous null pointer
+-	   and the open will result in a spurious failure.  The only way to
+-	   prevent that is to (a) be inside the mutex here before we access
+-	   the array, and (b) cover the entire registration process later
+-	   on with this same mutex.  Thus if we get inside the mutex here,
+-	   then we can be assured that the registration process actually
+-	   completed correctly.  This is an unhappy complication from the
+-	   use of global data in a driver that lives in a preemptible
+-	   environment.  It sure would be nice if the video device itself
+-	   had a means for storing and retrieving a local context pointer.
+-	   Oh wait.  It did.  But now it's gone.  Silly me. */
+ 	{
+-		unsigned int midx = iminor(file->f_dentry->d_inode);
+-		if (midx < sizeof(devices)/sizeof(devices[0])) {
+-			dip = devices[midx];
 -		}
--	}
--
--	if (bufs) {
--		spin_unlock(&journal->j_list_lock);
--		ll_rw_block(SWRITE, bufs, wbuf);
--		journal_brelse_array(wbuf, bufs);
--		spin_lock(&journal->j_list_lock);
--	}
-+	journal_submit_data_buffers(journal, commit_transaction);
++		struct video_device *vdev = video_devdata(file);
++		dip = (struct pvr2_v4l2_dev *)video_get_drvdata(vdev);
+ 	}
+-	mutex_unlock(&device_lock);
  
- 	/*
- 	 * Wait for all previously submitted IO to complete.
- 	 */
-+	spin_lock(&journal->j_list_lock);
- 	while (commit_transaction->t_locked_list) {
- 		struct buffer_head *bh;
+ 	if (!dip) return -ENODEV; /* Should be impossible but I'm paranoid */
  
+@@ -1066,7 +1028,7 @@ static void pvr2_v4l2_dev_init(struct pv
+ 
+ 	memcpy(dip->vdev,&vdev_template,sizeof(vdev_template));
+ 	dip->vdev->release = video_device_release;
+-	mutex_lock(&device_lock);
++	video_set_drvdata(dip->vdev,dip);
+ 
+ 	mindevnum = -1;
+ 	unit_number = pvr2_hdw_get_unit_number(vp->channel.mc_head->hdw);
+@@ -1081,12 +1043,6 @@ static void pvr2_v4l2_dev_init(struct pv
+ 		       dip->vdev->minor,pvr2_config_get_name(dip->config));
+ 	}
+ 
+-	if ((dip->vdev->minor < sizeof(devices)/sizeof(devices[0])) &&
+-	    (devices[dip->vdev->minor] == NULL)) {
+-		dip->ctxt_idx = dip->vdev->minor;
+-		devices[dip->ctxt_idx] = dip;
+-	}
+-	mutex_unlock(&device_lock);
+ 
+ 	pvr2_hdw_v4l_store_minor_number(vp->channel.mc_head->hdw,
+ 					dip->vdev->minor);
+@@ -1100,7 +1056,6 @@ struct pvr2_v4l2 *pvr2_v4l2_create(struc
+ 	vp = kmalloc(sizeof(*vp),GFP_KERNEL);
+ 	if (!vp) return vp;
+ 	memset(vp,0,sizeof(*vp));
+-	vp->video_dev.ctxt_idx = -1;
+ 	pvr2_channel_init(&vp->channel,mnp);
+ 	pvr2_trace(PVR2_TRACE_STRUCT,"Creating pvr2_v4l2 id=%p",vp);
+ 
+
+_______________________________________________
+stable mailing list
+stable@linux.kernel.org
+http://linux.kernel.org/mailman/listinfo/stable
 
 --

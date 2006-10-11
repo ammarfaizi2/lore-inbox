@@ -1,83 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWJKB3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030738AbWJKBnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbWJKB3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 21:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJKB3J
+	id S1030738AbWJKBnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 21:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030739AbWJKBnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 21:29:09 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:25760 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1030437AbWJKB3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 21:29:06 -0400
-Date: Tue, 10 Oct 2006 18:28:51 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Paul Menage <menage@google.com>, linux-kernel@vger.kernel.org,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in configfs
-Message-ID: <20061011012851.GR7911@ca-server1.us.oracle.com>
-Mail-Followup-To: Matt Helsley <matthltc@us.ibm.com>,
-	Paul Menage <menage@google.com>, linux-kernel@vger.kernel.org,
-	Chandra Seetharaman <sekharan@us.ibm.com>,
-	ckrm-tech@lists.sourceforge.net
-References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain> <20061010203511.GF7911@ca-server1.us.oracle.com> <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com> <20061010215808.GK7911@ca-server1.us.oracle.com> <1160527799.1674.91.camel@localhost.localdomain>
+	Tue, 10 Oct 2006 21:43:37 -0400
+Received: from sandeen.net ([209.173.210.139]:23904 "EHLO sandeen.net")
+	by vger.kernel.org with ESMTP id S1030738AbWJKBng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 21:43:36 -0400
+Message-ID: <452C4C47.2000107@sandeen.net>
+Date: Tue, 10 Oct 2006 20:43:35 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160527799.1674.91.camel@localhost.localdomain>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Eric Sandeen <esandeen@redhat.com>, Jan Kara <jack@suse.cz>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 ext3 panic.
+References: <20061002194711.GA1815@redhat.com>	 <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net>	 <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net>	 <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>	 <20061009225036.GC26728@redhat.com>	 <20061010141145.GM23622@atrey.karlin.mff.cuni.cz>	 <452C18A6.3070607@redhat.com> <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 05:49:59PM -0700, Matt Helsley wrote:
-> 	We want to be able to export a sequence of small (<< 1 page),
-> homogenous, unstructured (scalar), attributes through configfs using the
-> same file. While this is rather specific, I'd guess it would be a common
-> occurrence.
-
-	Pray tell, why?  "One attribute per file" is the mantra here.
-You really should think hard before you break it.  Simple heuristic:
-would you have to parse the buffer?  Then it's wrong.
-
-> 	Yes, keeping track of writing to these sequences (add, remove, replace)
-> is a problem. But that's what the file position is for. configfs could
+Badari Pulavarty wrote:
+> On Tue, 2006-10-10 at 17:03 -0500, Eric Sandeen wrote:
+>> Jan Kara wrote:
+>>
+>>>   I think it's really the 1KB block size that makes it happen.
+>>> I've looked at journal_dirty_data() code and I think the following can
+>>> happen:
+>>>   sync() eventually ends up in journal_dirty_data(bh) as Eric writes.
+>>> There is finds dirty buffer attached to the comitting transaction. So it drops
+>>> all locks and calls sync_dirty_buffer(bh).
+>>>   Now in other process, file is truncated so that 'bh' gets just after EOF.
+>>> As we have 1kb buffers, it can happen that bh is in the partially
+>>> truncated page. Buffer is marked unmapped and clean. But in a moment the page
+>>> is marked dirty and msync() is called. That eventually calls
+>>> set_page_dirty() and all buffers in the page are marked dirty.
+>>>   The first process now wakes up, locks the buffer, clears the dirty bit
+>>> and does submit_bh() - Oops.
+>> Hm, just FWIW I have a couple traces* of the buffer getting unmapped
+>> -before- journal_submit_data_buffers ever even finds it...
+>>
+>>  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout,
+>> adding to array pid 1836
+>>      b_state:0x114025 b_jlist:BJ_SyncData cpu:0 b_count:2 b_blocknr:27130
+>>      b_jbd:1 b_frozen_data:0000000000000000
+>> b_committed_data:0000000000000000
+>>      b_transaction:1 b_next_transaction:0 b_cp_transaction:0
+>> b_trans_is_running:0
+>>      b_trans_is_comitting:1 b_jcount:0 pg_dirty:0
+>>
+>> so it's already unmapped at this point.  Could
+>> journal_submit_data_buffers benefit from some buffer_mapped checks?  Or
+>> is that just a bandaid too late...
 > 
-> 	Does this seem reasonable?
+> Hmm..
+> 
+> b_state: 0x114025 
+>                ^
+> means BH_Mapped. Isn't it ?
 
-	No.  It adds complexity to an interface that is supposed to be
-simple.  Now, I'm not sure what you are trying to do here, so I don't
-know how it fits in.  Is it really "multiple attributes per file", or
-"this attribute is a list of entries"?
-	An example.  If you had to set an IP address and a port, here's
-your scenarios:
+Whoops, I pasted in the wrong one, I guess, from earlier in the trace.  Here are 
+the ones I was looking at:
 
-[Right]
-    echo "10.0.0.1" > /sys/kernel/config/subsys/item/address
-    echo "8000" > /sys/kernel/config/subsys/item/port
+  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout, adding to 
+array pid 1690
+      b_state:0x104005 b_jlist:BJ_SyncData cpu:0 b_count:2 b_blocknr:30045
+      b_jbd:1 b_frozen_data:0000000000000000 b_committed_data:0000000000000000
+      b_transaction:1 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
+      b_trans_is_comitting:1 b_jcount:0 pg_dirty:1
 
-[Wrong]
-    echo 10.0.0.1\n8000" > /sys/kernel/config/subsys/item/address-and-port
+and
 
-	But perhaps you are not setting two distinct attributes.  I
-don't understand what you are doing, so some detail would be nice.
+  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout, adding to 
+array pid 1836
+      b_state:0x114005 b_jlist:BJ_SyncData cpu:1 b_count:2 b_blocknr:27130
+      b_jbd:1 b_frozen_data:0000000000000000 b_committed_data:0000000000000000
+      b_transaction:1 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
+      b_trans_is_comitting:1 b_jcount:0 pg_dirty:1
 
-Joel
-
--- 
-
-Life's Little Instruction Book #407
-
-	"Every once in a while, take the scenic route."
-
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+-Eric

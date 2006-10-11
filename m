@@ -1,35 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161364AbWJKUxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161372AbWJKVBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161364AbWJKUxB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161363AbWJKUxA
+	id S1161372AbWJKVBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWJKVBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:53:00 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:64898 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1161364AbWJKUw7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:52:59 -0400
-Date: Wed, 11 Oct 2006 22:52:14 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+	Wed, 11 Oct 2006 17:01:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53696 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161372AbWJKVBC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:01:02 -0400
+Date: Wed, 11 Oct 2006 13:57:20 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
 To: Steven Whitehouse <steve@chygwyn.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, David Miller <davem@davemloft.net>,
-       shemminger@osdl.org
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
 Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-Message-ID: <20061011205214.GC15468@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061011090926.GA15393@fogou.chygwyn.com> <20061011150103.GF4888@mellanox.co.il> <20061011201138.GA21657@fogou.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-ID: <20061011135720.303f166b@freekitty>
 In-Reply-To: <20061011201138.GA21657@fogou.chygwyn.com>
-User-Agent: Mutt/1.4.2.1i
+References: <20061011090926.GA15393@fogou.chygwyn.com>
+	<20061011150103.GF4888@mellanox.co.il>
+	<20061011201138.GA21657@fogou.chygwyn.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Steven Whitehouse <steve@chygwyn.com>:
-> Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-> 
+On Wed, 11 Oct 2006 21:11:38 +0100
+Steven Whitehouse <steve@chygwyn.com> wrote:
+
 > Hi,
 > 
 > On Wed, Oct 11, 2006 at 05:01:03PM +0200, Michael S. Tsirkin wrote:
@@ -62,19 +64,24 @@ Quoting r. Steven Whitehouse <steve@chygwyn.com>:
 > in particular - there may be others but thats the only one I can think
 > of off the top of my head. I think this is what davem was getting at
 > with his comment about copy & sum for smaller packets.
-
-Will do - thanks for the tips.
-
+> 
 > Also all subject to approval by davem and shemminger of course :-)
-
-Goes without saying :)
-
+> 
 > My general feeling is that devices should advertise the features that
 > they actually have and that the protocols should make the decision
 > as to which ones to use or not depending on the combinations available
 > (which I think is pretty much your argument).
 > 
 > Steve.
+> 
+
+You might want to try ignoring the check in dev.c and testing
+to see if there is a performance gain.  It wouldn't be hard to test
+a modified version and validate the performance change.
+
+You could even do what I suggested and use skb_checksum_help()
+to do inplace checksumming, as a performance test.
+
 
 -- 
-MST
+Stephen Hemminger <shemminger@osdl.org>

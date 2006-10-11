@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWJKPHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161080AbWJKPUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161065AbWJKPHS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 11:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWJKPHS
+	id S1161080AbWJKPUW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 11:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWJKPUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 11:07:18 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:10827 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965228AbWJKPHQ
+	Wed, 11 Oct 2006 11:20:22 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42897 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161075AbWJKPUU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 11:07:16 -0400
-Subject: Re: [patch 3/3] mm: add arch_alloc_page
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Nick Piggin <npiggin@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061011145643.GA5259@wotan.suse.de>
-References: <20061007105758.14024.70048.sendpatchset@linux.site>
-	 <20061007105824.14024.85405.sendpatchset@linux.site>
-	 <20061007134345.0fa1d250.akpm@osdl.org> <452856E4.60705@yahoo.com.au>
-	 <1160578104.634.2.camel@localhost>  <20061011145643.GA5259@wotan.suse.de>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Wed, 11 Oct 2006 17:07:16 +0200
-Message-Id: <1160579236.634.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 11:20:20 -0400
+Date: Wed, 11 Oct 2006 10:20:17 -0500
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+Cc: jschopp <jschopp@austin.ibm.com>, akpm@osdl.org, jeff@garzik.org,
+       Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
+       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
+Message-ID: <20061011152016.GU4381@austin.ibm.com>
+References: <20061010204946.GW4381@austin.ibm.com> <20061010212324.GR4381@austin.ibm.com> <452C2AAA.5070001@austin.ibm.com> <452C4CE0.5010607@am.sony.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452C4CE0.5010607@am.sony.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-11 at 16:56 +0200, Nick Piggin wrote:
-> > With Nicks patch I can use arch_alloc_page instead of page_set_stable,
-> > but I can still not use arch_free_page instead of page_set_unused
-> > because it is done before the check for reserved pages. If reserved
-> > pages go away or the arch_free_page call would get moved after the check
-> > I could replace page_set_unused as well. So with Nicks patch we are only
-> > halfway there..
+On Tue, Oct 10, 2006 at 06:46:08PM -0700, Geoff Levand wrote:
+> > Linas Vepstas wrote:
+> >> The current driver code performs 512 DMA mappns of a bunch of 
+> >> 32-byte structures. This is silly, as they are all in contiguous 
+> >> memory. Ths patch changes the code to DMA map the entie area
+> >> with just one call.
 > 
-> Ahh, but with my patchSET I think we are all the way there ;)
+> Linas, 
+> 
+> Is the motivation for this change to improve performance by reducing the overhead
+> of the mapping calls?  
 
-Oh, good. Then I only have to add two more state change functions,
-namely page_make_stable and page_make_volatile.
+Yes.
 
--- 
-blue skies,
-  Martin.
+> If so, there may be some benefit for some systems.  Could
+> you please elaborate?
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+I started writingthe patch thinking it will have some huge effect on
+performance, based on a false assumption on how i/o was done on this
+machine
 
-"Reality continues to ruin my life." - Calvin.
+*If* this were another pSeries system, then each call to 
+pci_map_single() chews up an actual hardware "translation 
+control entry" (TCE) that maps pci bus addresses into 
+system RAM addresses. These are somewhat limited resources,
+and so one shouldn't squander them.  Furthermore, I thouhght
+TCE's have TLB's associated with them (similar to how virtual
+memory page tables are backed by hardware page TLB's), of which 
+there are even less of. I was thinking that TLB thrashing would 
+have a big hit on performance. 
 
+Turns out that there was no difference to performance at all, 
+and a quick look at "cell_map_single()" in arch/powerpc/platforms/cell
+made it clear why: there's no fancy i/o address mapping.
 
+Thus, the patch has only mrginal benefit; I submit it only in the 
+name of "its the right thing to do anyway".
+
+--linas

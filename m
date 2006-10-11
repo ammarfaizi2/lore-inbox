@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWJKOi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWJKOsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWJKOi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWJKOi2
+	id S1030446AbWJKOsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWJKOsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:38:28 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:23754 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S1030364AbWJKOi1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:38:27 -0400
-Date: Wed, 11 Oct 2006 16:38:16 +0200
-From: Frank Gevaerts <frank@gevaerts.be>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: patch : hdaps on Thinkpad R52
-Message-ID: <20061011143816.GA5753@gevaerts.be>
-Mail-Followup-To: Jean Delvare <khali@linux-fr.org>,
-	Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
-	linux-kernel@vger.kernel.org
-References: <20060314205758.GA9229@gevaerts.be> <20060328182933.4184db3f.khali@linux-fr.org> <20060328170045.GA10334@gevaerts.be> <20060401170422.cc2ff8c2.khali@linux-fr.org> <20060403163541.GA4571@gevaerts.be> <20060408170238.4e241eac.khali@linux-fr.org> <20061011160745.605fc944.khali@linux-fr.org>
+	Wed, 11 Oct 2006 10:48:24 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:16327 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1030446AbWJKOsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 10:48:24 -0400
+Subject: Re: [patch 3/3] mm: add arch_alloc_page
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <452856E4.60705@yahoo.com.au>
+References: <20061007105758.14024.70048.sendpatchset@linux.site>
+	 <20061007105824.14024.85405.sendpatchset@linux.site>
+	 <20061007134345.0fa1d250.akpm@osdl.org>  <452856E4.60705@yahoo.com.au>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 11 Oct 2006 16:48:24 +0200
+Message-Id: <1160578104.634.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011160745.605fc944.khali@linux-fr.org>
-X-flash-is-evil: do not use it
-X-virus: If this mail contains a virus, feel free to send one back
-User-Agent: Mutt/1.5.9i
-X-gevaerts-MailScanner: Found to be clean
-X-MailScanner-From: fg@gevaerts.be
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 04:07:45PM +0200, Jean Delvare wrote:
-> Hi Franck,
+On Sun, 2006-10-08 at 11:39 +1000, Nick Piggin wrote:
+> >On Sat,  7 Oct 2006 15:06:04 +0200 (CEST)
+> >Nick Piggin <npiggin@suse.de> wrote:
+> >
+> >
+> >>Add an arch_alloc_page to match arch_free_page.
+> >>
+> >
+> >umm.. why?
+> >
 > 
-> Quoting myself back in April:
-> > > I just had a mail from another R52 user, reporting that his system
-> > > (also 1846AQG) also reports ThinkPad H.
-> > 
-> > I gathered data on my side too, the three R52 I had reports for used
-> > "ThinkPad R52" but these had different machine type/model. I guess that
-> > the 1846AQG is somehow different, but probably you don't know why?
-> > 
-> > So I suppose we could add that "ThinkPad H" identifier string to the
-> > hdaps driver after all, as you proposed in the first place. I'm only
-> > worried that the "H" suffix is really short, and I hope that no other
-> > model not supported by the driver (or needing the invert option) will
-> > ever have the same identifier. Time will tell.
+> I had a future patch to more kernel_map_pages into it, but couldn't
+> decide if that's a generic kernel feature that is only implemented in
+> 2 architectures, or an architecture speicifc feature. So I left it out.
 > 
-> I am told that a newer BIOS of the Thinkpad R52 fixes the machine name
-> in the DMI table.
-> http://www.thinkwiki.org/wiki/List_of_DMI_IDs#R_series
-> Can you please confirm this by upgrading the BIOS of your machine and
-> removing the "ThinkPad H" entry from the hdaps driver?
+> But at least Martin wanted a hook here for his volatile pages patches,
+> so I thought I'd submit this patch anyway.
 
-BIOS 1.25 does indeed report "ThinkPad R52" instead of "ThinkPad H", and
-hdaps without "ThinkPad H" works as expected.
-
-Frank
-
-> 
-> Thanks,
-> -- 
-> Jean Delvare
+With Nicks patch I can use arch_alloc_page instead of page_set_stable,
+but I can still not use arch_free_page instead of page_set_unused
+because it is done before the check for reserved pages. If reserved
+pages go away or the arch_free_page call would get moved after the check
+I could replace page_set_unused as well. So with Nicks patch we are only
+halfway there..
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

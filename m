@@ -1,91 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030684AbWJKQ2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbWJKQ2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030684AbWJKQ2A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030682AbWJKQ17
+	id S1161098AbWJKQ2n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWJKQ2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:27:59 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:49060 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030403AbWJKQ16
+	Wed, 11 Oct 2006 12:28:25 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:49828 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161108AbWJKQ2S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:27:58 -0400
+	Wed, 11 Oct 2006 12:28:18 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] m68k uaccess __user annotations
+Subject: [PATCH] sun3 __iomem annotations
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1GXgw1-0005f4-Ac@ZenIV.linux.org.uk>
+Message-Id: <E1GXgwL-0005gL-Aa@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 11 Oct 2006 17:27:57 +0100
+Date: Wed, 11 Oct 2006 17:28:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- include/asm-m68k/uaccess.h |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
+ arch/m68k/mm/sun3kmap.c  |    8 ++++----
+ drivers/net/sun3_82586.c |    2 +-
+ drivers/net/sun3lance.c  |    6 +++---
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/include/asm-m68k/uaccess.h b/include/asm-m68k/uaccess.h
-index 88b1f47..e4c9f08 100644
---- a/include/asm-m68k/uaccess.h
-+++ b/include/asm-m68k/uaccess.h
-@@ -76,7 +76,7 @@ ({									\
- 		break;							\
- 	case 8:								\
-  	    {								\
-- 		const void *__pu_ptr = (ptr);				\
-+ 		const void __user *__pu_ptr = (ptr);			\
- 		asm volatile ("\n"					\
- 			"1:	moves.l	%2,(%1)+\n"			\
- 			"2:	moves.l	%R2,(%1)\n"			\
-@@ -125,7 +125,7 @@ #define __get_user_asm(res, x, ptr, type
- 		"	.previous"				\
- 		: "+d" (res), "=&" #reg (__gu_val)		\
- 		: "m" (*(ptr)), "i" (err));			\
--	(x) = (typeof(*(ptr)))(long)__gu_val;			\
-+	(x) = (typeof(*(ptr)))(unsigned long)__gu_val;		\
- })
+diff --git a/arch/m68k/mm/sun3kmap.c b/arch/m68k/mm/sun3kmap.c
+index 7f0d86f..8caa459 100644
+--- a/arch/m68k/mm/sun3kmap.c
++++ b/arch/m68k/mm/sun3kmap.c
+@@ -59,7 +59,7 @@ static inline void do_pmeg_mapin(unsigne
+ 	}
+ }
  
- #define __get_user(x, ptr)						\
-@@ -221,16 +221,16 @@ __constant_copy_from_user(void *to, cons
+-void *sun3_ioremap(unsigned long phys, unsigned long size,
++void __iomem *sun3_ioremap(unsigned long phys, unsigned long size,
+ 		   unsigned long type)
+ {
+ 	struct vm_struct *area;
+@@ -101,19 +101,19 @@ #endif
+ 		virt += seg_pages * PAGE_SIZE;
+ 	}
  
- 	switch (n) {
- 	case 1:
--		__get_user_asm(res, *(u8 *)to, (u8 *)from, u8, b, d, 1);
-+		__get_user_asm(res, *(u8 *)to, (u8 __user *)from, u8, b, d, 1);
- 		break;
- 	case 2:
--		__get_user_asm(res, *(u16 *)to, (u16 *)from, u16, w, d, 2);
-+		__get_user_asm(res, *(u16 *)to, (u16 __user *)from, u16, w, d, 2);
- 		break;
- 	case 3:
- 		__constant_copy_from_user_asm(res, to, from, tmp, 3, w, b,);
- 		break;
- 	case 4:
--		__get_user_asm(res, *(u32 *)to, (u32 *)from, u32, l, r, 4);
-+		__get_user_asm(res, *(u32 *)to, (u32 __user *)from, u32, l, r, 4);
- 		break;
- 	case 5:
- 		__constant_copy_from_user_asm(res, to, from, tmp, 5, l, b,);
-@@ -302,16 +302,16 @@ __constant_copy_to_user(void __user *to,
+-	return (void *)ret;
++	return (void __iomem *)ret;
  
- 	switch (n) {
- 	case 1:
--		__put_user_asm(res, *(u8 *)from, (u8 *)to, b, d, 1);
-+		__put_user_asm(res, *(u8 *)from, (u8 __user *)to, b, d, 1);
- 		break;
- 	case 2:
--		__put_user_asm(res, *(u16 *)from, (u16 *)to, w, d, 2);
-+		__put_user_asm(res, *(u16 *)from, (u16 __user *)to, w, d, 2);
- 		break;
- 	case 3:
- 		__constant_copy_to_user_asm(res, to, from, tmp, 3, w, b,);
- 		break;
- 	case 4:
--		__put_user_asm(res, *(u32 *)from, (u32 *)to, l, r, 4);
-+		__put_user_asm(res, *(u32 *)from, (u32 __user *)to, l, r, 4);
- 		break;
- 	case 5:
- 		__constant_copy_to_user_asm(res, to, from, tmp, 5, l, b,);
+ }
+ 
+ 
+-void *__ioremap(unsigned long phys, unsigned long size, int cache)
++void __iomem *__ioremap(unsigned long phys, unsigned long size, int cache)
+ {
+ 
+ 	return sun3_ioremap(phys, size, SUN3_PAGE_TYPE_IO);
+ 
+ }
+ 
+-void iounmap(void *addr)
++void iounmap(void __iomem *addr)
+ {
+ 	vfree((void *)(PAGE_MASK & (unsigned long)addr));
+ }
+diff --git a/drivers/net/sun3_82586.c b/drivers/net/sun3_82586.c
+index d1d1885..a3220a9 100644
+--- a/drivers/net/sun3_82586.c
++++ b/drivers/net/sun3_82586.c
+@@ -330,7 +330,7 @@ out2:
+ out1:
+ 	free_netdev(dev);
+ out:
+-	iounmap((void *)ioaddr);
++	iounmap((void __iomem *)ioaddr);
+ 	return ERR_PTR(err);
+ }
+ 
+diff --git a/drivers/net/sun3lance.c b/drivers/net/sun3lance.c
+index 91c7654..b865db3 100644
+--- a/drivers/net/sun3lance.c
++++ b/drivers/net/sun3lance.c
+@@ -286,7 +286,7 @@ struct net_device * __init sun3lance_pro
+ 
+ out1:
+ #ifdef CONFIG_SUN3
+-	iounmap((void *)dev->base_addr);
++	iounmap((void __iomem *)dev->base_addr);
+ #endif
+ out:
+ 	free_netdev(dev);
+@@ -326,7 +326,7 @@ #endif
+ 		ioaddr_probe[1] = tmp2;
+ 
+ #ifdef CONFIG_SUN3
+-		iounmap((void *)ioaddr);
++		iounmap((void __iomem *)ioaddr);
+ #endif
+ 		return 0;
+ 	}
+@@ -956,7 +956,7 @@ void cleanup_module(void)
+ {
+ 	unregister_netdev(sun3lance_dev);
+ #ifdef CONFIG_SUN3
+-	iounmap((void *)sun3lance_dev->base_addr);
++	iounmap((void __iomem *)sun3lance_dev->base_addr);
+ #endif
+ 	free_netdev(sun3lance_dev);
+ }
 -- 
 1.4.2.GIT
 

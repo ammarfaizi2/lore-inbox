@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161222AbWJKURN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWJKURf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161222AbWJKURN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbWJKURM
+	id S1161224AbWJKURf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 16:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161225AbWJKURf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:17:12 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:58525 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161217AbWJKURK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:17:10 -0400
-Subject: [PATCH] null dereference in fs/jbd2/journal.c
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>,
-       Eric Sesterhenn <snakebyte@gmx.de>
-Content-Type: text/plain
-Date: Wed, 11 Oct 2006 15:17:07 -0500
-Message-Id: <1160597827.12884.15.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Wed, 11 Oct 2006 16:17:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:63531 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161224AbWJKURe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 16:17:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Ur1fpv+H8XLDkIIy4HL5v6W6NDxvYi499rK20XEsQoNCaTqMPwPjrbiwQFOdXQHEztXa8BgkNEr/0gPB8o//yZfKxs3xVZ4Wiq49+Ix82j4CuDPEO27vNneIcD6Q6JMWld7sv/nHJZlN8Oc/5N2q9Hf0/xxRqCqugVhrr9hwmDA=
+Message-ID: <d120d5000610111317k4e849707rc358fdd4ad5dae5b@mail.gmail.com>
+Date: Wed, 11 Oct 2006 16:17:33 -0400
+From: "Dmitry Torokhov" <dtor@insightbb.com>
+To: "Alexey Dobriyan" <adobriyan@gmail.com>
+Subject: Re: misused local_irq_disable() in analog.c?
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <b6fcc0a0610111208s4dbb7c98xbdd3ceb13fba1503@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <b6fcc0a0610111208s4dbb7c98xbdd3ceb13fba1503@mail.gmail.com>
+X-Google-Sender-Auth: 6313e10ba7fb2a6d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is Eric Sesterhenn's jbd patch applied to jbd2.
-Commit: 41716c7c21b15e7ecf14f0caf1eef3980707fb74
+On 10/11/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> Dmitry, take a look at analog_cooked_read():
+>
+> do-while loop there contains local_irq_disable()/local_irq_restore(flags);
+> which aren't complement.
+>
+> Should it be
+>
+>    local_irq_save(flags);
+>    this = gameport_read(gameport) & port->mask;
+>    GET_TIME(now);
+>    local_irq_restore(flags);
+>
+> ?
 
-His words:
-
-Since commit d1807793e1e7e502e3dc047115e9dbc3b50e4534 we dereference a NULL
-pointer.  Coverity id #1432.  We set journal to NULL, and use it directly
-afterwards.
-
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index 10db92c..c60f378 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -725,6 +725,7 @@ journal_t * jbd2_journal_init_dev(struct
- 			__FUNCTION__);
- 		kfree(journal);
- 		journal = NULL;
-+		goto out;
- 	}
- 	journal->j_dev = bdev;
- 	journal->j_fs_dev = fs_dev;
-@@ -735,7 +736,7 @@ journal_t * jbd2_journal_init_dev(struct
- 	J_ASSERT(bh != NULL);
- 	journal->j_sb_buffer = bh;
- 	journal->j_superblock = (journal_superblock_t *)bh->b_data;
--
-+out:
- 	return journal;
- }
- 
+Yep, I think so. Patch?
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Dmitry

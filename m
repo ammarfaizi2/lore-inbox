@@ -1,79 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWJKTtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161189AbWJKTy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWJKTtE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWJKTtE
+	id S1161189AbWJKTy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbWJKTy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:49:04 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:61264 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S932454AbWJKTtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:49:01 -0400
-Message-ID: <452D4AA9.4030700@tls.msk.ru>
-Date: Wed, 11 Oct 2006 23:48:57 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
-MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SOT] GIT usage question
-References: <452D3DFA.6010408@tls.msk.ru> <20061011182415.GE5050@1wt.eu>
-In-Reply-To: <20061011182415.GE5050@1wt.eu>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 11 Oct 2006 15:54:26 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:16297 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161189AbWJKTyZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:54:25 -0400
+Subject: [PATCH] i386 Time: Avoid PIT SMP lockups
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 12:54:21 -0700
+Message-Id: <1160596462.5973.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Wed, Oct 11, 2006 at 10:54:50PM +0400, Michael Tokarev wrote:
-[]
->>  o origin which points to Linus's 2.6.19-pre
->>  o libata, which is current libata tree
->>  o 2.6.18 release -- the kernel I'm running right now.
->>
->> I want to get changes *for libata subsystem* in origin or
->> libata (libata is just changes which are on the way to Linus,
->> and current difference is very minor), to apply against 2.6.18.
->> Ie, in short, changes which went to origin *from* libata.
->>
->> Is it possible?
-> 
-> If I understand what you want to do, you just have to do this :
-> 
-> $ git-checkout 2.6.18
-> $ git-pull . libata
-> 
-> This will merge in 2.6.18 everything that's in libata. If you
+Andrew: I think this is 2.6.19 material, but probably should go through an -mm or two.
 
-It will merge everything wich is in current 2.6.19-pre, too.
-Ie, it will be current 2.6.19 tree basically, or 'origin' in
-my case.
+thanks
+-john
 
-(currently, the only 2 differences between origin and libata
-is a tiny bugfix and winbond driver, so using libata or origin
-here is basically the same thing).
 
-But I wanted to _omit_ everything _but_ libata - stuff which
-*come* to Linus's tree from libata) from the diff.
+This patch avoids possible PIT livelock issues seen on SMP systems (and
+reported by Andi), by not allowing it as a clocksource on SMP boxes.
 
-So it looks like the key idea is to find which commits are
-relevant.  With libata as an example, it's relatively easy -
-  git-diff 2.6.18..libata drivers/ata
-(       or 2.6.18..origin drivers/ata -- as the two trees are
-almost the same currently), plus some includes.
+However, since the PIT may no longer be present, we have to properly
+handle the cases where SMP systems have TSC skew and fall back from the
+TSC. Since the PIT isn't there, it would "fall back" to the TSC again.
+So this changes the jiffies rating to 1, and the TSC-bad rating value to
+0.
 
-Ie, some other ways needs to be used to *identify* which parts
-of the whole thing is needed, in this example it's easy as
-everything is located in the same dir.
+Thus you will get the following behavior priority on i386 systems:
 
-With more complex changes, things aren't that simple if at all
-possible, BUT there's almost no chances that the resulting
-"patched-2.6.18" will ever compile after trying to apply that
-complex changes, anyway ;)
+tsc		[if present & stable]
+hpet		[if present]
+cyclone		[if present]
+acpi_pm		[if present]
+pit		[if UP]
+jiffies
 
-But thanks anyway ;)
+Rather then the current more complicated:
+tsc		[if present & stable]
+hpet		[if present]
+cyclone		[if present]
+acpi_pm		[if present]
+pit		[if cpus < 4]
+tsc		[if present & unstable]
+jiffies
 
-/mjt
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
+index 477b24d..9a0060b 100644
+--- a/arch/i386/kernel/i8253.c
++++ b/arch/i386/kernel/i8253.c
+@@ -109,7 +109,7 @@ static struct clocksource clocksource_pi
+ 
+ static int __init init_pit_clocksource(void)
+ {
+-	if (num_possible_cpus() > 4) /* PIT does not scale! */
++	if (num_possible_cpus() > 1) /* PIT does not scale! */
+ 		return 0;
+ 
+ 	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
+diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+index b8fa0a8..fbc9582 100644
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -349,8 +349,8 @@ static int tsc_update_callback(void)
+ 	int change = 0;
+ 
+ 	/* check to see if we should switch to the safe clocksource: */
+-	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
+-		clocksource_tsc.rating = 50;
++	if (clocksource_tsc.rating != 0 && check_tsc_unstable()) {
++		clocksource_tsc.rating = 0;
+ 		clocksource_reselect();
+ 		change = 1;
+ 	}
+@@ -461,7 +461,7 @@ static int __init init_tsc_clocksource(v
+ 							clocksource_tsc.shift);
+ 		/* lower the rating if we already know its unstable: */
+ 		if (check_tsc_unstable())
+-			clocksource_tsc.rating = 50;
++			clocksource_tsc.rating = 0;
+ 
+ 		init_timer(&verify_tsc_freq_timer);
+ 		verify_tsc_freq_timer.function = verify_tsc_freq;
+diff --git a/kernel/time/jiffies.c b/kernel/time/jiffies.c
+index 126bb30..a99b2a6 100644
+--- a/kernel/time/jiffies.c
++++ b/kernel/time/jiffies.c
+@@ -57,7 +57,7 @@ static cycle_t jiffies_read(void)
+ 
+ struct clocksource clocksource_jiffies = {
+ 	.name		= "jiffies",
+-	.rating		= 0, /* lowest rating*/
++	.rating		= 1, /* lowest valid rating*/
+ 	.read		= jiffies_read,
+ 	.mask		= 0xffffffff, /*32bits*/
+ 	.mult		= NSEC_PER_JIFFY << JIFFIES_SHIFT, /* details above */
+
+

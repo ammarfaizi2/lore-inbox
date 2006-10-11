@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161343AbWJKTJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161350AbWJKTPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161343AbWJKTJf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161350AbWJKTJf
+	id S1161350AbWJKTPU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161353AbWJKTPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:09:35 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:65430 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1161343AbWJKTJR (ORCPT
+	Wed, 11 Oct 2006 15:15:20 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:24709 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161350AbWJKTPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:09:17 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [RFC] Avoid PIT SMP lockups
-Date: Wed, 11 Oct 2006 22:09:22 +0300
-User-Agent: KMail/1.9.5
-Cc: kraxel@suse.de, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <1160170736.6140.31.camel@localhost.localdomain> <200610112137.01160.caglar@pardus.org.tr> <1160592235.5973.5.camel@localhost.localdomain>
-In-Reply-To: <1160592235.5973.5.camel@localhost.localdomain>
+	Wed, 11 Oct 2006 15:15:17 -0400
+Date: Wed, 11 Oct 2006 21:13:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use %p for pointers
+In-Reply-To: <452D3BB6.8040200@zytor.com>
+Message-ID: <Pine.LNX.4.61.0610112112450.9822@yvahk01.tjqt.qr>
+References: <E1GXPU5-0007Ss-HU@ZenIV.linux.org.uk>
+ <Pine.LNX.4.61.0610111316120.26779@yvahk01.tjqt.qr> <20061011145441.GB29920@ftp.linux.org.uk>
+ <452D3BB6.8040200@zytor.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart14511292.WJ8uXyUVDY";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610112209.23037.caglar@pardus.org.tr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart14511292.WJ8uXyUVDY
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-11 Eki 2006 =C3=87ar 21:43 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> S.=C3=87a=C4=9Flar: Didn't follow this bit at all. Could you explain a bi=
-t more?
+>> %p will do no such thing in the kernel.  As for the difference...  %x
+>> might happen to work on some architectures (where sizeof(void
+>> *)==sizeof(int)),
+>> but it's not portable _and_ not right.  %p is proper C for that...
 
-Of course, while system boots kernel waits ~5 seconds (maybe more) after=20
-printing "Checking if this processor honours the WP bit even in supervisor=
-=20
-mode... Ok." line without any visual activity and after that waiting period=
-=20
-kernel panics.
+Ah I see your point, but then again, %lx could have been used. Unless 
+there is some arch where sizeof(long) != sizeof(void *).
 
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+> It's really too bad gcc bitches about %#p, because that's arguably The Right
+> Thing.
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+ack. Make a bug report perhaps?
 
---nextPart14511292.WJ8uXyUVDY
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFLUFjy7E6i0LKo6YRAvOsAKC6mh4JQyyxyjorR2rSt/WlA8UCyQCfe52w
-rrCoSniDSv5s5V8625pLuHg=
-=SZht
------END PGP SIGNATURE-----
-
---nextPart14511292.WJ8uXyUVDY--
+	-`J'
+-- 

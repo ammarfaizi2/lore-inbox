@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbWJKUj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161252AbWJKUlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161257AbWJKUj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJKUj2
+	id S1161252AbWJKUlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 16:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJKUlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:39:28 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:18874 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161257AbWJKUj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:39:27 -0400
-Message-ID: <452D566A.50705@zytor.com>
-Date: Wed, 11 Oct 2006 13:39:06 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Wed, 11 Oct 2006 16:41:25 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:4874 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1161252AbWJKUlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 16:41:24 -0400
+Date: Wed, 11 Oct 2006 16:41:22 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Bug in PCI core
+Message-ID: <Pine.LNX.4.44L0.0610111632240.6353-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Al Viro <viro@ftp.linux.org.uk>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use %p for pointers
-References: <E1GXPU5-0007Ss-HU@ZenIV.linux.org.uk> <Pine.LNX.4.61.0610111316120.26779@yvahk01.tjqt.qr> <20061011145441.GB29920@ftp.linux.org.uk> <452D3BB6.8040200@zytor.com> <20061011202814.GD20982@devserv.devel.redhat.com>
-In-Reply-To: <20061011202814.GD20982@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-> On Wed, Oct 11, 2006 at 11:45:10AM -0700, H. Peter Anvin wrote:
->> Al Viro wrote:
->>> %p will do no such thing in the kernel.  As for the difference...  %x
->>> might happen to work on some architectures (where sizeof(void 
->>> *)==sizeof(int)),
->>> but it's not portable _and_ not right.  %p is proper C for that...
->> It's really too bad gcc bitches about %#p, because that's arguably The 
->> Right Thing.
-> 
-> It is correct that gcc warns about %#p, that invokes undefined behavior
-> in ISO C99.
-> 
+When a PCI device is suspended, its driver calls pci_save_state() so that
+the config space can be restored when the device is resumed.  Then the
+driver calls pci_set_power_state().
 
-Yes, it's a bug in the standard.
+However pci_set_power_state() calls pci_block_user_cfg_access(), and that 
+routine calls pci_save_state() again.  This overwrites the saved state 
+with data in which memory, I/O, and bus master accesses are disabled.  As 
+a result, when the device is resumed it doesn't work.
 
-	-hpa
+Obviously pci_block_user_cfg_access() needs to be fixed.  I don't know the 
+right way to fix it; hopefully somebody else does.
+
+Alan Stern
 

@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWJKG6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWJKG73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWJKG6j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 02:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWJKG6j
+	id S1030366AbWJKG73 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 02:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWJKG73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 02:58:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26089 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932434AbWJKG6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 02:58:38 -0400
-Date: Wed, 11 Oct 2006 02:06:59 -0500 (CDT)
-From: Kumar Gala <galak@kernel.crashing.org>
-X-X-Sender: galak@gate.crashing.org
-To: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org, <linuxppc-dev@ozlabs.org>
-Subject: [PATCH] ppc: Add missing calls set_irq_regs
-Message-ID: <Pine.LNX.4.44.0610110206160.29377-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Oct 2006 02:59:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48552 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932445AbWJKG72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 02:59:28 -0400
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the
+	sony_acpi driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Yu Luming <luming.yu@gmail.com>, Matt Domsch <Matt_Domsch@dell.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+       ismail@pardus.org.tr
+In-Reply-To: <20061010212615.GB31972@srcf.ucam.org>
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com>
+	 <20061005103657.GA4474@ucw.cz> <20061006211751.GA31887@lists.us.dell.com>
+	 <200610102232.46627.luming.yu@gmail.com>
+	 <20061010212615.GB31972@srcf.ucam.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 11 Oct 2006 08:59:04 +0200
+Message-Id: <1160549944.3000.347.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the timer_interrupt we were not calling set_irq_regs() and if we are
-profiling we will end up calling get_irq_regs().  This causes bad things to
-happen.
+On Tue, 2006-10-10 at 22:26 +0100, Matthew Garrett wrote:
+> On Tue, Oct 10, 2006 at 10:32:46PM +0800, Yu Luming wrote:
+> 
+> > >From my understanding, a cute userspace App shouldn't have this kind
+> > of logic:
+> 
+> (snip switching on hardware type)
+> 
+> > It should be:
+> > 	just write/read  file in  /sys/class/backlight ,....
+> 
+> Yup, but to do that on Dell hardware is basically impossible. It'd be 
+> nice if they implemented the ACPI video extension properly for future 
+> hardware.
 
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+it'd also be nice if the linux-ready firmware developer kit had a test
+for this, so that we can offer 1) a way to test this to the bios guys
+and 2) encourage adding/note the lack easily
 
----
-commit 6799b47da9c145fba3a855f74e20680acffe87a7
-tree 30ed136bbebf14a71c5b0eeed76510ef884aee76
-parent 53a5fbdc2dff55161a206ed1a1385a8fa8055c34
-author Kumar Gala <galak@kernel.crashing.org> Wed, 11 Oct 2006 01:57:04 -0500
-committer Kumar Gala <galak@kernel.crashing.org> Wed, 11 Oct 2006 01:57:04 -0500
 
- arch/ppc/kernel/time.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/arch/ppc/kernel/time.c b/arch/ppc/kernel/time.c
-index d4b2cf7..18ee851 100644
---- a/arch/ppc/kernel/time.c
-+++ b/arch/ppc/kernel/time.c
-@@ -62,6 +62,7 @@ #include <asm/nvram.h>
- #include <asm/cache.h>
- #include <asm/8xx_immap.h>
- #include <asm/machdep.h>
-+#include <asm/irq_regs.h>
- 
- #include <asm/time.h>
- 
-@@ -129,6 +130,7 @@ void wakeup_decrementer(void)
-  */
- void timer_interrupt(struct pt_regs * regs)
- {
-+	struct pt_regs *old_regs;
- 	int next_dec;
- 	unsigned long cpu = smp_processor_id();
- 	unsigned jiffy_stamp = last_jiffy_stamp(cpu);
-@@ -137,6 +139,7 @@ void timer_interrupt(struct pt_regs * re
- 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
- 		do_IRQ(regs);
- 
-+	old_regs = set_irq_regs(regs);
- 	irq_enter();
- 
- 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) <= 0) {
-@@ -188,6 +191,7 @@ void timer_interrupt(struct pt_regs * re
- 		ppc_md.heartbeat();
- 
- 	irq_exit();
-+	set_irq_regs(old_regs);
- }
- 
- /*
+> 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

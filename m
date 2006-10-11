@@ -1,127 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030591AbWJKEdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbWJKEiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030591AbWJKEdr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 00:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030597AbWJKEdq
+	id S1030597AbWJKEiv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 00:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030787AbWJKEiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 00:33:46 -0400
-Received: from xenotime.net ([66.160.160.81]:60369 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030591AbWJKEdq (ORCPT
+	Wed, 11 Oct 2006 00:38:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14254 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030597AbWJKEiu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 00:33:46 -0400
-Date: Tue, 10 Oct 2006 21:35:10 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Judith Lebzelter <judith@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add Kconfig dependency !VT for VIOCONS
-Message-Id: <20061010213510.c095cf2e.rdunlap@xenotime.net>
-In-Reply-To: <20061011043006.GF721@stusta.de>
-References: <20061006180549.GB3684@shell0.pdx.osdl.net>
-	<20061006200007.GD3684@shell0.pdx.osdl.net>
-	<20061006143437.f7338860.rdunlap@xenotime.net>
-	<20061010045534.GA3650@stusta.de>
-	<20061010091004.d6d91f8d.rdunlap@xenotime.net>
-	<20061011035629.GC721@stusta.de>
-	<20061010210858.f8c85692.rdunlap@xenotime.net>
-	<20061011043006.GF721@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 11 Oct 2006 00:38:50 -0400
+Date: Tue, 10 Oct 2006 21:38:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
+Message-Id: <20061010213843.4478ddfc.akpm@osdl.org>
+In-Reply-To: <20061010121332.19693.37204.sendpatchset@linux.site>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+	<20061010121332.19693.37204.sendpatchset@linux.site>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Oct 2006 06:30:06 +0200 Adrian Bunk wrote:
+On Tue, 10 Oct 2006 16:21:49 +0200 (CEST)
+Nick Piggin <npiggin@suse.de> wrote:
 
-> On Tue, Oct 10, 2006 at 09:08:58PM -0700, Randy Dunlap wrote:
-> > On Wed, 11 Oct 2006 05:56:29 +0200 Adrian Bunk wrote:
-> > 
-> > > On Tue, Oct 10, 2006 at 09:10:04AM -0700, Randy Dunlap wrote:
-> > > > On Tue, 10 Oct 2006 06:55:34 +0200 Adrian Bunk wrote:
-> > > > 
-> > > > > On Fri, Oct 06, 2006 at 02:34:37PM -0700, Randy Dunlap wrote:
-> > > > > > On Fri, 6 Oct 2006 13:00:07 -0700 Judith Lebzelter wrote:
-> > > > > > 
-> > > > > > > Actually, this gets rid of the CONFIG_VIOCONS from my .config, but 
-> > > > > > > then I get another warning when I build:
-> > > > > > > 
-> > > > > > > Warning! Found recursive dependency: VT VIOCONS VT
-> > > > > > > 
-> > > > > > > Can anyone suggest something?
-> > > > > > 
-> > > > > > I think that your patch is mostly good/correct, but one more line
-> > > > > > is needed on the VT side:  a deletion.
-> > > > > > 
-> > > > > > This works for me:
-> > > > > > 
-> > > > > > From: Randy Dunlap <rdunlap@xenotime.net>
-> > > > > > 
-> > > > > > Make allmodconfig .config build successfully by making VIOCONS
-> > > > > > available only if VT=n.  VT need not check VIOCONS.
-> > > > > > 
-> > > > > > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > > > > > ---
-> > > > > >  arch/powerpc/platforms/iseries/Kconfig |    2 +-
-> > > > > >  drivers/char/Kconfig                   |    1 -
-> > > > > >  2 files changed, 1 insertion(+), 2 deletions(-)
-> > > > > > 
-> > > > > > --- linux-2619-rc1g2.orig/arch/powerpc/platforms/iseries/Kconfig
-> > > > > > +++ linux-2619-rc1g2/arch/powerpc/platforms/iseries/Kconfig
-> > > > > > @@ -3,7 +3,7 @@ menu "iSeries device drivers"
-> > > > > >  	depends on PPC_ISERIES
-> > > > > >  
-> > > > > >  config VIOCONS
-> > > > > > -	tristate "iSeries Virtual Console Support (Obsolete)"
-> > > > > > +	tristate "iSeries Virtual Console Support (Obsolete)" if !VT
-> > > > > >  	help
-> > > > > >...
-> > > > > >  config VT
-> > > > > >  	bool "Virtual terminal" if EMBEDDED
-> > > > > 
-> > > > > With this dependency on EMBEDDED, you could as well simply remove 
-> > > > > VIOCONS...
-> > > > > 
-> > > > > >  	select INPUT
-> > > > > > -	default y if !VIOCONS
-> > > > > 
-> > > > > Removing the "default y" is wrong.
-> > > > 
-> > > > Oops, yes, agreed.
-> > > > 
-> > > > I don't see a way (using: make ARCH=powerpc iseries_defconfig,
-> > > > which wants to enable VIOCONS) to prevent VT from being enabled
-> > > > so that VIOCONS can be enabled.
-> > > 
-> > > With iseries_defconfig, CONFIG_VT is not enabled.
-> > > 
-> > > > However, since VIOCONS is marked (Obsolete) and since the powerpc
-> > > > people don't comment on this patch & problem, maybe Judith is the
-> > > > only person who cares.
-> > > 
-> > > allmodconfig turns on CONFIG_EMBEDDED.
-> > 
-> > So am I doing this incorrectly?
-> > 
-> > $ make ARCH=powerpc iseries_defconfig
-> > 
-> > $editor .config
-> > 
-> > CONFIG_VT=y
-> > ...
-> > #
-> > # iSeries device drivers
-> > #
-> > CONFIG_VIODASD=y
-> > CONFIG_VIOCD=m
-> > CONFIG_VIOTAPE=m
-> > CONFIG_VIOPATH=y
+> Fix the race between invalidate_inode_pages and do_no_page.
 > 
-> CONFIG_VIOCONS is not enabled.
+> Andrea Arcangeli identified a subtle race between invalidation of
+> pages from pagecache with userspace mappings, and do_no_page.
+> 
+> The issue is that invalidation has to shoot down all mappings to the
+> page, before it can be discarded from the pagecache. Between shooting
+> down ptes to a particular page, and actually dropping the struct page
+> from the pagecache, do_no_page from any process might fault on that
+> page and establish a new mapping to the page just before it gets
+> discarded from the pagecache.
+> 
+> The most common case where such invalidation is used is in file
+> truncation. This case was catered for by doing a sort of open-coded
+> seqlock between the file's i_size, and its truncate_count.
+> 
+> Truncation will decrease i_size, then increment truncate_count before
+> unmapping userspace pages; do_no_page will read truncate_count, then
+> find the page if it is within i_size, and then check truncate_count
+> under the page table lock and back out and retry if it had
+> subsequently been changed (ptl will serialise against unmapping, and
+> ensure a potentially updated truncate_count is actually visible).
+> 
+> Complexity and documentation issues aside, the locking protocol fails
+> in the case where we would like to invalidate pagecache inside i_size.
+> do_no_page can come in anytime and filemap_nopage is not aware of the
+> invalidation in progress (as it is when it is outside i_size). The
+> end result is that dangling (->mapping == NULL) pages that appear to
+> be from a particular file may be mapped into userspace with nonsense
+> data. Valid mappings to the same place will see a different page.
+> 
+> Andrea implemented two working fixes, one using a real seqlock,
+> another using a page->flags bit. He also proposed using the page lock
+> in do_no_page, but that was initially considered too heavyweight.
+> However, it is not a global or per-file lock, and the page cacheline
+> is modified in do_no_page to increment _count and _mapcount anyway, so
+> a further modification should not be a large performance hit.
+> Scalability is not an issue.
+> 
+> This patch implements this latter approach. ->nopage implementations
+> return with the page locked if it is possible for their underlying
+> file to be invalidated (in that case, they must set a special vm_flags
+> bit to indicate so). do_no_page only unlocks the page after setting
+> up the mapping completely. invalidation is excluded because it holds
+> the page lock during invalidation of each page (and ensures that the
+> page is not mapped while holding the lock).
+> 
+> This allows significant simplifications in do_no_page.
+> 
 
-Yep.  That was with my patch.
-But I see what you mean.  Thanks.
-
----
-~Randy
+The (unchangelogged) changes to filemap_nopage() appear to have switched
+the try-the-read-twice logic into try-it-forever logic.  I think it'll hang
+if there's a bad sector?

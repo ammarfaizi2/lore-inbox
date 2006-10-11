@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161567AbWJKWTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161568AbWJKWUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161567AbWJKWTP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161568AbWJKWTO
+	id S1161568AbWJKWUN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 18:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161561AbWJKWUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:19:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42431 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161561AbWJKWTK (ORCPT
+	Wed, 11 Oct 2006 18:20:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19648 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161569AbWJKWUI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:19:10 -0400
-Date: Wed, 11 Oct 2006 18:17:52 -0400
+	Wed, 11 Oct 2006 18:20:08 -0400
+Date: Wed, 11 Oct 2006 18:19:24 -0400
 From: Dave Jones <davej@redhat.com>
 To: Greg KH <gregkh@suse.de>
 Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
@@ -21,7 +21,7 @@ Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
        alan@lxorguk.ukuu.org.uk
 Subject: Re: [patch 00/67] 2.6.18-stable review
-Message-ID: <20061011221752.GA2248@redhat.com>
+Message-ID: <20061011221924.GB2248@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
 	linux-kernel@vger.kernel.org, stable@kernel.org,
 	Justin Forbes <jmforbes@linuxtx.org>,
@@ -42,20 +42,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Wed, Oct 11, 2006 at 02:59:43PM -0700, Greg KH wrote:
  
+ > > Is it intentional that this adds a include/linux/utsrelease.h ?
+ > > I don't see any patch that adds it in the review mails, but its there in the gz.
+ > 
  > Hm, I guess the dontdiff file wasn't updated, as I built and booted out
  > of that directory, so that is where it came from.  Sorry about that.
  > 
  > Anyone want to update dontdiff?  :)
- 
-Hmm..
 
-(18:17:33:davej@nwo:local-git)$ grep utsrelease Documentation/dontdiff
-utsrelease.h*
-(18:17:37:davej@nwo:local-git)$ 
+Ah, was looking at wrong tree. It's not in -stable..
 
-Shouldn't that match ?
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-	Dave
+--- 1/Documentation/dontdiff	2006-09-19 23:42:06.000000000 -0400
++++ 2/Documentation/dontdiff	2006-10-11 14:21:40.000000000 -0400
+@@ -135,6 +135,7 @@
+ times.h*
+ tkparse
+ trix_boot.h
++utsrelease.h*
+ version.h*
+ vmlinux
+ vmlinux-*
 
 -- 
 http://www.codemonkey.org.uk

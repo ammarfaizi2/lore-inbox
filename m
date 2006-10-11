@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161454AbWJKVMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161443AbWJKVMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161454AbWJKVMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161447AbWJKVKD
+	id S1161443AbWJKVMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161453AbWJKVJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:10:03 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56483 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161454AbWJKVJc (ORCPT
+	Wed, 11 Oct 2006 17:09:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50083 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161451AbWJKVJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:09:32 -0400
-Date: Wed, 11 Oct 2006 14:09:00 -0700
+	Wed, 11 Oct 2006 17:09:30 -0400
+Date: Wed, 11 Oct 2006 14:08:56 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -18,15 +18,16 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, jim.cromie@gmail.com, johnstul@us.ibm.com,
-       alexander.krause@erazor-zone.de, dzpost@dedekind.net,
-       phelps@mantara.com, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 62/67] scx200_hrt: fix precedence bug manifesting as 27x clock in 1 MHz mode
-Message-ID: <20061011210900.GK16627@kroah.com>
+       alan@lxorguk.ukuu.org.uk, nickpiggin@yahoo.com.au,
+       Chuck Lever <cel@citi.umich.edu>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 61/67] invalidate_inode_pages2(): ignore page refcounts
+Message-ID: <20061011210856.GJ16627@kroah.com>
 References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="scx200_hrt-fix-precedence-bug-manifesting-as-27x-clock-in-1-mhz-mode.patch"
+Content-Disposition: inline; filename="invalidate_inode_pages2-ignore-page-refcounts.patch"
 In-Reply-To: <20061011210310.GA16627@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
@@ -36,63 +37,86 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Jim Cromie <jim.cromie@gmail.com>
+From: Andrew Morton <akpm@osdl.org>
 
-Fix paren-placement / precedence bug breaking initialization for 1 MHz
-clock mode.
+The recent fix to invalidate_inode_pages() (git commit 016eb4a) managed to
+unfix invalidate_inode_pages2().
 
-Also fix comment spelling error, and fence-post (off-by-one) error on
-symbol used in request_region.
+The problem is that various bits of code in the kernel can take transient refs
+on pages: the page scanner will do this when inspecting a batch of pages, and
+the lru_cache_add() batching pagevecs also hold a ref.
 
-Addresses http://bugzilla.kernel.org/show_bug.cgi?id=7242
+Net result is transient failures in invalidate_inode_pages2().  This affects
+NFS directory invalidation (observed) and presumably also block-backed
+direct-io (not yet reported).
 
-Thanks alexander.krause@erazor-zone.de, dzpost@dedekind.net, for the
-reports and patch test, and phelps@mantara.com for the independent patch
-and verification.
+Fix it by reverting invalidate_inode_pages2() back to the old version which
+ignores the page refcounts.
 
-Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
-Cc: <alexander.krause@erazor-zone.de>
-Cc: <dzpost@dedekind.net>
-Cc: <phelps@mantara.com>
-Acked-by: John Stultz <johnstul@us.ibm.com>
+We may come up with something more clever later, but for now we need a 2.6.18
+fix for NFS.
+
+Cc: Chuck Lever <cel@citi.umich.edu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/clocksource/scx200_hrt.c |    4 ++--
- include/linux/scx200.h           |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ mm/truncate.c |   34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
---- linux-2.6.18.orig/drivers/clocksource/scx200_hrt.c
-+++ linux-2.6.18/drivers/clocksource/scx200_hrt.c
-@@ -63,7 +63,7 @@ static struct clocksource cs_hrt = {
- 
- static int __init init_hrt_clocksource(void)
+--- linux-2.6.18.orig/mm/truncate.c
++++ linux-2.6.18/mm/truncate.c
+@@ -270,9 +270,39 @@ unsigned long invalidate_inode_pages(str
  {
--	/* Make sure scx200 has initializedd the configuration block */
-+	/* Make sure scx200 has initialized the configuration block */
- 	if (!scx200_cb_present())
- 		return -ENODEV;
+ 	return invalidate_mapping_pages(mapping, 0, ~0UL);
+ }
+-
+ EXPORT_SYMBOL(invalidate_inode_pages);
  
-@@ -76,7 +76,7 @@ static int __init init_hrt_clocksource(v
- 	}
- 
- 	/* write timer config */
--	outb(HR_TMEN | (mhz27) ? HR_TMCLKSEL : 0,
-+	outb(HR_TMEN | (mhz27 ? HR_TMCLKSEL : 0),
- 	     scx200_cb_base + SCx200_TMCNFG_OFFSET);
- 
- 	if (mhz27) {
---- linux-2.6.18.orig/include/linux/scx200.h
-+++ linux-2.6.18/include/linux/scx200.h
-@@ -32,7 +32,7 @@ extern unsigned scx200_cb_base;
- 
- /* High Resolution Timer */
- #define SCx200_TIMER_OFFSET 0x08
--#define SCx200_TIMER_SIZE 0x05
-+#define SCx200_TIMER_SIZE 0x06
- 
- /* Clock Generators */
- #define SCx200_CLOCKGEN_OFFSET 0x10
++/*
++ * This is like invalidate_complete_page(), except it ignores the page's
++ * refcount.  We do this because invalidate_inode_pages2() needs stronger
++ * invalidation guarantees, and cannot afford to leave pages behind because
++ * shrink_list() has a temp ref on them, or because they're transiently sitting
++ * in the lru_cache_add() pagevecs.
++ */
++static int
++invalidate_complete_page2(struct address_space *mapping, struct page *page)
++{
++	if (page->mapping != mapping)
++		return 0;
++
++	if (PagePrivate(page) && !try_to_release_page(page, 0))
++		return 0;
++
++	write_lock_irq(&mapping->tree_lock);
++	if (PageDirty(page))
++		goto failed;
++
++	BUG_ON(PagePrivate(page));
++	__remove_from_page_cache(page);
++	write_unlock_irq(&mapping->tree_lock);
++	ClearPageUptodate(page);
++	page_cache_release(page);	/* pagecache ref */
++	return 1;
++failed:
++	write_unlock_irq(&mapping->tree_lock);
++	return 0;
++}
++
+ /**
+  * invalidate_inode_pages2_range - remove range of pages from an address_space
+  * @mapping: the address_space
+@@ -339,7 +369,7 @@ int invalidate_inode_pages2_range(struct
+ 				}
+ 			}
+ 			was_dirty = test_clear_page_dirty(page);
+-			if (!invalidate_complete_page(mapping, page)) {
++			if (!invalidate_complete_page2(mapping, page)) {
+ 				if (was_dirty)
+ 					set_page_dirty(page);
+ 				ret = -EIO;
 
 --

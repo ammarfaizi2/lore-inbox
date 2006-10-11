@@ -1,87 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030738AbWJKBnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030743AbWJKBqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030738AbWJKBnh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 21:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030739AbWJKBnh
+	id S1030743AbWJKBqM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 21:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030742AbWJKBqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 21:43:37 -0400
-Received: from sandeen.net ([209.173.210.139]:23904 "EHLO sandeen.net")
-	by vger.kernel.org with ESMTP id S1030738AbWJKBng (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 21:43:36 -0400
-Message-ID: <452C4C47.2000107@sandeen.net>
-Date: Tue, 10 Oct 2006 20:43:35 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Tue, 10 Oct 2006 21:46:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:36432 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030743AbWJKBqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 21:46:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=GEs/+Q9ZtrlhteZ1G9kdHVaUn00QpIm9Mzw/PnIB3Ep81B3aD7rHpOmMF5JnsV4TmHmVVn4yHFxRORMRfKsh2P8gWe5GDqRinvZB08zG6Nou6CfWa9UmOgxJTOlL8B/anXrm7z3kTcL/9RLbPALFeNNi8fHsA7ZBo3HsMM1qdKQ=
+Message-ID: <e9c3a7c20610101846o4b61790cwa7088e5a8cf8e65a@mail.gmail.com>
+Date: Tue, 10 Oct 2006 18:46:08 -0700
+From: "Dan Williams" <dan.j.williams@intel.com>
+To: "Jakob Oestergaard" <jakob@unthought.net>
+Subject: Re: [PATCH 00/19] Hardware Accelerated MD RAID5: Introduction
+Cc: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, christopher.leech@intel.com
+In-Reply-To: <20060914074248.GD23492@unthought.net>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Eric Sandeen <esandeen@redhat.com>, Jan Kara <jack@suse.cz>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061002194711.GA1815@redhat.com>	 <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net>	 <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net>	 <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>	 <20061009225036.GC26728@redhat.com>	 <20061010141145.GM23622@atrey.karlin.mff.cuni.cz>	 <452C18A6.3070607@redhat.com> <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
+	 <20060913071512.GA23492@unthought.net>
+	 <e9c3a7c20609131217q145fb234q36f70b23f1acf950@mail.gmail.com>
+	 <20060914074248.GD23492@unthought.net>
+X-Google-Sender-Auth: fb390945ff6f63a7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> On Tue, 2006-10-10 at 17:03 -0500, Eric Sandeen wrote:
->> Jan Kara wrote:
->>
->>>   I think it's really the 1KB block size that makes it happen.
->>> I've looked at journal_dirty_data() code and I think the following can
->>> happen:
->>>   sync() eventually ends up in journal_dirty_data(bh) as Eric writes.
->>> There is finds dirty buffer attached to the comitting transaction. So it drops
->>> all locks and calls sync_dirty_buffer(bh).
->>>   Now in other process, file is truncated so that 'bh' gets just after EOF.
->>> As we have 1kb buffers, it can happen that bh is in the partially
->>> truncated page. Buffer is marked unmapped and clean. But in a moment the page
->>> is marked dirty and msync() is called. That eventually calls
->>> set_page_dirty() and all buffers in the page are marked dirty.
->>>   The first process now wakes up, locks the buffer, clears the dirty bit
->>> and does submit_bh() - Oops.
->> Hm, just FWIW I have a couple traces* of the buffer getting unmapped
->> -before- journal_submit_data_buffers ever even finds it...
->>
->>  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout,
->> adding to array pid 1836
->>      b_state:0x114025 b_jlist:BJ_SyncData cpu:0 b_count:2 b_blocknr:27130
->>      b_jbd:1 b_frozen_data:0000000000000000
->> b_committed_data:0000000000000000
->>      b_transaction:1 b_next_transaction:0 b_cp_transaction:0
->> b_trans_is_running:0
->>      b_trans_is_comitting:1 b_jcount:0 pg_dirty:0
->>
->> so it's already unmapped at this point.  Could
->> journal_submit_data_buffers benefit from some buffer_mapped checks?  Or
->> is that just a bandaid too late...
-> 
-> Hmm..
-> 
-> b_state: 0x114025 
->                ^
-> means BH_Mapped. Isn't it ?
+On 9/14/06, Jakob Oestergaard <jakob@unthought.net> wrote:
+> On Wed, Sep 13, 2006 at 12:17:55PM -0700, Dan Williams wrote:
+> ...
+> > >Out of curiosity; how does accelerated compare to non-accelerated?
+> >
+> > One quick example:
+> > 4-disk SATA array rebuild on iop321 without acceleration - 'top'
+> > reports md0_resync and md0_raid5 dueling for the CPU each at ~50%
+> > utilization.
+> >
+> > With acceleration - 'top' reports md0_resync cpu utilization at ~90%
+> > with the rest split between md0_raid5 and md0_raid5_ops.
+> >
+> > The sync speed reported by /proc/mdstat is ~40% higher in the accelerated
+> > case.
+>
+> Ok, nice :)
+>
+> >
+> > That being said, array resync is a special case, so your mileage may
+> > vary with other applications.
+>
+> Every-day usage I/O performance data would be nice indeed :)
+>
+> > I will put together some data from bonnie++, iozone, maybe contest,
+> > and post it on SourceForge.
+>
+> Great!
+>
+I have posted some Iozone data and graphs showing the performance
+impact of the patches across the three iop processors iop321, iop331,
+and iop341.  The general take away from the data is that using dma
+engines extends the region that Iozone calls the "buffer cache
+effect".  Write performance benefited the most as expected, but read
+performance showed some modest gains as well.  There are some regions
+(smaller file size and record length) that show a performance
+disadvantage but it is typically less than 5%.
 
-Whoops, I pasted in the wrong one, I guess, from earlier in the trace.  Here are 
-the ones I was looking at:
+The graphs map the relative performance multiplier that the raid
+patches generate ('2.6.18-rc6 performance' x 'performance multiplier'
+= '2.6.18-rc6-raid performance') .  A value of '1' designates equal
+performance.  The large cliff that drops to zero is a "not measured"
+region, i.e. the record length is larger than the file size.  Iozone
+outputs to Excel, but I have also made pdf's of the graphs available.
+Note: Openoffice-calc can view the data but it does not support the 3D
+surface graphs that Iozone uses.
 
-  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout, adding to 
-array pid 1690
-      b_state:0x104005 b_jlist:BJ_SyncData cpu:0 b_count:2 b_blocknr:30045
-      b_jbd:1 b_frozen_data:0000000000000000 b_committed_data:0000000000000000
-      b_transaction:1 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-      b_trans_is_comitting:1 b_jcount:0 pg_dirty:1
+Excel:
+http://prdownloads.sourceforge.net/xscaleiop/iozone_raid_accel.xls?download
 
-and
+PDF Graphs:
+http://prdownloads.sourceforge.net/xscaleiop/iop-iozone-graphs-20061010.tar.bz2?download
 
-  journal_submit_data_buffers():[fs/jbd/commit.c:242] needs writeout, adding to 
-array pid 1836
-      b_state:0x114005 b_jlist:BJ_SyncData cpu:1 b_count:2 b_blocknr:27130
-      b_jbd:1 b_frozen_data:0000000000000000 b_committed_data:0000000000000000
-      b_transaction:1 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-      b_trans_is_comitting:1 b_jcount:0 pg_dirty:1
-
--Eric
+Regards,
+Dan

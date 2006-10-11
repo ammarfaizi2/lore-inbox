@@ -1,104 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161455AbWJKVLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161454AbWJKVMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161455AbWJKVLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161440AbWJKVKP
+	id S1161454AbWJKVMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161447AbWJKVKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:10:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59043 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161452AbWJKVJd (ORCPT
+	Wed, 11 Oct 2006 17:10:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56483 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161454AbWJKVJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:09:33 -0400
-Date: Wed, 11 Oct 2006 14:09:14 -0700
+	Wed, 11 Oct 2006 17:09:32 -0400
+Date: Wed, 11 Oct 2006 14:09:00 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 66/67] NETFILTER: NAT: fix NOTRACK checksum handling
-Message-ID: <20061011210914.GO16627@kroah.com>
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, jim.cromie@gmail.com, johnstul@us.ibm.com,
+       alexander.krause@erazor-zone.de, dzpost@dedekind.net,
+       phelps@mantara.com, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 62/67] scx200_hrt: fix precedence bug manifesting as 27x clock in 1 MHz mode
+Message-ID: <20061011210900.GK16627@kroah.com>
 References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="netfilter-nat-fix-notrack-checksum-handling.patch"
+Content-Disposition: inline; filename="scx200_hrt-fix-precedence-bug-manifesting-as-27x-clock-in-1-mhz-mode.patch"
 In-Reply-To: <20061011210310.GA16627@kroah.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
+From: Jim Cromie <jim.cromie@gmail.com>
 
-From: Patrick McHardy <kaber@trash.net>
+Fix paren-placement / precedence bug breaking initialization for 1 MHz
+clock mode.
 
-The whole idea with the NOTRACK netfilter target is that
-you can force the netfilter code to avoid connection
-tracking, and all costs assosciated with it, by making
-traffic match a NOTRACK rule.
+Also fix comment spelling error, and fence-post (off-by-one) error on
+symbol used in request_region.
 
-But this is totally broken by the fact that we do a checksum
-calculation over the packet before we do the NOTRACK bypass
-check, which is very expensive.  People setup NOTRACK rules
-explicitly to avoid all of these kinds of costs.
+Addresses http://bugzilla.kernel.org/show_bug.cgi?id=7242
 
-This patch from Patrick, already in Linus's tree, fixes the
-bug.
+Thanks alexander.krause@erazor-zone.de, dzpost@dedekind.net, for the
+reports and patch test, and phelps@mantara.com for the independent patch
+and verification.
 
-Move the check for ip_conntrack_untracked before the call to
-skb_checksum_help to fix NOTRACK excemptions from NAT. Pre-2.6.19
-NAT code breaks TSO by invalidating hardware checksums for every
-packet, even if explicitly excluded from NAT through NOTRACK.
-
-2.6.19 includes a fix that makes NAT and TSO live in harmony,
-but the performance degradation caused by this deserves making
-at least the workaround work properly in -stable.
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
+Cc: <alexander.krause@erazor-zone.de>
+Cc: <dzpost@dedekind.net>
+Cc: <phelps@mantara.com>
+Acked-by: John Stultz <johnstul@us.ibm.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- net/ipv4/netfilter/ip_nat_standalone.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/clocksource/scx200_hrt.c |    4 ++--
+ include/linux/scx200.h           |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- linux-2.6.18.orig/net/ipv4/netfilter/ip_nat_standalone.c
-+++ linux-2.6.18/net/ipv4/netfilter/ip_nat_standalone.c
-@@ -110,12 +110,17 @@ ip_nat_fn(unsigned int hooknum,
- 	IP_NF_ASSERT(!((*pskb)->nh.iph->frag_off
- 		       & htons(IP_MF|IP_OFFSET)));
+--- linux-2.6.18.orig/drivers/clocksource/scx200_hrt.c
++++ linux-2.6.18/drivers/clocksource/scx200_hrt.c
+@@ -63,7 +63,7 @@ static struct clocksource cs_hrt = {
  
-+	ct = ip_conntrack_get(*pskb, &ctinfo);
-+
-+	/* Don't try to NAT if this packet is not conntracked */
-+	if (ct == &ip_conntrack_untracked)
-+		return NF_ACCEPT;
-+
- 	/* If we had a hardware checksum before, it's now invalid */
- 	if ((*pskb)->ip_summed == CHECKSUM_HW)
- 		if (skb_checksum_help(*pskb, (out == NULL)))
- 			return NF_DROP;
+ static int __init init_hrt_clocksource(void)
+ {
+-	/* Make sure scx200 has initializedd the configuration block */
++	/* Make sure scx200 has initialized the configuration block */
+ 	if (!scx200_cb_present())
+ 		return -ENODEV;
  
--	ct = ip_conntrack_get(*pskb, &ctinfo);
- 	/* Can't track?  It's not due to stress, or conntrack would
- 	   have dropped it.  Hence it's the user's responsibilty to
- 	   packet filter it out, or implement conntrack/NAT for that
-@@ -137,10 +142,6 @@ ip_nat_fn(unsigned int hooknum,
- 		return NF_ACCEPT;
+@@ -76,7 +76,7 @@ static int __init init_hrt_clocksource(v
  	}
  
--	/* Don't try to NAT if this packet is not conntracked */
--	if (ct == &ip_conntrack_untracked)
--		return NF_ACCEPT;
--
- 	switch (ctinfo) {
- 	case IP_CT_RELATED:
- 	case IP_CT_RELATED+IP_CT_IS_REPLY:
+ 	/* write timer config */
+-	outb(HR_TMEN | (mhz27) ? HR_TMCLKSEL : 0,
++	outb(HR_TMEN | (mhz27 ? HR_TMCLKSEL : 0),
+ 	     scx200_cb_base + SCx200_TMCNFG_OFFSET);
+ 
+ 	if (mhz27) {
+--- linux-2.6.18.orig/include/linux/scx200.h
++++ linux-2.6.18/include/linux/scx200.h
+@@ -32,7 +32,7 @@ extern unsigned scx200_cb_base;
+ 
+ /* High Resolution Timer */
+ #define SCx200_TIMER_OFFSET 0x08
+-#define SCx200_TIMER_SIZE 0x05
++#define SCx200_TIMER_SIZE 0x06
+ 
+ /* Clock Generators */
+ #define SCx200_CLOCKGEN_OFFSET 0x10
 
 --

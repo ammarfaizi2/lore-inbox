@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161483AbWJKVQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWJKVPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161483AbWJKVQv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161449AbWJKVQr
+	id S1161461AbWJKVPE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161483AbWJKVPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:16:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15267 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161438AbWJKVI7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:08:59 -0400
-Date: Wed, 11 Oct 2006 14:08:17 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 53/67] sata_mv: fix oops
-Message-ID: <20061011210817.GB16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sata_mv-fix-oops.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 11 Oct 2006 17:15:00 -0400
+Received: from outmx022.isp.belgacom.be ([195.238.4.203]:20884 "EHLO
+	outmx022.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1161481AbWJKVOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:14:47 -0400
+Date: Wed, 11 Oct 2006 23:14:39 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] watchdog/iTCO_wdt: fix bug related to gcc uninit warning
+Message-ID: <20061011211439.GA3691@infomag.infomag.iguana.be>
+References: <20061010074044.GA23501@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061010074044.GA23501@havoc.gtf.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jeff,
 
--stable review patch.  If anyone has any objections, please let us know.
+> gcc emits the following warning:
+> 
+> drivers/char/watchdog/iTCO_wdt.c: In function ‘iTCO_wdt_ioctl’:
+> drivers/char/watchdog/iTCO_wdt.c:429: warning: ‘time_left’ may be used uninitialized in this function
 
-------------------
-From: Jeff Garzik <jeff@garzik.org>
+Don't know how I missed that.
+Anyway: patch applied to my linux-2.6-watchdog-mm tree.
 
-From: Jeff Garzik <jeff@garzik.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Thanks,
+Wim.
 
----
- drivers/scsi/sata_mv.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-2.6.18.orig/drivers/scsi/sata_mv.c
-+++ linux-2.6.18/drivers/scsi/sata_mv.c
-@@ -463,6 +463,7 @@ static const struct ata_port_operations 
- 
- 	.qc_prep		= mv_qc_prep_iie,
- 	.qc_issue		= mv_qc_issue,
-+	.data_xfer		= ata_mmio_data_xfer,
- 
- 	.eng_timeout		= mv_eng_timeout,
- 
-
---

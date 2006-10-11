@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbWJKOWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWJKO1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030399AbWJKOWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWJKOWU
+	id S1030428AbWJKO1a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJKO1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:22:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37789 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030399AbWJKOWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:22:20 -0400
-Date: Wed, 11 Oct 2006 16:22:05 +0200
-From: Jan Kara <jack@suse.cz>
-To: Eric Sandeen <sandeen@sandeen.net>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Eric Sandeen <esandeen@redhat.com>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061011142205.GB24508@atrey.karlin.mff.cuni.cz>
-References: <20061002231945.f2711f99.akpm@osdl.org> <452AA716.7060701@sandeen.net> <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com> <20061009225036.GC26728@redhat.com> <20061010141145.GM23622@atrey.karlin.mff.cuni.cz> <452C18A6.3070607@redhat.com> <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com> <452C4C47.2000107@sandeen.net> <20061011103325.GC6865@atrey.karlin.mff.cuni.cz> <452CF523.5090708@sandeen.net>
+	Wed, 11 Oct 2006 10:27:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60133 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030408AbWJKO13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 10:27:29 -0400
+Subject: Re: [2.6 patch] drivers/scsi/dpt_i2o.c: remove dead code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <20061008231627.GO6755@stusta.de>
+References: <20061008231627.GO6755@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Oct 2006 15:51:40 +0100
+Message-Id: <1160578300.16513.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452CF523.5090708@sandeen.net>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jan Kara wrote:
+Ar Llu, 2006-10-09 am 01:16 +0200, ysgrifennodd Adrian Bunk:
+> The Coverity checker spotted this dead code introduced by
+> commit a07f353701acae77e023f6270e8af353b37af7c4.
 > 
-> >  Umm, but these two traces confuse me:
-> >1) They are different traces that those you wrote about initially,
-> >aren't they? Because here we would not call sync_dirty_buffer() from
-> >journal_dirty_data().
-> >  BTW: Does this buffer trace lead to that Oops in submit_bh()? I guess not
-> >as the buffer is not dirty...
-> 
-> They do wind up at the same oops, from the same "testcase" (i.e. beat the 
-> tar out of the filesystem with multiple fsx's and fsstress...)
-> 
-> The buffer is not dirty at that tracepoint because it has just done
->                 if (locked && test_clear_buffer_dirty(bh)) {
-> prior to the tracepoint...
-  Oh, I see. OK.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> 
-> See the whole traces at
-> 
-> http://people.redhat.com/esandeen/traces/eric_ext3_oops1.txt
-> http://people.redhat.com/esandeen/traces/eric_ext3_oops2.txt
-  Hmm, those traces look really useful. I just have to digest them ;).
+Semi-NAK
 
-> As an aside, when we do journal_unmap_buffer... should it stay on 
-> t_sync_datalist?
-  Yes, it should and it seems it really was removed from it at some
-point. Only later journal_dirty_data() came and filed it back to the
-BJ_SyncData list. And the buffer remained unmapped till the commit time
-and then *bang*... It may even be a race in ext3 itself that it called
-journal_dirty_data() on an unmapped buffer but I have to read some more
-code.
+Its not dead jim, its in the wrong location
 
-							Bye
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+>  	while ((pDev = pci_get_device( PCI_DPT_VENDOR_ID, PCI_ANY_ID, pDev))) {
+>  		if(pDev->device == PCI_DPT_DEVICE_ID ||
+>  		   pDev->device == PCI_DPT_RAPTOR_DEVICE_ID){
+>  			if(adpt_install_hba(sht, pDev) ){
+>  				PERROR("Could not Init an I2O RAID device\n");
+>  				PERROR("Will not try to detect others.\n");
+
+------------------------> pci_dev_put()
+
+is needed there instead I think.
+
+
+Been away so just catching up
+

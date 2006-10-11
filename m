@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161394AbWJKVeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161521AbWJKVai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161394AbWJKVeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161390AbWJKVeI
+	id S1161521AbWJKVai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161527AbWJKVae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:34:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55761 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161513AbWJKVdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:33:44 -0400
-Date: Wed, 11 Oct 2006 14:29:57 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Steven Whitehouse <steve@chygwyn.com>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       openib-general@openib.org, rolandd@cisco.com
-Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-Message-ID: <20061011142957.5bd42784@freekitty>
-In-Reply-To: <20061011212339.GH15468@mellanox.co.il>
-References: <20061011135720.303f166b@freekitty>
-	<20061011212339.GH15468@mellanox.co.il>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 Oct 2006 17:30:34 -0400
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:39664 "EHLO
+	lin5.shipmail.org") by vger.kernel.org with ESMTP id S1161522AbWJKVa1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:30:27 -0400
+Message-ID: <452D626E.9040606@tungstengraphics.com>
+Date: Wed, 11 Oct 2006 23:30:22 +0200
+From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: sv, en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <npiggin@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 4/5] mm: add vm_insert_pfn helpler
+References: <20061010121314.19693.75503.sendpatchset@linux.site> <20061010121357.19693.7339.sendpatchset@linux.site> <452CC383.4050401@tungstengraphics.com> <20061011112436.GA6835@wotan.suse.de>
+In-Reply-To: <20061011112436.GA6835@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O
-> > 
-> > You might want to try ignoring the check in dev.c and testing
-> > to see if there is a performance gain.  It wouldn't be hard to test
-> > a modified version and validate the performance change.
-> 
-> Yes. With my patch, there is a huge performance gain by increasing MTU to 64K.
-> And it seems the only way to do this is by S/G.
-> 
-> > You could even do what I suggested and use skb_checksum_help()
-> > to do inplace checksumming, as a performance test.
-> 
-> I can. But as network algorithmics says (chapter 5)
-> "Since such bus reads are expensive, the CPU might as well piggyback
-> the checksum computation with the copy process".
-> 
-> It speaks about onboard the adapter buffers, but memory bus reads are also much slower
-> than CPU nowdays.  So I think even if this works well in benchmark in real life
-> single copy should better.
-> 
+Nick Piggin wrote:
 
-The other alternative might be to make copy/checksum code smarter about using
-fragments rather than allocating a large buffer. It should avoid second order
-allocations (effective size > PAGESIZE).
+>On Wed, Oct 11, 2006 at 12:12:19PM +0200, Thomas Hellstrom wrote:
+>  
+>
+>>Nick, I just realized: would it be possible to have a pgprot_t argument 
+>>to this one, instead of it using vma->vm_pgprot?
+>>
+>>The motivation for this (DRM again) is that some architectures (powerpc) 
+>>cannot map the AGP aperture through IO space, but needs to remap the 
+>>page from memory with a nocache attribute set. Others need special 
+>>pgprot settings for write-combined mappings.
+>>
+>>Now, there's a possibility to change vma->vm_pgprot during the first 
+>>->fault(), but again, we only have the mmap_sem in read mode.
+>>    
+>>
+>
+>I don't see a problem with that. It would be nice if vm_pgprot could
+>be kept in synch with the pte protections, but I guess a crazy
+>driver should be allowed to do anything it wants ;)
+>
+>
+>  
+>
+:).
+Actually, the caching bits are sort of left out from the mm code anyway. 
+For example, mprotect will reset them, which is sort of a security risc, 
+since an unpriviliged user can call mprotect on uncached page mappings, 
+causing inconsistent mappings and stability problems.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Thomas
+

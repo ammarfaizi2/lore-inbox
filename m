@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161500AbWJKVUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161432AbWJKVSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161500AbWJKVUt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161490AbWJKVTh
+	id S1161432AbWJKVSY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWJKVIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:19:37 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:28340 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161368AbWJKVTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:19:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=pVN51GAwDsZubKWXSQJEdkqBirExgMzJO6a4IZZxPqrP3fpAjBVEVzixYYqfEGb8MZ+OJwQik3t4NrC1WdUr6EbEv6+ETFwtuq8odrP7oDYPW/h/34LyYGDVGYqRPcgc90iuL6WNSGH0aHBPBa+l312PJmQY40CkJ/KoIoGbSFk=
-Message-ID: <76ee5f990610111418t459055d8xcdf49d8513af36c0@mail.gmail.com>
-Date: Wed, 11 Oct 2006 23:18:50 +0200
-From: "Jens Kubieziel" <kubieziel@googlemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: no OOM-Killer at high RAM and Swapusage
+	Wed, 11 Oct 2006 17:08:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32674 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161432AbWJKVIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:08:14 -0400
+Date: Wed, 11 Oct 2006 14:07:41 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Mark Huang <mlhuang@cs.princeton.edu>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 47/67] load_module: no BUG if module_subsys uninitialized
+Message-ID: <20061011210741.GV16627@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="load_module-no-bug-if-module_subsys-uninitialized.patch"
+In-Reply-To: <20061011210310.GA16627@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I recently had a problem with my Sun Fire v40z (24 GB RAM and four
-dual core Opterons). This machine runs on a plain 2.6.15 kernel. A
-user started Java-processes (java -Xmx 20000m ...). However after some
-time I realised that this machine was unresponsive (screen session
-didn't respond and no new SSH connection). A htop gave me the
-following information:
+-stable review patch.  If anyone has any objections, please let us know.
 
-load: 12.78/11.09/8.25
-MEM:  23616/23738MB
-Swap: 2000/2000MB
-Tasks: 402 total, 17 running
+------------------
+From: "Ed Swierk" <eswierk@arastra.com>
 
-The machine was rebootet because it went unresponsive.
+Invoking load_module() before param_sysfs_init() is called crashes in
+mod_sysfs_setup(), since the kset in module_subsys is not initialized yet.
 
-I would normally expect that the OOM-killer start at some point and
-kills processes. Obviously this didn't happen here. Could you tell why
-this didn't happen? What information could I provide furthermore? What
-criteria are there for starting the OOM-killer (links to docs are
-appreciated)?
+In my case, net-pf-1 is getting modprobed as a result of hotplug trying to
+create a UNIX socket.  Calls to hotplug begin after the topology_init
+initcall.
 
-Thanks for any hints
-Jens
+Another patch for the same symptom (module_subsys-initialize-earlier.patch)
+moves param_sysfs_init() to the subsys initcalls, but this is still not
+early enough in the boot process in some cases.  In particular,
+topology_init() causes /sbin/hotplug to run, which requests net-pf-1 (the
+UNIX socket protocol) which can be compiled as a module.  Moving
+param_sysfs_init() to the postcore initcalls fixes this particular race,
+but there might well be other cases where a usermodehelper causes a module
+to load earlier still.
+
+The patch makes load_module() return an error rather than crashing the
+kernel if invoked before module_subsys is initialized.
+
+Cc: Mark Huang <mlhuang@cs.princeton.edu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ kernel/module.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- linux-2.6.18.orig/kernel/module.c
++++ linux-2.6.18/kernel/module.c
+@@ -1054,6 +1054,12 @@ static int mod_sysfs_setup(struct module
+ {
+ 	int err;
+ 
++	if (!module_subsys.kset.subsys) {
++		printk(KERN_ERR "%s: module_subsys not initialized\n",
++		       mod->name);
++		err = -EINVAL;
++		goto out;
++	}
+ 	memset(&mod->mkobj.kobj, 0, sizeof(mod->mkobj.kobj));
+ 	err = kobject_set_name(&mod->mkobj.kobj, "%s", mod->name);
+ 	if (err)
+
+--

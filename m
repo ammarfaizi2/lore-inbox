@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030675AbWJKQZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbWJKQ2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030675AbWJKQZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030671AbWJKQZH
+	id S1161106AbWJKQ2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161105AbWJKQ2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:25:07 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55228 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030680AbWJKQY4
+	Wed, 11 Oct 2006 12:28:12 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:49572 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030682AbWJKQ2I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:24:56 -0400
+	Wed, 11 Oct 2006 12:28:08 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] m32r: more __user annotations
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1GXgt5-0005Yj-7A@ZenIV.linux.org.uk>
+Subject: [PATCH] misc m68k __user annotations
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Message-Id: <E1GXgwB-0005fa-9O@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 11 Oct 2006 17:24:55 +0100
+Date: Wed, 11 Oct 2006 17:28:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- arch/m32r/kernel/sys_m32r.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/m68k/kernel/process.c |    8 ++++----
+ arch/m68k/kernel/traps.c   |    6 +++---
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/m32r/kernel/sys_m32r.c b/arch/m32r/kernel/sys_m32r.c
-index b567351..b4e7bcb 100644
---- a/arch/m32r/kernel/sys_m32r.c
-+++ b/arch/m32r/kernel/sys_m32r.c
-@@ -31,7 +31,7 @@ #include <asm/unistd.h>
+diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
+index 45a4664..24e83d5 100644
+--- a/arch/m68k/kernel/process.c
++++ b/arch/m68k/kernel/process.c
+@@ -221,13 +221,13 @@ asmlinkage int m68k_clone(struct pt_regs
+ {
+ 	unsigned long clone_flags;
+ 	unsigned long newsp;
+-	int *parent_tidptr, *child_tidptr;
++	int __user *parent_tidptr, *child_tidptr;
+ 
+ 	/* syscall2 puts clone_flags in d1 and usp in d2 */
+ 	clone_flags = regs->d1;
+ 	newsp = regs->d2;
+-	parent_tidptr = (int *)regs->d3;
+-	child_tidptr = (int *)regs->d4;
++	parent_tidptr = (int __user *)regs->d3;
++	child_tidptr = (int __user *)regs->d4;
+ 	if (!newsp)
+ 		newsp = rdusp();
+ 	return do_fork(clone_flags, newsp, regs, 0,
+@@ -361,7 +361,7 @@ void dump_thread(struct pt_regs * regs, 
  /*
-  * sys_tas() - test-and-set
+  * sys_execve() executes a new program.
   */
--asmlinkage int sys_tas(int *addr)
-+asmlinkage int sys_tas(int __user *addr)
+-asmlinkage int sys_execve(char *name, char **argv, char **envp)
++asmlinkage int sys_execve(char __user *name, char __user * __user *argv, char __user * __user *envp)
  {
- 	int oldval;
+ 	int error;
+ 	char * filename;
+diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
+index 4569406..759fa24 100644
+--- a/arch/m68k/kernel/traps.c
++++ b/arch/m68k/kernel/traps.c
+@@ -326,13 +326,13 @@ static inline int do_040writeback1(unsig
  
-@@ -90,7 +90,7 @@ sys_pipe(unsigned long r0, unsigned long
- 
- 	error = do_pipe(fd);
- 	if (!error) {
--		if (copy_to_user((void *)r0, (void *)fd, 2*sizeof(int)))
-+		if (copy_to_user((void __user *)r0, fd, 2*sizeof(int)))
- 			error = -EFAULT;
+ 	switch (wbs & WBSIZ_040) {
+ 	case BA_SIZE_BYTE:
+-		res = put_user(wbd & 0xff, (char *)wba);
++		res = put_user(wbd & 0xff, (char __user *)wba);
+ 		break;
+ 	case BA_SIZE_WORD:
+-		res = put_user(wbd & 0xffff, (short *)wba);
++		res = put_user(wbd & 0xffff, (short __user *)wba);
+ 		break;
+ 	case BA_SIZE_LONG:
+-		res = put_user(wbd, (int *)wba);
++		res = put_user(wbd, (int __user *)wba);
+ 		break;
  	}
- 	return error;
-@@ -201,7 +201,7 @@ asmlinkage int sys_ipc(uint call, int fi
- 	}
- }
  
--asmlinkage int sys_uname(struct old_utsname * name)
-+asmlinkage int sys_uname(struct old_utsname __user * name)
- {
- 	int err;
- 	if (!name)
 -- 
 1.4.2.GIT
+
 

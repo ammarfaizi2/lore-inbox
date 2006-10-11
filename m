@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWJKLU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWJKLXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWJKLU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 07:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965218AbWJKLU6
+	id S1030235AbWJKLXK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 07:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWJKLXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 07:20:58 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:18105 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964911AbWJKLU5 (ORCPT
+	Wed, 11 Oct 2006 07:23:10 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:10564 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030235AbWJKLXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 07:20:57 -0400
-Date: Wed, 11 Oct 2006 13:20:39 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kobajashi Zaghi <kobajashi@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The Future of ReiserFS development
-In-Reply-To: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0610111319490.26779@yvahk01.tjqt.qr>
-References: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Wed, 11 Oct 2006 07:23:08 -0400
+Date: Wed, 11 Oct 2006 13:23:14 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Vasily Tarasov <vtaras@openvz.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       OpenVZ Developer List <devel@openvz.org>
+Subject: Re: [PATCH] block layer: elv_iosched_show should get elv_list_lock
+Message-ID: <20061011112314.GP6515@kernel.dk>
+References: <200610111119.k9BBJhls004763@vass.7ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610111119.k9BBJhls004763@vass.7ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 11 2006, Vasily Tarasov wrote:
+> elv_iosched_show function iterates other elv_list,
+> hence elv_list_lock should be got.
 
-> What is the plan? Could i
-> migrate from reiserfs to another journaling filesystem? How will this
-> trouble affect reiserfs development?
+Indeed, that's a bug. Thanks!
 
-Since development has pretty much ceased already, there is nothing to 
-lose if you continue to use reiserfs.
+> Also the question is: in elv_iosched_show, elv_iosched_store
+> q->elevator->elevator_type construction is used without locking
+> q->queue_lock.  Is it expected?..
 
+As long as the queue doesn't go away, we should be safe enough.
 
-	-`J'
 -- 
+Jens Axboe
+

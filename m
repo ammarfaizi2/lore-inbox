@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161388AbWJKVhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161529AbWJKVik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161388AbWJKVhk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161390AbWJKVhk
+	id S1161529AbWJKVik (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161527AbWJKVii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:37:40 -0400
-Received: from kurby.webscope.com ([204.141.84.54]:5029 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1161388AbWJKVhh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:37:37 -0400
-Message-ID: <452D63D4.6050300@linuxtv.org>
-Date: Wed, 11 Oct 2006 17:36:20 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-Subject: Re: [patch 06/67] Video: cx24123: fix PLL divisor setup
-References: <20061011204756.642936754@quad.kroah.org> <20061011210353.GG16627@kroah.com> <452D5EF7.80303@linuxtv.org> <20061011212959.GA18006@suse.de>
-In-Reply-To: <20061011212959.GA18006@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 17:38:38 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:30167 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1161525AbWJKVif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:38:35 -0400
+Date: Wed, 11 Oct 2006 17:38:34 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Eric.Moore@lsil.com, linux-scsi@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] MPT fusion: handle PCI layer error on resume
+Message-ID: <20061011213834.GA20253@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Oct 11, 2006 at 05:15:35PM -0400, Michael Krufky wrote:
->> Greg KH wrote:
->>> -stable review patch.  If anyone has any objections, please let us know.
->>>
->>> ------------------
->>> From: Yeasah Pell <yeasah@schwide.net>
->>>
->>> The cx24109 datasheet says: "NOTE: if A=0, then N=N+1"
->>>
->>> The current code is the result of a misinterpretation of the datasheet to
->>> mean exactly the opposite of the requirement -- The actual value of N is 1
->>> greater than the value written when A is 0, so 1 needs to be *subtracted*
->>> from it to compensate.
->>>
->>> Signed-off-by: Yeasah Pell <yeasah@schwide.net>
->>> Signed-off-by: Steven Toth <stoth@hauppauge.com>
->>> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
->>> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->> Greg,
->>
->> When you apply this patch to your 2.6.18.y tree (and also to your
->> 2.6.17.y tree) , can you please preceed the patch title with 'DVB'
->> instead of 'VIDEO' ?
->>
->> I'll be sure to specify the subsystem, instead of only the driver name
->> in future patches.
-> 
-> Yes, it's better for you to specifiy it, instead of having me guess at
-> what it should be classified as :)
-> 
-> I'll try to go edit the existing patches to fix this,
 
-OOPS!  I just saw your -stable commit.
+In the unlikely event of pci_enable_device() failure during resume, we
+do the minimalist solution and simply exit, rather than continuing to
+enable the hardware.
 
-Slight misunderstanding, Greg...
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-Out of those six patches that I sent to you, only "cx24123: fix PLL
-divisor setup" is a DVB patch... The remaining 5 patches are V4L patches.
+---
 
-Sorry for the confusion.
+ drivers/message/fusion/mptbase.c |   10 ++++++++--
 
-Regards,
-
-Michael Krufky
-
+diff --git a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
+index e5c7271..f183b83 100644
+--- a/drivers/message/fusion/mptbase.c
++++ b/drivers/message/fusion/mptbase.c
+@@ -1515,7 +1515,7 @@ mpt_resume(struct pci_dev *pdev)
+ {
+ 	MPT_ADAPTER *ioc = pci_get_drvdata(pdev);
+ 	u32 device_state = pdev->current_state;
+-	int recovery_state;
++	int recovery_state, rc;
+ 
+ 	printk(MYIOC_s_INFO_FMT
+ 	"pci-resume: pdev=0x%p, slot=%s, Previous operating state [D%d]\n",
+@@ -1523,7 +1523,13 @@ mpt_resume(struct pci_dev *pdev)
+ 
+ 	pci_set_power_state(pdev, 0);
+ 	pci_restore_state(pdev);
+-	pci_enable_device(pdev);
++
++	rc = pci_enable_device(pdev);
++	if (rc) {
++		printk(MYIOC_s_INFO_FMT
++			"pci-resume: device enable failed\n", ioc->name);
++		return rc;
++	}
+ 
+ 	/* enable interrupts */
+ 	CHIPREG_WRITE32(&ioc->chip->IntMask, MPI_HIM_DIM);

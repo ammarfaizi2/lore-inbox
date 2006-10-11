@@ -1,86 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbWJKTh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWJKTib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161176AbWJKTh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWJKTh6
+	id S1161179AbWJKTib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWJKTib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:37:58 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:38559 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1161067AbWJKTh5 (ORCPT
+	Wed, 11 Oct 2006 15:38:31 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:39849 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161067AbWJKTia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:37:57 -0400
-From: "=?iso-8859-9?q?S=2E=C7a=F0lar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: Ondemand/Conservative not working with 2.6.18
-Date: Wed, 11 Oct 2006 22:38:00 +0300
-User-Agent: KMail/1.9.5
-Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <EB12A50964762B4D8111D55B764A8454B6C08C@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454B6C08C@scsmsx413.amr.corp.intel.com>
+	Wed, 11 Oct 2006 15:38:30 -0400
+Date: Wed, 11 Oct 2006 21:37:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lex Lyamin <flx@namesys.com>
+cc: Kobajashi Zaghi <kobajashi@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: The Future of ReiserFS development
+In-Reply-To: <80294dc60610110937g44164a77nb2742f8a2f121574@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0610112116070.9822@yvahk01.tjqt.qr>
+References: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com> 
+ <Pine.LNX.4.61.0610111319490.26779@yvahk01.tjqt.qr>
+ <80294dc60610110937g44164a77nb2742f8a2f121574@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1700547.PkTOibKvg4";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610112238.03319.caglar@pardus.org.tr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1700547.PkTOibKvg4
-Content-Type: text/plain;
-  charset="iso-8859-9"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>
+> Well, this is correct statement if we are talking about 3.6, its only
+> bugfixes lately. Altough SuSE people used to add some new stuff
+> like ACL support.
 
-11 Eki 2006 =C7ar 22:00 tarihinde, Pallipadi, Venkatesh =FEunlar=FD yazm=FD=
-=FEt=FD:=20
-> Can you configure with CPU_FREQ_DEBUG and do "echo 5 >
-> /sys/module/cpufreq/parameter/debug" before switching the governor to
-> ondemand and see whether you see any messages in dmesg?
+And I wished they do the same for reiser4, because not having quota and 
+not having ACLs makes it useless for me ATM, despite all speed it brings 
+along.
+(If those features have sneaked in in the past months, let me know.)
 
-Here it is;
 
-zangetsu cpufreq # echo 5 > /sys/module/cpufreq/parameters/debug
-zangetsu cpufreq # echo "ondemand" > scaling_governor
-zangetsu cpufreq # dmesg
-
-=2E..
-cpufreq-core: setting new policy for CPU 0: 800000 - 1733000 kHz
-freq-table: request for verification of policy (800000 - 1733000 kHz) for c=
-pu=20
-0
-freq-table: verification lead to (800000 - 1733000 kHz) for cpu 0
-freq-table: request for verification of policy (800000 - 1733000 kHz) for c=
-pu=20
-0
-freq-table: verification lead to (800000 - 1733000 kHz) for cpu 0
-cpufreq-core: new min and max freqs are 800000 - 1733000 kHz
-cpufreq-core: governor switch
-cpufreq-core: __cpufreq_governor for CPU 0, event 2
-cpufreq-core: __cpufreq_governor for CPU 0, event 1
-cpufreq-core: governor: change or update limits
-cpufreq-core: __cpufreq_governor for CPU 0, event 3
-
-Cheers
-=2D-=20
-S.=C7a=F0lar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
-
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
-
---nextPart1700547.PkTOibKvg4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFLUgby7E6i0LKo6YRAlh0AJ9P+sdnqmwD98k7ExPZ4eV/rJ68xQCePKux
-/xkiGzir52owkX+ALz7cX5o=
-=xns+
------END PGP SIGNATURE-----
-
---nextPart1700547.PkTOibKvg4--
+	-`J'
+-- 

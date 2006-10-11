@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWJKQh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWJKQkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161123AbWJKQh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJKQhZ
+	id S1161126AbWJKQkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbWJKQkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:37:25 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:23977 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161124AbWJKQhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:37:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=k0iXr6RLobWqkbqmby9NVBj8oT2Cnt4q15mKra6CCYToPnsvUl3ZDEIfHbokGHd8oPx425ZEYXJMR6hTxntZh8aG4ednUv5vXEkI2X7oYxOc3wZ/KnpsIBeNmrgtR6CbafmvtwXi4kE9R1TiMxbS/U5vpQEWMNVWswSbVPwa6vo=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Date: Thu, 12 Oct 2006 00:37:11 +0800
-User-Agent: KMail/1.8.2
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061010212615.GB31972@srcf.ucam.org> <20061011030232.GA27693@lists.us.dell.com>
-In-Reply-To: <20061011030232.GA27693@lists.us.dell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610120037.11933.luming.yu@gmail.com>
+	Wed, 11 Oct 2006 12:40:25 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47292 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161126AbWJKQkX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 12:40:23 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] remove bogus arch-specific syscall exports
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1GXh82-00066y-2H@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 11 Oct 2006 17:40:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, our BIOS teams are looking to do exactly that.  I wouldn't expect
-> such a change to be propogated back to earlier released systems though.
-Wow!  This is a really good news! Please just notify me when it ready.
-Because, I'd like to have one. :-)
 
-Thanks,
-Luming
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ arch/arm/kernel/armksyms.c        |    6 ------
+ arch/arm26/kernel/armksyms.c      |    8 --------
+ arch/parisc/kernel/parisc_ksyms.c |    4 ----
+ arch/s390/kernel/s390_ksyms.c     |    1 -
+ 4 files changed, 0 insertions(+), 19 deletions(-)
+
+diff --git a/arch/arm/kernel/armksyms.c b/arch/arm/kernel/armksyms.c
+index da69e66..4779f47 100644
+--- a/arch/arm/kernel/armksyms.c
++++ b/arch/arm/kernel/armksyms.c
+@@ -178,9 +178,3 @@ EXPORT_SYMBOL(_find_next_zero_bit_be);
+ EXPORT_SYMBOL(_find_first_bit_be);
+ EXPORT_SYMBOL(_find_next_bit_be);
+ #endif
+-
+-	/* syscalls */
+-EXPORT_SYMBOL(sys_write);
+-EXPORT_SYMBOL(sys_lseek);
+-EXPORT_SYMBOL(sys_exit);
+-EXPORT_SYMBOL(sys_wait4);
+diff --git a/arch/arm26/kernel/armksyms.c b/arch/arm26/kernel/armksyms.c
+index 07907b6..93293d0 100644
+--- a/arch/arm26/kernel/armksyms.c
++++ b/arch/arm26/kernel/armksyms.c
+@@ -202,14 +202,6 @@ EXPORT_SYMBOL(_find_next_zero_bit_le);
+ EXPORT_SYMBOL(elf_platform);
+ EXPORT_SYMBOL(elf_hwcap);
+ 
+-	/* syscalls */
+-EXPORT_SYMBOL(sys_write);
+-EXPORT_SYMBOL(sys_read);
+-EXPORT_SYMBOL(sys_lseek);
+-EXPORT_SYMBOL(sys_open);
+-EXPORT_SYMBOL(sys_exit);
+-EXPORT_SYMBOL(sys_wait4);
+-
+ #ifdef CONFIG_PREEMPT
+ EXPORT_SYMBOL(kernel_flag);
+ #endif
+diff --git a/arch/parisc/kernel/parisc_ksyms.c b/arch/parisc/kernel/parisc_ksyms.c
+index 6d57553..8f6a0b3 100644
+--- a/arch/parisc/kernel/parisc_ksyms.c
++++ b/arch/parisc/kernel/parisc_ksyms.c
+@@ -69,10 +69,6 @@ EXPORT_SYMBOL(memcpy_toio);
+ EXPORT_SYMBOL(memcpy_fromio);
+ EXPORT_SYMBOL(memset_io);
+ 
+-#include <asm/unistd.h>
+-EXPORT_SYMBOL(sys_lseek);
+-EXPORT_SYMBOL(sys_write);
+-
+ #include <asm/semaphore.h>
+ EXPORT_SYMBOL(__up);
+ EXPORT_SYMBOL(__down_interruptible);
+diff --git a/arch/s390/kernel/s390_ksyms.c b/arch/s390/kernel/s390_ksyms.c
+index 9f19e83..90b5ef5 100644
+--- a/arch/s390/kernel/s390_ksyms.c
++++ b/arch/s390/kernel/s390_ksyms.c
+@@ -51,4 +51,3 @@ EXPORT_SYMBOL(csum_fold);
+ EXPORT_SYMBOL(console_mode);
+ EXPORT_SYMBOL(console_devno);
+ EXPORT_SYMBOL(console_irq);
+-EXPORT_SYMBOL(sys_wait4);
+-- 
+1.4.2.GIT
+

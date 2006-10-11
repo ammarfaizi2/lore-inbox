@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbWJKWQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161563AbWJKWSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161232AbWJKWQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161562AbWJKWQy
+	id S1161563AbWJKWSs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 18:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161565AbWJKWSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:16:54 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10892 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161232AbWJKWQx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:16:53 -0400
-Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Geoff Levand <geoffrey.levand@am.sony.com>, akpm@osdl.org, jeff@garzik.org,
-       Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <20061011152016.GU4381@austin.ibm.com>
-References: <20061010204946.GW4381@austin.ibm.com>
-	 <20061010212324.GR4381@austin.ibm.com> <452C2AAA.5070001@austin.ibm.com>
-	 <452C4CE0.5010607@am.sony.com>  <20061011152016.GU4381@austin.ibm.com>
-Content-Type: text/plain
-Date: Thu, 12 Oct 2006 08:13:52 +1000
-Message-Id: <1160604832.4792.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 18:18:48 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:63995 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1161563AbWJKWSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 18:18:47 -0400
+Date: Wed, 11 Oct 2006 15:18:22 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chandra Seetharaman <sekharan@us.ibm.com>, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Allow more than PAGESIZE data read in configfs
+Message-ID: <20061011221822.GD7911@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Chandra Seetharaman <sekharan@us.ibm.com>,
+	ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain> <20061010203511.GF7911@ca-server1.us.oracle.com> <20061011131935.448a8696.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061011131935.448a8696.akpm@osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 11, 2006 at 01:19:35PM -0700, Andrew Morton wrote:
+> The patch deletes a pile of custom code from configfs and replaces it with
+> calls to standard kernel infrastructure and fixes a shortcoming/bug in the
+> process.  Migration over to the new interface is trivial and almost
+> scriptable.
 
-> I started writingthe patch thinking it will have some huge effect on
-> performance, based on a false assumption on how i/o was done on this
-> machine
-> 
-> *If* this were another pSeries system, then each call to 
-> pci_map_single() chews up an actual hardware "translation 
-> control entry" (TCE) that maps pci bus addresses into 
-> system RAM addresses. These are somewhat limited resources,
-> and so one shouldn't squander them.  Furthermore, I thouhght
-> TCE's have TLB's associated with them (similar to how virtual
-> memory page tables are backed by hardware page TLB's), of which 
-> there are even less of. I was thinking that TLB thrashing would 
-> have a big hit on performance. 
-> 
-> Turns out that there was no difference to performance at all, 
-> and a quick look at "cell_map_single()" in arch/powerpc/platforms/cell
-> made it clear why: there's no fancy i/o address mapping.
-> 
-> Thus, the patch has only mrginal benefit; I submit it only in the 
-> name of "its the right thing to do anyway".
+	The configfs stuff is based on the sysfs code too.  Should we
+migrate sysfs/file.c to the same seq_file code?  Serious question, if
+the cleanup is considered better.
 
-Well, there is no fancy iommu mapping ... yet.
+Joel
 
-It's been implemented and is coming after we put together some
-workarounds for various other spider hardware issues that trigger when
-using it (bogus prefetches and bogus pci ordering).
+-- 
 
-I think the hypervisor based platforms will be happy with that patch
-too.
+"I almost ran over an angel
+ He had a nice big fat cigar.
+ 'In a sense,' he said, 'You're alone here
+ So if you jump, you'd best jump far.'"
 
-Ben.
-
-
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

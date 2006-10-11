@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161080AbWJKPUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbWJKPn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161080AbWJKPUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 11:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWJKPUW
+	id S1161086AbWJKPn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 11:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbWJKPn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 11:20:22 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:42897 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161075AbWJKPUU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 11:20:20 -0400
-Date: Wed, 11 Oct 2006 10:20:17 -0500
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-Cc: jschopp <jschopp@austin.ibm.com>, akpm@osdl.org, jeff@garzik.org,
-       Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
-Message-ID: <20061011152016.GU4381@austin.ibm.com>
-References: <20061010204946.GW4381@austin.ibm.com> <20061010212324.GR4381@austin.ibm.com> <452C2AAA.5070001@austin.ibm.com> <452C4CE0.5010607@am.sony.com>
+	Wed, 11 Oct 2006 11:43:58 -0400
+Received: from mga01.intel.com ([192.55.52.88]:41777 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1161086AbWJKPn5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 11:43:57 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,295,1157353200"; 
+   d="scan'208"; a="144757034:sNHT1585710056"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Adam Litke'" <agl@us.ibm.com>, "linux-mm" <linux-mm@kvack.org>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, <wli@holomorphy.com>
+Subject: RE: [RFC] hugetlb: Move hugetlb_get_unmapped_area
+Date: Wed, 11 Oct 2006 08:43:38 -0700
+Message-ID: <000001c6ed4c$08419150$1680030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452C4CE0.5010607@am.sony.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcbtOcn80lZXPZ+rQS+0EiYuNklUsAAEXwDg
+In-Reply-To: <1160573520.9894.27.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 06:46:08PM -0700, Geoff Levand wrote:
-> > Linas Vepstas wrote:
-> >> The current driver code performs 512 DMA mappns of a bunch of 
-> >> 32-byte structures. This is silly, as they are all in contiguous 
-> >> memory. Ths patch changes the code to DMA map the entie area
-> >> with just one call.
+Adam Litke wrote on Wednesday, October 11, 2006 6:32 AM
+> I am trying to do some hugetlb interface cleanups which include
+> separation of the hugetlb utility functions (mostly in mm/hugetlb.c)
+> from the hugetlbfs interface to huge pages (fs/hugetlbfs/inode.c).
 > 
-> Linas, 
-> 
-> Is the motivation for this change to improve performance by reducing the overhead
-> of the mapping calls?  
+> This patch simply moves hugetlb_get_unmapped_area() (which I'll argue is
+> more of a utility function than an interface) to mm/hugetlb.c.  
 
-Yes.
+To me it doesn't look like a clean up.  get_unmapped_area() is one of
+file_operations method and it make sense with the current arrangement
+that it stays together with .mmap method, which both live in
+fs/hugetlbfs/inode.c.
 
-> If so, there may be some benefit for some systems.  Could
-> you please elaborate?
-
-I started writingthe patch thinking it will have some huge effect on
-performance, based on a false assumption on how i/o was done on this
-machine
-
-*If* this were another pSeries system, then each call to 
-pci_map_single() chews up an actual hardware "translation 
-control entry" (TCE) that maps pci bus addresses into 
-system RAM addresses. These are somewhat limited resources,
-and so one shouldn't squander them.  Furthermore, I thouhght
-TCE's have TLB's associated with them (similar to how virtual
-memory page tables are backed by hardware page TLB's), of which 
-there are even less of. I was thinking that TLB thrashing would 
-have a big hit on performance. 
-
-Turns out that there was no difference to performance at all, 
-and a quick look at "cell_map_single()" in arch/powerpc/platforms/cell
-made it clear why: there's no fancy i/o address mapping.
-
-Thus, the patch has only mrginal benefit; I submit it only in the 
-name of "its the right thing to do anyway".
-
---linas
+- Ken

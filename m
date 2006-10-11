@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbWJKL0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWJKLa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030341AbWJKL0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 07:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWJKL0A
+	id S1030384AbWJKLa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 07:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbWJKLa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 07:26:00 -0400
-Received: from [195.171.73.133] ([195.171.73.133]:6867 "EHLO
-	pelagius.h-e-r-e-s-y.com") by vger.kernel.org with ESMTP
-	id S1030341AbWJKLZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 07:25:59 -0400
-Date: Wed, 11 Oct 2006 11:25:58 +0000
-From: andrew@walrond.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18 intermittent parallel build failure
-Message-ID: <20061011112558.GA23147@pelagius.h-e-r-e-s-y.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 11 Oct 2006 07:30:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54033 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030349AbWJKLaz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 07:30:55 -0400
+Date: Wed, 11 Oct 2006 11:30:42 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       len.brown@intel.com
+Subject: Re: [PATCH] Add support for the generic backlight device to the IBM ACPI driver
+Message-ID: <20061011113042.GA4725@ucw.cz>
+References: <20061009113235.GA4444@homac.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061009113235.GA4444@homac.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling the kernel on a Sun T1000 ( Niagra - 6 cores/24
-threads) with
+Hi!
 
-	make -j12
+> Add support for the generic backlight interface below
+> /sys/class/backlight. The patch keeps the procfs brightness handling for
+> backward compatibility. For this to archive, the patch adds two generic
+> functions brightness_get and brightness_set to be used both by the procfs
+> related and the sysfs related methods.
+> 
+> Signed-off-by: Holger Macht <hmacht@suse.de>
 
-I occasionally see failures like:
+Looks okay to me. It would be nice to get this in, so that we teach
+people to use generic interface, and so that we can remove crappy
+interfaces in future...
 
-  CC      drivers/net/pppox.mod.o
-  CC      drivers/net/r8169.mod.o
-  CC      drivers/net/sk98lin/sk98lin.mod.o
-  CC      drivers/net/skge.mod.o
-  CC      drivers/net/slhc.mod.o
-gcc: no input files
-make[1]: *** [drivers/net/slhc.mod.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [modules] Error 2
-
-Restarting the make command completes the build successfully.
-
-I am using the latest make 3.81 (which had a scary list of BACKWARDS
-COMPATIBILITY warnings in the NEWS file) in case that might be
-relevant.
-
-Hope thats useful
-
-Andrew Walrond
+-- 
+Thanks for all the (sleeping) penguins.

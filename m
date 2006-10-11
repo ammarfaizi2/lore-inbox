@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbWJKRKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWJKRLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161110AbWJKRKl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWJKRKk
+	id S1161124AbWJKRLw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbWJKRLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:10:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:30991 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161110AbWJKRKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:10:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=Q2ZHCj02w+pfRPNkLGDdtLeaITvvTk4d9pWFQyfO2+ayK4XSWuNDQooJFmjiwtZILVuwN6MKx+vzPrsDWO9muqGbtmD3UfbNQa/5Ju3CVjWocrp+aW7FMDwkBMjK+446zglYnOH1q1KlTkTNYhMRgVIUb94Ls0WcmtY5F6ig0xE=
-Message-ID: <e4cb19870610111010p3da2022bud047163417560033@mail.gmail.com>
-Date: Wed, 11 Oct 2006 13:10:31 -0400
-From: "Thomas Tuttle" <thinkinginbinary+lkml@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Dell Inspiron e1405 hangs on lid close in 64-bit mode
+	Wed, 11 Oct 2006 13:11:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46545 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161124AbWJKRLw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:11:52 -0400
+Date: Wed, 11 Oct 2006 10:11:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SPAM: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
+In-Reply-To: <20061011165717.GB5259@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0610111007000.3952@g5.osdl.org>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+ <20061010121332.19693.37204.sendpatchset@linux.site> <20061010213843.4478ddfc.akpm@osdl.org>
+ <452C838A.70806@yahoo.com.au> <20061010230042.3d4e4df1.akpm@osdl.org>
+ <Pine.LNX.4.64.0610110916540.3952@g5.osdl.org> <20061011165717.GB5259@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: 15bc773198aafdf6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Dell Inspiron e1405 laptop with a Core 2 Duo processor.
-Under every 64-bit kernel I have tried yet, it hangs when I close the
-lid (or, I would assume, do anything else that activates System
-Management Mode).  It works fine under 32-bit mode; closing the lid
-turns the LCD off using DPMS.
 
-I understand that this might be entirely outside the control of the
-kernel developers, but I would of course love to be able to use this
-laptop in 64-bit mode.  What information would be needed to fix it,
-and/or how would I go about debugging it?  I've tried turning the
-console loglevel up to 9, but no information is printed right before
-the crash (probably since an exception occurs in SMM, and isn't
-caught?).  I think booting with noacpi (I'm not sure, I'll check) made
-it work, but disabled all the power management features, making the
-rest of the laptop much less useful.
 
-Thanks in advance,
+On Wed, 11 Oct 2006, Nick Piggin wrote:
+> > 
+> > The original IO could have been started by a person who didn't have 
+> > permissions to actually carry it out successfully, so if you enter with 
+> > the page locked (because somebody else started the IO), and you wait for 
+> > the page and it's not up-to-date afterwards, you absolutely _have_ to try 
+> > the IO, and can only return a real IO error after your _own_ IO has 
+> > failed.
+> 
+> Sure, but we currently try to read _twice_, don't we?
 
-Thomas Tuttle
+Well, we have the read-ahead, and then the real read. By the time we do 
+the real read, we have forgotten about the read-ahead details, so..
+
+We also end up often having a _third_ one, simply because the _user_ tries 
+it twice: it gets a partial IO read first, and then tries to continue and 
+won't give up until it gets a real error.
+
+So yes, we can end up reading it even more than twice, if only due to 
+standard UNIX interfaces: you always have to have one extra "read()" 
+system call in order to get the final error (or - much more commonly - 
+EOF, of course).
+
+If we tracked the read-aheads that _we_ started, we could probably get rid 
+of one of them.
+
+			Linus

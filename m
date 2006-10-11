@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161162AbWJKRim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161170AbWJKRzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161162AbWJKRim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWJKRim
+	id S1161170AbWJKRzX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWJKRzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:38:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11230 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161162AbWJKRil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:38:41 -0400
-Date: Wed, 11 Oct 2006 10:38:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
-In-Reply-To: <20061011172120.GC5259@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0610111031020.3952@g5.osdl.org>
-References: <20061010121314.19693.75503.sendpatchset@linux.site>
- <20061010121332.19693.37204.sendpatchset@linux.site> <20061010213843.4478ddfc.akpm@osdl.org>
- <452C838A.70806@yahoo.com.au> <20061010230042.3d4e4df1.akpm@osdl.org>
- <Pine.LNX.4.64.0610110916540.3952@g5.osdl.org> <20061011165717.GB5259@wotan.suse.de>
- <Pine.LNX.4.64.0610111007000.3952@g5.osdl.org> <20061011172120.GC5259@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Oct 2006 13:55:22 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:58598 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1161170AbWJKRzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:55:21 -0400
+Subject: Re: [patch 0/2] Introduce round_jiffies() to save spurious wakeups
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+In-Reply-To: <20061011172331.GA13099@infradead.org>
+References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	 <20061011172331.GA13099@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Oct 2006 19:54:57 +0200
+Message-Id: <1160589297.3000.389.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 11 Oct 2006, Nick Piggin wrote:
+On Wed, 2006-10-11 at 18:23 +0100, Christoph Hellwig wrote:
+> On Tue, Oct 10, 2006 at 06:02:45PM +0200, Arjan van de Ven wrote:
+> > Hi,
+> > 
+> > the following 2 patches will introduce the round_jiffies() api and users
+> > thereof. 
+> > 
+> > The general idea is that by rounding the jiffies for certain timers to
+> > the next whole second will make those timers all happen at the same
+> > time; and thus reduce the number of times the cpu has to wake up to
+> > service timers (this assumes a tickless kernel)
+> > 
+> > Obviously only timers where the exact time of firing isn't so important
+> > can do this; several of the recurring "always live" timers of the kernel
+> > are of this kind, they want "about once a second" or "about once every 4
+> > seconds" and such, and don't really care about the exact jiffy in which
+> > they fire.
+> > 
+> > An alternative would have been to introduce mod_timer_rounded() or
+> > somesuch APIs (but there's many variants that take jiffies); I feel that
+> > an explicit caller based rounding actually is quite reasonable.
 > 
-> I mean filemap_nopage does *two* synchronous reads when finding a !uptodate
-> page. This is despite the comment saying that it retries once on error.
+> I think the API you proposed is horrible.  Having jiffies exposed in
+> ani API is a mistake, and adding more makes this problem worse.  
 
-Ahh. 
+and other people like Linus disagree with you.
 
-Yes, now that you point to the actual code, that does look ugly.
+> I'd suggest
+> to start with Alan's patches that add a timer variant that takes a miliseconds
+> argument instead of jiffies and add a _rounded varaint to it that has
+> a new parameter that specifies the precision.
 
-I think it's related to the
+it's half a solution; there's many apis that currently take either
+absolute or relative jiffies, and want rounding. Duplicating that lot
+doesn't look like the best idea either...
 
-	ClearPageError(page);
-
-thing, and probably related to that function being rather old and having 
-gone through several re-organizations. I suspect we used to fall through 
-to the error handling code regardless of whether we did the read ourselves 
-etc.
-
-Are you saying that something like this would be preferable?
-
-		Linus
-
----
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 3464b68..e5ecf42 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1496,6 +1496,8 @@ page_not_uptodate:
- 		goto success;
- 	}
- 
-+	/* Clear any potential old errors, and try to read.. */
-+	ClearPageError(page);
- 	error = mapping->a_ops->readpage(file, page);
- 	if (!error) {
- 		wait_on_page_locked(page);
-@@ -1526,21 +1528,12 @@ page_not_uptodate:
- 		unlock_page(page);
- 		goto success;
- 	}
--	ClearPageError(page);
--	error = mapping->a_ops->readpage(file, page);
--	if (!error) {
--		wait_on_page_locked(page);
--		if (PageUptodate(page))
--			goto success;
--	} else if (error == AOP_TRUNCATED_PAGE) {
--		page_cache_release(page);
--		goto retry_find;
--	}
- 
- 	/*
- 	 * Things didn't work out. Return zero to tell the
- 	 * mm layer so, possibly freeing the page cache page first.
- 	 */
-+	unlock_page(page);
- 	shrink_readahead_size_eio(file, ra);
- 	page_cache_release(page);
- 	return NOPAGE_SIGBUS;

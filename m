@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWJKOft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWJKOi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWJKOft (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJKOft
+	id S1030364AbWJKOi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbWJKOi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:35:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24716 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030420AbWJKOfs (ORCPT
+	Wed, 11 Oct 2006 10:38:28 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:23754 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S1030364AbWJKOi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:35:48 -0400
-Date: Wed, 11 Oct 2006 07:35:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Len Brown <lenb@kernel.org>
-cc: Pavel Machek <pavel@ucw.cz>,
-       =?ISO-8859-1?Q?Fr=E9d=E9ric_Riss?= <frederic.riss@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 suspend regression on Intel Macs
-In-Reply-To: <200610110235.02435.len.brown@intel.com>
-Message-ID: <Pine.LNX.4.64.0610110732390.3952@g5.osdl.org>
-References: <1160417982.5142.45.camel@funkylaptop> <20061010195022.GA32134@elf.ucw.cz>
- <Pine.LNX.4.64.0610101447270.3952@g5.osdl.org> <200610110235.02435.len.brown@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Oct 2006 10:38:27 -0400
+Date: Wed, 11 Oct 2006 16:38:16 +0200
+From: Frank Gevaerts <frank@gevaerts.be>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch : hdaps on Thinkpad R52
+Message-ID: <20061011143816.GA5753@gevaerts.be>
+Mail-Followup-To: Jean Delvare <khali@linux-fr.org>,
+	Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
+	linux-kernel@vger.kernel.org
+References: <20060314205758.GA9229@gevaerts.be> <20060328182933.4184db3f.khali@linux-fr.org> <20060328170045.GA10334@gevaerts.be> <20060401170422.cc2ff8c2.khali@linux-fr.org> <20060403163541.GA4571@gevaerts.be> <20060408170238.4e241eac.khali@linux-fr.org> <20061011160745.605fc944.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061011160745.605fc944.khali@linux-fr.org>
+X-flash-is-evil: do not use it
+X-virus: If this mail contains a virus, feel free to send one back
+User-Agent: Mutt/1.5.9i
+X-gevaerts-MailScanner: Found to be clean
+X-MailScanner-From: fg@gevaerts.be
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 11 Oct 2006, Len Brown wrote:
+On Wed, Oct 11, 2006 at 04:07:45PM +0200, Jean Delvare wrote:
+> Hi Franck,
 > 
-> It is troubling that Linux now gets to add the burden of MacOS bug compatibility to
-> Windows bug compatibility.  I asked the apple folks and they
-> said they didn't see anyplace in MacOS where SCI_EN is restored
-> from the OS, so perhaps we are following a different path through
-> their firmware...
+> Quoting myself back in April:
+> > > I just had a mail from another R52 user, reporting that his system
+> > > (also 1846AQG) also reports ThinkPad H.
+> > 
+> > I gathered data on my side too, the three R52 I had reports for used
+> > "ThinkPad R52" but these had different machine type/model. I guess that
+> > the 1846AQG is somehow different, but probably you don't know why?
+> > 
+> > So I suppose we could add that "ThinkPad H" identifier string to the
+> > hdaps driver after all, as you proposed in the first place. I'm only
+> > worried that the "H" suffix is really short, and I hope that no other
+> > model not supported by the driver (or needing the invert option) will
+> > ever have the same identifier. Time will tell.
+> 
+> I am told that a newer BIOS of the Thinkpad R52 fixes the machine name
+> in the DMI table.
+> http://www.thinkwiki.org/wiki/List_of_DMI_IDs#R_series
+> Can you please confirm this by upgrading the BIOS of your machine and
+> removing the "ThinkPad H" entry from the hdaps driver?
 
-We definitely are. MacOS uses EFI. Linux (if you want to use a standard 
-Linux distro image) uses Boot Camp, aka BIOS emulation.
+BIOS 1.25 does indeed report "ThinkPad R52" instead of "ThinkPad H", and
+hdaps without "ThinkPad H" works as expected.
 
-> I don't think the risk here isn't that setting SCI_EN is going to break something.
-> The risk is that excluding it from ACPI_PM1_CONTROL_PRESERVED_BITS
-> will allow other writes to this register to clear that bit from the OS,
-> which is clearly counter to what the spec says to do.
+Frank
 
-Is there _ever_ any valid reason to clear it? I wouldn't object at all to 
-a patch that just forces it..
+> 
+> Thanks,
+> -- 
+> Jean Delvare
 
-That said, I could imagine some strange AML sequence that clears that bit 
-in order to do something really nasty (and then sets it again at the end). 
-There's no limit to what horrors can lurk in peoples BIOSes.
-
-		Linus
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

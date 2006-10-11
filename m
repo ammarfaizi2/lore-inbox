@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWJKQ3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWJKQ3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbWJKQ3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWJKQ2m
+	id S1161120AbWJKQ3G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWJKQ3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:28:42 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:51364 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161114AbWJKQ2i
+	Wed, 11 Oct 2006 12:29:01 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53412 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161111AbWJKQ2s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:28:38 -0400
+	Wed, 11 Oct 2006 12:28:48 -0400
 To: torvalds@osdl.org
-Subject: [PATCH] amiga_floppy_init() in non-modular case
+Subject: [PATCH] z2_init() in non-modular case
 Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Message-Id: <E1GXgwf-0005hW-Ac@ZenIV.linux.org.uk>
+Message-Id: <E1GXgwp-0005hw-B1@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 11 Oct 2006 17:28:37 +0100
+Date: Wed, 11 Oct 2006 17:28:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It used to be called directly, but that got lost in 2.1.87-pre1.
-Similar breakage in ataflop got fixed 3 years ago, this one
-had gone unnoticed.
+... another victim - this time of 2.5.1-pre2
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/block/amiflop.c |   13 +++++--------
- 1 files changed, 5 insertions(+), 8 deletions(-)
+ drivers/block/z2ram.c |   28 ++++++----------------------
+ 1 files changed, 6 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/block/amiflop.c b/drivers/block/amiflop.c
-index 5d254b7..5d65621 100644
---- a/drivers/block/amiflop.c
-+++ b/drivers/block/amiflop.c
-@@ -1709,10 +1709,13 @@ static struct kobject *floppy_find(dev_t
- 	return get_disk(unit[drive].gendisk);
- }
+diff --git a/drivers/block/z2ram.c b/drivers/block/z2ram.c
+index 82ddbdd..7cc2685 100644
+--- a/drivers/block/z2ram.c
++++ b/drivers/block/z2ram.c
+@@ -329,7 +329,7 @@ static struct kobject *z2_find(dev_t dev
  
--int __init amiga_floppy_init(void)
-+static int __init amiga_floppy_init(void)
+ static struct request_queue *z2_queue;
+ 
+-int __init 
++static int __init 
+ z2_init(void)
  {
- 	int i, ret;
- 
-+	if (!MACH_IS_AMIGA)
-+		return -ENXIO;
-+
- 	if (!AMIGAHW_PRESENT(AMI_FLOPPY))
- 		return -ENXIO;
- 
-@@ -1809,15 +1812,9 @@ out_blkdev:
- 	return ret;
+     int ret;
+@@ -370,26 +370,7 @@ err:
+     return ret;
  }
  
-+module_init(amiga_floppy_init);
- #ifdef MODULE
- 
--int init_module(void)
+-#if defined(MODULE)
+-
+-MODULE_LICENSE("GPL");
+-
+-int
+-init_module( void )
 -{
--	if (!MACH_IS_AMIGA)
--		return -ENXIO;
--	return amiga_floppy_init();
+-    int error;
+-    
+-    error = z2_init();
+-    if ( error == 0 )
+-    {
+-	printk( KERN_INFO DEVICE_NAME ": loaded as module\n" );
+-    }
+-    
+-    return error;
 -}
 -
- #if 0 /* not safe to unload */
- void cleanup_module(void)
+-void
+-cleanup_module( void )
++static void __exit z2_exit(void)
  {
+     int i, j;
+     blk_unregister_region(MKDEV(Z2RAM_MAJOR, 0), 256);
+@@ -425,4 +406,7 @@ cleanup_module( void )
+ 
+     return;
+ } 
+-#endif
++
++module_init(z2_init);
++module_exit(z2_exit);
++MODULE_LICENSE("GPL");
 -- 
 1.4.2.GIT
-
 

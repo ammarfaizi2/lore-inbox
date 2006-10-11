@@ -1,113 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161532AbWJKVvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161534AbWJKVwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161532AbWJKVvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161525AbWJKVvM
+	id S1161534AbWJKVwK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161535AbWJKVwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:51:12 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:59607 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1161532AbWJKVvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:51:10 -0400
-Date: Wed, 11 Oct 2006 17:51:09 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: ambx1@neo.rr.com, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PNP: handle sysfs errors
-Message-ID: <20061011215109.GA22264@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Oct 2006 17:52:10 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:48294 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1161534AbWJKVwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:52:05 -0400
+Message-ID: <452D6703.7070900@linuxtv.org>
+Date: Wed, 11 Oct 2006 17:49:55 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Jonathan Corbet <corbet@lwn.net>
+CC: Greg KH <gregkh@suse.de>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mchehab@infradead.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
+       Sascha Hauer <s.hauer@pengutronix.de>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [patch 48/67] Fix VIDIOC_ENUMSTD bug
+References: <10090.1160603175@lwn.net>
+In-Reply-To: <10090.1160603175@lwn.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jonathan Corbet wrote:
+>> So any application which passes in index=0 gets EINVAL right off the bat
+>> - and, in fact, this is what happens to mplayer.  So I think the
+>> following patch is called for, and maybe even appropriate for a 2.6.18.x
+>> stable release.
+> 
+> The fix is worth having, though I guess I'm no longer 100% sure it's
+> necessary for -stable, since I don't think anything in-tree other than
+> vivi uses this interface in 2.6.18.  If you are going to include it,
+> though, it makes sense to put in Sascha's fix too - both are needed to
+> make the new v4l2 ioctl() interface operate as advertised.
+> 
+> jon
+> 
+> 
+> From: Sascha Hauer <s.hauer@pengutronix.de>
+> Subject: [PATCH] copy-paste bug in videodev.c
+> Date: Mon, 11 Sep 2006 10:50:55 +0200
+> To: video4linux-list@redhat.com
+> 
+> This patch fixes a copy-paste bug in videodev.c where the vidioc_qbuf()
+> function gets called for the dqbuf ioctl.
+> 
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> 
+> diff --git a/drivers/media/video/videodev.c
+> b/drivers/media/video/videodev.c
+> index 88bf2af..8abee33 100644
+> --- a/drivers/media/video/videodev.c
+> +++ b/drivers/media/video/videodev.c
+> @@ -739,13 +739,13 @@ static int __video_do_ioctl(struct inode
+>  	case VIDIOC_DQBUF:
+>  	{
+>  		struct v4l2_buffer *p=arg;
+> -		if (!vfd->vidioc_qbuf)
+> +		if (!vfd->vidioc_dqbuf)
+>  			break;
+>  		ret = check_fmt (vfd, p->type);
+>  		if (ret)
+>  			break;
+>  
+> -		ret=vfd->vidioc_qbuf(file, fh, p);
+> +		ret=vfd->vidioc_dqbuf(file, fh, p);
+>  		if (!ret)
+>  			dbgbuf(cmd,vfd,p);
+>  		break;
+> 
+> 
 
+This is fine with me...  I have added cc to Mauro, he might want to add
+his sign-off as well.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 
----
-
- drivers/pnp/card.c      |   30 +++++++++++++++++++++---------
- drivers/pnp/interface.c |   17 ++++++++++++++---
- 2 files changed, 35 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/pnp/card.c b/drivers/pnp/card.c
-index 227600c..91c047a 100644
---- a/drivers/pnp/card.c
-+++ b/drivers/pnp/card.c
-@@ -164,9 +164,17 @@ static DEVICE_ATTR(card_id,S_IRUGO,pnp_s
- 
- static int pnp_interface_attach_card(struct pnp_card *card)
- {
--	device_create_file(&card->dev,&dev_attr_name);
--	device_create_file(&card->dev,&dev_attr_card_id);
-+	int rc = device_create_file(&card->dev,&dev_attr_name);
-+	if (rc) return rc;
-+
-+	rc = device_create_file(&card->dev,&dev_attr_card_id);
-+	if (rc) goto err_name;
-+
- 	return 0;
-+
-+err_name:
-+	device_remove_file(&card->dev,&dev_attr_name);
-+	return rc;
- }
- 
- /**
-@@ -306,16 +314,20 @@ found:
- 	down_write(&dev->dev.bus->subsys.rwsem);
- 	dev->card_link = clink;
- 	dev->dev.driver = &drv->link.driver;
--	if (pnp_bus_type.probe(&dev->dev)) {
--		dev->dev.driver = NULL;
--		dev->card_link = NULL;
--		up_write(&dev->dev.bus->subsys.rwsem);
--		return NULL;
--	}
--	device_bind_driver(&dev->dev);
-+	if (pnp_bus_type.probe(&dev->dev))
-+		goto err_out;
-+	if (device_bind_driver(&dev->dev))
-+		goto err_out;
-+
- 	up_write(&dev->dev.bus->subsys.rwsem);
- 
- 	return dev;
-+
-+err_out:
-+	dev->dev.driver = NULL;
-+	dev->card_link = NULL;
-+	up_write(&dev->dev.bus->subsys.rwsem);
-+	return NULL;
- }
- 
- /**
-diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
-index 9d8b415..ac9fcd4 100644
---- a/drivers/pnp/interface.c
-+++ b/drivers/pnp/interface.c
-@@ -461,8 +461,19 @@ static DEVICE_ATTR(id,S_IRUGO,pnp_show_c
- 
- int pnp_interface_attach_device(struct pnp_dev *dev)
- {
--	device_create_file(&dev->dev,&dev_attr_options);
--	device_create_file(&dev->dev,&dev_attr_resources);
--	device_create_file(&dev->dev,&dev_attr_id);
-+	int rc = device_create_file(&dev->dev,&dev_attr_options);
-+	if (rc) goto err;
-+	rc = device_create_file(&dev->dev,&dev_attr_resources);
-+	if (rc) goto err_opt;
-+	rc = device_create_file(&dev->dev,&dev_attr_id);
-+	if (rc) goto err_res;
-+
- 	return 0;
-+
-+err_res:
-+	device_remove_file(&dev->dev,&dev_attr_resources);
-+err_opt:
-+	device_remove_file(&dev->dev,&dev_attr_options);
-+err:
-+	return rc;
- }

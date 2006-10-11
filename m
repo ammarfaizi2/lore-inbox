@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161538AbWJKV7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161543AbWJKV7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161538AbWJKV7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161540AbWJKV7E
+	id S1161543AbWJKV7d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161542AbWJKV7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:59:04 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:21941 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161538AbWJKV7B (ORCPT
+	Wed, 11 Oct 2006 17:59:33 -0400
+Received: from mx0.karneval.cz ([81.27.192.123]:30037 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161543AbWJKV7b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:59:01 -0400
-Message-ID: <452D6921.5010300@us.ibm.com>
-Date: Wed, 11 Oct 2006 14:58:57 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1
-References: <20061010000928.9d2d519a.akpm@osdl.org> <452D4BF0.20209@google.com>
-In-Reply-To: <452D4BF0.20209@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 17:59:31 -0400
+Message-id: <83333ewww3221213@karneval.cz>
+In-Reply-To: <20061011145530.1762a4e5.rdunlap@xenotime.net>
+References: <20061011143306.e3ae39f8.rdunlap@xenotime.net>
+	<89743ewww3221213@karneval.cz>
+	<20061011145530.1762a4e5.rdunlap@xenotime.net>
+Subject: [PATCH try3] maintainers: add me to isicom, mxser
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, Randy Dunlap <rdunlap@xenotime.net>
+Date: Wed, 11 Oct 2006 23:59:28 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/ 
->>
->>
->>
->>
->>   
-> fsx seems to fail now, across several different machines.
+Randy Dunlap wrote:
+> On Wed, 11 Oct 2006 23:45:02 +0200 (CEST) Jiri Slaby wrote:
+>> Ok, thanks, here is a corrected patch.
 >
-> http://test.kernel.org/functional/index.html
->
->
-> and drill down under "regression" on the failing ones.
->
-> eg, see end of
-> http://test.kernel.org/abat/54516/debug/test.log.1 (i386)
-> and
-> http://test.kernel.org/abat/54503/debug/test.log.1 (x86_64)
->
+> Did you resend the version 1 patch instead??
 
-I am seeing fsx failures on 1k/2k ext3 filesystems, but not on 4k.
-Do you know the filesystem type & blocksize ?
+Exactly :(. Now:
 
-Thanks,
-Badari
+--
 
+maintainers: add me to isicom, mxser
+
+I can maintain moxa and isicom char drivers, because I've rewritten them to
+the new API.
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+
+---
+commit a17f8130e4af536608ed6f93341003dd5f0af825
+tree 5712fa3dc9a5a69550d3c17c3617ac4276304bdd
+parent b2090dd621f58423950e8e79b0959889d26a8227
+author Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 23:42:04 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 23:42:04 +0200
+
+ MAINTAINERS |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c4563ce..b1d6e8f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2020,6 +2020,12 @@ M:	rubini@ipvvis.unipv.it
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++MOXA SMARTIO/INDUSTIO SERIAL CARD (MXSER 2.0)
++P:	Jiri Slaby
++M:	jirislaby@gmail.com
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
++
+ MSI LAPTOP SUPPORT
+ P:	Lennart Poettering
+ M:	mzxreary@0pointer.de
+@@ -2042,6 +2048,12 @@ P:	Andrew Veliath
+ M:	andrewtv@usa.net
+ S:	Maintained
+ 
++MULTITECH MULTIPORT CARD (ISICOM)
++P:	Jiri Slaby
++M:	jirislaby@gmail.com
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
++
+ NATSEMI ETHERNET DRIVER (DP8381x)
+ P: 	Tim Hockin
+ M:	thockin@hockin.org

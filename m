@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWJKOHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWJKOJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbWJKOHq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbWJKOHq
+	id S1030401AbWJKOJu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWJKOJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:07:46 -0400
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:53768 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1030393AbWJKOHp
+	Wed, 11 Oct 2006 10:09:49 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:14480 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030401AbWJKOJs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:07:45 -0400
-Date: Wed, 11 Oct 2006 16:07:45 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Frank Gevaerts <frank@gevaerts.be>, Robert Love <rlove@rlove.org>,
+	Wed, 11 Oct 2006 10:09:48 -0400
+Message-ID: <452CFB29.4020200@drzeus.cx>
+Date: Wed, 11 Oct 2006 16:09:45 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Sean <seanlkml@sympatico.ca>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Lennert Buytenhek <buytenh@wantstofly.org>,
+       Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
+       jeff@garzik.org, davidsen@tmr.com, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: patch : hdaps on Thinkpad R52
-Message-Id: <20061011160745.605fc944.khali@linux-fr.org>
-In-Reply-To: <20060408170238.4e241eac.khali@linux-fr.org>
-References: <20060314205758.GA9229@gevaerts.be>
-	<20060328182933.4184db3f.khali@linux-fr.org>
-	<20060328170045.GA10334@gevaerts.be>
-	<20060401170422.cc2ff8c2.khali@linux-fr.org>
-	<20060403163541.GA4571@gevaerts.be>
-	<20060408170238.4e241eac.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: 2.6.19 -mm merge plans
+References: <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <Pine.LNX.4.64.0609220901040.4388@g5.osdl.org> <20060924074837.GB13487@xi.wantstofly.org> <20060924092010.GC17639@flint.arm.linux.org.uk> <20060924142353.6c725128.seanlkml@sympatico.ca> <20060924230948.GG12795@flint.arm.linux.org.uk> <BAYC1-PASMTP03A93CF0AD4CEACDC36DF0AE270@CEZ.ICE> <Pine.LNX.4.64.0609241741210.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609241741210.3952@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Franck,
-
-Quoting myself back in April:
-> > I just had a mail from another R52 user, reporting that his system
-> > (also 1846AQG) also reports ThinkPad H.
+Linus Torvalds wrote:
 > 
-> I gathered data on my side too, the three R52 I had reports for used
-> "ThinkPad R52" but these had different machine type/model. I guess that
-> the 1846AQG is somehow different, but probably you don't know why?
+> (Of course, once you get really used to git, you use git _anyway_, and 
+> then you use cherry-pick and other tools to re-write a cleaned-up version 
+> of the thing that you originally screwed up because you didn't know what 
+> you were doing. So you _can_ do this too with git, but that doesn't mean 
+> that git would necessarily be the best way to do it).
 > 
-> So I suppose we could add that "ThinkPad H" identifier string to the
-> hdaps driver after all, as you proposed in the first place. I'm only
-> worried that the "H" suffix is really short, and I hope that no other
-> model not supported by the driver (or needing the invert option) will
-> ever have the same identifier. Time will tell.
+> That said, maybe we could help the "fixup" phases evenmore using git. For 
+> example, right now you can do "git cherry-pick" to transfer individual 
+> patches, but if you want to combine two commits while cherry-picking, it 
+> immediately gets more involved (still quite doable: use cherry-pick 
+> multiple times with the "-n" flag, but it's not as obvious any more).
+> 
 
-I am told that a newer BIOS of the Thinkpad R52 fixes the machine name
-in the DMI table.
-http://www.thinkwiki.org/wiki/List_of_DMI_IDs#R_series
-Can you please confirm this by upgrading the BIOS of your machine and
-removing the "ThinkPad H" entry from the hdaps driver?
+Are there any docs (with examples) on how to work like this? I currently
+use StGIT for my patch management, but that has some problems when it
+comes to publishing my development tree for others.
 
-Thanks,
--- 
-Jean Delvare
+Rgds
+Pierre
+

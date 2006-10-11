@@ -1,55 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030768AbWJKDUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030773AbWJKDXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030768AbWJKDUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 23:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030769AbWJKDU3
+	id S1030773AbWJKDXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 23:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030774AbWJKDXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 23:20:29 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:39211 "EHLO
-	asav00.insightbb.com") by vger.kernel.org with ESMTP
-	id S1030768AbWJKDU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 23:20:29 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AY8CAE/+K0WMCSw
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Date: Tue, 10 Oct 2006 23:20:08 -0400
-User-Agent: KMail/1.9.3
-Cc: Yu Luming <luming.yu@gmail.com>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, len.brown@intel.com,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <200610102317.24310.luming.yu@gmail.com> <20061010212341.GA31972@srcf.ucam.org>
-In-Reply-To: <20061010212341.GA31972@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 23:23:48 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:24280 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030773AbWJKDXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 23:23:47 -0400
+Subject: Re: Proof of concept:  Logdev with "almost-non" intrusive markers.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Martin Bligh <mbligh@google.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+In-Reply-To: <20061010134014.GD6200@Krystal>
+References: <20060921232024.GA16155@Krystal>
+	 <1160189237.21768.47.camel@localhost.localdomain>
+	 <20061010134014.GD6200@Krystal>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 23:23:38 -0400
+Message-Id: <1160537018.13097.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610102320.13952.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 17:23, Matthew Garrett wrote:
-> On Tue, Oct 10, 2006 at 11:17:23PM +0800, Yu Luming wrote:
+On Tue, 2006-10-10 at 09:40 -0400, Mathieu Desnoyers wrote:
+> Hi Steven,
 > 
-> > Also, we need to make hot-key events  have similar handling code .
-> > For example, Fn+F5 and Fn+F6 are brightness down and up key on my sony laptop.  
-> > There is a driver called sonypi.c can map Fn+F5/F6 to KEY_FN_F5/F6. But I 
-> > think It should be mapped to KEY_BRIGHTNESSDOWN/UP (linux/input.h)
-> > Although, sonypi.c is NOT so clean, but , if it can report right event to 
-> > input layer for all sony laptop(it works for me), and all related functions 
-> > can be controlled through generic sysfs interface, then I would say sony has 
-> > the best hot-key solution I have even seen so far for linux.
+> Those are great ideas! Kernel compile-time type checking is interesting, but has
+> the following disadvantages (compared to Linux Kernel Markers 0.20
+>   http://sources.redhat.com/ml/systemtap/2006-q3/msg00794.html) :
 > 
-> It would have to be DMI-based to some extent - not all Sonys use the 
-> same keys for the same purpose. Misery ensues.
-> 
+> - It requires to keep a system-wide header file with all the marker functions
+>   prototypes around. When a change is done in the code, the header must match.
+>   My goal being to provide a self-describing, one liner marker, such system-wide
+>   header file makes me uncomfortable.
 
-Then we need to add keymap table to the sonypi's input device so that
-keymap can be changed from userspace.
+But it doesn't compile if you screw up :)
 
--- 
-Dmitry
+It is more of a tedious burden, than a maintenance one.  The prototypes
+would just sit in a include/linux file.  If someone needs to change a
+prototype, they had better change it where it's used!  With the tracing
+I do, I like to take some pointer and dereference it.  So it had better
+match my prototype.  the printf syntax doesn't cut it for me.  But
+that's for my logdev, which is for debugging, and the last thing I need
+is to be debugging logdev when I'm debugging something else.
+
+BTW, I looked at the link you showed me, and I think you need a
+__mark_check_format in linux/asm-generic/marker.h:
+
++#define MARK(name, format, args...) \
++	do { \
++		static marker_probe_func *__mark_call_##name = \
++					__mark_empty_function; \
++		volatile static char __marker_enable_##name = 0; \
++		static const struct __mark_marker_c __mark_c_##name \
++			__attribute__((section(".markers.c"))) = \
++			{ #name, &__mark_call_##name, format } ; \
++		static const struct __mark_marker __mark_##name \
++			__attribute__((section(".markers"), unused)) = \
++			{ &__mark_c_##name, &__marker_enable_##name } ; \
++		if (unlikely(__marker_enable_##name)) { \
++			preempt_disable(); \
++			(*__mark_call_##name)(format, ## args); \
++			preempt_enable_no_resched(); \
++		} \
++	} while(0)
++
+
+
+It seems to be missing.
+
+
+> - Knowing the number of parameters (LD_MARK[1-4]) instead of using variable
+>   arguments (MARK) adds the ability to use typeof() on the parameters, which is
+>   clearly great. On the downside, it multiplies the number of macros and limits
+>   the number of parameters that can be passed (I guess we will never do an
+>   LD_MARK10). 
+
+Ah, passing more than 4 is probably a waste.  Especially if you can grab
+other variables outside of the parameters.
+
+Soon I'll post a new logdev, that doesn't duplicate the macros so bad.
+Here's an excerpt:
+
+ #define LD_MARK_PROLOG(label)						\
+	"1:"								\
+	".section .__logdev_strings,\"a\"\n"				\
+	"__logdev_str_" #label ": .string \"" #label "\"\n"		\
+	".previous\n"							\
+	".section .__logdev_markers,\"a\"\n"				\
+	".long 1b, __logdev_caller__" #label "\n"			\
+	".long __logdev_str_" #label "\n"
+
+#define LD_MARK(label)						\
+	{							\
+		extern void __logdev_caller__ ## label(void);	\
+		asm(						\
+		    LD_MARK_PROLOG(label)			\
+		    ".long 0\n"					\
+		    ".previous"					\
+		    : :	);					\
+	}
+
+#define LD_MARK1(label, arg1)						\
+	{								\
+		extern void __logdev_caller__ ## label(typeof(arg1));	\
+		asm(							\
+		    LD_MARK_PROLOG(label)				\
+		    ".long 1\n"						\
+		    "xorl %0, %0\n"					\
+		    ".short 0\n"					\
+		    ".previous"						\
+		    : :							\
+		    "r"(arg1));						\
+	}
+
+#define LD_MARK2(label, arg1, arg2)					\
+	{								\
+		extern void __logdev_caller__ ## label(typeof(arg1),	\
+						       typeof(arg2));	\
+		asm(							\
+		    LD_MARK_PROLOG(label)				\
+		    ".long 2\n"						\
+		    "xorl %0, %0\n"					\
+		    ".short 0\n"					\
+		    "xorl %1, %1\n"					\
+		    ".short 0\n"					\
+		    ".previous"						\
+		    : :							\
+		    "r"(arg1), "r"(arg2));				\
+	}
+
+#define LD_MARK3(label, arg1, arg2, arg3)				\
+	{								\
+		extern void __logdev_caller__ ## label(typeof(arg1),	\
+						       typeof(arg2),	\
+						       typeof(arg3));	\
+		asm(							\
+		    LD_MARK_PROLOG(label)				\
+		    ".long 3\n"						\
+		    "xorl %0, %0\n"					\
+		    ".short 0\n"					\
+		    "xorl %1, %1\n"					\
+		    ".short 0\n"					\
+		    "xorl %2, %2\n"					\
+		    ".short 0\n"					\
+		    ".previous"						\
+		    : :							\
+		    "r"(arg1), "r"(arg2), "r"(arg3));			\
+	}
+
+#define LD_MARK4(label, arg1, arg2, arg3, arg4)				\
+	{								\
+		extern void __logdev_caller__ ## label(typeof(arg1),	\
+						       typeof(arg2),	\
+						       typeof(arg3),	\
+						       typeof(arg4));	\
+		asm(							\
+		    LD_MARK_PROLOG(label)				\
+		    "xorl %0, %0\n"					\
+		    ".short 0\n"					\
+		    "xorl %1, %1\n"					\
+		    ".short 0\n"					\
+		    "xorl %2, %2\n"					\
+		    ".short 0\n"					\
+		    "xorl %3, %3\n"					\
+		    ".short 0\n"					\
+		    ".previous"						\
+		    : :							\
+		    "r"(arg1), "r"(arg2), "r"(arg3), "r"(arg4));	\
+	}
+
+
+The prolog helps with this.  With x86_64, I added a SPACER macro to
+handle the spacing (.short here).
+
+
+> Wether
+>     MARK4(label, args1, arg2, arg3, arg4)
+>   or
+>     MARK(label, format, arg1, arg2, arg3, arg4)
+>   is better is a matter of visual impact and level of self-description of the
+>   probe. While I personally prefer the format string because of its
+>   flexibility, it could be useful to have other insight about which is the
+>   less visually hurting approach.
+
+:)
+
+I don't care for the numbering of the parameters, but it helps with the
+type checking that printf can fail with.  But if the printf format is
+enough for others, I'm not complaining.  My logdev will be around as
+long as I am!
+
+-- Steve
+
+

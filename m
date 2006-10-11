@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWJKUbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWJKUcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161242AbWJKUbH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 16:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWJKUbG
+	id S1161246AbWJKUcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 16:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWJKUcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 16:31:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26380 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161242AbWJKUbF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 16:31:05 -0400
-Date: Wed, 11 Oct 2006 20:30:02 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Amol Lad <amol@verismonetworks.com>,
-       kernel Janitors <kernel-janitors@lists.osdl.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: most users of msleep_interruptible are broken
-Message-ID: <20061011203001.GB3935@ucw.cz>
-References: <1160570743.19143.307.camel@amol.verismonetworks.com> <1160571491.3000.372.camel@laptopd505.fenrus.org> <20061011141651.GD27388@parisc-linux.org>
+	Wed, 11 Oct 2006 16:32:12 -0400
+Received: from xenotime.net ([66.160.160.81]:15039 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161246AbWJKUcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 16:32:10 -0400
+Date: Wed, 11 Oct 2006 13:33:37 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: "Dmitry Torokhov" <dtor@insightbb.com>
+Cc: "Alexey Dobriyan" <adobriyan@gmail.com>,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: misused local_irq_disable() in analog.c?
+Message-Id: <20061011133337.5d78ace5.rdunlap@xenotime.net>
+In-Reply-To: <d120d5000610111317k4e849707rc358fdd4ad5dae5b@mail.gmail.com>
+References: <b6fcc0a0610111208s4dbb7c98xbdd3ceb13fba1503@mail.gmail.com>
+	<d120d5000610111317k4e849707rc358fdd4ad5dae5b@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011141651.GD27388@parisc-linux.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 11 Oct 2006 16:17:33 -0400 Dmitry Torokhov wrote:
 
-> > > +++ linux-2.6.19-rc1/drivers/mmc/mmc.c	2006-10-11 17:57:02.000000000 +0530
-> > > @@ -454,7 +454,7 @@ static void mmc_deselect_cards(struct mm
-> > >  static inline void mmc_delay(unsigned int ms)
-> > >  {
-> > >  	if (ms < HZ / 1000) {
-> > > -		yield();
-> > > +		cond_resched();
-> > >  		mdelay(ms);
-> > 
-> > 
-> > this probably wants msleep(), especially with hrtimers comming up; there
-> > the sleeps are always exact...
+> On 10/11/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> > Dmitry, take a look at analog_cooked_read():
+> >
+> > do-while loop there contains local_irq_disable()/local_irq_restore(flags);
+> > which aren't complement.
+> >
+> > Should it be
+> >
+> >    local_irq_save(flags);
+> >    this = gameport_read(gameport) & port->mask;
+> >    GET_TIME(now);
+> >    local_irq_restore(flags);
+> >
+> > ?
 > 
-> They clearly don't care about exactness; they msleep_interruptible and
-> throw away the return value, so they don't know how long they slept
-> before they got a signal.
-> 
-> __must_check treatment for msleep_interruptible, anyone?  On the one hand,
-> that's 136 new warnings.  On the other hand, that's 136 places wheree
-> we may as well *delete the call* to msleep_interruptible.  Since it can
-> return immediately, the code must be prepared to deal with that ... right?
+> Yep, I think so. Patch?
 
-Well, it must work, but it may busyloop instead of sleeping. This does
-not look like must_check to me.
-						Pavel
+Alexey replied on another thread (Re: [PATCH] misuse of strstr):
 
--- 
-Thanks for all the (sleeping) penguins.
+"sorry for absence of patch, I'm on wonders of BY dial-up _and_ Gmail
+web interface right now."
+
+
+---
+~Randy

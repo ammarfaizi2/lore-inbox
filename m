@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbWJKQt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161142AbWJKQuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161139AbWJKQt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWJKQt5
+	id S1161142AbWJKQuy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWJKQuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:49:57 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:10649 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1161138AbWJKQt4 (ORCPT
+	Wed, 11 Oct 2006 12:50:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10186 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161143AbWJKQux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:49:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=S066qlF4o4zx8bZNqs5sOXtub8Ww+ekFnHPy+46mInAh3GRQ3bsygwgCio+57nUGYPLBV2RiRKoItHfyfxvWqO5RljMqlU6jWdphyqZCSv0UqinXFdETvMTyg7jctEDgh/OvcE3yjAdeNBmoyYtzvr+dnNrKTeamX9NlVw9WOBI=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Date: Thu, 12 Oct 2006 00:48:19 +0800
-User-Agent: KMail/1.8.2
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, len.brown@intel.com,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061010212341.GA31972@srcf.ucam.org> <200610102320.13952.dtor@insightbb.com>
-In-Reply-To: <200610102320.13952.dtor@insightbb.com>
+	Wed, 11 Oct 2006 12:50:53 -0400
+Date: Wed, 11 Oct 2006 09:21:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/5] mm: fault vs invalidate/truncate race fix
+In-Reply-To: <20061010230042.3d4e4df1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0610110916540.3952@g5.osdl.org>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+ <20061010121332.19693.37204.sendpatchset@linux.site> <20061010213843.4478ddfc.akpm@osdl.org>
+ <452C838A.70806@yahoo.com.au> <20061010230042.3d4e4df1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610120048.19953.luming.yu@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It would have to be DMI-based to some extent - not all Sonys use the
-> > same keys for the same purpose. Misery ensues.
->
-> Then we need to add keymap table to the sonypi's input device so that
-> keymap can be changed from userspace.
-If some key is physically broken, I agree configurable keymap is the only 
-solution. But, I don't see any other benefit of doing so, if we expect 
-platform specific driver report meaningful key code to input layer.
 
-Thanks,
-Luming
+
+On Tue, 10 Oct 2006, Andrew Morton wrote:
+>
+> On Wed, 11 Oct 2006 15:39:22 +1000
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> > But I see that it does read twice. Do you want that behaviour retained? It
+> > seems like at this level it would be logical to read it once and let lower
+> > layers take care of any retries?
+> 
+> argh.  Linus has good-sounding reasons for retrying the pagefault-path's
+> read a single time, but I forget what they are.  Something to do with
+> networked filesystems?  (adds cc)
+
+Indeed. We _have_ to re-try a failed IO that we didn't start ourselves.
+
+The original IO could have been started by a person who didn't have 
+permissions to actually carry it out successfully, so if you enter with 
+the page locked (because somebody else started the IO), and you wait for 
+the page and it's not up-to-date afterwards, you absolutely _have_ to try 
+the IO, and can only return a real IO error after your _own_ IO has 
+failed.
+
+There is another issue too: even if the page was marked as having an error 
+when we entered (and no longer locked - maybe the IO failed last time 
+around), we should _still_ re-try. It might be a temporary error that has 
+since gone away, and if we don't re-try, we can end up in the totally 
+untenable situation where the kernel makes a soft error into a hard one. 
+
+Neither case simply isn't acceptable. End result: only things like 
+read-ahead should actually honor the "page exists but is not up-to-date" 
+as a "don't even try".
+
+		Linus

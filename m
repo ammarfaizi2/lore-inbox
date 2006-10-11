@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161141AbWJKQw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbWJKQyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161141AbWJKQw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbWJKQw5
+	id S1161143AbWJKQyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161144AbWJKQyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:52:57 -0400
-Received: from mx2.quantum.com ([146.174.252.112]:53150 "EHLO mx2.quantum.com")
-	by vger.kernel.org with ESMTP id S1161141AbWJKQw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:52:56 -0400
-Message-ID: <452D2086.2020204@xfs.org>
-Date: Wed, 11 Oct 2006 11:49:10 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Wed, 11 Oct 2006 12:54:53 -0400
+Received: from hu-out-0506.google.com ([72.14.214.239]:4392 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161143AbWJKQyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 12:54:53 -0400
+Message-ID: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
+Date: Wed, 11 Oct 2006 12:54:51 -0400
+From: "=?UTF-8?Q?G=C3=BCnther_Starnberger?=" <gst@sysfrog.org>
+To: linux-kernel@vger.kernel.org
+Subject: Userspace process may be able to DoS kernel
 MIME-Version: 1.0
-To: David Chinner <dgc@sgi.com>
-CC: Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
-       linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com> <452B0240.60203@xfs.org> <20061010091904.GA395@infradead.org> <20061010233124.GX11034@melbourne.sgi.com>
-In-Reply-To: <20061010233124.GX11034@melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Oct 2006 16:49:11.0903 (UTC) FILETIME=[2D8FA6F0:01C6ED55]
-X-Spam-Score: 0.00%
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner wrote:
-> On Tue, Oct 10, 2006 at 10:19:04AM +0100, Christoph Hellwig wrote:
->> On Mon, Oct 09, 2006 at 09:15:28PM -0500, Steve Lord wrote:
->>> Hi Dave,
->>>
->>> My recollection is that it used to default to on, it was disabled
->>> because it needs to map the buffer into a single contiguous chunk
->>> of kernel memory. This was placing a lot of pressure on the memory
->>> remapping code, so we made it not default to on as reworking the
->>> code to deal with non contig memory was looking like a major
->>> effort.
->> Exactly.  The code works but tends to go OOM pretty fast at least
->> when the dir blocksize code is bigger than the page size.  I should
->> give the code a spin on my ppc box with 64k pages if it works better
->> there.
-> 
-> The pagebuf code doesn't use high-order allocations anymore; it uses
-> scatter lists and remapping to allow physically discontiguous pages
-> in a multi-page buffer. That is, the pages are sourced via
-> find_or_create_page() from the address space of the backing device,
-> and then mapped via vmap() to provide a virtually contigous mapping
-> of the multi-page buffer.
-> 
-> So I don't think this problem exists anymore...
+[I'm not subscribed on this list - please CC answers to me.]
 
-I was not referring to high order allocations here, but the overhead
-of doing address space remapping every time a directory is accessed.
+Hello,
 
-Steve
+It seems that the latest version of Skype may exhibit a problem in the
+kernel where a non-root userspace process is able to block the whole
+system for durations of up to several minutes. If someone is able to
+reproduce the steps which cause the problem he may be able to DoS a
+system by consecutively causing soft lockups.
 
+There were some reports of this problem on other lists before, but
+mostly on tainted systems. I was able to reproduce this problem on a
+non-tainted mostly vanilla 2.6.17.6 kernel (it includes the suspend2
+patches). As most users who reported this problem are using Ubuntu,
+the problem may be related to one of the settings in Ubuntu's kernel
+config. The configuration of my kernel is also based on the Ubuntu
+kernel config. As I am not using the patched kernel by Ubuntu I hope
+that the LKML is the right place to report this issue.
+
+The lockup usually occurs when Skype 1.3.x for Linux (I'm using
+1.3.0.53) sits around idle for some time and then (presumably) uses
+the sound device (i.e. for me it happens when I call a contact -
+others reported this problem occurs for incoming messages [there may
+be an audio notification of the messages enabled]). The lockup can
+take from several seconds (where it is not detected by the kernel) up
+to some minutes. The whole system seems to be blocked - i.e. there is
+not even disk IO.
+
+dmesg reports the following:
+BUG: soft lockup detected on CPU#0!
+ <c01562cd> softlockup_tick+0xad/0xf0  <c012e609> update_process_times+0x39/0x90
+ <c011600b> smp_apic_timer_interrupt+0x5b/0x70  <c0110037>
+get_offset_pmtmr+0x97/0x1060
+ <c0103d20> apic_timer_interrupt+0x1c/0x24  <c013d390> hrtimer_get_res+0x0/0x60
+ <c0110037> get_offset_pmtmr+0x97/0x1060  <c0106b9f> do_gettimeofday+0x1f/0xd0
+  <c0129654> getnstimeofday+0x14/0x40  <c01398d1> sys_clock_gettime+0x31/0xb0
+ <c01031e7> sysenter_past_esp+0x54/0x75
+
+A copy of my kernel config is available at:
+http://virtual.sysfrog.org/~gst/config.txt
+
+The hardware where this problem occurs here is a X41 Thinkpad (Pentium
+M Dothan). There are also reports on other non-Intel CPUs e.g. AMD
+Turion 64.
+
+Please see the more extensive documentation of this problem on
+https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/53216
+(although some of the people there use tainted kernels).
+
+I will upgrade my 2.6.17.6 kernel to 2.6.18 and try to reproduce the
+problem there in the following days (but I fear that I won't have much
+time before the weekend).
+
+bye,
+/gst

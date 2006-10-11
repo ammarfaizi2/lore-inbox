@@ -1,127 +1,289 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161386AbWJKVdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161520AbWJKVgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161386AbWJKVdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161391AbWJKVFF
+	id S1161520AbWJKVgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161390AbWJKVgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:05:05 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18334 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161388AbWJKVEq (ORCPT
+	Wed, 11 Oct 2006 17:36:06 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:25047 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1161388AbWJKVgB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:04:46 -0400
-Date: Wed, 11 Oct 2006 14:03:44 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Jeff Dike <jdike@addtoit.com>,
-       Paolo Giarrusso <blaisorblade@yahoo.it>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 04/67] UML: Fix UML build failure
-Message-ID: <20061011210344.GE16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
-MIME-Version: 1.0
+	Wed, 11 Oct 2006 17:36:01 -0400
+Date: Wed, 11 Oct 2006 17:35:56 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: mchehab@infradead.org, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] drivers/media/video: handle sysfs errors
+Message-ID: <20061011213556.GA20020@havoc.gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="uml-fix-uml-build-failure.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
--stable review patch.  If anyone has any objections, please let us know.
-
-------------------
-From: Jeff Dike <jdike@addtoit.com>
-
-don't know if the following is already queued, it fixes an ARCH=um build
-failure, evidence here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115875912525137&w=2
-and following thread.
-Cc-ing uml maintainers and I hope I didn't follow too many
-Submitting-patches rules...
-
-The patch is taken from:
-http://user-mode-linux.sourceforge.net/work/current/2.6/2.6.18/patches/no-syscallx
-
-Since the syscallx macros seem to be under threat, this patch stops
-using them, using syscall instead.
-
-Acked-by: Jeff Dike <jdike@addtoit.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
- arch/um/os-Linux/process.c      |    4 +---
- arch/um/os-Linux/sys-i386/tls.c |    4 +---
- arch/um/os-Linux/tls.c          |    7 ++-----
- 3 files changed, 4 insertions(+), 11 deletions(-)
 
---- linux-2.6.18.orig/arch/um/os-Linux/process.c
-+++ linux-2.6.18/arch/um/os-Linux/process.c
-@@ -141,11 +141,9 @@ void os_usr1_process(int pid)
-  * syscalls, and also breaks with clone(), which does not unshare the TLS.
-  */
+ drivers/media/video/et61x251/et61x251_core.c |   37 +++++++++++---
+ drivers/media/video/pwc/pwc-if.c             |   41 ++++++++++++---
+ drivers/media/video/sn9c102/sn9c102_core.c   |   71 ++++++++++++++++++++-------
+
+diff --git a/drivers/media/video/et61x251/et61x251_core.c b/drivers/media/video/et61x251/et61x251_core.c
+index bc544cc..f786ab1 100644
+--- a/drivers/media/video/et61x251/et61x251_core.c
++++ b/drivers/media/video/et61x251/et61x251_core.c
+@@ -973,16 +973,32 @@ static CLASS_DEVICE_ATTR(i2c_val, S_IRUG
+ 			 et61x251_show_i2c_val, et61x251_store_i2c_val);
  
--inline _syscall0(pid_t, getpid)
--
- int os_getpid(void)
+ 
+-static void et61x251_create_sysfs(struct et61x251_device* cam)
++static int et61x251_create_sysfs(struct et61x251_device* cam)
  {
--	return(getpid());
-+	return syscall(__NR_getpid);
+ 	struct video_device *v4ldev = cam->v4ldev;
++	int rc;
+ 
+-	video_device_create_file(v4ldev, &class_device_attr_reg);
+-	video_device_create_file(v4ldev, &class_device_attr_val);
++	rc = video_device_create_file(v4ldev, &class_device_attr_reg);
++	if (rc) goto err;
++	rc = video_device_create_file(v4ldev, &class_device_attr_val);
++	if (rc) goto err_reg;
+ 	if (cam->sensor.sysfs_ops) {
+-		video_device_create_file(v4ldev, &class_device_attr_i2c_reg);
+-		video_device_create_file(v4ldev, &class_device_attr_i2c_val);
++		rc = video_device_create_file(v4ldev, &class_device_attr_i2c_reg);
++		if (rc) goto err_val;
++		rc = video_device_create_file(v4ldev, &class_device_attr_i2c_val);
++		if (rc) goto err_i2c_reg;
+ 	}
++
++	return 0;
++
++err_i2c_reg:
++	video_device_remove_file(v4ldev, &class_device_attr_i2c_reg);
++err_val:
++	video_device_remove_file(v4ldev, &class_device_attr_val);
++err_reg:
++	video_device_remove_file(v4ldev, &class_device_attr_reg);
++err:
++	return rc;
+ }
+ #endif /* CONFIG_VIDEO_ADV_DEBUG */
+ 
+@@ -2534,7 +2550,9 @@ et61x251_usb_probe(struct usb_interface*
+ 	dev_nr = (dev_nr < ET61X251_MAX_DEVICES-1) ? dev_nr+1 : 0;
+ 
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+-	et61x251_create_sysfs(cam);
++	err = et61x251_create_sysfs(cam);
++	if (err)
++		goto fail2;
+ 	DBG(2, "Optional device control through 'sysfs' interface ready");
+ #endif
+ 
+@@ -2544,6 +2562,13 @@ #endif
+ 
+ 	return 0;
+ 
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++fail2:
++	video_nr[dev_nr] = -1;
++	dev_nr = (dev_nr < ET61X251_MAX_DEVICES-1) ? dev_nr+1 : 0;
++	mutex_unlock(&cam->dev_mutex);
++	video_unregister_device(cam->v4ldev);
++#endif
+ fail:
+ 	if (cam) {
+ 		kfree(cam->control_buffer);
+diff --git a/drivers/media/video/pwc/pwc-if.c b/drivers/media/video/pwc/pwc-if.c
+index c77b85c..46c1148 100644
+--- a/drivers/media/video/pwc/pwc-if.c
++++ b/drivers/media/video/pwc/pwc-if.c
+@@ -1024,12 +1024,25 @@ static ssize_t show_snapshot_button_stat
+ static CLASS_DEVICE_ATTR(button, S_IRUGO | S_IWUSR, show_snapshot_button_status,
+ 			 NULL);
+ 
+-static void pwc_create_sysfs_files(struct video_device *vdev)
++static int pwc_create_sysfs_files(struct video_device *vdev)
+ {
+ 	struct pwc_device *pdev = video_get_drvdata(vdev);
+-	if (pdev->features & FEATURE_MOTOR_PANTILT)
+-		video_device_create_file(vdev, &class_device_attr_pan_tilt);
+-	video_device_create_file(vdev, &class_device_attr_button);
++	int rc;
++
++	rc = video_device_create_file(vdev, &class_device_attr_button);
++	if (rc)
++		goto err;
++	if (pdev->features & FEATURE_MOTOR_PANTILT) {
++		rc = video_device_create_file(vdev,&class_device_attr_pan_tilt);
++		if (rc) goto err_button;
++	}
++
++	return 0;
++
++err_button:
++	video_device_remove_file(vdev, &class_device_attr_button);
++err:
++	return rc;
  }
  
- int os_getpgrp(void)
---- linux-2.6.18.orig/arch/um/os-Linux/sys-i386/tls.c
-+++ linux-2.6.18/arch/um/os-Linux/sys-i386/tls.c
-@@ -3,8 +3,6 @@
- #include "sysdep/tls.h"
- #include "user_util.h"
- 
--static _syscall1(int, get_thread_area, user_desc_t *, u_info);
--
- /* Checks whether host supports TLS, and sets *tls_min according to the value
-  * valid on the host.
-  * i386 host have it == 6; x86_64 host have it == 12, for i386 emulation. */
-@@ -17,7 +15,7 @@ void check_host_supports_tls(int *suppor
- 		user_desc_t info;
- 		info.entry_number = val[i];
- 
--		if (get_thread_area(&info) == 0) {
-+		if(syscall(__NR_get_thread_area, &info) == 0){
- 			*tls_min = val[i];
- 			*supports_tls = 1;
- 			return;
---- linux-2.6.18.orig/arch/um/os-Linux/tls.c
-+++ linux-2.6.18/arch/um/os-Linux/tls.c
-@@ -48,14 +48,11 @@ int os_get_thread_area(user_desc_t *info
- #ifdef UML_CONFIG_MODE_TT
- #include "linux/unistd.h"
- 
--static _syscall1(int, get_thread_area, user_desc_t *, u_info);
--static _syscall1(int, set_thread_area, user_desc_t *, u_info);
--
- int do_set_thread_area_tt(user_desc_t *info)
- {
- 	int ret;
- 
--	ret = set_thread_area(info);
-+	ret = syscall(__NR_set_thread_area, info);
- 	if (ret < 0) {
- 		ret = -errno;
+ static void pwc_remove_sysfs_files(struct video_device *vdev)
+@@ -1408,7 +1421,7 @@ static int usb_pwc_probe(struct usb_inte
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct pwc_device *pdev = NULL;
+ 	int vendor_id, product_id, type_id;
+-	int i, hint;
++	int i, hint, rc;
+ 	int features = 0;
+ 	int video_nr = -1; /* default: use next available device */
+ 	char serial_number[30], *name;
+@@ -1709,9 +1722,8 @@ static int usb_pwc_probe(struct usb_inte
+ 	i = video_register_device(pdev->vdev, VFL_TYPE_GRABBER, video_nr);
+ 	if (i < 0) {
+ 		PWC_ERROR("Failed to register as video device (%d).\n", i);
+-		video_device_release(pdev->vdev); /* Drip... drip... drip... */
+-		kfree(pdev); /* Oops, no memory leaks please */
+-		return -EIO;
++		rc = i;
++		goto err;
  	}
-@@ -66,7 +63,7 @@ int do_get_thread_area_tt(user_desc_t *i
- {
- 	int ret;
+ 	else {
+ 		PWC_INFO("Registered as /dev/video%d.\n", pdev->vdev->minor & 0x3F);
+@@ -1723,13 +1735,24 @@ static int usb_pwc_probe(struct usb_inte
  
--	ret = get_thread_area(info);
-+	ret = syscall(__NR_get_thread_area, info);
- 	if (ret < 0) {
- 		ret = -errno;
+ 	PWC_DEBUG_PROBE("probe() function returning struct at 0x%p.\n", pdev);
+ 	usb_set_intfdata (intf, pdev);
+-	pwc_create_sysfs_files(pdev->vdev);
++	rc = pwc_create_sysfs_files(pdev->vdev);
++	if (rc)
++		goto err_unreg;
+ 
+ 	/* Set the leds off */
+ 	pwc_set_leds(pdev, 0, 0);
+ 	pwc_camera_power(pdev, 0);
+ 
+ 	return 0;
++
++err_unreg:
++	if (hint < MAX_DEV_HINTS)
++		device_hint[hint].pdev = NULL;
++	video_unregister_device(pdev->vdev);
++err:
++	video_device_release(pdev->vdev); /* Drip... drip... drip... */
++	kfree(pdev); /* Oops, no memory leaks please */
++	return rc;
+ }
+ 
+ /* The user janked out the cable... */
+diff --git a/drivers/media/video/sn9c102/sn9c102_core.c b/drivers/media/video/sn9c102/sn9c102_core.c
+index 3e0ff8a..a4702d3 100644
+--- a/drivers/media/video/sn9c102/sn9c102_core.c
++++ b/drivers/media/video/sn9c102/sn9c102_core.c
+@@ -1240,23 +1240,53 @@ static CLASS_DEVICE_ATTR(frame_header, S
+ 			 sn9c102_show_frame_header, NULL);
+ 
+ 
+-static void sn9c102_create_sysfs(struct sn9c102_device* cam)
++static int sn9c102_create_sysfs(struct sn9c102_device* cam)
+ {
+ 	struct video_device *v4ldev = cam->v4ldev;
++	int rc;
++
++	rc = video_device_create_file(v4ldev, &class_device_attr_reg);
++	if (rc) goto err;
++	rc = video_device_create_file(v4ldev, &class_device_attr_val);
++	if (rc) goto err_reg;
++	rc = video_device_create_file(v4ldev, &class_device_attr_frame_header);
++	if (rc) goto err_val;
+ 
+-	video_device_create_file(v4ldev, &class_device_attr_reg);
+-	video_device_create_file(v4ldev, &class_device_attr_val);
+-	video_device_create_file(v4ldev, &class_device_attr_frame_header);
+-	if (cam->bridge == BRIDGE_SN9C101 || cam->bridge == BRIDGE_SN9C102)
+-		video_device_create_file(v4ldev, &class_device_attr_green);
+-	else if (cam->bridge == BRIDGE_SN9C103) {
+-		video_device_create_file(v4ldev, &class_device_attr_blue);
+-		video_device_create_file(v4ldev, &class_device_attr_red);
+-	}
+ 	if (cam->sensor.sysfs_ops) {
+-		video_device_create_file(v4ldev, &class_device_attr_i2c_reg);
+-		video_device_create_file(v4ldev, &class_device_attr_i2c_val);
++		rc = video_device_create_file(v4ldev, &class_device_attr_i2c_reg);
++		if (rc) goto err_frhead;
++		rc = video_device_create_file(v4ldev, &class_device_attr_i2c_val);
++		if (rc) goto err_i2c_reg;
++	}
++
++	if (cam->bridge == BRIDGE_SN9C101 || cam->bridge == BRIDGE_SN9C102) {
++		rc = video_device_create_file(v4ldev, &class_device_attr_green);
++		if (rc) goto err_i2c_val;
++	} else if (cam->bridge == BRIDGE_SN9C103) {
++		rc = video_device_create_file(v4ldev, &class_device_attr_blue);
++		if (rc) goto err_i2c_val;
++		rc = video_device_create_file(v4ldev, &class_device_attr_red);
++		if (rc) goto err_blue;
  	}
-
---
++
++	return 0;
++
++err_blue:
++	video_device_remove_file(v4ldev, &class_device_attr_blue);
++err_i2c_val:
++	if (cam->sensor.sysfs_ops)
++		video_device_remove_file(v4ldev, &class_device_attr_i2c_val);
++err_i2c_reg:
++	if (cam->sensor.sysfs_ops)
++		video_device_remove_file(v4ldev, &class_device_attr_i2c_reg);
++err_frhead:
++	video_device_remove_file(v4ldev, &class_device_attr_frame_header);
++err_val:
++	video_device_remove_file(v4ldev, &class_device_attr_val);
++err_reg:
++	video_device_remove_file(v4ldev, &class_device_attr_reg);
++err:
++	return rc;
+ }
+ #endif /* CONFIG_VIDEO_ADV_DEBUG */
+ 
+@@ -2809,10 +2839,7 @@ sn9c102_usb_probe(struct usb_interface* 
+ 		DBG(1, "V4L2 device registration failed");
+ 		if (err == -ENFILE && video_nr[dev_nr] == -1)
+ 			DBG(1, "Free /dev/videoX node not found");
+-		video_nr[dev_nr] = -1;
+-		dev_nr = (dev_nr < SN9C102_MAX_DEVICES-1) ? dev_nr+1 : 0;
+-		mutex_unlock(&cam->dev_mutex);
+-		goto fail;
++		goto fail2;
+ 	}
+ 
+ 	DBG(2, "V4L2 device registered as /dev/video%d", cam->v4ldev->minor);
+@@ -2823,7 +2850,9 @@ sn9c102_usb_probe(struct usb_interface* 
+ 	dev_nr = (dev_nr < SN9C102_MAX_DEVICES-1) ? dev_nr+1 : 0;
+ 
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+-	sn9c102_create_sysfs(cam);
++	err = sn9c102_create_sysfs(cam);
++	if (err)
++		goto fail3;
+ 	DBG(2, "Optional device control through 'sysfs' interface ready");
+ #endif
+ 
+@@ -2833,6 +2862,14 @@ #endif
+ 
+ 	return 0;
+ 
++#ifdef CONFIG_VIDEO_ADV_DEBUG
++fail3:
++	video_unregister_device(cam->v4ldev);
++#endif
++fail2:
++	video_nr[dev_nr] = -1;
++	dev_nr = (dev_nr < SN9C102_MAX_DEVICES-1) ? dev_nr+1 : 0;
++	mutex_unlock(&cam->dev_mutex);
+ fail:
+ 	if (cam) {
+ 		kfree(cam->control_buffer);

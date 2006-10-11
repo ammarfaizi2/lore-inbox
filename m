@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWJKHAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWJKHBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWJKHAV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 03:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWJKHAV
+	id S932447AbWJKHBx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 03:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWJKHBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 03:00:21 -0400
-Received: from usul.saidi.cx ([204.11.33.34]:15011 "EHLO usul.overt.org")
-	by vger.kernel.org with ESMTP id S932445AbWJKHAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 03:00:19 -0400
-Message-ID: <452C965A.6020409@overt.org>
-Date: Tue, 10 Oct 2006 23:59:38 -0700
-From: Philip Langdale <philipl@overt.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 1/1] mmc: Add support for mmc v4 high speed mode
-References: <21173.67.169.45.37.1159940502.squirrel@overt.org>    <452B3B00.5080209@drzeus.cx> <11208.67.169.45.37.1160545100.squirrel@overt.org> <452C87FB.6080302@drzeus.cx>
-In-Reply-To: <452C87FB.6080302@drzeus.cx>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 11 Oct 2006 03:01:52 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:24846 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932447AbWJKHBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 03:01:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=XBijFiG7tq1pi9H4o0IeZOrDXvF9bkxd1F9+OjDlOUZ3y9Xr1Xg4++rgyoniDDSh1W5PQiWnxBEBL26SlAGwRXc2ucuoQTOHL89w0aWugk4OcRPyDYaNZ564akLMT22Tve+nm6AeS2iulLzqbKCAf1RmuQUcE5g87JgCq47Ae8w=
+Date: Wed, 11 Oct 2006 00:01:47 -0700
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.19-rc1] drivers/media/video/se401.c: fix memory leak.
+Message-Id: <20061011000147.61081f5d.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> 
-> In this case, it's protocol opcodes, which are far more vital to have
-> readable. Currently we only use this in one place, but this will
-> probably grow. If I understand things correctly, switching to 4-bit and
-> 8-bit bus also uses the SWITCH command?
+Description: In function usb_se401_remove_disconnected() [drivers/media/video/se401.c], se401->sbuf[i].data was freed only when se401->urb[i] existed. This could result in a memory leak because sbuf[i].data is allocated before urb[i]. Let's assume that the memory gets exhausted while allocating for urb[i] Now, some event results in calling of usb_se401_remove_disconnected(). This will free sbuf[i].data only for those 'i' for which an urb exists. Since, we could not allocate all urb[i] as memory got exhausted, some of sbuf[i].data would never be freed at all.
 
-Correct. SWITCH is used to change the bus width. Now I have to stop
-avoiding the issue and confront those crazy test commands so we can turn
-on the wide-bus stuff properly. (You are happy with this diff now right? :-)
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
---phil
+diff --git a/drivers/media/video/se401.c b/drivers/media/video/se401.c
+index d411a27..7d598e0 100644
+--- a/drivers/media/video/se401.c
++++ b/drivers/media/video/se401.c
+@@ -881,15 +881,18 @@ static void usb_se401_remove_disconnecte
+ 
+ 	se401->dev = NULL;
+ 
+-	for (i=0; i<SE401_NUMSBUF; i++)
++	for (i=0; i<SE401_NUMSBUF; i++) {
+ 		if (se401->urb[i]) {
+ 			usb_kill_urb(se401->urb[i]);
+ 			usb_free_urb(se401->urb[i]);
+ 			se401->urb[i] = NULL;
+-			kfree(se401->sbuf[i].data);
+ 		}
++		kfree(se401->sbuf[i].data);
++		se401->sbuf[i].data=NULL;
++	}
+ 	for (i=0; i<SE401_NUMSCRATCH; i++) {
+ 		kfree(se401->scratch[i].data);
++		se401->scratch[i].data=NULL;
+ 	}
+ 	if (se401->inturb) {
+ 		usb_kill_urb(se401->inturb);

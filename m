@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030590AbWJKQ7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030685AbWJKRBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030590AbWJKQ7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWJKQ7o
+	id S1030685AbWJKRBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030688AbWJKRBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:59:44 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52661 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030590AbWJKQ7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:59:43 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: safe_smp_processor_id i386 and x86_64
-References: <eg60ej$qqe$1@sea.gmane.org>
-Date: Wed, 11 Oct 2006 10:58:21 -0600
-In-Reply-To: <eg60ej$qqe$1@sea.gmane.org> (Aneesh Kumar K. V.'s message of
-	"Fri, 06 Oct 2006 22:02:17 +0530")
-Message-ID: <m1y7rmlrgy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 11 Oct 2006 13:01:06 -0400
+Received: from jericho.hostgo.com ([216.218.220.34]:56746 "EHLO
+	jericho.hostgo.com") by vger.kernel.org with ESMTP id S1030685AbWJKRBE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:01:04 -0400
+Message-ID: <452D231B.5020200@mlfowler.com>
+Date: Wed, 11 Oct 2006 18:00:11 +0100
+From: Mike Fowler <linux-kernel@mlfowler.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: davids@webmaster.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The Future of ReiserFS development
+References: <MDEHLPKNGKAHNMBLJOLKMEIHPAAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEIHPAAB.davids@webmaster.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - jericho.hostgo.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - mlfowler.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Aneesh Kumar K.V" <aneesh.kumar@gmail.com> writes:
 
-> I was looking at the git log and the below changes confused me.
+ > 	Am I the only one who read the sentence below:
+Nope, I had to read that section a few times to figure it out!
 
-They are being used to solve different problems.
-smp_processor_id on i386 doesn't work when a stack overflow
-occurs. safe_smp_processor_id does.
+ >
+ > Anthony Zografos, Reiser's boyfriend, said, "I have no thoughts. 
+Until they
+ > find Nina, I don't know what to think."
+ >
+ > 	And thought, "Hans was gay? No wonder he broke up with his wife".
+ >
+ > 	In fact, it wasn't until later when they mentioned Zografos was working
+ > with Nina's best friend to make billboards that I realized I had
+ > misunderstood it.
+ >
+ > 	DS
 
-On x86_64 since it is a simple register value we don't have that problem.
+-- 
+Mike Fowler
+Registered Linux user: 379787
 
-Eric
+"I could be a genius if I just put my mind to it, and I,
+I could do anything, if only I could get 'round to it"
+-PULP 'Glory Days'

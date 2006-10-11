@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbWJKQDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030574AbWJKQHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161094AbWJKQDV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbWJKQDV
+	id S1030574AbWJKQHq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWJKQHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:03:21 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:47297 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1161094AbWJKQDU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:03:20 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Linas Vepstas <linas@austin.ibm.com>
-Subject: Re: [PATCH 0/21]: powerpc/cell spidernet bugfixes, etc.
-Date: Wed, 11 Oct 2006 18:02:42 +0200
-User-Agent: KMail/1.9.4
-Cc: akpm@osdl.org, jeff@garzik.org, James K Lewis <jklewis@us.ibm.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-References: <20061010204946.GW4381@austin.ibm.com>
-In-Reply-To: <20061010204946.GW4381@austin.ibm.com>
+	Wed, 11 Oct 2006 12:07:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:35873 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030574AbWJKQHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 12:07:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=E3od7NZ2sHYucjRMfZFrLWAr3iMx43pp5CpJN1uNSXya1VAEJ5SwzNQCh8+6QdYzTzq/qwvQAWckM54nuYihG6/zlDLz25aL3ry4A+/oiZ5POeLi0eRZa3UGS3FjeDWWijrE4TU2L4bQSPELJfr/N/bR6VPs6VmksvHbaa0nuMU=
+Message-ID: <6278d2220610110907x3ad7507aya3a12177239accce@mail.gmail.com>
+Date: Wed, 11 Oct 2006 17:07:43 +0100
+From: "Daniel J Blueman" <daniel.blueman@gmail.com>
+To: "Martin Naskovski" <skopje@freeshell.org>
+Subject: Re: Intel 965 chipset motherboards + SATA
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610111802.43996.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 22:49, Linas Vepstas wrote:
-> Andrew, please apply/forward upstream.
-> 
-> The following set of 21 patches (!) are all aimed at the the 
-> spidernet ethernet device driver. The spidernet is an etherenet
-> controller built into the Toshiba southbridge for the PowerPC Cell
-> processor. (This is the only device in existance that with this
-> ethernet hardware in it).
-> 
-> These patches re-package/re-order/re-cleanup a previous
-> set of patches I've previously mailed. Thus, some have
-> been previously Acked-by lines, most do not. Most of
-> these patches are tiny, and handle problems that cropped
-> up during testing. Sorry about there being so many of them.
-> 
-> The first set of 12 patches fix a large variety of mostly 
-> minor bugs. 
-> 
-> The important patches are 13 through 17: these overcome a 
-> debilitating performance problem on transmit (6 megabits
-> per second !!) on transmit of patches 500 bytes or larger.
-> After applying these, I am able to get the following:
-> 
-> pkt sz   speed (100K buffs)       speed (4M buffs)
-> ------   -----------------        ----------------
-> 1500     700 Mbits/sec            951 Mbits/sec
-> 1000     658 Mbits/sec            770
-> 800      600                      648
-> 500      500                      500
-> 300      372                      372
-> 60        70                       70
-> 
-> Above buf size refers to /proc/sys/net/core/wmem_default
+Martin Naskovski wrote:
+> I have an ASUS P5B Deluxe/Core 2 Duo/Intel 965/all SATA (Plextor DVD+
+> Seagate HD) configuration setup - and as of now, no distribution out there
+> can install on this configuration.
 
-Excellent work! I guess this the best tx performance we've
-seen so far on this hardware.
+I found Ubuntu 6.0.6.1 [1] to support all the hardware of my Asus
+P5B-VM (uATX variant) w/ Core2Duo E6400 etc out the box, apart from
+the JMicron PATA+SATA+eSATA controller; use the southbridge ICH8 SATA
+controller instead.
 
-Consider this as an Acked-by: for all the patches, I'll save
-the effort of replying to each one of them separately.
+Seems a solid platform, just note that most DDR2-800 memory is spec'd
+to run at 2.0v rather than the 1.8v, so be sure to set this in the
+BIOS (defaults to 1.8v of course). I was experiencing intermittent,
+silent corruption with large changing patterns in memory @ 1.8v, but
+fine at 2.0v with my OCZ DDR2-800.
 
-Jeff, do you plan on merging these fixes for 2.6.19?
+> Information on whether this issue has been fixed is, at best, dubious on
+> various Linux forums.
+>
+> /Does/ the Linux kernel support this configuration? Can it
+> install/recognize this hardware configuration?
+>
+> I'm sorry to ask this question here, but all I need is a correct answer -
+> I've never posted here to ask questions, but this issue has been bugging
+> me quite a bit.
 
-	Arnd <><
+--- [1]
+
+http://ubuntu-releases.cs.umn.edu/6.06/ubuntu-6.06.1-desktop-amd64.iso
+-- 
+Daniel J Blueman

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWJKLKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWJKLSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWJKLKL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 07:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWJKLKL
+	id S1751233AbWJKLSR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 07:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWJKLSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 07:10:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42249 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751204AbWJKLKK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 07:10:10 -0400
-Date: Mon, 9 Oct 2006 19:35:35 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arm: it's OK to pass pointer to volatile as iounmap() argument...
-Message-ID: <20061009193534.GA4358@ucw.cz>
-References: <20061009010949.GJ29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061009010949.GJ29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Wed, 11 Oct 2006 07:18:17 -0400
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:9102 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S1751233AbWJKLSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 07:18:16 -0400
+Date: Wed, 11 Oct 2006 15:19:43 +0400
+Message-Id: <200610111119.k9BBJhls004763@vass.7ka.mipt.ru>
+From: Vasily Tarasov <vtaras@openvz.org>
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: OpenVZ Developer List <devel@openvz.org>
+Subject: [PATCH] block layer: elv_iosched_show should get elv_list_lock
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Wed, 11 Oct 2006 15:18:18 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+elv_iosched_show function iterates other elv_list,
+hence elv_list_lock should be got.
 
-> --- a/arch/arm/mm/ioremap.c
-> +++ b/arch/arm/mm/ioremap.c
-> @@ -361,14 +361,14 @@ __ioremap(unsigned long phys_addr, size_
->  }
->  EXPORT_SYMBOL(__ioremap);
->  
-> -void __iounmap(void __iomem *addr)
-> +void __iounmap(volatile void __iomem *addr)
+Also the question is: in elv_iosched_show, elv_iosched_store
+q->elevator->elevator_type construction is used without locking q->queue_lock.
+Is it expected?..
 
-Who is crazy enough to pass volatile pointers here? I guess they should be
-fixed, instead.
+Signed-off-by: Vasily Tarasov <vtaras@openvz.org>
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+--
+
+--- linux-2.6.18/block/elevator.c.orig	2006-10-11 11:00:34.000000000 +0400
++++ linux-2.6.18/block/elevator.c	2006-10-11 15:08:20.000000000 +0400
+@@ -892,7 +892,7 @@ ssize_t elv_iosched_show(request_queue_t
+ 	struct list_head *entry;
+ 	int len = 0;
+ 
+-	spin_lock_irq(q->queue_lock);
++	spin_lock_irq(&elv_list_lock);
+ 	list_for_each(entry, &elv_list) {
+ 		struct elevator_type *__e;
+ 
+@@ -902,7 +902,7 @@ ssize_t elv_iosched_show(request_queue_t
+ 		else
+ 			len += sprintf(name+len, "%s ", __e->elevator_name);
+ 	}
+-	spin_unlock_irq(q->queue_lock);
++	spin_unlock_irq(&elv_list_lock);
+ 
+ 	len += sprintf(len+name, "\n");
+ 	return len;

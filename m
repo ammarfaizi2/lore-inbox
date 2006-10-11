@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWJKCPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWJKCbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbWJKCPp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 22:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWJKCPp
+	id S932386AbWJKCbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 22:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWJKCbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 22:15:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28570
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932333AbWJKCPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 22:15:44 -0400
-Date: Tue, 10 Oct 2006 19:15:47 -0700 (PDT)
-Message-Id: <20061010.191547.83619974.davem@davemloft.net>
-To: mst@mellanox.co.il
-Cc: shemminger@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       openib-general@openib.org, rolandd@cisco.com
-Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061011001338.GA30093@mellanox.co.il>
-References: <20061010104315.61540986@freekitty>
-	<20061011001338.GA30093@mellanox.co.il>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 10 Oct 2006 22:31:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29836 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932386AbWJKCbU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 22:31:20 -0400
+Date: Tue, 10 Oct 2006 19:31:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Olof Johansson <olof@lixom.net>,
+       Linas Vepstas <linas@austin.ibm.com>, Bryce Harrington <bryce@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Potential fix for fdtable badness.
+Message-Id: <20061010193111.82a15ece.akpm@osdl.org>
+In-Reply-To: <200610101908.18442.vlobanov@speakeasy.net>
+References: <200610101908.18442.vlobanov@speakeasy.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Date: Wed, 11 Oct 2006 02:13:38 +0200
+On Tue, 10 Oct 2006 19:08:18 -0700
+Vadim Lobanov <vlobanov@speakeasy.net> wrote:
 
-> Maybe I can patch linux to allow SG without checksum?
-> Dave, maybe you could drop a hint or two on whether this is worthwhile
-> and what are the issues that need addressing to make this work?
-> 
-> I imagine it's not just the matter of changing net/core/dev.c :).
+> Would you prefer me to resend a fixed patch #4, or a new fix (#5) on top of
+> what's in your tree?
 
-You can't, it's a quality of implementation issue.  We sendfile()
-pages directly out of the filesystem page cache without any
-blocking of modifications to the page contents, and the only way
-that works is if the card computes the checksum for us.
+Incremental updates are preferred.
 
-If we sendfile() a page directly, we must compute a correct checksum
-no matter what the contents.  We can't do this on the cpu before the
-data hits the device because another thread of execution can go in and
-modify the page contents which would invalidate the checksum and thus
-invalidating the packet.  We cannot allow this.
+> diff -Npru old/fs/file.c new/fs/file.c
+> --- old/fs/file.c	2006-10-10 18:58:21.000000000 -0700
+> +++ new/fs/file.c	2006-10-10 19:01:03.000000000 -0700
+> @@ -164,9 +164,8 @@ static struct fdtable * alloc_fdtable(un
+>  	 * the fdarray into page-sized chunks: starting at a quarter of a page,
+>  	 * and growing in powers of two from there on.
+>  	 */
+> -	nr++;
+>  	nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
+> -	nr = roundup_pow_of_two(nr);
+> +	nr = roundup_pow_of_two(nr + 1);
+>  	nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
+>  	if (nr > NR_OPEN)
+>  		nr = NR_OPEN;
 
-Blocking modifications is too expensive, so that's not an option
-either.
-
+Like that.

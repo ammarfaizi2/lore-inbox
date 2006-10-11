@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWJKIM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWJKIru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbWJKIM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 04:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWJKIM6
+	id S965179AbWJKIru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 04:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWJKIru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 04:12:58 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:26544 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1161024AbWJKIM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 04:12:57 -0400
-Date: Wed, 11 Oct 2006 09:12:44 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Ismail Donmez <ismail@pardus.org.tr>
-Cc: Arjan van de Ven <arjan@infradead.org>, Yu Luming <luming.yu@gmail.com>,
-       Matt Domsch <Matt_Domsch@dell.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Message-ID: <20061011081244.GA6915@srcf.ucam.org>
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <1160549944.3000.347.camel@laptopd505.fenrus.org> <20061011070412.GA6128@srcf.ucam.org> <200610111104.50563.ismail@pardus.org.tr>
+	Wed, 11 Oct 2006 04:47:50 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50348 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965179AbWJKIrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 04:47:49 -0400
+Subject: Re: RSS accounting (was: Re: 2.6.19-rc1-mm1)
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-mm@kvack.org,
+       Nick Piggin <npiggin@suse.de>
+In-Reply-To: <m11wpfohg7.fsf@ebiederm.dsl.xmission.com>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	 <1160464800.3000.264.camel@laptopd505.fenrus.org>
+	 <20061010004526.c7088e79.akpm@osdl.org>
+	 <1160467401.3000.276.camel@laptopd505.fenrus.org>
+	 <1160486087.25613.52.camel@taijtu>
+	 <1160496790.3000.319.camel@laptopd505.fenrus.org>
+	 <m11wpfohg7.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 11 Oct 2006 10:47:42 +0200
+Message-Id: <1160556462.3000.359.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610111104.50563.ismail@pardus.org.tr>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 11:04:48AM +0300, Ismail Donmez wrote:
+On Tue, 2006-10-10 at 17:54 -0600, Eric W. Biederman wrote:
 
-> device_id:    0x0410
-> type:         UNKNOWN
-> known by bios: no
+> For processes shared pages are not special.
 
-This one's an LCD, according to the spec. The id spec was changed 
-slightly in 3.0 of the acpi spec (in a backwards compatible way) - I'd 
-guess that the acpi video driver just hasn't been updated.
+depends on what question you want to answer with RSS.
+If the question is "workload working set size" then you are right. If
+the question is "how much ram does my application cause to be used" the
+answer is FAR less clear....
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+You seem to have an implicit definition on what RSS should mean; but
+it's implicit. Mind making an explicit definition of what RSS should be
+in your opinion? I think that's the biggest problem we have right now;
+several people have different ideas about what it should/could be, and
+as such we're not talking about the same thing. Lets first agree/specify
+what it SHOULD mean, and then we can figure out what gets counted for
+that ;)
+
+

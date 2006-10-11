@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWJKO1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWJKOft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030428AbWJKO1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 10:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJKO1a
+	id S1030420AbWJKOft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 10:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJKOft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 10:27:30 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60133 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030408AbWJKO13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 10:27:29 -0400
-Subject: Re: [2.6 patch] drivers/scsi/dpt_i2o.c: remove dead code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20061008231627.GO6755@stusta.de>
-References: <20061008231627.GO6755@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Oct 2006 15:51:40 +0100
-Message-Id: <1160578300.16513.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 11 Oct 2006 10:35:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24716 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030420AbWJKOfs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 10:35:48 -0400
+Date: Wed, 11 Oct 2006 07:35:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <lenb@kernel.org>
+cc: Pavel Machek <pavel@ucw.cz>,
+       =?ISO-8859-1?Q?Fr=E9d=E9ric_Riss?= <frederic.riss@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 suspend regression on Intel Macs
+In-Reply-To: <200610110235.02435.len.brown@intel.com>
+Message-ID: <Pine.LNX.4.64.0610110732390.3952@g5.osdl.org>
+References: <1160417982.5142.45.camel@funkylaptop> <20061010195022.GA32134@elf.ucw.cz>
+ <Pine.LNX.4.64.0610101447270.3952@g5.osdl.org> <200610110235.02435.len.brown@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-09 am 01:16 +0200, ysgrifennodd Adrian Bunk:
-> The Coverity checker spotted this dead code introduced by
-> commit a07f353701acae77e023f6270e8af353b37af7c4.
+
+
+On Wed, 11 Oct 2006, Len Brown wrote:
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> It is troubling that Linux now gets to add the burden of MacOS bug compatibility to
+> Windows bug compatibility.  I asked the apple folks and they
+> said they didn't see anyplace in MacOS where SCI_EN is restored
+> from the OS, so perhaps we are following a different path through
+> their firmware...
 
-Semi-NAK
+We definitely are. MacOS uses EFI. Linux (if you want to use a standard 
+Linux distro image) uses Boot Camp, aka BIOS emulation.
 
-Its not dead jim, its in the wrong location
+> I don't think the risk here isn't that setting SCI_EN is going to break something.
+> The risk is that excluding it from ACPI_PM1_CONTROL_PRESERVED_BITS
+> will allow other writes to this register to clear that bit from the OS,
+> which is clearly counter to what the spec says to do.
 
->  	while ((pDev = pci_get_device( PCI_DPT_VENDOR_ID, PCI_ANY_ID, pDev))) {
->  		if(pDev->device == PCI_DPT_DEVICE_ID ||
->  		   pDev->device == PCI_DPT_RAPTOR_DEVICE_ID){
->  			if(adpt_install_hba(sht, pDev) ){
->  				PERROR("Could not Init an I2O RAID device\n");
->  				PERROR("Will not try to detect others.\n");
+Is there _ever_ any valid reason to clear it? I wouldn't object at all to 
+a patch that just forces it..
 
-------------------------> pci_dev_put()
+That said, I could imagine some strange AML sequence that clears that bit 
+in order to do something really nasty (and then sets it again at the end). 
+There's no limit to what horrors can lurk in peoples BIOSes.
 
-is needed there instead I think.
-
-
-Been away so just catching up
-
+		Linus

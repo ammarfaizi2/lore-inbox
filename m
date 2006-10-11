@@ -1,138 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030794AbWJKEsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030797AbWJKFLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030794AbWJKEsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 00:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030793AbWJKEsm
+	id S1030797AbWJKFLE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 01:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030799AbWJKFLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 00:48:42 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29199 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030794AbWJKEsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 00:48:41 -0400
-Date: Wed, 11 Oct 2006 06:48:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Rogier Wolff <R.E.Wolff@bitwizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6.19 patch] drivers/char/specialix.c: fix the baud conversion
-Message-ID: <20061011044838.GG721@stusta.de>
-References: <20061008221818.GL6755@stusta.de> <20061009063744.GB2877@bitwizard.nl> <20061010061747.GC3650@stusta.de> <200610101401.20295.eike-kernel@sf-tec.de>
+	Wed, 11 Oct 2006 01:11:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:42729 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030797AbWJKFLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 01:11:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kRMP7ksgz8ufwc3eqa02EXfJfgzxRdp4ONiJOw/b5kzoZRbSryTuMeB1sa8Ny2cJEcr1Kd3aHlupQU8WwZ9gHbbT+K6oB8MFuclRKNbSUMLe3ooa42t7mIcsG0rQs49u0yJ9iaz2NYDIj0jJ3V2YT+C7+gXic9qRow74KMG8Gn4=
+Message-ID: <3b0ffc1f0610102210o15d52d95n28d2963164c4dd23@mail.gmail.com>
+Date: Wed, 11 Oct 2006 01:10:59 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       jgarzik@pobox.com
+Subject: [BUG] 2.6.19-rc1: ata_piix takes excessively long to probe a nonexistent device
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610101401.20295.eike-kernel@sf-tec.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 02:01:19PM +0200, Rolf Eike Beer wrote:
-> Adrian Bunk wrote:
-> > On Mon, Oct 09, 2006 at 08:37:45AM +0200, Rogier Wolff wrote:
-> > > On Mon, Oct 09, 2006 at 12:18:19AM +0200, Adrian Bunk wrote:
-> > > > +       if (baud == 38400) {
-> > > >                 if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
-> > > >                         baud ++;
-> > > >                 if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
-> > > >                         baud += 2;
-> > > >         }
-> > > >
-> > > > Increasing the index for baud_table[] by 1 or 2 is quite different from
-> > > > increasing baud by 1 or 2.
-> > >
-> > > In that range,
-> > > 	baud <<= 1;
-> > > and
-> > > 	baud <<= 2;
-> > >
-> > > should work.
-> >
-> > Thanks for the hint.
-> >
-> > What about the patch below?
-> 
-> > @@ -1090,9 +1085,9 @@
-> >
-> >  	if (baud == 38400) {
-> >  		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
-> > -			baud ++;
-> > +			baud <<= 1;
-> >  		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
-> > -			baud += 2;
-> > +			baud <<= 2;
-> >  	}
-> >
-> >  	if (!baud) {
-> 
-> Neither is 38400 <<= 1 == 57600 nor is 38400 <<= 2 == 115200. You should just 
-> set baud to the value you want instead of doing tricks here.
+Using ata_piix on a Fujitsu laptop with an ICH4-M and a HD on the
+first channel and a DVD/CDRW drive on the second channel, I see this:
 
-Damn, I should have checked the numbers myself...  :-(
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x1810 irq 14
+ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0x1818 irq 15
+scsi0 : ata_piix
+ata1.00: ATA-6, max UDMA/100, 156301488 sectors: LBA
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/100
+scsi1 : ata_piix
+ata2.00: ATAPI, max UDMA/33
+ata2.01: qc timeout (cmd 0xa1)
+ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata2: failed to recover some devices, retrying in 5 secs
+ata2.01: qc timeout (cmd 0xa1)
+ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata2: failed to recover some devices, retrying in 5 secs
+ata2.01: qc timeout (cmd 0xa1)
+ata2.01: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata2: failed to recover some devices, retrying in 5 secs
+ata2.00: configured for UDMA/33
+scsi 0:0:0:0: Direct-Access     ATA      FUJITSU MHT2080A 0022 PQ: 0 ANSI: 5
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 < sda5 > sda3
+sd 0:0:0:0: Attached scsi disk sda
+scsi 1:0:0:0: CD-ROM            MATSHITA UJDA755 DVD/CDRW 1.00 PQ: 0 ANSI: 5
 
-Thanks for the correction, an updated patch is below.
+The timeout/retry periods add an extra minute or two to kernel boot
+process. This did not occur with 2.6.17 + Alan's PATA patches
+(although I did see a single message about dev 1 failing to IDENTIFY
+with that).
 
-> Eike
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-This patch corrects the following bugs introduced by
-commit 67cc0161ecc9ebee6eba4af6cbfdba028090b1b9:
-- remove one remaining and now incorrect baud_table[] usage
-- "baud +=" is no longer correct
-
-The former bug was spotted by the Coverity checker.
-
-Rolf Eike Beer spotted a bug in the initial version of my patch.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- drivers/char/specialix.c |   15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
-
---- linux-2.6/drivers/char/specialix.c.old	2006-10-11 06:35:44.000000000 +0200
-+++ linux-2.6/drivers/char/specialix.c	2006-10-11 06:36:52.000000000 +0200
-@@ -183,11 +183,6 @@
- 
- static struct tty_driver *specialix_driver;
- 
--static unsigned long baud_table[] =  {
--	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
--	9600, 19200, 38400, 57600, 115200, 0,
--};
--
- static struct specialix_board sx_board[SX_NBOARD] =  {
- 	{ 0, SX_IOBASE1,  9, },
- 	{ 0, SX_IOBASE2, 11, },
-@@ -1090,9 +1085,9 @@
- 
- 	if (baud == 38400) {
- 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
--			baud ++;
-+			baud = 57600;
- 		if ((port->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
--			baud += 2;
-+			baud = 115200;
- 	}
- 
- 	if (!baud) {
-@@ -1150,11 +1145,9 @@
- 	sx_out(bp, CD186x_RBPRL, tmp & 0xff);
- 	sx_out(bp, CD186x_TBPRL, tmp & 0xff);
- 	spin_unlock_irqrestore(&bp->lock, flags);
--	if (port->custom_divisor) {
-+	if (port->custom_divisor)
- 		baud = (SX_OSCFREQ + port->custom_divisor/2) / port->custom_divisor;
--		baud = ( baud + 5 ) / 10;
--	} else
--		baud = (baud_table[baud] + 5) / 10;   /* Estimated CPS */
-+	baud = (baud + 5) / 10;		/* Estimated CPS */
- 
- 	/* Two timer ticks seems enough to wakeup something like SLIP driver */
- 	tmp = ((baud + HZ/2) / HZ) * 2 - CD186x_NFIFO;
-
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

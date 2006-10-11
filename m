@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161263AbWJKXqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161282AbWJKXxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161263AbWJKXqG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 19:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161281AbWJKXqG
+	id S1161282AbWJKXxc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 19:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWJKXxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 19:46:06 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:59728 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1161263AbWJKXqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 19:46:03 -0400
-X-IronPort-AV: i="4.09,296,1157353200"; 
-   d="scan'208"; a="417174025:sNHT78614988"
-Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC
-	traffic
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Chuck Lever <chuck.lever@oracle.com>
-In-Reply-To: <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
-References: <20061010165621.394703368@quad.kroah.org>
-	 <20061010171429.GD6339@kroah.com>
-	 <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Wed, 11 Oct 2006 19:45:53 -0400
-Message-Id: <1160610353.7015.8.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 11 Oct 2006 23:46:13.0582 (UTC) FILETIME=[6FA4DEE0:01C6ED8F]
+	Wed, 11 Oct 2006 19:53:32 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:14888 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161282AbWJKXxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 19:53:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=JgaHZdrGpLim9XTfNZWW4HRVQoPPqAQ4uK4ld85SYLdVtCk30PiQjMB4FPTXo0lWIMG5l5SY9+6QI2gdDCJdDX6/0tNuFrRO5EVv0hdR8E3qcvnQGv6MyD6oKtTGulo0VGC/Y5RwU7BleDx26XBlW9AMu8djDIl3dnD56e54lGw=
+Date: Thu, 12 Oct 2006 01:53:28 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.19-rc1] radeonfb: check return value of sysfs_create_bin_file
+Message-ID: <20061011235328.GA13264@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 20:59 +0200, Jan Engelhardt wrote:
-> >Some hardware uses port 664 for its hardware-based IPMI listener.  Teach
-> >the RPC client to avoid using that port by raising the default minimum port
-> >number to 665.
-> 
-> Eh, that does look more like a quick hack. What if there were enough
-> manufacturers around to use various parts, like manuf. A using 664, B using 800
-> and C using 1000? Then the port range would have to be cut down again and
-> again.
-> 
-> 
-> 	-`J'
+sysfs_create_bin_file() is marked as warn_unused_result but we don't
+actually check the return value.
+Error is not fatal, the driver can operate fine without the files so
+just print a notice on failure.
 
-Feel free to tell the board manufacturers that they are idiots, and
-should not design boards that hijack specific ports without providing
-the O/S with any means of detecting this, but in the meantime, it _is_
-the case that they are doing this.
+Signed-off-by: Luca Tettamanti <kronos.it@gmail.com>
 
-Cheers,
-  Trond
+---
+
+ drivers/video/aty/radeon_base.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/video/aty/radeon_base.c b/drivers/video/aty/radeon_base.c
+index 0ed577e..bc2aac6 100644
+--- a/drivers/video/aty/radeon_base.c
++++ b/drivers/video/aty/radeon_base.c
+@@ -2313,10 +2313,17 @@ #endif
+ 	radeon_check_modes(rinfo, mode_option);
+ 
+ 	/* Register some sysfs stuff (should be done better) */
+-	if (rinfo->mon1_EDID)
+-		sysfs_create_bin_file(&rinfo->pdev->dev.kobj, &edid1_attr);
+-	if (rinfo->mon2_EDID)
+-		sysfs_create_bin_file(&rinfo->pdev->dev.kobj, &edid2_attr);
++	if (rinfo->mon1_EDID) {
++		if (sysfs_create_bin_file(&rinfo->pdev->dev.kobj, &edid1_attr))
++			printk(KERN_INFO "radeonfb (%s): failed to create edid1 file. "
++				"Continuing anyway.\n", pci_name(rinfo->pdev));
++	}
++
++	if (rinfo->mon2_EDID) {
++		if (sysfs_create_bin_file(&rinfo->pdev->dev.kobj, &edid2_attr))
++			printk(KERN_INFO "radeonfb (%s): failed to create edid2 file. "
++				"Continuing anyway.\n", pci_name(rinfo->pdev));
++	}
+ 
+ 	/* save current mode regs before we switch into the new one
+ 	 * so we can restore this upon __exit
+
+
+Luca
+-- 
+Dicono che il cane sia il miglior amico dell'uomo. Secondo me non e`
+vero. Quanti dei vostri amici avete fatto castrare, recentemente?

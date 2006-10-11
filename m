@@ -1,252 +1,407 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030671AbWJKQ2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWJKQ2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030671AbWJKQ2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 12:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030680AbWJKQ2I
+	id S1161113AbWJKQ2m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 12:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161098AbWJKQ2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 12:28:08 -0400
-Received: from justus.rz.uni-saarland.de ([134.96.7.31]:57539 "EHLO
-	justus.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S1030671AbWJKQ2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 12:28:04 -0400
-Date: Wed, 11 Oct 2006 18:33:56 +0200
-From: Alexander van Heukelum <heukelum@mailshack.com>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       John Coffman <johninsd@san.rr.com>
-Subject: [PATCH] Remove lilo-loads-only-five-sectors-of-zImage-fixup from setup.S
-Message-ID: <20061011163356.GA2022@mailshack.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.1 (justus.rz.uni-saarland.de [134.96.7.31]); Wed, 11 Oct 2006 18:27:38 +0200 (CEST)
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.3-1; AVE: 7.2.0.25; VDF: 6.36.0.108; host: AntiVir1)
+	Wed, 11 Oct 2006 12:28:41 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:50596 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161108AbWJKQ22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 12:28:28 -0400
+To: torvalds@osdl.org
+Subject: [PATCH] clean m68k ksyms
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Message-Id: <E1GXgwV-0005gy-AE@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 11 Oct 2006 17:28:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-The real-mode kernel (on i386 and x86_64) checks if the bootloader
-loaded it correctly. Apparantly, very old versions of LILO disregarded
-the setupsects field in the bootsector and always just loaded the first
-five sectors. If the kernel is compiled as a zImage, the real-mode
-kernel is able to rectify the situation. At least it was, until the code
-to do so was moved to the eighth sector in order to make space for more
-E820 entries (commit: f9ba70535dc12d9eb57d466a2ecd749e16eca866). This
-occured on 1 May 2005 and as far as I know, noone has complained yet.
-This patch removes the checks for the signature and the fixup code
-completely.
+sun3_ksyms gone, m68k_ksyms trimmed down to exports of the assembler ones,
+for sun3 added the missing exports of __ioremap() and iounmap().
 
-Comments? Which bootloaders are still in use? Kill zImage?
-
-Alexander
-
-If acceptable as-is:
-Signed-off-by: Alexander van Heukelum <heukelum@mailshack.com>
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- arch/i386/boot/setup.S   |   68 +++++-----------------------------------------
- arch/x86_64/boot/setup.S |   64 ++++---------------------------------------
- 2 files changed, 13 insertions(+), 119 deletions(-)
+ arch/m68k/kernel/m68k_ksyms.c |   51 -----------------------------------------
+ arch/m68k/kernel/process.c    |    3 ++
+ arch/m68k/kernel/setup.c      |   15 ++++++++++++
+ arch/m68k/mm/kmap.c           |    4 +++
+ arch/m68k/mm/memory.c         |    8 +++++-
+ arch/m68k/mm/sun3kmap.c       |    3 ++
+ arch/m68k/sun3/Makefile       |    2 +-
+ arch/m68k/sun3/idprom.c       |    3 ++
+ arch/m68k/sun3/sun3_ksyms.c   |   13 ----------
+ arch/m68k/sun3/sun3dvma.c     |    6 ++++-
+ 10 files changed, 40 insertions(+), 68 deletions(-)
 
-diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
-index 3aec453..cd354b2 100644
---- a/arch/i386/boot/setup.S
-+++ b/arch/i386/boot/setup.S
-@@ -52,8 +52,8 @@ #include <linux/compile.h>
- #include <asm/boot.h>
- #include <asm/e820.h>
- #include <asm/page.h>
--	
--/* Signature words to ensure LILO loaded us right */
+diff --git a/arch/m68k/kernel/m68k_ksyms.c b/arch/m68k/kernel/m68k_ksyms.c
+index f9636e8..6fc69c7 100644
+--- a/arch/m68k/kernel/m68k_ksyms.c
++++ b/arch/m68k/kernel/m68k_ksyms.c
+@@ -1,61 +1,10 @@
+ #include <linux/module.h>
+-#include <linux/linkage.h>
+-#include <linux/sched.h>
+-#include <linux/mm.h>
+-#include <linux/user.h>
+-#include <linux/elfcore.h>
+-#include <linux/in6.h>
+-#include <linux/interrupt.h>
+-
+-#include <asm/setup.h>
+-#include <asm/machdep.h>
+-#include <asm/pgalloc.h>
+-#include <asm/irq.h>
+-#include <asm/io.h>
+ #include <asm/semaphore.h>
+-#include <asm/checksum.h>
+ 
+ asmlinkage long long __ashldi3 (long long, int);
+ asmlinkage long long __ashrdi3 (long long, int);
+ asmlinkage long long __lshrdi3 (long long, int);
+ asmlinkage long long __muldi3 (long long, long long);
+-extern char m68k_debug_device[];
+-
+-/* platform dependent support */
+-
+-EXPORT_SYMBOL(m68k_machtype);
+-EXPORT_SYMBOL(m68k_cputype);
+-EXPORT_SYMBOL(m68k_is040or060);
+-EXPORT_SYMBOL(m68k_realnum_memory);
+-EXPORT_SYMBOL(m68k_memory);
+-#ifndef CONFIG_SUN3
+-EXPORT_SYMBOL(cache_push);
+-EXPORT_SYMBOL(cache_clear);
+-#ifndef CONFIG_SINGLE_MEMORY_CHUNK
+-EXPORT_SYMBOL(mm_vtop);
+-EXPORT_SYMBOL(mm_ptov);
+-EXPORT_SYMBOL(mm_end_of_chunk);
+-#else
+-EXPORT_SYMBOL(m68k_memoffset);
+-#endif /* !CONFIG_SINGLE_MEMORY_CHUNK */
+-EXPORT_SYMBOL(__ioremap);
+-EXPORT_SYMBOL(iounmap);
+-EXPORT_SYMBOL(kernel_set_cachemode);
+-#endif /* !CONFIG_SUN3 */
+-EXPORT_SYMBOL(m68k_debug_device);
+-EXPORT_SYMBOL(mach_hwclk);
+-EXPORT_SYMBOL(mach_get_ss);
+-EXPORT_SYMBOL(mach_get_rtc_pll);
+-EXPORT_SYMBOL(mach_set_rtc_pll);
+-#ifdef CONFIG_INPUT_M68K_BEEP_MODULE
+-EXPORT_SYMBOL(mach_beep);
+-#endif
+-EXPORT_SYMBOL(dump_fpu);
+-EXPORT_SYMBOL(dump_thread);
+-EXPORT_SYMBOL(kernel_thread);
+-#ifdef CONFIG_VME
+-EXPORT_SYMBOL(vme_brdtype);
+-#endif
+ 
+ /* The following are special because they're not called
+    explicitly (the C compiler generates them).  Fortunately,
+diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
+index 24e83d5..99fc122 100644
+--- a/arch/m68k/kernel/process.c
++++ b/arch/m68k/kernel/process.c
+@@ -187,6 +187,7 @@ int kernel_thread(int (*fn)(void *), voi
+ 	set_fs (fs);
+ 	return pid;
+ }
++EXPORT_SYMBOL(kernel_thread);
+ 
+ void flush_thread(void)
+ {
+@@ -311,6 +312,7 @@ int dump_fpu (struct pt_regs *regs, stru
+ 		: "memory");
+ 	return 1;
+ }
++EXPORT_SYMBOL(dump_fpu);
+ 
+ /*
+  * fill in the user structure for a core dump..
+@@ -357,6 +359,7 @@ void dump_thread(struct pt_regs * regs, 
+ 	/* dump floating point stuff */
+ 	dump->u_fpvalid = dump_fpu (regs, &dump->m68kfp);
+ }
++EXPORT_SYMBOL(dump_thread);
+ 
+ /*
+  * sys_execve() executes a new program.
+diff --git a/arch/m68k/kernel/setup.c b/arch/m68k/kernel/setup.c
+index 42d5b85..9af3ee0 100644
+--- a/arch/m68k/kernel/setup.c
++++ b/arch/m68k/kernel/setup.c
+@@ -42,27 +42,37 @@ #endif
+ 
+ unsigned long m68k_machtype;
+ unsigned long m68k_cputype;
++EXPORT_SYMBOL(m68k_machtype);
++EXPORT_SYMBOL(m68k_cputype);
+ unsigned long m68k_fputype;
+ unsigned long m68k_mmutype;
+ #ifdef CONFIG_VME
+ unsigned long vme_brdtype;
++EXPORT_SYMBOL(vme_brdtype);
+ #endif
+ 
+ int m68k_is040or060;
++EXPORT_SYMBOL(m68k_is040or060);
+ 
+ extern int end;
+ extern unsigned long availmem;
+ 
+ int m68k_num_memory;
+ int m68k_realnum_memory;
++EXPORT_SYMBOL(m68k_realnum_memory);
++#ifdef CONFIG_SINGLE_MEMORY_CHUNK
+ unsigned long m68k_memoffset;
++EXPORT_SYMBOL(m68k_memoffset);
++#endif
+ struct mem_info m68k_memory[NUM_MEMINFO];
++EXPORT_SYMBOL(m68k_memory);
+ 
+ static struct mem_info m68k_ramdisk;
+ 
+ static char m68k_command_line[CL_SIZE];
+ 
+ char m68k_debug_device[6] = "";
++EXPORT_SYMBOL(m68k_debug_device);
+ 
+ void (*mach_sched_init) (irq_handler_t handler) __initdata = NULL;
+ /* machine dependent irq functions */
+@@ -72,10 +82,14 @@ int (*mach_get_hardware_list) (char *buf
+ /* machine dependent timer functions */
+ unsigned long (*mach_gettimeoffset) (void);
+ int (*mach_hwclk) (int, struct rtc_time*);
++EXPORT_SYMBOL(mach_hwclk);
+ int (*mach_set_clock_mmss) (unsigned long);
+ unsigned int (*mach_get_ss)(void);
+ int (*mach_get_rtc_pll)(struct rtc_pll_info *);
+ int (*mach_set_rtc_pll)(struct rtc_pll_info *);
++EXPORT_SYMBOL(mach_get_ss);
++EXPORT_SYMBOL(mach_get_rtc_pll);
++EXPORT_SYMBOL(mach_set_rtc_pll);
+ void (*mach_reset)( void );
+ void (*mach_halt)( void );
+ void (*mach_power_off)( void );
+@@ -89,6 +103,7 @@ void (*mach_l2_flush) (int);
+ #endif
+ #if defined(CONFIG_INPUT_M68K_BEEP) || defined(CONFIG_INPUT_M68K_BEEP_MODULE)
+ void (*mach_beep)(unsigned int, unsigned int);
++EXPORT_SYMBOL(mach_beep);
+ #endif
+ #if defined(CONFIG_ISA) && defined(MULTI_ISA)
+ int isa_type;
+diff --git a/arch/m68k/mm/kmap.c b/arch/m68k/mm/kmap.c
+index f46f049..b54ef17 100644
+--- a/arch/m68k/mm/kmap.c
++++ b/arch/m68k/mm/kmap.c
+@@ -7,6 +7,7 @@
+  *	     used by other architectures		/Roman Zippel
+  */
+ 
++#include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+@@ -219,6 +220,7 @@ #endif
+ 
+ 	return (void __iomem *)retaddr;
+ }
++EXPORT_SYMBOL(__ioremap);
+ 
+ /*
+  * Unmap a ioremap()ed region again
+@@ -234,6 +236,7 @@ #else
+ 	free_io_area((__force void *)addr);
+ #endif
+ }
++EXPORT_SYMBOL(iounmap);
+ 
+ /*
+  * __iounmap unmaps nearly everything, so be careful
+@@ -360,3 +363,4 @@ void kernel_set_cachemode(void *addr, un
+ 
+ 	flush_tlb_all();
+ }
++EXPORT_SYMBOL(kernel_set_cachemode);
+diff --git a/arch/m68k/mm/memory.c b/arch/m68k/mm/memory.c
+index a0c095e..0f88812 100644
+--- a/arch/m68k/mm/memory.c
++++ b/arch/m68k/mm/memory.c
+@@ -4,6 +4,7 @@
+  *  Copyright (C) 1995  Hamish Macdonald
+  */
+ 
++#include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+@@ -157,9 +158,8 @@ #endif
+ 
+ 	return -1;
+ }
+-#endif
++EXPORT_SYMBOL(mm_vtop);
+ 
+-#ifndef CONFIG_SINGLE_MEMORY_CHUNK
+ unsigned long mm_ptov (unsigned long paddr)
+ {
+ 	int i = 0;
+@@ -185,6 +185,7 @@ #ifdef DEBUG_INVALID_PTOV
+ #endif
+ 	return -1;
+ }
++EXPORT_SYMBOL(mm_ptov);
+ #endif
+ 
+ /* invalidate page in both caches */
+@@ -298,6 +299,7 @@ #ifdef CONFIG_M68K_L2_CACHE
+ 	mach_l2_flush(0);
+ #endif
+ }
++EXPORT_SYMBOL(cache_clear);	/* probably can be unexported */
+ 
+ 
+ /*
+@@ -350,6 +352,7 @@ #ifdef CONFIG_M68K_L2_CACHE
+ 	mach_l2_flush(1);
+ #endif
+ }
++EXPORT_SYMBOL(cache_push);	/* probably can be unexported */
+ 
+ #ifndef CONFIG_SINGLE_MEMORY_CHUNK
+ int mm_end_of_chunk (unsigned long addr, int len)
+@@ -361,4 +364,5 @@ int mm_end_of_chunk (unsigned long addr,
+ 			return 1;
+ 	return 0;
+ }
++EXPORT_SYMBOL(mm_end_of_chunk);
+ #endif
+diff --git a/arch/m68k/mm/sun3kmap.c b/arch/m68k/mm/sun3kmap.c
+index 8caa459..1af24cb 100644
+--- a/arch/m68k/mm/sun3kmap.c
++++ b/arch/m68k/mm/sun3kmap.c
+@@ -8,6 +8,7 @@
+  * for more details.
+  */
+ 
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+@@ -112,11 +113,13 @@ void __iomem *__ioremap(unsigned long ph
+ 	return sun3_ioremap(phys, size, SUN3_PAGE_TYPE_IO);
+ 
+ }
++EXPORT_SYMBOL(__ioremap);
+ 
+ void iounmap(void __iomem *addr)
+ {
+ 	vfree((void *)(PAGE_MASK & (unsigned long)addr));
+ }
++EXPORT_SYMBOL(iounmap);
+ 
+ /* sun3_map_test(addr, val) -- Reads a byte from addr, storing to val,
+  * trapping the potential read fault.  Returns 0 if the access faulted,
+diff --git a/arch/m68k/sun3/Makefile b/arch/m68k/sun3/Makefile
+index 4d4f069..be1a847 100644
+--- a/arch/m68k/sun3/Makefile
++++ b/arch/m68k/sun3/Makefile
+@@ -2,6 +2,6 @@ #
+ # Makefile for Linux arch/m68k/sun3 source directory
+ #
+ 
+-obj-y	:= sun3_ksyms.o sun3ints.o sun3dvma.o sbus.o idprom.o
++obj-y	:= sun3ints.o sun3dvma.o sbus.o idprom.o
+ 
+ obj-$(CONFIG_SUN3) += config.o mmu_emu.o leds.o dvma.o intersil.o
+diff --git a/arch/m68k/sun3/idprom.c b/arch/m68k/sun3/idprom.c
+index 02c1fee..dca6ab6 100644
+--- a/arch/m68k/sun3/idprom.c
++++ b/arch/m68k/sun3/idprom.c
+@@ -6,6 +6,7 @@
+  * Sun3/3x models added by David Monro (davidm@psrg.cs.usyd.edu.au)
+  */
+ 
++#include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/init.h>
+@@ -16,6 +17,8 @@ #include <asm/idprom.h>
+ #include <asm/machines.h>  /* Fun with Sun released architectures. */
+ 
+ struct idprom *idprom;
++EXPORT_SYMBOL(idprom);
 +
-+/* Signature words to mark the end of the real-mode kernel */
- #define SIG1	0xAA55
- #define SIG2	0x5A5A
+ static struct idprom idprom_buffer;
  
-@@ -179,17 +179,7 @@ # Reset the disk controller.
- 	int	$0x13
- #endif
+ /* Here is the master table of Sun machines which use some implementation
+diff --git a/arch/m68k/sun3/sun3_ksyms.c b/arch/m68k/sun3/sun3_ksyms.c
+deleted file mode 100644
+index 43e5a9a..0000000
+--- a/arch/m68k/sun3/sun3_ksyms.c
++++ /dev/null
+@@ -1,13 +0,0 @@
+-#include <linux/module.h>
+-#include <linux/types.h>
+-#include <asm/dvma.h>
+-#include <asm/idprom.h>
+-
+-/*
+- * Add things here when you find the need for it.
+- */
+-EXPORT_SYMBOL(dvma_map_align);
+-EXPORT_SYMBOL(dvma_unmap);
+-EXPORT_SYMBOL(dvma_malloc_align);
+-EXPORT_SYMBOL(dvma_free);
+-EXPORT_SYMBOL(idprom);
+diff --git a/arch/m68k/sun3/sun3dvma.c b/arch/m68k/sun3/sun3dvma.c
+index a2bc2da..8709677 100644
+--- a/arch/m68k/sun3/sun3dvma.c
++++ b/arch/m68k/sun3/sun3dvma.c
+@@ -6,6 +6,7 @@
+  * Contains common routines for sun3/sun3x DVMA management.
+  */
  
--# Set %ds = %cs, we know that SETUPSEG = %cs at this point
--	movw	%cs, %ax		# aka SETUPSEG
--	movw	%ax, %ds
--# Check signature at end of setup
--	cmpw	$SIG1, setup_sig1
--	jne	bad_sig
--
--	cmpw	$SIG2, setup_sig2
--	jne	bad_sig
--
--	jmp	good_sig1
-+	jmp	test_loader
++#include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/list.h>
+@@ -312,6 +313,7 @@ #endif
+ 	BUG();
+ 	return 0;
+ }
++EXPORT_SYMBOL(dvma_map_align);
  
- # Routine to print asciiz string at ds:si
- prtstr:
-@@ -220,52 +210,7 @@ prtchr:	pushw	%ax
- beep:	movb	$0x07, %al
- 	jmp	prtchr
- 	
--no_sig_mess: .string	"No setup signature found ..."
--
--good_sig1:
--	jmp	good_sig
--
--# We now have to find the rest of the setup code/data
--bad_sig:
--	movw	%cs, %ax			# SETUPSEG
--	subw	$DELTA_INITSEG, %ax		# INITSEG
--	movw	%ax, %ds
--	xorb	%bh, %bh
--	movb	(497), %bl			# get setup sect from bootsect
--	subw	$4, %bx				# LILO loads 4 sectors of setup
--	shlw	$8, %bx				# convert to words (1sect=2^8 words)
--	movw	%bx, %cx
--	shrw	$3, %bx				# convert to segment
--	addw	$SYSSEG, %bx
--	movw	%bx, %cs:start_sys_seg
--# Move rest of setup code/data to here
--	movw	$2048, %di			# four sectors loaded by LILO
--	subw	%si, %si
--	pushw	%cs
--	popw	%es
--	movw	$SYSSEG, %ax
--	movw	%ax, %ds
--	rep
--	movsw
--	movw	%cs, %ax			# aka SETUPSEG
--	movw	%ax, %ds
--	cmpw	$SIG1, setup_sig1
--	jne	no_sig
--
--	cmpw	$SIG2, setup_sig2
--	jne	no_sig
--
--	jmp	good_sig
--
--no_sig:
--	lea	no_sig_mess, %si
--	call	prtstr
--
--no_sig_loop:
--	hlt
--	jmp	no_sig_loop
--
--good_sig:
-+test_loader:
- 	movw	%cs, %ax			# aka SETUPSEG
- 	subw	$DELTA_INITSEG, %ax 		# aka INITSEG
- 	movw	%ax, %ds
-@@ -281,8 +226,9 @@ # Check if an old loader tries to load a
- 	popw	%ds				# die. 
- 	lea	loader_panic_mess, %si
- 	call	prtstr
--
--	jmp	no_sig_loop
-+bad_loader:
-+	hlt
-+	jmp	bad_loader
+ void dvma_unmap(void *baddr)
+ {
+@@ -327,7 +329,7 @@ void dvma_unmap(void *baddr)
+ 	return;
  
- loader_panic_mess: .string "Wrong loader, giving up..."
+ }
+-
++EXPORT_SYMBOL(dvma_unmap);
  
-diff --git a/arch/x86_64/boot/setup.S b/arch/x86_64/boot/setup.S
-index c3bfd22..5542c59 100644
---- a/arch/x86_64/boot/setup.S
-+++ b/arch/x86_64/boot/setup.S
-@@ -52,7 +52,7 @@ #include <asm/boot.h>
- #include <asm/e820.h>
- #include <asm/page.h>
+ void *dvma_malloc_align(unsigned long len, unsigned long align)
+ {
+@@ -367,6 +369,7 @@ #endif
+ 	return (void *)vaddr;
  
--/* Signature words to ensure LILO loaded us right */
-+/* Signature words to mark the end of the real-mode kernel */
- #define SIG1	0xAA55
- #define SIG2	0x5A5A
+ }
++EXPORT_SYMBOL(dvma_malloc_align);
  
-@@ -175,17 +175,7 @@ # Reset the disk controller.
- 	int	$0x13
- #endif
+ void dvma_free(void *vaddr)
+ {
+@@ -374,3 +377,4 @@ void dvma_free(void *vaddr)
+ 	return;
  
--# Set %ds = %cs, we know that SETUPSEG = %cs at this point
--	movw	%cs, %ax		# aka SETUPSEG
--	movw	%ax, %ds
--# Check signature at end of setup
--	cmpw	$SIG1, setup_sig1
--	jne	bad_sig
--
--	cmpw	$SIG2, setup_sig2
--	jne	bad_sig
--
--	jmp	good_sig1
-+	jmp	test_loader
- 
- # Routine to print asciiz string at ds:si
- prtstr:
-@@ -216,51 +206,7 @@ prtchr:	
- beep:	movb	$0x07, %al
- 	jmp	prtchr
- 	
--no_sig_mess: .string	"No setup signature found ..."
--
--good_sig1:
--	jmp	good_sig
--
--# We now have to find the rest of the setup code/data
--bad_sig:
--	movw	%cs, %ax			# SETUPSEG
--	subw	$DELTA_INITSEG, %ax		# INITSEG
--	movw	%ax, %ds
--	xorb	%bh, %bh
--	movb	(497), %bl			# get setup sect from bootsect
--	subw	$4, %bx				# LILO loads 4 sectors of setup
--	shlw	$8, %bx				# convert to words (1sect=2^8 words)
--	movw	%bx, %cx
--	shrw	$3, %bx				# convert to segment
--	addw	$SYSSEG, %bx
--	movw	%bx, %cs:start_sys_seg
--# Move rest of setup code/data to here
--	movw	$2048, %di			# four sectors loaded by LILO
--	subw	%si, %si
--	movw	%cs, %ax			# aka SETUPSEG
--	movw	%ax, %es
--	movw	$SYSSEG, %ax
--	movw	%ax, %ds
--	rep
--	movsw
--	movw	%cs, %ax			# aka SETUPSEG
--	movw	%ax, %ds
--	cmpw	$SIG1, setup_sig1
--	jne	no_sig
--
--	cmpw	$SIG2, setup_sig2
--	jne	no_sig
--
--	jmp	good_sig
--
--no_sig:
--	lea	no_sig_mess, %si
--	call	prtstr
--
--no_sig_loop:
--	jmp	no_sig_loop
--
--good_sig:
-+test_loader:
- 	movw	%cs, %ax			# aka SETUPSEG
- 	subw	$DELTA_INITSEG, %ax 		# aka INITSEG
- 	movw	%ax, %ds
-@@ -277,7 +223,9 @@ # Check if an old loader tries to load a
- 	lea	loader_panic_mess, %si
- 	call	prtstr
- 
--	jmp	no_sig_loop
-+bad_loader:
-+	hlt
-+	jmp	bad_loader
- 
- loader_panic_mess: .string "Wrong loader, giving up..."
- 
+ }
++EXPORT_SYMBOL(dvma_free);
 -- 
-1.4.1
+1.4.2.GIT
+
+

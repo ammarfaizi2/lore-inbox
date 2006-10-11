@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161372AbWJKVBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWJKVBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161372AbWJKVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWJKVBE
+	id S1161382AbWJKVBn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161379AbWJKVBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:01:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53696 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161372AbWJKVBC (ORCPT
+	Wed, 11 Oct 2006 17:01:42 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27013 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161376AbWJKVBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:01:02 -0400
-Date: Wed, 11 Oct 2006 13:57:20 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Steven Whitehouse <steve@chygwyn.com>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
-Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-Message-ID: <20061011135720.303f166b@freekitty>
-In-Reply-To: <20061011201138.GA21657@fogou.chygwyn.com>
-References: <20061011090926.GA15393@fogou.chygwyn.com>
-	<20061011150103.GF4888@mellanox.co.il>
-	<20061011201138.GA21657@fogou.chygwyn.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Oct 2006 17:01:41 -0400
+Date: Wed, 11 Oct 2006 14:01:37 -0700
+From: Greg KH <gregkh@suse.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Pavel Machek <pavel@suse.cz>,
+       Paolo Abeni <paolo.abeni@email.it>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [PATCH] usbmon: add binary interface
+Message-ID: <20061011210137.GA16427@suse.de>
+References: <20061011134351.0c79445a.zaitcev@redhat.com> <Pine.LNX.4.44L0.0610111649440.6437-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0610111649440.6437-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Oct 2006 21:11:38 +0100
-Steven Whitehouse <steve@chygwyn.com> wrote:
-
-> Hi,
+On Wed, Oct 11, 2006 at 04:51:09PM -0400, Alan Stern wrote:
+> On Wed, 11 Oct 2006, Pete Zaitcev wrote:
 > 
-> On Wed, Oct 11, 2006 at 05:01:03PM +0200, Michael S. Tsirkin wrote:
-> > Quoting Steven Whitehouse <steve@chygwyn.com>:
-> > > > ssize_t tcp_sendpage(struct socket *sock, struct page *page, int offset,
-> > > >                      size_t size, int flags)
-> > > > {
-> > > >         ssize_t res;
-> > > >         struct sock *sk = sock->sk;
-> > > > 
-> > > >         if (!(sk->sk_route_caps & NETIF_F_SG) ||
-> > > >             !(sk->sk_route_caps & NETIF_F_ALL_CSUM))
-> > > >                 return sock_no_sendpage(sock, page, offset, size, flags);
-> > > > 
-> > > > 
-> > > > So, it seems that if I set NETIF_F_SG but clear NETIF_F_ALL_CSUM,
-> > > > data will be copied over rather than sent directly.
-> > > > So why does dev.c have to force set NETIF_F_SG to off then?
-> > > >
-> > > I agree with that analysis,
+> > On Wed, 11 Oct 2006 19:44:43 +0000, Pavel Machek <pavel@suse.cz> wrote:
 > > 
-> > So, would you Ack something like the following then?
-> >
+> > > Does it mean text interface is now deprecated? Or perhaps ioctl should
+> > > be added to text interface too? Or maybe we do not need binary
+> > > interface if we allow resizing on text interface?
+> > 
+> > I haven't reviewed Paolo's patch yet, but with that in mind:
+> >  - No, text is not deprecated yet. That is only possible when a simplified
+> >    command-line tool is written and distributed (e.g. usbmon(8)).
+> >  - No, I do not think an ioctl in debugfs or a text API is a good idea.
+> >  - Resizing on text interface magnifies sprintf contribution to CPU burn,
+> >    so once we have the binary one, there's only disadvantage and
+> >    no advantage in implementing that.
 > 
-> In so far as I'm able to ack it, then yes, but with the following
-> caveats: that you also need to look at the tcp code's checks for
-> NETIF_F_SG (aside from the interface to tcp_sendpage which I think
-> we've agreed is ok) and ensure that this patch will not change their
-> behaviour, and here I'm thinking of the test in net/ipv4/tcp.c:select_size()
-> in particular - there may be others but thats the only one I can think
-> of off the top of my head. I think this is what davem was getting at
-> with his comment about copy & sum for smaller packets.
-> 
-> Also all subject to approval by davem and shemminger of course :-)
-> 
-> My general feeling is that devices should advertise the features that
-> they actually have and that the protocols should make the decision
-> as to which ones to use or not depending on the combinations available
-> (which I think is pretty much your argument).
-> 
-> Steve.
-> 
+> Would relayfs be a better choice than debugfs for exporting potentially
+> large quantities of binary data?
 
-You might want to try ignoring the check in dev.c and testing
-to see if there is a performance gain.  It wouldn't be hard to test
-a modified version and validate the performance change.
+You can put relayfs files in debugfs.  Or at least that was the goal a
+long time ago, hopefully it still works...
 
-You could even do what I suggested and use skb_checksum_help()
-to do inplace checksumming, as a performance test.
+thanks,
 
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
+greg k-h

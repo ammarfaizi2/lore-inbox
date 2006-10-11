@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbWJKIuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbWJKIxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbWJKIuj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 04:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWJKIuj
+	id S965182AbWJKIxG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 04:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWJKIxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 04:50:39 -0400
-Received: from mail.first.fraunhofer.de ([194.95.169.2]:50149 "EHLO
-	mail.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S965171AbWJKIui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 04:50:38 -0400
-Subject: hda: DMA timeout error
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Wed, 11 Oct 2006 04:53:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:32215 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965182AbWJKIxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 04:53:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Mn27UHOT1+hAsQ2ijNSTPBbAbbf28AOg04gZQF7npy6mPh/9nVazQSyd6P/YbRkAnejCrEWL8ZAeL4mBVnnglf5Gi0sJXgQ0s2sEWqgKsP83ZALE03+w8wMM5ToLP8z26L271fxw2+rbIu7ltz+pCmswy/pOBJuuTjvViMs5e0U=
+Message-ID: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
+Date: Wed, 11 Oct 2006 10:53:02 +0200
+From: "Kobajashi Zaghi" <kobajashi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: The Future of ReiserFS development
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 10 Oct 2006 16:46:38 +0000
-Message-Id: <1160498799.24402.99.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear List,
+Hi!
 
-could someone knowledgeable please comment on this ?
+Hans Reiser arrested on suspicion of murder.
 
-I had a working raid-1 setup(tm) with two western digital drives being
-connected to a via and a highpoint controller. Now all I did is to
-replace ide disks (now hitachi) and suddenly I frequently see disks (on
-one of the controllers, sometimes hda sometimes hde) to plop out:
+http://sfgate.com/cgi-bin/article.cgi?f=/c/a/2006/10/10/BAGERLM3RR15.DTL
 
-hda: lost interrupt
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-DataRequest }
-ide: failed opcode was: unknown
-raid1: Disk failure on hda, disabling device. 
-        Operation continuing on 1 devices
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-DataRequest }
-ide: failed opcode was: unknown
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 0, wo:1, o:0, dev:hda
- disk 1, wo:0, o:1, dev:hde
-RAID1 conf printout:
- --- wd:1 rd:2
- disk 1, wo:0, o:1, dev:hde
+What is the plan? Could i
+migrate from reiserfs to another journaling filesystem? How will this
+trouble affect reiserfs development?
 
-I simply don't understand what's wrong ... when I hot remove the drive
-turn on DMA and hot add the drive everything is fine again ... could one
-increase timeouts or try some more mature driver which has some more
-error recovery ? This is on kernel 2.6.17.13 ... 2.6.18 refuses to boot
-(kills the hotplug process repeatedly claiming the machine ran out of
-memory).
+I hope Hans innocent.
 
-Any thoughts ?
-Soeren
--- 
-For the one fact about the future of which we can be certain is that it
-will be utterly fantastic. -- Arthur C. Clarke, 1962
+Thanks,
+
+--
+Kobi

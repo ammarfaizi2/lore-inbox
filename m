@@ -1,111 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161189AbWJKTy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWJKTyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161189AbWJKTy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbWJKTy0
+	id S932473AbWJKTyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWJKTyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:54:26 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:16297 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161189AbWJKTyZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:54:25 -0400
-Subject: [PATCH] i386 Time: Avoid PIT SMP lockups
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 11 Oct 2006 12:54:21 -0700
-Message-Id: <1160596462.5973.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 11 Oct 2006 15:54:16 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:33109 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932473AbWJKTyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:54:15 -0400
+Message-ID: <452D4BE2.6070202@tls.msk.ru>
+Date: Wed, 11 Oct 2006 23:54:10 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SOT] GIT usage question
+References: <452D3DFA.6010408@tls.msk.ru> <20061011192921.GA8345@electric-eye.fr.zoreil.com>
+In-Reply-To: <20061011192921.GA8345@electric-eye.fr.zoreil.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew: I think this is 2.6.19 material, but probably should go through an -mm or two.
+Francois Romieu wrote:
+> Michael Tokarev <mjt@tls.msk.ru> :
+> [...]
+>> Is it possible?
+> 
+> git diff 2.6.18..origin -- drivers/ata ?
 
-thanks
--john
+Yeah, -- the idea is to identify which changes are relevant
+using some other criteria, not "git tree placement" or something
+like that -- example is to use directory as you suggested (plus
+relevant includes).
 
+> Experiment with options for rename.
 
-This patch avoids possible PIT livelock issues seen on SMP systems (and
-reported by Andi), by not allowing it as a clocksource on SMP boxes.
+Yeah -- like git-diff-tree -M, I used it before (for this libata stuff
+as well), and even wrote a tiny shell wrapper around patch(1) to
+apply git-diff-tree -M -generated patch - first pass is to handle
+renames in shell, and second pass is to apply the patch itself... ;)
 
-However, since the PIT may no longer be present, we have to properly
-handle the cases where SMP systems have TSC skew and fall back from the
-TSC. Since the PIT isn't there, it would "fall back" to the TSC again.
-So this changes the jiffies rating to 1, and the TSC-bad rating value to
-0.
+Thanks.
 
-Thus you will get the following behavior priority on i386 systems:
-
-tsc		[if present & stable]
-hpet		[if present]
-cyclone		[if present]
-acpi_pm		[if present]
-pit		[if UP]
-jiffies
-
-Rather then the current more complicated:
-tsc		[if present & stable]
-hpet		[if present]
-cyclone		[if present]
-acpi_pm		[if present]
-pit		[if cpus < 4]
-tsc		[if present & unstable]
-jiffies
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
-index 477b24d..9a0060b 100644
---- a/arch/i386/kernel/i8253.c
-+++ b/arch/i386/kernel/i8253.c
-@@ -109,7 +109,7 @@ static struct clocksource clocksource_pi
- 
- static int __init init_pit_clocksource(void)
- {
--	if (num_possible_cpus() > 4) /* PIT does not scale! */
-+	if (num_possible_cpus() > 1) /* PIT does not scale! */
- 		return 0;
- 
- 	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
-diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
-index b8fa0a8..fbc9582 100644
---- a/arch/i386/kernel/tsc.c
-+++ b/arch/i386/kernel/tsc.c
-@@ -349,8 +349,8 @@ static int tsc_update_callback(void)
- 	int change = 0;
- 
- 	/* check to see if we should switch to the safe clocksource: */
--	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
--		clocksource_tsc.rating = 50;
-+	if (clocksource_tsc.rating != 0 && check_tsc_unstable()) {
-+		clocksource_tsc.rating = 0;
- 		clocksource_reselect();
- 		change = 1;
- 	}
-@@ -461,7 +461,7 @@ static int __init init_tsc_clocksource(v
- 							clocksource_tsc.shift);
- 		/* lower the rating if we already know its unstable: */
- 		if (check_tsc_unstable())
--			clocksource_tsc.rating = 50;
-+			clocksource_tsc.rating = 0;
- 
- 		init_timer(&verify_tsc_freq_timer);
- 		verify_tsc_freq_timer.function = verify_tsc_freq;
-diff --git a/kernel/time/jiffies.c b/kernel/time/jiffies.c
-index 126bb30..a99b2a6 100644
---- a/kernel/time/jiffies.c
-+++ b/kernel/time/jiffies.c
-@@ -57,7 +57,7 @@ static cycle_t jiffies_read(void)
- 
- struct clocksource clocksource_jiffies = {
- 	.name		= "jiffies",
--	.rating		= 0, /* lowest rating*/
-+	.rating		= 1, /* lowest valid rating*/
- 	.read		= jiffies_read,
- 	.mask		= 0xffffffff, /*32bits*/
- 	.mult		= NSEC_PER_JIFFY << JIFFIES_SHIFT, /* details above */
-
-
+/mjt

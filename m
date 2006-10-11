@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030748AbWJKBqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWJKCIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030748AbWJKBqV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 21:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030746AbWJKBqU
+	id S1751049AbWJKCIU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 22:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWJKCIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 21:46:20 -0400
-Received: from outbound-sin.frontbridge.com ([207.46.51.80]:33517 "EHLO
-	outbound2-sin-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1030742AbWJKBqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 21:46:17 -0400
-X-BigFish: V
-Message-ID: <452C4CE0.5010607@am.sony.com>
-Date: Tue, 10 Oct 2006 18:46:08 -0700
-From: Geoff Levand <geoffrey.levand@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Tue, 10 Oct 2006 22:08:20 -0400
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:14564 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750710AbWJKCIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 22:08:19 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Dave Kleikamp <shaggy@austin.ibm.com>, Olof Johansson <olof@lixom.net>,
+       Linas Vepstas <linas@austin.ibm.com>, Bryce Harrington <bryce@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Potential fix for fdtable badness.
+Date: Tue, 10 Oct 2006 19:08:18 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: jschopp <jschopp@austin.ibm.com>
-CC: Linas Vepstas <linas@austin.ibm.com>, akpm@osdl.org, jeff@garzik.org,
-       Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
-References: <20061010204946.GW4381@austin.ibm.com>	<20061010212324.GR4381@austin.ibm.com> <452C2AAA.5070001@austin.ibm.com>
-In-Reply-To: <452C2AAA.5070001@austin.ibm.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Oct 2006 01:46:08.0836 (UTC) FILETIME=[05EFC040:01C6ECD7]
+Content-Disposition: inline
+Message-Id: <200610101908.18442.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jschopp wrote:
-> Linas Vepstas wrote:
->> The current driver code performs 512 DMA mappns of a bunch of 
->> 32-byte structures. This is silly, as they are all in contiguous 
->> memory. Ths patch changes the code to DMA map the entie area
->> with just one call.
->> 
->> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
->> Cc: James K Lewis <jklewis@us.ibm.com>
->> Cc: Arnd Bergmann <arnd@arndb.de>
-> 
-> The others look good, but this one complicates the code and doesn't have any benefit.  20 
-> for 21 isn't bad.
+All,
 
-Linas, 
+Sorry about the recent fdtable badness that you all encountered. I'm working
+on getting a fix out there.
 
-Is the motivation for this change to improve performance by reducing the overhead
-of the mapping calls?  If so, there may be some benefit for some systems.  Could
-you please elaborate?
+Dave, Olof, Linas, Bryce,
 
--Geoff
+Could you please test the patch at the bottom of the email to see if it makes
+your computers happy again, if you have the time and inclination to do so?
 
+Andrew,
+
+Would you prefer me to resend a fixed patch #4, or a new fix (#5) on top of
+what's in your tree?
+
+diff -Npru old/fs/file.c new/fs/file.c
+--- old/fs/file.c	2006-10-10 18:58:21.000000000 -0700
++++ new/fs/file.c	2006-10-10 19:01:03.000000000 -0700
+@@ -164,9 +164,8 @@ static struct fdtable * alloc_fdtable(un
+ 	 * the fdarray into page-sized chunks: starting at a quarter of a page,
+ 	 * and growing in powers of two from there on.
+ 	 */
+-	nr++;
+ 	nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
+-	nr = roundup_pow_of_two(nr);
++	nr = roundup_pow_of_two(nr + 1);
+ 	nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
+ 	if (nr > NR_OPEN)
+ 		nr = NR_OPEN;

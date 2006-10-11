@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWJKRXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWJKR0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWJKRXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWJKRXf
+	id S1161152AbWJKR0q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbWJKR0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:23:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2997 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161146AbWJKRXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:23:35 -0400
-Date: Wed, 11 Oct 2006 18:23:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 0/2] Introduce round_jiffies() to save spurious wakeups
-Message-ID: <20061011172331.GA13099@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@linux.intel.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <1160496165.3000.308.camel@laptopd505.fenrus.org>
+	Wed, 11 Oct 2006 13:26:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13502 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161152AbWJKR0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:26:45 -0400
+Subject: Re: [PATCH 3/3] drivers/scsi/NCR5380.c: Replacing yield() with a
+	better alternative
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Lad <amol@verismonetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, James.Bottomley@steeleye.com,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+In-Reply-To: <1160571242.19143.320.camel@amol.verismonetworks.com>
+References: <1160571242.19143.320.camel@amol.verismonetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 11 Oct 2006 18:52:55 +0100
+Message-Id: <1160589175.16513.58.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160496165.3000.308.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 06:02:45PM +0200, Arjan van de Ven wrote:
-> Hi,
+Ar Mer, 2006-10-11 am 18:24 +0530, ysgrifennodd Amol Lad:
+> For this driver schedule_timeout_schedule() seems to be a better
+> alternative. 
 > 
-> the following 2 patches will introduce the round_jiffies() api and users
-> thereof. 
-> 
-> The general idea is that by rounding the jiffies for certain timers to
-> the next whole second will make those timers all happen at the same
-> time; and thus reduce the number of times the cpu has to wake up to
-> service timers (this assumes a tickless kernel)
-> 
-> Obviously only timers where the exact time of firing isn't so important
-> can do this; several of the recurring "always live" timers of the kernel
-> are of this kind, they want "about once a second" or "about once every 4
-> seconds" and such, and don't really care about the exact jiffy in which
-> they fire.
-> 
-> An alternative would have been to introduce mod_timer_rounded() or
-> somesuch APIs (but there's many variants that take jiffies); I feel that
-> an explicit caller based rounding actually is quite reasonable.
+> *Please see if the function should be called with 1 jiffy delay or more
+> is better*
 
-I think the API you proposed is horrible.  Having jiffies exposed in
-ani API is a mistake, and adding more makes this problem worse.  I'd suggest
-to start with Alan's patches that add a timer variant that takes a miliseconds
-argument instead of jiffies and add a _rounded varaint to it that has
-a new parameter that specifies the precision.
+You want cond_resched() for this driver as its polling the hardware for
+a change that should occur very soon. (Actually you want to throw the
+hardware in the bin)
+
+Alan
 

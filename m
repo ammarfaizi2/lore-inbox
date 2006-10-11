@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWJKRaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWJKRgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbWJKRaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 13:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWJKRaZ
+	id S1161160AbWJKRgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 13:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWJKRgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 13:30:25 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15550 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161144AbWJKRaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 13:30:24 -0400
-Subject: Re: The Future of ReiserFS development
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kobajashi Zaghi <kobajashi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
-References: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Oct 2006 18:56:44 +0100
-Message-Id: <1160589404.16513.61.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 11 Oct 2006 13:36:07 -0400
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:43448 "EHLO
+	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1161162AbWJKRgE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 13:36:04 -0400
+X-BigFish: VP
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
+ regressions)
+Date: Wed, 11 Oct 2006 12:33:39 -0500
+Message-ID: <1449F58C868D8D4E9C72945771150BDF1536FD@SAUSEXMB1.amd.com>
+In-Reply-To: <200610111606.13180.christiand59@web.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cpufreq not working on AMD K8 (was Re: 2.6.19-rc1: known
+ regressions)
+Thread-Index: AcbtPsEromMjWDkAT+qERX8PV++jLwAHFAUg
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: "Christian" <christiand59@web.de>
+cc: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 11 Oct 2006 17:33:40.0308 (UTC)
+ FILETIME=[640DF140:01C6ED5B]
+X-WSS-ID: 6933F57E1L85618687-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-11 am 10:53 +0200, ysgrifennodd Kobajashi Zaghi:
-> Hi!
-> 
-> Hans Reiser arrested on suspicion of murder.
-> 
-> http://sfgate.com/cgi-bin/article.cgi?f=/c/a/2006/10/10/BAGERLM3RR15.DTL
-> 
-> What is the plan? Could i
-> migrate from reiserfs to another journaling filesystem? How will this
-> trouble affect reiserfs development?
+> It seems that my first try exceeded the LKML size limit. So 
+> hopefully you should get my decompiled DSDT now as a bzip
+> compressed file.
 
-Reiserfs is written by a team of people at Namesys, and particularly
-with reiserfs3 people at SuSE and elsewhere as well. 
+Right then.  You're completely missing the _PCT, _PPC, and
+_PSS packages, as well as the CPU scope they're normally
+defined in.  powernow-k8 is not going to work on this system.
 
-Alan
+If you boot with the 2.6.18 kernel, do you get the same
+decompiled DSDT?  If not, there's an ACPI regression you
+need to report to Len Brown.
+
+Have you upgraded the processors or BIOS on the box?
+
+-Mark Langsdorf
+AMD, Inc.
+
+

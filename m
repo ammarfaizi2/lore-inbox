@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161493AbWJKVTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161437AbWJKVTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161493AbWJKVTF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161435AbWJKVI0
+	id S1161437AbWJKVTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161376AbWJKVTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:08:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33954 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161434AbWJKVIP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:08:15 -0400
-Date: Wed, 11 Oct 2006 14:07:48 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, bunk@stusta.de,
-       "David S. Miller" <davem@davemloft.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 49/67] SPARC64: Fix serious bug in sched_clock() on sparc64
-Message-ID: <20061011210748.GX16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
+	Wed, 11 Oct 2006 17:19:41 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:690 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161446AbWJKVTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:19:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=ccR2doUZy+/9j/acQP7vUSZvS3IeW4Gwx+LN+xI194wZaPwXXQTmZqtxu5W197z9qtelYEdwdysB9iaIlIKs++GwzXkpgi40VsFEBnYCiSznPsOZWs9Slu3UBcEDOnoNZ6Gn94cMqoJAn66biknymPEv0VSCOxEtc+R9HeTHBqg=
+Message-ID: <fc94aae90610111419g647e554ay42105db77d4f712c@mail.gmail.com>
+Date: Wed, 11 Oct 2006 22:19:16 +0100
+From: "Michael Lothian" <mike@fireburn.co.uk>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.19-rc1-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061010000928.9d2d519a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sparc64-fix-serious-bug-in-sched_clock-on-sparc64.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+X-Google-Sender-Auth: 831ac5ed996c00e3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+>
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
+>
+>
+> git-libata-all.patch
+>
+>
+>
 
--stable review patch.  If anyone has any objections, please let us know.
+Hi
 
-------------------
-From: David S. Miller <davem@davemloft.net>
+I think I've found a regression in the pata-via module. My cdrom drive isn't
+detected I have compiled in and also tried as modules pata-via and the SCSI
+CDROM device driver
 
-Unfortunately, sparc64 doesn't have an easy way to do a "64 X 64 -->
-128" bit multiply like PowerPC and IA64 do.  We were doing a
-"64 X 64 --> 64" bit multiple which causes overflow very quickly with
-a 30-bit quotient shift.
+I think the problem may be due to my cdrom not having a jumper setting
+either master or slave (or even cable select for that matter) as I lost the
+wee jumper.
 
-So use a quotientshift count of 10 instead of 30, just like x86 and
-ARM do.
+Even if this is the case I'd still call this a regression as the old code
+finds it no problem
 
-This also fixes the wrapping of printk timestamp values every ~17
-seconds.
+My dmesg states:
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+pata_via 0000:00:0f.1: version 0.1.14
+ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xA400 irq 14
+ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xA408 irq 15
+scsi2 : pata_via
+ata3.00: ATAPI, max UDMA/33
+EXT3-fs: mounted filesystem with ordered data mode.
+ata3.00: qc timeout (cmd 0xa1)
+ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata3.00: revalidation failed (errno=-5)
+ata3.00: limiting speed to UDMA/25
+ata3: failed to recover some devices, retrying in 5 secs
+ata3.00: qc timeout (cmd 0xa1)
+ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata3.00: revalidation failed (errno=-5)
+ata3: failed to recover some devices, retrying in 5 secs
+ata3.00: qc timeout (cmd 0xa1)
+ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+ata3.00: revalidation failed (errno=-5)
+ata3.00: disabled
+scsi3 : pata_via
+ATA: abnormal status 0x8 on port 0x177
 
----
- arch/sparc64/kernel/time.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.18.orig/arch/sparc64/kernel/time.c
-+++ linux-2.6.18/arch/sparc64/kernel/time.c
-@@ -983,7 +983,7 @@ static struct time_interpolator sparc64_
- };
- 
- /* The quotient formula is taken from the IA64 port. */
--#define SPARC64_NSEC_PER_CYC_SHIFT	30UL
-+#define SPARC64_NSEC_PER_CYC_SHIFT	10UL
- void __init time_init(void)
- {
- 	unsigned long clock = sparc64_init_timers();
+Does anyone have any ideas on why this is the case?
 
---
+Cheers for any help you can offer
+
+Mike
+
+PS Apologies for the 3rd time your receiving this andrew

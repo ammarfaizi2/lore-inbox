@@ -1,58 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWJKCji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWJKCmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWJKCji (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 22:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWJKCji
+	id S932415AbWJKCmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 22:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWJKCmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 22:39:38 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:47593 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932411AbWJKCjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 22:39:37 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Potential fix for fdtable badness.
-Date: Tue, 10 Oct 2006 19:39:35 -0700
-User-Agent: KMail/1.9.1
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Olof Johansson <olof@lixom.net>,
-       Linas Vepstas <linas@austin.ibm.com>, Bryce Harrington <bryce@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <200610101908.18442.vlobanov@speakeasy.net> <20061010193111.82a15ece.akpm@osdl.org>
-In-Reply-To: <20061010193111.82a15ece.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Oct 2006 22:42:09 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:32997 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932415AbWJKCmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 22:42:07 -0400
+Subject: Re: thoughts on potential cleanup of semaphores?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0610101025080.8855@localhost.localdomain>
+References: <Pine.LNX.4.64.0610101025080.8855@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 10 Oct 2006 22:42:04 -0400
+Message-Id: <1160534524.13097.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101939.35840.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 October 2006 19:31, Andrew Morton wrote:
-> On Tue, 10 Oct 2006 19:08:18 -0700
->
-> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
-> > Would you prefer me to resend a fixed patch #4, or a new fix (#5) on top
-> > of what's in your tree?
->
-> Incremental updates are preferred.
->
-> > diff -Npru old/fs/file.c new/fs/file.c
-> > --- old/fs/file.c	2006-10-10 18:58:21.000000000 -0700
-> > +++ new/fs/file.c	2006-10-10 19:01:03.000000000 -0700
-> > @@ -164,9 +164,8 @@ static struct fdtable * alloc_fdtable(un
-> >  	 * the fdarray into page-sized chunks: starting at a quarter of a page,
-> >  	 * and growing in powers of two from there on.
-> >  	 */
-> > -	nr++;
-> >  	nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
-> > -	nr = roundup_pow_of_two(nr);
-> > +	nr = roundup_pow_of_two(nr + 1);
-> >  	nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
-> >  	if (nr > NR_OPEN)
-> >  		nr = NR_OPEN;
->
-> Like that.
 
-I'll wrap the fixes up in incremental patches once the problem has been 
-eradicated.
+On Tue, 2006-10-10 at 12:00 -0400, Robert P. J. Day wrote:
+>   after submitting one patch related to semaphores and before i submit
+> any others, any thoughts whether any of the following clean-ups are
+> valid and/or worthwhile?  (some are admittedly simply aesthetic but
+> better aesthetics is never a bad thing.)
+> 
+> 
+> 1) can all instances of sema_init() in the header files be simplified
+> based on the comment you can see in some of those header files?
+> 
+> ========================
+> static inline void sema_init (struct semaphore *sem, int val)
+> {
+> /*
+>  *      *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+>  *
+>  * i'd rather use the more flexible initialization above, but sadly
+>  * GCC 2.7.2.3 emits a bogus warning. EGCS doesnt. Oh well.
+>  */
+>         atomic_set(&sem->count, val);
+>         sem->sleepers = 0;
+>         init_waitqueue_head(&sem->wait);
+> }
+> ========================
+> 
+>   one would think there's little value in retaining code that
+> accommodates something as old as GCC 2.7.2.3, but i'm not the expert
+> here.
+
+Well, I believe it's official, that we don't support GCC 2.7.2.3 anymore
+anyway.
+
+> 
+> 
+> 2) [aesthetic] update all __SEMAPHORE_INITIALIZER initialization to
+> use C99-style structure initializers
+> 
+> 
+> 3) i'm not a multi-arch wizard so is it true that all architectures
+> should have a struct semaphore with (approximately) the following
+> basic structure defined in their semaphore.h?
+> 
+> ========================
+> struct semaphore {
+>         atomic_t count;
+>         int sleepers;
+>         wait_queue_head_t wait;
+> };
+> =======================
+> 
+>   you'd think so but there are some discrepancies.  in asm-frv, you
+> have
+> 
+> struct semaphore {
+>         unsigned                counter;
+>         spinlock_t              wait_lock;
+>         struct list_head        wait_list;
+> 
+> why "unsigned" and not "atomic_t"?  and why "counter" and not just
+> "count"?  (although, for the frv arch, that variable appears to be
+> unused except in a single place for debugging.)  and why a "struct
+> list_head" rather than what everyone else uses, a "wait_queue_head_t"?
+> 
+> i also note that some arches (m68knommu, m68k, cris) define a
+> "waking" variable instead of "sleepers".  is this supposed to
+> represent the same thing?  i haven't looked closely enough, sorry.
+> 
+> 
+>   and stepping back and looking at the bigger picture, it seems that
+> the semaphore.h files across all architectures are *almost* identical,
+> with a small number of differences, such as:
+
+All those asm statements :-)
+
+> 
+> * some take a spinlock
+> * one (sparc) uses ATOMIC24_INIT rather than just ATOMIC_INIT
+> 
+> and there's probably a couple other things but, if these header files
+> are so similar, what about defining a single, generic semaphore.h
+> header file with a couple #ifdef's to handle the few possible
+> architecture-specific differences?  superficially, it doesn't look
+> like it would be that hard but that's the voice of youthful enthusiasm
+> speaking.
+> 
+> rday
+> 
+> p.s.  trying to condense all of the separate semaphore.h files into a
+> single, configurable one would also solve the problem of incorrect
+> documentation in some of them that is clearly the result of
+> cut-and-paste.  but i'm interested in what the experts have to say.
+
+But the meat in those files are in the down and up functions. Which are
+all pretty much drastically different.  All you would accomplish is some
+standard initialization of the structure and sema_init.
+
+-- Steve
+

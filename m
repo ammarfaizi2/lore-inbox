@@ -1,122 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161443AbWJKVMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161480AbWJKVNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161443AbWJKVMr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161453AbWJKVJ4
+	id S1161480AbWJKVNz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161481AbWJKVNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:09:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50083 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161451AbWJKVJa (ORCPT
+	Wed, 11 Oct 2006 17:13:51 -0400
+Received: from av1.karneval.cz ([81.27.192.123]:9749 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161486AbWJKVNr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:09:30 -0400
-Date: Wed, 11 Oct 2006 14:08:56 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, nickpiggin@yahoo.com.au,
-       Chuck Lever <cel@citi.umich.edu>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 61/67] invalidate_inode_pages2(): ignore page refcounts
-Message-ID: <20061011210856.GJ16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="invalidate_inode_pages2-ignore-page-refcounts.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 11 Oct 2006 17:13:47 -0400
+Message-id: <32432223423423@karneval.cz>
+Subject: [PATCH 2/4] Char: mxser_new, delete ttys and termios
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 11 Oct 2006 23:13:44 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mxser_new, delete ttys and termios
 
--stable review patch.  If anyone has any objections, please let us know.
+- Driver uses global tty_struct array, which tries to assign to the
+  tty_driver's ttys.
+- the very same thing for termios
+- the same for termios_locked
 
-------------------
-From: Andrew Morton <akpm@osdl.org>
+Kill such constructions.
 
-The recent fix to invalidate_inode_pages() (git commit 016eb4a) managed to
-unfix invalidate_inode_pages2().
-
-The problem is that various bits of code in the kernel can take transient refs
-on pages: the page scanner will do this when inspecting a batch of pages, and
-the lru_cache_add() batching pagevecs also hold a ref.
-
-Net result is transient failures in invalidate_inode_pages2().  This affects
-NFS directory invalidation (observed) and presumably also block-backed
-direct-io (not yet reported).
-
-Fix it by reverting invalidate_inode_pages2() back to the old version which
-ignores the page refcounts.
-
-We may come up with something more clever later, but for now we need a 2.6.18
-fix for NFS.
-
-Cc: Chuck Lever <cel@citi.umich.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
 ---
- mm/truncate.c |   34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+commit 5c3719e8b660b2813c8db5bec5a963d2702ad4fc
+tree 73d93200d43e7175e1ef804101b40cdeb0266362
+parent 945bdc94338eb55b6c4dd1198357abb5acb93dd4
+author Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 21:24:45 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 21:24:45 +0200
 
---- linux-2.6.18.orig/mm/truncate.c
-+++ linux-2.6.18/mm/truncate.c
-@@ -270,9 +270,39 @@ unsigned long invalidate_inode_pages(str
- {
- 	return invalidate_mapping_pages(mapping, 0, ~0UL);
- }
--
- EXPORT_SYMBOL(invalidate_inode_pages);
+ drivers/char/mxser_new.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+index d9e5400..8026047 100644
+--- a/drivers/char/mxser_new.c
++++ b/drivers/char/mxser_new.c
+@@ -313,9 +313,6 @@ static int mxserBoardCAP[MXSER_BOARDS] =
  
-+/*
-+ * This is like invalidate_complete_page(), except it ignores the page's
-+ * refcount.  We do this because invalidate_inode_pages2() needs stronger
-+ * invalidation guarantees, and cannot afford to leave pages behind because
-+ * shrink_list() has a temp ref on them, or because they're transiently sitting
-+ * in the lru_cache_add() pagevecs.
-+ */
-+static int
-+invalidate_complete_page2(struct address_space *mapping, struct page *page)
-+{
-+	if (page->mapping != mapping)
-+		return 0;
-+
-+	if (PagePrivate(page) && !try_to_release_page(page, 0))
-+		return 0;
-+
-+	write_lock_irq(&mapping->tree_lock);
-+	if (PageDirty(page))
-+		goto failed;
-+
-+	BUG_ON(PagePrivate(page));
-+	__remove_from_page_cache(page);
-+	write_unlock_irq(&mapping->tree_lock);
-+	ClearPageUptodate(page);
-+	page_cache_release(page);	/* pagecache ref */
-+	return 1;
-+failed:
-+	write_unlock_irq(&mapping->tree_lock);
-+	return 0;
-+}
-+
- /**
-  * invalidate_inode_pages2_range - remove range of pages from an address_space
-  * @mapping: the address_space
-@@ -339,7 +369,7 @@ int invalidate_inode_pages2_range(struct
- 				}
- 			}
- 			was_dirty = test_clear_page_dirty(page);
--			if (!invalidate_complete_page(mapping, page)) {
-+			if (!invalidate_complete_page2(mapping, page)) {
- 				if (was_dirty)
- 					set_page_dirty(page);
- 				ret = -EIO;
-
---
+ static struct mxser_board mxser_boards[MXSER_BOARDS];
+ static struct tty_driver *mxvar_sdriver;
+-static struct tty_struct *mxvar_tty[MXSER_PORTS + 1];
+-static struct termios *mxvar_termios[MXSER_PORTS + 1];
+-static struct termios *mxvar_termios_locked[MXSER_PORTS + 1];
+ static struct mxser_log mxvar_log;
+ static int mxvar_diagflag;
+ static unsigned char mxser_msr[MXSER_PORTS + 1];
+@@ -2652,9 +2649,6 @@ static int __init mxser_module_init(void
+ 	mxvar_sdriver->init_termios.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
+ 	mxvar_sdriver->flags = TTY_DRIVER_REAL_RAW|TTY_DRIVER_DYNAMIC_DEV;
+ 	tty_set_operations(mxvar_sdriver, &mxser_ops);
+-	mxvar_sdriver->ttys = mxvar_tty;
+-	mxvar_sdriver->termios = mxvar_termios;
+-	mxvar_sdriver->termios_locked = mxvar_termios_locked;
+ 
+ 	retval = tty_register_driver(mxvar_sdriver);
+ 	if (retval) {

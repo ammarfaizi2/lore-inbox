@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWJKLXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWJKLYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWJKLXy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 07:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWJKLXy
+	id S1030333AbWJKLYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 07:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWJKLYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 07:23:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54928 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030289AbWJKLXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 07:23:53 -0400
-Subject: Re: 2.6.19-rc1-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	 <6bffcb0e0610100610p6eb65726of92b85f7d49e80bb@mail.gmail.com>
-	 <6bffcb0e0610100704m32ccc6bakb446671f04b04c2b@mail.gmail.com>
-	 <17708.33450.608010.113968@cse.unsw.edu.au>
-	 <6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 11 Oct 2006 13:23:06 +0200
-Message-Id: <1160565786.3000.369.camel@laptopd505.fenrus.org>
+	Wed, 11 Oct 2006 07:24:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:20608 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030333AbWJKLYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 07:24:43 -0400
+Date: Wed, 11 Oct 2006 13:24:36 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Thomas Hellstrom <thomas@tungstengraphics.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 4/5] mm: add vm_insert_pfn helpler
+Message-ID: <20061011112436.GA6835@wotan.suse.de>
+References: <20061010121314.19693.75503.sendpatchset@linux.site> <20061010121357.19693.7339.sendpatchset@linux.site> <452CC383.4050401@tungstengraphics.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452CC383.4050401@tungstengraphics.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 11, 2006 at 12:12:19PM +0200, Thomas Hellstrom wrote:
+> Nick, I just realized: would it be possible to have a pgprot_t argument 
+> to this one, instead of it using vma->vm_pgprot?
+> 
+> The motivation for this (DRM again) is that some architectures (powerpc) 
+> cannot map the AGP aperture through IO space, but needs to remap the 
+> page from memory with a nocache attribute set. Others need special 
+> pgprot settings for write-combined mappings.
+> 
+> Now, there's a possibility to change vma->vm_pgprot during the first 
+> ->fault(), but again, we only have the mmap_sem in read mode.
 
-> > blocking_notifier_call_chain is
-> >         down_read(&nh->rwsem);
-> >         ret = notifier_call_chain(&nh->head, val, v);
-> >         up_read(&nh->rwsem);
-> >
-> > and so holds ->rwsem while calling the callback.
-> > So the locking sequence ends up as:
-> >
-> >  down_read(&cpu_chain.rwsem);
-> >  mutex_lock(&workqueue_mutex);
-> >  up_read(&cpu_chain.rwsem);
-> >
-> >  down_read(&cpu_chain.rwsem);
-> >  mutex_unlock(&workqueue_mutex);
-> >  up_read(&workqueue_mutex);
-> >
-> > and lockdep doesn't seem to like this.  It sees workqueue_mutex
-> > claimed while cpu_chain.rwsem is held. and then it sees
-> > cpu_chain.rwsem claimed while workqueue_mutex is held, which looks a
-> > bit like a class ABBA deadlock.
-> > Of course because it is a 'down_read' rather than a 'down', it isn't
-> > really a dead lock.
-
-ok can you explain to me why "down_read" doesn't make this a deadlock
-while "down" would make it a deadlock? I have trouble following your
-reasoning.....
-
-(remember that rwsems are strictly fair)
+I don't see a problem with that. It would be nice if vm_pgprot could
+be kept in synch with the pte protections, but I guess a crazy
+driver should be allowed to do anything it wants ;)
 
 

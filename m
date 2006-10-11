@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161448AbWJKVK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161477AbWJKVOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161448AbWJKVK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161443AbWJKVKi
+	id S1161477AbWJKVOe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161467AbWJKVOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:10:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5797 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161450AbWJKVKe (ORCPT
+	Wed, 11 Oct 2006 17:14:33 -0400
+Received: from av1.karneval.cz ([81.27.192.123]:29461 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161491AbWJKVOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:10:34 -0400
-Date: Wed, 11 Oct 2006 14:09:20 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Vasily Tarasov <vtaras@openvz.org>,
-       Jens Axboe <jens.axboe@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 67/67] block layer: elv_iosched_show should get elv_list_lock
-Message-ID: <20061011210920.GP16627@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="block-layer-elv_iosched_show-should-get-elv_list_lock.patch"
-In-Reply-To: <20061011210310.GA16627@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 11 Oct 2006 17:14:31 -0400
+Message-id: <32432w23aaa423@karneval.cz>
+Subject: [PATCH 4/4] Char: mxser_new, clean macros
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
+Date: Wed, 11 Oct 2006 23:14:17 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mxser_new, clean macros
 
--stable review patch.  If anyone has any objections, please let us know.
+Celan redundant macros.
 
-------------------
-From: Vasily Tarasov <vtaras@openvz.org>
-
-elv_iosched_show function iterates other elv_list,
-hence elv_list_lock should be got.
-
-Also the question is: in elv_iosched_show, elv_iosched_store
-q->elevator->elevator_type construction is used without locking q->queue_lock.
-Is it expected?..
-
-Signed-off-by: Vasily Tarasov <vtaras@openvz.org>
-Cc: Jens Axboe <jens.axboe@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
- block/elevator.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+commit b2090dd621f58423950e8e79b0959889d26a8227
+tree 5ebc4d2634f17976de978d236ae5f59d28c7ef06
+parent f745e78bdca36ec5e27de25694a4417a45ffb5de
+author Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 22:59:14 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Wed, 11 Oct 2006 22:59:14 +0200
 
---- linux-2.6.18.orig/block/elevator.c
-+++ linux-2.6.18/block/elevator.c
-@@ -892,7 +892,7 @@ ssize_t elv_iosched_show(request_queue_t
- 	struct list_head *entry;
- 	int len = 0;
- 
--	spin_lock_irq(q->queue_lock);
-+	spin_lock_irq(&elv_list_lock);
- 	list_for_each(entry, &elv_list) {
- 		struct elevator_type *__e;
- 
-@@ -902,7 +902,7 @@ ssize_t elv_iosched_show(request_queue_t
- 		else
- 			len += sprintf(name+len, "%s ", __e->elevator_name);
- 	}
--	spin_unlock_irq(q->queue_lock);
-+	spin_unlock_irq(&elv_list_lock);
- 
- 	len += sprintf(len+name, "\n");
- 	return len;
+ drivers/char/mxser_new.c |   12 ++----------
+ 1 files changed, 2 insertions(+), 10 deletions(-)
 
---
+diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
+index 8c62f80..d212ae6 100644
+--- a/drivers/char/mxser_new.c
++++ b/drivers/char/mxser_new.c
+@@ -54,11 +54,10 @@ #define	MXSERMAJOR	 174
+ #define	MXSERCUMAJOR	 175
+ 
+ #define	MXSER_EVENT_TXLOW	1
+-#define	MXSER_EVENT_HANGUP	2
+ 
+ #define MXSER_BOARDS		4	/* Max. boards */
+-#define MXSER_PORTS		32	/* Max. ports */
+ #define MXSER_PORTS_PER_BOARD	8	/* Max. ports per board */
++#define MXSER_PORTS		(MXSER_BOARDS * MXSER_PORTS_PER_BOARD)
+ #define MXSER_ISR_PASS_LIMIT	99999L
+ 
+ #define	MXSER_ERR_IOADDR	-1
+@@ -66,9 +65,6 @@ #define	MXSER_ERR_IRQ		-2
+ #define	MXSER_ERR_IRQ_CONFLIT	-3
+ #define	MXSER_ERR_VECTOR	-4
+ 
+-#define SERIAL_TYPE_NORMAL	1
+-#define SERIAL_TYPE_CALLOUT	2
+-
+ #define WAKEUP_CHARS		256
+ 
+ #define UART_MCR_AFE		0x20
+@@ -365,14 +361,10 @@ static void process_txrx_fifo(struct mxs
+ static void mxser_do_softint(void *private_)
+ {
+ 	struct mxser_port *info = private_;
+-	struct tty_struct *tty;
+-
+-	tty = info->tty;
++	struct tty_struct *tty = info->tty;
+ 
+ 	if (test_and_clear_bit(MXSER_EVENT_TXLOW, &info->event))
+ 		tty_wakeup(tty);
+-	if (test_and_clear_bit(MXSER_EVENT_HANGUP, &info->event))
+-		tty_hangup(tty);
+ }
+ 
+ static unsigned char mxser_get_msr(int baseaddr, int mode, int port)

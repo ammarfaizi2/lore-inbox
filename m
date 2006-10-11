@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161272AbWJKXGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161269AbWJKXGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161272AbWJKXGu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 19:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161273AbWJKXGu
+	id S1161269AbWJKXGm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 19:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWJKXGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 19:06:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16334 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161272AbWJKXGs (ORCPT
+	Wed, 11 Oct 2006 19:06:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12750 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161269AbWJKXGl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 19:06:48 -0400
-Date: Wed, 11 Oct 2006 16:01:25 -0700
+	Wed, 11 Oct 2006 19:06:41 -0400
+Date: Wed, 11 Oct 2006 15:59:11 -0700
 From: Greg KH <greg@kroah.com>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Greg KH <gregkh@suse.de>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] [patch 06/67] Video: cx24123: fix PLL divisor setup
-Message-ID: <20061011230125.GB26135@kroah.com>
-References: <20061011204756.642936754@quad.kroah.org> <20061011210353.GG16627@kroah.com> <452D5EF7.80303@linuxtv.org> <20061011212959.GA18006@suse.de> <452D63D4.6050300@linuxtv.org>
+To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] [patch 00/67] 2.6.18-stable review
+Message-ID: <20061011225911.GA26135@kroah.com>
+References: <20061011210310.GA16627@kroah.com> <20061011213648.GC32371@redhat.com> <20061011215943.GA19559@suse.de> <20061011221924.GB2248@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <452D63D4.6050300@linuxtv.org>
+In-Reply-To: <20061011221924.GB2248@redhat.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 05:36:20PM -0400, Michael Krufky wrote:
-> Greg KH wrote:
-> > On Wed, Oct 11, 2006 at 05:15:35PM -0400, Michael Krufky wrote:
-> >> Greg KH wrote:
-> >>> -stable review patch.  If anyone has any objections, please let us know.
-> >>>
-> >>> ------------------
-> >>> From: Yeasah Pell <yeasah@schwide.net>
-> >>>
-> >>> The cx24109 datasheet says: "NOTE: if A=0, then N=N+1"
-> >>>
-> >>> The current code is the result of a misinterpretation of the datasheet to
-> >>> mean exactly the opposite of the requirement -- The actual value of N is 1
-> >>> greater than the value written when A is 0, so 1 needs to be *subtracted*
-> >>> from it to compensate.
-> >>>
-> >>> Signed-off-by: Yeasah Pell <yeasah@schwide.net>
-> >>> Signed-off-by: Steven Toth <stoth@hauppauge.com>
-> >>> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> >>> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> >> Greg,
-> >>
-> >> When you apply this patch to your 2.6.18.y tree (and also to your
-> >> 2.6.17.y tree) , can you please preceed the patch title with 'DVB'
-> >> instead of 'VIDEO' ?
-> >>
-> >> I'll be sure to specify the subsystem, instead of only the driver name
-> >> in future patches.
-> > 
-> > Yes, it's better for you to specifiy it, instead of having me guess at
-> > what it should be classified as :)
-> > 
-> > I'll try to go edit the existing patches to fix this,
+On Wed, Oct 11, 2006 at 06:19:24PM -0400, Dave Jones wrote:
+> On Wed, Oct 11, 2006 at 02:59:43PM -0700, Greg KH wrote:
+>  
+>  > > Is it intentional that this adds a include/linux/utsrelease.h ?
+>  > > I don't see any patch that adds it in the review mails, but its there in the gz.
+>  > 
+>  > Hm, I guess the dontdiff file wasn't updated, as I built and booted out
+>  > of that directory, so that is where it came from.  Sorry about that.
+>  > 
+>  > Anyone want to update dontdiff?  :)
 > 
-> OOPS!  I just saw your -stable commit.
+> Ah, was looking at wrong tree. It's not in -stable..
 > 
-> Slight misunderstanding, Greg...
+> Signed-off-by: Dave Jones <davej@redhat.com>
 > 
-> Out of those six patches that I sent to you, only "cx24123: fix PLL
-> divisor setup" is a DVB patch... The remaining 5 patches are V4L patches.
-> 
-> Sorry for the confusion.
+> --- 1/Documentation/dontdiff	2006-09-19 23:42:06.000000000 -0400
+> +++ 2/Documentation/dontdiff	2006-10-11 14:21:40.000000000 -0400
+> @@ -135,6 +135,7 @@
+>  times.h*
+>  tkparse
+>  trix_boot.h
+> +utsrelease.h*
+>  version.h*
+>  vmlinux
+>  vmlinux-*
 
-Ok, can you check this latest change to make sure I got it right this
-time?  And the .17 patches were all DVB: right?
-
-thanks,
+Thanks, will queue it up for the next -stable release.
 
 greg k-h

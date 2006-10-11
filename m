@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWJKSrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWJKSur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160995AbWJKSrX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 14:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbWJKSrX
+	id S932451AbWJKSur (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 14:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWJKSuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 14:47:23 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18891 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1160995AbWJKSrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 14:47:22 -0400
-Subject: Re: it821x eats CPU?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Heinz Ulrich Stille <hus@design-d.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200610070927.13713.hus@design-d.de>
-References: <200610070927.13713.hus@design-d.de>
-Content-Type: text/plain
+	Wed, 11 Oct 2006 14:50:46 -0400
+Received: from mx0.karneval.cz ([81.27.192.123]:51773 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S932137AbWJKSuq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 14:50:46 -0400
+Message-ID: <452D3D01.50001@gmail.com>
+Date: Wed, 11 Oct 2006 20:50:41 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: tty_driver->ttys association
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 11 Oct 2006 20:13:41 +0100
-Message-Id: <1160594021.16513.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-10-07 am 09:27 +0200, ysgrifennodd Heinz Ulrich Stille:
-> Looking through the logs I notices that it821x was in "smart" mode,
-> so I restarted the system with "noraid=1" to get into "pass through".
-> Now everything is back to normal. A large dd did about 40MB/s without
-> disturbing other processes.
+Hi,
 
-In some configurations the it821x driver was not enabling DMA in smart
-mode.
+I found this construction in the kernel:
+static struct tty_driver *my_ttydriver;
+static struct tty_struct *my_tty[PORTS + 1];
+static struct termios *my_termios[PORTS + 1];
+static struct termios *my_termios_locked[PORTS + 1];
 
-> Wasn't smart mode the one supposed to be the one reducing CPU load?
+...(alloc+set_op+...)
+my_ttydriver->flags = TTY_DRIVER_REAL_RAW|TTY_DRIVER_DYNAMIC_DEV;
+my_ttydriver->ttys = my_tty;
+my_ttydriver->termios = my_termios;
+my_ttydriver->termios_locked = my_termios_locked;
+tty_register_driver(my_ttydriver);
 
-For RAID1 yes, otherwise not measurably at all.
+The association is completely useless due to
+if (p) {
+     driver->ttys = (struct tty_struct **)p;
+     driver->termios = (struct termios **)(p + driver->num);
+     driver->termios_locked = (struct termios **)(p + driver->num * 2);
+} else {
+     driver->ttys = NULL;
+     driver->termios = NULL;
+     driver->termios_locked = NULL;
+}
 
+in tty_register_driver, isn't it? Can we save some memory?
 
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

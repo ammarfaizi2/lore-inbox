@@ -1,89 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWJKNIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWJKNOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWJKNIu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 09:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWJKNIt
+	id S1751276AbWJKNOS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 09:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWJKNOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 09:08:49 -0400
-Received: from ns2.suse.de ([195.135.220.15]:20110 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751274AbWJKNIt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 09:08:49 -0400
-From: Neil Brown <neilb@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Date: Wed, 11 Oct 2006 23:08:21 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Oct 2006 09:14:17 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:61967 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751276AbWJKNOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 09:14:16 -0400
+Subject: Re: Removing MAX_ARG_PAGES (request for comments/assistance)
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Ollie Wild <aaw@google.com>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-mm@kvack.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@muc.de>, linux-arch@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <65dd6fd50610101705t3db93a72sc0847cd120aa05d3@mail.gmail.com>
+References: <65dd6fd50610101705t3db93a72sc0847cd120aa05d3@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 11 Oct 2006 15:14:20 +0200
+Message-Id: <1160572460.2006.79.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17708.60613.451322.747200@cse.unsw.edu.au>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, rusty@rustcorp.com.au
-Subject: _cpu_down deadlock [was Re: 2.6.19-rc1-mm1]
-In-Reply-To: message from Arjan van de Ven on Wednesday October 11
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<6bffcb0e0610100610p6eb65726of92b85f7d49e80bb@mail.gmail.com>
-	<6bffcb0e0610100704m32ccc6bakb446671f04b04c2b@mail.gmail.com>
-	<17708.33450.608010.113968@cse.unsw.edu.au>
-	<6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
-	<1160565786.3000.369.camel@laptopd505.fenrus.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday October 11, arjan@infradead.org wrote:
-> 
-> > > blocking_notifier_call_chain is
-> > >         down_read(&nh->rwsem);
-> > >         ret = notifier_call_chain(&nh->head, val, v);
-> > >         up_read(&nh->rwsem);
-> > >
-> > > and so holds ->rwsem while calling the callback.
-> > > So the locking sequence ends up as:
-> > >
-> > >  down_read(&cpu_chain.rwsem);
-> > >  mutex_lock(&workqueue_mutex);
-> > >  up_read(&cpu_chain.rwsem);
-> > >
-> > >  down_read(&cpu_chain.rwsem);
-> > >  mutex_unlock(&workqueue_mutex);
-> > >  up_read(&workqueue_mutex);
-> > >
-> > > and lockdep doesn't seem to like this.  It sees workqueue_mutex
-> > > claimed while cpu_chain.rwsem is held. and then it sees
-> > > cpu_chain.rwsem claimed while workqueue_mutex is held, which looks a
-> > > bit like a class ABBA deadlock.
-> > > Of course because it is a 'down_read' rather than a 'down', it isn't
-> > > really a dead lock.
-> 
-> ok can you explain to me why "down_read" doesn't make this a deadlock
-> while "down" would make it a deadlock? I have trouble following your
-> reasoning.....
-> 
-> (remember that rwsems are strictly fair)
+On Tue, 2006-10-10 at 17:05 -0700, Ollie Wild wrote:
 
-I see your point.
+> +                       vma->vm_flags &= ~VM_EXEC;
+> +               // FIXME: Are the next two lines sufficient, or do I need to
+> +               // do some additional magic?
+> +               vma->vm_flags |= mm->def_flags;
+> +               vma->vm_page_prot = protection_map[vma->vm_flags & 0x7];
 
-While thread A holds just workqueue_mutex,
-thread B takes cpu_chain.rwsem for read then tries to take
-workqueue_mutex and blocks.
-Now thread C tries to get a write lock on cpu_chain.rwsem and blocks
-as well.
-Finally thread A moves on to try to get a read lock on cpu_chain.rwsem
-and this blocks because thread C is waiting for a write lock.
+Yeah, you'll need to change the PTEs for those pages you created by
+calling get_user_page() by calling an mprotect like function; perhaps
+something like:
 
-So A waits on B and C, C waits on B, B waits on A.
-Deadlock.
+ struct vm_area_struct *prev;
+ unsigned long vm_flags = vma->vm_flags;
 
-I guess _cpu_down should
-	down_read(&cpu_chain.rwsem);
-and then call notifier_call_chain multiple times.  I wonder if that
-would be safe.
+ s/vma->vm_flags/vm_flags/g
 
-Who do we blame this on?  Are you still the cpu-hot-plug guy Rusty?
+ err = mprotect_fixup(vma, &prev, vma->vm_start, vma->vm_end, vm_flags);
+ BUG_ON(prev != vma);
 
-NeilBrown
+mprotect_fixup will then set the new protection on all PTEs and update
+vma->vm_flags and vma->vm_page_prot.
+
+> +               /* Move stack pages down in memory. */
+> +               if (stack_shift) {
+> +                       // FIXME: Verify the shift is OK.
+> +
+
+What exactly are you wondering about? the call to move_vma looks sane to
+me
+
+> +                       /* This should be safe even with overlap because we
+> +                        * are shifting down. */
+> +                       ret = move_vma(vma, vma->vm_start,
+> +                                       vma->vm_end - vma->vm_start,
+> +                                       vma->vm_end - vma->vm_start,
+> +                                       vma->vm_start - stack_shift);
+> +                       if (ret & ~PAGE_MASK) {
+> +                               up_write(&mm->mmap_sem);
+> +                               return ret;
+> +                       }
+>                 }
+
+

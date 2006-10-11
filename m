@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWJKG4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWJKG6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWJKG4b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 02:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWJKG4b
+	id S1030351AbWJKG6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 02:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWJKG6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 02:56:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7571 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932250AbWJKG4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 02:56:30 -0400
-Subject: Re: 2.6.19-rc1-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1160518635.28299.1.camel@dyn9047017100.beaverton.ibm.com>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	 <1160518635.28299.1.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 11 Oct 2006 08:56:26 +0200
-Message-Id: <1160549786.3000.345.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 11 Oct 2006 02:58:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:26089 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932434AbWJKG6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 02:58:38 -0400
+Date: Wed, 11 Oct 2006 02:06:59 -0500 (CDT)
+From: Kumar Gala <galak@kernel.crashing.org>
+X-X-Sender: galak@gate.crashing.org
+To: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, <linuxppc-dev@ozlabs.org>
+Subject: [PATCH] ppc: Add missing calls set_irq_regs
+Message-ID: <Pine.LNX.4.44.0610110206160.29377-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 15:17 -0700, Badari Pulavarty wrote:
-> On Tue, 2006-10-10 at 00:09 -0700, Andrew Morton wrote: 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
-> 
-> 
-> I hate to report always failures, I hope you don't hate me
-> for that :)
-> 
-> My EM64T box doesn't boot -mm1. Seems like IRQ problem ?
-> Starting Avahi daemon: do_IRQ: 0.57 No irq handler for vector
+In the timer_interrupt we were not calling set_irq_regs() and if we are
+profiling we will end up calling get_irq_regs().  This causes bad things to
+happen.
 
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-I'm seeing something simliar (different number though) a few minutes
-after boot with yesterdays git snapshot... something is sick in irq
-land...
+---
+commit 6799b47da9c145fba3a855f74e20680acffe87a7
+tree 30ed136bbebf14a71c5b0eeed76510ef884aee76
+parent 53a5fbdc2dff55161a206ed1a1385a8fa8055c34
+author Kumar Gala <galak@kernel.crashing.org> Wed, 11 Oct 2006 01:57:04 -0500
+committer Kumar Gala <galak@kernel.crashing.org> Wed, 11 Oct 2006 01:57:04 -0500
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+ arch/ppc/kernel/time.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/arch/ppc/kernel/time.c b/arch/ppc/kernel/time.c
+index d4b2cf7..18ee851 100644
+--- a/arch/ppc/kernel/time.c
++++ b/arch/ppc/kernel/time.c
+@@ -62,6 +62,7 @@ #include <asm/nvram.h>
+ #include <asm/cache.h>
+ #include <asm/8xx_immap.h>
+ #include <asm/machdep.h>
++#include <asm/irq_regs.h>
+ 
+ #include <asm/time.h>
+ 
+@@ -129,6 +130,7 @@ void wakeup_decrementer(void)
+  */
+ void timer_interrupt(struct pt_regs * regs)
+ {
++	struct pt_regs *old_regs;
+ 	int next_dec;
+ 	unsigned long cpu = smp_processor_id();
+ 	unsigned jiffy_stamp = last_jiffy_stamp(cpu);
+@@ -137,6 +139,7 @@ void timer_interrupt(struct pt_regs * re
+ 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
+ 		do_IRQ(regs);
+ 
++	old_regs = set_irq_regs(regs);
+ 	irq_enter();
+ 
+ 	while ((next_dec = tb_ticks_per_jiffy - tb_delta(&jiffy_stamp)) <= 0) {
+@@ -188,6 +191,7 @@ void timer_interrupt(struct pt_regs * re
+ 		ppc_md.heartbeat();
+ 
+ 	irq_exit();
++	set_irq_regs(old_regs);
+ }
+ 
+ /*
 

@@ -1,88 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161437AbWJKVTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161430AbWJKVVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161437AbWJKVTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 17:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161376AbWJKVTl
+	id S1161430AbWJKVVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 17:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWJKVVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 17:19:41 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:690 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161446AbWJKVTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 17:19:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ccR2doUZy+/9j/acQP7vUSZvS3IeW4Gwx+LN+xI194wZaPwXXQTmZqtxu5W197z9qtelYEdwdysB9iaIlIKs++GwzXkpgi40VsFEBnYCiSznPsOZWs9Slu3UBcEDOnoNZ6Gn94cMqoJAn66biknymPEv0VSCOxEtc+R9HeTHBqg=
-Message-ID: <fc94aae90610111419g647e554ay42105db77d4f712c@mail.gmail.com>
-Date: Wed, 11 Oct 2006 22:19:16 +0100
-From: "Michael Lothian" <mike@fireburn.co.uk>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.19-rc1-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061010000928.9d2d519a.akpm@osdl.org>
+	Wed, 11 Oct 2006 17:21:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17314 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161430AbWJKVIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 17:08:06 -0400
+Date: Wed, 11 Oct 2006 14:07:19 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, mingo@elte.hu, a.p.zijlstra@chello.nl,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 41/67] rtc: lockdep fix/workaround
+Message-ID: <20061011210719.GP16627@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-X-Google-Sender-Auth: 831ac5ed996c00e3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="rtc-lockdep-fix-workaround.patch"
+In-Reply-To: <20061011210310.GA16627@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/10/06, Andrew Morton <akpm@osdl.org> wrote:
->
->
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
->
->
-> git-libata-all.patch
->
->
->
 
-Hi
+-stable review patch.  If anyone has any objections, please let us know.
 
-I think I've found a regression in the pata-via module. My cdrom drive isn't
-detected I have compiled in and also tried as modules pata-via and the SCSI
-CDROM device driver
+------------------
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-I think the problem may be due to my cdrom not having a jumper setting
-either master or slave (or even cable select for that matter) as I lost the
-wee jumper.
+BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
+ [<c04051ee>] show_trace_log_lvl+0x58/0x171
+ [<c0405802>] show_trace+0xd/0x10
+ [<c040591b>] dump_stack+0x19/0x1b
+ [<c043abee>] trace_hardirqs_on+0xa2/0x11e
+ [<c06143c3>] _spin_unlock_irq+0x22/0x26
+ [<c0541540>] rtc_get_rtc_time+0x32/0x176
+ [<c0419ba4>] hpet_rtc_interrupt+0x92/0x14d
+ [<c0450f94>] handle_IRQ_event+0x20/0x4d
+ [<c0451055>] __do_IRQ+0x94/0xef
+ [<c040678d>] do_IRQ+0x9e/0xbd
+ [<c0404a49>] common_interrupt+0x25/0x2c
+DWARF2 unwinder stuck at common_interrupt+0x25/0x2c
 
-Even if this is the case I'd still call this a regression as the old code
-finds it no problem
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-My dmesg states:
+---
+ drivers/char/rtc.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-pata_via 0000:00:0f.1: version 0.1.14
-ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xA400 irq 14
-ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xA408 irq 15
-scsi2 : pata_via
-ata3.00: ATAPI, max UDMA/33
-EXT3-fs: mounted filesystem with ordered data mode.
-ata3.00: qc timeout (cmd 0xa1)
-ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata3.00: revalidation failed (errno=-5)
-ata3.00: limiting speed to UDMA/25
-ata3: failed to recover some devices, retrying in 5 secs
-ata3.00: qc timeout (cmd 0xa1)
-ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata3.00: revalidation failed (errno=-5)
-ata3: failed to recover some devices, retrying in 5 secs
-ata3.00: qc timeout (cmd 0xa1)
-ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata3.00: revalidation failed (errno=-5)
-ata3.00: disabled
-scsi3 : pata_via
-ATA: abnormal status 0x8 on port 0x177
+--- linux-2.6.18.orig/drivers/char/rtc.c
++++ linux-2.6.18/drivers/char/rtc.c
+@@ -209,11 +209,12 @@ static const unsigned char days_in_mo[] 
+  */
+ static inline unsigned char rtc_is_updating(void)
+ {
++	unsigned long flags;
+ 	unsigned char uip;
+ 
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irqsave(&rtc_lock, flags);
+ 	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irqrestore(&rtc_lock, flags);
+ 	return uip;
+ }
+ 
 
-
-Does anyone have any ideas on why this is the case?
-
-Cheers for any help you can offer
-
-Mike
-
-PS Apologies for the 3rd time your receiving this andrew
+--

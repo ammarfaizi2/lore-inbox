@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030724AbWJKA1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030729AbWJKAgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030724AbWJKA1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 20:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030730AbWJKA1X
+	id S1030729AbWJKAgs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 20:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030734AbWJKAgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 20:27:23 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:65153 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1030724AbWJKA1W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 20:27:22 -0400
-Date: Wed, 11 Oct 2006 02:26:56 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-Message-ID: <20061011002656.GB30093@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <adavemrbtcx.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adavemrbtcx.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 10 Oct 2006 20:36:48 -0400
+Received: from gw.goop.org ([64.81.55.164]:12713 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030729AbWJKAgr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 20:36:47 -0400
+Message-ID: <452C3CA6.2060403@goop.org>
+Date: Tue, 10 Oct 2006 17:36:54 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+Subject: [PATCH 2.6.19-rc1-mm1] Export jiffies_to_timespec()
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Roland Dreier <rdreier@cisco.com>:
-> Subject: Re: Dropping NETIF_F_SG since no checksum feature.
-> 
->     Michael> Maybe I can patch linux to allow SG without checksum?
->     Michael> Dave, maybe you could drop a hint or two on whether this
->     Michael> is worthwhile and what are the issues that need
->     Michael> addressing to make this work?
-> 
-> What do you really gain by allowing SG without checksum?  Someone has
-> to do the checksum anyway, so I don't see that much difference between
-> doing it in the networking core before passing the data to/from the
-> driver, or down in the driver itself.
+Export jiffies_to_timespec; previously modules used the inlined header version.
 
-My guess was, an extra pass over data is likely to be expensive - dirtying the
-cache if nothing else. But I do plan to measure that, and see.
+Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de
+Cc: mingo@elte.hu
+Cc: johnstul@us.ibm.com 
 
--- 
-MST
+diff -r 821dbffe1ec5 kernel/time.c
+--- a/kernel/time.c	Tue Oct 10 16:35:36 2006 -0700
++++ b/kernel/time.c	Tue Oct 10 16:35:55 2006 -0700
+@@ -607,6 +607,7 @@ jiffies_to_timespec(const unsigned long 
+ 	u64 nsec = (u64)jiffies * TICK_NSEC;
+ 	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
+ }
++EXPORT_SYMBOL(jiffies_to_timespec);
+ 
+ /* Same for "timeval"
+  *
+
+

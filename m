@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWJKTyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWJKTyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWJKTyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWJKTyQ
+	id S1161194AbWJKTyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWJKTyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:54:16 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:33109 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S932473AbWJKTyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:54:15 -0400
-Message-ID: <452D4BE2.6070202@tls.msk.ru>
-Date: Wed, 11 Oct 2006 23:54:10 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+	Wed, 11 Oct 2006 15:54:43 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:29922 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1161191AbWJKTyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:54:41 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=gruFHBKC6eanpuJ3mX30mqjHQQRKDfxa5jfohrvfhcnaEUMbUw7tME21zNXwhbPXv
+	nFpu1XGmGXUe4QqkWE6bA==
+Message-ID: <452D4BF0.20209@google.com>
+Date: Wed, 11 Oct 2006 12:54:24 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SOT] GIT usage question
-References: <452D3DFA.6010408@tls.msk.ru> <20061011192921.GA8345@electric-eye.fr.zoreil.com>
-In-Reply-To: <20061011192921.GA8345@electric-eye.fr.zoreil.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+In-Reply-To: <20061010000928.9d2d519a.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> Michael Tokarev <mjt@tls.msk.ru> :
-> [...]
->> Is it possible?
-> 
-> git diff 2.6.18..origin -- drivers/ata ?
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
+>
+>
+>
+>   
+fsx seems to fail now, across several different machines.
 
-Yeah, -- the idea is to identify which changes are relevant
-using some other criteria, not "git tree placement" or something
-like that -- example is to use directory as you suggested (plus
-relevant includes).
+http://test.kernel.org/functional/index.html
 
-> Experiment with options for rename.
 
-Yeah -- like git-diff-tree -M, I used it before (for this libata stuff
-as well), and even wrote a tiny shell wrapper around patch(1) to
-apply git-diff-tree -M -generated patch - first pass is to handle
-renames in shell, and second pass is to apply the patch itself... ;)
+and drill down under "regression" on the failing ones.
 
-Thanks.
+eg, see end of
+http://test.kernel.org/abat/54516/debug/test.log.1 (i386)
+and
+http://test.kernel.org/abat/54503/debug/test.log.1 (x86_64)
 
-/mjt
+-rc1 is OK (as is -rc1-git7)

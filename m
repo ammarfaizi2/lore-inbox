@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWJKMjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWJKMmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWJKMjh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 08:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbWJKMjh
+	id S1751241AbWJKMmO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 08:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWJKMmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 08:39:37 -0400
-Received: from mail01.verismonetworks.com ([164.164.99.228]:46828 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1751239AbWJKMjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 08:39:36 -0400
-Subject: [PATCH 1/2] drivers/cdrom/cdu31a.c: Replacing yield() with a
-	better alternative
-From: Amol Lad <amol@verismonetworks.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
+	Wed, 11 Oct 2006 08:42:14 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:22489 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751241AbWJKMmO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 08:42:14 -0400
+Subject: Re: Potential fix for fdtable badness.
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: Olof Johansson <olof@lixom.net>, Linas Vepstas <linas@austin.ibm.com>,
+       Bryce Harrington <bryce@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200610101908.18442.vlobanov@speakeasy.net>
+References: <200610101908.18442.vlobanov@speakeasy.net>
 Content-Type: text/plain
-Date: Wed, 11 Oct 2006 18:12:56 +0530
-Message-Id: <1160570576.19143.301.camel@amol.verismonetworks.com>
+Date: Wed, 11 Oct 2006 07:42:07 -0500
+Message-Id: <1160570527.30819.1.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6, the semantics of calling yield() changed from "sleep for a
-bit" to "I really don't want to run for a while".  This matches POSIX
-better, but there's a lot of drivers still using yield() when they mean
-cond_resched(), schedule() or even schedule_timeout().
+On Tue, 2006-10-10 at 19:08 -0700, Vadim Lobanov wrote:
+> All,
+> 
+> Sorry about the recent fdtable badness that you all encountered. I'm working
+> on getting a fix out there.
+> 
+> Dave, Olof, Linas, Bryce,
+> 
+> Could you please test the patch at the bottom of the email to see if it makes
+> your computers happy again, if you have the time and inclination to do so?
 
-For this driver schedule_timeout_interruptible() seems to be a better
-alternative
+The patch works for me.  Thanks!
 
-Tested compile only
+Shaggy
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
-diff -uprN -X linux-2.6.19-rc1-orig/Documentation/dontdiff linux-2.6.19-rc1-orig/drivers/cdrom/cdu31a.c linux-2.6.19-rc1/drivers/cdrom/cdu31a.c
---- linux-2.6.19-rc1-orig/drivers/cdrom/cdu31a.c	2006-10-05 14:00:42.000000000 +0530
-+++ linux-2.6.19-rc1/drivers/cdrom/cdu31a.c	2006-10-11 17:28:42.000000000 +0530
-@@ -370,7 +370,7 @@ static inline void disable_interrupts(vo
- static inline void sony_sleep(void)
- {
- 	if (cdu31a_irq <= 0) {
--		yield();
-+		schedule_timeout_interruptible(1);
- 	} else {		/* Interrupt driven */
- 		DEFINE_WAIT(w);
- 		int first = 1;
-
-
-
+> Andrew,
+> 
+> Would you prefer me to resend a fixed patch #4, or a new fix (#5) on top of
+> what's in your tree?
+> 
+> diff -Npru old/fs/file.c new/fs/file.c
+> --- old/fs/file.c	2006-10-10 18:58:21.000000000 -0700
+> +++ new/fs/file.c	2006-10-10 19:01:03.000000000 -0700
+> @@ -164,9 +164,8 @@ static struct fdtable * alloc_fdtable(un
+>  	 * the fdarray into page-sized chunks: starting at a quarter of a page,
+>  	 * and growing in powers of two from there on.
+>  	 */
+> -	nr++;
+>  	nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
+> -	nr = roundup_pow_of_two(nr);
+> +	nr = roundup_pow_of_two(nr + 1);
+>  	nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
+>  	if (nr > NR_OPEN)
+>  		nr = NR_OPEN;
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

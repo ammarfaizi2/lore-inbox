@@ -1,44 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbWJKWwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161190AbWJKWxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161187AbWJKWwx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 18:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161190AbWJKWwx
+	id S1161190AbWJKWxB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 18:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161201AbWJKWxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 18:52:53 -0400
-Received: from mga01.intel.com ([192.55.52.88]:11046 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1161187AbWJKWwv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 18:52:51 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,295,1157353200"; 
-   d="scan'208"; a="144948412:sNHT3134607154"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 11 Oct 2006 18:53:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44489 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161190AbWJKWxA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 18:53:00 -0400
+Date: Wed, 11 Oct 2006 15:52:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, LKML <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: sysfs & ALSA card
+Message-ID: <20061011225231.GA30151@kroah.com>
+References: <Pine.LNX.4.61.0610061548340.8573@tm8103.perex-int.cz> <20061007062458.GF23366@kroah.com> <20061007074440.GA9304@kroah.com> <1160225730.19302.1.camel@localhost> <20061007191228.GA31396@vrfy.org> <Pine.LNX.4.61.0610090820230.8665@tm8103.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] IA64 export symbols empty_zero_page, ia64_ssc
-Date: Wed, 11 Oct 2006 15:52:28 -0700
-Message-ID: <617E1C2C70743745A92448908E030B2AA634B8@scsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] IA64 export symbols empty_zero_page, ia64_ssc
-Thread-Index: Acbr7+VTBH9yuHiSQdCODq93GfL8QgBlnCMw
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Judith Lebzelter" <judith@osdl.org>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Oct 2006 22:52:29.0292 (UTC) FILETIME=[EDD142C0:01C6ED87]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0610090820230.8665@tm8103.perex-int.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Judith,
+On Mon, Oct 09, 2006 at 08:24:55AM +0200, Jaroslav Kysela wrote:
+> On Sat, 7 Oct 2006, Kay Sievers wrote:
+> 
+> > On Sat, Oct 07, 2006 at 02:55:31PM +0200, Kay Sievers wrote:
+> > > On Sat, 2006-10-07 at 00:44 -0700, Greg KH wrote: 
+> > > >  $ tree /sys/class/sound/
+> > > >  /sys/class/sound/
+> > > >  |-- Audigy2 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2
+> > > >  |-- admmidi1 -> ../../devices/pci0000:00/0000:00:1e.0/0000:06:0d.0/Audigy2/admmidi1
+> > 
+> > > > Yeah, I picked the wrong name for the card, it should be "card1" instead
+> > > > of "Audigy2" here, but you get the idea.
+> > > 
+> > > That looks nice. Yeah, it should something that matches to the C1 in the
+> > > other names.
+> > 
+> > This works fine for me with two soundcards and connect/disconnect
+> > module load/unload.
+> > 
+> > All devices are in a flat list in the class directory, also the card%i
+> > ones:
+> >   $ tree /sys/class/sound/
+> >   /sys/class/sound/
+> >   |-- adsp -> ../../devices/pci0000:00/0000:00:1e.2/card0/adsp
+> 
+> ....
+> 
+> > In the /sys/devices hierarchy all devices belonging to the same card are
+> > nicely below the card device:
+> >   $ ls -l /sys/devices/pci0000:00/0000:00:1e.2/card0
+> >   total 0
+> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 0-0:AD1981B
+> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 adsp
+> >   drwxr-xr-x 3 root root    0 2006-10-07 21:09 audio
+> 
+> ....
+> 
+> The implementation looks good (Acked-by: Jaroslav Kysela <perex@suse.cz>).
+> Please, fix this small typo:
+> 
+> > --- linux-2.6.orig/sound/core/sound.c
+> > +++ linux-2.6/sound/core/sound.c
+> > @@ -268,11 +268,10 @@ int snd_register_device(int type, struct
+> >  	snd_minors[minor] = preg;
+> >  	if (card)
+> >  		device = card->dev;
+> > -	preg->class_dev = class_device_create(sound_class, NULL,
+> > -					      MKDEV(major, minor),
+> > -					      device, "%s", name);
+> > -	if (preg->class_dev)
+> > -		class_set_devdata(preg->class_dev, private_data);
+> > +	preg->dev = device_create(sound_class, device, MKDEV(major, minor),
+> > +				  "%s", name);
+> > +	if (preg->dev)
+> > +		dev_get_drvdata(preg->dev);
+> 
+> I think, it should be:
+> 
+> 	if (preg->dev)
+> 		dev_set_drvdata(preg->dev, private_data);
 
-+++ linux/arch/ia64/kernel/ia64_ksyms.c	2006-10-09 10:15:18.000000000 -0700
+Ick, you are correct, sorry about that.
 
-These exports are only needed for the HP simulator ... it seems
-probable that the more likely fix is change Kconfig to prevent simscsi
-from being built as a module.  I assume that any remaining SKI users
-build this into the kernel ... arch/ia64/configs/sim_defconfig sets
-CONFIG_HP_SIMSCSI=y for example.
+I've fixed it now in my tree.
 
--Tony
+thanks,
+
+greg k-h

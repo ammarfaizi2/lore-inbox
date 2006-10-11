@@ -1,92 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030647AbWJKGRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160997AbWJKGSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030647AbWJKGRV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 02:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030654AbWJKGRV
+	id S1160997AbWJKGSH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 02:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030661AbWJKGSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 02:17:21 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:26276 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1030656AbWJKGRT (ORCPT
+	Wed, 11 Oct 2006 02:18:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55239 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030654AbWJKGSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 02:17:19 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] SCSI: minor bug fixes and cleanups
-Date: Wed, 11 Oct 2006 08:18:24 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20061010232231.GA19015@havoc.gtf.org>
-In-Reply-To: <20061010232231.GA19015@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1271319.9g9qtjkpBh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 11 Oct 2006 02:18:02 -0400
+Date: Tue, 10 Oct 2006 23:17:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch 2/6] revert "generic_file_buffered_write(): deadlock on
+ vectored write"
+Message-Id: <20061010231756.16b22ce2.akpm@osdl.org>
+In-Reply-To: <20061010231150.fb9e30f5.akpm@osdl.org>
+References: <20061010121314.19693.75503.sendpatchset@linux.site>
+	<20061010121332.19693.37204.sendpatchset@linux.site>
+	<20061010221304.6bef249f.akpm@osdl.org>
+	<452C8613.7080708@yahoo.com.au>
+	<20061010231150.fb9e30f5.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610110818.25158.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1271319.9g9qtjkpBh
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Andrew Morton <akpm@osdl.org>
 
-Jeff Garzik wrote:
-> BusLogic: use kzalloc(), remove cast to/from void*
->
-> aic7xxx_old: fix typo in cast
->
-> NCR53c406a: ifdef out static built code
->
-> fd_mcs: ifdef out static built code
->
-> ncr53c8xx: ifdef out static built code
->
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
->
-> ---
->
->  drivers/scsi/BusLogic.c       |   12 ++++++------
->  drivers/scsi/NCR53c406a.c     |    5 +++++
->  drivers/scsi/aic7xxx_old.c    |    2 +-
->  drivers/scsi/fd_mcs.c         |    2 ++
->  drivers/scsi/ncr53c8xx.c      |   19 +++++++++++--------
->
-> diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
-> index 7c59bba..689dc4c 100644
-> --- a/drivers/scsi/BusLogic.c
-> +++ b/drivers/scsi/BusLogic.c
-> @@ -2186,21 +2186,21 @@ #endif
->
->  	if (BusLogic_ProbeOptions.NoProbe)
->  		return -ENODEV;
-> -	BusLogic_ProbeInfoList = (struct BusLogic_ProbeInfo *)
-> -	    kmalloc(BusLogic_MaxHostAdapters * sizeof(struct BusLogic_ProbeInfo),
-> GFP_ATOMIC); +	BusLogic_ProbeInfoList =
-> +	    kzalloc(BusLogic_MaxHostAdapters * sizeof(struct BusLogic_ProbeInfo),
-> GFP_KERNEL); if (BusLogic_ProbeInfoList == NULL) {
->  		BusLogic_Error("BusLogic: Unable to allocate Probe Info List\n", NULL);
->  		return -ENOMEM;
->  	}
-> -	memset(BusLogic_ProbeInfoList, 0, BusLogic_MaxHostAdapters *
-> sizeof(struct BusLogic_ProbeInfo));
+Revert 6527c2bdf1f833cc18e8f42bd97973d583e4aa83
 
-kcalloc
+This patch fixed the following bug:
 
-Eike
+  When prefaulting in the pages in generic_file_buffered_write(), we only
+  faulted in the pages for the firts segment of the iovec.  If the second of
+  successive segment described a mmapping of the page into which we're
+  write()ing, and that page is not up-to-date, the fault handler tries to lock
+  the already-locked page (to bring it up to date) and deadlocks.
 
---nextPart1271319.9g9qtjkpBh
-Content-Type: application/pgp-signature
+  An exploit for this bug is in writev-deadlock-demo.c, in
+  http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+  (These demos assume blocksize < PAGE_CACHE_SIZE).
 
-iD8DBQBFLIyxXKSJPmm5/E4RAvFqAKCF16dI/+zlI19DfZWp2nknxQkXMwCcCdfa
-4iXSvvijOc6R44XbwnZn/Ik=
-=nA4y
------END PGP SIGNATURE-----
+The problem with this fix is that it takes the kernel back to doing a single
+prepare_write()/commit_write() per iovec segment.  So in the worst case we'll
+run prepare_write+commit_write 1024 times where we previously would have run
+it once.
 
---nextPart1271319.9g9qtjkpBh--
+<insert numbers obtained via ext3-tools's writev-speed.c here>
+
+And apparently this change killed NFS overwrite performance, because, I
+suppose, it talks to the server for each prepare_write+commit_write.
+
+So just back that patch out - we'll be fixing the deadlock by other means.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ mm/filemap.c |   18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
+
+diff -puN mm/filemap.c~revert-generic_file_buffered_write-deadlock-on-vectored-write mm/filemap.c
+--- a/mm/filemap.c~revert-generic_file_buffered_write-deadlock-on-vectored-write
++++ a/mm/filemap.c
+@@ -2091,21 +2091,14 @@ generic_file_buffered_write(struct kiocb
+ 	do {
+ 		unsigned long index;
+ 		unsigned long offset;
++		unsigned long maxlen;
+ 		size_t copied;
+ 
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+-
+-		/* Limit the size of the copy to the caller's write size */
+-		bytes = min(bytes, count);
+-
+-		/*
+-		 * Limit the size of the copy to that of the current segment,
+-		 * because fault_in_pages_readable() doesn't know how to walk
+-		 * segments.
+-		 */
+-		bytes = min(bytes, cur_iov->iov_len - iov_base);
++		if (bytes > count)
++			bytes = count;
+ 
+ 		/*
+ 		 * Bring in the user page that we will copy from _first_.
+@@ -2113,7 +2106,10 @@ generic_file_buffered_write(struct kiocb
+ 		 * same page as we're writing to, without it being marked
+ 		 * up-to-date.
+ 		 */
+-		fault_in_pages_readable(buf, bytes);
++		maxlen = cur_iov->iov_len - iov_base;
++		if (maxlen > bytes)
++			maxlen = bytes;
++		fault_in_pages_readable(buf, maxlen);
+ 
+ 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
+ 		if (!page) {
+_
+

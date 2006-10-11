@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWJKCIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWJKCPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWJKCIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Oct 2006 22:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWJKCIU
+	id S932333AbWJKCPp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Oct 2006 22:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWJKCPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Oct 2006 22:08:20 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:14564 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1750710AbWJKCIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Oct 2006 22:08:19 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Dave Kleikamp <shaggy@austin.ibm.com>, Olof Johansson <olof@lixom.net>,
-       Linas Vepstas <linas@austin.ibm.com>, Bryce Harrington <bryce@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Potential fix for fdtable badness.
-Date: Tue, 10 Oct 2006 19:08:18 -0700
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 10 Oct 2006 22:15:45 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28570
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932333AbWJKCPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Oct 2006 22:15:44 -0400
+Date: Tue, 10 Oct 2006 19:15:47 -0700 (PDT)
+Message-Id: <20061010.191547.83619974.davem@davemloft.net>
+To: mst@mellanox.co.il
+Cc: shemminger@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       openib-general@openib.org, rolandd@cisco.com
+Subject: Re: Dropping NETIF_F_SG since no checksum feature.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061011001338.GA30093@mellanox.co.il>
+References: <20061010104315.61540986@freekitty>
+	<20061011001338.GA30093@mellanox.co.il>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610101908.18442.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Date: Wed, 11 Oct 2006 02:13:38 +0200
 
-Sorry about the recent fdtable badness that you all encountered. I'm working
-on getting a fix out there.
+> Maybe I can patch linux to allow SG without checksum?
+> Dave, maybe you could drop a hint or two on whether this is worthwhile
+> and what are the issues that need addressing to make this work?
+> 
+> I imagine it's not just the matter of changing net/core/dev.c :).
 
-Dave, Olof, Linas, Bryce,
+You can't, it's a quality of implementation issue.  We sendfile()
+pages directly out of the filesystem page cache without any
+blocking of modifications to the page contents, and the only way
+that works is if the card computes the checksum for us.
 
-Could you please test the patch at the bottom of the email to see if it makes
-your computers happy again, if you have the time and inclination to do so?
+If we sendfile() a page directly, we must compute a correct checksum
+no matter what the contents.  We can't do this on the cpu before the
+data hits the device because another thread of execution can go in and
+modify the page contents which would invalidate the checksum and thus
+invalidating the packet.  We cannot allow this.
 
-Andrew,
+Blocking modifications is too expensive, so that's not an option
+either.
 
-Would you prefer me to resend a fixed patch #4, or a new fix (#5) on top of
-what's in your tree?
-
-diff -Npru old/fs/file.c new/fs/file.c
---- old/fs/file.c	2006-10-10 18:58:21.000000000 -0700
-+++ new/fs/file.c	2006-10-10 19:01:03.000000000 -0700
-@@ -164,9 +164,8 @@ static struct fdtable * alloc_fdtable(un
- 	 * the fdarray into page-sized chunks: starting at a quarter of a page,
- 	 * and growing in powers of two from there on.
- 	 */
--	nr++;
- 	nr /= (PAGE_SIZE / 4 / sizeof(struct file *));
--	nr = roundup_pow_of_two(nr);
-+	nr = roundup_pow_of_two(nr + 1);
- 	nr *= (PAGE_SIZE / 4 / sizeof(struct file *));
- 	if (nr > NR_OPEN)
- 		nr = NR_OPEN;

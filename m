@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWJKTJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161343AbWJKTJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161346AbWJKTJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 15:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161343AbWJKTJN
+	id S1161343AbWJKTJf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 15:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161350AbWJKTJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 15:09:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:13613 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161346AbWJKTIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 15:08:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WTbnlmMsel+td4EFJ4xSf8c91gZRtCqKQWwUFDbnSPVh6gRFuyYvIEeidEMf3FhxCFe3JgCnONVX9+QIGidF8GiR9nBVl/pCrMLbg4bfGoChGHujIQsjUY0RnBgUr6eJG6vxJ5/bi9PE2ByvYVDqfl5dCIpNd6r39xYgFVmvMTo=
-Message-ID: <b6fcc0a0610111208s4dbb7c98xbdd3ceb13fba1503@mail.gmail.com>
-Date: Wed, 11 Oct 2006 23:08:52 +0400
-From: "Alexey Dobriyan" <adobriyan@gmail.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: misused local_irq_disable() in analog.c?
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+	Wed, 11 Oct 2006 15:09:35 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:65430 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1161343AbWJKTJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 15:09:17 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [RFC] Avoid PIT SMP lockups
+Date: Wed, 11 Oct 2006 22:09:22 +0300
+User-Agent: KMail/1.9.5
+Cc: kraxel@suse.de, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <1160170736.6140.31.camel@localhost.localdomain> <200610112137.01160.caglar@pardus.org.tr> <1160592235.5973.5.camel@localhost.localdomain>
+In-Reply-To: <1160592235.5973.5.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart14511292.WJ8uXyUVDY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200610112209.23037.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry, take a look at analog_cooked_read():
+--nextPart14511292.WJ8uXyUVDY
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-do-while loop there contains local_irq_disable()/local_irq_restore(flags);
-which aren't complement.
+11 Eki 2006 =C3=87ar 21:43 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=
+=B1=C5=9Ft=C4=B1:=20
+> S.=C3=87a=C4=9Flar: Didn't follow this bit at all. Could you explain a bi=
+t more?
 
-Should it be
+Of course, while system boots kernel waits ~5 seconds (maybe more) after=20
+printing "Checking if this processor honours the WP bit even in supervisor=
+=20
+mode... Ok." line without any visual activity and after that waiting period=
+=20
+kernel panics.
 
-    local_irq_save(flags);
-    this = gameport_read(gameport) & port->mask;
-    GET_TIME(now);
-    local_irq_restore(flags);
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-?
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart14511292.WJ8uXyUVDY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFLUFjy7E6i0LKo6YRAvOsAKC6mh4JQyyxyjorR2rSt/WlA8UCyQCfe52w
+rrCoSniDSv5s5V8625pLuHg=
+=SZht
+-----END PGP SIGNATURE-----
+
+--nextPart14511292.WJ8uXyUVDY--

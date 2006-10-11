@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWJKHEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030667AbWJKHG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbWJKHEW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 03:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWJKHEW
+	id S1030667AbWJKHG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 03:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030666AbWJKHG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 03:04:22 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:14555 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1161000AbWJKHEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 03:04:20 -0400
-Date: Wed, 11 Oct 2006 08:04:12 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+	Wed, 11 Oct 2006 03:06:58 -0400
+Received: from gw.goop.org ([64.81.55.164]:59835 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030667AbWJKHG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 03:06:57 -0400
+Message-ID: <452C9819.80400@goop.org>
+Date: Wed, 11 Oct 2006 00:07:05 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: Yu Luming <luming.yu@gmail.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Message-ID: <20061011070412.GA6128@srcf.ucam.org>
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061005103657.GA4474@ucw.cz> <20061006211751.GA31887@lists.us.dell.com> <200610102232.46627.luming.yu@gmail.com> <20061010212615.GB31972@srcf.ucam.org> <1160549944.3000.347.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160549944.3000.347.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc1-mm1] Export jiffies_to_timespec()
+References: <452C3CA6.2060403@goop.org> <1160550147.3000.349.camel@laptopd505.fenrus.org>
+In-Reply-To: <1160550147.3000.349.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 08:59:04AM +0200, Arjan van de Ven wrote:
+Arjan van de Ven wrote:
+> On Tue, 2006-10-10 at 17:36 -0700, Jeremy Fitzhardinge wrote:
+>   
+>> Export jiffies_to_timespec; previously modules used the inlined header version.
+>>     
+>
+> any chance you'll tell us which modules? :)
+>   
 
-> it'd also be nice if the linux-ready firmware developer kit had a test
-> for this, so that we can offer 1) a way to test this to the bios guys
-> and 2) encourage adding/note the lack easily
+Out of tree in this case: the madwifi Atheros wireless driver.
 
-Sure. Reading /proc/acpi/video/*/*/info should tell you whether a device 
-is an LCD or not. The brightness file should then contain a list of 
-available brightnesses, and writing one into there should change the 
-screen value. There's a patch somewhere that ports this to the 
-/sys/class/backlight infrastructure, but I don't think it's applied yet.
-
-I'd write a test up for you, but I don't actually seem to have any 
-hardware that implements this properly. Tch.
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+    J

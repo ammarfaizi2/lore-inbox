@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWJKSy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWJKS4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWJKSy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 14:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWJKSy6
+	id S932137AbWJKS4U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 14:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWJKS4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 14:54:58 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:28512 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751272AbWJKSy5 (ORCPT
+	Wed, 11 Oct 2006 14:56:20 -0400
+Received: from vsmtp4.tin.it ([212.216.176.224]:39155 "EHLO vsmtp4.tin.it")
+	by vger.kernel.org with ESMTP id S1751309AbWJKS4T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 14:54:57 -0400
-Message-ID: <452D3DFA.6010408@tls.msk.ru>
-Date: Wed, 11 Oct 2006 22:54:50 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+	Wed, 11 Oct 2006 14:56:19 -0400
+From: Luigi Genoni <genoni@sns.it>
+To: "Kobajashi Zaghi" <kobajashi@gmail.com>
+Subject: Re: The Future of ReiserFS development
+Date: Wed, 11 Oct 2006 20:56:16 +0200
+User-Agent: KMail/1.9.4
+References: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
+In-Reply-To: <64b272cb0610110153t1da8475fp2586ed09292ed258@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [SOT] GIT usage question
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610112056.16009.genoni@darkstar.oltrelinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For quite some time I'm trying to understand if it's possible
-to extract changes from some subsystem's GIT tree compared to
-some version of linux kernel.
+A suspicion is not a definitive sentence from a tribunal. 
 
-For example, let's say I want to see if my SATA controller will
-work with current libata, but without all the pain of trying
-current 2.6.19-pre/rc instabilities.  Libata changes are quite
-local for the subsystem, so in theory, or at least how I see
-it, that should be possible.
+What I dislike is that with all this newspaper bad pubblicity Hans Reiser 
+could be ruined in his image and reputation also if he is innocent (as he is 
+right now by law). 
 
-So I have 3 remote branches in my local GIT tree:
+Let's hope everything goes for the best.
 
- o origin which points to Linus's 2.6.19-pre
- o libata, which is current libata tree
- o 2.6.18 release -- the kernel I'm running right now.
+about reiserSF and reiser4, there is a comunity of developers, isn't there?
 
-I want to get changes *for libata subsystem* in origin or
-libata (libata is just changes which are on the way to Linus,
-and current difference is very minor), to apply against 2.6.18.
-Ie, in short, changes which went to origin *from* libata.
-
-Is it possible?
-
-Thanks.
-
-/mjt
+On Wednesday 11 October 2006 10:53, you wrote:
+> Hi!
+>
+> Hans Reiser arrested on suspicion of murder.
+>
+> http://sfgate.com/cgi-bin/article.cgi?f=/c/a/2006/10/10/BAGERLM3RR15.DTL
+>
+> What is the plan? Could i
+> migrate from reiserfs to another journaling filesystem? How will this
+> trouble affect reiserfs development?
+>
+> I hope Hans innocent.
+>
+> Thanks,
+>
+> --
+> Kobi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

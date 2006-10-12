@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWJLTCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWJLTGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWJLTCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 15:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWJLTCt
+	id S1750879AbWJLTGf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 15:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWJLTGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 15:02:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63410 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750796AbWJLTCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 15:02:48 -0400
-Date: Thu, 12 Oct 2006 20:02:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu
-Subject: Re: [patch 0/2] Introduce round_jiffies() to save spurious wakeups
-Message-ID: <20061012190244.GA31384@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@linux.intel.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-References: <1160496165.3000.308.camel@laptopd505.fenrus.org> <20061011172331.GA13099@infradead.org> <1160589297.3000.389.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Oct 2006 15:06:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:19865 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750879AbWJLTGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 15:06:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=eExLpc/iMhvqCa2NvbSm7x1eaictea/Zd861u9jtnFKAF51nBQ+6TLWjrc9vxUtr9FsoH8cQ6FBXyto0bmNnjd2coQoIwv7aVtlpF9YYXpf18Di/RDxbk8f2jipoobTFt3si/abx2KXDFBpp7ku7o10Y4qOqeeIeQAk8yV4saJ4=
+Message-ID: <cda58cb80610121206o6180b3c7n147b8895b8b53d7d@mail.gmail.com>
+Date: Thu, 12 Oct 2006 21:06:33 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: [PATCH] Fix up mmap_kmem
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1160589297.3000.389.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 07:54:57PM +0200, Arjan van de Ven wrote:
-> > > An alternative would have been to introduce mod_timer_rounded() or
-> > > somesuch APIs (but there's many variants that take jiffies); I feel that
-> > > an explicit caller based rounding actually is quite reasonable.
-> > 
-> > I think the API you proposed is horrible.  Having jiffies exposed in
-> > ani API is a mistake, and adding more makes this problem worse.  
-> 
-> and other people like Linus disagree with you.
+From: Franck Bui-Huu <fbuihuu@gmail.com>
 
-The only argument from Linus was about getting rid of jiffies completly.
-He certainly didn't complain when we added interfaces to reduce jiffies
-use in the past (e.g. the msleep APIs)
+vma->vm_pgoff is an pfn _offset_ relatif to the begining
+of the memory start. The previous code was doing at first:
 
+	vma->vm_pgoff << PAGE_SHIFT
+
+which results into a wrong physical address since some
+platforms have a physical mem start that can be different
+from 0. After that the previous call __pa() on this
+wrong physical address, however __pa() is used to convert
+a _virtual_ address into a physical one.
+
+This patch rewrites this convertion. It calculates the
+pfn of PAGE_OFFSET which is the pfn of the mem start
+then it adds the vma->vm_pgoff to it.
+
+It also uses virt_to_phys() instead of __pa() since the
+latter shouldn't be used by drivers.
+
+Signed-off-by: Franck Bui-Huu <fbuihuu@gmail.com>
+---
+ drivers/char/mem.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+index 6511012..a89cb52 100644
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -292,8 +292,8 @@ static int mmap_kmem(struct file * file,
+ {
+ 	unsigned long pfn;
+
+-	/* Turn a kernel-virtual address into a physical page frame */
+-	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
++	/* Turn a pfn offset into an absolute pfn */
++	pfn = PFN_DOWN(virt_to_phys((void *)PAGE_OFFSET)) + vma->vm_pgoff;
+
+ 	/*
+ 	 * RED-PEN: on some architectures there is more mapped memory
+-- 
+1.4.2.1.gcd6f1-dirty

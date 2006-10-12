@@ -1,152 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422679AbWJLCS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965251AbWJLCRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422679AbWJLCS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 22:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWJLCS0
+	id S965251AbWJLCRu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 22:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965252AbWJLCRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 22:18:26 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:53382 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S965252AbWJLCSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 22:18:25 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AR4FANFBLUWBSokogTI
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.19):SA:0(-1.3/5.0):. Processed in 3.040631 secs Process 8935)
-Subject: [PATCH] take #2 report_lost_ticks boot parameter should be default
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-+xrzFW6xi/ae32xnonrt"
-Date: Thu, 12 Oct 2006 03:18:18 +0100
-Message-Id: <1160619498.3651.5.camel@localhost.portugal>
+	Wed, 11 Oct 2006 22:17:50 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:64467 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965251AbWJLCRt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 22:17:49 -0400
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+	configfs
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Joel Becker <Joel.Becker@oracle.com>, Paul Menage <menage@google.com>,
+       linux-kernel@vger.kernel.org, Chandra Seetharaman <sekharan@us.ibm.com>,
+       ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20061011223927.GA29943@kroah.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	 <20061010203511.GF7911@ca-server1.us.oracle.com>
+	 <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	 <20061010215808.GK7911@ca-server1.us.oracle.com>
+	 <1160527799.1674.91.camel@localhost.localdomain>
+	 <20061011012851.GR7911@ca-server1.us.oracle.com>
+	 <20061011223927.GA29943@kroah.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Wed, 11 Oct 2006 19:17:44 -0700
+Message-Id: <1160619464.18766.207.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-X-OriginalArrivalTime: 12 Oct 2006 02:18:23.0689 (UTC) FILETIME=[B19CA390:01C6EDA4]
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-10-11 at 15:39 -0700, Greg KH wrote:
+> On Tue, Oct 10, 2006 at 06:28:51PM -0700, Joel Becker wrote:
+> > On Tue, Oct 10, 2006 at 05:49:59PM -0700, Matt Helsley wrote:
+> > > 	We want to be able to export a sequence of small (<< 1 page),
+> > > homogenous, unstructured (scalar), attributes through configfs using the
+> > > same file. While this is rather specific, I'd guess it would be a common
+> > > occurrence.
+> > 
+> > 	Pray tell, why?  "One attribute per file" is the mantra here.
+> > You really should think hard before you break it.  Simple heuristic:
+> > would you have to parse the buffer?  Then it's wrong.
+> 
+> I agree.  You are trying to use configfs for something that it is not
+> entended to be used for.  If you want to write/read large numbers of
 
---=-+xrzFW6xi/ae32xnonrt
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+	I disagree with your assertion that we're abusing configfs. "one value
+per file" is not the purpose of configfs.
 
-Hi,
+	The purpose of configfs is to allow userspace to create and manipulate
+kernel objects whose lifetime is under the control of userspace. That
+perfectly matches the idea of being able to create, manipulate, and
+destroy a resource group from userspace.
 
-Forgot sign-off just in case :)
+	"one value per file" is a phrase describing what configfs and sysfs
+files should normally look like. However it's not a rule since there is
+precedent for sysfs files that require parsing:
+/sys/devices/pciXXXX:XX/XXXX:XX:XX.X/resource
+/sys/block/hda/stat
+/sys/block/hda/dev
 
-I tried the 2.6.18-mm3 and I tried boot up with acpi=3Dnoirq (which is the
-same of pci=3Dnoacpi), and boots fine without any warning.
-And it was a nightmare on stress testings of this two days. At begging I
-don't understand why, but after a while I remember try report_lost_ticks
-and nightmare ends. The boot parameter reports lost ticket everywhere,
-because I (still) need boot up with "notsc".
-I believe that it not just my computer that suffer this problem and with
-report_lost_ticks by default, we understand quickly that we need boot
-with "notsc" or something else. For computer don't crash on a little
-stress. Like play a avi movie with mplyer and copy over Ethernet some
-others files.
-=20
-Something like this :=20
+	These are counterexamples to your assertion below that "one value per
+file" is a rule.
 
-Signed-off-by: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+> attrbutes like this, use your own filesystem.
 
- time.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+	This conflicts with the idea of reusing kernel code that was made to be
+reused. Except for this 1 page limit configfs is nearly a perfect match.
+I doubt we'd get a favorable reaction if we said:
+	"OK, let's copy configfs then remove the page size limit."
 
-diff ./x86_64/kernel/time.c.orig ./x86_64/kernel/time.c -up
---- ./x86_64/kernel/time.c.orig 2006-10-12 02:50:41.000000000 +0100
-+++ ./x86_64/kernel/time.c      2006-10-12 02:54:52.000000000 +0100
-@@ -71,7 +71,7 @@ static unsigned long hpet_period;                     /* =
-f
- unsigned long hpet_tick;                               /* HPET clocks / in=
-terrupt */
- int hpet_use_timer;                            /* Use counter of hpet for =
-time keeping, otherwise PIT */
- unsigned long vxtime_hz =3D PIT_TICK_RATE;
--int report_lost_ticks;                         /* command line option */
-+int noreport_lost_ticks;                               /* command line opt=
-ion */
- unsigned long long monotonic_base;
+> configfs has the same "one value per file" rule that sysfs has.  And
+> because your userspace model doesn't fit that, don't try to change
+> configfs here.
 
- struct vxtime_data __vxtime __section_vxtime;  /* for vsyscalls */
-@@ -316,7 +316,7 @@ static noinline void handle_lost_ticks(i
- {
-        static long lost_count;
-        static int warned;
--       if (report_lost_ticks) {
-+       if (!noreport_lost_ticks) {
-                printk(KERN_WARNING "time.c: Lost %d timer tick(s)! ", lost=
-);
-                print_symbol("rip %s)\n", regs->rip);
-        }
-@@ -885,7 +885,7 @@ void __init stop_timer_interrupt(void)
+Please see my counterexample above.
 
- int __init time_setup(char *str)
- {
--       report_lost_ticks =3D 1;
-+       noreport_lost_ticks =3D 1;
-        return 1;
- }
+> What happened to your old ckrmfs?  I thought you were handling all of
+> this in that.
 
-@@ -1004,7 +1004,7 @@ __init static char *time_init_gtod(void)
-        return timetype;
- }
+	We dropped RCFS more than 1 year ago after feedback suggested we should
+try to share as much kernel code as possible. Other than the 1 page
+limit to the list of pids, configfs is a perfect match for what we need.
 
--__setup("report_lost_ticks", time_setup);
-+__setup("noreport_lost_ticks", time_setup);
+Cheers,
+	-Matt Helsley
 
- static long clock_cmos_diff;
- static unsigned long sleep_start;
-
-Thanks,
---=20
-S=E9rgio M.B.
-
---=-+xrzFW6xi/ae32xnonrt
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjEwMTIwMjE4MDlaMCMGCSqGSIb3DQEJBDEWBBQmK/75LX5fkOP34RMpYixU
-sSZqMTANBgkqhkiG9w0BAQEFAASCAQALAfnuJrBTPAEw9KI4L2hwEWdBYPRON8RJqq8ybZKbidDy
-aH5NrOERZU3cB3wV5SgNaJcNEAwtItSJGxt6ofcp72zPk7+UhatuMTdLOiPkLUjjktyr0kAFYa3O
-pOmz9dMfSuvQbvTk+XP8huhlL6gynB5fzUtQArZy4nN0GeH+4CybSvuHvkqkpevIwftTAZHXTpi2
-gQfrfQWwAKCe4XRaHpOMJeKH/ClQVyBSmPgt8I6slKbQK4gZ3WZxApNDHcoHCK2f5uFqZqxnrOWH
-MSdRqS98PxbR6xtuUeA4FPyQNSC11hLoktJ3HnyXqLtHu4MuCfvF0I8LNdx04Y0uLfB7AAAAAAAA
-
-
-
---=-+xrzFW6xi/ae32xnonrt--

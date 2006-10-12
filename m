@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWJLNyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWJLOAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWJLNyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 09:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWJLNyJ
+	id S1751412AbWJLOAe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWJLOAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 09:54:09 -0400
-Received: from web58109.mail.re3.yahoo.com ([68.142.236.132]:8816 "HELO
-	web58109.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1751411AbWJLNyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 09:54:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wzG6UefABwyrS9LJUAFwFGbGc6TdFqcLC2e3Ke25Yu8SnN6zfIcD0T/YMv1mJv5rmIDNw3SjD57hcBiPFHJFTdIcPm7zDm0NAR6I7M0QreaNhoYyQQaopDgN/OmLidLsarKCSrXGrG5qYtf9He5RpQvBsSxomtk+3pVW3lD2afk=  ;
-Message-ID: <20061012135405.62079.qmail@web58109.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 06:54:05 -0700 (PDT)
-From: Online Journaled File System <ojfs.discuss@yahoo.com>
-Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-To: an Engelhardt <jengelh@linux01.gwdg.de>
+	Thu, 12 Oct 2006 10:00:34 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:50529 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S1751412AbWJLOAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:00:33 -0400
+Date: Thu, 12 Oct 2006 18:00:30 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: Online Journaled File System <ojfs.discuss@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
+Message-ID: <20061012140030.GA13028@alias.nmd.msu.ru>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru,
+	Online Journaled File System <ojfs.discuss@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20061012100605.87420.qmail@web58114.mail.re3.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012100605.87420.qmail@web58114.mail.re3.yahoo.com>
+X-Operating-System: Linux 2.6.11.4-21.14-smp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-> On Thu, 12 October 2006 06:09:53 -0700, Online
-> Journaled File System wrote:
-> > 
-> > It is a necessary upgrade of the filesystem, in
-> case
-> > the root directory goes missing and its children
-> are
-> > orphaned and forcefully moved to lost+found.
+Hello Sean.
+
+-10 Karma points.
+(this reads that you'll be reborn in a shit-worm for your next life).
+
+
+Thu, Oct 12, 2006 at 03:06:05AM -0700, Online Journaled File System wrote:
+> Greetings,
 > 
-> Please stop this.  Independent of the legal subject,
-> this joke is
-> off-topic and doesn't help anyone involved.
+> OJFS is a general-purpose, Online Journaling File
+> system based on  ReiserFS which was designed and
+> implemented by a team at Namesys led by Hans  Reiser,
+> who is referred to as the project's Benevolent
+> Dictator for Life (and death). It is currently
+> supported for GNU/Linux and may be included in other
+> operating systems in the future.
 > 
-> Judging by his previous comments in the last 1-2
-> years and stuff he
-> said to reporters, it is highly likely that Hans
-> Reiser requires
-> medical treatment and should receive help, not low
-> jokes at the
-> expense of his illness.
-
-So 10 years at an asylum instead of 25 to life in a
-maximum security prison? eh!?  YOU are insane, too.
-
-> It is not unheard of that programmer have such a
-> problem.  If my
-> assessment is correct, Hans would be the third
-> person that I have
-> known personally and the other two are perfectly
-> fine again - after
-> receiving help.
+> You may download the patch for the 2.6.18 kernel at 
+> http://www.sendspace.com/file/9zb2gf
 > 
+> Or view our Wikipedia page for more up to date
+> information at http://en.wikipedia.org/wiki/OJFS
+> 
+> We encourage all current ReiserFS users to upgrade to
+> OJFS for improved performance due our extensive
+> cleanups of object naming overhead.
 
-Tell that to his wife her family and kids!
 
-Thank you,
-The OJFS Team (AYBABTU).
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+"the liberation loophole will make it clear.."
+lex lyamin

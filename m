@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWJLU5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWJLVAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWJLU5w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 16:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWJLU5w
+	id S1750849AbWJLVAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 17:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWJLVAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 16:57:52 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:14754 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750788AbWJLU5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 16:57:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JA7cpdrGFHpG0fNHrJBKYLl5f+HU0ltnjSeHrBkHHKq/QML99TF+AaSIH6MJzuZ6d0cPIqcje7z2ETvLcOdxDOphqvWZCLBs0YJNccS3hcyAtJZPUGGX5dkOJV9rwYFqp/j9s2QX1jWYpMuNPnQcTuMos688aQh30fHw5fi5D1w=
-Message-ID: <6844644e0610121357o501630b7x33962cca30317681@mail.gmail.com>
-Date: Thu, 12 Oct 2006 16:57:50 -0400
-From: "Doug Reiland" <dreiland@gmail.com>
-To: "Frank Sorenson" <frank@tuxrocks.com>
-Subject: Re: Kernel panic in 2.6.19-rc1
-Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <452EA73B.4000606@tuxrocks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 17:00:38 -0400
+Received: from mga01.intel.com ([192.55.52.88]:23064 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1750849AbWJLVAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 17:00:37 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,301,1157353200"; 
+   d="scan'208"; a="145550715:sNHT22571052"
+Date: Thu, 12 Oct 2006 14:00:33 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Judith Lebzelter <judith@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IA64 export symbols empty_zero_page, ia64_ssc
+Message-ID: <20061012210033.GA9669@intel.com>
+References: <617E1C2C70743745A92448908E030B2AA634B8@scsmsx411.amr.corp.intel.com> <20061012001139.1fea6ecf.akpm@osdl.org> <20061012175536.GA8497@intel.com> <20061012123714.85ab4ebb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <452D43B6.8020406@tuxrocks.com>
-	 <20061012000643.f875c96e.akpm@osdl.org>
-	 <452E93D7.6020004@tuxrocks.com>
-	 <20061012125714.a44c3a1d.akpm@osdl.org>
-	 <452EA73B.4000606@tuxrocks.com>
+In-Reply-To: <20061012123714.85ab4ebb.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had similiar problems moving from 2.6.18 to 2.6.19-rc1. It might
-have something to do with me using a new kernel on an old
-distributation, but things like INIT need sysctl.
+[IA64] Fix allmodconfig build
 
-I had a time getting CONFIG_SYSCTL_SYSCALL=y to stick so I changed the
-kernel/sysctl.c ifdefs. You might try and it looks like you are using
-x86_64 so double check for usage of that define under arch/x86_64. I
-thought I saw it under the 32bit emulation stuff.
+The HP_SIMSCSI driver can't be built as a module (unhealthy
+dependencies on things that shouldn't really be exported).
 
-Boot just fine after this.
+AMD and nVidia IDE support doesn't sound too useful for ia64
+either :-)
+
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+
+---
+
+With these two patches allmodconfig builds (but takes 11m24s, ouch!)
+
+diff --git a/arch/ia64/hp/sim/Kconfig b/arch/ia64/hp/sim/Kconfig
+index 18ccb12..f92306b 100644
+--- a/arch/ia64/hp/sim/Kconfig
++++ b/arch/ia64/hp/sim/Kconfig
+@@ -13,8 +13,8 @@ config HP_SIMSERIAL_CONSOLE
+ 	depends on HP_SIMSERIAL
+ 
+ config HP_SIMSCSI
+-	tristate "Simulated SCSI disk"
+-	depends on SCSI
++	bool "Simulated SCSI disk"
++	depends on SCSI=y
+ 
+ endmenu
+ 
+diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+index 0c68d0f..12ab7c6 100644
+--- a/drivers/ide/Kconfig
++++ b/drivers/ide/Kconfig
+@@ -486,6 +486,7 @@ config WDC_ALI15X3
+ 
+ config BLK_DEV_AMD74XX
+ 	tristate "AMD and nVidia IDE support"
++	depends on X86
+ 	help
+ 	  This driver adds explicit support for AMD-7xx and AMD-8111 chips
+ 	  and also for the nVidia nForce chip.  This allows the kernel to

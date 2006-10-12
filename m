@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbWJLPxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422753AbWJLPzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422721AbWJLPxM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422722AbWJLPxM
+	id S1422753AbWJLPzA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJLPy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:53:12 -0400
-Received: from alnrmhc12.comcast.net ([206.18.177.52]:60656 "EHLO
-	alnrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1422721AbWJLPxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:53:10 -0400
-Message-ID: <452E64E4.4090303@comcast.net>
-Date: Thu, 12 Oct 2006 11:53:08 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Thu, 12 Oct 2006 11:54:59 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56450 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422725AbWJLPy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 11:54:57 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Luca Tettamanti <kronos.it@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.19-rc1] radeonfb: check return value of sysfs_create_bin_file
+References: <20061011235328.GA13264@dreamland.darkstar.lan>
+	<1160611646.4792.24.camel@localhost.localdomain>
+	<20061012154505.GA6014@dreamland.darkstar.lan>
+X-Yow: I'm working under the direct orders of WAYNE NEWTON to deport
+ consenting adults!
+Date: Thu, 12 Oct 2006 17:54:55 +0200
+In-Reply-To: <20061012154505.GA6014@dreamland.darkstar.lan> (Luca Tettamanti's
+	message of "Thu, 12 Oct 2006 17:45:05 +0200")
+Message-ID: <jey7rlo7g0.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can context switches be faster?
-References: <452E62F8.5010402@comcast.net>
-In-Reply-To: <452E62F8.5010402@comcast.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Luca Tettamanti <kronos.it@gmail.com> writes:
 
+> Il Thu, Oct 12, 2006 at 10:07:26AM +1000, Benjamin Herrenschmidt ha scritto: 
+>> On Thu, 2006-10-12 at 01:53 +0200, Luca Tettamanti wrote:
+>> > sysfs_create_bin_file() is marked as warn_unused_result but we don't
+>> > actually check the return value.
+>> > Error is not fatal, the driver can operate fine without the files so
+>> > just print a notice on failure.
+>> 
+>> I find this whole business of must check return value for sysfs files to
+>> be gratuitous bloat. There are many cases (like this one) where we don't
+>> really care and a printk will just increase the kernel size for no good
+>> reason.
+>> 
+>> Maybe we can have a macro we can use to silence the warning when we
+>> don't care about the result ? Can gcc do that ?
+>
+> Ugly macro:
+>
+> #define UNCHECKED(func) do { if (func) {} } while(0)
 
+Better, but only marginally:
 
-John Richard Moser wrote:
-...
-> The second is, if it IS possible to get faster context switches in
-> general use, can the L4 context switch methods be used in Linux?  I
-> believe L4 is BSD licensed-- at least the files in their CVS repo that I
-> looked at have "BSD" stamped on them.  Maybe some of the code can be
-> examined, adopted, adapted, etc.
-> 
+#define UNCHECKED(func) (void)(func)
 
-Looking a bit deeper, Iguana is OzPLB licensed, oops.  :(
+Andreas.
 
-The question still remains, though, as to what must happen during
-context switches that takes so long and if any of it can be sped up.
-Wikipedia has some light detail...
-
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRS5k4gs1xW0HCTEFAQIzYxAApoMBD2Oo9GwYFurgwjAAxwaikHcAIeXI
-14Defpeb863KguvMSk698+O1HuwhJlMfMw6Ir1pKvLS85ooPpUXSsV1SMRG27fNY
-GsHdoIFgBJiAeokrYdXfmGE8HZvnAvVBNPrPik9F7OfglptEe1kMXQ4gbqCzWUq0
-qVWE6/X8UqaTw3M1fDS7+uebq1Mc4aafCIf6ANRRxzrz4TQzeIs4EWuy9x8wjuF9
-laBV9xrIghXKf+vcstgLbkLdalBvfBpIWHaD5qbZk7G6nRzJrZeKCThn4zivylzZ
-3W6xUu5U4fZyKiMbGiZNqnJa7ym9z15LPIHlVZ4R2uZkjT4fv70Hd1zh9frWWCqI
-4Nw0RWz3DWtTi17CgTgprRM/TGN4MEnU+DFo6noPqCpxSdNn+LsKP8e+lpgZxql9
-Vj3KvFl7uUI3Bp/PWdp8f6if/DyhXbrYkb9Dp/SY68tVAiffkfPrwgtCHpmAVGqZ
-NtdpwRYQgsMH3VMB0zJDJOG3zxmP4l/X/ay8zPBmd+elItR3OPHu4rcnlDYwgK3x
-TyIaAzyC175nTRgyA3ZkuN1JWHEnFOj3LDMlSFOlSiqMu37ncNocPbLb+L/papt+
-GIxFO4eYR/D6X9N2lr1UXCxyDljMD7Y0fWc7667QN7eGH7jqaiIg8FYq3uUt7jZc
-6Gdh7sZXIMg=
-=vdRP
------END PGP SIGNATURE-----
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWJLQp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWJLQvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWJLQp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWJLQp7
+	id S932696AbWJLQvY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWJLQvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:45:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20182 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932690AbWJLQp6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:45:58 -0400
-Message-ID: <452E7100.2010102@redhat.com>
-Date: Thu, 12 Oct 2006 11:44:48 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 12 Oct 2006 12:51:24 -0400
+Received: from web58114.mail.re3.yahoo.com ([68.142.236.137]:35155 "HELO
+	web58114.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S932696AbWJLQvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 12:51:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=X2TPfdcPV0OMAblAtFXxS4vtafPzELsKp1qPZyZ3mLWDtBr4jN6uz6cbrsX8pTrEZmgTuHyHdIx0ETpm/o1da+x2gRJepoUfi7Lf2+0S2cfUST9U8v3qidY0KCccKySTyb/DXfo9BsWuOWTUNyAuxexn172csfxBh2tFDOWFFZA=  ;
+Message-ID: <20061012165122.77798.qmail@web58114.mail.re3.yahoo.com>
+Date: Thu, 12 Oct 2006 09:51:22 -0700 (PDT)
+From: jr <x_list_subscriptions@yahoo.com>
+Reply-To: jr@cqsat.com
+Subject: Re: Bugs in (2.6.18) from static analysis tool
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jan Kara <jack@suse.cz>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061009225036.GC26728@redhat.com>	<20061010141145.GM23622@atrey.karlin.mff.cuni.cz>	<452C18A6.3070607@redhat.com>	<1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>	<452C4C47.2000107@sandeen.net>	<20061011103325.GC6865@atrey.karlin.mff.cuni.cz>	<452CF523.5090708@sandeen.net>	<20061011142205.GB24508@atrey.karlin.mff.cuni.cz>	<1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com>	<452DAA26.6080200@redhat.com>	<20061012122820.GK9495@atrey.karlin.mff.cuni.cz> <20061012094036.e1a3f9f1.akpm@osdl.org>
-In-Reply-To: <20061012094036.e1a3f9f1.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 12 Oct 2006 14:28:20 +0200
-> Jan Kara <jack@suse.cz> wrote:
-> 
->> Where can we call
->> journal_dirty_data() without PageLock?
-> 
-> block_write_full_page() will unlock the page, so ext3_writepage()
-> will run journal_dirty_data_fn() against an unlocked page.
-> 
-> I haven't looked into the exact details of the race, but it should
-> be addressable via jbd_lock_bh_state() or j_list_lock coverage.
+[stuff deleted]
+>  > I've only attached 1 or 2 bugs at the end
+here(the full list is about 10K
+>  > ascii text), there are at
+www.cqsat.com/linux.html#bugs. There's about 50
+>  > and I recon 20 or so are both real and not yet
+identified.
+>
+>The bugs-2.6.18.txt file is the same as the
+bugs-2.6.9.txt file.
+>
+>	Dave
+^^^
+Yes you are correct. That was dumm. Fixed now.
 
-Yep, that's what I've been hashing out with Stephen today...
+The 2.6.18 potential bug list is at
+http://www.cqsat.com/bugs-2.6.18.txt
 
-In one of my cases journal_dirty_data has dropped & re-acquired the
-bh_state lock and j_list_lock, and journal_unmap_buffer has come along
-in the meantime.
+Sorry 'bout that
 
-So it looks like we are missing some state tests, i.e. buffer_mapped(),
-at a couple points after we acquire jbd_lock_bh_state().
+-J
 
--Eric
+
+>
+>--
+>http://www.codemonkey.org.uk
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

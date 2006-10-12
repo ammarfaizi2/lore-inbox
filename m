@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422799AbWJLHnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWJLHnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422799AbWJLHnr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWJLHnc
+	id S1422792AbWJLHnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWJLHnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:43:32 -0400
-Received: from main.gmane.org ([80.91.229.2]:30381 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1422794AbWJLHn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:43:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 12 Oct 2006 03:43:12 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:12718 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1422792AbWJLHnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:43:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:user-agent:date:from:to:cc:subject:message-id;
+        b=OSv+snkupku/4xhE9xe/nHG08JFzyu+nTzdvpbN8R2pj1341R9/qxwXsbieNZA9Ts+W60g598fjL/wmH0iE3c8kvpYIJKbl987XeyPs+Eq63O1IZaK4Jc8OcCWGAyyIqEoes3hkhRHNuZ7eSyWL5VWbhBLtCf0ouIhWmhAyIYn4=
+User-Agent: quilt/0.45-1
+Date: Thu, 12 Oct 2006 16:43:05 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Early keyboard initialization?
-Date: Thu, 12 Oct 2006 09:41:29 +0200
-Message-ID: <s0fqclp3bw1f$.1ovr22f673taq$.dlg@40tude.net>
-References: <20061006204254.GD5489@bouh.residence.ens-lyon.fr> <200610072158.55659.dtor@insightbb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-221-55-226.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
+Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>
+Subject: [patch 0/7] fault-injection capabilities (v5)
+Message-ID: <452df20e.025ef312.44f0.7578@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Oct 2006 21:58:54 -0400, Dmitry Torokhov wrote:
+Fault-injection capabilities patch set version 5.
+Please read the mail for the patch 1/7 for details
 
-> It looks like the change will only work for non-USB input devices since
-> USB subsystem is initialized much later.
+Changes from v3 to v5 (v4 was not delivered to linux-kernel list)
 
-Doesn't the BIOS handle USB keyboards someway? (To handle BIOS setup
-and stuff like that)
+- do dump_stack() on injecting failures (if verbose option enabled)
 
-If the BIOS emulates a non-USB keyboard, would it be possible to init
-the fake one early and then give up control when the USB subsystem is
-initialized?
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-"I'm never quite so stupid
- as when I'm being smart" --Linus van Pelt
+- updated to the latest kernel version
+- add debugfs entries automatically at boot time
+  (fault-inject-debugfs.ko has been removed)
+- various bugfixes and cleanups
 

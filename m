@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWJLUgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWJLUg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWJLUgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 16:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWJLUgh
+	id S1750797AbWJLUg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 16:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWJLUg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 16:36:37 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2471 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750815AbWJLUgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 16:36:36 -0400
-Subject: Re: Userspace process may be able to DoS kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: =?ISO-8859-1?Q?G=FCnther?= Starnberger <gst@sysfrog.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <474c7c2f0610121330x10f1148epb37c1acb7ceb762c@mail.gmail.com>
-References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
-	 <1160668290.24931.31.camel@mindpipe>
-	 <474c7c2f0610121330x10f1148epb37c1acb7ceb762c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 12 Oct 2006 16:37:32 -0400
-Message-Id: <1160685453.24931.86.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Thu, 12 Oct 2006 16:36:28 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:34315 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1750797AbWJLUg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 16:36:28 -0400
+Message-ID: <452EA73B.4000606@tuxrocks.com>
+Date: Thu, 12 Oct 2006 15:36:11 -0500
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic in 2.6.19-rc1
+References: <452D43B6.8020406@tuxrocks.com>	<20061012000643.f875c96e.akpm@osdl.org>	<452E93D7.6020004@tuxrocks.com> <20061012125714.a44c3a1d.akpm@osdl.org>
+In-Reply-To: <20061012125714.a44c3a1d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 16:30 -0400, Günther Starnberger wrote:
-> On 10/12/06, Lee Revell <rlrevell@joe-job.com> wrote:
+Andrew Morton wrote:
+> On Thu, 12 Oct 2006 14:13:27 -0500
+> Frank Sorenson <frank@tuxrocks.com> wrote:
 > 
-> > Do you get the same behavior using the old OSS drivers that you get with
-> > ALSA's OSS emulation?
+>> Andrew Morton wrote:
+>>> On Wed, 11 Oct 2006 14:19:18 -0500
+>>> Frank Sorenson <frank@tuxrocks.com> wrote:
+>>>
+>>>> I'm getting kernel panics within a few minutes of boot with 2.6.19-rc1 
+>>>> (latest git) on x86_64.  Other than "make oldconfig", it's an identical 
+>>>> configuration to a working kernel on 2.6.18.
+>>>>
+>>>> The panic scrolls off the screen, but I copied down what was on the screen:
+>>> Can you get netconsole going?  Documentation/networking/netconsole.txt.
+>>> It's pretty simple.
+>> Three netconsole dumps attached.  I hope they provide more information. 
+>>   Let me know if there's anything more I can provide.
+>>
 > 
-> Yes. I've rmmod'ed ALSA and used the i810_audio OSS module instead.
-> Same problem.
+> hmm.
+> 
+> 
+>> [   20.889846] warning: process `date' used the removed sysctl system call
+>> [  143.574063] do_IRQ: 0.65 No irq handler for vector
+> 
+> This might be the cause.  Please try the appended fix.
 
-OK, so the sound subsystem has been ruled out.  That just leaves...
-everything else ;-)
+This patch seems to fix the problem, and since it's already gone into 
+the kernel, the latest git tree works without modification.
 
-Lee
+Thanks for the quick response,
 
+Frank

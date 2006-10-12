@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWJLOU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWJLOVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWJLOU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWJLOU5
+	id S932479AbWJLOVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWJLOVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:20:57 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:20158 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932462AbWJLOU4 (ORCPT
+	Thu, 12 Oct 2006 10:21:49 -0400
+Received: from mail.suse.de ([195.135.220.2]:59842 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932479AbWJLOVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:20:56 -0400
-Date: Thu, 12 Oct 2006 16:19:24 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: roland <devzero@web.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The Future of ReiserFS development
-In-Reply-To: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
-Message-ID: <Pine.LNX.4.61.0610121615250.28090@yvahk01.tjqt.qr>
-References: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
+	Thu, 12 Oct 2006 10:21:48 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       md@linux.it
+Subject: Re: 2.6.18 - check for chroot, broken root and cwd values in procfs
+References: <20061012140224.GA7632@wavehammer.waldi.eu.org>
+X-Yow: Xerox your lunch and file it under ``sex offenders!''
+Date: Thu, 12 Oct 2006 16:21:36 +0200
+In-Reply-To: <20061012140224.GA7632@wavehammer.waldi.eu.org> (Bastian Blank's
+	message of "Thu, 12 Oct 2006 16:02:24 +0200")
+Message-ID: <jeodshpqbz.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bastian Blank <bastian@waldi.eu.org> writes:
 
->> > What is the plan? Could i
->> > migrate from reiserfs to another journaling filesystem?
->> 
->> Of course: Simply backup, mkfs and restore!
->
-> not that simple if you have hundreds of thousands or even millions of small
-> files !
-> reiserfs is quite efficient in storing small files.
+> Is this a desired output or can I call this a bug? If the behaviour is
+> correct, is there a replacement for this check?
 
-Depends. While reiser may get a diskspace bonus for packing, xfs and 
-others have a time bonus for not packing, and that's more important 
-when having lots of files. Disk space is quite cheap nowaedays.
+[ "$(stat -c "%d/%i" /)" = "$(stat -Lc "%d/%i" /proc/1/root)" ]
 
-> don`t know if there is anyfilesystem which is as efficient with this.....
+Andreas.
 
-
-	-`J'
 -- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

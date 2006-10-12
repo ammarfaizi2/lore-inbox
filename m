@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWJLQEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422855AbWJLQFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422713AbWJLQEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWJLQEo
+	id S1422855AbWJLQFz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422857AbWJLQFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:04:44 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:36872 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S1422713AbWJLQEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:04:43 -0400
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org,
-       olaf@aepfle.de
-Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
-References: <87hcya8fxk.fsf@sycorax.lbl.gov> <20061012065346.GY6515@kernel.dk>
-	<1160648885.5897.6.camel@Homer.simpson.net>
-	<1160662435.6177.3.camel@Homer.simpson.net>
-	<20061012120927.GQ6515@kernel.dk> <20061012122146.GS6515@kernel.dk>
-	<87odshr289.fsf@sycorax.lbl.gov> <20061012152356.GE6515@kernel.dk>
-Date: Thu, 12 Oct 2006 09:04:16 -0700
-In-Reply-To: <20061012152356.GE6515@kernel.dk> (message from Jens Axboe on
-	Thu, 12 Oct 2006 17:23:57 +0200)
-Message-ID: <87slhtfrlr.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Thu, 12 Oct 2006 12:05:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:60255 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422855AbWJLQFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 12:05:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=UCWSl4j8MPAx5dw+DPrY94ia6FaHS/MamMquxov9UG0i7hlOQ1Crb1s+IExvM0rZtSeSXotUhg3+ZAu7QfI3euHJ0bEiofRLhLnl5qTDjrGEJayQQulFhn9rnspIJliyc/lW3k3bstwfklf1GFJQ8l17e3dzw7Fi+Rytkrlo1YI=
+Date: Thu, 12 Oct 2006 18:05:53 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.19-rc1] radeonfb: check return value of sysfs_create_bin_file
+Message-ID: <20061012160553.GA7382@dreamland.darkstar.lan>
+References: <20061011235328.GA13264@dreamland.darkstar.lan> <1160611646.4792.24.camel@localhost.localdomain> <20061012154505.GA6014@dreamland.darkstar.lan> <jey7rlo7g0.fsf@sykes.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jey7rlo7g0.fsf@sykes.suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <jens.axboe@oracle.com> writes:
+Il Thu, Oct 12, 2006 at 05:54:55PM +0200, Andreas Schwab ha scritto: 
+> Luca Tettamanti <kronos.it@gmail.com> writes:
+> 
+> > Il Thu, Oct 12, 2006 at 10:07:26AM +1000, Benjamin Herrenschmidt ha scritto: 
+> >> On Thu, 2006-10-12 at 01:53 +0200, Luca Tettamanti wrote:
+> >> > sysfs_create_bin_file() is marked as warn_unused_result but we don't
+> >> > actually check the return value.
+> >> > Error is not fatal, the driver can operate fine without the files so
+> >> > just print a notice on failure.
+> >> 
+> >> I find this whole business of must check return value for sysfs files to
+> >> be gratuitous bloat. There are many cases (like this one) where we don't
+> >> really care and a printk will just increase the kernel size for no good
+> >> reason.
+> >> 
+> >> Maybe we can have a macro we can use to silence the warning when we
+> >> don't care about the result ? Can gcc do that ?
+> >
+> > Ugly macro:
+> >
+> > #define UNCHECKED(func) do { if (func) {} } while(0)
+> 
+> Better, but only marginally:
+> 
+> #define UNCHECKED(func) (void)(func)
 
-> Argh damn, it needs this on top of it as well. Your second problem
-> likely stems from that missing bit, please retest with this one applied
-> as well.
->
-> diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
-> index e7513e5..bddfebd 100644
-> --- a/drivers/ide/ide-cd.c
-> +++ b/drivers/ide/ide-cd.c
-> @@ -716,7 +716,7 @@ static int cdrom_decode_status(ide_drive
->  		ide_error(drive, "request sense failure", stat);
->  		return 1;
->  
-> -	} else if (blk_pc_request(rq)) {
-> +	} else if (blk_pc_request(rq) || rq->cmd_type == REQ_TYPE_ATA_PC) {
->  		/* All other functions, except for READ. */
->  		unsigned long flags;
->  
+Nope, I tried[1] before sending the mail ;) warn_unused_result requires
+that you _use_ the result.
 
-please ignore my previous message, i am an idiot. if i actually put a
-dvd in the drive then this patch works as expected. sorry for the
-noise.
-
---alex--
-
+Luca
+[1] kronos:~$ gcc --version
+gcc (GCC) 4.1.2 20061007 (prerelease) (Debian 4.1.1-16)
 -- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+"It is more complicated than you think"
+                -- The Eighth Networking Truth from RFC 1925

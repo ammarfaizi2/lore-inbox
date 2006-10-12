@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWJLUaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWJLUdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWJLUaH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 16:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWJLUaH
+	id S1750725AbWJLUdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 16:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWJLUdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 16:30:07 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:9947 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750798AbWJLUaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 16:30:05 -0400
-Message-ID: <474c7c2f0610121330x10f1148epb37c1acb7ceb762c@mail.gmail.com>
-Date: Thu, 12 Oct 2006 16:30:03 -0400
-From: "=?UTF-8?Q?G=C3=BCnther_Starnberger?=" <gst@sysfrog.org>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: Userspace process may be able to DoS kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1160668290.24931.31.camel@mindpipe>
+	Thu, 12 Oct 2006 16:33:21 -0400
+Received: from gw.goop.org ([64.81.55.164]:47853 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750725AbWJLUdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 16:33:20 -0400
+Message-ID: <452EA700.9060009@goop.org>
+Date: Thu, 12 Oct 2006 13:35:12 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
 MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can context switches be faster?
+References: <452E62F8.5010402@comcast.net> <452E9E47.8070306@nortel.com> <452EA441.6070703@comcast.net>
+In-Reply-To: <452EA441.6070703@comcast.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
-	 <1160668290.24931.31.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/06, Lee Revell <rlrevell@joe-job.com> wrote:
+John Richard Moser wrote:
+> That's a load more descriptive :D
+>
+> 0.890 uS, 0.556uS/cycle, that's barely 2 cycles you know.  (Pentium M)
+> PPC performs similarly, 1 cycle should be about 1uS.
+>   
 
-> Do you get the same behavior using the old OSS drivers that you get with
-> ALSA's OSS emulation?
+No, you're a factor of 1000 off - these numbers show the context switch 
+is around 1600-75000 cycles.  And that doesn't really tell the whole 
+story: if caches/TLB get flushed on context switch, then the newly 
+switched-to task will bear the cost of having cold caches, which isn't 
+visible in the raw context switch time.
 
-Yes. I've rmmod'ed ALSA and used the i810_audio OSS module instead.
-Same problem.
+But modern x86 processors have a very quick context switch time, and I 
+don't think there's much room for improvement aside from 
+micro-optimisations (though that might change if the architecture grows 
+a way to avoid flushing the TLB on switch).
 
-bye,
-/gst
+    J

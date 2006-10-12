@@ -1,65 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWJLW2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWJLW3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWJLW2M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWJLW2M
+	id S1751227AbWJLW3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWJLW3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:28:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59089 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751219AbWJLW2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:28:08 -0400
-Date: Thu, 12 Oct 2006 15:25:12 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: mlindner@syskonnect.de, rroesler@syskonnect.de,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
- skge_resume() properly
-Message-ID: <20061012152512.66f147b8@freekitty>
-In-Reply-To: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 18:29:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:30049 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751221AbWJLW3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 18:29:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=YYRH8j0sPnFnKRZZ7yNpYbz8QPRV8sJyg9048RtYeFWJOz4ja+yVgJU/vP4hqIQCnrWnIucvtUFnwJ2fXggHsnJDx3klikmkg3tD8oBmBAfXMb+hkieY+eRfdxaddYUUrszpgBTrIOcKA8U3j6whsCJ/nzIELqYpm0ftEkODZC4=
+Message-ID: <ac8af0be0610121529t741ec6dcxe89f5cf6d26ac91f@mail.gmail.com>
+Date: Thu, 12 Oct 2006 15:29:19 -0700
+From: "Zhao Forrest" <forrest.zhao@gmail.com>
+To: robert.picco@hp.com
+Subject: HPET char device can't work in 2.6.18
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_73733_30041524.1160692159592"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 00:17:50 +0200 (CEST)
-Jiri Kosina <jikos@jikos.cz> wrote:
+------=_Part_73733_30041524.1160692159592
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> [PATCH] sk98lin: handle pci_enable_device() return value in skge_resume() properly
-> 
-> Fix missing handling of pci_enable_device() return value in skge_resume() 
-> 
-> Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-> 
-> --- 
-> 
->  drivers/net/sk98lin/skge.c |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
-> index 99e9262..e12fb62 100644
-> --- a/drivers/net/sk98lin/skge.c
-> +++ b/drivers/net/sk98lin/skge.c
-> @@ -5070,7 +5070,11 @@ static int skge_resume(struct pci_dev *p
->  
->  	pci_set_power_state(pdev, PCI_D0);
->  	pci_restore_state(pdev);
-> -	pci_enable_device(pdev);
-> +	if ((ret = pci_enable_device(pdev))) {
-> +		printk(KERN_ERR "sk98lin: Cannot enable PCI device during resume\n");
-> +		unregister_netdev(dev);
->
+Hi Robert,
 
-Having the device unregister seems harsh.
-Why put condtional on same line?
-Why not print device name dev->name.
+After 2.6.18 booted on my machine, there's a device file for hpet:
+/dev/hpet.But when I read this device file, I got the error:
+cat: /dev/hpet: Input/output error
 
+In dmesg, I found some error messages related to hpet:
+hpet_resources: 0xfed00000 is busy
+hpet_acpi_add: no address or irqs in _CRS
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Also there're some not-error-messages about hpet:
+time.c: Using 25.000000 MHz WALL HPET GTOD HPET timer.
+time.c: Detected 2613.696 MHz processor.
+........
+hpet0: at MMIO 0xfed00000 (virtual 0xffffffffff5fe000), IRQs 2, 8, 31
+hpet0: 3 32-bit timers, 25000000 Hz
+
+I guess maybe there's only one hpet timer in system, so after kernel
+use one, the hpet char device driver can't find a free hpet timer
+anymore. Am I right?
+
+The full dmesg is attached.
+
+Thanks,
+Forrest
+
+------=_Part_73733_30041524.1160692159592
+Content-Type: application/x-gzip; name=dmesg.tar.gz
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_et7q45mi
+Content-Disposition: attachment; filename="dmesg.tar.gz"
+
+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
+CScFFM4yT32UnhSkiRPVDVS5fbNfqP4GnFvHD6RQFW43GjdwU/i1J/bAsHROUEWtE5eLbdzIEi/q
+3rZvUHI/RbWj/17H2Rr1ROA84CYi9wgZ9yaRcP2R7+ZbB9oEDFVjdduGw3Ac9rr9AVSC6J8HnOkm
+R4/GxSrceeynD3AcO1NxF8Y3cMvrrM4kQ7lchKf00BTpLo8xTDI+npUcutAmuCaq8gQqqE/pMfu0
+bqt70Ml9d8tgTkEt8DlTtwMB21+pPeGm5gQpqhP1ckviJHc+Jgb53nnZlzrOd812iGaMxa2fXXVQ
++msxK98ug0WGkCnUnyHZeB7h7qTQ9hLQRYZhGjaePuUy5modH8lFvECtPyVWthWjXJRk07NyAwC+
+b+cVtnu+uWvx1ziBatYb2qYTGJpt8upHmo7vL5cFW70OnEeoo3BWSadVWIS/Nu4/SSqy9cd4htuE
+wcPMpSfDQZuUKJ2hXgwmODhBUuSyEgL1PclgcMZOkmKYNhpBjds6uA9uQHnk1LlHC+M2yY38WfUN
+llMXllM3Lae+ynJWnW2znM5M40Mtp+4vF2xfZjl1l+XUF1jOMjcsp9qNd7CctrCctmk57ZVrzla3
+rTnT+Ng1p+0vl9JfZjltl+W051tOs/mG5WzTfAfL6QvL6ZuW01+7W261nG3oH2o5fX/5kuNlltN3
+WU5/wZprsM3d0rDewXLGwnLGpuWMd94tGx9qOWN/+frpZZYzdlnOeMk5t7lbauZ7WM5cWM7ctJz5
+vrulrn2o5cz95YvBl1nO3GU58yVrTt2wnK7q72A5a2E5a9Ny1jvvluxDLWftL1/Zvsxy1i7LWc+2
+3OYhZ+mLQ+4Q1TaepDCPwM6qIDgBqeqzXhfu6DbDC8eAqTScn9SVqT/OqjRXlJ8esD1cvIpbJN7+
+CPypM5ZdX5SrYf42SgjVT/GRchwLIcFoyMtzZMzUdJvdwAgHPeXsaNiECzH2URkxNWDFYRq6YQAj
+Z+oHD4tqMxW30odIQOT6mDwVCEq/3S2qIKtVJQlcXMt0KYmKYkyX4qLQnY9kqHkBj+pTZb5VFL+K
+m512Fy7Ql+EwKw18xwfsB1Rk5YlqTlIStPB1UbyaOLF352Cul1XmEITWAlCnWYiOfeu7UnEZAd5k
+Zp1lRIaxM0sixJylRSGiloPh/xt1tiRStxT3Iq/VDWVe/P1/rgaHV3USsn7Vvxj+eCFO//xL67WI
+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
+------=_Part_73733_30041524.1160692159592--

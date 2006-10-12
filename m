@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWJLIEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbWJLII4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbWJLIEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 04:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWJLIEz
+	id S1422675AbWJLII4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 04:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWJLIIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 04:04:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21204 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932494AbWJLIEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 04:04:54 -0400
-Date: Thu, 12 Oct 2006 01:04:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       rusty@rustcorp.com.au
-Subject: Re: SPAM: Re: _cpu_down deadlock [was Re: 2.6.19-rc1-mm1]
-Message-Id: <20061012010406.e799e036.akpm@osdl.org>
-In-Reply-To: <17709.62567.429791.797941@cse.unsw.edu.au>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<6bffcb0e0610100610p6eb65726of92b85f7d49e80bb@mail.gmail.com>
-	<6bffcb0e0610100704m32ccc6bakb446671f04b04c2b@mail.gmail.com>
-	<17708.33450.608010.113968@cse.unsw.edu.au>
-	<6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
-	<1160565786.3000.369.camel@laptopd505.fenrus.org>
-	<17708.60613.451322.747200@cse.unsw.edu.au>
-	<20061011093920.32fc2d07.akpm@osdl.org>
-	<17709.33386.884615.679131@cse.unsw.edu.au>
-	<1160635872.3000.399.camel@laptopd505.fenrus.org>
-	<17709.62567.429791.797941@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 04:08:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:54203 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932516AbWJLIIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 04:08:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=coZ4qLpHub8GTEcjP1/u8Mz63NG7GgkJdzNj9fDUw69V376z4/EkOXsIbR6GdPI4Uzcu44hvn+iJ6OBPo7HLdIWmNnW93iYqXHTJJBtkeCLj0QCBC9xZvhOx8z3WlVhcCrKTaDbUYQzEpW+TyIN9ZMKuyZyANXv/4DLn7ovjSRU=
+Message-ID: <84144f020610120108s1f4b3484q158195ebeac8a214@mail.gmail.com>
+Date: Thu, 12 Oct 2006 11:08:51 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Akinobu Mita" <akinobu.mita@gmail.com>
+Subject: Re: [patch 3/7] fault-injection capability for kmalloc
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org,
+       "Don Mullis" <dwm@meer.net>
+In-Reply-To: <452df222.0804022e.60ae.67a6@mx.google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061012074305.047696736@gmail.com>
+	 <452df222.0804022e.60ae.67a6@mx.google.com>
+X-Google-Sender-Auth: b1741c95dc83420f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 17:53:11 +1000
-Neil Brown <neilb@suse.de> wrote:
+On 10/12/06, Akinobu Mita <akinobu.mita@gmail.com> wrote:
+> From: Akinobu Mita <akinobu.mita@gmail.com>
+>
+> This patch provides fault-injection capability for kmalloc.
 
-> I think I'm in favour of the following. 
+The slab bits look ok to me.
 
-Would be simpler to take cpu_add_remove_lock in
-[un]register_cpu_notifier().  I actually thought I'd done that to fix this
-bug but must have forgotten or lost the patch :(
-
-We can then convert all the notifier chains in there to raw_*.
-
+                                      Pekka

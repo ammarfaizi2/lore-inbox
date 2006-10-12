@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWJLOW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWJLO1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWJLOW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWJLOW2
+	id S1422707AbWJLO1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422708AbWJLO1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:22:28 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6825 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932462AbWJLOW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:22:27 -0400
-Date: Thu, 12 Oct 2006 16:21:34 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Online Journaled File System <ojfs.discuss@yahoo.com>
-Cc: an Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-Message-ID: <20061012142134.GC16202@wohnheim.fh-wedel.de>
-References: <20061012135405.62079.qmail@web58109.mail.re3.yahoo.com>
+	Thu, 12 Oct 2006 10:27:25 -0400
+Received: from aa011msr.fastwebnet.it ([85.18.95.71]:28118 "EHLO
+	aa011msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1422707AbWJLO1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:27:24 -0400
+Date: Thu, 12 Oct 2006 16:27:27 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: KDE confuses 2.6.19-rc1+ AKA "cdrom: This disc doesn't have any
+ tracks I recognize!"
+Message-ID: <20061012162727.207b730c@localhost>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061012135405.62079.qmail@web58109.mail.re3.yahoo.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 October 2006 06:54:05 -0700, Online Journaled File System wrote:
-> 
-> So 10 years at an asylum instead of 25 to life in a
-> maximum security prison? eh!?  YOU are insane, too.
+I'm seeing a very strange problem.
 
-In the cases I know it was more like 6 month of hospital and taking
-pills for the rest of the life.  Many people above 60 have seen worse.
+With every post 2.6.18 kernel I've tried [2.6.19-rc1 -->
+2.6.19-rc1-gc25d5180], the kernel is "confused" by KDE.
 
-> Tell that to his wife her family and kids!
+If I boot without starting KDE and put in a CD/DVD it works correctly.
 
-I have zero knowledge about what happened to her and therefore won't
-comment on the legal case of her disappearing.  If you are looking for
-a legal comment, ask a lawyer.  If you have a suspicion you can back
-with evidence, contact the law enforcement authorities.  If you have a
-personal opinion and like to share it, talk to a friend.
+If I start KDE and then put in a CD the kernel tells:
+	cdrom: This disc doesn't have any tracks I recognize!
 
-In either of those cases, LKML is _not_ the place to pester.  Go away.
-Shoo.
+Manually mount still works but KDE shows it as a blank CD and I
+cannot mount it through "media:/".
 
-Jörn
+
+The kernel stays "confused" even if I close KDE...
+
+I'm using KDE 3.5.4.
 
 -- 
-Don't worry about people stealing your ideas. If your ideas are any good,
-you'll have to ram them down people's throats.
--- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
-   Raph Levien, 1979
+	Paolo Ornati
+	Linux 2.6.18 on x86_64

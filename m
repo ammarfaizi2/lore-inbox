@@ -1,163 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbWJLGuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbWJLGvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161231AbWJLGuk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWJLGuj
+	id S1161260AbWJLGvm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWJLGvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:50:39 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:10789 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1161231AbWJLGuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:50:39 -0400
-Subject: Re: [PATCH] lockdep: annotate i386 apm
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061011233925.c9ba117a.akpm@osdl.org>
-References: <1160574022.2006.82.camel@taijtu>
-	 <20061011141813.79fb278f.akpm@osdl.org> <1160633180.2006.94.camel@taijtu>
-	 <20061011233925.c9ba117a.akpm@osdl.org>
+	Thu, 12 Oct 2006 02:51:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40162 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161260AbWJLGvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 02:51:41 -0400
+Subject: Re: _cpu_down deadlock [was Re: 2.6.19-rc1-mm1]
+From: Arjan van de Ven <arjan@infradead.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       rusty@rustcorp.com.au
+In-Reply-To: <17709.33386.884615.679131@cse.unsw.edu.au>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	 <6bffcb0e0610100610p6eb65726of92b85f7d49e80bb@mail.gmail.com>
+	 <6bffcb0e0610100704m32ccc6bakb446671f04b04c2b@mail.gmail.com>
+	 <17708.33450.608010.113968@cse.unsw.edu.au>
+	 <6bffcb0e0610110348i1d3fc15qa0c57a6586aca3e@mail.gmail.com>
+	 <1160565786.3000.369.camel@laptopd505.fenrus.org>
+	 <17708.60613.451322.747200@cse.unsw.edu.au>
+	 <20061011093920.32fc2d07.akpm@osdl.org>
+	 <17709.33386.884615.679131@cse.unsw.edu.au>
 Content-Type: text/plain
-Date: Thu, 12 Oct 2006 08:50:50 +0200
-Message-Id: <1160635850.2006.98.camel@taijtu>
+Organization: Intel International BV
+Date: Thu, 12 Oct 2006 08:51:12 +0200
+Message-Id: <1160635872.3000.399.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-11 at 23:39 -0700, Andrew Morton wrote:
-> On Thu, 12 Oct 2006 08:06:20 +0200
-> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > #define local_irq_restore(flags)                                \
-> >         do {                                                    \
-> >                 if (raw_irqs_disabled_flags(flags)) {           \
-> >                         raw_local_irq_restore(flags);           \
-> >                         trace_hardirqs_off();                   \
-> >                 } else {                                        \
-> >                         trace_hardirqs_on();                    \
-> >                         raw_local_irq_restore(flags);           \
-> >                 }                                               \
-> >         } while (0)
+On Thu, 2006-10-12 at 09:46 +1000, Neil Brown wrote:
+> On Wednesday October 11, akpm@osdl.org wrote:
+> > > 
+> > > So A waits on B and C, C waits on B, B waits on A.
+> > > Deadlock.
 > > 
-> > So, say interrupts were enabled when entering apm_bios_call*(); you now
-> > save that in flags, disable interrupts, and enable them again.
-> > Upon reaching local_irq_restore(), we'll hit the else branch with irq's
-> > enabled and call trace_hardirqs_on(), which goes EEEK!
+> > Except the entire operation is serialised by the the two top-level callers
+> > (cpu_up() and cpu_down()) taking mutex_lock(&cpu_add_remove_lock).  Can
+> > lockdep be taught about that?
 > 
-> I'd assumed lockdep was less stupid than that ;) This?  Seems a bit
-> overdone..
+> So you are saying that even though we have locking sequences
+>   A -> B  and B -> A,
+> that cannot - in this case - cause a deadlock as both sequences only
+> ever happen under a third exclusive lock C,
+> So when lockdep records a lock-dependency A -> B, it should also
+> record a list of locks that are *always* held when that dependency
+> occurs.
 
-Seems simple enough, bit on the verbose side, _however_ it depends on
-the BIOS call not changing the irq state. I don't know about BIOSs but I
-thought the general consensus was to distrust them.
+in that case... why are A and B there *at all* ?
 
-Was my original _that_ hard to read?
-
-> --- a/arch/i386/kernel/apm.c~lockdep-annotate-i386-apm
-> +++ a/arch/i386/kernel/apm.c
-> @@ -540,12 +540,6 @@ static inline void apm_restore_cpus(cpum
->   * Also, we KNOW that for the non error case of apm_bios_call, there
->   * is no useful data returned in the low order 8 bits of eax.
->   */
-> -#define APM_DO_CLI	\
-> -	if (apm_info.allow_ints) \
-> -		local_irq_enable(); \
-> -	else \
-> -		local_irq_disable();
-> -
->  #ifdef APM_ZERO_SEGS
->  #	define APM_DECL_SEGS \
->  		unsigned int saved_fs; unsigned int saved_gs;
-> @@ -583,11 +577,12 @@ static u8 apm_bios_call(u32 func, u32 eb
->  	u32 *eax, u32 *ebx, u32 *ecx, u32 *edx, u32 *esi)
->  {
->  	APM_DECL_SEGS
-> -	unsigned long		flags;
->  	cpumask_t		cpus;
->  	int			cpu;
->  	struct desc_struct	save_desc_40;
->  	struct desc_struct	*gdt;
-> +	int			enable_irqs = 0;
-> +	int			disable_irqs = 0;
->  
->  	cpus = apm_save_cpus();
->  	
-> @@ -596,12 +591,26 @@ static u8 apm_bios_call(u32 func, u32 eb
->  	save_desc_40 = gdt[0x40 / 8];
->  	gdt[0x40 / 8] = bad_bios_desc;
->  
-> -	local_save_flags(flags);
-> -	APM_DO_CLI;
-> +	if (apm_info.allow_ints) {
-> +		if (irqs_disabled()) {
-> +			local_irq_enable();
-> +			disable_irqs = 1;
-> +		}
-> +	} else {
-> +		if (!irqs_disabled()) {
-> +			local_irq_disable();
-> +			enable_irqs = 1;
-> +		}
-> +	}
-> +
-> +
->  	APM_DO_SAVE_SEGS;
->  	apm_bios_call_asm(func, ebx_in, ecx_in, eax, ebx, ecx, edx, esi);
->  	APM_DO_RESTORE_SEGS;
-> -	local_irq_restore(flags);
-> +	if (disable_irqs)
-> +		local_irq_disable();
-> +	if (enable_irqs)
-> +		local_irq_enable();
->  	gdt[0x40 / 8] = save_desc_40;
->  	put_cpu();
->  	apm_restore_cpus(cpus);
-> @@ -627,11 +636,12 @@ static u8 apm_bios_call_simple(u32 func,
->  {
->  	u8			error;
->  	APM_DECL_SEGS
-> -	unsigned long		flags;
->  	cpumask_t		cpus;
->  	int			cpu;
->  	struct desc_struct	save_desc_40;
->  	struct desc_struct	*gdt;
-> +	int			enable_irqs = 0;
-> +	int			disable_irqs = 0;
->  
->  	cpus = apm_save_cpus();
->  	
-> @@ -640,12 +650,25 @@ static u8 apm_bios_call_simple(u32 func,
->  	save_desc_40 = gdt[0x40 / 8];
->  	gdt[0x40 / 8] = bad_bios_desc;
->  
-> -	local_save_flags(flags);
-> -	APM_DO_CLI;
-> +	if (apm_info.allow_ints) {
-> +		if (irqs_disabled()) {
-> +			local_irq_enable();
-> +			disable_irqs = 1;
-> +		}
-> +	} else {
-> +		if (!irqs_disabled()) {
-> +			local_irq_disable();
-> +			enable_irqs = 1;
-> +		}
-> +	}
-> +
->  	APM_DO_SAVE_SEGS;
->  	error = apm_bios_call_simple_asm(func, ebx_in, ecx_in, eax);
->  	APM_DO_RESTORE_SEGS;
-> -	local_irq_restore(flags);
-> +	if (disable_irqs)
-> +		local_irq_disable();
-> +	if (enable_irqs)
-> +		local_irq_enable();
->  	gdt[0x40 / 8] = save_desc_40;
->  	put_cpu();
->  	apm_restore_cpus(cpus);
-> _
-> 
 

@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161491AbWJLFzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161464AbWJLGDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161491AbWJLFzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 01:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161544AbWJLFzH
+	id S1161464AbWJLGDG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161499AbWJLGDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 01:55:07 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:26768 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1161491AbWJLFzB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 01:55:01 -0400
-Message-ID: <452DD8B2.9040007@drzeus.cx>
-Date: Thu, 12 Oct 2006 07:54:58 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+	Thu, 12 Oct 2006 02:03:06 -0400
+Received: from rosi.naasa.net ([212.8.0.13]:49380 "EHLO rosi.naasa.net")
+	by vger.kernel.org with ESMTP id S1161464AbWJLGDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 02:03:03 -0400
+From: Joerg Platte <lists@naasa.net>
+Reply-To: jplatte@naasa.net
+To: "=?utf-8?q?G=C3=BCnther?= Starnberger" <gst@sysfrog.org>
+Subject: Re: Userspace process may be able to DoS kernel
+Date: Thu, 12 Oct 2006 08:02:58 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
+In-Reply-To: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
 MIME-Version: 1.0
-To: Alex Dubov <oakad@yahoo.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: [PATCH] drivers/{mmc,misc}: handle PCI errors on resume
-References: <20061012020645.50871.qmail@web36715.mail.mud.yahoo.com>
-In-Reply-To: <20061012020645.50871.qmail@web36715.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200610120802.59077.lists@naasa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doesn't Jeff love me anymore? :(
+Am Mittwoch, 11. Oktober 2006 18:54 schrieb Günther Starnberger:
 
-Alex Dubov wrote:
-> --- Jeff Garzik <jeff@garzik.org> wrote:
->
->   
->> Date: Wed, 11 Oct 2006 17:48:09 -0400
->> From: Jeff Garzik <jeff@garzik.org>
->> To: oakad@yahoo.com, Andrew Morton <akpm@osdl.org>,
->> 	LKML <linux-kernel@vger.kernel.org>
->> Subject: [PATCH] drivers/{mmc,misc}: handle PCI errors on resume
->>
->>
->> Since pci_enable_device() is one of the first things called in the
->> resume step, take the minimalist approach and return immediately, if
->> pci_enable_device() fails during resume.
->>
->> Also, in sdhci:  don't check for impossible condition (chip==NULL)
->>
->> Signed-off-by: Jeff Garzik <jeff@garzik.org>
->>
->>     
+> I will upgrade my 2.6.17.6 kernel to 2.6.18 and try to reproduce the
+> problem there in the following days (but I fear that I won't have much
+> time before the weekend).
 
-I'm just being cautious. "This can't happen" is usually the last thing
-you here before the end. ;)
+Using 2.6.18 does not solve the problem. I can see exactly the same behavior 
+with a vanilla and not tainted 2.6.18 kernel.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-  OLPC, developer                     http://www.laptop.org
-
+regards,
+Jörg

@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWJLOJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWJLOJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWJLOJs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWJLOJr
+	id S1751417AbWJLOJi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWJLOJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:09:47 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5857 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751418AbWJLOJr (ORCPT
+	Thu, 12 Oct 2006 10:09:38 -0400
+Received: from mail.suse.de ([195.135.220.2]:60352 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751417AbWJLOJi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:09:47 -0400
+	Thu, 12 Oct 2006 10:09:38 -0400
 From: Nick Piggin <npiggin@suse.de>
 To: Linux Memory Management <linux-mm@kvack.org>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Message-Id: <20061012120111.29671.83152.sendpatchset@linux.site>
-In-Reply-To: <20061012120102.29671.31163.sendpatchset@linux.site>
-References: <20061012120102.29671.31163.sendpatchset@linux.site>
-Subject: [patch 1/5] oom: don't kill unkillable children or siblings
-Date: Thu, 12 Oct 2006 16:09:43 +0200 (CEST)
+Message-Id: <20061012120102.29671.31163.sendpatchset@linux.site>
+Subject: [rfc][patch 0/5] 2.6.19-rc1: oom killer fixes
+Date: Thu, 12 Oct 2006 16:09:34 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abort the kill if any of our threads have OOM_DISABLE set. Having this test
-here also prevents any OOM_DISABLE child of the "selected" process from being
-killed.
+I've been prompted to take another look through the OOM killer because it
+turns out it is killing tasks that have had their oom_adj set to -17 (which
+is supposed to make them unkillable).
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+So there are a number of problems, firstly, the child and sibling thread
+killing routines do not account for -17 children/siblings.
 
-Index: linux-2.6/mm/oom_kill.c
-===================================================================
---- linux-2.6.orig/mm/oom_kill.c
-+++ linux-2.6/mm/oom_kill.c
-@@ -312,15 +312,24 @@ static int oom_kill_task(struct task_str
- 	if (mm == NULL)
- 		return 1;
+Secondly, most architecture specific pagefault handlers do a direct kill
+of the current process if it takes a VM_FAULT_OOM. This is a pretty rare
+thing to happen, because there isn't a lot of higher order allocations
+happening, but it is not impossible. I think we can just call into the
+OOM killer here, and return to userspace... but I'd like comments about
+this.
+
+Thanks,
+Nick
+--
+SuSE Labs
  
-+	/*
-+	 * Don't kill the process if any threads are set to OOM_DISABLE
-+	 */
-+	do_each_thread(g, q) {
-+		if (q->mm == mm && p->oomkilladj == OOM_DISABLE)
-+			return 1;
-+	} while_each_thread(g, q);
-+
- 	__oom_kill_task(p, message);
-+
- 	/*
- 	 * kill all processes that share the ->mm (i.e. all threads),
- 	 * but are in a different thread group
- 	 */
--	do_each_thread(g, q)
-+	do_each_thread(g, q) {
- 		if (q->mm == mm && q->tgid != p->tgid)
- 			__oom_kill_task(q, message);
--	while_each_thread(g, q);
-+	} while_each_thread(g, q);
- 
- 	return 0;
- }

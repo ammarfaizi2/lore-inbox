@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWJLM4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWJLNDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWJLM4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 08:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWJLM4U
+	id S1751381AbWJLNDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 09:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWJLNDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 08:56:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11662 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751373AbWJLM4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 08:56:19 -0400
-Subject: Re: maybe headers(linux/aio.h) bug ?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Dongsheng Song <dongsheng.song@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4b3406f0610120527g42bfbc44q45b31dc07f5968de@mail.gmail.com>
-References: <4b3406f0610120527g42bfbc44q45b31dc07f5968de@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 12 Oct 2006 13:56:16 +0100
-Message-Id: <1160657777.9864.0.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 12 Oct 2006 09:03:42 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:53672 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751381AbWJLNDl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 09:03:41 -0400
+Date: Thu, 12 Oct 2006 14:28:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bernd Petrovitsch <bernd@firmix.at>
+cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       Chuck Lever <chuck.lever@oracle.com>
+Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC traffic
+In-Reply-To: <1160642150.2955.6.camel@tara.firmix.at>
+Message-ID: <Pine.LNX.4.61.0610121428300.19282@yvahk01.tjqt.qr>
+References: <20061010165621.394703368@quad.kroah.org>  <20061010171429.GD6339@kroah.com>
+  <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr> 
+ <1160610353.7015.8.camel@lade.trondhjem.org>  <1160615547.20611.0.camel@localhost.localdomain>
+  <1160616905.6596.14.camel@lade.trondhjem.org>  <Pine.LNX.4.61.0610120956000.17740@yvahk01.tjqt.qr>
+ <1160642150.2955.6.camel@tara.firmix.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 20:27 +0800, Dongsheng Song wrote:
-> Whenever I include linux aio header,  the compile errors occured:
-> 
-> $  cat test.c
-> #include <linux/types.h>
-> #include <linux/unistd.h>
-> #include <linux/aio.h> 
 
-That's just broken. There should be no file /usr/include/linux/aio.h
-because it isn't listed as one of the files to be exported from the
-kernel when you run 'make headers_install'.
+>> Man, this RPC stuff should go and use fixed ports.
+>
+>Hmm, starting the portmapper as late as possible so that other services
+>get the chance to use their ports?
 
+The SUN-TCP / SUN-UDP port mapping is a relic of old times.
+
+
+	-`J'
 -- 
-dwmw2
-

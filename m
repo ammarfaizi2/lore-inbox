@@ -1,113 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422867AbWJLRAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWJLRDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422867AbWJLRAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWJLRAy
+	id S932655AbWJLRDV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWJLRDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:00:54 -0400
-Received: from ms-smtp-01.socal.rr.com ([66.75.162.133]:28156 "EHLO
-	ms-smtp-01.socal.rr.com") by vger.kernel.org with ESMTP
-	id S932655AbWJLRAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:00:53 -0400
-Message-Id: <6.2.3.4.0.20061012095229.048db398@pop-server.san.rr.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
-Date: Thu, 12 Oct 2006 09:57:36 -0700
-To: Alexander van Heukelum <heukelum@mailshack.com>
-From: John Coffman <johninsd@san.rr.com>
-Subject: Re: [PATCH] Remove
-  lilo-loads-only-five-sectors-of-zImage-fixup from setup.S
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       John Coffman <johninsd@san.rr.com>
-In-Reply-To: <20061011194301.GA2084@mailshack.com>
-References: <20061011163356.GA2022@mailshack.com>
- <452D3A11.5020100@zytor.com>
- <20061011194301.GA2084@mailshack.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Antivirus: avast! (VPS 0641-3, 10/12/2006), Outbound message
-X-Antivirus-Status: Clean
+	Thu, 12 Oct 2006 13:03:20 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:65290 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S932655AbWJLRDU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 13:03:20 -0400
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Jens Axboe <jens.axboe@oracle.com>, linux-kernel@vger.kernel.org,
+       olaf@aepfle.de
+Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
+References: <87hcya8fxk.fsf@sycorax.lbl.gov> <20061012065346.GY6515@kernel.dk>
+	<1160648885.5897.6.camel@Homer.simpson.net>
+	<1160662435.6177.3.camel@Homer.simpson.net>
+	<20061012120927.GQ6515@kernel.dk> <20061012122146.GS6515@kernel.dk>
+	<87odshr289.fsf@sycorax.lbl.gov> <20061012152356.GE6515@kernel.dk>
+	<87r6xd1qpl.fsf@sycorax.lbl.gov>
+	<1160679627.7956.7.camel@Homer.simpson.net>
+Date: Thu, 12 Oct 2006 10:02:58 -0700
+In-Reply-To: <1160679627.7956.7.camel@Homer.simpson.net> (message from Mike
+	Galbraith on Thu, 12 Oct 2006 19:00:27 +0000)
+Message-ID: <874pu94gcd.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander,
+Mike Galbraith <efault@gmx.de> writes:
 
-You are referring to versions of LILO more than 8 years old.  Since 
-version 21, when I took over maintenance from Werner, LILO has been 
-sensitive to the boot protocol in use.  Peter has been kind enough to 
-point out upgrades to the 2.00+ protocols when they have been introduced.
-
-All versions of LILO since version 21 should be able to correctly 
-handle both zImage and bzImage kernels, old and new.  The 
-command:  "lilo -V -v" should indicate the version of LILO you are 
-using, and may indicate a release date.
-
---John
-
-
-At 12:43 PM  Wednesday 10/11/2006, Alexander van Heukelum wrote:
->On Wed, Oct 11, 2006 at 11:38:09AM -0700, H. Peter Anvin wrote:
-> > Alexander van Heukelum wrote:
-> > >Hi!
-> > >
-> > >The real-mode kernel (on i386 and x86_64) checks if the bootloader
-> > >loaded it correctly. Apparantly, very old versions of LILO disregarded
-> > >the setupsects field in the bootsector and always just loaded the first
-> > >five sectors. If the kernel is compiled as a zImage, the real-mode
-> > >kernel is able to rectify the situation. At least it was, until the code
-> > >to do so was moved to the eighth sector in order to make space for more
-> > >E820 entries (commit: f9ba70535dc12d9eb57d466a2ecd749e16eca866). This
-> > >occured on 1 May 2005 and as far as I know, noone has complained yet.
-> > >This patch removes the checks for the signature and the fixup code
-> > >completely.
-> > >
-> > >Comments? Which bootloaders are still in use? Kill zImage?
-> > >
-> >
-> > Andrew asked me to comment on this...
-> >
-> > This removes support for boot loaders that did not understand boot
-> > loader protocol version 2.00 or later.  This probably includes very
-> > early versions of LILO as well as the long-since obsolete Bootlin and
-> > Shoelace.  Those loaders were unable to load bzImages as well.
-> >
-> > I have been urging that we kill zImage for a long time.  It is virtually
-> > impossible to build a kernel today that will fit inside the zImage 512K
-> > compressed limitation.
-> >
-> > It would be useful for setup.S to halt with a message if such an early
-> > bootloader is detected, however.  This would have to be parked in the
-> > first 2K of the setup area, and can simply be detected by looking for
-> > zero in type_of_loader.
+> On Thu, 2006-10-12 at 08:47 -0700, Alex Romosan wrote:
+>> Jens Axboe <jens.axboe@oracle.com> writes:
+>> 
+>> > Argh damn, it needs this on top of it as well. Your second problem
+>> > likely stems from that missing bit, please retest with this one applied
+>> > as well.
+>> >
+>> > diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+>> > index e7513e5..bddfebd 100644
+>> > --- a/drivers/ide/ide-cd.c
+>> > +++ b/drivers/ide/ide-cd.c
+>> > @@ -716,7 +716,7 @@ static int cdrom_decode_status(ide_drive
+>> >  		ide_error(drive, "request sense failure", stat);
+>> >  		return 1;
+>> >  
+>> > -	} else if (blk_pc_request(rq)) {
+>> > +	} else if (blk_pc_request(rq) || rq->cmd_type == REQ_TYPE_ATA_PC) {
+>> >  		/* All other functions, except for READ. */
+>> >  		unsigned long flags;
+>> >  
+>> 
+>> no more strange messages but, once again, i am not able to read movie
+>> dvd's with the above patch applied.
 >
->Hi!
+> Hmm.  Xine still works fine here.
 >
->The patch should not alter behaviour for any bootloader that takes
->setupsects into account. It just removes 'support' for bootloaders that
->have the size of the setup code hardcoded to 4 sectors.
->
->The current version of setup.S already checks if the bootloader
->understands boot protocol 2.00+ in the case of a big kernel, but that
->code is also after the 2k-mark. The zero-page still has some unused
->space between offsets 0x230 and 0x28f. Shall I put/move some code there
->to check unconditionally if the type_of_loader has been set?
->
->I'll do that if no objections are put forward.
->
->Thanks,
->     Alexander
->
-> >
-> >       -hpa
-> >
+> I tried starting xine with no dvd in the drive for grins, and _without_
+> this patch, I had to resort to SysRq-E to regain control of my box, and
+> that still took quite a while.  I got no oops, but a zillion IO retries
+> and sector blah messages.  DoSed me bigtime.  With this patch, I just
+> got the expected can't open failure.
 
+works fine for me too as i said in my next message (i initially forgot
+to put the dvd in the drive). i guess this is what happens when i try
+to test things before my morning espresso...
 
-         PGP KeyID: 6781C9C8  (good until 31-Dec-2008)
-         Keyserver at  ldap://keyserver.pgp.com  OR  http://pgp.mit.edu
-         LILO links at http://freshmeat.net/projects/lilo
-         and Help link at http://lilo.go.dyndns.org
+--alex--
 
-
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

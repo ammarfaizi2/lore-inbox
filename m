@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWJLO7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWJLPBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbWJLO7T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWJLO7S
+	id S932526AbWJLPBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWJLPBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:59:18 -0400
-Received: from web58109.mail.re3.yahoo.com ([68.142.236.132]:16058 "HELO
-	web58109.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S932540AbWJLO7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:59:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=TBq+9j9Cbcequ3xSYFO4iRBzCulBIvfm8ewfRHQmh88y7Jtq3bSEQSWFNhvJl6C7Y89SCVi933Xg64nPHTj1EkCgvpNzW0iMMdIDn18XRagaiHHpArhkLh4BUXUCVitEqu1Ke5myOab8vodDzNzJ4DemQY/uz/gvWinujLalwHo=  ;
-Message-ID: <20061012145915.90271.qmail@web58109.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 07:59:15 -0700 (PDT)
-From: Online Journaled File System <ojfs.discuss@yahoo.com>
-Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-To: flx@msu.ru
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061012140030.GA13028@alias.nmd.msu.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 12 Oct 2006 11:01:44 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:15950 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S932526AbWJLPBn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 11:01:43 -0400
+X-IronPort-AV: i="4.09,301,1157353200"; 
+   d="scan'208"; a="417383402:sNHT47749452"
+Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC
+	traffic
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       Chuck Lever <chuck.lever@oracle.com>
+In-Reply-To: <Pine.LNX.4.61.0610120956000.17740@yvahk01.tjqt.qr>
+References: <20061010165621.394703368@quad.kroah.org>
+	 <20061010171429.GD6339@kroah.com>
+	 <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
+	 <1160610353.7015.8.camel@lade.trondhjem.org>
+	 <1160615547.20611.0.camel@localhost.localdomain>
+	 <1160616905.6596.14.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.61.0610120956000.17740@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Thu, 12 Oct 2006 08:01:17 -0700
+Message-Id: <1160665277.6004.27.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 12 Oct 2006 15:01:35.0263 (UTC) FILETIME=[4F8452F0:01C6EE0F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sposibo Sasha! You're so cute.
+On Thu, 2006-10-12 at 09:58 +0200, Jan Engelhardt wrote:
+> >Interestingly, Linux is not the only OS that has been hit by this
+> >problem:
+> >
+> >  http://blogs.sun.com/shepler/entry/port_623_or_the_mount
+> 
+> There is more to it. On a machine I had set up a second,
+> experimental, apache on port 880. And it randomly failed to start on
+> a boot because mountd had taken the port first.
+> Man, this RPC stuff should go and use fixed ports.
 
---- Alexander Lyamin <flx@msu.ru> wrote:
+man 8 mountd and check out the '-p' option. statd has a similar one.
+Even the in-kernel lockd daemon's can be set to listen to fixed ports.
 
-> 
-> Hello Sean.
-> 
-> -10 Karma points.
-> (this reads that you'll be reborn in a shit-worm for
-> your next life).
-> 
-> 
-> Thu, Oct 12, 2006 at 03:06:05AM -0700, Online
-> Journaled File System wrote:
-> > Greetings,
-> > 
-> > OJFS is a general-purpose, Online Journaling File
-> > system based on  ReiserFS which was designed and
-> > implemented by a team at Namesys led by Hans 
-> Reiser,
-> > who is referred to as the project's Benevolent
-> > Dictator for Life (and death). It is currently
-> > supported for GNU/Linux and may be included in
-> other
-> > operating systems in the future.
-> > 
-> > You may download the patch for the 2.6.18 kernel
-> at 
-> > http://www.sendspace.com/file/9zb2gf
-> > 
-> > Or view our Wikipedia page for more up to date
-> > information at http://en.wikipedia.org/wiki/OJFS
-> > 
-> > We encourage all current ReiserFS users to upgrade
-> to
-> > OJFS for improved performance due our extensive
-> > cleanups of object naming overhead.
-> 
-> 
-> -- 
-> "the liberation loophole will make it clear.."
-> lex lyamin
-> 
+So there really shouldn't be any problems nailing down your RPC ports.
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam
-protection around 
-http://mail.yahoo.com 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Cheers,
+  Trond

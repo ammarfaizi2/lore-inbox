@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWJLLmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWJLLtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWJLLmE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 07:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWJLLmE
+	id S1751309AbWJLLtK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 07:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWJLLtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 07:42:04 -0400
-Received: from rosi.naasa.net ([212.8.0.13]:33409 "EHLO rosi.naasa.net")
-	by vger.kernel.org with ESMTP id S1750878AbWJLLmB (ORCPT
+	Thu, 12 Oct 2006 07:49:10 -0400
+Received: from cantor.suse.de ([195.135.220.2]:46249 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751309AbWJLLtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 07:42:01 -0400
-From: Joerg Platte <lists@naasa.net>
-Reply-To: jplatte@naasa.net
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: Userspace process may be able to DoS kernel
-Date: Thu, 12 Oct 2006 13:41:55 +0200
-User-Agent: KMail/1.9.5
-Cc: "=?iso-8859-1?q?G=FCnther?= Starnberger" <gst@sysfrog.org>,
-       linux-kernel@vger.kernel.org
-References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com> <200610120802.59077.lists@naasa.net> <84144f020610120430r382bc860t5092ddb2a343d2d9@mail.gmail.com>
-In-Reply-To: <84144f020610120430r382bc860t5092ddb2a343d2d9@mail.gmail.com>
+	Thu, 12 Oct 2006 07:49:08 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] use %p for pointers
+References: <E1GXPU5-0007Ss-HU@ZenIV.linux.org.uk>
+	<Pine.LNX.4.61.0610111316120.26779@yvahk01.tjqt.qr>
+	<20061011145441.GB29920@ftp.linux.org.uk> <452D3BB6.8040200@zytor.com>
+	<17710.8478.278820.595718@gargle.gargle.HOWL>
+X-Yow: They don't hire PERSONAL PINHEADS, Mr. Toad!
+Date: Thu, 12 Oct 2006 13:49:00 +0200
+In-Reply-To: <17710.8478.278820.595718@gargle.gargle.HOWL> (Nikita Danilov's
+	message of "Thu, 12 Oct 2006 15:03:58 +0400")
+Message-ID: <jehcy9rbyr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200610121341.56325.lists@naasa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 12. Oktober 2006 13:30 schrieb Pekka Enberg:
-Hi,
+Nikita Danilov <nikita@clusterfs.com> writes:
 
-> On 10/12/06, Joerg Platte <lists@naasa.net> wrote:
-> > Using 2.6.18 does not solve the problem. I can see exactly the same
-> > behavior with a vanilla and not tainted 2.6.18 kernel.
+> man 3 printf:
 >
-> Do you see this with 2.6.16 also or is it new to 2.6.17?
+>        p      The void * pointer argument is printed in hexadeci-
+>               mal (as if by %#x or %#lx).
+>
+> so %p already has to output '0x',
 
-Hmmm, I deleted all my 2.6.16 kernels and I can't test a newly compiled 2.6.16 
-kernel before the weekend. But if I remember correctly, on previous kernel 
-versions skype just generates 100% system load when using the sound device 
-after some time (especially after a resume) and stuttered audio but no system 
-lockups. Hence, it worked much better than now from the kernel point of view 
-but was not usable from the skype users point of view. It was a userspace 
-only problem.
+That is an detail of this particular implementation.
 
-regards,
-Jörg
+> it's lib/vsprintf.c to blame for non-conforming behavior.
+
+The standard makes it completely implementation defined.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

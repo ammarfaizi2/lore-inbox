@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422809AbWJLIKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422812AbWJLIK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422809AbWJLIKO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 04:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWJLIKO
+	id S1422812AbWJLIK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 04:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWJLIK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 04:10:14 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10178 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932506AbWJLIKM (ORCPT
+	Thu, 12 Oct 2006 04:10:59 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:43482 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422812AbWJLIK5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 04:10:12 -0400
-Date: Thu, 12 Oct 2006 10:02:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au
-Subject: Re: [PATCH] lockdep: annotate i386 apm
-Message-ID: <20061012080212.GA14307@elte.hu>
-References: <1160574022.2006.82.camel@taijtu> <20061011141813.79fb278f.akpm@osdl.org> <1160633180.2006.94.camel@taijtu> <20061011233925.c9ba117a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011233925.c9ba117a.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 12 Oct 2006 04:10:57 -0400
+Date: Thu, 12 Oct 2006 10:10:38 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Early keyboard initialization?
+In-Reply-To: <s0fqclp3bw1f$.1ovr22f673taq$.dlg@40tude.net>
+Message-ID: <Pine.LNX.4.61.0610121007480.17740@yvahk01.tjqt.qr>
+References: <20061006204254.GD5489@bouh.residence.ens-lyon.fr>
+ <200610072158.55659.dtor@insightbb.com> <s0fqclp3bw1f$.1ovr22f673taq$.dlg@40tude.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+>> It looks like the change will only work for non-USB input devices since
+>> USB subsystem is initialized much later.
+>
+>Doesn't the BIOS handle USB keyboards someway? (To handle BIOS setup
+>and stuff like that)
+>
+>If the BIOS emulates a non-USB keyboard, would it be possible to init
+>the fake one early and then give up control when the USB subsystem is
+>initialized?
 
-> > So, say interrupts were enabled when entering apm_bios_call*(); you now
-> > save that in flags, disable interrupts, and enable them again.
-> > Upon reaching local_irq_restore(), we'll hit the else branch with irq's
-> > enabled and call trace_hardirqs_on(), which goes EEEK!
-> 
-> I'd assumed lockdep was less stupid than that ;) This?  Seems a bit 
-> overdone..
+The BIOS seems to handle USB keyboards during BIOS init,
+just like it 'emulates' any hard drive as 0x80 when used with int13.
 
-the problem is not lockdep but that the BIOS enables IRQs behind the 
-back of the kernel. Lockdep needs to be taught about that - if this 
-happens unconditionally then i'd suggest to insert an unconditional 
-trace_hardirqs_on() call to after the local_irq_save() that we do prior 
-calling the BIOS. (that will be a NOP if lockdep is not enabled)
+I'd be interested in how USB keyboard only systems handle this - I think 
+the newer SPARCs on the market fall into this category.
 
-	Ingo
+
+	-`J'
+-- 

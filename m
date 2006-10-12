@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWJLWe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWJLWhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWJLWe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWJLWe4
+	id S1751228AbWJLWhi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWJLWhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:34:56 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:43932 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751221AbWJLWe4 (ORCPT
+	Thu, 12 Oct 2006 18:37:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751228AbWJLWhh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:34:56 -0400
-Message-ID: <452EC309.4050704@us.ibm.com>
-Date: Thu, 12 Oct 2006 15:34:49 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Eric Sandeen <sandeen@sandeen.net>
-CC: Eric Sandeen <esandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Jan Kara <jack@suse.cz>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061009225036.GC26728@redhat.com>	<20061010141145.GM23622@atrey.karlin.mff.cuni.cz>	<452C18A6.3070607@redhat.com>	<1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>	<452C4C47.2000107@sandeen.net>	<20061011103325.GC6865@atrey.karlin.mff.cuni.cz>	<452CF523.5090708@sandeen.net>	<20061011142205.GB24508@atrey.karlin.mff.cuni.cz>	<1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com>	<452DAA26.6080200@redhat.com>	<20061012122820.GK9495@atrey.karlin.mff.cuni.cz> <20061012094036.e1a3f9f1.akpm@osdl.org> <452EA06F.4060701@redhat.com> <452EB9C5.4000404@us.ibm.com> <452EBA55.8000209@sandeen.net>
-In-Reply-To: <452EBA55.8000209@sandeen.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 12 Oct 2006 18:37:37 -0400
+Date: Thu, 12 Oct 2006 15:37:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] call truncate_inode_pages in the DIO fallback to
+ buffered I/O path
+Message-Id: <20061012153724.9805f458.akpm@osdl.org>
+In-Reply-To: <x491wpdb3co.fsf@segfault.boston.devel.redhat.com>
+References: <x49zmcc6mhh.fsf@segfault.boston.devel.redhat.com>
+	<20061004102522.d58c00ef.akpm@osdl.org>
+	<4523F486.1000604@oracle.com>
+	<x49mz8c6k83.fsf@segfault.boston.devel.redhat.com>
+	<20061004111603.20cdaa35.akpm@osdl.org>
+	<45240034.2040704@oracle.com>
+	<20061004121645.fd2765e4.akpm@osdl.org>
+	<x49ejtn7qfy.fsf@segfault.boston.devel.redhat.com>
+	<20061004165504.c1dd3dd3.akpm@osdl.org>
+	<x49ac4a5zkw.fsf@segfault.boston.devel.redhat.com>
+	<20061006131148.9c6b88ab.akpm@osdl.org>
+	<m3odsi4x3a.fsf@redhat.com>
+	<20061011113720.463e331c.akpm@osdl.org>
+	<x491wpdb3co.fsf@segfault.boston.devel.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen wrote:
-> Badari Pulavarty wrote:
->
->   
->> This is exactly  the solution I proposed earlier (to check 
->> buffer_mapped() before calling submit_bh()).
->> But at that time, Jan pointed out that the whole handling is wrong.
->>
->> But if this is the only case we need to handle, I am okay with this band 
->> aid :)
->>     
->
-> Doh!
->
-> And we come full circle... ok let me go reread that thread, it got long
-> enough I had to swap out... :)
+On Thu, 12 Oct 2006 18:01:43 -0400
+Jeff Moyer <jmoyer@redhat.com> wrote:
 
-Don't bother. Lets see if this is the only case that needs fixing and 
-move forward..
+> This passes my tests and the Oracle tests that triggered the problem in the
+> first place.  Thanks!
+> 
+> Acked-by: Jeff Moyer <jmoyer@redhat.com>
 
-Thanks,
-Badari
+OK, thanks for testing.
 
+We'll have added at least one bug.  We always do in there :(
 
+I'll do some fsx-linux-with-O_DIRECT testing..

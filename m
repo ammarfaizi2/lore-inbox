@@ -1,91 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWJLUXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWJLUZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWJLUXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 16:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWJLUXd
+	id S1750889AbWJLUZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 16:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWJLUZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 16:23:33 -0400
-Received: from alnrmhc13.comcast.net ([206.18.177.53]:15577 "EHLO
-	alnrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1750729AbWJLUXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 16:23:32 -0400
-Message-ID: <452EA441.6070703@comcast.net>
-Date: Thu, 12 Oct 2006 16:23:29 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Thu, 12 Oct 2006 16:25:59 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:50122 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750856AbWJLUZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 16:25:58 -0400
+Message-ID: <474c7c2f0610121325j23320d36i20c71ccaa04645d9@mail.gmail.com>
+Date: Thu, 12 Oct 2006 16:25:57 -0400
+From: "=?UTF-8?Q?G=C3=BCnther_Starnberger?=" <gst@sysfrog.org>
+To: jplatte@naasa.net
+Subject: Re: Userspace process may be able to DoS kernel
+Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <200610122211.16202.lists@naasa.net>
 MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can context switches be faster?
-References: <452E62F8.5010402@comcast.net> <452E9E47.8070306@nortel.com>
-In-Reply-To: <452E9E47.8070306@nortel.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com>
+	 <200610121341.56325.lists@naasa.net>
+	 <84144f020610120457g221b8736vebf2f0a634480c05@mail.gmail.com>
+	 <200610122211.16202.lists@naasa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 10/12/06, Joerg Platte <lists@naasa.net> wrote:
 
+> Not that easy, since it takes a few hours to be able to trigger the bug. I
+> tried to record the system calls with strace but without success. Skype did
+> not cause any lockups and then crashes... Maybe the timing is too different
+> with strace.
 
+According to [1] there are several anti-debugging techniques used in
+Skype. I.e. if it notices some sort of debugger it will crash (on
+purpose).
 
-Chris Friesen wrote:
-> John Richard Moser wrote:
-> 
->> Linux ported onto the L4-Iguana microkernel is reported to be faster
->> than the monolith[1]; it's not like microkernels are faster, but the
->> L4-Iguana apparently just has super awesome context switching code:
->>
->>    Wombat's context-switching overheads as measured by lmbench on an
->>    XScale processor are up to thirty times less than those of native
->>    Linux, thanks to Wombat profiting from the implementation of fast
->>    context switches in L4-embedded.
-> 
-> The Xscale is a fairly special beast, and it's context-switch times are
-> pretty slow by default.
-> 
-> Here are some context-switch times from lmbench on a modified 2.6.10
-> kernel. Times are in microseconds:
-> 
-> cpu        clock speed    context switch   
-> pentium-M    1.8GHz        0.890
-> dual-Xeon    2GHz        7.430
-> Xscale        700MHz        108.2
-> dual 970FX    1.8GHz        5.850
-> ppc 7447    1GHz        1.720
-> 
-> Reducing the Xscale time by a factor of 30 would basically bring it into
-> line with the other uniprocessor machines.
-> 
+bye,
+/gst
 
-That's a load more descriptive :D
-
-0.890 uS, 0.556uS/cycle, that's barely 2 cycles you know.  (Pentium M)
-PPC performs similarly, 1 cycle should be about 1uS.
-
-> Chris
-> 
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRS6kPws1xW0HCTEFAQJnAhAAloJ1KvztR+CiKSvBEvEHUcoUm9HwxpaE
-WrTKrBxEV36VXgHVzJsqvs6YLzyLhyLWv2YFKlPS6iYyKvwO3v8P54fVPLqZAcAn
-7VSAml9wSRt1woh1MxwApDlQO/snf5rAV/+1cuCGXKmpqLAHCGjrMJgn5TEbknCG
-9H4Ie5Db6541lO7Zw5rouas03wLVPUU831UCTKJi8ngyx30FNDeaDds9EeYA0Ox/
-5gEOVavkHRV5AJ6GhGtmgEpTdB69oB6nwv07UtuYN7QKC2tJ0E7tomuLeh4mbMM9
-N5rV9Q+KzL955HINqQPe5+pF31+W4fQ4zKBzyyz0AQ6BHkyu+v9B371HuIo5RCeV
-adC5p17PM5Ms819bfB0Nl6WjRhje5ybTDHyKxiNEHQL7T+LCkCjJvDvkeIr33aS2
-vcAlFQvk8RYz5bZn1dsJpXfYc0GPH9M93Zf3dOr8syPmzOCFlD3MgWJvcTGlg2fT
-Lxg5e8MBfjwyZ1XYBouFaY4GlytaebCXT5jXlutZDYQfIIIsHhQ2BV3xCcr2jP5K
-Q1UmOld8GB+HeHmfvge3/5gXWIQxZx/vgNEm+XPUQk7j0Ei9E4yy/MVdXdx4GKDv
-uNbclRT3xOlYhsbabGsxunCRok6Ph4eTQPmT3YLO+rpxLq1vyGDW3+kEca6+yCIp
-WEBb7mlPRaw=
-=pvD8
------END PGP SIGNATURE-----
+[1] www.blackhat.com/presentations/bh-europe-06/bh-eu-06-biondi/bh-eu-06-biondi-up.pdf

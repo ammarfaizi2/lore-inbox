@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWJLSZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWJLS3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWJLSZW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWJLSZW
+	id S1750811AbWJLS3o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWJLS3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:25:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62170 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750716AbWJLSZT (ORCPT
+	Thu, 12 Oct 2006 14:29:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55260 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750806AbWJLS3n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:25:19 -0400
-Date: Thu, 12 Oct 2006 11:24:49 -0700
+	Thu, 12 Oct 2006 14:29:43 -0400
+Date: Thu, 12 Oct 2006 11:29:38 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Jeff Garzik <jeff@garzik.org>, dbrownell@users.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SPI: improve sysfs compiler complaint handling
-Message-Id: <20061012112449.e9bb7e12.akpm@osdl.org>
-In-Reply-To: <200610121108.59727.david-b@pacbell.net>
-References: <20061012014920.GA13000@havoc.gtf.org>
-	<200610121108.59727.david-b@pacbell.net>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1 - locks when using "dd bs=1M" from card reader
+Message-Id: <20061012112938.97ef924c.akpm@osdl.org>
+In-Reply-To: <452E327C.9020707@aitel.hist.no>
+References: <20061010000928.9d2d519a.akpm@osdl.org>
+	<452E327C.9020707@aitel.hist.no>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,25 +25,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 11:08:59 -0700
-David Brownell <david-b@pacbell.net> wrote:
+On Thu, 12 Oct 2006 14:18:04 +0200
+Helge Hafting <helge.hafting@aitel.hist.no> wrote:
 
-> On Wednesday 11 October 2006 6:49 pm, Jeff Garzik wrote:
+> I found an easy way to hang the kernel when copying a SD-card:
 > 
-> > The compiler complains, even with the "(void)".
+> dd if=/dev/sdc of=file bs=1048576
 > 
-> > -	(void) device_for_each_child(master->cdev.dev, NULL, __unregister);
+> I.e. copy the entire 256MB card in 1MB chunks.  I got about
+> 160MB before the kernel hung.  Not even sysrq+B worked, I needed
+> the reset button.  The pc has a total of 512MB memory if that matters.
 > 
-> Sure seems like a compiler bug to me.
+> Using bs=4096 instead let me copy the entire card with no problems,
+> but that seems to progress slower.
+> 
+> The above 'dd' command hangs my office pc every time. So I can repeat
+> it for debugging purposes. 
+> 
 
-Seems like a kernel bug to me.  Look at device_del() and weep.  It calls
-eighty eight things which can fail, some of which randomly return void but
-shouldn't, then drops the overall result on the floor.
+What device driver is providing /dev/sdc?
 
-So if something failed and you come up and reinsert the device or driver
-two days later the kernel collapses in a heap and you don't have a clue
-why.
-
-You're just a victim of all this.
-
-Who wrote all this stuff, and what were they thinking?
+Did any previous kernels work correctly?  If so, which?

@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWJLPpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbWJLPpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWJLPpI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbWJLPpI
+	id S932639AbWJLPpA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWJLPpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:45:08 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:22302 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932637AbWJLPpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:45:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=F5kEardhS8wwdR4AT9Cr6XvAWZNOQdJzL4m4MBgJsBYWssTjEl1LQHWZr+ndSKDJa4epbl9ARLpMatAL9lATXx/AHkqpYWUoq1UmAm0fS7akNBYXq7nM4VmMH8nC0SpjNkJdABeEJVGZA4APwFmKNFSjheYny/vGnqG7vT1ucQ0=
-Date: Thu, 12 Oct 2006 17:45:05 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.19-rc1] radeonfb: check return value of sysfs_create_bin_file
-Message-ID: <20061012154505.GA6014@dreamland.darkstar.lan>
-References: <20061011235328.GA13264@dreamland.darkstar.lan> <1160611646.4792.24.camel@localhost.localdomain>
+	Thu, 12 Oct 2006 11:45:00 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.192.83]:21635 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932644AbWJLPo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 11:44:59 -0400
+Message-ID: <452E62F8.5010402@comcast.net>
+Date: Thu, 12 Oct 2006 11:44:56 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160611646.4792.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: Can context switches be faster?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Thu, Oct 12, 2006 at 10:07:26AM +1000, Benjamin Herrenschmidt ha scritto: 
-> On Thu, 2006-10-12 at 01:53 +0200, Luca Tettamanti wrote:
-> > sysfs_create_bin_file() is marked as warn_unused_result but we don't
-> > actually check the return value.
-> > Error is not fatal, the driver can operate fine without the files so
-> > just print a notice on failure.
-> 
-> I find this whole business of must check return value for sysfs files to
-> be gratuitous bloat. There are many cases (like this one) where we don't
-> really care and a printk will just increase the kernel size for no good
-> reason.
-> 
-> Maybe we can have a macro we can use to silence the warning when we
-> don't care about the result ? Can gcc do that ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ugly macro:
+Can context switches be made faster?  This is a simple question, mainly
+because I don't really understand what happens during a context switch
+that the kernel has control over (besides storing registers).
 
-#define UNCHECKED(func) do { if (func) {} } while(0)
+Linux ported onto the L4-Iguana microkernel is reported to be faster
+than the monolith[1]; it's not like microkernels are faster, but the
+L4-Iguana apparently just has super awesome context switching code:
 
-maybe it's better to have something like this:
+   Wombat's context-switching overheads as measured by lmbench on an
+   XScale processor are up to thirty times less than those of native
+   Linux, thanks to Wombat profiting from the implementation of fast
+   context switches in L4-embedded.
 
-int __sysfs_create_bin_file(...);
-inline int sysfs_create_bin_file(...) __attribute__((warn_unused_result));
+The first question that comes into my mind is, obviously, is this some
+special "fast context switch" code for only embedded systems; or is it
+possible to work this on normal systems?
 
-inline int sysfs_create_bin_file(...) {
-        return __sysfs_create_bin_file(...);
-}
+The second is, if it IS possible to get faster context switches in
+general use, can the L4 context switch methods be used in Linux?  I
+believe L4 is BSD licensed-- at least the files in their CVS repo that I
+looked at have "BSD" stamped on them.  Maybe some of the code can be
+examined, adopted, adapted, etc.
 
-i.e. both checked and uncheck version of the same function.
+If it's not possible to speed up context switches, the classical
+question would probably be.. why not?  ;)  No use knowing a thing and
+not understanding it; you get situations like this right here... :)
 
-Luca
--- 
-Un apostolo vedendo Gesu` camminare sulle acque:
-- Cazzo se e` buono 'sto fumo!!!
+[1]http://l4hq.org/
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRS5i9ws1xW0HCTEFAQKHtw/+PtjvtkfynX0uItgpa2zocbo8/hadu4kp
+dGmxI9eBouUc0T5GDjX7hHYolaIFswuNWyrnELU6uE4WeQ6l5BFnobc1FCiHLVBE
+7cZlr9FaFw3r7Ohb4AJBTLKXRYP3h107SnccxJLcqVqspwmzs6lZHaXCU9vrxpCW
+Xaam8bSBUrqJ3tIPalM20Nl4SrVF0clMYlKRT2LdD3/TFdN2e60m9sczyGEnLVT/
+Co+/JpQ5qxk7DqjXJHr0N5a0CmgjlTZQHEjtvfcPlrKa5CprLECrYx2aJHgs+nIz
+CXf9L2z3oiE4yWADK5+zXlJWcF7+pvspIsI9rQDdHoO2xFUzguiVup9XJOLbytpV
+yN0dVrOWaAXQMBtrYCInOtA6ynpAZ+hTv2EBSHRaOC+mnxcDTBSqJrj979RrKGlj
+Mz282LaSRDL4XPq9d8LwrnuPHIoqGGfj0wUKwmxC19vDfGOk3Y1I/frvcRgnjlb1
+TwG/QPgiGcXXVTgEDeogqgq+DRPmuoxxXo+OPMgA4441BzgqkCzxmjLA0uQL15dd
+CrAO8NF1fOzvWCvAQO8DhSaGGOikeur4BdkwnF6/eTQYA7QGewaCVdY0u6Q2dhAF
+wrGho4pGaEh/ev59/KsHvtSD88SfTUsLigTgGrwiRTufUm4XVbr5AzldTPUMUkUU
++jRWrqbwkLM=
+=IDvt
+-----END PGP SIGNATURE-----

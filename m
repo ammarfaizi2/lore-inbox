@@ -1,272 +1,365 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWJLHoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWJLHqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422795AbWJLHoA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWJLHnv
+	id S1422802AbWJLHqA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWJLHp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:43:51 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:12718 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422795AbWJLHnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:43:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:references:user-agent:date:from:to:cc:subject:content-disposition:message-id;
-        b=KFULtj+4xnh+z1BLHhQa/GQEVi1DQ2Fr8TL5XqTFLRR9xukyjgnPukdsEa6QCCmpDVvVKI9SGZjl06U3NQ+sVsHDEXzi0zqFGiyiIuhcb2bVQsce8su/kxICp+zH45cF99WaHONTbUigWES7bUCtHzVOFcHNeNVlqXZg/DvmqaQ=
-References: <20061012074305.047696736@gmail.com>>
-User-Agent: quilt/0.45-1
-Date: Thu, 12 Oct 2006 16:43:10 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Jens Axboe <axboe@suse.de>
-Subject: [patch 5/7] fault-injection capability for disk IO
-Content-Disposition: inline; filename=fail_make_request.patch
-Message-ID: <452df232.7451e919.6dde.ffff9127@mx.google.com>
+	Thu, 12 Oct 2006 03:45:57 -0400
+Received: from nic.NetDirect.CA ([216.16.235.2]:50621 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1422802AbWJLHpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:45:06 -0400
+X-Originating-Ip: 72.57.81.197
+Date: Thu, 12 Oct 2006 03:44:05 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Redefine instances of sema_init() to use standard form.
+Message-ID: <Pine.LNX.4.64.0610120330540.5013@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch provides fault-injection capability for disk IO.
+Since there seems to be no compelling reason *not* to do this, rewrite
+all implementations of sema_init() in all instances of semaphore.h to
+use the __SEMAPHORE_INITIALIZER macro.  (And, while we're there,
+rename a couple instances of __SEMAPHORE_INIT just to be consistent
+with everyone else.)
 
-Boot option:
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+---
 
-fail_make_request=<probability>,<interval>,<space>,<times>
+ asm-alpha/semaphore.h   |    9 +--------
+ asm-arm/semaphore.h     |    8 +++-----
+ asm-arm26/semaphore.h   |    8 +++-----
+ asm-avr32/semaphore.h   |    4 +---
+ asm-i386/semaphore.h    |   10 +---------
+ asm-ia64/semaphore.h    |    2 +-
+ asm-m32r/semaphore.h    |   10 +---------
+ asm-mips/semaphore.h    |    3 +--
+ asm-powerpc/semaphore.h |    3 +--
+ asm-s390/semaphore.h    |    3 +--
+ asm-sh/semaphore.h      |   10 +---------
+ asm-sh64/semaphore.h    |   10 +---------
+ asm-sparc/semaphore.h   |    4 +---
+ asm-sparc64/semaphore.h |    3 +--
+ asm-x86_64/semaphore.h  |   10 +---------
+ asm-xtensa/semaphore.h  |    4 +---
+ 16 files changed, 20 insertions(+), 81 deletions(-)
 
-	<interval> -- specifies the interval of failures.
+diff --git a/include/asm-alpha/semaphore.h b/include/asm-alpha/semaphore.h
+index 1a6295f..8c3c6dd 100644
+--- a/include/asm-alpha/semaphore.h
++++ b/include/asm-alpha/semaphore.h
+@@ -34,14 +34,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
 
-	<probability> -- specifies how often it should fail in percent.
-
-	<space> -- specifies the size of free space where disk IO can be issued
-		   safely in bytes.
-
-	<times> -- specifies how many times failures may happen at most.
-
-Debugfs:
-
-/debug/fail_make_request/interval
-/debug/fail_make_request/probability
-/debug/fail_make_request/specifies
-/debug/fail_make_request/times
-
-Example:
-
-	fail_make_request=10,100,0,-1
-	echo 1 > /sys/blocks/hda/hda1/make-it-fail
-
-generic_make_request() on /dev/hda1 fails once per 10 times.
-
-Cc: Jens Axboe <axboe@suse.de>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-
- block/genhd.c         |   31 +++++++++++++++++++++++++++++++
- block/ll_rw_blk.c     |   43 +++++++++++++++++++++++++++++++++++++++++++
- fs/partitions/check.c |   27 +++++++++++++++++++++++++++
- include/linux/genhd.h |    4 ++++
- lib/Kconfig.debug     |    7 +++++++
- 5 files changed, 112 insertions(+)
-
-Index: work-fault-inject/block/ll_rw_blk.c
-===================================================================
---- work-fault-inject.orig/block/ll_rw_blk.c
-+++ work-fault-inject/block/ll_rw_blk.c
-@@ -28,6 +28,7 @@
- #include <linux/interrupt.h>
- #include <linux/cpu.h>
- #include <linux/blktrace_api.h>
-+#include <linux/fault-inject.h>
- 
- /*
-  * for max sense size
-@@ -3050,6 +3051,45 @@ static void handle_bad_sector(struct bio
- 	set_bit(BIO_EOF, &bio->bi_flags);
+ static inline void sema_init(struct semaphore *sem, int val)
+ {
+-	/*
+-	 * Logically,
+-	 *   *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+-	 * except that gcc produces better initializing by parts yet.
+-	 */
+-
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
  }
- 
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static DEFINE_FAULT_ATTR(fail_make_request);
-+
-+static int __init setup_fail_make_request(char *str)
-+{
-+	should_fail_srandom(jiffies);
-+
-+	return setup_fault_attr(&fail_make_request, str);
-+}
-+__setup("fail_make_request=", setup_fail_make_request);
-+
-+static int should_fail_request(struct bio *bio)
-+{
-+	if ((bio->bi_bdev->bd_disk->flags & GENHD_FL_FAIL) ||
-+	    (bio->bi_bdev->bd_part && bio->bi_bdev->bd_part->make_it_fail))
-+		return should_fail(&fail_make_request, bio->bi_size);
-+
-+	return 0;
-+}
-+
-+static int __init fail_make_request_debugfs(void)
-+{
-+	should_fail_srandom(jiffies);
-+
-+	return init_fault_attr_entries(&fail_make_request, "fail_make_request");
-+}
-+
-+late_initcall(fail_make_request_debugfs);
-+
-+#else /* CONFIG_FAIL_MAKE_REQUEST */
-+
-+static inline int should_fail_request(struct bio *bio)
-+{
-+	return 0;
-+}
-+
-+#endif /* CONFIG_FAIL_MAKE_REQUEST */
-+
- /**
-  * generic_make_request: hand a buffer to its device driver for I/O
-  * @bio:  The bio describing the location in memory and on the device.
-@@ -3134,6 +3174,9 @@ end_io:
- 		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
- 			goto end_io;
- 
-+		if (should_fail_request(bio))
-+			goto end_io;
-+
- 		/*
- 		 * If this device has partitions, remap block n
- 		 * of partition p to block n+start(p) of the disk.
-Index: work-fault-inject/lib/Kconfig.debug
-===================================================================
---- work-fault-inject.orig/lib/Kconfig.debug
-+++ work-fault-inject/lib/Kconfig.debug
-@@ -487,6 +487,13 @@ config FAIL_PAGE_ALLOC
- 	help
- 	  This option provides fault-injection capabilitiy for alloc_pages().
- 
-+config FAIL_MAKE_REQUEST
-+	bool "fault-injection capabilitiy for disk IO"
-+	depends on DEBUG_KERNEL
-+	select FAULT_INJECTION 
-+	help
-+	  This option provides fault-injection capabilitiy to disk IO.
-+
- config FAULT_INJECTION_DEBUG_FS
- 	bool "debugfs entries for fault-injection capabilities"
- 	depends on FAULT_INJECTION && SYSFS
-Index: work-fault-inject/block/genhd.c
-===================================================================
---- work-fault-inject.orig/block/genhd.c
-+++ work-fault-inject/block/genhd.c
-@@ -417,6 +417,34 @@ static struct disk_attribute disk_attr_s
- 	.show	= disk_stats_read
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-arm/semaphore.h b/include/asm-arm/semaphore.h
+index d5dc624..ae1044b 100644
+--- a/include/asm-arm/semaphore.h
++++ b/include/asm-arm/semaphore.h
+@@ -18,23 +18,21 @@ struct semaphore {
+ 	wait_queue_head_t wait;
  };
- 
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static ssize_t disk_fail_store(struct gendisk * disk,
-+			       const char *buf, size_t count)
-+{
-+	int i;
-+
-+	if (count > 0 && sscanf(buf, "%d", &i) > 0) {
-+		if (i == 0)
-+			disk->flags &= ~GENHD_FL_FAIL;
-+		else
-+			disk->flags |= GENHD_FL_FAIL;
-+	}
-+
-+	return count;
-+}
-+static ssize_t disk_fail_read(struct gendisk * disk, char *page)
-+{
-+	return sprintf(page, "%d\n", disk->flags & GENHD_FL_FAIL ? 1 : 0);
-+}
-+static struct disk_attribute disk_attr_fail = {
-+	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
-+	.store	= disk_fail_store,
-+	.show	= disk_fail_read
-+};
-+
-+#endif
-+
- static struct attribute * default_attrs[] = {
- 	&disk_attr_uevent.attr,
- 	&disk_attr_dev.attr,
-@@ -424,6 +452,9 @@ static struct attribute * default_attrs[
- 	&disk_attr_removable.attr,
- 	&disk_attr_size.attr,
- 	&disk_attr_stat.attr,
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	&disk_attr_fail.attr,
-+#endif
- 	NULL,
+
+-#define __SEMAPHORE_INIT(name, cnt)				\
++#define __SEMAPHORE_INITIALIZER(name, cnt)			\
+ {								\
+ 	.count	= ATOMIC_INIT(cnt),				\
+ 	.wait	= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
+ }
+
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\
+-	struct semaphore name = __SEMAPHORE_INIT(name,count)
++	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+
+ #define DECLARE_MUTEX(name)		__DECLARE_SEMAPHORE_GENERIC(name,1)
+ #define DECLARE_MUTEX_LOCKED(name)	__DECLARE_SEMAPHORE_GENERIC(name,0)
+
+ static inline void sema_init(struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX(struct semaphore *sem)
+diff --git a/include/asm-arm26/semaphore.h b/include/asm-arm26/semaphore.h
+index 1fda543..ef51941 100644
+--- a/include/asm-arm26/semaphore.h
++++ b/include/asm-arm26/semaphore.h
+@@ -18,7 +18,7 @@ struct semaphore {
+ 	wait_queue_head_t wait;
  };
- 
-Index: work-fault-inject/include/linux/genhd.h
-===================================================================
---- work-fault-inject.orig/include/linux/genhd.h
-+++ work-fault-inject/include/linux/genhd.h
-@@ -83,6 +83,9 @@ struct hd_struct {
- 	struct kobject *holder_dir;
- 	unsigned ios[2], sectors[2];	/* READs and WRITEs */
- 	int policy, partno;
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	int make_it_fail;
-+#endif
- };
- 
- #define GENHD_FL_REMOVABLE			1
-@@ -90,6 +93,7 @@ struct hd_struct {
- #define GENHD_FL_CD				8
- #define GENHD_FL_UP				16
- #define GENHD_FL_SUPPRESS_PARTITION_INFO	32
-+#define GENHD_FL_FAIL				64
- 
- struct disk_stats {
- 	unsigned long sectors[2];	/* READs and WRITEs */
-Index: work-fault-inject/fs/partitions/check.c
-===================================================================
---- work-fault-inject.orig/fs/partitions/check.c
-+++ work-fault-inject/fs/partitions/check.c
-@@ -276,12 +276,39 @@ static struct part_attribute part_attr_s
- 	.show	= part_stat_read
- };
- 
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static ssize_t part_fail_store(struct hd_struct * p,
-+			       const char *buf, size_t count)
-+{
-+	int i;
-+
-+	if (count > 0 && sscanf(buf, "%d", &i) > 0)
-+		p->make_it_fail = (i == 0) ? 0 : 1;
-+
-+	return count;
-+}
-+static ssize_t part_fail_read(struct hd_struct * p, char *page)
-+{
-+	return sprintf(page, "%d\n", p->make_it_fail);
-+}
-+static struct part_attribute part_attr_fail = {
-+	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
-+	.store	= part_fail_store,
-+	.show	= part_fail_read
-+};
-+
-+#endif
-+
- static struct attribute * default_attrs[] = {
- 	&part_attr_uevent.attr,
- 	&part_attr_dev.attr,
- 	&part_attr_start.attr,
- 	&part_attr_size.attr,
- 	&part_attr_stat.attr,
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	&part_attr_fail.attr,
-+#endif
- 	NULL,
- };
- 
+
+-#define __SEMAPHORE_INIT(name, n)					\
++#define __SEMAPHORE_INITIALIZER(name, n)				\
+ {									\
+ 	.count		= ATOMIC_INIT(n),				\
+ 	.sleepers	= 0,						\
+@@ -26,16 +26,14 @@ #define __SEMAPHORE_INIT(name, n)					\
+ }
+
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\
+-	struct semaphore name = __SEMAPHORE_INIT(name,count)
++	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+
+ #define DECLARE_MUTEX(name)		__DECLARE_SEMAPHORE_GENERIC(name,1)
+ #define DECLARE_MUTEX_LOCKED(name)	__DECLARE_SEMAPHORE_GENERIC(name,0)
+
+ static inline void sema_init(struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX(struct semaphore *sem)
+diff --git a/include/asm-avr32/semaphore.h b/include/asm-avr32/semaphore.h
+index ef99ddc..7391408 100644
+--- a/include/asm-avr32/semaphore.h
++++ b/include/asm-avr32/semaphore.h
+@@ -40,9 +40,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-i386/semaphore.h b/include/asm-i386/semaphore.h
+index 4e34a46..0945d0f 100644
+--- a/include/asm-i386/semaphore.h
++++ b/include/asm-i386/semaphore.h
+@@ -63,15 +63,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-ia64/semaphore.h b/include/asm-ia64/semaphore.h
+index f483eeb..4e8eda1 100644
+--- a/include/asm-ia64/semaphore.h
++++ b/include/asm-ia64/semaphore.h
+@@ -24,7 +24,7 @@ #define __SEMAPHORE_INITIALIZER(name, n)
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+
+-#define __DECLARE_SEMAPHORE_GENERIC(name,count)					\
++#define __DECLARE_SEMAPHORE_GENERIC(name,count)				\
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name, count)
+
+ #define DECLARE_MUTEX(name)		__DECLARE_SEMAPHORE_GENERIC(name, 1)
+diff --git a/include/asm-m32r/semaphore.h b/include/asm-m32r/semaphore.h
+index 41e45d7..d114364 100644
+--- a/include/asm-m32r/semaphore.h
++++ b/include/asm-m32r/semaphore.h
+@@ -39,15 +39,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesnt. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-mips/semaphore.h b/include/asm-mips/semaphore.h
+index 3d6aa7c..cba043a 100644
+--- a/include/asm-mips/semaphore.h
++++ b/include/asm-mips/semaphore.h
+@@ -53,8 +53,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-powerpc/semaphore.h b/include/asm-powerpc/semaphore.h
+index 57369d2..ca3ea7d 100644
+--- a/include/asm-powerpc/semaphore.h
++++ b/include/asm-powerpc/semaphore.h
+@@ -39,8 +39,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-s390/semaphore.h b/include/asm-s390/semaphore.h
+index dbce058..ad8c949 100644
+--- a/include/asm-s390/semaphore.h
++++ b/include/asm-s390/semaphore.h
+@@ -37,8 +37,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sh/semaphore.h b/include/asm-sh/semaphore.h
+index 489f784..209103d 100644
+--- a/include/asm-sh/semaphore.h
++++ b/include/asm-sh/semaphore.h
+@@ -41,15 +41,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sh64/semaphore.h b/include/asm-sh64/semaphore.h
+index 4695264..b2f3f57 100644
+--- a/include/asm-sh64/semaphore.h
++++ b/include/asm-sh64/semaphore.h
+@@ -48,15 +48,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesnt. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sparc/semaphore.h b/include/asm-sparc/semaphore.h
+index f74ba31..79d4121 100644
+--- a/include/asm-sparc/semaphore.h
++++ b/include/asm-sparc/semaphore.h
+@@ -30,9 +30,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic24_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-sparc64/semaphore.h b/include/asm-sparc64/semaphore.h
+index 093dcc6..8a7c201 100644
+--- a/include/asm-sparc64/semaphore.h
++++ b/include/asm-sparc64/semaphore.h
+@@ -30,8 +30,7 @@ #define DECLARE_MUTEX_LOCKED(name)	__DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-x86_64/semaphore.h b/include/asm-x86_64/semaphore.h
+index 1194888..504a3ac 100644
+--- a/include/asm-x86_64/semaphore.h
++++ b/include/asm-x86_64/semaphore.h
+@@ -64,15 +64,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-/*
+- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+- *
+- * i'd rather use the more flexible initialization above, but sadly
+- * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
+- */
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+diff --git a/include/asm-xtensa/semaphore.h b/include/asm-xtensa/semaphore.h
+index f10c348..017d892 100644
+--- a/include/asm-xtensa/semaphore.h
++++ b/include/asm-xtensa/semaphore.h
+@@ -37,9 +37,7 @@ #define DECLARE_MUTEX_LOCKED(name) __DEC
+
+ static inline void sema_init (struct semaphore *sem, int val)
+ {
+-	atomic_set(&sem->count, val);
+-	sem->sleepers = 0;
+-	init_waitqueue_head(&sem->wait);
++	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+
+ static inline void init_MUTEX (struct semaphore *sem)
+
 
 --
+
+  while i digest all of steven's observations, i figure i'd get at
+least this much into the pipeline.  i'll take my victories where i can
+get them.
+
+rday

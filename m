@@ -1,32 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWJLPce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWJLPbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWJLPce (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWJLPce
+	id S932626AbWJLPbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWJLPbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:32:34 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:10763 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S932120AbWJLPcd (ORCPT
+	Thu, 12 Oct 2006 11:31:23 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:58835 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932626AbWJLPbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:32:33 -0400
-Date: Thu, 12 Oct 2006 17:32:43 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: flx@msu.ru, Online Journaled File System <ojfs.discuss@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-Message-ID: <20061012153243.GH6515@kernel.dk>
-References: <20061012100605.87420.qmail@web58114.mail.re3.yahoo.com> <20061012140030.GA13028@alias.nmd.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061012140030.GA13028@alias.nmd.msu.ru>
+	Thu, 12 Oct 2006 11:31:22 -0400
+Message-ID: <452E5FD0.8060309@cfl.rr.com>
+Date: Thu, 12 Oct 2006 11:31:28 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Alasdair G Kergon <agk@redhat.com>, Phillip Susi <psusi@cfl.rr.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Heinz Mauelshagen <mauelshagen@redhat.com>
+Subject: Re: dm stripe: Fix bounds
+References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com> <20061012135945.GV17654@agk.surrey.redhat.com>
+In-Reply-To: <20061012135945.GV17654@agk.surrey.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Oct 2006 15:31:30.0155 (UTC) FILETIME=[7D5B1BB0:01C6EE13]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14746.003
+X-TM-AS-Result: No--11.151500-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Define 'handle it correctly'?  The correct thing to do is for dm to 
+accept the values and work properly.  dmraid only passes the parameters 
+to dm from the on disk data structure created by the bios.
 
-guys, please stop feeding the troll. enough already.
-
-
--- 
-Jens Axboe
+Alasdair G Kergon wrote:
+> On Thu, Oct 12, 2006 at 12:01:21AM -0400, Phillip Susi wrote:
+>> now dmraid fails to configure the dm 
+>> table because this patch rejects it.
+>  
+>> I believe the correct thing to do is to special case the last stripe in 
+>> 0-31    64-67
+>> 32-63   68-71
+>  
+> AFAIK current versions of dmraid handle this correctly - Heinz?
+> 
+> Alasdair
 

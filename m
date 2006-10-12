@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWJLS3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWJLS3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWJLS3o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWJLS3o
+	id S1750794AbWJLS3X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWJLS3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:29:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55260 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750806AbWJLS3n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:29:43 -0400
-Date: Thu, 12 Oct 2006 11:29:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1 - locks when using "dd bs=1M" from card reader
-Message-Id: <20061012112938.97ef924c.akpm@osdl.org>
-In-Reply-To: <452E327C.9020707@aitel.hist.no>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<452E327C.9020707@aitel.hist.no>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 14:29:23 -0400
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:12461 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1750794AbWJLS3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 14:29:22 -0400
+Message-ID: <452E8980.5040504@comcast.net>
+Date: Thu, 12 Oct 2006 14:29:20 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Phillip Susi <psusi@cfl.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Can context switches be faster?
+References: <452E62F8.5010402@comcast.net> <452E876F.1000604@cfl.rr.com>
+In-Reply-To: <452E876F.1000604@cfl.rr.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 14:18:04 +0200
-Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I found an easy way to hang the kernel when copying a SD-card:
+
+
+Phillip Susi wrote:
+> John Richard Moser wrote:
+>> Can context switches be made faster?  This is a simple question, mainly
+>> because I don't really understand what happens during a context switch
+>> that the kernel has control over (besides storing registers).
+>>
 > 
-> dd if=/dev/sdc of=file bs=1048576
-> 
-> I.e. copy the entire 256MB card in 1MB chunks.  I got about
-> 160MB before the kernel hung.  Not even sysrq+B worked, I needed
-> the reset button.  The pc has a total of 512MB memory if that matters.
-> 
-> Using bs=4096 instead let me copy the entire card with no problems,
-> but that seems to progress slower.
-> 
-> The above 'dd' command hangs my office pc every time. So I can repeat
-> it for debugging purposes. 
+> Besides saving the registers, the expensive operation in a context
+> switch involves flushing caches and switching page tables.  This can be
+> avoided if the new and old processes both share the same address space.
 > 
 
-What device driver is providing /dev/sdc?
+i.e. this can be avoided when switching to threads in the same process.
 
-Did any previous kernels work correctly?  If so, which?
+How does a page table switch work?  As I understand there are PTE chains
+which are pretty much linked lists the MMU follows; I can't imagine this
+being a harder problem than replacing the head.  I'd imagine the head
+PTE would be something like a no-access page that's not really mapped to
+anything so exchanging it is pretty much exchanging its "next" pointer?
+
+
+> 
+> 
+
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRS6JfQs1xW0HCTEFAQL9NQ//Qs7SGrlE0fGDj0HFssed/cVDrjR9GUFL
+RzjJFNyB0DmDKLEcIfcYjWnvvyvFX1ggCPYflOcUXo57jz6GCsSBs0p+nXAheZiH
+B301nk4ZKj6B18UOqv3NDY7r5wV0L2x54TM98Ty4CxgvKw5Jglno4fLZQs9Tefmk
+2woLmyJkiDG2xlRijmfEbSXQPo/wNIfYaDrJlvRPgEJiDa1j7cCHP+o2wZEnJCr9
+UMpEooaZ8n8cO5CVP7YiG/sG52GG3cbW9j5FbueQOAjxySNX2X8JVT3wLGHixvB4
+z6BpvnCpgNVoe1LQFDleUjP3Lb0rO9ap3HMlLJ/lbs7LeegLgtUDW2uaa4PXcc9C
+uEiwA1BNEZMIYhSsiek+acojmmGh9zOsI2nfjBmZoj6UJOjSyYz7srZTWKLILVi+
+0hffeQs2FWHQ7sMSRhjM8ITMjZGvK85AnBwdsf2jEIGGOMixq2BAkYu+Ljq5FLOJ
+VKdaqmLq60vzMqLeb7pdWJgDXNvxU5RLvnktkuPBSlftPLwNvGf1GVSEXEKkJ9/Y
+VhTfX9gFKHC59N9qn01KpkhG9cVXfUPU5nDlfYdCrgkf7QX4aTEg6kt9ALg4fDlN
+W2cFr4bfjGLBmqsI9FP/Zxq42N1F9bXIym3HcSmTn/fsoiTQdUcuxUKkdKA7cXiE
+xMyKfw/+y0Q=
+=NEcB
+-----END PGP SIGNATURE-----

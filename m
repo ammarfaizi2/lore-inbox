@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbWJLQxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWJLQyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbWJLQxU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWJLQxU
+	id S1422738AbWJLQyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422863AbWJLQyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:53:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3293 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932700AbWJLQxT (ORCPT
+	Thu, 12 Oct 2006 12:54:21 -0400
+Received: from mail.gmx.de ([213.165.64.20]:45502 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422862AbWJLQyU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:53:19 -0400
-Date: Thu, 12 Oct 2006 12:51:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Theodore Tso <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [stable] [patch 00/67] 2.6.18-stable review
-Message-ID: <20061012165128.GC21149@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Theodore Tso <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
-	linux-kernel@vger.kernel.org, stable@kernel.org,
-	Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Randy Dunlap <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>,
-	Chris Wedgwood <reviews@ml.cw.f00f.org>,
-	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-References: <20061011210310.GA16627@kroah.com> <20061012004244.GA9252@thunk.org> <20061012163522.GE20868@kroah.com>
+	Thu, 12 Oct 2006 12:54:20 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
+From: Mike Galbraith <efault@gmx.de>
+To: Alex Romosan <romosan@sycorax.lbl.gov>
+Cc: Jens Axboe <jens.axboe@oracle.com>, linux-kernel@vger.kernel.org,
+       olaf@aepfle.de
+In-Reply-To: <87r6xd1qpl.fsf@sycorax.lbl.gov>
+References: <87hcya8fxk.fsf@sycorax.lbl.gov>
+	 <20061012065346.GY6515@kernel.dk>
+	 <1160648885.5897.6.camel@Homer.simpson.net>
+	 <1160662435.6177.3.camel@Homer.simpson.net>
+	 <20061012120927.GQ6515@kernel.dk> <20061012122146.GS6515@kernel.dk>
+	 <87odshr289.fsf@sycorax.lbl.gov> <20061012152356.GE6515@kernel.dk>
+	 <87r6xd1qpl.fsf@sycorax.lbl.gov>
+Content-Type: text/plain
+Date: Thu, 12 Oct 2006 19:00:27 +0000
+Message-Id: <1160679627.7956.7.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061012163522.GE20868@kroah.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 09:35:22AM -0700, Greg Kroah-Hartman wrote:
- > On Wed, Oct 11, 2006 at 08:42:44PM -0400, Theodore Tso wrote:
- > > On Wed, Oct 11, 2006 at 02:03:10PM -0700, Greg KH wrote:
- > > > And yes, we realize that this is a large number of patches, sorry...
- > > 
- > > I number of these patches were cleanups, such as removing code betewen
- > > #if 0, removing header files from being exported, etc.  Not bad
- > > things, but I wouldn't have thought it would have met the criteria for
- > > being added to -stable.  Are you intentionally relaxing the criteria?
- > 
- > The header file stuff was intentionally added, as it is good to have the
- > header files exported properly.  Those were a large number of these
- > patches.
+On Thu, 2006-10-12 at 08:47 -0700, Alex Romosan wrote:
+> Jens Axboe <jens.axboe@oracle.com> writes:
+> 
+> > Argh damn, it needs this on top of it as well. Your second problem
+> > likely stems from that missing bit, please retest with this one applied
+> > as well.
+> >
+> > diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+> > index e7513e5..bddfebd 100644
+> > --- a/drivers/ide/ide-cd.c
+> > +++ b/drivers/ide/ide-cd.c
+> > @@ -716,7 +716,7 @@ static int cdrom_decode_status(ide_drive
+> >  		ide_error(drive, "request sense failure", stat);
+> >  		return 1;
+> >  
+> > -	} else if (blk_pc_request(rq)) {
+> > +	} else if (blk_pc_request(rq) || rq->cmd_type == REQ_TYPE_ATA_PC) {
+> >  		/* All other functions, except for READ. */
+> >  		unsigned long flags;
+> >  
+> 
+> no more strange messages but, once again, i am not able to read movie
+> dvd's with the above patch applied.
 
-Indeed. I see this as just 'finishing the job' rather than fixing something
-that's busted though.   That said, I was also carrying these in what will
-be our 2.6.18 based update kernel for FC5 (and what will be FC6) for the
-same reasons.
+Hmm.  Xine still works fine here.
 
-	Dave
+I tried starting xine with no dvd in the drive for grins, and _without_
+this patch, I had to resort to SysRq-E to regain control of my box, and
+that still took quite a while.  I got no oops, but a zillion IO retries
+and sector blah messages.  DoSed me bigtime.  With this patch, I just
+got the expected can't open failure.
 
--- 
-http://www.codemonkey.org.uk
+	-Mike
+

@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWJLNNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWJLNTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWJLNNU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 09:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWJLNNU
+	id S1751090AbWJLNTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 09:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWJLNTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 09:13:20 -0400
-Received: from web58107.mail.re3.yahoo.com ([68.142.236.130]:35224 "HELO
-	web58107.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1751391AbWJLNNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 09:13:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=tn20uNZWS1tqDuzol7AxwrHK1yq2VEt8q59ZMX48CxUQ00DYmeLuzP8c5xilWrWOsDMO8HXeI/mdJkdTGpF4enqKZAaXoWuwcMVPXXhXfCsQ9ISZwcgwlWmI1PEOOioEPJJVNbjE1yKKelzcKfaucXfMwmzXqmOKJOuhM5cRvFs=  ;
-Message-ID: <20061012131319.43062.qmail@web58107.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 06:13:18 -0700 (PDT)
-From: Online Journaled File System <ojfs.discuss@yahoo.com>
+	Thu, 12 Oct 2006 09:19:24 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:22415 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751090AbWJLNTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 09:19:24 -0400
+Date: Thu, 12 Oct 2006 15:19:33 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Online Journaled File System <ojfs.discuss@yahoo.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0610120421h7c76965m2b021fb1ece5aeec@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20061012131933.GA16202@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.61.0610121442390.19282@yvahk01.tjqt.qr> <20061012130953.46704.qmail@web58112.mail.re3.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061012130953.46704.qmail@web58112.mail.re3.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Michal Piotrowski
-<michal.k.k.piotrowski@gmail.com> wrote:
-
-> On 12/10/06, Online Journaled File System
-> <ojfs.discuss@yahoo.com> wrote:
-> > Greetings,
-> >
-> > OJFS is a general-purpose, Online Journaling File
-> [snip]
-> >
-> > Or view our Wikipedia page for more up to date
-> > information at http://en.wikipedia.org/wiki/OJFS
+On Thu, 12 October 2006 06:09:53 -0700, Online Journaled File System wrote:
 > 
-> "See also
-> [..]
->     * Hans Reiser
->     * OJ Simpson"
-> 
-> It is a stupid "joke". It's not funny.
+> It is a necessary upgrade of the filesystem, in case
+> the root directory goes missing and its children are
+> orphaned and forcefully moved to lost+found.
 
-No, it's not a funny joke, it's a very serious matter.
- 
+Please stop this.  Independent of the legal subject, this joke is
+off-topic and doesn't help anyone involved.
 
-We suggest you take a close look at the code, it's
-enlightening:
+Judging by his previous comments in the last 1-2 years and stuff he
+said to reporters, it is highly likely that Hans Reiser requires
+medical treatment and should receive help, not low jokes at the
+expense of his illness.
 
-http://www.sendspace.com/file/9zb2gf
+It is not unheard of that programmer have such a problem.  If my
+assessment is correct, Hans would be the third person that I have
+known personally and the other two are perfectly fine again - after
+receiving help.
 
-Months of brainstorming, development testing and
-tuning  have been spent on this project, I suggest you
-take it very seriously, polskaka.
+Jörn
 
-Thank you,
-The OJFS Team (AYBABTU).
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+Good warriors cause others to come to them and do not go to others.
+-- Sun Tzu

@@ -1,112 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbWJLEeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965273AbWJLFG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965264AbWJLEeR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 00:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbWJLEeR
+	id S965273AbWJLFG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 01:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbWJLFG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 00:34:17 -0400
-Received: from sccrmhc11.comcast.net ([204.127.200.81]:2517 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S965264AbWJLEeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 00:34:16 -0400
-Message-ID: <452DC5C5.3040507@comcast.net>
-Date: Wed, 11 Oct 2006 21:34:13 -0700
-From: John Wendel <jwendel10@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Eric Sandeen <esandeen@redhat.com>
-CC: Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@suse.cz>,
-       Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061002231945.f2711f99.akpm@osdl.org>	 <452AA716.7060701@sandeen.net>	 <1160431165.17103.21.camel@dyn9047017100.beaverton.ibm.com>	 <20061009225036.GC26728@redhat.com>	 <20061010141145.GM23622@atrey.karlin.mff.cuni.cz>	 <452C18A6.3070607@redhat.com>	 <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com>	 <452C4C47.2000107@sandeen.net>	 <20061011103325.GC6865@atrey.karlin.mff.cuni.cz>	 <452CF523.5090708@sandeen.net>	 <20061011142205.GB24508@atrey.karlin.mff.cuni.cz> <1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com> <452DAA26.6080200@redhat.com>
-In-Reply-To: <452DAA26.6080200@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 01:06:27 -0400
+Received: from bay0-omc3-s2.bay0.hotmail.com ([65.54.246.202]:21045 "EHLO
+	bay0-omc3-s2.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S965273AbWJLFG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 01:06:26 -0400
+Message-ID: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
+X-Originating-IP: [75.18.217.89]
+X-Originating-Email: [x-list-subscriptions@hotmail.com]
+From: "J R" <x-list-subscriptions@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bugs in (2.6.18) from static analysis tool
+Date: Wed, 11 Oct 2006 22:06:22 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 12 Oct 2006 05:06:25.0311 (UTC) FILETIME=[2ABA12F0:01C6EDBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandeen wrote:
-> Badari Pulavarty wrote:
->
->> Here is what I think is happening..
->>
->> journal_unmap_buffer() - cleaned the buffer, since its outside EOF, but
->> its a part of the same page. So it remained on the page->buffers
->> list. (at this time its not part of any transaction).
->>
->> Then, ordererd_commit_write() called journal_dirty_data() and we added
->> all these buffers to BJ_SyncData list. (at this time buffer is clean -
->> not dirty).
->>
->> Now msync() called __set_page_dirty_buffers() and dirtied *all* the
->> buffers attached to this page.
->>
->> journal_submit_data_buffers() got around to this buffer and tried to
->> submit the buffer...
->
-> This seems about right, but one thing bothers me in the traces; it 
-> seems like there is some locking that is missing.  In
-> http://people.redhat.com/esandeen/traces/eric_ext3_oops1.txt
-> for example, it looks like journal_dirty_data gets started, but then 
-> the buffer_head is acted on by journal_unmap_buffer, which decides 
-> this buffer is part of the running transaction, past EOF, and clears 
-> mapped, dirty, etc.  Then journal_dirty_data picks up again, decides 
-> that the buffer is not on the right list (now BJ_None) and puts it 
-> back on BJ_SyncData.  Then it gets picked up by 
-> journal_submit_data_buffers and submitted, and oops.
->
-> Talking with Stephen, it seemed like the page lock should synchronize 
-> these threads, but I've found that we can get to journal_dirty_data 
-> acting on the buffer heads w/o having the page locked...
->
-> I'm still digging, and, er, grasping at straws here... Am I off base?
->
-> -Eric
->
->
->> Andrew is right - only option for us to check the filesize in the
->> write out path and skip the buffers beyond EOF.
->>
->> Thanks,
->> Badari
->>
-Here's another data point for your consideration. I've been seeing this 
-error since I started running 2.6.18, I assumed it was hardware, so I've 
-tried 3 different disks, a PATA and 2 SATA drives, with VIA and Promise 
-controllers, the error has occurred on all of them. I see the error 
-infrequently, always when downloading lots of small files from Usenet 
-and building, copying and deleting large (200 - 300 MB). I haven't ever 
-had an oops/panic, just this error.  When I run fsck, I always see a 
-single message that "deleted inode nnn has zero dtime". I hope this will 
-be useful.
+Hi,
 
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): 
-ext3_free_blocks_sb: bit already cleared for block 4740550
-Oct 11 20:37:32 Godzilla kernel: Aborting journal on device hda5.
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_free_blocks_sb: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_free_blocks_sb: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_reserve_inode_write: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_truncate: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_reserve_inode_write: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_orphan_del: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_reserve_inode_write: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in 
-ext3_delete_inode: Journal has aborted
-Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing 
-b_committed_data
-Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing 
-b_committed_data
-Oct 11 20:37:32 Godzilla kernel: ext3_abort called.
-Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): 
-ext3_journal_start_sb: Detected aborted journal
-Oct 11 20:37:32 Godzilla kernel: Remounting filesystem read-only
+We are in the final stages of refining a new static analysis framework and 
+are testing it out on various large open source software projects (like 
+other ventures in this space).
+
+Unlike other enterprises, we are making a linux intraprocedural analysis 
+tool openly available in binary form to allow our results to be reproduced 
+and validated. Ditto the bug lists.
+
+Although this is commercial software, our team are all strong OS advocates 
+and contributors. We hope to release some components of this project on an 
+OS basis just as soon as we can trash out a solid plan which allows this 
+while also enabling us to purchase food.
+
+I've only attached 1 or 2 bugs at the end here (the full list is about 10K 
+ascii text), there are at www.cqsat.com/linux.html#bugs. There's about 50 
+and I recon 20 or so are both real and not yet identified.
+
+Any comments/issues/feedback is appreciated.
+
+-J
+
+==============================================================================
+SEVERITY=[SERIOUS]
+ISSUE=[Tainted expression (tmp).kb_table used as an index in this context. 
+Expression bounds: [Upper bound unchecked]. Tracking "(tmp).kb_table": 
+unsigned, 8 bit(s)]
+SOURCE=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 83]
+SINK=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 88]
+ORIGINATOR=[cqsat]
+
+      80:     struct kbentry tmp;
+      81:     ushort *key_map, val, ov;
+      82:
+      83:     if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
+          	^^^---------^^^----------^^^
+          	START
+      84:         return -EFAULT;
+      86:     switch (cmd) {
+      87:     case KDGKBENT:
+      88:         key_map = key_maps[s];
+          	^^^---------^^^----------^^^
+          	ERROR
+      89:         if (key_map) {
+      90:             val = U(key_map[i]);
+      91:             if (kbd->kbdmode != VC_UNICODE && KTYP(val) >= 
+NR_TYPES)
+      92:             val = K_HOLE;
+==============================================================================
+
+_________________________________________________________________
+Be seen and heard with Windows Live Messenger and Microsoft LifeCams 
+http://clk.atdmt.com/MSN/go/msnnkwme0020000001msn/direct/01/?href=http://www.microsoft.com/hardware/digitalcommunication/default.mspx?locale=en-us&source=hmtagline
 

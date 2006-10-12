@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWJLVDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWJLVFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWJLVDh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 17:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWJLVDh
+	id S1750891AbWJLVFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 17:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWJLVFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 17:03:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63920 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750836AbWJLVDg (ORCPT
+	Thu, 12 Oct 2006 17:05:21 -0400
+Received: from xenotime.net ([66.160.160.81]:54249 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750869AbWJLVFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 17:03:36 -0400
-Date: Thu, 12 Oct 2006 14:03:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>,
-       okuji@enbug.org
-Subject: Re: [patch 2/7] fault-injection capabilities infrastructure
-Message-Id: <20061012140323.613c2b50.akpm@osdl.org>
-In-Reply-To: <452df21c.77a917b6.3845.2dc5@mx.google.com>
-References: <20061012074305.047696736@gmail.com>
-	<452df21c.77a917b6.3845.2dc5@mx.google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 12 Oct 2006 17:05:20 -0400
+Date: Thu, 12 Oct 2006 14:06:44 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Edward Goggin <egoggin@emc.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: looking for explanation of spontaneous reset/reboot on Opteron
+Message-Id: <20061012140644.732227f7.rdunlap@xenotime.net>
+In-Reply-To: <6CCEAEDF4D06984A83F427424F47D6E4013D1446@CORPUSMX40A.corp.emc.com>
+References: <6.2.3.4.0.20061012095229.048db398@pop-server.san.rr.com>
+	<6CCEAEDF4D06984A83F427424F47D6E4013D1446@CORPUSMX40A.corp.emc.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 16:43:07 +0900
-Akinobu Mita <akinobu.mita@gmail.com> wrote:
+On Thu, 12 Oct 2006 13:43:15 -0400 Edward Goggin wrote:
 
-> From: Akinobu Mita <akinobu.mita@gmail.com>
+> I'm looking for information about potential causes for a
+> spontaneous reboot of a dual core Opteron running RHEL 4
+> linux (2.6.9 derivative).  I'm thinking the cause is
+> due to the box taking a triple fault and resetting the
+> BIOS.
 > 
-> This patch provides base functions for implement fault-injection
-> capabilities.
+> I'm also thinking that the triple fault is caused by a
+> kernel stack overflow into an unmapped virtual page
+> frame.  Is this a reasonable explanation?  Are there
+> others?
 > 
-> - Lightweight random simulator is taken from crasher module for SUSE kernel
+> What are reasonable debugging strategies for handling
+> this?  Following the kernel stack overflow hunch, I'm
+> going to try increasing the Opteron stack size from
+> 8K to 16K.  Can this be done by simply changing
+> THREAD_ORDER in include/asm-x86_64/page.h from 1 to 2?
+> 
+> Also, is there any kernel stack overflow detection
+> debugging code anywhere for x86_64 as there is for
+> i386?
 
-heh, another one.
+[Please start a new thread instead of replying to a diff.
+one and changing the subject.]
 
-Please switch over to carta_random32() for now.  Later we'll probably be
-removing carta_random32() and adding random32(), but I can take care of
-that.
+arch/x86_64/Kconfig.debug has these Kernel hacking options:
+[but I'm not talking about 2.6.9; maybe you should/could try
+a newer kernel]
+
+config DEBUG_STACKOVERFLOW
+        bool "Check for stack overflows"
+        depends on DEBUG_KERNEL
+        help
+	  This option will cause messages to be printed if free stack space
+	  drops below a certain limit.
+
+config DEBUG_STACK_USAGE
+        bool "Stack utilization instrumentation"
+        depends on DEBUG_KERNEL
+        help
+	  Enables the display of the minimum amount of free stack which each
+	  task has ever had available in the sysrq-T and sysrq-P debug output.
+
+	  This option will slow down process creation somewhat.
 
 
-> +#define failure_probability(attr)	(attr)->probability
-> +#define failure_interval(attr)		(attr)->interval
-> +#define max_failures(attr)		(attr)->times
-> +#define current_space(attr)		(attr)->space
-> +#define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
-
-Please remove these macros and simply open-code these operations at each
-callsite.
-
+---
+~Randy

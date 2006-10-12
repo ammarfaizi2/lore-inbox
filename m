@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWJLWA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWJLWBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWJLWA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWJLWA6
+	id S1751087AbWJLWBK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWJLWBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:00:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53960 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751162AbWJLWA5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:00:57 -0400
-Date: Thu, 12 Oct 2006 15:00:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/5] oom: don't kill unkillable children or siblings
-Message-Id: <20061012150050.ad6e1c8b.akpm@osdl.org>
-In-Reply-To: <20061012120111.29671.83152.sendpatchset@linux.site>
-References: <20061012120102.29671.31163.sendpatchset@linux.site>
-	<20061012120111.29671.83152.sendpatchset@linux.site>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 18:01:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:10123 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751087AbWJLWBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 18:01:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OYpymGZX6fvKv4XxUh9fi9IQgUM0hNLViTButi+T9L8PQhbcsFoaBTBiFdsKXBBn0OVVETcmjuj0+lPwpmRTntkXn6XsJ5PSpw+sfXBGxsdnSXjjZ7nMwkI7W2JiTCcHtPUG/u/mHaeN2saPPeFAOXjEpY2FE922GwIxLkSizvQ=
+Message-ID: <28bb77d30610121501n4c8e28b6r9c86235f7c7b4e83@mail.gmail.com>
+Date: Thu, 12 Oct 2006 15:01:06 -0700
+From: "Steven Truong" <midair77@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kdump/kexec/crash on vmcore file
+In-Reply-To: <28bb77d30610121456t7f3738c6jf7be44ede5e59b4e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
+	 <28bb77d30610121456t7f3738c6jf7be44ede5e59b4e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 16:09:43 +0200 (CEST)
-Nick Piggin <npiggin@suse.de> wrote:
+I also tried to gdb the vmcore file but I got errors too.
+gdb vmcore.test
+GNU gdb Red Hat Linux (6.3.0.0-1.96rh)
 
-> Abort the kill if any of our threads have OOM_DISABLE set. Having this test
-> here also prevents any OOM_DISABLE child of the "selected" process from being
-> killed.
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-> 
-> Index: linux-2.6/mm/oom_kill.c
-> ===================================================================
-> --- linux-2.6.orig/mm/oom_kill.c
-> +++ linux-2.6/mm/oom_kill.c
-> @@ -312,15 +312,24 @@ static int oom_kill_task(struct task_str
->  	if (mm == NULL)
->  		return 1;
->  
-> +	/*
-> +	 * Don't kill the process if any threads are set to OOM_DISABLE
-> +	 */
-> +	do_each_thread(g, q) {
-> +		if (q->mm == mm && p->oomkilladj == OOM_DISABLE)
-> +			return 1;
-> +	} while_each_thread(g, q);
-> +
->  	__oom_kill_task(p, message);
-> +
->  	/*
->  	 * kill all processes that share the ->mm (i.e. all threads),
->  	 * but are in a different thread group
->  	 */
-> -	do_each_thread(g, q)
-> +	do_each_thread(g, q) {
->  		if (q->mm == mm && q->tgid != p->tgid)
->  			__oom_kill_task(q, message);
-> -	while_each_thread(g, q);
-> +	} while_each_thread(g, q);
->  
->  	return 0;
+This GDB was configured as
+"x86_64-redhat-linux-gnu"..."/scratch/vmcore.test": not in executable
+format: File format not recognized
 
-One wonders whether OOM_DISABLE should be a property of the mm_struct, not
-of the task_struct.
+Could someone here points me to the right directions or links to
+troubleshoot kernel panic?
 
+Thank you very much.

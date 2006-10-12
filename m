@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWJLXyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWJLX6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWJLXyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 19:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWJLXyr
+	id S1751337AbWJLX6d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 19:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWJLX6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 19:54:47 -0400
-Received: from mga01.intel.com ([192.55.52.88]:56388 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1751339AbWJLXyq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 19:54:46 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,301,1157353200"; 
-   d="scan'208"; a="3367086:sNHT17869032"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Zach Brown'" <zach.brown@oracle.com>,
-       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
-       "Lahaise, Benjamin C" <benjamin.c.lahaise@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "'linux-aio'" <linux-aio@kvack.org>
-Subject: [patch] remove redundant kioctx->users ref count
-Date: Thu, 12 Oct 2006 16:54:46 -0700
-Message-ID: <000201c6ee59$cba3fda0$db34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcbuWcuGJWzd6r0TQwq7P0qcNUVr7w==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 12 Oct 2006 19:58:33 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15378 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751337AbWJLX6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 19:58:32 -0400
+Date: Fri, 13 Oct 2006 00:58:21 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Phil Blundell <philb@gnu.org>, Tim Waugh <tim@cyberelk.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-parport@lists.infradead.org
+Subject: Re: [PATCH] fix parport_serial_pci_resume() ignoring return value from pci_enable_device()
+Message-ID: <20061012235820.GC24658@flint.arm.linux.org.uk>
+Mail-Followup-To: Jiri Kosina <jikos@jikos.cz>,
+	Phil Blundell <philb@gnu.org>, Tim Waugh <tim@cyberelk.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-parport@lists.infradead.org
+References: <Pine.LNX.4.64.0610130139510.29022@twin.jikos.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610130139510.29022@twin.jikos.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the ioctx destroy path, both exit_aio and io_destroy calls
-wait_for_all_aios().  And in that function, it won't return until
-there are no outstanding kiocb, tracked by ctx->reqs_active.  So
-the ref counting on kioctx for every individual kiocb is overly
-excessive.  We know we won't perform last put_ioctx when releasing
-Kiocb. This should clear out the cache line conflict mentioned in
-earlier post.
+On Fri, Oct 13, 2006 at 01:44:24AM +0200, Jiri Kosina wrote:
+> (I guess that the parport_serial_pci_remove() is the right way(tm) to 
+> remove the device from the system in non-destructive way even in case 
+> pci_enable_device() failed. Tim?)
 
+I suspect all these kind of patches are introducing additional problems.
+This one certainly is.  Who's auditing all these patches?  I mean _properly_
+auditing them rather than just saying "that's a good idea"?
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+In this case, you're calling parport_serial_pci_remove() in the failure
+path.  That's fine, but this opens the possibility of it being called
+twice - once on resume failure and once when the device/driver is
+removed.  If this happens, we dereference a NULL pointer. *BAD*.
 
+So, the original without this resume fix is probably far better than
+with the fix.
 
-diff -Nurp linux-2.6.18/fs/aio.c linux-2.6.18.ken/fs/aio.c
---- linux-2.6.18/fs/aio.c	2006-09-19 20:42:06.000000000 -0700
-+++ linux-2.6.18.ken/fs/aio.c	2006-10-12 13:33:09.000000000 -0700
-@@ -423,7 +422,6 @@ static struct kiocb fastcall *__aio_get_
- 	ring = kmap_atomic(ctx->ring_info.ring_pages[0], KM_USER0);
- 	if (ctx->reqs_active < aio_ring_avail(&ctx->ring_info, ring)) {
- 		list_add(&req->ki_list, &ctx->active_reqs);
--		get_ioctx(ctx);
- 		ctx->reqs_active++;
- 		okay = 1;
- 	}
-@@ -534,8 +532,6 @@ int fastcall aio_put_req(struct kiocb *r
- 	spin_lock_irq(&ctx->ctx_lock);
- 	ret = __aio_put_req(ctx, req);
- 	spin_unlock_irq(&ctx->ctx_lock);
--	if (ret)
--		put_ioctx(ctx);
- 	return ret;
- }
- 
-@@ -791,8 +787,7 @@ static int __aio_run_iocbs(struct kioctx
- 		 */
- 		iocb->ki_users++;       /* grab extra reference */
- 		aio_run_iocb(iocb);
--		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
--			put_ioctx(ctx);
-+		__aio_put_req(ctx, iocb);
-  	}
- 	if (!list_empty(&ctx->run_list))
- 		return 1;
-@@ -1015,9 +1010,6 @@ put_rq:
- 	if (waitqueue_active(&ctx->wait))
- 		wake_up(&ctx->wait);
- 
--	if (ret)
--		put_ioctx(ctx);
--
- 	return ret;
- }
- 
+So, patch violently rejected.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

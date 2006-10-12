@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422783AbWJLH31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWJLH2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422783AbWJLH31 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWJLH31
+	id S1422656AbWJLH2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422783AbWJLH2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:29:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14278 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422783AbWJLH3Z (ORCPT
+	Thu, 12 Oct 2006 03:28:51 -0400
+Received: from ns1.suse.de ([195.135.220.2]:42214 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422656AbWJLH2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:29:25 -0400
-Date: Thu, 12 Oct 2006 00:29:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] lockdep: annotate i386 apm
-Message-Id: <20061012002906.dd29c376.akpm@osdl.org>
-In-Reply-To: <1160635850.2006.98.camel@taijtu>
-References: <1160574022.2006.82.camel@taijtu>
-	<20061011141813.79fb278f.akpm@osdl.org>
-	<1160633180.2006.94.camel@taijtu>
-	<20061011233925.c9ba117a.akpm@osdl.org>
-	<1160635850.2006.98.camel@taijtu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 03:28:50 -0400
+Message-ID: <452DEEAB.3000403@suse.de>
+Date: Thu, 12 Oct 2006 09:28:43 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+Cc: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Avoid PIT SMP lockups
+References: <1160170736.6140.31.camel@localhost.localdomain>	 <200610111349.32231.caglar@pardus.org.tr>	 <1160589556.5973.1.camel@localhost.localdomain>	 <200610112137.01160.caglar@pardus.org.tr> <1160592235.5973.5.camel@localhost.localdomain>
+In-Reply-To: <1160592235.5973.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 08:50:50 +0200
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+john stultz wrote:
+> Hey Gerd,
+> 	Looks like the smp replacements code in 2.6.18 is breaking with vmware.
+> I'm guessing we're taking an interrupt while apply_replacements is
+> running. Any ideas?
 
-> Was my original _that_ hard to read?
+Try switching the vmware configuration to "other OS".  This turns off
+os-specific binary patching.  The alternatives code might have broken
+assumptions vmware does about the linux kernel code ...
 
-The macro was bad enough.  Then you want an added another one and made it
-reference a caller's local variable.  Another dummy-shaped dent in my wall.
+cheers,
 
-I'd appreciate a fixed-up patch which changes the code's niceness in a
-positive direction please - I'm obviously not cut out to work on apm.c.
+  Gerd
+
+-- 
+Gerd Hoffmann <kraxel@suse.de>
+http://www.suse.de/~kraxel/julika-dora.jpeg

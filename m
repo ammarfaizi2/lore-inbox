@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWJLBrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWJLBtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422687AbWJLBrV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 21:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422683AbWJLBrV
+	id S1422683AbWJLBtV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 21:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbWJLBtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 21:47:21 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:5856 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1422685AbWJLBrU (ORCPT
+	Wed, 11 Oct 2006 21:49:21 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:11744 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1422683AbWJLBtU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 21:47:20 -0400
-Date: Wed, 11 Oct 2006 21:47:20 -0400
+	Wed, 11 Oct 2006 21:49:20 -0400
+Date: Wed, 11 Oct 2006 21:49:20 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: linux-serial@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+To: dbrownell@users.sourceforge.net, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] serial: handle pci_enable_device() failure upon resume
-Message-ID: <20061012014720.GA12935@havoc.gtf.org>
+Subject: [PATCH] SPI: improve sysfs compiler complaint handling
+Message-ID: <20061012014920.GA13000@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,37 +23,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
 Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/serial/8250_pci.c    |    8 ++++++--
+Pointless?  I leave it up to the maintainer(s) to decide.
 
-diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
-index 4d0ff8f..aa96e94 100644
---- a/drivers/serial/8250_pci.c
-+++ b/drivers/serial/8250_pci.c
-@@ -1810,16 +1810,20 @@ static int pciserial_resume_one(struct p
- 	pci_restore_state(dev);
- 
- 	if (priv) {
-+		int rc;
-+
- 		/*
- 		 * The device may have been disabled.  Re-enable it.
- 		 */
--		pci_enable_device(dev);
-+		rc = pci_enable_device(dev);
-+		if (rc)
-+			return rc;
- 
- 		pciserial_resume_ports(priv);
- 	}
- 	return 0;
+The compiler complains, even with the "(void)".
+
+ drivers/spi/spi.c            |    4 +++-
+
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 146298a..085d4fa 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -448,7 +448,9 @@ static int __unregister(struct device *d
+  */
+ void spi_unregister_master(struct spi_master *master)
+ {
+-	(void) device_for_each_child(master->cdev.dev, NULL, __unregister);
++	int dummy;
++	
++	dummy = device_for_each_child(master->cdev.dev, NULL, __unregister);
+ 	class_device_unregister(&master->cdev);
  }
--#endif
-+#endif /* CONFIG_PM */
- 
- static struct pci_device_id serial_pci_tbl[] = {
- 	{	PCI_VENDOR_ID_V3, PCI_DEVICE_ID_V3_V960,
+ EXPORT_SYMBOL_GPL(spi_unregister_master);

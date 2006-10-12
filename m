@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWJLNox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWJLNop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWJLNox (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 09:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWJLNox
+	id S1751404AbWJLNop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 09:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWJLNop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 09:44:53 -0400
-Received: from relay03.pair.com ([209.68.5.17]:26899 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751408AbWJLNow (ORCPT
+	Thu, 12 Oct 2006 09:44:45 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:29448 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751404AbWJLNoo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 09:44:52 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Thu, 12 Oct 2006 08:44:48 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Online Journaled File System <ojfs.discuss@yahoo.com>
-cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
-In-Reply-To: <20061012131319.43062.qmail@web58107.mail.re3.yahoo.com>
-Message-ID: <Pine.LNX.4.64.0610120843290.21171@turbotaz.ourhouse>
-References: <20061012131319.43062.qmail@web58107.mail.re3.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 12 Oct 2006 09:44:44 -0400
+Date: Thu, 12 Oct 2006 09:41:31 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>
+Subject: Re: [patch 11/67] zd1211rw: ZD1211B ASIC/FWT, not jointly decoder
+Message-ID: <20061012134118.GB29154@tuxdriver.com>
+References: <20061011204756.642936754@quad.kroah.org> <20061011210412.GL16627@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061011210412.GL16627@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006, Online Journaled File System wrote:
+On Wed, Oct 11, 2006 at 02:04:12PM -0700, Greg KH wrote:
+> 
+> -stable review patch.  If anyone has any objections, please let us know.
+> 
+> ------------------
+> From: Daniel Drake <dsd@gentoo.org>
+> 
+> The vendor driver chooses this value based on an ifndef ASIC,
+> and ASIC is never defined.
 
->
-> --- Michal Piotrowski
-> <michal.k.k.piotrowski@gmail.com> wrote:
->
->> On 12/10/06, Online Journaled File System
->> <ojfs.discuss@yahoo.com> wrote:
->>> Greetings,
->>>
->>> OJFS is a general-purpose, Online Journaling File
->> [snip]
->>>
->>> Or view our Wikipedia page for more up to date
->>> information at http://en.wikipedia.org/wiki/OJFS
->>
->> "See also
->> [..]
->>     * Hans Reiser
->>     * OJ Simpson"
->>
->> It is a stupid "joke". It's not funny.
->
-> No, it's not a funny joke, it's a very serious matter.
->
->
-> We suggest you take a close look at the code, it's
-> enlightening:
->
-> http://www.sendspace.com/file/9zb2gf
->
-> Months of brainstorming, development testing and
-> tuning  have been spent on this project, I suggest you
-> take it very seriously, polskaka.
+ACK
 
-Why don't you reveal your real identity?
-
-If you don't want your name associated with tasteless madness such as 
-this, it's generally better not to do it in the first place. You should be 
-highly ashamed.
-
-> Thank you,
-> The OJFS Team (AYBABTU).
->
-
-Thanks,
-Chase
+-- 
+John W. Linville
+linville@tuxdriver.com

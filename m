@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWJLSKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWJLSNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWJLSKP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWJLSKO
+	id S1750999AbWJLSNy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWJLSNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:10:14 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:46489 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751059AbWJLSKL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:10:11 -0400
-Subject: Re: 2.6.19-rc1-mm1
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@google.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <20061011144713.cb0c1453.akpm@osdl.org>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	 <452D4D17.1090705@google.com>  <20061011144713.cb0c1453.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 12 Oct 2006 11:09:49 -0700
-Message-Id: <1160676589.9386.18.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 12 Oct 2006 14:13:54 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:30427 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1750984AbWJLSNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 14:13:53 -0400
+Message-ID: <452E85ED.1040409@cfl.rr.com>
+Date: Thu, 12 Oct 2006 14:14:05 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Alasdair G Kergon <agk@redhat.com>, Phillip Susi <psusi@cfl.rr.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Heinz Mauelshagen <mauelshagen@redhat.com>
+Subject: Re: dm stripe: Fix bounds
+References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com> <20061012135945.GV17654@agk.surrey.redhat.com> <452E5FD0.8060309@cfl.rr.com> <20061012160515.GD17654@agk.surrey.redhat.com>
+In-Reply-To: <20061012160515.GD17654@agk.surrey.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Oct 2006 18:14:06.0464 (UTC) FILETIME=[3491B800:01C6EE2A]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14746.003
+X-TM-AS-Result: No--10.259100-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-11 at 14:47 -0700, Andrew Morton wrote:
-> On Wed, 11 Oct 2006 12:59:19 -0700
-> "Martin J. Bligh" <mbligh@google.com> wrote:
+So you are saying that dmraid should build 3 tables: 1 for the bulk of 
+the array, 1 for only the last stripe, and 1 linear to connect them?
+
+I'm not sure where the ambiguity is.  Obviously all the stripes prior to 
+the last should behave normally, the only problem comes from the last 
+stripe.  How else could you map the last stripe other than laying down x 
+sectors onto y drives as x / y sectors on each drive in sequence?
+
+
+Alasdair G Kergon wrote:
+> But there's ambiguity: should dm truncate just the last stripe(s) or all
+> stripes equally, or use some other combination of truncation?  The answer
+> depends on the circumstances, and so it is for userspace, which should know
+> which of those is required, to resolve the matter by supplying appropriate
+> chunk sizes.
 > 
-> > Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
-> > >
-> > >
-> > > -
-> > >   
-> > 
-> > Oh, and hangs in LTP.
-> > 
-> > x86_64 just hangs.
-> > http://test.kernel.org/abat/54544/debug/test.log.1 (in something io-ish)
-> > 
-> 
-> What makes you thing it was something io-ish?
-
-create05 test hang goes away with hot-fix (revert-fd-table stuff).
-FYI.
-
-Thanks,
-Badari
-
-
+> Alasdair
 

@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJLWKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWJLWRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWJLWKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWJLWKY
+	id S1751194AbWJLWRl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWJLWRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:10:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751164AbWJLWKY (ORCPT
+	Thu, 12 Oct 2006 18:17:41 -0400
+Received: from gw.goop.org ([64.81.55.164]:65435 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751194AbWJLWRl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:10:24 -0400
-Date: Thu, 12 Oct 2006 15:09:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Kirill Korotaev <dev@sw.ru>, Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/5] oom: invoke OOM killer from pagefault handler
-Message-Id: <20061012150942.42e05898.akpm@osdl.org>
-In-Reply-To: <20061012151907.GB18463@wotan.suse.de>
-References: <20061012120102.29671.31163.sendpatchset@linux.site>
-	<20061012120150.29671.48586.sendpatchset@linux.site>
-	<452E5B4D.7000402@sw.ru>
-	<20061012151907.GB18463@wotan.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 18:17:41 -0400
+Message-ID: <452EBF7C.3000409@goop.org>
+Date: Thu, 12 Oct 2006 15:19:40 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: acpi-devel@kernel.org, cpufreq@lists.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Strange entries in /proc/acpi/thermal_zone for Thinkpad X60
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 17:19:07 +0200
-Nick Piggin <npiggin@suse.de> wrote:
+I have a Thinkpad X60 with an Intel Core Duo T2400.  In 
+/proc/acpi/thermal_zone, I'm getting two subdirectories, each with their 
+own set of files:
 
-> On Thu, Oct 12, 2006 at 07:12:13PM +0400, Kirill Korotaev wrote:
-> > Nick,
-> > 
-> > AFAICS, 1 page allocation which is done in page fault handler
-> > can fail in the only case - OOM kills current, so if we failed
-> > we should have TIF_MEMDIE and just kill current.
-> > Selecting another process for killing if page fault fails means
-> > taking another victim with the one being already killed.
-> > 
-> 
-> Hi Kirill,
-> 
-> I don't quite understand you.
+/proc/acpi/thermal_zone/THM0/cooling_mode:
+<setting not supported>
+cooling mode:   critical
 
-Kirill is claiming that the only occasion on which a pagefault handler would
-get an oom is when it killed itself in the oom handler.
+/proc/acpi/thermal_zone/THM0/polling_frequency:
+<polling disabled>
 
-> If the page allocation fails in the
-> fault handler, we don't want to kill current if it is marked as
-> OOM_DISABLE or sysctl_panic_on_oom is set... imagine a critical
-> service in a failover system.
-> 
-> It should be quite likely for another process to be kiled and
-> provide enough memory to keep the system running. Presuming you
-> have faith in the concept of the OOM killer ;)
+/proc/acpi/thermal_zone/THM0/state:
+state:                   ok
 
-I'm a bit wobbly about this one.  Some before-and-after testing results
-would help things along..
+/proc/acpi/thermal_zone/THM0/temperature:
+temperature:             53 C
+
+/proc/acpi/thermal_zone/THM0/trip_points:
+critical (S5):           127 C
+
+
+/proc/acpi/thermal_zone/THM1/cooling_mode:
+<setting not supported>
+cooling mode:   passive
+
+/proc/acpi/thermal_zone/THM1/polling_frequency:
+<polling disabled>
+
+/proc/acpi/thermal_zone/THM1/state:
+state:                   ok
+
+/proc/acpi/thermal_zone/THM1/temperature:
+temperature:             53 C
+
+/proc/acpi/thermal_zone/THM1/trip_points:
+critical (S5):           97 C
+passive:                 93 C: tc1=5 tc2=4 tsp=600 devices=0xf7eaa264 0xf7eaa244 
+
+
+The interesting thing is that the two sets of files are not consistent - 
+sometimes they don't even show the same temperature.
+
+The reason I'm interested in this is that I think it's behind some of my 
+cpufreq problems.  Sometimes the kernel decides that I just can't raise 
+the max frequency above 1GHz, because its been thermally limited (I've 
+put printks in to confirm that its the ACPI thermal limit on the policy 
+notifier chain which is limiting the max speed).  It seems to me that 
+having a thermal zone for each core is a BIOS bug, since they're really 
+the same chip, but the THM1 entries should be ignored.  I don't believe 
+the CPU has ever approached either 97 C, let alone 127; while I put it 
+under a fair amount of load, it is sitting on a desktop with no airflow 
+obstructions, so if it really is overheating it suggests a serious 
+design problem with the hardware.
+
+But I'm just speculating; I'm not really sure what all this means.  Any 
+clues?
+
+Thanks,
+    J

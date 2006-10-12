@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWJLRmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWJLRnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWJLRmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWJLRmU
+	id S1750993AbWJLRnr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWJLRnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:42:20 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:11615 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751260AbWJLRmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:42:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=B5XlsVU+IzXeuRSg6ywf3UeepibrQnY2ONNk9Tr+7/WE1e9lE/pYFcv4SoYd6coai2/iIBS5bivzjsJkhT0MR6LQgtZAA6CPc8hZue/LkMkGvh17bExM3A8a/t4Ql0IVq0iaGdBFi5wvNCgyof8oonQl3qcY9CUaipe4KNG7uJ4=  ;
-Message-ID: <452E7E73.5090109@yahoo.com.au>
-Date: Fri, 13 Oct 2006 03:42:11 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 12 Oct 2006 13:43:47 -0400
+Received: from mexforward.lss.emc.com ([128.222.32.20]:2450 "EHLO
+	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1750993AbWJLRnq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 13:43:46 -0400
+From: Edward Goggin <egoggin@emc.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Michael Harris <googlegroups@mgharris.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
-References: <20061011160740.GA6868@dingu.igconcepts.com> <452DF9D2.6020306@yahoo.com.au> <20061012141903.GA6593@dingu.igconcepts.com>
-In-Reply-To: <20061012141903.GA6593@dingu.igconcepts.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: looking for explanation of spontaneous reset/reboot on Opteron
+Date: Thu, 12 Oct 2006 13:43:15 -0400
+Message-ID: <6CCEAEDF4D06984A83F427424F47D6E4013D1446@CORPUSMX40A.corp.emc.com>
+In-Reply-To: <6.2.3.4.0.20061012095229.048db398@pop-server.san.rr.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: looking for explanation of spontaneous reset/reboot on Opteron
+Thread-Index: AcbuIc6zS+yzBaMfRneS56XQ8NYUDgAAn6pA
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Oct 2006 17:43:16.0002 (UTC) FILETIME=[E59BA020:01C6EE25]
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.10.12.101442
+X-PerlMx-Spam: Gauge=, SPAM=2%, Reason='EMC_FROM_0+ -2, __CT 0, __CTE 0, __CTYPE_CHARSET_QUOTED 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __IMS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Harris wrote:
->>Michael Harris wrote:
+I'm looking for information about potential causes for a
+spontaneous reboot of a dual core Opteron running RHEL 4
+linux (2.6.9 derivative).  I'm thinking the cause is
+due to the box taking a triple fault and resetting the
+BIOS.
 
->>These unused swap offset entry messages seem to indicate extensive memory
->>corruption in your page tables. Probably bad RAM, or system overheating
->>when you load it up :(
->>
->>Can you run a good memory tester like memtest86+ overnight?
-> 
-> 
-> 
-> Hi, I think this is the case, a stick of ram gone bad. It had worked 
-> testing under 2.4 but coincidentally failed about the time I upgraded
-> to 2.6. memtest86 uncovered it at once. Sorry for the trouble and thanks
-> for the help.
+I'm also thinking that the triple fault is caused by a
+kernel stack overflow into an unmapped virtual page
+frame.  Is this a reasonable explanation?  Are there
+others?
 
-No problem, thanks for reporting.
+What are reasonable debugging strategies for handling
+this?  Following the kernel stack overflow hunch, I'm
+going to try increasing the Opteron stack size from
+8K to 16K.  Can this be done by simply changing
+THREAD_ORDER in include/asm-x86_64/page.h from 1 to 2?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Also, is there any kernel stack overflow detection
+debugging code anywhere for x86_64 as there is for
+i386?
+
+Thanks,
+
+Ed Goggin

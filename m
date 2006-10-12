@@ -1,136 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWJLXvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWJLXyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWJLXvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 19:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWJLXvF
+	id S1751339AbWJLXyr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 19:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWJLXyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 19:51:05 -0400
-Received: from ns2.suse.de ([195.135.220.15]:2751 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751338AbWJLXvC (ORCPT
+	Thu, 12 Oct 2006 19:54:47 -0400
+Received: from mga01.intel.com ([192.55.52.88]:56388 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1751339AbWJLXyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 19:51:02 -0400
-From: Neil Brown <neilb@suse.de>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 13 Oct 2006 09:50:49 +1000
+	Thu, 12 Oct 2006 19:54:46 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,301,1157353200"; 
+   d="scan'208"; a="3367086:sNHT17869032"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Zach Brown'" <zach.brown@oracle.com>,
+       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
+       "Lahaise, Benjamin C" <benjamin.c.lahaise@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, "'linux-aio'" <linux-aio@kvack.org>
+Subject: [patch] remove redundant kioctx->users ref count
+Date: Thu, 12 Oct 2006 16:54:46 -0700
+Message-ID: <000201c6ee59$cba3fda0$db34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17710.54489.486265.487078@cse.unsw.edu.au>
-Cc: aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
-Subject: Why aren't partitions limited to fit within the device?
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcbuWcuGJWzd6r0TQwq7P0qcNUVr7w==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
- I was looking into an issue that someone was having with raid5.
-They made an md/raid5 out of 5 whole devices and by luck the data
-that was written to the first block of the 5th device looked
-slightly like a partition table.  fdisk output below for the curious.
-However some partitions were beyond the end of the device.
-
-This resulted in annoying error messages popping up when various
-programs such as mount (mounting by label) looked at various
-partitions.
-The messages were like:
-Buffer I/O error on device sde3, logical block 1794
-This logical block is way beyond the end of sde.
-
-What is happening is that the partition is found to be beyond the end
-of the device, a message is printed about this
-   sde: p3 exceeds device capacity
-but nothing is done about it.
-
-So IO requests in the partition can go beyond the end of the device -
-and the code that is supposed  to protect devices from this doesn't.
-In ll_rw_blk.c, in generic_make_request,  the max bi_sector is checked
-against maxsector and an error is reported if bi_sector is too large.
-However this only happens before blk_partition_remap is called to map
-the partition-sector to the device-sector.  The result of
-blk_partition_remap is clearly expected to still be in range
-	 *
-	 * NOTE: we don't repeat the blk_size check for each new device.
-	 * Stacking drivers are expected to know what they are doing.
-
-Partitioning isn't exactly a 'stacking driver', but it doesn't seem
-to know what it is doing :-)
-
-So:  Is there any good reason to not clip the partitions to fit
-within the device - and discard those that are completely beyond
-the end of the device??
-
-The patch at the end of the mail does that.  Is it OK to submit this
-to mainline?
-
-NeilBrown
+In the ioctx destroy path, both exit_aio and io_destroy calls
+wait_for_all_aios().  And in that function, it won't return until
+there are no outstanding kiocb, tracked by ctx->reqs_active.  So
+the ref counting on kioctx for every individual kiocb is overly
+excessive.  We know we won't perform last put_ioctx when releasing
+Kiocb. This should clear out the cache line conflict mentioned in
+earlier post.
 
 
-
-# fdisk /dev/sde
-Command (m for help): p
-
-Disk /dev/sde: 250.0 GB, 250059350016 bytes
-255 heads, 63 sectors/track, 30401 cylinders
-Units = cylinders of 16065 * 512 = 8225280 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sde1               1           1         995+  c7  Syrinx
-Partition 1 does not end on cylinder boundary.
-/dev/sde2               1           1           0    0  Empty
-Partition 2 does not end on cylinder boundary.
-/dev/sde3          133675      133675         995+  c7  Syrinx
-Partition 3 does not end on cylinder boundary.
-/dev/sde4               1           1           0    0  Empty
-Partition 4 does not end on cylinder boundary.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+diff -Nurp linux-2.6.18/fs/aio.c linux-2.6.18.ken/fs/aio.c
+--- linux-2.6.18/fs/aio.c	2006-09-19 20:42:06.000000000 -0700
++++ linux-2.6.18.ken/fs/aio.c	2006-10-12 13:33:09.000000000 -0700
+@@ -423,7 +422,6 @@ static struct kiocb fastcall *__aio_get_
+ 	ring = kmap_atomic(ctx->ring_info.ring_pages[0], KM_USER0);
+ 	if (ctx->reqs_active < aio_ring_avail(&ctx->ring_info, ring)) {
+ 		list_add(&req->ki_list, &ctx->active_reqs);
+-		get_ioctx(ctx);
+ 		ctx->reqs_active++;
+ 		okay = 1;
+ 	}
+@@ -534,8 +532,6 @@ int fastcall aio_put_req(struct kiocb *r
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	ret = __aio_put_req(ctx, req);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+-	if (ret)
+-		put_ioctx(ctx);
+ 	return ret;
+ }
+ 
+@@ -791,8 +787,7 @@ static int __aio_run_iocbs(struct kioctx
+ 		 */
+ 		iocb->ki_users++;       /* grab extra reference */
+ 		aio_run_iocb(iocb);
+-		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
+-			put_ioctx(ctx);
++		__aio_put_req(ctx, iocb);
+  	}
+ 	if (!list_empty(&ctx->run_list))
+ 		return 1;
+@@ -1015,9 +1010,6 @@ put_rq:
+ 	if (waitqueue_active(&ctx->wait))
+ 		wake_up(&ctx->wait);
+ 
+-	if (ret)
+-		put_ioctx(ctx);
+-
+ 	return ret;
+ }
+ 
 
-### Diffstat output
- ./block/ioctl.c         |    6 ++++++
- ./fs/partitions/check.c |   12 ++++++++++--
- 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff .prev/block/ioctl.c ./block/ioctl.c
---- .prev/block/ioctl.c	2006-10-09 14:25:11.000000000 +1000
-+++ ./block/ioctl.c	2006-10-13 09:45:52.000000000 +1000
-@@ -42,6 +42,12 @@ static int blkpg_ioctl(struct block_devi
- 				    || pstart < 0 || plength < 0)
- 					return -EINVAL;
- 			}
-+			/* Does partition fit within device */
-+			if (start + length > get_capacity(disk)) {
-+				if (start >= get_capacity(disk))
-+					return -EINVAL;
-+				length = get_capacity(disk) - start;
-+			}
- 			/* partition number in use? */
- 			mutex_lock(&bdev->bd_mutex);
- 			if (disk->part[part - 1]) {
-
-diff .prev/fs/partitions/check.c ./fs/partitions/check.c
---- .prev/fs/partitions/check.c	2006-10-13 09:28:21.000000000 +1000
-+++ ./fs/partitions/check.c	2006-10-13 09:46:12.000000000 +1000
-@@ -466,8 +466,16 @@ int rescan_partitions(struct gendisk *di
- 		if (!size)
- 			continue;
- 		if (from + size > get_capacity(disk)) {
--			printk(" %s: p%d exceeds device capacity\n",
--				disk->disk_name, p);
-+			if (from >= get_capacity(disk)) {
-+				printk(KERN_INFO
-+				       " %s: p%d starts beyond end of device\n",
-+				       disk->disk_name, p);
-+				continue;
-+			}
-+			printk(KERN_INFO
-+			       " %s: p%d exceeds device capacity - clipping\n",
-+			       disk->disk_name, p);
-+			size = get_capacity(disk) - from;
- 		}
- 		add_partition(disk, p, from, size);
- #ifdef CONFIG_BLK_DEV_MD

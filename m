@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbWJLII4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422809AbWJLIKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422675AbWJLII4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 04:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWJLIIz
+	id S1422809AbWJLIKO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 04:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWJLIKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 04:08:55 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:54203 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932516AbWJLIIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 04:08:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=coZ4qLpHub8GTEcjP1/u8Mz63NG7GgkJdzNj9fDUw69V376z4/EkOXsIbR6GdPI4Uzcu44hvn+iJ6OBPo7HLdIWmNnW93iYqXHTJJBtkeCLj0QCBC9xZvhOx8z3WlVhcCrKTaDbUYQzEpW+TyIN9ZMKuyZyANXv/4DLn7ovjSRU=
-Message-ID: <84144f020610120108s1f4b3484q158195ebeac8a214@mail.gmail.com>
-Date: Thu, 12 Oct 2006 11:08:51 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Akinobu Mita" <akinobu.mita@gmail.com>
-Subject: Re: [patch 3/7] fault-injection capability for kmalloc
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org,
-       "Don Mullis" <dwm@meer.net>
-In-Reply-To: <452df222.0804022e.60ae.67a6@mx.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 04:10:14 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10178 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932506AbWJLIKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 04:10:12 -0400
+Date: Thu, 12 Oct 2006 10:02:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au
+Subject: Re: [PATCH] lockdep: annotate i386 apm
+Message-ID: <20061012080212.GA14307@elte.hu>
+References: <1160574022.2006.82.camel@taijtu> <20061011141813.79fb278f.akpm@osdl.org> <1160633180.2006.94.camel@taijtu> <20061011233925.c9ba117a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061012074305.047696736@gmail.com>
-	 <452df222.0804022e.60ae.67a6@mx.google.com>
-X-Google-Sender-Auth: b1741c95dc83420f
+In-Reply-To: <20061011233925.c9ba117a.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/06, Akinobu Mita <akinobu.mita@gmail.com> wrote:
-> From: Akinobu Mita <akinobu.mita@gmail.com>
->
-> This patch provides fault-injection capability for kmalloc.
 
-The slab bits look ok to me.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-                                      Pekka
+> > So, say interrupts were enabled when entering apm_bios_call*(); you now
+> > save that in flags, disable interrupts, and enable them again.
+> > Upon reaching local_irq_restore(), we'll hit the else branch with irq's
+> > enabled and call trace_hardirqs_on(), which goes EEEK!
+> 
+> I'd assumed lockdep was less stupid than that ;) This?  Seems a bit 
+> overdone..
+
+the problem is not lockdep but that the BIOS enables IRQs behind the 
+back of the kernel. Lockdep needs to be taught about that - if this 
+happens unconditionally then i'd suggest to insert an unconditional 
+trace_hardirqs_on() call to after the local_irq_save() that we do prior 
+calling the BIOS. (that will be a NOP if lockdep is not enabled)
+
+	Ingo

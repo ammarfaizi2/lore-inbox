@@ -1,219 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWJLGOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161535AbWJLGPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWJLGOK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161535AbWJLGOK
+	id S1161535AbWJLGPh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWJLGPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:14:10 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:15559 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S932492AbWJLGOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:14:08 -0400
-Date: Thu, 12 Oct 2006 15:13:48 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] Generic platform device IDE driver
-Message-ID: <20061012061348.GA7844@linux-sh.org>
-References: <20061004074535.GA7180@localhost.hsdv.com> <1159972725.25772.26.camel@localhost.localdomain> <20061005091631.GA8631@localhost.hsdv.com> <200610111450.41909.matthias.fuchs@esd-electronics.com>
+	Thu, 12 Oct 2006 02:15:37 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:22389 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932493AbWJLGPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 02:15:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=dav7W6jQzFp5E2CRETGxBw1WEr+EVLV4B4IrBhg0D+E0HUBLvydE8NYC8vkQqWWJTuJnUF/kx2r3pqbrJFVm64OMxhP86+OTrr0La4JmrzldaeJkJK+HHYn6kZjHagIaEpv2ABkYdqGMemKzcR7VYciOeJt/hSr4KnNBAKHsFkw=
+Message-ID: <452DDDA0.4050708@gmail.com>
+Date: Thu, 12 Oct 2006 14:16:00 +0800
+From: Liyu <raise.sail@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610111450.41909.matthias.fuchs@esd-electronics.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Li Yu <raise.sail@gmail.com>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Greg Kroah Hartman <greg@kroah.com>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Vincent Legoll <vincentlegoll@gmail.com>,
+       "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.0 documentation
+References: <200610121348386870668@gmail.com>
+In-Reply-To: <200610121348386870668@gmail.com>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthias,
+Signed-off-by: Liyu <raise.sail@gmail.com>
 
-On Wed, Oct 11, 2006 at 02:50:41PM +0200, Matthias Fuchs wrote:
-> I tried you patch on our CPCI405 PowerPC board 
-> (arch/ppc/platforms/4xx/cpci405.c). 
-> It seems to work fine together with our onboard CompactFlash slot.
-> 
-> Because our IDE registers are memory mapped, I had to patch the 
-> resource .start and .end address by subtracting _IO_BASE, 
-> so that the pata code can use the IO way to talk to the 
-> IDE registers.
-> 
-> Perhaps it is a good idea to update the pata platform driver to be able to 
-> handle both _IO and _MEM resources. The _IO resources be be handled 
-> as it is already done by your code and for _MEM resources the pata platform
-> driver can do the ioremapping as I currently do in my board setup.
-> 
-Yes, that's one thing I was thinking of as well.. Here's a patch that
-makes an attempt at that, can you give it a try and see if it works for
-you? This applies on top of the earlier patch. None of the ARM, SH, or
-H8300 cases need to do the remapping at least.
+--- linux-2.6.18/Documentation/input/no-such.txt 1970-01-01
+08:00:00.000000000 +0800
++++ linux-2.6.18/Documentation/input/simple-hid.txt 2006-10-12
+09:34:42.000000000 +0800
+@@ -0,0 +1,251 @@
++==================================
++HID device simple driver interface
++==================================
++
++------------------------
++Note
++------------------------
++
++ If you just begin to study from writing input device driver, please
+see the
++input-programming.txt, I am afraid this is not you want, do not confuse
+with the
++"simple" in this name.
++
++------------------------
++Version
++------------------------
++
++ This is the version 0.4.0
++
++--------------------------
++Overview
++--------------------------
++
++ Under standard HID device driver development means, we need to write
++one interrupt handler for each new HID device to report event to
++input subsystem. However, although the most of they can not merge into
++mainstream kernel tree, they have only some extended keys, e.g. many
++remote controllers. I think it seem break a fly on the wheel, which
++write one new interrupt handler for this reason.
++
++ The basic idea is reuse the interrupt handler in hid-core.c. so writing
++driver for new simple HID device will be more easier, quickly, and do not
++need touch hid core.
++
++ In essence, this interface just is some hooks in HID core.
++
++ The hid-simple.h include this API. But, defore use this interface, you
+must
++include hid.h first.
++
++------------------------
++What's you will get from this interface.
++------------------------
++
++ Use me, you can:
++
++ 1. Write the driver of USB input device without write code take care of
++ details of setup and clear usage.
++ 2. A driver use this interface can be as a HID device input filter.
++ 3. Write USB force-feed driver without touch hid-input core. however, this
++ feature is confilct with HID_FF.
++
++ This interface can not support the more drivers handle one device at
+same time
++yet. I can not sure if we really need this feature.
++
++------------------------
++The driver use this interface
++------------------------
++
++ So far, there are two drivers:
++ 1. MS Natural Ergonomic Keyboard 4000 driver. (usbnek4k.c)
++ 2. Betop BTP-2118 joystick force-feed driver. (btp2118.c)
++
++-------------------------
++Requires
++-------------------------
++
++ Before use this interface, you must turn on these kernel configuration
++items:
++
++ CONFIG_HID_SIMPLE : HID simple driver interface
++ CONFIG_HID_SIMPLE_FF : HID simple driver interface force feedback support
++
++ Note: You can see the latter only if you turn off CONFIG_HID_FF and turn
++on CONFIG_HID_SIMPLE.
++
++--------------------------
++Register and unregister
++--------------------------
++
++1. Register a simple driver.
++
++ int hidinput_register_simple_driver(struct hidinput_simple_driver *simple)
++
++ Like any driver register function, it register your driver to kernel,
++when the chance that match device come, your driver can probe it. At
+least, you
++must fill the member of parameter simple : name.
++ Return 0 mean register successfully. elsewise mean there have some
++failures in register process.
++ So far, this function only can return 0 and -EINVAL.
++ When you driver matched one device, it will reregister it into input
++subsystem (see the function hidinput_reconnect_core(), if you want).
++
++2. Unregister a simple driver.
++
++ void hidinput_unregister_simple_driver(struct hidinput_simple_driver
+*simple)
++
++ Like any driver register function, it clean your driver from kernel, and
++in this process, your driver will disconnect any device which it
+matched. However,
++it do not free your memory of driver structure, that's your task.
++ This may reregister the device into input subsystem (see the function
++hidinput_reconnect_core(), if you want).
++
++----------------------------------
++Usage
++----------------------------------
++
++ Each simple driver have one data structure hidinput_simple_driver:
++
++struct hidinput_simple_driver {
++ /*
++ * The members for implement only are ignored here,
++ * please do not depend on them
++ */
++ /* public */
++ struct module *owner;
++ char *name;
++ int (*connect)(struct hid_device *, struct hid_input *);
++ void (*disconnect)(struct hid_device *, struct hid_input *);
++ void (*setup_usage)(struct hid_field *, struct hid_usage *);
++ void (*clear_usage)(struct hid_field *, struct hid_usage *);
++ int (*pre_event)(const struct hid_device *, const struct hid_field *,
++ const struct hid_usage *, const __s32,
++ const struct pt_regs *regs);
++ int (*post_event)(const struct hid_device *, const struct hid_field *,
++ const struct hid_usage *, const __s32,
++ const struct pt_regs *regs);
++
++ int (*open)(struct input_dev *dev);
++ void (*close)(struct input_dev *dev);
++ int (*upload_effect)(struct input_dev *dev, struct ff_effect *effect);
++ int (*erase_effect)(struct input_dev *dev, int effect_id);
++ int (*flush)(struct input_dev *dev, struct file *file);
++ int (*ff_event)(struct input_dev *dev, int type, int code, int value);
++
++ void *private;
++ struct usb_device_id *id_table;
++ struct usage_page_block *usage_page_table;
++};
++
++The data member description:
++
++ struct module *owner;
++
++ In most cases, set this member to THIS_MODULE is your want to.
++
++ char *name;
++
++ The name of your driver. you must fill this member before register it.
++
++ void *private;
++
++ You can save the data that your driver use only here. HID simple driver
++core do not take care of this.
++
++ struct usb_device_id *id_table;
++
++ As same with other USB device driver, this is used by matching device,
++if so, then call probe()/connect() methods of your driver.
++ In general, you always want to fill this member with something.
++
++ struct usage_page_block *usage_page_table;
++
++ Totally, there are three means you can complete setup and clean HID
+usage work,
++which use this member is one of them. Moreover, this means is the most
+simplest one.
++By fill this member, kernel will complete setup and clean usage work
+automatically.
++ It will spend many words to explain details, I think the best
+documentation
++of this is the example, you can find them in usbnek4k.c and btp2118.c.
+I believe
++you have enough intelligence to understand them, but if you had familiar
++with HID first. :) When you read these examples, you also will find out
+some other
++related data structures ,however, don't worry, they are too simple to
+not discuss
++them.
++
++--------------------------------
++Generic Methods
++--------------------------------
++
++The simple driver methods description:
++
++ Although this simple driver have not direct relation with Linux
++device driver architecture, but I still make its API like it on purpose.
++The simple driver have follow methods:
++
++1. int (*connect)(struct hid_device *, struct hid_input *);
++2. void (*disconnect)(struct hid_device *, struct hid_input *);
++
++ When you simple driver is to bind with one real HID device, we will
++call connect() method first. To return 0 flag that it complete its mission
++successfully, so we can continue, return any other value is looked as
++error, any processing do not come.
++ When the device which your simple driver connect with is down, or
++this simple driver is unregistered, we will call disconnect() method first.
++
++3. void (*setup_usage)(struct hid_field *, struct hid_usage *);
++4. void (*clear_usage)(struct hid_field *, struct hid_usage *);
++
++ The setup_usage() method like hidinput_configure_usage() in
++hid_input.c. You also can setup input_dev here. I think
++you should be fill the pointer slot for this method, or fill
+usage_page_table
++member of hidinput_simple_driver, elsewise the event() method do not
+work for
++you at all. Please see example in "MS Natural Ergonomic Keyboard 4000"
+driver.
++ The clear_usage() method is used to clear side-effect that came from
++setup_usage() method when one driver disconnect one device.
++ Of course, you can do same things in connect/disconnect() method, but
++these method can make your life more simpler.
++ At last, you can use these two methods and usage_page_table member
++at same time. These two methods always will be called after kernel process
++usage_page_table.
++
++6. int (*pre_event)(const struct hid_device *, const struct hid_field
++*, const struct hid_usage *, const __s32, const struct pt_regs *regs);
++
++ First, you can use this method send event to input subsystem,
++moreover, you can use this as one usage code filter: this method is called
++before all other event handling. If it return non-zero , any other event
++handling do not be processed, even the hid-input itself. If this method
++return zero, the normally event handling process will continue.
++ See the note [1].
++
++7. void (*post_event)(const struct hid_device *, const struct
++hid_field *, const struct hid_usage *, const __s32, const struct pt_regs
++*regs);
++
++ This is called after all other event handling. So if the pre_event()
+method
++return non-zero value, this method also do not called at all.
++ See the note [1].
++
++8. int (*open)(struct input_dev *dev);
++9. void (*close)(struct input_dev *dev);
++
++ They are same with corresponding methods of struct input_dev. I assume
++you already familiar with them.
++
++---------------------------
++Force-feed support Methods
++---------------------------
++Follow methods are valid only if you turn on CONFIG_HID_SIMPLE_FF:
++
++10. int (*upload_effect)(struct input_dev *dev, struct ff_effect *effect);
++11. int (*erase_effect)(struct input_dev *dev, int effect_id);
++12. int (*flush)(struct input_dev *dev, struct file *file);
++13. int (*ff_event)(struct input_dev *dev, int type, int code, int value);
++
++ They are same with corresponding methods of struct input_dev. I assume
++you already familiar with them.
++
++
++=================================================================================
++
++NOTE:
++
++[1] If you do not configure usage correctly, this method do not work as
++ you want.
 
-Hopefully this will clean up your setup mess a bit.. If this works for
-you, I'll tidy it up a bit and submit the entire patch again.
-
- drivers/ata/pata_platform.c |  103 ++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 90 insertions(+), 13 deletions(-)
-
---
-
-diff --git a/drivers/ata/pata_platform.c b/drivers/ata/pata_platform.c
-index 5d98332..a716e63 100644
---- a/drivers/ata/pata_platform.c
-+++ b/drivers/ata/pata_platform.c
-@@ -21,7 +21,7 @@ #include <linux/libata.h>
- #include <linux/platform_device.h>
- 
- #define DRV_NAME "pata_platform"
--#define DRV_VERSION "0.1.0"
-+#define DRV_VERSION "0.1.1"
- 
- static int pio_mask = 1;
- 
-@@ -45,6 +45,23 @@ static void pata_platform_set_mode(struc
- 	}
- }
- 
-+static void pata_platform_host_stop(struct ata_host *host)
-+{
-+	int i;
-+
-+	/*
-+	 * Unmap the bases for MMIO
-+	 */
-+	for (i = 0; i < host->n_ports; i++) {
-+		struct ata_port *ap = host->ports[i];
-+
-+		if (ap->flags & ATA_FLAG_MMIO) {
-+			iounmap((void __iomem *)ap->ioaddr.ctl_addr);
-+			iounmap((void __iomem *)ap->ioaddr.cmd_addr);
-+		}
-+	}
-+}
-+
- static struct scsi_host_template pata_platform_sht = {
- 	.module			= THIS_MODULE,
- 	.name			= DRV_NAME,
-@@ -88,7 +105,7 @@ static struct ata_port_operations pata_p
- 
- 	.port_start		= ata_port_start,
- 	.port_stop		= ata_port_stop,
--	.host_stop		= ata_host_stop
-+	.host_stop		= pata_platform_host_stop
- };
- 
- /**
-@@ -100,14 +117,20 @@ static struct ata_port_operations pata_p
-  *
-  *	Platform devices are expected to contain 3 resources per port:
-  *
-- *		- I/O Base (IORESOURCE_IO)
-- *		- CTL Base (IORESOURCE_IO)
-+ *		- I/O Base (IORESOURCE_IO or IORESOURCE_MEM)
-+ *		- CTL Base (IORESOURCE_IO or IORESOURCE_MEM)
-  *		- IRQ	   (IORESOURCE_IRQ)
-+ *
-+ * 	If the base resources are both mem types, the ioremap() is handled
-+ * 	here. For IORESOURCE_IO, it's assumed that there's no remapping
-+ * 	necessary.
-  */
- static int __devinit pata_platform_probe(struct platform_device *pdev)
- {
- 	struct resource *io_res, *ctl_res;
- 	struct ata_probe_ent ae;
-+	unsigned int mmio;
-+	int ret;
- 
- 	/*
- 	 * Simple resource validation ..
-@@ -117,13 +140,31 @@ static int __devinit pata_platform_probe
- 		return -EINVAL;
- 	}
- 
-+	/*
-+	 * Get the I/O base first
-+	 */
- 	io_res = platform_get_resource(pdev, IORESOURCE_IO, 0);
--	if (unlikely(io_res == NULL))
--		return -EINVAL;
-+	if (io_res == NULL) {
-+		io_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (unlikely(io_res == NULL))
-+			return -EINVAL;
-+	}
- 
-+	/*
-+	 * Then the CTL base
-+	 */
- 	ctl_res = platform_get_resource(pdev, IORESOURCE_IO, 1);
--	if (unlikely(ctl_res == NULL))
--		return -EINVAL;
-+	if (ctl_res == NULL) {
-+		ctl_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		if (unlikely(ctl_res == NULL))
-+			return -EINVAL;
-+	}
-+
-+	/*
-+	 * Check for MMIO
-+	 */
-+	mmio = (( io_res->flags == IORESOURCE_MEM) &&
-+		(ctl_res->flags == IORESOURCE_MEM));
- 
- 	/*
- 	 * Now that that's out of the way, wire up the port..
-@@ -138,15 +179,51 @@ static int __devinit pata_platform_probe
- 	ae.irq = platform_get_irq(pdev, 0);
- 	ae.irq_flags = 0;
- 	ae.port_flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST;
--	ae.port[0].cmd_addr = io_res->start;
--	ae.port[0].altstatus_addr = ctl_res->start;
--	ae.port[0].ctl_addr = ctl_res->start;
-+
-+	/*
-+	 * Handle the MMIO case
-+	 */
-+	if (mmio) {
-+		ae.port_flags |= ATA_FLAG_MMIO;
-+
-+		ae.port[0].cmd_addr = (unsigned long)ioremap(io_res->start,
-+				io_res->end - io_res->start + 1);
-+		if (unlikely(!ae.port[0].cmd_addr)) {
-+			dev_err(&pdev->dev, "failed to remap IO base\n");
-+			return -ENXIO;
-+		}
-+
-+		ae.port[0].ctl_addr = (unsigned long)ioremap(ctl_res->start,
-+				ctl_res->end - ctl_res->start + 1);
-+		if (unlikely(!ae.port[0].ctl_addr)) {
-+			dev_err(&pdev->dev, "failed to remap CTL base\n");
-+			ret = -ENXIO;
-+			goto bad_remap;
-+		}
-+	} else {
-+		ae.port[0].cmd_addr = io_res->start;
-+		ae.port[0].ctl_addr = ctl_res->start;
-+	}
-+
-+	ae.port[0].altstatus_addr = ae.port[0].ctl_addr;
-+
- 	ata_std_ports(&ae.port[0]);
- 
--	if (unlikely(ata_device_add(&ae) == 0))
--		return -ENODEV;
-+	if (unlikely(ata_device_add(&ae) == 0)) {
-+		ret = -ENODEV;
-+		goto add_failed;
-+	}
- 
- 	return 0;
-+
-+add_failed:
-+	if (ae.port[0].ctl_addr && mmio)
-+		iounmap((void __iomem *)ae.port[0].ctl_addr);
-+bad_remap:
-+	if (ae.port[0].cmd_addr && mmio)
-+		iounmap((void __iomem *)ae.port[0].cmd_addr);
-+
-+	return ret;
- }
- 
- /**

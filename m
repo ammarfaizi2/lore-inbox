@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422686AbWJLBu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422692AbWJLBvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422686AbWJLBu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 21:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWJLBu0
+	id S1422692AbWJLBvz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 21:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWJLBvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 21:50:26 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:14560 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1422686AbWJLBuZ (ORCPT
+	Wed, 11 Oct 2006 21:51:55 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:16864 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1422689AbWJLBvy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 21:50:25 -0400
-Date: Wed, 11 Oct 2006 21:50:24 -0400
+	Wed, 11 Oct 2006 21:51:54 -0400
+Date: Wed, 11 Oct 2006 21:51:53 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] USB/gadget/net2280: handle sysfs errors
-Message-ID: <20061012015024.GA13093@havoc.gtf.org>
+To: chas@cmf.nrl.navy.mil, davem@davemloft.net, netdev@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NET/atm: handle sysfs errors
+Message-ID: <20061012015153.GA13204@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,50 +28,40 @@ Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
 ---
 
- drivers/usb/gadget/net2280.c |   20 ++++++++++++++++----
+ net/atm/atm_sysfs.c         |   15 ++++++++++++---
 
-diff --git a/drivers/usb/gadget/net2280.c b/drivers/usb/gadget/net2280.c
-index d954daa..7cfe0e5 100644
---- a/drivers/usb/gadget/net2280.c
-+++ b/drivers/usb/gadget/net2280.c
-@@ -2044,8 +2044,10 @@ int usb_gadget_register_driver (struct u
- 		return retval;
- 	}
+diff --git a/net/atm/atm_sysfs.c b/net/atm/atm_sysfs.c
+index c0a4ae2..62f6ed1 100644
+--- a/net/atm/atm_sysfs.c
++++ b/net/atm/atm_sysfs.c
+@@ -141,7 +141,7 @@ static struct class atm_class = {
+ int atm_register_sysfs(struct atm_dev *adev)
+ {
+ 	struct class_device *cdev = &adev->class_dev;
+-	int i, err;
++	int i, j, err;
  
--	device_create_file (&dev->pdev->dev, &dev_attr_function);
--	device_create_file (&dev->pdev->dev, &dev_attr_queues);
-+	retval = device_create_file (&dev->pdev->dev, &dev_attr_function);
-+	if (retval) goto err_unbind;
-+	retval = device_create_file (&dev->pdev->dev, &dev_attr_queues);
-+	if (retval) goto err_func;
+ 	cdev->class = &atm_class;
+ 	class_set_devdata(cdev, adev);
+@@ -151,10 +151,19 @@ int atm_register_sysfs(struct atm_dev *a
+ 	if (err < 0)
+ 		return err;
  
- 	/* ... then enable host detection and ep0; and we're ready
- 	 * for set_configuration as well as eventual disconnect.
-@@ -2060,6 +2062,14 @@ int usb_gadget_register_driver (struct u
+-	for (i = 0; atm_attrs[i]; i++)
+-		class_device_create_file(cdev, atm_attrs[i]);
++	for (i = 0; atm_attrs[i]; i++) {
++		err = class_device_create_file(cdev, atm_attrs[i]);
++		if (err)
++			goto err_out;
++	}
  
- 	/* pci writes may still be posted */
  	return 0;
 +
-+err_func:
-+	device_remove_file (&dev->pdev->dev, &dev_attr_function);
-+err_unbind:
-+	driver->unbind (&dev->gadget);
-+	dev->gadget.dev.driver = NULL;
-+	dev->driver = NULL;
-+	return retval;
++err_out:
++	for (j = 0; j < i; j++)
++		class_device_remove_file(cdev, atm_attrs[j]);
++	class_device_del(cdev);
++	return err;
  }
- EXPORT_SYMBOL (usb_gadget_register_driver);
  
-@@ -2974,8 +2984,10 @@ static int net2280_probe (struct pci_dev
- 				: "disabled");
- 	the_controller = dev;
- 
--	device_register (&dev->gadget.dev);
--	device_create_file (&pdev->dev, &dev_attr_registers);
-+	retval = device_register (&dev->gadget.dev);
-+	if (retval) goto done;
-+	retval = device_create_file (&pdev->dev, &dev_attr_registers);
-+	if (retval) goto done;
- 
- 	return 0;
- 
+ void atm_unregister_sysfs(struct atm_dev *adev)

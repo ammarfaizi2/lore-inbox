@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030500AbWJLHZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030697AbWJLH2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030500AbWJLHZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbWJLHZ1
+	id S1030697AbWJLH2q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbWJLH2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:25:27 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:482 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030500AbWJLHZ0 (ORCPT
+	Thu, 12 Oct 2006 03:28:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22974 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030697AbWJLH2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:25:26 -0400
-Date: Thu, 12 Oct 2006 09:25:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-thinkpad@linux-thinkpad.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       acpi-devel@kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [ltp] Re: X60s w/t kern 2.6.19-rc1-git: two BUG warnings
-Message-ID: <20061012072501.GA4415@elf.ucw.cz>
-References: <20061010062826.GC9895@gimli> <452BECAE.2070001@goop.org> <m17iz7oj3w.fsf@ebiederm.dsl.xmission.com> <20061011070650.GA7003@gimli> <20061012070132.GA27832@gimli>
-MIME-Version: 1.0
+	Thu, 12 Oct 2006 03:28:45 -0400
+Date: Thu, 12 Oct 2006 03:28:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michael Harris <googlegroups@mgharris.com>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
+Message-ID: <20061012072835.GA9274@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Michael Harris <googlegroups@mgharris.com>,
+	linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+References: <20061011160740.GA6868@dingu.igconcepts.com> <20061012000026.8b6ea2e5.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061012070132.GA27832@gimli>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20061012000026.8b6ea2e5.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Oct 12, 2006 at 12:00:26AM -0700, Andrew Morton wrote:
+ 
+ > > ----------------
+ > > Oct 11 04:53:35 hen kernel: VM: killing process cc1
+ > > Oct 11 04:53:35 hen kernel: swap_free: Unused swap offset entry 00004000
+ > > Oct 11 04:53:35 hen kernel: Eeek! page_mapcount(page) went negative! (-1)
+ > > Oct 11 04:53:35 hen kernel:   page->flags = c0080014
+ > > Oct 11 04:53:35 hen kernel:   page->count = 0
+ > > Oct 11 04:53:35 hen kernel:   page->mapping = 00000000
+ > > Oct 11 04:53:35 hen kernel: ------------[ cut here ]------------
+ > > Oct 11 04:53:35 hen kernel: kernel BUG at mm/rmap.c:522!
+ > 
+ > Does that machine run any earlier kernels OK?  If so, which?
 
-> > > The bug is from the attempt to allocate an already allocated irq.
-> > > So it appears somehow in the save/restore mess the msi code
-> > > thought the irq code was allocates but the irq code did not?
-> > > 
-> > 
-> > this morning I tried and booted the machine with pci=nomsi
-> > the BUG does not come up as expected but the symptom of loosing ACPI after
-> > suspend/resume remains...
-> > 
-> I have to say sorry for insisting on the ACPI issue
-> after digging a little deeper I found that it must come from somewhere in
-> the ibm_acpi code and maybe even in a helper script. I still have to seek
-> for that one and read the ibm_acpi patches and discussion that go on for
-> over a week now in ltp...
-> 
-> maybe soneone can quickly tell me, what it is trying to point out with this
-> messages from the suspend or resume code:
-> 
-> Calling INT 0x15 (F000:5E81)
->  EAX is 0x10005F00
-> Calling INT 0x15 (F000:5E81)
->  EAX is 0x10005F40
-> Calling INT 0x15 (F000:5E81)
->  EAX is 0x5F34
-> Calling INT 0x15 (F000:5E81)
->  EAX is 0x5F35
+FWIW, I've seen a bunch of reports of this being triggered in Fedora bugzilla
+which have had the nvidia module loaded.  Is that the case here ?
 
-That is vbetool code, IIRC. Ignore it.
-								Pavel
+	Dave
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+http://www.codemonkey.org.uk

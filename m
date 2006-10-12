@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWJLQAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWJLQEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422739AbWJLQAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWJLQAl
+	id S1422713AbWJLQEo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWJLQEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:00:41 -0400
-Received: from holoclan.de ([62.75.158.126]:56768 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S1422739AbWJLQAj (ORCPT
+	Thu, 12 Oct 2006 12:04:44 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:36872 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S1422713AbWJLQEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:00:39 -0400
-Date: Thu, 12 Oct 2006 17:58:06 +0200
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: please ban OJFS (was: Re: The Future of ReiserFS development)
-Message-ID: <20061012155806.GC11325@gimli>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061012151718.32411.qmail@web58114.mail.re3.yahoo.com>
+	Thu, 12 Oct 2006 12:04:43 -0400
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org,
+       olaf@aepfle.de
+Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
+References: <87hcya8fxk.fsf@sycorax.lbl.gov> <20061012065346.GY6515@kernel.dk>
+	<1160648885.5897.6.camel@Homer.simpson.net>
+	<1160662435.6177.3.camel@Homer.simpson.net>
+	<20061012120927.GQ6515@kernel.dk> <20061012122146.GS6515@kernel.dk>
+	<87odshr289.fsf@sycorax.lbl.gov> <20061012152356.GE6515@kernel.dk>
+Date: Thu, 12 Oct 2006 09:04:16 -0700
+In-Reply-To: <20061012152356.GE6515@kernel.dk> (message from Jens Axboe on
+	Thu, 12 Oct 2006 17:23:57 +0200)
+Message-ID: <87slhtfrlr.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061012151718.32411.qmail@web58114.mail.re3.yahoo.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Thu, Oct 12, 2006 at 08:17:18AM -0700, Online
-	Journaled File System wrote: > Hello Lee! > > We at the OJFS team
-	totally agree with you, please > upgrade to OJFS as soon as possible! >
-	> You may get it here: > > http://www.sendspace.com/file/9zb2gf > >
-	Thank you, > The OJFS Team (AYBABTU). [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 08:17:18AM -0700, Online Journaled File System wrote:
-> Hello Lee!
-> 
-> We at the OJFS team totally agree with you, please
-> upgrade to OJFS as soon as possible!
-> 
-> You may get it here:
-> 
-> http://www.sendspace.com/file/9zb2gf
-> 
-> Thank you,
-> The OJFS Team (AYBABTU).
+Jens Axboe <jens.axboe@oracle.com> writes:
 
-could a list admin please ban them
+> Argh damn, it needs this on top of it as well. Your second problem
+> likely stems from that missing bit, please retest with this one applied
+> as well.
+>
+> diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+> index e7513e5..bddfebd 100644
+> --- a/drivers/ide/ide-cd.c
+> +++ b/drivers/ide/ide-cd.c
+> @@ -716,7 +716,7 @@ static int cdrom_decode_status(ide_drive
+>  		ide_error(drive, "request sense failure", stat);
+>  		return 1;
+>  
+> -	} else if (blk_pc_request(rq)) {
+> +	} else if (blk_pc_request(rq) || rq->cmd_type == REQ_TYPE_ATA_PC) {
+>  		/* All other functions, except for READ. */
+>  		unsigned long flags;
+>  
 
+please ignore my previous message, i am an idiot. if i actually put a
+dvd in the drive then this patch works as expected. sorry for the
+noise.
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
+--alex--
 
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
-
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
-
-ICQ UIN: 33588107
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

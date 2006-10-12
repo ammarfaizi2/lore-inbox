@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWJLWEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWJLWEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWJLWEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWJLWEA
+	id S1751156AbWJLWEk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWJLWEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:04:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48585 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751096AbWJLWD7 (ORCPT
+	Thu, 12 Oct 2006 18:04:40 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:37766 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751156AbWJLWEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:03:59 -0400
-Date: Thu, 12 Oct 2006 15:03:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/5] oom: less memdie
-Message-Id: <20061012150350.00f19d2a.akpm@osdl.org>
-In-Reply-To: <20061012120129.29671.3288.sendpatchset@linux.site>
-References: <20061012120102.29671.31163.sendpatchset@linux.site>
-	<20061012120129.29671.3288.sendpatchset@linux.site>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 18:04:39 -0400
+Date: Fri, 13 Oct 2006 00:02:52 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: =?ISO-8859-1?Q?G=FCnther?= Starnberger <gst@sysfrog.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Userspace process may be able to DoS kernel
+In-Reply-To: <1160669968.24931.38.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0610130002250.21560@yvahk01.tjqt.qr>
+References: <474c7c2f0610110954y46b68a14q17b88a5e28ffe8d9@mail.gmail.com> 
+ <1160668565.24931.33.camel@mindpipe>  <Pine.LNX.4.61.0610121810050.28908@yvahk01.tjqt.qr>
+ <1160669968.24931.38.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	0.0 UPPERCASE_25_50        message body is 25-50% uppercase
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 16:10:01 +0200 (CEST)
-Nick Piggin <npiggin@suse.de> wrote:
 
-> Don't cause all threads in all other thread groups to gain TIF_MEMDIE
-> otherwise we'll get a thundering herd eating out memory reserve. This
-> may not be the optimal scheme, but it fits our policy of allowing just
-> one TIF_MEMDIE in the system at once.
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-> 
-> Index: linux-2.6/mm/oom_kill.c
-> ===================================================================
-> --- linux-2.6.orig/mm/oom_kill.c
-> +++ linux-2.6/mm/oom_kill.c
-> @@ -322,11 +322,12 @@ static int oom_kill_task(struct task_str
->  
->  	/*
->  	 * kill all processes that share the ->mm (i.e. all threads),
-> -	 * but are in a different thread group.
-> +	 * but are in a different thread group. Don't let them have access
-> +	 * to memory reserves though, otherwise we might deplete all memory.
->  	 */
->  	do_each_thread(g, q) {
->  		if (q->mm == mm && q->tgid != p->tgid)
-> -			__oom_kill_task(q, 1);
-> +			force_sig(SIGKILL, p);
->  	} while_each_thread(g, q);
->  
+>> >IIRC Ubuntu is the only major distro that ships with CONFIG_PREEMPT=y.
+>> >Any difference if you disable it?
+>> 
+>> SUSE uses CONFIG_PREEMPT(?) Voluntary Preemption too.
+>
+>CONFIG_PREEMPT_VOLUNTARY != CONFIG_PREEMPT
 
-Curious.  How much testing did you do of this stuff?  I assume there were
-some observed problems.  What were they, and what was the observed effect
-of these changes?
+But modinfo (vermagic) prints PREEMPT at least the former case too, 
+which is a little bit misleading.
 
-Thanks.
+
+	-`J'
+-- 

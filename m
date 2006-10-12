@@ -1,153 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422735AbWJLP7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWJLQAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422735AbWJLP7w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422736AbWJLP7w
+	id S1422736AbWJLQAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJLQAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:59:52 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:52632 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422735AbWJLP7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:59:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=POdGyd56blpaveloNK/tilIh4hksRmdiqHbxw6BH4W5qXeeNE1wAIsQ3KINj696JvGv/Rd9mmjrWuEQxP6DehduAgQz+/quS374KnnUQHCXtOHqIwOhLQsVlWodL33GaQHLqx/udsJome9QkwuZVHE2WOtotJW5hIsxiodJOFSk=
-Message-ID: <653402b90610120859l24d6606ey4dcc185cebdd42db@mail.gmail.com>
-Date: Thu, 12 Oct 2006 15:59:41 +0000
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Paulo Marques" <pmarques@grupopie.com>
-Subject: Re: [PATCH 2.6.19-rc1 update 2] drivers: add LCD support
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <452E4D1A.9000409@grupopie.com>
+	Thu, 12 Oct 2006 12:00:07 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:27653 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1422736AbWJLP75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 11:59:57 -0400
+Date: Thu, 12 Oct 2006 11:59:45 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Castet Matthieu <castet.matthieu@free.fr>,
+       Akinobu Mita <akinobu.mita@gmail.com>
+Subject: Re: [PATCH] Driver core: Don't ignore bus_attach_device() retval
+In-Reply-To: <20061012113047.1df2a9c8@gondolin.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610121113140.6435-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061012140422.93e7330c.maxextreme@gmail.com>
-	 <452E4D1A.9000409@grupopie.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/06, Paulo Marques <pmarques@grupopie.com> wrote:
-> Miguel Ojeda Sandonis wrote:
-> > Andrew, here it is the patch for converting the cfag12864b driver
-> > to a framebuffer driver as Pavel requested and as I promised :)
->
-> Very nice :)
->
-> Just a few comments, see below.
->
+On Thu, 12 Oct 2006, Cornelia Huck wrote:
 
-Thanks!
+> On Wed, 11 Oct 2006 10:49:36 -0400 (EDT),
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> 
+> > You know, I'm not so sure device registration should fail when 
+> > bus_attach_device() returns an error.
+> 
+> Hm, let's see why bus_attach_device() might fail:
+> 
+> * device_bind_driver() failed to create some symlinks. We may
+> consider not to fail in this case, since sysfs_remove_link() is fine
+> even for non-existing links.
 
-> > Pavel, yep, now I can login in my tiny 128x64 LCD.
-> > It is pretty amazing to run vi on it... ;)
-> >
-> > Tested and working fine.
-> > ---
-> [...]
-> > +static void cfag12864b_update(void *arg)
-> [...]
-> > +     for (i = 0; i < CFAG12864B_CONTROLLERS; i++) {
-> > +             cfag12864b_controller(i);
-> > +             cfag12864b_nop();
-> > +             for (j = 0; j < CFAG12864B_PAGES; j++) {
-> > +                     cfag12864b_page(j);
-> > +                     cfag12864b_nop();
-> > +                     for (k = 0; k < CFAG12864B_ADDRESSES; k++) {
-> > +                             cfag12864b_address(k);
-> > +                             cfag12864b_nop();
-> > +                             cfag12864b_nop();
->
-> Doesn't the LCD controller automatically advance the address when
-> writing data?
->
+It would be okay to fail in this case, because the driver would not have 
+been probed at all.
 
-Yes, it _should_ (and the specs say the same). The point is that only
-1 controller works fine (I don't know exactly why). Yep, it is
-annoying and I was mad trying to get it to work. I couldn't. I thought
-that maybe my LCD is broken, so I told a friend to test it with his
-LCD. The same happened. I had 2 ways:
+> * probing failed for one possible driver with something other than
+> -ENODEV or -ENXIO. Not sure if we really should abort in this case.
+> We'd just end up with an unbound device, and a driver returning (for
+> example) -ENOMEM for probing may just be a really dumb driver trying to
+> allocate an insane amount of memory (and the next driver might just be
+> fine).
 
-1. Call address only for the "bad" controller. But I didn't know if it
-will work for everyone (because the LCD of my friend was bought on the
-same time, so they can have the same bug or not).
+Yes, this is exactly what I meant.  Having an unbound device is okay.
 
-2. Call address everytime. Safer, and it will bypass any bugs. Still,
-it is fast. I decided to do it.
+Note also that when multithreaded probing is used, there is no way for 
+driver_probe_device() to return an error from really_probe().  We may as 
+well act the same way when multithreaded probing isn't used.
 
-I'm glad you are the first one to see that ;)
+I haven't looked at the driver core much since multithreaded probing was
+added.  The multithreading part has a bad locking bug: the new thread
+doesn't acquire the necessary semaphores.  Also it probes multiple drivers
+for the same device in parallel, which seems wrong.  Since multiple probes 
+can't run concurrently there's no reason to have a separate thread for 
+each one.  There should be only one new thread per device.
 
->
-> If it does, the address should only be needed before this loop and you
-> could write 64 bytes in a row without any "nop"'s. This should really
-> improve the time it takes to refresh the display.
->
 
-Yep, that is the theory :)
+> > Furthermore there are subtle problems that can arise.  In effect, the
+> > device is registered for a brief time (while the driver is probed) and
+> > then unregistered without giving the bus subsystem a chance to prepare for
+> > the removal.  With USB this can lead to problems; if the driver called
+> > usb_set_interface() then child devices would be created below the one
+> > being probed -- and they would never get removed.
+> 
+> One way to fix this would be to make device_bind_driver() always
+> succeed (even without symlinks),
 
-> Also, keeping a "low level cache" of the physical display state and only
-> sending bytes that have actually changed might be a good improvement too.
->
-> Remember, the host CPU is probably much much faster than your interface
-> to the LCD, so if it takes a few cycles to check the cache and decide
-> not to send a byte, it's already a big win. A simple memcmp might be
-> used skip full pages.
->
-Hum, it could work. I will check if I can improve it. Anyway, the LCD
-won't read any op until bit "e" change, so the "extra" work is done at
-the parport on the computer. However, it can save some time at the CPU
-computer, I think you are right.
+Hmm... If device_bind_driver() fails -- because of the symlinks -- then
+the device is still on the driver's klist, because the klist_add_tail() in
+driver_bound() never gets undone.  Another bug.  Clearly
+device_bind_driver() should call driver_sysfs_add() before driver_bound(),
+not after.  Or else it should never fail.
 
->
-> Also, what do these "nop"'s do? Isn't there a way to read the "busy"
-> status from the controller and just write as fast as possible?
->
+>  the other to call the ->remove
+> function if device_bind_driver() fails (assuming that the ->remove
+> method should undo the stuff done in ->probe).
 
-Well, I found another
-> > [...]
-> > +       The LCD framebuffer driver can be attached to a console.
-> > +       It will work fine. However, you can't attach it to the fbdev driver
-> > +       of the xorg server.
->
-> This is probably because your driver can't be mmapped, no?
->
+It's a lot safer and easier just to switch the order of the calls in 
+device_bind_driver().
 
-No, the device can't be mmapped, but the framebuffer is standard. The
-problem isn't the framebuffer (it works like all the others): I read
-xorg doesn't let you to use framebuffer of less than X requeriments
-(xorg tells you: "what? this LCD is so small!!" :) Anyway, I haven't
-tried it and it is a mad idea to run xorg on the 128x64 LCD.
+Note that it's also possible for device_attach() to fail through the 
+__device_attach() -> driver_probe_device() -> really_probe() pathway.  I 
+think in all cases, bus_attach_device() really should ignore the return 
+code from device_attach().
 
-> Although the controller is only accessible through the parallel port, it
-> might be possible to mmap it. I vaguely remember that when I was reading
-> LDD3, I thought that this should be doable in a sequence like:
->
->   - accept the mmap as if you had the memory for the device available
->   - at "nopage" time, mark the buffer as "dirty" and map it to user space
->   - using a timer at the actual refresh rate, check the dirty flag. If
-> it is dirty, unmap the buffer and refresh the display
->
-> I'm not describing the locking details (and a lot of other details,
-> too), but it should work in principle.
->
-> It will probably make things easier if your buffer size is PAGE_SIZE,
-> and your "internal" operations (fillrect, copyarea, imageblit) also work
-> over the same buffer and just mark the buffer as dirty.
->
-> I don't know if X will be able to run in 128x64, but it is easier to
-> make applications mmap the buffer and use it directly.
->
 
-Hum, I think it is make the code dirtier, and IMO it won't be useful
-at all, it is so small (just the console is hard to manage ;).
+> > In fact, we might want to separate driver probing from device_add()  
+> > entirely.  That is, make them available as two separate function calls.  
+> > That way the subsystem driver will have a chance to create attribute files
+> > before a uevent is generated and a driver is loaded.  (That should help
+> > udev to work better.)  This would require a larger change, though --
+> > probably requiring an alternate version of device_add().
+> 
+> Shouldn't subsystems that need attributes early just use dev->groups,
+> class->dev_attrs or bus->dev_attrs? These attribute groups are added
+> before the uevent is generated.
 
-Applications can use the standard framebuffer device (/dev/fbX), or
-mmap the memory of the driver... I mean, /dev/fbX is the same as the
-memory used at the driver (the cfag12864b driver takes that memory and
-send it to the LCD) so you can mmap it without special problems,
-right?
+Yes, you're right.  Forget about this part.
 
-Thanks again,
-      Miguel Ojeda
+Alan Stern
+

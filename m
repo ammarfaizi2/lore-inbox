@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWJLNIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWJLNJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWJLNIU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 09:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWJLNIT
+	id S1751388AbWJLNJE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 09:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWJLNJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 09:08:19 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:23658 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751384AbWJLNIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 09:08:19 -0400
-Subject: [PATCH] rt-mutex: fixup rt-mutex debug code
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 12 Oct 2006 15:08:31 +0200
-Message-Id: <1160658511.2006.120.camel@taijtu>
+	Thu, 12 Oct 2006 09:09:04 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:36423 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751388AbWJLNJC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 09:09:02 -0400
+Date: Thu, 12 Oct 2006 15:09:07 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Vasily Tarasov <vtaras@openvz.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       OpenVZ Developers List <devel@openvz.org>
+Subject: Re: [PATCH] block layer: ioprio_best function fix
+Message-ID: <20061012130907.GZ6515@kernel.dk>
+References: <200610121213.k9CCDbPi004548@vass.7ka.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610121213.k9CCDbPi004548@vass.7ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 12 2006, Vasily Tarasov wrote:
+> Currently ioprio_best function first checks wethere aioprio or bioprio equals
+> IOPRIO_CLASS_NONE (ioprio_valid() macros does that) and if it is so it returns
+> bioprio/aioprio appropriately. Thus the next four lines, that set aclass/bclass
+> to IOPRIO_CLASS_BE, if aclass/bclass == IOPRIO_CLASS_NONE, are never executed.
+> 
+> The second problem: if aioprio from class IOPRIO_CLASS_NONE and bioprio from
+> class IOPRIO_CLASS_IDLE are passed to ioprio_best function, it will return
+> IOPRIO_CLASS_IDLE. It means that during __make_request we can merge two
+> requests and set the priority of merged request to IDLE, while one of
+> the initial requests originates from a process with NONE (default) priority.
+> So we can get a situation when a process with default ioprio will experience
+> IO starvation, while there is no process from real-time class in the system.
+> 
+> Just removing ioprio_valid check should correct situation.
 
-BUG: warning at kernel/rtmutex-debug.c:125/rt_mutex_debug_task_free() (Not tainted)
- [<c04051e3>] show_trace_log_lvl+0x58/0x16a
- [<c04057f0>] show_trace+0xd/0x10
- [<c0405900>] dump_stack+0x19/0x1b
- [<c043f03d>] rt_mutex_debug_task_free+0x35/0x6a
- [<c04224c0>] free_task+0x15/0x24
- [<c042378c>] copy_process+0x12bd/0x1324
- [<c0423835>] do_fork+0x42/0x113
- [<c04021dd>] sys_fork+0x19/0x1b
- [<c0403fb7>] syscall_call+0x7/0xb
+Analysis looks correct, thanks.
 
-In copy_process(), dup_task_struct() also duplicates the ->pi_lock,
-->pi_waiters and ->pi_blocked_on members. rt_mutex_debug_task_free() 
-called from free_task() validates these members. However free_task()
-can be invoked before these members are reset for the new task.
-
-Move the initialization code before the first bail that can hit free_task().
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- kernel/fork.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6/kernel/fork.c
-===================================================================
---- linux-2.6.orig/kernel/fork.c
-+++ linux-2.6/kernel/fork.c
-@@ -984,6 +984,8 @@ static struct task_struct *copy_process(
- 	if (!p)
- 		goto fork_out;
- 
-+	rt_mutex_init_task(p);
-+
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	DEBUG_LOCKS_WARN_ON(!p->hardirqs_enabled);
- 	DEBUG_LOCKS_WARN_ON(!p->softirqs_enabled);
-@@ -1088,8 +1090,6 @@ static struct task_struct *copy_process(
- 	p->lockdep_recursion = 0;
- #endif
- 
--	rt_mutex_init_task(p);
--
- #ifdef CONFIG_DEBUG_MUTEXES
- 	p->blocked_on = NULL; /* not blocked yet */
- #endif
-
+-- 
+Jens Axboe
 

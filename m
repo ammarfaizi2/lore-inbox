@@ -1,325 +1,367 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422789AbWJLHnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWJLHnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422789AbWJLHnT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWJLHnT
+	id S1422793AbWJLHnb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWJLHna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:43:19 -0400
+	Thu, 12 Oct 2006 03:43:30 -0400
 Received: from py-out-1112.google.com ([64.233.166.178]:12718 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422789AbWJLHnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:43:18 -0400
+	id S1422793AbWJLHnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:43:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:references:user-agent:date:from:to:cc:subject:content-disposition:message-id;
-        b=Et05pYti6fPGcmK8WQ1/cViep1teJmFY6tGxjIzdr/W6FkUEbz+l2u/I1mRN/4DTK4XYDvCy7u48R9jGOLC8dJkv5jXkO0dVfEYbPL/b8XPqinBWqP+utqCt2m45IPhU4dzrPmW7Q5XfYkovsjq9621IUV+WSb3gjHRbWwJWmFc=
+        b=Xqrupsf4zGOE5HG7zCRdn8TyP4ljiUmN0DU9zmSFlMU9Oy6JqTQRK2fvI+U3Yn3V8DSZ0utiXHGMYshw2tYUUf9H9zRSyTvSBOBvvfKabD86YwrckP3BRzj7QmdTutO3bXu/AtGiKKi/KKZxEpsNEKuHAzSZOafG08Vz4NcarEQ=
 References: <20061012074305.047696736@gmail.com>>
 User-Agent: quilt/0.45-1
-Date: Thu, 12 Oct 2006 16:43:06 +0900
+Date: Thu, 12 Oct 2006 16:43:07 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>
-Subject: [patch 1/7] documentation and scripts
-Content-Disposition: inline; filename=doc.patch
-Message-ID: <452df215.7ab6aae9.17a4.58b5@mx.google.com>
+Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>, okuji@enbug.org
+Subject: [patch 2/7] fault-injection capabilities infrastructure
+Content-Disposition: inline; filename=should-fail.patch
+Message-ID: <452df21c.77a917b6.3845.2dc5@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch set provides some fault-injection capabilities.
+This patch provides base functions for implement fault-injection
+capabilities.
 
-- kmalloc() failures
+- Lightweight random simulator is taken from crasher module for SUSE kernel
 
-- alloc_pages() failures
+- The function should_fail() is taken from failmalloc-1.0
+  (http://www.nongnu.org/failmalloc/)
 
-- disk IO errors
-
-We can see what really happens if those failures happen.
-
-In order to enable these fault-injection capabilities:
-
-1. Enable relevant config options (CONFIG_FAILSLAB, CONFIG_PAGE_ALLOC,
-   CONFIG_MAKE_REQUEST) and if you want to configure them via debugfs,
-   enable CONFIG_FAULT_INJECTION_DEBUG_FS.
-
-2. Build and boot with this kernel
-
-3. Configure fault-injection capabilities behavior by boot option or debugfs
-
-   - Boot option
-
-     failslab=
-     fail_page_alloc=
-     fail_make_request=
-
-   - Debugfs
-
-     /debug/failslab/*
-     /debug/fail_page_alloc/*
-     /debug/fail_make_request/*
-
-   Please refer to the Documentation/fault-injection/fault-injection.txt
-   for details.
-
-4. See what really happens.
-
+Cc: okuji@enbug.org
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 Signed-off-by: Don Mullis <dwm@meer.net>
 
- Documentation/fault-injection/failcmd.sh          |    4 
- Documentation/fault-injection/failmodule.sh       |   31 +++
- Documentation/fault-injection/fault-injection.txt |  180 ++++++++++++++++++++++
- Documentation/kernel-parameters.txt               |    7 
- 4 files changed, 222 insertions(+)
+ include/linux/fault-inject.h |   69 ++++++++++++++
+ lib/Kconfig.debug            |   12 ++
+ lib/Makefile                 |    1 
+ lib/fault-inject.c           |  207 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 289 insertions(+)
 
-Index: work-fault-inject/Documentation/fault-injection/failcmd.sh
+Index: work-fault-inject/lib/Kconfig.debug
+===================================================================
+--- work-fault-inject.orig/lib/Kconfig.debug
++++ work-fault-inject/lib/Kconfig.debug
+@@ -469,3 +469,15 @@ config LKDTM
+ 
+ 	Documentation on how to use the module can be found in
+ 	drivers/misc/lkdtm.c
++
++config FAULT_INJECTION
++	bool
++
++config FAULT_INJECTION_DEBUG_FS
++	bool "debugfs entries for fault-injection capabilities"
++	depends on FAULT_INJECTION && SYSFS
++	select DEBUG_FS
++	help
++	  This option enables to configure fault-injection capabilities via
++	  debugfs entries.
++
+Index: work-fault-inject/lib/Makefile
+===================================================================
+--- work-fault-inject.orig/lib/Makefile
++++ work-fault-inject/lib/Makefile
+@@ -56,6 +56,7 @@ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
+ obj-$(CONFIG_STATISTICS) += statistic.o
+ 
+ obj-$(CONFIG_SWIOTLB) += swiotlb.o
++obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
+ 
+ lib-$(CONFIG_GENERIC_BUG) += bug.o
+ 
+Index: work-fault-inject/include/linux/fault-inject.h
 ===================================================================
 --- /dev/null
-+++ work-fault-inject/Documentation/fault-injection/failcmd.sh
-@@ -0,0 +1,4 @@
-+#!/bin/bash
++++ work-fault-inject/include/linux/fault-inject.h
+@@ -0,0 +1,69 @@
++#ifndef _LINUX_FAULT_INJECT_H
++#define _LINUX_FAULT_INJECT_H
 +
-+echo 1 > /proc/self/make-it-fail
-+exec $*
-Index: work-fault-inject/Documentation/fault-injection/failmodule.sh
-===================================================================
---- /dev/null
-+++ work-fault-inject/Documentation/fault-injection/failmodule.sh
-@@ -0,0 +1,31 @@
-+#!/bin/bash
-+#
-+# Usage: failmodule <failname> <modulename> [stacktrace-depth]
-+#
-+#	<failname>: "failslab", "fail_alloc_page", or "fail_make_request"
-+#
-+#	<modulename>: module name that you want to inject faults.
-+#
-+#	[stacktrace-depth]: the maximum number of stacktrace walking allowed
-+#
++#ifdef CONFIG_FAULT_INJECTION
 +
-+STACKTRACE_DEPTH=5
-+if [ $# -gt 2 ]; then
-+	STACKTRACE_DEPTH=$3
-+fi
++#include <linux/types.h>
++#include <linux/debugfs.h>
++#include <asm/atomic.h>
 +
-+if [ ! -d /debug/$1 ]; then
-+	echo "Fault-injection $1 does not exist" >&2
-+	exit 1
-+fi
-+if [ ! -d /sys/module/$2 ]; then
-+	echo "Module $2 does not exist" >&2
-+	exit 1
-+fi
++/*
++ * For explanation of the elements of this struct, see
++ * Documentation/fault-injection/fault-injection.txt
++ */
++struct fault_attr {
++	unsigned long probability;
++	unsigned long interval;
++	atomic_t times;
++	atomic_t space;
++	unsigned long verbose;
 +
-+# Disable any fault injection
-+echo 0 > /debug/$1/stacktrace-depth
++	unsigned long count;
 +
-+echo `cat /sys/module/$2/sections/.text` > /debug/$1/address-start
-+echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/address-end
-+echo $STACKTRACE_DEPTH > /debug/$1/stacktrace-depth
-Index: work-fault-inject/Documentation/fault-injection/fault-injection.txt
-===================================================================
---- /dev/null
-+++ work-fault-inject/Documentation/fault-injection/fault-injection.txt
-@@ -0,0 +1,180 @@
-+Fault injection capabilities infrastructure
-+===========================================
++#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
 +
-+See also drivers/md/faulty.c and "every_nth" module option for scsi_debug.
++	struct {
++		struct dentry *dir;
 +
++		struct dentry *probability_file;
++		struct dentry *interval_file;
++		struct dentry *times_file;
++		struct dentry *space_file;
++		struct dentry *verbose_file;
++	} entries;
 +
-+Available fault injection capabilities
-+--------------------------------------
++#endif
++};
 +
-+o failslab
++#define DEFINE_FAULT_ATTR(name)					\
++	struct fault_attr name = {				\
++		.interval = 1,					\
++		.times = ATOMIC_INIT(1),			\
++	}
 +
-+  injects slab allocation failures. (kmalloc(), kmem_cache_alloc(), ...)
++int setup_fault_attr(struct fault_attr *attr, char *str);
++void should_fail_srandom(unsigned long entropy);
++int should_fail(struct fault_attr *attr, ssize_t size);
 +
-+o fail_page_alloc
++#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
 +
-+  injects page allocation failures. (alloc_pages(), get_free_pages(), ...)
++int init_fault_attr_entries(struct fault_attr *attr, const char *name);
++void cleanup_fault_attr_entries(struct fault_attr *attr);
 +
-+o fail_make_request
++#else /* CONFIG_FAULT_INJECTION_DEBUG_FS */
 +
-+  injects disk IO errors on permitted devices by
-+  /sys/block/<device>/make-it-fail or
-+  /sys/block/<device>/<partition>/make-it-fail. (generic_make_request())
-+
-+Configure fault-injection capabilities behavior
-+-----------------------------------------------
-+
-+o debugfs entries
-+
-+fault-inject-debugfs kernel module provides some debugfs entries for runtime
-+configuration of fault-injection capabilities.
-+
-+- /debug/*/probability:
-+
-+	likelihood of failure injection, in percent.
-+
-+- /debug/*/interval:
-+
-+	specifies the interval between failures, for calls to
-+	should_fail() that pass all the other tests.
-+
-+	Note that if you enable this, by setting interval>1, you will
-+	probably want to set probability=100.
-+
-+- /debug/*/times:
-+
-+	specifies how many times failures may happen at most.
-+	A value of -1 means "no limit".
-+
-+- /debug/*/space:
-+
-+	specifies an initial resource "budget", decremented by "size"
-+	on each call to should_fail(,size).  Failure injection is
-+	suppressed until "space" reaches zero.
-+
-+- /debug/*/verbose
-+
-+	specifies the verbosity of the messages when failure is injected.
-+	A value of '0' means no any messages, setting it to '1' will
-+	print just to tell failure happened, and '2' will also
-+	print call trace.  This is useful to debug the problems revealed by
-+	fault injection capabilities.
-+
-+- /debug/*/task-filter:
-+
-+	A value of '0' disables filtering by process.
-+	Any positive value limits failures to only processes indicated by
-+	/proc/<pid>/make-it-fail==1.
-+
-+- /debug/*/stacktrace-depth:
-+
-+	specifies the maximum stacktrace depth walked during search
-+	for a caller within [address-start,address-end).
-+
-+- /debug/*/address-start:
-+- /debug/*/address-end:
-+
-+	specifies the range of virtual addresses tested during
-+	stacktrace walking.  Failure is injected only if some caller
-+	in the walked stacktrace lies within this range.
-+
-+o Boot option
-+
-+In order to inject faults while debugfs is not available (early boot time),
-+use the boot option:
-+
-+    failslab=
-+    fail_page_alloc=
-+    fail_make_request=<interval>,<probability>,<space>,<times>
-+
-+How to add new fault injection capability
-+-----------------------------------------
-+
-+o #include <linux/fault-inject.h>
-+
-+o define the fault attributes
-+
-+  DEFINE_FAULT_INJECTION(name);
-+
-+  Please see the definition of struct fault_attr in fault-inject.h
-+  for details.
-+
-+o provide the way to configure fault attributes
-+
-+- boot option
-+
-+  If you need to enable the fault injection capability from boot time, you can
-+  provide boot option to configure it. There is a helper function for it.
-+
-+  setup_fault_attr(attr, str);
-+
-+- debugfs entries
-+
-+  failslab, fail_page_alloc, and fail_make_request use this way.
-+  There is a helper function for it.
-+
-+  init_fault_attr_entries(entries, attr, name);
-+  void cleanup_fault_attr_entries(entries);
-+
-+- module parameters
-+
-+  If the scope of the fault injection capability is limited to a
-+  single kernel module, it is better to provide module parameters to
-+  configure the fault attributes.
-+
-+o add a hook to insert failures
-+
-+  should_fail() returns 1 when failures should happen.
-+
-+	should_fail(attr,size);
-+
-+Application Examples
-+--------------------
-+
-+o inject slab allocation failures into module init/cleanup code
-+
-+------------------------------------------------------------------------------
-+#!/bin/bash
-+
-+FAILCMD=Documentation/fault-injection/failcmd.sh
-+
-+echo Y > /debug/failslab/task-filter
-+echo 10 > /debug/failslab/probability
-+echo -1 > /debug/failslab/times
-+
-+oops()
++static inline int init_fault_attr_entries(struct fault_attr *attr,
++					  const char *name)
 +{
-+	dmesg | grep BUG > /dev/null 2>&1 
++	return -ENODEV;
 +}
 +
-+find /lib/modules/`uname -r` -name '*.ko' -exec basename {} .ko \; |
-+	while read i && ! oops
-+	do
-+		echo inserting $i...
-+		bash $FAILCMD modprobe $i
-+	done
++static inline void cleanup_fault_attr_entries(struct fault_attr *attr)
++{
++}
 +
-+lsmod | awk '{ if ($3 == 0) { print $1 } }' |
-+	while read i && ! oops
-+	do
-+		echo removing $i...
-+		bash $FAILCMD modprobe -r $i
-+	done
++#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
 +
-+------------------------------------------------------------------------------
++#endif /* CONFIG_FAULT_INJECTION */
 +
-+o inject slab allocation failures only for a specific module
-+
-+------------------------------------------------------------------------------
-+#!/bin/bash
-+
-+FAILMOD=Documentation/fault-injection/failmodule.sh
-+
-+echo injecting errors into the module $1...
-+
-+modprobe $1
-+bash $FAILMOD failslab $1 10
-+echo 25 > /debug/failslab/probability
-+
-+------------------------------------------------------------------------------
-+
-Index: work-fault-inject/Documentation/kernel-parameters.txt
++#endif /* _LINUX_FAULT_INJECT_H */
+Index: work-fault-inject/lib/fault-inject.c
 ===================================================================
---- work-fault-inject.orig/Documentation/kernel-parameters.txt
-+++ work-fault-inject/Documentation/kernel-parameters.txt
-@@ -545,6 +545,13 @@ and is between 256 and 4096 characters. 
- 	eurwdt=		[HW,WDT] Eurotech CPU-1220/1410 onboard watchdog.
- 			Format: <io>[,<irq>]
- 
-+	failslab=
-+	fail_page_alloc=
-+	fail_make_request=[KNL]
-+			General fault injection mechanism.
-+			Format: <interval>,<probability>,<space>,<times>
-+			See also /Documentation/fault-injection/.
+--- /dev/null
++++ work-fault-inject/lib/fault-inject.c
+@@ -0,0 +1,207 @@
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/random.h>
++#include <linux/stat.h>
++#include <linux/types.h>
++#include <linux/fs.h>
++#include <linux/module.h>
++#include <linux/fault-inject.h>
 +
- 	fd_mcs=		[HW,SCSI]
- 			See header of drivers/scsi/fd_mcs.c.
- 
++int setup_fault_attr(struct fault_attr *attr, char *str)
++{
++	unsigned long probability;
++	unsigned long interval;
++	int times;
++	int space;
++
++	/* "<interval>,<probability>,<space>,<times>" */
++	if (sscanf(str, "%lu,%lu,%d,%d",
++			&interval, &probability, &space, &times) < 4) {
++		printk(KERN_WARNING
++			"FAULT_INJECTION: failed to parse arguments\n");
++		return 0;
++	}
++
++	attr->probability = probability;
++	attr->interval = interval;
++	atomic_set(&attr->times, times);
++	atomic_set(&attr->space, space);
++
++	return 1;
++}
++
++#define failure_probability(attr)	(attr)->probability
++#define failure_interval(attr)		(attr)->interval
++#define max_failures(attr)		(attr)->times
++#define current_space(attr)		(attr)->space
++#define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
++
++static unsigned long rand_seed = 152L;
++
++static unsigned long should_fail_random(void)
++{
++	rand_seed = rand_seed * 690690L+1;
++	return rand_seed ^ jiffies;
++}
++
++void should_fail_srandom(unsigned long entropy)
++{
++	rand_seed ^= entropy;
++	should_fail_random();
++}
++
++static void fail_dump(struct fault_attr *attr)
++{
++	if (attr->verbose > 0)
++		printk(KERN_NOTICE "FAULT_INJECTION: forcing a failure\n");
++	if (attr->verbose > 1)
++		dump_stack();
++}
++
++/*
++ * This code is stolen from failmalloc-1.0
++ * http://www.nongnu.org/failmalloc/
++ */
++
++int should_fail(struct fault_attr *attr, ssize_t size)
++{
++	if (atomic_read(&max_failures(attr)) == 0)
++		return 0;
++
++	if (atomic_read(&current_space(attr)) > size) {
++		atomic_sub(size, &current_space(attr));
++		return 0;
++	}
++
++	if (failure_interval(attr) > 1) {
++		attr->count++;
++		if (attr->count % failure_interval(attr))
++			return 0;
++	}
++
++	if (failure_probability(attr) > should_fail_random() % 100)
++		goto fail;
++
++	return 0;
++
++fail:
++	fail_dump(attr);
++
++	if (atomic_read(&max_failures(attr)) != -1)
++		atomic_dec_not_zero(&max_failures(attr));
++
++	return 1;
++}
++
++#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
++
++static void debugfs_ul_set(void *data, u64 val)
++{
++	*(unsigned long *)data = val;
++}
++
++static u64 debugfs_ul_get(void *data)
++{
++	return *(unsigned long *)data;
++}
++
++DEFINE_SIMPLE_ATTRIBUTE(fops_ul, debugfs_ul_get, debugfs_ul_set, "%llu\n");
++
++static struct dentry *debugfs_create_ul(const char *name, mode_t mode,
++				struct dentry *parent, unsigned long *value)
++{
++	return debugfs_create_file(name, mode, parent, value, &fops_ul);
++}
++
++static void debugfs_atomic_t_set(void *data, u64 val)
++{
++	atomic_set((atomic_t *)data, val);
++}
++
++static u64 debugfs_atomic_t_get(void *data)
++{
++	return atomic_read((atomic_t *)data);
++}
++
++DEFINE_SIMPLE_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
++			debugfs_atomic_t_set, "%lld\n");
++
++static struct dentry *debugfs_create_atomic_t(const char *name, mode_t mode,
++				struct dentry *parent, atomic_t *value)
++{
++	return debugfs_create_file(name, mode, parent, value, &fops_atomic_t);
++}
++
++void cleanup_fault_attr_entries(struct fault_attr *attr)
++{
++	if (attr->entries.dir) {
++		if (attr->entries.probability_file) {
++			debugfs_remove(attr->entries.probability_file);
++			attr->entries.probability_file = NULL;
++		}
++		if (attr->entries.interval_file) {
++			debugfs_remove(attr->entries.interval_file);
++			attr->entries.interval_file = NULL;
++		}
++		if (attr->entries.times_file) {
++			debugfs_remove(attr->entries.times_file);
++			attr->entries.times_file = NULL;
++		}
++		if (attr->entries.space_file) {
++			debugfs_remove(attr->entries.space_file);
++			attr->entries.space_file = NULL;
++		}
++		if (attr->entries.verbose_file) {
++			debugfs_remove(attr->entries.verbose_file);
++			attr->entries.verbose_file = NULL;
++		}
++		debugfs_remove(attr->entries.dir);
++		attr->entries.dir = NULL;
++	}
++}
++
++int init_fault_attr_entries(struct fault_attr *attr, const char *name)
++{
++	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
++	struct dentry *dir;
++	struct dentry *file;
++
++	memset(&attr->entries, 0, sizeof(attr->entries));
++
++	dir = debugfs_create_dir(name, NULL);
++	if (!dir)
++		goto fail;
++	attr->entries.dir = dir;
++
++	file = debugfs_create_ul("probability", mode, dir, &attr->probability);
++	if (!file)
++		goto fail;
++	attr->entries.probability_file = file;
++
++	file = debugfs_create_ul("interval", mode, dir, &attr->interval);
++	if (!file)
++		goto fail;
++	attr->entries.interval_file = file;
++
++	file = debugfs_create_atomic_t("times", mode, dir, &attr->times);
++	if (!file)
++		goto fail;
++	attr->entries.times_file = file;
++
++	file = debugfs_create_atomic_t("space", mode, dir, &attr->space);
++	if (!file)
++		goto fail;
++	attr->entries.space_file = file;
++
++	file = debugfs_create_ul("verbose", mode, dir, &attr->verbose);
++	if (!file)
++		goto fail;
++	attr->entries.verbose_file = file;
++
++	return 0;
++fail:
++	cleanup_fault_attr_entries(attr);
++	return -ENOMEM;
++}
++
++#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
 
 --

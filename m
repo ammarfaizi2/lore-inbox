@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWJLSE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWJLSIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWJLSE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbWJLSE5
+	id S1750971AbWJLSIA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWJLSIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:04:57 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:42257 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1750902AbWJLSE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:04:57 -0400
-Date: Thu, 12 Oct 2006 20:05:06 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Alex Romosan <romosan@sycorax.lbl.gov>, linux-kernel@vger.kernel.org,
-       olaf@aepfle.de
-Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
-Message-ID: <20061012180505.GN6515@kernel.dk>
-References: <87hcya8fxk.fsf@sycorax.lbl.gov> <20061012065346.GY6515@kernel.dk> <1160648885.5897.6.camel@Homer.simpson.net> <1160662435.6177.3.camel@Homer.simpson.net> <20061012120927.GQ6515@kernel.dk> <20061012122146.GS6515@kernel.dk> <87odshr289.fsf@sycorax.lbl.gov> <20061012152356.GE6515@kernel.dk> <87r6xd1qpl.fsf@sycorax.lbl.gov> <1160679627.7956.7.camel@Homer.simpson.net>
+	Thu, 12 Oct 2006 14:08:00 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:29368 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750965AbWJLSIA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 14:08:00 -0400
+Date: Thu, 12 Oct 2006 19:07:59 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] more kernel_execve() fallout (sbus)
+Message-ID: <20061012180759.GI29920@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160679627.7956.7.camel@Homer.simpson.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12 2006, Mike Galbraith wrote:
-> On Thu, 2006-10-12 at 08:47 -0700, Alex Romosan wrote:
-> > Jens Axboe <jens.axboe@oracle.com> writes:
-> > 
-> > > Argh damn, it needs this on top of it as well. Your second problem
-> > > likely stems from that missing bit, please retest with this one applied
-> > > as well.
-> > >
-> > > diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
-> > > index e7513e5..bddfebd 100644
-> > > --- a/drivers/ide/ide-cd.c
-> > > +++ b/drivers/ide/ide-cd.c
-> > > @@ -716,7 +716,7 @@ static int cdrom_decode_status(ide_drive
-> > >  		ide_error(drive, "request sense failure", stat);
-> > >  		return 1;
-> > >  
-> > > -	} else if (blk_pc_request(rq)) {
-> > > +	} else if (blk_pc_request(rq) || rq->cmd_type == REQ_TYPE_ATA_PC) {
-> > >  		/* All other functions, except for READ. */
-> > >  		unsigned long flags;
-> > >  
-> > 
-> > no more strange messages but, once again, i am not able to read movie
-> > dvd's with the above patch applied.
-> 
-> Hmm.  Xine still works fine here.
-> 
-> I tried starting xine with no dvd in the drive for grins, and _without_
-> this patch, I had to resort to SysRq-E to regain control of my box, and
-> that still took quite a while.  I got no oops, but a zillion IO retries
-> and sector blah messages.  DoSed me bigtime.  With this patch, I just
-> got the expected can't open failure.
+	drivers/sbus/char stuff using kernel_execve() needs linux/syscalls.h
+now; includes trimmed, while we are at it.
 
-Yeah, the problem if you don't have this extra one-liner is that error
-handling gets totally screwed. Everything should be fine in Linus' tree
-now, he has everything.
-
--- 
-Jens Axboe
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff --git a/drivers/sbus/char/bbc_envctrl.c b/drivers/sbus/char/bbc_envctrl.c
+index d27e4f6..0d3660c 100644
+--- a/drivers/sbus/char/bbc_envctrl.c
++++ b/drivers/sbus/char/bbc_envctrl.c
+@@ -4,10 +4,8 @@
+  * Copyright (C) 2001 David S. Miller (davem@redhat.com)
+  */
+ 
+-#include <linux/kernel.h>
+ #include <linux/kthread.h>
+-#include <linux/sched.h>
+-#include <linux/slab.h>
++#include <linux/syscalls.h>
+ #include <linux/delay.h>
+ #include <asm/oplib.h>
+ #include <asm/ebus.h>
+diff --git a/drivers/sbus/char/envctrl.c b/drivers/sbus/char/envctrl.c
+index 728a133..6b6a855 100644
+--- a/drivers/sbus/char/envctrl.c
++++ b/drivers/sbus/char/envctrl.c
+@@ -20,16 +20,12 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/sched.h>
++#include <linux/init.h>
+ #include <linux/kthread.h>
+-#include <linux/errno.h>
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
+-#include <linux/init.h>
+ #include <linux/miscdevice.h>
+-#include <linux/mm.h>
+-#include <linux/slab.h>
+-#include <linux/kernel.h>
++#include <linux/syscalls.h>
+ 
+ #include <asm/ebus.h>
+ #include <asm/uaccess.h>

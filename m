@@ -1,65 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWJLRQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWJLRRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWJLRQo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWJLRQn
+	id S1750968AbWJLRRB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWJLRRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:16:43 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22502 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750968AbWJLRQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:16:42 -0400
-Date: Thu, 12 Oct 2006 12:16:37 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Jeremy Higdon <jeremy@sgi.com>,
-       Pat Gefre <pfg@sgi.com>
-Subject: Re: [PATCH 2/2] ioc4: Enable build on non-SN2
-In-Reply-To: <20061011172332.8f7b354f.akpm@osdl.org>
-Message-ID: <20061012121528.E85966@pkunk.americas.sgi.com>
-References: <20061010120928.V71367@pkunk.americas.sgi.com>
- <20061011172332.8f7b354f.akpm@osdl.org>
-Organization: Silicon Graphics, Inc.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Oct 2006 13:17:00 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:16606 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750968AbWJLRQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 13:16:59 -0400
+Date: Thu, 12 Oct 2006 19:17:30 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Castet Matthieu <castet.matthieu@free.fr>,
+       Akinobu Mita <akinobu.mita@gmail.com>
+Subject: Re: [PATCH] Driver core: Don't ignore bus_attach_device() retval
+Message-ID: <20061012191730.395bc538@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <Pine.LNX.4.44L0.0610121113140.6435-100000@iolanthe.rowland.org>
+References: <20061012113047.1df2a9c8@gondolin.boeblingen.de.ibm.com>
+	<Pine.LNX.4.44L0.0610121113140.6435-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed-Claws 2.5.3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My sincere apologies for this.
+On Thu, 12 Oct 2006 11:59:45 -0400 (EDT),
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-Would you prefer I send a corrected patch (the oversight was actually
-in the previous patch in the series), or simply a new patch that
-builds atop the other two and fixes the problem?
-
-Thanks,
-Brent
-
-On Wed, 11 Oct 2006, Andrew Morton wrote:
-
-> On Tue, 10 Oct 2006 12:11:16 -0500 (CDT)
-> Brent Casavant <bcasavan@sgi.com> wrote:
+> > * device_bind_driver() failed to create some symlinks. We may
+> > consider not to fail in this case, since sysfs_remove_link() is fine
+> > even for non-existing links.
 > 
-> > The SGI PCI-RT card, based on the SGI IOC4 chip, will be made available
-> > on Altix XE (x86_64) platforms in the near future.  As such it is now a
-> > misnomer for the IOC4 base device driver to live under drivers/sn, and
-> > would complicate builds for non-SN2.
-> > 
-> > This patch moves the IOC4 base driver code from drivers/sn to drivers/misc,
-> > and updates the associated Makefiles and Kconfig files to allow building
-> > on non-SN2 configs.  Due to the resulting change in link order, it is now
-> > necessary to use late_initcall() for IOC4 subdriver initialization.
-> > 
-> > ...
-> >
-> > +#include <asm/sn/addrs.h>
-> > +#include <asm/sn/clksupport.h>
-> > +#include <asm/sn/shub_mmr.h>
+> It would be okay to fail in this case, because the driver would not have 
+> been probed at all.
+
+In really_probe(), it is called after ->probe has been called (though
+the code does nothing but complain in the failure case).
+
+> > * probing failed for one possible driver with something other than
+> > -ENODEV or -ENXIO. Not sure if we really should abort in this case.
+> > We'd just end up with an unbound device, and a driver returning (for
+> > example) -ENOMEM for probing may just be a really dumb driver trying to
+> > allocate an insane amount of memory (and the next driver might just be
+> > fine).
 > 
-> That doesn't work so good on x86.
+> Yes, this is exactly what I meant.  Having an unbound device is okay.
+
+Maybe ignoring all probe errors would be best here? (Calling
+device_bind_driver() only on success, of course.)
+
+> I haven't looked at the driver core much since multithreaded probing was
+> added.  The multithreading part has a bad locking bug: the new thread
+> doesn't acquire the necessary semaphores.  Also it probes multiple drivers
+> for the same device in parallel, which seems wrong.  Since multiple probes 
+> can't run concurrently there's no reason to have a separate thread for 
+> each one.  There should be only one new thread per device.
+
+Currently, it is the device driver which specifies whether multithreaded
+probe should be done. Maybe this should rather be specified per
+subsystem? Having several bus_for_each_drv(..., dev, __device_attach)
+run in parallel makes more sense to me than the current approach.
+
+> > One way to fix this would be to make device_bind_driver() always
+> > succeed (even without symlinks),
 > 
+> Hmm... If device_bind_driver() fails -- because of the symlinks -- then
+> the device is still on the driver's klist, because the klist_add_tail() in
+> driver_bound() never gets undone.  Another bug.
+
+There's already been a fix:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116062971226779&w=2
+
+> Clearly
+> device_bind_driver() should call driver_sysfs_add() before driver_bound(),
+> not after.  Or else it should never fail.
+
+Or that. I'm currently a bit in favour of ignoring symlink errors.
+
+> It's a lot safer and easier just to switch the order of the calls in 
+> device_bind_driver().
+
+?? Did you mean really_probe() here?
+
+>  I 
+> think in all cases, bus_attach_device() really should ignore the return 
+> code from device_attach().
+
+This would be the only sensible approach if we had one probing thread
+per device. And device_bind_driver() should probably always succeed.
 
 -- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

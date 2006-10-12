@@ -1,564 +1,409 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbWJLPFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWJLPG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbWJLPFj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWJLPFj
+	id S932576AbWJLPG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWJLPG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:05:39 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:31117 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S932578AbWJLPFh (ORCPT
+	Thu, 12 Oct 2006 11:06:28 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:32383 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932576AbWJLPG1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:05:37 -0400
-Date: Thu, 12 Oct 2006 17:05:10 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Andrew Morton <akpm@osdl.org>, Jaroslav Kysela <perex@suse.cz>
-cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix PCI sound drivers, ignoring return value from
- pci_enable_device()
-Message-ID: <Pine.LNX.4.64.0610121703420.29022@twin.jikos.cz>
+	Thu, 12 Oct 2006 11:06:27 -0400
+Message-ID: <452E5B4D.7000402@sw.ru>
+Date: Thu, 12 Oct 2006 19:12:13 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <npiggin@suse.de>
+CC: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 5/5] oom: invoke OOM killer from pagefault handler
+References: <20061012120102.29671.31163.sendpatchset@linux.site> <20061012120150.29671.48586.sendpatchset@linux.site>
+In-Reply-To: <20061012120150.29671.48586.sendpatchset@linux.site>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] fix PCI drivers in alsa, ignoring return value from pci_enable_device()
+Nick,
 
-This patch adds checks to _resume methods of PCI sound drivers in which it 
-was missing.
+AFAICS, 1 page allocation which is done in page fault handler
+can fail in the only case - OOM kills current, so if we failed
+we should have TIF_MEMDIE and just kill current.
+Selecting another process for killing if page fault fails means
+taking another victim with the one being already killed.
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+my 2 cents.
 
-diff --git a/sound/pci/ali5451/ali5451.c b/sound/pci/ali5451/ali5451.c
-index 13a8cef..2685894 100644
---- a/sound/pci/ali5451/ali5451.c
-+++ b/sound/pci/ali5451/ali5451.c
-@@ -2042,14 +2042,18 @@ static int ali_resume(struct pci_dev *pc
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_ali *chip = card->private_data;
- 	struct snd_ali_image *im;
--	int i, j;
-+	int i, j, err;
- 
- 	im = chip->image;
- 	if (! im)
- 		return 0;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "ali: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 
- 	spin_lock_irq(&chip->reg_lock);
- 	
-diff --git a/sound/pci/als300.c b/sound/pci/als300.c
-index 9b16c29..8d4bbd4 100644
---- a/sound/pci/als300.c
-+++ b/sound/pci/als300.c
-@@ -778,9 +778,13 @@ static int snd_als300_resume(struct pci_
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_als300 *chip = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "als300: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/als4000.c b/sound/pci/als4000.c
-index 15fc392..22d378a 100644
---- a/sound/pci/als4000.c
-+++ b/sound/pci/als4000.c
-@@ -815,9 +815,13 @@ static int snd_als4000_resume(struct pci
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_card_als4000 *acard = card->private_data;
- 	struct snd_sb *chip = acard->chip;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "als4000: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/atiixp.c b/sound/pci/atiixp.c
-index 3e8fc5a..1628ec5 100644
---- a/sound/pci/atiixp.c
-+++ b/sound/pci/atiixp.c
-@@ -1452,10 +1452,14 @@ static int snd_atiixp_resume(struct pci_
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct atiixp *chip = card->private_data;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "atiixp: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/atiixp_modem.c b/sound/pci/atiixp_modem.c
-index c5dda1b..02b1792 100644
---- a/sound/pci/atiixp_modem.c
-+++ b/sound/pci/atiixp_modem.c
-@@ -1138,10 +1138,13 @@ static int snd_atiixp_resume(struct pci_
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct atiixp_modem *chip = card->private_data;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "atiixp: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/azt3328.c b/sound/pci/azt3328.c
-index 692f203..521d0ef 100644
---- a/sound/pci/azt3328.c
-+++ b/sound/pci/azt3328.c
-@@ -1914,10 +1914,13 @@ snd_azf3328_resume(struct pci_dev *pci)
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_azf3328 *chip = card->private_data;
--	int reg;
-+	int reg, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "azf3328: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/cmipci.c b/sound/pci/cmipci.c
-index 1f7e710..79c8fee 100644
---- a/sound/pci/cmipci.c
-+++ b/sound/pci/cmipci.c
-@@ -3132,10 +3132,14 @@ static int snd_cmipci_resume(struct pci_
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct cmipci *cm = card->private_data;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "cmi: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/cs4281.c b/sound/pci/cs4281.c
-index d54924e..24c5c73 100644
---- a/sound/pci/cs4281.c
-+++ b/sound/pci/cs4281.c
-@@ -2058,10 +2058,15 @@ static int cs4281_resume(struct pci_dev 
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct cs4281 *chip = card->private_data;
- 	unsigned int i;
-+	int err;
- 	u32 ulCLK;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "cs4281: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_master(pci);
- 
- 	ulCLK = snd_cs4281_peekBA0(chip, BA0_CLKCR1);
-diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
-index 16d4ebf..b451b7b 100644
---- a/sound/pci/cs46xx/cs46xx_lib.c
-+++ b/sound/pci/cs46xx/cs46xx_lib.c
-@@ -3696,10 +3696,14 @@ int snd_cs46xx_resume(struct pci_dev *pc
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_cs46xx *chip = card->private_data;
--	int amp_saved;
-+	int amp_saved, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "cs46xx: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_master(pci);
- 	amp_saved = chip->amplifier;
- 	chip->amplifier = 0;
-diff --git a/sound/pci/cs5535audio/cs5535audio_pm.c b/sound/pci/cs5535audio/cs5535audio_pm.c
-index aad0e69..b3fcbc6 100644
---- a/sound/pci/cs5535audio/cs5535audio_pm.c
-+++ b/sound/pci/cs5535audio/cs5535audio_pm.c
-@@ -85,10 +85,13 @@ int snd_cs5535audio_resume(struct pci_de
- 	struct cs5535audio *cs5535au = card->private_data;
- 	u32 tmp;
- 	int timeout;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "cs5535audio: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_master(pci);
- 
- 	/* set LNK_WRM_RST to reset AC link */
-diff --git a/sound/pci/emu10k1/emu10k1.c b/sound/pci/emu10k1/emu10k1.c
-index 493ec08..43823eb 100644
---- a/sound/pci/emu10k1/emu10k1.c
-+++ b/sound/pci/emu10k1/emu10k1.c
-@@ -236,9 +236,14 @@ static int snd_emu10k1_resume(struct pci
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_emu10k1 *emu = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "emu10k1: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 	
-diff --git a/sound/pci/ens1370.c b/sound/pci/ens1370.c
-index 8cb4fb2..8f015ea 100644
---- a/sound/pci/ens1370.c
-+++ b/sound/pci/ens1370.c
-@@ -2082,9 +2082,13 @@ static int snd_ensoniq_resume(struct pci
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct ensoniq *ensoniq = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "ensoniq: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/es1938.c b/sound/pci/es1938.c
-index 2da988f..d0eb1a3 100644
---- a/sound/pci/es1938.c
-+++ b/sound/pci/es1938.c
-@@ -1493,9 +1493,13 @@ static int es1938_resume(struct pci_dev 
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct es1938 *chip = card->private_data;
- 	unsigned char *s, *d;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "es1938: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	request_irq(pci->irq, snd_es1938_interrupt,
- 		    IRQF_DISABLED|IRQF_SHARED, "ES1938", chip);
- 	chip->irq = pci->irq;
-diff --git a/sound/pci/es1968.c b/sound/pci/es1968.c
-index b9d723c..6691eaa 100644
---- a/sound/pci/es1968.c
-+++ b/sound/pci/es1968.c
-@@ -2408,13 +2408,17 @@ static int es1968_resume(struct pci_dev 
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct es1968 *chip = card->private_data;
- 	struct list_head *p;
-+	int err;
- 
- 	if (! chip->do_pm)
- 		return 0;
- 
- 	/* restore all our config */
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "es1968: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_master(pci);
- 	snd_es1968_chip_init(chip);
- 
-diff --git a/sound/pci/fm801.c b/sound/pci/fm801.c
-index 3ec7d7e..68d2ca3 100644
---- a/sound/pci/fm801.c
-+++ b/sound/pci/fm801.c
-@@ -1542,9 +1542,13 @@ static int snd_fm801_resume(struct pci_d
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct fm801 *chip = card->private_data;
- 	int i;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "fm801: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index feeed12..deea3e0 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1392,9 +1392,14 @@ static int azx_resume(struct pci_dev *pc
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct azx *chip = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "azx: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	if (!disable_msi)
- 		pci_enable_msi(pci);
- 	/* FIXME: need proper error handling */
-diff --git a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
-index f4319b8..6693e9d 100644
---- a/sound/pci/intel8x0.c
-+++ b/sound/pci/intel8x0.c
-@@ -2488,9 +2488,14 @@ static int intel8x0_resume(struct pci_de
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct intel8x0 *chip = card->private_data;
- 	int i;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "intel8x0: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_master(pci);
- 	request_irq(pci->irq, snd_intel8x0_interrupt, IRQF_DISABLED|IRQF_SHARED,
- 		    card->shortname, chip);
-diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
-index 6703f5c..080d072 100644
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1056,9 +1056,14 @@ static int intel8x0m_resume(struct pci_d
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct intel8x0m *chip = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "intel8x0m: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_master(pci);
- 	request_irq(pci->irq, snd_intel8x0_interrupt, IRQF_DISABLED|IRQF_SHARED,
- 		    card->shortname, chip);
-diff --git a/sound/pci/maestro3.c b/sound/pci/maestro3.c
-index 05605f4..35077b7 100644
---- a/sound/pci/maestro3.c
-+++ b/sound/pci/maestro3.c
-@@ -2602,13 +2602,17 @@ static int m3_resume(struct pci_dev *pci
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_m3 *chip = card->private_data;
--	int i, index;
-+	int i, index, err;
- 
- 	if (chip->suspend_mem == NULL)
- 		return 0;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "m3: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_master(pci);
- 
- 	/* first lets just bring everything back. .*/
-diff --git a/sound/pci/nm256/nm256.c b/sound/pci/nm256/nm256.c
-index b1bbdb9..7990103 100644
---- a/sound/pci/nm256/nm256.c
-+++ b/sound/pci/nm256/nm256.c
-@@ -1397,12 +1397,16 @@ static int nm256_resume(struct pci_dev *
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct nm256 *chip = card->private_data;
--	int i;
-+	int i, err;
- 
- 	/* Perform a full reset on the hardware */
- 	chip->in_resume = 1;
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "nm256: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	snd_nm256_init_chip(chip);
- 
- 	/* restore ac97 */
-diff --git a/sound/pci/riptide/riptide.c b/sound/pci/riptide/riptide.c
-index ec48991..3a17a71 100644
---- a/sound/pci/riptide/riptide.c
-+++ b/sound/pci/riptide/riptide.c
-@@ -1188,9 +1188,13 @@ static int riptide_resume(struct pci_dev
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_riptide *chip = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "riptide: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 	snd_riptide_initialize(chip);
-diff --git a/sound/pci/trident/trident_main.c b/sound/pci/trident/trident_main.c
-index 0d47887..fbd8629 100644
---- a/sound/pci/trident/trident_main.c
-+++ b/sound/pci/trident/trident_main.c
-@@ -3982,9 +3982,13 @@ int snd_trident_resume(struct pci_dev *p
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_trident *trident = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "trident: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_master(pci); /* to be sure */
- 
- 	switch (trident->device) {
-diff --git a/sound/pci/via82xx.c b/sound/pci/via82xx.c
-index e6990e0..8daea32 100644
---- a/sound/pci/via82xx.c
-+++ b/sound/pci/via82xx.c
-@@ -2195,10 +2195,13 @@ static int snd_via82xx_resume(struct pci
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct via82xx *chip = card->private_data;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "via82xx: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 
- 	snd_via82xx_chip_init(chip);
-diff --git a/sound/pci/via82xx_modem.c b/sound/pci/via82xx_modem.c
-index 5ab1cf3..09c4afd 100644
---- a/sound/pci/via82xx_modem.c
-+++ b/sound/pci/via82xx_modem.c
-@@ -1042,10 +1042,13 @@ static int snd_via82xx_resume(struct pci
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct via82xx_modem *chip = card->private_data;
--	int i;
-+	int i, err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "via82xx: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 
-diff --git a/sound/pci/vx222/vx222.c b/sound/pci/vx222/vx222.c
-index e7cd8ac..64086b2 100644
---- a/sound/pci/vx222/vx222.c
-+++ b/sound/pci/vx222/vx222.c
-@@ -276,9 +276,14 @@ static int snd_vx222_resume(struct pci_d
- {
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_vx222 *vx = card->private_data;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "vx222: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
-+
- 	pci_set_power_state(pci, PCI_D0);
- 	pci_set_master(pci);
- 	return snd_vx_resume(&vx->core);
-diff --git a/sound/pci/ymfpci/ymfpci_main.c b/sound/pci/ymfpci/ymfpci_main.c
-index ebc6da8..f647d01 100644
---- a/sound/pci/ymfpci/ymfpci_main.c
-+++ b/sound/pci/ymfpci/ymfpci_main.c
-@@ -2226,9 +2226,13 @@ int snd_ymfpci_resume(struct pci_dev *pc
- 	struct snd_card *card = pci_get_drvdata(pci);
- 	struct snd_ymfpci *chip = card->private_data;
- 	unsigned int i;
-+	int err;
- 
- 	pci_restore_state(pci);
--	pci_enable_device(pci);
-+	if ((err = pci_enable_device(pci))) {
-+		printk(KERN_ERR "ymf: Cannot enable PCI device during resume\n");
-+		return err;
-+	}
- 	pci_set_master(pci);
- 	snd_ymfpci_aclink_reset(pci);
- 	snd_ymfpci_codec_ready(chip, 0);
+Thanks,
+Kirill
 
--- 
-Jiri Kosina
+> Rather than have the pagefault handler kill a process directly if it gets a
+> VM_FAULT_OOM, have it call into the OOM killer.
+> 
+> Only converted a few architectures so far - this is just an RFC.
+> 
+> Index: linux-2.6/mm/oom_kill.c
+> ===================================================================
+> --- linux-2.6.orig/mm/oom_kill.c
+> +++ linux-2.6/mm/oom_kill.c
+> @@ -376,6 +376,57 @@ int unregister_oom_notifier(struct notif
+>  }
+>  EXPORT_SYMBOL_GPL(unregister_oom_notifier);
+>  
+> +/*
+> + * Must be called with cpuset_lock and tasklist_lock held for read.
+> + */
+> +void __out_of_memory(void)
+> +{
+> +	unsigned long points = 0;
+> +	struct task_struct *p;
+> +
+> +	if (sysctl_panic_on_oom)
+> +		panic("out of memory. panic_on_oom is selected\n");
+> +retry:
+> +	/*
+> +	 * Rambo mode: Shoot down a process and hope it solves whatever
+> +	 * issues we may have.
+> +	 */
+> +	p = select_bad_process(&points);
+> +
+> +	if (PTR_ERR(p) == -1UL)
+> +		return;
+> +
+> +	/* Found nothing?!?! Either we hang forever, or we panic. */
+> +	if (!p) {
+> +		read_unlock(&tasklist_lock);
+> +		cpuset_unlock();
+> +		panic("Out of memory and no killable processes...\n");
+> +	}
+> +
+> +	if (oom_kill_process(p, points, "Out of memory"))
+> +		goto retry;
+> +}
+> +
+> +/*
+> + * pagefault handler calls into here because it is out of memory but
+> + * doesn't know exactly how or why.
+> + */
+> +void pagefault_out_of_memory(void)
+> +{
+> +	if (printk_ratelimit()) {
+> +		printk(KERN_WARNING "%s invoked oom-killer from pagefault: "
+> +			"oomkilladj=%d\n", current->oomkilladj);
+> +		dump_stack();
+> +		show_mem();
+> +	}
+> +
+> +	cpuset_lock();
+> +	read_lock(&tasklist_lock);
+> +	__out_of_memory();
+> +	read_unlock(&tasklist_lock);
+> +	cpuset_unlock();
+> +}
+> +
+>  /**
+>   * out_of_memory - kill the "best" process when we run out of memory
+>   *
+> @@ -386,8 +437,6 @@ EXPORT_SYMBOL_GPL(unregister_oom_notifie
+>   */
+>  void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask, int order)
+>  {
+> -	struct task_struct *p;
+> -	unsigned long points = 0;
+>  	unsigned long freed = 0;
+>  
+>  	blocking_notifier_call_chain(&oom_notify_list, 0, &freed);
+> @@ -412,42 +461,18 @@ void out_of_memory(struct zonelist *zone
+>  	 */
+>  	switch (constrained_alloc(zonelist, gfp_mask)) {
+>  	case CONSTRAINT_MEMORY_POLICY:
+> -		oom_kill_process(current, points,
+> -				"No available memory (MPOL_BIND)");
+> +		oom_kill_process(current, 0, "No available memory (MPOL_BIND)");
+>  		break;
+>  
+>  	case CONSTRAINT_CPUSET:
+> -		oom_kill_process(current, points,
+> -				"No available memory in cpuset");
+> +		oom_kill_process(current, 0, "No available memory in cpuset");
+>  		break;
+>  
+>  	case CONSTRAINT_NONE:
+> -		if (sysctl_panic_on_oom)
+> -			panic("out of memory. panic_on_oom is selected\n");
+> -retry:
+> -		/*
+> -		 * Rambo mode: Shoot down a process and hope it solves whatever
+> -		 * issues we may have.
+> -		 */
+> -		p = select_bad_process(&points);
+> -
+> -		if (PTR_ERR(p) == -1UL)
+> -			goto out;
+> -
+> -		/* Found nothing?!?! Either we hang forever, or we panic. */
+> -		if (!p) {
+> -			read_unlock(&tasklist_lock);
+> -			cpuset_unlock();
+> -			panic("Out of memory and no killable processes...\n");
+> -		}
+> -
+> -		if (oom_kill_process(p, points, "Out of memory"))
+> -			goto retry;
+> -
+> +		__out_of_memory();
+>  		break;
+>  	}
+>  
+> -out:
+>  	read_unlock(&tasklist_lock);
+>  	cpuset_unlock();
+>  
+> Index: linux-2.6/arch/alpha/mm/fault.c
+> ===================================================================
+> --- linux-2.6.orig/arch/alpha/mm/fault.c
+> +++ linux-2.6/arch/alpha/mm/fault.c
+> @@ -143,7 +143,6 @@ do_page_fault(unsigned long address, uns
+>  			goto bad_area;
+>  	}
+>  
+> - survive:
+>  	/* If for any reason at all we couldn't handle the fault,
+>  	   make sure we exit gracefully rather than endlessly redo
+>  	   the fault.  */
+> @@ -190,19 +189,13 @@ do_page_fault(unsigned long address, uns
+>  	die_if_kernel("Oops", regs, cause, (unsigned long*)regs - 16);
+>  	do_exit(SIGKILL);
+>  
+> -	/* We ran out of memory, or some other thing happened to us that
+> -	   made us unable to handle the page fault gracefully.  */
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+>   out_of_memory:
+> -	if (is_init(current)) {
+> -		yield();
+> -		down_read(&mm->mmap_sem);
+> -		goto survive;
+> -	}
+> -	printk(KERN_ALERT "VM: killing process %s(%d)\n",
+> -	       current->comm, current->pid);
+> -	if (!user_mode(regs))
+> -		goto no_context;
+> -	do_exit(SIGKILL);
+> +	pagefault_out_of_memory();
+> +	return;
+>  
+>   do_sigbus:
+>  	/* Send a sigbus, regardless of whether we were in kernel
+> Index: linux-2.6/arch/i386/mm/fault.c
+> ===================================================================
+> --- linux-2.6.orig/arch/i386/mm/fault.c
+> +++ linux-2.6/arch/i386/mm/fault.c
+> @@ -444,7 +444,6 @@ good_area:
+>  				goto bad_area;
+>  	}
+>  
+> - survive:
+>  	/*
+>  	 * If for any reason at all we couldn't handle the fault,
+>  	 * make sure we exit gracefully rather than endlessly redo
+> @@ -583,21 +582,14 @@ no_context:
+>  	bust_spinlocks(0);
+>  	do_exit(SIGKILL);
+>  
+> -/*
+> - * We ran out of memory, or some other thing happened to us that made
+> - * us unable to handle the page fault gracefully.
+> - */
+>  out_of_memory:
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+>  	up_read(&mm->mmap_sem);
+> -	if (is_init(tsk)) {
+> -		yield();
+> -		down_read(&mm->mmap_sem);
+> -		goto survive;
+> -	}
+> -	printk("VM: killing process %s\n", tsk->comm);
+> -	if (error_code & 4)
+> -		do_exit(SIGKILL);
+> -	goto no_context;
+> +	pagefault_out_of_memory();
+> +	return;
+>  
+>  do_sigbus:
+>  	up_read(&mm->mmap_sem);
+> Index: linux-2.6/arch/ia64/mm/fault.c
+> ===================================================================
+> --- linux-2.6.orig/arch/ia64/mm/fault.c
+> +++ linux-2.6/arch/ia64/mm/fault.c
+> @@ -155,7 +155,6 @@ ia64_do_page_fault (unsigned long addres
+>  	if ((vma->vm_flags & mask) != mask)
+>  		goto bad_area;
+>  
+> -  survive:
+>  	/*
+>  	 * If for any reason at all we couldn't handle the fault, make
+>  	 * sure we exit gracefully rather than endlessly redo the
+> @@ -280,13 +279,10 @@ ia64_do_page_fault (unsigned long addres
+>  
+>    out_of_memory:
+>  	up_read(&mm->mmap_sem);
+> -	if (is_init(current)) {
+> -		yield();
+> -		down_read(&mm->mmap_sem);
+> -		goto survive;
+> -	}
+> -	printk(KERN_CRIT "VM: killing process %s\n", current->comm);
+> -	if (user_mode(regs))
+> -		do_exit(SIGKILL);
+> -	goto no_context;
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+> +	pagefault_out_of_memory();
+> +	return;
+>  }
+> Index: linux-2.6/arch/powerpc/mm/fault.c
+> ===================================================================
+> --- linux-2.6.orig/arch/powerpc/mm/fault.c
+> +++ linux-2.6/arch/powerpc/mm/fault.c
+> @@ -342,7 +342,6 @@ good_area:
+>  	 * make sure we exit gracefully rather than endlessly redo
+>  	 * the fault.
+>  	 */
+> - survive:
+>  	switch (handle_mm_fault(mm, vma, address, is_write)) {
+>  
+>  	case VM_FAULT_MINOR:
+> @@ -380,21 +379,14 @@ bad_area_nosemaphore:
+>  
+>  	return SIGSEGV;
+>  
+> -/*
+> - * We ran out of memory, or some other thing happened to us that made
+> - * us unable to handle the page fault gracefully.
+> - */
+>  out_of_memory:
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+>  	up_read(&mm->mmap_sem);
+> -	if (is_init(current)) {
+> -		yield();
+> -		down_read(&mm->mmap_sem);
+> -		goto survive;
+> -	}
+> -	printk("VM: killing process %s\n", current->comm);
+> -	if (user_mode(regs))
+> -		do_exit(SIGKILL);
+> -	return SIGKILL;
+> +	pagefault_out_of_memory();
+> +	return 0;
+>  
+>  do_sigbus:
+>  	up_read(&mm->mmap_sem);
+> Index: linux-2.6/arch/x86_64/mm/fault.c
+> ===================================================================
+> --- linux-2.6.orig/arch/x86_64/mm/fault.c
+> +++ linux-2.6/arch/x86_64/mm/fault.c
+> @@ -407,7 +407,6 @@ asmlinkage void __kprobes do_page_fault(
+>  	if (unlikely(in_atomic() || !mm))
+>  		goto bad_area_nosemaphore;
+>  
+> - again:
+>  	/* When running in the kernel we expect faults to occur only to
+>  	 * addresses in user space.  All other faults represent errors in the
+>  	 * kernel and should generate an OOPS.  Unfortunatly, in the case of an
+> @@ -574,20 +573,14 @@ no_context:
+>  	oops_end(flags);
+>  	do_exit(SIGKILL);
+>  
+> -/*
+> - * We ran out of memory, or some other thing happened to us that made
+> - * us unable to handle the page fault gracefully.
+> - */
+>  out_of_memory:
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+>  	up_read(&mm->mmap_sem);
+> -	if (is_init(current)) {
+> -		yield();
+> -		goto again;
+> -	}
+> -	printk("VM: killing process %s\n", tsk->comm);
+> -	if (error_code & 4)
+> -		do_exit(SIGKILL);
+> -	goto no_context;
+> +	pagefault_out_of_memory();
+> +	return;
+>  
+>  do_sigbus:
+>  	up_read(&mm->mmap_sem);
+> Index: linux-2.6/include/linux/mm.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/mm.h
+> +++ linux-2.6/include/linux/mm.h
+> @@ -617,6 +617,11 @@ static inline int page_mapped(struct pag
+>   */
+>  #define VM_FAULT_WRITE	0x10
+>  
+> +/*
+> + * Can be called by the pagefault handler when it gets a VM_FAULT_OOM.
+> + */
+> +extern void pagefault_out_of_memory(void);
+> +
+>  #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
+>  
+>  extern void show_free_areas(void);
+> Index: linux-2.6/arch/um/kernel/trap.c
+> ===================================================================
+> --- linux-2.6.orig/arch/um/kernel/trap.c
+> +++ linux-2.6/arch/um/kernel/trap.c
+> @@ -75,7 +75,6 @@ good_area:
+>                  goto out;
+>  
+>  	do {
+> -survive:
+>  		switch (handle_mm_fault(mm, vma, address, is_write)){
+>  		case VM_FAULT_MINOR:
+>  			current->min_flt++;
+> @@ -119,13 +118,13 @@ out_nosemaphore:
+>   * us unable to handle the page fault gracefully.
+>   */
+>  out_of_memory:
+> -	if (is_init(current)) {
+> -		up_read(&mm->mmap_sem);
+> -		yield();
+> -		down_read(&mm->mmap_sem);
+> -		goto survive;
+> -	}
+> -	goto out;
+> +	/*
+> +	 * We ran out of memory, call the OOM killer, and return to userspace
+> +	 * (the fault will be retried if we weren't killed)
+> +	 */
+> +	up_read(&mm->mmap_sem);
+> +	pagefault_out_of_memory();
+> +	goto out_nosemaphore;
+>  }
+>  
+>  void segv_handler(int sig, union uml_pt_regs *regs)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWJLBoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWJLBqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422672AbWJLBoL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 21:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWJLBoK
+	id S1422673AbWJLBqE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 21:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422681AbWJLBqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 21:44:10 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:64991 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932490AbWJLBoJ (ORCPT
+	Wed, 11 Oct 2006 21:46:03 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:1808 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S1422673AbWJLBqB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 21:44:09 -0400
-Date: Wed, 11 Oct 2006 21:44:08 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SCSI/aha1740: handle SCSI API errors
-Message-ID: <20061012014408.GA12771@havoc.gtf.org>
-Mime-Version: 1.0
+	Wed, 11 Oct 2006 21:46:01 -0400
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.19-rc1 regression: unable to read dvd's
+Date: Wed, 11 Oct 2006 18:45:59 -0700
+Message-ID: <87hcya8fxk.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i am not able to read movie dvd's anymore under 2.6.19-rc1. i get the
+following in the syslog:
 
+  kernel: hdc: read_intr: Drive wants to transfer data the wrong way!
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+the drive in question is on a thinkpad t40:
 
----
+  kernel: hdc: UJDA745 DVD/CDRW, ATAPI CD/DVD-ROM drive
+  kernel: hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
 
- drivers/scsi/aha1740.c          |   10 ++++++-
+i can read the disks under 2.6.18 so it's probably not the drive's
+fault. any ideas?
 
-diff --git a/drivers/scsi/aha1740.c b/drivers/scsi/aha1740.c
-index c3c38a7..d7af9c6 100644
---- a/drivers/scsi/aha1740.c
-+++ b/drivers/scsi/aha1740.c
-@@ -586,7 +586,7 @@ static struct scsi_host_template aha1740
- 
- static int aha1740_probe (struct device *dev)
- {
--	int slotbase;
-+	int slotbase, rc;
- 	unsigned int irq_level, irq_type, translation;
- 	struct Scsi_Host *shpnt;
- 	struct aha1740_hostdata *host;
-@@ -641,10 +641,16 @@ static int aha1740_probe (struct device 
- 	}
- 
- 	eisa_set_drvdata (edev, shpnt);
--	scsi_add_host (shpnt, dev); /* XXX handle failure */
-+
-+	rc = scsi_add_host (shpnt, dev);
-+	if (rc)
-+		goto err_irq;
-+
- 	scsi_scan_host (shpnt);
- 	return 0;
- 
-+ err_irq:
-+ 	free_irq(irq_level, shpnt);
-  err_unmap:
- 	dma_unmap_single (&edev->dev, host->ecb_dma_addr,
- 			  sizeof (host->ecb), DMA_BIDIRECTIONAL);
+--alex--
+
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

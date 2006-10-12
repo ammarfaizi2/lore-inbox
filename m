@@ -1,46 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWJLTV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWJLTZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWJLTV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 15:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWJLTV5
+	id S1750735AbWJLTZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 15:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWJLTZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 15:21:57 -0400
-Received: from web58106.mail.re3.yahoo.com ([68.142.236.129]:58755 "HELO
-	web58106.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1750749AbWJLTV5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 15:21:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ro/EyF3YfcOni81p7IwPPPKjDyQBnqcsOt4GEeBdOM6Xs7OoLX1W8D5RX6pnwiHgWjJPcRDGgWF/pGy/O/OSE+u6B/72o5LNURUkl12lsB4/awSydpgf0Qp2gAKUdRpHYzZxhogVht9zHoetMinFPxR9a/RbakQxzf4GChsZgi4=  ;
-Message-ID: <20061012192156.97357.qmail@web58106.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 12:21:56 -0700 (PDT)
-From: Open Source <opensource3141@yahoo.com>
-Subject: USB performance bug since kernel 2.6.13 (CRITICAL???)
-To: linux-kernel@vger.kernel.org, linux-usb-devel@sourceforge.net
+	Thu, 12 Oct 2006 15:25:59 -0400
+Received: from mail.corp.idt.net ([169.132.25.53]:22288 "EHLO
+	mail.corp.idt.net") by vger.kernel.org with ESMTP id S1750735AbWJLTZ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 15:25:58 -0400
+Message-ID: <452E96C5.8070307@hq.idt.net>
+Date: Thu, 12 Oct 2006 15:25:57 -0400
+From: Serge Aleynikov <serge@hq.idt.net>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@redhat.com>
+Subject: Re: non-critical security bug fix
+References: <452D3ED9.509@hq.idt.net> <20061012190647.GA6725@sergelap.austin.ibm.com>
+In-Reply-To: <20061012190647.GA6725@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
- 
-I am  writing regarding a performance issue that I recently observed after upgrading from kernel 2.6.12 to 2.6.17.  I did some hunting around and have found that the issue first arises in 2.6.13.
+Serge (what a nice name!  ;-) ),
 
-I am using a device that submits URBs asynchronously using the libusb devio infrastructure.  In version 2.6.12 I am able to submit and reap URBs for my particular application at a transaction rate of one per millisecond.  A transaction consists of a single WRITE URB (< 512 bytes) followed by a single READ URB (1024 bytes).  Once I upgrade to version 2.6.13, the transactional rate drops to one per 4 milliseconds!
+Let me give you an example where we found this patch very useful.
 
-The overall performance of a particular algorithm is increased from a total execution time of 75 seconds to over 160 seconds.  The only difference between the two tests is the kernel.  Microsoft Windows executes the algorithm in 70-75 seconds!
+A 3rd party library that we bought implemented a user-level SCTP 
+protocol by opening raw sockets.  This required our application to run 
+as root.  However, we didn't want for it to run as root, and wanted to 
+set the CAP_NET_RAW option and have the interaction with the raw socket 
+survive after when we switch the effective user away from root.
 
-I am using a Fedora Core distribution with FC4 kernels for testing.  Is there some new incantation that is required in my user-mode driver to get around a "feature" in recent kernels?  Does anyone else know about this?  I was not able to easily find discussion about this on the newsgroups.  It appears that this problem has been around for a while, if it is indeed a problem.
+When reading "man capabilities" we found:
 
-I am not a subscriber to the linux-kernel mailing list but have cross-posted to it since this seems like a serious enough issue.  Please continue to keep any responses on linux-usb-devel as well so I can see them in my email box.
+"If  a  process  that has a 0 value for one or more of its user IDs 
+wants to prevent its permitted capability set being cleared when it 
+resets all of its user IDs to non-zero values, it can  do  so  using 
+the  prctl() PR_SET_KEEPCAPS operation."
 
-Thank you,
-Beleaguered Open Source Fan
+Correct me if I am wrong, but I believe that this sentence says just 
+what I described above.  If so, the previously attached patch has the 
+behavior described in the man page.
+
+Regards,
+
+-- 
+Serge Aleynikov
+Routing R&D, IDT Telecom
+Tel: +1 (973) 438-3436
+Fax: +1 (973) 438-1464
 
 
+Serge E. Hallyn wrote:
+> Quoting Serge Aleynikov (serge@hq.idt.net):
+>> To Maintainers of the linux/security/commoncap.c:
+>>
+>> Patch description:
+>> ==================
+>> This bug-fix ensures that if a process with root access sets 
+>> keep_capabilities flag, current capabilities get preserved when the 
+>> process switches from root to another effective user.  It looks like 
+>> this was intended from the way capabilities are documented, but the 
+>> current->keep_capabilities flag is not being checked.
+> 
+> Note that without your patch, the permitted set is maintained, so that
+> you can regain the caps into your effective set after setuid if you
+> need.  i.e.
+> 
+> 	prctl(PR_SET_KEEPCAPS, 1);
+> 	setresuid(1000, 1000, 1000);
+> 	caps = cap_from_text("cap_net_admin,cap_sys_admin,cap_dac_override=ep");
+> 	ret = cap_set_proc(caps);
+> 
+> So this patch will change the default behavior, but does not add
+> features or change what is possible.
+> 
+> Ordinarely I'd say changing default behavior wrt security is a bad
+> thing, but given that this is "default behavior when doing prctl(PR_SET_KEEPCAPS)",
+> I don't know how much it matters.
+> 
+> Still, I like the current behavior, where setuid means drop effective
+> caps no matter what.
+> 
+> -serge
+> 
 
 
 

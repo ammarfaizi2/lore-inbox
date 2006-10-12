@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWJLG56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWJLHAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422766AbWJLG56 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422769AbWJLG56
+	id S1422630AbWJLHAg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWJLHAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:57:58 -0400
-Received: from lug-owl.de ([195.71.106.12]:40612 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1422766AbWJLG54 (ORCPT
+	Thu, 12 Oct 2006 03:00:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41659 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422630AbWJLHAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:57:56 -0400
-Date: Thu, 12 Oct 2006 08:57:54 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: John Wendel <jwendel10@comcast.net>
-Cc: Eric Sandeen <esandeen@redhat.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Jan Kara <jack@suse.cz>, Eric Sandeen <sandeen@sandeen.net>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061012065754.GJ31823@lug-owl.de>
-Mail-Followup-To: John Wendel <jwendel10@comcast.net>,
-	Eric Sandeen <esandeen@redhat.com>,
-	Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@suse.cz>,
-	Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061010141145.GM23622@atrey.karlin.mff.cuni.cz> <452C18A6.3070607@redhat.com> <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com> <452C4C47.2000107@sandeen.net> <20061011103325.GC6865@atrey.karlin.mff.cuni.cz> <452CF523.5090708@sandeen.net> <20061011142205.GB24508@atrey.karlin.mff.cuni.cz> <1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com> <452DAA26.6080200@redhat.com> <452DC5C5.3040507@comcast.net>
+	Thu, 12 Oct 2006 03:00:36 -0400
+Date: Thu, 12 Oct 2006 00:00:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Harris <googlegroups@mgharris.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
+Message-Id: <20061012000026.8b6ea2e5.akpm@osdl.org>
+In-Reply-To: <20061011160740.GA6868@dingu.igconcepts.com>
+References: <20061011160740.GA6868@dingu.igconcepts.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Ah40dssYA/cDqAW1"
-Content-Disposition: inline
-In-Reply-To: <452DC5C5.3040507@comcast.net>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Oct 2006 11:07:40 -0500
+Michael Harris <googlegroups@mgharris.com> wrote:
 
---Ah40dssYA/cDqAW1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2006-10-11 21:34:13 -0700, John Wendel <jwendel10@comcast.net> wrot=
-e:
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): ext3_free_b=
-locks_sb: bit already cleared for block 4740550
-> Oct 11 20:37:32 Godzilla kernel: Aborting journal on device hda5.
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_free=
-_blocks_sb: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_free=
-_blocks_sb: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
-rve_inode_write: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_trun=
-cate: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
-rve_inode_write: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_orph=
-an_del: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
-rve_inode_write: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_dele=
-te_inode: Journal has aborted
-> Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing b=
-_committed_data
-> Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing b=
-_committed_data
-> Oct 11 20:37:32 Godzilla kernel: ext3_abort called.
-> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): ext3_journa=
-l_start_sb: Detected aborted journal
-> Oct 11 20:37:32 Godzilla kernel: Remounting filesystem read-only
+> Hi, I can readily reproduce this with 2.6.18 doing 4 simultanous kernel
+> compiles on two disks to load test a P4 3.2 HT with 2GB.  I have SMP and
+> SMT scheduling enabled, and the 4GB memory option.  Here is output with
+> CONFIG_DEBUG_VM enabled followed by another crash before CONFIG_DEBUG_VM
+> was enabled.
 
-This looks very much like the issue I see.
+Repeatable.  That's good news.
 
-MfG, JBG
+> 
+> [*ROOT* hen /usr/src/linux-2.6.18 14 ] uname -a
+> Linux hen.igconcepts.com 2.6.18 #2 SMP Tue Oct 10 11:46:01 CDT 2006 i686 i686 i386 GNU/Linux
+> [*ROOT* hen /usr/src/linux-2.6.18 15 ] gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs
+> Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --disable-checking --with-system-zlib --enable-__cxa_atexit --host=i386-redhat-linux
+> Thread model: posix
+> gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+> 
+> 
+> ----------------
+> Oct 11 04:53:35 hen kernel: VM: killing process cc1
+> Oct 11 04:53:35 hen kernel: swap_free: Unused swap offset entry 00004000
+> Oct 11 04:53:35 hen kernel: Eeek! page_mapcount(page) went negative! (-1)
+> Oct 11 04:53:35 hen kernel:   page->flags = c0080014
+> Oct 11 04:53:35 hen kernel:   page->count = 0
+> Oct 11 04:53:35 hen kernel:   page->mapping = 00000000
+> Oct 11 04:53:35 hen kernel: ------------[ cut here ]------------
+> Oct 11 04:53:35 hen kernel: kernel BUG at mm/rmap.c:522!
 
---=20
-      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
-Signature of:                http://catb.org/~esr/faqs/smart-questions.html
-the second  :
+Does that machine run any earlier kernels OK?  If so, which?
 
---Ah40dssYA/cDqAW1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFLedyHb1edYOZ4bsRAloIAKCEKHY5xPsdEzassLoIiyXKcEHzHACdGSne
-xgKYCMLyI75ojlB7aEYq0a8=
-=r5UU
------END PGP SIGNATURE-----
-
---Ah40dssYA/cDqAW1--
+Thanks.

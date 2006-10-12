@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030695AbWJLA1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161341AbWJLAtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030695AbWJLA1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 20:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030693AbWJLA1M
+	id S1161341AbWJLAtp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 20:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161342AbWJLAtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 20:27:12 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64175 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030690AbWJLA1K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 20:27:10 -0400
-Date: Thu, 12 Oct 2006 10:26:47 +1000
-From: David Chinner <dgc@sgi.com>
-To: Steve Lord <lord@xfs.org>
-Cc: David Chinner <dgc@sgi.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Directories > 2GB
-Message-ID: <20061012002646.GP19345@melbourne.sgi.com>
-References: <20061004165655.GD22010@schatzie.adilger.int> <452AC4BE.6090905@xfs.org> <20061010015512.GQ11034@melbourne.sgi.com> <452B0240.60203@xfs.org> <20061010091904.GA395@infradead.org> <20061010233124.GX11034@melbourne.sgi.com> <452D2086.2020204@xfs.org>
+	Wed, 11 Oct 2006 20:49:45 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38798 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161341AbWJLAto
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Oct 2006 20:49:44 -0400
+Date: Thu, 12 Oct 2006 01:49:44 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] m68k: more workarounds for recent binutils idiocy
+Message-ID: <20061012004944.GF29920@ftp.linux.org.uk>
+References: <E1GXlNt-0004Xc-Fi@ZenIV.linux.org.uk> <jek636o62y.fsf@sykes.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <452D2086.2020204@xfs.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <jek636o62y.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 11:49:10AM -0500, Steve Lord wrote:
-> David Chinner wrote:
-> >On Tue, Oct 10, 2006 at 10:19:04AM +0100, Christoph Hellwig wrote:
-> >>On Mon, Oct 09, 2006 at 09:15:28PM -0500, Steve Lord wrote:
-> >>>Hi Dave,
-> >>>
-> >>>My recollection is that it used to default to on, it was disabled
-> >>>because it needs to map the buffer into a single contiguous chunk
-> >>>of kernel memory. This was placing a lot of pressure on the memory
-> >>>remapping code, so we made it not default to on as reworking the
-> >>>code to deal with non contig memory was looking like a major
-> >>>effort.
-> >>Exactly.  The code works but tends to go OOM pretty fast at least
-> >>when the dir blocksize code is bigger than the page size.  I should
-> >>give the code a spin on my ppc box with 64k pages if it works better
-> >>there.
-> >
-> >The pagebuf code doesn't use high-order allocations anymore; it uses
-> >scatter lists and remapping to allow physically discontiguous pages
-> >in a multi-page buffer. That is, the pages are sourced via
-> >find_or_create_page() from the address space of the backing device,
-> >and then mapped via vmap() to provide a virtually contigous mapping
-> >of the multi-page buffer.
-> >
-> >So I don't think this problem exists anymore...
+On Thu, Oct 12, 2006 at 12:12:05AM +0200, Andreas Schwab wrote:
+> Al Viro <viro@ftp.linux.org.uk> writes:
 > 
-> I was not referring to high order allocations here, but the overhead
-> of doing address space remapping every time a directory is accessed.
+> > cretinous thing doesn't believe that (%a0)+ is one macro argument and
+> > splits it in two; worked around by quoting the argument...
+> 
+> What version are you using?  Works rather fine here with 2.17.
 
-Ah - ok. contig -> non-contig and OOM is usually discussed in the
-context of higher order allocations failing. FWIW, I've not noticed
-any extra overhead - the CPU usage seems to grow roughly linearly
-with the increase in directory operations done as a result of
-higher throughput for the same number of I/Os. I'll have a look at
-the Vm stats, though, next time I run a comparison to see how bad
-this is.
+There are two problems; see below for the testcase covering both
+.macro a x
+	.byte 1
+.endm
+	a.x
+	a %(a0)+
 
-Thanks for the clarification, Steve.
+Old binutils (i.e. what Roman's code expects) treat the above as
+	.byte 1
+	.byte 1
 
-Cheers,
+That behaviour exists in 2.16.1 and earlier.  Everything starting at least
+with 2.16.90.0.2 and up to current CVS generates
+	Error: Unknown operator -- statement `a.x' ignored
+for line 4.  That's the problem dealt with by the first patch (and yes,
+current gas from CVS does blow on arch/m68k/math-emu/ as soon as you get
+to getuser.l <something>).
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+_Another_ problem manifests as
+	Error: too many positional arguments
+in line 5.  That had been introduced later (in 2.16.91.0.3, if you look at
+versions on kernel.org, or 2005-08-08 in mainline) and had been fixed since
+then (2.16.91.0.7 or 2006-02-28 in CVS).  That's what the second patch
+dealt with and yes, I agree that just slapping "don't use those versions
+of binutils" in Documentation/Changes is a better variant.
+
+The first problem still needs to be dealt with.

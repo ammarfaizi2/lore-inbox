@@ -1,367 +1,272 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWJLHnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWJLHoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422793AbWJLHnb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWJLHna
+	id S1422795AbWJLHoA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422797AbWJLHnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:43:30 -0400
+	Thu, 12 Oct 2006 03:43:51 -0400
 Received: from py-out-1112.google.com ([64.233.166.178]:12718 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422793AbWJLHnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:43:25 -0400
+	id S1422795AbWJLHnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:43:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:references:user-agent:date:from:to:cc:subject:content-disposition:message-id;
-        b=Xqrupsf4zGOE5HG7zCRdn8TyP4ljiUmN0DU9zmSFlMU9Oy6JqTQRK2fvI+U3Yn3V8DSZ0utiXHGMYshw2tYUUf9H9zRSyTvSBOBvvfKabD86YwrckP3BRzj7QmdTutO3bXu/AtGiKKi/KKZxEpsNEKuHAzSZOafG08Vz4NcarEQ=
+        b=KFULtj+4xnh+z1BLHhQa/GQEVi1DQ2Fr8TL5XqTFLRR9xukyjgnPukdsEa6QCCmpDVvVKI9SGZjl06U3NQ+sVsHDEXzi0zqFGiyiIuhcb2bVQsce8su/kxICp+zH45cF99WaHONTbUigWES7bUCtHzVOFcHNeNVlqXZg/DvmqaQ=
 References: <20061012074305.047696736@gmail.com>>
 User-Agent: quilt/0.45-1
-Date: Thu, 12 Oct 2006 16:43:07 +0900
+Date: Thu, 12 Oct 2006 16:43:10 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>, okuji@enbug.org
-Subject: [patch 2/7] fault-injection capabilities infrastructure
-Content-Disposition: inline; filename=should-fail.patch
-Message-ID: <452df21c.77a917b6.3845.2dc5@mx.google.com>
+Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
+       Jens Axboe <axboe@suse.de>
+Subject: [patch 5/7] fault-injection capability for disk IO
+Content-Disposition: inline; filename=fail_make_request.patch
+Message-ID: <452df232.7451e919.6dde.ffff9127@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch provides base functions for implement fault-injection
-capabilities.
+This patch provides fault-injection capability for disk IO.
 
-- Lightweight random simulator is taken from crasher module for SUSE kernel
+Boot option:
 
-- The function should_fail() is taken from failmalloc-1.0
-  (http://www.nongnu.org/failmalloc/)
+fail_make_request=<probability>,<interval>,<space>,<times>
 
-Cc: okuji@enbug.org
+	<interval> -- specifies the interval of failures.
+
+	<probability> -- specifies how often it should fail in percent.
+
+	<space> -- specifies the size of free space where disk IO can be issued
+		   safely in bytes.
+
+	<times> -- specifies how many times failures may happen at most.
+
+Debugfs:
+
+/debug/fail_make_request/interval
+/debug/fail_make_request/probability
+/debug/fail_make_request/specifies
+/debug/fail_make_request/times
+
+Example:
+
+	fail_make_request=10,100,0,-1
+	echo 1 > /sys/blocks/hda/hda1/make-it-fail
+
+generic_make_request() on /dev/hda1 fails once per 10 times.
+
+Cc: Jens Axboe <axboe@suse.de>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Don Mullis <dwm@meer.net>
 
- include/linux/fault-inject.h |   69 ++++++++++++++
- lib/Kconfig.debug            |   12 ++
- lib/Makefile                 |    1 
- lib/fault-inject.c           |  207 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 289 insertions(+)
+ block/genhd.c         |   31 +++++++++++++++++++++++++++++++
+ block/ll_rw_blk.c     |   43 +++++++++++++++++++++++++++++++++++++++++++
+ fs/partitions/check.c |   27 +++++++++++++++++++++++++++
+ include/linux/genhd.h |    4 ++++
+ lib/Kconfig.debug     |    7 +++++++
+ 5 files changed, 112 insertions(+)
 
+Index: work-fault-inject/block/ll_rw_blk.c
+===================================================================
+--- work-fault-inject.orig/block/ll_rw_blk.c
++++ work-fault-inject/block/ll_rw_blk.c
+@@ -28,6 +28,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/cpu.h>
+ #include <linux/blktrace_api.h>
++#include <linux/fault-inject.h>
+ 
+ /*
+  * for max sense size
+@@ -3050,6 +3051,45 @@ static void handle_bad_sector(struct bio
+ 	set_bit(BIO_EOF, &bio->bi_flags);
+ }
+ 
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++
++static DEFINE_FAULT_ATTR(fail_make_request);
++
++static int __init setup_fail_make_request(char *str)
++{
++	should_fail_srandom(jiffies);
++
++	return setup_fault_attr(&fail_make_request, str);
++}
++__setup("fail_make_request=", setup_fail_make_request);
++
++static int should_fail_request(struct bio *bio)
++{
++	if ((bio->bi_bdev->bd_disk->flags & GENHD_FL_FAIL) ||
++	    (bio->bi_bdev->bd_part && bio->bi_bdev->bd_part->make_it_fail))
++		return should_fail(&fail_make_request, bio->bi_size);
++
++	return 0;
++}
++
++static int __init fail_make_request_debugfs(void)
++{
++	should_fail_srandom(jiffies);
++
++	return init_fault_attr_entries(&fail_make_request, "fail_make_request");
++}
++
++late_initcall(fail_make_request_debugfs);
++
++#else /* CONFIG_FAIL_MAKE_REQUEST */
++
++static inline int should_fail_request(struct bio *bio)
++{
++	return 0;
++}
++
++#endif /* CONFIG_FAIL_MAKE_REQUEST */
++
+ /**
+  * generic_make_request: hand a buffer to its device driver for I/O
+  * @bio:  The bio describing the location in memory and on the device.
+@@ -3134,6 +3174,9 @@ end_io:
+ 		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
+ 			goto end_io;
+ 
++		if (should_fail_request(bio))
++			goto end_io;
++
+ 		/*
+ 		 * If this device has partitions, remap block n
+ 		 * of partition p to block n+start(p) of the disk.
 Index: work-fault-inject/lib/Kconfig.debug
 ===================================================================
 --- work-fault-inject.orig/lib/Kconfig.debug
 +++ work-fault-inject/lib/Kconfig.debug
-@@ -469,3 +469,15 @@ config LKDTM
+@@ -487,6 +487,13 @@ config FAIL_PAGE_ALLOC
+ 	help
+ 	  This option provides fault-injection capabilitiy for alloc_pages().
  
- 	Documentation on how to use the module can be found in
- 	drivers/misc/lkdtm.c
-+
-+config FAULT_INJECTION
-+	bool
-+
-+config FAULT_INJECTION_DEBUG_FS
-+	bool "debugfs entries for fault-injection capabilities"
-+	depends on FAULT_INJECTION && SYSFS
-+	select DEBUG_FS
++config FAIL_MAKE_REQUEST
++	bool "fault-injection capabilitiy for disk IO"
++	depends on DEBUG_KERNEL
++	select FAULT_INJECTION 
 +	help
-+	  This option enables to configure fault-injection capabilities via
-+	  debugfs entries.
++	  This option provides fault-injection capabilitiy to disk IO.
 +
-Index: work-fault-inject/lib/Makefile
+ config FAULT_INJECTION_DEBUG_FS
+ 	bool "debugfs entries for fault-injection capabilities"
+ 	depends on FAULT_INJECTION && SYSFS
+Index: work-fault-inject/block/genhd.c
 ===================================================================
---- work-fault-inject.orig/lib/Makefile
-+++ work-fault-inject/lib/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
- obj-$(CONFIG_STATISTICS) += statistic.o
+--- work-fault-inject.orig/block/genhd.c
++++ work-fault-inject/block/genhd.c
+@@ -417,6 +417,34 @@ static struct disk_attribute disk_attr_s
+ 	.show	= disk_stats_read
+ };
  
- obj-$(CONFIG_SWIOTLB) += swiotlb.o
-+obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
- 
- lib-$(CONFIG_GENERIC_BUG) += bug.o
- 
-Index: work-fault-inject/include/linux/fault-inject.h
-===================================================================
---- /dev/null
-+++ work-fault-inject/include/linux/fault-inject.h
-@@ -0,0 +1,69 @@
-+#ifndef _LINUX_FAULT_INJECT_H
-+#define _LINUX_FAULT_INJECT_H
++#ifdef CONFIG_FAIL_MAKE_REQUEST
 +
-+#ifdef CONFIG_FAULT_INJECTION
++static ssize_t disk_fail_store(struct gendisk * disk,
++			       const char *buf, size_t count)
++{
++	int i;
 +
-+#include <linux/types.h>
-+#include <linux/debugfs.h>
-+#include <asm/atomic.h>
++	if (count > 0 && sscanf(buf, "%d", &i) > 0) {
++		if (i == 0)
++			disk->flags &= ~GENHD_FL_FAIL;
++		else
++			disk->flags |= GENHD_FL_FAIL;
++	}
 +
-+/*
-+ * For explanation of the elements of this struct, see
-+ * Documentation/fault-injection/fault-injection.txt
-+ */
-+struct fault_attr {
-+	unsigned long probability;
-+	unsigned long interval;
-+	atomic_t times;
-+	atomic_t space;
-+	unsigned long verbose;
-+
-+	unsigned long count;
-+
-+#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-+
-+	struct {
-+		struct dentry *dir;
-+
-+		struct dentry *probability_file;
-+		struct dentry *interval_file;
-+		struct dentry *times_file;
-+		struct dentry *space_file;
-+		struct dentry *verbose_file;
-+	} entries;
-+
-+#endif
++	return count;
++}
++static ssize_t disk_fail_read(struct gendisk * disk, char *page)
++{
++	return sprintf(page, "%d\n", disk->flags & GENHD_FL_FAIL ? 1 : 0);
++}
++static struct disk_attribute disk_attr_fail = {
++	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
++	.store	= disk_fail_store,
++	.show	= disk_fail_read
 +};
 +
-+#define DEFINE_FAULT_ATTR(name)					\
-+	struct fault_attr name = {				\
-+		.interval = 1,					\
-+		.times = ATOMIC_INIT(1),			\
-+	}
++#endif
 +
-+int setup_fault_attr(struct fault_attr *attr, char *str);
-+void should_fail_srandom(unsigned long entropy);
-+int should_fail(struct fault_attr *attr, ssize_t size);
-+
-+#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-+
-+int init_fault_attr_entries(struct fault_attr *attr, const char *name);
-+void cleanup_fault_attr_entries(struct fault_attr *attr);
-+
-+#else /* CONFIG_FAULT_INJECTION_DEBUG_FS */
-+
-+static inline int init_fault_attr_entries(struct fault_attr *attr,
-+					  const char *name)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline void cleanup_fault_attr_entries(struct fault_attr *attr)
-+{
-+}
-+
-+#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
-+
-+#endif /* CONFIG_FAULT_INJECTION */
-+
-+#endif /* _LINUX_FAULT_INJECT_H */
-Index: work-fault-inject/lib/fault-inject.c
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_uevent.attr,
+ 	&disk_attr_dev.attr,
+@@ -424,6 +452,9 @@ static struct attribute * default_attrs[
+ 	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	&disk_attr_fail.attr,
++#endif
+ 	NULL,
+ };
+ 
+Index: work-fault-inject/include/linux/genhd.h
 ===================================================================
---- /dev/null
-+++ work-fault-inject/lib/fault-inject.c
-@@ -0,0 +1,207 @@
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/random.h>
-+#include <linux/stat.h>
-+#include <linux/types.h>
-+#include <linux/fs.h>
-+#include <linux/module.h>
-+#include <linux/fault-inject.h>
+--- work-fault-inject.orig/include/linux/genhd.h
++++ work-fault-inject/include/linux/genhd.h
+@@ -83,6 +83,9 @@ struct hd_struct {
+ 	struct kobject *holder_dir;
+ 	unsigned ios[2], sectors[2];	/* READs and WRITEs */
+ 	int policy, partno;
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	int make_it_fail;
++#endif
+ };
+ 
+ #define GENHD_FL_REMOVABLE			1
+@@ -90,6 +93,7 @@ struct hd_struct {
+ #define GENHD_FL_CD				8
+ #define GENHD_FL_UP				16
+ #define GENHD_FL_SUPPRESS_PARTITION_INFO	32
++#define GENHD_FL_FAIL				64
+ 
+ struct disk_stats {
+ 	unsigned long sectors[2];	/* READs and WRITEs */
+Index: work-fault-inject/fs/partitions/check.c
+===================================================================
+--- work-fault-inject.orig/fs/partitions/check.c
++++ work-fault-inject/fs/partitions/check.c
+@@ -276,12 +276,39 @@ static struct part_attribute part_attr_s
+ 	.show	= part_stat_read
+ };
+ 
++#ifdef CONFIG_FAIL_MAKE_REQUEST
 +
-+int setup_fault_attr(struct fault_attr *attr, char *str)
++static ssize_t part_fail_store(struct hd_struct * p,
++			       const char *buf, size_t count)
 +{
-+	unsigned long probability;
-+	unsigned long interval;
-+	int times;
-+	int space;
++	int i;
 +
-+	/* "<interval>,<probability>,<space>,<times>" */
-+	if (sscanf(str, "%lu,%lu,%d,%d",
-+			&interval, &probability, &space, &times) < 4) {
-+		printk(KERN_WARNING
-+			"FAULT_INJECTION: failed to parse arguments\n");
-+		return 0;
-+	}
++	if (count > 0 && sscanf(buf, "%d", &i) > 0)
++		p->make_it_fail = (i == 0) ? 0 : 1;
 +
-+	attr->probability = probability;
-+	attr->interval = interval;
-+	atomic_set(&attr->times, times);
-+	atomic_set(&attr->space, space);
-+
-+	return 1;
++	return count;
 +}
-+
-+#define failure_probability(attr)	(attr)->probability
-+#define failure_interval(attr)		(attr)->interval
-+#define max_failures(attr)		(attr)->times
-+#define current_space(attr)		(attr)->space
-+#define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
-+
-+static unsigned long rand_seed = 152L;
-+
-+static unsigned long should_fail_random(void)
++static ssize_t part_fail_read(struct hd_struct * p, char *page)
 +{
-+	rand_seed = rand_seed * 690690L+1;
-+	return rand_seed ^ jiffies;
++	return sprintf(page, "%d\n", p->make_it_fail);
 +}
++static struct part_attribute part_attr_fail = {
++	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
++	.store	= part_fail_store,
++	.show	= part_fail_read
++};
 +
-+void should_fail_srandom(unsigned long entropy)
-+{
-+	rand_seed ^= entropy;
-+	should_fail_random();
-+}
++#endif
 +
-+static void fail_dump(struct fault_attr *attr)
-+{
-+	if (attr->verbose > 0)
-+		printk(KERN_NOTICE "FAULT_INJECTION: forcing a failure\n");
-+	if (attr->verbose > 1)
-+		dump_stack();
-+}
-+
-+/*
-+ * This code is stolen from failmalloc-1.0
-+ * http://www.nongnu.org/failmalloc/
-+ */
-+
-+int should_fail(struct fault_attr *attr, ssize_t size)
-+{
-+	if (atomic_read(&max_failures(attr)) == 0)
-+		return 0;
-+
-+	if (atomic_read(&current_space(attr)) > size) {
-+		atomic_sub(size, &current_space(attr));
-+		return 0;
-+	}
-+
-+	if (failure_interval(attr) > 1) {
-+		attr->count++;
-+		if (attr->count % failure_interval(attr))
-+			return 0;
-+	}
-+
-+	if (failure_probability(attr) > should_fail_random() % 100)
-+		goto fail;
-+
-+	return 0;
-+
-+fail:
-+	fail_dump(attr);
-+
-+	if (atomic_read(&max_failures(attr)) != -1)
-+		atomic_dec_not_zero(&max_failures(attr));
-+
-+	return 1;
-+}
-+
-+#ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-+
-+static void debugfs_ul_set(void *data, u64 val)
-+{
-+	*(unsigned long *)data = val;
-+}
-+
-+static u64 debugfs_ul_get(void *data)
-+{
-+	return *(unsigned long *)data;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_ul, debugfs_ul_get, debugfs_ul_set, "%llu\n");
-+
-+static struct dentry *debugfs_create_ul(const char *name, mode_t mode,
-+				struct dentry *parent, unsigned long *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_ul);
-+}
-+
-+static void debugfs_atomic_t_set(void *data, u64 val)
-+{
-+	atomic_set((atomic_t *)data, val);
-+}
-+
-+static u64 debugfs_atomic_t_get(void *data)
-+{
-+	return atomic_read((atomic_t *)data);
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+			debugfs_atomic_t_set, "%lld\n");
-+
-+static struct dentry *debugfs_create_atomic_t(const char *name, mode_t mode,
-+				struct dentry *parent, atomic_t *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_atomic_t);
-+}
-+
-+void cleanup_fault_attr_entries(struct fault_attr *attr)
-+{
-+	if (attr->entries.dir) {
-+		if (attr->entries.probability_file) {
-+			debugfs_remove(attr->entries.probability_file);
-+			attr->entries.probability_file = NULL;
-+		}
-+		if (attr->entries.interval_file) {
-+			debugfs_remove(attr->entries.interval_file);
-+			attr->entries.interval_file = NULL;
-+		}
-+		if (attr->entries.times_file) {
-+			debugfs_remove(attr->entries.times_file);
-+			attr->entries.times_file = NULL;
-+		}
-+		if (attr->entries.space_file) {
-+			debugfs_remove(attr->entries.space_file);
-+			attr->entries.space_file = NULL;
-+		}
-+		if (attr->entries.verbose_file) {
-+			debugfs_remove(attr->entries.verbose_file);
-+			attr->entries.verbose_file = NULL;
-+		}
-+		debugfs_remove(attr->entries.dir);
-+		attr->entries.dir = NULL;
-+	}
-+}
-+
-+int init_fault_attr_entries(struct fault_attr *attr, const char *name)
-+{
-+	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
-+	struct dentry *dir;
-+	struct dentry *file;
-+
-+	memset(&attr->entries, 0, sizeof(attr->entries));
-+
-+	dir = debugfs_create_dir(name, NULL);
-+	if (!dir)
-+		goto fail;
-+	attr->entries.dir = dir;
-+
-+	file = debugfs_create_ul("probability", mode, dir, &attr->probability);
-+	if (!file)
-+		goto fail;
-+	attr->entries.probability_file = file;
-+
-+	file = debugfs_create_ul("interval", mode, dir, &attr->interval);
-+	if (!file)
-+		goto fail;
-+	attr->entries.interval_file = file;
-+
-+	file = debugfs_create_atomic_t("times", mode, dir, &attr->times);
-+	if (!file)
-+		goto fail;
-+	attr->entries.times_file = file;
-+
-+	file = debugfs_create_atomic_t("space", mode, dir, &attr->space);
-+	if (!file)
-+		goto fail;
-+	attr->entries.space_file = file;
-+
-+	file = debugfs_create_ul("verbose", mode, dir, &attr->verbose);
-+	if (!file)
-+		goto fail;
-+	attr->entries.verbose_file = file;
-+
-+	return 0;
-+fail:
-+	cleanup_fault_attr_entries(attr);
-+	return -ENOMEM;
-+}
-+
-+#endif /* CONFIG_FAULT_INJECTION_DEBUG_FS */
+ static struct attribute * default_attrs[] = {
+ 	&part_attr_uevent.attr,
+ 	&part_attr_dev.attr,
+ 	&part_attr_start.attr,
+ 	&part_attr_size.attr,
+ 	&part_attr_stat.attr,
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	&part_attr_fail.attr,
++#endif
+ 	NULL,
+ };
+ 
 
 --

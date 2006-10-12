@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422818AbWJLIWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422815AbWJLIWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422818AbWJLIWT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 04:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJLIWS
+	id S1422815AbWJLIWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 04:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422811AbWJLIWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 04:22:18 -0400
-Received: from ozlabs.org ([203.10.76.45]:61333 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1422818AbWJLIWR (ORCPT
+	Thu, 12 Oct 2006 04:22:10 -0400
+Received: from mail.gmx.net ([213.165.64.20]:64475 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422815AbWJLIWG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 04:22:17 -0400
-Date: Thu, 12 Oct 2006 18:22:14 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Santiago Leon <santil@us.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Subject: veth crash (commit 751ae21c6cd1493e3d0a4935b08fb298b9d89773)
-Message-ID: <20061012082214.GA9154@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Santiago Leon <santil@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
-	linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Thu, 12 Oct 2006 04:22:06 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.19-rc1 regression: unable to read dvd's
+From: Mike Galbraith <efault@gmx.de>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Alex Romosan <romosan@sycorax.lbl.gov>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061012065346.GY6515@kernel.dk>
+References: <87hcya8fxk.fsf@sycorax.lbl.gov>
+	 <20061012065346.GY6515@kernel.dk>
+Content-Type: text/plain
+Date: Thu, 12 Oct 2006 10:28:05 +0000
+Message-Id: <1160648885.5897.6.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your recent ibmveth commit, 751ae21c6cd1493e3d0a4935b08fb298b9d89773
-("fix int rollover panic"), causes a rapid oops on my test machine
-(POWER5 LPAR).
+On Thu, 2006-10-12 at 08:53 +0200, Jens Axboe wrote:
+> On Wed, Oct 11 2006, Alex Romosan wrote:
+> > i am not able to read movie dvd's anymore under 2.6.19-rc1. i get the
+> > following in the syslog:
+> > 
+> >   kernel: hdc: read_intr: Drive wants to transfer data the wrong way!
 
-I've bisected it down to that commit, but am still investigating the
-cause of the crash itself.
+aol
 
+> Test case, please.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+Xine.
+
+I just built it from scratch(the one that comes with SuSE 10.1 is
+useless for DVDs), and tried it in 2.6.19-rc1 after verifying that it
+worked fine in 2.6.17.
+
+hdd: BENQ DVD DD DW1625, ATAPI CD/DVD-ROM drive
+hdd: ATAPI 63X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+
+hdd: read_intr: Drive wants to transfer data the wrong way!
+hdd: read_intr: Drive wants to transfer data the wrong way!
+
+	-Mike
+

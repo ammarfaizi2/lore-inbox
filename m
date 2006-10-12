@@ -1,79 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965273AbWJLFG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965272AbWJLFF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965273AbWJLFG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 01:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbWJLFG1
+	id S965272AbWJLFF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 01:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbWJLFF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 01:06:27 -0400
-Received: from bay0-omc3-s2.bay0.hotmail.com ([65.54.246.202]:21045 "EHLO
-	bay0-omc3-s2.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S965273AbWJLFG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 01:06:26 -0400
-Message-ID: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
-X-Originating-IP: [75.18.217.89]
-X-Originating-Email: [x-list-subscriptions@hotmail.com]
-From: "J R" <x-list-subscriptions@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bugs in (2.6.18) from static analysis tool
-Date: Wed, 11 Oct 2006 22:06:22 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 12 Oct 2006 05:06:25.0311 (UTC) FILETIME=[2ABA12F0:01C6EDBC]
+	Thu, 12 Oct 2006 01:05:59 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:53087 "EHLO
+	asav14.insightbb.com") by vger.kernel.org with ESMTP
+	id S965272AbWJLFF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 01:05:58 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AR4FAKZpLUWBSopPLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Greg KH <gregkh@suse.de>
+Subject: [PATCH] Driver core: fix error handling in device_bind_driver()
+Date: Thu, 12 Oct 2006 01:05:55 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610120105.56022.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Subject: Driver core: fix error handling in device_bind_driver()
+From: Dmitry Torokhov <dtor@insightbb.com>
 
-We are in the final stages of refining a new static analysis framework and 
-are testing it out on various large open source software projects (like 
-other ventures in this space).
+When link creation fails we not only need to signal error
+but also remove device from driver's list of bound devices.
 
-Unlike other enterprises, we are making a linux intraprocedural analysis 
-tool openly available in binary form to allow our results to be reproduced 
-and validated. Ditto the bug lists.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Although this is commercial software, our team are all strong OS advocates 
-and contributors. We hope to release some components of this project on an 
-OS basis just as soon as we can trash out a solid plan which allows this 
-while also enabling us to purchase food.
+ drivers/base/dd.c |   29 ++++++++++++++++++-----------
+ 1 files changed, 18 insertions(+), 11 deletions(-)
 
-I've only attached 1 or 2 bugs at the end here (the full list is about 10K 
-ascii text), there are at www.cqsat.com/linux.html#bugs. There's about 50 
-and I recon 20 or so are both real and not yet identified.
-
-Any comments/issues/feedback is appreciated.
-
--J
-
-==============================================================================
-SEVERITY=[SERIOUS]
-ISSUE=[Tainted expression (tmp).kb_table used as an index in this context. 
-Expression bounds: [Upper bound unchecked]. Tracking "(tmp).kb_table": 
-unsigned, 8 bit(s)]
-SOURCE=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 83]
-SINK=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 88]
-ORIGINATOR=[cqsat]
-
-      80:     struct kbentry tmp;
-      81:     ushort *key_map, val, ov;
-      82:
-      83:     if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
-          	^^^---------^^^----------^^^
-          	START
-      84:         return -EFAULT;
-      86:     switch (cmd) {
-      87:     case KDGKBENT:
-      88:         key_map = key_maps[s];
-          	^^^---------^^^----------^^^
-          	ERROR
-      89:         if (key_map) {
-      90:             val = U(key_map[i]);
-      91:             if (kbd->kbdmode != VC_UNICODE && KTYP(val) >= 
-NR_TYPES)
-      92:             val = K_HOLE;
-==============================================================================
-
-_________________________________________________________________
-Be seen and heard with Windows Live Messenger and Microsoft LifeCams 
-http://clk.atdmt.com/MSN/go/msnnkwme0020000001msn/direct/01/?href=http://www.microsoft.com/hardware/digitalcommunication/default.mspx?locale=en-us&source=hmtagline
-
+Index: work/drivers/base/dd.c
+===================================================================
+--- work.orig/drivers/base/dd.c
++++ work/drivers/base/dd.c
+@@ -41,7 +41,7 @@
+  */
+ int device_bind_driver(struct device *dev)
+ {
+-	int ret;
++	int error;
+ 
+ 	if (klist_node_attached(&dev->knode_driver)) {
+ 		printk(KERN_WARNING "%s: device %s already bound\n",
+@@ -52,16 +52,23 @@ int device_bind_driver(struct device *de
+ 	pr_debug("bound device '%s' to driver '%s'\n",
+ 		 dev->bus_id, dev->driver->name);
+ 	klist_add_tail(&dev->knode_driver, &dev->driver->klist_devices);
+-	ret = sysfs_create_link(&dev->driver->kobj, &dev->kobj,
+-			  kobject_name(&dev->kobj));
+-	if (ret == 0) {
+-		ret = sysfs_create_link(&dev->kobj, &dev->driver->kobj,
+-					"driver");
+-		if (ret)
+-			sysfs_remove_link(&dev->driver->kobj,
+-					kobject_name(&dev->kobj));
+-	}
+-	return ret;
++	error = sysfs_create_link(&dev->driver->kobj, &dev->kobj,
++				  kobject_name(&dev->kobj));
++	if (error)
++		goto err_remove_list;
++
++	error = sysfs_create_link(&dev->kobj, &dev->driver->kobj,
++				  "driver");
++	if (error)
++		goto err_remove_link;
++
++	return 0;
++
++ err_remove_link:
++	sysfs_remove_link(&dev->driver->kobj, kobject_name(&dev->kobj));
++ err_remove_list:
++	klist_remove(&dev->knode_driver);
++	return error;
+ }
+ 
+ struct stupid_thread_structure {

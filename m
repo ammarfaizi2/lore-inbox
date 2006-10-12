@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWJLOTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWJLOU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422702AbWJLOTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422688AbWJLOTJ
+	id S932139AbWJLOU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWJLOU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:19:09 -0400
-Received: from dingu.igconcepts.com ([208.23.225.7]:43467 "EHLO
-	dingu.igconcepts.com") by vger.kernel.org with ESMTP
-	id S1422702AbWJLOTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:19:07 -0400
-Date: Thu, 12 Oct 2006 09:19:03 -0500
-From: Michael Harris <googlegroups@mgharris.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Michael Harris <googlegroups@mgharris.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
-Message-ID: <20061012141903.GA6593@dingu.igconcepts.com>
-References: <20061011160740.GA6868@dingu.igconcepts.com> <452DF9D2.6020306@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452DF9D2.6020306@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Oct 2006 10:20:57 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:20158 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932462AbWJLOU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:20:56 -0400
+Date: Thu, 12 Oct 2006 16:19:24 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: roland <devzero@web.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The Future of ReiserFS development
+In-Reply-To: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
+Message-ID: <Pine.LNX.4.61.0610121615250.28090@yvahk01.tjqt.qr>
+References: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Michael Harris wrote:
-> >Hi, I can readily reproduce this with 2.6.18 doing 4 simultanous kernel 
-> >compiles on two disks to load test a P4 3.2 HT with 2GB. I have SMP and 
-> >SMT scheduling enabled, and the 4GB memory option. Here is output with 
-> >CONFIG_DEBUG_VM enabled followed by another crash before CONFIG_DEBUG_VM 
-> >was enabled.
-> 
-> >Oct 11 04:53:35 hen kernel: swap_free: Unused swap offset entry 00004000
-> >Oct 11 04:53:35 hen kernel: Eeek! page_mapcount(page) went negative! (-1)
-> >Oct 11 04:53:35 hen kernel:   page->flags = c0080014
-> >Oct 11 04:53:35 hen kernel:   page->count = 0
-> >Oct 11 04:53:35 hen kernel:   page->mapping = 00000000
-> 
-> Hmm, this is a new one. The page is free and not reserved, wheras we are
-> used to seeing them reserved here.
-> 
-> >Oct 11 04:54:31 hen kernel: Bad page state in process 'tripwire'
-> >Oct 11 04:54:31 hen kernel: page:c1b5cd80 flags:0xc0000014 
-> >mapping:00000000 mapcount:-1 count:0
-> 
-> >Another crash from a day earlier before enabling DEBUG_VM
-> >Oct 10 05:19:43 hen kernel: VM: killing process cc1
-> >Oct 10 05:19:43 hen kernel: swap_free: Unused swap offset entry 00002000
-> >Oct 10 05:19:56 hen kernel: swap_free: Unused swap offset entry 00000400
-> 
-> These unused swap offset entry messages seem to indicate extensive memory
-> corruption in your page tables. Probably bad RAM, or system overheating
-> when you load it up :(
-> 
-> Can you run a good memory tester like memtest86+ overnight?
+
+>> > What is the plan? Could i
+>> > migrate from reiserfs to another journaling filesystem?
+>> 
+>> Of course: Simply backup, mkfs and restore!
+>
+> not that simple if you have hundreds of thousands or even millions of small
+> files !
+> reiserfs is quite efficient in storing small files.
+
+Depends. While reiser may get a diskspace bonus for packing, xfs and 
+others have a time bonus for not packing, and that's more important 
+when having lots of files. Disk space is quite cheap nowaedays.
+
+> don`t know if there is anyfilesystem which is as efficient with this.....
 
 
-Hi, I think this is the case, a stick of ram gone bad. It had worked 
-testing under 2.4 but coincidentally failed about the time I upgraded
-to 2.6. memtest86 uncovered it at once. Sorry for the trouble and thanks
-for the help.
-Mike
-
+	-`J'
+-- 

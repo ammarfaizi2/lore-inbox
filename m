@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJLR1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWJLRbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWJLR1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbWJLR1k
+	id S1751105AbWJLRbo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWJLRbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:27:40 -0400
-Received: from colo.elevenwireless.com ([69.30.42.70]:58750 "EHLO
-	smtp.elevennetworks.com") by vger.kernel.org with ESMTP
-	id S1750778AbWJLR1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:27:39 -0400
-Date: Thu, 12 Oct 2006 10:16:59 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       mm-commits@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, pbadari@us.ibm.com
-Subject: Re: [patch 16/67] jbd: fix commit of ordered data buffers
-Message-ID: <20061012171659.GC10816@suse.de>
-References: <20061011204756.642936754@quad.kroah.org> <20061011210446.GQ16627@kroah.com> <20061012115538.GJ9495@atrey.karlin.mff.cuni.cz>
+	Thu, 12 Oct 2006 13:31:43 -0400
+Received: from pat.qlogic.com ([198.70.193.2]:53124 "EHLO avexch1.qlogic.com")
+	by vger.kernel.org with ESMTP id S1750806AbWJLRbm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 13:31:42 -0400
+Date: Thu, 12 Oct 2006 10:31:38 -0700
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SCSI/qla2xxx: handle sysfs errors
+Message-ID: <20061012173138.GC4296@andrew-vasquezs-computer.local>
+References: <20061012014538.GA12894@havoc.gtf.org> <20061012165734.GG3638@andrew-vasquezs-computer.local> <452E7966.7030206@garzik.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061012115538.GJ9495@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <452E7966.7030206@garzik.org>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.12-2006-07-14
+X-OriginalArrivalTime: 12 Oct 2006 17:31:40.0088 (UTC) FILETIME=[46CF9380:01C6EE24]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 01:55:38PM +0200, Jan Kara wrote:
->   Hi,
+On Thu, 12 Oct 2006, Jeff Garzik wrote:
+
+> Andrew Vasquez wrote:
+> >NACK, please don't do this.  SYSFS entries, albiet important, aren't
+> >necessarilly critical to a functioning driver.  I'd rather the driver
+> >not error out.
 > 
-> > -stable review patch.  If anyone has any objections, please let us know.
->   There does not seem to be any obvious issues with this change and it
-> fixes a real BUG happenning during some stress-testing. On the other hand
-> the change is kind of intrusive and changes a quite complex code (or
-> better said code with complex interactions). So I'm not sure if it really is
-> -stable material...
+> As discussed before, the only errors thrown are either ENOMEM or EFAULT, 
+> both of which are quite serious.
 
-I think it is, as it does fix a real issue, and the same patch is in
-mainline now too.
+Absolutely.  But, given the relatively late-stage initialization of
+these attributes (it's the last thing that gets done before probe()
+completes)-- the driver has already allocated (successfully) memory,
+intialized hardware and (possibly) presented storage, the complete
+unwinding, seems over-kill.
 
-thanks,
+> >Here's what I had stewing to address the must_check directives and
+> >qla2xxx:
+> 
+> If you're gonna change it that much, might as well use attribute groups.
 
-greg k-h
+sysfs_create_group() and friends don't appear to support
+binary attributes.

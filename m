@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030419AbWJLOOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWJLOTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030419AbWJLOOO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbWJLOOO
+	id S1422702AbWJLOTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422688AbWJLOTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:14:14 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:2726 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030419AbWJLOON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:14:13 -0400
-Date: Thu, 12 Oct 2006 16:13:36 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: roland <devzero@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The Future of ReiserFS development
-Message-ID: <20061012141335.GB16202@wohnheim.fh-wedel.de>
-References: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
+	Thu, 12 Oct 2006 10:19:09 -0400
+Received: from dingu.igconcepts.com ([208.23.225.7]:43467 "EHLO
+	dingu.igconcepts.com") by vger.kernel.org with ESMTP
+	id S1422702AbWJLOTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:19:07 -0400
+Date: Thu, 12 Oct 2006 09:19:03 -0500
+From: Michael Harris <googlegroups@mgharris.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Michael Harris <googlegroups@mgharris.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18: Kernel BUG at mm/rmap.c:522
+Message-ID: <20061012141903.GA6593@dingu.igconcepts.com>
+References: <20061011160740.GA6868@dingu.igconcepts.com> <452DF9D2.6020306@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <005a01c6edd9$7cfb7be0$962e8d52@aldipc>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <452DF9D2.6020306@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 October 2006 10:36:11 +0200, roland wrote:
-> >
-> >Of course: Simply backup, mkfs and restore!
+> Michael Harris wrote:
+> >Hi, I can readily reproduce this with 2.6.18 doing 4 simultanous kernel 
+> >compiles on two disks to load test a P4 3.2 HT with 2GB. I have SMP and 
+> >SMT scheduling enabled, and the 4GB memory option. Here is output with 
+> >CONFIG_DEBUG_VM enabled followed by another crash before CONFIG_DEBUG_VM 
+> >was enabled.
 > 
-> not that simple if you have hundreds of thousands or even millions of small 
-> files !
-> reiserfs is quite efficient in storing small files.
-> don`t know if there is anyfilesystem which is as efficient with this.....
+> >Oct 11 04:53:35 hen kernel: swap_free: Unused swap offset entry 00004000
+> >Oct 11 04:53:35 hen kernel: Eeek! page_mapcount(page) went negative! (-1)
+> >Oct 11 04:53:35 hen kernel:   page->flags = c0080014
+> >Oct 11 04:53:35 hen kernel:   page->count = 0
+> >Oct 11 04:53:35 hen kernel:   page->mapping = 00000000
+> 
+> Hmm, this is a new one. The page is free and not reserved, wheras we are
+> used to seeing them reserved here.
+> 
+> >Oct 11 04:54:31 hen kernel: Bad page state in process 'tripwire'
+> >Oct 11 04:54:31 hen kernel: page:c1b5cd80 flags:0xc0000014 
+> >mapping:00000000 mapcount:-1 count:0
+> 
+> >Another crash from a day earlier before enabling DEBUG_VM
+> >Oct 10 05:19:43 hen kernel: VM: killing process cc1
+> >Oct 10 05:19:43 hen kernel: swap_free: Unused swap offset entry 00002000
+> >Oct 10 05:19:56 hen kernel: swap_free: Unused swap offset entry 00000400
+> 
+> These unused swap offset entry messages seem to indicate extensive memory
+> corruption in your page tables. Probably bad RAM, or system overheating
+> when you load it up :(
+> 
+> Can you run a good memory tester like memtest86+ overnight?
 
-Just millions?  What's your problem then?
 
-Per file you can estimate 4KiB + 128 bytes for the inode.  That's
-about 4.2GB for a million files.  The "wasted" size is still lower, as
-small files still require some storage even with tail packing.
+Hi, I think this is the case, a stick of ram gone bad. It had worked 
+testing under 2.4 but coincidentally failed about the time I upgraded
+to 2.6. memtest86 uncovered it at once. Sorry for the trouble and thanks
+for the help.
+Mike
 
-And in-memory reiserfs is just as inefficient as any other filesystem,
-as it shares the same page cache.
-
-Jörn
-
--- 
-More computing sins are committed in the name of efficiency (without
-necessarily achieving it) than for any other single reason - including
-blind stupidity.
--- W. A. Wulf

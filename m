@@ -1,77 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbWJLBfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWJLBkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422671AbWJLBfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Oct 2006 21:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWJLBfX
+	id S1422670AbWJLBkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Oct 2006 21:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWJLBkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Oct 2006 21:35:23 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:28981 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S932488AbWJLBfW (ORCPT
+	Wed, 11 Oct 2006 21:40:25 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:55775 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932488AbWJLBkY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Oct 2006 21:35:22 -0400
-X-IronPort-AV: i="4.09,297,1157353200"; 
-   d="scan'208"; a="417199975:sNHT86718040"
-Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC
-	traffic
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       Chuck Lever <chuck.lever@oracle.com>
-In-Reply-To: <1160615547.20611.0.camel@localhost.localdomain>
-References: <20061010165621.394703368@quad.kroah.org>
-	 <20061010171429.GD6339@kroah.com>
-	 <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
-	 <1160610353.7015.8.camel@lade.trondhjem.org>
-	 <1160615547.20611.0.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Wed, 11 Oct 2006 18:35:05 -0700
-Message-Id: <1160616905.6596.14.camel@lade.trondhjem.org>
+	Wed, 11 Oct 2006 21:40:24 -0400
+Date: Wed, 11 Oct 2006 21:40:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: a.zummo@towertech.it, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] RTC: handle sysfs errors
+Message-ID: <20061012014019.GA12456@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 12 Oct 2006 01:35:22.0374 (UTC) FILETIME=[AF073A60:01C6ED9E]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 02:12 +0100, Alan Cox wrote:
-> Ar Mer, 2006-10-11 am 19:45 -0400, ysgrifennodd Trond Myklebust:
-> > Feel free to tell the board manufacturers that they are idiots, and
-> > should not design boards that hijack specific ports without providing
-> > the O/S with any means of detecting this, but in the meantime, it _is_
-> > the case that they are doing this.
-> 
-> Then their hardware is faulty and should be specifically blacklisted not
-> make everyone have to deal with silly unmaintainable hacks.
 
-They are not hacks. The actual range of ports used by the RPC client is
-set using /proc/sys/sunrpc/(min|max)_resvport. People that don't have
-broken motherboards can override the default range, which is all that we
-are changing here.
 
-To be fair, the motherboard manufacturers have actually registered these
-ports with IANA:
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-asf-rmcp        623/tcp    ASF Remote Management and Control Protocol
-asf-rmcp        623/udp    ASF Remote Management and Control Protocol
+---
 
-asf-secure-rmcp 664/tcp    ASF Secure Remote Management and Control Protocol
-asf-secure-rmcp 664/udp    ASF Secure Remote Management and Control Protocol
+ drivers/rtc/rtc-ds1672.c        |    9 +++++-
+ drivers/rtc/rtc-rs5c372.c       |   12 +++++++--
+ drivers/rtc/rtc-test.c          |    9 ++++++
+ drivers/rtc/rtc-x1205.c         |   12 +++++++--
 
-but the problem remains that we have no way to actually detect a
-motherboard that uses those ports.
-
-Interestingly, Linux is not the only OS that has been hit by this
-problem:
-
-  http://blogs.sun.com/shepler/entry/port_623_or_the_mount
-
-Cheers,
-  Trond
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 67e816a..dfef163 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -237,17 +237,22 @@ static int ds1672_probe(struct i2c_adapt
+ 	/* read control register */
+ 	err = ds1672_get_control(client, &control);
+ 	if (err)
+-		goto exit_detach;
++		goto exit_devreg;
+ 
+ 	if (control & DS1672_REG_CONTROL_EOSC)
+ 		dev_warn(&client->dev, "Oscillator not enabled. "
+ 					"Set time to enable.\n");
+ 
+ 	/* Register sysfs hooks */
+-	device_create_file(&client->dev, &dev_attr_control);
++	err = device_create_file(&client->dev, &dev_attr_control);
++	if (err)
++		goto exit_devreg;
+ 
+ 	return 0;
+ 
++exit_devreg:
++	rtc_device_unregister(rtc);
++
+ exit_detach:
+ 	i2c_detach_client(client);
+ 
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 2a86632..64ef68d 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -238,11 +238,19 @@ static int rs5c372_probe(struct i2c_adap
+ 
+ 	i2c_set_clientdata(client, rtc);
+ 
+-	device_create_file(&client->dev, &dev_attr_trim);
+-	device_create_file(&client->dev, &dev_attr_osc);
++	err = device_create_file(&client->dev, &dev_attr_trim);
++	if (err) goto exit_devreg;
++	err = device_create_file(&client->dev, &dev_attr_osc);
++	if (err) goto exit_trim;
+ 
+ 	return 0;
+ 
++exit_trim:
++	device_remove_file(&client->dev, &dev_attr_trim);
++
++exit_devreg:
++	rtc_device_unregister(rtc);
++
+ exit_detach:
+ 	i2c_detach_client(client);
+ 
+diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
+index bc4bd24..f407ade 100644
+--- a/drivers/rtc/rtc-test.c
++++ b/drivers/rtc/rtc-test.c
+@@ -121,11 +121,18 @@ static int test_probe(struct platform_de
+ 		err = PTR_ERR(rtc);
+ 		return err;
+ 	}
+-	device_create_file(&plat_dev->dev, &dev_attr_irq);
++
++	err = device_create_file(&plat_dev->dev, &dev_attr_irq);
++	if (err)
++		goto err;
+ 
+ 	platform_set_drvdata(plat_dev, rtc);
+ 
+ 	return 0;
++
++err:
++	rtc_device_unregister(rtc);
++	return err;
+ }
+ 
+ static int __devexit test_remove(struct platform_device *plat_dev)
+diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
+index 522c697..9a67487 100644
+--- a/drivers/rtc/rtc-x1205.c
++++ b/drivers/rtc/rtc-x1205.c
+@@ -562,11 +562,19 @@ static int x1205_probe(struct i2c_adapte
+ 	else
+ 		dev_err(&client->dev, "couldn't read status\n");
+ 
+-	device_create_file(&client->dev, &dev_attr_atrim);
+-	device_create_file(&client->dev, &dev_attr_dtrim);
++	err = device_create_file(&client->dev, &dev_attr_atrim);
++	if (err) goto exit_devreg;
++	err = device_create_file(&client->dev, &dev_attr_dtrim);
++	if (err) goto exit_atrim;
+ 
+ 	return 0;
+ 
++exit_atrim:
++	device_remove_file(&client->dev, &dev_attr_atrim);
++
++exit_devreg:
++	rtc_device_unregister(rtc);
++
+ exit_detach:
+ 	i2c_detach_client(client);
+ 

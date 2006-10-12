@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWJLW5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWJLXY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWJLW5t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWJLW5t
+	id S1751317AbWJLXY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 19:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWJLXY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:57:49 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:25812 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751288AbWJLW5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:57:47 -0400
-Date: Fri, 13 Oct 2006 00:57:18 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: mlindner@syskonnect.de, rroesler@syskonnect.de,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
- skge_resume() properly
-In-Reply-To: <20061012154714.6924f465@freekitty>
-Message-ID: <Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
- <20061012152512.66f147b8@freekitty> <Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
- <20061012154714.6924f465@freekitty>
+	Thu, 12 Oct 2006 19:24:58 -0400
+Received: from web83115.mail.mud.yahoo.com ([216.252.101.44]:12919 "HELO
+	web83115.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751317AbWJLXY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 19:24:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=CLK8sILmHYk0FRvzrT6MRZ6Hv87/D8IRVMI4YIZ5dYKSQ2YZVJsNNPYwyD0i+2CZMpnIybXeiTu0e2vSAejVbeGdYFWBLsnnj4bSbPjmVH8YU7CxgLHnPAb1UZyBRkcoY5FJYARS/JE4lRfLcpOo/3L4JW/Y/UL4lCJcTnGcxkQ=  ;
+Message-ID: <20061012232456.69718.qmail@web83115.mail.mud.yahoo.com>
+Date: Thu, 12 Oct 2006 16:24:56 -0700 (PDT)
+From: Aleksey Gorelov <dared1st@yahoo.com>
+Subject: RE: Machine reboot
+To: xhejtman@mail.muni.cz, linux-kernel@vger.kernel.org, magnus.damm@gmail.com,
+       pavel@suse.cz
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006, Stephen Hemminger wrote:
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lukas 
+>Hejtmanek
+>Sent: Thursday, October 05, 2006 3:53 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: Machine reboot
+>
+>Hello,
+>
+>I'm facing troubles with machine restart. While sysrq-b 
+>restarts machine, reboot
+>command does not. Using printk I found that kernel does not 
+>hang and issues
+>reset properly but BIOS does not initiate boot sequence. Is 
+>there something
+>I could do?
 
-> > > Having the device unregister seems harsh.
-> > What would be the proper way? As the initialization failed, accessing 
-> > the device would not make sense any more (therefore I don't think that 
-> > calling skge_remove_one() would be OK, as it issues calls to 
-> > SkEventQueue() and SkEventDispatcher(), trying to send something to 
-> > the card).
-> I guess, its just not clear what the state of the machine is anyway
-> if you can't enable the device something is hosed (or the device was
-> hot removed).
+  I have similar issue on Intel DG965WH board. Did you try to shutdown network interface and
+'rmmod e1000' right before reboot ? In my case machine reboots fine after that.
 
-Well, it depends on definition of 'hot'. What would for example happen in 
-the case suspend-to-disk -> remove the card when the machine is switched 
-off -> resume-from-disk? I guess that exactly this pci_enable_device() 
-will fail, so we definitely have to handle this case, as it can easily 
-happen.
-
-> > > Why put condtional on same line?
-> > Pardon me?
-> I prefer:
-> 	ret = pci_enable_device(pdev);
-
-As you wish. 
-
-[PATCH] fix sk98lin driver, ignoring return value from pci_enable_device()
-
-add check of return value to _resume() function of sk98lin driver.
-
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-
----
-
- drivers/net/sk98lin/skge.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
-index d4913c3..d691811 100644
---- a/drivers/net/sk98lin/skge.c
-+++ b/drivers/net/sk98lin/skge.c
-@@ -5070,7 +5070,13 @@ static int skge_resume(struct pci_dev *p
- 
- 	pci_set_power_state(pdev, PCI_D0);
- 	pci_restore_state(pdev);
--	pci_enable_device(pdev);
-+	ret = pci_enable_device(pdev);
-+	if (ret) {
-+		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
-+				dev->name);
-+		unregister_netdev(dev);
-+		return ret;
-+	}
- 	pci_set_master(pdev);
- 	if (pAC->GIni.GIMacsFound == 2)
- 		ret = request_irq(dev->irq, SkGeIsr, IRQF_SHARED, "sk98lin", dev);
-
--- 
-Jiri Kosina
+Aleks.

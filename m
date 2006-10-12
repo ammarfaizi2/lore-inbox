@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWJLTdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWJLThZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWJLTdP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 15:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWJLTdP
+	id S1751051AbWJLThZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 15:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWJLThZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 15:33:15 -0400
-Received: from web58107.mail.re3.yahoo.com ([68.142.236.130]:3449 "HELO
-	web58107.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1750901AbWJLTdO convert rfc822-to-8bit (ORCPT
+	Thu, 12 Oct 2006 15:37:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57995 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750922AbWJLThW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 15:33:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=e7r7SzMFsq2dRp2vIaf+hbn155nLdUBEeCYGc1aAuYDsNWI8AgVRSXI6tVJubjb+m+MDnVs6EhC9j+O7qOGs2c28JHFyLS944JSkTQfcb8X3SYD2O0sg1EJisdhF6VRKqoEtbXTR3ghQXESPTUlvDDkXWrlB67bhcFzjtnNFQWk=  ;
-Message-ID: <20061012193313.4281.qmail@web58107.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 12:33:13 -0700 (PDT)
-From: Open Source <opensource3141@yahoo.com>
-Subject: USB performance bug since kernel 2.6.13 (CRITICAL???)
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+	Thu, 12 Oct 2006 15:37:22 -0400
+Date: Thu, 12 Oct 2006 12:37:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Judith Lebzelter <judith@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IA64 export symbols empty_zero_page, ia64_ssc
+Message-Id: <20061012123714.85ab4ebb.akpm@osdl.org>
+In-Reply-To: <20061012175536.GA8497@intel.com>
+References: <617E1C2C70743745A92448908E030B2AA634B8@scsmsx411.amr.corp.intel.com>
+	<20061012001139.1fea6ecf.akpm@osdl.org>
+	<20061012175536.GA8497@intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Resending because linux-usb-devel@sourceforge.net bounced right back to me.  Sorry for the multiple messages!)
+On Thu, 12 Oct 2006 10:55:36 -0700
+"Luck, Tony" <tony.luck@intel.com> wrote:
 
------ Forwarded Message ----
-From: Open Source <opensource3141@yahoo.com>
-To: linux-kernel@vger.kernel.org; linux-usb-devel@sourceforge.net
-Sent: Thursday, October 12, 2006 12:21:56 PM
-Subject: USB performance bug since kernel 2.6.13 (CRITICAL???)
+> On Thu, Oct 12, 2006 at 12:11:39AM -0700, Andrew Morton wrote:
+> > The problem is that ia64 allmodconfig now bombs out, since depmod treats
+> > this as a hard error.
+> > 
+> > IOW, please make allmodconfig work ;)
+> 
+> I tried simply swapping "tristate" for "bool":
+> --- a/arch/ia64/hp/sim/Kconfig	2006-10-12 10:45:18.000000000 -0700
+> +++ b/arch/ia64/hp/sim/Kconfig	2006-10-12 09:43:30.000000000 -0700
+> @@ -13,7 +13,7 @@
+>  	depends on HP_SIMSERIAL
+>  
+>  config HP_SIMSCSI
+> -	tristate "Simulated SCSI disk"
+> +	bool "Simulated SCSI disk"
+>  	depends on SCSI
+>  
+>  endmenu
+> 
+> ... and now it fails in a new an diferent way:
+> 
+>   LD      .tmp_vmlinux1
+> arch/ia64/hp/sim/built-in.o(.init.text+0x9d2): In function `simscsi_init':
+> arch/ia64/hp/sim/simscsi.c:407: undefined reference to `scsi_host_alloc'
+> arch/ia64/hp/sim/built-in.o(.init.text+0xa02):arch/ia64/hp/sim/simscsi.c:411: undefined reference to `scsi_add_host'
+> arch/ia64/hp/sim/built-in.o(.init.text+0xa22):arch/ia64/hp/sim/simscsi.c:413: undefined reference to `scsi_scan_host'
+> 
+> presumably because we have CONFIG_HP_SIMSCSI=y but CONFIG_SCSI=m
+> [Which I don't understand ... HP_SIM_SCSI "depends on SCSI", so
+>  how did make allmodconfig come up with this combination?].
 
-Hi all, 
- 
-I am  writing regarding a performance issue that I recently observed after upgrading from kernel 2.6.12 to 2.6.17.  I did some hunting around and have found that the issue first arises in 2.6.13.
+This happens a lot and I always forget what the fix is.
 
-I am using a device that submits URBs asynchronously using the libusb devio infrastructure.  In version 2.6.12 I am able to submit and reap URBs for my particular application at a transaction rate of one per millisecond.  A transaction consists of a single WRITE URB (< 512 bytes) followed by a single READ URB (1024 bytes).  Once I upgrade to version 2.6.13, the transactional rate drops to one per 4 milliseconds!
+Something like
 
-The overall performance of a particular algorithm is increased from a total execution time of 75 seconds to over 160 seconds.  The only difference between the two tests is the kernel.  Microsoft Windows executes the algorithm in 70-75 seconds!
+	depends on SCSI=y || (m && SCSI)
 
-I am using a Fedora Core distribution with FC4 kernels for testing.  Is there some new incantation that is required in my user-mode driver to get around a "feature" in recent kernels?  Does anyone else know about this?  I was not able to easily find discussion about this on the newsgroups.  It appears that this problem has been around for a while, if it is indeed a problem.
-
-I am not a subscriber to the linux-kernel mailing list but have cross-posted to it since this seems like a serious enough issue.  Please continue to keep any responses on linux-usb-devel as well so I can see them in my email box.
-
-Thank you,
-Beleaguered Open Source Fan
-
-
-
-
-
-
-
-
-
-
+but probably not exactly that.

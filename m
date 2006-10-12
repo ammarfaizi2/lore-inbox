@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161316AbWJLJab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161530AbWJLJva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161316AbWJLJab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 05:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161318AbWJLJaa
+	id S1161530AbWJLJva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 05:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161531AbWJLJva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 05:30:30 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:12855 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161316AbWJLJa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 05:30:29 -0400
-Date: Thu, 12 Oct 2006 11:30:47 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jaroslav Kysela <perex@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
-       Castet Matthieu <castet.matthieu@free.fr>,
-       Akinobu Mita <akinobu.mita@gmail.com>
-Subject: Re: [PATCH] Driver core: Don't ignore bus_attach_device() retval
-Message-ID: <20061012113047.1df2a9c8@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L0.0610111036290.5690-100000@iolanthe.rowland.org>
-References: <20061009131434.6e3ff0e2@gondolin.boeblingen.de.ibm.com>
-	<Pine.LNX.4.44L0.0610111036290.5690-100000@iolanthe.rowland.org>
-X-Mailer: Sylpheed-Claws 2.5.3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 05:51:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:51589 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161530AbWJLJv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 05:51:29 -0400
+Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC
+	traffic
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       Chuck Lever <chuck.lever@oracle.com>
+In-Reply-To: <20061012015306.GB27693@lists.us.dell.com>
+References: <20061010165621.394703368@quad.kroah.org>
+	 <20061010171429.GD6339@kroah.com>
+	 <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
+	 <1160610353.7015.8.camel@lade.trondhjem.org>
+	 <1160615547.20611.0.camel@localhost.localdomain>
+	 <1160616905.6596.14.camel@lade.trondhjem.org>
+	 <20061012015306.GB27693@lists.us.dell.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Oct 2006 11:15:07 +0100
+Message-Id: <1160648107.23731.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Oct 2006 10:49:36 -0400 (EDT),
-Alan Stern <stern@rowland.harvard.edu> wrote:
+Ar Mer, 2006-10-11 am 20:53 -0500, ysgrifennodd Matt Domsch:
+> > > Then their hardware is faulty and should be specifically blacklisted not
+> > > make everyone have to deal with silly unmaintainable hacks.
+> > 
+> > They are not hacks. The actual range of ports used by the RPC client is
+> > set using /proc/sys/sunrpc/(min|max)_resvport. People that don't have
+> > broken motherboards can override the default range, which is all that we
+> > are changing here.
 
-> You know, I'm not so sure device registration should fail when 
-> bus_attach_device() returns an error.
+No.. you have it backwards. The tiny tiny number of people with broken
+boards can either set it themselves, use DMI, or ram the offending board
+somewhere dark belonging to whoever sold it to them
 
-Hm, let's see why bus_attach_device() might fail:
+> > To be fair, the motherboard manufacturers have actually registered these
+> > ports with IANA:
 
-* device_bind_driver() failed to create some symlinks. We may
-consider not to fail in this case, since sysfs_remove_link() is fine
-even for non-existing links.
+This is irrelevant, they are stealing bits out of the incoming network
+stream. That's not just rude its dangerous - they should have their own
+MAC and IP stack for this. Port assignments are courtesy numbering to
+avoid collisions on your own stack. They have no more right to steal
+packets from that port than CERN does to claim all port 80 traffic on
+the internet.
 
-* probing failed for one possible driver with something other than
--ENODEV or -ENXIO. Not sure if we really should abort in this case.
-We'd just end up with an unbound device, and a driver returning (for
-example) -ENOMEM for probing may just be a really dumb driver trying to
-allocate an insane amount of memory (and the next driver might just be
-fine).
+Why do I say dangerous - because they steal the data *before* your Linux
+firewalling and feed it to an unauditable binary firmware which has
+controlling access to large parts of the system without the OS even
+seeing it.
 
-> Furthermore there are subtle problems that can arise.  In effect, the
-> device is registered for a brief time (while the driver is probed) and
-> then unregistered without giving the bus subsystem a chance to prepare for
-> the removal.  With USB this can lead to problems; if the driver called
-> usb_set_interface() then child devices would be created below the one
-> being probed -- and they would never get removed.
+Not a good idea IMHO on any box facing even a slightly insecure port.
+ 
+> For the one Dell server affected, we could DMI list
+> it; likewise for others.
 
-One way to fix this would be to make device_bind_driver() always
-succeed (even without symlinks), the other to call the ->remove
-function if device_bind_driver() fails (assuming that the ->remove
-method should undo the stuff done in ->probe).
+This should be done with DMI I agree.
 
-> In fact, we might want to separate driver probing from device_add()  
-> entirely.  That is, make them available as two separate function calls.  
-> That way the subsystem driver will have a chance to create attribute files
-> before a uevent is generated and a driver is loaded.  (That should help
-> udev to work better.)  This would require a larger change, though --
-> probably requiring an alternate version of device_add().
 
-Shouldn't subsystems that need attributes early just use dev->groups,
-class->dev_attrs or bus->dev_attrs? These attribute groups are added
-before the uevent is generated.
-
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWJLVni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWJLVoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWJLVni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 17:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWJLVni
+	id S1751103AbWJLVoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 17:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWJLVoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 17:43:38 -0400
-Received: from farad.aurel32.net ([82.232.2.251]:5613 "EHLO farad.aurel32.net")
-	by vger.kernel.org with ESMTP id S1751082AbWJLVnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 17:43:37 -0400
-Message-ID: <452EB653.7070604@aurel32.net>
-Date: Thu, 12 Oct 2006 23:40:35 +0200
-From: Aurelien Jarno <aurelien@aurel32.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: SYS_personality does not work correctly on mips(el)64
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 12 Oct 2006 17:44:34 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40669 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751109AbWJLVod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 17:44:33 -0400
+Date: Thu, 12 Oct 2006 14:44:20 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: matthltc@us.ibm.com, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+ configfs
+Message-Id: <20061012144420.089f3dce.pj@sgi.com>
+In-Reply-To: <20061012070826.GO7911@ca-server1.us.oracle.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	<20061010203511.GF7911@ca-server1.us.oracle.com>
+	<6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	<20061010215808.GK7911@ca-server1.us.oracle.com>
+	<1160527799.1674.91.camel@localhost.localdomain>
+	<20061011012851.GR7911@ca-server1.us.oracle.com>
+	<20061011220619.GB7911@ca-server1.us.oracle.com>
+	<1160619516.18766.209.camel@localhost.localdomain>
+	<20061012070826.GO7911@ca-server1.us.oracle.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> And what if you decide to
+> change it from "<pid>\n" to "<pid> <tgid>\n" per line? 
 
-On mips(el), when doing multiple call to the syscall SYS_personality in 
-order to get the current personality (using 0xffffffff for the first 
-argument), on a 64-bit kernel, the second and subsequent syscalls are 
-failing. That works correctly with a 32-bit kernels and on other 
-architectures.
+I think that's a good argument for never changing the format of one
+of these files, rather than a good argument for against a vector of
+scalars of identical type and purpose.
 
-Here is a small test below:
+And I'd agree that we should not use multiple values per file to
+represent a structure either - so I'd agree that we should not allow
+"<pid> <tgid>\n" in the first place.
 
-#include <sys/personality.h>
-#include <stdio.h>
+In the cpuset file system:
+ 1) There is one value, or one vector of equivalent scalar values, per file.
+ 2) Once released into the wild, a file never changes what it does or how
+    it looks.
+ 3) It's ok to add new files.
+ 4) But, at least in the case of cpusets, not ok to add directories, as
+    the file system represents one directory per one cpuset.  No other
+    directories not representing cpusets are allowed.
 
-void main()
-{
-   printf("%i\n", personality(0xFFFFFFFF));
-   printf("%i\n", personality(0xFFFFFFFF));
-}
+This configfs flap feels to me like someone slightly overgeneralized
+the lesson to be learned from previous problems displaying entire,
+evolving, structures in a single file, and then is being a bit over
+zealous enforcing the resulting rule.
 
-
-Bye,
-Aurelien
 -- 
-   .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
-  : :' :  Debian developer           | Electrical Engineer
-  `. `'   aurel32@debian.org         | aurelien@aurel32.net
-    `-    people.debian.org/~aurel32 | www.aurel32.net
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

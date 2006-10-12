@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWJLRUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJLR1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWJLRUV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWJLRUU
+	id S1751037AbWJLR1k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbWJLR1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:20:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42429 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751432AbWJLRUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:20:18 -0400
-Subject: Re: Hardware bug or kernel bug?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610121753.23220.dj@david-web.co.uk>
-References: <200610121753.23220.dj@david-web.co.uk>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 12 Oct 2006 19:20:15 +0200
-Message-Id: <1160673616.3000.441.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 12 Oct 2006 13:27:40 -0400
+Received: from colo.elevenwireless.com ([69.30.42.70]:58750 "EHLO
+	smtp.elevennetworks.com") by vger.kernel.org with ESMTP
+	id S1750778AbWJLR1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 13:27:39 -0400
+Date: Thu, 12 Oct 2006 10:16:59 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       mm-commits@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, pbadari@us.ibm.com
+Subject: Re: [patch 16/67] jbd: fix commit of ordered data buffers
+Message-ID: <20061012171659.GC10816@suse.de>
+References: <20061011204756.642936754@quad.kroah.org> <20061011210446.GQ16627@kroah.com> <20061012115538.GJ9495@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012115538.GJ9495@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 17:53 +0100, David Johnson wrote:
-> Hi,
+On Thu, Oct 12, 2006 at 01:55:38PM +0200, Jan Kara wrote:
+>   Hi,
 > 
-> I'm having a major problem on a system that I've been unable to track down. 
-> When using scp to transfer a large file (a few gig) over the network 
-> (@100Mbit/s) the system will reboot after about 5-10 minutes of transfer. No 
-> errors, just a reboot. I have another identical system which exhibits the 
-> same behaviour.
+> > -stable review patch.  If anyone has any objections, please let us know.
+>   There does not seem to be any obvious issues with this change and it
+> fixes a real BUG happenning during some stress-testing. On the other hand
+> the change is kind of intrusive and changes a quite complex code (or
+> better said code with complex interactions). So I'm not sure if it really is
+> -stable material...
 
+I think it is, as it does fix a real issue, and the same patch is in
+mainline now too.
 
-could be a heat issue.... although.. the rest of what you describe
-doesn't quite match that. Still.. just opening the case and using an
-external fan to blow air in for 10 minutes should entirely disprove that
-I suppose..
+thanks,
 
+greg k-h

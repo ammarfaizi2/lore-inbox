@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWJLOBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWJLOC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWJLOBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWJLOBd
+	id S1751414AbWJLOC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWJLOC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:01:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46231 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751413AbWJLOBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:01:32 -0400
-Date: Thu, 12 Oct 2006 14:59:45 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Heinz Mauelshagen <mauelshagen@redhat.com>
-Subject: Re: dm stripe: Fix bounds
-Message-ID: <20061012135945.GV17654@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Phillip Susi <psusi@cfl.rr.com>, Andrew Morton <akpm@osdl.org>,
+	Thu, 12 Oct 2006 10:02:27 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.201.20]:13453 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1751414AbWJLOC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:02:26 -0400
+Date: Thu, 12 Oct 2006 16:02:24 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: md@linux.it
+Subject: 2.6.18 - check for chroot, broken root and cwd values in procfs
+Message-ID: <20061012140224.GA7632@wavehammer.waldi.eu.org>
+Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
 	linux-kernel@vger.kernel.org,
-	Heinz Mauelshagen <mauelshagen@redhat.com>
-References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	md@linux.it
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
 Content-Disposition: inline
-In-Reply-To: <452DBE11.2000005@cfl.rr.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 12:01:21AM -0400, Phillip Susi wrote:
-> now dmraid fails to configure the dm 
-> table because this patch rejects it.
- 
-> I believe the correct thing to do is to special case the last stripe in 
-> 0-31    64-67
-> 32-63   68-71
- 
-AFAIK current versions of dmraid handle this correctly - Heinz?
 
-Alasdair
--- 
-agk@redhat.com
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi folks
+
+The commit 778c1144771f0064b6f51bee865cceb0d996f2f9 replaced the old
+root-based security checks in procfs with processed based ones.
+
+This makes the old check for chroot "[ -r /proc/1/root ]" unusable as
+readlink on it now always succedds. Also it provides buggy values inside
+a chroot, both /proc/1/root and /proc/self/root points to / but in real
+they are different.
+
+Is this a desired output or can I call this a bug? If the behaviour is
+correct, is there a replacement for this check?
+
+Bastian
+
+--=20
+Behind every great man, there is a woman -- urging him on.
+		-- Harry Mudd, "I, Mudd", stardate 4513.3
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iEYEARECAAYFAkUuSvAACgkQnw66O/MvCNEzkQCfdh8eLk8VWpycnGZPOAAYBjsg
+AVEAnRhvZ0a36nClh62lAvBauG2CQRil
+=ihJn
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

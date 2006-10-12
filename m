@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWJLH2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030702AbWJLHaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422656AbWJLH2v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422783AbWJLH2v
+	id S1030702AbWJLHaS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030699AbWJLHaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:28:51 -0400
-Received: from ns1.suse.de ([195.135.220.2]:42214 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422656AbWJLH2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:28:50 -0400
-Message-ID: <452DEEAB.3000403@suse.de>
-Date: Thu, 12 Oct 2006 09:28:43 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-Cc: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Avoid PIT SMP lockups
-References: <1160170736.6140.31.camel@localhost.localdomain>	 <200610111349.32231.caglar@pardus.org.tr>	 <1160589556.5973.1.camel@localhost.localdomain>	 <200610112137.01160.caglar@pardus.org.tr> <1160592235.5973.5.camel@localhost.localdomain>
-In-Reply-To: <1160592235.5973.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
+	Thu, 12 Oct 2006 03:30:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47837 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030692AbWJLHaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:30:15 -0400
+Subject: Re: [patch 17/67] Fix longstanding load balancing bug in the
+	scheduler
+From: Arjan van de Ven <arjan@infradead.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061011210449.GR16627@kroah.com>
+References: <20061011204756.642936754@quad.kroah.org>
+	 <20061011210449.GR16627@kroah.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 12 Oct 2006 09:30:12 +0200
+Message-Id: <1160638212.3000.409.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> Hey Gerd,
-> 	Looks like the smp replacements code in 2.6.18 is breaking with vmware.
-> I'm guessing we're taking an interrupt while apply_replacements is
-> running. Any ideas?
+On Wed, 2006-10-11 at 14:04 -0700, Greg KH wrote:
+> plain text document attachment
+> (fix-longstanding-load-balancing-bug-in-the-scheduler.patch)
+> -stable review patch.  If anyone has any objections, please let us know.
+> 
+> ------------------
+> From: Christoph Lameter <christoph@sgi.com>
+> 
+> The scheduler will stop load balancing if the most busy processor contains
+> processes pinned via processor affinity.
 
-Try switching the vmware configuration to "other OS".  This turns off
-os-specific binary patching.  The alternatives code might have broken
-assumptions vmware does about the linux kernel code ...
 
-cheers,
+a scheduler change sounds awefully risky for a -stable release,
+especially if the head patch with it isn't fully released yet (so very
+limited tested).....
 
-  Gerd
+as such I'd yank this from this stable release and leave it out until at
+least 2.6.19 has been out for a while without complaints about
+scheduling.
 
--- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+
+

@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422803AbWJLHwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422807AbWJLHxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422803AbWJLHwi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWJLHwh
+	id S1422807AbWJLHxO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422809AbWJLHxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:52:37 -0400
-Received: from [195.171.73.133] ([195.171.73.133]:221 "EHLO
-	pelagius.h-e-r-e-s-y.com") by vger.kernel.org with ESMTP
-	id S1422803AbWJLHwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:52:36 -0400
-Date: Thu, 12 Oct 2006 07:52:35 +0000
-From: andrew@walrond.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 intermittent parallel build failure
-Message-ID: <20061012075235.GB2508@pelagius.h-e-r-e-s-y.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061011112558.GA23147@pelagius.h-e-r-e-s-y.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011112558.GA23147@pelagius.h-e-r-e-s-y.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 12 Oct 2006 03:53:14 -0400
+Received: from mail.jambit.com ([62.245.207.83]:213 "EHLO mail.jambit.com")
+	by vger.kernel.org with ESMTP id S1422807AbWJLHxM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:53:12 -0400
+Message-ID: <452DF54C.8000202@gmx.net>
+Date: Thu, 12 Oct 2006 09:57:00 +0200
+From: Michael Kerrisk <mtk-manpages@gmx.net>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: man-pages-2.41 is released
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 11:25:58AM +0000, andrew@walrond.org wrote:
-> When compiling the kernel on a Sun T1000 ( Niagra - 6 cores/24
-> threads) with
-> 
-> 	make -j12
-> 
-> I occasionally see failures like:
-> 
+Gidday,
 
-This was due a serious bug in gnu make; see
-	https://savannah.gnu.org/bugs/?14853
+I recently released man-pages-2.41.
 
-This effects most of the recent make releases, and is _not_
-sun/sparc/solaris specific, so don't stop reading the bug report at
-the first line ;)
+This release is now available for download at:
 
-I've posted a patch against make-3.81 which fixes it for me.
+    ftp://ftp.kernel.org/pub/linux/docs/manpages
+    or mirrors: ftp://ftp.XX.kernel.org/pub/linux/docs/manpages
 
-Symptoms: Random crashing of make worker sub-processes at high -j#.
-More pronounced when threads are waiting on i/o (make enables SIGCHLD
-interrupts for short periods which can interrupt read(2) in the worker
-threads and EINTR isn't handled)
+and soon at:
 
-This will likely effect anyone using large -j# on larger
-multi-core/multi-processor machines, so BEWARE!
+    ftp://ftp.win.tue.nl/pub/linux-local/manpages
 
-Andrew Walrond
+Changes in this release that may be of interest to readers
+of this list include the following:
+
+New pages
+---------
+
+splice.2
+tee.2
+vmsplice.2
+    Jens Axboe / Michael Kerrisk
+        See also:
+            http://lwn.net/Articles/118760/
+            http://lwn.net/Articles/178199/
+            http://lwn.net/Articles/179492/
+            http://kerneltrap.org/node/6505
+            http://lwn.net/Articles/179434/
+
+Changes to individual pages
+---------------------------
+
+madvise.2
+    mtk
+        Document MADV_REMOVE, new in 2.6.16.
+        Document MADV_DONTFORK / MADV_DOFORK, new in 2.6.16.
+
+prctl.2
+    Marcel Holtmann / mtk
+        Since kernel 2.6.18, setting 2 for PR_SET_DUMPABLE is no longer
+        possible.
+    Guillem Jover
+        Updated Linux versions where the options where introduced.
+        Added PR_SET_TIMING, PR_GET_TIMING, PR_SET_NAME, PR_GET_NAME,
+        PR_SET_UNALIGN, PR_GET_UNALIGN, PR_SET_FPEMU, PR_GET_FPEMU,
+        PR_SET_FPEXC, PR_GET_FPEXC.
+    Michael Kerrisk
+        Document PR_GET_ENDIAN and PR_SET_ENDIAN.
+
+posix_fadvise.2
+    Andrew Morton
+        Since 2.6.18, POSIX_FADV_NOREUSE is a no-op.
+
+termios.3
+    mtk
+        Documented IUTF8 (which was new in kernel 2.6.4).
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
+
+Want to help with man page maintenance?  Grab the latest tarball at
+http://www.kernel.org/pub/linux/docs/manpages/
+read the HOWTOHELP file and grep the source files for 'FIXME'.

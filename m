@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWJLUg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWJLUr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWJLUg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 16:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWJLUg5
+	id S1750746AbWJLUr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 16:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWJLUr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 16:36:57 -0400
-Received: from alnrmhc11.comcast.net ([204.127.225.91]:3264 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750845AbWJLUg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 16:36:56 -0400
-Message-ID: <452EA766.80307@comcast.net>
-Date: Thu, 12 Oct 2006 16:36:54 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Thu, 12 Oct 2006 16:47:56 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:28388 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1750746AbWJLUrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 16:47:55 -0400
+Message-ID: <452EA9FF.2040602@cfl.rr.com>
+Date: Thu, 12 Oct 2006 16:47:59 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Can context switches be faster?
-References: <452E62F8.5010402@comcast.net> <452E9E47.8070306@nortel.com>	 <452EA441.6070703@comcast.net> <1160684954.3000.473.camel@laptopd505.fenrus.org>
-In-Reply-To: <1160684954.3000.473.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+To: Alasdair G Kergon <agk@redhat.com>, Phillip Susi <psusi@cfl.rr.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Heinz Mauelshagen <mauelshagen@redhat.com>
+Subject: Re: dm stripe: Fix bounds
+References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com> <20061012135945.GV17654@agk.surrey.redhat.com> <452E5FD0.8060309@cfl.rr.com> <20061012160515.GD17654@agk.surrey.redhat.com> <452E85ED.1040409@cfl.rr.com> <20061012183529.GF17654@agk.surrey.redhat.com>
+In-Reply-To: <20061012183529.GF17654@agk.surrey.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Oct 2006 20:48:10.0146 (UTC) FILETIME=[BA3BA820:01C6EE3F]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14748.000
+X-TM-AS-Result: No--12.608800-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Arjan van de Ven wrote:
->> ther uniprocessor machines.
->> That's a load more descriptive :D
->>
->> 0.890 uS, 0.556uS/cycle, that's barely 2 cycles you know.  (Pentium M)
->> PPC performs similarly, 1 cycle should be about 1uS.
->>
->>> Chris
-> 
-> you have your units off; 1 cycle is 1 nS not 1 uS  (or 0.556 nS for the
-> pM)
-
-Ah, right right.  Nano is a billion, micro is a million.  How did I get
-that mixed up.
-
-So that's barely two THOUSAND cycles.  Which is closer to what I
-expected (i.e., not instant)
-
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alasdair G Kergon wrote:
+> On Thu, Oct 12, 2006 at 02:14:05PM -0400, Phillip Susi wrote:
+>> So you are saying that dmraid should build 3 tables: 1 for the bulk of 
+>> the array, 1 for only the last stripe, and 1 linear to connect them?
+>  
+> No.  1 table.  2 consecutive targets with different stripe sizes, if that's
+> how the data is actually laid out.
 > 
 
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+One stripe table can only contain one stripe size, so to have two would 
+require two tables, and a third table to tie them back together.
 
-iQIVAwUBRS6nZAs1xW0HCTEFAQImYQ/+Lmcd2zzOhtJHZ6AofBajWh7CEhqLCfqd
-mQ09b95YPtDXEr0f5Uud69/v4+dE5gVh1ze68z4+15dFtfLfR7EuBJpXykoSDSGB
-fMVhwd6COzN8l4Bl826tbH3jvNnX8jssLcCr/qNvtYA1pDntXjjFdPF0OHdU87Kr
-KYODxIM69akjTALjYO4NinYZdhcJn++DkHfKtIfjL5qD9gc0VMe8EMj1bQo2Jz8T
-FBpMtfz2JPcXq8CFYDz9fMREtrJQfpYYFMyG+MJHWiNpEWUXTy7Jg40q/k5Jhsf0
-ReDh+FJDWGmtep938wTquIojhSu/WYNyyBjAXlWcLo08S1cl5BSLj0hD12sKXT6c
-0FmqIZO44Pp6dBfoHxRrss6tljbsoTAmAf0ac4PLMciHJfidYvoAfWH++70i+4Wm
-CtsQdRn0jY7Ws0vB3pVLA6IlpZ/D5OXE+ko7ntiOUDkiKynoUHz71h6WwtpCorF2
-myUurBvHbL85VTCOegomy/5/6UcozFK2LovkjRN9jXoP2ZportXPIYL0ssrRnXN0
-7GtS9Ye5Mu2+n88pk64HdKWg75uflZPAobfCBg1lt933wlXfpOwi7FKKuwTHP8vD
-2IabVRcJEk2VnOgJDfQ5iSooN4XDFRIG+DjI3/7lzRDpLRpMiUBy91K7adi5u7ah
-tx+izQjdo3c=
-=HqrS
------END PGP SIGNATURE-----
+>> the only problem comes from the last 
+>> stripe.  How else could you map the last stripe other than laying down x 
+>> sectors onto y drives as x / y sectors on each drive in sequence?
+>  
+> Depends whether or not you give precedence to the stripe size.
+> The underlying device might be much larger - dm doesn't know or care - and
+> the intention of userspace might have been to truncate a larger striped
+> device part-way through one of the stripes - an equally reasonable thing to
+> do.
+
+The entire idea of a stripe is that you are using multiple identical 
+drives ( or partitions ), so it doesn't make any sense to be able to 
+truncate one of the drives.  In any case, this is not something you can 
+do now, so the fact that you could not do it then either does not seem 
+to be a good argument against allowing partial tails.
+
+

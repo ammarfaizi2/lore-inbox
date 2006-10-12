@@ -1,69 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161202AbWJLGcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161207AbWJLGjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161202AbWJLGcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWJLGcl
+	id S1161207AbWJLGjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWJLGjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:32:41 -0400
-Received: from sp604001mt.neufgp.fr ([84.96.92.60]:10996 "EHLO Smtp.neuf.fr")
-	by vger.kernel.org with ESMTP id S1161202AbWJLGck (ORCPT
+	Thu, 12 Oct 2006 02:39:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9908 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161207AbWJLGjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:32:40 -0400
-Date: Thu, 12 Oct 2006 08:32:43 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] fdtable: Eradicate fdarray overflow.
-In-reply-to: <200610112307.38485.vlobanov@speakeasy.net>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-id: <452DE18B.9030701@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <200610111958.03238.vlobanov@speakeasy.net>
- <452DD058.7000301@cosmosbay.com> <200610112307.38485.vlobanov@speakeasy.net>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Thu, 12 Oct 2006 02:39:43 -0400
+Date: Wed, 11 Oct 2006 23:39:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] lockdep: annotate i386 apm
+Message-Id: <20061011233925.c9ba117a.akpm@osdl.org>
+In-Reply-To: <1160633180.2006.94.camel@taijtu>
+References: <1160574022.2006.82.camel@taijtu>
+	<20061011141813.79fb278f.akpm@osdl.org>
+	<1160633180.2006.94.camel@taijtu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vadim Lobanov a écrit :
-> On Wednesday 11 October 2006 22:19, Eric Dumazet wrote:
->> Hi Vadim
->>
->> I find your PAGE_SIZE/4 minimum allocation quite unjustified.
->>
->> For architectures with 64K PAGE_SIZE, we endup allocating 16K, for poor
->> tasks that happen to touch a not so high (>= 64) file descriptor...
->>
->> I would vote for a fixed size, like 1024
-> 
-> In my opinion, always picking 1024 would be highly suboptimal for some 
-> architectures (x86-64 in particular -- that's a whole page, just for the 
-> fdarray!). If anything, I'd prefer something similar to this pseudo-code:
+On Thu, 12 Oct 2006 08:06:20 +0200
+Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 
-I was speaking of 1024 bytes.
-
-I was the guy who made fdset going from PAGE_SIZE to 64 bytes (L1_CACHE_BYTES 
-if you dare), I wont be the guy responsible for a reverse path on fdtable :)
-
-That is replace your (PAGE_SIZE/4)  by 1024, wich was you probably meant
-No archi has a smaller page, so no need to play with min_t() macro...
-
+> #define local_irq_restore(flags)                                \
+>         do {                                                    \
+>                 if (raw_irqs_disabled_flags(flags)) {           \
+>                         raw_local_irq_restore(flags);           \
+>                         trace_hardirqs_off();                   \
+>                 } else {                                        \
+>                         trace_hardirqs_on();                    \
+>                         raw_local_irq_restore(flags);           \
+>                 }                                               \
+>         } while (0)
 > 
-> #define FDTABLE_MIN min_t(uint, PAGE_SIZE / 4 / sizeof(struct file *), 1024)
-> ...
-> nr /= FDTABLE_MIN;
-> nr = roundup_pow_of_two(nr + 1);
-> nr *= FDTABLE_MIN;
-> 
-> gcc should be smart enough to optimize that expression into a single constant. 
-> At least it did (version 4.1.0) in my quick test here.
-> 
->> Eric
-> 
-> Let me know what you think. Please don't just go radio-silent on me. ;)
-> 
+> So, say interrupts were enabled when entering apm_bios_call*(); you now
+> save that in flags, disable interrupts, and enable them again.
+> Upon reaching local_irq_restore(), we'll hit the else branch with irq's
+> enabled and call trace_hardirqs_on(), which goes EEEK!
 
-radio-silent ? well, it seems I already sent you many mails about your patches :)
+I'd assumed lockdep was less stupid than that ;) This?  Seems a bit
+overdone..
 
-Eric
+--- a/arch/i386/kernel/apm.c~lockdep-annotate-i386-apm
++++ a/arch/i386/kernel/apm.c
+@@ -540,12 +540,6 @@ static inline void apm_restore_cpus(cpum
+  * Also, we KNOW that for the non error case of apm_bios_call, there
+  * is no useful data returned in the low order 8 bits of eax.
+  */
+-#define APM_DO_CLI	\
+-	if (apm_info.allow_ints) \
+-		local_irq_enable(); \
+-	else \
+-		local_irq_disable();
+-
+ #ifdef APM_ZERO_SEGS
+ #	define APM_DECL_SEGS \
+ 		unsigned int saved_fs; unsigned int saved_gs;
+@@ -583,11 +577,12 @@ static u8 apm_bios_call(u32 func, u32 eb
+ 	u32 *eax, u32 *ebx, u32 *ecx, u32 *edx, u32 *esi)
+ {
+ 	APM_DECL_SEGS
+-	unsigned long		flags;
+ 	cpumask_t		cpus;
+ 	int			cpu;
+ 	struct desc_struct	save_desc_40;
+ 	struct desc_struct	*gdt;
++	int			enable_irqs = 0;
++	int			disable_irqs = 0;
+ 
+ 	cpus = apm_save_cpus();
+ 	
+@@ -596,12 +591,26 @@ static u8 apm_bios_call(u32 func, u32 eb
+ 	save_desc_40 = gdt[0x40 / 8];
+ 	gdt[0x40 / 8] = bad_bios_desc;
+ 
+-	local_save_flags(flags);
+-	APM_DO_CLI;
++	if (apm_info.allow_ints) {
++		if (irqs_disabled()) {
++			local_irq_enable();
++			disable_irqs = 1;
++		}
++	} else {
++		if (!irqs_disabled()) {
++			local_irq_disable();
++			enable_irqs = 1;
++		}
++	}
++
++
+ 	APM_DO_SAVE_SEGS;
+ 	apm_bios_call_asm(func, ebx_in, ecx_in, eax, ebx, ecx, edx, esi);
+ 	APM_DO_RESTORE_SEGS;
+-	local_irq_restore(flags);
++	if (disable_irqs)
++		local_irq_disable();
++	if (enable_irqs)
++		local_irq_enable();
+ 	gdt[0x40 / 8] = save_desc_40;
+ 	put_cpu();
+ 	apm_restore_cpus(cpus);
+@@ -627,11 +636,12 @@ static u8 apm_bios_call_simple(u32 func,
+ {
+ 	u8			error;
+ 	APM_DECL_SEGS
+-	unsigned long		flags;
+ 	cpumask_t		cpus;
+ 	int			cpu;
+ 	struct desc_struct	save_desc_40;
+ 	struct desc_struct	*gdt;
++	int			enable_irqs = 0;
++	int			disable_irqs = 0;
+ 
+ 	cpus = apm_save_cpus();
+ 	
+@@ -640,12 +650,25 @@ static u8 apm_bios_call_simple(u32 func,
+ 	save_desc_40 = gdt[0x40 / 8];
+ 	gdt[0x40 / 8] = bad_bios_desc;
+ 
+-	local_save_flags(flags);
+-	APM_DO_CLI;
++	if (apm_info.allow_ints) {
++		if (irqs_disabled()) {
++			local_irq_enable();
++			disable_irqs = 1;
++		}
++	} else {
++		if (!irqs_disabled()) {
++			local_irq_disable();
++			enable_irqs = 1;
++		}
++	}
++
+ 	APM_DO_SAVE_SEGS;
+ 	error = apm_bios_call_simple_asm(func, ebx_in, ecx_in, eax);
+ 	APM_DO_RESTORE_SEGS;
+-	local_irq_restore(flags);
++	if (disable_irqs)
++		local_irq_disable();
++	if (enable_irqs)
++		local_irq_enable();
+ 	gdt[0x40 / 8] = save_desc_40;
+ 	put_cpu();
+ 	apm_restore_cpus(cpus);
+_
 

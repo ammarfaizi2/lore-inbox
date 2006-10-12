@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWJLSwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWJLSwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWJLSwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWJLSws
+	id S1750863AbWJLSwV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWJLSwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:52:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25063 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750873AbWJLSws (ORCPT
+	Thu, 12 Oct 2006 14:52:21 -0400
+Received: from mail.impinj.com ([206.169.229.170]:56521 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S1750731AbWJLSwV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:52:48 -0400
-Date: Thu, 12 Oct 2006 11:52:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver core: fix error handling in device_bind_driver()
-Message-Id: <20061012115240.d856e254.akpm@osdl.org>
-In-Reply-To: <200610120105.56022.dtor@insightbb.com>
-References: <200610120105.56022.dtor@insightbb.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Oct 2006 14:52:21 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Badari Pulavarty <pbadari@gmail.com>
+Subject: Re: 2.6.19-rc1-mm1
+Date: Thu, 12 Oct 2006 11:52:19 -0700
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@google.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>
+References: <20061010000928.9d2d519a.akpm@osdl.org> <20061011144713.cb0c1453.akpm@osdl.org> <1160676589.9386.18.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <1160676589.9386.18.camel@dyn9047017100.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610121152.19649.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 01:05:55 -0400
-Dmitry Torokhov <dtor@insightbb.com> wrote:
+On Thursday 12 October 2006 11:09, Badari Pulavarty wrote:
+> create05 test hang goes away with hot-fix (revert-fd-table stuff).
+> FYI.
 
-> Subject: Driver core: fix error handling in device_bind_driver()
-> From: Dmitry Torokhov <dtor@insightbb.com>
-> 
-> When link creation fails we not only need to signal error
-> but also remove device from driver's list of bound devices.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/base/dd.c |   29 ++++++++++++++++++-----------
->  1 files changed, 18 insertions(+), 11 deletions(-)
-> 
-> Index: work/drivers/base/dd.c
-> ===================================================================
-> --- work.orig/drivers/base/dd.c
-> +++ work/drivers/base/dd.c
+Does it also go away with the "Eradicate fdarray overflow" patch instead of 
+the hot-fix?
 
-This code has undergone basic restructuring in Greg's development tree.  A
-patch against rc1-mm1 would apply.
+> Thanks,
+> Badari
+
+-- Vadim Lobanov

@@ -1,249 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422800AbWJLHoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422801AbWJLHpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422800AbWJLHoV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422794AbWJLHoE
+	id S1422801AbWJLHpE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422798AbWJLHnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:44:04 -0400
+	Thu, 12 Oct 2006 03:43:47 -0400
 Received: from py-out-1112.google.com ([64.233.166.178]:12718 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1422800AbWJLHn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:43:59 -0400
+	id S1422797AbWJLHnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 03:43:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:references:user-agent:date:from:to:cc:subject:content-disposition:message-id;
-        b=f+BYDp4Qvu3p8uJc3R21kmQACASL07Vw7t6dt56EXRBcb7iyKIShztDnkPN+6Dq27cVpX6P1+Nw1dkXQK64P2dH+D4mUPm6TcVwJgyxYVrPfMtmOvjZMFv+2zvKRAdKzT8rqf6ZzeIOvp2OCzAeeIm1JL/tiEW+T805wAE2201Q=
+        b=O66Gqkh0oNTCIoA+ukG2a+We0nPktazD7tjRlmu4Y9crl0f/fhTyJEC2aMhm2RXD/9u6iv2Q+be8zi0nj5km7M5sOLEyLiMB3/u93O59E+7ny6r/ztuWc6Ue+19tVA9lzTBRNo0iQ3iI109RYABKWQflvmALkGsjFIhxHhsA5dg=
 References: <20061012074305.047696736@gmail.com>>
 User-Agent: quilt/0.45-1
-Date: Thu, 12 Oct 2006 16:43:12 +0900
+Date: Thu, 12 Oct 2006 16:43:08 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Valdis.Kletnieks@vt.edu
-Subject: [patch 7/7] stacktrace filtering for fault-injection capabilities
-Content-Disposition: inline; filename=module-filter.patch
-Message-ID: <452df23e.44ca1e09.1a7f.780f@mx.google.com>
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: [patch 3/7] fault-injection capability for kmalloc
+Content-Disposition: inline; filename=failslab.patch
+Message-ID: <452df222.0804022e.60ae.67a6@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch provides stacktrace filtering feature.
-The stacktrace filter allows failing only for the caller you are
-interested in.
+This patch provides fault-injection capability for kmalloc.
 
-stacktrace filter is enabled by setting the value of
-/debugfs/*/stacktrace-depth more than 0.
-and specify the range of the virtual address
-by the /debugfs/*/address-start and /debugfs/*/address-end
+Boot option:
 
-Please see the example that demostrates how to inject slab allocation
-failures only for a specific module
-in Documentation/fault-injection/fault-injection.txt
+failslab=<interval>,<probability>,<space>,<times>
 
-Cc: Valdis.Kletnieks@vt.edu
+	<interval> -- specifies the interval of failures.
+
+	<probability> -- specifies how often it should fail in percent.
+
+	<space> -- specifies the size of free space where memory can be
+		   allocated safely in bytes.
+
+	<times> -- specifies how many times failures may happen at most.
+
+Debugfs:
+
+/debug/failslab/interval
+/debug/failslab/probability
+/debug/failslab/specifies
+/debug/failslab/times
+
+Example:
+
+	failslab=10,100,0,-1
+
+slab allocation (kmalloc(), kmem_cache_alloc(),..) fails once per 10 times.
+
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Don Mullis <dwm@meer.net>
 
- include/linux/fault-inject.h |    7 ++
- lib/Kconfig.debug            |    2 
- lib/fault-inject.c           |  111 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 120 insertions(+)
+ lib/Kconfig.debug |    7 +++++++
+ mm/slab.c         |   43 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
-Index: work-fault-inject/lib/fault-inject.c
+Index: work-fault-inject/mm/slab.c
 ===================================================================
---- work-fault-inject.orig/lib/fault-inject.c
-+++ work-fault-inject/lib/fault-inject.c
-@@ -6,6 +6,9 @@
- #include <linux/fs.h>
- #include <linux/module.h>
- #include <linux/interrupt.h>
-+#include <linux/unwind.h>
-+#include <linux/stacktrace.h>
-+#include <linux/kallsyms.h>
- #include <linux/fault-inject.h>
+--- work-fault-inject.orig/mm/slab.c
++++ work-fault-inject/mm/slab.c
+@@ -107,6 +107,7 @@
+ #include	<linux/mempolicy.h>
+ #include	<linux/mutex.h>
+ #include	<linux/rtmutex.h>
++#include	<linux/fault-inject.h>
  
- int setup_fault_attr(struct fault_attr *attr, char *str)
-@@ -64,6 +67,82 @@ static int fail_task(struct fault_attr *
- 	return !in_interrupt() && task->make_it_fail;
- }
- 
-+static int fail_any_address(struct fault_attr *attr)
-+{
-+	return (attr->address_start == 0 && attr->address_end == ULONG_MAX);
-+}
-+
-+#ifdef CONFIG_STACK_UNWIND
-+
-+static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
-+						void *arg)
-+{
-+	int depth;
-+	struct fault_attr *attr = arg;
-+
-+	for (depth = 0; depth < attr->stacktrace_depth
-+			&& unwind(info) == 0 && UNW_PC(info); depth++) {
-+		if (arch_unw_user_mode(info))
-+			break;
-+		if (attr->address_start <= UNW_PC(info) &&
-+			       UNW_PC(info) < attr->address_end)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+static int fail_stacktrace(struct fault_attr *attr)
-+{
-+	struct unwind_frame_info info;
-+
-+	return unwind_init_running(&info, fail_stacktrace_callback, attr);
-+}
-+
-+#elif defined(CONFIG_STACKTRACE)
-+
-+#define MAX_STACK_TRACE_DEPTH 10
-+
-+static int fail_stacktrace(struct fault_attr *attr)
-+{
-+	struct stack_trace trace;
-+	int depth = attr->stacktrace_depth;
-+	unsigned long entries[MAX_STACK_TRACE_DEPTH];
-+	int n;
-+
-+	if (depth == 0)
-+		return 0;
-+
-+	trace.nr_entries = 0;
-+	trace.entries = entries;
-+	trace.max_entries = (depth < MAX_STACK_TRACE_DEPTH) ?
-+				depth : MAX_STACK_TRACE_DEPTH;
-+	trace.skip = 1;
-+	trace.all_contexts = 0;
-+
-+	save_stack_trace(&trace, NULL);
-+	for (n = 0; n < trace.nr_entries; n++)
-+		if (attr->address_start <= entries[n] &&
-+			       entries[n] < attr->address_end)
-+			return 1;
-+	return 0;
-+}
-+
-+#else
-+
-+static inline int fail_stacktrace(struct fault_attr *attr)
-+{
-+	static int firsttime = 1;
-+
-+	if (firsttime) {
-+		printk(KERN_WARNING
-+		"This architecture does not implement save_stack_trace()"\n");
-+		firsttime = 0;
-+	}
-+	return 0;
-+}
-+
-+#endif
-+
- /*
-  * This code is stolen from failmalloc-1.0
-  * http://www.nongnu.org/failmalloc/
-@@ -74,6 +153,9 @@ int should_fail(struct fault_attr *attr,
- 	if (attr->task_filter && !fail_task(attr, current))
- 		return 0;
- 
-+	if (!fail_any_address(attr) && !fail_stacktrace(attr))
-+		return 0;
-+
- 	if (atomic_read(&max_failures(attr)) == 0)
- 		return 0;
- 
-@@ -168,6 +250,18 @@ void cleanup_fault_attr_entries(struct f
- 			debugfs_remove(attr->entries.task_filter_file);
- 			attr->entries.task_filter_file = NULL;
- 		}
-+		if (attr->entries.stacktrace_depth_file) {
-+			debugfs_remove(attr->entries.stacktrace_depth_file);
-+			attr->entries.stacktrace_depth_file = NULL;
-+		}
-+		if (attr->entries.address_start_file) {
-+			debugfs_remove(attr->entries.address_start_file);
-+			attr->entries.address_start_file = NULL;
-+		}
-+		if (attr->entries.address_end_file) {
-+			debugfs_remove(attr->entries.address_end_file);
-+			attr->entries.address_end_file = NULL;
-+		}
- 		debugfs_remove(attr->entries.dir);
- 		attr->entries.dir = NULL;
- 	}
-@@ -217,6 +311,23 @@ int init_fault_attr_entries(struct fault
- 		goto fail;
- 	attr->entries.task_filter_file = file;
- 
-+	file = debugfs_create_ul("stacktrace-depth", mode, dir,
-+				   &attr->stacktrace_depth);
-+	if (!file)
-+		goto fail;
-+	attr->entries.stacktrace_depth_file = file;
-+
-+	file = debugfs_create_ul("address-start", mode, dir,
-+				   &attr->address_start);
-+	if (!file)
-+		goto fail;
-+	attr->entries.address_start_file = file;
-+
-+	file = debugfs_create_ul("address-end", mode, dir, &attr->address_end);
-+	if (!file)
-+		goto fail;
-+	attr->entries.address_end_file = file;
-+
- 	return 0;
- fail:
- 	cleanup_fault_attr_entries(attr);
-Index: work-fault-inject/include/linux/fault-inject.h
-===================================================================
---- work-fault-inject.orig/include/linux/fault-inject.h
-+++ work-fault-inject/include/linux/fault-inject.h
-@@ -18,6 +18,9 @@ struct fault_attr {
- 	atomic_t space;
- 	unsigned long verbose;
- 	u32 task_filter;
-+	unsigned long stacktrace_depth;
-+	unsigned long address_start;
-+	unsigned long address_end;
- 
- 	unsigned long count;
- 
-@@ -32,6 +35,9 @@ struct fault_attr {
- 		struct dentry *space_file;
- 		struct dentry *verbose_file;
- 		struct dentry *task_filter_file;
-+		struct dentry *stacktrace_depth_file;
-+		struct dentry *address_start_file;
-+		struct dentry *address_end_file;
- 	} entries;
- 
+ #include	<asm/uaccess.h>
+ #include	<asm/cacheflush.h>
+@@ -3075,12 +3076,54 @@ static void *cache_alloc_debugcheck_afte
+ #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
  #endif
-@@ -41,6 +47,7 @@ struct fault_attr {
- 	struct fault_attr name = {				\
- 		.interval = 1,					\
- 		.times = ATOMIC_INIT(1),			\
-+		.address_end = ULONG_MAX,			\
- 	}
  
- int setup_fault_attr(struct fault_attr *attr, char *str);
++#ifdef CONFIG_FAILSLAB
++
++static DEFINE_FAULT_ATTR(failslab);
++
++static int __init setup_failslab(char *str)
++{
++	should_fail_srandom(jiffies);
++
++	return setup_fault_attr(&failslab, str);
++}
++__setup("failslab=", setup_failslab);
++
++static int should_failslab(struct kmem_cache *cachep, gfp_t flags)
++{
++	if ((flags & __GFP_NOFAIL) || cachep == &cache_cache)
++		return 0;
++
++	return should_fail(&failslab, obj_size(cachep));
++}
++
++static int __init failslab_debugfs(void)
++{
++	should_fail_srandom(jiffies);
++
++	return init_fault_attr_entries(&failslab, "failslab");
++}
++
++late_initcall(failslab_debugfs);
++
++#else /* CONFIG_FAILSLAB */
++
++static inline int should_failslab(struct kmem_cache *cachep, gfp_t flags)
++{
++	return 0;
++}
++
++#endif /* CONFIG_FAILSLAB */
++
+ static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+ 	void *objp;
+ 	struct array_cache *ac;
+ 
+ 	check_irq_off();
++
++	if (should_failslab(cachep, flags))
++		return NULL;
++
+ 	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+ 		STATS_INC_ALLOCHIT(cachep);
 Index: work-fault-inject/lib/Kconfig.debug
 ===================================================================
 --- work-fault-inject.orig/lib/Kconfig.debug
 +++ work-fault-inject/lib/Kconfig.debug
-@@ -472,6 +472,8 @@ config LKDTM
- 
+@@ -473,6 +473,13 @@ config LKDTM
  config FAULT_INJECTION
  	bool
-+	select STACKTRACE
-+	select FRAME_POINTER
  
- config FAILSLAB
- 	bool "fault-injection capabilitiy for kmalloc"
++config FAILSLAB
++	bool "fault-injection capabilitiy for kmalloc"
++	depends on DEBUG_KERNEL
++	select FAULT_INJECTION
++	help
++	  This option provides fault-injection capabilitiy for kmalloc.
++
+ config FAULT_INJECTION_DEBUG_FS
+ 	bool "debugfs entries for fault-injection capabilities"
+ 	depends on FAULT_INJECTION && SYSFS
 
 --

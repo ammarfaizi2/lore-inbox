@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWJLOVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWJLOW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWJLOVt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWJLOVt
+	id S932087AbWJLOW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWJLOW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:21:49 -0400
-Received: from mail.suse.de ([195.135.220.2]:59842 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932479AbWJLOVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:21:48 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       md@linux.it
-Subject: Re: 2.6.18 - check for chroot, broken root and cwd values in procfs
-References: <20061012140224.GA7632@wavehammer.waldi.eu.org>
-X-Yow: Xerox your lunch and file it under ``sex offenders!''
-Date: Thu, 12 Oct 2006 16:21:36 +0200
-In-Reply-To: <20061012140224.GA7632@wavehammer.waldi.eu.org> (Bastian Blank's
-	message of "Thu, 12 Oct 2006 16:02:24 +0200")
-Message-ID: <jeodshpqbz.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 12 Oct 2006 10:22:28 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6825 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932462AbWJLOW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:22:27 -0400
+Date: Thu, 12 Oct 2006 16:21:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Online Journaled File System <ojfs.discuss@yahoo.com>
+Cc: an Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
+Message-ID: <20061012142134.GC16202@wohnheim.fh-wedel.de>
+References: <20061012135405.62079.qmail@web58109.mail.re3.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061012135405.62079.qmail@web58109.mail.re3.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastian Blank <bastian@waldi.eu.org> writes:
+On Thu, 12 October 2006 06:54:05 -0700, Online Journaled File System wrote:
+> 
+> So 10 years at an asylum instead of 25 to life in a
+> maximum security prison? eh!?  YOU are insane, too.
 
-> Is this a desired output or can I call this a bug? If the behaviour is
-> correct, is there a replacement for this check?
+In the cases I know it was more like 6 month of hospital and taking
+pills for the rest of the life.  Many people above 60 have seen worse.
 
-[ "$(stat -c "%d/%i" /)" = "$(stat -Lc "%d/%i" /proc/1/root)" ]
+> Tell that to his wife her family and kids!
 
-Andreas.
+I have zero knowledge about what happened to her and therefore won't
+comment on the legal case of her disappearing.  If you are looking for
+a legal comment, ask a lawyer.  If you have a suspicion you can back
+with evidence, contact the law enforcement authorities.  If you have a
+personal opinion and like to share it, talk to a friend.
+
+In either of those cases, LKML is _not_ the place to pester.  Go away.
+Shoo.
+
+Jörn
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979

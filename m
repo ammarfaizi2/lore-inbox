@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422848AbWJLKCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422860AbWJLKGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422848AbWJLKCW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 06:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422852AbWJLKCW
+	id S1422860AbWJLKGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 06:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422859AbWJLKGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 06:02:22 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:49332 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1422848AbWJLKCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 06:02:21 -0400
-Message-ID: <452E12A9.6010409@garzik.org>
-Date: Thu, 12 Oct 2006 06:02:17 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 12 Oct 2006 06:06:09 -0400
+Received: from web58114.mail.re3.yahoo.com ([68.142.236.137]:3995 "HELO
+	web58114.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S1422860AbWJLKGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 06:06:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ioRPFSQoMgtExV+u9LAUACg2LOvXo/0a0vFC9/DaHcJX+4Q1tkIKHqKEGKtc0wrRqkHLNyfHsXxy5PDBW+V+redDAcC/k3G9ev8aXZqBjqoY2pID5Qm3wS7U3rQ88cahDBEKL/kQcD8Y8B83YrptcJ/a62/ZkFWYIEEmW3KrupM=  ;
+Message-ID: <20061012100605.87420.qmail@web58114.mail.re3.yahoo.com>
+Date: Thu, 12 Oct 2006 03:06:05 -0700 (PDT)
+From: Online Journaled File System <ojfs.discuss@yahoo.com>
+Subject: [ANNOUNCE] Online Journaled File System (OJFS) v1.0
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Jong Lin <jong_lin@xgitech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Would like to open source of XGI graphics chip but ...
-References: <A2FC964A2264C64C82AA65298F0AA9ADAC6B49@MAIL01.corpnet.xgitech.com>
-In-Reply-To: <A2FC964A2264C64C82AA65298F0AA9ADAC6B49@MAIL01.corpnet.xgitech.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jong Lin wrote:
-> I found this address from
-> http://developer.osdl.org/dev/opendrivers/wiki/index.php/Mailing_Lists
-> 
-> and would like to know how I can release source code of frame buffer
-> device driver for XGI Volari graphics chip to Linux kernel. Please help
-> to comment. Thanks.
+Greetings,
 
-You may read Documentation/SubmittingDrivers and 
-Documentation/SubmittingPatches in the Linux kernel source code for 
-further instructions.
+OJFS is a general-purpose, Online Journaling File
+system based on  ReiserFS which was designed and
+implemented by a team at Namesys led by Hans  Reiser,
+who is referred to as the project's Benevolent
+Dictator for Life (and death). It is currently
+supported for GNU/Linux and may be included in other
+operating systems in the future.
 
-We welcome your contribution!
+You may download the patch for the 2.6.18 kernel at 
+http://www.sendspace.com/file/9zb2gf
 
-	Jeff
+Or view our Wikipedia page for more up to date
+information at http://en.wikipedia.org/wiki/OJFS
+
+We encourage all current ReiserFS users to upgrade to
+OJFS for improved performance due our extensive
+cleanups of object naming overhead.
+
+Thank you,
+The OJFS Team (AYBABTU).
 
 
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

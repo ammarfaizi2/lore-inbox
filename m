@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWJLFa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWJLFhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965281AbWJLFa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 01:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbWJLFa5
+	id S1161203AbWJLFhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 01:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWJLFhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 01:30:57 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:39393 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965281AbWJLFa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 01:30:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=MvRrjaEsAWqdPmqT5U6JHlvy4uFTg/Po4xsBh8NuzQOAzuyRRV1K3G95nyKpO/s2HJmhYA/g7tiUbWDUx6+L5B964HgW2XOtnyZed1sjpVBmv7/WqHvINN47+mx0CFxFpPEJOgMUDe98S0mBiRGlxrh+OeCxIVzVdfoJHaiKcu8=
-Date: Thu, 12 Oct 2006 14:31:18 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Neil Brown <neilb@suse.de>
-Subject: [PATCH] md: fix /proc/mdstat refcounting
-Message-ID: <20061012053118.GD29465@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Neil Brown <neilb@suse.de>
+	Thu, 12 Oct 2006 01:37:20 -0400
+Received: from smtp2.xgitech.com ([61.66.19.134]:56505 "EHLO
+	twhqfe02.corpnet.xgitech.com") by vger.kernel.org with ESMTP
+	id S1161203AbWJLFhT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 01:37:19 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Would like to open source of XGI graphics chip but ...
+Date: Thu, 12 Oct 2006 13:33:24 +0800
+Message-ID: <A2FC964A2264C64C82AA65298F0AA9ADAC6B49@MAIL01.corpnet.xgitech.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Would like to open source of XGI graphics chip but ...
+Thread-Index: Acbtq7hfjK/XaG0tTJWgJY/4ueBWvQAE+ZgwAAAPf5A=
+From: "Jong Lin" <jong_lin@xgitech.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Oct 2006 05:33:24.0296 (UTC) FILETIME=[EFB79480:01C6EDBF]
+X-TM-AS-Product-Ver: SMEX-7.0.0.1345-3.6.1039-14746.001
+X-TM-AS-Result: No--1.601500-4.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seen mdadm oops after successfully unloading md module.
+I found this address from
+http://developer.osdl.org/dev/opendrivers/wiki/index.php/Mailing_Lists
 
-This patch privents from unloading md module while
-mdadm is polling /proc/mdstat.
-
-Cc: Neil Brown <neilb@suse.de>
-Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
-
-Index: work-fault-inject/drivers/md/md.c
-===================================================================
---- work-fault-inject.orig/drivers/md/md.c
-+++ work-fault-inject/drivers/md/md.c
-@@ -4912,6 +4912,7 @@ static unsigned int mdstat_poll(struct f
- }
- 
- static struct file_operations md_seq_fops = {
-+	.owner		= THIS_MODULE,
- 	.open           = md_seq_open,
- 	.read           = seq_read,
- 	.llseek         = seq_lseek,
+and would like to know how I can release source code of frame buffer
+device driver for XGI Volari graphics chip to Linux kernel. Please help
+to comment. Thanks.

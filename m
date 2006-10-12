@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161509AbWJLGHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWJLGNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161509AbWJLGHk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161531AbWJLGHk
+	id S932490AbWJLGNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWJLGNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:07:40 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:55225 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1161509AbWJLGHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:07:40 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] fdtable: Eradicate fdarray overflow.
-Date: Wed, 11 Oct 2006 23:07:38 -0700
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610111958.03238.vlobanov@speakeasy.net> <452DD058.7000301@cosmosbay.com>
-In-Reply-To: <452DD058.7000301@cosmosbay.com>
+	Thu, 12 Oct 2006 02:13:18 -0400
+Received: from relay03.pair.com ([209.68.5.17]:16396 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S932490AbWJLGNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 02:13:18 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix jiffies.h comment
+Date: Thu, 12 Oct 2006 01:12:46 -0500
+User-Agent: KMail/1.9.4
+Organization: Clientec, Inc.
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610112307.38485.vlobanov@speakeasy.net>
+Message-Id: <200610120113.09242.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 October 2006 22:19, Eric Dumazet wrote:
-> Hi Vadim
->
-> I find your PAGE_SIZE/4 minimum allocation quite unjustified.
->
-> For architectures with 64K PAGE_SIZE, we endup allocating 16K, for poor
-> tasks that happen to touch a not so high (>= 64) file descriptor...
->
-> I would vote for a fixed size, like 1024
+jiffies.h includes a comment informing that jiffies_64 must be read with the 
+assistance of the xtime_lock seqlock. The comment text, however, calls 
+jiffies_64 "not volatile", which should probably read "not atomic".
 
-In my opinion, always picking 1024 would be highly suboptimal for some 
-architectures (x86-64 in particular -- that's a whole page, just for the 
-fdarray!). If anything, I'd prefer something similar to this pseudo-code:
+Signed-off-by: Chase Venters <chase.venters@clientec.com>
 
-#define FDTABLE_MIN min_t(uint, PAGE_SIZE / 4 / sizeof(struct file *), 1024)
-...
-nr /= FDTABLE_MIN;
-nr = roundup_pow_of_two(nr + 1);
-nr *= FDTABLE_MIN;
-
-gcc should be smart enough to optimize that expression into a single constant. 
-At least it did (version 4.1.0) in my quick test here.
-
-> Eric
-
-Let me know what you think. Please don't just go radio-silent on me. ;)
-
--- Vadim Lobanov
+diff --git a/include/linux/jiffies.h b/include/linux/jiffies.h
+index c8d5f20..0ec6e28 100644
+--- a/include/linux/jiffies.h
++++ b/include/linux/jiffies.h
+@@ -74,7 +74,7 @@ #define TICK_USEC_TO_NSEC(TUSEC) (SH_DIV
+ #define __jiffy_data  __attribute__((section(".data")))
+ 
+ /*
+- * The 64-bit value is not volatile - you MUST NOT read it
++ * The 64-bit value is not atomic - you MUST NOT read it
+  * without sampling the sequence number in xtime_lock.
+  * get_jiffies_64() will do this for you as appropriate.
+  */

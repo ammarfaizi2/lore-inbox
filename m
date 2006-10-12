@@ -1,46 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWJLWig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWJLWli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWJLWig (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 18:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWJLWig
+	id S1751263AbWJLWli (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 18:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWJLWli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 18:38:36 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:3302 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751254AbWJLWif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 18:38:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FHXNMiFEXbbiB11rTN811mj4pw72jta8i9y7irS+3cGXuhl1rV2otNtX8a91PuUvXsqXL/Bz3S5yDqwpHFWOs102XgBbDnPf67u8AtcZS5F99wGIfla3lI5FhtUn1LuOPAzWvT0vGUEZRXV44xJrjSZUY/ihDC0hOzV63e57wY4=
-Message-ID: <653402b90610121538q215efb69oc66b455c0d93f71f@mail.gmail.com>
-Date: Fri, 13 Oct 2006 00:38:33 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.19-rc1 update 2] drivers: add LCD support
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061012145422.65958578.akpm@osdl.org>
+	Thu, 12 Oct 2006 18:41:38 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:14802 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1751255AbWJLWlh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 18:41:37 -0400
+Date: Fri, 13 Oct 2006 00:38:20 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: mlindner@syskonnect.de, rroesler@syskonnect.de,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
+ skge_resume() properly
+In-Reply-To: <20061012152512.66f147b8@freekitty>
+Message-ID: <Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
+References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
+ <20061012152512.66f147b8@freekitty>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061012140422.93e7330c.maxextreme@gmail.com>
-	 <20061012145422.65958578.akpm@osdl.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/12/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Thu, 12 Oct 2006 14:04:22 +0000
-> Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
->
-> > Andrew, here it is the patch for converting the cfag12864b driver
-> > to a framebuffer driver as Pavel requested and as I promised :)
->
-> I'm all confused.  This patch patches drivers/auxdisplay/fbcfag12864b.c,
-> but there's no file of that name in any patches I have.
->
-> I'll drop everything - please send a shiny new patch against current Linus
-> mainline, thanks.
->
+On Thu, 12 Oct 2006, Stephen Hemminger wrote:
 
-No problem, will do.
+> >  	pci_set_power_state(pdev, PCI_D0);
+> >  	pci_restore_state(pdev);
+> > -	pci_enable_device(pdev);
+> > +	if ((ret = pci_enable_device(pdev))) {
+> > +		printk(KERN_ERR "sk98lin: Cannot enable PCI device during resume\n");
+> > +		unregister_netdev(dev);
+> >
+> Having the device unregister seems harsh.
+
+What would be the proper way? As the initialization failed, accessing the 
+device would not make sense any more (therefore I don't think that calling 
+skge_remove_one() would be OK, as it issues calls to SkEventQueue() and 
+SkEventDispatcher(), trying to send something to the card).
+
+> Why put condtional on same line?
+
+Pardon me?
+
+> Why not print device name dev->name.
+
+Thanks.
+
+[PATCH] fix sk98lin driver, ignoring return value from pci_enable_device()
+
+add check of return value to _resume() function of sk98lin driver.
+
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+
+--- 
+
+ drivers/net/sk98lin/skge.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
+index d4913c3..1f03cf8 100644
+--- a/drivers/net/sk98lin/skge.c
++++ b/drivers/net/sk98lin/skge.c
+@@ -5070,7 +5070,11 @@ static int skge_resume(struct pci_dev *p
+ 
+ 	pci_set_power_state(pdev, PCI_D0);
+ 	pci_restore_state(pdev);
+-	pci_enable_device(pdev);
++	if ((ret = pci_enable_device(pdev))) {
++		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
++				dev->name);
++		return ret;
++	}
+ 	pci_set_master(pdev);
+ 	if (pAC->GIni.GIMacsFound == 2)
+ 		ret = request_irq(dev->irq, SkGeIsr, IRQF_SHARED, "sk98lin", dev);
+
+-- 
+Jiri Kosina

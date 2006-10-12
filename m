@@ -1,85 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422780AbWJLHQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbWJLHVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422780AbWJLHQn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 03:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422784AbWJLHQn
+	id S1030502AbWJLHVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 03:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbWJLHVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 03:16:43 -0400
-Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:60631 "EHLO
-	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1422780AbWJLHQm convert rfc822-to-8bit (ORCPT
+	Thu, 12 Oct 2006 03:21:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33731 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030502AbWJLHVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 03:16:42 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] fdtable: Eradicate fdarray overflow.
-Date: Thu, 12 Oct 2006 00:16:40 -0700
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610111958.03238.vlobanov@speakeasy.net> <200610112307.38485.vlobanov@speakeasy.net> <452DE18B.9030701@cosmosbay.com>
-In-Reply-To: <452DE18B.9030701@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610120016.40622.vlobanov@speakeasy.net>
+	Thu, 12 Oct 2006 03:21:05 -0400
+Date: Thu, 12 Oct 2006 00:21:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "J R" <x-list-subscriptions@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bugs in (2.6.18) from static analysis tool
+Message-Id: <20061012002101.2acca0dd.akpm@osdl.org>
+In-Reply-To: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
+References: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 October 2006 23:32, Eric Dumazet wrote:
-> Vadim Lobanov a écrit :
-> > On Wednesday 11 October 2006 22:19, Eric Dumazet wrote:
-> >> Hi Vadim
-> >>
-> >> I find your PAGE_SIZE/4 minimum allocation quite unjustified.
-> >>
-> >> For architectures with 64K PAGE_SIZE, we endup allocating 16K, for poor
-> >> tasks that happen to touch a not so high (>= 64) file descriptor...
-> >>
-> >> I would vote for a fixed size, like 1024
-> >
-> > In my opinion, always picking 1024 would be highly suboptimal for some
-> > architectures (x86-64 in particular -- that's a whole page, just for the
-> > fdarray!). If anything, I'd prefer something similar to this pseudo-code:
->
-> I was speaking of 1024 bytes.
+On Wed, 11 Oct 2006 22:06:22 -0700
+"J R" <x-list-subscriptions@hotmail.com> wrote:
 
-Oh, well, that does make a difference! :) I misread your email: I thought you 
-were suggesting 1024 fdarray entries, not 1024 bytes. I'd agree with you 
-completely then.
+> Hi,
+> 
+> We are in the final stages of refining a new static analysis framework and 
+> are testing it out on various large open source software projects (like 
+> other ventures in this space).
+> 
+> Unlike other enterprises, we are making a linux intraprocedural analysis 
+> tool openly available in binary form to allow our results to be reproduced 
+> and validated. Ditto the bug lists.
+> 
+> Although this is commercial software, our team are all strong OS advocates 
+> and contributors. We hope to release some components of this project on an 
+> OS basis just as soon as we can trash out a solid plan which allows this 
+> while also enabling us to purchase food.
+> 
+> I've only attached 1 or 2 bugs at the end here (the full list is about 10K 
+> ascii text), there are at www.cqsat.com/linux.html#bugs. There's about 50 
+> and I recon 20 or so are both real and not yet identified.
+> 
+> Any comments/issues/feedback is appreciated.
+> 
 
-> That is replace your (PAGE_SIZE/4)  by 1024, wich was you probably meant
-> No archi has a smaller page, so no need to play with min_t() macro...
+useful, thanks.
 
-Good point. Code can then simply become:
-nr /= (1024 / sizeof(struct file *));
-nr = roundup_pow_of_two(nr + 1);
-nr *= (1024 / sizeof(struct file *));
+> 
+> ==============================================================================
+> SEVERITY=[SERIOUS]
+> ISSUE=[Tainted expression (tmp).kb_table used as an index in this context. 
+> Expression bounds: [Upper bound unchecked]. Tracking "(tmp).kb_table": 
+> unsigned, 8 bit(s)]
+> SOURCE=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 83]
+> SINK=[/p0/working/Downloads/linux-2.6.9/drivers/char/vt_ioctl.c, line 88]
+> ORIGINATOR=[cqsat]
+> 
+>       80:     struct kbentry tmp;
+>       81:     ushort *key_map, val, ov;
+>       82:
+>       83:     if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
+>           	^^^---------^^^----------^^^
+>           	START
+>       84:         return -EFAULT;
+>       86:     switch (cmd) {
+>       87:     case KDGKBENT:
+>       88:         key_map = key_maps[s];
+>           	^^^---------^^^----------^^^
+>           	ERROR
+>       89:         if (key_map) {
+>       90:             val = U(key_map[i]);
+>       91:             if (kbd->kbdmode != VC_UNICODE && KTYP(val) >= 
+> NR_TYPES)
+>       92:             val = K_HOLE;
 
-> > Let me know what you think. Please don't just go radio-silent on me. ;)
->
-> radio-silent ? well, it seems I already sent you many mails about your
-> patches :)
-
-Your feedback is very much appreciated, believe me! :) Both you (for the 
-ideas) and akpm (for his assistance and seemingly-infinite patience, even 
-when I accidentally broke his tree (I owe him a few beers/other-goodies for 
-that)) have helped out tremendously with this.
-
-So far, I have two comments from you that I need to take care of:
-1) allocate at least L1_CACHE_BYTES for fdsets
-2) change PAGE_SIZE/4 to 1024
-Both are performance tweaks, not crash fixes, and are easy to do. Could you 
-please look through the rest of the code in fs/file.c and point out any other 
-issues or code tweaks you can see? My plan is to prepare patches for these 
-things and buffer them up, and when we're done tweaking, I'll forward the 
-whole batch on to akpm.
-
-Then, once everything has settled down for a long while, I'll send out the 
-final fs/file.c cleanups patch -- mostly it introduces extensive comments 
-into that file about why the code does what it does.
-
-> Eric
-
--- Vadim Lobanov
+Yup, that's a bug.

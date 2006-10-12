@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWJLSNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWJLSUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750999AbWJLSNy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 14:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWJLSNy
+	id S1750989AbWJLSUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 14:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWJLSUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 14:13:54 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:30427 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1750984AbWJLSNx (ORCPT
+	Thu, 12 Oct 2006 14:20:21 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:56027 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1750743AbWJLSUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 14:13:53 -0400
-Message-ID: <452E85ED.1040409@cfl.rr.com>
-Date: Thu, 12 Oct 2006 14:14:05 -0400
+	Thu, 12 Oct 2006 14:20:19 -0400
+Message-ID: <452E876F.1000604@cfl.rr.com>
+Date: Thu, 12 Oct 2006 14:20:31 -0400
 From: Phillip Susi <psusi@cfl.rr.com>
 User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Alasdair G Kergon <agk@redhat.com>, Phillip Susi <psusi@cfl.rr.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Heinz Mauelshagen <mauelshagen@redhat.com>
-Subject: Re: dm stripe: Fix bounds
-References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com> <20061012135945.GV17654@agk.surrey.redhat.com> <452E5FD0.8060309@cfl.rr.com> <20061012160515.GD17654@agk.surrey.redhat.com>
-In-Reply-To: <20061012160515.GD17654@agk.surrey.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Can context switches be faster?
+References: <452E62F8.5010402@comcast.net>
+In-Reply-To: <452E62F8.5010402@comcast.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Oct 2006 18:14:06.0464 (UTC) FILETIME=[3491B800:01C6EE2A]
+X-OriginalArrivalTime: 12 Oct 2006 18:20:32.0700 (UTC) FILETIME=[1AC8A7C0:01C6EE2B]
 X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14746.003
-X-TM-AS-Result: No--10.259100-5.000000-31
+X-TM-AS-Result: No--10.041900-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So you are saying that dmraid should build 3 tables: 1 for the bulk of 
-the array, 1 for only the last stripe, and 1 linear to connect them?
-
-I'm not sure where the ambiguity is.  Obviously all the stripes prior to 
-the last should behave normally, the only problem comes from the last 
-stripe.  How else could you map the last stripe other than laying down x 
-sectors onto y drives as x / y sectors on each drive in sequence?
-
-
-Alasdair G Kergon wrote:
-> But there's ambiguity: should dm truncate just the last stripe(s) or all
-> stripes equally, or use some other combination of truncation?  The answer
-> depends on the circumstances, and so it is for userspace, which should know
-> which of those is required, to resolve the matter by supplying appropriate
-> chunk sizes.
+John Richard Moser wrote:
+> Can context switches be made faster?  This is a simple question, mainly
+> because I don't really understand what happens during a context switch
+> that the kernel has control over (besides storing registers).
 > 
-> Alasdair
+
+Besides saving the registers, the expensive operation in a context 
+switch involves flushing caches and switching page tables.  This can be 
+avoided if the new and old processes both share the same address space.
+
 

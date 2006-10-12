@@ -1,77 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbWJLPpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWJLPqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932639AbWJLPpA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 11:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWJLPpA
+	id S932648AbWJLPqf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 11:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbWJLPqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 11:45:00 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.192.83]:21635 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932644AbWJLPo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 11:44:59 -0400
-Message-ID: <452E62F8.5010402@comcast.net>
-Date: Thu, 12 Oct 2006 11:44:56 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Can context switches be faster?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Thu, 12 Oct 2006 11:46:34 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:61998 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S932648AbWJLPqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 11:46:33 -0400
+X-IronPort-AV: i="4.09,301,1157353200"; 
+   d="scan'208"; a="417397017:sNHT22545784"
+Subject: Re: [patch 03/19] SUNRPC: avoid choosing an IPMI port for RPC
+	traffic
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matt Domsch <Matt_Domsch@dell.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       Chuck Lever <chuck.lever@oracle.com>
+In-Reply-To: <1160648107.23731.6.camel@localhost.localdomain>
+References: <20061010165621.394703368@quad.kroah.org>
+	 <20061010171429.GD6339@kroah.com>
+	 <Pine.LNX.4.61.0610102056290.17718@yvahk01.tjqt.qr>
+	 <1160610353.7015.8.camel@lade.trondhjem.org>
+	 <1160615547.20611.0.camel@localhost.localdomain>
+	 <1160616905.6596.14.camel@lade.trondhjem.org>
+	 <20061012015306.GB27693@lists.us.dell.com>
+	 <1160648107.23731.6.camel@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Thu, 12 Oct 2006 08:15:26 -0700
+Message-Id: <1160666126.6004.42.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 12 Oct 2006 15:15:27.0426 (UTC) FILETIME=[3F865220:01C6EE11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2006-10-12 at 11:15 +0100, Alan Cox wrote:
+> Ar Mer, 2006-10-11 am 20:53 -0500, ysgrifennodd Matt Domsch:
+> > > > Then their hardware is faulty and should be specifically blacklisted not
+> > > > make everyone have to deal with silly unmaintainable hacks.
+> > > 
+> > > They are not hacks. The actual range of ports used by the RPC client is
+> > > set using /proc/sys/sunrpc/(min|max)_resvport. People that don't have
+> > > broken motherboards can override the default range, which is all that we
+> > > are changing here.
+> 
+> No.. you have it backwards. The tiny tiny number of people with broken
+> boards can either set it themselves, use DMI, or ram the offending board
+> somewhere dark belonging to whoever sold it to them
 
-Can context switches be made faster?  This is a simple question, mainly
-because I don't really understand what happens during a context switch
-that the kernel has control over (besides storing registers).
+:-)
 
-Linux ported onto the L4-Iguana microkernel is reported to be faster
-than the monolith[1]; it's not like microkernels are faster, but the
-L4-Iguana apparently just has super awesome context switching code:
+The main problem with that approach is that the offending boardmakers
+tend to hide these details deep in technical docs that are not bundled
+with the motherboard, and which consequently nobody actually reads.
+Instead they see that NFS doesn't work, and conclude to waste NFS
+community's time in debugging it.
 
-   Wombat's context-switching overheads as measured by lmbench on an
-   XScale processor are up to thirty times less than those of native
-   Linux, thanks to Wombat profiting from the implementation of fast
-   context switches in L4-embedded.
+We're still leaving a fairly large range of ports for the NFS client to
+use: there should be 373 that are rife for the taking.
 
-The first question that comes into my mind is, obviously, is this some
-special "fast context switch" code for only embedded systems; or is it
-possible to work this on normal systems?
+> > > To be fair, the motherboard manufacturers have actually registered these
+> > > ports with IANA:
+> 
+> This is irrelevant, they are stealing bits out of the incoming network
+> stream. That's not just rude its dangerous - they should have their own
+> MAC and IP stack for this. Port assignments are courtesy numbering to
+> avoid collisions on your own stack. They have no more right to steal
+> packets from that port than CERN does to claim all port 80 traffic on
+> the internet.
+> 
+> Why do I say dangerous - because they steal the data *before* your Linux
+> firewalling and feed it to an unauditable binary firmware which has
+> controlling access to large parts of the system without the OS even
+> seeing it.
+> 
+> Not a good idea IMHO on any box facing even a slightly insecure port.
 
-The second is, if it IS possible to get faster context switches in
-general use, can the L4 context switch methods be used in Linux?  I
-believe L4 is BSD licensed-- at least the files in their CVS repo that I
-looked at have "BSD" stamped on them.  Maybe some of the code can be
-examined, adopted, adapted, etc.
-
-If it's not possible to speed up context switches, the classical
-question would probably be.. why not?  ;)  No use knowing a thing and
-not understanding it; you get situations like this right here... :)
-
-[1]http://l4hq.org/
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRS5i9ws1xW0HCTEFAQKHtw/+PtjvtkfynX0uItgpa2zocbo8/hadu4kp
-dGmxI9eBouUc0T5GDjX7hHYolaIFswuNWyrnELU6uE4WeQ6l5BFnobc1FCiHLVBE
-7cZlr9FaFw3r7Ohb4AJBTLKXRYP3h107SnccxJLcqVqspwmzs6lZHaXCU9vrxpCW
-Xaam8bSBUrqJ3tIPalM20Nl4SrVF0clMYlKRT2LdD3/TFdN2e60m9sczyGEnLVT/
-Co+/JpQ5qxk7DqjXJHr0N5a0CmgjlTZQHEjtvfcPlrKa5CprLECrYx2aJHgs+nIz
-CXf9L2z3oiE4yWADK5+zXlJWcF7+pvspIsI9rQDdHoO2xFUzguiVup9XJOLbytpV
-yN0dVrOWaAXQMBtrYCInOtA6ynpAZ+hTv2EBSHRaOC+mnxcDTBSqJrj979RrKGlj
-Mz282LaSRDL4XPq9d8LwrnuPHIoqGGfj0wUKwmxC19vDfGOk3Y1I/frvcRgnjlb1
-TwG/QPgiGcXXVTgEDeogqgq+DRPmuoxxXo+OPMgA4441BzgqkCzxmjLA0uQL15dd
-CrAO8NF1fOzvWCvAQO8DhSaGGOikeur4BdkwnF6/eTQYA7QGewaCVdY0u6Q2dhAF
-wrGho4pGaEh/ev59/KsHvtSD88SfTUsLigTgGrwiRTufUm4XVbr5AzldTPUMUkUU
-+jRWrqbwkLM=
-=IDvt
------END PGP SIGNATURE-----
+No arguments with this.

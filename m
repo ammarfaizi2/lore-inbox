@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWJLQvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWJLQx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932696AbWJLQvY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWJLQvY
+	id S1422737AbWJLQx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJLQx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:51:24 -0400
-Received: from web58114.mail.re3.yahoo.com ([68.142.236.137]:35155 "HELO
-	web58114.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S932696AbWJLQvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:51:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=X2TPfdcPV0OMAblAtFXxS4vtafPzELsKp1qPZyZ3mLWDtBr4jN6uz6cbrsX8pTrEZmgTuHyHdIx0ETpm/o1da+x2gRJepoUfi7Lf2+0S2cfUST9U8v3qidY0KCccKySTyb/DXfo9BsWuOWTUNyAuxexn172csfxBh2tFDOWFFZA=  ;
-Message-ID: <20061012165122.77798.qmail@web58114.mail.re3.yahoo.com>
-Date: Thu, 12 Oct 2006 09:51:22 -0700 (PDT)
-From: jr <x_list_subscriptions@yahoo.com>
-Reply-To: jr@cqsat.com
-Subject: Re: Bugs in (2.6.18) from static analysis tool
-To: linux-kernel@vger.kernel.org
+	Thu, 12 Oct 2006 12:53:28 -0400
+Received: from pythagoras.zen.co.uk ([212.23.3.140]:21403 "EHLO
+	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1422737AbWJLQx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 12:53:27 -0400
+From: David Johnson <dj@david-web.co.uk>
+Reply-To: Linux Kernel <linux-kernel@vger.kernel.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Hardware bug or kernel bug?
+Date: Thu, 12 Oct 2006 17:53:22 +0100
+User-Agent: KMail/1.9.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610121753.23220.dj@david-web.co.uk>
+X-Originating-Pythagoras-IP: [82.69.29.67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[stuff deleted]
->  > I've only attached 1 or 2 bugs at the end
-here(the full list is about 10K
->  > ascii text), there are at
-www.cqsat.com/linux.html#bugs. There's about 50
->  > and I recon 20 or so are both real and not yet
-identified.
->
->The bugs-2.6.18.txt file is the same as the
-bugs-2.6.9.txt file.
->
->	Dave
-^^^
-Yes you are correct. That was dumm. Fixed now.
+Hi,
 
-The 2.6.18 potential bug list is at
-http://www.cqsat.com/bugs-2.6.18.txt
+I'm having a major problem on a system that I've been unable to track down. 
+When using scp to transfer a large file (a few gig) over the network 
+(@100Mbit/s) the system will reboot after about 5-10 minutes of transfer. No 
+errors, just a reboot. I have another identical system which exhibits the 
+same behaviour.
 
-Sorry 'bout that
+The system is a Supermicro P4SCT+ with a hyperthreading P4. I've posted the 
+dmesg here:
+http://www.david-web.co.uk/download/dmesg
 
--J
+I initially tried a different NIC in case that was at fault, but the results 
+were the same.
 
+Changing the interrupt timer frequency in the kernel makes a difference:
+100Hz - system reboots instantly when transfer is started
+250Hz - reboots after a few seconds
+1000Hz - reboots after 5-10 minutes
 
->
->--
->http://www.codemonkey.org.uk
+As the problem appears to be interrupt-related, I disabled the I/O APIC in the 
+BIOS (after first having to disable hyperthreading) which resulted in the 
+system lasting a bit longer before it reboots. I then tried disabling the 
+Local APIC as well but this made no difference.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+I've tested with Centos' 2.6.9 kernel and with a vanilla 2.6.17.13 kernel and 
+the results are the same with both.
+
+Does anyone have any idea whether this is likely to be a hardware problem or a 
+kernel problem?
+Any suggestions for more ways to debug this would be greatfully received.
+
+Thanks,
+David.

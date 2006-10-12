@@ -1,55 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWJLG6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWJLG56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422769AbWJLG6F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 02:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422772AbWJLG6F
+	id S1422766AbWJLG56 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 02:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422769AbWJLG56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 02:58:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16041 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422769AbWJLG6C (ORCPT
+	Thu, 12 Oct 2006 02:57:58 -0400
+Received: from lug-owl.de ([195.71.106.12]:40612 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1422766AbWJLG54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 02:58:02 -0400
-Date: Thu, 12 Oct 2006 02:57:57 -0400
-From: Dave Jones <davej@redhat.com>
-To: J R <x-list-subscriptions@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bugs in (2.6.18) from static analysis tool
-Message-ID: <20061012065757.GA680@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	J R <x-list-subscriptions@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
+	Thu, 12 Oct 2006 02:57:56 -0400
+Date: Thu, 12 Oct 2006 08:57:54 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: John Wendel <jwendel10@comcast.net>
+Cc: Eric Sandeen <esandeen@redhat.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Jan Kara <jack@suse.cz>, Eric Sandeen <sandeen@sandeen.net>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 ext3 panic.
+Message-ID: <20061012065754.GJ31823@lug-owl.de>
+Mail-Followup-To: John Wendel <jwendel10@comcast.net>,
+	Eric Sandeen <esandeen@redhat.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@suse.cz>,
+	Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061010141145.GM23622@atrey.karlin.mff.cuni.cz> <452C18A6.3070607@redhat.com> <1160519106.28299.4.camel@dyn9047017100.beaverton.ibm.com> <452C4C47.2000107@sandeen.net> <20061011103325.GC6865@atrey.karlin.mff.cuni.cz> <452CF523.5090708@sandeen.net> <20061011142205.GB24508@atrey.karlin.mff.cuni.cz> <1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com> <452DAA26.6080200@redhat.com> <452DC5C5.3040507@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ah40dssYA/cDqAW1"
 Content-Disposition: inline
-In-Reply-To: <BAY24-F39D5E3A7E7B3E9B1F469AC5150@phx.gbl>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <452DC5C5.3040507@comcast.net>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 11, 2006 at 10:06:22PM -0700, J R wrote:
- > Hi,
- > 
- > We are in the final stages of refining a new static analysis framework and 
- > are testing it out on various large open source software projects (like 
- > other ventures in this space).
- > 
- > Unlike other enterprises, we are making a linux intraprocedural analysis 
- > tool openly available in binary form to allow our results to be reproduced 
- > and validated. Ditto the bug lists.
- > 
- > Although this is commercial software, our team are all strong OS advocates 
- > and contributors. We hope to release some components of this project on an 
- > OS basis just as soon as we can trash out a solid plan which allows this 
- > while also enabling us to purchase food.
- > 
- > I've only attached 1 or 2 bugs at the end here (the full list is about 10K 
- > ascii text), there are at www.cqsat.com/linux.html#bugs. There's about 50 
- > and I recon 20 or so are both real and not yet identified.
 
-The bugs-2.6.18.txt file is the same as the bugs-2.6.9.txt file.
+--Ah40dssYA/cDqAW1
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	Dave
+On Wed, 2006-10-11 21:34:13 -0700, John Wendel <jwendel10@comcast.net> wrot=
+e:
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): ext3_free_b=
+locks_sb: bit already cleared for block 4740550
+> Oct 11 20:37:32 Godzilla kernel: Aborting journal on device hda5.
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_free=
+_blocks_sb: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_free=
+_blocks_sb: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
+rve_inode_write: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_trun=
+cate: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
+rve_inode_write: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_orph=
+an_del: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_rese=
+rve_inode_write: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5) in ext3_dele=
+te_inode: Journal has aborted
+> Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing b=
+_committed_data
+> Oct 11 20:37:32 Godzilla kernel: __journal_remove_journal_head: freeing b=
+_committed_data
+> Oct 11 20:37:32 Godzilla kernel: ext3_abort called.
+> Oct 11 20:37:32 Godzilla kernel: EXT3-fs error (device hda5): ext3_journa=
+l_start_sb: Detected aborted journal
+> Oct 11 20:37:32 Godzilla kernel: Remounting filesystem read-only
 
--- 
-http://www.codemonkey.org.uk
+This looks very much like the issue I see.
+
+MfG, JBG
+
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+Signature of:                http://catb.org/~esr/faqs/smart-questions.html
+the second  :
+
+--Ah40dssYA/cDqAW1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFLedyHb1edYOZ4bsRAloIAKCEKHY5xPsdEzassLoIiyXKcEHzHACdGSne
+xgKYCMLyI75ojlB7aEYq0a8=
+=r5UU
+-----END PGP SIGNATURE-----
+
+--Ah40dssYA/cDqAW1--

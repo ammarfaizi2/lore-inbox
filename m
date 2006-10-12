@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWJLRPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWJLRPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932705AbWJLRPL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWJLROn
+	id S932169AbWJLRPM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWJLRPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:14:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54400 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751436AbWJLROd (ORCPT
+	Thu, 12 Oct 2006 13:15:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6017 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932169AbWJLROv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:14:33 -0400
-Subject: [GFS2 & DLM] Pull request
+	Thu, 12 Oct 2006 13:14:51 -0400
+Subject: [PATCH 3/7] [DLM] Kconfig: don't show an empty DLM menu
 From: Steven Whitehouse <swhiteho@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Cc: Patrick Caulfield <pcaulfie@redhat.com>,
+       David Teigland <teigland@redhat.com>, Adrian Bunk <bunk@stusta.de>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 12 Oct 2006 18:19:52 +0100
-Message-Id: <1160673592.11901.830.camel@quoit.chygwyn.com>
+Date: Thu, 12 Oct 2006 18:19:06 +0100
+Message-Id: <1160673546.11901.820.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>From 1ee48af22ed6dcddea8cdf93c7f2a268cbcf0d56 Mon Sep 17 00:00:00 2001
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sun, 8 Oct 2006 04:30:48 +0200
+Subject: [DLM] Kconfig: don't show an empty DLM menu
 
-Please consider pulling the following bug fixes from the GFS2 git tree,
+Don't show an empty "Distributed Lock Manager" menu if IP_SCTP=n.
 
-Steve.
+Reported by Dmytro Bagrii in kernel Bugzilla #7268.
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Patrick Caulfield <pcaulfie@redhat.com>
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+---
+ fs/dlm/Kconfig |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-The following changes since commit c25d5180441e344a3368d100c57f0a481c6944f7:
-  Linus Torvalds:
-        Merge branch 'upstream' of git://ftp.linux-mips.org/pub/scm/upstream-linus
+diff --git a/fs/dlm/Kconfig b/fs/dlm/Kconfig
+index 490f85b..81b2c64 100644
+--- a/fs/dlm/Kconfig
++++ b/fs/dlm/Kconfig
+@@ -1,10 +1,9 @@
+ menu "Distributed Lock Manager"
+-	depends on INET && EXPERIMENTAL
++	depends on INET && IP_SCTP && EXPERIMENTAL
+ 
+ config DLM
+ 	tristate "Distributed Lock Manager (DLM)"
+ 	depends on IPV6 || IPV6=n
+-	depends on IP_SCTP
+ 	select CONFIGFS_FS
+ 	help
+ 	A general purpose distributed lock manager for kernel or userspace
+-- 
+1.4.1
 
-are found in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-fixes.git
-
-Adrian Bunk:
-      [DLM] Kconfig: don't show an empty DLM menu
-
-Patrick Caulfield:
-      [DLM] fix iovec length in recvmsg
-
-Russell Cattelan:
-      [GFS2] Fix a size calculation error
-      [GFS2] Pass the correct value to kunmap_atomic
-
-Steven Whitehouse:
-      [GFS2] Fix uninitialised variable
-      [GFS2] Fix bug where lock not held
-      [GFS2] Update git tree name/location
-
- MAINTAINERS           |    6 ++++--
- fs/dlm/Kconfig        |    3 +--
- fs/dlm/lowcomms.c     |    2 +-
- fs/gfs2/log.c         |    5 ++---
- fs/gfs2/lops.c        |    4 ++--
- fs/gfs2/ops_address.c |   13 ++++++++-----
- fs/gfs2/rgrp.h        |    2 +-
- 7 files changed, 19 insertions(+), 16 deletions(-)
 
 

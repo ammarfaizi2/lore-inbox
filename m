@@ -1,103 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWJLOLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWJLOKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbWJLOLm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 10:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbWJLOLm
+	id S1751428AbWJLOKY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 10:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWJLOKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 10:11:42 -0400
-Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:59373 "EHLO
-	bipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1030295AbWJLOLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 10:11:40 -0400
-Message-ID: <452E4D1A.9000409@grupopie.com>
-Date: Thu, 12 Oct 2006 15:11:38 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 update 2] drivers: add LCD support
-References: <20061012140422.93e7330c.maxextreme@gmail.com>
-In-Reply-To: <20061012140422.93e7330c.maxextreme@gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 10:10:23 -0400
+Received: from mail.suse.de ([195.135.220.2]:1217 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751424AbWJLOKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 10:10:16 -0400
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Memory Management <linux-mm@kvack.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Message-Id: <20061012120140.29671.39388.sendpatchset@linux.site>
+In-Reply-To: <20061012120102.29671.31163.sendpatchset@linux.site>
+References: <20061012120102.29671.31163.sendpatchset@linux.site>
+Subject: [patch 4/5] mm: incorrect VM_FAULT_OOM returns from drivers
+Date: Thu, 12 Oct 2006 16:10:11 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda Sandonis wrote:
-> Andrew, here it is the patch for converting the cfag12864b driver
-> to a framebuffer driver as Pavel requested and as I promised :)
+Some drivers are returning OOM when it is not in response to a memory
+shortage.
 
-Very nice :)
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Just a few comments, see below.
-
-> Pavel, yep, now I can login in my tiny 128x64 LCD.
-> It is pretty amazing to run vi on it... ;)
-> 
-> Tested and working fine.
-> ---
-[...]
-> +static void cfag12864b_update(void *arg)
-[...]
-> +	for (i = 0; i < CFAG12864B_CONTROLLERS; i++) {
-> +		cfag12864b_controller(i);
-> +		cfag12864b_nop();
-> +		for (j = 0; j < CFAG12864B_PAGES; j++) {
-> +			cfag12864b_page(j);
-> +			cfag12864b_nop();
-> +			for (k = 0; k < CFAG12864B_ADDRESSES; k++) {
-> +				cfag12864b_address(k);
-> +				cfag12864b_nop();
-> +				cfag12864b_nop();
-
-Doesn't the LCD controller automatically advance the address when 
-writing data?
-
-If it does, the address should only be needed before this loop and you 
-could write 64 bytes in a row without any "nop"'s. This should really 
-improve the time it takes to refresh the display.
-
-Also, keeping a "low level cache" of the physical display state and only 
-sending bytes that have actually changed might be a good improvement too.
-
-Remember, the host CPU is probably much much faster than your interface 
-to the LCD, so if it takes a few cycles to check the cache and decide 
-not to send a byte, it's already a big win. A simple memcmp might be 
-used skip full pages.
-
-Also, what do these "nop"'s do? Isn't there a way to read the "busy" 
-status from the controller and just write as fast as possible?
-
-> [...]
-> +	  The LCD framebuffer driver can be attached to a console.
-> +	  It will work fine. However, you can't attach it to the fbdev driver
-> +	  of the xorg server.
-
-This is probably because your driver can't be mmapped, no?
-
-Although the controller is only accessible through the parallel port, it 
-might be possible to mmap it. I vaguely remember that when I was reading 
-LDD3, I thought that this should be doable in a sequence like:
-
-  - accept the mmap as if you had the memory for the device available
-  - at "nopage" time, mark the buffer as "dirty" and map it to user space
-  - using a timer at the actual refresh rate, check the dirty flag. If 
-it is dirty, unmap the buffer and refresh the display
-
-I'm not describing the locking details (and a lot of other details, 
-too), but it should work in principle.
-
-It will probably make things easier if your buffer size is PAGE_SIZE, 
-and your "internal" operations (fillrect, copyarea, imageblit) also work 
-over the same buffer and just mark the buffer as dirty.
-
-I don't know if X will be able to run in 128x64, but it is easier to 
-make applications mmap the buffer and use it directly.
-
--- 
-Paulo Marques - www.grupopie.com
-
-"The face of a child can say it all, especially the
-mouth part of the face."
+Index: linux-2.6/drivers/char/drm/drm_vm.c
+===================================================================
+--- linux-2.6.orig/drivers/char/drm/drm_vm.c
++++ linux-2.6/drivers/char/drm/drm_vm.c
+@@ -147,14 +147,14 @@ static __inline__ struct page *drm_do_vm
+ 	if (address > vma->vm_end)
+ 		return NOPAGE_SIGBUS;	/* Disallow mremap */
+ 	if (!map)
+-		return NOPAGE_OOM;	/* Nothing allocated */
++		return NOPAGE_SIGBUS;	/* Nothing allocated */
+ 
+ 	offset = address - vma->vm_start;
+ 	i = (unsigned long)map->handle + offset;
+ 	page = (map->type == _DRM_CONSISTENT) ?
+ 		virt_to_page((void *)i) : vmalloc_to_page((void *)i);
+ 	if (!page)
+-		return NOPAGE_OOM;
++		return NOPAGE_SIGBUS;
+ 	get_page(page);
+ 
+ 	DRM_DEBUG("shm_nopage 0x%lx\n", address);
+@@ -272,7 +272,7 @@ static __inline__ struct page *drm_do_vm
+ 	if (address > vma->vm_end)
+ 		return NOPAGE_SIGBUS;	/* Disallow mremap */
+ 	if (!dma->pagelist)
+-		return NOPAGE_OOM;	/* Nothing allocated */
++		return NOPAGE_SIGBUS;	/* Nothing allocated */
+ 
+ 	offset = address - vma->vm_start;	/* vm_[pg]off[set] should be 0 */
+ 	page_nr = offset >> PAGE_SHIFT;
+@@ -310,7 +310,7 @@ static __inline__ struct page *drm_do_vm
+ 	if (address > vma->vm_end)
+ 		return NOPAGE_SIGBUS;	/* Disallow mremap */
+ 	if (!entry->pagelist)
+-		return NOPAGE_OOM;	/* Nothing allocated */
++		return NOPAGE_SIGBUS;	/* Nothing allocated */
+ 
+ 	offset = address - vma->vm_start;
+ 	map_offset = map->offset - (unsigned long)dev->sg->virtual;
+Index: linux-2.6/sound/core/pcm_native.c
+===================================================================
+--- linux-2.6.orig/sound/core/pcm_native.c
++++ linux-2.6/sound/core/pcm_native.c
+@@ -3025,7 +3025,7 @@ static struct page * snd_pcm_mmap_status
+ 	struct page * page;
+ 	
+ 	if (substream == NULL)
+-		return NOPAGE_OOM;
++		return NOPAGE_SIGBUS;
+ 	runtime = substream->runtime;
+ 	page = virt_to_page(runtime->status);
+ 	get_page(page);
+@@ -3068,7 +3068,7 @@ static struct page * snd_pcm_mmap_contro
+ 	struct page * page;
+ 	
+ 	if (substream == NULL)
+-		return NOPAGE_OOM;
++		return NOPAGE_SIGBUS;
+ 	runtime = substream->runtime;
+ 	page = virt_to_page(runtime->control);
+ 	get_page(page);
+@@ -3129,18 +3129,18 @@ static struct page *snd_pcm_mmap_data_no
+ 	size_t dma_bytes;
+ 	
+ 	if (substream == NULL)
+-		return NOPAGE_OOM;
++		return NOPAGE_SIGBUS;
+ 	runtime = substream->runtime;
+ 	offset = area->vm_pgoff << PAGE_SHIFT;
+ 	offset += address - area->vm_start;
+-	snd_assert((offset % PAGE_SIZE) == 0, return NOPAGE_OOM);
++	snd_assert((offset % PAGE_SIZE) == 0, return NOPAGE_SIGBUS);
+ 	dma_bytes = PAGE_ALIGN(runtime->dma_bytes);
+ 	if (offset > dma_bytes - PAGE_SIZE)
+ 		return NOPAGE_SIGBUS;
+ 	if (substream->ops->page) {
+ 		page = substream->ops->page(substream, offset);
+ 		if (! page)
+-			return NOPAGE_OOM;
++			return NOPAGE_OOM; /* XXX: is this really due to OOM? */
+ 	} else {
+ 		vaddr = runtime->dma_area + offset;
+ 		page = virt_to_page(vaddr);
+Index: linux-2.6/sound/oss/via82cxxx_audio.c
+===================================================================
+--- linux-2.6.orig/sound/oss/via82cxxx_audio.c
++++ linux-2.6/sound/oss/via82cxxx_audio.c
+@@ -2120,8 +2120,8 @@ static struct page * via_mm_nopage (stru
+ 		return NOPAGE_SIGBUS; /* Disallow mremap */
+ 	}
+         if (!card) {
+-		DPRINTK ("EXIT, returning NOPAGE_OOM\n");
+-		return NOPAGE_OOM;	/* Nothing allocated */
++		DPRINTK ("EXIT, returning NOPAGE_SIGBUS\n");
++		return NOPAGE_SIGBUS;	/* Nothing allocated */
+ 	}
+ 
+ 	pgoff = vma->vm_pgoff + ((address - vma->vm_start) >> PAGE_SHIFT);
+Index: linux-2.6/sound/usb/usx2y/usX2Yhwdep.c
+===================================================================
+--- linux-2.6.orig/sound/usb/usx2y/usX2Yhwdep.c
++++ linux-2.6/sound/usb/usx2y/usX2Yhwdep.c
+@@ -48,7 +48,7 @@ static struct page * snd_us428ctls_vm_no
+ 	
+ 	offset = area->vm_pgoff << PAGE_SHIFT;
+ 	offset += address - area->vm_start;
+-	snd_assert((offset % PAGE_SIZE) == 0, return NOPAGE_OOM);
++	snd_assert((offset % PAGE_SIZE) == 0, return NOPAGE_SIGBUS);
+ 	vaddr = (char*)((struct usX2Ydev *)area->vm_private_data)->us428ctls_sharedmem + offset;
+ 	page = virt_to_page(vaddr);
+ 	get_page(page);

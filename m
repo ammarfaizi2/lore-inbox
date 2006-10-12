@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWJLTGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWJLTGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWJLTGf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 15:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWJLTGf
+	id S1751163AbWJLTGv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 15:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWJLTGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 15:06:35 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:19865 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750879AbWJLTGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 15:06:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eExLpc/iMhvqCa2NvbSm7x1eaictea/Zd861u9jtnFKAF51nBQ+6TLWjrc9vxUtr9FsoH8cQ6FBXyto0bmNnjd2coQoIwv7aVtlpF9YYXpf18Di/RDxbk8f2jipoobTFt3si/abx2KXDFBpp7ku7o10Y4qOqeeIeQAk8yV4saJ4=
-Message-ID: <cda58cb80610121206o6180b3c7n147b8895b8b53d7d@mail.gmail.com>
-Date: Thu, 12 Oct 2006 21:06:33 +0200
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: [PATCH] Fix up mmap_kmem
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 15:06:51 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:19943 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750983AbWJLTGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 15:06:50 -0400
+Date: Thu, 12 Oct 2006 14:06:47 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Serge Aleynikov <serge@hq.idt.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@redhat.com>
+Subject: Re: non-critical security bug fix
+Message-ID: <20061012190647.GA6725@sergelap.austin.ibm.com>
+References: <452D3ED9.509@hq.idt.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <452D3ED9.509@hq.idt.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Franck Bui-Huu <fbuihuu@gmail.com>
+Quoting Serge Aleynikov (serge@hq.idt.net):
+> To Maintainers of the linux/security/commoncap.c:
+> 
+> Patch description:
+> ==================
+> This bug-fix ensures that if a process with root access sets 
+> keep_capabilities flag, current capabilities get preserved when the 
+> process switches from root to another effective user.  It looks like 
+> this was intended from the way capabilities are documented, but the 
+> current->keep_capabilities flag is not being checked.
 
-vma->vm_pgoff is an pfn _offset_ relatif to the begining
-of the memory start. The previous code was doing at first:
+Note that without your patch, the permitted set is maintained, so that
+you can regain the caps into your effective set after setuid if you
+need.  i.e.
 
-	vma->vm_pgoff << PAGE_SHIFT
+	prctl(PR_SET_KEEPCAPS, 1);
+	setresuid(1000, 1000, 1000);
+	caps = cap_from_text("cap_net_admin,cap_sys_admin,cap_dac_override=ep");
+	ret = cap_set_proc(caps);
 
-which results into a wrong physical address since some
-platforms have a physical mem start that can be different
-from 0. After that the previous call __pa() on this
-wrong physical address, however __pa() is used to convert
-a _virtual_ address into a physical one.
+So this patch will change the default behavior, but does not add
+features or change what is possible.
 
-This patch rewrites this convertion. It calculates the
-pfn of PAGE_OFFSET which is the pfn of the mem start
-then it adds the vma->vm_pgoff to it.
+Ordinarely I'd say changing default behavior wrt security is a bad
+thing, but given that this is "default behavior when doing prctl(PR_SET_KEEPCAPS)",
+I don't know how much it matters.
 
-It also uses virt_to_phys() instead of __pa() since the
-latter shouldn't be used by drivers.
+Still, I like the current behavior, where setuid means drop effective
+caps no matter what.
 
-Signed-off-by: Franck Bui-Huu <fbuihuu@gmail.com>
----
- drivers/char/mem.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index 6511012..a89cb52 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -292,8 +292,8 @@ static int mmap_kmem(struct file * file,
- {
- 	unsigned long pfn;
-
--	/* Turn a kernel-virtual address into a physical page frame */
--	pfn = __pa((u64)vma->vm_pgoff << PAGE_SHIFT) >> PAGE_SHIFT;
-+	/* Turn a pfn offset into an absolute pfn */
-+	pfn = PFN_DOWN(virt_to_phys((void *)PAGE_OFFSET)) + vma->vm_pgoff;
-
- 	/*
- 	 * RED-PEN: on some architectures there is more mapped memory
--- 
-1.4.2.1.gcd6f1-dirty
+-serge

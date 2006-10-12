@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWJLQx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbWJLQxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422737AbWJLQx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 12:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJLQx2
+	id S932700AbWJLQxU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 12:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbWJLQxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 12:53:28 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:21403 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1422737AbWJLQx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 12:53:27 -0400
-From: David Johnson <dj@david-web.co.uk>
-Reply-To: Linux Kernel <linux-kernel@vger.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Hardware bug or kernel bug?
-Date: Thu, 12 Oct 2006 17:53:22 +0100
-User-Agent: KMail/1.9.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Oct 2006 12:53:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3293 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932700AbWJLQxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 12:53:19 -0400
+Date: Thu, 12 Oct 2006 12:51:28 -0400
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Theodore Tso <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] [patch 00/67] 2.6.18-stable review
+Message-ID: <20061012165128.GC21149@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	Theodore Tso <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org,
+	Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>,
+	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+References: <20061011210310.GA16627@kroah.com> <20061012004244.GA9252@thunk.org> <20061012163522.GE20868@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610121753.23220.dj@david-web.co.uk>
-X-Originating-Pythagoras-IP: [82.69.29.67]
+In-Reply-To: <20061012163522.GE20868@kroah.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 12, 2006 at 09:35:22AM -0700, Greg Kroah-Hartman wrote:
+ > On Wed, Oct 11, 2006 at 08:42:44PM -0400, Theodore Tso wrote:
+ > > On Wed, Oct 11, 2006 at 02:03:10PM -0700, Greg KH wrote:
+ > > > And yes, we realize that this is a large number of patches, sorry...
+ > > 
+ > > I number of these patches were cleanups, such as removing code betewen
+ > > #if 0, removing header files from being exported, etc.  Not bad
+ > > things, but I wouldn't have thought it would have met the criteria for
+ > > being added to -stable.  Are you intentionally relaxing the criteria?
+ > 
+ > The header file stuff was intentionally added, as it is good to have the
+ > header files exported properly.  Those were a large number of these
+ > patches.
 
-I'm having a major problem on a system that I've been unable to track down. 
-When using scp to transfer a large file (a few gig) over the network 
-(@100Mbit/s) the system will reboot after about 5-10 minutes of transfer. No 
-errors, just a reboot. I have another identical system which exhibits the 
-same behaviour.
+Indeed. I see this as just 'finishing the job' rather than fixing something
+that's busted though.   That said, I was also carrying these in what will
+be our 2.6.18 based update kernel for FC5 (and what will be FC6) for the
+same reasons.
 
-The system is a Supermicro P4SCT+ with a hyperthreading P4. I've posted the 
-dmesg here:
-http://www.david-web.co.uk/download/dmesg
+	Dave
 
-I initially tried a different NIC in case that was at fault, but the results 
-were the same.
-
-Changing the interrupt timer frequency in the kernel makes a difference:
-100Hz - system reboots instantly when transfer is started
-250Hz - reboots after a few seconds
-1000Hz - reboots after 5-10 minutes
-
-As the problem appears to be interrupt-related, I disabled the I/O APIC in the 
-BIOS (after first having to disable hyperthreading) which resulted in the 
-system lasting a bit longer before it reboots. I then tried disabling the 
-Local APIC as well but this made no difference.
-
-I've tested with Centos' 2.6.9 kernel and with a vanilla 2.6.17.13 kernel and 
-the results are the same with both.
-
-Does anyone have any idea whether this is likely to be a hardware problem or a 
-kernel problem?
-Any suggestions for more ways to debug this would be greatfully received.
-
-Thanks,
-David.
+-- 
+http://www.codemonkey.org.uk

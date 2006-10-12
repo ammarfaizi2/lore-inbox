@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWJLRPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWJLROd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWJLRPM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 13:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWJLRPM
+	id S1751427AbWJLROd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 13:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWJLROd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 13:15:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6017 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932169AbWJLROv (ORCPT
+	Thu, 12 Oct 2006 13:14:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44928 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751427AbWJLROY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 13:14:51 -0400
-Subject: [PATCH 3/7] [DLM] Kconfig: don't show an empty DLM menu
+	Thu, 12 Oct 2006 13:14:24 -0400
+Subject: [PATCH 4/7] [GFS2] Fix bug where lock not held
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Cc: Patrick Caulfield <pcaulfie@redhat.com>,
-       David Teigland <teigland@redhat.com>, Adrian Bunk <bunk@stusta.de>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 12 Oct 2006 18:19:06 +0100
-Message-Id: <1160673546.11901.820.camel@quoit.chygwyn.com>
+Date: Thu, 12 Oct 2006 18:19:28 +0100
+Message-Id: <1160673569.11901.828.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 1ee48af22ed6dcddea8cdf93c7f2a268cbcf0d56 Mon Sep 17 00:00:00 2001
-From: Adrian Bunk <bunk@stusta.de>
-Date: Sun, 8 Oct 2006 04:30:48 +0200
-Subject: [DLM] Kconfig: don't show an empty DLM menu
+>From fe1a698ffef5af546dd4a8cd6a1f2f202491c4ef Mon Sep 17 00:00:00 2001
+From: Steven Whitehouse <swhiteho@redhat.com>
+Date: Wed, 11 Oct 2006 13:34:59 -0400
+Subject: [GFS2] Fix bug where lock not held
 
-Don't show an empty "Distributed Lock Manager" menu if IP_SCTP=n.
+The log lock needs to be held when manipulating the counter
+for the number of free journal blocks.
 
-Reported by Dmytro Bagrii in kernel Bugzilla #7268.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Patrick Caulfield <pcaulfie@redhat.com>
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 ---
- fs/dlm/Kconfig |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ fs/gfs2/log.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/dlm/Kconfig b/fs/dlm/Kconfig
-index 490f85b..81b2c64 100644
---- a/fs/dlm/Kconfig
-+++ b/fs/dlm/Kconfig
-@@ -1,10 +1,9 @@
- menu "Distributed Lock Manager"
--	depends on INET && EXPERIMENTAL
-+	depends on INET && IP_SCTP && EXPERIMENTAL
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index 554fe5b..72eec65 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -569,16 +569,15 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
+ 	else if (sdp->sd_log_tail != current_tail(sdp) && !sdp->sd_log_idle)
+ 		log_write_header(sdp, 0, PULL);
+ 	lops_after_commit(sdp, ai);
+-	sdp->sd_log_head = sdp->sd_log_flush_head;
  
- config DLM
- 	tristate "Distributed Lock Manager (DLM)"
- 	depends on IPV6 || IPV6=n
--	depends on IP_SCTP
- 	select CONFIGFS_FS
- 	help
- 	A general purpose distributed lock manager for kernel or userspace
++	gfs2_log_lock(sdp);
++	sdp->sd_log_head = sdp->sd_log_flush_head;
+ 	sdp->sd_log_blks_free -= sdp->sd_log_num_hdrs;
+-
+ 	sdp->sd_log_blks_reserved = 0;
+ 	sdp->sd_log_commited_buf = 0;
+ 	sdp->sd_log_num_hdrs = 0;
+ 	sdp->sd_log_commited_revoke = 0;
+ 
+-	gfs2_log_lock(sdp);
+ 	if (!list_empty(&ai->ai_ail1_list)) {
+ 		list_add(&ai->ai_list, &sdp->sd_ail1_list);
+ 		ai = NULL;
 -- 
 1.4.1
 

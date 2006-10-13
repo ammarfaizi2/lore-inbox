@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWJLX6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWJMAAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWJLX6d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 19:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWJLX6d
+	id S1751344AbWJMAAs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 20:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWJMAAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 19:58:33 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15378 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751337AbWJLX6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 19:58:32 -0400
-Date: Fri, 13 Oct 2006 00:58:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Phil Blundell <philb@gnu.org>, Tim Waugh <tim@cyberelk.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-parport@lists.infradead.org
-Subject: Re: [PATCH] fix parport_serial_pci_resume() ignoring return value from pci_enable_device()
-Message-ID: <20061012235820.GC24658@flint.arm.linux.org.uk>
-Mail-Followup-To: Jiri Kosina <jikos@jikos.cz>,
-	Phil Blundell <philb@gnu.org>, Tim Waugh <tim@cyberelk.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-parport@lists.infradead.org
-References: <Pine.LNX.4.64.0610130139510.29022@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610130139510.29022@twin.jikos.cz>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Oct 2006 20:00:48 -0400
+Received: from mga01.intel.com ([192.55.52.88]:36974 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1751344AbWJMAAr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 20:00:47 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,301,1157353200"; 
+   d="scan'208"; a="3368490:sNHT335317284"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Zach Brown'" <zach.brown@oracle.com>,
+       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
+       "Lahaise, Benjamin C" <benjamin.c.lahaise@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, "'linux-aio'" <linux-aio@kvack.org>
+Subject: [patch] clarify AIO_EVENTS_OFFSET constant
+Date: Thu, 12 Oct 2006 17:00:24 -0700
+Message-ID: <000301c6ee5a$9dfae250$db34030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcbuWpUOj6XXIxnsQga5s3ALMZCUDg==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 01:44:24AM +0200, Jiri Kosina wrote:
-> (I guess that the parport_serial_pci_remove() is the right way(tm) to 
-> remove the device from the system in non-destructive way even in case 
-> pci_enable_device() failed. Tim?)
+A clean up patch: I think it is a lot easier to read AIO_EVENTS_OFFSET
+as an offset because of aio_ring at the beginning of a head page, instead
+of doing arithmetic of (event on 2nd page - event on 1st page).
 
-I suspect all these kind of patches are introducing additional problems.
-This one certainly is.  Who's auditing all these patches?  I mean _properly_
-auditing them rather than just saying "that's a good idea"?
 
-In this case, you're calling parport_serial_pci_remove() in the failure
-path.  That's fine, but this opens the possibility of it being called
-twice - once on resume failure and once when the device/driver is
-removed.  If this happens, we dereference a NULL pointer. *BAD*.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-So, the original without this resume fix is probably far better than
-with the fix.
 
-So, patch violently rejected.
+diff -Nurp linux-2.6.18/fs/aio.c linux-2.6.18.ken/fs/aio.c
+--- linux-2.6.18/fs/aio.c	2006-09-19 20:42:06.000000000 -0700
++++ linux-2.6.18.ken/fs/aio.c	2006-10-12 13:33:09.000000000 -0700
+@@ -173,9 +173,8 @@ static int aio_setup_ring(struct kioctx 
+ /* aio_ring_event: returns a pointer to the event at the given index from
+  * kmap_atomic(, km).  Release the pointer with put_aio_ring_event();
+  */
+-#define AIO_EVENTS_PER_PAGE	(PAGE_SIZE / sizeof(struct io_event))
+-#define AIO_EVENTS_FIRST_PAGE	((PAGE_SIZE - sizeof(struct aio_ring)) / sizeof(struct io_event))
+-#define AIO_EVENTS_OFFSET	(AIO_EVENTS_PER_PAGE - AIO_EVENTS_FIRST_PAGE)
++#define AIO_EVENTS_PER_PAGE  (PAGE_SIZE / sizeof(struct io_event))
++#define AIO_EVENTS_OFFSET    (sizeof(struct aio_ring) / sizeof(struct io_event))
+ 
+ #define aio_ring_event(info, nr, km) ({					\
+ 	unsigned pos = (nr) + AIO_EVENTS_OFFSET;			\
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

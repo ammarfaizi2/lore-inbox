@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWJMM3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbWJMM2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751647AbWJMM3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 08:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWJMM3O
+	id S1751653AbWJMM2o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 08:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWJMM2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 08:29:14 -0400
-Received: from gate.crashing.org ([63.228.1.57]:37291 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751647AbWJMM3N (ORCPT
+	Fri, 13 Oct 2006 08:28:44 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:3820 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1751645AbWJMM2n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 08:29:13 -0400
-Subject: Re: [linux-pm] Bug in PCI core
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Martin Mares <mj@ucw.cz>
-Cc: Adam Belay <abelay@MIT.EDU>, Alan Stern <stern@rowland.harvard.edu>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <mj+md-20061013.093014.26714.atrey@ucw.cz>
-References: <Pine.LNX.4.44L0.0610111632240.6353-100000@iolanthe.rowland.org>
-	 <1160701263.4792.179.camel@localhost.localdomain>
-	 <1160729427.26091.98.camel@localhost.localdomain>
-	 <1160731004.4792.245.camel@localhost.localdomain>
-	 <mj+md-20061013.093014.26714.atrey@ucw.cz>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 22:25:50 +1000
-Message-Id: <1160742350.4792.257.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Oct 2006 08:28:43 -0400
+Date: Fri, 13 Oct 2006 21:28:24 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] Generic platform device IDE driver
+Message-ID: <20061013122824.GA26705@linux-sh.org>
+References: <20061004074535.GA7180@localhost.hsdv.com> <1159972725.25772.26.camel@localhost.localdomain> <20061005091631.GA8631@localhost.hsdv.com> <200610111450.41909.matthias.fuchs@esd-electronics.com> <20061012061348.GA7844@linux-sh.org> <20061013075219.GA28654@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061013075219.GA28654@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 11:31 +0200, Martin Mares wrote:
-> Hi!
+On Fri, Oct 13, 2006 at 08:52:19AM +0100, Russell King wrote:
+> On Thu, Oct 12, 2006 at 03:13:48PM +0900, Paul Mundt wrote:
+> > Yes, that's one thing I was thinking of as well.. Here's a patch that
+> > makes an attempt at that, can you give it a try and see if it works for
+> > you? This applies on top of the earlier patch. None of the ARM, SH, or
+> > H8300 cases need to do the remapping at least.
 > 
-> > For example, currently, if I power off the ethernet of my mac, or the
-> > firewire chip (which are powered off if the module isn't loaded), lspci
-> > will get the device id and vendor id right ... but won't get the class
-> > code.
+> It's likely that ARM will switch over to using the MMIO resources if
+> this patch makes it in.  There's certain ARM platforms which would
+> benefit from this change (since inb() and friends are more complex
+> than they necessarily need to be.)
 > 
-> Ehm, you aren't using any recent pciutils, are you? ;-)
+> However, one issue needs to be solved before we could do that - how do
+> we handle the case where the IDE registers are on a 4 byte spacing
+> interval instead of the usual 1 byte?
+> 
+We could solve this in the driver, but it sounds like this is something
+that libata should have some visibility of directly.
 
-Whatever came with the distro that complained about the problem back
-then :) I agree that the problem is fixed on the kernel level (sysfs)
-and I'm happy to hear that pciutils is fixed too :) So we can probably
-do what Adam suggest and just return errors or ff's
+> I notice that this driver is calling ata_std_ports() which handles
+> the standard setup.  Maybe that needs to become a little more inteligent?
+> 
+If we go this route, I suppose the easiest option will be simply to have
+a private structure with a few function pointers for these sorts of
+things, or we can simply have an element for the spacing interval if you
+don't forsee needing to change the ioaddrs in any fashion beyond the
+register spacing.. Which approach would you be more comfortable with?
+Are there any other items that you're concerned with in the current
+driver?
 
-Ben.
-
-
+Thanks for the feedback!

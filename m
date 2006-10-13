@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWJMOvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWJMPCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWJMOvz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 10:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWJMOvz
+	id S1750905AbWJMPCc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 11:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWJMPCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 10:51:55 -0400
-Received: from relay02.pair.com ([209.68.5.16]:12044 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1751051AbWJMOvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 10:51:55 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 13 Oct 2006 09:51:51 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: James Courtier-Dutton <James@superbug.co.uk>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can context switches be faster?
-In-Reply-To: <452F7303.6070303@superbug.co.uk>
-Message-ID: <Pine.LNX.4.64.0610130950410.17368@turbotaz.ourhouse>
-References: <452E62F8.5010402@comcast.net>  <20061012171929.GB24658@flint.arm.linux.org.uk>
-  <452E888D.6040002@comcast.net> <1160678231.3000.451.camel@laptopd505.fenrus.org>
- <452F7303.6070303@superbug.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 13 Oct 2006 11:02:32 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29348 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750905AbWJMPCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 11:02:31 -0400
+Subject: Re: [linux-pm] Bug in PCI core
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Adam Belay <abelay@MIT.EDU>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Oct 2006 16:26:26 +0100
+Message-Id: <1160753187.25218.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006, James Courtier-Dutton wrote:
+Ar Gwe, 2006-10-13 am 10:29 -0400, ysgrifennodd Alan Stern:
+> > I'd like to propose that we have the pci config sysfs interface return
+> > -EIO  when it's blocked (e.g. active BIST or D3cold).  This accurately
+> > reflects the state of the device to userspace, reduces complexity, and
+> > could potentially save some memory per PCI device instance.
+> 
+> Could you resubmit your old patches and include a corresponding fix for 
+> this access problem?
 
-> Arjan van de Ven wrote:
->> On Thu, 2006-10-12 at 14:25 -0400, John Richard Moser wrote:
->>
->>
->>>   - Does the current code act on these behaviors, or just flush all
->>>     cache regardless?
->>
->> the cache flushing is a per architecture property. On x86, the cache
->> flushing isn't needed; but a TLB flush is. Depending on your hardware
->> that can be expensive as well.
->>
->
-> So, that is needed for a full process context switch to another process.
-> Is the context switch between threads quicker as it should not need to
-> flush the TLB?
+And then you can fix the applications it breaks, like the X server which
+does actually want to know where all the devices are located in PCI
+space.
 
-Indeed. This is also true for switching from a process to a kernel thread 
-and back, because kernel threads don't have their own user-space virtual 
-memory; they just live inside the kernel virtual memory mapped into every 
-process.
-
-> James
->
-
-Thanks,
-Chase
+Alan

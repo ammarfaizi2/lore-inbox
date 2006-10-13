@@ -1,142 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWJMTbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWJMTbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751842AbWJMTbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWJMTbk
+	id S1751012AbWJMTbM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWJMTbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:31:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60087 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751829AbWJMTbj (ORCPT
+	Fri, 13 Oct 2006 15:31:12 -0400
+Received: from web58109.mail.re3.yahoo.com ([68.142.236.132]:41349 "HELO
+	web58109.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S1751012AbWJMTbM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:31:39 -0400
-Date: Fri, 13 Oct 2006 12:27:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       penberg@cs.helsinki.fi, ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
-Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
-Message-Id: <20061013122706.56970df2.akpm@osdl.org>
-In-Reply-To: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
-References: <patchbomb.1160738328@thor.fsl.cs.sunysb.edu>
-	<ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Oct 2006 15:31:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=s+D2usy9KyiGOU+97tcU44PjoslFEQ7b/ahIdlM0HZiygPrr3ZkqPHbWWKe51gA81FyPTqmfdrCde6JRNTIPDtZkjkG+9S6t/LEkjnzXkdOiRKQ+5ioSuy64pkcpbPgsXcUDDKboZEDyGg7Htedsc3/L6ZkfYeWTsXAb66hvL+4=  ;
+Message-ID: <20061013193107.43500.qmail@web58109.mail.re3.yahoo.com>
+Date: Fri, 13 Oct 2006 12:31:07 -0700 (PDT)
+From: Open Source <opensource3141@yahoo.com>
+Subject: Re: USB performance bug since kernel 2.6.13 (CRITICAL???)
+To: =?iso-8859-1?Q?WolfgangM=FCes?= <wolfgang@iksw-muees.de>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 07:18:49 -0400
-Josef "Jeff" Sipek <jsipek@cs.sunysb.edu> wrote:
+Hi Wolfgang (and all),
 
-> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> 
-> The following patch introduces several stackfs_copy_* functions which allow
-> stackable filesystems (such as eCryptfs and Unionfs) to easily copy over
-> (currently only) inode attributes. This prevents code duplication and allows
-> for code reuse.
+Thanks for the input.  However, I am not understanding
+exactly why kernel mode is treated any differently than
+user mode for this sort of thing.  I am looking at the code
+in ehci-q.c and ehci-hcd.c.
 
-Fair enough.
+It seems like the unlinking of completed URBs
+happens asynchronously on a timer.  This is a
+surprise to me since I thought this was happening
+on an IRQ from the host controller.  But if what I'm
+surmising is correct it would explain everything
+I am seeing.  I'm not able to ascertain how
+user mode drivers are treated differently than
+kernel mode drivers in this regard.  From what I
+can tell, all drivers would be broken equally!
+Can anyone who has more experience
+with this code confirm this for me?
+  
+Besides, we count on sub-10 ms response times all the
+time in user mode.  Take for example, the access of a file.
+If opening a file had a fixed latency of 4 ms, people
+would be up in arms.  So that's not entirely a valid excuse.
+A USB operation that used to take 1 ms now takes 4 ms.
+That's a pretty big change.
 
-> include/linux/stack_fs.h |   65 ++++++++++++++++++++++++++++++++++++++++++++++
+The ability to write user-mode drivers for USB devices
+is very powerful for deployment.  If one writes a kernel
+driver, there are severe deployment hassles.  As such,
+my company has chosen to write user-mode drivers
+on both Windows to avoid driver deployment nightmares.
+This has been extremely successful so far..  Ironically,
+Windows (using libusb-win32) has had no such performance
+glitches. As a matter of principle, Linux should at least be
+as good as Windows, right?
 
-The name stack_fs implies that there's a filesystem called stackfs.  Only
-there isn't.  I wonder if we can choose a better name for all of this. 
-Maybe fs_stack_*?
+Hopefully we can get this sorted out.
 
-> 
-> diff --git a/include/linux/stack_fs.h b/include/linux/stack_fs.h
-> new file mode 100644
-> --- /dev/null
-> +++ b/include/linux/stack_fs.h
-> @@ -0,0 +1,65 @@
-> +#ifndef _LINUX_STACK_FS_H
-> +#define _LINUX_STACK_FS_H
-> +
-> +/* This file defines generic functions used primarily by stackable
-> + * filesystems
-> + */
-> +
-> +static inline void stackfs_copy_inode_size(struct inode *dst,
-> +					   const struct inode *src)
-> +{
-> +	i_size_write(dst, i_size_read((struct inode *)src));
-> +	dst->i_blocks = src->i_blocks;
-> +}
+Cheers.
 
-What are the locking requirements for these functions?  Presumably the
-caller must hold i_mutex on at least the source inode, and perhaps the
-destination one?
 
-If i_mutex is held, i_size_read() isn't needed.
+----- Original Message ----
+From: WolfgangMües <wolfgang@iksw-muees.de>
+To: linux-usb-devel@lists.sourceforge.net
+Sent: Friday, October 13, 2006 12:11:08 PM
+Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
 
-If i_mutex is held, i_size_write() isn't needed either.
+On Friday 13 October 2006 19:20, Open Source wrote:
+> Alan -- yes, I understand the ability to increase throughput
+> by transfering more bytes and I am definitely able to see
+> better overall throughput when increasing the number
+> of bytes per transaction.  However, I needs to still have
+> good transaction-level timing because I cannot always
+> queue the transactions up.  Recall that each transaction
+> is a WRITE followed by a READ.  The results of the
+> READ determine the outgoing bytes for the following
+> transaction's WRITE.
 
-So please document the locking requirements via source comments and then
-see if this can be simplified.
+Relying on sub-10ms response times in userspace is broken by design.
 
-If this function stays as it is, it's too big to inline.
+I have written a driver with similar timing requirements, and I have 
+done it in the kernel. This is the right way to go. Nothing else.
 
-> +static inline void stackfs_copy_attr_atime(struct inode *dest,
-> +					   const struct inode *src)
-> +{
-> +	dest->i_atime = src->i_atime;
-> +}
-> +
-> +static inline void stackfs_copy_attr_times(struct inode *dest,
-> +					   const struct inode *src)
-> +{
-> +	dest->i_atime = src->i_atime;
-> +	dest->i_mtime = src->i_mtime;
-> +	dest->i_ctime = src->i_ctime;
-> +}
-> +
-> +static inline void stackfs_copy_attr_timesizes(struct inode *dest,
-> +					       const struct inode *src)
-> +{
-> +	dest->i_atime = src->i_atime;
-> +	dest->i_mtime = src->i_mtime;
-> +	dest->i_ctime = src->i_ctime;
-> +	stackfs_copy_inode_size(dest, src);
-> +}
-> +
-> +static inline void __stackfs_copy_attr_all(struct inode *dest,
-> +					   const struct inode *src,
-> +					   int (*get_nlinks)(struct inode *))
-> +{
-> +	if (!get_nlinks)
-> +		dest->i_nlink = src->i_nlink;
-> +	else
-> +		dest->i_nlink = get_nlinks(dest);
+regards
 
-I cannot find a get_nlinks() in 2.6.19-rc2?
+Wolfgang
+-- 
+Das Leben kann nur rückwärts verstanden,
+muß aber vorwärts gelebt werden.
 
-> +	dest->i_mode = src->i_mode;
-> +	dest->i_uid = src->i_uid;
-> +	dest->i_gid = src->i_gid;
-> +	dest->i_rdev = src->i_rdev;
-> +	dest->i_atime = src->i_atime;
-> +	dest->i_mtime = src->i_mtime;
-> +	dest->i_ctime = src->i_ctime;
-> +	dest->i_blkbits = src->i_blkbits;
-> +	dest->i_flags = src->i_flags;
-> +}
->
-> +static inline void stackfs_copy_attr_all(struct inode *dest,
-> +					 const struct inode *src)
-> +{
-> +	__stackfs_copy_attr_all(dest, src, NULL);
-> +}
+-------------------------------------------------------------------------
+Using Tomcat but need to do more? Need to support web services, security?
+Get stuff done quickly with pre-integrated technology to make your job easier
+Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
 
-Many of these functions are too large to be inlined.  Suggest they be
-placed in fs/fs-stack.c (or whatever we call it).
 
-The functions themselves seem a bit arbitrary. 
-stackfs_copy_attr_timesizes() copy the three timestamps and the size.  Is
-there actually any methodical reason for that, or is it simply some
-sequence which happens to have been observed in ecryptfs?
 
-And please - if I asked these questions when reviewing the patch, others
-will ask them when reading the code two years from now.  So please treat my
-questions as "gosh, I should have put a comment in there".
+
+

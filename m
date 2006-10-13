@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWJMH4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWJMH4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751628AbWJMH4k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 03:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWJMH4k
+	id S1751606AbWJMH4U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 03:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWJMH4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 03:56:40 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:1545 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751620AbWJMH4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 03:56:39 -0400
-Date: Fri, 13 Oct 2006 08:56:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: pHilipp Zabel <philipp.zabel@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Use own work queue
-Message-ID: <20061013075626.GB28654@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	pHilipp Zabel <philipp.zabel@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20061001124240.16996.34557.stgit@poseidon.drzeus.cx> <74d0deb30610070717k17079940ybedbf94dc8af8460@mail.gmail.com> <452AB97B.5040309@drzeus.cx>
+	Fri, 13 Oct 2006 03:56:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12012 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751606AbWJMH4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 03:56:19 -0400
+Date: Fri, 13 Oct 2006 09:56:14 +0200
+From: Jan Kara <jack@suse.cz>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Eric Sandeen <esandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 ext3 panic.
+Message-ID: <20061013075613.GB29170@atrey.karlin.mff.cuni.cz>
+References: <452C4C47.2000107@sandeen.net> <20061011103325.GC6865@atrey.karlin.mff.cuni.cz> <452CF523.5090708@sandeen.net> <20061011142205.GB24508@atrey.karlin.mff.cuni.cz> <1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com> <452DAA26.6080200@redhat.com> <20061012122820.GK9495@atrey.karlin.mff.cuni.cz> <20061012094036.e1a3f9f1.akpm@osdl.org> <452EA06F.4060701@redhat.com> <452EB9C5.4000404@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <452AB97B.5040309@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <452EB9C5.4000404@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 09, 2006 at 11:04:59PM +0200, Pierre Ossman wrote:
-> pHilipp Zabel wrote:
-> > 
-> > This patch makes pxamci stop working for me on a HTC Magician (PXA272).
-> > Switching from 2.6.18 to 2.6.19-rc1 I got a kernel panic:
-> > 
-> > mmc0: clock 0Hz busmode 1 powermode 0 cs 0  Vdd 0 width 0
-> > PXAMCI: clkrt = 0 cmdat = 0
-> > VFS: Cannot open root device "mmcblk0p2" or unknown-block(0,0)
-> > Please append a correct "root=" boot option
-> > Kernel panic - not syncing: VFS: Unable to mount root fs on
-> > unknown-block(0,0)
-> > 
-> > After removing this patch from 2.6.19-rc1, everything is working again.
-> > Are there any changes to pxamci.c needed to be compatible with it?
-> > 
-> 
-> No, the drivers shouldn't be affected. As this is a root device, my
-> guess would be that you have a race in your bootup that is causing problem.
+> Eric Sandeen wrote:
+> >Andrew Morton wrote:
+> >
+> >  
+> >>On Thu, 12 Oct 2006 14:28:20 +0200
+> >>Jan Kara <jack@suse.cz> wrote:
+> >>
+> >>  
+> >>    
+> >>>Where can we call
+> >>>journal_dirty_data() without PageLock?
+> >>>    
+> >>>      
+> >>block_write_full_page() will unlock the page, so ext3_writepage()
+> >>will run journal_dirty_data_fn() against an unlocked page.
+> >>
+> >>I haven't looked into the exact details of the race, but it should
+> >>be addressable via jbd_lock_bh_state() or j_list_lock coverage
+> >>    
+> >I'm testing with something like this now; seem sane?
+> >
+> >journal_dirty_data & journal_unmap_data both check do 
+> >jbd_lock_bh_state(bh) close to the top... journal_dirty_data_fn has 
+> >checked buffer_mapped before getting into journal_dirty_data, but that 
+> >state may
+> >change before the lock is grabbed.  Similarly re-check after we drop the 
+> >lock.
+> >
+> >  
+> This is exactly  the solution I proposed earlier (to check 
+> buffer_mapped() before calling submit_bh()).
+> But at that time, Jan pointed out that the whole handling is wrong.
+  Yes, and it was. However it turned out that there are more problems
+than I thought ;).
 
-The problem is likely that the boot is continuing in parallel with
-detecting the card, because the card detection is running in its own
-separate thread.  Meanwhile, the init thread is trying to read from
-the as-yet missing root device and erroring out.
+> But if this is the only case we need to handle, I am okay with this band 
+> aid :)
+  I think Eric's patch may be a part of it. But we still need to check whether
+the buffer is not after EOF before submitting it (or better said just
+after we manage to lock the buffer). Because while we are waiting for
+the buffer lock, journal_unmap_buffer() can still come and steal the
+buffer - at least the write-out in journal_dirty_data() definitely needs
+the check if I haven't overlooked something.
 
+								Honza
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

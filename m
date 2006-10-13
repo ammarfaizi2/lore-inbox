@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWJMK0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWJMK0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWJMK0P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 06:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWJMK0P
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 06:26:15 -0400
-Received: from mx2.suse.de ([195.135.220.15]:28566 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751196AbWJMK0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1751154AbWJMK0N (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 13 Oct 2006 06:26:13 -0400
-Date: Fri, 13 Oct 2006 12:25:50 +0200
-From: Holger Macht <hmacht@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: [PATCH] Add support for the generic backlight device to the IBM ACPI driver
-Message-ID: <20061013102550.GE4234@homac.suse.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	len.brown@intel.com
-References: <20061009113235.GA4444@homac.suse.de> <20061011201027.a4be98c4.akpm@osdl.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWJMK0M
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 13 Oct 2006 06:26:12 -0400
+Received: from farad.aurel32.net ([82.232.2.251]:4009 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S1751154AbWJMK0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 06:26:11 -0400
+Message-ID: <452F69AD.8000902@aurel32.net>
+Date: Fri, 13 Oct 2006 12:25:49 +0200
+From: Aurelien Jarno <aurelien@aurel32.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061011201027.a4be98c4.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Thiemo Seufer <ths@networkno.de>
+CC: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: SYS_personality does not work correctly on mips(el)64
+References: <452EB653.7070604@aurel32.net> <20061013095206.GA4027@networkno.de>
+In-Reply-To: <20061013095206.GA4027@networkno.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 11. Oct - 20:10:27, Andrew Morton wrote:
-> On Mon, 9 Oct 2006 13:32:35 +0200
-> Holger Macht <hmacht@suse.de> wrote:
+Thiemo Seufer a écrit :
+> Aurelien Jarno wrote:
+>> Hi all,
+>>
+>> On mips(el), when doing multiple call to the syscall SYS_personality in 
+>> order to get the current personality (using 0xffffffff for the first 
+>> argument), on a 64-bit kernel, the second and subsequent syscalls are 
+>> failing. That works correctly with a 32-bit kernels and on other 
+>> architectures.
 > 
-> > @@ -200,6 +200,7 @@ config ACPI_ASUS
-> >  config ACPI_IBM
-> >  	tristate "IBM ThinkPad Laptop Extras"
-> >  	depends on X86
-> > +	select BACKLIGHT
+> That's caused by mis-handling broken sign extensions, see also
+> http://bugs.debian.org/380531.
 > 
-> drivers/acpi/Kconfig:210:warning: 'select' used by config symbol 'ACPI_IBM' refer to undefined symbol 'BACKLIGHT'
-> 
-> select really sucks :(
 
-Of course it has to be BACKLIGHT_DEVICE. I've sent an updated version of
-the patch together with the adjustments of the asus_acpi and toshiba_acpi
-drivers.
+Nice to see there is already a patch! Thanks for your work. Do you know 
+when the patch will be merged upstream or in Debian? I really want to 
+see this bug fixed, as it breaks dchroot.
 
-Regards,
-	Holger
+-- 
+   .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
+  : :' :  Debian developer           | Electrical Engineer
+  `. `'   aurel32@debian.org         | aurelien@aurel32.net
+    `-    people.debian.org/~aurel32 | www.aurel32.net

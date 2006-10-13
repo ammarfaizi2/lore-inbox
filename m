@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWJMR77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWJMSC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWJMR77 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWJMR77
+	id S1751587AbWJMSC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWJMSC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:59:59 -0400
-Received: from ext-103.mv.fabric7.com ([68.120.107.103]:53771 "EHLO
-	corp.fabric7.com") by vger.kernel.org with ESMTP id S1751768AbWJMR75
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:59:57 -0400
-From: Misha Tomushev <misha@fabric7.com>
-Reply-To: misha@fabric7.com
-Organization: Fabric7 Systems
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH 6/10] VIOC: New Network Device Driver
-Date: Fri, 13 Oct 2006 10:51:07 -0700
-User-Agent: KMail/1.5.1
-References: <200610051105.51259.misha@fabric7.com> <200610091109.39793.misha@fabric7.com> <20061009120324.56bac955@freekitty>
-In-Reply-To: <20061009120324.56bac955@freekitty>
-Cc: KERNEL Linux <linux-kernel@vger.kernel.org>,
-       NETDEV Linux <netdev@vger.kernel.org>,
-       "Sriram Chidambaram" <schidambaram@fabric7.com>,
-       Pavel Machek <pavel@ucw.cz>
+	Fri, 13 Oct 2006 14:02:59 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:60171 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751587AbWJMSC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:02:58 -0400
+Date: Fri, 13 Oct 2006 14:02:57 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Open Source <opensource3141@yahoo.com>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13
+ (CRITICAL???)
+In-Reply-To: <20061013172042.21215.qmail@web58113.mail.re3.yahoo.com>
+Message-ID: <Pine.LNX.4.44L0.0610131359510.6612-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610131051.07557.misha@fabric7.com>
-X-OriginalArrivalTime: 13 Oct 2006 17:59:57.0052 (UTC) FILETIME=[64B17BC0:01C6EEF1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 October 2006 12:03 pm, Stephen Hemminger wrote:
-> On Mon, 9 Oct 2006 11:09:39 -0700
->
-> Misha Tomushev <misha@fabric7.com> wrote:
-> > On Sunday 08 October 2006 12:27 am, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > +	ecmd->phy_address = 0;	/* !!! Stole from e1000 */
-> > > > +	ecmd->speed = 3;	/* !!! Stole from e1000 */
-> > >
-> > > Eh?
-> >
-> > You are right. Will fix.
-> >
-> > > > +static void vnic_get_regs(struct net_device *netdev,
-> > > > +			  struct ethtool_regs *regs, void *p)
-> > > > +{
-> > > > +	struct vnic_device *vnicdev = netdev->priv;
-> > > > +	struct vioc_device *viocdev = vnicdev->viocdev;
+On Fri, 13 Oct 2006, Open Source wrote:
 
-> > >
-> > > This looks ugly. What interface is that?
+> Hi all,
+> 
+> I just tested using CONFIG_HZ_1000=y and
+> CONFIG_HZ=1000 and as expected, this change
+> improves the throughput.  Thank you Lee for pointing
+> that out so quickly.
+> 
+> Alan -- yes, I understand the ability to increase throughput
+> by transfering more bytes and I am definitely able to see
+> better overall throughput when increasing the number
+> of bytes per transaction.  However, I needs to still have
+> good transaction-level timing because I cannot always
+> queue the transactions up.  Recall that each transaction
+> is a WRITE followed by a READ.  The results of the
+> READ determine the outgoing bytes for the following
+> transaction's WRITE.
+> 
+> Not to sound like a broken record, but there is something
+> seriously wrong here.  This has to be a bug somewhere.
+> It could be very well just be something as simple as
+> issuing the right incantation with libusb, devio, etc.  But,
+> I've been using libusb for years now and am at a loss
+> on what might have changed to require this.
+> 
+> Any ideas???
 
-> Please just dump binary like other drivers.  The code for ethtool allows
-> per device decode. Move the decode to there.
->
-> Yes, ethtool source does need a more generic register description language.
+Try using usbmon to get a detailed record of events with high-precision
+timestamps.  Maybe also add similar logging to your program.  This may
+suggest some ideas about where the slowdown originates.
 
-Signed-off-by: Misha Tomushev  <misha@fabric7.com>
+It's possible that some process you're unaware of is using the CPU, and 
+the reduced clock rate increases the latency for your process to continue 
+running.
 
-Please pull the patch from ftp://ftp.fabric7.com/VIOC/vioc_patch.2006-10-12-17-40
-
-
--- 
-Misha Tomushev
-misha@fabric7.com
-
+Alan Stern
 

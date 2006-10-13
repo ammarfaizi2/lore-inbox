@@ -1,112 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWJMTbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWJMTer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWJMTbM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWJMTbM
+	id S1751021AbWJMTer (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbWJMTer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:31:12 -0400
-Received: from web58109.mail.re3.yahoo.com ([68.142.236.132]:41349 "HELO
-	web58109.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1751012AbWJMTbM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:31:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=s+D2usy9KyiGOU+97tcU44PjoslFEQ7b/ahIdlM0HZiygPrr3ZkqPHbWWKe51gA81FyPTqmfdrCde6JRNTIPDtZkjkG+9S6t/LEkjnzXkdOiRKQ+5ioSuy64pkcpbPgsXcUDDKboZEDyGg7Htedsc3/L6ZkfYeWTsXAb66hvL+4=  ;
-Message-ID: <20061013193107.43500.qmail@web58109.mail.re3.yahoo.com>
-Date: Fri, 13 Oct 2006 12:31:07 -0700 (PDT)
-From: Open Source <opensource3141@yahoo.com>
-Subject: Re: USB performance bug since kernel 2.6.13 (CRITICAL???)
-To: =?iso-8859-1?Q?WolfgangM=FCes?= <wolfgang@iksw-muees.de>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Fri, 13 Oct 2006 15:34:47 -0400
+Received: from bellona.wg.saar.de ([192.109.53.23]:35857 "EHLO
+	bellona.wg.saar.de") by vger.kernel.org with ESMTP id S1751021AbWJMTer
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 15:34:47 -0400
+Message-ID: <452FE995.5020001@hal.saar.de>
+Date: Fri, 13 Oct 2006 21:31:33 +0200
+From: Michael Kress <kress@hal.saar.de>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: irq issues ("nobody cared")
+References: <45291832.4010705@hal.saar.de>
+In-Reply-To: <45291832.4010705@hal.saar.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Wolfgang (and all),
+I have to reply myself with a workaround and in my case it's a part time
+solution:
+rmmod uhci_hcd
+As you can see in /proc/bus/usb/devices, I've got a Peppercon eric card,
+which contains the irq16+17 handled usb devices (obviously
+keybord&mouse). Whenever I really need it, I'll modprobe it. That's
+still ok, because the "nobody cared" message appears after quite a
+while. But I won't need it as for kernel upgrades I can even shutdown -r
+from an ssh shell, which is enough for the card's purpose (show grub &
+bios menus).
+Without the module, the messages don't arise anymore.
+   Regards, Michael
 
-Thanks for the input.  However, I am not understanding
-exactly why kernel mode is treated any differently than
-user mode for this sort of thing.  I am looking at the code
-in ehci-q.c and ehci-hcd.c.
+Michael Kress wrote:
+> I'm having trouble with irqs ...
+>
+> Oct  8 10:38:51 matrix kernel: irq 16: nobody cared (try booting with
+> the "irqpoll" option)
+> Oct  8 10:38:51 matrix kernel:
+> Oct  8 10:38:51 matrix kernel: Call Trace: <IRQ>
+> <ffffffff801519b0>{__report_bad_irq+48}
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff80151c0f>{note_interrupt+511} <ffffffff80151324>{__do_IRQ+212}
+> Oct  8 10:38:51 matrix kernel:        <ffffffff8010dae4>{do_IRQ+68}
+> <ffffffff80250fad>{evtchn_do_upcall+205}
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff8010ba0a>{do_hypervisor_callback+30}
+> <ffffffff8011da36>{ia32_syscall+30                                        }
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff8010722a>{hypercall_page+554}
+> <ffffffff8010722a>{hypercall_page+554}
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff80250eda>{force_evtchn_callback+10}
+> <ffffffff80134587>{__do_softirq+103                                        }
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff8010beda>{call_softirq+30} <ffffffff8010dc97>{do_softirq+71}
+> Oct  8 10:38:51 matrix kernel:        <ffffffff8010dae9>{do_IRQ+73}
+> <ffffffff80250fad>{evtchn_do_upcall+205}
+> Oct  8 10:38:51 matrix kernel:       
+> <ffffffff8010ba0a>{do_hypervisor_callback+30} <EOI>
+> Oct  8 10:38:51 matrix kernel:        <ffffffff8011da36>{ia32_syscall+30}
+> Oct  8 10:38:51 matrix kernel: handlers:
+> Oct  8 10:38:52 matrix kernel: [<ffffffff802aa310>] (usb_hcd_irq+0x0/0x60)
+> Oct  8 10:38:52 matrix kernel: [<ffffffff802aa310>] (usb_hcd_irq+0x0/0x60)
+> Oct  8 10:38:52 matrix kernel: Disabling IRQ #16
+>
+> Sometimes it's also irq 17. Of course I tried irqpoll, but that's no use
+> here.
+>   
+...
+> [root@matrix ~]# cat /proc/bus/usb/devices
+>   
+...
+> T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
+> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+> P:  Vendor=14dd ProdID=1002 Rev= 0.01
+> S:  Manufacturer=Peppercon AG
+> S:  Product=MultiDevice
+> S:  SerialNumber=123456789012
+> C:* #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=100mA
+> I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
+> E:  Ad=84(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+> I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=02 Driver=usbhid
+> E:  Ad=83(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+>   
 
-It seems like the unlinking of completed URBs
-happens asynchronously on a timer.  This is a
-surprise to me since I thought this was happening
-on an IRQ from the host controller.  But if what I'm
-surmising is correct it would explain everything
-I am seeing.  I'm not able to ascertain how
-user mode drivers are treated differently than
-kernel mode drivers in this regard.  From what I
-can tell, all drivers would be broken equally!
-Can anyone who has more experience
-with this code confirm this for me?
-  
-Besides, we count on sub-10 ms response times all the
-time in user mode.  Take for example, the access of a file.
-If opening a file had a fixed latency of 4 ms, people
-would be up in arms.  So that's not entirely a valid excuse.
-A USB operation that used to take 1 ms now takes 4 ms.
-That's a pretty big change.
-
-The ability to write user-mode drivers for USB devices
-is very powerful for deployment.  If one writes a kernel
-driver, there are severe deployment hassles.  As such,
-my company has chosen to write user-mode drivers
-on both Windows to avoid driver deployment nightmares.
-This has been extremely successful so far..  Ironically,
-Windows (using libusb-win32) has had no such performance
-glitches. As a matter of principle, Linux should at least be
-as good as Windows, right?
-
-Hopefully we can get this sorted out.
-
-Cheers.
-
-
------ Original Message ----
-From: WolfgangMües <wolfgang@iksw-muees.de>
-To: linux-usb-devel@lists.sourceforge.net
-Sent: Friday, October 13, 2006 12:11:08 PM
-Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
-
-On Friday 13 October 2006 19:20, Open Source wrote:
-> Alan -- yes, I understand the ability to increase throughput
-> by transfering more bytes and I am definitely able to see
-> better overall throughput when increasing the number
-> of bytes per transaction.  However, I needs to still have
-> good transaction-level timing because I cannot always
-> queue the transactions up.  Recall that each transaction
-> is a WRITE followed by a READ.  The results of the
-> READ determine the outgoing bytes for the following
-> transaction's WRITE.
-
-Relying on sub-10ms response times in userspace is broken by design.
-
-I have written a driver with similar timing requirements, and I have 
-done it in the kernel. This is the right way to go. Nothing else.
-
-regards
-
-Wolfgang
 -- 
-Das Leben kann nur rückwärts verstanden,
-muß aber vorwärts gelebt werden.
-
--------------------------------------------------------------------------
-Using Tomcat but need to do more? Need to support web services, security?
-Get stuff done quickly with pre-integrated technology to make your job easier
-Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
-
-
-
-
+Michael Kress, kress@hal.saar.de
+http://www.michael-kress.de / http://kress.net
+P E N G U I N S   A R E   C O O L
 

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWJMOtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWJMOvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWJMOtE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 10:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWJMOtE
+	id S1751051AbWJMOvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 10:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWJMOvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 10:49:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15117 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750981AbWJMOtB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 10:49:01 -0400
-Date: Fri, 13 Oct 2006 14:48:44 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Burman Yan <yan_952@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HP mobile data protection system driver take 2
-Message-ID: <20061013144844.GB5512@ucw.cz>
-References: <BAY20-F24D6EADDDBE9963D7307A4D80A0@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY20-F24D6EADDDBE9963D7307A4D80A0@phx.gbl>
-User-Agent: Mutt/1.5.9i
+	Fri, 13 Oct 2006 10:51:55 -0400
+Received: from relay02.pair.com ([209.68.5.16]:12044 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751051AbWJMOvz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 10:51:55 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 13 Oct 2006 09:51:51 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: James Courtier-Dutton <James@superbug.co.uk>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Can context switches be faster?
+In-Reply-To: <452F7303.6070303@superbug.co.uk>
+Message-ID: <Pine.LNX.4.64.0610130950410.17368@turbotaz.ourhouse>
+References: <452E62F8.5010402@comcast.net>  <20061012171929.GB24658@flint.arm.linux.org.uk>
+  <452E888D.6040002@comcast.net> <1160678231.3000.451.camel@laptopd505.fenrus.org>
+ <452F7303.6070303@superbug.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 13-10-06 15:10:29, Burman Yan wrote:
-> Hi, All.
-> 
-> Thanks for the remarks on my previous post.
-> Here is the driver for HP Mobile Data Protection System 
-> with the following changes:
-> 1) Fixed tabs from 8 spaces to tabs
-> 2) Removed C++ style comments
-> 3) Made some functions return void if their return value 
-> is not checked anyway
-> 4) Moved the interface from proc to sysfs
-> 5) Made the sysfs interface similar to hdaps's so that 
-> hdapsd could be used perhaps with small modifications
-> 
-> I would like to hear your remarks on this version.
+On Fri, 13 Oct 2006, James Courtier-Dutton wrote:
 
-Please inline patches.
+> Arjan van de Ven wrote:
+>> On Thu, 2006-10-12 at 14:25 -0400, John Richard Moser wrote:
+>>
+>>
+>>>   - Does the current code act on these behaviors, or just flush all
+>>>     cache regardless?
+>>
+>> the cache flushing is a per architecture property. On x86, the cache
+>> flushing isn't needed; but a TLB flush is. Depending on your hardware
+>> that can be expensive as well.
+>>
+>
+> So, that is needed for a full process context switch to another process.
+> Is the context switch between threads quicker as it should not need to
+> flush the TLB?
 
-Is sysfs interface compatible to hdaps one?
+Indeed. This is also true for switching from a process to a kernel thread 
+and back, because kernel threads don't have their own user-space virtual 
+memory; they just live inside the kernel virtual memory mapped into every 
+process.
 
--- 
-Thanks for all the (sleeping) penguins.
+> James
+>
+
+Thanks,
+Chase

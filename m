@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWJMGVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWJMGcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWJMGVN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 02:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWJMGVN
+	id S1751072AbWJMGcG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 02:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWJMGcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 02:21:13 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:4754 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750783AbWJMGVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 02:21:12 -0400
-Date: Fri, 13 Oct 2006 08:13:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>, khali@linux-fr.org,
-       i2c@lm-sensors.org, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: lockdep warning in i2c_transfer() with dibx000 DVB - input tree merge plans?
-Message-ID: <20061013061328.GA15191@elte.hu>
-References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 13 Oct 2006 02:32:05 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:29524 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751072AbWJMGcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 02:32:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=x1LRG+Pj9K03qTK/DNqpAZjKAb5pnBjJ5QREvofxsuQFlvBCO7MOxZG/uTEG2bz2UEoul93G3aXfp0bZUMZY9eBtGNwl8zLIc5f0V2OIqSogADkoKdGGxXizkqODa1YOWQpCgr/C02CW2EPr8ugQ96CIT7e3B+LCup5GYc09uzg=  ;
+Message-ID: <452F32DF.5090608@yahoo.com.au>
+Date: Fri, 13 Oct 2006 16:31:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/5] oom: don't kill unkillable children or siblings
+References: <20061012120102.29671.31163.sendpatchset@linux.site>	<20061012120111.29671.83152.sendpatchset@linux.site> <20061012150050.ad6e1c8b.akpm@osdl.org>
+In-Reply-To: <20061012150050.ad6e1c8b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-* Jiri Kosina <jikos@jikos.cz> wrote:
+>On Thu, 12 Oct 2006 16:09:43 +0200 (CEST)
+>Nick Piggin <npiggin@suse.de> wrote:
+>
+>
+>>Abort the kill if any of our threads have OOM_DISABLE set. Having this test
+>>here also prevents any OOM_DISABLE child of the "selected" process from being
+>>killed.
+>>
+>>Signed-off-by: Nick Piggin <npiggin@suse.de>
+>>
+>>Index: linux-2.6/mm/oom_kill.c
+>>===================================================================
+>>--- linux-2.6.orig/mm/oom_kill.c
+>>+++ linux-2.6/mm/oom_kill.c
+>>@@ -312,15 +312,24 @@ static int oom_kill_task(struct task_str
+>> 	if (mm == NULL)
+>> 		return 1;
+>> 
+>>+	/*
+>>+	 * Don't kill the process if any threads are set to OOM_DISABLE
+>>+	 */
+>>+	do_each_thread(g, q) {
+>>+		if (q->mm == mm && p->oomkilladj == OOM_DISABLE)
+>>+			return 1;
+>>+	} while_each_thread(g, q);
+>>+
+>> 	__oom_kill_task(p, message);
+>>+
+>> 	/*
+>> 	 * kill all processes that share the ->mm (i.e. all threads),
+>> 	 * but are in a different thread group
+>> 	 */
+>>-	do_each_thread(g, q)
+>>+	do_each_thread(g, q) {
+>> 		if (q->mm == mm && q->tgid != p->tgid)
+>> 			__oom_kill_task(q, message);
+>>-	while_each_thread(g, q);
+>>+	} while_each_thread(g, q);
+>> 
+>> 	return 0;
+>>
+>
+>One wonders whether OOM_DISABLE should be a property of the mm_struct, not
+>of the task_struct.
+>
 
-> However the patch introducing lockdep_set_subclass() is currently only 
-> in Dmitry's input tree (commit 
-> 4dfbb9d8c6cbfc32faa5c71145bd2a43e1f8237c) - but the fix for DVB/I2C 
-> hardly belongs to input tree, so I am quite stuck.
+Hmm... I don't think I could argue with that. I think this patch is needed
+in the meantime though.
 
-It looks good to me - i'd suggest to get that commit upstream, either 
-directly or via the input tree.
+--
 
-	Ingo
+Send instant messages to your online friends http://au.messenger.yahoo.com 

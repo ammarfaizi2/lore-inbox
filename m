@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWJMCyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWJMDSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751575AbWJMCyU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 22:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWJMCyU
+	id S1751508AbWJMDSm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 23:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWJMDSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 22:54:20 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:21068 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751574AbWJMCyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 22:54:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=A13rtbjhDB05msJX9FMFzl8fePW156jQsyiuFO92UHtqQ2D4EJLhKX7yimEJZJjN04EgMsUtXlqA5PArJB0F0fPdPSL8RGC+MR8nXl6ziaeqQ7CqQ5ZJ6nLcuFPx4fakiY5p0H20KlPr9Ee/M07ymLQ/DeWj1YQsWBkDyIBbtpU=
-Reply-To: andrew.j.wade@gmail.com
-To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: Can context switches be faster?
-Date: Thu, 12 Oct 2006 22:53:01 -0400
-User-Agent: KMail/1.9.1
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-References: <452E62F8.5010402@comcast.net> <452E876F.1000604@cfl.rr.com> <452E8980.5040504@comcast.net>
-In-Reply-To: <452E8980.5040504@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610122254.10578.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+	Thu, 12 Oct 2006 23:18:42 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:61891 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751508AbWJMDSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 23:18:41 -0400
+Date: Thu, 12 Oct 2006 21:17:15 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+In-reply-to: <20061011103038.GK6515@kernel.dk>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Allen Martin <AMartin@nvidia.com>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       prakash@punnoor.de
+Message-id: <452F053B.2000906@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com>
+ <452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 October 2006 14:29, John Richard Moser wrote:
-> How does a page table switch work?  As I understand there are PTE chains
-> which are pretty much linked lists the MMU follows; I can't imagine this
-> being a harder problem than replacing the head.
+Jens Axboe wrote:
+> On Tue, Oct 10 2006, Robert Hancock wrote:
+>> Allen Martin wrote:
+>>>> But I really don't think that is necessary.  I will take a 
+>>>> look at docs and see how things match up, when I am much more 
+>>>> awake.  Most likely you need to be using another set of 
+>>>> registers, and be all MMIO, all the time.
+>>> You shouldn't be touching BM registers when ADMA is enabled, it can
+>>> cause bad things to happen.
+>>>
+>>> You should be using BM registers when doing ATAPI protocol though, as it
+>>> doesn't work through ADMA.  So I wouldn't say you should be using MMIO
+>>> all the time.
+>>>
+>>> -Allen
+>> OK, I've updated the code to take this into account, an updated patch is 
+>> attached. However, this does raise an issue. If we have to fall back to 
+>> legacy mode to do ATAPI DMA, this means that we can't do 64-bit DMA for 
+>> such transfers. Since by the time the driver gets a request the SGs have 
+>> already been created based on the set DMA mask, the only way I can see 
+>> to handle this is to either allow ATAPI DMA or 64-bit DMA, not both. 
+>> I've chosen to default to 64-bit DMA in this version, but there is a 
+>> module parameter which allows overriding this if you care more about 
+>> using ATAPI devices than efficiency with over 4GB of RAM. I'm open to 
+>> suggestions on a better way to handle this..
+> 
+> Should be easily fixable - in general, set 64-bit dma mask. Then when
+> you detect an atapi device, lower the dma mask settings to 32-bit dma
+> for that device only. So the pci device in question gets a full 64-bit
+> dma mask, the attached scsi devices can have lower masks if necessary.
+> I'd suggest doing this off slave config.
+> 
 
-Generally, the virtual memory mappings are stored as high-fanout trees
-rather than linked lists. (ia64 supports a hash table based scheme,
-but I don't know if Linux uses it.)  But the bulk of the mapping
-lookups will actually occur in a cache of the virtual memory mappings
-called the translation lookaside buffer (TLB). It is from the TLB and
-not the memory mapping trees that some of the performance problems
-with address space switches originate.
+I think that should be feasible.. However, one problem is that 
+slave_config only has access to the struct scsi_device and the 
+ata_scsi_find_dev function to turn that into a struct ata_device isn't 
+exported, which it would need to be in order to do anything useful 
+inside the driver for slave_config. We could export it, or I suppose the 
+other place we could do this handling would be postreset, as at that 
+point we should know what kind of device is attached.. any comments?
 
-The kernel can tolerate some small inconsistencies between the TLB
-and the mapping tree (it can fix them in the page fault handler). But
-for the most part the TLB must be kept consistent with the current
-address space mappings for correct operation. Unfortunately, on some
-architectures the only practical way of doing this is to flush the TLB
-on address space switches. I do not know if the flush itself takes any
-appreciable time, but each of the subsequent TLB cache misses will
-necessitate walking the current mapping tree. Whether done by the MMU
-or by the kernel (implementations vary), these walks in the aggregate
-can be a performance issue.
+Also, how is the driver supposed to be setting the DMA mask for the SCSI 
+device? I suppose blk_queue_bounce_limit would work, but it seems a bit 
+odd to use block layer calls at the libata driver level.
 
-On some architectures the L1 cache can also require attention from the
-kernel on address space switches for correct operation. Even when the
-L1 cache doesn't need flushing a change in address space will generally
-be accompanied by a change of working set, leading to a period of high
-cache misses for the L1/L2 caches. 
+I also noticed that I'm still using the default 64KB libata dma_boundary 
+value, this should be 4GB for ADMA mode (but fixed up back to the 
+default if an ATAPI device is connected, same as with the DMA mask).
 
-Microbenchmarks can miss the cache miss costs associated with context
-switches. But I believe the costs of cache thrashing and flushing are
-the reason that the time-sharing granularity is so coarse in Linux,
-rather than the time it takes the kernel to actually perform a context
-switch. (The default time-slice is 100 ms.) Still, the cache miss costs
-are workload-dependent, and the actual time the kernel takes to context
-switch can be important as well.
-
-Andrew Wade
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/

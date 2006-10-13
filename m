@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWJMQY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751731AbWJMQYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWJMQY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWJMQY1
+	id S1751731AbWJMQYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWJMQYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:24:27 -0400
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:64232 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S1751687AbWJMQY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:24:26 -0400
-Subject: Re: [linux-pm] Bug in PCI core
-From: Adam Belay <abelay@MIT.EDU>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160755562.25218.60.camel@localhost.localdomain>
-References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
-	 <1160753187.25218.52.camel@localhost.localdomain>
-	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
-	 <1160755562.25218.60.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 12:34:20 -0400
-Message-Id: <1160757260.26091.115.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 13 Oct 2006 12:24:46 -0400
+Received: from pythagoras.zen.co.uk ([212.23.3.140]:52906 "EHLO
+	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1751732AbWJMQYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:24:44 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: Jarek Poplawski <jarkao2@o2.pl>
+Subject: Re: Hardware bug or kernel bug?
+Date: Fri, 13 Oct 2006 17:24:39 +0100
+User-Agent: KMail/1.9.5
+References: <20061013085605.GA1690@ff.dom.local> <200610131256.54546.dj@david-web.co.uk> <20061013130648.GC1690@ff.dom.local>
+In-Reply-To: <20061013130648.GC1690@ff.dom.local>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.217
-X-Spam-Flag: NO
+Content-Disposition: inline
+Message-Id: <200610131724.40631.dj@david-web.co.uk>
+X-Originating-Pythagoras-IP: [82.69.29.67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 17:06 +0100, Alan Cox wrote:
-> Ar Gwe, 2006-10-13 am 17:29 +0200, ysgrifennodd Arjan van de Ven:
-> > > And then you can fix the applications it breaks, like the X server which
-> > > does actually want to know where all the devices are located in PCI
-> > > space.
-> > > 
-> > 
-> > .. but which could equally well mmap the resource from sysfs ;)
-> 
-> That doesn't help deal with the location and PCI control side of things
-> X has to perform and deal with. You also forgot to attach the tested
-> patch set for the X server and other affected apps.
-> 
-> The cached stuff was put in place precisely because stuff broke
-> 
+On Friday 13 October 2006 14:06, Jarek Poplawski wrote:
+>
+> Probably - but only with networking. So I'd try with this debugging
+> like in my first reply plus maybe 2.6.19-rc1 (e1000 - btw. I hope
+> this other tested card was different model - and locking improved)
+> and resend conclusions to netdev@vger.kernel.org.
+>
 
-I agree this needs to be fixed.  However, as I previously mentioned,
-this isn't the right place to attack the problem.  Remember, this wasn't
-originally a kernel regression.  Rather it's a workaround for a known
-X/lspci/whatever bug.  It's not the kernel's job to babysit userspace.
-If a userspace app that has the proper permissions decides to take a
-course of action that could potentially crash the system, then it has a
-right to do so.  There are probably dozens of vectors for these sorts of
-problems (e.g. mmap as Arjan has mentioned) so why stop at the pci
-config sysfs interface?
+OK I built a 2.6.19-rc1 kernel with a minimal config as you describe and I 
+cannot reproduce the reboots with this kernel. My .config:
+http://www.david-web.co.uk/download/config
 
-In this specific case, the workaround for this userspace bug actually
-makes it impossible for programs that are implemented correctly (i.e.
-understand that PCI configuration space can be inaccessible under
-certain conditions) from working optimally because the kernel gives
-inaccurate PCI config data rather than reporting the reality of the
-situation.  I'd much rather give correct code the advantage then work
-around buggy software that really needs to be fixed directly.
+The other NIC I tried was a D-Link DL10050-based card which I think uses the 
+dl2k module.
 
-Finally, it's worth noting that this issue is really a corner-case, and
-in most systems it's extremely rare that even incorrect userspace apps
-would have any issue.
+I tried to reproduce the problem under Windows (2k), which didn't reboot but 
+did still suffer from it I believe. Randomly during an scp transfer (using 
+the PuTTY scp client) Windows will lock-up for about 30 seconds, making an 
+entry in the event log indicating that there was a time-out talking to the 
+IDE controller, then continuing. Could the same thing be happening in Linux? 
+If Linux can't talk to the IDE controller when trying to write to disk, how 
+does it handle that?
 
-Thanks,
-Adam
-
-
+Regards,
+David.

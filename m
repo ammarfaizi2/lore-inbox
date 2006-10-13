@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751868AbWJMUWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWJMUZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751868AbWJMUWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWJMUWZ
+	id S1751836AbWJMUZT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWJMUZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:22:25 -0400
-Received: from web83115.mail.mud.yahoo.com ([216.252.101.44]:2923 "HELO
-	web83115.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751868AbWJMUWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:22:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SjKKeOWjYPijVgM/4wwUgIHbgIbuVplGgwhrfjLCYkmYlKijsnHq/7Us4ek/6AnPz8L/q+G3wRT6s2Yjhxud/3nLnOlDkGZcspLXD8KYgfolPVTwvPWXaWWCgrE7Xksne8Sen5p9dO2Wyow5sctXZ5S0z3cWYBAh/3t0BO1kDSg=  ;
-Message-ID: <20061013202224.95503.qmail@web83115.mail.mud.yahoo.com>
-Date: Fri, 13 Oct 2006 13:22:24 -0700 (PDT)
-From: Aleksey Gorelov <dared1st@yahoo.com>
-Subject: Re: Machine reboot
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-       Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061013162210.GG3039@mail.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 13 Oct 2006 16:25:19 -0400
+Received: from vena.lwn.net ([206.168.112.25]:42664 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S1751836AbWJMUZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:25:17 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH,RFC] Add __GFP_ZERO to GFP_LEVEL_MASK
+cc: akpm@osdl.org
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Fri, 13 Oct 2006 14:25:16 -0600
+Message-ID: <28729.1160771116@lwn.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is a very helpful comment in <linux/gfp.h>:
+
+  /* if you forget to add the bitmask here kernel will crash, period */
+
+Well, my kernel has been crashing (period) at the BUG() in cache_grow();
+the offending flag is __GFP_ZERO.  I think it needs to be in
+GFP_LEVEL_MASK.  Anybody know a good reason why it's not there now?
+
+jon
 
 
---- Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+Add __GFP_ZERO to GFP_LEVEL_MASK and cut down on those unsightly oopses.
 
-> On Fri, Oct 13, 2006 at 07:36:01AM -0700, Auke Kok wrote:
-> > >It's not an issue in the Linux kernel. Using various printk I can see that
-> > >tripple fault or reset via KBD is issued and followed by hang of the BIOS. 
-> > >
-> > >For i965 chipsets, the BIOS is *a lot* buggy :(
-> > 
-> > that's depressing, can you send me the output of `dmidecode` of the latest 
-> > BIOS? Perhaps I can reproduce it myself with that version.
-> 
-> Good news, as of kernel 2.6.19-rc1-git9, BIOS does *not* hang with both e1000 as
-> module or built in kernel.
-> 
-> The previous version of kernel was 2.6.18 which hangs the BIOS.
-> 
-> Aleksey:
-> are you sure that it is not the same in your case? Did you not switch kernel
-> version between e1000 as a module and built in kernel?
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 
-  As far as I understand, you've udpated the whole kernel, not just the driver. I've tried using
-driver from 2.6.19-rc2 as well as v7.2.9 from Intel's website - same story - still no reboot. Did
-you try just updating driver (without whole kernel) ? 
-
-Aleks.
-
-
+--- /k/t/2.6.19-rc2/include/linux/gfp.h	2006-10-13 13:04:17.000000000 -0600
++++ 19-rc2.jc/include/linux/gfp.h	2006-10-13 14:17:10.000000000 -0600
+@@ -54,7 +54,8 @@ struct vm_area_struct;
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE)
++			__GFP_ZERO|__GFP_NOMEMALLOC|__GFP_HARDWALL|\
++			__GFP_THISNODE)
+ 
+ /* This equals 0, but use constants in case they ever change */
+ #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)

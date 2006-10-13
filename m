@@ -1,91 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWJMUJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWJMULe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751859AbWJMUJd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWJMUJd
+	id S1751847AbWJMULe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbWJMULe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:09:33 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:19437 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751840AbWJMUJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:09:32 -0400
-Date: Fri, 13 Oct 2006 16:07:05 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
-       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       penberg@cs.helsinki.fi, ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
-Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
-Message-ID: <20061013200705.GB31928@filer.fsl.cs.sunysb.edu>
-References: <patchbomb.1160738328@thor.fsl.cs.sunysb.edu> <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu> <20061013122706.56970df2.akpm@osdl.org>
+	Fri, 13 Oct 2006 16:11:34 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:25525 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751847AbWJMULc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:11:32 -0400
+Date: Fri, 13 Oct 2006 16:10:10 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Paolo Giarrusso <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 01/14] uml: fix compilation options for USER_OBJS
+Message-ID: <20061013201010.GC5517@ccure.user-mode-linux.org>
+References: <20061009163208.GA4931@ccure.user-mode-linux.org> <20061011110828.43576.qmail@web25221.mail.ukl.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061013122706.56970df2.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061011110828.43576.qmail@web25221.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 12:27:06PM -0700, Andrew Morton wrote:
-> On Fri, 13 Oct 2006 07:18:49 -0400
-> Josef "Jeff" Sipek <jsipek@cs.sunysb.edu> wrote:
-> > include/linux/stack_fs.h |   65 ++++++++++++++++++++++++++++++++++++++++++++++
-> 
-> The name stack_fs implies that there's a filesystem called stackfs.  Only
-> there isn't.  I wonder if we can choose a better name for all of this. 
-> Maybe fs_stack_*?
+On Wed, Oct 11, 2006 at 01:08:27PM +0200, Paolo Giarrusso wrote:
+> Ok, at a first glance this alternative solution is ok. Make sure (run
+> gdb on an userspace object file and saying list <function>) that it
+> works and we'll be ok.
+
+After discovering that the original patch broke UML/i386 and broke the
+UML/x86_64 build, I now have the patch below.
+
+Listing userspace functions is fine.
+
+				Jeff
+
+
+Index: linux-2.6.18-mm/arch/um/Makefile
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/Makefile	2006-10-13 10:20:51.000000000 -0400
++++ linux-2.6.18-mm/arch/um/Makefile	2006-10-13 10:21:50.000000000 -0400
+@@ -64,9 +64,14 @@ CFLAGS += $(CFLAGS-y) -D__arch_um__ -DSU
  
-fs_stack_* sounds good to me.
+ AFLAGS += $(ARCH_INCLUDE)
  
-> What are the locking requirements for these functions?  Presumably the
-> caller must hold i_mutex on at least the source inode, and perhaps the
-> destination one?
-> 
-> If i_mutex is held, i_size_read() isn't needed.
-> 
-> If i_mutex is held, i_size_write() isn't needed either.
-> 
-> So please document the locking requirements via source comments and then
-> see if this can be simplified.
-
-Fair enough. I'll submit an updated version.
-
-> > +static inline void __stackfs_copy_attr_all(struct inode *dest,
-> > +					   const struct inode *src,
-> > +					   int (*get_nlinks)(struct inode *))
-> > +{
-> > +	if (!get_nlinks)
-> > +		dest->i_nlink = src->i_nlink;
-> > +	else
-> > +		dest->i_nlink = get_nlinks(dest);
-> 
-> I cannot find a get_nlinks() in 2.6.19-rc2?
+-USER_CFLAGS := $(patsubst -I%,,$(CFLAGS))
+-USER_CFLAGS := $(patsubst -D__KERNEL__,,$(USER_CFLAGS)) $(ARCH_INCLUDE) \
+-	$(MODE_INCLUDE) -D_FILE_OFFSET_BITS=64
++USER_CFLAGS = $(patsubst $(KERNEL_DEFINES),,$(patsubst -D__KERNEL__,,\
++	$(patsubst -I%,,$(CFLAGS)))) $(ARCH_INCLUDE) $(MODE_INCLUDE) \
++	-D_FILE_OFFSET_BITS=64
++
++include $(srctree)/$(ARCH_DIR)/Makefile-$(SUBARCH)
++
++#This will adjust *FLAGS accordingly to the platform.
++include $(srctree)/$(ARCH_DIR)/Makefile-os-$(OS)
  
-It is the last argument to the function. Perhaps the function name is
-deceiving.
+ # -Derrno=kernel_errno - This turns all kernel references to errno into
+ # kernel_errno to separate them from the libc errno.  This allows -fno-common
+@@ -74,15 +79,11 @@ USER_CFLAGS := $(patsubst -D__KERNEL__,,
+ # errnos.
+ # These apply to kernelspace only.
  
-> Many of these functions are too large to be inlined.  Suggest they be
-> placed in fs/fs-stack.c (or whatever we call it).
+-CFLAGS += -Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask \
+-	-Dmktime=kernel_mktime
++KERNEL_DEFINES = -Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask \
++	-Dmktime=kernel_mktime $(ARCH_KERNEL_DEFINES)
++CFLAGS += $(KERNEL_DEFINES)
+ CFLAGS += $(call cc-option,-fno-unit-at-a-time,)
  
-Ack. As a rule of thumb, for functions like these (laundry list of
-assignments), what's a good threshold?
+-include $(srctree)/$(ARCH_DIR)/Makefile-$(SUBARCH)
+-
+-#This will adjust *FLAGS accordingly to the platform.
+-include $(srctree)/$(ARCH_DIR)/Makefile-os-$(OS)
+-
+ # These are needed for clean and mrproper, since in that case .config is not
+ # included; the values here are meaningless
  
-> The functions themselves seem a bit arbitrary.
-> stackfs_copy_attr_timesizes() copy the three timestamps and the size.  Is
-> there actually any methodical reason for that, or is it simply some
-> sequence which happens to have been observed in ecryptfs?
-
-These functions come from the FiST templates [1]. Some of these can
-definitely removed, or split up.
-
-> And please - if I asked these questions when reviewing the patch, others
-> will ask them when reading the code two years from now.  So please treat my
-> questions as "gosh, I should have put a comment in there".
-
-That's exactly how I look at it.
-
-Josef "Jeff" Sipek.
-
--- 
-Bad pun of the week: The formula 1 control computer suffered from a race
-condition
+Index: linux-2.6.18-mm/arch/um/Makefile-x86_64
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/Makefile-x86_64	2006-10-13 10:20:51.000000000 -0400
++++ linux-2.6.18-mm/arch/um/Makefile-x86_64	2006-10-13 10:21:50.000000000 -0400
+@@ -8,8 +8,8 @@ _extra_flags_ = -fno-builtin -m64
+ 
+ #We #undef __x86_64__ for kernelspace, not for userspace where
+ #it's needed for headers to work!
+-CFLAGS += -U__$(SUBARCH)__ $(_extra_flags_)
+-USER_CFLAGS += $(_extra_flags_)
++ARCH_KERNEL_DEFINES = -U__$(SUBARCH)__
++CFLAGS += $(_extra_flags_)
+ 
+ CHECKFLAGS  += -m64
+ AFLAGS += -m64
+Index: linux-2.6.18-mm/arch/um/Makefile-i386
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/Makefile-i386	2006-10-10 09:10:21.000000000 -0400
++++ linux-2.6.18-mm/arch/um/Makefile-i386	2006-10-13 10:28:43.000000000 -0400
+@@ -16,7 +16,6 @@ OBJCOPYFLAGS  		:= -O binary -R .note -R
+ ifeq ("$(origin SUBARCH)", "command line")
+ ifneq ("$(shell uname -m | sed -e s/i.86/i386/)", "$(SUBARCH)")
+ CFLAGS			+= $(call cc-option,-m32)
+-USER_CFLAGS		+= $(call cc-option,-m32)
+ AFLAGS			+= $(call cc-option,-m32)
+ LINK-y			+= $(call cc-option,-m32)
+ UML_OBJCOPYFLAGS	+= -F $(ELF_FORMAT)
+@@ -25,7 +24,7 @@ export LDFLAGS HOSTCFLAGS HOSTLDFLAGS UM
+ endif
+ endif
+ 
+-CFLAGS += -U__$(SUBARCH)__ -U$(SUBARCH)
++ARCH_KERNEL_DEFINES += -U__$(SUBARCH)__ -U$(SUBARCH)
+ 
+ # First of all, tune CFLAGS for the specific CPU. This actually sets cflags-y.
+ include $(srctree)/arch/i386/Makefile.cpu
+@@ -38,4 +37,3 @@ cflags-y += $(call cc-option,-mpreferred
+ cflags-y += -ffreestanding
+ 
+ CFLAGS += $(cflags-y)
+-USER_CFLAGS += $(cflags-y)

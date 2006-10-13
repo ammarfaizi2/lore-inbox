@@ -1,88 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWJMEKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWJMEVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbWJMEKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 00:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWJMEKa
+	id S1751602AbWJMEVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 00:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWJMEVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 00:10:30 -0400
-Received: from mga09.intel.com ([134.134.136.24]:49812 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1751602AbWJMEK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 00:10:29 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,302,1157353200"; 
-   d="scan'208"; a="144341672:sNHT23322565"
-Message-ID: <452F1142.3000400@intel.com>
-Date: Thu, 12 Oct 2006 21:08:34 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Fri, 13 Oct 2006 00:21:25 -0400
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:39906 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1751602AbWJMEVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 00:21:24 -0400
+Date: Fri, 13 Oct 2006 14:20:59 +1000
+From: David Gibson <dwg@au1.ibm.com>
+To: Santiago Leon <santil@us.ibm.com>, Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: veth crash (commit 751ae21c6cd1493e3d0a4935b08fb298b9d89773)
+Message-ID: <20061013042059.GA6500@localhost.localdomain>
+Mail-Followup-To: David Gibson <dwg@au1.ibm.com>,
+	Santiago Leon <santil@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061012082214.GA9154@localhost.localdomain>
 MIME-Version: 1.0
-To: Aleksey Gorelov <dared1st@yahoo.com>
-CC: xhejtman@mail.muni.cz, linux-kernel@vger.kernel.org, magnus.damm@gmail.com,
-       pavel@suse.cz
-Subject: Re: Machine reboot
-References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com>
-In-Reply-To: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012082214.GA9154@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aleksey Gorelov wrote:
-> Auke Kok <sofar@foo-projects.org> wrote:
->> Aleksey Gorelov wrote:
->>>> -----Original Message-----
->>>> From: linux-kernel-owner@vger.kernel.org 
->>>> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lukas 
->>>> Hejtmanek
->>>> Sent: Thursday, October 05, 2006 3:53 AM
->>>> To: linux-kernel@vger.kernel.org
->>>> Subject: Machine reboot
->>>>
->>>> Hello,
->>>>
->>>> I'm facing troubles with machine restart. While sysrq-b 
->>>> restarts machine, reboot
->>>> command does not. Using printk I found that kernel does not 
->>>> hang and issues
->>>> reset properly but BIOS does not initiate boot sequence. Is 
->>>> there something
->>>> I could do?
->>>   I have similar issue on Intel DG965WH board. Did you try to shutdown network interface and
->>> 'rmmod e1000' right before reboot ? In my case machine reboots fine after that.
->>>
->>> Aleks.
- >>
->> interesting, do you do that because it specifically fixes a problem you have? if so, I'd 
->> like to know about it :)
->>
->> Auke
->>
-> I'm just trying to localize the issue. 
-> Since right before machine stalls during reboot I see something like
+On Thu, Oct 12, 2006 at 06:22:14PM +1000, David Gibson wrote:
+> Your recent ibmveth commit, 751ae21c6cd1493e3d0a4935b08fb298b9d89773
+> ("fix int rollover panic"), causes a rapid oops on my test machine
+> (POWER5 LPAR).
 > 
-> ACPI: PCI interrupt for device 000:00:19.0 disabled
-> Restarting system.
+> I've bisected it down to that commit, but am still investigating the
+> cause of the crash itself.
 
-that's quite a normal message, not sure why that would constitute a problem.
+Found the problem, I believe: an object lesson in the need for great
+caution using ++.
 
-> and this device is Gb ethernet, e1000 is perfect candidate to look at. And yes, removing e1000
-> before reboot works around the issue.
+[...]
+@@ -213,6 +213,7 @@ static void ibmveth_replenish_buffer_poo
+ 		}
+ 
+ 		free_index = pool->consumer_index++ % pool->size;
++		pool->consumer_index = free_index;
+ 		index = pool->free_map[free_index];
+ 
+ 		ibmveth_assert(index != IBM_VETH_INVALID_MAP);
 
-Have you tried to only `ifconfig ethX down` ? my own i965 board shuts down perfectly 
-fine without unloading the e1000 driver.
+Since the ++ is used as post-increment, the increment is not included
+in free_index, and so the added line effectively reverts the
+increment.  The produced_index side has an analagous bug.
 
-> I'm afraid this is now common issue across Intel 965 board series, at least with their latest BIOS
-> updates.
+Jeff, Santiago, please apply the patch below to correct this:
 
-first time I've heard of it!
+ibmveth: Fix index increment calculation
 
-I'm unsure my BIOS version will be the same as it's a devel system for our drivers, but 
-still I have never heard of anyone requiring the full unload of the NIC driver to be 
-able to shutdown.
+The recent commit 751ae21c6cd1493e3d0a4935b08fb298b9d89773 introduced
+a bug in the producer/consumer index calculation in the ibmveth driver
+- incautious use of the post-increment ++ operator resulted in an
+increment being immediately reverted.  This patch corrects the logic.
 
-Would you be able to debug a failed shutdown perhaps and capture the console output? 
-when exactly does it `stall` ? What other interrupts are assigned on your system? Did 
-other BIOS versions work correctly?
+Without this patch, the driver oopses almost immediately after
+activation on at least some machines.
 
-Auke
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
+
+Index: working-2.6/drivers/net/ibmveth.c
+===================================================================
+--- working-2.6.orig/drivers/net/ibmveth.c	2006-10-13 14:12:49.000000000 +1000
++++ working-2.6/drivers/net/ibmveth.c	2006-10-13 14:14:24.000000000 +1000
+@@ -212,8 +212,8 @@ static void ibmveth_replenish_buffer_poo
+ 			break;
+ 		}
+ 
+-		free_index = pool->consumer_index++ % pool->size;
+-		pool->consumer_index = free_index;
++		free_index = pool->consumer_index;
++		pool->consumer_index = (pool->consumer_index + 1) % pool->size;
+ 		index = pool->free_map[free_index];
+ 
+ 		ibmveth_assert(index != IBM_VETH_INVALID_MAP);
+@@ -329,8 +329,10 @@ static void ibmveth_remove_buffer_from_p
+ 			 adapter->rx_buff_pool[pool].buff_size,
+ 			 DMA_FROM_DEVICE);
+ 
+-	free_index = adapter->rx_buff_pool[pool].producer_index++ % adapter->rx_buff_pool[pool].size;
+-	adapter->rx_buff_pool[pool].producer_index = free_index;
++	free_index = adapter->rx_buff_pool[pool].producer_index;
++	adapter->rx_buff_pool[pool].producer_index
++		= (adapter->rx_buff_pool[pool].producer_index + 1)
++		% adapter->rx_buff_pool[pool].size;
+ 	adapter->rx_buff_pool[pool].free_map[free_index] = index;
+ 
+ 	mb();
+
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

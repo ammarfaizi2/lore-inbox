@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWJMJQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWJMJRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWJMJQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 05:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWJMJQR
+	id S1750863AbWJMJRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 05:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWJMJRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 05:16:17 -0400
-Received: from tirith2.ics.muni.cz ([147.251.4.39]:9653 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750781AbWJMJQQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 05:16:16 -0400
-Date: Fri, 13 Oct 2006 11:16:08 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org,
-       magnus.damm@gmail.com, pavel@suse.cz
-Subject: Re: Machine reboot
-Message-ID: <20061013091608.GH18163@mail.muni.cz>
-References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com> <452F1142.3000400@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <452F1142.3000400@intel.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Muni-Spam-TestIP: 81.31.45.161
-X-Muni-Envelope-From: xhejtman@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Fri, 13 Oct 2006 05:17:16 -0400
+Received: from gate.crashing.org ([63.228.1.57]:60840 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750850AbWJMJRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 05:17:15 -0400
+Subject: Re: [linux-pm] Bug in PCI core
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Adam Belay <abelay@MIT.EDU>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160729427.26091.98.camel@localhost.localdomain>
+References: <Pine.LNX.4.44L0.0610111632240.6353-100000@iolanthe.rowland.org>
+	 <1160701263.4792.179.camel@localhost.localdomain>
+	 <1160729427.26091.98.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 19:16:44 +1000
+Message-Id: <1160731004.4792.245.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 09:08:34PM -0700, Auke Kok wrote:
-> >and this device is Gb ethernet, e1000 is perfect candidate to look at. And 
-> >yes, removing e1000
-> >before reboot works around the issue.
+
+> Personally, I don't think exposing a cached version of the PCI config
+> space when direct device access is prohibited is the right approach
+> here.  We really shouldn't be lying about the internal state of PCI
+> devices (the cached version could be quite inaccurate).  After all, if
+> the device is in D3cold, then the spec claims it's perfectly valid for
+> it to not respond to PCI configuration access.
+
+Yes, but the problem is that lspci etc... will suddenly see a bunch of
+ffff's all over the place instead of the device. In fact, I think we do
+use -some- cached infos already there but not for everything.
+
+And that breaks .... distro installers :0
+
+For example, currently, if I power off the ethernet of my mac, or the
+firewire chip (which are powered off if the module isn't loaded), lspci
+will get the device id and vendor id right ... but won't get the class
+code.
+
+I'm not sure about kudzu/udev/whoever, I've had problems with distros
+not loading the modules because they couldn't find the chip because it
+was off because the module wasn't loaded ... (typical of chips like
+firewire which are loaded by class code).
+
+So I agree... but :)
+
+In a perfect world were everthing goes via sysfs and we have files that
+expose all the necessary cached infos for identifying the device
+(vendor, device, subsystem ids, class code, etc... which we do have in
+sysfs), then yes, we can probably make config space accesses to an off
+device just return ff's or an error (on some platform, they have to be
+blocked as they can lockup, happens with some cells on the mac when
+unclocked).
+ 
+> I can only assume this hack was done to satisfy some terribly broken
+> userspace app.
+
+Yes, distro HW detection tools mostly.
+
+>   It's not surprising that even reading PCI config can
+> easily crash systems.  However, it's the responsibility of those apps
+> with permission to access the PCI sysfs interface, not the kernel, to be
+> aware of these constraints.
+
+I agree.
+
+> The PCI configuration space cache was originally introduced to support
+> power management.  However, it's mostly incorrect, as it unnecessarily
+> stores the values of read only registers (and even BIST which is
+> potentially dangerous).  A while back I posted a series of patches that
+> address this issue, and the net result was that the config cache stays
+> around wasting memory because of the pci_block_user_cfg_access()
+> dependency despite being useless to PCI PM.
 > 
-> Have you tried to only `ifconfig ethX down` ? my own i965 board shuts down 
-> perfectly fine without unloading the e1000 driver.
+> I'd like to propose that we have the pci config sysfs interface return
+> -EIO  when it's blocked (e.g. active BIST or D3cold).  This accurately
+> reflects the state of the device to userspace, reduces complexity, and
+> could potentially save some memory per PCI device instance.
 
-I can confirm that rmmod e1000 causes that machine can reboot gracefully.
+We need to enquire which userspace apps have a problem here. It's mostly
+a distro matter... or we can force their hand :)
 
-> Would you be able to debug a failed shutdown perhaps and capture the 
-> console output? when exactly does it `stall` ? What other interrupts are 
-> assigned on your system? Did other BIOS versions work correctly?
+The problem is mostly obsolete crap not using sysfs, like ... lspci :) 
 
-Up to version 0864 it restarts normally. Any higher version causes hang on
-restart if e1000 driver is loaded.
+Ben.
 
-I've tried to report it to Intel but they replied that Linux is unsupported on
-this board...
 
-It's not an issue in the Linux kernel. Using various printk I can see that
-tripple fault or reset via KBD is issued and followed by hang of the BIOS. 
-
-For i965 chipsets, the BIOS is *a lot* buggy :(
-
--- 
-Luká¹ Hejtmánek

@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWJMVWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWJMVZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWJMVWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 17:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWJMVWK
+	id S932077AbWJMVZM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 17:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWJMVZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 17:22:10 -0400
-Received: from rune.pobox.com ([208.210.124.79]:38867 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S932075AbWJMVWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 17:22:09 -0400
-Date: Fri, 13 Oct 2006 16:22:02 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Will Schmidt <will_schmidt@vnet.ibm.com>
-Cc: Christoph Lameter <clameter@sgi.com>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-Message-ID: <20061013212202.GG28620@localdomain>
-References: <1160764895.11239.14.camel@farscape> <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com> <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
-MIME-Version: 1.0
+	Fri, 13 Oct 2006 17:25:12 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:17041 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932077AbWJMVZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 17:25:10 -0400
+Date: Sat, 14 Oct 2006 02:54:50 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rt1
+Message-ID: <20061013212450.GC7477@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060920141907.GA30765@elte.hu> <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com> <200610132318.02512.annabellesgarden@yahoo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160773040.11239.28.camel@farscape>
+In-Reply-To: <200610132318.02512.annabellesgarden@yahoo.de>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will Schmidt wrote:
-> On Fri, 2006-13-10 at 14:53 -0500, Will Schmidt wrote:
-> > On Fri, 2006-13-10 at 12:05 -0700, Christoph Lameter wrote:
-> > > On Fri, 13 Oct 2006, Will Schmidt wrote:
+On Fri, Oct 13, 2006 at 11:18:01PM +0200, Karsten Wiese wrote:
+> Am Samstag, 30. September 2006 20:18 schrieb Dipankar Sarma:
+> > On Sat, Sep 30, 2006 at 02:06:04PM -0400, Lee Revell wrote:
+> > > On Wed, 2006-09-20 at 16:19 +0200, Ingo Molnar wrote:
+> > > > I'm pleased to announce the 2.6.18-rt1 tree, which can be downloaded 
+> > > > from the usual place:
+> > > > 
+> > > >    http://redhat.com/~mingo/realtime-preempt/
 > > > 
-> > > >     Am seeing a crash on a power5 LPAR when booting the linux-2.6 git
-> > > > tree.  It's fairly early during boot, so I've included the whole log
-> > > > below.   This partition has 8 procs, (shared, including threads), and
-> > > > 512M RAM.  
+> > > I got this Oops with -rt3, looks RCU related.  Apologies in advance if
+> > > it's already known.
 > > > 
-> > > This looks like slab bootstrap. You are bootstrapping while having 
-> > > zonelists build with zones that are only going to be populated later? 
-> > > This will lead to incorrect NUMA placement of lots of slab structures on 
-> > > bootup.
+> > > Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
+> > >  [<ffffffff802aafa7>] __rcu_read_unlock+0x2e/0x82
+> > > PGD 46a3067 PUD 4e27067 PMD 0 
+> > > Oops: 0002 [1] PREEMPT SMP 
+> > > CPU 1 
 > > 
-> > I dont think so..   but it's not an area I'm very familiar with.   one
-> > of the other PPC folks might chime in with something here.  
-> > 
-> > > 
-> > > Check if the patch below may cure the oops. Your memory is likely 
-> > > still placed on the wrong numa nodes since we have to fallback from 
-> > > the intended node.
-> > 
-> > Nope, no change with this patch.
+> > I see a very similar crash while running rcutorture on 2.6.18-mm1 and
+> > my rcu patchset that has rcupreempt stuff rom -rt. I don't see this
 > > 
 > 
-> Here is another boot log, with that patch applied, and with a numa=debug
-> parm. 
+> Bug just happened here on a tainted UP x86_64 running rt4.
+> IIRC this is the second time in 2 weeks or so.
+> Machine seams to be fine still after the oops...
 > 
-> -----------------------------------------------------
-> ppc64_pft_size                = 0x18
-> physicalMemorySize            = 0x22000000
-> ppc64_caches.dcache_line_size = 0x80
-> ppc64_caches.icache_line_size = 0x80
-> htab_address                  = 0x0000000000000000
-> htab_hash_mask                = 0x1ffff
-> -----------------------------------------------------
-> Linux version 2.6.19-rc1-gb8a3ad5b-dirty (willschm@airbag2) (gcc version
-> 4.1.0 (SUSE Linux)) #60 SMP Fri Oct 13 14:48:20 CDT 2006
-> [boot]0012 Setup Arch
-> NUMA associativity depth for CPU/Memory: 3
-> adding cpu 0 to node 0
-> node 0
-> NODE_DATA() = c000000015ffee80
-> start_paddr = 8000000
-> end_paddr = 16000000
-> bootmap_paddr = 15ffc000
-> reserve_bootmem ffc0000 40000
-> reserve_bootmem 15ffc000 2000
-> reserve_bootmem 15ffee80 1180
-> node 1
-> NODE_DATA() = c000000021ff7c80
-> start_paddr = 0
-> end_paddr = 22000000
+> <Oops>
+> Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+>  [<ffffffff802a1b21>] __rcu_read_unlock+0x2e/0x80
+> PGD 3b616067 PUD 1718b067 PMD 0
+> Oops: 0002 [1] PREEMPT
+> CPU 0
+> Modules linked in: autofs4 sunrpc video button ac lp parport_pc parport nvram snd_via82xx gameport snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq nvidia snd_pcm_oss snd_mixer_oss snd_pcm ehci_hcd uhci_hcd snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi pcspkr snd_seq_device snd i2c_viapro i2c_core r8169 soundcore ext3 jbd
+> Pid: 7102, comm: sh Tainted: P      2.6.18-rt4 #4
+> RIP: 0010:[<ffffffff802a1b21>]  [<ffffffff802a1b21>] __rcu_read_unlock+0x2e/0x80
 
-Strange, node 0 appears to be in the middle of node 1.
+
+Sorry, I should have published my investigations long ago. I tracked
+this down (atleast the crash in my machine) to NMI interference
+with rcu_read_lock()/rcu_read_unlock(). We use those APIs
+from NMI context as well 
+(default_do_nmi()->notify_die()->atomic_notifier_call_chain()).
+
+Can you try with nmi_watchdog=0 in the kernel command line ?
+
+Paul has an NMI-safe patch for rcupreempt which I am adopting
+and testing at the moment. If this works well, I will publish
+a new patchset.
+
+Thanks
+Dipankar

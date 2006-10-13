@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWJMSQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWJMSTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWJMSQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWJMSQx
+	id S1751798AbWJMSTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWJMSTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:16:53 -0400
-Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:6618 "EHLO
-	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1751796AbWJMSQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:16:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=earthlink.net;
-  b=Drqz95odIkFENEGddaq8eRSDWlLKffI3vS48sxhfe7YCLT8HWEfCVpTgRBypfkxv;
-  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <105201c6eef3$ab64c750$0225a8c0@Wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Neil Brown" <neilb@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <aeb@cwi.nl>,
-       "Jens Axboe" <jens.axboe@oracle.com>
-References: <17710.54489.486265.487078@cse.unsw.edu.au> <1160752047.25218.50.camel@localhost.localdomain>
-Subject: Re: Why aren't partitions limited to fit within the device?
-Date: Fri, 13 Oct 2006 11:16:08 -0700
+	Fri, 13 Oct 2006 14:19:25 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33035 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751798AbWJMSTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:19:25 -0400
+Date: Fri, 13 Oct 2006 20:19:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephane Eranian <eranian@hpl.hp.com>, sam@ravnborg.org
+Subject: Re: [PATCH] rename net_random to random32
+Message-ID: <20061013181922.GB721@stusta.de>
+References: <200610111900.k9BJ01M4021853@hera.kernel.org> <452D4491.30806@garzik.org> <20061011122938.7e81f4bc@freekitty> <20061012000749.be62f2e0.akpm@osdl.org> <20061012102638.7381269a@freekitty>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b57112043d6cd5ae92be3c01608d433651204176f22d7f45f6ea5ad350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 71.116.187.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012102638.7381269a@freekitty>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-
-> Ar Gwe, 2006-10-13 am 09:50 +1000, ysgrifennodd Neil Brown:
->> So:  Is there any good reason to not clip the partitions to fit
->> within the device - and discard those that are completely beyond
->> the end of the device??
+On Thu, Oct 12, 2006 at 10:26:38AM -0700, Stephen Hemminger wrote:
 > 
-> Its close but not quite the right approach
-> 
->> The patch at the end of the mail does that.  Is it OK to submit this
->> to mainline?
-> 
-> No I think not. Any partition which is partly outside the disk should be
-> ignored entirely, that ensures it doesn't accidentally get mounted and
-> trashed by an HPA or similar mixup.
+> Make net_random() more widely available by calling it random32
+>...
+> --- a/lib/Makefile
+> +++ b/lib/Makefile
+> @@ -5,7 +5,7 @@ #
+>  lib-y := ctype.o string.o vsprintf.o cmdline.o \
+>  	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+>  	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+> -	 sha1.o irq_regs.o carta_random32.o
+> +	 sha1.o irq_regs.o random32.o carta_random32.o
+>...
+> --- /dev/null
+> +++ b/lib/random32.c
+>...
+> +EXPORT_SYMBOL(random32);
+>...
+> +EXPORT_SYMBOL(srandom32);
+>...
 
-This is also a risk for users who have a partition that was poorly
-setup with an earlier version that allowed it to almost work. If there
-is data on that partition refusing to mount it can lead to massive
-data loss akin to a broken disk drive.
+EXPORT_SYMBOL's in lib-y are latent bugs (IMHO kbuild should error
+on them):
 
-<<jdow>> I'd propose allowing it to mount read-only and forcing
-read-only mode when attempts to mount read-write are made. That way
-the user never perceives a data loss situation and can take the
-appropriate steps to repair the partitioning error.
+The problem is that if only modules use these functions, they will be 
+omitted from the kernel image.
 
-{^_^}   Joanne Dow
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

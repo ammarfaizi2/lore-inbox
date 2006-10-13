@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWJMSei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWJMSh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWJMSei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWJMSei
+	id S1751783AbWJMSh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWJMSh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:34:38 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:1553 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S1751779AbWJMSeh (ORCPT
+	Fri, 13 Oct 2006 14:37:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57765 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751783AbWJMSh5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:34:37 -0400
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shaggy@austin.ibm.com
-Subject: Re: Linux 2.6.19-rc2
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
-Date: Fri, 13 Oct 2006 11:34:26 -0700
-In-Reply-To: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> (message from
-	Linus Torvalds on Fri, 13 Oct 2006 09:49:29 -0700 (PDT))
-Message-ID: <87irio12vh.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Oct 2006 14:37:57 -0400
+Date: Fri, 13 Oct 2006 11:28:21 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephane Eranian <eranian@hpl.hp.com>, sam@ravnborg.org
+Subject: Re: [PATCH] rename net_random to random32
+Message-ID: <20061013112821.55c00b03@dxpl.pdx.osdl.net>
+In-Reply-To: <20061013181922.GB721@stusta.de>
+References: <200610111900.k9BJ01M4021853@hera.kernel.org>
+	<452D4491.30806@garzik.org>
+	<20061011122938.7e81f4bc@freekitty>
+	<20061012000749.be62f2e0.akpm@osdl.org>
+	<20061012102638.7381269a@freekitty>
+	<20061013181922.GB721@stusta.de>
+X-Mailer: Sylpheed-Claws 2.5.3 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+On Fri, 13 Oct 2006 20:19:22 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> So if you had issues with -rc1 (which had a ton of merges - even
-> more so than most -rc1 releases, I think), this should hopefully be
-> a lot better.
+> On Thu, Oct 12, 2006 at 10:26:38AM -0700, Stephen Hemminger wrote:
+> > 
+> > Make net_random() more widely available by calling it random32
+> >...
+> > --- a/lib/Makefile
+> > +++ b/lib/Makefile
+> > @@ -5,7 +5,7 @@ #
+> >  lib-y := ctype.o string.o vsprintf.o cmdline.o \
+> >  	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+> >  	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+> > -	 sha1.o irq_regs.o carta_random32.o
+> > +	 sha1.o irq_regs.o random32.o carta_random32.o
+> >...
+> > --- /dev/null
+> > +++ b/lib/random32.c
+> >...
+> > +EXPORT_SYMBOL(random32);
+> >...
+> > +EXPORT_SYMBOL(srandom32);
+> >...
+> 
+> EXPORT_SYMBOL's in lib-y are latent bugs (IMHO kbuild should error
+> on them):
+> 
+> The problem is that if only modules use these functions, they will be 
+> omitted from the kernel image.
+> 
+> cu
+> Adrian
+> 
 
-airo driver suspend is still broken. i still need to apply the patch
-posted originally at (with an explanation of why airo suspend is not
-working anymore)
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116025080215854&w=2 to
-get the driver to suspend. (the patch still applies to 2.6.19-rc2 with
-minor fuzz).
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+The main net code uses the code so it isn't really an issue in this case.

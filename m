@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWJMSZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWJMS05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWJMSZg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWJMSZg
+	id S1751666AbWJMS05 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWJMS05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:25:36 -0400
-Received: from bay0-omc3-s16.bay0.hotmail.com ([65.54.246.216]:11688 "EHLO
-	bay0-omc3-s16.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751560AbWJMSZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:25:35 -0400
-Message-ID: <BAY20-F6E52A8A576FF802B03B78D80A0@phx.gbl>
-X-Originating-IP: [80.178.105.199]
-X-Originating-Email: [yan_952@hotmail.com]
-In-Reply-To: <1160759621.25218.68.camel@localhost.localdomain>
-From: "Burman Yan" <yan_952@hotmail.com>
-To: alan@lxorguk.ukuu.org.uk, davej@redhat.com
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, pazke@donpac.ru
-Subject: Re: [PATCH] HP mobile data protection system driver
-Date: Fri, 13 Oct 2006 20:25:31 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 13 Oct 2006 18:25:34.0428 (UTC) FILETIME=[F90A71C0:01C6EEF4]
+	Fri, 13 Oct 2006 14:26:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:1392 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751568AbWJMS04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:26:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n73E+uz/gnTI2ezk+fge2Ylei2at0jvw17jONanSpZcH8G2u3YQUIQS4Md6KDGcqJcqfHMApYrQPS0F+Jn59hwZ4Ywwiexif0+cy03Caj08ocybFYEe10PGEJ5RPHhTW7j5Dsq2K9zlOuL2bKBXPXudEmsqM9XB7iUENQ2dfZSE=
+Message-ID: <6bffcb0e0610131126p7be99b37kf1e47571d9128a3a@mail.gmail.com>
+Date: Fri, 13 Oct 2006 20:26:53 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Linux 2.6.19-rc2
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       dwmw2@infradead.org
+In-Reply-To: <452FCFEC.3090509@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+	 <452FCFEC.3090509@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
->From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->To: Dave Jones <davej@redhat.com>
->CC: Jesper Juhl <jesper.juhl@gmail.com>, Burman Yan <yan_952@hotmail.com>,  
->       linux-kernel@vger.kernel.org, Andrey Panin <pazke@donpac.ru>
->Subject: Re: [PATCH] HP mobile data protection system driver
->Date: Fri, 13 Oct 2006 18:13:41 +0100
+On 13/10/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Hi,
 >
+> Linus Torvalds wrote:
+> > Ok, it's a week since -rc1, so -rc2 is out there.
+> >
 >
->Agreed. We already have an interface layer for reporting multiple
->dimensions of motion control - the joystick interface. I think we really
->ought to use that with some way to spot that its HDAPS etc so drivers
->can decide to use it for its intended purpose (eg a different device
->name scheme). The joystick compatibility would also mean it can "just
->work" if you tell games to use the device.
+> Please consider applying this patches.
 >
->Alan
 
-mdps works as an input device if you choose to enable that functionality (at 
-load time or at runtime).
-Already had a great time playing neverball with it :)
+Aghr... mirror problem. Please ignore.
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=0e7af8d04ecb4f6ba8cd1f731f036a004ad0e174
 
-Yan
+Regards,
+Michal
 
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

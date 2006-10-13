@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWJMVkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWJMVlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWJMVkb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 17:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWJMVkb
+	id S1030183AbWJMVlx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 17:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWJMVlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 17:40:31 -0400
-Received: from web83103.mail.mud.yahoo.com ([216.252.101.32]:32383 "HELO
-	web83103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030181AbWJMVka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 17:40:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=O8q3IhxdlZAnCxZyvEVkYQg/h/8Us2j0+rr0GGn3vNn+TO9YZBfN2SPW24RAUj/JzCMcmM46GOPxwK3HcjaA3A6Hv480NumEanryAkbs90KXmAKQr5ON9uO1ucjPY+C0rIN1kyeu1HF5A1Ht04LAkpRLJ8RGInKAvI61lPFAjaY=  ;
-Message-ID: <20061013214029.35732.qmail@web83103.mail.mud.yahoo.com>
-Date: Fri, 13 Oct 2006 14:40:29 -0700 (PDT)
-From: Aleksey Gorelov <dared1st@yahoo.com>
-Subject: RE: Machine restart doesn't work - Intel 965G, 2.6.19-rc2
-To: ryan@tau.solarneutrino.net, linux-kernel@vger.kernel.org,
-       xhejtman@mail.muni.cz, auke-jan.h.kok@intel.com
+	Fri, 13 Oct 2006 17:41:53 -0400
+Received: from tirith2.ics.muni.cz ([147.251.4.39]:61876 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030183AbWJMVlw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 17:41:52 -0400
+Date: Fri, 13 Oct 2006 23:41:45 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Aleksey Gorelov <dared1st@yahoo.com>
+Cc: Auke Kok <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Machine reboot
+Message-ID: <20061013214145.GJ3039@mail.muni.cz>
+References: <20061013162210.GG3039@mail.muni.cz> <20061013202224.95503.qmail@web83115.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061013202224.95503.qmail@web83115.mail.mud.yahoo.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Muni-Spam-TestIP: 81.31.45.161
+X-Muni-Envelope-From: xhejtman@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ryan Richter
->Sent: Friday, October 13, 2006 2:26 PM
->To: linux-kernel@vger.kernel.org
->Subject: Machine restart doesn't work - Intel 965G, 2.6.19-rc2
->
->I have a new system based on the Inter 965G chipset, and all 
->the kernels
->I've used - 2.6.18, .19-rc1, and .19-rc2 - have failed to reset the
->machine on a reboot.  "Machine Restart" is printed, but it just hangs
->there.  SysRQ is non-functional at that point.
+On Fri, Oct 13, 2006 at 01:22:24PM -0700, Aleksey Gorelov wrote:
+> > Good news, as of kernel 2.6.19-rc1-git9, BIOS does *not* hang with both e1000 as
+> > module or built in kernel.
+> > 
+> > The previous version of kernel was 2.6.18 which hangs the BIOS.
+> > 
+> > Aleksey:
+> > are you sure that it is not the same in your case? Did you not switch kernel
+> > version between e1000 as a module and built in kernel?
+> 
+> As far as I understand, you've udpated the whole kernel, not just the
+> driver. I've tried using  driver from 2.6.19-rc2 as well as v7.2.9 from 
+> Intel's website - same story - still no reboot. Did you try just updating 
+> driver (without whole kernel) ? 
 
-  The similar issue has been discussed in adjacent thread "Machine reboot". Is it Intel
-motherboard, or just carries Intel chipset ? Does building e1000 driver as a module and 'rmmod
-e1000' just before reboot help ?
+I've rechecked behaviour of e1000 driver. For me, it looks like this:
 
-Aleks.
+2.6.18 (vanilla): e1000 as a module - system reboots OK.
+                  e1000 built in    - system hangs after KBD reset or tripple
+		                      fault
 
+2.6.19-rc1-git9 (vanilla): e1000 as a module - system reboots OK.
+                           e1000 built in    - system reboots OK.
 
+-- 
+Luká¹ Hejtmánek

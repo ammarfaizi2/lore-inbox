@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWJMUpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWJMUqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751893AbWJMUpT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWJMUpS
+	id S1751896AbWJMUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751898AbWJMUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:45:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:53183 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751893AbWJMUpQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:45:16 -0400
-Subject: Re: Keyboard Stuttering
-From: john stultz <johnstul@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
-       David Gerber <dg-lkml@zapek.com>, Andi Kleen <ak@suse.de>
-In-Reply-To: <1160669564.24931.37.camel@mindpipe>
-References: <200610061218.36883.dg-lkml@zapek.com>
-	 <d120d5000610101009h49904afeq61b8e7f5dab79346@mail.gmail.com>
-	 <1160504714.4973.6.camel@localhost>  <1160669564.24931.37.camel@mindpipe>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 13:45:08 -0700
-Message-Id: <1160772309.5457.7.camel@localhost.localdomain>
+	Fri, 13 Oct 2006 16:46:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9165 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751896AbWJMUql (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:46:41 -0400
+Date: Fri, 13 Oct 2006 13:46:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,RFC] Add __GFP_ZERO to GFP_LEVEL_MASK
+Message-Id: <20061013134635.a983e4d7.akpm@osdl.org>
+In-Reply-To: <28729.1160771116@lwn.net>
+References: <28729.1160771116@lwn.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 12:12 -0400, Lee Revell wrote:
-> On Tue, 2006-10-10 at 11:25 -0700, john stultz wrote:
-> > On Tue, 2006-10-10 at 13:09 -0400, Dmitry Torokhov wrote:
-> > > > Same problem here. Intel Core 2 Duo with 2.6.19-rc1 x86_64 SMP. Happens on
-> > > > 2.6.17 too. I use 'noapic' as a workaround but that disables one of the CPU
-> > > > core of course.
-> > > >
-> > > > I cannot reproduce the problem within the console nor gdm. Only on the X
-> > > > desktop.
-> > > >
-> > > 
-> > > It looks like the only clocksource available on David's box is
-> > > "jiffies" although the processor shows that it supporst tsc and PM
-> > > timer is enabled and I think that this is what causes keyboard
-> > > stuttering in X. See http://bugzilla.kernel.org/show_bug.cgi?id=7291.
-> > > I believe clocksources is your turf, could you please take a look at
-> > > this.
-> > 
-> > Sure thing. I followed up in the bug, but I don't think the clocksource
-> > code is involved. x86_64 hasn't converted to GENERIC_TIME, so jiffies is
-> > what we use to increment xtime, but the TSC, ACPI PM, or HPET is used
-> > for gettimeofday, etc. 
-> > 
-> > I suspect C3 idling is the culprit, since noapic works around the issue.
+On Fri, 13 Oct 2006 14:25:16 -0600
+Jonathan Corbet <corbet@lwn.net> wrote:
+
+> There is a very helpful comment in <linux/gfp.h>:
 > 
-> Wait, does this mean that Intel's x86-64 implementation has the same
-> buggy TSC as AMD's?
+>   /* if you forget to add the bitmask here kernel will crash, period */
+> 
+> Well, my kernel has been crashing (period) at the BUG() in cache_grow();
+> the offending flag is __GFP_ZERO.  I think it needs to be in
+> GFP_LEVEL_MASK.  Anybody know a good reason why it's not there now?
+> 
 
-Not the same issue, no.. but the TSCs do halt in lower powersaving
-modes, which can cause similar results. The new TSC clocksource code on
-i386 will disqualify itself if those lower powerstates are entered, so
-it should auto detect and fall back. On x86_64, this logic apparently is
-sill needed.
+It would be a bit odd to pass __GFP_ZERO into the slab allocator.  Slab
+doesn't need that hint: it has its own ways of initialising the memory.
 
-thanks
--john
+What is the callsite?
 
+Thanks.
 

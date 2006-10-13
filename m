@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWJMGLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWJMGR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWJMGLV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 02:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWJMGLV
+	id S1751009AbWJMGR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 02:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWJMGR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 02:11:21 -0400
-Received: from nic.NetDirect.CA ([216.16.235.2]:18612 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1750826AbWJMGLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 02:11:20 -0400
-X-Originating-Ip: 72.57.81.197
-Date: Fri, 13 Oct 2006 02:10:15 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Redefine instances of sema_init() to use standard form.
-In-Reply-To: <200610130047.58507.zippel@linux-m68k.org>
-Message-ID: <Pine.LNX.4.64.0610130156480.14713@localhost.localdomain>
-References: <Pine.LNX.4.64.0610120330540.5013@localhost.localdomain>
- <200610130047.58507.zippel@linux-m68k.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-MailScanner-From: rpjday@mindspring.com
+	Fri, 13 Oct 2006 02:17:56 -0400
+Received: from dev.mellanox.co.il ([194.90.237.44]:35203 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1751009AbWJMGRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 02:17:55 -0400
+Date: Fri, 13 Oct 2006 08:17:25 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: David Miller <davem@davemloft.net>
+Cc: shemminger@osdl.org, steve@chygwyn.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org, rolandd@cisco.com
+Subject: Re: Dropping NETIF_F_SG since no checksum feature.
+Message-ID: <20061013061725.GB12571@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20061012.212240.26278742.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012.212240.26278742.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting r. David Miller <davem@davemloft.net>:
+> Subject: Re: Dropping NETIF_F_SG since no checksum feature.
+> 
+> From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+> Date: Thu, 12 Oct 2006 21:12:06 +0200
+> 
+> > Quoting r. David Miller <davem@davemloft.net>:
+> > > Subject: Re: Dropping NETIF_F_SG since no checksum feature.
+> > > 
+> > > Numbers?
+> > 
+> > I created two subnets on top of the same pair infiniband HCAs:
+> 
+> I was asking for SG vs. non-SG numbers so I could see proof
+> that it really does help like you say it will.
+> 
 
-  i can't believe a simple cleanup patch has turned into such an
-issue.
+Dave, thanks for the clarification.
+Please note that ib0 is a non-SG device with MTU 2K,
+sorry that I forgot to mention that.
 
-On Fri, 13 Oct 2006, Roman Zippel wrote:
 
-> Hi,
->
-> On Thursday 12 October 2006 09:44, Robert P. J. Day wrote:
->
-> > Since there seems to be no compelling reason *not* to do this,
-> [..]
-> > -	/*
-> > -	 * Logically,
-> > -	 *   *sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
-> > -	 * except that gcc produces better initializing by parts yet.
-> > -	 */
->
-> You've seen this?
+so, to summarize my previous mail:
 
-in fact, i did, and i admit that i have no idea what it means to say
-that "gcc produces better initializing by parts yet."
 
-there were a number of semaphore.h files whose comments made it clear
-that GCC 2.7.2.3 was the *only* reason that the shorter, more direct
-form wasn't being used, so it should be clear that those could be
-changed.
+interface   flags      mtu    bandwidth
+ib0         linear(0)  2044   286.45
+ibc0        _F_SG      65484  782.55
 
-there was only *one* of those header files (asm-alpha/semaphore.h)
-that had the caution above, but i have no idea what "better
-initializing" means?
 
-"better" as in faster?  "better" as in more compact?  "better" as in
-correct?  i mean, either the shorter, more direct initialization
-*works* and produces the same result in this case, or it *doesn't*.
-which is it?  or is that note perhaps a holdover from an old version
-of gcc as well?
 
-can you clarify what that comment means in the context of the alpha
-architecture, and why simplifying the call would actually be a
-mistake?
+If I will set both ib0 and ibc0 to 64K MTU, then
+benchmark-mode with the same MTU SG is somewhat slower than non-SG 
+(I tested this at some point, by some 10%, don't have the numbers at the moment -
+do you want to see them?).  I did not claim it is faster to do SG with same MTU
+and it is I think clear why linear should be faster for copy *with the same MTU*.
+But do you really think that we will be able to allocate
+even a single 64K linear skb after the machine has been active for a while?
 
-rday
+My assumption is that if I want to reliably get MTU > PAGE_SIZE I must support SG.
+Is it the wrong one?
+
+If this assumption is correct, then below is my line of thinking:
+- with infiniband we provably get a 2.5x speedup with MTU of 64K vs to 2K.
+- to get packets of that size reliably we must declare S/G support
+- infiniband verbs do not support IP checksumming
+- per network algorithmics, it is better to piggyback checksum calculation
+  on copying if copying takes place
+
+For this reason, I would like to define the meaning of S/G set when checksum
+bits are all clear as "we support S/G but not checksum, please checksum
+for us if you copy data anyway". Alternatively, add a new
+NETIF_F_??_CSUM bit to mean this capability.
+Does this make sense?
+
+Thanks,
+
+-- 
+MST

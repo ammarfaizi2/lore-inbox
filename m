@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWJMQ36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWJMQak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWJMQ36 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWJMQ35
+	id S1751744AbWJMQak (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWJMQak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:29:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24037 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751341AbWJMQ34 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:29:56 -0400
-Date: Fri, 13 Oct 2006 09:29:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.19-rc1-mm1 - locks when using "dd bs=1M" from card reader
-Message-Id: <20061013092941.30500a15.akpm@osdl.org>
-In-Reply-To: <452F906F.8020302@aitel.hist.no>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	<452E327C.9020707@aitel.hist.no>
-	<20061012112938.97ef924c.akpm@osdl.org>
-	<452F906F.8020302@aitel.hist.no>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 13 Oct 2006 12:30:40 -0400
+Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:23792 "EHLO
+	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
+	id S1751744AbWJMQaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:30:39 -0400
+Subject: Re: [linux-pm] Bug in PCI core
+From: Adam Belay <abelay@MIT.EDU>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1160753390.3000.494.camel@laptopd505.fenrus.org>
+References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
+	 <1160753187.25218.52.camel@localhost.localdomain>
+	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 12:40:31 -0400
+Message-Id: <1160757632.26091.121.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.217
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 15:11:11 +0200
-Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-
-> Andrew Morton wrote:
-> > On Thu, 12 Oct 2006 14:18:04 +0200
-> > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-> >
-> >   
-> >> I found an easy way to hang the kernel when copying a SD-card:
-> >>
-> >> dd if=/dev/sdc of=file bs=1048576
-> >>
-> >> I.e. copy the entire 256MB card in 1MB chunks.  I got about
-> >> 160MB before the kernel hung.  Not even sysrq+B worked, I needed
-> >> the reset button.  The pc has a total of 512MB memory if that matters.
-> >>
-> >> Using bs=4096 instead let me copy the entire card with no problems,
-> >> but that seems to progress slower.
-> >>
-> >> The above 'dd' command hangs my office pc every time. So I can repeat
-> >> it for debugging purposes. 
-> >>
-> >>     
-> >
-> > What device driver is providing /dev/sdc?
-> >   
-> It is an usb card reader, so it is "usb mass storage"
-> and "scsi disk".
-> > Did any previous kernels work correctly?  If so, which?
-> >   
+On Fri, 2006-10-13 at 17:29 +0200, Arjan van de Ven wrote:
+> On Fri, 2006-10-13 at 16:26 +0100, Alan Cox wrote:
+> > Ar Gwe, 2006-10-13 am 10:29 -0400, ysgrifennodd Alan Stern:
+> > > > I'd like to propose that we have the pci config sysfs interface return
+> > > > -EIO  when it's blocked (e.g. active BIST or D3cold).  This accurately
+> > > > reflects the state of the device to userspace, reduces complexity, and
+> > > > could potentially save some memory per PCI device instance.
+> > > 
+> > > Could you resubmit your old patches and include a corresponding fix for 
+> > > this access problem?
+> > 
+> > And then you can fix the applications it breaks, like the X server which
+> > does actually want to know where all the devices are located in PCI
+> > space.
+> > 
 > 
-> I just got that card reader, so I haven't tested any earlier kernels.
-> I have another machine with a card reader, which I have used for
-> a long time. But I only ever copy files with "cp" on that one.
+> .. but which could equally well mmap the resource from sysfs ;)
 > 
-> This time I used "dd" to get an image of the entire card, and got trouble
-> when using 1M chunks. 
 > 
-> I can try with verbose scsi debug messages if that might help?
+> also the thing this patch does is ONLY when the device is effectively
+> off the bus return -EIO.
+> One can argue that -EAGAIN is nicer since it's only a temporary
+> condition though....
+> 
 > 
 
-Maybe.  The first step is to tell the developers. (adds cc).
+Yeah, perhaps -EAGAIN would be more appropriate, especially in the power
+state transition and BIST cases.  An interesting possibility might be to
+have the file actually block, although I'm not sure if the O_NONBLOCK
+flag or polling for that matter can be supported through the
+sysfs/driver-core API.
+
+-Adam
+
 

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJMRaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWJMRcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWJMRaF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWJMRaF
+	id S1751106AbWJMRcM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWJMRcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:30:05 -0400
-Received: from outbound-res.frontbridge.com ([63.161.60.49]:27105 "EHLO
-	outbound2-res-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751355AbWJMRaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:30:02 -0400
-X-BigFish: V
-To: alsa-devel@lists.sourceforge.net
-Subject: [PATCH 2.6.18] hda_intel: add ATI RS690 HDMI audio support
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20061013172921.AF6A8CBDA5@localhost.localdomain>
-Date: Fri, 13 Oct 2006 13:29:21 -0400 (EDT)
-From: lmarsan@ati.com (Luugi Marsan)
-X-OriginalArrivalTime: 13 Oct 2006 17:29:53.0185 (UTC) FILETIME=[31813910:01C6EEED]
+	Fri, 13 Oct 2006 13:32:12 -0400
+Received: from web32409.mail.mud.yahoo.com ([68.142.207.202]:15718 "HELO
+	web32409.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751106AbWJMRcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:32:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=uQ8LXVy70Iylf2Z3S7Q4siZTEmAzQJ77SOFaR6HM0DeV2/rOfuNpIBgIQ0/bWlPHdsaBIlsG4FEfCyWtDlAnP9FfhSWZbyHOreDqilS8gDTo34HUaJu+tZ0+8ALzOqoEVvuxv0Tmm6J1W2m/NaqeV9Amx5Q+KRhlxfZpjEzaP28=  ;
+Message-ID: <20061013173207.2608.qmail@web32409.mail.mud.yahoo.com>
+Date: Fri, 13 Oct 2006 10:32:06 -0700 (PDT)
+From: Anil kumar <anils_r@yahoo.com>
+Subject: page_address issue
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for the HDMI codec of the ATI RS690 IGP northbridge.
+Hi,
 
-Signed-off-by: Felix Kuehling <fkuehlin@ati.com>
+How can I confirm if the address returned from
+page_address is correct?
+The system is EM64T. My hardware supports only 32bit
+DMA.
+The kernel is 2.6.16 based (SLES10).
+The following is the snippet of the code:
+if(cmd->use_sg){
 
-diff -urN vanilla/sound/pci/hda/hda_intel.c linux-2.6.18.x86_64/sound/pci/hda/hda_intel.c
---- vanilla/sound/pci/hda/hda_intel.c	2006-09-19 23:42:06.000000000 -0400
-+++ linux-2.6.18.x86_64/sound/pci/hda/hda_intel.c	2006-09-26 04:24:02.000000000 -0400
-@@ -83,6 +83,7 @@
- 			 "{ATI, SB450},"
- 			 "{ATI, SB600},"
- 			 "{ATI, RS600},"
-+			 "{ATI, RS690},"
- 			 "{VIA, VT8251},"
- 			 "{VIA, VT8237A},"
- 			 "{SiS, SIS966},"
-@@ -1637,6 +1638,7 @@
- 	{ 0x1002, 0x437b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ATI }, /* ATI SB450 */
- 	{ 0x1002, 0x4383, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ATI }, /* ATI SB600 */
- 	{ 0x1002, 0x793b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ATIHDMI }, /* ATI RS600 HDMI */
-+	{ 0x1002, 0x7919, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ATIHDMI }, /* ATI RS690 HDMI */
- 	{ 0x1106, 0x3288, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_VIA }, /* VIA VT8251/VT8237A */
- 	{ 0x1039, 0x7502, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_SIS }, /* SIS966 */
- 	{ 0x10b9, 0x5461, PCI_ANY_ID, PCI_ANY_ID, 0, 0, AZX_DRIVER_ULI }, /* ULI M5461 */
-diff -urN vanilla/sound/pci/hda/patch_atihdmi.c linux-2.6.18.x86_64/sound/pci/hda/patch_atihdmi.c
---- vanilla/sound/pci/hda/patch_atihdmi.c	2006-09-19 23:42:06.000000000 -0400
-+++ linux-2.6.18.x86_64/sound/pci/hda/patch_atihdmi.c	2006-09-26 04:23:27.000000000 -0400
-@@ -161,5 +161,6 @@
-  */
- struct hda_codec_preset snd_hda_preset_atihdmi[] = {
- 	{ .id = 0x1002793c, .name = "ATI RS600 HDMI", .patch = patch_atihdmi },
-+	{ .id = 0x1002791a, .name = "ATI RS690 HDMI", .patch = patch_atihdmi },
- 	{} /* terminator */
- };
+unsigned char *pBuf;
+sg = (struct scatterlist *)cmd->request_buffer;
 
+pBuf = (unsigned char
+*)page_address(sg->page)+sg->offset
+
+}
+
+The number of DMA buffers returned from dma_map_sg is
+one. 
+I don't think it involves any page boundary issues as
+the length of the buffer and offset are well within
+the page.
+The command is Inquiry. 
+I checked the page is a NOT a HighMemPage
+
+The system is 64bit, but the hardware dma capability
+is only 32bit. Has this got something to do?
+I also checked swiotlb is enabled.
+
+Any help is greatly appreciated.
+
+with regards,
+  Anil
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWJMRfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWJMRk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWJMRfL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWJMRfL
+	id S1751450AbWJMRk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWJMRk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:35:11 -0400
-Received: from outbound0.mx.meer.net ([209.157.153.23]:63236 "EHLO
-	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
-	id S1751437AbWJMRfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:35:09 -0400
-Subject: Re: [patch 6/7] process filtering for fault-injection capabilities
-From: Don Mullis <dwm@meer.net>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org
-In-Reply-To: <452df238.04819267.55ff.ffffd8a2@mx.google.com>
-References: <20061012074305.047696736@gmail.com> >
-	  <452df238.04819267.55ff.ffffd8a2@mx.google.com>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 10:28:54 -0700
-Message-Id: <1160760534.31851.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Fri, 13 Oct 2006 13:40:26 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:20228 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751450AbWJMRkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:40:25 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.19-rc2
+Date: Fri, 13 Oct 2006 18:40:28 +0100
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610131840.28411.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-12 at 16:43 +0900, Akinobu Mita wrote:
-> This patch provides process filtering feature.
-> The process filter allows failing only permitted processes
-> by /proc/<pid>/make-it-fail
+On Friday 13 October 2006 17:49, Linus Torvalds wrote:
+> Ok, it's a week since -rc1, so -rc2 is out there.
 
-Akinobu: Toward the end of the previous round of review, we had 
-the following exchange:
-        
-        On Tue, 2006-09-19 at 17:05 +0800, Akinobu Mita wrote:
-        On Mon, Sep 18, 2006 at 10:54:51PM -0700, Don Mullis wrote:
-        > > Add functionality to the process_filter variable: A negative argument
-        > > injects failures for only for pid==-process_filter, thereby permitting
-        > > per-process failures from boot time.
-        > > 
-        > 
-        > Is it better to add new filter for this purpose?
-        > Because someone may want to filter by tgid instead of pid.
-        > 
-        > - positive value is for task->pid
-        > - nevative value is for task->tgid
-        
-        Your idea sounds good to me.
+Does anybody know what's up with the git server? Hopefully it's just my 
+connection...
 
+[alistair] 18:38 [~/linux-git] git pull
+fatal: unexpected EOF
+Fetch failure: 
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 
-So naturally I'm wondering why the functionality was dropped.
-An application I had in mind was to identify which of the boot-time
-calls to the slab allocator must not fail but are not yet marked
-__GFP_NOFAIL (some experimentation showed that for pid 1 there are
-lots of these).
+-- 
+Cheers,
+Alistair.
 
-Andrew: Would such an exercise would be worth the effort?
-
-
-
-
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

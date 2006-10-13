@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWJMSKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWJMSKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751774AbWJMSKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWJMSKx
+	id S1751788AbWJMSKg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWJMSKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:10:53 -0400
-Received: from mail.trixing.net ([87.230.125.58]:63204 "EHLO mail.trixing.net")
-	by vger.kernel.org with ESMTP id S1751774AbWJMSKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:10:51 -0400
-Date: Fri, 13 Oct 2006 20:10:49 +0200
-From: Jan Dittmer <jdi@l4x.org>
-To: linux-kernel@vger.kernel.org
-Subject: Add missing space in module.c for taintskernel
-Message-ID: <20061013181049.GB17614@ppp0.net>
+	Fri, 13 Oct 2006 14:10:36 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:37132 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751788AbWJMSKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:10:35 -0400
+Date: Fri, 13 Oct 2006 14:10:34 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Helge Hafting <helge.hafting@aitel.hist.no>, Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
+ from card reader
+In-Reply-To: <20061013092941.30500a15.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0610131408240.6612-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Modeline: vim:set ts=8 sw=4 smarttab tw=72 si noic notitle:
-X-Operating-System: Linux/2.6.19-rc1-git10-ds666-amd64 (x86_64)
-X-Uptime: 20:05:36 up  2:31,  1 user,  load average: 0.12, 0.14, 0.15
-Accept-Languages: de, en, fr
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: jdittmer@l4x.org
-X-SA-Exim-Scanned: No (on mail.trixing.net); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Obvious fix, against rc1-git10
+On Fri, 13 Oct 2006, Andrew Morton wrote:
 
-Signed-off-by: Jan Dittmer <jdi@l4x.org>
+> On Fri, 13 Oct 2006 15:11:11 +0200
+> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> 
+> > Andrew Morton wrote:
+> > > On Thu, 12 Oct 2006 14:18:04 +0200
+> > > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> > >
+> > >   
+> > >> I found an easy way to hang the kernel when copying a SD-card:
+> > >>
+> > >> dd if=/dev/sdc of=file bs=1048576
+> > >>
+> > >> I.e. copy the entire 256MB card in 1MB chunks.  I got about
+> > >> 160MB before the kernel hung.  Not even sysrq+B worked, I needed
+> > >> the reset button.  The pc has a total of 512MB memory if that matters.
+> > >>
+> > >> Using bs=4096 instead let me copy the entire card with no problems,
+> > >> but that seems to progress slower.
+> > >>
+> > >> The above 'dd' command hangs my office pc every time. So I can repeat
+> > >> it for debugging purposes. 
+> > >>
+> > >>     
+> > >
+> > > What device driver is providing /dev/sdc?
+> > >   
+> > It is an usb card reader, so it is "usb mass storage"
+> > and "scsi disk".
+> > > Did any previous kernels work correctly?  If so, which?
+> > >   
+> > 
+> > I just got that card reader, so I haven't tested any earlier kernels.
+> > I have another machine with a card reader, which I have used for
+> > a long time. But I only ever copy files with "cp" on that one.
+> > 
+> > This time I used "dd" to get an image of the entire card, and got trouble
+> > when using 1M chunks. 
+> > 
+> > I can try with verbose scsi debug messages if that might help?
 
---- linux-2.6-amd64/kernel/module.c~	2006-10-13 17:41:32.000000000 +0200
-+++ linux-2.6-amd64/kernel/module.c	2006-10-13 17:41:40.000000000 +0200
-@@ -1342,7 +1342,7 @@ static void set_license(struct module *m
- 
- 	if (!license_is_gpl_compatible(license)) {
- 		if (!(tainted & TAINT_PROPRIETARY_MODULE))
--			printk(KERN_WARNING "%s: module license '%s' taints"
-+			printk(KERN_WARNING "%s: module license '%s' taints "
- 				"kernel.\n", mod->name, license);
- 		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
- 	}
+Verbose usb-storage debugging messages would help more 
+(CONFIG_USB_STORAGE_DEBUG and CONFIG_USB_DEBUG).  If the kernel hangs very 
+badly you might need to use a serial console to capture all the logging 
+information.
 
+Alan Stern
 
------ End forwarded message -----

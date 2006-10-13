@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751929AbWJMWLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751935AbWJMWOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751929AbWJMWLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 18:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751930AbWJMWLQ
+	id S1751935AbWJMWOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 18:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWJMWOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 18:11:16 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:18580 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751929AbWJMWLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 18:11:16 -0400
-Subject: Re: 2.6.18-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: dipankar@in.ibm.com
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20061013212450.GC7477@in.ibm.com>
-References: <20060920141907.GA30765@elte.hu>
-	 <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com>
-	 <200610132318.02512.annabellesgarden@yahoo.de>
-	 <20061013212450.GC7477@in.ibm.com>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 18:12:16 -0400
-Message-Id: <1160777536.4201.31.camel@mindpipe>
+	Fri, 13 Oct 2006 18:14:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25285
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751935AbWJMWOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 18:14:20 -0400
+Date: Fri, 13 Oct 2006 15:14:21 -0700 (PDT)
+Message-Id: <20061013.151421.55510283.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: bunk@stusta.de, shemminger@osdl.org, linux-kernel@vger.kernel.org,
+       eranian@hpl.hp.com, sam@ravnborg.org
+Subject: Re: [PATCH] rename net_random to random32
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061013120956.962a569a.akpm@osdl.org>
+References: <20061012102638.7381269a@freekitty>
+	<20061013181922.GB721@stusta.de>
+	<20061013120956.962a569a.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-14 at 02:54 +0530, Dipankar Sarma wrote:
-> Can you try with nmi_watchdog=0 in the kernel command line ?
+From: Andrew Morton <akpm@osdl.org>
+Date: Fri, 13 Oct 2006 12:09:56 -0700
+
+> On Fri, 13 Oct 2006 20:19:22 +0200
+> Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> Paul has an NMI-safe patch for rcupreempt which I am adopting
-> and testing at the moment. If this works well, I will publish
-> a new patchset.
-> 
+> > EXPORT_SYMBOL's in lib-y are latent bugs (IMHO kbuild should error
+> > on them):
+> > 
+> > The problem is that if only modules use these functions, they will be 
+> > omitted from the kernel image.
+> > 
+> Yeah, I always get those two confused.  I moved it to obj-y, thanks.
 
-The bug is too hard to hit for me to provide useful feedback.  I've only
-seen it once since my original report.
-
-FWIW, I am also seeing hard lockups every 12-24 hours but the box is
-headless and I don't have the bandwidth to debug these further.  It was
-stable with 2.6.17-rt*.
-
-Lee
-
+Yep, good catch Adrian.  I've been burned by this one oto.

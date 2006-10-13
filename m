@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWJMBOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWJMBaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWJMBOm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 21:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWJMBOm
+	id S1751445AbWJMBaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 21:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWJMBaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 21:14:42 -0400
-Received: from msr4.hinet.net ([168.95.4.104]:15316 "EHLO msr4.hinet.net")
-	by vger.kernel.org with ESMTP id S1751438AbWJMBOl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 21:14:41 -0400
-Message-ID: <00ac01c6ee64$ef637210$2d32fea9@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <jgarzik@pobox.com>
-References: <004301c6eda6$437ac070$2d32fea9@icplus.com.tw> <20061011195540.06b2ef13.akpm@osdl.org>
-Subject: Re: What is current sundance.c status
-Date: Fri, 13 Oct 2006 09:14:30 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Thu, 12 Oct 2006 21:30:11 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:26131 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751445AbWJMBaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 21:30:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iRQKO7ry5e5bKE6jNAs5EiExnvy84vaufxmhHeXleLqOFQP1b8Qtg8yQiOawylUajS/M5ibtpzY7GByh7ojZ7dqMCesAzfccz2RKi4RZSp8ugJA317xAnICjGY/knYdNlsV/IKTZTATfRjH5GOieBjkfnspcWMd8KbiVN4V6xAs=
+Message-ID: <4b3406f0610121830v7d53007ck92e1010bc36f26bf@mail.gmail.com>
+Date: Fri, 13 Oct 2006 09:30:08 +0800
+From: "Dongsheng Song" <dongsheng.song@gmail.com>
+To: "Michael Poole" <mdpoole@troilus.org>
+Subject: Re: maybe headers(linux/aio.h) bug ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87wt7567g9.fsf@graviton.dyn.troilus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4b3406f0610120527g42bfbc44q45b31dc07f5968de@mail.gmail.com>
+	 <87wt7567g9.fsf@graviton.dyn.troilus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I will generate those again with descriptions.
-
-Thank you!
-
-Best Regards,
-Jesse Huang.
-
------ Original Message ----- 
-From: "Andrew Morton" <akpm@osdl.org>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<jgarzik@pobox.com>
-Sent: Thursday, October 12, 2006 10:55 AM
-Subject: Re: What is current sundance.c status
+But the current C library's AIO support does not use Linux's AIO, if I
+use Linux AIO, the only way is define my io_event, iocb, aio_context_t
+types, isn't it ?
 
 
-On Thu, 12 Oct 2006 10:29:37 +0800
-"Jesse Huang" <jesse@icplus.com.tw> wrote:
-
->     Would you tell me what is the current IP100A status? Should I
-re-generate patches again. Would it put into kernel or not?
-
-I'm sitting on a copy of them.  I didn't send them to Jeff last time
-because:
-
-sundance-remove-txstartthresh-and-rxearlythresh.patch
-
- There's no description of what this patent issue is.
-
-sundance-fix-tx-pause-bug-reset_tx-intr_handler.patch
-
- There's no description of the bug which got fixed, nor how this patch
- fixes it.
-
-sundance-change-phy-address-search-from-phy=1-to-phy=0.patch
-
- There's a (small) possibility that this will break on hardware which
- _doesn't_ have a phy at address 0.
-
-sundance-correct-initial-and-close-hardware-step.patch
-
- There's no real description of the bug which is being fixed, nor of how
- this patch fixes it.
-
-sundance-solve-host-error-problem-in-low-performance-embedded.patch
-
- No description of what the "host error problem" is, nor of what causes
- it, nor of how this patch fixes it.
-
-
-So generally these patches are a bit worrying, and it is hard to gauge what
-their risk factor is.
-
-
+2006/10/12, Michael Poole <mdpoole@troilus.org>:
+> Dongsheng Song writes:
+>
+> > Whenever I include linux aio header,  the compile errors occured:
+> >
+> > $  cat test.c
+> > #include <linux/types.h>
+> > #include <linux/unistd.h>
+> > #include <linux/aio.h>
+>
+> Including kernel header files directly from userspace is not supported
+> and is almost always (some just say "always") a very bad idea.  If you
+> want to use the C library's AIO support, use its <aio.h> header.
+>
+> Michael Poole
+>

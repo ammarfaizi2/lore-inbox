@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWJMQnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWJMQoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWJMQnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWJMQnG
+	id S1751156AbWJMQoI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJMQoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:43:06 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4266 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751339AbWJMQnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:43:04 -0400
-Subject: Re: [linux-pm] Bug in PCI core
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adam Belay <abelay@MIT.EDU>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160757260.26091.115.camel@localhost.localdomain>
-References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
-	 <1160753187.25218.52.camel@localhost.localdomain>
-	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
-	 <1160755562.25218.60.camel@localhost.localdomain>
-	 <1160757260.26091.115.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Oct 2006 18:09:09 +0100
-Message-Id: <1160759349.25218.62.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 13 Oct 2006 12:44:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:32717 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751156AbWJMQoG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:44:06 -0400
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Memory Management <linux-mm@kvack.org>
+Cc: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       Chris Mason <chris.mason@oracle.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <npiggin@suse.de>
+Message-Id: <20061013143526.15438.56911.sendpatchset@linux.site>
+In-Reply-To: <20061013143516.15438.8802.sendpatchset@linux.site>
+References: <20061013143516.15438.8802.sendpatchset@linux.site>
+Subject: [patch 1/6] mm: revert "generic_file_buffered_write(): handle zero length iovec segments"
+Date: Fri, 13 Oct 2006 18:44:02 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-10-13 am 12:34 -0400, ysgrifennodd Adam Belay:
-> I agree this needs to be fixed.  However, as I previously mentioned,
-> this isn't the right place to attack the problem.  Remember, this wasn't
-> originally a kernel regression.  Rather it's a workaround for a known
+From: Andrew Morton <akpm@osdl.org>
 
-It's a kernel regression. It used to be reliable to read X resource
-addresses at any time.
+Revert 81b0c8713385ce1b1b9058e916edcf9561ad76d6.
 
-> Finally, it's worth noting that this issue is really a corner-case, and
-> in most systems it's extremely rare that even incorrect userspace apps
-> would have any issue.
+This was a bugfix against 6527c2bdf1f833cc18e8f42bd97973d583e4aa83, which we
+also revert.
 
-Except just occasionally and randomly in the field, probably almost
-undebuggable and irreproducable - the very worst conceivable kind of
-bug.
 
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Index: linux-2.6/mm/filemap.c
+===================================================================
+--- linux-2.6.orig/mm/filemap.c
++++ linux-2.6/mm/filemap.c
+@@ -1912,12 +1912,6 @@ generic_file_buffered_write(struct kiocb
+ 			break;
+ 		}
+ 
+-		if (unlikely(bytes == 0)) {
+-			status = 0;
+-			copied = 0;
+-			goto zero_length_segment;
+-		}
+-
+ 		status = a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (unlikely(status)) {
+ 			loff_t isize = i_size_read(inode);
+@@ -1947,8 +1941,7 @@ generic_file_buffered_write(struct kiocb
+ 			page_cache_release(page);
+ 			continue;
+ 		}
+-zero_length_segment:
+-		if (likely(copied >= 0)) {
++		if (likely(copied > 0)) {
+ 			if (!status)
+ 				status = copied;
+ 
+Index: linux-2.6/mm/filemap.h
+===================================================================
+--- linux-2.6.orig/mm/filemap.h
++++ linux-2.6/mm/filemap.h
+@@ -87,7 +87,7 @@ filemap_set_next_iovec(const struct iove
+ 	const struct iovec *iov = *iovp;
+ 	size_t base = *basep;
+ 
+-	do {
++	while (bytes) {
+ 		int copy = min(bytes, iov->iov_len - base);
+ 
+ 		bytes -= copy;
+@@ -96,7 +96,7 @@ filemap_set_next_iovec(const struct iove
+ 			iov++;
+ 			base = 0;
+ 		}
+-	} while (bytes);
++	}
+ 	*iovp = iov;
+ 	*basep = base;
+ }

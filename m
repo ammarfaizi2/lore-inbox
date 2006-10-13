@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWJMRq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbWJMRrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWJMRq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWJMRq5
+	id S1751561AbWJMRrV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWJMRrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:46:57 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:27887 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751495AbWJMRq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:46:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=SQkx2SzS7xbnhcRWmAHB3cguGhXrg7FPN7Y7/WRc8Y4wFW2WOldOVyIc5c0NnrFs3slg2+83R73bqv5lY3lee+uaPnCCR5y1dYgKVTkDs4PkLF+OP7WzMER2Jjnxmob8a6kTXeWkAJ/y4vvQhAxNeWs5mcCiY29zf1ne+BlCe3U=
-Date: Sat, 14 Oct 2006 02:47:24 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>
-Subject: Re: [patch 1/7] documentation and scripts
-Message-ID: <20061013174724.GB29079@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	ak@suse.de, Don Mullis <dwm@meer.net>
-References: <20061012074305.047696736@gmail.com> <452df215.7ab6aae9.17a4.58b5@mx.google.com> <20061012143713.3f6030c8.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 13 Oct 2006 13:47:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40342 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751508AbWJMRrT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:47:19 -0400
+Date: Fri, 13 Oct 2006 10:47:14 -0700
+From: Judith Lebzelter <judith@osdl.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, Judith Lebzelter <judith@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IA64 export symbols empty_zero_page, ia64_ssc
+Message-ID: <20061013174714.GA822@shell0.pdx.osdl.net>
+References: <617E1C2C70743745A92448908E030B2AA634B8@scsmsx411.amr.corp.intel.com> <20061012001139.1fea6ecf.akpm@osdl.org> <20061012175536.GA8497@intel.com> <20061012123714.85ab4ebb.akpm@osdl.org> <20061012210033.GA9669@intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061012143713.3f6030c8.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061012210033.GA9669@intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 02:37:13PM -0700, Andrew Morton wrote:
+On Thu, Oct 12, 2006 at 02:00:33PM -0700, Luck, Tony wrote:
+> [IA64] Fix allmodconfig build
+> 
+> The HP_SIMSCSI driver can't be built as a module (unhealthy
+> dependencies on things that shouldn't really be exported).
+> 
+> AMD and nVidia IDE support doesn't sound too useful for ia64
+> either :-)
 
-> So I wonder if it'd be better to make this have units of "one millionth",
-> or simply make this tunable "1/(probability of failure)".  So setting it to
-> 1,000,000 gives you one failure per million calls, on average.
+Thanks for doing this.  I run cross compiles and do not always 
+know what is the best fix for the architecture.  I have been trying
+to address some of these errors so that the compiles for 'allmodconfig' 
+will be less 'noisy' and easier to get value out of. 
 
-/debug/*/interval is available for this purpose.
-The combination of below commands gives one failure per million calls.
-
-# echo 1000000 > /debug/failslab/interval
-# echo 100 > /debug/failslab/probability
+Judith
 

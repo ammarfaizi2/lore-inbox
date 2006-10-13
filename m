@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWJMRmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWJMRp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWJMRmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWJMRmE
+	id S1751401AbWJMRp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWJMRp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:42:04 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:56506 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751453AbWJMRmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:42:02 -0400
+	Fri, 13 Oct 2006 13:45:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:29163 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751401AbWJMRp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:45:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding:from;
-        b=LtuoxWpuE4D2dn6xTOa/BZJlM1DLvWKxWmT6m/iSM97wmKX6YOWSgd8yhsD4WvxRkeNc1kKgBdZnIwZjPZfIIB+8rmQ7eE54V3OlNQ5F1wzTeG4qLHgjGS6mbqbB6uA1rGEezrdK1rkkyrgp0MiFN8PCwz2UWohx/N31xNr7Ao0=
-Message-ID: <452FCFEC.3090509@googlemail.com>
-Date: Fri, 13 Oct 2006 19:42:04 +0200
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Yr+ZWAJq+IPhbX4Tjm5v8g2AnExE8FartSG7OfT7KQmkJEwKEWbL5ezn73mhd94TAXTHCHQ4PpEZS/31XjZwZlAiWU/79ChMY8pWWmQYKdTHmO5lhxKoQoCQ98zIksyWz79crYDPhkbbb1gut/2J/XFLjFaZ9bkrOvPVgfBqYq8=
+Date: Sat, 14 Oct 2006 02:46:24 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>
+Subject: Re: [patch 0/7] fault-injection capabilities (v5)
+Message-ID: <20061013174623.GA29079@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	ak@suse.de, Don Mullis <dwm@meer.net>
+References: <452df20e.025ef312.44f0.7578@mx.google.com> <20061012142625.520d3d87.akpm@osdl.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dwmw2@infradead.org
-Subject: Re: Linux 2.6.19-rc2
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012142625.520d3d87.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 12, 2006 at 02:26:25PM -0700, Andrew Morton wrote:
 
-Linus Torvalds wrote:
-> Ok, it's a week since -rc1, so -rc2 is out there.
+> You've presumably run a kernel with these various things enabled.  What
+> happens?  Does the kernel run really slowly?  Does userspace collapse in a
+> heap?  Does it oops and die?
+
+I don't feel much slowness with STACKTRACE & FRAME_POINTER and
+enabling stacktrace filter. But with enabling STACK_UNWIND I feel
+big latency on X. (There are two type of implementation of stacktrace
+filter in it [1] using STACKTRACE with FRAME_POINTER, and [2] STACK_UNWIND)
+
+I don't know why there is quite difference between simple STACKTRACE and
+STACK_UNWIND. I'm about to try to use rb tree rather than linked list in
+unwind.
+
+In order to prevent from breaking other userspace programs and to
+inject failures into only a specific code or process, process filter and
+stacktrace filter are available. Without using them the system would be
+almost unusable.
+
+Now I'm stuck on the script in fault-injection.txt with random 700
+modules. This script just tries to load/unload for all available kernel
+modules. It usually get several oopses or CPU soft lockup now.  It
+seems that relatively large number of them involved around driver model
+(drivers/base/*). (I hope recent large number of error handle fixes
+especially by Jeff Garzik fix them)
+
+> Also, one place where this infrastructure could be of benefit is in device
+> drivers: simulate a bad sector on the disk, a pulled cable, a timeout
+> reading from a status register, etc.  If that works well and is useful then
+> I can see us encouraging driver developers to wire up fault-injection in
+> the major drivers.
 > 
+> Hence it would be useful at some stage to go in and to actually do all this
+> for a particular driver.  As an example implementation for others to
+> emulate and as a test for the fault-injection infrastructure itself - we
+> may discover that new capabilities are needed as this work is done.
+> 
+> I wouldn't say this is an urgent thing to be doing, but it is a logical
+> next step..
 
-Please consider applying this patches.
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)
-
-
-----
-[PATCH] Fix 'headers_install' with separate output directory
-
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-
-diff --git a/Makefile b/Makefile
-index 80dac02..bdf7c18 100644
---- a/Makefile
-+++ b/Makefile
-@@ -932,7 +932,7 @@ headers_install_all: include/linux/versi
-
- PHONY += headers_install
- headers_install: include/linux/version.h scripts_basic FORCE
--	@if [ ! -r include/asm-$(ARCH)/Kbuild ]; then \
-+	@if [ ! -r $(srctree)/include/asm-$(ARCH)/Kbuild ]; then \
- 	  echo '*** Error: Headers not exportable for this architecture ($(ARCH))'; \
- 	  exit 1 ; fi
- 	$(Q)$(MAKE) $(build)=scripts scripts/unifdef
-
-
-
----
-
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-
-diff --git a/scripts/Makefile.headersinst b/scripts/Makefile.headersinst
-index cac8f21..6a7b740 100644
---- a/scripts/Makefile.headersinst
-+++ b/scripts/Makefile.headersinst
-@@ -168,7 +168,7 @@ ifdef GENASM
- 	$(call cmd,gen)
-
- else
--$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-+$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(objtree)/$(obj)/%.h $(KBUILDFILES)
- 	$(call cmd,o_hdr_install)
-
- $(header-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-
-
+Yes. I'm learning from md/faulty and scsi-debug module what they are
+doing and how to integrate such kind of features in general form.
 

@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWJMRut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWJMRvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751677AbWJMRut (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWJMRut
+	id S1751757AbWJMRvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWJMRvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:50:49 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:46194 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751677AbWJMRus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:50:48 -0400
+	Fri, 13 Oct 2006 13:51:16 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:30140 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751757AbWJMRvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:51:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=T31Xkr2WKbtqL+FU2mAS+kFhCIpuFo3+Cfn7786XTSCxX9FoezEWGB3VnCL+DzyrC3cZCoLw2TVoEzHFOT7yQGLyiwRKyLFiudYWNEAYIBruMjhK1TbP2v1CYotbgwTZ3ajl6tIl1OpQvQv2wa+kAC7D/s2OgN6a9mdaBdx3V08=
-Date: Sat, 14 Oct 2006 02:51:16 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>
-Subject: Re: [patch 4/7] fault-injection capability for alloc_pages()
-Message-ID: <20061013175116.GC29079@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	ak@suse.de, Don Mullis <dwm@meer.net>
-References: <20061012074305.047696736@gmail.com> <452df22a.6ff794a4.60eb.4092@mx.google.com> <20061012144042.b6d43c01.akpm@osdl.org>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WUKHPrB3o+5Q5V8nA4sBJx4/4SqrnTj5Se1pHBsSJiNM4o5w8om/OASQQZKXiL1xfEn8P1JN04YV3jbcHVHMz07JL2IYrQkjxFh6ExSviw4jQtNclgrmdPQQaY33mxtBCQa1eEvyttfsE3vBf5eJLbsejaq6JBDpNWVcSee6OQE=
+Message-ID: <28bb77d30610131051p167c967jfdd3b246b466d86f@mail.gmail.com>
+Date: Fri, 13 Oct 2006 10:51:11 -0700
+From: "Steven Truong" <midair77@gmail.com>
+To: "Jean-Marc Saffroy" <saffroy@gmail.com>
+Subject: Re: [Crash-utility] Re: kdump/kexec/crash on vmcore file
+Cc: "Vivek Goyal" <vgoyal@in.ibm.com>, linux-kernel@vger.kernel.org,
+       crash-utility@redhat.com
+In-Reply-To: <Pine.LNX.4.64.0610131727270.4785@erda.mds>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061012144042.b6d43c01.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
+	 <20061013141446.GA27375@in.ibm.com>
+	 <Pine.LNX.4.64.0610131727270.4785@erda.mds>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 02:40:42PM -0700, Andrew Morton wrote:
+Thank Jean-Marc.  I am going to try your tool too.
 
-> What I found was a reasonable fix for this problem was to limit the
-> failures to those requests which did not have __GFP_HIGHMEM set.  That way,
-> userspace allocations work, but kernel-internal allocations are subject to
-> failures.
-
-This is what I want especally when I ran the script in fault-inject.txt.
-This would be quite useful.
-
+On 10/13/06, Jean-Marc Saffroy <saffroy@gmail.com> wrote:
+> Steven,
+>
+> I see you tried using gdb, maybe a tool I wrote could help you:
+>    http://jeanmarc.saffroy.free.fr/kdump2gdb/
+>
+> Basically it will convert the kdump core to a slightly different core that
+> is suitable for gdb, as well as a gdb script that loads kernel modules at
+> the right offsets. Then maybe you can grab a backtrace of the faulting
+> process ("bt full" can be nice) and post it to l-k.
+>
+>
+> Cheers,
+>
+> --
+> saffroy@gmail.com
+>

@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWJMQ6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWJMRDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbWJMQ6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWJMQ6Y
+	id S1751284AbWJMRDW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWJMRDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:58:24 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:54967 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751388AbWJMQ6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:58:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=WJm8as0qIDO420QeUaFS5icySpzFaA5EMdlIWI9OquqavlNf7BrbRCgs3wmq9P3Xx6ystAvLL2/HlD5o50lEeQzzVAOXVATxTeZSiqrxqFLGUkWjP+rV/dYP/IfGpCjU3gXBbjnC0VwSkjay/E7rZFt1pfT1eQIlMqRDhAxOlXQ=
-Reply-To: andrew.j.wade@gmail.com
-To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: Can context switches be faster?
-Date: Fri, 13 Oct 2006 12:56:42 -0400
-User-Agent: KMail/1.9.1
-Cc: andrew.j.wade@gmail.com, Phillip Susi <psusi@cfl.rr.com>,
-       linux-kernel@vger.kernel.org
-References: <452E62F8.5010402@comcast.net> <200610122254.10578.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <452F2433.2010307@comcast.net>
-In-Reply-To: <452F2433.2010307@comcast.net>
+	Fri, 13 Oct 2006 13:03:22 -0400
+Received: from excu-mxob-2.symantec.com ([198.6.49.23]:32236 "EHLO
+	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
+	id S1751284AbWJMRDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:03:21 -0400
+Date: Fri, 13 Oct 2006 18:03:08 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: RE: Hugepage regression
+In-Reply-To: <000201c6ecc0$565cdc00$cb34030a@amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.64.0610131744580.14935@blonde.wat.veritas.com>
+References: <000201c6ecc0$565cdc00$cb34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610131258.15451.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Oct 2006 17:02:57.0576 (UTC) FILETIME=[6E86DA80:01C6EEE9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 October 2006 01:29, John Richard Moser wrote:
-> True.  You can trick the MMU into faulting into the kernel (PaX does
-> this to apply non-executable pages-- pages, not halves of VM-- on x86),
+On Tue, 10 Oct 2006, Chen, Kenneth W wrote:
+> Hugh Dickins wrote on Tuesday, October 10, 2006 1:10 PM
+> > > can we reverse that order (call unmap_region
+> > > and then nulls out vma->vmfile and fput)?
+> > 
+> > I'm pretty sure we cannot: the ordering is quite intentional, that if
+> > a driver ->mmap failed, then it'd be wrong to call down to driver in
+> > the unmap_region (if a driver is nicely behaved, that unmap_region
+> > shouldn't be unnecessary; but some do rely on us clearing ptes there).
 
-Oooh, that is a neat hack!
+Looking at it again, my explanation seems wrong: I can't see any danger
+of calling down to the _driver_ there (there's no remove_vma): rather,
+it's __remove_shared_vm_struct we're avoiding by setting vm_file NULL.
 
-> but it's orders of magnitude slower as I understand and the petty gains
-> you can get over the hardware MMU doing it are not going to outweigh it.
+> 
+> Even not something like the following?  I believe you that nullifying
+> vma->vm_file can not be done after unmap_region(),
 
-It's architecture-dependent; not all architectures are even capeable of
-walking the page table trees in hardware. They compensate with
-lightweight traps for TLB cache misses. 
+Yet in your patch below, you do nullify vm_file _after_ unmap_region.
 
-Andrew Wade
+> I just want to make sure we are talking the same thing.
+
+So I'm not sure if we are!
+
+> It looks OK to me to defer the fput in the do_mmap_pgoff clean up path.
+
+Yes, it would be quite okay to defer the fput until after the
+unmap_region; but there's no point in making that change, is there?
+
+Hugh (sorry, I was off sick for a couple of days)
+
+> 
+> 
+> --- ./mm/mmap.c.orig	2006-10-10 15:58:17.000000000 -0700
+> +++ ./mm/mmap.c	2006-10-10 15:59:02.000000000 -0700
+> @@ -1159,11 +1159,12 @@ out:	
+>  unmap_and_free_vma:
+>  	if (correct_wcount)
+>  		atomic_inc(&inode->i_writecount);
+> -	vma->vm_file = NULL;
+> -	fput(file);
+>  
+>  	/* Undo any partial mapping done by a device driver. */
+>  	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
+> +
+> +	vma->vm_file = NULL;
+> +	fput(file);
+>  	charged = 0;
+>  free_vma:
+>  	kmem_cache_free(vm_area_cachep, vma);
+> 

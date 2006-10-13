@@ -1,325 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWJMVJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751885AbWJMVQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751931AbWJMVJW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 17:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWJMVJW
+	id S1751885AbWJMVQe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 17:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWJMVQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 17:09:22 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:64493 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1751931AbWJMVJT (ORCPT
+	Fri, 13 Oct 2006 17:16:34 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:28075 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1751885AbWJMVQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 17:09:19 -0400
-Message-id: <20547230732101616405@wsc.cz>
-Subject: [PATCH 7/7] Char: stallion, remove many prototypes
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Fri, 13 Oct 2006 23:09:30 +0200 (CEST)
+	Fri, 13 Oct 2006 17:16:33 -0400
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: dipankar@in.ibm.com
+Subject: Re: 2.6.18-rt1
+Date: Fri, 13 Oct 2006 23:18:01 +0200
+User-Agent: KMail/1.9.4
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+References: <20060920141907.GA30765@elte.hu> <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com>
+In-Reply-To: <20060930181804.GA28768@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610132318.02512.annabellesgarden@yahoo.de>
+X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-stallion, remove many prototypes
+Am Samstag, 30. September 2006 20:18 schrieb Dipankar Sarma:
+> On Sat, Sep 30, 2006 at 02:06:04PM -0400, Lee Revell wrote:
+> > On Wed, 2006-09-20 at 16:19 +0200, Ingo Molnar wrote:
+> > > I'm pleased to announce the 2.6.18-rt1 tree, which can be downloaded 
+> > > from the usual place:
+> > > 
+> > >    http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > I got this Oops with -rt3, looks RCU related.  Apologies in advance if
+> > it's already known.
+> > 
+> > Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
+> >  [<ffffffff802aafa7>] __rcu_read_unlock+0x2e/0x82
+> > PGD 46a3067 PUD 4e27067 PMD 0 
+> > Oops: 0002 [1] PREEMPT SMP 
+> > CPU 1 
+> 
+> I see a very similar crash while running rcutorture on 2.6.18-mm1 and
+> my rcu patchset that has rcupreempt stuff rom -rt. I don't see this
+> while running on 2.6.18-rc3, but then rc3 had an older version
+> of rcutorture. I am working on narrowing it down.
+> 
+> The following script reproduces the problem quickly (within
+> a couple of minutes) in my 4-cpu x86_64 system -
+> 
+> #! /bin/sh
+> for ((i=0 ; i<200 ; i++))
+> do
+>         echo "Starting pass $i"
+>         modprobe rcutorture stat_interval=10 # test_no_idle_hz=1 shuffle_interval=5
+>         sleep 30
+>         rmmod rcutorture
+>         dmesg | sed -n -e '/^rcutorture: --- End of test:/p' | tail -1
+> done
+> exit 0
+> 
 
-Many prototypes are useless, since functions are declared before they are
-called. Also some code was easy to move to resolve this dependency and delete
-prototypes.
+Bug just happened here on a tainted UP x86_64 running rt4.
+IIRC this is the second time in 2 weeks or so.
+Machine seams to be fine still after the oops...
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+<Oops>
+Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+ [<ffffffff802a1b21>] __rcu_read_unlock+0x2e/0x80
+PGD 3b616067 PUD 1718b067 PMD 0
+Oops: 0002 [1] PREEMPT
+CPU 0
+Modules linked in: autofs4 sunrpc video button ac lp parport_pc parport nvram snd_via82xx gameport snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq nvidia snd_pcm_oss snd_mixer_oss snd_pcm ehci_hcd uhci_hcd snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi pcspkr snd_seq_device snd i2c_viapro i2c_core r8169 soundcore ext3 jbd
+Pid: 7102, comm: sh Tainted: P      2.6.18-rt4 #4
+RIP: 0010:[<ffffffff802a1b21>]  [<ffffffff802a1b21>] __rcu_read_unlock+0x2e/0x80
+RSP: 0018:ffff8100189ebc00  EFLAGS: 00010046
+RAX: 0000000000000000 RBX: ffff81003fd0d450 RCX: 0000000000000246
+RDX: 0000000000000000 RSI: ffff81003e351008 RDI: ffff81003fd0d458
+RBP: ffff81003fd0d450 R08: ffff81003e351005 R09: 0000000000000000
+R10: 0000000000000000 R11: ffffffff8022a714 R12: ffff81003fd0d458
+R13: ffff81003f43b070 R14: ffff8100189ebcb8 R15: 000000000023605a
+FS:  00002ac8f7d9dd50(0000) GS:ffffffff8053f000(0000) knlGS:00000000f7fa96c0
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000000000000000 CR3: 000000003582f000 CR4: 00000000000006e0
+Process sh (pid: 7102, threadinfo ffff8100189ea000, task ffff81000c8d2080)
+Stack:  ffffffff80208d3b 00000001000200d2 00000003804686b0 ffff81003e351005
+ 00000000000041ed ffff8100189ebe48 ffff81003f7bd788 ffff81003fde8cc0
+ ffff8100189ebe48 ffff8100189ebcb8 ffffffff8020be2c 00000000000041ed
+Call Trace:
+ [<ffffffff80208d3b>] __d_lookup+0x10a/0x11c
+ [<ffffffff8020be2c>] do_lookup+0x2a/0x173
+ [<ffffffff802090f9>] __link_path_walk+0x3ac/0xf4a
+ [<ffffffff8020d93b>] link_path_walk+0x5a/0xe1
+ [<ffffffff8020bc82>] do_path_lookup+0x26d/0x2e9
+ [<ffffffff80210f67>] getname+0x15b/0x1c1
+ [<ffffffff802216e3>] __user_walk_fd+0x37/0x4c
+ [<ffffffff802265ce>] vfs_stat_fd+0x1b/0x4a
+ [<ffffffff8022143c>] sys_newstat+0x19/0x31
+ [<ffffffff8025a7a1>] error_exit+0x0/0x84
+ [<ffffffff80259ece>] system_call+0x7e/0x83
 
----
-commit ed395025a185ff6da5a564a55d320ffd8162304c
-tree c49af51573d95186f453d520a9cacc70e5dfcfa6
-parent d98c2128256f2d3e12868353ae0b07e68f47428a
-author Jiri Slaby <jirislaby@gmail.com> Fri, 13 Oct 2006 00:27:22 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Fri, 13 Oct 2006 00:27:22 +0200
 
- drivers/char/stallion.c |  222 +++++++++++++++++++----------------------------
- 1 files changed, 91 insertions(+), 131 deletions(-)
+Code: ff 08 65 48 8b 04 25 00 00 00 00 48 c7 80 a8 00 00 00 00 00
+RIP  [<ffffffff802a1b21>] __rcu_read_unlock+0x2e/0x80
+ RSP <ffff8100189ebc00>
+CR2: 0000000000000000
+</Oops>
 
-diff --git a/drivers/char/stallion.c b/drivers/char/stallion.c
-index 51f46c2..8b49927 100644
---- a/drivers/char/stallion.c
-+++ b/drivers/char/stallion.c
-@@ -450,51 +450,11 @@ #define	TOLOWER(x)	((((x) >= 'A') && ((x
-  *	Declare all those functions in this driver!
-  */
- 
--static void	stl_argbrds(void);
--static int	stl_parsebrd(struct stlconf *confp, char **argp);
--
--static unsigned long stl_atol(char *str);
--
--static int	stl_open(struct tty_struct *tty, struct file *filp);
--static void	stl_close(struct tty_struct *tty, struct file *filp);
--static int	stl_write(struct tty_struct *tty, const unsigned char *buf, int count);
--static void	stl_putchar(struct tty_struct *tty, unsigned char ch);
--static void	stl_flushchars(struct tty_struct *tty);
--static int	stl_writeroom(struct tty_struct *tty);
--static int	stl_charsinbuffer(struct tty_struct *tty);
--static int	stl_ioctl(struct tty_struct *tty, struct file *file, unsigned int cmd, unsigned long arg);
--static void	stl_settermios(struct tty_struct *tty, struct termios *old);
--static void	stl_throttle(struct tty_struct *tty);
--static void	stl_unthrottle(struct tty_struct *tty);
--static void	stl_stop(struct tty_struct *tty);
--static void	stl_start(struct tty_struct *tty);
--static void	stl_flushbuffer(struct tty_struct *tty);
--static void	stl_breakctl(struct tty_struct *tty, int state);
--static void	stl_waituntilsent(struct tty_struct *tty, int timeout);
--static void	stl_sendxchar(struct tty_struct *tty, char ch);
--static void	stl_hangup(struct tty_struct *tty);
- static int	stl_memioctl(struct inode *ip, struct file *fp, unsigned int cmd, unsigned long arg);
--static int	stl_portinfo(struct stlport *portp, int portnr, char *pos);
--static int	stl_readproc(char *page, char **start, off_t off, int count, int *eof, void *data);
--
- static int	stl_brdinit(struct stlbrd *brdp);
--static int	stl_initports(struct stlbrd *brdp, struct stlpanel *panelp);
--static int	stl_getserial(struct stlport *portp, struct serial_struct __user *sp);
--static int	stl_setserial(struct stlport *portp, struct serial_struct __user *sp);
--static int	stl_getbrdstats(combrd_t __user *bp);
- static int	stl_getportstats(struct stlport *portp, comstats_t __user *cp);
- static int	stl_clrportstats(struct stlport *portp, comstats_t __user *cp);
--static int	stl_getportstruct(struct stlport __user *arg);
--static int	stl_getbrdstruct(struct stlbrd __user *arg);
- static int	stl_waitcarrier(struct stlport *portp, struct file *filp);
--static int	stl_eiointr(struct stlbrd *brdp);
--static int	stl_echatintr(struct stlbrd *brdp);
--static int	stl_echmcaintr(struct stlbrd *brdp);
--static int	stl_echpciintr(struct stlbrd *brdp);
--static int	stl_echpci64intr(struct stlbrd *brdp);
--static void	stl_offintr(void *private);
--static struct stlbrd *stl_allocbrd(void);
--static struct stlport *stl_getport(int brdnr, int panelnr, int portnr);
- 
- /*
-  *	CD1400 uart specific handling functions.
-@@ -700,31 +660,6 @@ static struct class *stallion_class;
-  *	Check for any arguments passed in on the module load command line.
-  */
- 
--static void __init stl_argbrds(void)
--{
--	struct stlconf	conf;
--	struct stlbrd	*brdp;
--	int		i;
--
--	pr_debug("stl_argbrds()\n");
--
--	for (i = stl_nrbrds; (i < stl_nargs); i++) {
--		memset(&conf, 0, sizeof(conf));
--		if (stl_parsebrd(&conf, stl_brdsp[i]) == 0)
--			continue;
--		if ((brdp = stl_allocbrd()) == NULL)
--			continue;
--		stl_nrbrds = i + 1;
--		brdp->brdnr = i;
--		brdp->brdtype = conf.brdtype;
--		brdp->ioaddr1 = conf.ioaddr1;
--		brdp->ioaddr2 = conf.ioaddr2;
--		brdp->irq = conf.irq;
--		brdp->irqtype = conf.irqtype;
--		stl_brdinit(brdp);
--	}
--}
--
- /*****************************************************************************/
- 
- /*
-@@ -826,6 +761,31 @@ static struct stlbrd *stl_allocbrd(void)
- 	return brdp;
- }
- 
-+static void __init stl_argbrds(void)
-+{
-+	struct stlconf	conf;
-+	struct stlbrd	*brdp;
-+	int		i;
-+
-+	pr_debug("stl_argbrds()\n");
-+
-+	for (i = stl_nrbrds; (i < stl_nargs); i++) {
-+		memset(&conf, 0, sizeof(conf));
-+		if (stl_parsebrd(&conf, stl_brdsp[i]) == 0)
-+			continue;
-+		if ((brdp = stl_allocbrd()) == NULL)
-+			continue;
-+		stl_nrbrds = i + 1;
-+		brdp->brdnr = i;
-+		brdp->brdtype = conf.brdtype;
-+		brdp->ioaddr1 = conf.ioaddr1;
-+		brdp->ioaddr2 = conf.ioaddr2;
-+		brdp->irq = conf.irq;
-+		brdp->irqtype = conf.irqtype;
-+		stl_brdinit(brdp);
-+	}
-+}
-+
- /*****************************************************************************/
- 
- static int stl_open(struct tty_struct *tty, struct file *filp)
-@@ -972,6 +932,52 @@ static int stl_waitcarrier(struct stlpor
- 
- /*****************************************************************************/
- 
-+static void stl_flushbuffer(struct tty_struct *tty)
-+{
-+	struct stlport	*portp;
-+
-+	pr_debug("stl_flushbuffer(tty=%p)\n", tty);
-+
-+	if (tty == NULL)
-+		return;
-+	portp = tty->driver_data;
-+	if (portp == NULL)
-+		return;
-+
-+	stl_flush(portp);
-+	tty_wakeup(tty);
-+}
-+
-+/*****************************************************************************/
-+
-+static void stl_waituntilsent(struct tty_struct *tty, int timeout)
-+{
-+	struct stlport	*portp;
-+	unsigned long	tend;
-+
-+	pr_debug("stl_waituntilsent(tty=%p,timeout=%d)\n", tty, timeout);
-+
-+	if (tty == NULL)
-+		return;
-+	portp = tty->driver_data;
-+	if (portp == NULL)
-+		return;
-+
-+	if (timeout == 0)
-+		timeout = HZ;
-+	tend = jiffies + timeout;
-+
-+	while (stl_datastate(portp)) {
-+		if (signal_pending(current))
-+			break;
-+		msleep_interruptible(20);
-+		if (time_after_eq(jiffies, tend))
-+			break;
-+	}
-+}
-+
-+/*****************************************************************************/
-+
- static void stl_close(struct tty_struct *tty, struct file *filp)
- {
- 	struct stlport	*portp;
-@@ -1401,6 +1407,26 @@ static int stl_ioctl(struct tty_struct *
- 
- /*****************************************************************************/
- 
-+/*
-+ *	Start the transmitter again. Just turn TX interrupts back on.
-+ */
-+
-+static void stl_start(struct tty_struct *tty)
-+{
-+	struct stlport	*portp;
-+
-+	pr_debug("stl_start(tty=%p)\n", tty);
-+
-+	if (tty == NULL)
-+		return;
-+	portp = tty->driver_data;
-+	if (portp == NULL)
-+		return;
-+	stl_startrxtx(portp, -1, 1);
-+}
-+
-+/*****************************************************************************/
-+
- static void stl_settermios(struct tty_struct *tty, struct termios *old)
- {
- 	struct stlport	*portp;
-@@ -1495,26 +1521,6 @@ static void stl_stop(struct tty_struct *
- /*****************************************************************************/
- 
- /*
-- *	Start the transmitter again. Just turn TX interrupts back on.
-- */
--
--static void stl_start(struct tty_struct *tty)
--{
--	struct stlport	*portp;
--
--	pr_debug("stl_start(tty=%p)\n", tty);
--
--	if (tty == NULL)
--		return;
--	portp = tty->driver_data;
--	if (portp == NULL)
--		return;
--	stl_startrxtx(portp, -1, 1);
--}
--
--/*****************************************************************************/
--
--/*
-  *	Hangup this port. This is pretty much like closing the port, only
-  *	a little more brutal. No waiting for data to drain. Shutdown the
-  *	port and maybe drop signals.
-@@ -1554,24 +1560,6 @@ static void stl_hangup(struct tty_struct
- 
- /*****************************************************************************/
- 
--static void stl_flushbuffer(struct tty_struct *tty)
--{
--	struct stlport	*portp;
--
--	pr_debug("stl_flushbuffer(tty=%p)\n", tty);
--
--	if (tty == NULL)
--		return;
--	portp = tty->driver_data;
--	if (portp == NULL)
--		return;
--
--	stl_flush(portp);
--	tty_wakeup(tty);
--}
--
--/*****************************************************************************/
--
- static void stl_breakctl(struct tty_struct *tty, int state)
- {
- 	struct stlport	*portp;
-@@ -1589,34 +1577,6 @@ static void stl_breakctl(struct tty_stru
- 
- /*****************************************************************************/
- 
--static void stl_waituntilsent(struct tty_struct *tty, int timeout)
--{
--	struct stlport	*portp;
--	unsigned long	tend;
--
--	pr_debug("stl_waituntilsent(tty=%p,timeout=%d)\n", tty, timeout);
--
--	if (tty == NULL)
--		return;
--	portp = tty->driver_data;
--	if (portp == NULL)
--		return;
--
--	if (timeout == 0)
--		timeout = HZ;
--	tend = jiffies + timeout;
--
--	while (stl_datastate(portp)) {
--		if (signal_pending(current))
--			break;
--		msleep_interruptible(20);
--		if (time_after_eq(jiffies, tend))
--			break;
--	}
--}
--
--/*****************************************************************************/
--
- static void stl_sendxchar(struct tty_struct *tty, char ch)
- {
- 	struct stlport	*portp;
+Thanks
+
+      Karsten

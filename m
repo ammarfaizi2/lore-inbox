@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751902AbWJMU7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWJMVAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751902AbWJMU7t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751909AbWJMU7t
+	id S1751913AbWJMVAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 17:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWJMVAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:59:49 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:53266 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751902AbWJMU7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:59:48 -0400
-Date: Fri, 13 Oct 2006 16:59:45 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Adam Belay <abelay@MIT.EDU>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Bug in PCI core
-In-Reply-To: <20061013191854.GF11633@parisc-linux.org>
-Message-ID: <Pine.LNX.4.44L0.0610131657540.8377-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Oct 2006 17:00:24 -0400
+Received: from vena.lwn.net ([206.168.112.25]:1990 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S1751913AbWJMVAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 17:00:23 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,RFC] Add __GFP_ZERO to GFP_LEVEL_MASK 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 13 Oct 2006 13:46:35 PDT."
+             <20061013134635.a983e4d7.akpm@osdl.org> 
+Date: Fri, 13 Oct 2006 15:00:22 -0600
+Message-ID: <30805.1160773222@lwn.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006, Matthew Wilcox wrote:
+Andrew Morton <akpm@osdl.org> wrote:
 
-> On Fri, Oct 13, 2006 at 01:57:48PM -0400, Alan Stern wrote:
-> > Would it be okay for pci_block_user_cfg_access() to use its own cache, so 
-> > it doesn't interfere with data previously cached by pci_save_state()?
+> It would be a bit odd to pass __GFP_ZERO into the slab allocator.  Slab
+> doesn't need that hint: it has its own ways of initialising the memory.
 > 
-> My suggestion is just to require that the callers have previously called
-> pci_save_state().  The PCI PM stack already has, and it's a one-line
-> change to the IPR driver.
+> What is the callsite?
 
-Okay.  Would you like to write a patch with that fix?  Be sure to add a 
-comment explaining the need for a previous call to pci_save_state().
+It's vmalloc_user(), which does this:
 
-At least it will get things going for now, even if it isn't perfectly
-correct in the long run.
+  ret = __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO, PAGE_KERNEL);
 
-Alan Stern
-
+jon

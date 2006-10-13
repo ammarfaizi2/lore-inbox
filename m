@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWJMOeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWJMOeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWJMOeK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 10:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWJMOeK
+	id S1750879AbWJMOeq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 10:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWJMOeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 10:34:10 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:19153 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750898AbWJMOeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 10:34:09 -0400
-Date: Fri, 13 Oct 2006 10:33:59 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Zach Brown'" <zach.brown@oracle.com>,
-       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
-       "Lahaise, Benjamin C" <benjamin.c.lahaise@intel.com>,
-       linux-kernel@vger.kernel.org, "'linux-aio'" <linux-aio@kvack.org>
-Subject: Re: [patch] remove redundant kioctx->users ref count
-Message-ID: <20061013143359.GK4141@kvack.org>
-References: <000201c6ee59$cba3fda0$db34030a@amr.corp.intel.com>
+	Fri, 13 Oct 2006 10:34:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7395 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750855AbWJMOep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 10:34:45 -0400
+Subject: Re: [PATCH] drivers/char/riscom8.c: save_flags()/cli()/sti()
+	removal
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Lad <amol@verismonetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+In-Reply-To: <1160739628.19143.376.camel@amol.verismonetworks.com>
+References: <1160739628.19143.376.camel@amol.verismonetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Oct 2006 16:00:57 +0100
+Message-Id: <1160751657.25218.47.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000201c6ee59$cba3fda0$db34030a@amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 12, 2006 at 04:54:46PM -0700, Chen, Kenneth W wrote:
-> @@ -1015,9 +1010,6 @@ put_rq:
->  	if (waitqueue_active(&ctx->wait))
->  		wake_up(&ctx->wait);
->  
-> -	if (ret)
-> -		put_ioctx(ctx);
-> -
->  	return ret;
->  }
+Ar Gwe, 2006-10-13 am 17:10 +0530, ysgrifennodd Amol Lad:
+> Removed save_flags()/cli()/sti() and used (light weight) spin locks
+> 
 
-This part makes me worry -- at this point we no longer have anything 
-pinning the ioctx, yet we touch ->wait after dropping the lock.  The 
-only way around this is if rcu is introduced in the final free of an 
-ioctx to ensure the structure remains around for a sufficient grace 
-period.
+Have you tested this and verified there are no recursive locking cases
+in your changes ?
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.

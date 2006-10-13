@@ -1,77 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWJMBDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWJMBNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWJMBDN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 21:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWJMBDN
+	id S1751437AbWJMBNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 21:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWJMBNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 21:03:13 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:2478 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1751374AbWJMBDM (ORCPT
+	Thu, 12 Oct 2006 21:13:22 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:3302 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1750711AbWJMBNV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 21:03:12 -0400
-Date: Fri, 13 Oct 2006 03:02:59 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl,
-       Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Why aren't partitions limited to fit within the device?
-Message-ID: <20061013010259.GA3791@apps.cwi.nl>
-References: <17710.54489.486265.487078@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17710.54489.486265.487078@cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
+	Thu, 12 Oct 2006 21:13:21 -0400
+Date: Fri, 13 Oct 2006 03:12:55 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Hemminger <shemminger@osdl.org>, mlindner@syskonnect.de,
+       rroesler@syskonnect.de, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
+ skge_resume() properly
+In-Reply-To: <20061012175013.87564a57.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0610130310120.29022@twin.jikos.cz>
+References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
+ <20061012152512.66f147b8@freekitty> <Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
+ <20061012154714.6924f465@freekitty> <Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
+ <20061012175013.87564a57.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 09:50:49AM +1000, Neil Brown wrote:
+On Thu, 12 Oct 2006, Andrew Morton wrote:
 
-> So:  Is there any good reason to not clip the partitions to fit
-> within the device - and discard those that are completely beyond
-> the end of the device??
+> >  	pci_set_power_state(pdev, PCI_D0);
+> >  	pci_restore_state(pdev);
+> > -	pci_enable_device(pdev);
+> > +	ret = pci_enable_device(pdev);
+> > +	if (ret) {
+> > +		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
+> > +				dev->name);
+> > +		unregister_netdev(dev);
+> This looks rather wrong - skge_exit() will run unregister_netdev() again.
 
-Almost precisely this issue came up recently.
-If I recall correctly at that time the idea was to discard
-partitions that do not fit on the known disk. A bad idea.
-Your idea is better, namely to clip partitions.
-Still, there are a few reasons why one should be careful.
+You are of course right (the problem was also spotted by Russell King). 
+This I believe is the correct one for the sk98lin case.
 
-One is the existence of clipped disks. There are various ways of
-making a disk appear smaller than it really is - there may be
-a HPA or DCO or so, or just a capacity-limiting jumper.
-This may mean that the kernel does not really know the size
-of the disk. The jumper may cause IDENTIFY to return a small size
-while actual I/O succeeds beyond that. Or, a SETMAX command is
-needed to make all of a partition available. Etc.
+[PATCH] fix sk98lin driver, ignoring return value from pci_enable_device()
 
-One is the numbering of partitions. People are very unhappy
-when something causes their partitions to be renumbered.
-That is an argument against the discarding.
+add check of return value to _resume() function of sk98lin driver.
 
-In the forensics situation you want to take a copy of a disk.
-But often that is impractical - copying this 500GB disk takes too long,
-or the scratch disk is not large enough, and the copy only holds the
-initial part of a disk.
-You do not want to discard such partial partitions - maybe clipping is OK,
-although I would prefer to see precisely the same data on the copy as on
-the original, except of course that actually accessing nonexistent data
-returns an I/O error, but discarding would again cause renumbering. Bad.
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
 
-[As an aside: for the past twelve years or so I have muttered once a year
- that it is bad that Linux does automatic probing for partitions.
- It will be mistaken every now and then.
- With some partition types there is a fairly large probability
- that random data is seen as a partition table.
- A correct system does not guess (unless asked to guess by the user).
- A correct system is set up in such a way that the boot parameters tell it
- 1. the root disk, 2. the partition type of the root disk,
- 3. the root partition, 4. the filesystem type of the root filesystem.
- Now the root disk can contain configuration data that causes the system
- to look at specified disks in specified ways, or to do default things.
+---
 
- With a system that was set up correctly, your nonsense partitions
- would never have been found by the kernel, and I suppose mount by label
- would not have encountered any problems.]
+ drivers/net/sk98lin/skge.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
 
-Andries
+diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
+index d4913c3..3a9323d 100644
+--- a/drivers/net/sk98lin/skge.c
++++ b/drivers/net/sk98lin/skge.c
+@@ -5070,7 +5070,12 @@ static int skge_resume(struct pci_dev *p
+ 
+ 	pci_set_power_state(pdev, PCI_D0);
+ 	pci_restore_state(pdev);
+-	pci_enable_device(pdev);
++	ret = pci_enable_device(pdev);
++	if (ret) {
++		printk(KERN_WARNING "sk98lin: unable to enable device %s in resume\n",
++				dev->name);
++		goto out_err;
++	}	
+ 	pci_set_master(pdev);
+ 	if (pAC->GIni.GIMacsFound == 2)
+ 		ret = request_irq(dev->irq, SkGeIsr, IRQF_SHARED, "sk98lin", dev);
+@@ -5078,10 +5083,8 @@ static int skge_resume(struct pci_dev *p
+ 		ret = request_irq(dev->irq, SkGeIsrOnePort, IRQF_SHARED, "sk98lin", dev);
+ 	if (ret) {
+ 		printk(KERN_WARNING "sk98lin: unable to acquire IRQ %d\n", dev->irq);
+-		pAC->AllocFlag &= ~SK_ALLOC_IRQ;
+-		dev->irq = 0;
+-		pci_disable_device(pdev);
+-		return -EBUSY;
++		ret = -EBUSY;
++		goto out_err;
+ 	}
+ 
+ 	netif_device_attach(dev);
+@@ -5098,6 +5101,13 @@ static int skge_resume(struct pci_dev *p
+ 	}
+ 
+ 	return 0;
++out_err:
++	pAC->AllocFlag &= ~SK_ALLOC_IRQ;
++	dev->irq = 0;
++	pci_disable_device(pdev);
++
++	return ret;
++
+ }
+ #else
+ #define skge_suspend NULL
+
+-- 
+Jiri Kosina

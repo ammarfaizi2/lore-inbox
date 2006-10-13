@@ -1,36 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751848AbWJMTln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWJMTnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751848AbWJMTln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWJMTlm
+	id S1750961AbWJMTnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWJMTnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:41:42 -0400
-Received: from uni20mr.unity.ncsu.edu ([152.1.2.39]:27043 "EHLO
-	uni20mr.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S1751848AbWJMTlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:41:42 -0400
-Subject: Re: [PATCH] Readability improvement of open_exec()
-From: Casey Dahlin <cjdahlin@ncsu.edu>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061013073010.GB13531@infradead.org>
-References: <1160707333.3230.14.camel@localhost.localdomain>
-	 <20061013073010.GB13531@infradead.org>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 15:41:21 -0400
-Message-Id: <1160768481.2885.5.camel@localhost.localdomain>
+	Fri, 13 Oct 2006 15:43:21 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19467 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750961AbWJMTnU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 15:43:20 -0400
+Date: Fri, 13 Oct 2006 14:54:16 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Thomas Tuttle <thinkinginbinary+lkml@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell Inspiron e1405 hangs on lid close in 64-bit mode
+Message-ID: <20061013145415.GC5512@ucw.cz>
+References: <e4cb19870610111010p3da2022bud047163417560033@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.2.0.264296, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.10.13.121942
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e4cb19870610111010p3da2022bud047163417560033@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While you're cleaning up things you can put the whole if statement on
-> one line, it's less than 80 characters long.
+Hi!
+
+> I have a Dell Inspiron e1405 laptop with a Core 2 Duo 
+> processor.
+> Under every 64-bit kernel I have tried yet, it hangs 
+> when I close the
+> lid (or, I would assume, do anything else that activates 
+> System
+> Management Mode).  It works fine under 32-bit mode; 
+> closing the lid
+> turns the LCD off using DPMS.
 > 
+> I understand that this might be entirely outside the 
+> control of the
+> kernel developers, but I would of course love to be able 
+> to use this
+> laptop in 64-bit mode.  What information would be needed 
+> to fix it,
+> and/or how would I go about debugging it?  I've tried 
+> turning the
 
-Ah, true. It was on one two lines back when it was tabbed all the way
-over. It also seems that this mail tool turned the tabs to spaces X( so
-I'll probably have to submit again anyway.
+Modify 64bit kernel entry point to do something trivial (flashing
+character on vga text mode?) then see if lid close breaks it. If so,
+blame smm, and force vendor to fix it.
 
+-- 
+Thanks for all the (sleeping) penguins.

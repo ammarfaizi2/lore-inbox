@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWJMUY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWJMU1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWJMUY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWJMUY4
+	id S1751879AbWJMU1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWJMU1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:24:56 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:47377 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751821AbWJMUYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:24:55 -0400
+	Fri, 13 Oct 2006 16:27:53 -0400
+Received: from web83103.mail.mud.yahoo.com ([216.252.101.32]:61090 "HELO
+	web83103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751879AbWJMU1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:27:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uQ4F5+odqaoBUp5aamtCV7X9XYwaKHjvAAF75yRV9P3WuLRmDBcy/MgDTmYRNW4ZlPeYXkczNJjNMXNU6EoGoFRnHMSlVUbLS1he0SEp0jI/cuSyNTPdFR+wdRYjTEBXMtzLwUhj9lPibc6M7xwUNC+KybIFme5926lB41FxVBM=
-Message-ID: <b6c5339f0610131324y762e3618xcfa961a632bbf458@mail.gmail.com>
-Date: Fri, 13 Oct 2006 16:24:53 -0400
-From: "Bob Copeland" <bcopeland@gmail.com>
-To: "Open Source" <opensource3141@yahoo.com>
-Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20061013172042.21215.qmail@web58113.mail.re3.yahoo.com>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=veJo/OfLKgIm63c1iebN7e8spOcJ7wSabLfMzFe8hNT4cTZnsZNDexfWI1KRh6VLhETr1wEwdnG55UREYbZZDtLXiSaaKe2jB7nur2+/UK3vIFTU+elCYVOg4PXlRuPZOiSfslO79qFpbRWE8KflU5VLfhmSI9d2qMfISm9Ui10=  ;
+Message-ID: <20061013202752.4101.qmail@web83103.mail.mud.yahoo.com>
+Date: Fri, 13 Oct 2006 13:27:52 -0700 (PDT)
+From: Aleksey Gorelov <dared1st@yahoo.com>
+Subject: Re: Machine reboot
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: xhejtman@mail.muni.cz, linux-kernel@vger.kernel.org, magnus.damm@gmail.com,
+       pavel@suse.cz
+In-Reply-To: <452F1142.3000400@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061013172042.21215.qmail@web58113.mail.re3.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/13/06, Open Source <opensource3141@yahoo.com> wrote:
 
-> p.s. My apologies about the word wrap.  I'm using
-> a different mail client than my usual one and didn't
-> realize it was not wrapping automatically.
 
-Why all the cloak and dagger?  You could at least make up a real name.
+--- Auke Kok <auke-jan.h.kok@intel.com> wrote:
 
-Bob
+>
+> >> interesting, do you do that because it specifically fixes a problem you have? if so, I'd 
+> >> like to know about it :)
+> >>
+> >> Auke
+> >>
+> > I'm just trying to localize the issue. 
+> > Since right before machine stalls during reboot I see something like
+> > 
+> > ACPI: PCI interrupt for device 000:00:19.0 disabled
+> > Restarting system.
+> 
+> that's quite a normal message, not sure why that would constitute a problem.
+It's not the problem at all, but served as a hint for me to try unloading driver.
+However, from latest Lukas's findings, it seems that something (_not_ in the e1000 driver) in
+between 2.6.18 & 2.6.19-rc2 fixes it. 
+
+Aleks.

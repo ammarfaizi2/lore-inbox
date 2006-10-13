@@ -1,104 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWJMBNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWJMBOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWJMBNW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 21:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWJMBNW
+	id S1751438AbWJMBOm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 21:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWJMBOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 21:13:22 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:3302 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1750711AbWJMBNV (ORCPT
+	Thu, 12 Oct 2006 21:14:42 -0400
+Received: from msr4.hinet.net ([168.95.4.104]:15316 "EHLO msr4.hinet.net")
+	by vger.kernel.org with ESMTP id S1751438AbWJMBOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 21:13:21 -0400
-Date: Fri, 13 Oct 2006 03:12:55 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Hemminger <shemminger@osdl.org>, mlindner@syskonnect.de,
-       rroesler@syskonnect.de, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
- skge_resume() properly
-In-Reply-To: <20061012175013.87564a57.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610130310120.29022@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
- <20061012152512.66f147b8@freekitty> <Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
- <20061012154714.6924f465@freekitty> <Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
- <20061012175013.87564a57.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Oct 2006 21:14:41 -0400
+Message-ID: <00ac01c6ee64$ef637210$2d32fea9@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <jgarzik@pobox.com>
+References: <004301c6eda6$437ac070$2d32fea9@icplus.com.tw> <20061011195540.06b2ef13.akpm@osdl.org>
+Subject: Re: What is current sundance.c status
+Date: Fri, 13 Oct 2006 09:14:30 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006, Andrew Morton wrote:
+Ok, I will generate those again with descriptions.
 
-> >  	pci_set_power_state(pdev, PCI_D0);
-> >  	pci_restore_state(pdev);
-> > -	pci_enable_device(pdev);
-> > +	ret = pci_enable_device(pdev);
-> > +	if (ret) {
-> > +		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
-> > +				dev->name);
-> > +		unregister_netdev(dev);
-> This looks rather wrong - skge_exit() will run unregister_netdev() again.
+Thank you!
 
-You are of course right (the problem was also spotted by Russell King). 
-This I believe is the correct one for the sk98lin case.
+Best Regards,
+Jesse Huang.
 
-[PATCH] fix sk98lin driver, ignoring return value from pci_enable_device()
+----- Original Message ----- 
+From: "Andrew Morton" <akpm@osdl.org>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
+<jgarzik@pobox.com>
+Sent: Thursday, October 12, 2006 10:55 AM
+Subject: Re: What is current sundance.c status
 
-add check of return value to _resume() function of sk98lin driver.
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+On Thu, 12 Oct 2006 10:29:37 +0800
+"Jesse Huang" <jesse@icplus.com.tw> wrote:
 
----
+>     Would you tell me what is the current IP100A status? Should I
+re-generate patches again. Would it put into kernel or not?
 
- drivers/net/sk98lin/skge.c |   20 +++++++++++++++-----
- 1 files changed, 15 insertions(+), 5 deletions(-)
+I'm sitting on a copy of them.  I didn't send them to Jeff last time
+because:
 
-diff --git a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
-index d4913c3..3a9323d 100644
---- a/drivers/net/sk98lin/skge.c
-+++ b/drivers/net/sk98lin/skge.c
-@@ -5070,7 +5070,12 @@ static int skge_resume(struct pci_dev *p
- 
- 	pci_set_power_state(pdev, PCI_D0);
- 	pci_restore_state(pdev);
--	pci_enable_device(pdev);
-+	ret = pci_enable_device(pdev);
-+	if (ret) {
-+		printk(KERN_WARNING "sk98lin: unable to enable device %s in resume\n",
-+				dev->name);
-+		goto out_err;
-+	}	
- 	pci_set_master(pdev);
- 	if (pAC->GIni.GIMacsFound == 2)
- 		ret = request_irq(dev->irq, SkGeIsr, IRQF_SHARED, "sk98lin", dev);
-@@ -5078,10 +5083,8 @@ static int skge_resume(struct pci_dev *p
- 		ret = request_irq(dev->irq, SkGeIsrOnePort, IRQF_SHARED, "sk98lin", dev);
- 	if (ret) {
- 		printk(KERN_WARNING "sk98lin: unable to acquire IRQ %d\n", dev->irq);
--		pAC->AllocFlag &= ~SK_ALLOC_IRQ;
--		dev->irq = 0;
--		pci_disable_device(pdev);
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto out_err;
- 	}
- 
- 	netif_device_attach(dev);
-@@ -5098,6 +5101,13 @@ static int skge_resume(struct pci_dev *p
- 	}
- 
- 	return 0;
-+out_err:
-+	pAC->AllocFlag &= ~SK_ALLOC_IRQ;
-+	dev->irq = 0;
-+	pci_disable_device(pdev);
-+
-+	return ret;
-+
- }
- #else
- #define skge_suspend NULL
+sundance-remove-txstartthresh-and-rxearlythresh.patch
 
--- 
-Jiri Kosina
+ There's no description of what this patent issue is.
+
+sundance-fix-tx-pause-bug-reset_tx-intr_handler.patch
+
+ There's no description of the bug which got fixed, nor how this patch
+ fixes it.
+
+sundance-change-phy-address-search-from-phy=1-to-phy=0.patch
+
+ There's a (small) possibility that this will break on hardware which
+ _doesn't_ have a phy at address 0.
+
+sundance-correct-initial-and-close-hardware-step.patch
+
+ There's no real description of the bug which is being fixed, nor of how
+ this patch fixes it.
+
+sundance-solve-host-error-problem-in-low-performance-embedded.patch
+
+ No description of what the "host error problem" is, nor of what causes
+ it, nor of how this patch fixes it.
+
+
+So generally these patches are a bit worrying, and it is hard to gauge what
+their risk factor is.
+
+

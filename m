@@ -1,156 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751945AbWJMWQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWJMWQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751945AbWJMWQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 18:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751946AbWJMWQJ
+	id S1751218AbWJMWQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 18:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751925AbWJMWQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 18:16:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49379 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751945AbWJMWQG (ORCPT
+	Fri, 13 Oct 2006 18:16:49 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:5029 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751218AbWJMWQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 18:16:06 -0400
-Date: Fri, 13 Oct 2006 15:14:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Memory Management <linux-mm@kvack.org>, Neil Brown <neilb@suse.de>,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Chris Mason <chris.mason@oracle.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/6] mm: fix pagecache write deadlocks
-Message-Id: <20061013151457.81bb7f03.akpm@osdl.org>
-In-Reply-To: <20061013143616.15438.77140.sendpatchset@linux.site>
-References: <20061013143516.15438.8802.sendpatchset@linux.site>
-	<20061013143616.15438.77140.sendpatchset@linux.site>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 13 Oct 2006 18:16:48 -0400
+Date: Sat, 14 Oct 2006 03:46:24 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rt1
+Message-ID: <20061013221624.GD7477@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060920141907.GA30765@elte.hu> <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com> <200610132318.02512.annabellesgarden@yahoo.de> <20061013212450.GC7477@in.ibm.com> <1160777536.4201.31.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160777536.4201.31.camel@mindpipe>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 18:44:52 +0200 (CEST)
-Nick Piggin <npiggin@suse.de> wrote:
-
-> From: Andrew Morton <akpm@osdl.org> and Nick Piggin <npiggin@suse.de>
+On Fri, Oct 13, 2006 at 06:12:16PM -0400, Lee Revell wrote:
+> On Sat, 2006-10-14 at 02:54 +0530, Dipankar Sarma wrote:
+> > Can you try with nmi_watchdog=0 in the kernel command line ?
+> > 
+> > Paul has an NMI-safe patch for rcupreempt which I am adopting
+> > and testing at the moment. If this works well, I will publish
+> > a new patchset.
+> > 
 > 
-> The idea is to modify the core write() code so that it won't take a pagefault
-> while holding a lock on the pagecache page. There are a number of different
-> deadlocks possible if we try to do such a thing:
+> The bug is too hard to hit for me to provide useful feedback.  I've only
+> seen it once since my original report.
 > 
-> 1.  generic_buffered_write
-> 2.   lock_page
-> 3.    prepare_write
-> 4.     unlock_page+vmtruncate
-> 5.     copy_from_user
-> 6.      mmap_sem(r)
-> 7.       handle_mm_fault
-> 8.        lock_page (filemap_nopage)
-> 9.    commit_write
-> 1.   unlock_page
-> 
-> b. sys_munmap / sys_mlock / others
-> c.  mmap_sem(w)
-> d.   make_pages_present
-> e.    get_user_pages
-> f.     handle_mm_fault
-> g.      lock_page (filemap_nopage)
-> 
-> 2,8	- recursive deadlock if page is same
-> 2,8;2,7	- ABBA deadlock is page is different
-> 2,6;c,g	- ABBA deadlock if page is same
-> 
-> - Instead of copy_from_user(), use inc_preempt_count() and
->   copy_from_user_inatomic().
-> 
-> - If the copy_from_user_inatomic() hits a pagefault, it'll return a short
->   copy.
-> 
->   - if the page was not uptodate, we cannot commit the write, because the
->     uncopied bit could have uninitialised data. Commit zero length copy,
->     which should do the right thing (ie. not set the page uptodate).
-> 
->   - if the page was uptodate, commit the copied portion so we make some
->     progress.
->     
->   - unlock_page()
-> 
->   - go back and try to fault the page in again, redo the lock_page,
->     prepare_write, copy_from_user_inatomic(), etc.
-> 
-> - Now we have a non uptodate page, and we keep faulting on a 2nd or later
->   iovec, this gives a deadlock, because fault_in_pages readable only faults
->   in the first iovec. To fix this situation, if we fault on a !uptodate page,
->   make the next iteration only attempt to copy a single iovec.
-> 
-> - This also showed up a number of buggy prepare_write / commit_write
->   implementations that were setting the page uptodate in the prepare_write
->   side: bad! this allows uninitialised data to be read. Fix these.
+> FWIW, I am also seeing hard lockups every 12-24 hours but the box is
+> headless and I don't have the bandwidth to debug these further.  It was
+> stable with 2.6.17-rt*.
 
-Well.  It's non-buggy under the current protocol because the page remains
-locked throughout.  This patch would make these ->prepare_write()
-implementations buggy.
+Can you try whatever you were doing with nmi_watchdog=0 ? If it is
+stable, then that would explain the problem. I believe Andi enabled
+nmi watchdog on x86_64 by default recently, that might be why
+we are seeing it now.
 
-> +#ifdef CONFIG_DEBUG_VM
-> +			fault_in_pages_readable(buf, bytes);
-> +#endif
-
-I'll need to remember to take that out later on.  Or reorder the patches, I
-guess.
-
->  int simple_commit_write(struct file *file, struct page *page,
-> -			unsigned offset, unsigned to)
-> +			unsigned from, unsigned to)
->  {
-> -	struct inode *inode = page->mapping->host;
-> -	loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
-> -
-> -	/*
-> -	 * No need to use i_size_read() here, the i_size
-> -	 * cannot change under us because we hold the i_mutex.
-> -	 */
-> -	if (pos > inode->i_size)
-> -		i_size_write(inode, pos);
-> -	set_page_dirty(page);
-> +	if (to > from) {
-> +		struct inode *inode = page->mapping->host;
-> +		loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
-> +
-> +		if (to - from == PAGE_CACHE_SIZE)
-> +			SetPageUptodate(page);
-
-This SetPageUptodate() can go away?
-
-> @@ -2317,17 +2320,6 @@ int nobh_prepare_write(struct page *page
->  
->  	if (is_mapped_to_disk)
->  		SetPageMappedToDisk(page);
-> -	SetPageUptodate(page);
-> -
-> -	/*
-> -	 * Setting the page dirty here isn't necessary for the prepare_write
-> -	 * function - commit_write will do that.  But if/when this function is
-> -	 * used within the pagefault handler to ensure that all mmapped pages
-> -	 * have backing space in the filesystem, we will need to dirty the page
-> -	 * if its contents were altered.
-> -	 */
-> -	if (dirtied_it)
-> -		set_page_dirty(page);
->  
->  	return 0;
-
-Local variable `dirtied_it' can go away now.
-
-Or can it?  We've modified the page's contents.  If the copy_from_user gets
-a fault and we do a zero-length ->commit_write(), nobody ends up dirtying
-the page.
-
-> @@ -2450,6 +2436,7 @@ int nobh_truncate_page(struct address_sp
->  		memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
->  		flush_dcache_page(page);
->  		kunmap_atomic(kaddr, KM_USER0);
-> +		SetPageUptodate(page);
->  		set_page_dirty(page);
->  	}
->  	unlock_page(page);
-
-I've already forgotten why this was added.  Comment, please ;)
+Thanks
+Dipankar

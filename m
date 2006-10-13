@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWJMKzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWJMLGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWJMKzF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 06:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJMKzF
+	id S1751059AbWJMLGB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 07:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJMLGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 06:55:05 -0400
-Received: from vstglbx99.vestmark.com ([208.50.5.99]:62992 "EHLO
-	texas.hq.viviport.com") by vger.kernel.org with ESMTP
-	id S1751211AbWJMKzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 06:55:03 -0400
-Date: Fri, 13 Oct 2006 06:55:02 -0400
-From: nmeyers@vestmark.com
-To: Mike Galbraith <efault@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-Message-ID: <20061013105502.GA9773@viviport.com>
-References: <20061013004918.GA8551@viviport.com> <1160727912.15431.11.camel@Homer.simpson.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160727912.15431.11.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 13 Oct 2006 10:55:02.0535 (UTC) FILETIME=[08C6E970:01C6EEB6]
+	Fri, 13 Oct 2006 07:06:01 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:26897 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751059AbWJMLGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 07:06:00 -0400
+Message-ID: <452F7303.6070303@superbug.co.uk>
+Date: Fri, 13 Oct 2006 12:05:39 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: Can context switches be faster?
+References: <452E62F8.5010402@comcast.net>	 <20061012171929.GB24658@flint.arm.linux.org.uk>	 <452E888D.6040002@comcast.net> <1160678231.3000.451.camel@laptopd505.fenrus.org>
+In-Reply-To: <1160678231.3000.451.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 08:25:12AM +0000, Mike Galbraith wrote:
-> On Thu, 2006-10-12 at 20:49 -0400, nmeyers@vestmark.com wrote:
+Arjan van de Ven wrote:
+> On Thu, 2006-10-12 at 14:25 -0400, John Richard Moser wrote:
 > 
-> > I tried Catalin Marinas' kmemleak patches, and had to rebuild with
-> > GCC 3.4.6 because of a 4.1.1 compiler bug that prevents compilation
-> > of the patches.
 > 
-> Yeah, seems any remotely recent gcc hates it.  That puts a rather large
-> dent in usability.
+>>   - Does the current code act on these behaviors, or just flush all
+>>     cache regardless?
 > 
-> > And... building with 3.4.5 fixed the leak! So I guess I have very little
-> > detail to report - except that there's a nasty leak in 2.6.17 when built
-> > with 4.1.1.
+> the cache flushing is a per architecture property. On x86, the cache
+> flushing isn't needed; but a TLB flush is. Depending on your hardware
+> that can be expensive as well. 
 > 
-> If you build using 3.4.5 _without_ the kmemleak patches, do you see the
-> leak again?  (ie is kmemleak altering timing, or is kernel miscompiled)
 
-I wondered the same thing. I went back to the original source and .config
-- rebuilding with 3.4.6 (3.4.5 is a typo) fixed the leak.
+So, that is needed for a full process context switch to another process.
+ Is the context switch between threads quicker as it should not need to
+flush the TLB?
 
-> 
-> > If anyone has a version of kmemleak that I can build with 4.1.1, or
-> > any other suggestions for instrumentation, I'd be happy to gather more
-> > data - the problem is very easy for me to reproduce.
-> 
-> I can only suggest trying latest/greatest to see if the issue is still
-> present, and if so, try to find a way that others may trigger it.
+James
 
-I may just do that - apparently 4.1.2 is supposed to fix the kmemleak
-compile problem. My (admittedly lazy) inclination is to wait until that
-comes out in a Gentoo ebuild.
-
-Nathan
-
-
-> 
-> 	-Mike
-> 
-> 

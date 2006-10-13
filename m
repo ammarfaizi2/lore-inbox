@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWJMIxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWJMJQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWJMIxM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 04:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWJMIxM
+	id S1750853AbWJMJQR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 05:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWJMJQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 04:53:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:26040 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750971AbWJMIxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 04:53:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ERGg9yy48rn0yyLniu1YVD3r39zlUVqitJs/nWfBkBLyHTezHl7bcQ3Lv3KdK/1MGhgiJechthZPdGq3RFWpjpvXFHKpwr9WQs0z9F7cMIqYnvo1+GVrkjL1QaTLD3+5MP6+IIgqD1ViPYp2ARzodbbttXopKW7JQjH33EZkiTw=
-Message-ID: <84144f020610130153q75e34eefg5858f9345e335063@mail.gmail.com>
-Date: Fri, 13 Oct 2006 11:53:09 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Josef Jeff Sipek" <jsipek@cs.sunysb.edu>
-Subject: Re: [PATCH 10 of 23] Unionfs: Inode operations
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <4396cbf3c30212755fff.1160197649@thor.fsl.cs.sunysb.edu>
+	Fri, 13 Oct 2006 05:16:17 -0400
+Received: from tirith2.ics.muni.cz ([147.251.4.39]:9653 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750781AbWJMJQQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 05:16:16 -0400
+Date: Fri, 13 Oct 2006 11:16:08 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org,
+       magnus.damm@gmail.com, pavel@suse.cz
+Subject: Re: Machine reboot
+Message-ID: <20061013091608.GH18163@mail.muni.cz>
+References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com> <452F1142.3000400@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-References: <patchbomb.1160197639@thor.fsl.cs.sunysb.edu>
-	 <4396cbf3c30212755fff.1160197649@thor.fsl.cs.sunysb.edu>
-X-Google-Sender-Auth: 53bc8a879f33a748
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <452F1142.3000400@intel.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Muni-Spam-TestIP: 81.31.45.161
+X-Muni-Envelope-From: xhejtman@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/7/06, Josef Jeff Sipek <jsipek@cs.sunysb.edu> wrote:
-> +static int unionfs_setattr(struct dentry *dentry, struct iattr *ia)
-> +{
+On Thu, Oct 12, 2006 at 09:08:34PM -0700, Auke Kok wrote:
+> >and this device is Gb ethernet, e1000 is perfect candidate to look at. And 
+> >yes, removing e1000
+> >before reboot works around the issue.
+> 
+> Have you tried to only `ifconfig ethX down` ? my own i965 board shuts down 
+> perfectly fine without unloading the e1000 driver.
 
-[snip]
+I can confirm that rmmod e1000 causes that machine can reboot gracefully.
 
-> +       for (bindex = bstart; (bindex <= bend) || (bindex == bstart); bindex++) {
+> Would you be able to debug a failed shutdown perhaps and capture the 
+> console output? when exactly does it `stall` ? What other interrupts are 
+> assigned on your system? Did other BIOS versions work correctly?
 
-But everywhere else we have
+Up to version 0864 it restarts normally. Any higher version causes hang on
+restart if e1000 driver is loaded.
 
->        for (bindex = bstart; bindex <= bend; bindex++) {
+I've tried to report it to Intel but they replied that Linux is unsupported on
+this board...
 
-Hmm?
+It's not an issue in the Linux kernel. Using various printk I can see that
+tripple fault or reset via KBD is issued and followed by hang of the BIOS. 
 
-P.S. for_each_branch() and for_each_branch_reverse() might be a good idea.
+For i965 chipsets, the BIOS is *a lot* buggy :(
 
-                                       Pekka
+-- 
+Luká¹ Hejtmánek

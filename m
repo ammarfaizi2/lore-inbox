@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWJMOlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWJMOpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWJMOlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 10:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWJMOlt
+	id S1750948AbWJMOpM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 10:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWJMOpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 10:41:49 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30340 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750936AbWJMOls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 10:41:48 -0400
-Subject: Re: Why aren't partitions limited to fit within the device?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org, aeb@cwi.nl,
-       Jens Axboe <jens.axboe@oracle.com>
-In-Reply-To: <17710.54489.486265.487078@cse.unsw.edu.au>
-References: <17710.54489.486265.487078@cse.unsw.edu.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Oct 2006 16:07:27 +0100
-Message-Id: <1160752047.25218.50.camel@localhost.localdomain>
+	Fri, 13 Oct 2006 10:45:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14093 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750948AbWJMOpK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 10:45:10 -0400
+Date: Fri, 13 Oct 2006 14:44:57 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       acpi-devel@kernel.org, cpufreq@lists.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Strange entries in /proc/acpi/thermal_zone for Thinkpad X60
+Message-ID: <20061013144457.GA5512@ucw.cz>
+References: <452EBF7C.3000409@goop.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452EBF7C.3000409@goop.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-10-13 am 09:50 +1000, ysgrifennodd Neil Brown:
-> So:  Is there any good reason to not clip the partitions to fit
-> within the device - and discard those that are completely beyond
-> the end of the device??
+Hi!
 
-Its close but not quite the right approach
+> I have a Thinkpad X60 with an Intel Core Duo T2400.  In 
+> /proc/acpi/thermal_zone, I'm getting two subdirectories, 
+> each with their own set of files:
 
-> The patch at the end of the mail does that.  Is it OK to submit this
-> to mainline?
+Looks okay to me. One thermal zone is cpu temperature, and second is
+temperature of something else.
 
-No I think not. Any partition which is partly outside the disk should be
-ignored entirely, that ensures it doesn't accidentally get mounted and
-trashed by an HPA or similar mixup.
+> The interesting thing is that the two sets of files are 
+> not consistent - sometimes they don't even show the same 
+> temperature.
 
-I agree it should be fixed, I just don't think your fix is actually a
-real fix in this case.
+You have two (actually you have more, see tp_smapi) physical
+thermometers.
 
+> The reason I'm interested in this is that I think it's 
+> behind some of my cpufreq problems.  Sometimes the 
+> kernel decides that I just can't raise the max frequency 
+> above 1GHz, because its been thermally limited (I've put 
+> printks in to confirm that its the ACPI thermal limit on 
+> the policy notifier chain which is limiting the max 
+> speed).  It seems to me that having a thermal zone for 
+> each core is a BIOS bug, since they're really the same 
+> chip, but the THM1 entries should be ignored.  I don't 
+
+THM1 does not seem to be cpu temperature.
+
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

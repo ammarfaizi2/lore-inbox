@@ -1,79 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWJMRuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWJMRut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWJMRuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWJMRuM
+	id S1751677AbWJMRut (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWJMRut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:50:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:22198 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751507AbWJMRuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:50:10 -0400
+	Fri, 13 Oct 2006 13:50:49 -0400
+Received: from wx-out-0506.google.com ([66.249.82.235]:46194 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751677AbWJMRus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:50:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=st2NKtIlku+HnGRjZbkG72F9xWWh5XPOAnhvaTvgBe0y8ee2yd4EHqHrFHitFQYt018ACTumk4F00dpMGq6xodLqrPBaT7i5DkLD+Va1QGinjcJf+nhE3r7x07toJhSBIG8XRtpEKY0Vg/SEzlkKORexuWiuZtsNQ7+9AplIM28=
-Message-ID: <28bb77d30610131050l6501957oc43b5be2be8bf289@mail.gmail.com>
-Date: Fri, 13 Oct 2006 10:50:08 -0700
-From: "Steven Truong" <midair77@gmail.com>
-To: vgoyal@in.ibm.com
-Subject: Re: kdump/kexec/crash on vmcore file
-Cc: linux-kernel@vger.kernel.org, crash-utility@redhat.com,
-       "Dave Anderson" <anderson@redhat.com>
-In-Reply-To: <20061013141446.GA27375@in.ibm.com>
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=T31Xkr2WKbtqL+FU2mAS+kFhCIpuFo3+Cfn7786XTSCxX9FoezEWGB3VnCL+DzyrC3cZCoLw2TVoEzHFOT7yQGLyiwRKyLFiudYWNEAYIBruMjhK1TbP2v1CYotbgwTZ3ajl6tIl1OpQvQv2wa+kAC7D/s2OgN6a9mdaBdx3V08=
+Date: Sat, 14 Oct 2006 02:51:16 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>
+Subject: Re: [patch 4/7] fault-injection capability for alloc_pages()
+Message-ID: <20061013175116.GC29079@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	ak@suse.de, Don Mullis <dwm@meer.net>
+References: <20061012074305.047696736@gmail.com> <452df22a.6ff794a4.60eb.4092@mx.google.com> <20061012144042.b6d43c01.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
-	 <20061013141446.GA27375@in.ibm.com>
+In-Reply-To: <20061012144042.b6d43c01.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Vivek.  Thank you very much for the tips.  I went back to check my
-command to load the crash/capture kernel and found out that I loaded
-the wrong kernel.  I then tried again with the correct kernel and now
-I was able to use crash to analyze the vmcore kdump file.
+On Thu, Oct 12, 2006 at 02:40:42PM -0700, Andrew Morton wrote:
 
-Thank you once again.
+> What I found was a reasonable fix for this problem was to limit the
+> failures to those requests which did not have __GFP_HIGHMEM set.  That way,
+> userspace allocations work, but kernel-internal allocations are subject to
+> failures.
 
-On 10/13/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> On Thu, Oct 12, 2006 at 02:50:33PM -0700, Steven Truong wrote:
-> > Hi, all.  This is my first attempt to troubleshoot a kernel panic so I
-> > am quite newbie in this area. I have been able to obtain a kdump when
-> > my box had kernel panic.
-> >
-> > I set up Kdump and Kexec and then the captured/crash kernel to boot
-> > into Level 1 and then copy /proc/vmcore file to the disk for later
-> > analysis.  However, after the server booted back to Level 3 and I
-> > utilized the crash command to analyzed the vmcore file.  I got error
-> > message:
-> >
-> > ./crash /boot/vmlinux ../vmcore.test
-> >
-> >
-> > crash: read error: kernel virtual address: ffffffff8123d1e0  type:
-> > "kernel_config_data"
-> > WARNING: cannot read kernel_config_data
-> > crash: read error: kernel virtual address: ffffffff813b5180  type: "xtime"
-> >
->
-> Hi Steven,
->
-> which vmlinux are you using for analysis? First kernel's vmlinux or
-> second kernel's vmlinux. You should be using first kernel's vmlinux.
->
-> crash is trying to read some symbols from the core file and crash thinks
-> that virtual address for kernel_config_data is ffffffff8123d1e0. I think
-> this is too high a address. I guess this will be the address if you
-> compile your kernel for physical address 16MB. So my first guess is that
-> you are using second kernel's vmlinux for analysis.
->
-> Which kernel version and kexec-tools version are you using?
->
-> I am also copying the mail to crash-utility mailing list where folks
-> keep a watch on crash related issues.
->
-> Thanks
-> Vivek
->
+This is what I want especally when I ran the script in fault-inject.txt.
+This would be quite useful.
+

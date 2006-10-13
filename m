@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbWJMQWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWJMQXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751667AbWJMQWO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWJMQWO
+	id S1751728AbWJMQXj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWJMQXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:22:14 -0400
-Received: from tirith2.ics.muni.cz ([147.251.4.39]:64984 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751667AbWJMQWN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:22:13 -0400
-Date: Fri, 13 Oct 2006 18:22:10 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Machine reboot
-Message-ID: <20061013162210.GG3039@mail.muni.cz>
-References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com> <452F1142.3000400@intel.com> <20061013091608.GH18163@mail.muni.cz> <452FA451.6090702@intel.com>
+	Fri, 13 Oct 2006 12:23:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:7202 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751677AbWJMQXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:23:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=tH0ljR+CPZs0bShySHWqPEuzUgY59+kArDMlHSO9gnlqvqgj71BTjnTFJG8h6zEJsEvNyrg7jwYZdpKwaWVyBtb8ltiMMhjPoZ8q/b4O7WOPYoF1zGwJhEC+gcyytBjUkUlt2vrksH8jvxBxNspS8TxVAMaSNRKYlwgJ4fCmNMs=
+Message-ID: <84144f020610130923q28d816ddl388484421e23ba91@mail.gmail.com>
+Date: Fri, 13 Oct 2006 19:23:36 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Erez Zadok" <ezk@cs.sunysb.edu>
+Subject: Re: Re: [RFC/PATCH 1/2] stackfs: generic functions for obtaining hidden object
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       jsipek@cs.sunysb.edu, mhalcrow@us.ibm.com, phillip@hellewell.homeip.net
+In-Reply-To: <200610131543.k9DFh05m016578@agora.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <452FA451.6090702@intel.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Muni-Spam-TestIP: 81.31.45.161
-X-Muni-Envelope-From: xhejtman@fi.muni.cz
-X-Muni-Virus-Test: Clean
+References: <Pine.LNX.4.64.0610131615370.563@sbz-30.cs.Helsinki.FI>
+	 <200610131543.k9DFh05m016578@agora.fsl.cs.sunysb.edu>
+X-Google-Sender-Auth: 323640c264d1b135
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 07:36:01AM -0700, Auke Kok wrote:
-> >It's not an issue in the Linux kernel. Using various printk I can see that
-> >tripple fault or reset via KBD is issued and followed by hang of the BIOS. 
-> >
-> >For i965 chipsets, the BIOS is *a lot* buggy :(
-> 
-> that's depressing, can you send me the output of `dmidecode` of the latest 
-> BIOS? Perhaps I can reproduce it myself with that version.
+On 10/13/06, Erez Zadok <ezk@cs.sunysb.edu> wrote:
+> I think we should do it right the first time (i.e., now :-)
 
-Good news, as of kernel 2.6.19-rc1-git9, BIOS does *not* hang with both e1000 as
-module or built in kernel.
+I would much rather merge it now (assuming I didn't break ecryptfs)
+and have you unionfs developers fix it later :-).
 
-The previous version of kernel was 2.6.18 which hangs the BIOS.
+On 10/13/06, Erez Zadok <ezk@cs.sunysb.edu> wrote:
+> Why not make it something more dynamic, such as a mount-time option per sb?
+> Even at 8, you waste most of that space for non-fan-out stackable file
+> systems such as ecryptfs; and those unionfs users who want more, will have
+> to _recompile_ the code.
 
-Aleksey:
-are you sure that it is not the same in your case? Did you not switch kernel
-version between e1000 as a module and built in kernel?
+Yes, we discussed this with Jeff already. For unionfs, we must make it
+more dynamic. However, using slab unconditionally makes it totally
+unacceptable for ecryptfs. Therefore, we need a small static array
+that should satisfy most user (I think we can drop the static array
+size to three):
 
--- 
-Luká¹ Hejtmánek
+struct stackfs_inode_info {
+    struct inode **hidden_inodes;
+    struct inode *static_inodes[3];
+};
+
+Initially, hidden_inodes can point to static_inodes which we can the
+replace with a dynamic array if required. Btw, we probably want to do
+krealloc() for that in the slab allocator.
+
+                           Pekka

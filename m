@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWJML4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWJML47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWJML4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 07:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWJML4Q
+	id S1751425AbWJML47 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 07:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWJML47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 07:56:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54163 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751424AbWJML4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 07:56:15 -0400
-Subject: Re: [PATCH] drivers/char/riscom8.c: save_flags()/cli()/sti()
-	removal
-From: Arjan van de Ven <arjan@infradead.org>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>,
-       kernel Janitors <kernel-janitors@lists.osdl.org>
-In-Reply-To: <1160739628.19143.376.camel@amol.verismonetworks.com>
-References: <1160739628.19143.376.camel@amol.verismonetworks.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 13 Oct 2006 13:56:12 +0200
-Message-Id: <1160740572.3000.489.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 13 Oct 2006 07:56:59 -0400
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:15847 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1751425AbWJML46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 07:56:58 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: Jarek Poplawski <jarkao2@o2.pl>
+Subject: Re: Hardware bug or kernel bug?
+Date: Fri, 13 Oct 2006 12:56:53 +0100
+User-Agent: KMail/1.9.5
+References: <20061013085605.GA1690@ff.dom.local> <200610131020.48232.dj@david-web.co.uk> <20061013105807.GB1690@ff.dom.local>
+In-Reply-To: <20061013105807.GB1690@ff.dom.local>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200610131256.54546.dj@david-web.co.uk>
+X-Originating-Heisenberg-IP: [82.69.29.67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 17:10 +0530, Amol Lad wrote:
-> Removed save_flags()/cli()/sti() and used (light weight) spin locks
+On Friday 13 October 2006 11:58, Jarek Poplawski wrote:
+>
+> PS: I hope you tested it also under internal stress (heavy
+> copying plus computing).
 
-Hi,
+Yes, I did. No individual factor triggers the bug (high CPU load, lots of disk 
+activity, high network load, etc.) nor does any other combination of factors 
+other than what I mentioned before (high network load, some disk activity, 
+some CPU load).
 
-I applaud removing such legacy-should-be-dead-by-now functions; however,
-I'm not entirely sure your conversion is correct. While you convert all
-places that do cli/sti with locks.... you do not seem to be adding the
-locks to the places that the cli/sti pairs protected against (the IRQ
-handlers).... so it looks like your conversion is incomplete ;(
+Both scp and rsync trigger it reliably, but FTP does not trigger it at all. So 
+CPU load (which scp and rsync generates but FTP does not) must be a key part 
+of the equation...
 
-Greetings,
-    Arjan van de Ven
-
+Regards,
+David.

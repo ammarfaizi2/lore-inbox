@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWJMSwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751811AbWJMS7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWJMSwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWJMSwy
+	id S1751811AbWJMS7w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWJMS7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:52:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37547 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751797AbWJMSwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:52:53 -0400
-Date: Fri, 13 Oct 2006 11:52:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Don Mullis <dwm@meer.net>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: [patch 6/7] process filtering for fault-injection capabilities
-Message-Id: <20061013115242.9c4c19b8.akpm@osdl.org>
-In-Reply-To: <1160760534.31851.58.camel@localhost.localdomain>
-References: <20061012074305.047696736@gmail.com>
-	<452df238.04819267.55ff.ffffd8a2@mx.google.com>
-	<1160760534.31851.58.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 13 Oct 2006 14:59:52 -0400
+Received: from bay0-omc1-s35.bay0.hotmail.com ([65.54.246.107]:22111 "EHLO
+	bay0-omc1-s35.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1751811AbWJMS7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:59:51 -0400
+Message-ID: <BAY20-F8BFE6FB1EB53A9364234ED80A0@phx.gbl>
+X-Originating-IP: [80.178.105.199]
+X-Originating-Email: [yan_952@hotmail.com]
+In-Reply-To: <1160756702.14815.1.camel@laptopd505.fenrus.org>
+From: "Burman Yan" <yan_952@hotmail.com>
+To: arjan@infradead.org
+Cc: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       pazke@donpac.ru
+Subject: Re: [PATCH] HP mobile data protection system driver
+Date: Fri, 13 Oct 2006 20:59:47 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 13 Oct 2006 18:59:51.0336 (UTC) FILETIME=[C30DB280:01C6EEF9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 10:28:54 -0700
-Don Mullis <dwm@meer.net> wrote:
-
-> On Thu, 2006-10-12 at 16:43 +0900, Akinobu Mita wrote:
-> > This patch provides process filtering feature.
-> > The process filter allows failing only permitted processes
-> > by /proc/<pid>/make-it-fail
-> 
-> Akinobu: Toward the end of the previous round of review, we had 
-> the following exchange:
->         
->         On Tue, 2006-09-19 at 17:05 +0800, Akinobu Mita wrote:
->         On Mon, Sep 18, 2006 at 10:54:51PM -0700, Don Mullis wrote:
->         > > Add functionality to the process_filter variable: A negative argument
->         > > injects failures for only for pid==-process_filter, thereby permitting
->         > > per-process failures from boot time.
->         > > 
->         > 
->         > Is it better to add new filter for this purpose?
->         > Because someone may want to filter by tgid instead of pid.
->         > 
->         > - positive value is for task->pid
->         > - nevative value is for task->tgid
->         
->         Your idea sounds good to me.
-> 
-> 
-> So naturally I'm wondering why the functionality was dropped.
-> An application I had in mind was to identify which of the boot-time
-> calls to the slab allocator must not fail but are not yet marked
-> __GFP_NOFAIL (some experimentation showed that for pid 1 there are
-> lots of these).
-> 
-> Andrew: Would such an exercise would be worth the effort?
-> 
-
-If we're looking for unchecked boot-time allocation failures then I'd say
-no, there's not much point in adding code to check for these.  We tend to
-assume that the machine has enough memory to boot the kernel and initial
-userspace.
-
-That being said, some boot-time allocations are in code which could also
-have been compiled into a module, so we do want to be checking those,
-because we do care about memory-allocation failures at modprobe time.  But
-we can check for these by building the relevant driver as a module and then
-testing it.
 
 
 
-And the "if it's positive it's a pid, if it's negative it's a tgid"
-interface is rather unpleasant - if we're going to do this we should use
-separate control files, or use something like
+>From: Arjan van de Ven <arjan@infradead.org>
+>To: Burman Yan <yan_952@hotmail.com>
+>CC: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,  
+>pazke@donpac.ru
+>Subject: Re: [PATCH] HP mobile data protection system driver
+>Date: Fri, 13 Oct 2006 18:25:02 +0200
+>
+>
+>well.... breaking stuff for no reason other than "but it sounds like HIS
+>name" is I thing bad. Yes the name is unfortunate, but if you can use
+>the interface... why not? Just because the name isn't perfect everyone
+>should change over, including keeping compatibility mess etc etc?
+>That needs a stronger reason than "it sounds like his name" to me...
+>
+>Now if the interface itself isn't good enough, that's a different matter
+>of course; but from what I read so far that's not really the case.
+>
 
-	echo "pid=1234" > /proc/process_filter
-	echo "tgid=4321" > /proc/process_filter
+Well, I just tested hdapsd with mdps and it works - need a relatively high 
+threshold, since at the
+recommended 15 it tries to park heads if you simply lift the laptop. But 
+regarding mouse/keyboard activity
+detection, hdapsd simply right out "open failed" kind of messages and keeps 
+on working.
+
+I guess it may be a good idea after all to change the sysfs file it to hdaps 
+for now.
+
+Yan
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 

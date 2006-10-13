@@ -1,64 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWJMHff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWJMHlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWJMHff (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 03:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWJMHff
+	id S1751305AbWJMHlY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 03:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWJMHlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 03:35:35 -0400
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:41620 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S1751295AbWJMHff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 03:35:35 -0400
-Date: Fri, 13 Oct 2006 09:34:58 +0200
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: webmaster@kernel.org
-Cc: Darren Hart <dvhltc@us.ibm.com>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <theotso@us.ibm.com>
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-Message-ID: <20061013073458.GK10251@pengutronix.de>
-References: <200610051404.08540.dvhltc@us.ibm.com>
+	Fri, 13 Oct 2006 03:41:24 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:51144 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751305AbWJMHlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 03:41:23 -0400
+Date: Fri, 13 Oct 2006 10:41:21 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, mhalcrow@us.ibm.com,
+       phillip@hellewell.homeip.net
+Subject: [PATCH] ecryptfs: superblock cleanups
+Message-ID: <Pine.LNX.4.64.0610131040020.17802@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <200610051404.08540.dvhltc@us.ibm.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 05, 2006 at 02:04:07PM -0700, Darren Hart wrote:
-> There is now a realtime Linux wiki available here:
-> 
-> http://rt.wiki.kernel.org
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-The wiki server has disappeared some days ago:
+  - Use kmem_cache_zalloc for ecryptfs_sb_info in ecryptfs_fill_super
+  - Kill useless ecryptfs_set_superblock_private wrapper
+  - Rename ecryptfs_superblock_to_private to ecryptfs_sb for readability
 
-rsc@isonoe:~$ traceroute rt.wiki.kernel.org
-traceroute to demeter.kernel.org (140.211.167.37), 30 hops max, 40 byte packets
- 1  gw.ptxnet.pengutronix.de (10.1.0.1)  0.168 ms  0.151 ms  0.134 ms
- 2  bsn23.fra.qsc.de (213.148.133.42)  201.959 ms  45.509 ms  46.349 ms
- 3  core2.fra.qsc.de (213.148.138.97)  48.942 ms  47.834 ms  67.510 ms
- 4  core2.dus.qsc.de (213.148.134.126)  48.706 ms  48.909 ms  49.976 ms
- 5  hsa1.dus1.gig9-0.118.eu.level3.net (62.67.36.77)  48.957 ms  48.870 ms  52.383 ms
- 6  ae-0-54.bbr2.Dusseldorf1.Level3.net (4.68.119.98)  48.350 ms
-    ae-0-52.bbr2.Dusseldorf1.Level3.net (4.68.119.34)  48.222 ms
-    ae-0-54.bbr2.Dusseldorf1.Level3.net (4.68.119.98)  49.295 ms
- 7  as-1-0.mp2.Seattle1.Level3.net (209.247.10.133)  203.723 ms
-    ae-0-0.mp1.Seattle1.Level3.net (209.247.9.121)  313.170 ms
-    as-1-0.mp2.Seattle1.Level3.net (209.247.10.133)  199.315 ms
- 8  ge-10-0.hsa2.Seattle1.Level3.net (4.68.105.7)  204.230 ms
-    ge-11-1.hsa2.Seattle1.Level3.net (4.68.105.103)  199.731 ms
-    ge-10-0.hsa2.Seattle1.Level3.net (4.68.105.7)  200.041 ms
- 9  nero-gw.Level3.net (63.211.200.246)  201.951 ms  202.821 ms  201.841 ms
-10  corv-car1-gw.nero.net (207.98.64.177)  203.392 ms  204.247 ms 204.439 ms
-11  * * *
+Cc: Mike Halcrow <mhalcrow@us.ibm.com>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Does anyone have a clue what happened?
+ fs/ecryptfs/crypto.c          |    5 ++---
+ fs/ecryptfs/ecryptfs_kernel.h |   12 ++----------
+ fs/ecryptfs/file.c            |    2 +-
+ fs/ecryptfs/keystore.c        |    6 ++----
+ fs/ecryptfs/main.c            |   12 +++++-------
+ fs/ecryptfs/super.c           |    4 ++--
+ 6 files changed, 14 insertions(+), 27 deletions(-)
 
-Robert 
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
+Index: 2.6/fs/ecryptfs/crypto.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/crypto.c
++++ 2.6/fs/ecryptfs/crypto.c
+@@ -913,8 +913,7 @@ int ecryptfs_new_file_context(struct den
+ 	struct ecryptfs_crypt_stat *crypt_stat =
+ 	    &ecryptfs_inode_to_private(ecryptfs_dentry->d_inode)->crypt_stat;
+ 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat =
+-	    &ecryptfs_superblock_to_private(
+-		    ecryptfs_dentry->d_sb)->mount_crypt_stat;
++	    &ecryptfs_sb(ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	int cipher_name_len;
+ 
+ 	ecryptfs_set_default_crypt_stat_vals(crypt_stat, mount_crypt_stat);
+@@ -1389,7 +1388,7 @@ static int ecryptfs_read_headers_virt(ch
+ 	int bytes_read;
+ 
+ 	ecryptfs_set_default_sizes(crypt_stat);
+-	crypt_stat->mount_crypt_stat = &ecryptfs_superblock_to_private(
++	crypt_stat->mount_crypt_stat = &ecryptfs_sb(
+ 		ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	offset = ECRYPTFS_FILE_SIZE_BYTES;
+ 	rc = contains_ecryptfs_marker(page_virt + offset);
+Index: 2.6/fs/ecryptfs/ecryptfs_kernel.h
+===================================================================
+--- 2.6.orig/fs/ecryptfs/ecryptfs_kernel.h
++++ 2.6/fs/ecryptfs/ecryptfs_kernel.h
+@@ -312,17 +312,9 @@ ecryptfs_set_inode_lower(struct inode *i
+ 	ecryptfs_inode_to_private(inode)->wii_inode = lower_inode;
+ }
+ 
+-static inline struct ecryptfs_sb_info *
+-ecryptfs_superblock_to_private(struct super_block *sb)
++static inline struct ecryptfs_sb_info * ecryptfs_sb(struct super_block *sb)
+ {
+-	return (struct ecryptfs_sb_info *)sb->s_fs_info;
+-}
+-
+-static inline void
+-ecryptfs_set_superblock_private(struct super_block *sb,
+-				struct ecryptfs_sb_info *sb_info)
+-{
+-	sb->s_fs_info = sb_info;
++	return sb->s_fs_info;
+ }
+ 
+ static inline struct super_block *
+Index: 2.6/fs/ecryptfs/file.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/file.c
++++ 2.6/fs/ecryptfs/file.c
+@@ -234,7 +234,7 @@ static int ecryptfs_open(struct inode *i
+ 	memset(file_info, 0, sizeof(*file_info));
+ 	lower_dentry = ecryptfs_dentry_to_lower(ecryptfs_dentry);
+ 	crypt_stat = &ecryptfs_inode_to_private(inode)->crypt_stat;
+-	mount_crypt_stat = &ecryptfs_superblock_to_private(
++	mount_crypt_stat = &ecryptfs_sb(
+ 		ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	mutex_lock(&crypt_stat->cs_mutex);
+ 	if (!ECRYPTFS_CHECK_FLAG(crypt_stat->flags, ECRYPTFS_POLICY_APPLIED)) {
+Index: 2.6/fs/ecryptfs/keystore.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/keystore.c
++++ 2.6/fs/ecryptfs/keystore.c
+@@ -584,8 +584,7 @@ int ecryptfs_parse_packet_set(struct ecr
+ 	struct list_head *walker;
+ 	struct ecryptfs_auth_tok *chosen_auth_tok = NULL;
+ 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat =
+-		&ecryptfs_superblock_to_private(
+-			ecryptfs_dentry->d_sb)->mount_crypt_stat;
++		&ecryptfs_sb(ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	struct ecryptfs_auth_tok *candidate_auth_tok = NULL;
+ 	size_t packet_size;
+ 	struct ecryptfs_auth_tok *new_auth_tok;
+@@ -1002,8 +1001,7 @@ ecryptfs_generate_key_packet_set(char *d
+ 	int rc = 0;
+ 	struct ecryptfs_auth_tok *auth_tok;
+ 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat =
+-		&ecryptfs_superblock_to_private(
+-			ecryptfs_dentry->d_sb)->mount_crypt_stat;
++		&ecryptfs_sb(ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	size_t written;
+ 	struct ecryptfs_key_record key_rec;
+ 
+Index: 2.6/fs/ecryptfs/main.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/main.c
++++ 2.6/fs/ecryptfs/main.c
+@@ -202,7 +202,7 @@ static int ecryptfs_parse_options(struct
+ 	struct key *auth_tok_key = NULL;
+ 	struct ecryptfs_auth_tok *auth_tok = NULL;
+ 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat =
+-		&ecryptfs_superblock_to_private(sb)->mount_crypt_stat;
++		&ecryptfs_sb(sb)->mount_crypt_stat;
+ 	substring_t args[MAX_OPT_ARGS];
+ 	int token;
+ 	char *sig_src;
+@@ -383,19 +383,17 @@ struct kmem_cache *ecryptfs_sb_info_cach
+ static int
+ ecryptfs_fill_super(struct super_block *sb, void *raw_data, int silent)
+ {
++	struct ecryptfs_sb_info *sb_info;
+ 	int rc = 0;
+ 
+ 	/* Released in ecryptfs_put_super() */
+-	ecryptfs_set_superblock_private(sb,
+-					kmem_cache_alloc(ecryptfs_sb_info_cache,
+-							 SLAB_KERNEL));
+-	if (!ecryptfs_superblock_to_private(sb)) {
++	sb_info = kmem_cache_zalloc(ecryptfs_sb_info_cache, GFP_KERNEL);
++	if (!sb_info) {
+ 		ecryptfs_printk(KERN_WARNING, "Out of memory\n");
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(ecryptfs_superblock_to_private(sb), 0,
+-	       sizeof(struct ecryptfs_sb_info));
++	sb->s_fs_info = sb_info;
+ 	sb->s_op = &ecryptfs_sops;
+ 	/* Released through deactivate_super(sb) from get_sb_nodev */
+ 	sb->s_root = d_alloc(NULL, &(const struct qstr) {
+Index: 2.6/fs/ecryptfs/super.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/super.c
++++ 2.6/fs/ecryptfs/super.c
+@@ -102,11 +102,11 @@ void ecryptfs_init_inode(struct inode *i
+  */
+ static void ecryptfs_put_super(struct super_block *sb)
+ {
+-	struct ecryptfs_sb_info *sb_info = ecryptfs_superblock_to_private(sb);
++	struct ecryptfs_sb_info *sb_info = ecryptfs_sb(sb);
+ 
+ 	ecryptfs_destruct_mount_crypt_stat(&sb_info->mount_crypt_stat);
+ 	kmem_cache_free(ecryptfs_sb_info_cache, sb_info);
+-	ecryptfs_set_superblock_private(sb, NULL);
++	sb->s_fs_info = NULL;
+ }
+ 
+ /**

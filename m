@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWJMKY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWJMKYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWJMKY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 06:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWJMKY2
+	id S1751130AbWJMKYo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 06:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWJMKYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 06:24:28 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13718 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751129AbWJMKY0 (ORCPT
+	Fri, 13 Oct 2006 06:24:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:16022 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751130AbWJMKYm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 06:24:26 -0400
-Date: Fri, 13 Oct 2006 12:24:03 +0200
+	Fri, 13 Oct 2006 06:24:42 -0400
+Date: Fri, 13 Oct 2006 12:24:19 +0200
 From: Holger Macht <hmacht@suse.de>
 To: linux-acpi@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, akpm@osdl.org
-Subject: [PATCH 2/3] Add support for the generic backlight device to the ASUS ACPI driver
-Message-ID: <20061013102403.GC4234@homac.suse.de>
+Subject: [PATCH 3/3] Add support for the generic backlight device to the TOSHIBA ACPI driver
+Message-ID: <20061013102419.GD4234@homac.suse.de>
 Mail-Followup-To: linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org, len.brown@intel.com, akpm@osdl.org
 MIME-Version: 1.0
@@ -28,153 +28,168 @@ Add support for the generic backlight interface below
 /sys/class/backlight.  The patch keeps the procfs brightness handling for
 backward compatibility.
 
+For this to archive, the patch adds two generic functions get_lcd and
+set_lcd to be used both by the procfs related and the sysfs related
+methods.
+
 Signed-off-by: Holger Macht <hmacht@suse.de>
 ---
 
 diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index 19b0d22..f0bd84a 100644
+index f0bd84a..d9bb370 100644
 --- a/drivers/acpi/Kconfig
 +++ b/drivers/acpi/Kconfig
-@@ -172,6 +172,7 @@ config ACPI_NUMA
- config ACPI_ASUS
-         tristate "ASUS/Medion Laptop Extras"
+@@ -227,6 +227,7 @@ config ACPI_IBM_DOCK
+ config ACPI_TOSHIBA
+ 	tristate "Toshiba Laptop Extras"
  	depends on X86
 +	select BACKLIGHT_DEVICE
-         ---help---
-           This driver provides support for extra features of ACPI-compatible
-           ASUS laptops. As some of Medion laptops are made by ASUS, it may also
-diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
-index e9ee4c5..041760d 100644
---- a/drivers/acpi/asus_acpi.c
-+++ b/drivers/acpi/asus_acpi.c
-@@ -35,6 +35,7 @@ #include <linux/module.h>
+ 	---help---
+ 	  This driver adds support for access to certain system settings
+ 	  on "legacy free" Toshiba laptops.  These laptops can be recognized by
+diff --git a/drivers/acpi/toshiba_acpi.c b/drivers/acpi/toshiba_acpi.c
+index 7fe0b7a..2f35f89 100644
+--- a/drivers/acpi/toshiba_acpi.c
++++ b/drivers/acpi/toshiba_acpi.c
+@@ -41,6 +41,8 @@ #include <linux/module.h>
  #include <linux/init.h>
  #include <linux/types.h>
  #include <linux/proc_fs.h>
 +#include <linux/backlight.h>
- #include <acpi/acpi_drivers.h>
- #include <acpi/acpi_bus.h>
- #include <asm/uaccess.h>
-@@ -390,6 +391,8 @@ static struct model_data model_conf[END_
- /* procdir we use */
- static struct proc_dir_entry *asus_proc_dir;
- 
-+static struct backlight_device *asus_backlight_device;
 +
- /*
-  * This header is made available to allow proper configuration given model,
-  * revision number , ... this info cannot go in struct asus_hotk because it is
-@@ -769,7 +772,7 @@ proc_write_lcd(struct file *file, const 
- 	return count;
+ #include <asm/uaccess.h>
+ 
+ #include <acpi/acpi_drivers.h>
+@@ -210,6 +212,7 @@ static acpi_status hci_read1(u32 reg, u3
  }
  
--static int read_brightness(void)
-+static int read_brightness(struct backlight_device *bd)
+ static struct proc_dir_entry *toshiba_proc_dir /*= 0*/ ;
++static struct backlight_device *toshiba_backlight_device;
+ static int force_fan;
+ static int last_key_event;
+ static int key_event_valid;
+@@ -271,14 +274,23 @@ dispatch_write(struct file *file, const 
+ 	return result;
+ }
+ 
+-static char *read_lcd(char *p)
++static int get_lcd(struct backlight_device *bd)
  {
- 	int value;
+ 	u32 hci_result;
+ 	u32 value;
  
-@@ -791,9 +794,10 @@ static int read_brightness(void)
- /*
-  * Change the brightness level
-  */
--static void set_brightness(int value)
-+static int set_brightness(int value)
- {
- 	acpi_status status = 0;
-+	int ret = 0;
- 
- 	/* SPLV laptop */
- 	if (hotk->methods->brightness_set) {
-@@ -801,11 +805,12 @@ static void set_brightness(int value)
- 				    value, NULL))
- 			printk(KERN_WARNING
- 			       "Asus ACPI: Error changing brightness\n");
--		return;
-+			ret = -EIO;
-+		goto out;
- 	}
- 
- 	/* No SPLV method if we are here, act as appropriate */
--	value -= read_brightness();
-+	value -= read_brightness(NULL);
- 	while (value != 0) {
- 		status = acpi_evaluate_object(NULL, (value > 0) ?
- 					      hotk->methods->brightness_up :
-@@ -815,15 +820,22 @@ static void set_brightness(int value)
- 		if (ACPI_FAILURE(status))
- 			printk(KERN_WARNING
- 			       "Asus ACPI: Error changing brightness\n");
-+			ret = -EIO;
- 	}
--	return;
-+out:
-+	return ret;
+ 	hci_read1(HCI_LCD_BRIGHTNESS, &value, &hci_result);
+ 	if (hci_result == HCI_SUCCESS) {
+-		value = value >> HCI_LCD_BRIGHTNESS_SHIFT;
++		return (value >> HCI_LCD_BRIGHTNESS_SHIFT);
++	} else
++		return -EFAULT;
 +}
 +
-+static int set_brightness_status(struct backlight_device *bd)
++static char *read_lcd(char *p)
 +{
-+	return set_brightness(bd->props->brightness);
++	int value = get_lcd(NULL);
++
++	if (value >= 0) {
+ 		p += sprintf(p, "brightness:              %d\n", value);
+ 		p += sprintf(p, "brightness_levels:       %d\n",
+ 			     HCI_LCD_BRIGHTNESS_LEVELS);
+@@ -289,22 +301,34 @@ static char *read_lcd(char *p)
+ 	return p;
  }
  
- static int
- proc_read_brn(char *page, char **start, off_t off, int count, int *eof,
- 	      void *data)
++static int set_lcd(int value)
++{
++	u32 hci_result;
++
++	value = value << HCI_LCD_BRIGHTNESS_SHIFT;
++	hci_write1(HCI_LCD_BRIGHTNESS, value, &hci_result);
++	if (hci_result != HCI_SUCCESS)
++		return -EFAULT;
++
++	return 0;
++}
++
++static int set_lcd_status(struct backlight_device *bd)
++{
++	return set_lcd(bd->props->brightness);
++}
++
+ static unsigned long write_lcd(const char *buffer, unsigned long count)
  {
--	return sprintf(page, "%d\n", read_brightness());
-+	return sprintf(page, "%d\n", read_brightness(NULL));
+ 	int value;
+-	u32 hci_result;
++	int ret = count;
+ 
+ 	if (sscanf(buffer, " brightness : %i", &value) == 1 &&
+-	    value >= 0 && value < HCI_LCD_BRIGHTNESS_LEVELS) {
+-		value = value << HCI_LCD_BRIGHTNESS_SHIFT;
+-		hci_write1(HCI_LCD_BRIGHTNESS, value, &hci_result);
+-		if (hci_result != HCI_SUCCESS)
+-			return -EFAULT;
+-	} else {
+-		return -EINVAL;
+-	}
+-
+-	return count;
++	    value >= 0 && value < HCI_LCD_BRIGHTNESS_LEVELS)
++		ret = set_lcd(value);
++	else
++		ret = -EINVAL;
++	return ret;
  }
  
- static int
-@@ -1326,6 +1338,26 @@ static int asus_hotk_remove(struct acpi_
- 	return 0;
+ static char *read_video(char *p)
+@@ -506,6 +530,26 @@ static acpi_status __exit remove_device(
+ 	return AE_OK;
  }
  
-+static struct backlight_properties asus_backlight_data = {
++static struct backlight_properties toshiba_backlight_data = {
 +        .owner          = THIS_MODULE,
-+        .get_brightness = read_brightness,
-+        .update_status  = set_brightness_status,
-+        .max_brightness = 15,
++        .get_brightness = get_lcd,
++        .update_status  = set_lcd_status,
++        .max_brightness = HCI_LCD_BRIGHTNESS_LEVELS - 1,
 +};
 +
-+static void __exit asus_acpi_exit(void)
++static void __exit toshiba_acpi_exit(void)
 +{
-+	if (asus_backlight_device)
-+		backlight_device_unregister(asus_backlight_device);
++	if (toshiba_backlight_device)
++		backlight_device_unregister(toshiba_backlight_device);
 +
-+	acpi_bus_unregister_driver(&asus_hotk_driver);
-+	remove_proc_entry(PROC_ASUS, acpi_root_dir);
++	remove_device();
 +
-+	kfree(asus_info);
++	if (toshiba_proc_dir)
++		remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
 +
 +	return;
 +}
 +
- static int __init asus_acpi_init(void)
+ static int __init toshiba_acpi_init(void)
  {
- 	int result;
-@@ -1363,17 +1395,15 @@ static int __init asus_acpi_init(void)
- 		return result;
+ 	acpi_status status = AE_OK;
+@@ -546,17 +590,15 @@ static int __init toshiba_acpi_init(void
+ 			remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
  	}
  
--	return 0;
+-	return (ACPI_SUCCESS(status)) ? 0 : -ENODEV;
 -}
 -
--static void __exit asus_acpi_exit(void)
+-static void __exit toshiba_acpi_exit(void)
 -{
--	acpi_bus_unregister_driver(&asus_hotk_driver);
--	remove_proc_entry(PROC_ASUS, acpi_root_dir);
+-	remove_device();
 -
--	kfree(asus_info);
-+	asus_backlight_device = backlight_device_register("asus", NULL,
-+							  &asus_backlight_data);
-+        if (IS_ERR(asus_backlight_device)) {
-+		printk(KERN_ERR "Could not register asus backlight device\n");
-+		asus_backlight_device = NULL;
-+		asus_acpi_exit();
+-	if (toshiba_proc_dir)
+-		remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
++	toshiba_backlight_device = backlight_device_register("toshiba", NULL,
++						&toshiba_backlight_data);
++        if (IS_ERR(toshiba_backlight_device)) {
++		printk(KERN_ERR "Could not register toshiba backlight device\n");
++		toshiba_backlight_device = NULL;
++		toshiba_acpi_exit();
 +	}
  
 -	return;
-+	return 0;
++	return (ACPI_SUCCESS(status)) ? 0 : -ENODEV;
  }
  
- module_init(asus_acpi_init);
+ module_init(toshiba_acpi_init);

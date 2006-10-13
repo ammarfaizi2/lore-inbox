@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751820AbWJMTGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWJMTS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751820AbWJMTGv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWJMTGv
+	id S1751825AbWJMTS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWJMTS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:06:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:35317 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751795AbWJMTGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:06:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=nYEd7IHkN+wUx7I7n7mhADet3/SMSzAQMsn4T8cLuYSQ6x7FjMIhsuleyDDpDVgZTiVE9Mezqw5K4MsVZMBFea0huuQhQXdcJDikKUNBGg44uvg23fptLI8I3M06klqQ1PCnqVvWlt4a0xU/JWtFmQVQzg247ea7tK+5P6wKRQI=
-Reply-To: andrew.j.wade@gmail.com
-To: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
-Date: Fri, 13 Oct 2006 15:04:11 -0400
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       penberg@cs.helsinki.fi, ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
-References: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
-In-Reply-To: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+	Fri, 13 Oct 2006 15:18:56 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:61924 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1751825AbWJMTS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 15:18:56 -0400
+Date: Fri, 13 Oct 2006 13:18:54 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Adam Belay <abelay@MIT.EDU>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Bug in PCI core
+Message-ID: <20061013191854.GF11633@parisc-linux.org>
+References: <1160760867.25218.77.camel@localhost.localdomain> <Pine.LNX.4.44L0.0610131355550.6612-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610131506.38609.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+In-Reply-To: <Pine.LNX.4.44L0.0610131355550.6612-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 October 2006 07:18, Josef Jeff Sipek wrote:
-> +static inline void stackfs_copy_inode_size(struct inode *dst,
-> +					   const struct inode *src)
-> +{
-> +	i_size_write(dst, i_size_read((struct inode *)src));
+On Fri, Oct 13, 2006 at 01:57:48PM -0400, Alan Stern wrote:
+> Would it be okay for pci_block_user_cfg_access() to use its own cache, so 
+> it doesn't interfere with data previously cached by pci_save_state()?
 
-Instead of casting, I'd change the signature of i_size_read.
+My suggestion is just to require that the callers have previously called
+pci_save_state().  The PCI PM stack already has, and it's a one-line
+change to the IPR driver.

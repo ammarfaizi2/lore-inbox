@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWJMQpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWJMQpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWJMQpC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWJMQpA
+	id S1751352AbWJMQpu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWJMQpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:45:00 -0400
-Received: from ns2.suse.de ([195.135.220.15]:36301 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751355AbWJMQog (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:44:36 -0400
-From: Nick Piggin <npiggin@suse.de>
-To: Linux Memory Management <linux-mm@kvack.org>
-Cc: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Chris Mason <chris.mason@oracle.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <npiggin@suse.de>
-Message-Id: <20061013143556.15438.35419.sendpatchset@linux.site>
-In-Reply-To: <20061013143516.15438.8802.sendpatchset@linux.site>
-References: <20061013143516.15438.8802.sendpatchset@linux.site>
-Subject: [patch 4/6] mm: comment mmap_sem / lock_page lockorder
-Date: Fri, 13 Oct 2006 18:44:32 +0200 (CEST)
+	Fri, 13 Oct 2006 12:45:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5802 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751352AbWJMQpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:45:19 -0400
+Subject: Re: Hardware bug or kernel bug?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Johnson <dj@david-web.co.uk>
+Cc: Jarek Poplawski <jarkao2@o2.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+In-Reply-To: <200610131724.40631.dj@david-web.co.uk>
+References: <20061013085605.GA1690@ff.dom.local>
+	 <200610131256.54546.dj@david-web.co.uk>
+	 <20061013130648.GC1690@ff.dom.local>
+	 <200610131724.40631.dj@david-web.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Oct 2006 18:11:51 +0100
+Message-Id: <1160759511.25218.65.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a few more examples to the mmap_sem / lock_page ordering.
+Ar Gwe, 2006-10-13 am 17:24 +0100, ysgrifennodd David Johnson:
+> IDE controller, then continuing. Could the same thing be happening in Linux? 
+> If Linux can't talk to the IDE controller when trying to write to disk, how 
+> does it handle that?
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+It will timeout and then retry the command. It's not the most ideal
+situation to end up in but I'd expect to see a DMA timeout and a retry
+or two in the log not a crash.
 
-Index: linux-2.6/mm/filemap.c
-===================================================================
---- linux-2.6.orig/mm/filemap.c
-+++ linux-2.6/mm/filemap.c
-@@ -73,7 +73,7 @@ generic_file_direct_IO(int rw, struct ki
-  *        ->mapping->tree_lock	(arch-dependent flush_dcache_mmap_lock)
-  *
-  *  ->mmap_sem
-- *    ->lock_page		(access_process_vm)
-+ *    ->lock_page		(page fault, sys_mmap, access_process_vm)
-  *
-  *  ->mmap_sem
-  *    ->i_mutex			(msync)
-Index: linux-2.6/mm/rmap.c
-===================================================================
---- linux-2.6.orig/mm/rmap.c
-+++ linux-2.6/mm/rmap.c
-@@ -29,7 +29,7 @@
-  * taken together; in truncation, i_mutex is taken outermost.
-  *
-  * mm->mmap_sem
-- *   page->flags PG_locked (lock_page)
-+ *   page->flags PG_locked (lock_page, eg from pagefault)
-  *     mapping->i_mmap_lock
-  *       anon_vma->lock
-  *         mm->page_table_lock or pte_lock

@@ -1,63 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWJMScy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWJMScv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbWJMScy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWJMScy
+	id S1751308AbWJMScv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWJMScv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:32:54 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:32392 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751763AbWJMScx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:32:53 -0400
-Message-Id: <200610131832.k9DIWYvj012174@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Jong Lin <jong_lin@xgitech.com>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Subject: Re: Would like to open source of XGI graphics chip but ...
-In-Reply-To: Your message of "Thu, 12 Oct 2006 18:11:25 +0800."
-             <A2FC964A2264C64C82AA65298F0AA9ADAC6B68@MAIL01.corpnet.xgitech.com>
-From: Valdis.Kletnieks@vt.edu
-References: <A2FC964A2264C64C82AA65298F0AA9ADAC6B68@MAIL01.corpnet.xgitech.com>
+	Fri, 13 Oct 2006 14:32:51 -0400
+Received: from bay0-omc1-s28.bay0.hotmail.com ([65.54.246.100]:63448 "EHLO
+	bay0-omc1-s28.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1751308AbWJMScu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:32:50 -0400
+Message-ID: <BAY20-F2590BB342DED17F10A6783D80A0@phx.gbl>
+X-Originating-IP: [80.178.105.199]
+X-Originating-Email: [yan_952@hotmail.com]
+In-Reply-To: <20061013165840.GA9517@dreamland.darkstar.lan>
+From: "Burman Yan" <yan_952@hotmail.com>
+To: kronos.it@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Remn Yan <yan_952@hotmail.com> ha scritto:
+Date: Fri, 13 Oct 2006 20:32:48 +0200
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1160764353_2916P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Oct 2006 14:32:34 -0400
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 13 Oct 2006 18:32:50.0192 (UTC) FILETIME=[FCC6C100:01C6EEF5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1160764353_2916P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 12 Oct 2006 18:11:25 +0800, Jong Lin said:
-> Thanks for your quick response, Jeff.
 
-> From: Jeff Garzik [mailto:jeff@garzik.org] 
+>From: Luca Tettamanti <kronos.it@gmail.com>
+>To: Yan Burman <yan_952@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Remn Yan <yan_952@hotmail.com> ha scritto:
+>Date: Fri, 13 Oct 2006 18:58:40 +0200
+>
+>Burman Yan <yan_952@hotmail.com> ha scritto:
+> > I would like to hear your remarks on this version.
+>
+>A couple of small issues:
+>
+> > +/* Sysfs stuff */
+> > +static ssize_t mdps_position_show(struct device *dev,
+> > +                                  struct device_attribute *attr, char 
+>*buf)
+> > +{
+> > +	int x, y;
+> > +	mdps_get_xy(mdps.device->handle, &x, &y);
+> > +	return sprintf(buf, "(%d, %d)\n", x, y);
+> > +}
+>
+>hdaps doesn't have the space between the numbers.
+>
 
-> You may read Documentation/SubmittingDrivers and 
-> Documentation/SubmittingPatches in the Linux kernel source code for 
-> further instructions.
-> 
-> We welcome your contribution!
-> 
-> 	Jeff
+Point taken and fixed. I missed that. I looked at calibrate and saw that 
+there are no spaces :)
 
-Also, read Documentation/CodingStyle - this often surprises first-time submitters.
+> > +static ssize_t mdps_position3d_show(struct device *dev,
+> > +                                    struct device_attribute *attr, char 
+>*buf)
+> > +{
+>[...]
+> > +	return sprintf(buf, "(%d, %d, %d)\n", x, y, z);
+> > +}
+>
+>I'd also remove the space here for consistency.
+>Also sysfs should carry "unformatted" data, I would use:
+>
+>sprintf(buf, "%d %d %d\n", x, y, z);
+>
 
-And if you get a huge flood of comments and suggestions of things to fix,
-consider it a *good* thing - it means that the kernel experts liked the basic
-code well enough to spend enough time to make 4,398 little suggestions. :)
+Removed the spaces, but the brackets are there for consistency with the 2d 
+version and hdaps.
 
---==_Exmh_1160764353_2916P
-Content-Type: application/pgp-signature
+>Maybe we should take a moment to think about an interface for both hdaps
+>and this one.
+>
+> > +static ssize_t mdps_calibrate_store(struct device *dev,
+> > +                   struct device_attribute *attr, const char *buf, 
+>size_t count)
+> > +{
+> > +	mdps_calibrate_mouse();
+> > +	return count;
+> > +}
+>
+>No locking here?
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFFL9vBcC3lWbTT17ARAqXuAKDDXjBPDs12s7dY2HPPKBGnge88pgCeIl9Q
-Dakbrsk8VUQpnoryAPJbfzk=
-=9vdv
------END PGP SIGNATURE-----
+I don't want to lock it here, since the mouse polling kthread is heavy as it 
+is.
+I'd rather report a wrong value of mouse position while recalibrating.
+The way I see it, if you're recalibrating your mouse, chances are you're not 
+playing at the same precise millisecond. In my opinion it's worth more 
+battery life.
 
---==_Exmh_1160764353_2916P--
+
+> > +static ssize_t mdps_rate_show(struct device *dev,
+> > +                              struct device_attribute *attr, char *buf)
+> > +{
+>[...]
+> > +	return sprintf(buf, "sampling rate:\t%dHz\n", rate);
+> > +}
+>
+>Raw value, i.e. sprintf(buf, "%d\n", rate).
+>
+>
+
+Point taken and fixed.
+
+I also found that I missed a comment in Kconfig after switching from proc to 
+sysfs, but
+I'll post the corrected version after I have more fixes to it.
+
+Thanks for noticing.
+
+Yan
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
+

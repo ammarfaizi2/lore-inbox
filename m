@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWJMAji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWJMAu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWJMAji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 20:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWJMAji
+	id S1751398AbWJMAu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 20:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWJMAu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 20:39:38 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:44257 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751392AbWJMAjh (ORCPT
+	Thu, 12 Oct 2006 20:50:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32915 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751398AbWJMAu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 20:39:37 -0400
-Date: Fri, 13 Oct 2006 02:39:26 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix parport_serial_pci_resume() ignoring return value
- from pci_enable_device()
-In-Reply-To: <20061012235820.GC24658@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0610130229480.29022@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610130139510.29022@twin.jikos.cz>
- <20061012235820.GC24658@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Oct 2006 20:50:27 -0400
+Date: Thu, 12 Oct 2006 17:50:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Stephen Hemminger <shemminger@osdl.org>, mlindner@syskonnect.de,
+       rroesler@syskonnect.de, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
+ skge_resume() properly
+Message-Id: <20061012175013.87564a57.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
+References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
+	<20061012152512.66f147b8@freekitty>
+	<Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
+	<20061012154714.6924f465@freekitty>
+	<Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006, Russell King wrote:
+On Fri, 13 Oct 2006 00:57:18 +0200 (CEST)
+Jiri Kosina <jikos@jikos.cz> wrote:
 
-> I suspect all these kind of patches are introducing additional problems.
-> This one certainly is.  Who's auditing all these patches?  I mean _properly_
-> auditing them rather than just saying "that's a good idea"?
+> @@ -5070,7 +5070,13 @@ static int skge_resume(struct pci_dev *p
+>  
+>  	pci_set_power_state(pdev, PCI_D0);
+>  	pci_restore_state(pdev);
+> -	pci_enable_device(pdev);
+> +	ret = pci_enable_device(pdev);
+> +	if (ret) {
+> +		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
+> +				dev->name);
+> +		unregister_netdev(dev);
 
-For the fm801 gameport case it is fine - it's just one more check in the 
-_probe() function, performing the same error path as other cases do.
+This looks rather wrong - skge_exit() will run unregister_netdev() again.
 
-ALSA case has already been solved by calling snd_card_disconnect() on 
-error path.
+Look a few lines down, to where this function already handles request_irq()
+failure, reuse that code path.  Hopefully it has been tested..
 
-But I agree that sk98lin and parport_serial_pci patches are likely broken.
+(Once we have an easy-to-use fault-injection framework we'll be able to
+test all these things more easily)
 
-Thanks,
-
--- 
-Jiri Kosina
+(But it's possible to test them already, with a bit of ad-hoc testing code)

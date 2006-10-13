@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWJMUZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWJMUY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751836AbWJMUZT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751882AbWJMUZT
+	id S1751821AbWJMUY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWJMUY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:25:19 -0400
-Received: from vena.lwn.net ([206.168.112.25]:42664 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S1751836AbWJMUZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:25:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH,RFC] Add __GFP_ZERO to GFP_LEVEL_MASK
-cc: akpm@osdl.org
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Fri, 13 Oct 2006 14:25:16 -0600
-Message-ID: <28729.1160771116@lwn.net>
+	Fri, 13 Oct 2006 16:24:56 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:47377 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751821AbWJMUYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:24:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uQ4F5+odqaoBUp5aamtCV7X9XYwaKHjvAAF75yRV9P3WuLRmDBcy/MgDTmYRNW4ZlPeYXkczNJjNMXNU6EoGoFRnHMSlVUbLS1he0SEp0jI/cuSyNTPdFR+wdRYjTEBXMtzLwUhj9lPibc6M7xwUNC+KybIFme5926lB41FxVBM=
+Message-ID: <b6c5339f0610131324y762e3618xcfa961a632bbf458@mail.gmail.com>
+Date: Fri, 13 Oct 2006 16:24:53 -0400
+From: "Bob Copeland" <bcopeland@gmail.com>
+To: "Open Source" <opensource3141@yahoo.com>
+Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20061013172042.21215.qmail@web58113.mail.re3.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061013172042.21215.qmail@web58113.mail.re3.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a very helpful comment in <linux/gfp.h>:
+On 10/13/06, Open Source <opensource3141@yahoo.com> wrote:
 
-  /* if you forget to add the bitmask here kernel will crash, period */
+> p.s. My apologies about the word wrap.  I'm using
+> a different mail client than my usual one and didn't
+> realize it was not wrapping automatically.
 
-Well, my kernel has been crashing (period) at the BUG() in cache_grow();
-the offending flag is __GFP_ZERO.  I think it needs to be in
-GFP_LEVEL_MASK.  Anybody know a good reason why it's not there now?
+Why all the cloak and dagger?  You could at least make up a real name.
 
-jon
-
-
-Add __GFP_ZERO to GFP_LEVEL_MASK and cut down on those unsightly oopses.
-
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-
---- /k/t/2.6.19-rc2/include/linux/gfp.h	2006-10-13 13:04:17.000000000 -0600
-+++ 19-rc2.jc/include/linux/gfp.h	2006-10-13 14:17:10.000000000 -0600
-@@ -54,7 +54,8 @@ struct vm_area_struct;
- #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
- 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
--			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE)
-+			__GFP_ZERO|__GFP_NOMEMALLOC|__GFP_HARDWALL|\
-+			__GFP_THISNODE)
- 
- /* This equals 0, but use constants in case they ever change */
- #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+Bob

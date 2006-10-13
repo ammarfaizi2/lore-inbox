@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWJMHqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWJMHwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWJMHqP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 03:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWJMHqP
+	id S1751488AbWJMHwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 03:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWJMHwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 03:46:15 -0400
-Received: from shards.monkeyblade.net ([192.83.249.58]:45226 "EHLO
-	shards.monkeyblade.net") by vger.kernel.org with ESMTP
-	id S1751326AbWJMHqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 03:46:14 -0400
-Subject: Re: Realtime Wiki - http://rt.wiki.kernel.org
-From: "J.H." <warthog9@kernel.org>
-To: Robert Schwebel <r.schwebel@pengutronix.de>
-Cc: webmaster@kernel.org, Darren Hart <dvhltc@us.ibm.com>,
-       linux-kernel@vger.kernel.org, "Theodore Ts'o" <theotso@us.ibm.com>
-In-Reply-To: <20061013073458.GK10251@pengutronix.de>
-References: <200610051404.08540.dvhltc@us.ibm.com>
-	 <20061013073458.GK10251@pengutronix.de>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 00:44:50 -0700
-Message-Id: <1160725490.5389.71.camel@localhost.localdomain>
+	Fri, 13 Oct 2006 03:52:41 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:47625 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751488AbWJMHwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 03:52:40 -0400
+Date: Fri, 13 Oct 2006 08:52:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] Generic platform device IDE driver
+Message-ID: <20061013075219.GA28654@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <20061004074535.GA7180@localhost.hsdv.com> <1159972725.25772.26.camel@localhost.localdomain> <20061005091631.GA8631@localhost.hsdv.com> <200610111450.41909.matthias.fuchs@esd-electronics.com> <20061012061348.GA7844@linux-sh.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012061348.GA7844@linux-sh.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the heads up,
+On Thu, Oct 12, 2006 at 03:13:48PM +0900, Paul Mundt wrote:
+> On Wed, Oct 11, 2006 at 02:50:41PM +0200, Matthias Fuchs wrote:
+> > Perhaps it is a good idea to update the pata platform driver to be able to 
+> > handle both _IO and _MEM resources. The _IO resources be be handled 
+> > as it is already done by your code and for _MEM resources the pata platform
+> > driver can do the ioremapping as I currently do in my board setup.
+>
+> Yes, that's one thing I was thinking of as well.. Here's a patch that
+> makes an attempt at that, can you give it a try and see if it works for
+> you? This applies on top of the earlier patch. None of the ARM, SH, or
+> H8300 cases need to do the remapping at least.
 
-Demeter (the machine running the wiki) has been having some problems
-that we aren't sure of.  I will get ahold of the colo-provider (OSUOSL)
-and have them reboot the machine and I'll take a look at it when it
-comes back up.  I'll keep you guys informed on what I find.
+It's likely that ARM will switch over to using the MMIO resources if
+this patch makes it in.  There's certain ARM platforms which would
+benefit from this change (since inb() and friends are more complex
+than they necessarily need to be.)
 
-- John 'Warthog9' H.
+However, one issue needs to be solved before we could do that - how do
+we handle the case where the IDE registers are on a 4 byte spacing
+interval instead of the usual 1 byte?
 
-On Fri, 2006-10-13 at 09:34 +0200, Robert Schwebel wrote:
-> On Thu, Oct 05, 2006 at 02:04:07PM -0700, Darren Hart wrote:
-> > There is now a realtime Linux wiki available here:
-> > 
-> > http://rt.wiki.kernel.org
-> 
-> The wiki server has disappeared some days ago:
-> 
-> rsc@isonoe:~$ traceroute rt.wiki.kernel.org
-> traceroute to demeter.kernel.org (140.211.167.37), 30 hops max, 40 byte packets
->  1  gw.ptxnet.pengutronix.de (10.1.0.1)  0.168 ms  0.151 ms  0.134 ms
->  2  bsn23.fra.qsc.de (213.148.133.42)  201.959 ms  45.509 ms  46.349 ms
->  3  core2.fra.qsc.de (213.148.138.97)  48.942 ms  47.834 ms  67.510 ms
->  4  core2.dus.qsc.de (213.148.134.126)  48.706 ms  48.909 ms  49.976 ms
->  5  hsa1.dus1.gig9-0.118.eu.level3.net (62.67.36.77)  48.957 ms  48.870 ms  52.383 ms
->  6  ae-0-54.bbr2.Dusseldorf1.Level3.net (4.68.119.98)  48.350 ms
->     ae-0-52.bbr2.Dusseldorf1.Level3.net (4.68.119.34)  48.222 ms
->     ae-0-54.bbr2.Dusseldorf1.Level3.net (4.68.119.98)  49.295 ms
->  7  as-1-0.mp2.Seattle1.Level3.net (209.247.10.133)  203.723 ms
->     ae-0-0.mp1.Seattle1.Level3.net (209.247.9.121)  313.170 ms
->     as-1-0.mp2.Seattle1.Level3.net (209.247.10.133)  199.315 ms
->  8  ge-10-0.hsa2.Seattle1.Level3.net (4.68.105.7)  204.230 ms
->     ge-11-1.hsa2.Seattle1.Level3.net (4.68.105.103)  199.731 ms
->     ge-10-0.hsa2.Seattle1.Level3.net (4.68.105.7)  200.041 ms
->  9  nero-gw.Level3.net (63.211.200.246)  201.951 ms  202.821 ms  201.841 ms
-> 10  corv-car1-gw.nero.net (207.98.64.177)  203.392 ms  204.247 ms 204.439 ms
-> 11  * * *
-> 
-> Does anyone have a clue what happened?
-> 
-> Robert 
+I notice that this driver is calling ata_std_ports() which handles
+the standard setup.  Maybe that needs to become a little more inteligent?
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

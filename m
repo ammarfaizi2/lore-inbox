@@ -1,71 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWJMTWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWJMTbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWJMTWA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWJMTWA
+	id S1751842AbWJMTbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWJMTbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:22:00 -0400
-Received: from mail.gmx.net ([213.165.64.20]:20380 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751837AbWJMTV7 (ORCPT
+	Fri, 13 Oct 2006 15:31:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60087 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751829AbWJMTbj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:21:59 -0400
-X-Authenticated: #14349625
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-From: Mike Galbraith <efault@gmx.de>
-To: nmeyers@vestmark.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061013105502.GA9773@viviport.com>
-References: <20061013004918.GA8551@viviport.com>
-	 <1160727912.15431.11.camel@Homer.simpson.net>
-	 <20061013105502.GA9773@viviport.com>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 21:28:15 +0000
-Message-Id: <1160774895.6041.42.camel@Homer.simpson.net>
+	Fri, 13 Oct 2006 15:31:39 -0400
+Date: Fri, 13 Oct 2006 12:27:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi, ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
+Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
+Message-Id: <20061013122706.56970df2.akpm@osdl.org>
+In-Reply-To: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+References: <patchbomb.1160738328@thor.fsl.cs.sunysb.edu>
+	<ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 06:55 -0400, nmeyers@vestmark.com wrote:
-> On Fri, Oct 13, 2006 at 08:25:12AM +0000, Mike Galbraith wrote:
-> > On Thu, 2006-10-12 at 20:49 -0400, nmeyers@vestmark.com wrote:
-> > 
-> > > I tried Catalin Marinas' kmemleak patches, and had to rebuild with
-> > > GCC 3.4.6 because of a 4.1.1 compiler bug that prevents compilation
-> > > of the patches.
-> > 
-> > Yeah, seems any remotely recent gcc hates it.  That puts a rather large
-> > dent in usability.
-> > 
-> > > And... building with 3.4.5 fixed the leak! So I guess I have very little
-> > > detail to report - except that there's a nasty leak in 2.6.17 when built
-> > > with 4.1.1.
-> > 
-> > If you build using 3.4.5 _without_ the kmemleak patches, do you see the
-> > leak again?  (ie is kmemleak altering timing, or is kernel miscompiled)
+On Fri, 13 Oct 2006 07:18:49 -0400
+Josef "Jeff" Sipek <jsipek@cs.sunysb.edu> wrote:
+
+> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 > 
-> I wondered the same thing. I went back to the original source and .config
-> - rebuilding with 3.4.6 (3.4.5 is a typo) fixed the leak.
+> The following patch introduces several stackfs_copy_* functions which allow
+> stackable filesystems (such as eCryptfs and Unionfs) to easily copy over
+> (currently only) inode attributes. This prevents code duplication and allows
+> for code reuse.
 
-Hmm.  That leaves us with a 4.1.1 miss-compile maybe.
- 
-> > > If anyone has a version of kmemleak that I can build with 4.1.1, or
-> > > any other suggestions for instrumentation, I'd be happy to gather more
-> > > data - the problem is very easy for me to reproduce.
-> > 
-> > I can only suggest trying latest/greatest to see if the issue is still
-> > present, and if so, try to find a way that others may trigger it.
+Fair enough.
+
+> include/linux/stack_fs.h |   65 ++++++++++++++++++++++++++++++++++++++++++++++
+
+The name stack_fs implies that there's a filesystem called stackfs.  Only
+there isn't.  I wonder if we can choose a better name for all of this. 
+Maybe fs_stack_*?
+
 > 
-> I may just do that - apparently 4.1.2 is supposed to fix the kmemleak
-> compile problem. My (admittedly lazy) inclination is to wait until that
-> comes out in a Gentoo ebuild.
+> diff --git a/include/linux/stack_fs.h b/include/linux/stack_fs.h
+> new file mode 100644
+> --- /dev/null
+> +++ b/include/linux/stack_fs.h
+> @@ -0,0 +1,65 @@
+> +#ifndef _LINUX_STACK_FS_H
+> +#define _LINUX_STACK_FS_H
+> +
+> +/* This file defines generic functions used primarily by stackable
+> + * filesystems
+> + */
+> +
+> +static inline void stackfs_copy_inode_size(struct inode *dst,
+> +					   const struct inode *src)
+> +{
+> +	i_size_write(dst, i_size_read((struct inode *)src));
+> +	dst->i_blocks = src->i_blocks;
+> +}
 
-I think some re-evaluation is needed.
+What are the locking requirements for these functions?  Presumably the
+caller must hold i_mutex on at least the source inode, and perhaps the
+destination one?
 
-(fwiw, I tried a pre-release 4.1.2 compiler, and it still choked... I
-didn't even look, so salt to taste)
+If i_mutex is held, i_size_read() isn't needed.
 
-	-Mike
+If i_mutex is held, i_size_write() isn't needed either.
 
+So please document the locking requirements via source comments and then
+see if this can be simplified.
+
+If this function stays as it is, it's too big to inline.
+
+> +static inline void stackfs_copy_attr_atime(struct inode *dest,
+> +					   const struct inode *src)
+> +{
+> +	dest->i_atime = src->i_atime;
+> +}
+> +
+> +static inline void stackfs_copy_attr_times(struct inode *dest,
+> +					   const struct inode *src)
+> +{
+> +	dest->i_atime = src->i_atime;
+> +	dest->i_mtime = src->i_mtime;
+> +	dest->i_ctime = src->i_ctime;
+> +}
+> +
+> +static inline void stackfs_copy_attr_timesizes(struct inode *dest,
+> +					       const struct inode *src)
+> +{
+> +	dest->i_atime = src->i_atime;
+> +	dest->i_mtime = src->i_mtime;
+> +	dest->i_ctime = src->i_ctime;
+> +	stackfs_copy_inode_size(dest, src);
+> +}
+> +
+> +static inline void __stackfs_copy_attr_all(struct inode *dest,
+> +					   const struct inode *src,
+> +					   int (*get_nlinks)(struct inode *))
+> +{
+> +	if (!get_nlinks)
+> +		dest->i_nlink = src->i_nlink;
+> +	else
+> +		dest->i_nlink = get_nlinks(dest);
+
+I cannot find a get_nlinks() in 2.6.19-rc2?
+
+> +	dest->i_mode = src->i_mode;
+> +	dest->i_uid = src->i_uid;
+> +	dest->i_gid = src->i_gid;
+> +	dest->i_rdev = src->i_rdev;
+> +	dest->i_atime = src->i_atime;
+> +	dest->i_mtime = src->i_mtime;
+> +	dest->i_ctime = src->i_ctime;
+> +	dest->i_blkbits = src->i_blkbits;
+> +	dest->i_flags = src->i_flags;
+> +}
+>
+> +static inline void stackfs_copy_attr_all(struct inode *dest,
+> +					 const struct inode *src)
+> +{
+> +	__stackfs_copy_attr_all(dest, src, NULL);
+> +}
+
+Many of these functions are too large to be inlined.  Suggest they be
+placed in fs/fs-stack.c (or whatever we call it).
+
+The functions themselves seem a bit arbitrary. 
+stackfs_copy_attr_timesizes() copy the three timestamps and the size.  Is
+there actually any methodical reason for that, or is it simply some
+sequence which happens to have been observed in ecryptfs?
+
+And please - if I asked these questions when reviewing the patch, others
+will ask them when reading the code two years from now.  So please treat my
+questions as "gosh, I should have put a comment in there".

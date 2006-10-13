@@ -1,120 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWJMScv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbWJMSeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWJMScv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWJMScv
+	id S1751765AbWJMSeY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWJMSeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:32:51 -0400
-Received: from bay0-omc1-s28.bay0.hotmail.com ([65.54.246.100]:63448 "EHLO
-	bay0-omc1-s28.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751308AbWJMScu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:32:50 -0400
-Message-ID: <BAY20-F2590BB342DED17F10A6783D80A0@phx.gbl>
-X-Originating-IP: [80.178.105.199]
-X-Originating-Email: [yan_952@hotmail.com]
-In-Reply-To: <20061013165840.GA9517@dreamland.darkstar.lan>
-From: "Burman Yan" <yan_952@hotmail.com>
-To: kronos.it@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Remn Yan <yan_952@hotmail.com> ha scritto:
-Date: Fri, 13 Oct 2006 20:32:48 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 13 Oct 2006 18:32:50.0192 (UTC) FILETIME=[FCC6C100:01C6EEF5]
+	Fri, 13 Oct 2006 14:34:24 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:21969 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751765AbWJMSeX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:34:23 -0400
+From: "=?iso-8859-9?q?S=2E=C7a=F0lar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: Ondemand/Conservative not working with 2.6.18
+Date: Fri, 13 Oct 2006 21:33:49 +0300
+User-Agent: KMail/1.9.5
+Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org
+References: <EB12A50964762B4D8111D55B764A8454B6C08C@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454B6C08C@scsmsx413.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1645737.87p9QxIRDb";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200610132133.55486.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1645737.87p9QxIRDb
+Content-Type: text/plain;
+  charset="iso-8859-9"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-
->From: Luca Tettamanti <kronos.it@gmail.com>
->To: Yan Burman <yan_952@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Remn Yan <yan_952@hotmail.com> ha scritto:
->Date: Fri, 13 Oct 2006 18:58:40 +0200
+11 Eki 2006 =C7ar 22:00 tarihinde, Pallipadi, Venkatesh =FEunlar=FD yazm=FD=
+=FEt=FD:=20
+> I guess I misunderstood the original issue. You have available_frequencies
+> showing all the values and after you load ondemand, frequency remains at
+> the highest, even though CPUs are idle. Is this correct?
 >
->Burman Yan <yan_952@hotmail.com> ha scritto:
-> > I would like to hear your remarks on this version.
+> And everything above used to work fine with 2.6.16?
 >
->A couple of small issues:
->
-> > +/* Sysfs stuff */
-> > +static ssize_t mdps_position_show(struct device *dev,
-> > +                                  struct device_attribute *attr, char 
->*buf)
-> > +{
-> > +	int x, y;
-> > +	mdps_get_xy(mdps.device->handle, &x, &y);
-> > +	return sprintf(buf, "(%d, %d)\n", x, y);
-> > +}
->
->hdaps doesn't have the space between the numbers.
->
+> Can you configure with CPU_FREQ_DEBUG and do "echo 5 >
+> /sys/module/cpufreq/parameter/debug" before switching the governor to
+> ondemand and see whether you see any messages in dmesg?
 
-Point taken and fixed. I missed that. I looked at calibrate and saw that 
-there are no spaces :)
+I just found a workaround of my problem, if system boots with ac adapter=20
+plugged then ondemand or conservative governors are not working, but=20
+unplugging the adapter and waiting some seconds, plug it back solves this=20
+issue and ondemand/conservative governors are starts to run as expected.
 
-> > +static ssize_t mdps_position3d_show(struct device *dev,
-> > +                                    struct device_attribute *attr, char 
->*buf)
-> > +{
->[...]
-> > +	return sprintf(buf, "(%d, %d, %d)\n", x, y, z);
-> > +}
->
->I'd also remove the space here for consistency.
->Also sysfs should carry "unformatted" data, I would use:
->
->sprintf(buf, "%d %d %d\n", x, y, z);
->
+What should i do now? If im not wrong it seems like acpi subsystem problem=
+=20
+(and just to be sure, i disassembled my dsdt, iacl claims its error/warning=
+=20
+free)
 
-Removed the spaces, but the brackets are there for consistency with the 2d 
-version and hdaps.
+=2D-=20
+S.=C7a=F0lar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
->Maybe we should take a moment to think about an interface for both hdaps
->and this one.
->
-> > +static ssize_t mdps_calibrate_store(struct device *dev,
-> > +                   struct device_attribute *attr, const char *buf, 
->size_t count)
-> > +{
-> > +	mdps_calibrate_mouse();
-> > +	return count;
-> > +}
->
->No locking here?
->
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
+--nextPart1645737.87p9QxIRDb
+Content-Type: application/pgp-signature
 
-I don't want to lock it here, since the mouse polling kthread is heavy as it 
-is.
-I'd rather report a wrong value of mouse position while recalibrating.
-The way I see it, if you're recalibrating your mouse, chances are you're not 
-playing at the same precise millisecond. In my opinion it's worth more 
-battery life.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
+iD8DBQBFL9wTy7E6i0LKo6YRAg61AJsHLN3PFqBlvrW3k02v2iVVdbt7aACgv3mP
+yNSJlmGtMZGsrsW/8Z4n7+Y=
+=iEAT
+-----END PGP SIGNATURE-----
 
-> > +static ssize_t mdps_rate_show(struct device *dev,
-> > +                              struct device_attribute *attr, char *buf)
-> > +{
->[...]
-> > +	return sprintf(buf, "sampling rate:\t%dHz\n", rate);
-> > +}
->
->Raw value, i.e. sprintf(buf, "%d\n", rate).
->
->
-
-Point taken and fixed.
-
-I also found that I missed a comment in Kconfig after switching from proc to 
-sysfs, but
-I'll post the corrected version after I have more fixes to it.
-
-Thanks for noticing.
-
-Yan
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+--nextPart1645737.87p9QxIRDb--

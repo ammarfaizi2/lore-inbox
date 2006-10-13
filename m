@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWJMAu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWJMAtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWJMAu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 20:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWJMAu2
+	id S1751394AbWJMAtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 20:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWJMAtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 20:50:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32915 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751398AbWJMAu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 20:50:27 -0400
-Date: Thu, 12 Oct 2006 17:50:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Stephen Hemminger <shemminger@osdl.org>, mlindner@syskonnect.de,
-       rroesler@syskonnect.de, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] sk98lin: handle pci_enable_device() return value in
- skge_resume() properly
-Message-Id: <20061012175013.87564a57.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
-References: <Pine.LNX.4.64.0610130002320.29022@twin.jikos.cz>
-	<20061012152512.66f147b8@freekitty>
-	<Pine.LNX.4.64.0610130028450.29022@twin.jikos.cz>
-	<20061012154714.6924f465@freekitty>
-	<Pine.LNX.4.64.0610130052440.29022@twin.jikos.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 12 Oct 2006 20:49:20 -0400
+Received: from vstglbx99.vestmark.com ([208.50.5.99]:19473 "EHLO
+	texas.hq.viviport.com") by vger.kernel.org with ESMTP
+	id S1751394AbWJMAtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Oct 2006 20:49:19 -0400
+Date: Thu, 12 Oct 2006 20:49:18 -0400
+From: nmeyers@vestmark.com
+To: linux-kernel@vger.kernel.org
+Subject: Major slab mem leak with 2.6.17 / GCC 4.1.1
+Message-ID: <20061013004918.GA8551@viviport.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 13 Oct 2006 00:49:18.0811 (UTC) FILETIME=[6A3ABAB0:01C6EE61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 00:57:18 +0200 (CEST)
-Jiri Kosina <jikos@jikos.cz> wrote:
+Hello,
 
-> @@ -5070,7 +5070,13 @@ static int skge_resume(struct pci_dev *p
->  
->  	pci_set_power_state(pdev, PCI_D0);
->  	pci_restore_state(pdev);
-> -	pci_enable_device(pdev);
-> +	ret = pci_enable_device(pdev);
-> +	if (ret) {
-> +		printk(KERN_ERR "sk98lin: Cannot enable PCI device %s during resume\n", 
-> +				dev->name);
-> +		unregister_netdev(dev);
+I've been chasing an OOM-death problem on 2.6.17 that showed up while
+running a J2EE application on my recently-built Gentoo box. The crash
+was ugly - leaking huge numbers of skbuff_head_cache and size-2048 slab
+entries until my java processes died and the system became unusable
+and unresponsive.
 
-This looks rather wrong - skge_exit() will run unregister_netdev() again.
+My environment is:
 
-Look a few lines down, to where this function already handles request_irq()
-failure, reuse that code path.  Hopefully it has been tested..
+  Gentoo kernel build 2.6.17-gentoo-r8, built with GCC 4.1.1.
 
-(Once we have an easy-to-use fault-injection framework we'll be able to
-test all these things more easily)
+I tried Catalin Marinas' kmemleak patches, and had to rebuild with
+GCC 3.4.6 because of a 4.1.1 compiler bug that prevents compilation
+of the patches.
 
-(But it's possible to test them already, with a bit of ad-hoc testing code)
+And... building with 3.4.5 fixed the leak! So I guess I have very little
+detail to report - except that there's a nasty leak in 2.6.17 when built
+with 4.1.1.
+
+If anyone has a version of kmemleak that I can build with 4.1.1, or
+any other suggestions for instrumentation, I'd be happy to gather more
+data - the problem is very easy for me to reproduce.
+
+Nathan Meyers
+nmeyers@vestmark.com

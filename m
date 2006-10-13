@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWJMRzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWJMR5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWJMRzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWJMRzo
+	id S1751581AbWJMR5w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWJMR5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:55:44 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:42637 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751402AbWJMRzn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:55:43 -0400
-Message-ID: <452FD305.6070902@zytor.com>
-Date: Fri, 13 Oct 2006 10:55:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 13 Oct 2006 13:57:52 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:56592 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751581AbWJMR5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:57:51 -0400
+Date: Fri, 13 Oct 2006 13:57:48 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Matthew Wilcox <matthew@wil.cx>, Adam Belay <abelay@MIT.EDU>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Bug in PCI core
+In-Reply-To: <1160760867.25218.77.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0610131355550.6612-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Kay Sievers <kay.sievers@vrfy.org>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.19-rc2
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <200610131840.28411.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200610131840.28411.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> On Friday 13 October 2006 17:49, Linus Torvalds wrote:
->> Ok, it's a week since -rc1, so -rc2 is out there.
+On Fri, 13 Oct 2006, Alan Cox wrote:
+
+> Ar Gwe, 2006-10-13 am 10:49 -0600, ysgrifennodd Matthew Wilcox:
+> > No it didn't.  It's undefined behaviour to perform *any* PCI config
+> > access to the device while it's doing a D-state transition.  It may have
 > 
-> Does anybody know what's up with the git server? Hopefully it's just my 
-> connection...
+> I think you missed the earlier parts of the story - the kernel caches
+> the base config register state.
 > 
-> [alistair] 18:38 [~/linux-git] git pull
-> fatal: unexpected EOF
-> Fetch failure: 
-> git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> > happened to work with the chips you tried it with, but more likely you
+> > never hit that window because X simply didn't try to do that.
 > 
+> Which is why the kernel caches the register state. This all came up long
+> ago and the solution we currently have was the one chosen after
+> considerable debate and analysis about things like locking. We preserved
+> the historical reliable interface going back to the early Linux PCI
+> support and used by all the apps.
 
-No, this is the result of a serious problem with gitweb.
+Would it be okay for pci_block_user_cfg_access() to use its own cache, so 
+it doesn't interfere with data previously cached by pci_save_state()?
 
-We run gitweb behind a cache (otherwise it would be unacceptably 
-expensive), but when httpd starts timing out on gitweb, it spawns gitweb 
-over and over and over again, and the load on the machine skyrockets, 
-throttling other services.
+Alan Stern
 
-This happens every time we're on one server instead of two (one server 
-is down right now for network rewiring.)
-
-I think for now I'm just going to put a loadavg cap on running gitweb...
-
-	-hpa

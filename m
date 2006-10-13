@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWJMPkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWJMPmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWJMPkK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 11:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWJMPkK
+	id S1751280AbWJMPmw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 11:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWJMPmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 11:40:10 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37552 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751228AbWJMPkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 11:40:08 -0400
-Subject: Re: [linux-pm] Bug in PCI core
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Adam Belay <abelay@MIT.EDU>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160753390.3000.494.camel@laptopd505.fenrus.org>
-References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
-	 <1160753187.25218.52.camel@localhost.localdomain>
-	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Oct 2006 17:06:02 +0100
-Message-Id: <1160755562.25218.60.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 13 Oct 2006 11:42:52 -0400
+Received: from pas38-1-82-67-71-117.fbx.proxad.net ([82.67.71.117]:58532 "EHLO
+	siegfried.gbfo.org") by vger.kernel.org with ESMTP id S1751280AbWJMPmv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 11:42:51 -0400
+Date: Fri, 13 Oct 2006 17:42:28 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@gmail.com>
+X-X-Sender: saffroy@erda.mds
+To: Steven Truong <midair77@gmail.com>
+cc: Vivek Goyal <vgoyal@in.ibm.com>, linux-kernel@vger.kernel.org,
+       crash-utility@redhat.com
+Subject: Re: [Crash-utility] Re: kdump/kexec/crash on vmcore file
+In-Reply-To: <20061013141446.GA27375@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0610131727270.4785@erda.mds>
+References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
+ <20061013141446.GA27375@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-10-13 am 17:29 +0200, ysgrifennodd Arjan van de Ven:
-> > And then you can fix the applications it breaks, like the X server which
-> > does actually want to know where all the devices are located in PCI
-> > space.
-> > 
-> 
-> .. but which could equally well mmap the resource from sysfs ;)
+Steven,
 
-That doesn't help deal with the location and PCI control side of things
-X has to perform and deal with. You also forgot to attach the tested
-patch set for the X server and other affected apps.
+I see you tried using gdb, maybe a tool I wrote could help you:
+   http://jeanmarc.saffroy.free.fr/kdump2gdb/
 
-The cached stuff was put in place precisely because stuff broke
+Basically it will convert the kdump core to a slightly different core that 
+is suitable for gdb, as well as a gdb script that loads kernel modules at 
+the right offsets. Then maybe you can grab a backtrace of the faulting 
+process ("bt full" can be nice) and post it to l-k.
 
+
+Cheers,
+
+-- 
+saffroy@gmail.com

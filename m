@@ -1,56 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWJMAAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWJMABv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWJMAAs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 20:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWJMAAs
+	id S1751346AbWJMABv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Oct 2006 20:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWJMABv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 20:00:48 -0400
-Received: from mga01.intel.com ([192.55.52.88]:36974 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1751344AbWJMAAr (ORCPT
+	Thu, 12 Oct 2006 20:01:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41615 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751346AbWJMABu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 20:00:47 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,301,1157353200"; 
-   d="scan'208"; a="3368490:sNHT335317284"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Zach Brown'" <zach.brown@oracle.com>,
-       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
-       "Lahaise, Benjamin C" <benjamin.c.lahaise@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "'linux-aio'" <linux-aio@kvack.org>
-Subject: [patch] clarify AIO_EVENTS_OFFSET constant
-Date: Thu, 12 Oct 2006 17:00:24 -0700
-Message-ID: <000301c6ee5a$9dfae250$db34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 12 Oct 2006 20:01:50 -0400
+Date: Thu, 12 Oct 2006 17:01:25 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: matthltc@us.ibm.com, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+ configfs
+Message-Id: <20061012170125.504153ec.pj@sgi.com>
+In-Reply-To: <20061012225146.GX7911@ca-server1.us.oracle.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	<20061010203511.GF7911@ca-server1.us.oracle.com>
+	<6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	<20061010215808.GK7911@ca-server1.us.oracle.com>
+	<1160527799.1674.91.camel@localhost.localdomain>
+	<20061011012851.GR7911@ca-server1.us.oracle.com>
+	<20061011220619.GB7911@ca-server1.us.oracle.com>
+	<1160619516.18766.209.camel@localhost.localdomain>
+	<20061012070826.GO7911@ca-server1.us.oracle.com>
+	<20061012144420.089f3dce.pj@sgi.com>
+	<20061012225146.GX7911@ca-server1.us.oracle.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcbuWpUOj6XXIxnsQga5s3ALMZCUDg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A clean up patch: I think it is a lot easier to read AIO_EVENTS_OFFSET
-as an offset because of aio_ring at the beginning of a head page, instead
-of doing arithmetic of (event on 2nd page - event on 1st page).
+Joel wrote:
+> 	Sure, no dispute here.  My argument point isn't that "vector of
+> scalars is inherently evil" (I'll leave that aside), it's that a
+> facility allowing or encouraging the format change or blowup is
+> unhealthy.
 
+Ok ... yes simply extending the size is changing the protocol
+at too low a level ... an invitation to future abuse.  I'll agree
+somewhat with your concern there.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+Is there some way to accept an array of scalars?  Some change
+in the API that configfs presents to the kernel code using it,
+that would let that code say "here's an array of u32, of length
+so-and-so?"
 
+Hmmm ... having spouted off for three messages now ... decided to
+actually look at this ;).
 
-diff -Nurp linux-2.6.18/fs/aio.c linux-2.6.18.ken/fs/aio.c
---- linux-2.6.18/fs/aio.c	2006-09-19 20:42:06.000000000 -0700
-+++ linux-2.6.18.ken/fs/aio.c	2006-10-12 13:33:09.000000000 -0700
-@@ -173,9 +173,8 @@ static int aio_setup_ring(struct kioctx 
- /* aio_ring_event: returns a pointer to the event at the given index from
-  * kmap_atomic(, km).  Release the pointer with put_aio_ring_event();
-  */
--#define AIO_EVENTS_PER_PAGE	(PAGE_SIZE / sizeof(struct io_event))
--#define AIO_EVENTS_FIRST_PAGE	((PAGE_SIZE - sizeof(struct aio_ring)) / sizeof(struct io_event))
--#define AIO_EVENTS_OFFSET	(AIO_EVENTS_PER_PAGE - AIO_EVENTS_FIRST_PAGE)
-+#define AIO_EVENTS_PER_PAGE  (PAGE_SIZE / sizeof(struct io_event))
-+#define AIO_EVENTS_OFFSET    (sizeof(struct aio_ring) / sizeof(struct io_event))
- 
- #define aio_ring_event(info, nr, km) ({					\
- 	unsigned pos = (nr) + AIO_EVENTS_OFFSET;			\
+Let me consider a different approach ...
 
+At the top of Documentation/filesystems/configfs/configfs.txt,
+I see:
+
+    configfs is a ram-based filesystem that provides the converse of
+    sysfs's functionality.  Where sysfs is a filesystem-based view of
+    kernel objects, configfs is a filesystem-based manager of kernel
+    objects, or config_items.
+
+I guess this means that sysfs presents the gauges, and configfs
+the knobs.
+
+This seems like a bit of an artificial split to me - view (mostly
+read) here, and manage (mostly write) here.
+
+Not entirely surprisingly, I'm fond of the cpuset approach -- all
+things cpuset-related in one place, both viewing and managing.
+
+Similarly, /proc is a repository for all things task related, and
+/dev for all devices (well, with various exceptions, contradictions,
+confusions, and historical raisins ...)
+
+There should indeed be a place for various kernel guages and knobs that
+don't merit having their own entire file system.  And since we already
+have a separate sysfs and configfs, better to leave that aspect be, as
+two separate name spaces ... despite my rant about this being an
+artificial split a few lines above.
+
+And if configfs wants to (continue to) impose a rule that there is a
+single, simple scalar per file, that may well fit its needs and guide
+its future extensions in the best way.
+
+But if something like Resource Groups comes along, I'd think it deserves
+its own file system name space (though sometimes I am sympathetic to
+suggestions to merge this one into the cpuset name space -- not sure.)
+
+Underneath each of these filesystems, sysfs, configfs, cpuset, resource
+groups, ... it would seem ideal if we had a single kernel file system
+infrastructure.  Actually, we're only a half a layer from having that,
+with vfs.  It just takes a fair bit of glue to construct any of these
+file systems out of vfs primitives.
+
+I wonder if there might be someway to share that glue?  I am envisioning
+a new glue layer, mostly in the kernel internal headers and lib
+directory, that sits on top of the current vfs, and makes it easy for
+virtual file system presenters such as sysfs, configfs, cpusets and
+resource groups to construct the particular virtual file system they
+require.
+
+I would expect this glue layer to support vectors of scalars, even if
+some of its users, such as configfs, chose not to expose that
+possibility.  Arguments between configfs and resource group developers
+over the value of presenting vectors suggest we've gone astray -
+enforcing commonality where it is not beneficial to do so.
+
+I would not expect such a change to using common vfs glue to change
+much, if at all, existing client kernel code that uses configfs or
+sysfs (or cpusets.)  The configfs example code in:
+    Documentation/filesystems/configfs/configfs_example.c
+should continue to work, as is.
+
+I would expect to reduce a little some cut and paste code duplication,
+hence reduce the kernel text size and reduce kernel maintenance and
+improve a little the ease with which future features (Resource Groups,
+say) can add their own virtual file system hierarchies.
+
+This means creating a new kernel internal API, by which the various
+clients (sysfs, configfs, cpusets, ...) of this common glue layer can
+represent the particular instance of such a virtual file system that
+they require, and hook in their operational methods.  Then it means
+porting the existing such virtual file systems, such as configfs, sysfs
+and cpusets, to this common glue infrastructure.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

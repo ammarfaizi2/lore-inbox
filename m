@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWJMWGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751929AbWJMWLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751872AbWJMWGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 18:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWJMWGJ
+	id S1751929AbWJMWLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 18:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751930AbWJMWLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 18:06:09 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36070
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751218AbWJMWGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 18:06:07 -0400
-Date: Fri, 13 Oct 2006 15:06:08 -0700 (PDT)
-Message-Id: <20061013.150608.63128976.davem@davemloft.net>
-To: joro-lkml@zlug.org
-Cc: jdi@l4x.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/02 V3] net/ipv6: seperate sit driver to extra module
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061013191744.GA30089@zlug.org>
-References: <20061010153745.GA27455@zlug.org>
-	<452FD6F6.3090907@l4x.org>
-	<20061013191744.GA30089@zlug.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 13 Oct 2006 18:11:16 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18580 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751929AbWJMWLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 18:11:16 -0400
+Subject: Re: 2.6.18-rt1
+From: Lee Revell <rlrevell@joe-job.com>
+To: dipankar@in.ibm.com
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <20061013212450.GC7477@in.ibm.com>
+References: <20060920141907.GA30765@elte.hu>
+	 <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com>
+	 <200610132318.02512.annabellesgarden@yahoo.de>
+	 <20061013212450.GC7477@in.ibm.com>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 18:12:16 -0400
+Message-Id: <1160777536.4201.31.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joerg Roedel <joro-lkml@zlug.org>
-Date: Fri, 13 Oct 2006 21:17:45 +0200
+On Sat, 2006-10-14 at 02:54 +0530, Dipankar Sarma wrote:
+> Can you try with nmi_watchdog=0 in the kernel command line ?
+> 
+> Paul has an NMI-safe patch for rcupreempt which I am adopting
+> and testing at the moment. If this works well, I will publish
+> a new patchset.
+> 
 
-> On Fri, Oct 13, 2006 at 08:12:06PM +0200, Jan Dittmer wrote:
-> > This is missing the MODULE_LICENSE statements and taints the kernel upon
-> > loading. License is obvious from the beginning of the file.
- ...
-> > Signed-off-by: Jan Dittmer <jdi@l4x.org>
-> Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
+The bug is too hard to hit for me to provide useful feedback.  I've only
+seen it once since my original report.
 
-Applied, thanks for catching this Jan.
+FWIW, I am also seeing hard lockups every 12-24 hours but the box is
+headless and I don't have the bandwidth to debug these further.  It was
+stable with 2.6.17-rt*.
+
+Lee
+

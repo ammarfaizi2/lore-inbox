@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWJMRDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWJMRIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWJMRDW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWJMRDW
+	id S1751392AbWJMRIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWJMRIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:03:22 -0400
-Received: from excu-mxob-2.symantec.com ([198.6.49.23]:32236 "EHLO
-	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
-	id S1751284AbWJMRDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:03:21 -0400
-Date: Fri, 13 Oct 2006 18:03:08 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: RE: Hugepage regression
-In-Reply-To: <000201c6ecc0$565cdc00$cb34030a@amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.64.0610131744580.14935@blonde.wat.veritas.com>
-References: <000201c6ecc0$565cdc00$cb34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 13 Oct 2006 17:02:57.0576 (UTC) FILETIME=[6E86DA80:01C6EEE9]
+	Fri, 13 Oct 2006 13:08:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9619 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751392AbWJMRIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:08:47 -0400
+Subject: Re: [linux-pm] Bug in PCI core
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Adam Belay <abelay@MIT.EDU>, Arjan van de Ven <arjan@infradead.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061013164933.GD11633@parisc-linux.org>
+References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
+	 <1160753187.25218.52.camel@localhost.localdomain>
+	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
+	 <1160755562.25218.60.camel@localhost.localdomain>
+	 <1160757260.26091.115.camel@localhost.localdomain>
+	 <1160759349.25218.62.camel@localhost.localdomain>
+	 <20061013164933.GD11633@parisc-linux.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Oct 2006 18:34:27 +0100
+Message-Id: <1160760867.25218.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Oct 2006, Chen, Kenneth W wrote:
-> Hugh Dickins wrote on Tuesday, October 10, 2006 1:10 PM
-> > > can we reverse that order (call unmap_region
-> > > and then nulls out vma->vmfile and fput)?
-> > 
-> > I'm pretty sure we cannot: the ordering is quite intentional, that if
-> > a driver ->mmap failed, then it'd be wrong to call down to driver in
-> > the unmap_region (if a driver is nicely behaved, that unmap_region
-> > shouldn't be unnecessary; but some do rely on us clearing ptes there).
+Ar Gwe, 2006-10-13 am 10:49 -0600, ysgrifennodd Matthew Wilcox:
+> No it didn't.  It's undefined behaviour to perform *any* PCI config
+> access to the device while it's doing a D-state transition.  It may have
 
-Looking at it again, my explanation seems wrong: I can't see any danger
-of calling down to the _driver_ there (there's no remove_vma): rather,
-it's __remove_shared_vm_struct we're avoiding by setting vm_file NULL.
+I think you missed the earlier parts of the story - the kernel caches
+the base config register state.
 
-> 
-> Even not something like the following?  I believe you that nullifying
-> vma->vm_file can not be done after unmap_region(),
+> happened to work with the chips you tried it with, but more likely you
+> never hit that window because X simply didn't try to do that.
 
-Yet in your patch below, you do nullify vm_file _after_ unmap_region.
+Which is why the kernel caches the register state. This all came up long
+ago and the solution we currently have was the one chosen after
+considerable debate and analysis about things like locking. We preserved
+the historical reliable interface going back to the early Linux PCI
+support and used by all the apps.
 
-> I just want to make sure we are talking the same thing.
 
-So I'm not sure if we are!
+There are several problems with making it return an error
 
-> It looks OK to me to defer the fput in the do_mmap_pgoff clean up path.
+- What does user space do ?
 
-Yes, it would be quite okay to defer the fput until after the
-unmap_region; but there's no point in making that change, is there?
+	while(pci_...() == -EAGAIN) yield();
 
-Hugh (sorry, I was off sick for a couple of days)
+which is useful how - there is no select operation for waiting here, and
+while it could be added it just gets uglier
 
-> 
-> 
-> --- ./mm/mmap.c.orig	2006-10-10 15:58:17.000000000 -0700
-> +++ ./mm/mmap.c	2006-10-10 15:59:02.000000000 -0700
-> @@ -1159,11 +1159,12 @@ out:	
->  unmap_and_free_vma:
->  	if (correct_wcount)
->  		atomic_inc(&inode->i_writecount);
-> -	vma->vm_file = NULL;
-> -	fput(file);
->  
->  	/* Undo any partial mapping done by a device driver. */
->  	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
-> +
-> +	vma->vm_file = NULL;
-> +	fput(file);
->  	charged = 0;
->  free_vma:
->  	kmem_cache_free(vm_area_cachep, vma);
-> 
+- Who actually wants to get an error in that specific case ?
+
+If you can find someone who desperately wants an error code then code in
+O_DIRECT support to do it and preserve the existing sane API.
+
+The job of the kernel is not to expose hardware directly, it is to
+provide sane interfaces to it. We don't have separate interfaces to
+conf1, conf2, pcibios etc for good reason. Exposing everyone to ugly
+minor details of the PCI transition handling isn't progress.
+
+
+Alan
+

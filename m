@@ -1,73 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWJMTHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751820AbWJMTGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbWJMTHI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 15:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWJMTHH
+	id S1751820AbWJMTGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWJMTGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 15:07:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19120 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751795AbWJMTHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 15:07:04 -0400
-Date: Fri, 13 Oct 2006 12:06:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Akinobu Mita" <akinobu.mita@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, "Don Mullis" <dwm@meer.net>,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [patch 7/7] stacktrace filtering for fault-injection
- capabilities
-Message-Id: <20061013120639.cd07ac4b.akpm@osdl.org>
-In-Reply-To: <961aa3350610131112l141b782ey281e068116411cbf@mail.gmail.com>
-References: <20061012074305.047696736@gmail.com>
-	<452df23e.44ca1e09.1a7f.780f@mx.google.com>
-	<20061012142004.a111ca6a.akpm@osdl.org>
-	<20061013180039.GD29079@localhost>
-	<961aa3350610131112l141b782ey281e068116411cbf@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 13 Oct 2006 15:06:51 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:35317 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751795AbWJMTGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 15:06:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=nYEd7IHkN+wUx7I7n7mhADet3/SMSzAQMsn4T8cLuYSQ6x7FjMIhsuleyDDpDVgZTiVE9Mezqw5K4MsVZMBFea0huuQhQXdcJDikKUNBGg44uvg23fptLI8I3M06klqQ1PCnqVvWlt4a0xU/JWtFmQVQzg247ea7tK+5P6wKRQI=
+Reply-To: andrew.j.wade@gmail.com
+To: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
+Date: Fri, 13 Oct 2006 15:04:11 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi, ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
+References: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+In-Reply-To: <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610131506.38609.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Oct 2006 03:12:23 +0900
-"Akinobu Mita" <akinobu.mita@gmail.com> wrote:
+On Friday 13 October 2006 07:18, Josef Jeff Sipek wrote:
+> +static inline void stackfs_copy_inode_size(struct inode *dst,
+> +					   const struct inode *src)
+> +{
+> +	i_size_write(dst, i_size_read((struct inode *)src));
 
-> 2006/10/14, Akinobu Mita <akinobu.mita@gmail.com>:
-> 
-> > > > --- work-fault-inject.orig/lib/Kconfig.debug
-> > > > +++ work-fault-inject/lib/Kconfig.debug
-> > > > @@ -472,6 +472,8 @@ config LKDTM
-> > > >
-> > > >  config FAULT_INJECTION
-> > > >     bool
-> > > > +   select STACKTRACE
-> > > > +   select FRAME_POINTER
-> > > >
-> > > >  config FAILSLAB
-> > > >     bool "fault-injection capabilitiy for kmalloc"
-> > > >
-> > >
-> > > Is the selection of FRAME_POINTER really needed?  The fancy new unwinder
-> > > is supposed to be able to handle frame-pointerless unwinding?
-> >
-> > As I wrote in another reply, There are two type of implementation of
-> > this stacktrace filter.
-> >
-> > - using STACKTRACE + FRAME_POINTER
-> > - using new unwinder (STACK_UNWIND)
-> >
-> > The stacktrace with using new unwinder without FRAME_POINTER is much
-> > slower than STACKTRACE + FRAME_POINTER.
-> >
-> 
-> Maybe I should drop new unwinder support for now.
-
-I'd say it should stay.  It'll be a lot more accurate once everything is
-sorted out.  And hopefully the new unwinder will get sped up.
-
-Plus I don't think performance matters a lot here: if you want to test the
-e100 driver with fault injection, the whole test would take about three
-seconds.  After that, you've exercised every code path in the driver.  So
-if enabling range-based fault injection increases that to 300 seconds, it is
-still practical.
+Instead of casting, I'd change the signature of i_size_read.

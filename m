@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWJMOOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWJMOPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWJMOOP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 10:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWJMOOP
+	id S1750851AbWJMOPS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 10:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWJMOPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 10:14:15 -0400
-Received: from aa014msr.fastwebnet.it ([85.18.95.74]:53137 "EHLO
-	aa014msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750845AbWJMOOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 10:14:14 -0400
-Date: Fri, 13 Oct 2006 16:14:21 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Brice Figureau <brice+lklm@daysofwonder.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sluggish system while copying large files.
-Message-ID: <20061013161421.7ecba339@localhost>
-In-Reply-To: <1160747774.7929.53.camel@localhost.localdomain>
-References: <1160747774.7929.53.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
+	Fri, 13 Oct 2006 10:15:18 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:14826 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750851AbWJMOPQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 10:15:16 -0400
+Date: Fri, 13 Oct 2006 10:14:46 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Steven Truong <midair77@gmail.com>
+Cc: linux-kernel@vger.kernel.org, crash-utility@redhat.com,
+       Dave Anderson <anderson@redhat.com>
+Subject: Re: kdump/kexec/crash on vmcore file
+Message-ID: <20061013141446.GA27375@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 15:56:14 +0200
-Brice Figureau <brice+lklm@daysofwonder.com> wrote:
-
-> I have a brand new Dell 2850 biXeon x86_64 with a Perc4e/Di (megaraid)
-> RAID card with two hardware RAID1 volumes (sda and sdb, ext3 on top of
-> LVM2, io scheduler deadline).
+On Thu, Oct 12, 2006 at 02:50:33PM -0700, Steven Truong wrote:
+> Hi, all.  This is my first attempt to troubleshoot a kernel panic so I
+> am quite newbie in this area. I have been able to obtain a kdump when
+> my box had kernel panic.
 > 
-> This machine runs 2.6.18 and is used as a mysql server.
+> I set up Kdump and Kexec and then the captured/crash kernel to boot
+> into Level 1 and then copy /proc/vmcore file to the disk for later
+> analysis.  However, after the server booted back to Level 3 and I
+> utilized the crash command to analyzed the vmcore file.  I got error
+> message:
 > 
-> Whenever I cp large files (for instance during backup) from one volume
-> to the other, the system becomes really sluggish. 
+> ./crash /boot/vmlinux ../vmcore.test
+> 
+> 
+> crash: read error: kernel virtual address: ffffffff8123d1e0  type:
+> "kernel_config_data"
+> WARNING: cannot read kernel_config_data
+> crash: read error: kernel virtual address: ffffffff813b5180  type: "xtime"
+> 
 
-I used to have this problem and it seems that 2.6.19-rc1 and later
-kernels are better (at least for me).
+Hi Steven,
 
--- 
-	Paolo Ornati
-	Linux 2.6.19-rc1-g9eb20074 on x86_64
+which vmlinux are you using for analysis? First kernel's vmlinux or
+second kernel's vmlinux. You should be using first kernel's vmlinux.
+
+crash is trying to read some symbols from the core file and crash thinks
+that virtual address for kernel_config_data is ffffffff8123d1e0. I think
+this is too high a address. I guess this will be the address if you
+compile your kernel for physical address 16MB. So my first guess is that
+you are using second kernel's vmlinux for analysis.
+
+Which kernel version and kexec-tools version are you using?
+
+I am also copying the mail to crash-utility mailing list where folks
+keep a watch on crash related issues.
+
+Thanks
+Vivek

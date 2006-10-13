@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWJMUn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWJMUpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751889AbWJMUn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 16:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWJMUn4
+	id S1751893AbWJMUpT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 16:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWJMUpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 16:43:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57547 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751889AbWJMUnz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 16:43:55 -0400
-Date: Fri, 13 Oct 2006 13:43:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: neilb@suse.de, rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>
-Subject: Re: +
- convert-cpu-hotplug-notifiers-to-use-raw_notifier-instead-of-blocking_notifier.patch
- added to -mm tree
-Message-Id: <20061013134339.463f5856.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0610131313h2f872cc9uf4dbc3f2b41de3f6@mail.gmail.com>
-References: <200610130506.k9D56YJY031111@shell0.pdx.osdl.net>
-	<452FAE74.1020500@googlemail.com>
-	<20061013114132.9e5afab9.akpm@osdl.org>
-	<6bffcb0e0610131313h2f872cc9uf4dbc3f2b41de3f6@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 13 Oct 2006 16:45:18 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:53183 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751893AbWJMUpQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 16:45:16 -0400
+Subject: Re: Keyboard Stuttering
+From: john stultz <johnstul@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
+       David Gerber <dg-lkml@zapek.com>, Andi Kleen <ak@suse.de>
+In-Reply-To: <1160669564.24931.37.camel@mindpipe>
+References: <200610061218.36883.dg-lkml@zapek.com>
+	 <d120d5000610101009h49904afeq61b8e7f5dab79346@mail.gmail.com>
+	 <1160504714.4973.6.camel@localhost>  <1160669564.24931.37.camel@mindpipe>
+Content-Type: text/plain
+Date: Fri, 13 Oct 2006 13:45:08 -0700
+Message-Id: <1160772309.5457.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 22:13:43 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-
-> On 13/10/06, Andrew Morton <akpm@osdl.org> wrote:
-> > On Fri, 13 Oct 2006 17:19:16 +0200
-> > Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >
-> > > There is something really wrong with this patch (or my hardware).
-> > >
-> > > echo shutdown > /sys/power/disk; echo disk > /sys/power/state
-> > > works fine for me on 2.6.19-rc1-g8770c018.
-> > >
-> > > On 2.6.19-rc1-mm1 +
-> > > convert-cpu-hotplug-notifiers-to-use-raw_notifier-instead-of-blocking_notifier.patch
-> > > + Neil's avoid_lockdep_warning_in_md.patch
-> > > (http://www.ussg.iu.edu/hypermail/linux/kernel/0610.1/0642.html)
-> > > I get a lot of "end_request: I/O error, dev sda, sector 31834343" messages.
-> >
-> > That's not exactly an expected result.  What makes you think it's due to
-> > this patch?  Does 2.6.19-rc1-mm1 run OK?
+On Thu, 2006-10-12 at 12:12 -0400, Lee Revell wrote:
+> On Tue, 2006-10-10 at 11:25 -0700, john stultz wrote:
+> > On Tue, 2006-10-10 at 13:09 -0400, Dmitry Torokhov wrote:
+> > > > Same problem here. Intel Core 2 Duo with 2.6.19-rc1 x86_64 SMP. Happens on
+> > > > 2.6.17 too. I use 'noapic' as a workaround but that disables one of the CPU
+> > > > core of course.
+> > > >
+> > > > I cannot reproduce the problem within the console nor gdm. Only on the X
+> > > > desktop.
+> > > >
+> > > 
+> > > It looks like the only clocksource available on David's box is
+> > > "jiffies" although the processor shows that it supporst tsc and PM
+> > > timer is enabled and I think that this is what causes keyboard
+> > > stuttering in X. See http://bugzilla.kernel.org/show_bug.cgi?id=7291.
+> > > I believe clocksources is your turf, could you please take a look at
+> > > this.
+> > 
+> > Sure thing. I followed up in the bug, but I don't think the clocksource
+> > code is involved. x86_64 hasn't converted to GENERIC_TIME, so jiffies is
+> > what we use to increment xtime, but the TSC, ACPI PM, or HPET is used
+> > for gettimeofday, etc. 
+> > 
+> > I suspect C3 idling is the culprit, since noapic works around the issue.
 > 
-> Yes. (the only one issue is
-> http://www.stardust.webpages.pl/files/tbf/euridica/2.6.19-rc1-mm1/mm-dmesg)
-> 
-> I get many "random" bugs that avoid hibernation with this patch.
-> Unfortunately I can't catch backtraces (broken sysklogd, lack of
-> serial console).
-> 
-> Here is the only one bug that I can reproduce and copy (by hand)
-> 
-> ---
-> BUG: bad unlock balance detected!
-> ---
-> klogd/1751 is trying release lock (&cpu_base->lock_key) at:
-> [<c0137a3d>] hrtimer_sched_tick
-> but there are no more locks to release!
-> other info that might help us debug this:
-> 1 lock held by klogd/1751
+> Wait, does this mean that Intel's x86-64 implementation has the same
+> buggy TSC as AMD's?
 
-<rewiews the patch again>
+Not the same issue, no.. but the TSCs do halt in lower powersaving
+modes, which can cause similar results. The new TSC clocksource code on
+i386 will disqualify itself if those lower powerstates are entered, so
+it should auto detect and fall back. On x86_64, this logic apparently is
+sill needed.
 
-How completely bizarre.  I've no idea what's going on.  I'll see if I can
-reproduce it later today (fat chance).
+thanks
+-john
 
-Meanwhile, let's blame Rusty.
+

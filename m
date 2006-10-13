@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751811AbWJMS7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWJMTBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751811AbWJMS7w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWJMS7w
+	id S1751814AbWJMTBk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 15:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWJMTBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:59:52 -0400
-Received: from bay0-omc1-s35.bay0.hotmail.com ([65.54.246.107]:22111 "EHLO
-	bay0-omc1-s35.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751811AbWJMS7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:59:51 -0400
-Message-ID: <BAY20-F8BFE6FB1EB53A9364234ED80A0@phx.gbl>
-X-Originating-IP: [80.178.105.199]
-X-Originating-Email: [yan_952@hotmail.com]
-In-Reply-To: <1160756702.14815.1.camel@laptopd505.fenrus.org>
-From: "Burman Yan" <yan_952@hotmail.com>
-To: arjan@infradead.org
-Cc: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       pazke@donpac.ru
-Subject: Re: [PATCH] HP mobile data protection system driver
-Date: Fri, 13 Oct 2006 20:59:47 +0200
+	Fri, 13 Oct 2006 15:01:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7854 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751814AbWJMTBj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 15:01:39 -0400
+Date: Fri, 13 Oct 2006 12:01:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, Don Mullis <dwm@meer.net>
+Subject: Re: [patch 1/7] documentation and scripts
+Message-Id: <20061013120129.76e23366.akpm@osdl.org>
+In-Reply-To: <20061013174724.GB29079@localhost>
+References: <20061012074305.047696736@gmail.com>
+	<452df215.7ab6aae9.17a4.58b5@mx.google.com>
+	<20061012143713.3f6030c8.akpm@osdl.org>
+	<20061013174724.GB29079@localhost>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 13 Oct 2006 18:59:51.0336 (UTC) FILETIME=[C30DB280:01C6EEF9]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 14 Oct 2006 02:47:24 +0900
+Akinobu Mita <akinobu.mita@gmail.com> wrote:
 
+> On Thu, Oct 12, 2006 at 02:37:13PM -0700, Andrew Morton wrote:
+> 
+> > So I wonder if it'd be better to make this have units of "one millionth",
+> > or simply make this tunable "1/(probability of failure)".  So setting it to
+> > 1,000,000 gives you one failure per million calls, on average.
+> 
+> /debug/*/interval is available for this purpose.
+> The combination of below commands gives one failure per million calls.
+> 
+> # echo 1000000 > /debug/failslab/interval
+> # echo 100 > /debug/failslab/probability
 
+Oh.  What are the units of "interval"?
 
->From: Arjan van de Ven <arjan@infradead.org>
->To: Burman Yan <yan_952@hotmail.com>
->CC: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,  
->pazke@donpac.ru
->Subject: Re: [PATCH] HP mobile data protection system driver
->Date: Fri, 13 Oct 2006 18:25:02 +0200
->
->
->well.... breaking stuff for no reason other than "but it sounds like HIS
->name" is I thing bad. Yes the name is unfortunate, but if you can use
->the interface... why not? Just because the name isn't perfect everyone
->should change over, including keeping compatibility mess etc etc?
->That needs a stronger reason than "it sounds like his name" to me...
->
->Now if the interface itself isn't good enough, that's a different matter
->of course; but from what I read so far that's not really the case.
->
-
-Well, I just tested hdapsd with mdps and it works - need a relatively high 
-threshold, since at the
-recommended 15 it tries to park heads if you simply lift the laptop. But 
-regarding mouse/keyboard activity
-detection, hdapsd simply right out "open failed" kind of messages and keeps 
-on working.
-
-I guess it may be a good idea after all to change the sysfs file it to hdaps 
-for now.
-
-Yan
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+(I find it's nice to put the units in the actual filename if practical -
+it's self-documenting)

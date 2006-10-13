@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751940AbWJMWWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751948AbWJMWWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751940AbWJMWWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 18:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWJMWWY
+	id S1751948AbWJMWWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 18:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWJMWWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 18:22:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60381 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751940AbWJMWWY (ORCPT
+	Fri, 13 Oct 2006 18:22:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52376 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751948AbWJMWWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 18:22:24 -0400
-Date: Fri, 13 Oct 2006 15:22:20 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Will Schmidt <will_schmidt@vnet.ibm.com>
-cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <1160773040.11239.28.camel@farscape>
-Message-ID: <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
-References: <1160764895.11239.14.camel@farscape> 
- <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com> 
- <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Oct 2006 18:22:51 -0400
+Date: Fri, 13 Oct 2006 23:22:37 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Heinz Mauelshagen <mauelshagen@redhat.com>
+Subject: Re: dm stripe: Fix bounds
+Message-ID: <20061013222237.GL17654@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Phillip Susi <psusi@cfl.rr.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org,
+	Heinz Mauelshagen <mauelshagen@redhat.com>
+References: <20060316151114.GS4724@agk.surrey.redhat.com> <452DBE11.2000005@cfl.rr.com> <20061012135945.GV17654@agk.surrey.redhat.com> <452E5FD0.8060309@cfl.rr.com> <20061012160515.GD17654@agk.surrey.redhat.com> <452E85ED.1040409@cfl.rr.com> <20061012183529.GF17654@agk.surrey.redhat.com> <452EA9FF.2040602@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <452EA9FF.2040602@cfl.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is another fall back fix checking if the slab has already been setup 
-for this node. MPOL_INTERLEAVE could redirect the allocation.
+On Thu, Oct 12, 2006 at 04:47:59PM -0400, Phillip Susi wrote:
+> One stripe table can only contain one stripe size, so to have two would 
+> require two tables, and a third table to tie them back together.
 
-Index: linux-2.6.19-rc1-mm1/mm/slab.c
-===================================================================
---- linux-2.6.19-rc1-mm1.orig/mm/slab.c	2006-10-10 21:47:12.949563383 -0500
-+++ linux-2.6.19-rc1-mm1/mm/slab.c	2006-10-13 17:21:31.937863714 -0500
-@@ -3158,12 +3158,15 @@ void *fallback_alloc(struct kmem_cache *
- 	struct zone **z;
- 	void *obj = NULL;
- 
--	for (z = zonelist->zones; *z && !obj; z++)
-+	for (z = zonelist->zones; *z && !obj; z++) {
-+		int nid = zone_to_nid(*z);
-+
- 		if (zone_idx(*z) <= ZONE_NORMAL &&
--				cpuset_zone_allowed(*z, flags))
-+				cpuset_zone_allowed(*z, flags) &&
-+				cache->nodelists[nid])
- 			obj = __cache_alloc_node(cache,
--					flags | __GFP_THISNODE,
--					zone_to_nid(*z));
-+					flags | __GFP_THISNODE, nid);
-+	}
- 	return obj;
- }
- 
+One device-mapper table can contain two concatenated stripe targets.
 
+  http://people.redhat.com/agk/talks/FOSDEM_2005/text6.html
+ 
+> The entire idea of a stripe is that you are using multiple identical 
+> drives ( or partitions ), so it doesn't make any sense to be able to 
+> truncate one of the drives.  
+
+dmraid is not the only user of device-mapper striping.  Userspace volume
+managers may want to use all sorts of odd layouts quite legitimately.
+
+> In any case, this is not something you can 
+> do now, 
+
+[Actually that's what the code did before this patch:-(]
+
+> so the fact that you could not do it then either does not seem 
+> to be a good argument against allowing partial tails.
+ 
+The arguments are (1) to avoid the ambiguity I've discussed and (2) to avoid
+the additional complexity the in-kernel striped target would require
+(calculating a stripe size for the end of the device to override the one
+supplied), when it's so simple for userspace to specify exactly what it
+requires by using two targets.
+
+Alasdair
+-- 
+agk@redhat.com

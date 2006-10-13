@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWJMQwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWJMQ6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWJMQwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWJMQwJ
+	id S1751388AbWJMQ6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWJMQ6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:52:09 -0400
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:29578 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S1751383AbWJMQwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:52:06 -0400
-Subject: Re: [linux-pm] Bug in PCI core
-From: Adam Belay <abelay@MIT.EDU>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1160759349.25218.62.camel@localhost.localdomain>
-References: <Pine.LNX.4.44L0.0610131024340.6460-100000@iolanthe.rowland.org>
-	 <1160753187.25218.52.camel@localhost.localdomain>
-	 <1160753390.3000.494.camel@laptopd505.fenrus.org>
-	 <1160755562.25218.60.camel@localhost.localdomain>
-	 <1160757260.26091.115.camel@localhost.localdomain>
-	 <1160759349.25218.62.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 Oct 2006 13:01:22 -0400
-Message-Id: <1160758883.26091.125.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 13 Oct 2006 12:58:24 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:54967 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751388AbWJMQ6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:58:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=WJm8as0qIDO420QeUaFS5icySpzFaA5EMdlIWI9OquqavlNf7BrbRCgs3wmq9P3Xx6ystAvLL2/HlD5o50lEeQzzVAOXVATxTeZSiqrxqFLGUkWjP+rV/dYP/IfGpCjU3gXBbjnC0VwSkjay/E7rZFt1pfT1eQIlMqRDhAxOlXQ=
+Reply-To: andrew.j.wade@gmail.com
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Can context switches be faster?
+Date: Fri, 13 Oct 2006 12:56:42 -0400
+User-Agent: KMail/1.9.1
+Cc: andrew.j.wade@gmail.com, Phillip Susi <psusi@cfl.rr.com>,
+       linux-kernel@vger.kernel.org
+References: <452E62F8.5010402@comcast.net> <200610122254.10578.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <452F2433.2010307@comcast.net>
+In-Reply-To: <452F2433.2010307@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.217
-X-Spam-Flag: NO
+Content-Disposition: inline
+Message-Id: <200610131258.15451.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 18:09 +0100, Alan Cox wrote:
-> Ar Gwe, 2006-10-13 am 12:34 -0400, ysgrifennodd Adam Belay:
-> > I agree this needs to be fixed.  However, as I previously mentioned,
-> > this isn't the right place to attack the problem.  Remember, this wasn't
-> > originally a kernel regression.  Rather it's a workaround for a known
-> 
-> It's a kernel regression. It used to be reliable to read X resource
-> addresses at any time.
+On Friday 13 October 2006 01:29, John Richard Moser wrote:
+> True.  You can trick the MMU into faulting into the kernel (PaX does
+> this to apply non-executable pages-- pages, not halves of VM-- on x86),
 
-Not true, reading these registers during a BIST has always been a
-problem.
+Oooh, that is a neat hack!
 
-> 
-> > Finally, it's worth noting that this issue is really a corner-case, and
-> > in most systems it's extremely rare that even incorrect userspace apps
-> > would have any issue.
-> 
-> Except just occasionally and randomly in the field, probably almost
-> undebuggable and irreproducable - the very worst conceivable kind of
-> bug.
-> 
+> but it's orders of magnitude slower as I understand and the petty gains
+> you can get over the hardware MMU doing it are not going to outweigh it.
 
-Which is why returning an error code during device transitions is a
-reasonable compromise between correctness and practicality.
+It's architecture-dependent; not all architectures are even capeable of
+walking the page table trees in hardware. They compensate with
+lightweight traps for TLB cache misses. 
 
--Adam
-
-
+Andrew Wade

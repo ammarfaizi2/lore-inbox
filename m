@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWJMQZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbWJMQ1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbWJMQZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 12:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWJMQZN
+	id S1751668AbWJMQ1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 12:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWJMQ1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:25:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50120 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751737AbWJMQZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:25:12 -0400
-Subject: Re: [PATCH] HP mobile data protection system driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Burman Yan <yan_952@hotmail.com>
-Cc: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       pazke@donpac.ru
-In-Reply-To: <BAY20-F21743EEAB4B44BD437AE68D80A0@phx.gbl>
-References: <BAY20-F21743EEAB4B44BD437AE68D80A0@phx.gbl>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 13 Oct 2006 18:25:02 +0200
-Message-Id: <1160756702.14815.1.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 13 Oct 2006 12:27:12 -0400
+Received: from tirith2.ics.muni.cz ([147.251.4.39]:30626 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751668AbWJMQ1L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 12:27:11 -0400
+Date: Fri, 13 Oct 2006 18:26:47 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Auke Kok <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Machine reboot
+Message-ID: <20061013162647.GH3039@mail.muni.cz>
+References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com> <452F1142.3000400@intel.com> <20061013091608.GH18163@mail.muni.cz> <1160753436.3000.497.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1160753436.3000.497.camel@laptopd505.fenrus.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Muni-Spam-TestIP: 81.31.45.161
+X-Muni-Envelope-From: xhejtman@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 13, 2006 at 05:30:36PM +0200, Arjan van de Ven wrote:
+> 
+> > For i965 chipsets, the BIOS is *a lot* buggy :(
+> 
+> have you run the Linux firmware test kit on it?
+> 
+> see http://www.linuxfirmwarekit.org
 
-> That would probably mean that there is a need for single interface. 
+I did. It complains about EDD as fatal error, some warnings about ACPI and
+MMCONFIG, otherwise it says passed.
 
-yes please
+However, I suspect another BIOS bug:
+ACPI Exception (acpi_processor-0681): AE_NOT_FOUND, Processor Device is not
+present [20060707]
+ACPI Exception (acpi_processor-0681): AE_NOT_FOUND, Processor Device is not
+present [20060707]
 
-> Making 
-> all accelerometers
-> export to /sys/devices/platform/hdaps sounds wrong to me. It should be a 
-> neutral place then.
+(BIOS announces 4 processors while 1 dual core is present).
 
-well.... breaking stuff for no reason other than "but it sounds like HIS
-name" is I thing bad. Yes the name is unfortunate, but if you can use
-the interface... why not? Just because the name isn't perfect everyone
-should change over, including keeping compatibility mess etc etc?
-That needs a stronger reason than "it sounds like his name" to me...
-
-Now if the interface itself isn't good enough, that's a different matter
-of course; but from what I read so far that's not really the case.
-
-Greetings,
-   Arjan van de Ven
-
+-- 
+Luká¹ Hejtmánek

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWJMMDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWJMMKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751632AbWJMMDN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 08:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWJMMDN
+	id S1751638AbWJMMKI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 08:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWJMMKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 08:03:13 -0400
-Received: from rbox6.erasmusmc.nl ([156.83.10.16]:30193 "EHLO
-	rbox6.erasmusmc.nl") by vger.kernel.org with ESMTP id S1751632AbWJMMDM convert rfc822-to-8bit
+	Fri, 13 Oct 2006 08:10:08 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:52143 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751638AbWJMMKH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 08:03:12 -0400
-From: "Jerome Borsboom" <j.borsboom@erasmusmc.nl>
+	Fri, 13 Oct 2006 08:10:07 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 13 Oct 2006 14:02:58 +0200
+Subject: Current kernels break libdvdcss
+Date: Fri, 13 Oct 2006 14:08:53 +0200
+User-Agent: KMail/1.9.4
 MIME-Version: 1.0
-Subject: 2.6.18 bug in gdth.c [solved]
-Message-ID: <452F9C92.29502.13A9459@j.borsboom.erasmusmc.nl>
-X-mailer: Pegasus Mail for Windows (4.31)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Content-description: Mail message body
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610131408.53826.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent changes in the gdth.c driver introduced an 'unable to handle 
-kernel paging request' bug. The offending change seems to be 
-following change in 'gdth_fill_raw_cmd':
+2.6.18-mm3 and 2.6.19-rc1-mm1 break playing encrypted video DVDs with 
+libdvdcss based players.
 
-@@ -3022,7 +3148,7 @@ #ifdef GDTH_STATISTICS
-             }
-#endif
--        } else {
-+        } else if (scp->request_bufflen) {
-             scp->SCp.Status = GDTH_MAP_SINGLE;
-             scp->SCp.Message = PCI_DMA_BIDIRECTIONAL;
-             page = virt_to_page(scp->request_buffer);
+The player just says it can't open /dev/dvd with libdvdcss; after that, dmesg 
+points out
 
-Reverting this line, make the driver stable again. My hypothesis is 
-that when scp->request_bufflen is 0, then cmdp->u.raw.sg_ranz will 
-not be assigned which makes the subsequent ha->cmd_len calculation 
-misbehave. When you compare gdth_fill_raw_cmd with 
-gdth_fill_cache_cmd, then in the latter function cmdp- 
->u.cache.sg_canz IS assigned before the conditional 'if (scp- 
->use_sg)...'
+hdX: read_intr: Drive wants to transfer data the wrong way!
 
+(hdX is hdb or hdc, depending on where the drive is connected).
+This is reproducable on at least 3 different machines with different IDE 
+controllers and CD drives.
 
-Jerome Borsboom
------------------------------
-Dr.ir. Jerome Borsboom, Ph.D.
-Biomedical Engineering
-Erasmus MC
-Room Ee2302
-Dr. Molewaterplein 50
-3015 GE Rotterdam
-the Netherlands
-Tel:  +31 10 408 7474
-Fax: + 31 10 408 9445
+Has there been any intentional change that would require modifications in 
+libdvdcss?
 
-
+Last known good kernel is 2.6.18-rc2-mm1 (didn't keep binaries for those in 
+between and I'm confined to abysmally slow compile machines at the moment).

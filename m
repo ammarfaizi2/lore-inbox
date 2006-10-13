@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWJMD7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWJMEKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbWJMD7f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Oct 2006 23:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJMD7f
+	id S1751612AbWJMEKa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 00:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWJMEKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Oct 2006 23:59:35 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:43276 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751258AbWJMD7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Oct 2006 23:59:34 -0400
-Date: Thu, 12 Oct 2006 21:57:43 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Strange entries in /proc/acpi/thermal_zone for Thinkpad X60
-In-reply-to: <fa.P/oAhFV0AVrh8PKSKzP+xVGih2s@ifi.uio.no>
-To: Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Message-id: <452F0EB7.2060508@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.P/oAhFV0AVrh8PKSKzP+xVGih2s@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Fri, 13 Oct 2006 00:10:30 -0400
+Received: from mga09.intel.com ([134.134.136.24]:49812 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1751602AbWJMEK3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 00:10:29 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,302,1157353200"; 
+   d="scan'208"; a="144341672:sNHT23322565"
+Message-ID: <452F1142.3000400@intel.com>
+Date: Thu, 12 Oct 2006 21:08:34 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Aleksey Gorelov <dared1st@yahoo.com>
+CC: xhejtman@mail.muni.cz, linux-kernel@vger.kernel.org, magnus.damm@gmail.com,
+       pavel@suse.cz
+Subject: Re: Machine reboot
+References: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com>
+In-Reply-To: <20061013000556.89570.qmail@web83108.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
-> I have a Thinkpad X60 with an Intel Core Duo T2400.  In 
-> /proc/acpi/thermal_zone, I'm getting two subdirectories, each with their 
-> own set of files:
+Aleksey Gorelov wrote:
+> Auke Kok <sofar@foo-projects.org> wrote:
+>> Aleksey Gorelov wrote:
+>>>> -----Original Message-----
+>>>> From: linux-kernel-owner@vger.kernel.org 
+>>>> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lukas 
+>>>> Hejtmanek
+>>>> Sent: Thursday, October 05, 2006 3:53 AM
+>>>> To: linux-kernel@vger.kernel.org
+>>>> Subject: Machine reboot
+>>>>
+>>>> Hello,
+>>>>
+>>>> I'm facing troubles with machine restart. While sysrq-b 
+>>>> restarts machine, reboot
+>>>> command does not. Using printk I found that kernel does not 
+>>>> hang and issues
+>>>> reset properly but BIOS does not initiate boot sequence. Is 
+>>>> there something
+>>>> I could do?
+>>>   I have similar issue on Intel DG965WH board. Did you try to shutdown network interface and
+>>> 'rmmod e1000' right before reboot ? In my case machine reboots fine after that.
+>>>
+>>> Aleks.
+ >>
+>> interesting, do you do that because it specifically fixes a problem you have? if so, I'd 
+>> like to know about it :)
+>>
+>> Auke
+>>
+> I'm just trying to localize the issue. 
+> Since right before machine stalls during reboot I see something like
 > 
+> ACPI: PCI interrupt for device 000:00:19.0 disabled
+> Restarting system.
 
-So your machine has two thermal zones..
+that's quite a normal message, not sure why that would constitute a problem.
 
-> The interesting thing is that the two sets of files are not consistent - 
-> sometimes they don't even show the same temperature.
+> and this device is Gb ethernet, e1000 is perfect candidate to look at. And yes, removing e1000
+> before reboot works around the issue.
 
-I would expect they wouldn't, otherwise there would be no reason for the 
-BIOS people to set up two thermal zones..
+Have you tried to only `ifconfig ethX down` ? my own i965 board shuts down perfectly 
+fine without unloading the e1000 driver.
 
-> 
-> The reason I'm interested in this is that I think it's behind some of my 
-> cpufreq problems.  Sometimes the kernel decides that I just can't raise 
-> the max frequency above 1GHz, because its been thermally limited (I've 
-> put printks in to confirm that its the ACPI thermal limit on the policy 
-> notifier chain which is limiting the max speed).  It seems to me that 
-> having a thermal zone for each core is a BIOS bug, since they're really 
-> the same chip, but the THM1 entries should be ignored.  I don't believe 
+> I'm afraid this is now common issue across Intel 965 board series, at least with their latest BIOS
+> updates.
 
-How do you know they are one for each core? ACPI thermal zones can be 
-anywhere in the machine that needs OS-controlled cooling. Could be the 
-CPU heatsink, voltage regulator, or someplace else.
+first time I've heard of it!
 
-> the CPU has ever approached either 97 C, let alone 127; while I put it 
-> under a fair amount of load, it is sitting on a desktop with no airflow 
-> obstructions, so if it really is overheating it suggests a serious 
-> design problem with the hardware.
-> 
-> But I'm just speculating; I'm not really sure what all this means.  Any 
-> clues?
+I'm unsure my BIOS version will be the same as it's a devel system for our drivers, but 
+still I have never heard of anyone requiring the full unload of the NIC driver to be 
+able to shutdown.
 
-I think we need more information to decide what is going on here.. what 
-temperatures are registering in the thermal zones when the CPU clock is 
-being limited?
+Would you be able to debug a failed shutdown perhaps and capture the console output? 
+when exactly does it `stall` ? What other interrupts are assigned on your system? Did 
+other BIOS versions work correctly?
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Auke

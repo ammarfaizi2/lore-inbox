@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWJMSlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWJMSlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbWJMSlD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWJMSlC
+	id S1751803AbWJMSlo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751801AbWJMSlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:41:02 -0400
-Received: from bay0-omc2-s17.bay0.hotmail.com ([65.54.246.153]:6502 "EHLO
-	bay0-omc2-s17.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751756AbWJMSlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:41:00 -0400
-Message-ID: <BAY20-F14CE177ABD2A134BD19ABAD80A0@phx.gbl>
-X-Originating-IP: [80.178.105.199]
-X-Originating-Email: [yan_952@hotmail.com]
-In-Reply-To: <1160756702.14815.1.camel@laptopd505.fenrus.org>
-From: "Burman Yan" <yan_952@hotmail.com>
-To: arjan@infradead.org
-Cc: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       pazke@donpac.ru
-Subject: Re: [PATCH] HP mobile data protection system driver
-Date: Fri, 13 Oct 2006 20:40:57 +0200
+	Fri, 13 Oct 2006 14:41:44 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:26823 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751805AbWJMSln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:41:43 -0400
+Subject: kernel BUG in __cache_alloc_node at  linux-2.6.git/mm/slab.c:3177!
+From: Will Schmidt <will_schmidt@vnet.ibm.com>
+Reply-To: will_schmidt@vnet.ibm.com
+To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 13 Oct 2006 13:41:34 -0500
+Message-Id: <1160764895.11239.14.camel@farscape>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 13 Oct 2006 18:41:00.0415 (UTC) FILETIME=[20F8D8F0:01C6EEF7]
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Folks, 
+    Am seeing a crash on a power5 LPAR when booting the linux-2.6 git
+tree.  It's fairly early during boot, so I've included the whole log
+below.   This partition has 8 procs, (shared, including threads), and
+512M RAM.  
 
+A bisect claims: 
+765c4507af71c39aba21006bbd3ec809fe9714ff is first bad commit
+commit 765c4507af71c39aba21006bbd3ec809fe9714ff
+Author: Christoph Lameter <clameter@sgi.com>
+Date:   Wed Sep 27 01:50:08 2006 -0700
 
+    [PATCH] GFP_THISNODE for the slab allocator
 
->From: Arjan van de Ven <arjan@infradead.org>
->To: Burman Yan <yan_952@hotmail.com>
->CC: davej@redhat.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,  
->pazke@donpac.ru
->
->well.... breaking stuff for no reason other than "but it sounds like HIS
->name" is I thing bad. Yes the name is unfortunate, but if you can use
->the interface... why not? Just because the name isn't perfect everyone
->should change over, including keeping compatibility mess etc etc?
->That needs a stronger reason than "it sounds like his name" to me...
->
->Now if the interface itself isn't good enough, that's a different matter
->of course; but from what I read so far that's not really the case.
->
+Am willing to dig deeper, but looking for pointers on what to poke next.
 
-You have a point, but the thing is that I hope to make this work interrupt 
-driven in the future.
-Right now for some reason request_irq fails with ENOSYS (I don't know if 
-it's a bios acpi bug, or my bug
-or acpi parsing bug yet, although I see that I get the right IRQ - the same 
-as that other a bit less
-known OS...;) and also request_irq succeeds on xen kernel, but fails on RH 
-2.6.17.13 and vanilla 2.6.18).
-To make a long story short, the interface should probably be different from 
-hdaps'
-in the future + hdapsd will have to be modified anyway since I cannot 
-provide the functionality
-to detect keyboard and mouse activity through the accelerometer, since it 
-doesn't support it.
+Thanks, 
+-Will
 
-Right now I can emulate hdaps and perhaps I can even provide the same 
-methods that will return
-dummy result for the stuff I don't have. You think I should emulate hdaps' 
-functionalty
-that is missing from mdps? I actually didn't look at why hdapsd needs 
-keyboard and mouse activity for.
-I'm guessing that it's to see if you're using your laptop, since if there is 
-activity, chances are
-that your laptop is not falling and if it is, it's falling with you along... 
-Need to check.
-
-Regards
-Yan
-
-_________________________________________________________________
-Don't just search. Find. Check out the new MSN Search! 
-http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+-----------------------------------------------------
+ppc64_pft_size                = 0x18
+physicalMemorySize            = 0x22000000
+ppc64_caches.dcache_line_size = 0x80
+ppc64_caches.icache_line_size = 0x80
+htab_address                  = 0x0000000000000000
+htab_hash_mask                = 0x1ffff
+-----------------------------------------------------
+Linux version 2.6.19-rc1-gb8a3ad5b (willschm@airbag2) (gcc version 4.1.0
+(SUSE Linux)) #56 SMP Fri Oct 13 13:06:18 CDT 2006
+[boot]0012 Setup Arch
+No ramdisk, default root is /dev/sda2
+EEH: No capable adapters found
+PPC64 nvram contains 7168 bytes
+Zone PFN ranges:
+  DMA             0 ->   139264
+  Normal     139264 ->   139264
+early_node_map[3] active PFN ranges
+    1:        0 ->    32768
+    0:    32768 ->    90112
+    1:    90112 ->   139264
+[boot]0015 Setup Done
+Built 2 zonelists.  Total pages: 136576
+Kernel command line: root=/dev/sda3  xmon=on
+[boot]0020 XICS Init
+[boot]0021 XICS Done
+PID hash table entries: 4096 (order: 12, 32768 bytes)
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
+freeing bootmem node 0
+freeing bootmem node 1
+Memory: 530256k/557056k available (5508k kernel code, 30468k reserved,
+2224k data, 543k bss, 244k init)
+kernel BUG in __cache_alloc_node
+at /development/kernels/linux-2.6.git/mm/slab.c:3177!
+cpu 0x0: Vector: 700 (Program Check) at [c0000000007938d0]
+    pc: c0000000000b3c78: .__cache_alloc_node+0x44/0x1e8
+    lr: c0000000000b3ec8: .fallback_alloc+0xac/0xf0
+    sp: c000000000793b50
+   msr: 8000000000021032
+  current = 0xc000000000583a90
+  paca    = 0xc000000000584300
+    pid   = 0, comm = swapper
+kernel BUG in __cache_alloc_node
+at /development/kernels/linux-2.6.git/mm/slab.c:3177!
+enter ? for help
+[c000000000793c00] c0000000000b3ec8 .fallback_alloc+0xac/0xf0
+[c000000000793ca0] c0000000000b4478 .kmem_cache_zalloc+0xc8/0x11c
+[c000000000793d40] c0000000000b6624 .kmem_cache_create+0x1e8/0x5e0
+[c000000000793e30] c00000000053e834 .kmem_cache_init+0x1d8/0x4b0
+[c000000000793ef0] c000000000524748 .start_kernel+0x244/0x328
+[c000000000793f90] c0000000000084f8 .start_here_common+0x54/0x5c
+0:mon>
 

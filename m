@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWJMSMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWJMSLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWJMSMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 14:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWJMSMZ
+	id S1751791AbWJMSLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 14:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWJMSLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 14:12:25 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:58571 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751781AbWJMSMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 14:12:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ug3WR8Hw8aJVp5r/nPZigpWLGYb1OghtLdl1RhzM5pU4wahYR6HDh4f7s7M5V7p7dfGiUQa6rc8Zu2vOv9OdnLsK8zjQFwutZhtDI1XNkoayq26wb6eYo1BiAKnJatijBrEQc/iC6zsu5VdjHnuG9u30piyuzyu5DRUWXMVKW/w=
-Message-ID: <961aa3350610131112l141b782ey281e068116411cbf@mail.gmail.com>
-Date: Sat, 14 Oct 2006 03:12:23 +0900
-From: "Akinobu Mita" <akinobu.mita@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [patch 7/7] stacktrace filtering for fault-injection capabilities
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, "Don Mullis" <dwm@meer.net>,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <20061013180039.GD29079@localhost>
+	Fri, 13 Oct 2006 14:11:18 -0400
+Received: from mailhost.somanetworks.com ([216.126.67.42]:40837 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id S1751775AbWJMSK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 14:10:56 -0400
+Date: Fri, 13 Oct 2006 14:10:54 -0400 (EDT)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Akinobu Mita <akinobu.mita@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH] cpcihp_generic: prevent loading without "bridge" parameter
+In-Reply-To: <20061013180730.GE29079@localhost>
+Message-ID: <Pine.LNX.4.58.0610131409300.25755@rancor.yyz.somanetworks.com>
+References: <20061013180730.GE29079@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061012074305.047696736@gmail.com>
-	 <452df23e.44ca1e09.1a7f.780f@mx.google.com>
-	 <20061012142004.a111ca6a.akpm@osdl.org>
-	 <20061013180039.GD29079@localhost>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/10/14, Akinobu Mita <akinobu.mita@gmail.com>:
+On Sat, 14 Oct 2006, Akinobu Mita wrote:
 
-> > > --- work-fault-inject.orig/lib/Kconfig.debug
-> > > +++ work-fault-inject/lib/Kconfig.debug
-> > > @@ -472,6 +472,8 @@ config LKDTM
-> > >
-> > >  config FAULT_INJECTION
-> > >     bool
-> > > +   select STACKTRACE
-> > > +   select FRAME_POINTER
-> > >
-> > >  config FAILSLAB
-> > >     bool "fault-injection capabilitiy for kmalloc"
-> > >
-> >
-> > Is the selection of FRAME_POINTER really needed?  The fancy new unwinder
-> > is supposed to be able to handle frame-pointerless unwinding?
->
-> As I wrote in another reply, There are two type of implementation of
-> this stacktrace filter.
->
-> - using STACKTRACE + FRAME_POINTER
-> - using new unwinder (STACK_UNWIND)
->
-> The stacktrace with using new unwinder without FRAME_POINTER is much
-> slower than STACKTRACE + FRAME_POINTER.
->
+> cpcihp_generic module requires configured "bridge" module parameter.
+> But it can be loaded successfully without that parameter.
+> Because module init call ends up returning positive value.
+> 
+> This patch prevents from loading without setting "bridge" module parameter.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@suse.de>
+> Cc: Scott Murray <scottm@somanetworks.com>
+> Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
 
-Maybe I should drop new unwinder support for now.
+Signed-off-by: Scott Murray <scottm@somanetworks.com>
+
+> Index: work-fault-inject/drivers/pci/hotplug/cpcihp_generic.c
+> ===================================================================
+> --- work-fault-inject.orig/drivers/pci/hotplug/cpcihp_generic.c
+> +++ work-fault-inject/drivers/pci/hotplug/cpcihp_generic.c
+> @@ -84,7 +84,7 @@ static int __init validate_parameters(vo
+>  
+>  	if(!bridge) {
+>  		info("not configured, disabling.");
+> -		return 1;
+> +		return -EINVAL;
+>  	}
+>  	str = bridge;
+>  	if(!*str)
+> @@ -147,7 +147,7 @@ static int __init cpcihp_generic_init(vo
+>  
+>  	info(DRIVER_DESC " version: " DRIVER_VERSION);
+>  	status = validate_parameters();
+> -	if(status != 0)
+> +	if (status)
+>  		return status;
+>  
+>  	r = request_region(port, 1, "#ENUM hotswap signal register");
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com

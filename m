@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWJMRvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWJMRzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751757AbWJMRvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 13:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWJMRvQ
+	id S1751402AbWJMRzo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 13:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWJMRzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 13:51:16 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:30140 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751757AbWJMRvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 13:51:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WUKHPrB3o+5Q5V8nA4sBJx4/4SqrnTj5Se1pHBsSJiNM4o5w8om/OASQQZKXiL1xfEn8P1JN04YV3jbcHVHMz07JL2IYrQkjxFh6ExSviw4jQtNclgrmdPQQaY33mxtBCQa1eEvyttfsE3vBf5eJLbsejaq6JBDpNWVcSee6OQE=
-Message-ID: <28bb77d30610131051p167c967jfdd3b246b466d86f@mail.gmail.com>
-Date: Fri, 13 Oct 2006 10:51:11 -0700
-From: "Steven Truong" <midair77@gmail.com>
-To: "Jean-Marc Saffroy" <saffroy@gmail.com>
-Subject: Re: [Crash-utility] Re: kdump/kexec/crash on vmcore file
-Cc: "Vivek Goyal" <vgoyal@in.ibm.com>, linux-kernel@vger.kernel.org,
-       crash-utility@redhat.com
-In-Reply-To: <Pine.LNX.4.64.0610131727270.4785@erda.mds>
+	Fri, 13 Oct 2006 13:55:44 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:42637 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751402AbWJMRzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 13:55:43 -0400
+Message-ID: <452FD305.6070902@zytor.com>
+Date: Fri, 13 Oct 2006 10:55:17 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Kay Sievers <kay.sievers@vrfy.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19-rc2
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <200610131840.28411.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200610131840.28411.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <28bb77d30610121450n6cfd9c6ejd6b0370d2400a378@mail.gmail.com>
-	 <20061013141446.GA27375@in.ibm.com>
-	 <Pine.LNX.4.64.0610131727270.4785@erda.mds>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank Jean-Marc.  I am going to try your tool too.
+Alistair John Strachan wrote:
+> On Friday 13 October 2006 17:49, Linus Torvalds wrote:
+>> Ok, it's a week since -rc1, so -rc2 is out there.
+> 
+> Does anybody know what's up with the git server? Hopefully it's just my 
+> connection...
+> 
+> [alistair] 18:38 [~/linux-git] git pull
+> fatal: unexpected EOF
+> Fetch failure: 
+> git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> 
 
-On 10/13/06, Jean-Marc Saffroy <saffroy@gmail.com> wrote:
-> Steven,
->
-> I see you tried using gdb, maybe a tool I wrote could help you:
->    http://jeanmarc.saffroy.free.fr/kdump2gdb/
->
-> Basically it will convert the kdump core to a slightly different core that
-> is suitable for gdb, as well as a gdb script that loads kernel modules at
-> the right offsets. Then maybe you can grab a backtrace of the faulting
-> process ("bt full" can be nice) and post it to l-k.
->
->
-> Cheers,
->
-> --
-> saffroy@gmail.com
->
+No, this is the result of a serious problem with gitweb.
+
+We run gitweb behind a cache (otherwise it would be unacceptably 
+expensive), but when httpd starts timing out on gitweb, it spawns gitweb 
+over and over and over again, and the load on the machine skyrockets, 
+throttling other services.
+
+This happens every time we're on one server instead of two (one server 
+is down right now for network rewiring.)
+
+I think for now I'm just going to put a loadavg cap on running gitweb...
+
+	-hpa

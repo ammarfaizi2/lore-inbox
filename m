@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWJMH4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWJMH5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751606AbWJMH4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 03:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWJMH4U
+	id S1751622AbWJMH5n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 03:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWJMH5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 03:56:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12012 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751606AbWJMH4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 03:56:19 -0400
-Date: Fri, 13 Oct 2006 09:56:14 +0200
-From: Jan Kara <jack@suse.cz>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Eric Sandeen <esandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Eric Sandeen <sandeen@sandeen.net>, Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061013075613.GB29170@atrey.karlin.mff.cuni.cz>
-References: <452C4C47.2000107@sandeen.net> <20061011103325.GC6865@atrey.karlin.mff.cuni.cz> <452CF523.5090708@sandeen.net> <20061011142205.GB24508@atrey.karlin.mff.cuni.cz> <1160589284.1447.19.camel@dyn9047017100.beaverton.ibm.com> <452DAA26.6080200@redhat.com> <20061012122820.GK9495@atrey.karlin.mff.cuni.cz> <20061012094036.e1a3f9f1.akpm@osdl.org> <452EA06F.4060701@redhat.com> <452EB9C5.4000404@us.ibm.com>
+	Fri, 13 Oct 2006 03:57:43 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:49598 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751622AbWJMH5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 03:57:43 -0400
+Date: Fri, 13 Oct 2006 10:57:41 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, mhalcrow@us.ibm.com,
+       phillip@hellewell.homeip.net
+Subject: [PATCH] ecryptfs: use special_file
+Message-ID: <Pine.LNX.4.64.0610131057040.18353@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <452EB9C5.4000404@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Eric Sandeen wrote:
-> >Andrew Morton wrote:
-> >
-> >  
-> >>On Thu, 12 Oct 2006 14:28:20 +0200
-> >>Jan Kara <jack@suse.cz> wrote:
-> >>
-> >>  
-> >>    
-> >>>Where can we call
-> >>>journal_dirty_data() without PageLock?
-> >>>    
-> >>>      
-> >>block_write_full_page() will unlock the page, so ext3_writepage()
-> >>will run journal_dirty_data_fn() against an unlocked page.
-> >>
-> >>I haven't looked into the exact details of the race, but it should
-> >>be addressable via jbd_lock_bh_state() or j_list_lock coverage
-> >>    
-> >I'm testing with something like this now; seem sane?
-> >
-> >journal_dirty_data & journal_unmap_data both check do 
-> >jbd_lock_bh_state(bh) close to the top... journal_dirty_data_fn has 
-> >checked buffer_mapped before getting into journal_dirty_data, but that 
-> >state may
-> >change before the lock is grabbed.  Similarly re-check after we drop the 
-> >lock.
-> >
-> >  
-> This is exactly  the solution I proposed earlier (to check 
-> buffer_mapped() before calling submit_bh()).
-> But at that time, Jan pointed out that the whole handling is wrong.
-  Yes, and it was. However it turned out that there are more problems
-than I thought ;).
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-> But if this is the only case we need to handle, I am okay with this band 
-> aid :)
-  I think Eric's patch may be a part of it. But we still need to check whether
-the buffer is not after EOF before submitting it (or better said just
-after we manage to lock the buffer). Because while we are waiting for
-the buffer lock, journal_unmap_buffer() can still come and steal the
-buffer - at least the write-out in journal_dirty_data() definitely needs
-the check if I haven't overlooked something.
+Use the special_file() macro to check whether an inode is special instead of
+open-coding it.
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Cc: Mike Halcrow <mhalcrow@us.ibm.com>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ fs/ecryptfs/main.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+Index: 2.6/fs/ecryptfs/main.c
+===================================================================
+--- 2.6.orig/fs/ecryptfs/main.c
++++ 2.6/fs/ecryptfs/main.c
+@@ -104,10 +104,7 @@ int ecryptfs_interpose(struct dentry *lo
+ 		inode->i_op = &ecryptfs_dir_iops;
+ 	if (S_ISDIR(lower_inode->i_mode))
+ 		inode->i_fop = &ecryptfs_dir_fops;
+-	/* TODO: Is there a better way to identify if the inode is
+-	 * special? */
+-	if (S_ISBLK(lower_inode->i_mode) || S_ISCHR(lower_inode->i_mode) ||
+-	    S_ISFIFO(lower_inode->i_mode) || S_ISSOCK(lower_inode->i_mode))
++	if (special_file(lower_inode->i_mode))
+ 		init_special_inode(inode, lower_inode->i_mode,
+ 				   lower_inode->i_rdev);
+ 	dentry->d_op = &ecryptfs_dops;

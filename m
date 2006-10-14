@@ -1,96 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWJNIN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWJNIWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWJNIN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 04:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWJNIN3
+	id S932127AbWJNIWj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 04:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWJNIWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 04:13:29 -0400
-Received: from msr41.hinet.net ([168.95.4.141]:11515 "EHLO msr41.hinet.net")
-	by vger.kernel.org with ESMTP id S1161015AbWJNIN0 (ORCPT
+	Sat, 14 Oct 2006 04:22:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49835 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752118AbWJNIWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 04:13:26 -0400
-Subject: [PATCH 5/5] Solve host error problem in low performance embedded
-	system when continune down and up.
-From: Jesse Huang <jesse@icplus.com.tw>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com, jesse@icplus.com.tw
-Content-Type: text/plain
-Date: Sat, 14 Oct 2006 15:57:40 -0400
-Message-Id: <1160855860.2266.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Oct 2006 04:22:38 -0400
+Date: Sat, 14 Oct 2006 10:22:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp APIC oopsen (was Re: swsusp ooms)
+Message-ID: <20061014082237.GA3818@elf.ucw.cz>
+References: <20061009213359.7f2806b6.akpm@osdl.org> <200610132231.08643.rjw@sisk.pl> <20061013140000.329e8854.akpm@osdl.org> <200610132307.47162.rjw@sisk.pl> <20061014002504.1ab10ee9.akpm@osdl.org> <20061014004046.670ddd76.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061014004046.670ddd76.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Huang <jesse@icplus.com.tw>
+Hi!
 
-Change Logs:
-Solve host error problem in low performance embedded system when continune 
-down and up. It will cause IP100A DMA TargetAbort. So we need more safe process
-to up and down IP100A with wait hardware completely stop and software cur_tx/ 
-dirty_tx/cur_task/last_tx be clear.
+(cc-ed to public list)
 
-Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
----
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > and I'm not having much luck.  See 
+> > 
+> > http://userweb.kernel.org/~akpm/s5000340.jpg and
+> > http://userweb.kernel.org/~akpm/s5000339.jpg
+> 
+> Running an UP kernel and disabling local APIC avoided the oopses and
+> allowed me to confirm that it was leaking.  whoops.
 
- drivers/net/sundance.c |   26 +++++++++++++++++++++++---
- 1 files changed, 23 insertions(+), 3 deletions(-)
+I wonder why everyone but me sees those APIC problems?
 
-c06c70e20a85facd640528ca66e0b579fc3ee745
-diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
-index 14b4933..b4a6010 100755
---- a/drivers/net/sundance.c
-+++ b/drivers/net/sundance.c
-@@ -1643,6 +1643,14 @@ static int netdev_close(struct net_devic
- 	struct sk_buff *skb;
- 	int i;
- 
-+	/* Wait and kill tasklet */
-+	tasklet_kill(&np->rx_tasklet);
-+	tasklet_kill(&np->tx_tasklet);
-+	np->cur_tx = 0;
-+	np->dirty_tx = 0;
-+	np->cur_task = 0;
-+	np->last_tx = 0;
-+
- 	netif_stop_queue(dev);
- 
- 	if (netif_msg_ifdown(np)) {
-@@ -1663,9 +1671,20 @@ static int netdev_close(struct net_devic
- 	/* Stop the chip's Tx and Rx processes. */
- 	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
- 
--	/* Wait and kill tasklet */
--	tasklet_kill(&np->rx_tasklet);
--	tasklet_kill(&np->tx_tasklet);
-+    	for (i = 2000; i > 0; i--) {
-+ 		if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
-+			break;
-+		mdelay(1);
-+    	}
-+
-+    	iowrite16(GlobalReset | DMAReset | FIFOReset | NetworkReset, ioaddr +ASICCtrl + 2);
-+
-+    	for (i = 2000; i > 0; i--)
-+    	{
-+ 		if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
-+			break;
-+		mdelay(1);
-+    	}
- 
- #ifdef __i386__
- 	if (netif_msg_hw(np)) {
-@@ -1703,6 +1722,7 @@ #endif /* __i386__ debugging only */
- 		}
- 	}
- 	for (i = 0; i < TX_RING_SIZE; i++) {
-+		np->tx_ring[i].next_desc = 0;
- 		skb = np->tx_skbuff[i];
- 		if (skb) {
- 			pci_unmap_single(np->pci_dev,
+Anyway, there's one more problem in -rc1: boot order changed, and (at
+least with paralel boot options), swsusp gets initialized *after*
+swsusp => bad, but should be easy to fix.
+								Pavel
+
 -- 
-1.3.GIT
-
-
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

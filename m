@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWJNRkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbWJNRme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbWJNRkH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 13:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWJNRkH
+	id S1030363AbWJNRme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 13:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWJNRme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 13:40:07 -0400
-Received: from c-71-197-74-6.hsd1.ca.comcast.net ([71.197.74.6]:55953 "EHLO
-	nofear.bounceme.net") by vger.kernel.org with ESMTP
-	id S1030354AbWJNRkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 13:40:05 -0400
-Message-ID: <4531210B.9050205@syphir.sytes.net>
-Date: Sat, 14 Oct 2006 10:40:27 -0700
-From: "C.Y.M" <syphir@syphir.sytes.net>
-Reply-To: syphir@syphir.sytes.net
-Organization: CooLNeT
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Sat, 14 Oct 2006 13:42:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:30422 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030363AbWJNRmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 13:42:33 -0400
+Date: Sat, 14 Oct 2006 01:01:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Joel Becker <Joel.Becker@oracle.com>,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Allow more than PAGESIZE data read in configfs
+Message-ID: <20061014080107.GB19325@kroah.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain> <20061010203511.GF7911@ca-server1.us.oracle.com> <20061011131935.448a8696.akpm@osdl.org> <20061011221822.GD7911@ca-server1.us.oracle.com> <20061011154836.9befa359.akpm@osdl.org> <1160609233.6389.82.camel@linuxchandra>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at fs/inotify.c:181 with linux-2.6.18
-References: <452581D7.5020907@syphir.sytes.net> <4525B546.7070305@yahoo.com.au> <4525BD61.80400@syphir.sytes.net>
-In-Reply-To: <4525BD61.80400@syphir.sytes.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160609233.6389.82.camel@linuxchandra>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C.Y.M wrote:
-> Nick Piggin wrote:
->> C.Y.M wrote:
->>> Since I updated to 2.6.18, I have had the following warnings in my
->>> syslog.  Is
->>> this a known problem? Better yet, is there a solution to this?  I am
->>> running on
->>> a i686 (Athlon XP) 32 bit cpu compiled under gcc-3.4.6.
->>>
->>>
->>> Oct  5 08:27:31 sid kernel: BUG: warning at
->>> fs/inotify.c:181/set_dentry_child_flags()
->>> Oct  5 08:27:31 sid kernel:  [<c0182a10>]
->>> set_dentry_child_flags+0x170/0x190
->>> Oct  5 08:27:31 sid kernel:  [<c0182adf>] remove_watch_no_event+0x5f/0x70
->>> Oct  5 08:27:31 sid kernel:  [<c0182b08>]
->>> inotify_remove_watch_locked+0x18/0x50
->>> Oct  5 08:27:31 sid kernel:  [<c01833dc>] inotify_rm_wd+0x6c/0xb0
->>> Oct  5 08:27:31 sid kernel:  [<c0183e98>] sys_inotify_rm_watch+0x38/0x60
->>> Oct  5 08:27:31 sid kernel:  [<c0102d8f>] syscall_call+0x7/0xb
->> I don't think it is a known problem. Is it reproduceable? Any idea what
->> is making the inotify syscalls?
->>
+On Wed, Oct 11, 2006 at 04:27:13PM -0700, Chandra Seetharaman wrote:
+> On Wed, 2006-10-11 at 15:48 -0700, Andrew Morton wrote:
+> > On Wed, 11 Oct 2006 15:18:22 -0700
+> > Joel Becker <Joel.Becker@oracle.com> wrote:
+> > 
+> > > On Wed, Oct 11, 2006 at 01:19:35PM -0700, Andrew Morton wrote:
+> > > > The patch deletes a pile of custom code from configfs and replaces it with
+> > > > calls to standard kernel infrastructure and fixes a shortcoming/bug in the
+> > > > process.  Migration over to the new interface is trivial and almost
+> > > > scriptable.
+> > > 
+> > > 	The configfs stuff is based on the sysfs code too.  Should we
+> > > migrate sysfs/file.c to the same seq_file code?  Serious question, if
+> > > the cleanup is considered better.
+> > > 
+> > 
+> > I don't see why not.  I don't know if anyone has though of/proposed it
+> > before.
 > 
-> The warning messages start about an hour or two after I boot into the 2.6.18
-> kernel.  I am not doing anything on the machine when it happens.  I don't see
-> any new processes starting up at that time either.  As soon as I boot back to
-> 2.6.17.13, there are no more problems.  Also, the machine is not running X when
-> it occurs.
-> 
-> root@sid:~$ grep BUG /var/log/syslog
-> Oct  5 08:27:31 sid kernel: BUG: warning at
-> fs/inotify.c:181/set_dentry_child_flags()
-> Oct  5 11:46:36 sid kernel: BUG: warning at
-> fs/inotify.c:181/set_dentry_child_flags()
-> Oct  5 13:24:50 sid kernel: BUG: warning at
-> fs/inotify.c:181/set_dentry_child_flags()
-> Oct  5 15:17:55 sid kernel: BUG: warning at
-> fs/inotify.c:181/set_dentry_child_flags()
-> Oct  5 16:40:10 sid kernel: BUG: warning at
-> fs/inotify.c:181/set_dentry_child_flags()
-> 
+> I can generate a patch for that too.
 
-This bug just happened again with 2.6.18.1.  Has anyone else noticed this in
-their logs?  I would really like to make that error go away. Any Ideas?  I do
-not see anything that would cause this to happen.
+Argh!!!!
 
-Best Regards.
+Are you going to honestly tell me you have a single attribute in sysfs
+that is larger than PAGE_SIZE?  If you are getting anywhere close to
+this, then something is really wrong and we need to talk.
+
+greg k-h

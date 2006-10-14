@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWJNKz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752152AbWJNLPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWJNKz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 06:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752149AbWJNKz4
+	id S1752152AbWJNLPD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 07:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752156AbWJNLPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 06:55:56 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:14854 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1752148AbWJNKzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 06:55:55 -0400
-Message-ID: <4530C237.6050809@argo.co.il>
-Date: Sat, 14 Oct 2006 12:55:51 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sat, 14 Oct 2006 07:15:02 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10001 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1752152AbWJNLPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 07:15:00 -0400
+Date: Sat, 14 Oct 2006 13:14:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [0/3] 2.6.19-rc2: known regressions
+Message-ID: <20061014111458.GI30596@stusta.de>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
 MIME-Version: 1.0
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-CC: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-References: <20061013194516.GB19283@tau.solarneutrino.net>
-In-Reply-To: <20061013194516.GB19283@tau.solarneutrino.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Oct 2006 10:55:53.0322 (UTC) FILETIME=[517624A0:01C6EF7F]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Richter wrote:
->
-> I have a new Intel 965G board, and I'm trying to get DRI working.
-> Direct rendering is enabled, but all GL programs crash immediately.
-> The message 'DRM_I830_CMDBUFFER: -22' is printed on the tty, and the
-> kernel says:
->
-> [drm:i915_cmdbuffer] *ERROR* i915_dispatch_cmdbuffer failed
->
+As usual, we are swamped with bug reports for regressions after -rc1.
 
-I had the same problem.  Recompiling i965_dri.so in order to insert 
-debugging code "fixed" it for me.  It continued working  after a mesa 
-package update so I assumed it was a miscompilation.
+For an easier reading (and hoping linux-kernel might not eat the emails), 
+I've splitted the list of known regressions in three emails:
+  [1/3] known unfixed regressions
+  [2/3] knwon regressions with workarounds
+  [3/3] known regressions with patches
+
+
+cu
+Adrian
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

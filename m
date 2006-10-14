@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422692AbWJNPvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWJNPwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422692AbWJNPvv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 11:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWJNPvv
+	id S1422687AbWJNPwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 11:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbWJNPwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 11:51:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:12239 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422692AbWJNPvu
+	Sat, 14 Oct 2006 11:52:39 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:14031 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422687AbWJNPwi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 11:51:50 -0400
-Date: Sat, 14 Oct 2006 16:51:49 +0100
+	Sat, 14 Oct 2006 11:52:38 -0400
+Date: Sat, 14 Oct 2006 16:52:36 +0100
 From: Al Viro <viro@ftp.linux.org.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-m68k@list.linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] serial167 __user annotations, NULL noise removal
-Message-ID: <20061014155148.GN29920@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] hp drivers/input stuff: C99 initializers, NULL noise removal, __user annotations
+Message-ID: <20061014155236.GO29920@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,198 +24,108 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/char/serial167.c |   52 +++++++++++++++++++++++-----------------------
- 1 files changed, 26 insertions(+), 26 deletions(-)
+ drivers/input/misc/hp_sdc_rtc.c |    8 ++++----
+ drivers/input/serio/hil_mlc.c   |   18 +++++++++---------
+ drivers/input/serio/hp_sdc.c    |    4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/char/serial167.c b/drivers/char/serial167.c
-index 461bfe0..3af7f09 100644
---- a/drivers/char/serial167.c
-+++ b/drivers/char/serial167.c
-@@ -839,7 +839,7 @@ #endif
-     local_irq_save(flags);
- 	if (info->xmit_buf){
- 	    free_page((unsigned long) info->xmit_buf);
--	    info->xmit_buf = 0;
-+	    info->xmit_buf = NULL;
+diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
+index 1be9639..ab4da79 100644
+--- a/drivers/input/misc/hp_sdc_rtc.c
++++ b/drivers/input/misc/hp_sdc_rtc.c
+@@ -60,7 +60,7 @@ static struct fasync_struct *hp_sdc_rtc_
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(hp_sdc_rtc_wait);
+ 
+-static ssize_t hp_sdc_rtc_read(struct file *file, char *buf,
++static ssize_t hp_sdc_rtc_read(struct file *file, char __user *buf,
+ 			       size_t count, loff_t *ppos);
+ 
+ static int hp_sdc_rtc_ioctl(struct inode *inode, struct file *file,
+@@ -385,14 +385,14 @@ static int hp_sdc_rtc_set_i8042timer (st
+ 	return 0;
+ }
+ 
+-static ssize_t hp_sdc_rtc_read(struct file *file, char *buf,
++static ssize_t hp_sdc_rtc_read(struct file *file, char __user *buf,
+ 			       size_t count, loff_t *ppos) {
+ 	ssize_t retval;
+ 
+         if (count < sizeof(unsigned long))
+                 return -EINVAL;
+ 
+-	retval = put_user(68, (unsigned long *)buf);
++	retval = put_user(68, (unsigned long __user *)buf);
+ 	return retval;
+ }
+ 
+@@ -696,7 +696,7 @@ static int __init hp_sdc_rtc_init(void)
+ 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
+ 		return ret;
+ 	misc_register(&hp_sdc_rtc_dev);
+-        create_proc_read_entry ("driver/rtc", 0, 0, 
++        create_proc_read_entry ("driver/rtc", 0, NULL,
+ 				hp_sdc_rtc_read_proc, NULL);
+ 
+ 	printk(KERN_INFO "HP i8042 SDC + MSM-58321 RTC support loaded "
+diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+index bdfde04..49e11e2 100644
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -391,23 +391,23 @@ static int hilse_operate(hil_mlc *mlc, i
+ }
+ 
+ #define FUNC(funct, funct_arg, zero_rc, neg_rc, pos_rc) \
+-{ HILSE_FUNC,		{ func: &funct }, funct_arg, zero_rc, neg_rc, pos_rc },
++{ HILSE_FUNC,		{ .func = funct }, funct_arg, zero_rc, neg_rc, pos_rc },
+ #define OUT(pack) \
+-{ HILSE_OUT,		{ packet: pack }, 0, HILSEN_NEXT, HILSEN_DOZE, 0 },
++{ HILSE_OUT,		{ .packet = pack }, 0, HILSEN_NEXT, HILSEN_DOZE, 0 },
+ #define CTS \
+-{ HILSE_CTS,		{ packet: 0    }, 0, HILSEN_NEXT | HILSEN_SCHED | HILSEN_BREAK, HILSEN_DOZE, 0 },
++{ HILSE_CTS,		{ .packet = 0    }, 0, HILSEN_NEXT | HILSEN_SCHED | HILSEN_BREAK, HILSEN_DOZE, 0 },
+ #define EXPECT(comp, to, got, got_wrong, timed_out) \
+-{ HILSE_EXPECT,		{ packet: comp }, to, got, got_wrong, timed_out },
++{ HILSE_EXPECT,		{ .packet = comp }, to, got, got_wrong, timed_out },
+ #define EXPECT_LAST(comp, to, got, got_wrong, timed_out) \
+-{ HILSE_EXPECT_LAST,	{ packet: comp }, to, got, got_wrong, timed_out },
++{ HILSE_EXPECT_LAST,	{ .packet = comp }, to, got, got_wrong, timed_out },
+ #define EXPECT_DISC(comp, to, got, got_wrong, timed_out) \
+-{ HILSE_EXPECT_DISC,	{ packet: comp }, to, got, got_wrong, timed_out },
++{ HILSE_EXPECT_DISC,	{ .packet = comp }, to, got, got_wrong, timed_out },
+ #define IN(to, got, got_error, timed_out) \
+-{ HILSE_IN,		{ packet: 0    }, to, got, got_error, timed_out },
++{ HILSE_IN,		{ .packet = 0    }, to, got, got_error, timed_out },
+ #define OUT_DISC(pack) \
+-{ HILSE_OUT_DISC,	{ packet: pack }, 0, 0, 0, 0 },
++{ HILSE_OUT_DISC,	{ .packet = pack }, 0, 0, 0, 0 },
+ #define OUT_LAST(pack) \
+-{ HILSE_OUT_LAST,	{ packet: pack }, 0, 0, 0, 0 },
++{ HILSE_OUT_LAST,	{ .packet = pack }, 0, 0, 0, 0 },
+ 
+ struct hilse_node hil_mlc_se[HILSEN_END] = {
+ 
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index ba7b920..9907ad3 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -310,7 +310,7 @@ static void hp_sdc_tasklet(unsigned long
+ 				 * in tasklet/bh context.
+ 				 */
+ 				if (curr->act.irqhook) 
+-					curr->act.irqhook(0, 0, 0, 0);
++					curr->act.irqhook(0, NULL, 0, 0);
+ 			}
+ 			curr->actidx = curr->idx;
+ 			curr->idx++;
+@@ -525,7 +525,7 @@ actdone:
+ 		up(curr->act.semaphore);
  	}
- 
- 	base_addr[CyCAR] = (u_char)channel;
-@@ -1354,7 +1354,7 @@ #endif
- 
- static int
- get_serial_info(struct cyclades_port * info,
--                           struct serial_struct * retinfo)
-+                           struct serial_struct __user * retinfo)
- {
-   struct serial_struct tmp;
- 
-@@ -1376,7 +1376,7 @@ get_serial_info(struct cyclades_port * i
- 
- static int
- set_serial_info(struct cyclades_port * info,
--                           struct serial_struct * new_info)
-+                           struct serial_struct __user * new_info)
- {
-   struct serial_struct new_serial;
-   struct cyclades_port old_info;
-@@ -1503,7 +1503,7 @@ send_break( struct cyclades_port * info,
- } /* send_break */
- 
- static int
--get_mon_info(struct cyclades_port * info, struct cyclades_monitor * mon)
-+get_mon_info(struct cyclades_port * info, struct cyclades_monitor __user * mon)
- {
- 
-    if (copy_to_user(mon, &info->mon, sizeof(struct cyclades_monitor)))
-@@ -1516,7 +1516,7 @@ get_mon_info(struct cyclades_port * info
- }
- 
- static int
--set_threshold(struct cyclades_port * info, unsigned long *arg)
-+set_threshold(struct cyclades_port * info, unsigned long __user *arg)
- {
-    volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
-    unsigned long value;
-@@ -1533,7 +1533,7 @@ set_threshold(struct cyclades_port * inf
- }
- 
- static int
--get_threshold(struct cyclades_port * info, unsigned long *value)
-+get_threshold(struct cyclades_port * info, unsigned long __user *value)
- {
-    volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
-    int channel;
-@@ -1546,7 +1546,7 @@ get_threshold(struct cyclades_port * inf
- }
- 
- static int
--set_default_threshold(struct cyclades_port * info, unsigned long *arg)
-+set_default_threshold(struct cyclades_port * info, unsigned long __user *arg)
- {
-    unsigned long value;
- 
-@@ -1558,13 +1558,13 @@ set_default_threshold(struct cyclades_po
- }
- 
- static int
--get_default_threshold(struct cyclades_port * info, unsigned long *value)
-+get_default_threshold(struct cyclades_port * info, unsigned long __user *value)
- {
-    return put_user(info->default_threshold,value);
- }
- 
- static int
--set_timeout(struct cyclades_port * info, unsigned long *arg)
-+set_timeout(struct cyclades_port * info, unsigned long __user *arg)
- {
-    volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
-    int channel;
-@@ -1581,7 +1581,7 @@ set_timeout(struct cyclades_port * info,
- }
- 
- static int
--get_timeout(struct cyclades_port * info, unsigned long *value)
-+get_timeout(struct cyclades_port * info, unsigned long __user *value)
- {
-    volatile unsigned char *base_addr = (u_char *)BASE_ADDR;
-    int channel;
-@@ -1601,7 +1601,7 @@ set_default_timeout(struct cyclades_port
- }
- 
- static int
--get_default_timeout(struct cyclades_port * info, unsigned long *value)
-+get_default_timeout(struct cyclades_port * info, unsigned long __user *value)
- {
-    return put_user(info->default_timeout,value);
- }
-@@ -1613,6 +1613,7 @@ cy_ioctl(struct tty_struct *tty, struct 
-   unsigned long val;
-   struct cyclades_port * info = (struct cyclades_port *)tty->driver_data;
-   int ret_val = 0;
-+  void __user *argp = (void __user *)arg;
- 
- #ifdef SERIAL_DEBUG_OTHER
-     printk("cy_ioctl %s, cmd = %x arg = %lx\n", tty->name, cmd, arg); /* */
-@@ -1620,28 +1621,28 @@ #endif
- 
-     switch (cmd) {
-         case CYGETMON:
--            ret_val = get_mon_info(info, (struct cyclades_monitor *)arg);
-+            ret_val = get_mon_info(info, argp);
- 	    break;
-         case CYGETTHRESH:
--	    ret_val = get_threshold(info, (unsigned long *)arg);
-+	    ret_val = get_threshold(info, argp);
-  	    break;
-         case CYSETTHRESH:
--            ret_val = set_threshold(info, (unsigned long *)arg);
-+            ret_val = set_threshold(info, argp);
- 	    break;
-         case CYGETDEFTHRESH:
--	    ret_val = get_default_threshold(info, (unsigned long *)arg);
-+	    ret_val = get_default_threshold(info, argp);
-  	    break;
-         case CYSETDEFTHRESH:
--            ret_val = set_default_threshold(info, (unsigned long *)arg);
-+            ret_val = set_default_threshold(info, argp);
- 	    break;
-         case CYGETTIMEOUT:
--	    ret_val = get_timeout(info, (unsigned long *)arg);
-+	    ret_val = get_timeout(info, argp);
-  	    break;
-         case CYSETTIMEOUT:
--            ret_val = set_timeout(info, (unsigned long *)arg);
-+            ret_val = set_timeout(info, argp);
- 	    break;
-         case CYGETDEFTIMEOUT:
--	    ret_val = get_default_timeout(info, (unsigned long *)arg);
-+	    ret_val = get_default_timeout(info, argp);
-  	    break;
-         case CYSETDEFTIMEOUT:
-             ret_val = set_default_timeout(info, (unsigned long)arg);
-@@ -1664,21 +1665,20 @@ #endif
- 
- /* The following commands are incompletely implemented!!! */
-         case TIOCGSOFTCAR:
--            ret_val = put_user(C_CLOCAL(tty) ? 1 : 0, (unsigned long *) arg);
-+            ret_val = put_user(C_CLOCAL(tty) ? 1 : 0, (unsigned long __user *) argp);
-             break;
-         case TIOCSSOFTCAR:
--            ret_val = get_user(val, (unsigned long *) arg);
-+            ret_val = get_user(val, (unsigned long __user *) argp);
- 	    if (ret_val)
- 		    break;
-             tty->termios->c_cflag =
-                     ((tty->termios->c_cflag & ~CLOCAL) | (val ? CLOCAL : 0));
-             break;
-         case TIOCGSERIAL:
--            ret_val = get_serial_info(info, (struct serial_struct *) arg);
-+            ret_val = get_serial_info(info, argp);
-             break;
-         case TIOCSSERIAL:
--            ret_val = set_serial_info(info,
--                                   (struct serial_struct *) arg);
-+            ret_val = set_serial_info(info, argp);
-             break;
-         default:
- 	    ret_val = -ENOIOCTLCMD;
-@@ -1773,7 +1773,7 @@ #endif
- 	tty->driver->flush_buffer(tty);
-     tty_ldisc_flush(tty);
-     info->event = 0;
--    info->tty = 0;
-+    info->tty = NULL;
-     if (info->blocked_open) {
- 	if (info->close_delay) {
- 	    msleep_interruptible(jiffies_to_msecs(info->close_delay));
-@@ -2250,7 +2250,7 @@ #endif
- 		info->card = index;
- 		info->line = port_num;
- 		info->flags = STD_COM_FLAGS;
--		info->tty = 0;
-+		info->tty = NULL;
- 		info->xmit_fifo_size = 12;
- 		info->cor1 = CyPARITY_NONE|Cy_8_BITS;
- 		info->cor2 = CyETC;
+ 	else if (act & HP_SDC_ACT_CALLBACK) {
+-		curr->act.irqhook(0,0,0,0);
++		curr->act.irqhook(0,NULL,0,0);
+ 	}
+ 	if (curr->idx >= curr->endidx) { /* This transaction is over. */
+ 		if (act & HP_SDC_ACT_DEALLOC) kfree(curr);
 -- 
 1.4.2.GIT

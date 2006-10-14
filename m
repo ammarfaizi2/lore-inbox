@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWJNQdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWJNRjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422713AbWJNQdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 12:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWJNQdo
+	id S1030334AbWJNRjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 13:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWJNRjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 12:33:44 -0400
-Received: from web58114.mail.re3.yahoo.com ([68.142.236.137]:58019 "HELO
-	web58114.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1422713AbWJNQdn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 12:33:43 -0400
+	Sat, 14 Oct 2006 13:39:09 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:28723 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030334AbWJNRjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 13:39:08 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=3o36vkCmO5QFtQDR8gA/WeVRdJjt7/UVo97UebKEEWd073nfj6KIzyBgStfbaPZDVGjKH8jJcKIkS5hmGfUVkvsRx2s0XXerGeqOzsauCobMa5SniPvdHge7CKXlzpkOxbMcyXeWjRjYDmM8wmOSDx17n5pFYI6mnmSnkf9ZnYs=  ;
-Message-ID: <20061014163342.36731.qmail@web58114.mail.re3.yahoo.com>
-Date: Sat, 14 Oct 2006 09:33:42 -0700 (PDT)
-From: Open Source <opensource3141@yahoo.com>
-Subject: Re: USB performance bug since kernel 2.6.13 (CRITICAL???)
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=PJLFhPPP/7oazuzV7RO6z7r2iZlTW/tdUYscwVGkNDJRrAZQtKfiXJhYBEh8169JQJ2OzTjhiH+4WN1Q4wINomqqbx4TlAVLOlvQUUTNMNwvXxF2t+6gj/GNMzBBslzm+N6tDfdwGZna0Lgx7dPKT4oboHBrnR0IbO8HSpVVftI=
+Message-ID: <453120EC.8030503@gmail.com>
+Date: Sat, 14 Oct 2006 13:39:56 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+To: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] V4L/DVB: potential leak in dvb-bt8xx
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+If dvb_attach
+<http://www.coverity.com:7448/display-error.cgi?user=fmalita&magic=8997c91336813f372812011c89e0e75e&source=2693a21be69533084392e43c4f3c5220&runid=86&table=file&line=107>(dst_attach,
+...) fails in *frontend_init*(), the previously allocated 'state' is
+leaked (Coverity ID 1437).
 
-Yes, I am on board with both Alans.  I did not know
-about this very nifty option in strace.  I will look into
-it in detail on Mon/Tue and report back.
+Also, when allocating 'state' the result of kmalloc() needs to be checked.
 
-Clearly something is weird, because there are no
-other load-intensive processes running on the system.
-I would think that the scheduler would wake up any
-blocked processes rather than sitting idle for 4 ms.
-In any case, I am open to the fact it may not be
-USB per se.  We'll see what strace says.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
 
-As always, thanks for the suggestions.  Stay tuned....
+ drivers/media/dvb/bt8xx/dvb-bt8xx.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-
------ Original Message ----
-From: Alan Stern <stern@rowland.harvard.edu>
-To: Open Source <opensource3141@yahoo.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>; USB development list <linux-usb-devel@lists.sourceforge.net>; Kernel development list <linux-kernel@vger.kernel.org>
-Sent: Friday, October 13, 2006 7:11:39 PM
-Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
-
-On Sat, 14 Oct 2006, Alan Cox wrote:
-
-> Ar Gwe, 2006-10-13 am 16:30 -0700, ysgrifennodd Open Source:
-> > There is an ioctl that is waiting for the URB to be reaped.
-> > I am almost certain it is this syscall that is taking 4 ms (as
-> > opposed to 1 ms with CONFIG_HZ=1000).
-> 
-> What does strace say about it ? This is measurable not speculation.
-
-I completely agree with the other Alan.  You don't have to guess about
-these things.  Use strace to see what your process is doing and at the
-same time use usbmon to see what the USB stack is doing.  Run the 
-experiment at both 1000 Hz and 250 Hz and compare the results.
-
-Alan Stern
-
-
-
-
+diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+index fb6c4cc..d22ba4e 100644
+--- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
++++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+@@ -665,6 +665,9 @@ static void frontend_init(struct dvb_bt8
+ 	case BTTV_BOARD_TWINHAN_DST:
+ 		/*	DST is not a frontend driver !!!		*/
+ 		state = (struct dst_state *) kmalloc(sizeof (struct dst_state), GFP_KERNEL);
++		if (!state)
++			break;
++
+ 		/*	Setup the Card					*/
+ 		state->config = &dst_config;
+ 		state->i2c = card->i2c_adapter;
+@@ -673,6 +676,7 @@ static void frontend_init(struct dvb_bt8
+ 		/*	DST is not a frontend, attaching the ASIC	*/
+ 		if (dvb_attach(dst_attach, state, &card->dvb_adapter) == NULL) {
+ 			printk("%s: Could not find a Twinhan DST.\n", __FUNCTION__);
++			kfree(state);
+ 			break;
+ 		}
+ 		/*	Attach other DST peripherals if any		*/
 
 

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWJNM2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWJNN3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWJNM2m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 08:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWJNM2m
+	id S1161126AbWJNN3E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 09:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbWJNN3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 08:28:42 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41121 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932197AbWJNM2l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 08:28:41 -0400
-Subject: Re: [PATCH]: disassociate tty locking fixups
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Prarit Bhargava <prarit@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20061014112218.30218.93267.sendpatchset@prarit.boston.redhat.com>
-References: <20061014112218.30218.93267.sendpatchset@prarit.boston.redhat.com>
-Content-Type: text/plain
+	Sat, 14 Oct 2006 09:29:03 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:59297 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1422630AbWJNN3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 09:29:01 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Nick Piggin <npiggin@suse.de>
+Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
+Date: Sat, 14 Oct 2006 15:28:48 +0200
+User-Agent: KMail/1.9.5
+Cc: Carsten Otte <cotte.de@gmail.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061007105758.14024.70048.sendpatchset@linux.site> <5c77e7070610120456t1bdaa95cre611080c9c953582@mail.gmail.com> <20061012120735.GA20191@wotan.suse.de>
+In-Reply-To: <20061012120735.GA20191@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Sat, 14 Oct 2006 13:55:09 +0100
-Message-Id: <1160830509.5732.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610141528.50542.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-10-14 am 07:22 -0400, ysgrifennodd Prarit Bhargava:
-> Additional tty_mutex locking in do_tty_hangup and disassociate_ctty.  It is
-> possible that do_tty_hangup sets current->signal->tty = NULL.  If that
-> happens then disassociate_ctty can corrupt memory.
+Hi Nick,
 
-Ugly but I don't think the patches are sufficient. Firstly you need to
-hold the task lock if you are poking around some other users ->signal,
-or that may itself change. (disassociate_ctty seems to have this wrong)
+On Thursday, 12. October 2006 14:07, Nick Piggin wrote:
+> Actually, filemap_xip needs some attention I think... if xip files
+> can be truncated or invalidated (I assume they can), then we need to
+> lock the page, validate that it is the correct one and not truncated,
+> and return with it locked.
 
-Secondly you appear to have lock ordering issues (you lock tty_mutex in
-both orders relative to the task list lock) (you take tty_mutex first,
-then the task lock which is correct, but then you drop and retake the
-tty_mutex while holding the task lock, which may deadlock)
+???
 
-Can you also explain why the ctty change proposed is neccessary ?
+Isn't XIP for "eXecuting In Place" from ROM or FLASH?
+How to truncate these? I thought the whole idea of
+XIP was a pure RO mapping?
 
-NAK the actual code, provisionally agree with the basic diagnosis of
-insufficient locking.
+They should be valid from mount to umount.
 
+Regards
+
+Ingo Oeser, a bit puzzled about that...

@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWJNDBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWJNDHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWJNDBN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 23:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWJNDBN
+	id S1030230AbWJNDHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 23:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWJNDHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 23:01:13 -0400
-Received: from xenotime.net ([66.160.160.81]:30855 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030226AbWJNDBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 23:01:12 -0400
-Date: Fri, 13 Oct 2006 20:02:39 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: udev problem, where is mailing list for udev?
-Message-Id: <20061013200239.bef93996.rdunlap@xenotime.net>
-In-Reply-To: <453035FA.4030802@verizon.net>
-References: <453035FA.4030802@verizon.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Oct 2006 23:07:48 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:2444 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1030230AbWJNDHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 23:07:47 -0400
+Date: Fri, 13 Oct 2006 21:07:45 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Adam Belay <abelay@MIT.EDU>,
+       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Bug in PCI core
+Message-ID: <20061014030745.GK11633@parisc-linux.org>
+References: <1160780425.4792.275.camel@localhost.localdomain> <Pine.LNX.4.44L0.0610132229230.22133-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0610132229230.22133-100000@netrider.rowland.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Oct 2006 20:57:30 -0400 Gene Heskett wrote:
+On Fri, Oct 13, 2006 at 10:33:04PM -0400, Alan Stern wrote:
+> That seems like a reasonable thing to do.  (BTW, can anyone explain 
+> quickly what "BIST" means?)
 
-> Specifically, the avc1394 control device for my sony trv460 is not being 
-> created.  Where can I sub to the udev list?
+Built In Self Test.  Devices can take up to 2 seconds to complete the
+test, and some drop off the PCI bus while doing it.
 
-<internet search engine> for /udev home page/
-and that will point you to the udev README, which says:
-
-Please direct any comment/question/concern to the linux-hotplug-devel mailing list at:
-linux-hotplug-devel@lists.sourceforge.net
-
----
-~Randy

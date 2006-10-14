@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752061AbWJNEao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752066AbWJNElt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752061AbWJNEao (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 00:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWJNEan
+	id S1752066AbWJNElt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 00:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWJNEls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 00:30:43 -0400
-Received: from mail.suse.de ([195.135.220.2]:63444 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752061AbWJNEan (ORCPT
+	Sat, 14 Oct 2006 00:41:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54717 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752062AbWJNElr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 00:30:43 -0400
-Date: Sat, 14 Oct 2006 06:30:41 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Memory Management <linux-mm@kvack.org>, Neil Brown <neilb@suse.de>,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Chris Mason <chris.mason@oracle.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/6] mm: fix pagecache write deadlocks
-Message-ID: <20061014043041.GC14467@wotan.suse.de>
-References: <20061013143516.15438.8802.sendpatchset@linux.site> <20061013143616.15438.77140.sendpatchset@linux.site> <20061013151457.81bb7f03.akpm@osdl.org> <20061014041927.GA14467@wotan.suse.de>
+	Sat, 14 Oct 2006 00:41:47 -0400
+Date: Fri, 13 Oct 2006 21:41:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Val Henson <val_henson@linux.intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
+Message-Id: <20061013214135.8fbc9f04.akpm@osdl.org>
+In-Reply-To: <1160161519800-git-send-email-matthew@wil.cx>
+References: <1160161519800-git-send-email-matthew@wil.cx>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061014041927.GA14467@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 14, 2006 at 06:19:27AM +0200, Nick Piggin wrote:
-> On Fri, Oct 13, 2006 at 03:14:57PM -0700, Andrew Morton wrote:
-> > On Fri, 13 Oct 2006 18:44:52 +0200 (CEST)
-> > Nick Piggin <npiggin@suse.de> wrote:
-> > > 
-> > > - This also showed up a number of buggy prepare_write / commit_write
-> > >   implementations that were setting the page uptodate in the prepare_write
-> > >   side: bad! this allows uninitialised data to be read. Fix these.
-> > 
-> > Well.  It's non-buggy under the current protocol because the page remains
-> > locked throughout.  This patch would make these ->prepare_write()
-> > implementations buggy.
+On Fri, 06 Oct 2006 13:05:18 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
+
+> Since some devices may not implement the MWI bit, we should check that
+> the write did set it and return an error if it didn't.
 > 
-> But if it becomes uptodate, then do_generic_mapping_read can read it
-> without locking it (and so can filemap_nopage at present, although it
-> looks like that's going to take the page lock soon).
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index a544997..3d041f4 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -900,13 +900,17 @@ #endif
+>  		return rc;
+>  
+>  	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+> -	if (! (cmd & PCI_COMMAND_INVALIDATE)) {
+> -		pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
+> -		cmd |= PCI_COMMAND_INVALIDATE;
+> -		pci_write_config_word(dev, PCI_COMMAND, cmd);
+> -	}
+> -	
+> -	return 0;
+> +	if (cmd & PCI_COMMAND_INVALIDATE)
+> +		return 0;
+> +
+> +	pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
+> +	cmd |= PCI_COMMAND_INVALIDATE;
+> +	pci_write_config_word(dev, PCI_COMMAND, cmd);
+> +
+> +	/* read result from hardware (in case bit refused to enable) */
+> +	pci_read_config_word(dev, PCI_COMMAND, &cmd);
+> +
+> +	return (cmd & PCI_COMMAND_INVALIDATE) ? 0 : -EINVAL;
+>  }
+>  
+>  /**
 
-So the simple_prepare_write bug is an uninitialised data loeak. If
-you read the part of the file which is about to be written to (and thus
-does not get memset()ed), you can read junk.
+Bisection shows that this patch
+(pci-check-that-mwi-bit-really-did-get-set.patch in Greg's PCI tree) breaks
+suspend-to-disk on my Vaio.  It writes the suspend image and gets to the
+point where it's supposed to power down, but doesn't.
 
-I was able to trigger this with a simple test on ramfs.
+After a manual power-cycle it successfully resumes from disk, but
+networking (at least) is dead.
 

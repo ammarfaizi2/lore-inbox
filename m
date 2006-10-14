@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWJNRu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWJNRti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWJNRu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 13:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWJNRu2
+	id S932317AbWJNRti (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 13:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWJNRti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 13:50:28 -0400
-Received: from mail.gmx.de ([213.165.64.20]:49879 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932321AbWJNRu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 13:50:27 -0400
-X-Authenticated: #14349625
-Subject: Re: sluggish system responsiveness under higher IO load
-From: Mike Galbraith <efault@gmx.de>
-To: Matthias Dahl <mlkernel@mortal-soul.de>
-Cc: Paolo Ornati <ornati@fastwebnet.it>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200610141639.58374.mlkernel@mortal-soul.de>
-References: <200608061200.37701.mlkernel@mortal-soul.de>
-	 <200608131815.12873.mlkernel@mortal-soul.de>
-	 <20061006175833.4ef08f06@localhost>
-	 <200610141639.58374.mlkernel@mortal-soul.de>
-Content-Type: text/plain
-Date: Sat, 14 Oct 2006 18:20:46 +0000
-Message-Id: <1160850046.13212.30.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sat, 14 Oct 2006 13:49:38 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:12187 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S932317AbWJNRti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 13:49:38 -0400
+Date: Sat, 14 Oct 2006 11:49:37 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Amol Lad <amol@verismonetworks.com>,
+       kernel Janitors <kernel-janitors@lists.osdl.org>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [KJ] [PATCH] drivers/char/riscom8.c: save_flags()/cli()/sti()	removal
+Message-ID: <20061014174936.GN11633@parisc-linux.org>
+References: <1160739628.19143.376.camel@amol.verismonetworks.com> <1160835602.5732.30.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1160835602.5732.30.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Sat, Oct 14, 2006 at 03:20:02PM +0100, Alan Cox wrote:
+> 1. The irq locking isn't doing anything as the IRQ handler itself is not
+> taking the lock
 
-On Sat, 2006-10-14 at 16:39 +0200, Matthias Dahl wrote:
-> On Friday 06 October 2006 17:58, Paolo Ornati wrote:
+Looks like you reviewed the first version instead of the version Amol
+sent after Arjan critiqued that.
+
+> 2. If the irq handler itself dumbly locks to fix this then we get
+> tty_flip_buffer_push() re-entering the other code paths and deadlocking
+> if low latency is enabled
+
+Yep, still a problem with the revised patch.
+
+> 3. Some of the use of local_save/spin_lock_irq seems over-clever and
+> unneeded
 > 
-> > I used to have this type of problem and 2.6.19-rc1 looks much better
-> > than 2.6.18.
-> >
-> > I'm using CONFIG_PREEMPT + CONFIG_PREEMPT_BKL, CFQ i/o scheduler
-> > and /proc/sys/vm/swappiness = 20.
-> 
-> I will give 2.6.19 a test in a few weeks when the dust of all the changes have 
-> settled a bit. :-)
-> 
-> As my Mike Galbraith suggested, I made some tests with renicing the IO 
-> intensive applications. This indeed makes a hell of a difference. Currently I 
-> am renicing everything that causes a lot of disk IO to a nice of 19. Even 
-> though this doesn't fix it completely, the occasional short hangs have become 
-> less common.
+> Fixable but how about we just delete the file since it has been broken
+> for ages and nobody can be using it ?
 
-(I probably should have been more verbose in my suggestion;)
+Only broken on SMP ...
 
-What I actually suggested was that you try renicing the application you
-were experiencing sluggishness with to -10, and retry your IO
-interference test to see if you were experiencing scheduling latency or
-something else.  For example, if your GL application is using lots of
-cpu, it will likely not be classified as interactive, and can end up in
-the expired array, at which time an IO task can do a long burst of heavy
-cpu usage at interactive status, and keep your application off of the
-cpu for quite a while.  The intent of renicing your application to -10
-was to keep it at interactive status, and above the heavy IO tasks. (if
-it sleeps at all that should work.  there are other scenarios too, but
-less likely than this one) 
-
-If running IO at nice 19 more or less fixes your problem, I think we can
-assume that you are having scheduling troubles, so the thing to do is to
-grab some top snapshots showing cpu distribution during a problem
-period.
-
-	-Mike
-
+I wouldn't mind writing a new driver (using the serial core) if someone
+wants to send me one.  I need a multiport serial card anyway ...

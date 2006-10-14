@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752066AbWJNElt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWJNEkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752066AbWJNElt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 00:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWJNEls
+	id S1752063AbWJNEkn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 00:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWJNEkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 00:41:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54717 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752062AbWJNElr (ORCPT
+	Sat, 14 Oct 2006 00:40:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49332 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752063AbWJNEkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 00:41:47 -0400
-Date: Fri, 13 Oct 2006 21:41:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Val Henson <val_henson@linux.intel.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-Message-Id: <20061013214135.8fbc9f04.akpm@osdl.org>
-In-Reply-To: <1160161519800-git-send-email-matthew@wil.cx>
-References: <1160161519800-git-send-email-matthew@wil.cx>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Oct 2006 00:40:43 -0400
+Date: Fri, 13 Oct 2006 21:40:15 -0700
+From: Greg KH <gregkh@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: Joel Becker <Joel.Becker@oracle.com>, matthltc@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in configfs
+Message-ID: <20061014044015.GE16880@suse.de>
+References: <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com> <20061010215808.GK7911@ca-server1.us.oracle.com> <1160527799.1674.91.camel@localhost.localdomain> <20061011012851.GR7911@ca-server1.us.oracle.com> <20061011220619.GB7911@ca-server1.us.oracle.com> <1160619516.18766.209.camel@localhost.localdomain> <20061012070826.GO7911@ca-server1.us.oracle.com> <20061012144420.089f3dce.pj@sgi.com> <20061012225146.GX7911@ca-server1.us.oracle.com> <20061012170125.504153ec.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061012170125.504153ec.pj@sgi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Oct 2006 13:05:18 -0600
-Matthew Wilcox <matthew@wil.cx> wrote:
+On Thu, Oct 12, 2006 at 05:01:25PM -0700, Paul Jackson wrote:
+> Underneath each of these filesystems, sysfs, configfs, cpuset, resource
+> groups, ... it would seem ideal if we had a single kernel file system
+> infrastructure.  Actually, we're only a half a layer from having that,
+> with vfs.  It just takes a fair bit of glue to construct any of these
+> file systems out of vfs primitives.
 
-> Since some devices may not implement the MWI bit, we should check that
-> the write did set it and return an error if it didn't.
-> 
-> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-> 
-> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> index a544997..3d041f4 100644
-> --- a/drivers/pci/pci.c
-> +++ b/drivers/pci/pci.c
-> @@ -900,13 +900,17 @@ #endif
->  		return rc;
->  
->  	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-> -	if (! (cmd & PCI_COMMAND_INVALIDATE)) {
-> -		pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
-> -		cmd |= PCI_COMMAND_INVALIDATE;
-> -		pci_write_config_word(dev, PCI_COMMAND, cmd);
-> -	}
-> -	
-> -	return 0;
-> +	if (cmd & PCI_COMMAND_INVALIDATE)
-> +		return 0;
-> +
-> +	pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
-> +	cmd |= PCI_COMMAND_INVALIDATE;
-> +	pci_write_config_word(dev, PCI_COMMAND, cmd);
-> +
-> +	/* read result from hardware (in case bit refused to enable) */
-> +	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-> +
-> +	return (cmd & PCI_COMMAND_INVALIDATE) ? 0 : -EINVAL;
->  }
->  
->  /**
+No, it's pretty small to create a ram-based filesystem these days.  Look
+at securityfs and debugfs for two simple examples that you should copy
+if you want to create your own.  If you can come up with ways of making
+those files smaller, then that would be great.  But as it is, it is
+_really_ simple to do this right now, especially with two working
+examples to copy from :)
 
-Bisection shows that this patch
-(pci-check-that-mwi-bit-really-did-get-set.patch in Greg's PCI tree) breaks
-suspend-to-disk on my Vaio.  It writes the suspend image and gets to the
-point where it's supposed to power down, but doesn't.
+thanks,
 
-After a manual power-cycle it successfully resumes from disk, but
-networking (at least) is dead.
-
+greg k-h

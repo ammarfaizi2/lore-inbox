@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWJNMHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWJNMHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWJNMHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 08:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWJNMHK
+	id S932183AbWJNMHw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 08:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWJNMHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 08:07:10 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61900 "EHLO
+	Sat, 14 Oct 2006 08:07:52 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:4813 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932179AbWJNMHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 08:07:06 -0400
+	id S932183AbWJNMHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 08:07:45 -0400
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Patrick Boettcher <pb@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Hans Verkuil <hverkuil@xs4all.nl>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 18/18] V4L/DVB (4750): AGC command1/2 is board specific
-Date: Sat, 14 Oct 2006 09:00:51 -0300
-Message-id: <20061014120051.PS82443500018@infradead.org>
+Subject: [PATCH 04/18] V4L/DVB (4729): Fix VIDIOC_G_FMT for NTSC in cx25840.
+Date: Sat, 14 Oct 2006 09:00:50 -0300
+Message-id: <20061014120050.PS35870300004@infradead.org>
 In-Reply-To: <20061014115356.PS36551000000@infradead.org>
 References: <20061014115356.PS36551000000@infradead.org>
 Mime-Version: 1.0
@@ -28,83 +28,60 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Patrick Boettcher <pb@linuxtv.org>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-Added config-struct-parameter to take board-specific AGC command 1 and 2 into account.
+VIDIOC_G_FMT returned the sliced VBI types in the wrong lines for NTSC
+(three lines too low).
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/dvb-usb/dibusb-common.c |   11 +++++++++--
- drivers/media/dvb/frontends/dib3000mc.c   |    2 +-
- drivers/media/dvb/frontends/dib3000mc.h   |    3 +++
- 3 files changed, 13 insertions(+), 3 deletions(-)
+ drivers/media/video/cx25840/cx25840-vbi.c |   25 +++++++++++++++++++------
+ 1 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/dvb/dvb-usb/dibusb-common.c b/drivers/media/dvb/dvb-usb/dibusb-common.c
-index fd3a990..5143e42 100644
---- a/drivers/media/dvb/dvb-usb/dibusb-common.c
-+++ b/drivers/media/dvb/dvb-usb/dibusb-common.c
-@@ -169,7 +169,7 @@ EXPORT_SYMBOL(dibusb_read_eeprom_byte);
- // Config Adjacent channels  Perf -cal22
- static struct dibx000_agc_config dib3000p_mt2060_agc_config = {
- 	.band_caps = BAND_VHF | BAND_UHF,
--	.setup     = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (29 << 0),
-+	.setup     = (1 << 8) | (5 << 5) | (1 << 4) | (1 << 3) | (0 << 2) | (2 << 0),
+diff --git a/drivers/media/video/cx25840/cx25840-vbi.c b/drivers/media/video/cx25840/cx25840-vbi.c
+index 48014a2..f85f208 100644
+--- a/drivers/media/video/cx25840/cx25840-vbi.c
++++ b/drivers/media/video/cx25840/cx25840-vbi.c
+@@ -235,6 +235,7 @@ int cx25840_vbi(struct i2c_client *clien
+ 			0, 0, V4L2_SLICED_VPS, 0, 0,	/* 9 */
+ 			0, 0, 0, 0
+ 		};
++		int is_pal = !(cx25840_get_v4lstd(client) & V4L2_STD_525_60);
+ 		int i;
  
- 	.agc1_max = 48497,
- 	.agc1_min = 23593,
-@@ -196,10 +196,14 @@ static struct dib3000mc_config stk3000p_
- 	.ln_adc_level = 0x1cc7,
+ 		fmt = arg;
+@@ -246,13 +247,25 @@ int cx25840_vbi(struct i2c_client *clien
+ 		if ((cx25840_read(client, 0x404) & 0x10) == 0)
+ 			break;
  
- 	.output_mpeg2_in_188_bytes = 1,
+-		for (i = 7; i <= 23; i++) {
+-			u8 v = cx25840_read(client, 0x424 + i - 7);
++		if (is_pal) {
++			for (i = 7; i <= 23; i++) {
++				u8 v = cx25840_read(client, 0x424 + i - 7);
 +
-+	.agc_command1 = 1,
-+	.agc_command2 = 1,
- };
++				svbi->service_lines[0][i] = lcr2vbi[v >> 4];
++				svbi->service_lines[1][i] = lcr2vbi[v & 0xf];
++				svbi->service_set |=
++					svbi->service_lines[0][i] | svbi->service_lines[1][i];
++			}
++		}
++		else {
++			for (i = 10; i <= 21; i++) {
++				u8 v = cx25840_read(client, 0x424 + i - 10);
  
- static struct dibx000_agc_config dib3000p_panasonic_agc_config = {
--	.setup    = (0 << 15) | (0 << 14) | (1 << 13) | (1 << 12) | (29 << 0),
-+	.band_caps = BAND_VHF | BAND_UHF,
-+	.setup     = (1 << 8) | (5 << 5) | (1 << 4) | (1 << 3) | (0 << 2) | (2 << 0),
- 
- 	.agc1_max = 56361,
- 	.agc1_min = 22282,
-@@ -226,6 +230,9 @@ static struct dib3000mc_config mod3000p_
- 	.ln_adc_level = 0x1cc7,
- 
- 	.output_mpeg2_in_188_bytes = 1,
-+
-+	.agc_command1 = 1,
-+	.agc_command2 = 1,
- };
- 
- int dibusb_dib3000mc_frontend_attach(struct dvb_usb_adapter *adap)
-diff --git a/drivers/media/dvb/frontends/dib3000mc.c b/drivers/media/dvb/frontends/dib3000mc.c
-index ccc813b..3561a77 100644
---- a/drivers/media/dvb/frontends/dib3000mc.c
-+++ b/drivers/media/dvb/frontends/dib3000mc.c
-@@ -345,7 +345,7 @@ static int dib3000mc_init(struct dvb_fro
- 
- 	/* agc */
- 	dib3000mc_write_word(state, 36, state->cfg->max_time);
--	dib3000mc_write_word(state, 37, agc->setup);
-+	dib3000mc_write_word(state, 37, (state->cfg->agc_command1 << 13) | (state->cfg->agc_command2 << 12) | (0x1d << 0));
- 	dib3000mc_write_word(state, 38, state->cfg->pwm3_value);
- 	dib3000mc_write_word(state, 39, state->cfg->ln_adc_level);
- 
-diff --git a/drivers/media/dvb/frontends/dib3000mc.h b/drivers/media/dvb/frontends/dib3000mc.h
-index b198cd5..0d6fdef 100644
---- a/drivers/media/dvb/frontends/dib3000mc.h
-+++ b/drivers/media/dvb/frontends/dib3000mc.h
-@@ -28,6 +28,9 @@ struct dib3000mc_config {
- 	u16 max_time;
- 	u16 ln_adc_level;
- 
-+	u8 agc_command1 :1;
-+	u8 agc_command2 :1;
-+
- 	u8 mobile_mode;
- 
- 	u8 output_mpeg2_in_188_bytes;
+-			svbi->service_lines[0][i] = lcr2vbi[v >> 4];
+-			svbi->service_lines[1][i] = lcr2vbi[v & 0xf];
+-			svbi->service_set |=
+-				 svbi->service_lines[0][i] | svbi->service_lines[1][i];
++				svbi->service_lines[0][i] = lcr2vbi[v >> 4];
++				svbi->service_lines[1][i] = lcr2vbi[v & 0xf];
++				svbi->service_set |=
++					svbi->service_lines[0][i] | svbi->service_lines[1][i];
++			}
+ 		}
+ 		break;
+ 	}
 

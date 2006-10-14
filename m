@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161114AbWJNLms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWJNLvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161114AbWJNLms (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 07:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWJNLms
+	id S1161120AbWJNLvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 07:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbWJNLvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 07:42:48 -0400
-Received: from tux.linux.ee ([195.222.16.153]:28387 "EHLO tux.linux.ee")
-	by vger.kernel.org with ESMTP id S1161114AbWJNLmr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 07:42:47 -0400
-Date: Sat, 14 Oct 2006 14:42:45 +0300
-To: linux-kernel@vger.kernel.org
-Subject: ppc prep boot hang in 2.6.19-rc2
-Message-ID: <20061014114245.GA19056@linux.ee>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: mroos@linux.ee (Meelis Roos)
+	Sat, 14 Oct 2006 07:51:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6557 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161120AbWJNLvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 07:51:47 -0400
+Subject: Re: [PATCH] drivers/char/riscom8.c: save_flags()/cli()/sti()
+	removal
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Lad <amol@verismonetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+In-Reply-To: <1160811574.19143.391.camel@amol.verismonetworks.com>
+References: <1160739628.19143.376.camel@amol.verismonetworks.com>
+	 <1160751657.25218.47.camel@localhost.localdomain>
+	 <1160811574.19143.391.camel@amol.verismonetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 14 Oct 2006 13:18:12 +0100
+Message-Id: <1160828292.5732.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using Motorola Powerstack II Pro4000 (PReP). While 2.6.18 works
-mostly fine on this machine (modulo iptables alignment fix that is
-hand-applied), 2.6.19-rc1+git from 11. sept and 2.6.19/rc2 hang on boot
-after detecting VGA console:
+Ar Sad, 2006-10-14 am 13:09 +0530, ysgrifennodd Amol Lad:
+> On Fri, 2006-10-13 at 16:00 +0100, Alan Cox wrote:
+> > Ar Gwe, 2006-10-13 am 17:10 +0530, ysgrifennodd Amol Lad:
+> > > Removed save_flags()/cli()/sti() and used (light weight) spin locks
+> > > 
+> > 
+> > Have you tested this and verified there are no recursive locking cases
+> > in your changes ?
+> 
+> I doxygend riscom8.c and used call graphs to verify there are no
+> recursive locks. I did a code review also
 
-loaded at:     00400400 00569F4C
-relocated to:  00800000 00969B4C
-zimage at:     0080AE58 00960B02
-avail ram:     00400000 00800000
+Thanks for the info. I'll give the code a second review (also not having
+hardware) and then send you/Andrew either an Ack or corrections.
 
-Linux/PPC load: console=ttyS0,9600 console=tty0 root=/dev/sda3 tere tere tere
-Uncompressing Linux...done.
-Now booting the kernel
-Total memory = 192MB; using 512kB for hash table (at c0380000)
-Linux version 2.6.19-rc2 (mroos@muuseum) (gcc version 4.1.2 20061007 (prerelease) (Debian 4.1.1-16)) #38 Fri Oct 13 22:49:17 EEST 2006
-PReP architecture
-Zone PFN ranges:
-  DMA             0 ->    49152
-  Normal      49152 ->    49152
-early_node_map[1] active PFN ranges
-    0:        0 ->    49152
-Built 1 zonelists.  Total pages: 48768
-Kernel command line: console=ttyS0,9600 console=tty0 root=/dev/sda3 tere tere tere
-PID hash table entries: 1024 (order: 10, 4096 bytes)
-time_init: decrementer frequency = 16.657582 MHz
-Console: colour VGA+ 80x25
+Alan
 
--- 
-Meelis Roos <mroos@linux.ee>

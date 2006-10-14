@@ -1,59 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWJNSBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWJNSCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422734AbWJNSBi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 14:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWJNSBi
+	id S1422737AbWJNSCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 14:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJNSCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 14:01:38 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:22942 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1422734AbWJNSBi (ORCPT
+	Sat, 14 Oct 2006 14:02:15 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:54449 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1422737AbWJNSCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 14:01:38 -0400
-Date: Sat, 14 Oct 2006 20:03:21 +0200
+	Sat, 14 Oct 2006 14:02:14 -0400
+Date: Sat, 14 Oct 2006 20:03:58 +0200
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] 2.6.19-rc1-mm1 pktcdvd: init pktdev_major
+Subject: [PATCH 2/2] 2.6.19-rc1-mm1 pktcdvd: bio write congestion
 Reply-To: balagi@justmail.de
 From: "Thomas Maier" <balagi@justmail.de>
 Cc: "Peter Osterlund" <petero2@telia.com>, "akpm@osdl.org" <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary=----------M80nfRDkTfzAUeMePek8PG
+Content-Type: multipart/mixed; boundary=----------vWBYDX4m2luayX5MsAo5jv
 MIME-Version: 1.0
-References: <op.tguqh5r2iudtyh@master> <m3k63emtma.fsf@telia.com>
-Message-ID: <op.thfa3vzviudtyh@master>
-In-Reply-To: <m3k63emtma.fsf@telia.com>
+Message-ID: <op.thfa4wnqiudtyh@master>
 User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------M80nfRDkTfzAUeMePek8PG
+------------vWBYDX4m2luayX5MsAo5jv
 Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 
 Hello,
 
-this is a bugfix for pktcdvd.c:
-
-pktdev_major must be initialized to 0.
+this adds a bio write queue congestion control
+to the pktcdvd driver with fixed on/off marks.
+It prevents that the driver consumes a unlimited
+amount of write requests.
 
 Signed-off-by: Thomas Maier <balagi@justmail.de>
 
 
-------------M80nfRDkTfzAUeMePek8PG
-Content-Disposition: attachment; filename=pktcdvd-1-init-pktdev_major.patch
-Content-Type: application/octet-stream; name=pktcdvd-1-init-pktdev_major.patch
+------------vWBYDX4m2luayX5MsAo5jv
+Content-Disposition: attachment; filename=pktcdvd-2-wqueue-congestion.patch
+Content-Type: application/octet-stream; name=pktcdvd-2-wqueue-congestion.patch
 Content-Transfer-Encoding: Base64
 
-ZGlmZiAtdXJwTiBsaW51eC0yLjYuMTktcmMxLW1tMS9kcml2ZXJzL2Jsb2NrL3Br
-dGNkdmQuYyAxLWluaXQtcGt0ZGV2X21ham9yL2RyaXZlcnMvYmxvY2svcGt0Y2R2
-ZC5jCi0tLSBsaW51eC0yLjYuMTktcmMxLW1tMS9kcml2ZXJzL2Jsb2NrL3BrdGNk
-dmQuYwkyMDA2LTEwLTE0IDEzOjQ2OjA0LjAwMDAwMDAwMCArMDIwMAorKysgMS1p
-bml0LXBrdGRldl9tYWpvci9kcml2ZXJzL2Jsb2NrL3BrdGNkdmQuYwkyMDA2LTEw
-LTE0IDEzOjUwOjU0LjAwMDAwMDAwMCArMDIwMApAQCAtODMsNyArODMsNyBAQAog
-CiBzdGF0aWMgc3RydWN0IHBrdGNkdmRfZGV2aWNlICpwa3RfZGV2c1tNQVhfV1JJ
-VEVSU107CiBzdGF0aWMgc3RydWN0IHByb2NfZGlyX2VudHJ5ICpwa3RfcHJvYzsK
-LXN0YXRpYyBpbnQgcGt0ZGV2X21ham9yOworc3RhdGljIGludCBwa3RkZXZfbWFq
-b3IgPSAwOwogc3RhdGljIHN0cnVjdCBtdXRleCBjdGxfbXV0ZXg7CS8qIFNlcmlh
-bGl6ZSBvcGVuL2Nsb3NlL3NldHVwL3RlYXJkb3duICovCiBzdGF0aWMgbWVtcG9v
-bF90ICpwc2RfcG9vbDsKIAo=
+ZGlmZiAtdXJwTiAxLWluaXQtcGt0ZGV2X21ham9yL2RyaXZlcnMvYmxvY2svcGt0
+Y2R2ZC5jIDItd3F1ZXVlLWNvbmdlc3Rpb24vZHJpdmVycy9ibG9jay9wa3RjZHZk
+LmMKLS0tIDEtaW5pdC1wa3RkZXZfbWFqb3IvZHJpdmVycy9ibG9jay9wa3RjZHZk
+LmMJMjAwNi0xMC0xNCAxMzo1MDo1NC4wMDAwMDAwMDAgKzAyMDAKKysrIDItd3F1
+ZXVlLWNvbmdlc3Rpb24vZHJpdmVycy9ibG9jay9wa3RjZHZkLmMJMjAwNi0xMC0x
+NCAxNDowNToyOC4wMDAwMDAwMDAgKzAyMDAKQEAgLTg0LDYgKzg0LDggQEAKIHN0
+YXRpYyBzdHJ1Y3QgcGt0Y2R2ZF9kZXZpY2UgKnBrdF9kZXZzW01BWF9XUklURVJT
+XTsKIHN0YXRpYyBzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKnBrdF9wcm9jOwogc3Rh
+dGljIGludCBwa3RkZXZfbWFqb3IgPSAwOworc3RhdGljIGludCB3cml0ZV9jb25n
+ZXN0aW9uX29uICA9IFBLVF9XUklURV9DT05HRVNUSU9OX09OOworc3RhdGljIGlu
+dCB3cml0ZV9jb25nZXN0aW9uX29mZiA9IFBLVF9XUklURV9DT05HRVNUSU9OX09G
+RjsKIHN0YXRpYyBzdHJ1Y3QgbXV0ZXggY3RsX211dGV4OwkvKiBTZXJpYWxpemUg
+b3Blbi9jbG9zZS9zZXR1cC90ZWFyZG93biAqLwogc3RhdGljIG1lbXBvb2xfdCAq
+cHNkX3Bvb2w7CiAKQEAgLTg5NCw2ICs4OTYsNyBAQCBzdGF0aWMgaW50IHBrdF9o
+YW5kbGVfcXVldWUoc3RydWN0IHBrdGNkCiAJc2VjdG9yX3Qgem9uZSA9IDA7IC8q
+IFN1cHByZXNzIGdjYyB3YXJuaW5nICovCiAJc3RydWN0IHBrdF9yYl9ub2RlICpu
+b2RlLCAqZmlyc3Rfbm9kZTsKIAlzdHJ1Y3QgcmJfbm9kZSAqbjsKKwlpbnQgd2Fr
+ZXVwOwogCiAJVlBSSU5USygiaGFuZGxlX3F1ZXVlXG4iKTsKIApAQCAtOTY2LDcg
+Kzk2OSwxNCBAQCB0cnlfbmV4dF9iaW86CiAJCXBrdC0+d3JpdGVfc2l6ZSArPSBi
+aW8tPmJpX3NpemUgLyBDRF9GUkFNRVNJWkU7CiAJCXNwaW5fdW5sb2NrKCZwa3Qt
+PmxvY2spOwogCX0KKwkvKiBjaGVjayB3cml0ZSBjb25nZXN0aW9uIG1hcmtzLCBh
+bmQgaWYgYmlvX3F1ZXVlX3NpemUgaXMKKwkgICBiZWxvdywgd2FrZSB1cCBhbnkg
+d2FpdGVycyAqLworCXdha2V1cCA9IChwZC0+d3JpdGVfY29uZ2VzdGlvbl9vbiA+
+IDAKKwkgCQkmJiBwZC0+YmlvX3F1ZXVlX3NpemUgPD0gcGQtPndyaXRlX2Nvbmdl
+c3Rpb25fb2ZmCisJCQkmJiB3YWl0cXVldWVfYWN0aXZlKCZwZC0+d3JpdGVfY29u
+Z2VzdGlvbl93cXVldWUpKTsKIAlzcGluX3VubG9jaygmcGQtPmxvY2spOworCWlm
+ICh3YWtldXApCisJCXdha2VfdXAoJnBkLT53cml0ZV9jb25nZXN0aW9uX3dxdWV1
+ZSk7CiAKIAlwa3QtPnNsZWVwX3RpbWUgPSBtYXgoUEFDS0VUX1dBSVRfVElNRSwg
+MSk7CiAJcGt0X3NldF9zdGF0ZShwa3QsIFBBQ0tFVF9XQUlUSU5HX1NUQVRFKTsK
+QEAgLTIxODAsNiArMjE5MCwzMSBAQCBzdGF0aWMgaW50IHBrdF9tYWtlX3JlcXVl
+c3QocmVxdWVzdF9xdWV1CiAJc3Bpbl91bmxvY2soJnBkLT5jZHJ3LmFjdGl2ZV9s
+aXN0X2xvY2spOwogCiAJLyoKKwkgKiBUZXN0IGlmIHRoZXJlIGlzIGVub3VnaCBy
+b29tIGxlZnQgaW4gdGhlIGJpbyB3b3JrIHF1ZXVlCisJICogKHF1ZXVlIHNpemUg
+Pj0gY29uZ2VzdGlvbiBvbiBtYXJrKS4KKwkgKiBJZiBub3QsIHdhaXQgdGlsbCB0
+aGUgd29yayBxdWV1ZSBzaXplIGlzIGJlbG93IHRoZSBjb25nZXN0aW9uIG9mZiBt
+YXJrLgorCSAqIFRoaXMgaXMgc2ltaWxhciB0byB0aGUgZ2V0X3JlcXVlc3Rfd2Fp
+dCgpIGNhbGwgbWFkZSBpbiB0aGUgYmxvY2sKKwkgKiBsYXllciBmdW5jdGlvbiBf
+X21ha2VfcmVxdWVzdCgpIHVzZWQgZm9yIG5vcm1hbCBibG9jayBpL28gcmVxdWVz
+dAorCSAqIGhhbmRsaW5nLgorCSAqLworCXNwaW5fbG9jaygmcGQtPmxvY2spOwor
+CWlmIChwZC0+d3JpdGVfY29uZ2VzdGlvbl9vbiA+IDAKKwkgICAgICYmIHBkLT5i
+aW9fcXVldWVfc2l6ZSA+PSBwZC0+d3JpdGVfY29uZ2VzdGlvbl9vbikgeworCQlE
+RUZJTkVfV0FJVCh3YWl0KTsKKwkJZG8geyAvKiB3YWl0IHRpbGwgbnVtYmVyIG9m
+IGJpbyByZXF1ZXN0cyBpcyBsb3cgZW5vdWdoICovCisJCQlzcGluX3VubG9jaygm
+cGQtPmxvY2spOworCQkJcHJlcGFyZV90b193YWl0X2V4Y2x1c2l2ZSgmcGQtPndy
+aXRlX2Nvbmdlc3Rpb25fd3F1ZXVlLAorCQkJCQkmd2FpdCwgVEFTS19VTklOVEVS
+UlVQVElCTEUpOworCQkJaW9fc2NoZWR1bGUoKTsKKwkJCS8qIGlmIHdlIGFyZSBo
+ZXJlLCBiaW9fcXVldWVfc2l6ZSBzaG91bGQgYmUgYmVsb3cKKwkJCSAgIGNvbmdl
+c3Rpb25fb2ZmLCBidXQgYmUgc3VyZSBhbmQgZG8gYSB0ZXN0ICovCisJCQlzcGlu
+X2xvY2soJnBkLT5sb2NrKTsKKwkJfSB3aGlsZShwZC0+YmlvX3F1ZXVlX3NpemUg
+PiBwZC0+d3JpdGVfY29uZ2VzdGlvbl9vZmYpOworCQlmaW5pc2hfd2FpdCgmcGQt
+PndyaXRlX2Nvbmdlc3Rpb25fd3F1ZXVlLCAmd2FpdCk7CisJfQorCXNwaW5fdW5s
+b2NrKCZwZC0+bG9jayk7CisKKwkvKgogCSAqIE5vIG1hdGNoaW5nIHBhY2tldCBm
+b3VuZC4gU3RvcmUgdGhlIGJpbyBpbiB0aGUgd29yayBxdWV1ZS4KIAkgKi8KIAlu
+b2RlID0gbWVtcG9vbF9hbGxvYyhwZC0+cmJfcG9vbCwgR0ZQX05PSU8pOwpAQCAt
+MjI5OCw2ICsyMzMzLDkgQEAgc3RhdGljIGludCBwa3Rfc2VxX3Nob3coc3RydWN0
+IHNlcV9maWxlIAogCXNlcV9wcmludGYobSwgIlx0c3RhdGU6XHRcdFx0aTolZCBv
+dzolZCBydzolZCB3dzolZCByZWM6JWQgZmluOiVkXG4iLAogCQkgICBzdGF0ZXNb
+MF0sIHN0YXRlc1sxXSwgc3RhdGVzWzJdLCBzdGF0ZXNbM10sIHN0YXRlc1s0XSwg
+c3RhdGVzWzVdKTsKIAorCXNlcV9wcmludGYobSwgIlx0d3JpdGUgY29uZ2VzdGlv
+biBtYXJrczpcdG9mZj0lZCBvbj0lZFxuIiwKKwkJCXBkLT53cml0ZV9jb25nZXN0
+aW9uX29mZiwKKwkJCXBkLT53cml0ZV9jb25nZXN0aW9uX29uKTsKIAlyZXR1cm4g
+MDsKIH0KIApAQCAtMjQ3NCw2ICsyNTEyLDEwIEBAIHN0YXRpYyBpbnQgcGt0X3Nl
+dHVwX2RldihkZXZfdCBkZXYsIGRldl8KIAlpbml0X3dhaXRxdWV1ZV9oZWFkKCZw
+ZC0+d3F1ZXVlKTsKIAlwZC0+YmlvX3F1ZXVlID0gUkJfUk9PVDsKIAorCWluaXRf
+d2FpdHF1ZXVlX2hlYWQoJnBkLT53cml0ZV9jb25nZXN0aW9uX3dxdWV1ZSk7CisJ
+cGQtPndyaXRlX2Nvbmdlc3Rpb25fb24gID0gd3JpdGVfY29uZ2VzdGlvbl9vbjsK
+KwlwZC0+d3JpdGVfY29uZ2VzdGlvbl9vZmYgPSB3cml0ZV9jb25nZXN0aW9uX29m
+ZjsKKwogCWRpc2sgPSBhbGxvY19kaXNrKDEpOwogCWlmICghZGlzaykKIAkJZ290
+byBvdXRfbWVtOwpkaWZmIC11cnBOIDEtaW5pdC1wa3RkZXZfbWFqb3IvaW5jbHVk
+ZS9saW51eC9wa3RjZHZkLmggMi13cXVldWUtY29uZ2VzdGlvbi9pbmNsdWRlL2xp
+bnV4L3BrdGNkdmQuaAotLS0gMS1pbml0LXBrdGRldl9tYWpvci9pbmNsdWRlL2xp
+bnV4L3BrdGNkdmQuaAkyMDA2LTEwLTE0IDEzOjQ5OjUyLjAwMDAwMDAwMCArMDIw
+MAorKysgMi13cXVldWUtY29uZ2VzdGlvbi9pbmNsdWRlL2xpbnV4L3BrdGNkdmQu
+aAkyMDA2LTEwLTE0IDEzOjU4OjE2LjAwMDAwMDAwMCArMDIwMApAQCAtMTEyLDYg
+KzExMiwxMiBAQCBzdHJ1Y3QgcGt0X2N0cmxfY29tbWFuZCB7CiAjaW5jbHVkZSA8
+bGludXgvY29tcGxldGlvbi5oPgogI2luY2x1ZGUgPGxpbnV4L2Nkcm9tLmg+CiAK
+KworLyogZGVmYXVsdCBiaW8gd3JpdGUgcXVldWUgY29uZ2VzdGlvbiBtYXJrcyAq
+LworI2RlZmluZSBQS1RfV1JJVEVfQ09OR0VTVElPTl9PTiAgICAxMDAwMAorI2Rl
+ZmluZSBQS1RfV1JJVEVfQ09OR0VTVElPTl9PRkYgICA5MDAwCisKKwogc3RydWN0
+IHBhY2tldF9zZXR0aW5ncwogewogCV9fdTMyCQkJc2l6ZTsJCS8qIHBhY2tldCBz
+aXplIGluICg1MTIgYnl0ZSkgc2VjdG9ycyAqLwpAQCAtMjcxLDYgKzI3NywxMCBA
+QCBzdHJ1Y3QgcGt0Y2R2ZF9kZXZpY2UKIAogCXN0cnVjdCBwYWNrZXRfaW9zY2hl
+ZCAgIGlvc2NoZWQ7CiAJc3RydWN0IGdlbmRpc2sJCSpkaXNrOworCisJd2FpdF9x
+dWV1ZV9oZWFkX3QJd3JpdGVfY29uZ2VzdGlvbl93cXVldWU7CisJaW50CQkJd3Jp
+dGVfY29uZ2VzdGlvbl9vZmY7CisJaW50CQkJd3JpdGVfY29uZ2VzdGlvbl9vbjsK
+IH07CiAKICNlbmRpZiAvKiBfX0tFUk5FTF9fICovCg==
 
-------------M80nfRDkTfzAUeMePek8PG--
+------------vWBYDX4m2luayX5MsAo5jv--
 

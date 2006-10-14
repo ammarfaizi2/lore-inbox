@@ -1,83 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752079AbWJNFWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752083AbWJNF0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752079AbWJNFWE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 01:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWJNFWE
+	id S1752083AbWJNF0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 01:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752086AbWJNF0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 01:22:04 -0400
-Received: from ns2.suse.de ([195.135.220.15]:441 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752079AbWJNFWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 01:22:01 -0400
-Date: Fri, 13 Oct 2006 22:21:10 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, Val Henson <val_henson@linux.intel.com>,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+	Sat, 14 Oct 2006 01:26:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43716 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752083AbWJNF0P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 01:26:15 -0400
+Date: Fri, 13 Oct 2006 22:26:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-Message-ID: <20061014052110.GB21616@suse.de>
-References: <1160161519800-git-send-email-matthew@wil.cx> <20061013214135.8fbc9f04.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061013214135.8fbc9f04.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Subject: Re: [PATCH] [PCI] Prevent user config space access during power
+ state transitions
+Message-Id: <20061013222608.660d9a96.akpm@osdl.org>
+In-Reply-To: <1160487497203-git-send-email-matthew@wil.cx>
+References: <1160487497203-git-send-email-matthew@wil.cx>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 09:41:35PM -0700, Andrew Morton wrote:
-> On Fri, 06 Oct 2006 13:05:18 -0600
-> Matthew Wilcox <matthew@wil.cx> wrote:
+On Tue, 10 Oct 2006 07:38:17 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
+
+> Section 5.3 of PCI Bus Power Management 1.2 states:
 > 
-> > Since some devices may not implement the MWI bit, we should check that
-> > the write did set it and return an error if it didn't.
-> > 
-> > Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-> > 
-> > diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> > index a544997..3d041f4 100644
-> > --- a/drivers/pci/pci.c
-> > +++ b/drivers/pci/pci.c
-> > @@ -900,13 +900,17 @@ #endif
-> >  		return rc;
-> >  
-> >  	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-> > -	if (! (cmd & PCI_COMMAND_INVALIDATE)) {
-> > -		pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
-> > -		cmd |= PCI_COMMAND_INVALIDATE;
-> > -		pci_write_config_word(dev, PCI_COMMAND, cmd);
-> > -	}
-> > -	
-> > -	return 0;
-> > +	if (cmd & PCI_COMMAND_INVALIDATE)
-> > +		return 0;
-> > +
-> > +	pr_debug("PCI: Enabling Mem-Wr-Inval for device %s\n", pci_name(dev));
-> > +	cmd |= PCI_COMMAND_INVALIDATE;
-> > +	pci_write_config_word(dev, PCI_COMMAND, cmd);
-> > +
-> > +	/* read result from hardware (in case bit refused to enable) */
-> > +	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-> > +
-> > +	return (cmd & PCI_COMMAND_INVALIDATE) ? 0 : -EINVAL;
-> >  }
-> >  
-> >  /**
+>   There is a minimum recovery time requirement of 200 µs between when
+>   a function is programmed from D2 to D0 and when the function can be
+>   next accessed as a target (including PCI configuration accesses). If
+>   an access is attempted in violation of the specified minimum recovery
+>   time, undefined system behavior may result.
 > 
-> Bisection shows that this patch
-> (pci-check-that-mwi-bit-really-did-get-set.patch in Greg's PCI tree) breaks
-> suspend-to-disk on my Vaio.  It writes the suspend image and gets to the
-> point where it's supposed to power down, but doesn't.
+> We have to prevent the user running lspci during this time, and
+> fortunately we already have the pci_block_user_cfg_access() API to
+> do this.
 > 
-> After a manual power-cycle it successfully resumes from disk, but
-> networking (at least) is dead.
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> ---
+>  drivers/pci/pci.c |    8 ++++++++
+>  1 files changed, 8 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index a544997..1bb059a 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -366,6 +366,11 @@ pci_set_power_state(struct pci_dev *dev,
+>  		break;
+>  	}
+>  
+> +	/* We have to prevent accesses to config space while transitioning
+> +	 * between power states
+> +	 */
+> +	pci_block_user_cfg_access(dev);
+> +
+>  	/* enter specified state */
+>  	pci_write_config_word(dev, pm + PCI_PM_CTRL, pmcsr);
+>  
+> @@ -383,6 +388,9 @@ pci_set_power_state(struct pci_dev *dev,
+>  	if (platform_pci_set_power_state)
+>  		platform_pci_set_power_state(dev, state);
+>  
+> +	/* Should be safe to allow userspace access to the device again now */
+> +	pci_unblock_user_cfg_access(dev);
+> +
+>  	dev->current_state = state;
+>  
+>  	/* According to section 5.4.1 of the "PCI BUS POWER MANAGEMENT
 
-Ok, I'll drop this from my tree too.
+This patch independently causes the same failure: the Vaio doesn't power
+off after suspend-to-disk and after a manual power cycle and resume,
+networking is dead.
 
-Matthew, let me know whn you have a revised patch you wish to have me
-include.
+The message `acpi_power_off called' never comes out, so something probably
+got stuck.
 
-thanks,
+Or maybe something failed somewhere and the error code which would have
+helped us solve this bug was simply ignored.
 
-greg k-h
+
+
+Note that pci_block_user_cfg_access() calls pci_save_state(), which can
+fail.  But pci_block_user_cfg_access() discards that information and
+returns void.  If this happens, userspace config space reads will return...
+what?  
+

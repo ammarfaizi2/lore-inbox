@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752165AbWJNLZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbWJNLaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752165AbWJNLZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 07:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752166AbWJNLZi
+	id S1161115AbWJNLaN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 07:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWJNLaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 07:25:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35857 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752165AbWJNLZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 07:25:37 -0400
-Date: Sat, 14 Oct 2006 13:25:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Prakash Punnoor <prakash@punnoor.de>, perex@suse.cz,
-       alsa-devel@alsa-project.org, Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Michael Krufky <mkrufky@linuxtv.org>, v4l-dvb-maintainer@linuxtv.org
-Subject: [2/3] 2.6.19-rc2: knwon regressions with workarounds
-Message-ID: <20061014112534.GK30596@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061014111458.GI30596@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 14 Oct 2006 07:30:13 -0400
+Received: from bay0-omc2-s12.bay0.hotmail.com ([65.54.246.148]:27028 "EHLO
+	bay0-omc2-s12.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1752168AbWJNLaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 07:30:12 -0400
+Message-ID: <BAY20-F2629AFC1128150E2482D6D80B0@phx.gbl>
+X-Originating-IP: [80.178.73.98]
+X-Originating-Email: [yan_952@hotmail.com]
+In-Reply-To: <20061014082608.GA3851@elf.ucw.cz>
+From: "Burman Yan" <yan_952@hotmail.com>
+To: pavel@ucw.cz
+Cc: kronos.it@gmail.com, linux-kernel@vger.kernel.org
+Subject: RE: HP disk protection Re: Remn Yan <yan_952@hotmail.com> ha scritto:
+Date: Sat, 14 Oct 2006 13:30:10 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 14 Oct 2006 11:30:11.0565 (UTC) FILETIME=[1C4519D0:01C6EF84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email lists some known regressions with workarounds in 2.6.19-rc2 
-compared to 2.6.18.
-
-Unless proper solutions become available, we should implement the 
-workarounds.
-
-If you find your name in the Cc header, you are either submitter of one 
-of the bugs, maintainer of an affectected subsystem or driver, a patch 
-of you caused a breakage or I'm considering you in any other way 
-possibly involved with one or more of these issues.
-
-Please trim the Cc when answering.
-
-Subject    : snd-hda-intel <-> forcedeth MSI problem
-References : http://lkml.org/lkml/2006/10/5/40
-             http://lkml.org/lkml/2006/10/7/164
-Submitter  : Prakash Punnoor <prakash@punnoor.de>
-Status     : suggested workaround for 2.6.19:
-             deactivate MSI in snd-intel-hda by default
 
 
-Subject    : DVB frontend selection causes compile errors
-References : http://lkml.org/lkml/2006/10/8/244
-Submitter  : Adrian Bunk <bunk@stusta.de>
-Caused-By  : "Andrew de Quincey" <adq_dvb@lidskialf.net>
-             commit 176ac9da4f09820a43fd48f0e74b1486fc3603ba
-Handled-By : Michael Krufky <mkrufky@linuxtv.org>
-             "Andrew de Quincey" <adq_dvb@lidskialf.net>
-Status     : possible workaround: don't allow CONFIG_DVB_FE_CUSTOMISE=y
+
+>From: Pavel Machek <pavel@ucw.cz>
+>To: Burman Yan <yan_952@hotmail.com>
+>CC: kronos.it@gmail.com, linux-kernel@vger.kernel.org
+>Subject: HP disk protection Re: Remn Yan <yan_952@hotmail.com> ha scritto:
+>Date: Sat, 14 Oct 2006 10:26:08 +0200
+>
+>On Fri 2006-10-13 20:32:48, Burman Yan wrote:
+> > >From: Luca Tettamanti <kronos.it@gmail.com>
+>
+> > >Burman Yan <yan_952@hotmail.com> ha scritto:
+> > >> I would like to hear your remarks on this version.
+> > >
+> > >> +static ssize_t mdps_calibrate_store(struct device *dev,
+> > >> +                   struct device_attribute *attr, const char *buf,
+> > >size_t count)
+> > >> +{
+> > >> +	mdps_calibrate_mouse();
+> > >> +	return count;
+> > >> +}
+> > >
+> > >No locking here?
+> >
+> > I don't want to lock it here, since the mouse polling kthread is heavy 
+>as
+> > it is.
+>
+> > I'd rather report a wrong value of mouse position while recalibrating.
+> > The way I see it, if you're recalibrating your mouse, chances are you're
+> > not playing at the same precise millisecond. In my opinion it's worth 
+>more
+> > battery life.
+>
+>Hmm, and are you sure it can't oops or something?
+
+Well, other than in calibrate, I use it only in one other place - the mouse 
+polling kthread
+(mdps_mouse_kthread). In there it's used to calculate the absolute location 
+of the "mouse".
+At most I will get a value that doesn not correspond to the current 
+position.
+This means that the mouse pointer will perhaps jump, since the x calibration 
+value has
+updated and y calibration has not yet.
+
+Yan
+
+_________________________________________________________________
+FREE pop-up blocking with the new MSN Toolbar - get it now! 
+http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
 

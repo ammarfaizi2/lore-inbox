@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422837AbWJNTRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751899AbWJNToR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422837AbWJNTRj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 15:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422841AbWJNTRj
+	id S1751899AbWJNToR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 15:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752171AbWJNToR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 15:17:39 -0400
-Received: from mail.gmx.de ([213.165.64.20]:8353 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422798AbWJNTRi (ORCPT
+	Sat, 14 Oct 2006 15:44:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20383 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751899AbWJNToR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 15:17:38 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Sat, 14 Oct 2006 21:17:37 +0200
-From: "Philipp Kohlbecher" <xt28@gmx.de>
-Message-ID: <20061014191737.323490@gmx.net>
-MIME-Version: 1.0
-Subject: ra_pages and max_sectors
-To: linux-kernel@vger.kernel.org
-X-Authenticated: #34473864
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Sat, 14 Oct 2006 15:44:17 -0400
+Date: Sat, 14 Oct 2006 12:43:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: Chandra Seetharaman <sekharan@us.ibm.com>,
+       Joel Becker <Joel.Becker@oracle.com>, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Allow more than PAGESIZE data read in configfs
+Message-Id: <20061014124351.63434962.akpm@osdl.org>
+In-Reply-To: <20061014080107.GB19325@kroah.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	<20061010203511.GF7911@ca-server1.us.oracle.com>
+	<20061011131935.448a8696.akpm@osdl.org>
+	<20061011221822.GD7911@ca-server1.us.oracle.com>
+	<20061011154836.9befa359.akpm@osdl.org>
+	<1160609233.6389.82.camel@linuxchandra>
+	<20061014080107.GB19325@kroah.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, 14 Oct 2006 01:01:07 -0700
+Greg KH <greg@kroah.com> wrote:
 
-I was wondering why I can change the read-ahead size of my DVD drive via hdparm -a [size], but not by writing into /sys/block/hdb/queue/read_ahead_kb.
+> On Wed, Oct 11, 2006 at 04:27:13PM -0700, Chandra Seetharaman wrote:
+> > On Wed, 2006-10-11 at 15:48 -0700, Andrew Morton wrote:
+> > > On Wed, 11 Oct 2006 15:18:22 -0700
+> > > Joel Becker <Joel.Becker@oracle.com> wrote:
+> > > 
+> > > > On Wed, Oct 11, 2006 at 01:19:35PM -0700, Andrew Morton wrote:
+> > > > > The patch deletes a pile of custom code from configfs and replaces it with
+> > > > > calls to standard kernel infrastructure and fixes a shortcoming/bug in the
+> > > > > process.  Migration over to the new interface is trivial and almost
+> > > > > scriptable.
+> > > > 
+> > > > 	The configfs stuff is based on the sysfs code too.  Should we
+> > > > migrate sysfs/file.c to the same seq_file code?  Serious question, if
+> > > > the cleanup is considered better.
+> > > > 
+> > > 
+> > > I don't see why not.  I don't know if anyone has though of/proposed it
+> > > before.
+> > 
+> > I can generate a patch for that too.
+> 
+> Argh!!!!
+> 
+> Are you going to honestly tell me you have a single attribute in sysfs
+> that is larger than PAGE_SIZE?
 
-In other words: Why does queue_ra_store() [block/ll_rw_blk.c:3755] perform the following check
+He does not.  It's a matter of reusing existing facilities rather than
+impementing similar things in multiple places.  The equivalent patch in
+configfs removed a decent amount of code:
 
-        if (ra_kb > (q->max_sectors >> 1))
-                ra_kb = (q->max_sectors >> 1);
+fs/configfs/file.c       |  130 ++++++++++-------------------------------------
+include/linux/configfs.h |    3 -
+2 files changed, 31 insertions(+), 102 deletions(-)
 
-while blkdev_locked_ioctl() [block/ioctl.c:138] does not check this in the case that cmd == BLKRASET?
-
-Thanks for your consideration,
-- Philipp Kohlbecher
-
-
-Please CC me -- I'm not on the list.
--- 
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen! 
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

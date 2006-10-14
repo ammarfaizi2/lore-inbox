@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWJNEz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752072AbWJNFEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWJNEz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 00:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752072AbWJNEz2
+	id S1752072AbWJNFEU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 01:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752073AbWJNFEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 00:55:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39297 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750779AbWJNEz2 (ORCPT
+	Sat, 14 Oct 2006 01:04:20 -0400
+Received: from ns2.suse.de ([195.135.220.15]:30391 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752072AbWJNFET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 00:55:28 -0400
-From: Paul Jackson <pj@sgi.com>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Date: Fri, 13 Oct 2006 21:55:17 -0700
-Message-Id: <20061014045517.22007.863.sendpatchset@v0>
-Subject: [RFC] Cpuset: remove useless sched domain line
+	Sat, 14 Oct 2006 01:04:19 -0400
+Date: Sat, 14 Oct 2006 07:04:18 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Memory Management <linux-mm@kvack.org>
+Cc: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       Chris Mason <chris.mason@oracle.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/6] mm: fix pagecache write deadlocks
+Message-ID: <20061014050418.GB23740@wotan.suse.de>
+References: <20061013143516.15438.8802.sendpatchset@linux.site> <20061013143616.15438.77140.sendpatchset@linux.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061013143616.15438.77140.sendpatchset@linux.site>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar,
+On Fri, Oct 13, 2006 at 06:44:52PM +0200, Nick Piggin wrote:
+> From: Andrew Morton <akpm@osdl.org> and Nick Piggin <npiggin@suse.de>
+> 
+> The idea is to modify the core write() code so that it won't take a pagefault
+> while holding a lock on the pagecache page. There are a number of different
+> deadlocks possible if we try to do such a thing:
 
-(1) Does this patch look right to you?
+Here is a patch to improve the comment a little. This is a pretty tricky
+situation so we must be clear as to why it works.
+--
 
-(2) I don't understand this code:
+Comment was not entirely clear about why we must eliminate all other
+possibilities.
 
-      * When do we ever create sched domains for cpusets
-        that -are- cpu_exclusive?  All I see here are
-	calls to partition_sched_domains() with various
-	permutations of pspan and cspan that are the
-	cpus from various non-exclusive cpusets.
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-      * Why do we return (setting up no sched domains
-	at this time) if the current cpuset's cpus
-	covers all the non exclusive cpus of our parent,
-	but continue on to make a sched domain just for
-	our parent if there are other non-exclusive cpus
-	in our sibling cpusets?
-
-====
-
-Remove a useless line from the sched domain setup code in cpusets.
-
-When I removed the 'is_removed()' flag test from the sched domain
-setup code in cpusets, as part of my July 23, 2006 patch:
-
-    Cpuset: fix ABBA deadlock with cpu hotplug lock
-
-I failed to notice that this opened the door to a little bit of code
-simplification.  A line of code that had to cover for the possibility
-that a cpuset marked cpu_exclusive was marked for removal could
-be eliminated.  In the code section visible in this patch, it is
-now the case that cur->cpus_allowed is always a subset of pspan,
-so it is always a no-op to cpus_or() cur->cpus_allowed into pspan.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- kernel/cpuset.c |    1 -
- 1 files changed, 1 deletion(-)
-
---- 2.6.19-rc1-mm1.orig/kernel/cpuset.c	2006-10-13 21:31:16.000000000 -0700
-+++ 2.6.19-rc1-mm1/kernel/cpuset.c	2006-10-13 21:32:20.000000000 -0700
-@@ -783,7 +783,6 @@ static void update_cpu_domains(struct cp
- 			cpus_andnot(pspan, pspan, c->cpus_allowed);
- 	}
- 	if (!is_cpu_exclusive(cur)) {
--		cpus_or(pspan, pspan, cur->cpus_allowed);
- 		if (cpus_equal(pspan, cur->cpus_allowed))
- 			return;
- 		cspan = CPU_MASK_NONE;
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Index: linux-2.6/mm/filemap.c
+===================================================================
+--- linux-2.6.orig/mm/filemap.c
++++ linux-2.6/mm/filemap.c
+@@ -1946,12 +1946,19 @@ retry_noprogress:
+ 		if (!PageUptodate(page)) {
+ 			/*
+ 			 * If the page is not uptodate, we cannot allow a
+-			 * partial commit_write, because that might expose
+-			 * uninitialised data.
++			 * partial commit_write because when we unlock the
++			 * page below, someone else might bring it uptodate
++			 * and we lose our write. We cannot allow a full
++			 * commit_write, because that exposes uninitialised
++			 * data. We cannot zero the rest of the file and do
++			 * a full commit_write because that exposes transient
++			 * zeroes.
+ 			 *
+-			 * We will enter the single-segment path below, which
+-			 * should get the filesystem to bring the page
+-			 * uputodate for us next time.
++			 * Abort the operation entirely with a zero length
++			 * commit_write. Retry.  We will enter the
++			 * single-segment path below, which should get the
++			 * filesystem to bring the page uputodate for us next
++			 * time.
+ 			 */
+ 			if (unlikely(copied != bytes))
+ 				copied = 0;

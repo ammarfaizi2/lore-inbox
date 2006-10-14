@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWJNMLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWJNMOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWJNMLt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 08:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWJNMH7
+	id S932189AbWJNMOw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 08:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWJNMOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 08:07:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1229 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932186AbWJNMHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 08:07:23 -0400
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Amit Choudhary <amit2030@gmail.com>,
-       Manu Abraham <manu@linuxtv.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 09/18] V4L/DVB (4738): Bt8xx/dvb-bt8xx.c: check kmalloc()
-	return value.
-Date: Sat, 14 Oct 2006 09:00:50 -0300
-Message-id: <20061014120050.PS89462600009@infradead.org>
-In-Reply-To: <20061014115356.PS36551000000@infradead.org>
-References: <20061014115356.PS36551000000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 14 Oct 2006 08:14:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:786 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932189AbWJNMOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 08:14:51 -0400
+Date: Sat, 14 Oct 2006 14:14:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       Michael Krufky <mkrufky@linuxtv.org>
+Subject: Re: [PATCH 07/18] V4L/DVB (4733): Tda10086: fix frontend selection for dvb_attach
+Message-ID: <20061014121448.GM30596@stusta.de>
+References: <20061014115356.PS36551000000@infradead.org> <20061014120050.PS67662400007@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061014120050.PS67662400007@infradead.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 14, 2006 at 09:00:50AM -0300, mchehab@infradead.org wrote:
+> 
+> From: Michael Krufky <mkrufky@linuxtv.org>
+> 
+> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+> ---
+> 
+>  drivers/media/dvb/frontends/tda10086.h |    9 +++++++++
+>  1 files changed, 9 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/media/dvb/frontends/tda10086.h b/drivers/media/dvb/frontends/tda10086.h
+> index e8061db..18457ad 100644
+> --- a/drivers/media/dvb/frontends/tda10086.h
+> +++ b/drivers/media/dvb/frontends/tda10086.h
+> @@ -35,7 +35,16 @@ struct tda10086_config
+>  	u8 invert;
+>  };
+>  
+> +#if defined(CONFIG_DVB_TDA10086) || defined(CONFIG_DVB_TDA10086_MODULE)
+>  extern struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
+>  					    struct i2c_adapter* i2c);
+> +#else
+> +static inline struct dvb_frontend* tda10086_attach(const struct tda10086_config* config,
+> +						   struct i2c_adapter* i2c)
+> +{
+> +	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
+> +	return NULL;
+> +}
+> +#endif // CONFIG_DVB_TDA10086
 
-From: Amit Choudhary <amit2030@gmail.com>
+As already said:
+This breaks with CONFIG_VIDEO_SAA7134_DVB=y, CONFIG_DVB_TDA10086=m.
 
-Check the return value of kmalloc() in function frontend_init(), 
-in file drivers/media/dvb/bt8xx/dvb-bt8xx.c.
+cu
+Adrian
 
-Signed-off-by: Amit Choudhary <amit2030@gmail.com>
-Signed-off-by: Manu Abraham <manu@linuxtv.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+-- 
 
- drivers/media/dvb/bt8xx/dvb-bt8xx.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/media/dvb/bt8xx/dvb-bt8xx.c b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-index fb6c4cc..14e69a7 100644
---- a/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-+++ b/drivers/media/dvb/bt8xx/dvb-bt8xx.c
-@@ -665,6 +665,10 @@ static void frontend_init(struct dvb_bt8
- 	case BTTV_BOARD_TWINHAN_DST:
- 		/*	DST is not a frontend driver !!!		*/
- 		state = (struct dst_state *) kmalloc(sizeof (struct dst_state), GFP_KERNEL);
-+		if (!state) {
-+			printk("dvb_bt8xx: No memory\n");
-+			break;
-+		}
- 		/*	Setup the Card					*/
- 		state->config = &dst_config;
- 		state->i2c = card->i2c_adapter;
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

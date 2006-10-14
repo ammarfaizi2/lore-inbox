@@ -1,115 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422844AbWJNUsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422842AbWJNUtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422844AbWJNUsf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 16:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422841AbWJNUsf
+	id S1422842AbWJNUtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 16:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbWJNUtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 16:48:35 -0400
-Received: from sccrmhc13.comcast.net ([204.127.200.83]:22983 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1030404AbWJNUse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 16:48:34 -0400
-Message-ID: <45314D20.7060904@comcast.net>
-Date: Sat, 14 Oct 2006 16:48:32 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Driver model.. expel legacy drivers?
-References: <200610141854.k9EIs2CN005765@laptop13.inf.utfsm.cl>
-In-Reply-To: <200610141854.k9EIs2CN005765@laptop13.inf.utfsm.cl>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Sat, 14 Oct 2006 16:49:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36782 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030407AbWJNUtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 16:49:06 -0400
+Date: Sat, 14 Oct 2006 13:48:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Val Henson <val_henson@linux.intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, netdev@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
+Message-Id: <20061014134855.b66d7e65.akpm@osdl.org>
+In-Reply-To: <20061014140249.GL11633@parisc-linux.org>
+References: <1160161519800-git-send-email-matthew@wil.cx>
+	<20061013214135.8fbc9f04.akpm@osdl.org>
+	<20061014140249.GL11633@parisc-linux.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 14 Oct 2006 08:02:49 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-
-
-Horst H. von Brand wrote:
-> John Richard Moser <nigelenki@comcast.net> wrote:
+> On Fri, Oct 13, 2006 at 09:41:35PM -0700, Andrew Morton wrote:
+> > Bisection shows that this patch
+> > (pci-check-that-mwi-bit-really-did-get-set.patch in Greg's PCI tree) breaks
+> > suspend-to-disk on my Vaio.  It writes the suspend image and gets to the
+> > point where it's supposed to power down, but doesn't.
 > 
-> [...]
-> 
->> I've mapped the growth of the .tar.bz2 archives in kilobytes since
->> 2.6.0, they show an erratic pattern but a strong overall linear growth
->> pattern.  This means the actual size of the kernel is polynomial and
->> integrates crudely to:
->>
->>    18.59x^2+133.1x+32600
->>
->> For x == minor (i.e. 2.6.0 == 0; 2.6.18 == 18).  This produces a level
->> of error; however, I've graphed the error and it seems to be off by no
->> more than 400k ever and show a horizontal trend (i.e. overall accurate);
->> however I'll have to apply the same prediction to future kernel versions
->> to get a good picture.
-> 
-> Hum... perhaps going against time (not minor) is better?
-> 
+> How odd.  What driver is calling pci_set_mwi() on the suspend path?
 
-I think revisions have an average time between them that follows a
-general linear trend.  {1 4 3 1 0 2 2 3} is a general linear trend; a
-line between these points best dividing half above and half below is
-horizontal.  *The assertion that revision numbers are linearly
-correlated to time is a conjecture; I have not verified this
-mathematically.*
+ehci_pci_reinit().  I stuck a dump_stack() in there.  See
+http://userweb.kernel.org/~akpm/s5000342.jpg
 
-> You could also include the whole 2.5.x set (at least since git became
-> common) for a larger series...
+> What drivers do you have loaded on the Vaio?
 
-Perhaps, but that was a heavy development period and I want to avoid
-lurking variables; otherwise I'd have included 2.4's whole series too.
-I know this is a lost cause in 2.6, what with things like devfs or OSS
-dropping and ALSR getting merged in at random times....
 
-> 
-> [...]
-> 
->> My math predicts that 2.6.57 (+39) will be 100M (in approximately 7
->> years if you assume 1 kernel release every 2 months); 2.6.92 (+35) will
->> breech 200M; 2.6.117 (+25) will breech 300M; and 2.6.138 (+21)) will
->> breech 400M.  That should suffice for predictions over the next 20 years
->> based on this crude model.
-> 
-> I'd trust your curve for, say, 5 minors. Not more. The quadratic term is
-> rather hard to justify in any case... linear growth (== new drivers at a
-> (roughly) constant rate, a (roughly) constant number of people actively
-> working on the kernel with constant productivity, ...) I give you easily.
-
-(ax^2 + bx + c)d/dx == 2ax + b
-
-I didn't eye the curve as quadratic; I eyed it as a gentle curve.  I
-took the differences and looked for a trend specifically because I know
-a linear growth trend (polynomial degree 1) indicates a quadratic trend
-(polynomial degree 2).
-
-As I said, I don't have enough samples.  I only used 16 of the 19
-samples I have to generate the function above; I would like upwards of
-30 before claiming any useful trend.
-
-- --
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRTFDnws1xW0HCTEFAQLLHA//WxyEu7Tzh/Lt6RAWL3qA1xHHm2E2WWBc
-bUCq4ONuXheZ9rdQM0VHdLIdkPNvkFPtBXSugEIPCIMDSjR8+z1U+kv96Od96Gb0
-TfSLMGIUnVzdhAHzwTo35vfPrQb3dIVA4j+3dgMHX0e+OEWDeHhHsAWSjgkwqhe4
-OQ6SvCZVIxV2nFTJ3MkbNqITVBNmWy4cy16L3H6GiiQl/q3tg71Dochcn83ySNlc
-9NCP4igLVlfjThNCK8pJtDoZX887oCFB/npSOSiwKQKciAlMooAgmDRTh55pa7D4
-XD+Lilxwp/jFXbtv/9HdoETeN7kZLcVYbGfMosDvwxl5g2smzCLWEv5qvUCs3lDQ
-gh4knxGF59Vupou+irI9L+1FC3irJcS92x3ITFQwwTRT3rZ5hVMPIBaxovWN2oVY
-U0InH4VhLY+yWADL3BkWEi/pNQ2YxiXw5VdSDHMitBHEczOyE2emAkVTBvuGl/wP
-v2iDVHJU9A1IMsN0EG+C+hpOR4kqIU/WT/aLAC3JwUKb+RTFadgRdYs6/ca++2ks
-iFwA55Dd20iQ3p/uCwXMvugWAGwo+tPXHIBJy3RSnPkL4r/CaA1RwC7Gn/EDqgeA
-w2jO6hYcKKX91MEFpfvqUjNx5Oq4gHf/20rLQi7kMW12LVkVDmKZe840KETSt3Wb
-O8MAMIs894s=
-=6G+v
------END PGP SIGNATURE-----
+sony:/home/akpm> lsmod
+Module                  Size  Used by
+ipw2200               163184  0 
+sonypi                 21484  0 
+autofs4                19908  1 
+hidp                   16192  2 
+l2cap                  21764  5 hidp
+bluetooth              49060  2 hidp,l2cap
+sunrpc                154172  1 
+ip_conntrack_netbios_ns     3328  0 
+ipt_REJECT              4736  1 
+xt_state                2496  2 
+ip_conntrack           51020  2 ip_conntrack_netbios_ns,xt_state
+nfnetlink               7128  1 ip_conntrack
+xt_tcpudp               3392  4 
+iptable_filter          3264  1 
+ip_tables              12616  1 iptable_filter
+x_tables               15428  4 ipt_REJECT,xt_state,xt_tcpudp,ip_tables
+video                  16836  0 
+sony_acpi               7312  0 
+sbs                    15968  0 
+i2c_ec                  5504  1 sbs
+button                  7184  0 
+battery                10692  0 
+asus_acpi              17564  0 
+backlight               6464  2 sony_acpi,asus_acpi
+ac                      5636  0 
+nvram                   8072  0 
+ohci1394               33264  0 
+ehci_hcd               30088  0 
+ieee1394              291896  1 ohci1394
+uhci_hcd               22092  0 
+sg                     33628  0 
+joydev                  9920  0 
+evbug                   3392  0 
+snd_hda_intel          18968  0 
+snd_hda_codec         161536  1 snd_hda_intel
+snd_seq_dummy           4228  0 
+snd_seq_oss            31744  0 
+snd_seq_midi_event      7360  1 snd_seq_oss
+snd_seq                48208  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event
+snd_seq_device          8524  3 snd_seq_dummy,snd_seq_oss,snd_seq
+ieee80211              30920  1 ipw2200
+snd_pcm_oss            41504  0 
+snd_mixer_oss          16640  1 snd_pcm_oss
+ieee80211_crypt         6016  1 ieee80211
+snd_pcm                74632  3 snd_hda_intel,snd_hda_codec,snd_pcm_oss
+snd_timer              21316  2 snd_seq,snd_pcm
+snd                    50980  9 snd_hda_intel,snd_hda_codec,snd_seq_oss,snd_seq,snd_seq_device,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
+soundcore               7968  1 snd
+snd_page_alloc         10376  2 snd_hda_intel,snd_pcm
+piix                    9604  0 [permanent]
+i2c_i801                7820  0 
+pcspkr                  3136  0 
+i2c_core               21840  2 i2c_ec,i2c_i801
+generic                 5252  0 [permanent]
+ext3                  127688  1 
+jbd                    52712  1 ext3
+ide_disk               16000  0 
+ide_core              114780  3 piix,generic,ide_disk

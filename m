@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751854AbWJNKOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752129AbWJNKQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751854AbWJNKOa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 06:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752064AbWJNKOa
+	id S1752129AbWJNKQG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 06:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752064AbWJNKQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 06:14:30 -0400
-Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:25574
-	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S1751854AbWJNKOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 06:14:30 -0400
-Message-ID: <4530B897.3010403@lsrfire.ath.cx>
-Date: Sat, 14 Oct 2006 12:14:47 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Shawn Starr <shawn.starr@rogers.com>, Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: bzip2 tarball 2.6.19-rc2 packaged wrong?
-References: <200610132336.21392.shawn.starr@rogers.com>
-In-Reply-To: <200610132336.21392.shawn.starr@rogers.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 14 Oct 2006 06:16:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13710 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752128AbWJNKQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 06:16:03 -0400
+Date: Sat, 14 Oct 2006 05:15:07 -0500
+From: Robin Holt <holt@sgi.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] get_user_pages(..., write==1, ...) may return with readable pte.
+Message-ID: <20061014101507.GA6316@lnx-holt.americas.sgi.com>
+References: <20061013203342.GA21610@lnx-holt.americas.sgi.com> <20061014045305.GA23740@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061014045305.GA23740@wotan.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr schrieb:
-> Linus, something in git  broke the prepackaged tarball/bzip2 generation?
-> 
-> $ tar -jxvf linux-2.6.19-rc2.tar.bz2
-> linux-2.6.19-rc2.gitignore
-> linux-2.6.19-rc2COPYING
-> linux-2.6.19-rc2CREDITS
-> linux-2.6.19-rc2Documentation/
-> linux-2.6.19-rc2Documentation/00-INDEX
-> linux-2.6.19-rc2Documentation/ABI/
-> linux-2.6.19-rc2Documentation/ABI/README
-> 
-> -rc1 was ok.
+> dup_mmap holds mmap_sem for write. get_user_pages caller must hold it
+> for read.
 
-Perhaps tar generation has been switched to using git-archive instead of
-git-tar-tree?  There's an, admittedly, subtle difference in how the two
-handle prefixes/basedirs.  The following two commands do the same:
+I could have sworn I checked for that and found a down_read(), but
+now that I look when I have some time, it is clearly a down_write().
+Sorry for the distraction.
 
-   $ git-tar-tree rev basedir
-   $ git-archive --prefix=basedir/ rev
+It is a user job that is passing data between hosts.  The host is
+under heavy memory pressure and one rank of the MPI job gets silent
+data corruption.
 
-If you use --prefix and you want a base directory then you have to
-provide your own slash (basedir = prefix + path_separator).
-
-René
+Thanks and sorry for wasting your time,
+Robin

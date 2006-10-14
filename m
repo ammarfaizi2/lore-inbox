@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752172AbWJNO5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422668AbWJNPEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752172AbWJNO5u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 10:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752173AbWJNO5u
+	id S1422668AbWJNPEI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 11:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWJNPEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 10:57:50 -0400
-Received: from aa011msr.fastwebnet.it ([85.18.95.71]:2709 "EHLO
-	aa011msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1752172AbWJNO5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 10:57:49 -0400
-Date: Sat, 14 Oct 2006 16:57:49 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Matthias Dahl <mlkernel@mortal-soul.de>
-Cc: Jens Axboe <axboe@suse.de>, Mike Galbraith <efault@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sluggish system responsiveness under higher IO load
-Message-ID: <20061014165749.38f59363@localhost>
-In-Reply-To: <200610141639.58374.mlkernel@mortal-soul.de>
-References: <200608061200.37701.mlkernel@mortal-soul.de>
-	<200608131815.12873.mlkernel@mortal-soul.de>
-	<20061006175833.4ef08f06@localhost>
-	<200610141639.58374.mlkernel@mortal-soul.de>
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Oct 2006 11:04:08 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:62675 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1752171AbWJNPEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 11:04:05 -0400
+From: Dominique Dumont <domi.dumont@free.fr>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: alsa-user <alsa-user@lists.sourceforge.net>,
+       Francesco Peeters <Francesco@FamPeeters.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Alsa-user] PCM distorsion snapshots from SATA/ALSA conflict
+References: <877izsp3dm.fsf@gandalf.hd.free.fr>
+	<13158.212.123.217.246.1159186633.squirrel@www.fampeeters.com>
+	<87y7rusddc.fsf@gandalf.hd.free.fr>
+	<1160081110.2481.104.camel@mindpipe>
+	<87r6xmscif.fsf@gandalf.hd.free.fr>
+	<1160082761.2481.106.camel@mindpipe>
+	<1160085016.1607.26.camel@localhost.localdomain>
+	<878xjrqeh2.fsf_-_@gandalf.hd.free.fr>
+	<1160325674.17615.107.camel@mindpipe>
+Date: Sat, 14 Oct 2006 17:04:03 +0200
+In-Reply-To: <1160325674.17615.107.camel@mindpipe> (Lee Revell's message of
+	"Sun, 08 Oct 2006 12:41:13 -0400")
+Message-ID: <87hcy76isc.fsf@gandalf.hd.free.fr>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: domi.dumont@free.fr
+X-SA-Exim-Scanned: No (on gandalf.hd.free.fr); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Oct 2006 16:39:57 +0200
-Matthias Dahl <mlkernel@mortal-soul.de> wrote:
+Lee Revell <rlrevell@joe-job.com> writes:
 
-> I will give 2.6.19 a test in a few weeks when the dust of all the changes have 
-> settled a bit. :-)
+> (it's probably a bad idea to attach .jpgs to a LKML post - please post
+> them on the web and send a URL)
 
--rc2 is rock solid here, but if you want to wait...
+(ok. But is there a site that will guarantee the availability of the
+jpg attachments when people are searching the lklm or alsa archives ?
+)
 
-> 
-> As my Mike Galbraith suggested, I made some tests with renicing the IO 
-> intensive applications. This indeed makes a hell of a difference. Currently I 
-> am renicing everything that causes a lot of disk IO to a nice of 19. Even 
-> though this doesn't fix it completely, the occasional short hangs have become 
-> less common.
+> You seem to be using a period size of 256 samples - any change if you
+> use a larger period size?
 
-Renicing to avoid sluggish system with a simple "cp" or untar is at
-best a workaround... so I say: go with .19 and see what happens !
+Unless I'm wrong, you want me to test the PCM output while modifying
+the --period option of speaker-test.
 
-:)
+So I've tested this command:
+  speaker-test -D iec958 -c 2 -f 1000 -p 4096 -t sine -s 2
 
--- 
-	Paolo Ornati
-	Linux 2.6.19-rc2 on x86_64
+No change: I still have a lot of spikes in the sine wave.
+
+> Any change if you use setpci to increase LATENCY_TIMER for the SBLive!
+> card?
+
+To be sure I've done the correct tests, here are the commands are used:
+
+$ lspci
+[...]
+01:07.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
+01:07.1 Input device controller: Creative Labs SB Live! Game Port (rev 0a)
+[...]
+01:0b.0 RAID bus controller: Silicon Image, Inc. SiI 3112 [SATALink/SATARaid] Serial ATA Controller (rev 02)
+
+$ sudo setpci -s 01:07.0 latency_timer=80
+$ sudo setpci -s 01:07.0 latency_timer=f8
+$ sudo setpci -s 01:0b.0 latency_timer=10
+
+No change at all :-(
+
+Cheers
+

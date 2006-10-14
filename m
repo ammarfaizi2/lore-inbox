@@ -1,38 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWJNSFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422742AbWJNSKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422738AbWJNSFV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 14:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422741AbWJNSFV
+	id S1422742AbWJNSKu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 14:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422741AbWJNSKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 14:05:21 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:30374 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1422738AbWJNSFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 14:05:21 -0400
-Date: Sat, 14 Oct 2006 20:05:08 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@p4.localdomain
-To: Thomas Maier <balagi@justmail.de>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "akpm@osdl.org" <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] 2.6.19-rc1-mm1 pktcdvd: init pktdev_major
-In-Reply-To: <op.thfa3vzviudtyh@master>
-Message-ID: <Pine.LNX.4.64.0610142003550.27769@p4.localdomain>
-References: <op.tguqh5r2iudtyh@master> <m3k63emtma.fsf@telia.com>
- <op.thfa3vzviudtyh@master>
+	Sat, 14 Oct 2006 14:10:50 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:42144 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1422742AbWJNSKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 14:10:49 -0400
+Message-ID: <45312819.4080909@linuxtv.org>
+Date: Sat, 14 Oct 2006 14:10:33 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Adrian Bunk <bunk@stusta.de>
+CC: mchehab@infradead.org, linux-kernel@vger.kernel.org,
+       linux-dvb-maintainer@linuxtv.org,
+       Andrew de Quincey <adq_dvb@lidskialf.net>
+Subject: Re: [PATCH 08/18] V4L/DVB (4734): Tda826x: fix frontend selection
+ for dvb_attach
+References: <20061014115356.PS36551000000@infradead.org> <20061014120050.PS78628900008@infradead.org> <20061014121608.GN30596@stusta.de>
+In-Reply-To: <20061014121608.GN30596@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Oct 2006, Thomas Maier wrote:
+Adrian Bunk wrote:
+> On Sat, Oct 14, 2006 at 09:00:50AM -0300, mchehab@infradead.org wrote:
+>> From: Michael Krufky <mkrufky@linuxtv.org>
+>>
+>> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+>> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+>> ---
+>>
+>>  drivers/media/dvb/frontends/tda826x.h |   19 ++++++++++++++++---
+>>  1 files changed, 16 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/media/dvb/frontends/tda826x.h b/drivers/media/dvb/frontends/tda826x.h
+>> index 3307607..83998c0 100644
+>> --- a/drivers/media/dvb/frontends/tda826x.h
+>> +++ b/drivers/media/dvb/frontends/tda826x.h
+>> @@ -35,6 +35,19 @@ #include "dvb_frontend.h"
+>>   * @param has_loopthrough Set to 1 if the card has a loopthrough RF connector.
+>>   * @return FE pointer on success, NULL on failure.
+>>   */
+>> -extern struct dvb_frontend *tda826x_attach(struct dvb_frontend *fe, int addr, struct i2c_adapter *i2c, int has_loopthrough);
+>> -
+>> -#endif
+>> +#if defined(CONFIG_DVB_TDA826X) || defined(CONFIG_DVB_TDA826X_MODULE)
+>> +extern struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe, int addr,
+>> +					   struct i2c_adapter *i2c,
+>> +					   int has_loopthrough);
+>> +#else
+>> +static inline struct dvb_frontend* tda826x_attach(struct dvb_frontend *fe,
+>> +						  int addr,
+>> +						  struct i2c_adapter *i2c,
+>> +						  int has_loopthrough)
+>> +{
+>> +	printk(KERN_WARNING "%s: driver disabled by Kconfig\n", __FUNCTION__);
+>> +	return NULL;
+>> +}
+>> +#endif // CONFIG_DVB_TDA826X
+>> +
+>> +#endif // __DVB_TDA826X_H__
+> 
+> This breaks with CONFIG_VIDEO_SAA7134_DVB=y, CONFIG_DVB_TDA826X=m.
 
-> pktdev_major must be initialized to 0.
+Regardless, the patch must be applied.  The above should only break with DVB_FE_CUSTOMIZE=Y ...
 
-No it doesn't. The BSS section is automatically initialized to 0. In fact, 
-in the past there have been several patches for various parts of the 
-kernel to remove explicit 0 initialization of global variables.
+Turn off DVB_FE_CUSTOMIZE, and you will find that the above does NOT break.  You can probably reproduce this 'broken' situation by setting any card driver = y, with the frontend = m ...
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+As stated in the prior thread, "CONFIG_VIDEO_SAA7134_DVB=y, CONFIG_DVB_TDA826X=m" is not the problem -- rather, "CONFIG_VIDEO_SAA7134_DVB=y, CONFIG_DVB_TDA826X=m, DVB_FE_CUSTOMIZE=Y" causes the breakage.
+
+-Mike Krufky

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWJNCM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWJNC1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWJNCM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 22:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWJNCM0
+	id S1030202AbWJNC1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 22:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWJNC1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 22:12:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:51431 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752040AbWJNCMZ (ORCPT
+	Fri, 13 Oct 2006 22:27:38 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:44804 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1030202AbWJNC1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 22:12:25 -0400
-Message-ID: <45304771.70606@austin.ibm.com>
-Date: Fri, 13 Oct 2006 21:12:01 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Fri, 13 Oct 2006 22:27:37 -0400
+Date: Fri, 13 Oct 2006 22:27:36 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+In-Reply-To: <20061013223925.GH1722@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610132216290.22133-100000@netrider.rowland.org>
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: akpm@osdl.org, jeff@garzik.org, Arnd Bergmann <arnd@arndb.de>,
-       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 21/21]: powerpc/cell spidernet DMA coalescing
-References: <20061010204946.GW4381@austin.ibm.com> <20061010212324.GR4381@austin.ibm.com>
-In-Reply-To: <20061010212324.GR4381@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
-> The current driver code performs 512 DMA mappns of a bunch of 
-> 32-byte structures. This is silly, as they are all in contiguous 
-> memory. Ths patch changes the code to DMA map the entie area
-> with just one call.
+On Fri, 13 Oct 2006, Paul E. McKenney wrote:
+
+> Ewww...  How about __kfifo_get() and __kfifo_put()?  These have no atomic
+> operations.  Ah, but they are restricted to pairs of tasks, so pairwise
+> memory barriers should suffice.
+
+Tasks can migrate from one CPU to another, of course.  But that involves
+context switching and plenty of synchronization operations in the kernel,
+so you're okay in that respect.
+
+> For the pairwise memory barriers, I really like "conditionally precedes",
+> which makes it very clear that the observation of order is not automatic.
+> On both CPUs, and explicit memory barrier is required (with the exception
+> of MMIO, where the communication is instead with an I/O device).
 > 
-> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-> Cc: James K Lewis <jklewis@us.ibm.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
+> For the single-variable case and for the single-CPU case, just plain
+> "precedes" works, at least as long as you are not doing fine-grained
+> timings that can allow you to observe cache lines in motion.  But if
+> you are doing that, you had better know what you are doing anyway.  ;-)
 
-While this patch wasn't useful in the current cell implementation of pci_map_single 
-it sounds like people are going to be making changes to that sometime. In light of 
-that new information (new to me anyway) this should probably go in after all.  Sorry 
-for causing trouble.
+The reason I don't like "conditionally precedes" is because it suggests
+the ordering is not automatic even in the single-CPU case.
 
-Acked-by: Joel Schopp <jschopp@austin.ibm.com>
+Alan
 

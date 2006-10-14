@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752075AbWJNFK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWJNFMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752075AbWJNFK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 01:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWJNFK0
+	id S1752077AbWJNFMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 01:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWJNFMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 01:10:26 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26074 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752075AbWJNFKZ (ORCPT
+	Sat, 14 Oct 2006 01:12:19 -0400
+Received: from hera.kernel.org ([140.211.167.34]:8171 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1752077AbWJNFMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 01:10:25 -0400
-Date: Sat, 14 Oct 2006 07:10:19 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Robin Holt <holt@sgi.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] get_user_pages(..., write==1, ...) may return with readable pte.
-Message-ID: <20061014051019.GC23740@wotan.suse.de>
-References: <20061013203342.GA21610@lnx-holt.americas.sgi.com> <20061014045305.GA23740@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Oct 2006 01:12:18 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Dave Jones <davej@redhat.com>
+Subject: Re: patch [0/2]: acpi: add generic removable drive bay support
+Date: Sat, 14 Oct 2006 01:13:37 -0400
+User-Agent: KMail/1.8.2
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <20060907161305.67804d14.kristen.c.accardi@intel.com> <20060908132123.16137ea3.kristen.c.accardi@intel.com> <20060908203310.GM28592@redhat.com>
+In-Reply-To: <20060908203310.GM28592@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061014045305.GA23740@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610140113.37934.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 14, 2006 at 06:53:06AM +0200, Nick Piggin wrote:
-> On Fri, Oct 13, 2006 at 03:33:42PM -0500, Robin Holt wrote:
-> > Handle the case in get_user_pages() when a call to __handle_mm_fault()
-> > inserts a writable pte, and a process doing dup_mmap converts it
-> > to readable before get_user_pages() does the subsequent request to
-> > follow_page().
-> > 
-> > 
-> > Signed-off-by: Robin Holt <holt@sgi.com>
-> > 
-> > ---
-> > 
-> > Hugh, Nick, and Linus,
-> > 
-> > I think I have tripped over another flavor of a get_user_pages bug
-> > we addressed back in 2005.  I do not have a test case to prove it is
-> > the issue I am trying to address, but I have done as thorough a code
-> > walk-through as I can.
-> > 
-> > Assume a pte is currently empty.  A first pthread is in the kernel on
-> > a call path which is leading to get_user_pages.  A second pthread is
-> > in the process of doing a fork.  The process doing get_user_pages()
-> > gets into __handle_mm_fault() and grabs ptl just before the process
-> > doing a fork attempts to grab the ptl to convert the pages to COW.
-> > __handle_mm_fault() will insert the writable pte and unlock ptl then
-> > return with VM_FAULT_WRITE set.  The process doing a fork then gets
-> > the lock and starts converting the pte to RO/COW.  The get_user_pages()
-> > process then clears FOLL_WRITE from foll_flags and calls follow_page()
-> > without write, adds to the map count for the page, but does not have a
-> > writable mapping.
+On Friday 08 September 2006 16:33, Dave Jones wrote:
+> On Fri, Sep 08, 2006 at 01:21:23PM -0700, Kristen Carlson Accardi wrote:
+>  > On Fri, 8 Sep 2006 20:58:42 +0100
+>  > Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+>  > 
+>  > > > can then be used by udev to unmount or rescan depending on the event.  It will
+>  > > > create a proc entry under /proc/acpi/bay for "eject" and for "status".  Writing 
+>  > > 
+>  > > Do we really want it under /proc? It would seem to make more sense for 
+>  > > it to be under /sys.
+>  > 
+>  > I agree - this is under proc because this is an acpi driver, and the acpi
+>  > subsystem is still using the /proc fs for driver/user space interface. I
+>  > thought I would just conform to their standard.
 > 
-> Hi Robin,
-> 
-> dup_mmap holds mmap_sem for write. get_user_pages caller must hold it
-> for read.
-> 
-> So it think it is OK? But if not, then you can't just get rid of this
-> FOLL_WRITE bit, because then we get infinite loops when a 'force'
-> write access (eg. ptrace setting a breakpoint in text).
+> It's my understanding from talking with Len that he'd like to see /proc/acpi/
+> go away over time, so adding more to it seems to be at odds with that goal.
 
-What problem are you seeing, BTW?
+Dave is right.  We've had a moratorium on new files under /proc/acpi for some time now.
+The reason is that user-space should not know or care that something is supplied
+by ACPI -- for on other systems it may be supplied by something else.
 
+So new stuff should have generic names under sys -- even if on a large body of
+systems the functionality beneath happens to be  supplied via ACPI.
+
+an example of old is the brightness stuff under /proc/acpi and in various platform
+specific drivers that scribble under /proc/acpi.
+The corresponding example of new is the backlight I/F under /sys.
+
+thanks,
+-Len

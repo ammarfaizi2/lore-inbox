@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWJNDEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWJNDEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbWJNDEV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Oct 2006 23:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWJNDEV
+	id S1030229AbWJNDEu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Oct 2006 23:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWJNDEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 23:04:21 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16593 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030227AbWJNDEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 23:04:20 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.18 - check for chroot, broken root and cwd values in procfs
-References: <20061012140224.GA7632@wavehammer.waldi.eu.org>
-	<20061013230617.GA15489@wavehammer.waldi.eu.org>
-Date: Fri, 13 Oct 2006 21:02:50 -0600
-In-Reply-To: <20061013230617.GA15489@wavehammer.waldi.eu.org> (Bastian Blank's
-	message of "Sat, 14 Oct 2006 01:06:17 +0200")
-Message-ID: <m1pscvfvl1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 13 Oct 2006 23:04:50 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:10772 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1030229AbWJNDEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Oct 2006 23:04:49 -0400
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Matthew Wilcox <matthew@wil.cx>,
+       Adam Belay <abelay@MIT.EDU>, Arjan van de Ven <arjan@infradead.org>,
+       Greg KH <greg@kroah.com>, <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Bug in PCI core
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.44L0.0610132229230.22133-100000@netrider.rowland.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 13 Oct 2006 20:04:46 -0700
+In-Reply-To: <Pine.LNX.4.44L0.0610132229230.22133-100000@netrider.rowland.org> (Alan Stern's message of "Fri, 13 Oct 2006 22:33:04 -0400 (EDT)")
+Message-ID: <adak6334my9.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 14 Oct 2006 03:04:47.0330 (UTC) FILETIME=[819E0C20:01C6EF3D]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastian Blank <bastian@waldi.eu.org> writes:
+    Alan> That seems like a reasonable thing to do.  (BTW, can anyone
+    Alan> explain quickly what "BIST" means?)
 
-> On Thu, Oct 12, 2006 at 04:02:24PM +0200, Bastian Blank wrote:
->> The commit 778c1144771f0064b6f51bee865cceb0d996f2f9 replaced the old
->> root-based security checks in procfs with processed based ones.
->
-> The new behaviour even allows a user to escape from the chroot by using
-> chdir to /proc/$pid/cwd or /proc/$pid/root of a process he owns and
-> lives outside of the chroot.
-
-Yep.  It makes it obvious that you can do that.
-
-If you were in a chroot you could always ptrace a process you own
-that was outside of the chroot, and cause it to do things, such as
-open a unix domain socket and pass you it's current root directory.
-
-chroot by itself has never been much of a jail.
-
-Eric
+"Built-In Self Test" -- make the device go away and run some internal
+tests for a while and then report back.

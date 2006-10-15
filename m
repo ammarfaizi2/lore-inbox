@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWJOTMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWJOTPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWJOTMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWJOTMW
+	id S1030237AbWJOTPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWJOTPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:12:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4580 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030228AbWJOTMV (ORCPT
+	Sun, 15 Oct 2006 15:15:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1473 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030237AbWJOTPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:12:21 -0400
-Date: Sun, 15 Oct 2006 12:12:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: bijwaard@gmail.com
-Cc: "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>,
-       sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Re: BUG: soft lockup detected on CPU#0! in sys_close and ext3
-Message-Id: <20061015121202.378bdd41.akpm@osdl.org>
-In-Reply-To: <20061015175640.GA3673@jumbo.lan>
-References: <20061015175640.GA3673@jumbo.lan>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Oct 2006 15:15:01 -0400
+Message-ID: <4532889B.1030908@redhat.com>
+Date: Sun, 15 Oct 2006 12:14:35 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] close mprotect noexec hole
+References: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com> <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Oct 2006 19:56:40 +0200
-"Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl> wrote:
+Linus Torvalds wrote:
+> Ie something like this instead. Totally untested, but at least it compiles 
+> with current -git (unlike Uli's version - needs <linux/mount.h>)
 
-> I got two soft lockups on one of the CPUs just now. I'm unsure if this
-> problem is in ext3, sys_close, or general kernel, so I've CC'd the
-> kernel list.
-> 
-> [1.] One line summary of the problem:
-> 
-> BUG: soft lockup detected on CPU#0! in sys_close/fput and ext3 journaling
+This works fine with my test case and is of course more correct.
 
-Both warnings occurred when the kernel was tearing down large amounts of
-pagecache via invalidate_inode_pages().  One instances was a blockdev
-(probably the final close on the dvd) and the other was a regular file
-(perhaps a large dvd image?)
-
-The CPU is slow: 500MHz pIII.  How much memory does it have?
-
-So the kernel was doing a lot of work, on a slow CPU.  Perhaps that simply
-exceeded the softlockup timeout.  If that's true then the machine should
-have recovered.  Once it did, and once it didn't.  I don't know why it
-didn't.
-
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

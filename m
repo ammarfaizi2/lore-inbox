@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWJOSnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWJOSrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWJOSnT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 14:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWJOSnT
+	id S1030214AbWJOSrs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 14:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWJOSrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 14:43:19 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:55981 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751168AbWJOSnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 14:43:17 -0400
-Message-ID: <45328141.5020705@us.ibm.com>
-Date: Sun, 15 Oct 2006 11:43:13 -0700
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Sun, 15 Oct 2006 14:47:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53213 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030214AbWJOSrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 14:47:47 -0400
+Date: Sun, 15 Oct 2006 11:47:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] close mprotect noexec hole
+In-Reply-To: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org>
+References: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>,
-       Mike Anderson <andmike@us.ibm.com>
-Subject: Re: [PATCH] libsas: support NCQ for SATA disks
-References: <453027A9.3060606@us.ibm.com> <1160934124.3544.7.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1160934124.3544.7.camel@mulgrave.il.steeleye.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
 
-> This doesn't seem to quite work for me on a SATA-1 disc:
-> 
-> sas: DOING DISCOVERY on port 1, pid:1897
-> sas: sas_ata_phy_reset: Found ATA device.
-> ata1.00: ATA-7, max UDMA/133, 781422768 sectors: LBA48 NCQ (depth 31/32)
-> ata1.00: configured for UDMA/133
-> scsi 2:0:1:0: Direct-Access     ATA      ST3400832AS      3.03 PQ: 0
-> ANSI: 5
-> SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
-> sdc: Write Protect is off
-> SCSI device sdc: drive cache: write back
-> SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
-> sdc: Write Protect is off
-> SCSI device sdc: drive cache: write back
->  sdc: unknown partition table
-> sd 2:0:1:0: Attached scsi disk sdc
-> sas: DONE DISCOVERY on port 1, pid:1897, result:0
-> sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
-> sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
-> [...]
-> 
-> It looks like the first few commands get through (read capacity, ATA
-> IDENTIFY etc) and it hangs up on the read for the partition table.
 
-Hm... if I put in some debug printks in the qc_issue code, I get the
-same symptoms.  I've observed that once again we get hung up on ATA
-commands where the tag number > 0.  I also noticed this pattern:
+On Sun, 15 Oct 2006, Ulrich Drepper wrote:
+>
+> The following patch closes the hole in mprotect discovered during
+> the noexec mount discussions.  Without this the protection is
+> incomplete and pretty much useless.  With it and additional techniques
+> like SELinux all holes can be plugged in a fine-grained way.
 
-1. ATA command w/ tag 0 (command A) issued.
-2. Command A goes out to sas-ata.
-2. ATA command w/ tag 1 (command B) issued.
-3. Command A completes
-4. Command B goes out to sas-ata.
-[...]
-5. Command B times out.
+This patch seems totally buggy.
 
-Very odd that this all works if there are no printks.  I don't see
-anything obvious that would suggest why this apparent race seems to
-happen--unless there's some conflict between issuing an ATA command
-while completing another one.
+mprotect() can cover _multiple_ mappings, and this one only checks the 
+very first one, as far as I can tell.
 
---D
+The place to do this is where we do the "security_file_mprotect()", not 
+where you did it. 
+
+Ie something like this instead. Totally untested, but at least it compiles 
+with current -git (unlike Uli's version - needs <linux/mount.h>)
+
+		Linus
+---
+diff --git a/mm/mprotect.c b/mm/mprotect.c
+index 3b8f3c0..09ed8de 100644
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -21,6 +21,7 @@ #include <linux/personality.h>
+ #include <linux/syscalls.h>
+ #include <linux/swap.h>
+ #include <linux/swapops.h>
++#include <linux/mount.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/cacheflush.h>
+@@ -280,9 +281,14 @@ sys_mprotect(unsigned long start, size_t
+ 		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
+ 
+ 		/* newflags >> 4 shift VM_MAY% in place of VM_% */
+-		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC)) {
+-			error = -EACCES;
++		error = -EACCES;
++		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC))
+ 			goto out;
++
++		if (newflags & VM_EXEC) {
++			struct file *file = vma->vm_file;
++			if (file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
++				goto out;
+ 		}
+ 
+ 		error = security_file_mprotect(vma, reqprot, prot);

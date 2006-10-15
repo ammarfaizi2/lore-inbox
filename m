@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422924AbWJOXtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422937AbWJOXu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422924AbWJOXtI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 19:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422930AbWJOXtI
+	id S1422937AbWJOXu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 19:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422948AbWJOXu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 19:49:08 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:2966 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422924AbWJOXtH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 19:49:07 -0400
-Date: Mon, 16 Oct 2006 00:49:02 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] l2cap endianness annotations
-Message-ID: <20061015234902.GY29920@ftp.linux.org.uk>
-References: <20061015212905.GR29920@ftp.linux.org.uk> <1160955543.14340.21.camel@localhost>
-Mime-Version: 1.0
+	Sun, 15 Oct 2006 19:50:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:29420 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422937AbWJOXu0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 19:50:26 -0400
+From: Neil Brown <neilb@suse.de>
+To: vherva@vianova.fi
+Date: Mon, 16 Oct 2006 09:50:15 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160955543.14340.21.camel@localhost>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17714.51511.845336.721450@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, aeb@cwi.nl,
+       Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Why aren't partitions limited to fit within the device?
+In-Reply-To: message from Ville Herva on Sunday October 15
+References: <17710.54489.486265.487078@cse.unsw.edu.au>
+	<20061015082921.GC22674@vianova.fi>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 01:39:03AM +0200, Marcel Holtmann wrote:
-> this data structure is visible to the userspace (via the Bluetooth
-> library headers). Do we annotate them, too?
-
-Yes. linux/types.h is exported header and it defines all endian types.
- 
-> > @@ -221,7 +221,7 @@ struct l2cap_pinfo {
-> >  
-> >  	__u8		ident;
-> >  
-> > -	__u16		sport;
-> > +	__le16		sport;
-> >  
-> >  	struct l2cap_conn	*conn;
-> >  	struct sock		*next_c;
+On Sunday October 15, vherva@vianova.fi wrote:
+> On Fri, Oct 13, 2006 at 09:50:49AM +1000, you [Neil Brown] wrote:
+> > 
+> > Hi,
+> >  I was looking into an issue that someone was having with raid5.
+> > They made an md/raid5 out of 5 whole devices and by luck the data
+> > that was written to the first block of the 5th device looked
+> > slightly like a partition table.  fdisk output below for the curious.
+> > However some partitions were beyond the end of the device.
 > 
-> These are internal. We should have to annotate them. They should store
-> it in host order. If not, than that is the problem.
-
-They do not.  Trivial search in vanilla tree shows
-                for (psm = 0x1001; psm < 0x1100; psm += 2)
-                        if (!__l2cap_get_sock_by_addr(psm, src)) {
-                                l2cap_pi(sk)->psm   = htobs(psm);
-                                l2cap_pi(sk)->sport = htobs(psm);
-                                err = 0;
-                                break;
-                        }
-
-which is very definitely not putting a host-endian there.  You can
-switch it to host-endian, of course, but then you have to modify
-at least that place.
- 
-> > @@ -1533,7 +1533,7 @@ static inline int l2cap_config_req(struc
-> >  	if (!(sk = l2cap_get_chan_by_scid(&conn->chan_list, dcid)))
-> >  		return -ENOENT;
-> >  
-> > -	l2cap_parse_conf_req(sk, req->data, cmd->len - sizeof(*req));
-> > +	l2cap_parse_conf_req(sk, req->data, __le16_to_cpu(cmd->len) - sizeof(*req));
+> That reminds me of an old long-standing mystery I had with a machine that
+> had a RAID-5 of three whole devices. 
 > 
-> I have to look into this change. It basically means that this code never
-> worked on big endian systems, but it actually does.
+> I wonder if there's ever a change the kernel partition detection code could
+> _write_ on the disk, even when there's really no partition table?
 
-You are misreading it.  Old code flipped cmd->len in place in the caller.
-New one doesn't.
+No, kernel partition detection never writes.
+
+I can't imagine what could have been causing your very-interesting
+corruption.  However as it was only demonstrated on old code and
+cannot be explored further, I suspect we just have to forget it and
+move one :-(
+
+NeilBrown

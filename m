@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWJOMmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWJOMru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWJOMmP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 08:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWJOMmP
+	id S1750757AbWJOMru (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 08:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWJOMru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 08:42:15 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:10761 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750745AbWJOMmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 08:42:14 -0400
-Date: Sun, 15 Oct 2006 14:42:10 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [0/3] 2.6.19-rc2: known regressions
-Message-ID: <20061015124210.GX30596@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk>
+	Sun, 15 Oct 2006 08:47:50 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:55973 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750748AbWJOMrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 08:47:49 -0400
+Date: Sun, 15 Oct 2006 14:36:08 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
+       linux-fsdevel@vger.kernel.org, penberg@cs.helsinki.fi,
+       ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
+Subject: Re: [PATCH 1 of 2] Stackfs: Introduce stackfs_copy_{attr,inode}_*
+In-Reply-To: <20061013200705.GB31928@filer.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0610151433170.28406@yvahk01.tjqt.qr>
+References: <patchbomb.1160738328@thor.fsl.cs.sunysb.edu>
+ <ceb6edcac7047367ca16.1160738329@thor.fsl.cs.sunysb.edu>
+ <20061013122706.56970df2.akpm@osdl.org> <20061013200705.GB31928@filer.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061015122453.GA12549@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 15, 2006 at 01:24:54PM +0100, Russell King wrote:
-> On Sat, Oct 14, 2006 at 01:14:58PM +0200, Adrian Bunk wrote:
-> > As usual, we are swamped with bug reports for regressions after -rc1.
-> > 
-> > For an easier reading (and hoping linux-kernel might not eat the emails), 
-> > I've splitted the list of known regressions in three emails:
-> >   [1/3] known unfixed regressions
-> >   [2/3] knwon regressions with workarounds
-> >   [3/3] known regressions with patches
-> 
-> There's a raft of ARM regressions as well (see
-> http://armlinux.simtec.co.uk/kautobuild/2.6.19-rc2/index.html), mostly
-> related to the IRQ changes, as well as this error:
 
-Thanks, I'll look at them before preparing the next version of my 
-regressions list.
+>> Many of these functions are too large to be inlined.  Suggest they be
+>> placed in fs/fs-stack.c (or whatever we call it).
 
-> sysctl_net.c:(.text+0x64a8c): undefined reference to `highest_possible_node_id'
+fs/stack.c would probably be enough -- fs/fs-stack.c is like
+include/linux/reiserfs_fs.h
 
-This problem already got an entry a few hours ago:
+>Ack. As a rule of thumb, for functions like these (laundry list of
+>assignments), what's a good threshold?
 
-Subject    : undefined reference to highest_possible_node_id
-References : http://lkml.org/lkml/2006/9/4/233
-             http://lkml.org/lkml/2006/10/15/11
-Submitter  : Olaf Hering <olaf@aepfle.de>
-Caused-By  : Greg Banks <gnb@melbourne.sgi.com>
-             commit 0f532f3861d2c4e5aa7dcd33fb18e9975eb28457
-Status     : unknown
+3 or 4 I guess. Might want to take a look at other static-inline functions.
 
-> Russell King
 
-cu
-Adrian
-
+	-`J'
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-

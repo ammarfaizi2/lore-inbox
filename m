@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWJOTRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWJOTRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWJOTRS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWJOTRS
+	id S1030249AbWJOTRw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWJOTRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:17:18 -0400
-Received: from web27401.mail.ukl.yahoo.com ([217.146.177.177]:15284 "HELO
-	web27401.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030252AbWJOTRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:17:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.uk;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=PouBrKlwctXz8yweB++yWVZDVOwKg9HadEliZ+k/+3s6epX11B8vc8IZHeXKOqoato/OpkSX+ZLruLahNBoRgu43iNStsVh36OMGMPafqFk2yRpsKrxTP4y9ScFPrD9tiXIV0SuMH7fOHO9OHpjW/S1v43aUctf0GDkovLn99AM=  ;
-Message-ID: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
-Date: Sun, 15 Oct 2006 20:17:16 +0100 (BST)
-From: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Subject: privilege levels and kernel mode
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org>
+	Sun, 15 Oct 2006 15:17:52 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:54734 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030249AbWJOTRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 15:17:51 -0400
+Date: Sun, 15 Oct 2006 12:19:31 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: ipslinux@adaptec.com, LKML <linux-kernel@vger.kernel.org>,
+       Jack Hammer <jack_hammer@adaptec.com>
+Subject: Re: ips: scheduling while atomic in 2.6.18
+Message-ID: <20061015191931.GH10744@us.ibm.com>
+References: <20061014015244.GC10744@us.ibm.com> <453251A4.7060706@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453251A4.7060706@yahoo.com.au>
+X-Operating-System: Linux 2.6.18 (x86_64)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I am using pentium-4 processor. My operating
-system  is Linux version 2.4.22-1.2199.nptl
+On 16.10.2006 [01:20:04 +1000], Nick Piggin wrote:
+> Nishanth Aravamudan wrote:
+> >Hi all,
+> >
+> >A server I administer just dumped three scheduling while atomics before
+> >(sort of) hanging hard. Still responds to ping, but ssh is now dead and
+> >the serial console stopped logging.
+> >
+> >8-way PIII, 2.6.18 with the 3:1 split. Wanted to get my report out there
+> >before I reset the box, though.
+> 
+> Thanks for the report. The messages are caused by this commit (cc'ed 
+> author):
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=15084a4a63bc300c18b28a8a9afac870c552abce
+> 
+> Not sure whether they are the cause of your hang, but the from the
+> changelog it doesn't look like the commit was strictly a bugfix so you
+> could try changing msleep calls in the driver back to MDELAY.
 
-  I want to measure performance events like number of
-memory reads, number of cache misses occured while
-running  a "C" program. For that I have to wright some
-values into "Model specific registers of pentium-4
-processor". But those registers can be written ONLY at
-privilege level of zero of pentium4 processor.
+Ah yes, that was what I was going to try next, if I didn't hear back
+from anyone :)
 
- We know that application programs we write (for
-example any C program)are run at privilege
-level-3(user mode).
+I'll let you know if that changes anything. This box has been hanging
+for a little while now, on an inconsistent basis -- this was just the
+first time I was able to grab these traces. And by hanging hard, I mean
+no console, serial or physical, no SysRq, nothing. It's all rather odd.
 
-I know how to include assembly instructions in a C
-program to wtrite into "Model specific registers". But
-that program has to be run at privilege level zero.
+Will keep you posted.
 
-How to run a C program at privilege level zero??
-Can any one help me?
+Thanks,
+Nish
 
-Thanks in advance.
-
- 
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

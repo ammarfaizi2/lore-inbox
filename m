@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWJOWCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWJOWP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWJOWCa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 18:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWJOWCa
+	id S1030297AbWJOWP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 18:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWJOWP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 18:02:30 -0400
-Received: from h8922032063.dsl.speedlinq.nl ([89.220.32.63]:58070 "EHLO
-	jumbo.lan") by vger.kernel.org with ESMTP id S1751225AbWJOWC3 (ORCPT
+	Sun, 15 Oct 2006 18:15:59 -0400
+Received: from main.gmane.org ([80.91.229.2]:40352 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932141AbWJOWP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 18:02:29 -0400
-Date: Sun, 15 Oct 2006 23:58:55 +0200
-From: "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bijwaard@gmail.com,
-       "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl>,
-       sct@redhat.com, adilger@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Re: BUG: soft lockup detected on CPU#0! in sys_close and ext3
-Message-ID: <20061015215854.GA12890@jumbo.lan>
-References: <20061015175640.GA3673@jumbo.lan> <20061015121202.378bdd41.akpm@osdl.org>
+	Sun, 15 Oct 2006 18:15:58 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+Mail-Followup-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+From: Steve Youngs <steve@youngs.au.com>
+Subject: Re: Bad core files with 2.6.19-rc2
+Date: Mon, 16 Oct 2006 08:15:33 +1000
+Organization: Linux Users - Fanatics Dept.
+Message-ID: <microsoft-free.87ejt9gr96.fsf@youngs.au.com>
+References: <microsoft-free.87mz7yjnm2.fsf@youngs.au.com>
+	<20061015184217.GZ30596@stusta.de> <45328AF9.7060807@vandrovec.name>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061015121202.378bdd41.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+X-Complaints-To: usenet@sea.gmane.org
+Keywords: fixed
+X-Gmane-NNTP-Posting-Host: 203-206-170-37.perm.iinet.net.au
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Mail-Copies-To: never
+X-X-Day: Only 2430587 days till X-Day.  Got Slack?
+X-URL: <http://www.youngs.au.com/~steve/>
+X-Request-PGP: <http://www.youngs.au.com/~steve/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Now-Playing: The Sounds of Silence --- [Marcel Marceau]
+X-Discordian-Date: Prickle-Prickle, the 70th day of Bureaucracy, 3172. 
+X-Attribution: SY
+User-Agent: Gnus/5.110006 (No Gnus v0.6) SXEmacs/22.1.6 (Cadillac, linux)
+Cancel-Lock: sha1:Ul+MTnl8m8VOHjAx1ycaEWwJrGQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+* Petr Vandrovec <petr@vandrovec.name> writes:
 
-Thanks for your reply. The machine has 512MB and some more swap:
+  > Adrian Bunk wrote:
+  >> On Sun, Oct 15, 2006 at 12:53:41PM +1000, Steve Youngs wrote:
+  >>> warning: Couldn't find general-purpose registers in core file.
+  >>> #0  0x00000000 in ?? ()
 
-Mem:    510960k total,   504876k used,     6084k free,     1868k buffers
-Swap:   674640k total,     2652k used,   671988k free,   354832k cached
+  >> It seems this issue should be fixed in Linus' tree now.
+  >> 
+  >> Can you confirm it's fixed?
 
-Machine may be slow for current standards, it has 2 * 500Mhz
+  > It should be fixed now
 
-Kind regards,
-                Dennis
+Yes, it is.  Thank you very much.
 
-* Andrew Morton <akpm@osdl.org> [061015 21:13]:
-> On Sun, 15 Oct 2006 19:56:40 +0200
-> "Dennis J.A. Bijwaard" <dennis@h8922032063.dsl.speedlinq.nl> wrote:
-> 
-> > I got two soft lockups on one of the CPUs just now. I'm unsure if this
-> > problem is in ext3, sys_close, or general kernel, so I've CC'd the
-> > kernel list.
-> > 
-> > [1.] One line summary of the problem:
-> > 
-> > BUG: soft lockup detected on CPU#0! in sys_close/fput and ext3 journaling
-> 
-> Both warnings occurred when the kernel was tearing down large amounts of
-> pagecache via invalidate_inode_pages().  One instances was a blockdev
-> (probably the final close on the dvd) and the other was a regular file
-> (perhaps a large dvd image?)
-> 
-> The CPU is slow: 500MHz pIII.  How much memory does it have?
-> 
-> So the kernel was doing a lot of work, on a slow CPU.  Perhaps that simply
-> exceeded the softlockup timeout.  If that's true then the machine should
-> have recovered.  Once it did, and once it didn't.  I don't know why it
-> didn't.
-> 
+-- 
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|                   Te audire no possum.                   |
+|             Musa sapientum fixa est in aure.             |
+|----------------------------------<steve@youngs.au.com>---|
+

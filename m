@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWJOSrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWJOTD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWJOSrs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 14:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWJOSrs
+	id S1161079AbWJOTD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWJOTD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 14:47:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53213 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030214AbWJOSrr (ORCPT
+	Sun, 15 Oct 2006 15:03:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48058 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161079AbWJOTD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 14:47:47 -0400
-Date: Sun, 15 Oct 2006 11:47:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] close mprotect noexec hole
-In-Reply-To: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org>
-References: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Oct 2006 15:03:56 -0400
+Date: Sun, 15 Oct 2006 15:03:48 -0400
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200610151903.k9FJ3mHG016757@devserv.devel.redhat.com>
+To: akpm@osdl.org, jdike@karaya.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: [PATCH] make UML copmile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I need this patch to get a UML kernel to compile.  This is with the kernel
+headers in FC6 which are automatically generated from the kernel tree.
+Some headers are missing but those files don't need them.  At least it
+appears so since the resuling kernel works fine.
+
+Tested on x86-64.
 
 
-On Sun, 15 Oct 2006, Ulrich Drepper wrote:
->
-> The following patch closes the hole in mprotect discovered during
-> the noexec mount discussions.  Without this the protection is
-> incomplete and pretty much useless.  With it and additional techniques
-> like SELinux all holes can be plugged in a fine-grained way.
+Signed-off-by: Ulrich Drepper <drepper@redhat.com>
 
-This patch seems totally buggy.
-
-mprotect() can cover _multiple_ mappings, and this one only checks the 
-very first one, as far as I can tell.
-
-The place to do this is where we do the "security_file_mprotect()", not 
-where you did it. 
-
-Ie something like this instead. Totally untested, but at least it compiles 
-with current -git (unlike Uli's version - needs <linux/mount.h>)
-
-		Linus
----
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 3b8f3c0..09ed8de 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -21,6 +21,7 @@ #include <linux/personality.h>
- #include <linux/syscalls.h>
- #include <linux/swap.h>
- #include <linux/swapops.h>
-+#include <linux/mount.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/cacheflush.h>
-@@ -280,9 +281,14 @@ sys_mprotect(unsigned long start, size_t
- 		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
+diff --git a/arch/um/include/kern_util.h b/arch/um/include/kern_util.h
+index 59cfa9e..cec9fcc 100644
+--- a/arch/um/include/kern_util.h
++++ b/arch/um/include/kern_util.h
+@@ -6,7 +6,6 @@
+ #ifndef __KERN_UTIL_H__
+ #define __KERN_UTIL_H__
  
- 		/* newflags >> 4 shift VM_MAY% in place of VM_% */
--		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC)) {
--			error = -EACCES;
-+		error = -EACCES;
-+		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC))
- 			goto out;
-+
-+		if (newflags & VM_EXEC) {
-+			struct file *file = vma->vm_file;
-+			if (file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
-+				goto out;
- 		}
+-#include "linux/threads.h"
+ #include "sysdep/ptrace.h"
+ #include "sysdep/faultinfo.h"
  
- 		error = security_file_mprotect(vma, reqprot, prot);
+diff --git a/arch/um/sys-x86_64/stub_segv.c b/arch/um/sys-x86_64/stub_segv.c
+index 1c96702..652fa34 100644
+--- a/arch/um/sys-x86_64/stub_segv.c
++++ b/arch/um/sys-x86_64/stub_segv.c
+@@ -5,7 +5,6 @@
+ 
+ #include <stddef.h>
+ #include <signal.h>
+-#include <linux/compiler.h>
+ #include <asm/unistd.h>
+ #include "uml-config.h"
+ #include "sysdep/sigcontext.h"

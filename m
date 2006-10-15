@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWJOXgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWJOXjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWJOXgk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 19:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWJOXgk
+	id S932200AbWJOXjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 19:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWJOXjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 19:36:40 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36538 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932175AbWJOXgj
+	Sun, 15 Oct 2006 19:39:33 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:30365 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932200AbWJOXjc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 19:36:39 -0400
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Brownell <david-b@pacbell.net>, matthew@wil.cx,
-       val_henson@linux.intel.com, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <20061015161834.f96a0761.akpm@osdl.org>
-References: <1160161519800-git-send-email-matthew@wil.cx>
-	 <20061015191631.DE49D19FEC8@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	 <20061015123432.4c6b7f15.akpm@osdl.org>
-	 <200610151545.59477.david-b@pacbell.net>
-	 <20061015161834.f96a0761.akpm@osdl.org>
+	Sun, 15 Oct 2006 19:39:32 -0400
+Subject: Re: [PATCH 1/4] l2cap endianness annotations
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061015212905.GR29920@ftp.linux.org.uk>
+References: <20061015212905.GR29920@ftp.linux.org.uk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 01:02:40 +0100
-Message-Id: <1160956960.5732.99.camel@localhost.localdomain>
+Date: Mon, 16 Oct 2006 01:39:03 +0200
+Message-Id: <1160955543.14340.21.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-10-15 am 16:18 -0700, ysgrifennodd Andrew Morton:
-> No.  If pci_set_mwi() detects an unexpected error then the driver should
-> take some action: report it, recover from it, fail to load, etc.  If the
-> driver fails to do any of this then it's a buggy driver.
+Hi Al,
 
-Wrong and there are several drivers in the kernel that are proof of
-this.
+> @@ -34,7 +34,7 @@ #define L2CAP_CONN_TIMEOUT	(HZ * 40)
+>  /* L2CAP socket address */
+>  struct sockaddr_l2 {
+>  	sa_family_t	l2_family;
+> -	unsigned short	l2_psm;
+> +	__le16		l2_psm;
+>  	bdaddr_t	l2_bdaddr;
+>  };
 
-> You, the driver author _do not know_ what pci_set_mwi() does at present, on
-> all platforms, nor do you know what it does in the future.  For you the
+this data structure is visible to the userspace (via the Bluetooth
+library headers). Do we annotate them, too?
 
-You don't care. It isn't an error for set_mwi to fail. In fact the only
-reason set_mwi even needs to bother with a return code is that some
-chips want you to set other config private to the device if it is
-available and active.
+> @@ -205,7 +205,7 @@ #define l2cap_pi(sk) ((struct l2cap_pinf
+>  
+>  struct l2cap_pinfo {
+>  	struct bt_sock	bt;
+> -	__u16		psm;
+> +	__le16		psm;
+>  	__u16		dcid;
+>  	__u16		scid;
+>  
+> @@ -221,7 +221,7 @@ struct l2cap_pinfo {
+>  
+>  	__u8		ident;
+>  
+> -	__u16		sport;
+> +	__le16		sport;
+>  
+>  	struct l2cap_conn	*conn;
+>  	struct sock		*next_c;
 
-Alan
+These are internal. We should have to annotate them. They should store
+it in host order. If not, than that is the problem.
+
+> @@ -1533,7 +1533,7 @@ static inline int l2cap_config_req(struc
+>  	if (!(sk = l2cap_get_chan_by_scid(&conn->chan_list, dcid)))
+>  		return -ENOENT;
+>  
+> -	l2cap_parse_conf_req(sk, req->data, cmd->len - sizeof(*req));
+> +	l2cap_parse_conf_req(sk, req->data, __le16_to_cpu(cmd->len) - sizeof(*req));
+
+I have to look into this change. It basically means that this code never
+worked on big endian systems, but it actually does.
+
+Regards
+
+Marcel
+
 

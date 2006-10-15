@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160994AbWJOOOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWJOOTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160994AbWJOOOk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 10:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160995AbWJOOOk
+	id S1750777AbWJOOTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 10:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWJOOTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 10:14:40 -0400
-Received: from vstglbx99.vestmark.com ([208.50.5.99]:18183 "EHLO
-	texas.hq.viviport.com") by vger.kernel.org with ESMTP
-	id S1160994AbWJOOOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 10:14:39 -0400
-Date: Sun, 15 Oct 2006 10:14:37 -0400
-From: nmeyers@vestmark.com
-To: Mike Galbraith <efault@gmx.de>
-Cc: Catalin Marinas <catalin.marinas@gmail.com>,
-       "nmeyers@vestmark.com" <nmeyers@vestmark.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-Message-ID: <20061015141437.GA29712@viviport.com>
-References: <20061013004918.GA8551@viviport.com> <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com> <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com> <1160899154.5935.19.camel@Homer.simpson.net>
+	Sun, 15 Oct 2006 10:19:55 -0400
+Received: from ns1.suse.de ([195.135.220.2]:10129 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750777AbWJOOTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 10:19:55 -0400
+Date: Sun, 15 Oct 2006 16:19:53 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linux Memory Management <linux-mm@kvack.org>, Neil Brown <neilb@suse.de>,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       Chris Mason <chris.mason@oracle.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: SPAM: Re: [patch 6/6] mm: fix pagecache write deadlocks
+Message-ID: <20061015141953.GC25243@wotan.suse.de>
+References: <20061013143516.15438.8802.sendpatchset@linux.site> <20061013143616.15438.77140.sendpatchset@linux.site> <1160912230.5230.23.camel@lappy> <20061015115656.GA25243@wotan.suse.de> <1160920269.5230.29.camel@lappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1160899154.5935.19.camel@Homer.simpson.net>
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 15 Oct 2006 14:14:38.0114 (UTC) FILETIME=[3F9AC020:01C6F064]
+In-Reply-To: <1160920269.5230.29.camel@lappy>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 15, 2006 at 07:59:14AM +0000, Mike Galbraith wrote:
-> On Fri, 2006-10-13 at 12:59 +0100, Catalin Marinas wrote:
-> > On 13/10/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > > On 10/13/06, nmeyers@vestmark.com <nmeyers@vestmark.com> wrote:
-> > > > If anyone has a version of kmemleak that I can build with 4.1.1, or
-> > > > any other suggestions for instrumentation, I'd be happy to gather more
-> > > > data - the problem is very easy for me to reproduce.
+On Sun, Oct 15, 2006 at 03:51:09PM +0200, Peter Zijlstra wrote:
 > 
-> 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
-> CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
-> runs a lot faster ;-)  I'll try a stripped down config sometime.
+> > > 
+> > > Why use raw {inc,dec}_preempt_count() and not
+> > > preempt_{disable,enable}()? Is the compiler barrier not needed here? And
+> > > do we really want to avoid the preempt_check_resched()?
+> > 
+> > Counter to intuition, we actually don't mind being preempted here,
+> > but we do mind entering the (core) pagefault handler. Incrementing
+> > the preempt count causes the arch specific handler to bail out early
+> > before it takes any locks.
+> > 
+> > Clear as mud? Wrapping it in a better name might be an improvement?
+> > Or wrapping it into the copy*user_atomic functions themselves (which
+> > is AFAIK the only place we use it).
 > 
-> 	-Mike
+> Right, but since you do inc the preempt_count you do disable preemption,
+> might as well check TIF_NEED_RESCHED when enabling preemption again.
 
-Thanks for digging that up - I'm building gcc now and will let you
-know if any useful info emerges.
+Yeah, you are right about that. Unfortunately there isn't a good
+way to do this at the moment... well we could disable preempt
+around the section, but that would be silly for a PREEMPT kernel.
 
-Nathan
+And we should really decouple it from preempt entirely, in case we
+ever want to check for it some other way in the pagefault handler.
+

@@ -1,72 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422916AbWJOWqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422918AbWJOWxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422916AbWJOWqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 18:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWJOWqO
+	id S1422918AbWJOWxV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 18:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422921AbWJOWxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 18:46:14 -0400
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:29611 "HELO
-	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932175AbWJOWqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 18:46:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=PjRQvZWDt3qVueoXZA3FDNTiAurMPEAEJaR8DIkDwljqPkBCT5zIP04o5p0AoY/Gb3KHsD4fniXyrtSeirFwxLEcgQDemdsq03z9SNDp1NELM/LCbGEhKPtzCDaiGaYugrvOz9REBhTGKUDbcx6CMml2e4k9zIXhMH2ZFZOHP1w=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-Date: Sun, 15 Oct 2006 15:45:58 -0700
-User-Agent: KMail/1.7.1
-Cc: alan@lxorguk.ukuu.org.uk, matthew@wil.cx, val_henson@linux.intel.com,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-References: <1160161519800-git-send-email-matthew@wil.cx> <20061015191631.DE49D19FEC8@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061015123432.4c6b7f15.akpm@osdl.org>
-In-Reply-To: <20061015123432.4c6b7f15.akpm@osdl.org>
+	Sun, 15 Oct 2006 18:53:21 -0400
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:18148 "EHLO
+	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1422918AbWJOWxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 18:53:21 -0400
+Message-ID: <4532BBDF.9010800@lwfinger.net>
+Date: Sun, 15 Oct 2006 17:53:19 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: BUG in 2.6.18.1?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610151545.59477.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Most drivers should be able to say "enable MWI if possible, but
-> > don't worry if it's not possible".  Only a few controllers need
-> > additional setup to make MWI actually work ... if they couldn't
-> > do that setup, that'd be worth a warning before they backed off
-> > to run in a non-MWI mode.
-> > 
-> 
-> So the semantics of pci_set_mwi() are "try to set MWI if this
-> platform/device supports it".
+Running 2.6.18.1, I got the following warning in my log:
 
-Not what I said ... that's what the _driver_ usually wants to do,
-which is different from the step implemented by set_mwi(). 
+Oct 15 16:24:38 larrylap kernel: BUG: warning at kernel/lockdep.c:565/print_infinite_recursion_bug()
+Oct 15 16:24:38 larrylap kernel:  [<c0103b3f>] show_trace_log_lvl+0x1af/0x1d0
+Oct 15 16:24:38 larrylap kernel:  [<c0104f4b>] show_trace+0x1b/0x20
+Oct 15 16:24:38 larrylap kernel:  [<c0104f76>] dump_stack+0x26/0x30
+Oct 15 16:24:38 larrylap kernel:  [<c0131099>] print_infinite_recursion_bug+0x49/0x50
+Oct 15 16:24:38 larrylap kernel:  [<c01311d5>] find_usage_backwards+0x65/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131e27>] check_usage+0x27/0x280
+Oct 15 16:24:38 larrylap kernel:  [<c01337a0>] __lock_acquire+0xac0/0xdc0
+Oct 15 16:24:38 larrylap kernel:  [<c0133e18>] lock_acquire+0x68/0x90
+Oct 15 16:24:38 larrylap kernel:  [<c0310788>] _spin_lock_irqsave+0x48/0x60
+Oct 15 16:24:38 larrylap kernel:  [<c0112713>] change_page_attr+0x13/0x260
+Oct 15 16:24:38 larrylap kernel:  [<c0112996>] kernel_map_pages+0x36/0xa0
+Oct 15 16:24:38 larrylap kernel:  [<c0146c68>] free_hot_cold_page+0x98/0x130
+Oct 15 16:24:38 larrylap kernel:  [<c0146d5a>] free_hot_page+0xa/0x10
+Oct 15 16:24:38 larrylap kernel:  [<c0146d8a>] __free_pages+0x2a/0x40
+Oct 15 16:24:38 larrylap kernel:  [<c0146dce>] free_pages+0x2e/0x40
+Oct 15 16:24:38 larrylap kernel:  [<c015ac39>] kmem_freepages+0x79/0xa0
+Oct 15 16:24:38 larrylap kernel:  [<c015c242>] slab_destroy+0x112/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c424>] free_block+0x154/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c5b2>] cache_flusharray+0x72/0x150
+Oct 15 16:24:38 larrylap kernel:  [<c015c106>] kmem_cache_free+0xb6/0xe0
+Oct 15 16:24:38 larrylap kernel:  [<c015c277>] slab_destroy+0x147/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c424>] free_block+0x154/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c5b2>] cache_flusharray+0x72/0x150
+Oct 15 16:24:38 larrylap kernel:  [<c015c106>] kmem_cache_free+0xb6/0xe0
+Oct 15 16:24:38 larrylap kernel:  [<c01d59df>] ext3_destroy_inode+0x1f/0x30
+Oct 15 16:24:38 larrylap kernel:  [<c017a02b>] destroy_inode+0x2b/0x60
+Oct 15 16:24:38 larrylap kernel:  [<c017aae1>] dispose_list+0x81/0x100
+Oct 15 16:24:38 larrylap kernel:  [<c017ad50>] shrink_icache_memory+0x1f0/0x230
+Oct 15 16:24:38 larrylap kernel:  [<c0149c72>] shrink_slab+0x122/0x190
+Oct 15 16:24:38 larrylap kernel:  [<c014ad87>] kswapd+0x297/0x420
+Oct 15 16:24:38 larrylap kernel:  [<c012c269>] kthread+0xe9/0xf0
+Oct 15 16:24:38 larrylap kernel:  [<c0101005>] kernel_thread_helper+0x5/0x10
+Oct 15 16:24:38 larrylap kernel: DWARF2 unwinder stuck at kernel_thread_helper+0x5/0x10
+Oct 15 16:24:38 larrylap kernel: Leftover inexact backtrace:
+Oct 15 16:24:38 larrylap kernel:  [<c0104f4b>] show_trace+0x1b/0x20
+Oct 15 16:24:38 larrylap kernel:  [<c0104f76>] dump_stack+0x26/0x30
+Oct 15 16:24:38 larrylap kernel:  [<c0131099>] print_infinite_recursion_bug+0x49/0x50
+Oct 15 16:24:38 larrylap kernel:  [<c01311d5>] find_usage_backwards+0x65/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_usage_backwards+0xa0/0xd0
+Oct 15 16:24:38 larrylap kernel:  [<c0131e27>] check_usage+0x27/0x280
+Oct 15 16:24:38 larrylap kernel:  [<c01337a0>] __lock_acquire+0xac0/0xdc0
+Oct 15 16:24:38 larrylap kernel:  [<c0133e18>] lock_acquire+0x68/0x90
+Oct 15 16:24:38 larrylap kernel:  [<c0310788>] _spin_lock_irqsave+0x48/0x60
+Oct 15 16:24:38 larrylap kernel:  [<c0112713>] change_page_attr+0x13/0x260
+Oct 15 16:24:38 larrylap kernel:  [<c0112996>] kernel_map_pages+0x36/0xa0
+Oct 15 16:24:38 larrylap kernel:  [<c0146c68>] free_hot_cold_page+0x98/0x130
+Oct 15 16:24:38 larrylap kernel:  [<c0146d5a>] free_hot_page+0xa/0x10
+Oct 15 16:24:38 larrylap kernel:  [<c0146d8a>] __free_pages+0x2a/0x40
+Oct 15 16:24:38 larrylap kernel:  [<c0146dce>] free_pages+0x2e/0x40
+Oct 15 16:24:38 larrylap kernel:  [<c015ac39>] kmem_freepages+0x79/0xa0
+Oct 15 16:24:38 larrylap kernel:  [<c015c242>] slab_destroy+0x112/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c424>] free_block+0x154/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c5b2>] cache_flusharray+0x72/0x150
+Oct 15 16:24:38 larrylap kernel:  [<c015c106>] kmem_cache_free+0xb6/0xe0
+Oct 15 16:24:38 larrylap kernel:  [<c015c277>] slab_destroy+0x147/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c424>] free_block+0x154/0x1a0
+Oct 15 16:24:38 larrylap kernel:  [<c015c5b2>] cache_flusharray+0x72/0x150
+Oct 15 16:24:38 larrylap kernel:  [<c015c106>] kmem_cache_free+0xb6/0xe0
+Oct 15 16:24:38 larrylap kernel:  [<c01d59df>] ext3_destroy_inode+0x1f/0x30
+Oct 15 16:24:38 larrylap kernel:  [<c017a02b>] destroy_inode+0x2b/0x60
+Oct 15 16:24:38 larrylap kernel:  [<c017aae1>] dispose_list+0x81/0x100
+Oct 15 16:24:38 larrylap kernel:  [<c017ad50>] shrink_icache_memory+0x1f0/0x230
+Oct 15 16:24:38 larrylap kernel:  [<c0149c72>] shrink_slab+0x122/0x190
+Oct 15 16:24:38 larrylap kernel:  [<c014ad87>] kswapd+0x297/0x420
+Oct 15 16:24:38 larrylap kernel:  [<c012c269>] kthread+0xe9/0xf0
+Oct 15 16:24:38 larrylap kernel:  [<c0101005>] kernel_thread_helper+0x5/0x10
 
 
-What Alan Cox said is a better paraphrase:
-
-> MWI is an "extra cheese" option not a "no pizza" case
-
-Or "sorry, that car is not available in olive, just burgundy."
-
-
-Not:
-
-> In that case its interface is misdesigned, because it doesn't discriminate
-> between "yes-it-does/no-it-doesn't" (which we don't want to report, because
-> either is expected and legitimate) and "something screwed up", which we do
-> want to report, because it is always unexpected.
-
-You mis-understand.  It's completely legit for the driver not to care.
-
-I agree that set_mwo() should set MWI if possible, and fail cleanly
-if it couldn't (for whatever reason).  Thing is, choosing to treat
-that as an error must be the _driver's_ choice ... it'd be wrong to force
-that policy into the _interface_ by forcing must_check etc.
-
-- Dave
-
-
+Larry

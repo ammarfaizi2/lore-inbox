@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWJOWpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422916AbWJOWqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWJOWpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 18:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWJOWpI
+	id S1422916AbWJOWqO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 18:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWJOWqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 18:45:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11983 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932174AbWJOWpF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 18:45:05 -0400
-Message-ID: <4532B99B.9030403@redhat.com>
-Date: Sun, 15 Oct 2006 15:43:39 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+	Sun, 15 Oct 2006 18:46:14 -0400
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:29611 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932175AbWJOWqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 18:46:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=PjRQvZWDt3qVueoXZA3FDNTiAurMPEAEJaR8DIkDwljqPkBCT5zIP04o5p0AoY/Gb3KHsD4fniXyrtSeirFwxLEcgQDemdsq03z9SNDp1NELM/LCbGEhKPtzCDaiGaYugrvOz9REBhTGKUDbcx6CMml2e4k9zIXhMH2ZFZOHP1w=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
+Date: Sun, 15 Oct 2006 15:45:58 -0700
+User-Agent: KMail/1.7.1
+Cc: alan@lxorguk.ukuu.org.uk, matthew@wil.cx, val_henson@linux.intel.com,
+       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <1160161519800-git-send-email-matthew@wil.cx> <20061015191631.DE49D19FEC8@adsl-69-226-248-13.dsl.pltn13.pacbell.net> <20061015123432.4c6b7f15.akpm@osdl.org>
+In-Reply-To: <20061015123432.4c6b7f15.akpm@osdl.org>
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
-References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com> <20061004045527.GB32267@2ka.mipt.ru> <452363C5.1020505@redhat.com> <20061004074821.GA22688@2ka.mipt.ru> <4523ED6C.9080902@redhat.com> <20061005090214.GB1015@2ka.mipt.ru> <45251A83.9060901@redhat.com> <20061006083620.GA28009@2ka.mipt.ru>
-In-Reply-To: <20061006083620.GA28009@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610151545.59477.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> In context you have cut, one updated signal mask between calls to event
-> delivery mechanism (using for example signal()), so it has exactly the
-> same price.
+> > Most drivers should be able to say "enable MWI if possible, but
+> > don't worry if it's not possible".  Only a few controllers need
+> > additional setup to make MWI actually work ... if they couldn't
+> > do that setup, that'd be worth a warning before they backed off
+> > to run in a non-MWI mode.
+> > 
+> 
+> So the semantics of pci_set_mwi() are "try to set MWI if this
+> platform/device supports it".
 
-No, it does not.  If the signal mask is recomputed by the program for 
-each new wait call then you have a lot more work to do when the signal 
-mask is implicitly specified.
-
-
-> I created it just because I think that POSIX workaround to add signals
-> into the syscall parameters is not good enough.
-
-Not good enough?  It does exactly what it is supposed to do.  What can 
-there be "not good enough"?
+Not what I said ... that's what the _driver_ usually wants to do,
+which is different from the step implemented by set_mwi(). 
 
 
-> You again cut my explanation on why just pure timeout is used.
-> We start a syscall, which can block forever, so we want to limit it's
-> time, and we add special parameter to show how long this syscall should
-> run. Timeout is not about how long we should sleep (which indeed can be
-> absolute), but how long syscall should run - which is related to the 
-> time syscall started.
+What Alan Cox said is a better paraphrase:
 
-I know very well what a timeout is.  But the way the timeout can be 
-specified can vary.  It is often useful (as for select, poll) to specify 
-relative timeouts.
+> MWI is an "extra cheese" option not a "no pizza" case
 
-But there are equally useful uses where the timeout is needed at a 
-specific point in time.  Without a syscall interface which can have a 
-absolute timeout parameter we'd have to write as a poor approximation at 
-userlever
-
-     clock_gettime (CLOCK_REALTIME, &ts);
-     struct timespec rel;
-     rel.tv_sec = abstmo.tv_sec - ts.tv_sec;
-     rel.tv_nsec = abstmo.tv_sec - ts.tv_nsec;
-     if (rel.tv_nsec < 0) {
-       rel.tv_nsec += 1000000000;
-       --rel.tv_sec;
-     }
-     if (rel.tv_sec < 0)
-       inttmo = -1;  // or whatever is used for return immediately
-     else
-       inttmo = rel.tv_sec * UINT64_C(1000000000) + rel.tv_nsec;
-
-      wait(..., inttmo, ...)
+Or "sorry, that car is not available in olive, just burgundy."
 
 
-Not only is this much more expensive to do at userlevel, it is also 
-inadequate because calls to settimeofday() do  not cause a recomputation 
-of the timeout.
+Not:
 
-See Ingo's RT futex stuff as an example for a kernel interface which 
-does it right.
+> In that case its interface is misdesigned, because it doesn't discriminate
+> between "yes-it-does/no-it-doesn't" (which we don't want to report, because
+> either is expected and legitimate) and "something screwed up", which we do
+> want to report, because it is always unexpected.
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+You mis-understand.  It's completely legit for the driver not to care.
+
+I agree that set_mwo() should set MWI if possible, and fail cleanly
+if it couldn't (for whatever reason).  Thing is, choosing to treat
+that as an error must be the _driver's_ choice ... it'd be wrong to force
+that policy into the _interface_ by forcing must_check etc.
+
+- Dave
+
+

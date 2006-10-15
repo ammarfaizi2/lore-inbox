@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752382AbWJOECV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752441AbWJOE1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752382AbWJOECV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 00:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752378AbWJOECV
+	id S1752441AbWJOE1c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 00:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752444AbWJOE1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 00:02:21 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:49318 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1752381AbWJOECU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 00:02:20 -0400
-Date: Sat, 14 Oct 2006 21:03:11 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Matt LaPlante <kernel1@cyberdogtech.com>
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 19-rc2]  Fix misc Kconfig typos
-Message-Id: <20061014210311.87ef41f6.randy.dunlap@oracle.com>
-In-Reply-To: <20061014225447.49c9112a.kernel1@cyberdogtech.com>
-References: <20061014225447.49c9112a.kernel1@cyberdogtech.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 15 Oct 2006 00:27:32 -0400
+Received: from main.gmane.org ([80.91.229.2]:26521 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1752441AbWJOE1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 00:27:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: sky2 (was Re: 2.6.18-mm2)
+Date: Sun, 15 Oct 2006 04:27:05 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnej3egk.2kc.olecom@flower.upol.cz>
+References: <20060928155053.7d8567ae.akpm@osdl.org> <451C5599.80402@garzik.org> <20060928161956.5262e5d3@freekitty> <1159930628.16765.9.camel@mhcln03> <20061003202643.0e0ceab2@localhost.localdomain> <1160250529.4575.7.camel@mhcln03> <1160314905.4575.21.camel@mhcln03> <20061008092001.0c83a359@localhost.localdomain> <1160326801.4575.27.camel@mhcln03> <1160332296.4575.31.camel@mhcln03> <20061009094504.7b58eb2d@freekitty> <slrneilm0q.3mc.olecom@deen.upol.cz.local>
+Reply-To: Oleg Verych <olecom@flower.upol.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Oct 2006 22:54:47 -0400 Matt LaPlante wrote:
+On 2006-10-09, Oleg Verych wrote:
+> On 2006-10-09, Stephen Hemminger wrote:
+>> On Sun, 08 Oct 2006 20:31:36 +0200
+>> Matthias Hentges <oe@hentges.net> wrote:
+>>
+>>> 
+>>> Oops, I forgot the "x" in lspci -vvvx, new dumps are attached.
+>>
+>>
+>> I think I know what the problem is. The PCI access routines to access pci express
+>> registers (ie reg > 256), only work if using MMCONFIG access. For some reason
+>> your configuration doesn't want to use/allow that.
+>
+> In case you didn't read, here's top of thread about MMCONFIG 4 days ago:
+><http://article.gmane.org/gmane.linux.ports.x86-64.general/1794>
+>
+> In short: due to Intel BIOS bug, mmconfig doesn't used in kernel.
+> And kernel developers mainly do not care much (yet) about drivers, until
+> vi$ta certified hardware will be in run.
+> ____
 
-> Fix various Kconfig typos.
-> 
-> Signed-off-by: Matt LaPlante <kernel1@cyberdogtech.com>
+[and, due to my dumb, not copied here Stephen's answer was:]
 
-I have one minor change request (below), otherwise
-Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+> Then I would argue that PCI express support is broken in the kernel.
 
+____
 
-> diff -ru a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
-> --- a/drivers/net/phy/Kconfig	2006-09-19 23:42:06.000000000 -0400
-> +++ b/drivers/net/phy/Kconfig	2006-10-14 22:16:01.000000000 -0400
-> @@ -61,8 +61,8 @@
->  	depends on PHYLIB
->  	---help---
->  	  Adds the driver to PHY layer to cover the boards that do not have any PHY bound,
-> -	  but with the ability to manipulate with speed/link in software. The relavant MII
-> -	  speed/duplex parameters could be effectively handled in user-specified  fuction.
-> +	  but with the ability to manipulate with speed/link in software. The relevant MII
-
-for the second "with":
-s/with/the/ or s/with//
-
-> +	  speed/duplex parameters could be effectively handled in a user-specified function.
->  	  Currently tested with mpc866ads.
->  
->  config FIXED_MII_10_FDX
-
-
----
-~Randy

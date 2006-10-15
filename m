@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422679AbWJOSLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWJOSQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422679AbWJOSLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 14:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422681AbWJOSLE
+	id S1030204AbWJOSQa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 14:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWJOSQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 14:11:04 -0400
-Received: from web50601.mail.yahoo.com ([206.190.38.88]:2989 "HELO
-	web50601.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1422679AbWJOSLB convert rfc822-to-8bit (ORCPT
+	Sun, 15 Oct 2006 14:16:30 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:44095 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030199AbWJOSQ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 14:11:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SIWQVTn7ZQTdXsi5LF0w3F2SEIcIbkG96fF9IoAmdT/x/gxZHMEeOWUKZ+NRWERIwZql8hGpRiq3939Le9/ztvDlmhbcoz9SsQmSYXo3KcCsS/5PCyWTzcqW+eSgVZ1J9aWA87ev13bz2P9fZd+PuSSrdqtFifVpU+YZgJcd+RU=  ;
-Message-ID: <20061015181059.8920.qmail@web50601.mail.yahoo.com>
-Date: Sun, 15 Oct 2006 11:10:59 -0700 (PDT)
-From: Joan Raventos <jraventos@yahoo.com>
-Subject: Re: poll problem with PF_PACKET when using PACKET_RX_RING
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+	Sun, 15 Oct 2006 14:16:29 -0400
+Date: Sun, 15 Oct 2006 20:16:55 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: balagi@justmail.de,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "akpm@osdl.org" <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] 2.6.19-rc1-mm1 pktcdvd: bio write congestion
+Message-ID: <20061015181655.GF14399@kernel.dk>
+References: <op.thfa4wnqiudtyh@master> <m3u026g223.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3u026g223.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick,
+On Sat, Oct 14 2006, Peter Osterlund wrote:
+> "Thomas Maier" <balagi@justmail.de> writes:
+> 
+> > Hello,
+> > 
+> > this adds a bio write queue congestion control
+> > to the pktcdvd driver with fixed on/off marks.
+> > It prevents that the driver consumes a unlimited
+> > amount of write requests.
+> 
+> Thanks, this looks good in principle, but I think it can be
+> implemented in a simpler way.
+> 
+> Jens, can I please ask your opinion. Would it make sense to export the
+> clear_queue_congested() and set_queue_congested() functions in
+> ll_rw_blk.c so that the pktcdvd driver can use them? Something like
+> this patch from a few years ago:
+> 
+>         http://marc.theaimsgroup.com/?l=linux-kernel&m=109378210610508&w=2
 
-Thx for your prompt reply! Plz see some comments inline.
+It definitely would. Did you test, and did it work well for you? I think
+it's the right approach.
 
->> 
->> Is this a bug in PF_PACKET? Should the socket queue be
->> emptied by packet_set_ring (called via setsockopt when
->> PACKET_RX_RING is used) so the above cannot happen?
->> Should the user-space app drain the socket queue with
->> recvfrom prior to (4) -quite unlikely in practice-?
-
-
-> I guess the best way is not to bind the socket before having
-> completed setup. We could still flush the queue to make life
-> easier for userspace, not sure about that ..
-
-Even w/o bind, packet_create is doing a dev_add_pack, which I think will make pkts arrive to that socket (ie. in netif_receive_skb one can see the loops over the rcu for both ptype_all and type-specific which seem match whenever !ptype->dev || ptype->dev==skb->dev).
-
-Also the packet_mmap.txt doc does not mention bind, which probably is more a mechanism to closely specify a dev than to signal socket readiness.
-
-Salu2,
-J.
-
-
-
+-- 
+Jens Axboe
 

@@ -1,109 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWJOBGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752325AbWJOBYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWJOBGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Oct 2006 21:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWJOBGv
+	id S1752325AbWJOBYu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Oct 2006 21:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752327AbWJOBYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Oct 2006 21:06:51 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:63626 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964806AbWJOBGu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Oct 2006 21:06:50 -0400
-Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
-	configfs
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <20061014000951.GC2747@ca-server1.us.oracle.com>
-References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
-	 <20061010203511.GF7911@ca-server1.us.oracle.com>
-	 <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
-	 <20061010215808.GK7911@ca-server1.us.oracle.com>
-	 <1160527799.1674.91.camel@localhost.localdomain>
-	 <20061011012851.GR7911@ca-server1.us.oracle.com>
-	 <20061011220619.GB7911@ca-server1.us.oracle.com>
-	 <1160619516.18766.209.camel@localhost.localdomain>
-	 <20061012070826.GO7911@ca-server1.us.oracle.com>
-	 <1160782659.18766.549.camel@localhost.localdomain>
-	 <20061014000951.GC2747@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Sat, 14 Oct 2006 18:06:26 -0700
-Message-Id: <1160874386.18766.691.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Sat, 14 Oct 2006 21:24:50 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:21422 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752320AbWJOBYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Oct 2006 21:24:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=sbcglobal.net;
+  h=Received:Mime-Version:In-Reply-To:References:Content-Type:Message-Id:Content-Transfer-Encoding:From:Subject:Date:To:X-Mailer;
+  b=jN3wpu3mGBkMbnCzq6ZJMKos9nZUQQnxHGXqmFzb2Sb7/0WieyemdnjWPCf1Ig3g3GaIlVeMtSHu1XT097DDQG6Ip5LK48G75S0SP5gHd1Kd4dfhacvBQFT5VgCrlRoCmi/xLlgUncccvr1Oki6STs5PPHQYEwFm3ae8KUSbrjI=  ;
+Mime-Version: 1.0 (Apple Message framework v752.2)
+In-Reply-To: <45317814.8000709@comcast.net>
+References: <4530570B.7030500@comcast.net>	 <20061014075625.GA30596@stusta.de> <4530FC8E.7020504@comcast.net>	 <7E4CA247-AD0A-4A20-BEAF-CDD2CA4D3FFE@sbcglobal.net>	 <45315A20.6090600@comcast.net> <1160870637.5732.46.camel@localhost.localdomain> <45317814.8000709@comcast.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <73CDF2F1-EC0A-431D-9B29-10251FAD21B7@sbcglobal.net>
 Content-Transfer-Encoding: 7bit
+From: Kevin K <k_krieser@sbcglobal.net>
+Subject: Re: Driver model.. expel legacy drivers?
+Date: Sat, 14 Oct 2006 20:24:46 -0500
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-13 at 17:09 -0700, Joel Becker wrote:
-> On Fri, Oct 13, 2006 at 04:37:38PM -0700, Matt Helsley wrote:
-> > > 	Sure it works.  You have one per resource group.  In
-> > > resource_group_make_object(), you sysfs_mkdir() the sysfs file.  There
-> > 
-> > 	That's the easy part. Next we need to make the pid attribute whenever a
-> > new task is created. And delete it when the task dies. And move it
-> > around whenever it changes groups. Is there rename() support in /sys? If
-> > not, would changes to allow rename() be acceptable (I'm worried it would
-> > impact alot of assumptions made in the existing code)?
-> 
-> 	No, you don't create a pid attribute per task.  The sysfs file
-> is literally your large attribute.  So, instead of echoing a new pid to
-> "/sys/kernel/config/ckrm/group1/pids", you echo to
-> "/sys/ckrm/group1/pids".  To display them all, you just cat
-> "/sys/ckrm/group1/pids".  It's exactly like the file you want in
-> configfs, just located in a place where it is allowed.
 
-Oh, sorry. I was still operating on the one-value-per-attribute
-assumption. This indeed looks like it would work.
+On Oct 14, 2006, at 6:51 PM, John Richard Moser wrote:
 
-> > 	Consider that having two very similar (but not symlinked!) trees in
-> > both /sys/ ... /res_group and /sys/kernel/config/res_group could be
-> > rather confusing to userspace programmers and users alike.
-> 
-> 	Not really.  It's not identical (tons of attributes live in the
-> configfs part but not the sysfs part), and it has a clear deliniation of
-> what each does.
+>
+>> Microsoft are also being very helpful. They are making it harder and
+>> harder for people to use drivers not microsoft-signed which in turns
+>> pushes up costs for development and as a result encourages more
+>> standardization of driver interfaces to take place.
+>
+> huh?
+>
 
-	Clear delineation to who? I'm not convinced this is any less confusing
-to a userspace programmer than parsing a single newline between multiple
-values in a configfs attribute.
+My assumption is that vendors may make fewer gratuitious interface  
+changes so the hardware is more likely to work with existing, signed,  
+drivers.  If changes aren't made, existing Linux drivers are more  
+likely to work with new revisions of hardware.
 
-> > 	It would be strange because when you rmdir a group
-> > in /sys/kernel/config/res_group... a directory in /sys would also
-> > disappear. Yet you can't mkdir or rmdir the /sys dirs. And to edit the
-> 
-> 	This is no different than tons of sysfs and procfs functionality
-> today.
-
-Yup.
-
-> > 	There are two parts to the complexity: code complexity and the number
-> > of userspace pieces to deal with. I think that in both of these
-> > categories the OVPA approach is more complex. Here's how I see it:
-> 
-> 	By your definition, sysfs, configfs, and other fs-style control
-> mechanisms are too complex.  We should all just be using ioctl() so that
-> coders and users have only one namespace :-)
-
-That's an absurd conclusion to draw from my argument that one
-filesystem-based approach is less complex than another.
-
-> > > 	You're effectively suggesting that a specific attribute type of
-> > > "repeated value of type X".  No mixed types, no exploded structures,
-> > > just a "list of this attr" sort of thing.  This does fit my personal
-> > > requirement of avoiding a generic, abusable system.
-> > 
-> > Exactly.
-> 
-> 	How do you implement it?  Full on seq_file with restrictions
-> (ops->start,stop,next,show)?
-
-That was the plan.
-
-Cheers,
-	-Matt Helsley
-
+My experience in the past for hardware, such as USB based flash  
+memory readers, is that when they came out you seemed to always need  
+a proprietary driver, and Linux drivers needed hints for different  
+readers.  It seems better these days, with things like USB keys  
+generally working in both Windows and relatively modern distributions  
+without much effort.llin

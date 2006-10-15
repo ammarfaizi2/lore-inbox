@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWJORjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWJORmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWJORjg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 13:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWJORjg
+	id S1161071AbWJORmK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 13:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWJORmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 13:39:36 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:37600 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161042AbWJORjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 13:39:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=YTnfZEuag7Oh7NhYTavraE1ZwkKdA8eUVsjoH/l4yjKUfuIo9W5DhaE1nRK2HblZ/Auuh5Zo//OvkTaxcoTXq+fNnK+UrjddDlx9J6zUW90zDVtkbq18h2Xn03xvi6sABfeA/vWrYCyORlg+fbGxpZ+m/MIhBSxydYUvoqHmWJE=
-Message-ID: <45327249.2040909@gmail.com>
-Date: Sun, 15 Oct 2006 21:39:21 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-CC: Florin Malita <fmalita@gmail.com>, Trent Piepho <xyzzy@speakeasy.org>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] [PATCH] V4L/DVB: potential leak in	dvb-bt8xx
-References: <453120EC.8030503@gmail.com>	 <Pine.LNX.4.58.0610141720560.13331@shell2.speakeasy.net>	 <45325B9E.1030808@gmail.com>  <45326359.4000502@gmail.com> <1160932715.5364.1.camel@praia>
-In-Reply-To: <1160932715.5364.1.camel@praia>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 15 Oct 2006 13:42:10 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:51093 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1161071AbWJORmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 13:42:08 -0400
+Subject: Re: [PATCH] libsas: support NCQ for SATA disks
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>
+In-Reply-To: <453027A9.3060606@us.ibm.com>
+References: <453027A9.3060606@us.ibm.com>
+Content-Type: text/plain
+Date: Sun, 15 Oct 2006 12:42:03 -0500
+Message-Id: <1160934124.3544.7.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauro Carvalho Chehab wrote:
-> Em Dom, 2006-10-15 às 20:35 +0400, Manu Abraham escreveu:
->> Florin Malita wrote:
->>> Trent Piepho wrote:
->>>> I believe that 'state' will be kfree'd by the dst_attach() function if there
->>>> is a failure.  Not what you would expect, to have it allocated in the bt8xx
->>>> driver (why do is there??) and freed on error in a different function.
->>>>   
->>> Hm, you're right - it is kfreed in dst_attach(). But we're still missing
->>> the kmalloc result check...
->>>
->> This patch was applied a few days back
-> 
-> Yes. 
-> 
-> It is at:
-> http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commit;h=626ae83bb24927ca015503448f0199842ae2e8da
+On Fri, 2006-10-13 at 16:56 -0700, Darrick J. Wong wrote:
+> I've tested this patch on a x206m with a ST380819AS SATA2 disk plugged
+> into the Adaptec SAS controller.  The drive came up with a queue depth
+> of 31, and I successfully ran an I/O flood test to coerce libata into
+> sending multiple commands simultaneously.  A kernel probe recorded the
+> maximum tag number that had been seen before and after the flood test;
+> before the test it was 2 and after it was 30, as I expected.
 
-Ok.
+This doesn't seem to quite work for me on a SATA-1 disc:
 
-> 
-> I've already asked Linus to pull it, together with other 17 fixes, to
-> Mainstream.
->> Manu
-> Cheers, 
-> Mauro.
+sas: DOING DISCOVERY on port 1, pid:1897
+sas: sas_ata_phy_reset: Found ATA device.
+ata1.00: ATA-7, max UDMA/133, 781422768 sectors: LBA48 NCQ (depth 31/32)
+ata1.00: configured for UDMA/133
+scsi 2:0:1:0: Direct-Access     ATA      ST3400832AS      3.03 PQ: 0
+ANSI: 5
+SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+sdc: Write Protect is off
+SCSI device sdc: drive cache: write back
+SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+sdc: Write Protect is off
+SCSI device sdc: drive cache: write back
+ sdc: unknown partition table
+sd 2:0:1:0: Attached scsi disk sdc
+sas: DONE DISCOVERY on port 1, pid:1897, result:0
+sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
+sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
+[...]
 
+It looks like the first few commands get through (read capacity, ATA
+IDENTIFY etc) and it hangs up on the read for the partition table.
 
-Thanks,
-Manu
-
+James
 
 

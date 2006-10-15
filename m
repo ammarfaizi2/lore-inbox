@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422890AbWJOT6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWJOUCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422890AbWJOT6n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422889AbWJOT6n
+	id S932145AbWJOUCn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 16:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWJOUCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:58:43 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:53648 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1422890AbWJOT6n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:58:43 -0400
-Message-ID: <453292EE.4010309@drzeus.cx>
-Date: Sun, 15 Oct 2006 21:58:38 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+	Sun, 15 Oct 2006 16:02:43 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:57761 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932145AbWJOUCm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 16:02:42 -0400
+Date: Sun, 15 Oct 2006 22:02:19 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: privilege levels and kernel mode
+In-Reply-To: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0610152200440.13483@yvahk01.tjqt.qr>
+References: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
 MIME-Version: 1.0
-To: pHilipp Zabel <philipp.zabel@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Use own work queue
-References: <20061001124240.16996.34557.stgit@poseidon.drzeus.cx> <74d0deb30610070717k17079940ybedbf94dc8af8460@mail.gmail.com> <452AB97B.5040309@drzeus.cx> <20061013075626.GB28654@flint.arm.linux.org.uk>
-In-Reply-To: <20061013075626.GB28654@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> The problem is likely that the boot is continuing in parallel with
-> detecting the card, because the card detection is running in its own
-> separate thread.  Meanwhile, the init thread is trying to read from
-> the as-yet missing root device and erroring out.
+>Hi,
+>    I am using pentium-4 processor. My operating
+>system  is Linux version 2.4.22-1.2199.nptl
 >
->   
+>  I want to measure performance events like number of
+>memory reads, number of cache misses occured while
+>running  a "C" program. For that I have to wright some
+>values into "Model specific registers of pentium-4
+>processor". But those registers can be written ONLY at
+>privilege level of zero of pentium4 processor.
+>
+> We know that application programs we write (for
+>example any C program)are run at privilege
+>level-3(user mode).
+>
+>I know how to include assembly instructions in a C
+>program to wtrite into "Model specific registers". But
+>that program has to be run at privilege level zero.
+>
+>How to run a C program at privilege level zero??
 
-That's what I suspect as well. I know using a root device on USB has
-these kinds of problems. And the solution I've mostly seen is adding a
-delay somewhere in initrd.
+The short answer: You can't.
 
-My experience with embedded systems is limited unfortunately, Perhaps
-Russell has some nice solution for Philipp? :)
+The long answer: You have to write a kernel module to do what you need.
 
-Rgds
+The best answer: Use /dev/cpu/0/msr.
 
+>Can any one help me?
+>
+>Thanks in advance.
+>
+> 
+>
+>Send instant messages to your online friends http://uk.messenger.yahoo.com 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+	-`J'
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-  OLPC, developer                     http://www.laptop.org
-

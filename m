@@ -1,95 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422858AbWJOTlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422876AbWJOTm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422858AbWJOTlG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWJOTlG
+	id S1422876AbWJOTm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422872AbWJOTm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:41:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43755 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932142AbWJOTlD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:41:03 -0400
-Date: Sun, 15 Oct 2006 12:40:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] close mprotect noexec hole
-In-Reply-To: <4532889B.1030908@redhat.com>
-Message-ID: <Pine.LNX.4.64.0610151226140.3952@g5.osdl.org>
-References: <200610151834.k9FIYBK5015809@devserv.devel.redhat.com>
- <Pine.LNX.4.64.0610151141280.3952@g5.osdl.org> <4532889B.1030908@redhat.com>
+	Sun, 15 Oct 2006 15:42:56 -0400
+Received: from web31808.mail.mud.yahoo.com ([68.142.207.71]:38264 "HELO
+	web31808.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932156AbWJOTmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 15:42:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Az47ZGwJjTG3awewQh6pBqsvQXqqQlctIp/L6DC6ifOur7PxnXvOQVgdQnfP4nNYZ25MBNHe8P69zZcDjW8mYwvLXJPO6Uj+YmGjtx3lT7+nK8ti8HQU/O5esrqn9967n3c97VTBwxAx7xEWrx1QmA3Z9wELQCUtS4ZE6h4Ef2w=  ;
+Message-ID: <20061015194254.58866.qmail@web31808.mail.mud.yahoo.com>
+Date: Sun, 15 Oct 2006 12:42:54 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: [PATCH] libsas: support NCQ for SATA disks
+To: "Darrick J. Wong" <djwong@us.ibm.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>
+In-Reply-To: <45328141.5020705@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 15 Oct 2006, Ulrich Drepper wrote:
-
-> Linus Torvalds wrote:
-> > Ie something like this instead. Totally untested, but at least it compiles
-> > with current -git (unlike Uli's version - needs <linux/mount.h>)
+--- "Darrick J. Wong" <djwong@us.ibm.com> wrote:
+> James Bottomley wrote:
 > 
-> This works fine with my test case and is of course more correct.
+> > This doesn't seem to quite work for me on a SATA-1 disc:
+> > 
+> > sas: DOING DISCOVERY on port 1, pid:1897
+> > sas: sas_ata_phy_reset: Found ATA device.
+> > ata1.00: ATA-7, max UDMA/133, 781422768 sectors: LBA48 NCQ (depth 31/32)
+> > ata1.00: configured for UDMA/133
+> > scsi 2:0:1:0: Direct-Access     ATA      ST3400832AS      3.03 PQ: 0
+> > ANSI: 5
+> > SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+> > sdc: Write Protect is off
+> > SCSI device sdc: drive cache: write back
+> > SCSI device sdc: 781422768 512-byte hdwr sectors (400088 MB)
+> > sdc: Write Protect is off
+> > SCSI device sdc: drive cache: write back
+> >  sdc: unknown partition table
+> > sd 2:0:1:0: Attached scsi disk sdc
+> > sas: DONE DISCOVERY on port 1, pid:1897, result:0
+> > sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
+> > sas: command 0xf785f3c0, task 0x00000000, timed out: EH_HANDLED
+> > [...]
+> > 
+> > It looks like the first few commands get through (read capacity, ATA
+> > IDENTIFY etc) and it hangs up on the read for the partition table.
+> 
+> Hm... if I put in some debug printks in the qc_issue code, I get the
+> same symptoms.  I've observed that once again we get hung up on ATA
+> commands where the tag number > 0.  I also noticed this pattern:
+> 
+> 1. ATA command w/ tag 0 (command A) issued.
+> 2. Command A goes out to sas-ata.
+> 2. ATA command w/ tag 1 (command B) issued.
+> 3. Command A completes
+> 4. Command B goes out to sas-ata.
+> [...]
+> 5. Command B times out.
+> 
+> Very odd that this all works if there are no printks.  I don't see
+> anything obvious that would suggest why this apparent race seems to
+> happen--unless there's some conflict between issuing an ATA command
+> while completing another one.
 
-The thing is, I think even my version is wrong.
+Keep debugging.
 
-Why? Because this whole case _should_ have been handled by mprotect 
-already.
+The GPL open sourced SCSI/ATA Translation Layer (SATL) I maintain,
+works perfectly for any SATA drive w/ NCQ (through the aic94xx
+SDS/interconnect), and I haven't heard any complaints from people
+using it.
 
-The way we handle VM_WRITE getting set in mprotect() etc is not by 
-checking that the file is writable, but checking that VM_MAYWRITE is set.
+    Luben
 
-And that's what we did with VM_EXEC too.
-
-So I think that the _real_ bug is that VM_MAYEXEC is set, even though it 
-clearly should not be.
-
-In other words, I think the _real_ fix is actually to do this at mmap() 
-time, something like the following..
-
-This is equally untested as the previous version, but I think this is 
-really conceptually the Right Thing(tm).
-
-		Linus
----
-diff --git a/mm/mmap.c b/mm/mmap.c
-index eea8eef..497e502 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -900,17 +900,6 @@ unsigned long do_mmap_pgoff(struct file 
- 	int accountable = 1;
- 	unsigned long charged = 0, reqprot = prot;
- 
--	if (file) {
--		if (is_file_hugepages(file))
--			accountable = 0;
--
--		if (!file->f_op || !file->f_op->mmap)
--			return -ENODEV;
--
--		if ((prot & PROT_EXEC) &&
--		    (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
--			return -EPERM;
--	}
- 	/*
- 	 * Does the application expect PROT_READ to imply PROT_EXEC?
- 	 *
-@@ -1000,6 +989,16 @@ unsigned long do_mmap_pgoff(struct file 
- 		case MAP_PRIVATE:
- 			if (!(file->f_mode & FMODE_READ))
- 				return -EACCES;
-+			if (file->f_vfsmnt->mnt_flags & MNT_NOEXEC) {
-+				if (vm_flags & VM_EXEC)
-+					return -EPERM;
-+				vm_flags &= ~VM_MAYEXEC;
-+			}
-+			if (is_file_hugepages(file))
-+				accountable = 0;
-+
-+			if (!file->f_op || !file->f_op->mmap)
-+				return -ENODEV;
- 			break;
- 
- 		default:

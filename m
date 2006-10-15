@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWJOR3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWJORjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWJOR3b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 13:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWJOR3b
+	id S1161042AbWJORjg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 13:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWJORjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 13:29:31 -0400
-Received: from mail.gmx.de ([213.165.64.20]:6103 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750875AbWJOR3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 13:29:30 -0400
-X-Authenticated: #14349625
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-From: Mike Galbraith <efault@gmx.de>
-To: nmeyers@vestmark.com
-Cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061015141437.GA29712@viviport.com>
-References: <20061013004918.GA8551@viviport.com>
-	 <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com>
-	 <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com>
-	 <1160899154.5935.19.camel@Homer.simpson.net>
-	 <20061015141437.GA29712@viviport.com>
-Content-Type: text/plain
-Date: Sun, 15 Oct 2006 17:59:58 +0000
-Message-Id: <1160935198.6007.14.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 15 Oct 2006 13:39:36 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:37600 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161042AbWJORjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 13:39:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=YTnfZEuag7Oh7NhYTavraE1ZwkKdA8eUVsjoH/l4yjKUfuIo9W5DhaE1nRK2HblZ/Auuh5Zo//OvkTaxcoTXq+fNnK+UrjddDlx9J6zUW90zDVtkbq18h2Xn03xvi6sABfeA/vWrYCyORlg+fbGxpZ+m/MIhBSxydYUvoqHmWJE=
+Message-ID: <45327249.2040909@gmail.com>
+Date: Sun, 15 Oct 2006 21:39:21 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+CC: Florin Malita <fmalita@gmail.com>, Trent Piepho <xyzzy@speakeasy.org>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] [PATCH] V4L/DVB: potential leak in	dvb-bt8xx
+References: <453120EC.8030503@gmail.com>	 <Pine.LNX.4.58.0610141720560.13331@shell2.speakeasy.net>	 <45325B9E.1030808@gmail.com>  <45326359.4000502@gmail.com> <1160932715.5364.1.camel@praia>
+In-Reply-To: <1160932715.5364.1.camel@praia>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-15 at 10:14 -0400, nmeyers@vestmark.com wrote:
-> On Sun, Oct 15, 2006 at 07:59:14AM +0000, Mike Galbraith wrote:
-> > On Fri, 2006-10-13 at 12:59 +0100, Catalin Marinas wrote:
-> > > On 13/10/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > > > On 10/13/06, nmeyers@vestmark.com <nmeyers@vestmark.com> wrote:
-> > > > > If anyone has a version of kmemleak that I can build with 4.1.1, or
-> > > > > any other suggestions for instrumentation, I'd be happy to gather more
-> > > > > data - the problem is very easy for me to reproduce.
-> > 
-> > 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
-> > CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
-> > runs a lot faster ;-)  I'll try a stripped down config sometime.
-> > 
-> > 	-Mike
+Mauro Carvalho Chehab wrote:
+> Em Dom, 2006-10-15 às 20:35 +0400, Manu Abraham escreveu:
+>> Florin Malita wrote:
+>>> Trent Piepho wrote:
+>>>> I believe that 'state' will be kfree'd by the dst_attach() function if there
+>>>> is a failure.  Not what you would expect, to have it allocated in the bt8xx
+>>>> driver (why do is there??) and freed on error in a different function.
+>>>>   
+>>> Hm, you're right - it is kfreed in dst_attach(). But we're still missing
+>>> the kmalloc result check...
+>>>
+>> This patch was applied a few days back
 > 
-> Thanks for digging that up - I'm building gcc now and will let you
-> know if any useful info emerges.
+> Yes. 
+> 
+> It is at:
+> http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commit;h=626ae83bb24927ca015503448f0199842ae2e8da
 
-Buyer beware of course ;-)
+Ok.
 
-	-Mike
+> 
+> I've already asked Linus to pull it, together with other 17 fixes, to
+> Mainstream.
+>> Manu
+> Cheers, 
+> Mauro.
+
+
+Thanks,
+Manu
+
+
 

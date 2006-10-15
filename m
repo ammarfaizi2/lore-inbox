@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422879AbWJOTre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422880AbWJOTtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422879AbWJOTre (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJOTre
+	id S1422880AbWJOTtP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422885AbWJOTtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:47:34 -0400
-Received: from host133-98-dynamic.3-87-r.retail.telecomitalia.it ([87.3.98.133]:42725
-	"EHLO memento.home.lan") by vger.kernel.org with ESMTP
-	id S1422879AbWJOTrd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:47:33 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-To: stable@kernel.org
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: uml: fix processor selection to exclude unsupported processors and features
-Date: Sun, 15 Oct 2006 21:43:29 +0200
-Message-Id: <11609414093462-git-send-email-blaisorblade@yahoo.it>
-X-Mailer: git-send-email 1.4.2.3.g99b7
+	Sun, 15 Oct 2006 15:49:15 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:51600 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1422880AbWJOTtO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 15:49:14 -0400
+Message-ID: <453290B6.4010704@drzeus.cx>
+Date: Sun, 15 Oct 2006 21:49:10 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Philip Langdale <philipl@overt.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 1/1] mmc: Add support for mmc v4 high speed mode
+References: <21173.67.169.45.37.1159940502.squirrel@overt.org>    <452B3B00.5080209@drzeus.cx> <11208.67.169.45.37.1160545100.squirrel@overt.org> <452C87FB.6080302@drzeus.cx> <452C965A.6020409@overt.org>
+In-Reply-To: <452C965A.6020409@overt.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Makes UML compile on any possible processor choice. The two problems were:
+Philip Langdale wrote:
+> Correct. SWITCH is used to change the bus width. Now I have to stop
+> avoiding the issue and confront those crazy test commands so we can turn
+> on the wide-bus stuff properly. (You are happy with this diff now right? :-)
+>   
 
-*) x86 code, when 386 is selected, checks at runtime boot_cpuflags, which we do
-   not have.
-*) 3Dnow support for memcpy() et al. does not compile currently and fixing this
-   is not trivial, so simply disable it; with this change, if one selects MK7
-   UML compiles (while it did not).
-Merged upstream.
+That I am. It will be queued up for 2.6.20 once I get my new maintainer
+role in order.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Index: linux-2.6.git/arch/i386/Kconfig.cpu
-===================================================================
---- linux-2.6.git.orig/arch/i386/Kconfig.cpu
-+++ linux-2.6.git/arch/i386/Kconfig.cpu
-@@ -7,6 +7,7 @@ choice
- 
- config M386
- 	bool "386"
-+	depends on !UML
- 	---help---
- 	  This is the processor type of your CPU. This information is used for
- 	  optimizing purposes. In order to compile a kernel that can run on
-@@ -301,7 +302,7 @@ config X86_USE_PPRO_CHECKSUM
- 
- config X86_USE_3DNOW
- 	bool
--	depends on MCYRIXIII || MK7 || MGEODE_LX
-+	depends on (MCYRIXIII || MK7 || MGEODE_LX) && !UML
- 	default y
- 
- config X86_OOSTORE
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
+  OLPC, developer                     http://www.laptop.org
+

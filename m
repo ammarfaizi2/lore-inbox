@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWJOOTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWJOOVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWJOOTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 10:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWJOOTz
+	id S1161009AbWJOOVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 10:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWJOOVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 10:19:55 -0400
-Received: from ns1.suse.de ([195.135.220.2]:10129 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750777AbWJOOTz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 10:19:55 -0400
-Date: Sun, 15 Oct 2006 16:19:53 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linux Memory Management <linux-mm@kvack.org>, Neil Brown <neilb@suse.de>,
-       Anton Altaparmakov <aia21@cam.ac.uk>,
-       Chris Mason <chris.mason@oracle.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: SPAM: Re: [patch 6/6] mm: fix pagecache write deadlocks
-Message-ID: <20061015141953.GC25243@wotan.suse.de>
-References: <20061013143516.15438.8802.sendpatchset@linux.site> <20061013143616.15438.77140.sendpatchset@linux.site> <1160912230.5230.23.camel@lappy> <20061015115656.GA25243@wotan.suse.de> <1160920269.5230.29.camel@lappy>
+	Sun, 15 Oct 2006 10:21:51 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3730 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161007AbWJOOVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 10:21:50 -0400
+Subject: Re: + drivers-ide-fix-error-return-bugs-interface.patch added to
+	-mm tree
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jeff@garzik.org
+In-Reply-To: <200610102047.k9AKl53O022518@shell0.pdx.osdl.net>
+References: <200610102047.k9AKl53O022518@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 15 Oct 2006 15:46:46 +0100
+Message-Id: <1160923606.5732.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160920269.5230.29.camel@lappy>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 15, 2006 at 03:51:09PM +0200, Peter Zijlstra wrote:
+Ar Maw, 2006-10-10 am 13:47 -0700, ysgrifennodd akpm@osdl.org:
+> This fixes the following error handling problems:
 > 
-> > > 
-> > > Why use raw {inc,dec}_preempt_count() and not
-> > > preempt_{disable,enable}()? Is the compiler barrier not needed here? And
-> > > do we really want to avoid the preempt_check_resched()?
-> > 
-> > Counter to intuition, we actually don't mind being preempted here,
-> > but we do mind entering the (core) pagefault handler. Incrementing
-> > the preempt count causes the arch specific handler to bail out early
-> > before it takes any locks.
-> > 
-> > Clear as mud? Wrapping it in a better name might be an improvement?
-> > Or wrapping it into the copy*user_atomic functions themselves (which
-> > is AFAIK the only place we use it).
-> 
-> Right, but since you do inc the preempt_count you do disable preemption,
-> might as well check TIF_NEED_RESCHED when enabling preemption again.
+> * The init_chipset API function is defined to return 'unsigned int', but
+> 	- the caller code tests the return value for '< 0'
+> 	- drivers sometimes return a negative value
 
-Yeah, you are right about that. Unfortunately there isn't a good
-way to do this at the moment... well we could disable preempt
-around the section, but that would be silly for a PREEMPT kernel.
+Dropped for good. The core code doesn't support failing in init_chipset.
+Instead I've adjusted via82cxxx to do the check earlier in init_one().
+Also avoids an API change and all the noise.
 
-And we should really decouple it from preempt entirely, in case we
-ever want to check for it some other way in the pagefault handler.
+> * cs5530: handle pci_set_mwi() failure with a printk()... shouldn't kill driver
+
+NAK. Fix is to remove bogus must_check from pci_set_mwi (and some of the
+other functions)
+
+> * sc1200: handle pci_enable_device() failure during resume
+
+NAK: if the pci_enable_device fails here the best we can do is attempt
+to get it back and hope the pci_enable_device failure is bogus. This is
+a can't happen case anyway so its a waste of memory. If you insist on
+checking pci_enable_device returns everywhere then please move the
+printk into the pci_enable_device function so that we don't bloat the
+kernel with a load of pointless identically messages for an event that
+never happen, one per driver.
+
+Alan
 

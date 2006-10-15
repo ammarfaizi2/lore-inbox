@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWJOSJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422679AbWJOSLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422673AbWJOSJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 14:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422676AbWJOSJY
+	id S1422679AbWJOSLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 14:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422681AbWJOSLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 14:09:24 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:34809 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1422673AbWJOSJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 14:09:23 -0400
-Date: Sun, 15 Oct 2006 11:10:39 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Casey Dahlin <cjdahlin@ncsu.edu>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Readability improvement of open_exec()
-Message-Id: <20061015111039.7fb80045.randy.dunlap@oracle.com>
-In-Reply-To: <1160707333.3230.14.camel@localhost.localdomain>
-References: <1160707333.3230.14.camel@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 15 Oct 2006 14:11:04 -0400
+Received: from web50601.mail.yahoo.com ([206.190.38.88]:2989 "HELO
+	web50601.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1422679AbWJOSLB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 14:11:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=SIWQVTn7ZQTdXsi5LF0w3F2SEIcIbkG96fF9IoAmdT/x/gxZHMEeOWUKZ+NRWERIwZql8hGpRiq3939Le9/ztvDlmhbcoz9SsQmSYXo3KcCsS/5PCyWTzcqW+eSgVZ1J9aWA87ev13bz2P9fZd+PuSSrdqtFifVpU+YZgJcd+RU=  ;
+Message-ID: <20061015181059.8920.qmail@web50601.mail.yahoo.com>
+Date: Sun, 15 Oct 2006 11:10:59 -0700 (PDT)
+From: Joan Raventos <jraventos@yahoo.com>
+Subject: Re: poll problem with PF_PACKET when using PACKET_RX_RING
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Oct 2006 22:42:13 -0400 Casey Dahlin wrote:
+Hi Patrick,
 
-> A fairly trivial patch that simply improves the readability of the
-> open_exec() function. It no longer executes primarily inside nested ifs
-> or has 5 levels of indentation :) Logically it should be no different
-> from the original. Patch applies to stock 2.6.18 kernel.
-> 
-> 
-> Signed-off-by: Casey Dahlin <cjdahlin@ncsu.edu>
-> 
-> ---
-> 
-> diff -up exec.c.bak exec.c
-> --- exec.c.bak	2006-09-19 23:42:06.000000000 -0400
-> +++ exec.c	2006-10-12 21:42:01.000000000 -0400
+Thx for your prompt reply! Plz see some comments inline.
 
-Please use diff and diffstat as suggested in
-Documentation/SubmittingPatches, and do so from the top-level
-directory of the kernel source tree, so that the full
-path/file names are used in the diff lines.
+>> 
+>> Is this a bug in PF_PACKET? Should the socket queue be
+>> emptied by packet_set_ring (called via setsockopt when
+>> PACKET_RX_RING is used) so the above cannot happen?
+>> Should the user-space app drain the socket queue with
+>> recvfrom prior to (4) -quite unlikely in practice-?
 
----
-~Randy
+
+> I guess the best way is not to bind the socket before having
+> completed setup. We could still flush the queue to make life
+> easier for userspace, not sure about that ..
+
+Even w/o bind, packet_create is doing a dev_add_pack, which I think will make pkts arrive to that socket (ie. in netif_receive_skb one can see the loops over the rcu for both ptype_all and type-specific which seem match whenever !ptype->dev || ptype->dev==skb->dev).
+
+Also the packet_mmap.txt doc does not mention bind, which probably is more a mechanism to closely specify a dev than to signal socket readiness.
+
+Salu2,
+J.
+
+
+
+

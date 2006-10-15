@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWJOWdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWJOWfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161196AbWJOWdH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 18:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbWJOWdH
+	id S1161195AbWJOWfW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 18:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWJOWfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 18:33:07 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25579 "EHLO
+	Sun, 15 Oct 2006 18:35:22 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26603 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161192AbWJOWdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 18:33:05 -0400
-Subject: Re: [PATCH 1/5] remove TxStartThresh and RxEarlyThresh
+	id S1161195AbWJOWfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 18:35:21 -0400
+Subject: Re: privilege levels and kernel mode
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jesse Huang <jesse@icplus.com.tw>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
-In-Reply-To: <1160947597.22522.3.camel@localhost.localdomain>
-References: <1160855725.2266.1.camel@localhost.localdomain>
-	 <1160947597.22522.3.camel@localhost.localdomain>
+To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
+References: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 15 Oct 2006 23:59:20 +0100
-Message-Id: <1160953160.5732.88.camel@localhost.localdomain>
+Date: Mon, 16 Oct 2006 00:02:09 +0100
+Message-Id: <1160953329.5732.91.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-16 am 07:26 +1000, ysgrifennodd Benjamin Herrenschmidt:
-> On Sat, 2006-10-14 at 15:55 -0400, Jesse Huang wrote:
-> > From: Jesse Huang <jesse@icplus.com.tw>
-> > 
-> > Change Logs:
-> > For patent issue need to remove TxStartThresh and RxEarlyThresh. This patent 
-> > is cut-through patent. If use this function, Tx will start to transmit after 
-> > few data be move in to Tx FIFO. We are not allow to use those function in 
-> > DFE530/DFE550/DFE580/DL10050/IP100/IP100A. It will decrease a little 
-> > performance.
-> 
-> Somebody patented FIFO thresholds ? Gack ?
+Ar Sul, 2006-10-15 am 20:17 +0100, ysgrifennodd ranjith kumar:
+> I know how to include assembly instructions in a C
+> program to wtrite into "Model specific registers". But
+> that program has to be run at privilege level zero.
 
-3COM hold several patents on certain kinds of early interrupt/early
-start for network FIFOs. At least historically they also had a GPL Linux
-driver that didn't use that feature on their own cards which I'm told
-was fear of patent "leakage"
+Its more hairy than that because of SMP and handling overflows and
+according to whether you need to profile all use or your own task and so
+on. Fortunately someone has done all the hard work already - take a look
+at the oprofile support in the kernel and see if it will do what you
+need.
 
 Alan

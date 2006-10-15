@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWJOTRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422804AbWJOTVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbWJOTRw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 15:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWJOTRw
+	id S1422804AbWJOTVg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 15:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422811AbWJOTVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 15:17:52 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:54734 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030249AbWJOTRv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 15:17:51 -0400
-Date: Sun, 15 Oct 2006 12:19:31 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ipslinux@adaptec.com, LKML <linux-kernel@vger.kernel.org>,
-       Jack Hammer <jack_hammer@adaptec.com>
-Subject: Re: ips: scheduling while atomic in 2.6.18
-Message-ID: <20061015191931.GH10744@us.ibm.com>
-References: <20061014015244.GC10744@us.ibm.com> <453251A4.7060706@yahoo.com.au>
+	Sun, 15 Oct 2006 15:21:35 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:837 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422804AbWJOTVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 15:21:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=pO01Rc0qyeIl+pYfq5xta0YH/D/Y4/SJKDBzXAOZFeBliOBm5eZu1ZJ6kCEQVRgVH9uR5pIGiE1+NKn9JZKduiixFVuUWZaEdlbHRJnLB7RHrfVvjtWfLpBLEklNM/sYqQ/OzV7Z4tPjbubfyP3cHe2o9rNTNbxqOkIHWegp5oE=
+Message-ID: <86802c440610151221v2217cb67t354e1ccbcee54b6a@mail.gmail.com>
+Date: Sun, 15 Oct 2006 12:21:33 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, "Andi Kleen" <ak@muc.de>
+Subject: re: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
+Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+In-Reply-To: <86802c440610150029k28957786v3b313e29f1f52c8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453251A4.7060706@yahoo.com.au>
-X-Operating-System: Linux 2.6.18 (x86_64)
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_69030_15662240.1160940093479"
+References: <86802c440610150029k28957786v3b313e29f1f52c8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16.10.2006 [01:20:04 +1000], Nick Piggin wrote:
-> Nishanth Aravamudan wrote:
-> >Hi all,
-> >
-> >A server I administer just dumped three scheduling while atomics before
-> >(sort of) hanging hard. Still responds to ping, but ssh is now dead and
-> >the serial console stopped logging.
-> >
-> >8-way PIII, 2.6.18 with the 3:1 split. Wanted to get my report out there
-> >before I reset the box, though.
-> 
-> Thanks for the report. The messages are caused by this commit (cc'ed 
-> author):
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=15084a4a63bc300c18b28a8a9afac870c552abce
-> 
-> Not sure whether they are the cause of your hang, but the from the
-> changelog it doesn't look like the commit was strictly a bugfix so you
-> could try changing msleep calls in the driver back to MDELAY.
+------=_Part_69030_15662240.1160940093479
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Ah yes, that was what I was going to try next, if I didn't hear back
-from anyone :)
+Please use this one
 
-I'll let you know if that changes anything. This box has been hanging
-for a little while now, on an inconsistent basis -- this was just the
-first time I was able to grab these traces. And by hanging hard, I mean
-no console, serial or physical, no SysRq, nothing. It's all rather odd.
+typo with cpu instead of new_cpu
 
-Will keep you posted.
+Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
 
-Thanks,
-Nish
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 44b55f8..756d097 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -651,12 +651,12 @@ next:
+                if (vector == IA32_SYSCALL_VECTOR)
+                        goto next;
+                for_each_cpu_mask(new_cpu, domain)
+-                       if (per_cpu(vector_irq, cpu)[vector] != -1)
++                       if (per_cpu(vector_irq, new_cpu)[vector] != -1)
+                                goto next;
+                /* Found one! */
+                for_each_cpu_mask(new_cpu, domain) {
+-                       pos[cpu].vector = vector;
+-                       pos[cpu].offset = offset;
++                       pos[new_cpu].vector = vector;
++                       pos[new_cpu].offset = offset;
+                }
+                if (old_vector >= 0) {
+                        int old_cpu;
 
--- 
-Nishanth Aravamudan <nacc@us.ibm.com>
-IBM Linux Technology Center
+------=_Part_69030_15662240.1160940093479
+Content-Type: text/x-patch; name=io_apic_x.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_etbtnnos
+Content-Disposition: attachment; filename="io_apic_x.diff"
+
+ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMgYi9hcmNoL3g4Nl82NC9r
+ZXJuZWwvaW9fYXBpYy5jCmluZGV4IDQ0YjU1ZjguLjc1NmQwOTcgMTAwNjQ0Ci0tLSBhL2FyY2gv
+eDg2XzY0L2tlcm5lbC9pb19hcGljLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL2lvX2FwaWMu
+YwpAQCAtNjUxLDEyICs2NTEsMTIgQEAgbmV4dDoKIAkJaWYgKHZlY3RvciA9PSBJQTMyX1NZU0NB
+TExfVkVDVE9SKQogCQkJZ290byBuZXh0OwogCQlmb3JfZWFjaF9jcHVfbWFzayhuZXdfY3B1LCBk
+b21haW4pCi0JCQlpZiAocGVyX2NwdSh2ZWN0b3JfaXJxLCBjcHUpW3ZlY3Rvcl0gIT0gLTEpCisJ
+CQlpZiAocGVyX2NwdSh2ZWN0b3JfaXJxLCBuZXdfY3B1KVt2ZWN0b3JdICE9IC0xKQogCQkJCWdv
+dG8gbmV4dDsKIAkJLyogRm91bmQgb25lISAqLwogCQlmb3JfZWFjaF9jcHVfbWFzayhuZXdfY3B1
+LCBkb21haW4pIHsKLQkJCXBvc1tjcHVdLnZlY3RvciA9IHZlY3RvcjsKLQkJCXBvc1tjcHVdLm9m
+ZnNldCA9IG9mZnNldDsKKwkJCXBvc1tuZXdfY3B1XS52ZWN0b3IgPSB2ZWN0b3I7CisJCQlwb3Nb
+bmV3X2NwdV0ub2Zmc2V0ID0gb2Zmc2V0OwogCQl9CiAJCWlmIChvbGRfdmVjdG9yID49IDApIHsK
+IAkJCWludCBvbGRfY3B1Owo=
+------=_Part_69030_15662240.1160940093479--

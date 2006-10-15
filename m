@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWJOV0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWJOV1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWJOV0I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 17:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWJOV0I
+	id S1030285AbWJOV1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 17:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWJOV1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 17:26:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37804 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750997AbWJOV0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 17:26:05 -0400
-Subject: Re: [Bulk] Re: [PATCH 1/2] [PCI] Check that MWI bit really did get
-	set
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, David Brownell <david-b@pacbell.net>,
-       val_henson@linux.intel.com, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-In-Reply-To: <20061015104544.5de31608.akpm@osdl.org>
-References: <1160161519800-git-send-email-matthew@wil.cx>
-	 <20061013214135.8fbc9f04.akpm@osdl.org>
-	 <20061014140249.GL11633@parisc-linux.org>
-	 <20061014134855.b66d7e65.akpm@osdl.org>
-	 <20061015032000.GP11633@parisc-linux.org>
-	 <20061015070809.978C714552@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	 <1160922082.5732.51.camel@localhost.localdomain>
-	 <20061015135756.GD22289@parisc-linux.org>
-	 <20061015104544.5de31608.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 15 Oct 2006 22:52:15 +0100
-Message-Id: <1160949135.5732.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sun, 15 Oct 2006 17:27:48 -0400
+Received: from bender.bawue.de ([193.7.176.20]:12745 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S1030285AbWJOV1r convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 17:27:47 -0400
+Date: Sun, 15 Oct 2006 22:27:46 +0100
+From: Thiemo Seufer <ths@networkno.de>
+To: Aurelien Jarno <aurelien@aurel32.net>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: SYS_personality does not work correctly on mips(el)64
+Message-ID: <20061015212746.GA25607@networkno.de>
+References: <452EB653.7070604@aurel32.net> <20061013095206.GA4027@networkno.de> <4532A415.1080801@aurel32.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <4532A415.1080801@aurel32.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-10-15 am 10:45 -0700, ysgrifennodd Andrew Morton:
-> If the drivers doesn't care and if it makes no difference to performance
-> then just delete the call to pci_set_mwi().
+Aurelien Jarno wrote:
+> Thiemo Seufer a écrit :
+> >Aurelien Jarno wrote:
+> >>Hi all,
+> >>
+> >>On mips(el), when doing multiple call to the syscall SYS_personality in 
+> >>order to get the current personality (using 0xffffffff for the first 
+> >>argument), on a 64-bit kernel, the second and subsequent syscalls are 
+> >>failing. That works correctly with a 32-bit kernels and on other 
+> >>architectures.
+> >
+> >That's caused by mis-handling broken sign extensions, see also
+> >http://bugs.debian.org/380531.
 > 
-> But if MWI _does_ make a difference to performance then we should tell
-> someone that it isn't working rather than silently misbehaving?
+> I still got the exact same problem with this patch applied.
 
-It isn't misbehaving it just isn't available. MWI is rather different to
-say pci_set_master() in that it makes a lot of sense for many drivers to
-ask for it but not care about the results. Something like pci_set_master
-failing is a big problem and has to be handled (although as we often
-don't use BIOS PCI services we see fake success in some cases).
+I works for me on a bcm91480b in big endian mode.
 
-MWI is an "extra cheese" option not a "no pizza" case
 
-Alan
-
+Thiemo

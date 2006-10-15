@@ -1,38 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWJOWfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWJOWn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161195AbWJOWfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 18:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWJOWfW
+	id S932162AbWJOWn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 18:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWJOWn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 18:35:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26603 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161195AbWJOWfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 18:35:21 -0400
-Subject: Re: privilege levels and kernel mode
+	Sun, 15 Oct 2006 18:43:57 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6842 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932162AbWJOWn4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 18:43:56 -0400
+Subject: Re: [WATCHDOG] v2.6.19 watchdog patches - part 3
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
-References: <20061015191716.15283.qmail@web27401.mail.ukl.yahoo.com>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Andrew Victor <andrew@sanpeople.com>,
+       Jean Delvare <khali@linux-fr.org>, Jeff Garzik <jeff@garzik.org>,
+       Arnaud Patard <arnaud.patard@rtp-net.org>,
+       Amol Lad <amol@verismonetworks.com>, Samuel Tardieu <sam@rfc1149.net>,
+       Marcus Junker <junker@anduras.de>, Sven Anders <anders@anduras.de>
+In-Reply-To: <20061015174146.GA2559@infomag.infomag.iguana.be>
+References: <20061015174146.GA2559@infomag.infomag.iguana.be>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 00:02:09 +0100
-Message-Id: <1160953329.5732.91.camel@localhost.localdomain>
+Date: Mon, 16 Oct 2006 00:08:13 +0100
+Message-Id: <1160953693.5732.96.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-10-15 am 20:17 +0100, ysgrifennodd ranjith kumar:
-> I know how to include assembly instructions in a C
-> program to wtrite into "Model specific registers". But
-> that program has to be run at privilege level zero.
+Acked-by: Alan Cox <alan@redhat.com>
 
-Its more hairy than that because of SMP and handling overflows and
-according to whether you need to profile all use or your own task and so
-on. Fortunately someone has done all the hard work already - take a look
-at the oprofile support in the kernel and see if it will do what you
-need.
-
-Alan

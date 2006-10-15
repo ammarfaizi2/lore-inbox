@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWJOXWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWJOXYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWJOXWC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 19:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWJOXWB
+	id S932144AbWJOXYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 19:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJOXYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 19:22:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751250AbWJOXWA (ORCPT
+	Sun, 15 Oct 2006 19:24:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932144AbWJOXYW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 19:22:00 -0400
-Date: Sun, 15 Oct 2006 16:18:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: alan@lxorguk.ukuu.org.uk, matthew@wil.cx, val_henson@linux.intel.com,
-       netdev@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-Message-Id: <20061015161834.f96a0761.akpm@osdl.org>
-In-Reply-To: <200610151545.59477.david-b@pacbell.net>
-References: <1160161519800-git-send-email-matthew@wil.cx>
-	<20061015191631.DE49D19FEC8@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	<20061015123432.4c6b7f15.akpm@osdl.org>
-	<200610151545.59477.david-b@pacbell.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Oct 2006 19:24:22 -0400
+Message-ID: <4532C2C5.6080908@redhat.com>
+Date: Sun, 15 Oct 2006 16:22:45 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+References: <11587449471424@2ka.mipt.ru> <200610051245.03880.dada1@cosmosbay.com> <20061005105536.GA4838@2ka.mipt.ru> <200610051409.31826.dada1@cosmosbay.com> <20061005123715.GA7475@2ka.mipt.ru>
+In-Reply-To: <20061005123715.GA7475@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Oct 2006 15:45:58 -0700
-David Brownell <david-b@pacbell.net> wrote:
+Evgeniy Polyakov wrote:
+> Existing design does not allow overflow.
 
-> > In that case its interface is misdesigned, because it doesn't discriminate
-> > between "yes-it-does/no-it-doesn't" (which we don't want to report, because
-> > either is expected and legitimate) and "something screwed up", which we do
-> > want to report, because it is always unexpected.
+And I've pointed out a number of times that this is not practical at 
+best.  There are event sources which can create events which cannot be 
+coalesced into one single event as it would be required with your design.
+
+Signals are one example, specifically realtime signals.  If we do not 
+want the design to be limited from the start this approach has to be 
+thought over.
+
+
+>> So zap mmap() support completely, since it is not usable at all. We wont 
+>> discuss on it.
 > 
-> You mis-understand.  It's completely legit for the driver not to care.
-> 
-> I agree that set_mwo() should set MWI if possible, and fail cleanly
-> if it couldn't (for whatever reason).  Thing is, choosing to treat
-> that as an error must be the _driver's_ choice ... it'd be wrong to force
-> that policy into the _interface_ by forcing must_check etc.
+> Initial implementation did not have it.
+> But I was requested to do it, and it is ready now.
+> No one likes it, but no one provides an alternative implementation.
+> We are stuck.
 
-No.  If pci_set_mwi() detects an unexpected error then the driver should
-take some action: report it, recover from it, fail to load, etc.  If the
-driver fails to do any of this then it's a buggy driver.
+We need the mapped ring buffer.  The current design (before it was 
+removed) was broken but this does not mean it shouldn't be implemented. 
+  We just need more time to figure out how to implement it correctly.
 
-You, the driver author _do not know_ what pci_set_mwi() does at present, on
-all platforms, nor do you know what it does in the future.  For you the
-driver author to make assumptions about what's happening inside
-pci_set_mwi() is a layering violation.  Maybe the bridge got hot-unplugged.
- Maybe the attempt to set MWI caused some synchronous PCI error.  For
-example, take a look at the various implementations of pci_ops.read()
-around the place - various of them can fail for various reasons.  
-
-Now it could be that an appropriate solution is to make pci_set_mwi()
-return only 0 or 1, and to generate a warning from within pci_set_mwi()
-if some unexpected error happens.  In which case it is legitimate for
-callers to not check for errors.
-
-This is not a terribly important issue, and it is far from the worst case
-of missed error-checking which we have in there. 
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

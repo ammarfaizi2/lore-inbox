@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWJPCHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWJPCSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWJPCHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 22:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWJPCHQ
+	id S1751285AbWJPCSO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 22:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWJPCSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 22:07:16 -0400
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:42905 "HELO
-	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751301AbWJPCHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 22:07:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=himqnKUKbp10wspDZr8AlCM4ZVSKWpZhfMJdHdBKHVsLCqYh7W0PsGpuDjETnAKO1J1RABc1GLFi9UKWX7+FPkzs8MMAVjZu/0g4SWWzEmDY2WBaLcJhi7JMxxDQvgJkGvfe+2xiOh4P+0AWdhAgG+R68IGHrNSxk94T0eWI2ik=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] [PCI] Check that MWI bit really did get set
-Date: Sun, 15 Oct 2006 19:07:08 -0700
-User-Agent: KMail/1.7.1
-Cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       matthew@wil.cx, val_henson@linux.intel.com, netdev@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-References: <1160161519800-git-send-email-matthew@wil.cx> <17714.54766.390707.532248@cargo.ozlabs.ibm.com> <20061015181044.ec414e4f.akpm@osdl.org>
-In-Reply-To: <20061015181044.ec414e4f.akpm@osdl.org>
+	Sun, 15 Oct 2006 22:18:14 -0400
+Received: from [203.26.40.81] ([203.26.40.81]:54151 "EHLO boo.knobbits.org")
+	by vger.kernel.org with ESMTP id S1751285AbWJPCSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 22:18:13 -0400
+Message-ID: <4532EBE2.6090709@knobbits.org>
+Date: Mon, 16 Oct 2006 12:18:10 +1000
+From: "Michael (Micksa) Slade" <micksa@knobbits.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Inspiron 6000 and CPU power saving
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610151907.09991.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 October 2006 6:10 pm, Andrew Morton wrote:
+I recently discovered that my Inspiron 6000 uses about 50% more power 
+idling in linux than in windows XP.  This means its battery life is 
+about 2/3 of what it could/should be.
 
-> - A printk if something went bad
+I guessed it might be the CPU, and did some tests.  The results strongly 
+suggest as much.  These are the results I got for power consumption in 
+various situations.
 
-Where "bad" would I hope exclude cases where the device
-doesn't support MWI ... that is, the "go faster if you can"
-advice from the driver, where it isn't an error to run into
-the common case of _this_ implementation not happening to
-be able to issue MWI cycles.
+linux idle at 800MHz: 27W        
+linux idle at 1600MHz: 36W        
+linux raytracing at 800: 30W
+linux raytracing at 1600: 42W 
 
-The other cases, where something actually went wrong, would
-be reasonable for emitting KERN_ERR or KERN_WARNING messages.
+windows idle (presumably 800MHz): 16W
+windows raytracing (presumably 1600MHz): 36W
 
-- Dave
+I've tried ubuntu dapper and ubuntu edgy, and RIP 10 (rescue disk) and 
+BBC 2.1 (rescue disk), and they all appear to have the same issue.  The 
+machine's BIOS has no APM so I can't try it for comparison.
+
+I've tried noapic and "echo n > 
+/sys/module/processor/parameters/max_cstate", where n is 1 thru 4.  
+Neither appear to have any affect.
+
+I need help digging deeper.  I guess /proc/acpi/processor/CPU0/power 
+could give some insight but I'm not sure how to read the numbers.  That 
+and "learn about ACPI" is all I can figure out so far.
+
+So where to from here?  I am prepared to spend a significant amount of 
+time researching and resolving the issue, so feel free to suggest 
+reading the ACPI spec or whatever if that's what it's going to take.
+
+Mick.
 

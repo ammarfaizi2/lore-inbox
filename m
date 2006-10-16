@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWJPGSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030306AbWJPGUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWJPGSW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWJPGSW
+	id S1030306AbWJPGUx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWJPGUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:18:22 -0400
-Received: from stinky.trash.net ([213.144.137.162]:19361 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1030306AbWJPGSV
+	Mon, 16 Oct 2006 02:20:53 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:35777 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1030306AbWJPGUw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:18:21 -0400
-Message-ID: <45332429.3090000@trash.net>
-Date: Mon, 16 Oct 2006 08:18:17 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joan Raventos <jraventos@yahoo.com>
-CC: linux-kernel@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
-Subject: Re: poll problem with PF_PACKET when using PACKET_RX_RING
-References: <20061015181059.8920.qmail@web50601.mail.yahoo.com>
-In-Reply-To: <20061015181059.8920.qmail@web50601.mail.yahoo.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 02:20:52 -0400
+Date: Mon, 16 Oct 2006 09:20:49 +0300
+From: Ville Herva <vherva@vianova.fi>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Why aren't partitions limited to fit within the device?
+Message-ID: <20061016062049.GE23144@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <17710.54489.486265.487078@cse.unsw.edu.au> <20061015082921.GC22674@vianova.fi> <17714.51511.845336.721450@cse.unsw.edu.au> <20061016060227.GA3090@apps.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061016060227.GA3090@apps.cwi.nl>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joan Raventos wrote:
->>>Is this a bug in PF_PACKET? Should the socket queue be
->>>emptied by packet_set_ring (called via setsockopt when
->>>PACKET_RX_RING is used) so the above cannot happen?
->>>Should the user-space app drain the socket queue with
->>>recvfrom prior to (4) -quite unlikely in practice-?
+On Mon, Oct 16, 2006 at 08:02:27AM +0200, you [Andries Brouwer] wrote:
+> On Mon, Oct 16, 2006 at 09:50:15AM +1000, Neil Brown wrote:
+> > On Sunday October 15, vherva@vianova.fi wrote:
 > 
->
->>I guess the best way is not to bind the socket before having
->>completed setup. We could still flush the queue to make life
->>easier for userspace, not sure about that ..
+> > > I wonder if there's ever a change the kernel partition detection code could
+> > > _write_ on the disk, even when there's really no partition table?
+> > 
+> > No, kernel partition detection never writes.
 > 
-> 
-> Even w/o bind, packet_create is doing a dev_add_pack, which I think will make pkts arrive to that socket (ie. in netif_receive_skb one can see the loops over the rcu for both ptype_all and type-specific which seem match whenever !ptype->dev || ptype->dev==skb->dev).
-> 
-> Also the packet_mmap.txt doc does not mention bind, which probably is more a mechanism to closely specify a dev than to signal socket readiness.
+> There is something else that writes, however, that I have gotten complaints about.
+> (But I have not investigated.)
+> People doing forensics take a copy of a disk and want to preserve
+> that copy as-is, never changing a single bit, only looking at it.
+> But it is reported that also when a partition is mounted read-only,
+> the journaling code of ext3 will write to the journal.
 
-packet_create only calls dev_add_pack if a protocol is given.
-You can use a protocol number of 0 and then bind the socket
-after setting it up properly.
+Yes, that's (sort of) known. As in "mentioned on lkml" - perhaps even in
+some documentation.
 
-According to your description, you first used setsockopt(...,
-PACKET_RX_RING), then mmap. In that case the receive queue
-should already get flushed by packet_set_ring (about line 1710).
-How did you verify that the receive queue still contains packets?
+In this case, the fs was ext2, though, and the problem occurred even when
+the fs was never mounted and the raid device was never started.
+
+
+
+-- v -- 
+
+v@iki.fi
 

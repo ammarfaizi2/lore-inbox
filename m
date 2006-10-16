@@ -1,140 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWJPHbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbWJPHee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbWJPHbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 03:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWJPHbn
+	id S1161200AbWJPHee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 03:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWJPHee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 03:31:43 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:30179 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030321AbWJPHbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 03:31:42 -0400
-Date: Mon, 16 Oct 2006 09:31:26 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: [patch] cpu topology: consider sysfs_create_group return value
-Message-ID: <20061016073126.GA9409@osiris.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Oct 2006 03:34:34 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:36581 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1161081AbWJPHed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 03:34:33 -0400
+Date: Mon, 16 Oct 2006 11:33:49 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+Message-ID: <20061016073348.GB17735@2ka.mipt.ru>
+References: <11587449471424@2ka.mipt.ru> <200610051245.03880.dada1@cosmosbay.com> <20061005105536.GA4838@2ka.mipt.ru> <200610051409.31826.dada1@cosmosbay.com> <20061005123715.GA7475@2ka.mipt.ru> <4532C2C5.6080908@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4532C2C5.6080908@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 16 Oct 2006 11:33:50 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On Sun, Oct 15, 2006 at 04:22:45PM -0700, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >Existing design does not allow overflow.
+> 
+> And I've pointed out a number of times that this is not practical at 
+> best.  There are event sources which can create events which cannot be 
+> coalesced into one single event as it would be required with your design.
+> 
+> Signals are one example, specifically realtime signals.  If we do not 
+> want the design to be limited from the start this approach has to be 
+> thought over.
 
-[patch] cpu topology: consider sysfs_create_group return value.
+The whole idea of mmap buffer seems to be broken, since those who asked
+for creation do not like existing design and do not show theirs...
 
-Take return value of sysfs_create_group() into account. That function got
-called in case of CPU_ONLINE notification. Since callbacks are not allowed
-to fail on CPU_ONLINE notification do the sysfs group creation on
-CPU_UP_PREPARE notification.
-Also remember if creation succeeded in a bitmask. So it's possible to know
-wether it's legal to call sysfs_remove_group or not.
+According to signals and possibility to overflow in existing ring buffer
+implementation.
+You seems to not checked the code - each event can be marked as ready 
+only one time, which means only one copy and so on.
+It was done _specially_. And it is not limitation, but "new" approach.
+Queue of the same signals or any other events has fundamental flawness
+(as any other ring buffer implementation, which has queue size)  -
+it's size of the queue and extremely bad case of the overflow.
+So, the same event may not be ready several times. Any design which
+allows to create infinite number of events generated for the same case
+is broken, since consumer can be in situation, when it can not handle
+that flow. That is why poll() returns only POLLIN when data is ready in
+network stack, but is not trying to generate some kind of a signal for 
+each byte/packet/MTU/MSS received.
+RT signals have design problems, and I will not repeate the same error
+with similar limits in kevent.
 
-In addition some other minor stuff:
+> >>So zap mmap() support completely, since it is not usable at all. We wont 
+> >>discuss on it.
+> >
+> >Initial implementation did not have it.
+> >But I was requested to do it, and it is ready now.
+> >No one likes it, but no one provides an alternative implementation.
+> >We are stuck.
+> 
+> We need the mapped ring buffer.  The current design (before it was 
+> removed) was broken but this does not mean it shouldn't be implemented. 
+>  We just need more time to figure out how to implement it correctly.
 
-- since CPU_UP_PREPARE might fail add CPU_UP_CANCELED handling as well.
-- use hotcpu_notifier instead of register_hotcpu_notifier.
-- #ifdef code that isn't needed in the !CONFIG_HOTPLUG_CPU case.
+In the latest patchset it was removed. I'm waiting for your code.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+Mmap implementation can be added separately, since it does not affect
+kevent core.
 
- drivers/base/topology.c |   56 +++++++++++++++++++++++++++---------------------
- 1 file changed, 32 insertions(+), 24 deletions(-)
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
-Index: linux-2.6/drivers/base/topology.c
-===================================================================
---- linux-2.6.orig/drivers/base/topology.c
-+++ linux-2.6/drivers/base/topology.c
-@@ -94,55 +94,63 @@ static struct attribute_group topology_a
- 	.name = "topology"
- };
- 
-+static cpumask_t topology_dev_map = CPU_MASK_NONE;
-+
- /* Add/Remove cpu_topology interface for CPU device */
--static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
-+static int __cpuinit topology_add_dev(unsigned int cpu)
- {
--	sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
--	return 0;
-+	int rc;
-+	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
-+
-+	rc = sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
-+	if (!rc)
-+		cpu_set(cpu, topology_dev_map);
-+	return rc;
- }
- 
--static int __cpuinit topology_remove_dev(struct sys_device * sys_dev)
-+#ifdef CONFIG_HOTPLUG_CPU
-+static void __cpuinit topology_remove_dev(unsigned int cpu)
- {
-+	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
-+
-+	if (!cpu_isset(cpu, topology_dev_map))
-+		return;
-+	cpu_clear(cpu, topology_dev_map);
- 	sysfs_remove_group(&sys_dev->kobj, &topology_attr_group);
--	return 0;
- }
- 
- static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
--		unsigned long action, void *hcpu)
-+					   unsigned long action, void *hcpu)
- {
- 	unsigned int cpu = (unsigned long)hcpu;
--	struct sys_device *sys_dev;
-+	int rc = 0;
- 
--	sys_dev = get_cpu_sysdev(cpu);
- 	switch (action) {
--	case CPU_ONLINE:
--		topology_add_dev(sys_dev);
-+	case CPU_UP_PREPARE:
-+		rc = topology_add_dev(cpu);
- 		break;
-+	case CPU_UP_CANCELED:
- 	case CPU_DEAD:
--		topology_remove_dev(sys_dev);
-+		topology_remove_dev(cpu);
- 		break;
- 	}
--	return NOTIFY_OK;
-+	return rc ? NOTIFY_BAD : NOTIFY_OK;
- }
--
--static struct notifier_block __cpuinitdata topology_cpu_notifier =
--{
--	.notifier_call = topology_cpu_callback,
--};
-+#endif
- 
- static int __cpuinit topology_sysfs_init(void)
- {
--	int i;
-+	int cpu;
-+	int rc;
- 
--	for_each_online_cpu(i) {
--		topology_cpu_callback(&topology_cpu_notifier, CPU_ONLINE,
--				(void *)(long)i);
-+	for_each_online_cpu(cpu) {
-+		rc = topology_add_dev(cpu);
-+		if (rc)
-+			return rc;
- 	}
--
--	register_hotcpu_notifier(&topology_cpu_notifier);
-+	hotcpu_notifier(topology_cpu_callback, 0);
- 
- 	return 0;
- }
- 
- device_initcall(topology_sysfs_init);
--
+-- 
+	Evgeniy Polyakov

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWJPUGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWJPUGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWJPUGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 16:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWJPUGZ
+	id S1750801AbWJPUGK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 16:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWJPUGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 16:06:25 -0400
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:33351 "EHLO
-	outbound2-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1750802AbWJPUGX convert rfc822-to-8bit (ORCPT
+	Mon, 16 Oct 2006 16:06:09 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:9379 "EHLO pasmtpA.tele.dk")
+	by vger.kernel.org with ESMTP id S1750801AbWJPUGH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 16:06:23 -0400
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
- update pos for vector and offset
-Date: Mon, 16 Oct 2006 12:52:06 -0700
-Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6E7@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
- update pos for vector and offset
-Thread-Index: AcbxW4Z8fHFBx7NIT4Oq9CwtrR+eYwAADPqA
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: ebiederm@xmission.com
-cc: "Andi Kleen" <ak@muc.de>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-X-OriginalArrivalTime: 16 Oct 2006 19:52:06.0961 (UTC)
- FILETIME=[8F455A10:01C6F15C]
-X-WSS-ID: 692D39910C44653950-07-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Mon, 16 Oct 2006 16:06:07 -0400
+Date: Mon, 16 Oct 2006 22:06:06 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nicholas Miell <nmiell@comcast.net>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Sam Ravnborg <sam@uranus.ravnborg.org>
+Subject: Re: [build bug] x86_64, -git: Error: unknown pseudo-op: `.cfi_signal_frame'
+Message-ID: <20061016200606.GB32232@uranus.ravnborg.org>
+References: <20061016061037.GA12020@elte.hu> <1160980603.2388.9.camel@entropy> <20061016063602.GA4392@elte.hu> <20061016064300.GA5839@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061016064300.GA5839@elte.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->So to get things going making TARGET_CPUS cpu_online_map looks like
->the right thing to do.
+On Mon, Oct 16, 2006 at 08:43:00AM +0200, Ingo Molnar wrote:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > Note that i override 'CC' instead of specifying a 'CROSS' prefix. I 
+> > suspect this means as-instr does not switch over to the 
+> > cross-environment and thus mis-detected the gas version?
+> 
+> this did not solve it either - it seems if both CROSS and CC are set 
+> then CC overrides it and CROSS is ignored? Removing the CC override 
+> solved the problem. But how do i insert the 'distcc' that way? Seems 
+> like a Kbuild breakage to me.
 
-Yes. but need to other reference to TARGET_CPUS to verify...it doesn't
-break sth.
+I will try to take a look when I'm back from vacation.
+In few hours I'm leaving of for France for 8 days with the family.
+If someone else beats me why I'm away it would be fine!
 
->My question is are your io_apics pci devices?  Not does the kernel
->have them.
-
-Yes, I'm testing with 32 amd8132 in the simulator. Or forget about about
-ioapic, and use MSI, and HT-irq directly...?
-
->There are a lot of ways we can approach assigning irqs to cpus and
-there
->is a lot of work there.  I think Adrian Bunk has been doing some work
->with the user space irq balancer, and should probably be involved.
-
-Right. We need only do needed in kernel space, and leave most to irq
-balancer.
-
-YH
-
-
-
-
-
+	Sam

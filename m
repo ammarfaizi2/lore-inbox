@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWJPOg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWJPOja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWJPOg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJPOg5
+	id S932098AbWJPOja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWJPOja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:36:57 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:19175 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750751AbWJPOg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:36:56 -0400
-From: Andi Kleen <ak@suse.de>
-To: eranian@hpl.hp.com
-Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
-Date: Mon, 16 Oct 2006 16:36:52 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161208.13628.ak@suse.de> <20061016141342.GF15540@frankl.hpl.hp.com>
-In-Reply-To: <20061016141342.GF15540@frankl.hpl.hp.com>
+	Mon, 16 Oct 2006 10:39:30 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:31499 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932098AbWJPOja
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:39:30 -0400
+Date: Mon, 16 Oct 2006 10:39:28 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 0/3] Driver core: Some probing changes
+In-Reply-To: <20061016104407.0fc87c4c@gondolin.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610161036120.7103-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610161636.52721.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Oct 2006, Cornelia Huck wrote:
 
-> With the original code, the number of callbacks you see for IDLE_START and
-> IDLE_STOP is not too obvious.
+> Hi,
 > 
-> On an idle system Opteron 250 with HZ=250, one would expect to see for a 10s duration:
-> 	- for CPU0      : IDLE_START = IDLE_STOP = about 5000 calls
-> 	- for other CPUs: IDLE_START = IDLE_STOP = about 2500  calls
+> the following patches attempt to fix some issues in the current device
+> probing code:
+> 
+> [1/3] Don't stop probing on ->probe errors.
+> [2/3] Change function call order in device_bind_driver().
+> [3/3] Per-subsystem multithreaded probing.
+> 
+> Patches are against -gkh tree. Works for me on s390 and on i386 with
+> pci multithreaded probing enabled. (I also enabled multithreaded
+> probing on the css and ccw busses in order to test the code on s390,
+> but this doesn't make much sense since we already do async device
+> recognition, so I'm not sending a patch.)
 
-Yes.
+Your patch 2 looks fine.
 
-> With the original code, you get the following number of calls:
-> 
-> CPU0.IDLE_START = 44 (enter_idle)
-> CPU0.IDLE_STOP  = 5206 (exit_idle)
-> 
-> CPU1.IDLE_START = 27 (enter_idle)
-> CPU1.IDLE_STOP  = 2528 (exit_idle)
-> 
-> Now, of course, you may get "batched" interrupts where you do not return to idle
-> before you process the next interrupt. But the difference seems quite high here.
+Patch 1 is somewhat questionable.  Certainly the log message reporting the
+error should be left in.  The other issue is whether to continue with
+probing other drivers.  I guess there's no reason not to; stopping short
+was merely an optimization.
 
-Shouldn't happen for timer interrupts.
-> 
-> Do you have an explanation for this?
+I'll discuss patch 3 in a separate message.
 
-Hmm, the last time I fixed this when you complained (post .18) i added a counter for 
-entry/exit and verified that it was balanced. I haven't rechecked since then.
-I don't know why your numbers are off. You're using the latest git tree, right?
- 
--Andi
+Alan Stern
 

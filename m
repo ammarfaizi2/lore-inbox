@@ -1,39 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWJPM6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWJPNAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWJPM6R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 08:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWJPM6R
+	id S1750724AbWJPNAr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 09:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWJPNAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 08:58:17 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:49034 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1750706AbWJPM6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 08:58:16 -0400
-Message-Id: <45339E57.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 16 Oct 2006 14:59:35 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Jiri Kosina" <jikos@jikos.cz>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with
-	dibx000 DVB - input tree merge plans?
-References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
- <200610161231.30705.ak@suse.de> <4533991C.76E4.0078.0@novell.com>
- <Pine.LNX.4.64.0610161443010.29022@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0610161443010.29022@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 16 Oct 2006 09:00:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22664 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750724AbWJPNAq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 09:00:46 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] FRV: Use the correct preemption primitives in kmap_atomic() and co
+Date: Mon, 16 Oct 2006 14:00:23 +0100
+To: torvalds@osdl.org, akpm@osdl.org, a.p.zijlstra@chello.nl
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Message-Id: <20061016130023.27890.47357.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Yes, it was compiled using gcc 4.0.2, specifically gcc (GCC) 4.0.2 
->20051125 (Red Hat 4.0.2-8). I can easily reproduce this, what additional 
->information do you need? Or should I just try with newer gcc?
+From: David Howells <dhowells@redhat.com>
 
-Two possible paths:
-a) Try with gcc 4.1.x.
-b) Send me the offending .o (presumably the one containing dibusb_dib3000mc_tuner_attach)
+Use inc/dec_preempt_count() rather than preempt_enable/disable() and manually
+add in the compiler barriers that were provided by the latter.  This makes FRV
+consistent with other archs.
 
-Jan
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ include/asm-frv/highmem.h |   27 ++++++++++++++-------------
+ 1 files changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/include/asm-frv/highmem.h b/include/asm-frv/highmem.h
+index e2247c2..0f390f4 100644
+--- a/include/asm-frv/highmem.h
++++ b/include/asm-frv/highmem.h
+@@ -82,11 +82,11 @@ ({												\
+ 	dampr = paddr | xAMPRx_L | xAMPRx_M | xAMPRx_S | xAMPRx_SS_16Kb | xAMPRx_V;		\
+ 												\
+ 	if (type != __KM_CACHE)									\
+-		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr));				\
++		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr) : "memory");			\
+ 	else											\
+ 		asm volatile("movgs %0,iampr"#ampr"\n"						\
+ 			     "movgs %0,dampr"#ampr"\n"						\
+-			     :: "r"(dampr)							\
++			     :: "r"(dampr) : "memory"						\
+ 			     );									\
+ 												\
+ 	asm("movsg damlr"#ampr",%0" : "=r"(damlr));						\
+@@ -104,7 +104,7 @@ ({												  \
+ 	asm volatile("movgs %0,tplr \n"								  \
+ 		     "movgs %1,tppr \n"								  \
+ 		     "tlbpr %0,gr0,#2,#1"							  \
+-		     : : "r"(damlr), "r"(dampr));						  \
++		     : : "r"(damlr), "r"(dampr) : "memory");					  \
+ 												  \
+ 	/*printk("TLB: SECN sl=%d L=%08lx P=%08lx\n", slot, damlr, dampr);*/			  \
+ 												  \
+@@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
+ {
+ 	unsigned long paddr;
+ 
+-	preempt_disable();
++	inc_preempt_count();
+ 	paddr = page_to_phys(page);
+ 
+ 	switch (type) {
+@@ -138,16 +138,16 @@ static inline void *kmap_atomic(struct p
+ 	}
+ }
+ 
+-#define __kunmap_atomic_primary(type, ampr)			\
+-do {								\
+-	asm volatile("movgs gr0,dampr"#ampr"\n");		\
+-	if (type == __KM_CACHE)					\
+-		asm volatile("movgs gr0,iampr"#ampr"\n");	\
++#define __kunmap_atomic_primary(type, ampr)				\
++do {									\
++	asm volatile("movgs gr0,dampr"#ampr"\n" ::: "memory");		\
++	if (type == __KM_CACHE)						\
++		asm volatile("movgs gr0,iampr"#ampr"\n" ::: "memory");	\
+ } while(0)
+ 
+-#define __kunmap_atomic_secondary(slot, vaddr)			\
+-do {								\
+-	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr));	\
++#define __kunmap_atomic_secondary(slot, vaddr)				\
++do {									\
++	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr) : "memory");	\
+ } while(0)
+ 
+ static inline void kunmap_atomic(void *kvaddr, enum km_type type)
+@@ -170,7 +170,8 @@ static inline void kunmap_atomic(void *k
+ 	default:
+ 		BUG();
+ 	}
+-	preempt_enable();
++	dec_preempt_count();
++	preempt_check_resched();
+ }
+ 
+ #endif /* !__ASSEMBLY__ */

@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWJPK5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWJPK5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751503AbWJPK5S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 06:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWJPK5S
+	id S1751504AbWJPK5u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 06:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWJPK5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 06:57:18 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:59817 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S1751503AbWJPK5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 06:57:17 -0400
-Message-ID: <4533658A.5030105@dunaweb.hu>
-Date: Mon, 16 Oct 2006 12:57:14 +0200
-From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Mon, 16 Oct 2006 06:57:50 -0400
+Received: from 120.eimlf01.mxsweep.com ([82.195.154.120]:22026 "EHLO
+	red.mxsweep.com") by vger.kernel.org with ESMTP id S1751498AbWJPK5t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 06:57:49 -0400
+Message-ID: <45336569.5040108@draigBrady.com>
+Date: Mon, 16 Oct 2006 11:56:41 +0100
+From: =?ISO-8859-1?Q?P=E1draig_Brady?= <P@draigBrady.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Prakash Punnoor <prakash@punnoor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there a way to limit VFAT allocation?
-References: <4533598A.3040909@dunaweb.hu> <200610161225.33190.prakash@punnoor.de>
-In-Reply-To: <200610161225.33190.prakash@punnoor.de>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Joan Raventos <jraventos@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: poll problem with PF_PACKET when using PACKET_RX_RING
+References: <20061014214328.25873.qmail@web50614.mail.yahoo.com>
+In-Reply-To: <20061014214328.25873.qmail@web50614.mail.yahoo.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
+X-Mlf-Version: 5.0.0.8233
+X-Mlf-UniqueId: o200610161058370150973
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash Punnoor írta:
-> Am Montag 16 Oktober 2006 12:06 schrieb Zoltan Boszormenyi:
->   
->> Is there a way to tell the VFAT driver to exclude
->> the last N sectors from the allocation strategy?
->>     
+Joan Raventos wrote:
+> Hello,
 >
-> Can't you mark that clusters as bad with a diskeditor?
->   
+> In order to use PF_PACKET/SOCK_RAW with PACKET_RX_RING
+> one would possibly do (as described in
+> Documentation/networking/packet_mmap.txt):
+> 1. setup PF_PACKET socket via socket call.
+> 2. use setsockopt to change the PF_PACKET socket into
+> PACKET_RX_RING mode and alloc the ring.
+> 3. mmap the ring.
+> 4. use poll with the socket descriptor and then
+> directly access the pkts from the mmaped ring.
 
-Can you suggest one that works on Linux?
-Or which bits should I change if I use LDE?
-(lde.sourceforge.net)
+A few years back I developed a network sniffer
+on 2.4.20 using PACKET_MMAP supporting very high packet rates.
+When testing with high packet rates, invariably if traffic
+was present while the buffers were being setup, the buffer data
+would be corrupted. I worked around it by ensuring no packets went
+into the stack before the userspace process sniffing the packets was started.
+
+Pádraig.

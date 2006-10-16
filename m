@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422929AbWJPXbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422933AbWJPXhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422929AbWJPXbO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 19:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWJPXaq
+	id S1422933AbWJPXhi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 19:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWJPXhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 19:30:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41415 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422929AbWJPXaU (ORCPT
+	Mon, 16 Oct 2006 19:37:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43669 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750805AbWJPXhh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 19:30:20 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 17 Oct 2006 09:30:15 +1000
-Message-Id: <1061016233015.11330@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 5] knfsd: nfsd4: fix open permission checking
-References: <20061017092702.11224.patches@notabene>
+	Mon, 16 Oct 2006 19:37:37 -0400
+Date: Mon, 16 Oct 2006 16:37:33 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Will Schmidt <will_schmidt@vnet.ibm.com>
+cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <1161031821.31903.28.camel@farscape>
+Message-ID: <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+References: <1160764895.11239.14.camel@farscape> 
+ <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com> 
+ <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape> 
+ <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com> 
+ <1161026409.31903.15.camel@farscape>  <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+ <1161031821.31903.28.camel@farscape>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Oct 2006, Will Schmidt wrote:
 
-From: "J. Bruce Fields" <bfields@fieldses.org>
-We weren't actually checking for SHARE_ACCESS_WRITE, with the result that
-the owner could open a non-writeable file for write!
+> This is output from 2.6.18-rc2.   MemFree, MemTotal, MemUsed still
+> wrong.  Node0 slab is still zero.  I've also attached the numa=debug
+> boot log from this boot, in case it has any clues that were missing from
+> the other boot log. 
 
-Continue to allow DENY_WRITE only with write access.
+It looks as if node 0 is allready full on bootup. The new code in 2.6.19 
+controls locality in a more strict form in the slab. 2.6.18 and earlier 
+were able to tolerate if a request for a page from the slab allocator for 
+node 0 returns memory on node1 even if node 1 has not been bootstrapped 
+yet. But this resulted in a problem in the slab because the node lists 
+dedicated for node 0 now had memory from node 1 in it (which led to 
+latency problems since slab code subsequently assumes that node local 
+memory is very fast, which with corrupted per node lists is no longer 
+true.).
 
-Thanks to Jim Rees for reporting the bug.
+You must bootstrap on a node that has memory available. If you would 
+bootstrap the slab on node 1 that would work.
 
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
-Signed-off-by: Neil Brown <neilb@suse.de>
+> Node 0 MemTotal:       229376 kB
+> Node 0 MemUsed:        229376 kB
 
-### Diffstat output
- ./fs/nfsd/nfs4proc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+^^^^^ This node should not be full!!!
 
-diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
---- .prev/fs/nfsd/nfs4proc.c	2006-10-17 09:02:26.000000000 +1000
-+++ ./fs/nfsd/nfs4proc.c	2006-10-17 09:04:13.000000000 +1000
-@@ -78,8 +78,10 @@ do_open_permission(struct svc_rqst *rqst
- 
- 	if (open->op_share_access & NFS4_SHARE_ACCESS_READ)
- 		accmode |= MAY_READ;
--	if (open->op_share_deny & NFS4_SHARE_ACCESS_WRITE)
-+	if (open->op_share_access & NFS4_SHARE_ACCESS_WRITE)
- 		accmode |= (MAY_WRITE | MAY_TRUNC);
-+	if (open->op_share_deny & NFS4_SHARE_DENY_WRITE)
-+		accmode |= MAY_WRITE;
- 
- 	status = fh_verify(rqstp, current_fh, S_IFREG, accmode);
- 
+Increase memory on node 0 so that the slab can bootstrap.
+

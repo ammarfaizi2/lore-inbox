@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWJPP4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWJPP5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWJPP4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 11:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWJPP4b
+	id S1161011AbWJPP5S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 11:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbWJPP5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 11:56:31 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:32527 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932138AbWJPP4a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 11:56:30 -0400
-Date: Mon, 16 Oct 2006 11:56:29 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-cc: Duncan Sands <duncan.sands@math.u-psud.fr>, Greg K-H <greg@kroah.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/3] Driver core: Per-subsystem multithreaded probing.
-In-Reply-To: <20061016172631.47d3eb70@gondolin.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0610161135050.7648-100000@iolanthe.rowland.org>
+	Mon, 16 Oct 2006 11:57:18 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:12817 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1161014AbWJPP5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 11:57:17 -0400
+Message-ID: <4533ABB3.1070104@shadowen.org>
+Date: Mon, 16 Oct 2006 16:56:35 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: "Martin J. Bligh" <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1
+References: <20061010000928.9d2d519a.akpm@osdl.org> <452D4BF0.20209@google.com> <452D6921.5010300@us.ibm.com>
+In-Reply-To: <452D6921.5010300@us.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006, Cornelia Huck wrote:
-
-> On Mon, 16 Oct 2006 10:59:28 -0400 (EDT),
-> Alan Stern <stern@rowland.harvard.edu> wrote:
+Badari Pulavarty wrote:
+> Martin J. Bligh wrote:
+>> Andrew Morton wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/
+>>>
+>>>
+>>>
+>>>
+>>>   
+>> fsx seems to fail now, across several different machines.
+>>
+>> http://test.kernel.org/functional/index.html
+>>
+>>
+>> and drill down under "regression" on the failing ones.
+>>
+>> eg, see end of
+>> http://test.kernel.org/abat/54516/debug/test.log.1 (i386)
+>> and
+>> http://test.kernel.org/abat/54503/debug/test.log.1 (x86_64)
+>>
 > 
-> > That's not quite true.  You could acquire dev->parent->sem always, just to
-> > be certain.  
-> 
-> But dev->parent->sem wouldn't be taken in the non-multithreaded path,
-> so we would change the semantics.
+> I am seeing fsx failures on 1k/2k ext3 filesystems, but not on 4k.
+> Do you know the filesystem type & blocksize ?
 
-You would only be changing it for the multithreaded path, which itself is 
-very new.  But this is all hypothetical anyway...
+Ok.  I've been poking at these results to try and get you these answers.
+ In the process I noted that the benchmark was recently reviewed and
+overhauled.  Looking at the changes it looks like we are now reporting
+the results from some tests which are backgrounded for additional load,
+which would not have previously been reported.  So this might not be a
+new phenomenon.  We have some stable tests coming through now, so I
+should be able to use them as a reference to be sure.
+
+Here are the ones which are failing currently, note that the 139 at the
+start is the exit status as reported by the shell, so SIGSEGV:
+
+bl6-13: x86_64 ext3
+-------------------
+139 ./fsx-linux -l 500000 -r 4096 -t 2048 -w 2048 -Z -R -W -N 10000
+test/junkfile
+139 ./fsx-linux -N 10000 -o 128000 -A -l 500000 -r 512 -t 4096 -w 1024
+-Z -R -W test/junkfile
 
 
-> > Some other things were left out of the patch.  Since we can no longer know 
-> > whether any drivers will get bound at all, device_attach() should now 
-> > return void.
-> 
-> But device_bind_driver() may still return an error, if creating the
-> links failed.
+elm3b239: x86_64 reiserfs
+-------------------------
+139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 2048 -Z
+-R -W test/junkfile
+139 ./fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W test/junkfile
+139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 1024 -Z
+-R -W test/junkfile
 
-So the question is what do do if someone calls device_register() or
-device_add() with dev->driver set.  If everything succeeds except for
-creation of the symlinks, should the device remain registered?  The driver
-core has been vacillating about this recently.  I'm not sure what the 
-right answer is.
+I have also seen the following style messages on 19-rc1-mm1:
 
-However the kerneldoc for device_attach() should be updated to mention
-that when multithreaded probing is used, a driver might end up getting
-bound even though the return value is 0.
+short write: 0x15000 bytes instead of 0xf000
 
-Alan Stern
+Note that this really does mean a _long_ write!
 
-P.S.: If you initialize probe_task to ERR_PTR(-ENOMEM) or something 
-similar, then you could eliminate one of the calls to bus_for_each_drv() 
-in device_attach().
-
+-apw

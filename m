@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWJPOok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWJPOzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWJPOok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWJPOok
+	id S932106AbWJPOzK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWJPOzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:44:40 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:44002 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S932097AbWJPOoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:44:39 -0400
-Date: Mon, 16 Oct 2006 07:44:17 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
-Message-ID: <20061016144417.GG15540@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161208.13628.ak@suse.de> <20061016141342.GF15540@frankl.hpl.hp.com> <200610161636.52721.ak@suse.de>
+	Mon, 16 Oct 2006 10:55:10 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:22749 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932106AbWJPOzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:55:09 -0400
+Date: Mon, 16 Oct 2006 10:53:37 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] make UML copmile
+Message-ID: <20061016145337.GD4350@ccure.user-mode-linux.org>
+References: <200610151903.k9FJ3mHG016757@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610161636.52721.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+In-Reply-To: <200610151903.k9FJ3mHG016757@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 04:36:52PM +0200, Andi Kleen wrote:
+On Sun, Oct 15, 2006 at 03:03:48PM -0400, Ulrich Drepper wrote:
+> I need this patch to get a UML kernel to compile.  This is with the kernel
+> headers in FC6 which are automatically generated from the kernel tree.
+> Some headers are missing but those files don't need them.  At least it
+> appears so since the resuling kernel works fine.
 > 
-> > With the original code, the number of callbacks you see for IDLE_START and
-> > IDLE_STOP is not too obvious.
-> > 
-> > On an idle system Opteron 250 with HZ=250, one would expect to see for a 10s duration:
-> > 	- for CPU0      : IDLE_START = IDLE_STOP = about 5000 calls
-> > 	- for other CPUs: IDLE_START = IDLE_STOP = about 2500  calls
-> 
-> Yes.
-> 
-> > With the original code, you get the following number of calls:
-> > 
-> > CPU0.IDLE_START = 44 (enter_idle)
-> > CPU0.IDLE_STOP  = 5206 (exit_idle)
-> > 
-> > CPU1.IDLE_START = 27 (enter_idle)
-> > CPU1.IDLE_STOP  = 2528 (exit_idle)
-> > 
-> > Now, of course, you may get "batched" interrupts where you do not return to idle
-> > before you process the next interrupt. But the difference seems quite high here.
-> 
-> Shouldn't happen for timer interrupts.
-> > 
-> > Do you have an explanation for this?
-> 
-> Hmm, the last time I fixed this when you complained (post .18) i added a counter for 
-> entry/exit and verified that it was balanced. I haven't rechecked since then.
-> I don't know why your numbers are off. You're using the latest git tree, right?
->  
-No, I am still using 2.6.18. I saw your change in git (thanks for that). I need to try
-with this tree and see what happens.
+> Tested on x86-64.
 
-Thanks.
+Acked-by: Jeff Dike <jdike@addtoit.com>
 
--- 
--Stephane
+Thanks, Ulrich.
+
+				Jeff

@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWJPWXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422855AbWJPW3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422657AbWJPWXB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 18:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422819AbWJPWXB
+	id S1422855AbWJPW3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 18:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWJPW3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 18:23:01 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:9386 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1422657AbWJPWW5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 18:22:57 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC] Avoid PIT SMP lockups
-Date: Tue, 17 Oct 2006 01:21:51 +0300
-User-Agent: KMail/1.9.5
-Cc: Gerd Hoffmann <kraxel@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-References: <1160170736.6140.31.camel@localhost.localdomain> <200610121045.32846.caglar@pardus.org.tr> <453404F6.5040202@vmware.com>
-In-Reply-To: <453404F6.5040202@vmware.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3124888.ifulkLzXIf";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 16 Oct 2006 18:29:07 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:24779 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422855AbWJPW3F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 18:29:05 -0400
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+	configfs
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, menage@google.com,
+       matthltc@us.ibm.com, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20061016133256.e09e76ac.pj@sgi.com>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	 <20061010203511.GF7911@ca-server1.us.oracle.com>
+	 <6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	 <20061010215808.GK7911@ca-server1.us.oracle.com>
+	 <1160527799.1674.91.camel@localhost.localdomain>
+	 <20061011012851.GR7911@ca-server1.us.oracle.com>
+	 <20061011223927.GA29943@kroah.com> <1160609160.6389.80.camel@linuxchandra>
+	 <20061012235127.GA15767@kroah.com> <1161025825.6389.119.camel@linuxchandra>
+	 <20061016133256.e09e76ac.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 16 Oct 2006 15:29:01 -0700
+Message-Id: <1161037741.5057.2.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610170121.51492.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3124888.ifulkLzXIf
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 2006-10-16 at 13:32 -0700, Paul Jackson wrote:
 
-17 Eki 2006 Sal 01:17 tarihinde, Zachary Amsden =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> My nasty quick patch might not apply - the only tree I've got is a very
-> hacked 2.6.18-rc6-mm1+local-patches thing, but the fix should be obvious
-> enough.
+<snip>
 
-Ok, I'll test and report back...
+> Chandra - I haven't looked at seq file lately - could a user of it
+> such as configfs impose a length limit of its choosing, building on
 
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+Quick look at the seq_file interfaces shows there is no such capability.
+(disclaimer: I am no expert of seq_file :)
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+> your patch, without pushing the number of lines of code back above
+> where it started?
+> 
+> Perhaps, say, we would let the callback routines could push stuff into
+> a seq file without small limits, but then the configfs code could
+> truncate that output to a limit of its choosing.  This would impose a
+> length limit, safely.
+> 
+-- 
 
---nextPart3124888.ifulkLzXIf
-Content-Type: application/pgp-signature
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFNAX/y7E6i0LKo6YRAu1sAJ4pNEGtm9N7L9eCTJOW1zx97jW2DQCgtwYB
-DBRxEWh2oyY/nYMFfByjGzs=
-=jCwI
------END PGP SIGNATURE-----
-
---nextPart3124888.ifulkLzXIf--

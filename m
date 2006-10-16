@@ -1,40 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWJPU05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWJPUaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWJPU05 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 16:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWJPU05
+	id S1161026AbWJPUaX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 16:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWJPUaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 16:26:57 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:14329 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161038AbWJPU04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 16:26:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:from:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent;
-        b=S8ELAiyrutyGLgWlO22xcTFgvGS4BD9TPsZ0IBvnfOmzUfy1PihGGfnBq1f4kgTkFep1Ze4S5ZiQyCEPkzwj/FfkJDd0kouPTo0UcAEC0ZiOXTNgp6AdTyjxNZ82efUcnz5LQO+633k9LNMduHYj9Q98Zb3vXlfm/cZG94oc18w=
-Date: Mon, 16 Oct 2006 15:26:45 -0500
-To: "Kyle Moffett" <mrmacman_g4@mac.com>
-Subject: Re: copy_from_user / copy_to_user with no swap space
-From: mfbaustx <mfbaustx@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+	Mon, 16 Oct 2006 16:30:22 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:51927 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1161026AbWJPUaV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 16:30:21 -0400
+From: "=?iso-8859-9?q?S=2E=C7a=F0lar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: Ondemand/Conservative not working with 2.6.18
+Date: Mon, 16 Oct 2006 23:29:17 +0300
+User-Agent: KMail/1.9.5
+Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org
+References: <EB12A50964762B4D8111D55B764A8454BA3D91@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454BA3D91@scsmsx413.amr.corp.intel.com>
 MIME-Version: 1.0
-References: <op.thi3x1mvnwjy9v@titan> <B72905BB-6E8D-47FD-9A20-269B27136DB2@mac.com>
+Content-Type: multipart/signed;
+  boundary="nextPart2432754.jDyiO4d1Dj";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.thi62vj9nwjy9v@titan>
-In-Reply-To: <B72905BB-6E8D-47FD-9A20-269B27136DB2@mac.com>
-User-Agent: Opera Mail/9.01 (Win32)
+Message-Id: <200610162329.17482.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> pages and memory-mapped files may be "swapped-out" even *without* a swap  
-> device.  As an example, when I first start /bin/bash (ignoring readahead
+--nextPart2432754.jDyiO4d1Dj
+Content-Type: text/plain;
+  charset="iso-8859-9"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Fair enough.  The kernel can reclaim pieces of RAM knowing that certain  
-text sections will availble on the storage medium from which they were  
-originally loaded.  Right?
+16 Eki 2006 Pts 16:08 tarihinde, Pallipadi, Venkatesh =FEunlar=FD yazm=FD=
+=FEt=FD:=20
+> Sorry for the delayed response. This is still very mysterious to me..
+>
+> Do you see anything interesting in dmesg after you try this ac adapter
+> unplug and plug back routine? Can you send me the dmesg. Better still open
+> a bugzilla at bugme.osdl.org and stick the dmesg and acpidump there.
 
-Also, I suppose one of the less obvious side-effects of using copy_to_user  
-would be to cause a copy-on-write of a data section?
+No, nothing interested and i filled a bug [1] with all related info
 
+> One possible reason for this is, somehow idle statistics is getting all
+> wrong and ondemand thinks CPU is busy, even though it is idle. I have seen
+> this happening earlier when there are issues with local APIC interrupts in
+> deep C-states on dual core systems. But, here it is a single core CPU.
+> Right? Can you also get the output of #cat /proc/interrupts; sleep 10; cat
+> /proc/interrupts
+> On your system when ondemand is not working and when it is working (After
+> your unplug-plug workaround.
+
+Hmm top show something weird;
+
+Tasks:  39 total,   1 running,  38 sleeping,   0 stopped,   0 zombie
+Cpu(s): 32.4%us, 12.4%sy,  0.0%ni, 41.1%id, 13.0%wa,  0.4%hi,  0.6%si,  0.0=
+%st
+
+There were nothing runs right that time but top reports only ~%40 idle [ful=
+l=20
+log attached to bug]
+
+[1] http://bugme.osdl.org/show_bug.cgi?id=3D7376
+=2D-=20
+S.=C7a=F0lar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
+
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart2432754.jDyiO4d1Dj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFM+udy7E6i0LKo6YRAty4AKCQ3D5eRt5zDAZLI4UsqEZEiDWGPgCglHyr
+aprZijYdEt46gsiy23q1jRk=
+=kOvY
+-----END PGP SIGNATURE-----
+
+--nextPart2432754.jDyiO4d1Dj--

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWJPOR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWJPOSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWJPOR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWJPOR4
+	id S932094AbWJPOSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWJPOSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:17:56 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:49636 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932093AbWJPORz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:17:55 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with dibx000 DVB - input tree merge plans?
-Date: Mon, 16 Oct 2006 16:17:51 +0200
-User-Agent: KMail/1.9.3
-Cc: "Jiri Kosina" <jikos@jikos.cz>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz> <Pine.LNX.4.64.0610161506570.29022@twin.jikos.cz> <4533A5A5.76E4.0078.0@novell.com>
-In-Reply-To: <4533A5A5.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 16 Oct 2006 10:18:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19104 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932094AbWJPOSF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:18:05 -0400
+Subject: Re: Would SSI clustering extensions be of interest to
+	kernelcommunity?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Constantine Gavrilov <constg@qlusters.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45339234.4050400@qlusters.com>
+References: <45337FE3.8020201@qlusters.com>
+	 <1161006841.24237.33.camel@localhost.localdomain>
+	 <45339234.4050400@qlusters.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610161617.51111.ak@suse.de>
+Date: Mon, 16 Oct 2006 15:44:50 +0100
+Message-Id: <1161009890.24237.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 October 2006 15:30, Jan Beulich wrote:
-> >>> Jiri Kosina <jikos@jikos.cz> 16.10.06 15:08 >>>
-> >On Mon, 16 Oct 2006, Jan Beulich wrote:
-> >
-> >> >Yes, it was compiled using gcc 4.0.2, specifically gcc (GCC) 4.0.2 
-> >> >20051125 (Red Hat 4.0.2-8). I can easily reproduce this, what 
-> >> >additional information do you need? Or should I just try with newer 
-> >> >gcc?
-> >> Two possible paths:
-> >> a) Try with gcc 4.1.x.
-> >
-> >Will do probably later today.
-> >
-> >> b) Send me the offending .o (presumably the one containing 
-> >> dibusb_dib3000mc_tuner_attach)
-> >
-> >You can get it from http://www.jikos.cz/jikos/junk/dibusb-common.o 
+Ar Llu, 2006-10-16 am 16:07 +0200, ysgrifennodd Constantine Gavrilov:
+> SSI intrudes kernel in two places: a) IO system calls, b ) page fault
+> code for shared memory pages.
 > 
-> Yes, unfortunately this is another instance of gcc 4.0 generating bad
-> unwind data when optimizing and not accumulating outgoing args.
-> Andi - did you already create a patch implementing Michael's suggestion?
+> a) IO system calls are "packed" and forwarded to the "home" node,
+> where original syscall code is executed. 
+> b) A hook is inserted into page fault code that brings shared memory
+> pages from other nodes when necessary.
+> 
+> Apart from these two hooks, SSI code is a "standalone" kernel API
+> add-on ("add", not "change").
+> 
+> Currently, we can do both "intrusions" from the kernel module. I
+> assume that if we submit code, you will require a kernel patch that
+> explicitly calls our hooks. 
 
-You mean using -maccumulate-outgoing-args ? Not yet.
+Yep. Thats probably the most critical single thing to review.
+> 
+> Also, continuous SSI in-kernel support may require SSI changes in the
+> following cases: a) new fields in task struct that reflect process
+> state (may affect task migration), b) changes in the page fault
+> mechanism (may effect SSI shared memory code that brings and
+> invalidates pages), c) addition of new system calls (may require
+> implementation of  SSI suspport for them).
 
-I guess we can do it unconditionally for all gccs on both i386
-and x86-64, right?
-
--Andi
+SSI changes triggered from core changes are fairly expected I think
+because you need to serialize new objects.

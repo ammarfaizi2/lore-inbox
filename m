@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWJPABE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422904AbWJPAD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbWJPABE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 20:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWJPABE
+	id S1422904AbWJPAD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 20:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWJPAD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 20:01:04 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:44470 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1030299AbWJPABB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 20:01:01 -0400
-Date: Sun, 15 Oct 2006 17:01:00 -0700 (PDT)
-From: Trent Piepho <xyzzy@speakeasy.org>
-X-X-Sender: xyzzy@shell2.speakeasy.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: Mauro Carvalho Chehab <mchehab@infradead.org>,
-       linux-dvb-maintainer@linuxtv.org,
-       Andrew de Quincey <adq_dvb@lidskialf.net>, linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH 08/18] V4L/DVB (4734): Tda826x:
- fix	frontend selection for dvb_attach
-In-Reply-To: <20061015123804.GW30596@stusta.de>
-Message-ID: <Pine.LNX.4.58.0610151647590.29589@shell2.speakeasy.net>
-References: <20061014115356.PS36551000000@infradead.org>
- <20061014120050.PS78628900008@infradead.org> <20061014121608.GN30596@stusta.de>
- <45312819.4080909@linuxtv.org> <20061014183322.GS30596@stusta.de>
- <45313306.104@linuxtv.org> <20061014191441.GU30596@stusta.de>
- <1160877306.28666.21.camel@praia> <20061015123804.GW30596@stusta.de>
+	Sun, 15 Oct 2006 20:03:27 -0400
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:63733 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1030300AbWJPAD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 20:03:26 -0400
+Message-ID: <4532CC4C.6030005@comcast.net>
+Date: Sun, 15 Oct 2006 20:03:24 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Larry Finger <Larry.Finger@lwfinger.net>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: BUG in 2.6.18.1?
+References: <4532BBDF.9010800@lwfinger.net>
+In-Reply-To: <4532BBDF.9010800@lwfinger.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Oct 2006, Adrian Bunk wrote:
-> > > To be honest and after looking deeper at it, I don't like this
-> > > CONFIG_DVB_FE_CUSTOMIZE approach at all since it adds that much
-> > > complexity for not much gain.
-> > Yes, it adds some complexity. The gain, however, is to allow having
-> > smaller kernel size on embedded systems and DVR using MythTV or Freevo.
-> > There's a similar feature for V4L (Autoselect pertinent
-> > encoders/decoders and other helper chips), that allows selecting just
-> > the needed stuff.
->
-> I understand this, but I still don't like the solution.
-> But unless I can send a patch with a better solution, this is nothing I
-> can complain about...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-There used to be a different way of selecting which front-ends get
-built/loaded, that was recently replaced with DVB_FE_CUSTOMISE.  It was
-even more complex and only worked for a few card drivers that specially
-supported it.
 
-What is nice about the new DVB_FE_CUSTOMISE way is that there is very
-little code needed.  There is a boilerplate #if in the font-end header file
-for the _attach function, and that's it.
 
-> There are two things that might be changed even now:
->
-> The "default m if DVB_FE_CUSTOMISE" is something I do not like that
-> much, especially considering that embedded users caring about kernel
-> size are likely to use CONFIG_MODULES=n.
+Larry Finger wrote:
+> Running 2.6.18.1, I got the following warning in my log:
+> 
+> Oct 15 16:24:38 larrylap kernel: BUG: warning at
+> kernel/lockdep.c:565/print_infinite_recursion_bug()
+> Oct 15 16:24:38 larrylap kernel:  [<c0103b3f>]
+> show_trace_log_lvl+0x1af/0x1d0
+> Oct 15 16:24:38 larrylap kernel:  [<c0104f4b>] show_trace+0x1b/0x20
+> Oct 15 16:24:38 larrylap kernel:  [<c0104f76>] dump_stack+0x26/0x30
+> Oct 15 16:24:38 larrylap kernel:  [<c0131099>]
+> print_infinite_recursion_bug+0x49/0x50
+> Oct 15 16:24:38 larrylap kernel:  [<c01311d5>]
+> find_usage_backwards+0x65/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
+> Oct 15 16:24:38 larrylap kernel:  [<c0131210>]
+> find_usage_backwards+0xa0/0xd0
 
-A front-end could default to the highest level of the card drivers which
-utilizes it.  I'm not sure how to express that in a Kconfig file, and it
-would be more work to maintain.  One has to go into the FE customisation
-menu to turn on DVB_FE_CUSTOMISE anyway, at which point it seems like there
-is little difference between disabling the drivers one doesn't want vs
-enabling the drivers one does.
+....
+
+Hmmm...  21 is infinite?  Interesting.
+
+I find that it would be interesting to me personally if the kernel was
+smart enough to spit out something like:
+
+Oct 15 16:24:38 larrylap kernel:  [<c0131210>] find_[...]+0xa0/0xd0
+  [21 times]
+
+(of course, with find_usage_backwards spelled out)
+
+After all, what if it's practical that a specific recursion would run
+3000 times and it gets caught at 5000 times?  ("f**king bad design")
+
+Just a pet peeve of mine though.
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRTLMSgs1xW0HCTEFAQLvmQ/+I0ya8tRmqMjzYlqHSzOT7jBP0ExCrmQo
+elC3TYyfyGL6GJwlG9MdB5Fklf4DTB7p1Wn89+tua0VgfVJp7E045qCVeoyA/74u
+vAYaw2MHS/d2wacZN9SWXyqDvE6lnTbVnU1dQXoiSXYCu8mNQAgC0H2sW14e4qrL
+OJQdNTcJ9tV7gwoIbyuGFEP4iUQvNKBqShhtjBn10bvwuX4g+AKGkkbw0P43B2ss
+9q6eoNEdfgNNQ+oCUlUr8UauuAkP633SL7Zym8AQ99KQLztne0PG6MfW5BAa6s+X
+86hW8Y/6HEbqFJWMs8O3S2aUSnEqvzV/y5DirbdOynjDFi8OdWjMDr5XG4PFuGqP
+OhCenxfW+W7YTflHnqnB7Y0cQDvhFL9JrItaBDgfL/DkqF0ThiXjwbEYiid+wRRh
+758AuYqlx6HYaHn2s1qqQSNRSuKSUj9YddvQknQgQtkq68vQsZ1v8qezwpJnmkKt
+39jSUGV6s/1NHW3VOVrC/b2VThq7JT1qFG/LNuFpjHRs39gj/MK+vTZScHMJDTJe
+0g9urF205RJPd2OgHsjhqRx0r+XaTUJtaJltpjcmC09jROTBYADWhGXP9m6lxaLE
+liQ3PiX1kePex0rWtH7dgaJMPJJKvUnLuW0w50TYoFY7R02sYseyWtxKLaU0vmaG
+w2P0InYQ00E=
+=YhSr
+-----END PGP SIGNATURE-----

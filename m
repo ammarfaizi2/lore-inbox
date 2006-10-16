@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWJPGkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWJPGk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWJPGkS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWJPGkS
+	id S1751464AbWJPGk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWJPGk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:40:18 -0400
-Received: from holoclan.de ([62.75.158.126]:31436 "EHLO mail.holoclan.de")
-	by vger.kernel.org with ESMTP id S1751397AbWJPGkQ (ORCPT
+	Mon, 16 Oct 2006 02:40:58 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:50640 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1751464AbWJPGk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:40:16 -0400
-Date: Mon, 16 Oct 2006 08:32:22 +0200
-From: Martin Lorenz <martin@lorenz.eu.org>
-To: linux-thinkpad@linux-thinkpad.org
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [ltp] Re: X60s w/t kern 2.6.19-rc1-git: two BUG warnings
-Message-ID: <20061016063222.GA5350@gimli>
-Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
-	linux-kernel@vger.kernel.org, len.brown@intel.com,
-	linux-acpi@vger.kernel.org
-References: <20061010062826.GC9895@gimli> <20061013154756.GT721@stusta.de>
-MIME-Version: 1.0
+	Mon, 16 Oct 2006 02:40:57 -0400
+Date: Mon, 16 Oct 2006 08:40:39 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Neil Brown <neilb@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Andries.Brouwer@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
+Subject: Re: Why aren't partitions limited to fit within the device?
+Message-ID: <20061016064039.GB3090@apps.cwi.nl>
+References: <17710.54489.486265.487078@cse.unsw.edu.au> <1160752047.25218.50.camel@localhost.localdomain> <17714.52626.667835.228747@cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061013154756.GT721@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian Bunk
-	wrote: > On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz wrote:
-	> > Dear kernel gurus, > > > > whatever I do and whic problem I seem to
-	get fixed new ones arise: > > > > now I loose ACPI events after
-	suspend/resume. not every time, but roughly > > 3 out of 4 times. > > >
-	> the only errornous things I see in the logs are those: > >... > >
-	Which was the last working kernel? [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+In-Reply-To: <17714.52626.667835.228747@cse.unsw.edu.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian Bunk wrote:
-> On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz wrote:
-> > Dear kernel gurus,
-> > 
-> > whatever I do and whic problem I seem to get fixed new ones arise:
-> > 
-> > now I loose ACPI events after suspend/resume. not every time, but roughly 
-> > 3 out of 4 times.
-> > 
-> > the only errornous things I see in the logs are those: 
-> >...
+On Mon, Oct 16, 2006 at 10:08:50AM +1000, Neil Brown wrote:
+
+> Hmmm.. So Alan thinks a partially-outside-this-disk partition
+> shouldn't show up at all, and Andries thinks it should.
+> And both give reasonably believable justifications.
 > 
-> Which was the last working kernel?
+> Maybe we need a kernel parameter?
 
-ok...
+If you introduce a kernel parameter, let it be one that tells the kernel
+to stay away from partitions, so that partitions can be added later by
+the partx ioctls.
 
-tested it again and found it workiing in 2.6.18 
+Now setting up an initrd or so is kind of tricky, not something ordinary users
+would want to do, so if it moreover is possible to specify the rootpttype
+that would allow an ordinary boot and leave all other block devices untouched.
 
-one strange thing though: there seems to be some inconsistencies in which
-script is treggered by Fn+F4.
+> Not enabling partitions does not affect partition numbering of
+> subsequent partitions.
 
-usually it is the /etc/acpi/sleepbtn.sh script, but after one suspend/resume
-the /etc/acpi/sleep.sh script is triggered.
+A funny effect might be that hda5 exists, hda6 does not, and hda7 exists again.
+Maybe unexpected for some software.
 
-gruss
-  mlo
---
-Dipl.-Ing. Martin Lorenz
-
-            They that can give up essential liberty 
-	    to obtain a little temporary safety 
-	    deserve neither liberty nor safety.
-                                   Benjamin Franklin
-
-please encrypt your mail to me
-GnuPG key-ID: F1AAD37D
-get it here:
-http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
-
-ICQ UIN: 33588107
+Andries

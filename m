@@ -1,180 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161150AbWJPWzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWJPWzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161150AbWJPWzI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 18:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161151AbWJPWzI
+	id S1161006AbWJPWzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 18:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWJPWzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 18:55:08 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:19359 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161150AbWJPWzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 18:55:06 -0400
-Date: Tue, 17 Oct 2006 00:50:56 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: akpm@osdl.org
-cc: Matt LaPlante <kernel1@cyberdogtech.com>,
-       Linus Torvalds <torvalds@osdl.org>, Randy Dunlap <rdunlap@xenotime.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix typos in doc and comments (1)
-Message-ID: <Pine.LNX.4.61.0610170040510.30479@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 16 Oct 2006 18:55:18 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:20848 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1161006AbWJPWzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 18:55:16 -0400
+Date: Mon, 16 Oct 2006 18:54:52 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: raw1394 problems galore
+In-reply-to: <4533FBD8.7050101@s5r6.in-berlin.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org,
+       For users of Fedora Core releases 
+	<fedora-list@redhat.com>,
+       linux1394-user@lists.sourceforge.net
+Message-id: <45340DBC.7020207@verizon.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <4532DF11.9060704@verizon.net> <4533B889.5060302@s5r6.in-berlin.de>
+ <4533DDA2.2050008@verizon.net> <4533FBD8.7050101@s5r6.in-berlin.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stefan Richter wrote:
+> Gene Heskett wrote:
+>> Stefan Richter wrote:
+>>> HP dv5120us is based on Turion 64. Do you run a 64bit kernel on it? Then
+>>> the following bug may prevent access:
+>>> http://bugzilla.kernel.org/show_bug.cgi?id=4779
+> ...
+>> No 64 bit kernels ever, this has always been a 32 bit install.
+> 
+> Hmm.
+> 
+> ...
+>> Oct 16 11:16:31 diablo kernel: ohci1394: fw-host0: OHCI-1394 1.1 (PCI):
+>> IRQ=[10]  MMIO=[c0209000-c02097ff]  Max Packet=[2048]  IR/IT contexts=[
+>> 4/8]
+> 
+> There should be a message like "ieee1394: Host added: ID:BUS[0-00:1023]
+>  GUID..." shortly later. It's logged at kern.debug level though.
+
+I had udev set for debug earlier, lemme check the older log.
+
+In logs reaching back 8 days while I messed with this, the string
+"ieee1394: Host added: ID:BUS" never appears.
+
+>> Then, manually loaded via 'modprobe raw1394':
+>>
+>> Oct 16 11:50:11 diablo kernel: ieee1394: raw1394: /dev/raw1394 device
+>> initialized
+
+But there are lots of the above, and hundreds of:
+Oct 15 19:47:32 diablo udevd[417]: udev_event_run: seq 775 forked, pid 
+[2645], 'add' 'ieee1394', 0 seconds old
+Oct 15 19:47:32 diablo udevd[417]: udev_event_run: seq 777 forked, pid 
+[2646], 'add' 'ieee1394', 0 seconds old
+Oct 15 19:47:32 diablo udevd-event[2645]: wait_for_sysfs: file 
+'/sys/devices/pci0000:00/0000:00:14.4/0000:03:04.2/fw-host0/08004601044684e4/bus
+' appeared after 0 loops
+Oct 15 19:47:32 diablo udevd-event[2645]: pass_env_to_socket: passed -1 
+bytes to socket '/org/kernel/udev/monitor',
+Oct 15 19:47:32 diablo udevd-event[2645]: run_program: 
+'/lib/udev/udev_run_hotplugd'
+Oct 15 19:47:32 diablo udevd-event[2645]: run_program: 
+'/lib/udev/udev_run_hotplugd' returned with status 0
+Oct 15 19:47:32 diablo udevd-event[2645]: run_program: 
+'/lib/udev/udev_run_devd'
+Oct 15 19:47:32 diablo udevd-event[2645]: run_program: 
+'/lib/udev/udev_run_devd' returned with status 0
+Oct 15 19:47:32 diablo udevd-event[2645]: pass_env_to_socket: passed 242 
+bytes to socket '/org/freedesktop/hal/udev_event',
+Oct 15 19:47:32 diablo udevd-event[2645]: udev_event_run: seq 775 finished
+Oct 15 19:47:32 diablo udevd[417]: udev_done: seq 775, pid [2645] exit 
+with 0, 0 seconds old
+Oct 15 19:47:32 diablo udevd-event[2646]: wait_for_sysfs: file 
+'/sys/devices/pci0000:00/0000:00:14.4/0000:03:04.2/fw-host0/623f0200cbe5407d/bus
+' appeared after 0 loops
+Oct 15 19:47:32 diablo udevd[417]: udev_event_run: seq 776 forked, pid 
+[2649], 'add' 'ieee1394_node', 0 seconds old
+Oct 15 19:47:32 diablo udevd-event[2646]: pass_env_to_socket: passed -1 
+bytes to socket '/org/kernel/udev/monitor',
+Oct 15 19:47:32 diablo udevd-event[2646]: run_program: 
+'/lib/udev/udev_run_hotplugd'
+Oct 15 19:47:32 diablo udevd-event[2649]: pass_env_to_socket: passed -1 
+bytes to socket '/org/kernel/udev/monitor',
+Oct 15 19:47:32 diablo udevd-event[2646]: run_program: 
+'/lib/udev/udev_run_hotplugd' returned with status 0
+Oct 15 19:47:32 diablo udevd-event[2649]: run_program: 
+'/lib/udev/udev_run_hotplugd'
+Oct 15 19:47:32 diablo udevd-event[2646]: run_program: 
+'/lib/udev/udev_run_devd'
+Oct 15 19:47:32 diablo udevd[417]: udev_event_run: seq 779 forked, pid 
+[2651], 'add' 'ieee1394', 0 seconds old
+Oct 15 19:47:32 diablo udevd-event[2651]: wait_for_sysfs: file 
+'/sys/devices/pci0000:00/0000:00:14.4/0000:03:04.2/fw-host0/08004601044684e4/080
+04601044684e4-0/bus' appeared after 0 loops
 
 
-Changes persistant -> persistent. www.dictionary.com does not know 
-persistant (with an A), but should it be one of those things you can 
-spell in more than one correct way, let me know.
 
+> OK.
+> 
+>> Oct 16 11:50:11 diablo kernel: audit(1161013811.874:4): avc:  denied  {
+>> getattr } for  pid=2753 comm="pam_console_app" name="raw1394" dev=tmpfs
+>>  ino=10625 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c255
+>> tcontext=system_u:object_r:device_t:s0 tclass=chr_file
+>> Oct 16 11:50:11 diablo kernel: audit(1161013811.874:5): avc:  denied  {
+>> setattr } for  pid=2753 comm="pam_console_app" name="raw1394" dev=tmpfs
+>>  ino=10625 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c255
+>> tcontext=system_u:object_r:device_t:s0 tclass=chr_file
+> 
+> I don't get what this is about. Who denies what?
+> 
+It just says denied, but selinux is set permissive, so thats just a 
+report of what would be denied if it was fully enabled.
 
-Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+>> SELinux is in permissive mode, and /dev/raw1394 has perms of:
+>> [root@diablo ~]# ls -l /dev/raw1394
+>> crw-rw-rw- 1 root root 171, 0 Oct 16 11:50 /dev/raw1394
+>>
+>> As I had given up, the camera is packed away, but I'll get it out and
+>> connect it again for grins:
+>>
+>> And no further messages were logged when I plugged it in and turned it on.
+> 
+> There should be something like "ieee1394: Node added: ID:BUS[0-00:1023]
+>  GUID..." and that the host changed from 0-00 to 1-00 at kern.debug level.
 
-Index: linux-2.6.19-rc2/Documentation/Changes
-===================================================================
---- linux-2.6.19-rc2.orig/Documentation/Changes
-+++ linux-2.6.19-rc2/Documentation/Changes
-@@ -201,7 +201,7 @@ udev
- ----
- udev is a userspace application for populating /dev dynamically with
- only entries for devices actually present.  udev replaces the basic
--functionality of devfs, while allowing persistant device naming for
-+functionality of devfs, while allowing persistent device naming for
- devices.
- 
- FUSE
-Index: linux-2.6.19-rc2/Documentation/power/states.txt
-===================================================================
---- linux-2.6.19-rc2.orig/Documentation/power/states.txt
-+++ linux-2.6.19-rc2/Documentation/power/states.txt
-@@ -62,7 +62,7 @@ setup via another operating system for i
- inconvenience, this method requires minimal work by the kernel, since
- the firmware will also handle restoring memory contents on resume. 
- 
--If the kernel is responsible for persistantly saving state, a mechanism 
-+If the kernel is responsible for persistently saving state, a mechanism
- called 'swsusp' (Swap Suspend) is used to write memory contents to
- free swap space. swsusp has some restrictive requirements, but should
- work in most cases. Some, albeit outdated, documentation can be found
-Index: linux-2.6.19-rc2/arch/um/drivers/chan_user.c
-===================================================================
---- linux-2.6.19-rc2.orig/arch/um/drivers/chan_user.c
-+++ linux-2.6.19-rc2/arch/um/drivers/chan_user.c
-@@ -120,7 +120,7 @@ static int winch_thread(void *arg)
- 	/* These are synchronization calls between various UML threads on the
- 	 * host - since they are not different kernel threads, we cannot use
- 	 * kernel semaphores. We don't use SysV semaphores because they are
--	 * persistant. */
-+	 * persistent. */
- 	count = os_read_file(pipe_fd, &c, sizeof(c));
- 	if(count != sizeof(c))
- 		printk("winch_thread : failed to read synchronization byte, "
-Index: linux-2.6.19-rc2/drivers/message/fusion/mptbase.c
-===================================================================
---- linux-2.6.19-rc2.orig/drivers/message/fusion/mptbase.c
-+++ linux-2.6.19-rc2/drivers/message/fusion/mptbase.c
-@@ -6185,7 +6185,7 @@ mpt_spi_log_info(MPT_ADAPTER *ioc, u32 l
- 		"Abort",					/* 12h */
- 		"IO Not Yet Executed",				/* 13h */
- 		"IO Executed",					/* 14h */
--		"Persistant Reservation Out Not Affiliation Owner", /* 15h */
-+		"Persistent Reservation Out Not Affiliation Owner", /* 15h */
- 		"Open Transmit DMA Abort",			/* 16h */
- 		"IO Device Missing Delay Retry",		/* 17h */
- 		NULL,						/* 18h */
-Index: linux-2.6.19-rc2/drivers/mtd/maps/cfi_flagadm.c
-===================================================================
---- linux-2.6.19-rc2.orig/drivers/mtd/maps/cfi_flagadm.c
-+++ linux-2.6.19-rc2/drivers/mtd/maps/cfi_flagadm.c
-@@ -80,7 +80,7 @@ struct mtd_partition flagadm_parts[] = {
- 		.size =		FLASH_PARTITION2_SIZE
- 	},
- 	{
--		.name =		"Persistant storage",
-+		.name =		"Persistent storage",
- 		.offset =	FLASH_PARTITION3_ADDR,
- 		.size =		FLASH_PARTITION3_SIZE
- 	}
-Index: linux-2.6.19-rc2/drivers/pci/Kconfig
-===================================================================
---- linux-2.6.19-rc2.orig/drivers/pci/Kconfig
-+++ linux-2.6.19-rc2/drivers/pci/Kconfig
-@@ -34,7 +34,7 @@ config PCI_MULTITHREAD_PROBE
- 
- 	  It is very unwise to use this option if you are not using a
- 	  boot process that can handle devices being created in any
--	  order.  A program that can create persistant block and network
-+	  order.  A program that can create persistent block and network
- 	  device names (like udev) is a good idea if you wish to use
- 	  this option.
- 
-Index: linux-2.6.19-rc2/fs/Kconfig
-===================================================================
---- linux-2.6.19-rc2.orig/fs/Kconfig
-+++ linux-2.6.19-rc2/fs/Kconfig
-@@ -968,7 +968,7 @@ config SYSFS
- 
- 	Some system agents rely on the information in sysfs to operate.
- 	/sbin/hotplug uses device and object attributes in sysfs to assist in
--	delegating policy decisions, like persistantly naming devices.
-+	delegating policy decisions, like persistently naming devices.
- 
- 	sysfs is currently used by the block subsystem to mount the root
- 	partition.  If sysfs is disabled you must specify the boot device on
-Index: linux-2.6.19-rc2/fs/jfs/jfs_filsys.h
-===================================================================
---- linux-2.6.19-rc2.orig/fs/jfs/jfs_filsys.h
-+++ linux-2.6.19-rc2/fs/jfs/jfs_filsys.h
-@@ -81,7 +81,7 @@
- #define	JFS_SWAP_BYTES		0x00100000	/* running on big endian computer */
- 
- /* Directory index */
--#define JFS_DIR_INDEX		0x00200000	/* Persistant index for */
-+#define JFS_DIR_INDEX		0x00200000	/* Persistent index for */
- 						/* directory entries    */
- 
- 
-Index: linux-2.6.19-rc2/include/linux/textsearch.h
-===================================================================
---- linux-2.6.19-rc2.orig/include/linux/textsearch.h
-+++ linux-2.6.19-rc2/include/linux/textsearch.h
-@@ -20,7 +20,7 @@ struct ts_config;
- /**
-  * struct ts_state - search state
-  * @offset: offset for next match
-- * @cb: control buffer, for persistant variables of get_next_block()
-+ * @cb: control buffer, for persistent variables of get_next_block()
-  */
- struct ts_state
- {
-@@ -71,7 +71,7 @@ struct ts_config
- 	 * Called repeatedly until 0 is returned. Must assign the
- 	 * head of the next block of data to &*dst and return the length
- 	 * of the block or 0 if at the end. consumed == 0 indicates
--	 * a new search. May store/read persistant values in state->cb.
-+	 * a new search. May store/read persistent values in state->cb.
- 	 */
- 	unsigned int		(*get_next_block)(unsigned int consumed,
- 						  const u8 **dst,
-Index: linux-2.6.19-rc2/lib/textsearch.c
-===================================================================
---- linux-2.6.19-rc2.orig/lib/textsearch.c
-+++ linux-2.6.19-rc2/lib/textsearch.c
-@@ -40,7 +40,7 @@
-  *       configuration according to the specified parameters.
-  *   (3) User starts the search(es) by calling _find() or _next() to
-  *       fetch subsequent occurrences. A state variable is provided
-- *       to the algorihtm to store persistant variables.
-+ *       to the algorihtm to store persistent variables.
-  *   (4) Core eventually resets the search offset and forwards the find()
-  *       request to the algorithm.
-  *   (5) Algorithm calls get_next_block() provided by the user continously
-#<EOF>
+Never happens.
 
+> 
+>> kino-0.8 receives video from it in real time and is doing so right now,
+>> and can capture it to file, and then play/edit that file, or could
+>> saturday when I last tried it.  I ASSume that kino-0.9.2 could also
+>> play/edit that file, but have not verified that by reinstalling 0.9.2.
+> ...
+>>> Did you run FC2 as 32bit environment on 32bit kernel?
+>> Yes, and kino-0.7.5 died with kernel changes in the ieee1394 code
+>> someplace at about 2.6.9 IIRC.
+> ...
+>>>> before someone just had to rewrite the 1394 stuff again?
+>>> The 1394 kernel drivers are not being rewritten.
+>> I was told it was a total rewrite of bad code when I complained about a
+>> year ago.  My reply at the time was that it worked, and I don't often
+>> fix things that are working.  I'm getting lazy in my dotage I guess.
+> 
+> I don't remember what was changed at that time. Maybe that was the
+> addition of the new isochronous interface that I mentioned. The old one
+> was (is?) still there but maybe there were interactions... However this
+> is not related to the inability to issue AV/C commands, which are issued
+> asynchronously. I think though that your kino 0.8.x package is
+> configured to work isochronously via video1394(?)
 
-	-`J'
+Its showing raw1394, the other choice is dvgrab, which doesn't...
+
+  but asynchronously via
+> raw1394, and the kino 0.9.x package to do both via raw1394. But don't
+> take my word on it, I keep mistaking one interface for another. I never
+> used video cameras on FireWire myself.
+> 
+>> As for 1394commander or gscanbus, I have not managed to find rpms of
+>> those in any of the repos yumex or SPM shows me.  They apparently are
+>> not part of the FC5 tree.  I'd love to see what those 2 might have to
+>> say about the system.  The only thing I do have is dvcont, which reports
+>> this:
+>>
+>> [root@diablo ~]# dvcont dev 0 play
+>> Could not find any AV/C devices on the 1394 bus.
+>>
+>> The camera is still plugged in and powered up.
+> 
+> Anything under /sys/bus/ieee1394/devices?
+[root@diablo ~]# ls -R /sys/bus/ieee1394/devices
+/sys/bus/ieee1394/devices:
+08004601044684e4  08004601044684e4-0  623f0200cbe5407d 
+623f0200cbe5407d-0  fw-host0
+
+and:
+[root@diablo ~]# ls -l /sys/bus/ieee1394/devices/fw-host0
+lrwxrwxrwx 1 root root 0 Oct 16 11:16 /sys/bus/ieee1394/devices/fw-host0 
+-> ../../../devices/pci0000:00/0000:00:14.4/0000:03:04.2/fw-host0
+[root@diablo ~]#
+> 
+> It might be not too difficult to compile 1394commander since it doesn't
+> have many library dependencies; just libraw1394 (probably as -devel
+> package) and optionally readline. Gscanbus would show a bit more about
+> attached devices without resorting to magic commands but it is a bit
+> harder to compile, as a GUI program.
+
+I'll put in the devel stuff and give it a shot.  And let the lists know.
+
+Thanks, Stefan
+
 -- 
+Cheers, Gene
+

@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWJPPXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWJPPXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWJPPXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 11:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWJPPXQ
+	id S932147AbWJPPXn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 11:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWJPPXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 11:23:16 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34435 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932146AbWJPPXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 11:23:15 -0400
-Subject: [PATCH] arm: switch to new pci_get_bus_and_slot API
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 16:49:50 +0100
-Message-Id: <1161013790.24237.97.camel@localhost.localdomain>
+	Mon, 16 Oct 2006 11:23:43 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:28091 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932147AbWJPPXm (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 11:23:42 -0400
+Message-Id: <200610161517.k9GFHZrA006494@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com
+Subject: Re: [PATCH] libata-sff: Allow for wacky systems
+In-Reply-To: Your message of "Mon, 16 Oct 2006 16:24:50 BST."
+             <1161012290.24237.68.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <1161012290.24237.68.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1161011855_3520P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 16 Oct 2006 11:17:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+--==_Exmh_1161011855_3520P
+Content-Type: text/plain; charset=us-ascii
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c
---- linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c	2006-10-13 15:06:14.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c	2006-10-13 17:14:23.000000000 +0100
-@@ -133,11 +133,13 @@
- 	struct pci_dev *dev;
- 
- 	if (ixdp2x00_master_npu()) {
--		dev = pci_find_slot(1, IXDP2400_SLAVE_ENET_DEVFN);
-+		dev = pci_get_bus_and_slot(1, IXDP2400_SLAVE_ENET_DEVFN);
- 		pci_remove_bus_device(dev);
-+		pci_dev_put(dev)
- 	} else {
--		dev = pci_find_slot(1, IXDP2400_MASTER_ENET_DEVFN);
-+		dev = pci_get_bus_and_slot(1, IXDP2400_MASTER_ENET_DEVFN);
- 		pci_remove_bus_device(dev);
-+		pci_dev_put(dev)
- 
- 		ixdp2x00_slave_pci_postinit();
- 	}
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2800.c linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2800.c
---- linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2800.c	2006-10-13 15:06:14.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2800.c	2006-10-13 17:14:23.000000000 +0100
-@@ -261,14 +261,16 @@
- 
- 		pci_common_init(&ixdp2800_pci);
- 		if (ixdp2x00_master_npu()) {
--			dev = pci_find_slot(1, IXDP2800_SLAVE_ENET_DEVFN);
-+			dev = pci_get_bus_and_slot(1, IXDP2800_SLAVE_ENET_DEVFN);
- 			pci_remove_bus_device(dev);
-+			pci_dev_put(dev);
- 
- 			ixdp2800_master_enable_slave();
- 			ixdp2800_master_wait_for_slave_bus_scan();
- 		} else {
--			dev = pci_find_slot(1, IXDP2800_MASTER_ENET_DEVFN);
-+			dev = pci_get_bus_and_slot(1, IXDP2800_MASTER_ENET_DEVFN);
- 			pci_remove_bus_device(dev);
-+			pci_dev_put(dev);
- 		}
- 	}
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2x00.c linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2x00.c
---- linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2x00.c	2006-10-13 15:10:06.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2x00.c	2006-10-13 17:14:23.000000000 +0100
-@@ -241,11 +241,14 @@
- 	/*
- 	 * Remove PMC device is there is one
- 	 */
--	if((dev = pci_find_slot(1, IXDP2X00_PMC_DEVFN)))
-+	if((dev = pci_get_bus_and_slot(1, IXDP2X00_PMC_DEVFN))) {
- 		pci_remove_bus_device(dev);
-+		pci_dev_put(dev);
-+	}
- 
--	dev = pci_find_slot(0, IXDP2X00_21555_DEVFN);
-+	dev = pci_get_bus_and_slot(0, IXDP2X00_21555_DEVFN);
- 	pci_remove_bus_device(dev);
-+	pci_dev_put(dev);
- }
- 
- /**************************************************************************
+On Mon, 16 Oct 2006 16:24:50 BST, Alan Cox said:
+> There are some Linux supported platforms that simply cannot hit the low
+> I/O addresses used by ATA legacy mode PCI mappings. These platforms have
+> a window for PCI space that is fixed by the board logic and doesn't
+> include the neccessary locations.
+> 
+> Provide a config option so that such platforms faced with a controller
+> that they cannot support simply error it and punt
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-
+2.6.19-rc1-mm1/drivers/ata/libata-sff.c linux-2.6.19-rc1-mm1/drivers/ata/libata
+-sff.c
+> --- linux.vanilla-2.6.19-rc1-mm1/drivers/ata/libata-sff.c	2006-10-13 15:0
+9:23.000000000 +0100
+> +++ linux-2.6.19-rc1-mm1/drivers/ata/libata-sff.c	2006-10-13 17:15:57.000
+000000 +0100
+> @@ -981,6 +981,15 @@
+>  		mask = (1 << 2) | (1 << 0);
+>  		if ((tmp8 & mask) != mask)
+>  			legacy_mode = (1 << 3);
+> +#if defined(CONFIG_NO_ATA_LEGACY)
+> +		/* Some platforms with PCI limits cannot address compat
+> +		   port space. In that case we punt if their firmware has
+> +		   left a device in compatibility mode */
+> +		if (legacy_mode) {
+> +			printk(KERN_ERR "ata: Compatibility mode ATA is not supported on this platform, skipping.\n");
 
+Would it make sense for the printk to include a hint as to which controller
+is on crack, so on boxes with PCI_MULTITHREAD_PROBE it's easier to tell?
+
+--==_Exmh_1161011855_3520P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFM6KPcC3lWbTT17ARAlZkAKC6MT1nZpDmF6xFDjwOeewvsQ7CaQCgqkNH
+ZSeV4KrNKF/iS5FN2t07GTo=
+=q3ih
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1161011855_3520P--

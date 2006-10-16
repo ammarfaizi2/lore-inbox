@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWJPKzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWJPK5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWJPKzj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 06:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWJPKzj
+	id S1751496AbWJPK5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 06:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWJPK5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 06:55:39 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:48052 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751500AbWJPKzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 06:55:38 -0400
-Date: Mon, 16 Oct 2006 12:56:13 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: Greg K-H <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/3] Driver core: Per-subsystem multithreaded probing.
-Message-ID: <20061016125613.16c9f667@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <200610161113.31007.duncan.sands@math.u-psud.fr>
-References: <20061016104411.1fb2bc57@gondolin.boeblingen.de.ibm.com>
-	<200610161113.31007.duncan.sands@math.u-psud.fr>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Mon, 16 Oct 2006 06:57:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40614 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751496AbWJPK5B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 06:57:01 -0400
+Date: Mon, 16 Oct 2006 03:56:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: akpm@osdl.org, neilb@suse.de, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1 of 4] cpumask: add highest_possible_node_id
+Message-Id: <20061016035644.1c99ad9b.pj@sgi.com>
+In-Reply-To: <1154669719.21040.2351.camel@hole.melbourne.sgi.com>
+References: <1154669719.21040.2351.camel@hole.melbourne.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 11:13:30 +0200,
-Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
+This patch (of August 3, 2006) added (after a bit of fixing) a nodemask
+related routine to lib/cpumask.c.  Granted, there is no lib/nodemask.c,
+and Andrew suggested lib/cpumask.c.
 
-> There may have been a similar problem with
-> USB locking, since there too probe was expecting a lock to be held that might
-> not be held when called from the kthread:
-> 
-> 	 * This function must be called with @dev->sem held.  When called for a
-> 	 * USB interface, @dev->parent->sem must be held as well.
-> 	 */
-> 	int driver_probe_device(struct device_driver * drv, struct device * dev)
+But at least it should have added
 
-But as we don't know we're probing an usb interface, we have no chance
-of ensuring that dev->parent->sem is taken in the multithreaded case
-(meaning we couldn't do multithreaded probe for usb). (Any idea why the
-parent's sem must be taken for usb interfaces?)
+	#include <linux/nodemask.h>
 
-> Also, what about device removal racing with probe?  Is it possible for someone to
-> attempt to remove a device in the gap between the call to device_attach and the
-> kthread actually running and doing the probe?  That would result in remove and
-> probe being called in the wrong order...
+to lib/cpumask.c, no?
 
-->probe won't be called if the device is already being removed, but
-that still results in bus->remove being called without a prior ->probe
-(but not drv->probe since dev->driver is not set at that time).
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,108 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422839AbWJPTHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422841AbWJPTJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422839AbWJPTHK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422835AbWJPTHJ
+	id S1422841AbWJPTJT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422845AbWJPTJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:07:09 -0400
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:12017 "EHLO
-	outbound1-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1422818AbWJPTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:07:07 -0400
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: [PATCH] x86_64: store Socket ID in phys_proc_id
-Date: Mon, 16 Oct 2006 11:52:39 -0700
-Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6E3@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64: store Socket ID in phys_proc_id
-Thread-Index: AcbxUiBVxuYFuta9TTyuk6EUKOOcrgAAURyQ
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@muc.de>
-cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-X-OriginalArrivalTime: 16 Oct 2006 18:52:41.0127 (UTC)
- FILETIME=[41DE4370:01C6F154]
-X-WSS-ID: 692D0A570C44651557-05-01
-Content-Type: multipart/mixed;
- boundary="----_=_NextPart_001_01C6F154.41269D3B"
+	Mon, 16 Oct 2006 15:09:19 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:45495 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422841AbWJPTJS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:09:18 -0400
+Subject: Re: [PATCH] i386 Time: Avoid PIT SMP lockups
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200610162042.27292.ak@suse.de>
+References: <1160596462.5973.12.camel@localhost.localdomain>
+	 <p73odsccqy5.fsf@verdi.suse.de> <20061016113937.a76f8d06.akpm@osdl.org>
+	 <200610162042.27292.ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 12:09:14 -0700
+Message-Id: <1161025754.5442.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, 2006-10-16 at 20:42 +0200, Andi Kleen wrote:
+> On Monday 16 October 2006 20:39, Andrew Morton wrote:
+> > On 16 Oct 2006 15:48:02 +0200
+> > Andi Kleen <ak@suse.de> wrote:
+> > 
+> > > Andrew Morton <akpm@osdl.org> writes:
+> > > > 
+> > > > Is there any actual need to hold xtime_lock while doing the port IO?  I'd
+> > > > have thought it would suffice to do
+> > > > 
+> > > > 	temp = port_io
+> > > > 	write_seqlock(xtime_lock);
+> > > > 	xtime = muck_with(temp);
+> > > > 	write_sequnlock(xtime_lock);
+> > > > 
+> > > > ?
+> > > 
+> > > That would be a good idea in general. The trouble is just that whatever race
+> > > is there will be still there then, just harder to trigger (so instead of 
+> > > every third boot it will muck up every 6 weeks). Not sure that is
+> > > a real improvement.
 
-------_=_NextPart_001_01C6F154.41269D3B
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-
-Current code store phys_proc_id with init APIC ID, and later will change
-to apicid>>bits.
-
-So for the apic id lifted system, for example BSP with apicid 0x10, the
-phys_proc_id will be 8.
-
-This patch use initial APIC ID to get Socket ID.
-
-It also removed ht_nodeid calculating, because We already have correct
-socket id for sure.
-
-Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
+It is an interesting idea that could be applied generally. There might
+be some small races possible (where the cycle_last grabed within
+xtime_lock might be ahead of the value pulled from the port_io), but
+I'll put some time into seeing if it will work.
 
 
+> > Confused.  What race are you referring to?
+> 
+> Sorry s/race/starvation/
+> 
+> > 
+> > This is addressing a starvation problem which is due to the slowness of the
+> > port-io (iirc).
+> 
+> Is it just sure to go away when the critical section is shorter?
 
-------_=_NextPart_001_01C6F154.41269D3B
-Content-Type: application/octet-stream;
- name=setup_c.diff
-Content-Transfer-Encoding: base64
-Content-Description: setup_c.diff
-Content-Disposition: attachment;
- filename=setup_c.diff
+Yea. I don't see the box hangs when the portio is removed. Although I
+don't really feel I've narrowed it down completely to the starvation
+theory. Its just the best theory I've got so far.
 
-ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9zZXR1cC5jIGIvYXJjaC94ODZfNjQva2Vy
-bmVsL3NldHVwLmMKaW5kZXggZmM5NDRiNS4uZDMwZjc4YSAxMDA2NDQKLS0tIGEvYXJjaC94ODZf
-NjQva2VybmVsL3NldHVwLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL3NldHVwLmMKQEAgLTY0
-MywzNCArNjQzLDIwIEBAICNlbmRpZgogCiAJLyogTG93IG9yZGVyIGJpdHMgZGVmaW5lIHRoZSBj
-b3JlIGlkIChpbmRleCBvZiBjb3JlIGluIHNvY2tldCkgKi8KIAljLT5jcHVfY29yZV9pZCA9IGMt
-PnBoeXNfcHJvY19pZCAmICgoMSA8PCBiaXRzKS0xKTsKLQkvKiBDb252ZXJ0IHRoZSBBUElDIElE
-IGludG8gdGhlIHNvY2tldCBJRCAqLwotCWMtPnBoeXNfcHJvY19pZCA9IHBoeXNfcGtnX2lkKGJp
-dHMpOworCS8qIENvbnZlcnQgdGhlIGluaXRpYWwgQVBJQyBJRCBpbnRvIHRoZSBzb2NrZXQgSUQg
-Ki8KKwljLT5waHlzX3Byb2NfaWQgPj49IGJpdHM7IAogCiAjaWZkZWYgQ09ORklHX05VTUEKICAg
-CW5vZGUgPSBjLT5waHlzX3Byb2NfaWQ7CiAgCWlmIChhcGljaWRfdG9fbm9kZVthcGljaWRdICE9
-IE5VTUFfTk9fTk9ERSkKICAJCW5vZGUgPSBhcGljaWRfdG9fbm9kZVthcGljaWRdOwogIAlpZiAo
-IW5vZGVfb25saW5lKG5vZGUpKSB7Ci0gCQkvKiBUd28gcG9zc2liaWxpdGllcyBoZXJlOgotIAkJ
-ICAgLSBUaGUgQ1BVIGlzIG1pc3NpbmcgbWVtb3J5IGFuZCBubyBub2RlIHdhcyBjcmVhdGVkLgot
-IAkJICAgSW4gdGhhdCBjYXNlIHRyeSBwaWNraW5nIG9uZSBmcm9tIGEgbmVhcmJ5IENQVQotIAkJ
-ICAgLSBUaGUgQVBJQyBJRHMgZGlmZmVyIGZyb20gdGhlIEh5cGVyVHJhbnNwb3J0IG5vZGUgSURz
-Ci0gCQkgICB3aGljaCB0aGUgSzggbm9ydGhicmlkZ2UgcGFyc2luZyBmaWxscyBpbi4KLSAJCSAg
-IEFzc3VtZSB0aGV5IGFyZSBhbGwgaW5jcmVhc2VkIGJ5IGEgY29uc3RhbnQgb2Zmc2V0LAotIAkJ
-ICAgYnV0IGluIHRoZSBzYW1lIG9yZGVyIGFzIHRoZSBIVCBub2RlaWRzLgotIAkJICAgSWYgdGhh
-dCBkb2Vzbid0IHJlc3VsdCBpbiBhIHVzYWJsZSBub2RlIGZhbGwgYmFjayB0byB0aGUKLSAJCSAg
-IHBhdGggZm9yIHRoZSBwcmV2aW91cyBjYXNlLiAgKi8KLSAJCWludCBodF9ub2RlaWQgPSBhcGlj
-aWQgLSAoY3B1X2RhdGFbMF0ucGh5c19wcm9jX2lkIDw8IGJpdHMpOwotIAkJaWYgKGh0X25vZGVp
-ZCA+PSAwICYmCi0gCQkgICAgYXBpY2lkX3RvX25vZGVbaHRfbm9kZWlkXSAhPSBOVU1BX05PX05P
-REUpCi0gCQkJbm9kZSA9IGFwaWNpZF90b19ub2RlW2h0X25vZGVpZF07CiAgCQkvKiBQaWNrIGEg
-bmVhcmJ5IG5vZGUgKi8KLSAJCWlmICghbm9kZV9vbmxpbmUobm9kZSkpCi0gCQkJbm9kZSA9IG5l
-YXJieV9ub2RlKGFwaWNpZCk7CisJCW5vZGUgPSBuZWFyYnlfbm9kZShhcGljaWQpOwogIAl9CiAJ
-bnVtYV9zZXRfbm9kZShjcHUsIG5vZGUpOwogCi0JcHJpbnRrKEtFUk5fSU5GTyAiQ1BVICVkLyV4
-IC0+IE5vZGUgJWRcbiIsIGNwdSwgYXBpY2lkLCBub2RlKTsKKwlwcmludGsoS0VSTl9JTkZPICJD
-UFUgJWQvMHglMDJ4IC0+IE5vZGUgJWRcbiIsIGNwdSwgYXBpY2lkLCBub2RlKTsKICNlbmRpZgog
-I2VuZGlmCiB9CkBAIC05MjgsNyArOTE0LDcgQEAgdm9pZCBfX2NwdWluaXQgZWFybHlfaWRlbnRp
-ZnlfY3B1KHN0cnVjdAogCX0KIAogI2lmZGVmIENPTkZJR19TTVAKLQljLT5waHlzX3Byb2NfaWQg
-PSAoY3B1aWRfZWJ4KDEpID4+IDI0KSAmIDB4ZmY7CisJYy0+cGh5c19wcm9jX2lkID0gKGNwdWlk
-X2VieCgxKSA+PiAyNCkgJiAweGZmOyAvKiBpbml0aWFsIEFQSUMgSUQgKi8KICNlbmRpZgogfQog
-CkBAIC0xMTM2LDYgKzExMjIsNyBAQCAjZW5kaWYKICNpZmRlZiBDT05GSUdfU01QCiAJaWYgKHNt
-cF9udW1fc2libGluZ3MgKiBjLT54ODZfbWF4X2NvcmVzID4gMSkgewogCQlpbnQgY3B1ID0gYyAt
-IGNwdV9kYXRhOworCQlzZXFfcHJpbnRmKG0sICJhcGljIGlkXHRcdDogMHglMDJ4XG4iLCB4ODZf
-Y3B1X3RvX2FwaWNpZFtjcHVdKTsKIAkJc2VxX3ByaW50ZihtLCAicGh5c2ljYWwgaWRcdDogJWRc
-biIsIGMtPnBoeXNfcHJvY19pZCk7CiAJCXNlcV9wcmludGYobSwgInNpYmxpbmdzXHQ6ICVkXG4i
-LCBjcHVzX3dlaWdodChjcHVfY29yZV9tYXBbY3B1XSkpOwogCQlzZXFfcHJpbnRmKG0sICJjb3Jl
-IGlkXHRcdDogJWRcbiIsIGMtPmNwdV9jb3JlX2lkKTsK
+Currently my test box is busy with other things, but as soon as its free
+I'll put some more time into this one.
 
-------_=_NextPart_001_01C6F154.41269D3B--
-
+thanks
+-john
 

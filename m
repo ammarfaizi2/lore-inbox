@@ -1,42 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422951AbWJPXyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422958AbWJQABu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422951AbWJPXyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 19:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422952AbWJPXyd
+	id S1422958AbWJQABu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 20:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422961AbWJQABu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 19:54:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61377 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422951AbWJPXyb (ORCPT
+	Mon, 16 Oct 2006 20:01:50 -0400
+Received: from cust-gw.nsis.net ([208.145.229.16]:38102 "HELO cust-gw.nsis.net")
+	by vger.kernel.org with SMTP id S1422958AbWJQABt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 19:54:31 -0400
-Date: Mon, 16 Oct 2006 16:54:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Mark Gross <mark.gross@intel.com>
-Subject: Re: [PATCH] CONFIG_TELCLOCK depends on X86
-Message-Id: <20061016165426.d32352b4.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610161957520.10901@anakin>
-References: <Pine.LNX.4.64.0610161957520.10901@anakin>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Oct 2006 20:01:49 -0400
+Reply-To: "Scott Smallwood" <khicksmakd@lvaic.org>
+From: "Scott" <khicksmakd@lvaic.org>
+Message-ID: <2918957369.20061016190849@hqmgmzsq>
+Date: Mon, 16 Oct 2006 19:08:49 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: sexxually expllicit:Ruussian prurient Hussies hardcorre .
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 19:59:43 +0200 (CEST)
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
-> The telecom clock driver for MPBL0010 ATCA SBC depends on X86
-> 
+Youung Eighteens so delectable and appetising!
 
-But it compiles on other architectures (doesn't it?)
+http://0077girlsxxx.com
 
-And perhaps sometime the hardware will be available on other architectures.
-
-And there's benefit in being able to compile drivers on other architectures
-- sometimes it will catch bugs.
-
-IOW: what is the reason for making this change?

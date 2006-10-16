@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWJPOYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWJPO30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWJPOYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJPOYl
+	id S1750723AbWJPO30 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWJPO30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:24:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:47156 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750714AbWJPOYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:24:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rUwZY40u2YQIqeJKVUPEPwZZN7/CmRCc/LrRBAzq6p2uPb5EFyx47uOByGOb0brDdqqKq/YFCIrSjGy6ttOaWbI7PfXtr38yGKtvBWiMh4ZgDUIvJnBgzfKt/A2XMxJJahghrXrdDWJq072Pqeyn6Ec3at5QSsNyjV5wwhIhonc=
-Message-ID: <9a8748490610160724l2a5c6cd6k1a984d10e947eda6@mail.gmail.com>
-Date: Mon, 16 Oct 2006 16:24:38 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Constantine Gavrilov" <constg@qlusters.com>
-Subject: Re: Would SSI clustering extensions be of interest to kernel community?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45337FE3.8020201@qlusters.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 16 Oct 2006 10:29:26 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:43423 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750723AbWJPO3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:29:25 -0400
+Subject: Re: Driver model.. expel legacy drivers?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       John Richard Moser <nigelenki@comcast.net>,
+       Kevin K <k_krieser@sbcglobal.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1160991586.10100.6.camel@localhost>
+References: <4530570B.7030500@comcast.net>
+	 <20061014075625.GA30596@stusta.de> <4530FC8E.7020504@comcast.net>
+	 <7E4CA247-AD0A-4A20-BEAF-CDD2CA4D3FFE@sbcglobal.net>
+	 <45315A20.6090600@comcast.net>
+	 <1160870637.5732.46.camel@localhost.localdomain>
+	 <45317814.8000709@comcast.net>
+	 <1160922815.5732.54.camel@localhost.localdomain>
+	 <1160991586.10100.6.camel@localhost>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 10:13:21 -0400
+Message-Id: <1161008002.25309.11.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45337FE3.8020201@qlusters.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/10/06, Constantine Gavrilov <constg@qlusters.com> wrote:
-> I have implemented SSI (single system image) clustering extensions to
-> Linux kernel in the form of a loadable module.
->
-> It roughly mimics OpenMosix model of deputy/remote split (migrated
-> processes leave a stub on the node where they were born and depend on
-> the "home" node for IO).
->
-> The implementation shares no code with Mosix/Open Mosix (was written
-> from scratch), is much smaller, and is easily portable to multiple
-> architectures.
->
-> We are considering publication of this code and forming an open source
-> project around it.
->
-> I have two questions to the community:
->
-> 1) Is community interested in using this code? Do users require SSI
-> product in the era when everybody is talking about partitioning of
-> machines and not clustering?
+On Mon, 2006-10-16 at 11:39 +0200, Kasper Sandberg wrote:
+> that makes very much sense, theres just one thing i dont understand.
+> 
+> when there is an established standard, how can it EVER be in a
+> companys best interrest to develop a new product that doesent use it,
+> and thereby requires the development of new drivers, the distributing
+> of those drivers, and all that sort? 
 
-Some users require SSI clustering and some just like playing with it.
-In any case, more options than those available currently can only be
-good :)
+Easy - when they think they can provide equivalent functionality and hit
+a lower price point (or make a bigger profit at the same price point) by
+violating the standard.
 
-> 2) Are kernel maintainers interested in clustering extensions to Linux
-> kernel? Do they see any value in them? (Our code does not require kernel
-> changes, but we are willing to submit it for inclusion if there is
-> interest.)
->
-I'm sure there's interrest in at least seeing it.
-You should consider cleaning up your code according to
-Documentation/CodingStyle first though (if it doesn't already follow
-it) or your first batch of feedback is probably just going to be a
-bunch of style cleanup requests ;)
+Lee
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

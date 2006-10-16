@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWJPMuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWJPM6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbWJPMuh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 08:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJPMuh
+	id S1750706AbWJPM6R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 08:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWJPM6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 08:50:37 -0400
-Received: from dhost002-90.dex002.intermedia.net ([64.78.20.228]:52569 "EHLO
-	dhost002-90.dex002.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750699AbWJPMuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 08:50:37 -0400
-Message-ID: <45337FE3.8020201@qlusters.com>
-Date: Mon, 16 Oct 2006 14:49:39 +0200
-From: Constantine Gavrilov <constg@qlusters.com>
-Reply-To: Constantine Gavrilov <constg@qlusters.com>
-Organization: Qlusters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Would SSI clustering extensions be of interest to kernel community?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 16 Oct 2006 08:58:17 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:49034 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1750706AbWJPM6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 08:58:16 -0400
+Message-Id: <45339E57.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 16 Oct 2006 14:59:35 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Jiri Kosina" <jikos@jikos.cz>
+Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with
+	dibx000 DVB - input tree merge plans?
+References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
+ <200610161231.30705.ak@suse.de> <4533991C.76E4.0078.0@novell.com>
+ <Pine.LNX.4.64.0610161443010.29022@twin.jikos.cz>
+In-Reply-To: <Pine.LNX.4.64.0610161443010.29022@twin.jikos.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2006 12:50:34.0259 (UTC) FILETIME=[ABA54E30:01C6F121]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have implemented SSI (single system image) clustering extensions to 
-Linux kernel in the form of a loadable module.
+>Yes, it was compiled using gcc 4.0.2, specifically gcc (GCC) 4.0.2 
+>20051125 (Red Hat 4.0.2-8). I can easily reproduce this, what additional 
+>information do you need? Or should I just try with newer gcc?
 
-It roughly mimics OpenMosix model of deputy/remote split (migrated 
-processes leave a stub on the node where they were born and depend on 
-the "home" node for IO).
+Two possible paths:
+a) Try with gcc 4.1.x.
+b) Send me the offending .o (presumably the one containing dibusb_dib3000mc_tuner_attach)
 
-The implementation shares no code with Mosix/Open Mosix (was written 
-from scratch), is much smaller, and is easily portable to multiple 
-architectures.
-
-We are considering publication of this code and forming an open source 
-project around it.
-
-I have two questions to the community:
-
-1) Is community interested in using this code? Do users require SSI 
-product in the era when everybody is talking about partitioning of 
-machines and not clustering?
-2) Are kernel maintainers interested in clustering extensions to Linux 
-kernel? Do they see any value in them? (Our code does not require kernel 
-changes, but we are willing to submit it for inclusion if there is 
-interest.)
-
-Please CC me and the list when replying.
-
--- 
-----------------------------------------
-Constantine Gavrilov
-Kernel Developer
-Qlusters Software Ltd
-1 Azrieli Center, Tel-Aviv
-Phone: +972-3-6081977
-Fax:   +972-3-6081841
-----------------------------------------
-
+Jan

@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWJPUwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWJPUyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbWJPUwk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 16:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWJPUwk
+	id S1161066AbWJPUyA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 16:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbWJPUyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 16:52:40 -0400
-Received: from mtagate4.uk.ibm.com ([195.212.29.137]:62032 "EHLO
-	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161063AbWJPUwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 16:52:39 -0400
-Date: Mon, 16 Oct 2006 22:52:28 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci: x86-32/64 switch to pci_get API
-Message-ID: <20061016205228.GF5385@rhun.haifa.ibm.com>
-References: <1161013892.24237.100.camel@localhost.localdomain> <20061016160759.GA14354@muc.de> <1161017113.24237.115.camel@localhost.localdomain> <20061016162426.GB14354@muc.de> <1161018340.24237.122.camel@localhost.localdomain> <20061016190115.GA45331@muc.de>
+	Mon, 16 Oct 2006 16:54:00 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:52898
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161066AbWJPUx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 16:53:59 -0400
+Date: Mon, 16 Oct 2006 13:54:00 -0700 (PDT)
+Message-Id: <20061016.135400.112621150.davem@davemloft.net>
+To: andrew@walrond.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparc64 kernel message: BUG: soft lockup detected on CPU#3!
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061016164124.GC9350@pelagius.h-e-r-e-s-y.com>
+References: <20061016141127.GB9350@pelagius.h-e-r-e-s-y.com>
+	<20061016164124.GC9350@pelagius.h-e-r-e-s-y.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061016190115.GA45331@muc.de>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 09:01:15PM +0200, Andi Kleen wrote:
-> On Mon, Oct 16, 2006 at 06:05:40PM +0100, Alan Cox wrote:
-> > Ar Llu, 2006-10-16 am 18:24 +0200, ysgrifennodd Andi Kleen:
-> > > > You can't hot unplug your MMU
-> > > 
-> > > Not sure about that. Calgary is afaik in the bridges and since Summit
-> > > has pluggable PCI cages and nodes i would assume the MMU instances are also
-> > > hot pluggables.
-> > 
-> > If so Linux doesn't currently support that and the patch keeps things as
-> > they are except for using hotplug safe APIs (and since I want to
-> > exterminate pci_find_device* shortly thats preferable)
-> > 
-> 
-> Ok i applied the patch to -rc2, but it results in 
-> 
-> arch/x86_64/pci/built-in.o: In function `pcibios_irq_init':
-> irq.c:(.init.text+0xc7e): undefined reference to `pci_get_bus_and_slot'
-> 
-> That function is also nowhere to be found:
-> 
-> % gid pci_get_bus_and_slot
-> %
-> 
-> So dropped again.
+From: andrew@walrond.org
+Date: Mon, 16 Oct 2006 16:41:24 +0000
 
-Alain submitted the patch to add that function roughly at the same
-time. See
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116101265428620&w=2
+> 
+> >  [0000000000525990] prom_putchar+0x2c/0x34
+> 
+> I wonder; could this be a timeout during boot because the prom console
+> is hardware limited to 9600baud and its buffer is full ??
 
-Cheers,
-Muli
+PROM console is just slower than anything else for whatever
+reason.
+
+Even though PROM console drives the same output, using the
+native CONFIG_SERIAL_SUNHV is much faster and does not generate
+the timeouts.
+
+That's why I told the original poster to simply disable
+CONFIG_PROM_CONSOLE, it should never be used.

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWJPBc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWJPBkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWJPBc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Oct 2006 21:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWJPBc7
+	id S1751306AbWJPBkL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Oct 2006 21:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWJPBkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Oct 2006 21:32:59 -0400
-Received: from animx.eu.org ([216.98.75.249]:47249 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1751286AbWJPBc6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Oct 2006 21:32:58 -0400
-Date: Sun, 15 Oct 2006 21:22:49 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Why aren't partitions limited to fit within the device?
-Message-ID: <20061016012249.GA2029@animx.eu.org>
-Mail-Followup-To: Neil Brown <neilb@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
-References: <17710.54489.486265.487078@cse.unsw.edu.au> <1160752047.25218.50.camel@localhost.localdomain> <17714.52626.667835.228747@cse.unsw.edu.au>
+	Sun, 15 Oct 2006 21:40:10 -0400
+Received: from pool-72-66-199-112.ronkva.east.verizon.net ([72.66.199.112]:11973
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751298AbWJPBkJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Oct 2006 21:40:09 -0400
+Message-Id: <200610160139.k9G1dds0012638@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jesse Huang <jesse@icplus.com.tw>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
+Subject: Re: [PATCH 1/5] remove TxStartThresh and RxEarlyThresh
+In-Reply-To: Your message of "Mon, 16 Oct 2006 07:26:37 +1000."
+             <1160947597.22522.3.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <1160855725.2266.1.camel@localhost.localdomain>
+            <1160947597.22522.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17714.52626.667835.228747@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/signed; boundary="==_Exmh_1160962778_4950P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 15 Oct 2006 21:39:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Friday October 13, alan@lxorguk.ukuu.org.uk wrote:
-> > No I think not. Any partition which is partly outside the disk should be
-> > ignored entirely, that ensures it doesn't accidentally get mounted and
-> > trashed by an HPA or similar mixup.
-> 
-> Hmmm.. So Alan things a partially-outside-this-disk partition
-> shouldn't show up at all, and Andries thinks it should.
-> And both give reasonably believable justifications.
-> 
-> Maybe we need a kernel parameter?  How about this?
+--==_Exmh_1160962778_4950P
+Content-Type: text/plain; charset=us-ascii
 
-How about something in /proc or /sys to force the partition to show or not?
+On Mon, 16 Oct 2006 07:26:37 +1000, Benjamin Herrenschmidt said:
+> Somebody patented FIFO thresholds ? Gack ?
 
-Maybe something like
-echo 1 > /sys/block/hda/hda4/visible
-?
+The US PTO is fundamentally busticated.
 
-Just an idea, my view would be not to introduce a new kernel parameter since
-you have to reboot just to see it.  It's quite possible this would effect
-USB/Firewire storage devices.  I have never been bitten by this problem
-however it would be nice not to have to reboot to solve one like this say on
-a slightly corrupted usb memory stick.
+http://www.engadget.com/2006/10/14/cisco-patents-the-triple-play/
 
-A possibility of using words instead of numbers, in the above example could
-be one of: yes r/o no  indicating full r/w, r/o, or not visible.
+Cisco got a patent on the concept of delivering voice, internet, and
+cable TV over one cable.  Now admittedly, when they applied for it in 2000,
+it wasn't a buzzword yet - but I'm pretty sure that there was prior art.
 
-I'm not so sure if the size of the partition that is visible should be the
-size according to the partition table or the size according to the start of
-the partition to the end of the device.  I would probably choose to have the
-size to be the smaller number.
+Back to the case at hand...
 
-I was bitten by a 2.4 to 2.6 conversion where the size of the disk was 1
-sector larger than what I saw in 2.4, but it was a minor problem which was
-solved by masking off bit 0 of the size.
+In the case of the TxStartThresh and RxEarlyThresh, I don't think it's
+FIFO thresholds per se that are a problem - the note specifically mentioned
+cut-through, which is a specific technique of starting to deal with the
+alread-arrived head end of the packet *before* the tail end has arrived
+yet. e.g. if you read a packet that has 16 bytes of control info followed
+by 64 bytes of data, you have finished parsing the first 16 and have set
+stuff up by the time the 64 bytes starts arriving - even though you only
+started *one* read of 80 bytes).
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+Of course, even *that* is an old technique - I remember discussion (and
+possibly implementation) of being able to read the front of an Ethernet
+packet, and do the routing table lookup fast enough so that you could start
+transmitting the packet on the outbound interface before it had finished
+arriving on the inbound.  Of course, this was back when Proteon and Bay
+were start-ups, nobody did IP option fields or router ACLs or stuff like
+that, and level-3 routers were not much smarter (and perhaps stupider) than
+today's level-2 switches that filter/route based on MAC address...
+
+Maybe the patent is on the fact that you can't do cut-through routing well
+without enforcing certain relationships on the Rx and Tx FIFO thresholds...
+
+--==_Exmh_1160962778_4950P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFMuLacC3lWbTT17ARAt/cAKDiQBdeCijkYUsjchqsyE9XM4og0QCeODTu
+MyEdOzs93nRFWCm291gzNQo=
+=yAFu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1160962778_4950P--

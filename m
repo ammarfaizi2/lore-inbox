@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422686AbWJPTBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422827AbWJPTET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422686AbWJPTBX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422813AbWJPTBX
+	id S1422827AbWJPTET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422833AbWJPTET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:01:23 -0400
-Received: from colin.muc.de ([193.149.48.1]:3844 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1422686AbWJPTBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:01:22 -0400
-Date: 16 Oct 2006 21:01:15 +0200
-Date: Mon, 16 Oct 2006 21:01:15 +0200
-From: Andi Kleen <ak@muc.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci: x86-32/64 switch to pci_get API
-Message-ID: <20061016190115.GA45331@muc.de>
-References: <1161013892.24237.100.camel@localhost.localdomain> <20061016160759.GA14354@muc.de> <1161017113.24237.115.camel@localhost.localdomain> <20061016162426.GB14354@muc.de> <1161018340.24237.122.camel@localhost.localdomain>
+	Mon, 16 Oct 2006 15:04:19 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:1707 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1422827AbWJPTES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:04:18 -0400
+Date: Mon, 16 Oct 2006 15:04:03 -0400
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Kasper Sandberg <lkml@metanurb.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       John Richard Moser <nigelenki@comcast.net>,
+       Kevin K <k_krieser@sbcglobal.net>, linux-kernel@vger.kernel.org
+Subject: Re: Driver model.. expel legacy drivers?
+Message-ID: <20061016190403.GD30993@csclub.uwaterloo.ca>
+References: <4530570B.7030500@comcast.net> <20061014075625.GA30596@stusta.de> <4530FC8E.7020504@comcast.net> <7E4CA247-AD0A-4A20-BEAF-CDD2CA4D3FFE@sbcglobal.net> <45315A20.6090600@comcast.net> <1160870637.5732.46.camel@localhost.localdomain> <45317814.8000709@comcast.net> <1160922815.5732.54.camel@localhost.localdomain> <1160991586.10100.6.camel@localhost> <1161008002.25309.11.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161018340.24237.122.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1161008002.25309.11.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 06:05:40PM +0100, Alan Cox wrote:
-> Ar Llu, 2006-10-16 am 18:24 +0200, ysgrifennodd Andi Kleen:
-> > > You can't hot unplug your MMU
-> > 
-> > Not sure about that. Calgary is afaik in the bridges and since Summit
-> > has pluggable PCI cages and nodes i would assume the MMU instances are also
-> > hot pluggables.
-> 
-> If so Linux doesn't currently support that and the patch keeps things as
-> they are except for using hotplug safe APIs (and since I want to
-> exterminate pci_find_device* shortly thats preferable)
-> 
+On Mon, Oct 16, 2006 at 10:13:21AM -0400, Lee Revell wrote:
+> Easy - when they think they can provide equivalent functionality and hit
+> a lower price point (or make a bigger profit at the same price point) by
+> violating the standard.
 
-Ok i applied the patch to -rc2, but it results in 
+Or they think they can make their product using their own driver work
+better and faster and offer more bling than products using the existing
+driver, and they assume people will pay more for that hence justifying
+the expense.
 
-arch/x86_64/pci/built-in.o: In function `pcibios_irq_init':
-irq.c:(.init.text+0xc7e): undefined reference to `pci_get_bus_and_slot'
-
-That function is also nowhere to be found:
-
-% gid pci_get_bus_and_slot
-%
-
-So dropped again.
-
--Andi
+--
+Len Sorensen

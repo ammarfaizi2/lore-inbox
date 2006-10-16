@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422626AbWJPP0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWJPP00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422626AbWJPP0A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 11:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422630AbWJPP0A
+	id S1422632AbWJPP00 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 11:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbWJPP00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 11:26:00 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:2832 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422626AbWJPPZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 11:25:59 -0400
-Date: Mon, 16 Oct 2006 17:26:31 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Duncan Sands <duncan.sands@math.u-psud.fr>, Greg K-H <greg@kroah.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/3] Driver core: Per-subsystem multithreaded probing.
-Message-ID: <20061016172631.47d3eb70@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L0.0610161040570.7103-100000@iolanthe.rowland.org>
-References: <20061016125613.16c9f667@gondolin.boeblingen.de.ibm.com>
-	<Pine.LNX.4.44L0.0610161040570.7103-100000@iolanthe.rowland.org>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Oct 2006 11:26:26 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4753 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422632AbWJPP0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 11:26:22 -0400
+Subject: [PATCH] ide: complete switch to pci_get
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 16 Oct 2006 16:53:11 +0100
+Message-Id: <1161013992.24237.103.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 10:59:28 -0400 (EDT),
-Alan Stern <stern@rowland.harvard.edu> wrote:
+The reverse get function allows the final piece of the switching for the
+old IDE layer
 
-> That's not quite true.  You could acquire dev->parent->sem always, just to
-> be certain.  
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-But dev->parent->sem wouldn't be taken in the non-multithreaded path,
-so we would change the semantics.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/ide/setup-pci.c linux-2.6.19-rc1-mm1/drivers/ide/setup-pci.c
+--- linux.vanilla-2.6.19-rc1-mm1/drivers/ide/setup-pci.c	2006-10-13 15:09:30.000000000 +0100
++++ linux-2.6.19-rc1-mm1/drivers/ide/setup-pci.c	2006-10-13 17:19:44.000000000 +0100
+@@ -844,11 +844,11 @@
+ 
+ 	pre_init = 0;
+ 	if (!scan_direction) {
+-		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++		while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+ 			ide_scan_pcidev(dev);
+ 		}
+ 	} else {
+-		while ((dev = pci_find_device_reverse(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++		while ((dev = pci_get_device_reverse(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+ 			ide_scan_pcidev(dev);
+ 		}
+ 	}
 
-> However USB shouldn't use this form of multithreaded probing
-> in any case; it should instead use multiple threads for khubd.
-
-OK, so usb shouldn't request multithreaded probe.
-
-> >  but
-> > that still results in bus->remove being called without a prior ->probe
-> > (but not drv->probe since dev->driver is not set at that time).
-> 
-> How so?  We shouldn't call bus->remove if a driver isn't bound.
-
-Eh, yes. I was confused :)
-
-> Some other things were left out of the patch.  Since we can no longer know 
-> whether any drivers will get bound at all, device_attach() should now 
-> return void.
-
-But device_bind_driver() may still return an error, if creating the
-links failed.
-
--- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

@@ -1,113 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWJPPPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWJPPQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWJPPPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 11:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWJPPPS
+	id S932133AbWJPPQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 11:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWJPPQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 11:15:18 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44481 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932132AbWJPPPR
+	Mon, 16 Oct 2006 11:16:33 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17034 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932133AbWJPPQc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 11:15:17 -0400
-Subject: [PATCH] resend: iPhase - 64bit cleanup
+	Mon, 16 Oct 2006 11:16:32 -0400
+Subject: [PATCH] pata_marvell: Marvell 6101/6145 PATA driver
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, chas@cmf.nrl.navy.mil
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 16:41:47 +0100
-Message-Id: <1161013307.24237.88.camel@localhost.localdomain>
+Date: Mon, 16 Oct 2006 16:40:06 +0100
+Message-Id: <1161013206.24237.85.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a legacy mode PATA driver for the 6101/45 and will also drive
+the SATA ports 1 & 2 in legacy mode as well if desired. Tested and
+confirmed working by users. The chip supports AHCI type behaviour for
+SATA and has a more advanced PATA interface as well so this driver will
+get it working but not get best performance for now.
+
 Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/atm/iphase.c linux-2.6.19-rc1-mm1/drivers/atm/iphase.c
---- linux.vanilla-2.6.19-rc1-mm1/drivers/atm/iphase.c	2006-10-13 15:10:06.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/drivers/atm/iphase.c	2006-10-13 17:17:16.000000000 +0100
-@@ -93,10 +93,6 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/ata/Kconfig linux-2.6.19-rc1-mm1/drivers/ata/Kconfig
+--- linux.vanilla-2.6.19-rc1-mm1/drivers/ata/Kconfig	2006-10-13 15:10:06.000000000 +0100
++++ linux-2.6.19-rc1-mm1/drivers/ata/Kconfig	2006-10-13 17:22:24.000000000 +0100
+@@ -341,6 +341,15 @@
  
- MODULE_LICENSE("GPL");
+ 	  If unsure, say N.
  
--#if BITS_PER_LONG != 32
--#  error FIXME: this driver only works on 32-bit platforms
--#endif
--
- /**************************** IA_LIB **********************************/
- 
- static void ia_init_rtn_q (IARTN_Q *que) 
-@@ -1408,7 +1404,6 @@
- 	struct abr_vc_table  *abr_vc_table; 
- 	u16 *vc_table;  
- 	u16 *reass_table;  
--        u16 *ptr16;
- 	int i,j, vcsize_sel;  
- 	u_short freeq_st_adr;  
- 	u_short *freeq_start;  
-@@ -1423,14 +1418,15 @@
- 		printk(KERN_ERR DEV_LABEL "can't allocate DLEs\n");
- 		goto err_out;
- 	}
--	iadev->rx_dle_q.start = (struct dle*)dle_addr;  
-+	iadev->rx_dle_q.start = (struct dle *)dle_addr;
- 	iadev->rx_dle_q.read = iadev->rx_dle_q.start;  
- 	iadev->rx_dle_q.write = iadev->rx_dle_q.start;  
--	iadev->rx_dle_q.end = (struct dle*)((u32)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
-+	iadev->rx_dle_q.end = (struct dle*)((unsigned long)dle_addr+sizeof(struct dle)*DLE_ENTRIES);
- 	/* the end of the dle q points to the entry after the last  
- 	DLE that can be used. */  
-   
- 	/* write the upper 20 bits of the start address to rx list address register */  
-+	/* We know this is 32bit bus addressed so the following is safe */
- 	writel(iadev->rx_dle_dma & 0xfffff000,
- 	       iadev->dma + IPHASE5575_RX_LIST_ADDR);  
- 	IF_INIT(printk("Tx Dle list addr: 0x%08x value: 0x%0x\n", 
-@@ -1584,11 +1580,12 @@
- 	   Set Packet Aging Interval count register to overflow in about 4 us
-  	*/  
-         writew(0xF6F8, iadev->reass_reg+PKT_TM_CNT );
--        ptr16 = (u16*)j;
--        i = ((u32)ptr16 >> 6) & 0xff;
--	ptr16  += j - 1;
--	i |=(((u32)ptr16 << 2) & 0xff00);
-+        
-+        i = (j >> 6) & 0xFF;
-+        j += 2 * (j - 1);
-+        i |= ((j << 2) & 0xFF00);
-         writew(i, iadev->reass_reg+TMOUT_RANGE);
++config PATA_MARVELL
++	tristate "Marvell PATA support via legacy mode"
++	depends on PCI
++	help
++	  This option enables limited support for the Marvell 88SE6145 ATA
++	  controller.
 +
-         /* initiate the desc_tble */
-         for(i=0; i<iadev->num_tx_desc;i++)
-             iadev->desc_tbl[i].timestamp = 0;
-@@ -1911,7 +1908,7 @@
- 	iadev->tx_dle_q.start = (struct dle*)dle_addr;  
- 	iadev->tx_dle_q.read = iadev->tx_dle_q.start;  
- 	iadev->tx_dle_q.write = iadev->tx_dle_q.start;  
--	iadev->tx_dle_q.end = (struct dle*)((u32)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
-+	iadev->tx_dle_q.end = (struct dle*)((unsigned long)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
- 
- 	/* write the upper 20 bits of the start address to tx list address register */  
- 	writel(iadev->tx_dle_dma & 0xfffff000,
-@@ -2913,7 +2910,7 @@
-                  dev_kfree_skb_any(skb);
-           return 0;
-         }
--        if ((u32)skb->data & 3) {
-+        if ((unsigned long)skb->data & 3) {
-            printk("Misaligned SKB\n");
-            if (vcc->pop)
-                  vcc->pop(vcc, skb);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/atm/Kconfig linux-2.6.19-rc1-mm1/drivers/atm/Kconfig
---- linux.vanilla-2.6.19-rc1-mm1/drivers/atm/Kconfig	2006-10-13 15:06:30.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/drivers/atm/Kconfig	2006-10-13 17:17:39.000000000 +0100
-@@ -289,7 +289,7 @@
- 
- config ATM_IA
- 	tristate "Interphase ATM PCI x575/x525/x531"
--	depends on PCI && ATM && !64BIT
-+	depends on PCI && ATM
- 	---help---
- 	  This is a driver for the Interphase (i)ChipSAR adapter cards
- 	  which include a variety of variants in term of the size of the
++	  If unsure, say N.
++
+ config PATA_MPIIX
+ 	tristate "Intel PATA MPIIX support"
+ 	depends on PCI
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/ata/Makefile linux-2.6.19-rc1-mm1/drivers/ata/Makefile
+--- linux.vanilla-2.6.19-rc1-mm1/drivers/ata/Makefile	2006-10-13 15:10:06.000000000 +0100
++++ linux-2.6.19-rc1-mm1/drivers/ata/Makefile	2006-10-13 17:15:57.000000000 +0100
+@@ -38,6 +38,7 @@
+ obj-$(CONFIG_PATA_NS87410)	+= pata_ns87410.o
+ obj-$(CONFIG_PATA_OPTI)		+= pata_opti.o
+ obj-$(CONFIG_PATA_OPTIDMA)	+= pata_optidma.o
++obj-$(CONFIG_PATA_MARVELL)	+= pata_marvell.o
+ obj-$(CONFIG_PATA_MPIIX)	+= pata_mpiix.o
+ obj-$(CONFIG_PATA_OLDPIIX)	+= pata_oldpiix.o
+ obj-$(CONFIG_PATA_PCMCIA)	+= pata_pcmcia.o
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/ata/pata_marvell.c linux-2.6.19-rc1-mm1/drivers/ata/pata_marvell.c
+--- linux.vanilla-2.6.19-rc1-mm1/drivers/ata/pata_marvell.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.19-rc1-mm1/drivers/ata/pata_marvell.c	2006-10-13 17:16:43.000000000 +0100
+@@ -0,0 +1,221 @@
++/*
++ *	Marvell PATA driver.
++ *
++ *	For the moment we drive the PATA port in legacy mode. That
++ *	isn't making full use of the device functionality but it is
++ *	easy to get working.
++ *
++ *	(c) 2006 Red Hat  <alan@redhat.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/init.h>
++#include <linux/blkdev.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <scsi/scsi_host.h>
++#include <linux/libata.h>
++#include <linux/ata.h>
++
++#define DRV_NAME	"pata_marvell"
++#define DRV_VERSION	"0.0.4t"
++
++/**
++ *	marvell_pre_reset	-	check for 40/80 pin
++ *	@ap: Port
++ *
++ *	Perform the PATA port setup we need.
++ */
++
++static int marvell_pre_reset(struct ata_port *ap)
++{
++	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
++	u32 devices;
++	unsigned long bar5;
++	void __iomem *barp;
++	int i;
++
++	/* Check if our port is enabled */
++
++	bar5 = pci_resource_start(pdev, 5);
++	barp = ioremap(bar5, 0x10);
++	if (barp == NULL)
++		return -ENOMEM;
++	printk("BAR5:");
++	for(i = 0; i <= 0x0F; i++)
++		printk("%02X:%02X ", i, readb(barp + i));
++	printk("\n");
++	
++	devices = readl(barp + 0x0C);
++	iounmap(barp);
++	
++	if (pdev->device == 0x6145 && ap->port_no == 0 && !(devices & 0x10))	/* PATA enable ? */
++		return -ENOENT;
++
++	/* Cable type */
++	switch(ap->port_no)
++	{
++		case 0:
++			/* Might be backward, docs unclear */
++			if(inb(ap->ioaddr.bmdma_addr + 1) & 1)
++				ap->cbl = ATA_CBL_PATA80;
++			else
++				ap->cbl = ATA_CBL_PATA40;
++			
++		case 1: /* Legacy SATA port */
++			ap->cbl = ATA_CBL_SATA;
++			break;
++	}
++	return ata_std_prereset(ap);
++}
++
++/**
++ *	marvell_error_handler - Setup and error handler
++ *	@ap: Port to handle
++ *
++ *	LOCKING:
++ *	None (inherited from caller).
++ */
++
++static void marvell_error_handler(struct ata_port *ap)
++{
++	return ata_bmdma_drive_eh(ap, marvell_pre_reset, ata_std_softreset, NULL, ata_std_postreset);
++}
++
++/* No PIO or DMA methods needed for this device */
++
++static struct scsi_host_template marvell_sht = {
++	.module			= THIS_MODULE,
++	.name			= DRV_NAME,
++	.ioctl			= ata_scsi_ioctl,
++	.queuecommand		= ata_scsi_queuecmd,
++	.can_queue		= ATA_DEF_QUEUE,
++	.this_id		= ATA_SHT_THIS_ID,
++	.sg_tablesize		= LIBATA_MAX_PRD,
++	.max_sectors		= ATA_MAX_SECTORS,
++	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
++	.emulated		= ATA_SHT_EMULATED,
++	.use_clustering		= ATA_SHT_USE_CLUSTERING,
++	.proc_name		= DRV_NAME,
++	.dma_boundary		= ATA_DMA_BOUNDARY,
++	.slave_configure	= ata_scsi_slave_config,
++	/* Use standard CHS mapping rules */
++	.bios_param		= ata_std_bios_param,
++};
++
++static const struct ata_port_operations marvell_ops = {
++	.port_disable		= ata_port_disable,
++
++	/* Task file is PCI ATA format, use helpers */
++	.tf_load		= ata_tf_load,
++	.tf_read		= ata_tf_read,
++	.check_status		= ata_check_status,
++	.exec_command		= ata_exec_command,
++	.dev_select		= ata_std_dev_select,
++
++	.freeze			= ata_bmdma_freeze,
++	.thaw			= ata_bmdma_thaw,
++	.error_handler		= marvell_error_handler,
++	.post_internal_cmd	= ata_bmdma_post_internal_cmd,
++
++	/* BMDMA handling is PCI ATA format, use helpers */
++	.bmdma_setup		= ata_bmdma_setup,
++	.bmdma_start		= ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
++	.qc_prep		= ata_qc_prep,
++	.qc_issue		= ata_qc_issue_prot,
++	.data_xfer		= ata_pio_data_xfer,
++
++	/* Timeout handling */
++	.eng_timeout		= ata_eng_timeout,
++	.irq_handler		= ata_interrupt,
++	.irq_clear		= ata_bmdma_irq_clear,
++
++	/* Generic PATA PCI ATA helpers */
++	.port_start		= ata_port_start,
++	.port_stop		= ata_port_stop,
++	.host_stop		= ata_host_stop,
++};
++
++
++/**
++ *	marvell_init_one - Register Marvell ATA PCI device with kernel services
++ *	@pdev: PCI device to register
++ *	@ent: Entry in marvell_pci_tbl matching with @pdev
++ *
++ *	Called from kernel PCI layer.
++ *
++ *	LOCKING:
++ *	Inherited from PCI layer (may sleep).
++ *
++ *	RETURNS:
++ *	Zero on success, or -ERRNO value.
++ */
++
++static int marvell_init_one (struct pci_dev *pdev, const struct pci_device_id *id)
++{
++	static struct ata_port_info info = {
++		.sht		= &marvell_sht,
++		.flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++
++		.pio_mask	= 0x1f,
++		.mwdma_mask	= 0x07,
++		.udma_mask 	= 0x3f,
++
++		.port_ops	= &marvell_ops,
++	};
++	static struct ata_port_info info_sata = {
++		.sht		= &marvell_sht,
++		/* Slave possible as its magically mapped not real */
++		.flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++
++		.pio_mask	= 0x1f,
++		.mwdma_mask	= 0x07,
++		.udma_mask 	= 0x7f,
++
++		.port_ops	= &marvell_ops,
++	};
++	struct ata_port_info *port_info[2] = { &info, &info_sata };
++	int n_port = 2;
++	
++	if (pdev->device == 0x6101)
++		n_port = 1;
++	
++	return ata_pci_init_one(pdev, port_info, n_port);
++}
++
++static const struct pci_device_id marvell_pci_tbl[] = {
++	{ PCI_DEVICE(0x11AB, 0x6101), },
++	{ PCI_DEVICE(0x11AB, 0x6145), },
++	{ }	/* terminate list */
++};
++
++static struct pci_driver marvell_pci_driver = {
++	.name			= DRV_NAME,
++	.id_table		= marvell_pci_tbl,
++	.probe			= marvell_init_one,
++	.remove			= ata_pci_remove_one,
++};
++
++static int __init marvell_init(void)
++{
++	return pci_register_driver(&marvell_pci_driver);
++}
++
++static void __exit marvell_exit(void)
++{
++	pci_unregister_driver(&marvell_pci_driver);
++}
++
++module_init(marvell_init);
++module_exit(marvell_exit);
++
++MODULE_AUTHOR("Alan Cox");
++MODULE_DESCRIPTION("SCSI low-level driver for Marvell ATA in legacy mode");
++MODULE_LICENSE("GPL");
++MODULE_DEVICE_TABLE(pci, marvell_pci_tbl);
++MODULE_VERSION(DRV_VERSION);
++
 

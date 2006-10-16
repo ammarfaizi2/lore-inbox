@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWJPOLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWJPOOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWJPOLO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWJPOLO
+	id S932067AbWJPOOK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWJPOOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:11:14 -0400
-Received: from dhost002-49.dex002.intermedia.net ([64.78.21.145]:35899 "EHLO
-	dhost002-49.dex002.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750703AbWJPOLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:11:13 -0400
-Message-ID: <453392CD.1050504@qlusters.com>
-Date: Mon, 16 Oct 2006 16:10:21 +0200
-From: Constantine Gavrilov <constg@qlusters.com>
-Reply-To: Constantine Gavrilov <constg@qlusters.com>
-Organization: Qlusters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Would SSI clustering extensions be of interest to kernelcommunity?
-References: <45337FE3.8020201@qlusters.com> <1161006841.24237.33.camel@localhost.localdomain>
-In-Reply-To: <1161006841.24237.33.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2006 14:11:11.0851 (UTC) FILETIME=[EF1343B0:01C6F12C]
+	Mon, 16 Oct 2006 10:14:10 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:52711 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S932067AbWJPOOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:14:07 -0400
+Date: Mon, 16 Oct 2006 07:13:42 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
+Message-ID: <20061016141342.GF15540@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161208.13628.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610161208.13628.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Andi,
 
->Ar Llu, 2006-10-16 am 14:49 +0200, ysgrifennodd Constantine Gavrilov:
->  
->
->>2) Are kernel maintainers interested in clustering extensions to Linux 
->>kernel? Do they see any value in them? (Our code does not require kernel 
->>changes, but we are willing to submit it for inclusion if there is 
->>interest.)
->>    
->>
->
->If they are doing SSI well and do not need core kernel changes then yes
->they sound very interesting to me. Historically the big concern has
->always been that things like this muck up the kernel core which affects
->the other 99.99999% of users who don't want SSI clustering.
->
->Alan
->
->
->  
->
+On Mon, Oct 16, 2006 at 12:08:13PM +0200, Andi Kleen wrote:
+> On Friday 06 October 2006 10:16, Stephane Eranian wrote:
+> > Hi,
+> > 
+> > Unless I am mistaken, I think we are missing some calls to enter_idle()
+> > in the x86_64 tree. The following patch adds a bunch of missing
+> > enter_idle() callbacks for some of the "direct" interrupt handlers.
+> > 
+> > changelog:
+> > 	- adds missing enter_idle() calls to most of the "direct" interrupt
+> > 	  handlers.
+> 
+> HLT returns after an interrupt and then does enter_idle()
 
-SSI intrudes kernel in two places: a) IO system calls, b ) page fault  
-code for shared memory pages.
+With the original code, the number of callbacks you see for IDLE_START and
+IDLE_STOP is not too obvious.
 
-a) IO system calls are "packed" and forwarded to the "home" node, where 
-original syscall code is executed.
-b) A hook is inserted into page fault code that brings shared memory 
-pages from other nodes when necessary.
+On an idle system Opteron 250 with HZ=250, one would expect to see for a 10s duration:
+	- for CPU0      : IDLE_START = IDLE_STOP = about 5000 calls
+	- for other CPUs: IDLE_START = IDLE_STOP = about 2500  calls
 
-Apart from these two hooks, SSI code is a "standalone" kernel API add-on 
-("add", not "change").
+With the original code, you get the following number of calls:
 
-Currently, we can do both "intrusions" from the kernel module. I assume 
-that if we submit code, you will require a kernel patch that explicitly 
-calls our hooks.
+CPU0.IDLE_START = 44 (enter_idle)
+CPU0.IDLE_STOP  = 5206 (exit_idle)
 
-Also, continuous SSI in-kernel support may require SSI changes in the 
-following cases: a) new fields in task struct that reflect process state 
-(may affect task migration), b) changes in the page fault mechanism (may 
-effect SSI shared memory code that brings and invalidates pages), c) 
-addition of new system calls (may require implementation of  SSI 
-suspport for them).
+CPU1.IDLE_START = 27 (enter_idle)
+CPU1.IDLE_STOP  = 2528 (exit_idle)
+
+Now, of course, you may get "batched" interrupts where you do not return to idle
+before you process the next interrupt. But the difference seems quite high here.
+
+Do you have an explanation for this?
 
 -- 
-----------------------------------------
-Constantine Gavrilov
-Kernel Developer
-Qlusters Software Ltd
-1 Azrieli Center, Tel-Aviv
-Phone: +972-3-6081977
-Fax:   +972-3-6081841
-----------------------------------------
-
+-Stephane

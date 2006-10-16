@@ -1,120 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWJPKHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWJPKIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbWJPKHL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 06:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbWJPKHK
+	id S1030343AbWJPKIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 06:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbWJPKIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 06:07:10 -0400
-Received: from [62.77.196.1] ([62.77.196.1]:32137 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S1030342AbWJPKHJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 06:07:09 -0400
-Message-ID: <4533598A.3040909@dunaweb.hu>
-Date: Mon, 16 Oct 2006 12:06:02 +0200
-From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Is there a way to limit VFAT allocation?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 16 Oct 2006 06:08:16 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:10399 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030343AbWJPKIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 06:08:15 -0400
+Subject: Re: [linux-usb-devel] [PATCH] usbmon: add binary interface
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>, gregkh@suse.de,
+       Paolo Abeni <paolo.abeni@email.it>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20061011142941.3c599e16.zaitcev@redhat.com>
+References: <20061011134351.0c79445a.zaitcev@redhat.com>
+	 <Pine.LNX.4.44L0.0610111649440.6437-100000@iolanthe.rowland.org>
+	 <20061011142941.3c599e16.zaitcev@redhat.com>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 12:07:38 +0200
+Message-Id: <1160993258.5498.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Pete,
 
-I have bought a 2GB MP3 player / flash disk
-that erroneously partitions and formats its storage.
-The built-in firmware has an off-by-one bug that
-creates the partition one cylinder larger that the
-disk size allows and then it formats the VFAT fs
-according to the buggy partition size. No wonder
-when I try to copy large amounts of data to the
-flash disk it detects errors and then remounts it
-read-only.
+> > Would relayfs be a better choice than debugfs for exporting potentially
+> > large quantities of binary data?
+> 
+> I'm sick of mounting them, so for the binary API I was going to
+> create a bunch of character devices with a dynamic major.
+> With udev, I do not even need to read /proc/devices myself.
+> 
+> Curiously enough, Marcel Holtmann argued for a device because he
+> did NOT want to run udev. Funny how that works.
 
-I tried to repartition and reformat it three times
-with different mformat or mkdosfs options
-but as soon as I remove it from the USB port,
-the device detects changed disk format and
-automatically reformats itself again, so it
-stays buggy.
+can't remember that I said that. My concern was that distros might not
+compile debugfs and so usbmon would have been useless. Some character
+devices seems the right approach to me. The only concern with a dynamic
+major might be USB debugging in an early time of the boot process, but
+that seems to be really rare.
 
-Here's the excerpt from the logs on one occasion
-I tried to copy some large stuff onto it:
+Regards
 
-Oct  3 22:56:31 host-81-17-177-202 kernel: SCSI device sdb: 4095765 
-512-byte hdwr sectors (2097 MB)
-Oct  3 22:56:31 host-81-17-177-202 kernel: sdb: Write Protect is off
-Oct  3 22:56:32 host-81-17-177-202 kernel: sdb: assuming drive cache: 
-write through
-Oct  3 22:56:32 host-81-17-177-202 kernel: SCSI device sdb: 4095765 
-512-byte hdwr sectors (2097 MB)
-Oct  3 22:56:32 host-81-17-177-202 kernel: sdb: Write Protect is off
-Oct  3 22:56:32 host-81-17-177-202 kernel: sdb: assuming drive cache: 
-write through
-Oct  3 22:56:33 host-81-17-177-202 kernel:  sdb: sdb1
-Oct  3 22:56:33 host-81-17-177-202 kernel:  sdb: p1 exceeds device capacity
-Oct  3 22:56:33 host-81-17-177-202 kernel: sd 6:0:0:0: Attached scsi 
-removable disk sdb
-Oct  3 22:56:33 host-81-17-177-202 kernel: sd 6:0:0:0: Attached scsi 
-generic sg1 type 0
-Oct  3 22:56:33 host-81-17-177-202 kernel: sd 5:0:0:0: Attached scsi 
-removable disk sdc
-Oct  3 22:56:33 host-81-17-177-202 kernel: sd 5:0:0:0: Attached scsi 
-generic sg2 type 0
-Oct  3 22:56:33 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095616
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095617
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095618
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095619
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095620
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095621
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095622
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095623
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095616
-Oct  3 22:56:34 host-81-17-177-202 kernel: Buffer I/O error on device 
-sdb1, logical block 4095617
-Oct  3 22:56:34 host-81-17-177-202 kernel: SELinux: initialized (dev 
-sdb1, type vfat), uses genfs_contexts
-...
-Oct  3 23:26:53 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:26:53 host-81-17-177-202 kernel:     fat_get_cluster: invalid 
-cluster chain (i_pos 0)
-Oct  3 23:26:53 host-81-17-177-202 kernel:     File system has been set 
-read-only
-...
-Oct  3 23:31:35 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:31:35 host-81-17-177-202 kernel:     fat_get_cluster: invalid 
-cluster chain (i_pos 0)
-Oct  3 23:35:33 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:35:33 host-81-17-177-202 kernel:     fat_bmap_cluster: request 
-beyond EOF (i_pos 47395744)
-Oct  3 23:35:33 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:35:33 host-81-17-177-202 kernel:     fat_bmap_cluster: request 
-beyond EOF (i_pos 47395744)
-Oct  3 23:35:33 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:35:33 host-81-17-177-202 kernel:     fat_bmap_cluster: request 
-beyond EOF (i_pos 47395744)
-Oct  3 23:35:33 host-81-17-177-202 kernel: FAT: Filesystem panic (dev sdb1)
-Oct  3 23:35:33 host-81-17-177-202 kernel:     fat_bmap_cluster: request 
-beyond EOF (i_pos 47395744)
-...
+Marcel
 
-Unfortunately, the firmware is not upgradeable.
-The device in question is a Telstar UFM-102B.
-
-Is there a way to tell the VFAT driver to exclude
-the last N sectors from the allocation strategy?
-
-Best regards,
-Zoltán Böszörményi
 

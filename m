@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422720AbWJPMca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWJPMfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422720AbWJPMca (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 08:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422718AbWJPMca
+	id S1422722AbWJPMfu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 08:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbWJPMfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 08:32:30 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:7635 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1422675AbWJPMc3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 08:32:29 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Mon, 16 Oct 2006 08:35:50 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:29928 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1422722AbWJPMft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 08:35:49 -0400
+Message-Id: <4533991C.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 16 Oct 2006 14:37:16 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Jiri Kosina" <jikos@jikos.cz>, "Andi Kleen" <ak@suse.de>
+Cc: "Peter Zijlstra" <a.p.zijlstra@chello.nl>, "Ingo Molnar" <mingo@elte.hu>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, <khali@linux-fr.org>,
+       <v4l-dvb-maintainer@linuxtv.org>, <i2c@lm-sensors.org>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: dwarf2 stuck Re: lockdep warning in i2c_transfer() with
+	dibx000 DVB - input tree merge plans?
+References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
+ <200610161231.30705.ak@suse.de>
+In-Reply-To: <200610161231.30705.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 2.6.19-rc2] scsi: megaraid_{mm,mbox}: 64-bit DMA capability fix
-Date: Mon, 16 Oct 2006 06:32:14 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261932E3E4@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.19-rc2] scsi: megaraid_{mm,mbox}: 64-bit DMA capability fix
-Thread-Index: Acbw+lh/J3WJ4k6ySNOGFcX5GQBhZwAIteog
-From: "Ju, Seokmann" <Seokmann.Ju@lsi.com>
-To: "Vasily Averin" <vvs@sw.ru>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>,
-       "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       <devel@openvz.org>
-Cc: "Andrey Mirkin" <amirkin@sw.ru>
-X-OriginalArrivalTime: 16 Oct 2006 12:32:15.0697 (UTC) FILETIME=[1CDA0C10:01C6F11F]
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Monday, October 16, 2006 4:09 AM, Vasily Averin wrote:
-> It is known that 2 LSI Logic MegaRAID SATA RAID Controllers 
-> (150-4 and 150-6)
-> don't support 64-bit DMA. Unfortunately currently this check 
-> is wrong and driver
->  sets 64-bit DMA mode for these devices.
-ACK - this patch will fix the problem.
-Thank you for the finding, Vasily.
+>> stack backtrace:
+>> [<c0103b69>] dump_trace+0x65/0x1a2
+>> [<c0103cb6>] show_trace_log_lvl+0x10/0x20
+>> [<c0103f84>] show_trace+0xa/0xc
+>> [<c0103f99>] dump_stack+0x13/0x15
+>> [<c0132ea4>] __lock_acquire+0x7bd/0xa05
+>> [<c01333c1>] lock_acquire+0x5c/0x7b
+>> [<c034b683>] __mutex_lock_slowpath+0xab/0x1de
+>> [<f8902177>] i2c_transfer+0x23/0x40 [i2c_core]
+>> [<f88fa1bf>] dibx000_i2c_gated_tuner_xfer+0x166/0x185 [dibx000_common]
+>> [<f8902183>] i2c_transfer+0x2f/0x40 [i2c_core]
+>> [<f891f04b>] mt2060_readreg+0x4b/0x69 [mt2060]
+>> [<f891f45e>] mt2060_attach+0x40/0x1ea [mt2060]
+>> [<f895f468>] dibusb_dib3000mc_tuner_attach+0x126/0x16c 
+>> [dvb_usb_dibusb_common]
+>> [<d10ea000>] 0xd10ea000
+>> DWARF2 unwinder stuck at 0xd10ea000
+>
+>Hmm, no assembly code or anything. Jan, do you have any ideas?
+>This looks just like a simple callback that goes over a module
+>boundary.
 
-Seokmann
+No, except if this was compiled with gcc 4.0.x (or maybe earlier), in which
+case inspection of the unwind data might be needed to tell if it's one of the
+mis-generated cases that we saw earlier.
 
-> -----Original Message-----
-> From: Vasily Averin [mailto:vvs@sw.ru] 
-> Sent: Monday, October 16, 2006 4:09 AM
-> To: Linux Kernel Mailing List; linux-scsi@vger.kernel.org; 
-> Ju, Seokmann; James Bottomley; Andrew Morton; Linus Torvalds; 
-> devel@openvz.org
-> Cc: Andrey Mirkin
-> Subject: [PATCH 2.6.19-rc2] scsi: megaraid_{mm,mbox}: 64-bit 
-> DMA capability fix
-> 
-> From: Andrey Mirkin (amirkin@sw.ru)
-> 
-> It is known that 2 LSI Logic MegaRAID SATA RAID Controllers 
-> (150-4 and 150-6)
-> don't support 64-bit DMA. Unfortunately currently this check 
-> is wrong and driver
->  sets 64-bit DMA mode for these devices.
-> 
-> Signed-off-by:	Andrey Mirkin <amirkin@sw.ru>
-> Ack-by:		Vasily Averin <vvs@sw.ru>
-> 
-> --- 
-> linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c.mgst6	
-> 2006-10-16
-> 10:26:50.000000000 +0400
-> +++ linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c	
-> 2006-10-16
-> 11:30:55.000000000 +0400
-> @@ -884,7 +884,7 @@ megaraid_init_mbox(adapter_t *adapter)
-> 
->  	if (((magic64 == HBA_SIGNATURE_64_BIT) &&
->  		((adapter->pdev->subsystem_device !=
-> -		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) ||
-> +		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) &&
->  		(adapter->pdev->subsystem_device !=
->  		PCI_SUBSYS_ID_MEGARAID_SATA_150_4))) ||
->  		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
-> 
-> 
+Again - a stack trace alone (as above) will never be likely to yield anything,
+raw stack data and in some (most?) cases the relevant unwind data are also
+needed.
+
+Jan

@@ -1,86 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWJPUaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWJPUdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161026AbWJPUaX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 16:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWJPUaW
+	id S1161056AbWJPUdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 16:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWJPUdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 16:30:22 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:51927 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1161026AbWJPUaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 16:30:21 -0400
-From: "=?iso-8859-9?q?S=2E=C7a=F0lar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: Ondemand/Conservative not working with 2.6.18
-Date: Mon, 16 Oct 2006 23:29:17 +0300
-User-Agent: KMail/1.9.5
-Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <EB12A50964762B4D8111D55B764A8454BA3D91@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454BA3D91@scsmsx413.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2432754.jDyiO4d1Dj";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 16 Oct 2006 16:33:15 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61631 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161056AbWJPUdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 16:33:15 -0400
+Date: Mon, 16 Oct 2006 13:32:56 -0700
+From: Paul Jackson <pj@sgi.com>
+To: sekharan@us.ibm.com
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, menage@google.com,
+       matthltc@us.ibm.com, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+ configfs
+Message-Id: <20061016133256.e09e76ac.pj@sgi.com>
+In-Reply-To: <1161025825.6389.119.camel@linuxchandra>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	<20061010203511.GF7911@ca-server1.us.oracle.com>
+	<6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	<20061010215808.GK7911@ca-server1.us.oracle.com>
+	<1160527799.1674.91.camel@localhost.localdomain>
+	<20061011012851.GR7911@ca-server1.us.oracle.com>
+	<20061011223927.GA29943@kroah.com>
+	<1160609160.6389.80.camel@linuxchandra>
+	<20061012235127.GA15767@kroah.com>
+	<1161025825.6389.119.camel@linuxchandra>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610162329.17482.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2432754.jDyiO4d1Dj
-Content-Type: text/plain;
-  charset="iso-8859-9"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Chandra wrote:
+> As Andrew pointed in one of the email, my patch set reduces the number
+> of lines of code in configfs also.
 
-16 Eki 2006 Pts 16:08 tarihinde, Pallipadi, Venkatesh =FEunlar=FD yazm=FD=
-=FEt=FD:=20
-> Sorry for the delayed response. This is still very mysterious to me..
->
-> Do you see anything interesting in dmesg after you try this ac adapter
-> unplug and plug back routine? Can you send me the dmesg. Better still open
-> a bugzilla at bugme.osdl.org and stick the dmesg and acpidump there.
+I think Andrew has mentioned this a couple of times ;)
 
-No, nothing interested and i filled a bug [1] with all related info
+Actually, I've never been particularly happy with the implicit
+PAGESIZE limit on these writes.  It's dangerous coding practice to
+pass someone a buffer pointer in which they are to write, without
+passing a corresponding length.
 
-> One possible reason for this is, somehow idle statistics is getting all
-> wrong and ondemand thinks CPU is busy, even though it is idle. I have seen
-> this happening earlier when there are issues with local APIC interrupts in
-> deep C-states on dual core systems. But, here it is a single core CPU.
-> Right? Can you also get the output of #cat /proc/interrupts; sleep 10; cat
-> /proc/interrupts
-> On your system when ondemand is not working and when it is working (After
-> your unplug-plug workaround.
+If it is appropriate for configfs to have some such fixed limit on
+file lengths, then that should be a formal part of the API or imposed
+in a safer manner than hoping the callback routine doesn't overwrite
+a buffer.
 
-Hmm top show something weird;
+Whether or not it should use homebrew code as it does now, or Chandra's
+patch to make use of existing infrastructure should be a separate
+question.  I think Andrew's observations apply here.
 
-Tasks:  39 total,   1 running,  38 sleeping,   0 stopped,   0 zombie
-Cpu(s): 32.4%us, 12.4%sy,  0.0%ni, 41.1%id, 13.0%wa,  0.4%hi,  0.6%si,  0.0=
-%st
+And whether or not we add support for a vector of scalars of the same
+type and meaning should be yet another separate question.  No doubt
+reasonable minds will differ on this question, though so far that
+discussion has been clouded by these other issues.
 
-There were nothing runs right that time but top reports only ~%40 idle [ful=
-l=20
-log attached to bug]
+Greg seems to be suggesting that if we use Chandra's patch, we cannot
+impose any length limit, and that this opens the cover to Pandora's
+box of all manner of changing and complex output per file.
 
-[1] http://bugme.osdl.org/show_bug.cgi?id=3D7376
-=2D-=20
-S.=C7a=F0lar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+Well, I could code some pretty ugly output in a single page, if I
+set my mind to it.  But it would be rejected, because we've learned
+that hurts.
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+>From that I conclude that it is not the PAGESIZE limit that is saving
+us from more unparseable file formats, but the discipline we have
+gained from learning the hard way.
 
---nextPart2432754.jDyiO4d1Dj
-Content-Type: application/pgp-signature
+Chandra - I haven't looked at seq file lately - could a user of it
+such as configfs impose a length limit of its choosing, building on
+your patch, without pushing the number of lines of code back above
+where it started?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Perhaps, say, we would let the callback routines could push stuff into
+a seq file without small limits, but then the configfs code could
+truncate that output to a limit of its choosing.  This would impose a
+length limit, safely.
 
-iD8DBQBFM+udy7E6i0LKo6YRAty4AKCQ3D5eRt5zDAZLI4UsqEZEiDWGPgCglHyr
-aprZijYdEt46gsiy23q1jRk=
-=kOvY
------END PGP SIGNATURE-----
-
---nextPart2432754.jDyiO4d1Dj--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

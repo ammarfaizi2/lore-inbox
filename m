@@ -1,39 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWJPGnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWJPGqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWJPGnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWJPGnm
+	id S1161199AbWJPGqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWJPGqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:43:42 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:53657 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1751467AbWJPGnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:43:42 -0400
-Date: Sun, 15 Oct 2006 23:43:41 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: Neil Brown <neilb@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Why aren't partitions limited to fit within the device?
-In-Reply-To: <20061016064039.GB3090@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.64.0610152342400.10294@twinlark.arctic.org>
-References: <17710.54489.486265.487078@cse.unsw.edu.au>
- <1160752047.25218.50.camel@localhost.localdomain> <17714.52626.667835.228747@cse.unsw.edu.au>
- <20061016064039.GB3090@apps.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Oct 2006 02:46:22 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:29610 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1161199AbWJPGqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 02:46:21 -0400
+Subject: [PATCH] drivers/scsi/mca_53c9x.c: save_flags()/cli() removal
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>, James.Bottomley@steeleye.com
+Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 12:19:42 +0530
+Message-Id: <1160981382.19143.416.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006, Andries Brouwer wrote:
+Replaced calls with save_flags()/cli() pair with
+spi_lock_irqsave()/spin_unlock_irqrestore()
 
-> A funny effect might be that hda5 exists, hda6 does not, and hda7 exists again.
-> Maybe unexpected for some software.
+Tested:
+1. compilation only 
+2. Code review to verify that the change does not result in a recursive
+locking
 
-why would that be unexpected?  that seems entirely normal these days with 
-udev...
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+James,
 
-# ls /dev/hda?
-/dev/hda1  /dev/hda2  /dev/hda5
+Though I have done the review to check for recursive locking, can you
+also have a look ?
+---
+--- linux-2.6.19-rc1-orig/drivers/scsi/mca_53c9x.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc1/drivers/scsi/mca_53c9x.c	2006-10-16 11:47:45.000000000 +0530
+@@ -342,9 +342,8 @@ static void dma_init_read(struct NCR_ESP
+ 	unsigned long flags;
+ 
+ 
+-	save_flags(flags);
+-	cli();
+-
++	spin_lock_irqsave(esp->ehost->host_lock, flags);
++	
+ 	mca_disable_dma(esp->dma);
+ 	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_16 |
+ 	  MCA_DMA_MODE_IO);
+@@ -352,7 +351,7 @@ static void dma_init_read(struct NCR_ESP
+ 	mca_set_dma_count(esp->dma, length / 2); /* !!! */
+ 	mca_enable_dma(esp->dma);
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
+ }
+ 
+ static void dma_init_write(struct NCR_ESP *esp, __u32 addr, int length)
+@@ -360,8 +359,7 @@ static void dma_init_write(struct NCR_ES
+ 	unsigned long flags;
+ 
+ 
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(esp->ehost->host_lock, flags);
+ 
+ 	mca_disable_dma(esp->dma);
+ 	mca_set_dma_mode(esp->dma, MCA_DMA_MODE_XFER | MCA_DMA_MODE_WRITE |
+@@ -370,7 +368,7 @@ static void dma_init_write(struct NCR_ES
+ 	mca_set_dma_count(esp->dma, length / 2); /* !!! */
+ 	mca_enable_dma(esp->dma);
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(esp->ehost->host_lock, flags);
+ }
+ 
+ static void dma_ints_off(struct NCR_ESP *esp)
 
--dean
+

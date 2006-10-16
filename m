@@ -1,101 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422928AbWJPXaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422931AbWJPXai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422928AbWJPXaR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 19:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422929AbWJPXaR
+	id S1422931AbWJPXai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 19:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWJPXai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 19:30:17 -0400
-Received: from ns2.suse.de ([195.135.220.15]:40135 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422928AbWJPXaQ (ORCPT
+	Mon, 16 Oct 2006 19:30:38 -0400
+Received: from ns.suse.de ([195.135.220.2]:45969 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422931AbWJPXaa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 19:30:16 -0400
+	Mon, 16 Oct 2006 19:30:30 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 17 Oct 2006 09:30:09 +1000
-Message-Id: <1061016233009.11318@suse.de>
+Date: Tue, 17 Oct 2006 09:30:25 +1000
+Message-Id: <1061016233025.11354@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 5] knfsd: nfsd4: fix owner-override on open
+Subject: [PATCH 004 of 5] knfsd: Fix bug in recent lockd patches that can cause reclaim to fail.
 References: <20061017092702.11224.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "J. Bruce Fields" <bfields@fieldses.org>
-If a client creates a file using an open which sets the mode to 000, or if
-a chmod changes permissions after a file is opened, then situations may
-arise where an NFS client knows that some IO is permitted (because a
-process holds the file open), but the NFS server does not (because it
-doesn't know about the open, and only sees that the IO conflicts with the
-current mode of the file).
+When an nfs server shuts down, lockd needs to release all the locks
+even though the client still holds them.
 
-As a hack to solve this problem, NFS servers normally allow the owner to
-override permissions on IO.  The client can still enforce correct
-permissions-checking on open by performing an explicit access check.
+It should therefore not 'unmonitor' the clients, so that the files in
+nfs/sm will still be there when the nfs server restarts, so that those
+clients will be told to reclaim their locks.
 
-In NFSv4 the client can rely on the explicit on-the-wire open instead of an
-access check.
+However the hosts are fully unmonitored, so statd may well remove the
+files.
 
-Therefore we should not be allowing the owner to override permissions on an
-over-the-wire open!
+lockd has a test for 'sm_sticky' and avoid the unmonitor call if it is
+set, but it is currently not set.
 
-However, we should still allow the owner to override permissions in the case
-where the client is claiming an open that it already made either before a
-reboot, or while it was holding a delegation.
+So set it when tearing down lockd.
 
-Thanks to Jim Rees for reporting the bug.
-
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/nfs4proc.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ ./fs/lockd/svcsubs.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
---- .prev/fs/nfsd/nfs4proc.c	2006-10-17 09:02:22.000000000 +1000
-+++ ./fs/nfsd/nfs4proc.c	2006-10-17 09:02:26.000000000 +1000
-@@ -68,20 +68,18 @@ fh_dup2(struct svc_fh *dst, struct svc_f
- }
- 
+diff .prev/fs/lockd/svcsubs.c ./fs/lockd/svcsubs.c
+--- .prev/fs/lockd/svcsubs.c	2006-10-17 09:10:39.000000000 +1000
++++ ./fs/lockd/svcsubs.c	2006-10-17 09:10:40.000000000 +1000
+@@ -324,7 +324,17 @@ nlmsvc_same_host(struct nlm_host *host, 
  static int
--do_open_permission(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nfsd4_open *open)
-+do_open_permission(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nfsd4_open *open, int accmode)
+ nlmsvc_is_client(struct nlm_host *host, struct nlm_host *dummy)
  {
--	int accmode, status;
-+	int status;
- 
- 	if (open->op_truncate &&
- 		!(open->op_share_access & NFS4_SHARE_ACCESS_WRITE))
- 		return nfserr_inval;
- 
--	accmode = MAY_NOP;
- 	if (open->op_share_access & NFS4_SHARE_ACCESS_READ)
--		accmode = MAY_READ;
-+		accmode |= MAY_READ;
- 	if (open->op_share_deny & NFS4_SHARE_ACCESS_WRITE)
- 		accmode |= (MAY_WRITE | MAY_TRUNC);
--	accmode |= MAY_OWNER_OVERRIDE;
- 
- 	status = fh_verify(rqstp, current_fh, S_IFREG, accmode);
- 
-@@ -124,7 +122,7 @@ do_open_lookup(struct svc_rqst *rqstp, s
- 				&resfh.fh_handle.fh_base,
- 				resfh.fh_handle.fh_size);
- 
--		status = do_open_permission(rqstp, current_fh, open);
-+		status = do_open_permission(rqstp, current_fh, open, MAY_NOP);
- 	}
- 
- 	fh_put(&resfh);
-@@ -155,7 +153,7 @@ do_open_fhandle(struct svc_rqst *rqstp, 
- 	open->op_truncate = (open->op_iattr.ia_valid & ATTR_SIZE) &&
- 		(open->op_iattr.ia_size == 0);
- 
--	status = do_open_permission(rqstp, current_fh, open);
-+	status = do_open_permission(rqstp, current_fh, open, MAY_OWNER_OVERRIDE);
- 
- 	return status;
+-	return host->h_server;
++	if (host->h_server)
++	{
++		/* we are destroying locks even though the client
++		 * hasn't asked us too, so don't unmonitor the
++		 * client
++		 */
++		if (host->h_nsmhandle)
++			host->h_nsmhandle->sm_sticky = 1;
++		return 1;
++	} else
++		return 0;
  }
+ 
+ /*

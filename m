@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422851AbWJPTZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWJPT1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422851AbWJPTZW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422854AbWJPTZV
+	id S1422778AbWJPT1x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422853AbWJPT1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:25:21 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:11952 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422851AbWJPTZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:25:20 -0400
-Date: Mon, 16 Oct 2006 12:25:14 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Will Schmidt <will_schmidt@vnet.ibm.com>
-cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <1161026409.31903.15.camel@farscape>
-Message-ID: <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
-References: <1160764895.11239.14.camel@farscape> 
- <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com> 
- <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape> 
- <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
- <1161026409.31903.15.camel@farscape>
+	Mon, 16 Oct 2006 15:27:53 -0400
+Received: from smtp-out001.kontent.com ([81.88.40.215]:64178 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1422778AbWJPT1w convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:27:52 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: mfbaustx <mfbaustx@gmail.com>
+Subject: Re: copy_from_user / copy_to_user with no swap space
+Date: Mon, 16 Oct 2006 21:28:44 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <op.thi3x1mvnwjy9v@titan>
+In-Reply-To: <op.thi3x1mvnwjy9v@titan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610162128.45229.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006, Will Schmidt wrote:
+Am Montag, 16. Oktober 2006 21:19 schrieb mfbaustx:
+> So, IF you MUST copy_from/to_user when in the context of the process, AND  
+> IF you have no virtual memory/swapping, THEN must it not be true that you  
+> can ALWAYS dereferences your user space pointers?
 
-> Node 1 MemTotal:       327680 kB
-> Node 1 MemFree:        435704 kB
+No. Your code may be only partially paged into RAM.
+The same can happen for any mmaped data.
 
-Too big.
-
-> Node 1 MemUsed:      18446744073709443592 kB
-
-Memused is going negative?
-
-> Node 1 Active:          41412 kB
-> Node 1 Inactive:        19976 kB
-> Node 1 HighTotal:           0 kB
-> Node 1 HighFree:            0 kB
-> Node 1 LowTotal:       327680 kB
-> Node 1 LowFree:        435704 kB
-> Node 1 Dirty:               0 kB
-> Node 1 Writeback:           0 kB
-> Node 1 Mapped:              0 kB
-> Node 1 Slab:                0 kB
-
-zero slab??? That cannot be. The slab allocator always allocs on each 
-node. Or is this <2.6.18 with the strange counters that we had before?
-
-
-> Node 0 MemTotal:       229376 kB
-> Node 0 MemFree:             0 kB
-> Node 0 MemUsed:        229376 kB
-
-Node 0 is filled up during bootup?
-
+	Regards
+		Oliver

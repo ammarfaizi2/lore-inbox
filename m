@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWJPOXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWJPOYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWJPOXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWJPOXQ
+	id S1750714AbWJPOYl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJPOYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:23:16 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:41167 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1750711AbWJPOXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:23:15 -0400
-Message-Id: <4533B249.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 16 Oct 2006 16:24:41 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Jiri Kosina" <jikos@jikos.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with
-	dibx000 DVB - input tree merge plans?
-References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
- <Pine.LNX.4.64.0610161506570.29022@twin.jikos.cz>
- <4533A5A5.76E4.0078.0@novell.com> <200610161617.51111.ak@suse.de>
-In-Reply-To: <200610161617.51111.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Oct 2006 10:24:41 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:47156 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750714AbWJPOYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:24:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rUwZY40u2YQIqeJKVUPEPwZZN7/CmRCc/LrRBAzq6p2uPb5EFyx47uOByGOb0brDdqqKq/YFCIrSjGy6ttOaWbI7PfXtr38yGKtvBWiMh4ZgDUIvJnBgzfKt/A2XMxJJahghrXrdDWJq072Pqeyn6Ec3at5QSsNyjV5wwhIhonc=
+Message-ID: <9a8748490610160724l2a5c6cd6k1a984d10e947eda6@mail.gmail.com>
+Date: Mon, 16 Oct 2006 16:24:38 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Constantine Gavrilov" <constg@qlusters.com>
+Subject: Re: Would SSI clustering extensions be of interest to kernel community?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45337FE3.8020201@qlusters.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <45337FE3.8020201@qlusters.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Yes, unfortunately this is another instance of gcc 4.0 generating bad
->> unwind data when optimizing and not accumulating outgoing args.
->> Andi - did you already create a patch implementing Michael's suggestion?
+On 16/10/06, Constantine Gavrilov <constg@qlusters.com> wrote:
+> I have implemented SSI (single system image) clustering extensions to
+> Linux kernel in the form of a loadable module.
 >
->You mean using -maccumulate-outgoing-args ? Not yet.
+> It roughly mimics OpenMosix model of deputy/remote split (migrated
+> processes leave a stub on the node where they were born and depend on
+> the "home" node for IO).
 >
->I guess we can do it unconditionally for all gccs on both i386
->and x86-64, right?
+> The implementation shares no code with Mosix/Open Mosix (was written
+> from scratch), is much smaller, and is easily portable to multiple
+> architectures.
+>
+> We are considering publication of this code and forming an open source
+> project around it.
+>
+> I have two questions to the community:
+>
+> 1) Is community interested in using this code? Do users require SSI
+> product in the era when everybody is talking about partitioning of
+> machines and not clustering?
 
-Yes, I concluded this from Michael's description; what I don't know is
-whether the option isn't available on very old gcc-s.
+Some users require SSI clustering and some just like playing with it.
+In any case, more options than those available currently can only be
+good :)
 
-Jan
+> 2) Are kernel maintainers interested in clustering extensions to Linux
+> kernel? Do they see any value in them? (Our code does not require kernel
+> changes, but we are willing to submit it for inclusion if there is
+> interest.)
+>
+I'm sure there's interrest in at least seeing it.
+You should consider cleaning up your code according to
+Documentation/CodingStyle first though (if it doesn't already follow
+it) or your first batch of feedback is probably just going to be a
+bunch of style cleanup requests ;)
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

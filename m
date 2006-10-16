@@ -1,93 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWJPSHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422714AbWJPSP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWJPSHp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 14:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbWJPSHo
+	id S1422714AbWJPSP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 14:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbWJPSP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 14:07:44 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23431 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1422660AbWJPSHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 14:07:44 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Yinghai Lu" <yinghai.lu@amd.com>
-Cc: "Andi Kleen" <ak@muc.de>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-Subject: Re: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
-References: <86802c440610150029k28957786v3b313e29f1f52c8@mail.gmail.com>
-	<86802c440610151221v2217cb67t354e1ccbcee54b6a@mail.gmail.com>
-	<86802c440610160826g6b918d9bh65948d49f668e892@mail.gmail.com>
-Date: Mon, 16 Oct 2006 12:05:35 -0600
-In-Reply-To: <86802c440610160826g6b918d9bh65948d49f668e892@mail.gmail.com>
-	(Yinghai Lu's message of "Mon, 16 Oct 2006 08:26:08 -0700")
-Message-ID: <m1zmbwb0gg.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Oct 2006 14:15:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43437 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422714AbWJPSP1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 14:15:27 -0400
+Date: Mon, 16 Oct 2006 11:15:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
+       Alok Kataria <alok.kataria@calsoftinc.com>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>
+Subject: Re: [patch] slab: Fix a cpu hotplug race condition while tuning
+ slab cpu caches
+Message-Id: <20061016111511.3901be27.akpm@osdl.org>
+In-Reply-To: <20061016085439.GA6651@localhost.localdomain>
+References: <20061016085439.GA6651@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Yinghai Lu" <yinghai.lu@amd.com> writes:
+On Mon, 16 Oct 2006 01:54:39 -0700
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
 
-> Please check the patch.
+> Fix a cpu hotplug race condition while tuning slab cpu caches.
+> 
+> CPU online (cpu_up) and tuning slab caches (do_tune_cpucache)
+> can race and can lead to a situation where we do not have an 
+> arraycache allocated for a newly onlined cpu.
 
-It looks good.  I think I was having a bad day when I introduced those thinkos.
-I'm a bit distracted at the moment so I don't trust myself to forward
-the patch on.  Hopefully later today.
+lock_cpu_hotplug() is a noxious thing which should be removed.
 
-> Also I have a question about TARGET_CPUS in io_apic.c.
->
-> for a 16 sockets system with 32 non coherent ht chain. and if every
-> chain have 8 irq for devices, the genapic will use physflat. and it
-> should use you new added "different cpu can have same vector for
-> different irq".  --- in the i8259.c
->
-> but the setup_IOAPIC_irqs and arch_setup_ht_irq and arch_setup_msi_irq
-> is still using TARGET_CPUS ( it is cpumask_of_cpu(0) for physflat), so
-> the assign_irq_vector will not get vector for them, becase cpu 0 does
-> not have that much vector to be alllocated. and later
-> setup_affinity_xxx_irq can not be used because before irq is not there
-> and show on /proc/interrupts.
+> The race can be explained as follows:
+> 
+> cpu_online_map 00000111
+> cpu_up(3)	
+>   cpuup_callback CPU_UP_PREPARE:
+>     mutex_lock(&cache_chain_mutex);
+>     ...						
+>     allocate_array_cache for cpu 3
+>     ...
+>     mutex_unlock(&cache_chain_mutex);
+>     ...						slabinfo_write
+>     ...						mutex_lock(&cache_chain_mutex);
+>     ...						  do_tune_cpucache
+>     ...						    allocate new arraycache for cpu0,1,2, NULL rest
+>     ...						    ...
+>   mutex_lock(&cpu_bitmask_lock);		    ...
+>   cpu_online_map 00001111
+>   mutex_unlock(&cpu_bitmask_lock);		    ...
+> 						  on_each_cpu swap the new array_cache with old
+> 						  ^^^^
+> 						  CPU 3 gets assigned with a NULL array cache
 
-Yep, that is a bug.  I hadn't realized real systems that exhausted the
-number of vectors were quite so close.  That totally explains your
-interest.  That is one I/O heavy development system you have YH.
+The problem is obvious: we have some data (the array caches) and we have a
+data structure which is used to look up that data (cpu_online_map).  But
+we're releasing the lock while these two things are in an inconsistent
+state.
 
-Unless there is a reason not to, TARGET_CPUS should be cpu_online map.
-I don't know why it is restricted to a single cpu.  I'm curious how
-that would affect the user space irq balancer.
+So you could have fixed this by taking cache_chain_mutex in CPU_UP_PREPARE
+and releasing it in CPU_ONLINE and CPU_UP_CANCELED.
 
-> So I want to
-> 1. for arch_setup_ht_irq and arch_setup_msi_irq, we can use the dev it
-> takes to get bus and use bus->sysdata to get bus->node mapping that is
-> created in fillin_cpumask_to_bus, to get real target_cpus instead of
-> cpu0.
+> Hence, when do_ccupdate_local is run on CPU 3, CPU 3 gets a NULL array_cache,
+> and caused badness thereon.
+> 
+> So don't allow cpus to come and go while in do_tune_cpucache.
+> The other code path of do_tune_cpucache through kmem_cache_create
+> is already protected through lock_cpu_hotplug.
+> 
+> Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
+> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+> Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> 
+> Index: linux-2.6.19-rc1slab/mm/slab.c
+> ===================================================================
+> --- linux-2.6.19-rc1slab.orig/mm/slab.c	2006-10-13 12:35:02.578841000 -0700
+> +++ linux-2.6.19-rc1slab/mm/slab.c	2006-10-13 12:35:46.848841000 -0700
+> @@ -4072,6 +4072,7 @@ ssize_t slabinfo_write(struct file *file
+>  		return -EINVAL;
+>  
+>  	/* Find the cache in the chain of caches. */
+> +	lock_cpu_hotplug();
+>  	mutex_lock(&cache_chain_mutex);
+>  	res = -EINVAL;
+>  	list_for_each_entry(cachep, &cache_chain, next) {
+> @@ -4087,6 +4088,7 @@ ssize_t slabinfo_write(struct file *file
+>  		}
+>  	}
+>  	mutex_unlock(&cache_chain_mutex);
+> +	unlock_cpu_hotplug();
+>  	if (res >= 0)
+>  		res = count;
+>  	return res;
 
-That sounds like a very reasonable approach.
+Given that this lock_cpu_hotplug() happens at a high level I guess it'll
+avoid the usual lock_cpu_hotplug() horrors and we can live with it.  I
+assume lockdep was enabled when you were testing this?
 
-> 2. for ioapics, may need to add another array,
-> ioapic_node[MAX_IOAPICS], and use ioapic address to get the numa node
-> for it. So later can use it to get real targets cpus when need to use
-> TARGET_CPUS.
-
-Yes.  Numa affinity for the ioapics seems to make sense.  I don't
-think we can count on looking at the address though?  Are your
-ioapics pci devices?  If so that would be the easiest way to
-deal with this problem.
-
-> Please comments.
-
-So far that is the job of the user space irqbalancer, but I don't see
-why the kernel can't setup some reasonable defaults, if we have all of
-the information needed.
-
-For 2.6.19 we should be able to get my typos fixed, and probably
-the default mask increased so that we are given a choice of something
-other than cpu 0.
-
-Beyond that it is going to take some additional working and thinking
-and so it probably makes sense to have the code sit in the -mm
-or Andi's tree for a while, and let it mature for 2.6.20.
-
-Eric

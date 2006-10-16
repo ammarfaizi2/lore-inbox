@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWJPIHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161204AbWJPII5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbWJPIHc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 04:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161204AbWJPIHc
+	id S1161204AbWJPII5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 04:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161213AbWJPII5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 04:07:32 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:47162 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161018AbWJPIHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 04:07:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=crL1fmWw9uAUynOAFrAPZek5DNCZe+n4ByDx6h7PYC1EW8hhGX2L+TxiNNxOFzUxvD18Kjq88Mg5niK3L0g5UYuD7W2sZZCr+B+WbR+XAjjXQZTGx7idobLRLbcGFzrvY7SlPeLORzZqs/ftGmiELoGw11oqhu5HYOgpEeIpgcU=
-Message-ID: <b0943d9e0610160107qff115d2r8adef99452560e16@mail.gmail.com>
-Date: Mon, 16 Oct 2006 09:07:30 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Mike Galbraith" <efault@gmx.de>
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>,
-       "nmeyers@vestmark.com" <nmeyers@vestmark.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1160976752.6477.3.camel@Homer.simpson.net>
+	Mon, 16 Oct 2006 04:08:57 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:19819 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1161204AbWJPII4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 04:08:56 -0400
+Message-ID: <45333E0B.7000905@sw.ru>
+Date: Mon, 16 Oct 2006 12:08:43 +0400
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061013004918.GA8551@viviport.com>
-	 <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com>
-	 <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com>
-	 <1160899154.5935.19.camel@Homer.simpson.net>
-	 <1160976752.6477.3.camel@Homer.simpson.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       devel@openvz.org
+CC: Andrey Mirkin <amirkin@sw.ru>
+Subject: [PATCH 2.6.19-rc2] scsi: megaraid_{mm,mbox}: 64-bit DMA capability
+ fix
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/mixed;
+ boundary="------------040508000705040309060803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/10/06, Mike Galbraith <efault@gmx.de> wrote:
-> On Sun, 2006-10-15 at 07:59 +0000, Mike Galbraith wrote:
->
-> > 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
-> > CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
-> > runs a lot faster ;-)  I'll try a stripped down config sometime.
->
-> My roughly three orders of magnitude (amusing to watch:) boot slowdown
-> turned out to be stack unwinding.  With CONFIG_UNWIND_INFO disabled,
-> 2.6.19-rc2 + patch-2.6.19-rc1-kmemleak-0.11 runs just fine.
+This is a multi-part message in MIME format.
+--------------040508000705040309060803
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 
-Kmemleak introduces some overhead but shouldn't be that bad.
-DEBUG_SLAB also introduces an overhead by erasing the data in the
-allocated blocks.
+From: Andrey Mirkin (amirkin@sw.ru)
 
-Note that if the allocated blocks are added to a list and never
-removed, kmemleak won't be able to detect the leak as the objects are
-stilled referred. In this case, you can only use DEBUG_SLAB_LEAK.
+It is known that 2 LSI Logic MegaRAID SATA RAID Controllers (150-4 and 150-6)
+don't support 64-bit DMA. Unfortunately currently this check is wrong and driver
+ sets 64-bit DMA mode for these devices.
 
--- 
-Catalin
+Signed-off-by:	Andrey Mirkin <amirkin@sw.ru>
+Ack-by:		Vasily Averin <vvs@sw.ru>
+
+--- linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c.mgst6	2006-10-16
+10:26:50.000000000 +0400
++++ linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c	2006-10-16
+11:30:55.000000000 +0400
+@@ -884,7 +884,7 @@ megaraid_init_mbox(adapter_t *adapter)
+
+ 	if (((magic64 == HBA_SIGNATURE_64_BIT) &&
+ 		((adapter->pdev->subsystem_device !=
+-		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) ||
++		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) &&
+ 		(adapter->pdev->subsystem_device !=
+ 		PCI_SUBSYS_ID_MEGARAID_SATA_150_4))) ||
+ 		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
+
+
+--------------040508000705040309060803
+Content-Type: text/plain;
+ name="diff-megaraid-sata1506-20061016"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-megaraid-sata1506-20061016"
+
+--- linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c.mgst6	2006-10-16 10:26:50.000000000 +0400
++++ linux-2.6.19-rc2/drivers/scsi/megaraid/megaraid_mbox.c	2006-10-16 11:30:55.000000000 +0400
+@@ -884,7 +884,7 @@ megaraid_init_mbox(adapter_t *adapter)
+ 
+ 	if (((magic64 == HBA_SIGNATURE_64_BIT) &&
+ 		((adapter->pdev->subsystem_device !=
+-		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) ||
++		PCI_SUBSYS_ID_MEGARAID_SATA_150_6) &&
+ 		(adapter->pdev->subsystem_device !=
+ 		PCI_SUBSYS_ID_MEGARAID_SATA_150_4))) ||
+ 		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
+
+
+--------------040508000705040309060803--

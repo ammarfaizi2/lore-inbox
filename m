@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWJPGtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWJPGuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWJPGtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWJPGtJ
+	id S1751479AbWJPGuk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWJPGuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:49:09 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:57744 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751397AbWJPGtG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:49:06 -0400
-Message-ID: <45332B5E.8010804@drzeus.cx>
-Date: Mon, 16 Oct 2006 08:49:02 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Amol Lad <amol@verismonetworks.com>,
-       linux kernel <linux-kernel@vger.kernel.org>,
-       kernel Janitors <kernel-janitors@lists.osdl.org>
-Subject: Re: [PATCH] drivers/mmc/mmc.c: Replacing yield() with a better	alternative
-References: <1160570743.19143.307.camel@amol.verismonetworks.com> <1160571491.3000.372.camel@laptopd505.fenrus.org> <452DD88E.4030707@yahoo.com.au>
-In-Reply-To: <452DD88E.4030707@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 02:50:40 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57228 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751479AbWJPGuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 02:50:39 -0400
+Date: Mon, 16 Oct 2006 08:43:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [build bug] x86_64, -git: Error: unknown pseudo-op: `.cfi_signal_frame'
+Message-ID: <20061016064300.GA5839@elte.hu>
+References: <20061016061037.GA12020@elte.hu> <1160980603.2388.9.camel@entropy> <20061016063602.GA4392@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061016063602.GA4392@elte.hu>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> 
-> The condition looks broken too. It should be
-> if (ms < 1000 / HZ) {...}
-> 
-> Shouldn't it?
 
-Yup. I poked Russell about it ages ago, but he must have forgotten (and
-admittedly, so have I). Since MMC is now on my table, I guess I should
-put it on my todo list.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Rgds
--- 
-     -- Pierre Ossman
+> Note that i override 'CC' instead of specifying a 'CROSS' prefix. I 
+> suspect this means as-instr does not switch over to the 
+> cross-environment and thus mis-detected the gas version?
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-  OLPC, developer                     http://www.laptop.org
+this did not solve it either - it seems if both CROSS and CC are set 
+then CC overrides it and CROSS is ignored? Removing the CC override 
+solved the problem. But how do i insert the 'distcc' that way? Seems 
+like a Kbuild breakage to me.
+
+	Ingo

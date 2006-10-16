@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161299AbWJPMCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWJPMI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161299AbWJPMCU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 08:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161302AbWJPMCU
+	id S1422658AbWJPMI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 08:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbWJPMI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 08:02:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:1885 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161299AbWJPMCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 08:02:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=us27tuRhZZ/XqTPZ1aIG3E9TXSb15MMJQwvQFnl1bEtN1huoZcxvp35aX5bWlFoW0J+3lEbKmqLj2aKRBOXI/yOJkzYzXi4IkPsnAfzk+WSfUOmH8jgcEOOZFhnkYQ+mBmFA+n2ogpUHtsQXVt5tr4kXsoGMXYtT9RIvyaeRZIw=
-Date: Mon, 16 Oct 2006 16:01:56 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sx: fix user-visible typo (devic)
-Message-ID: <20061016120156.GA5483@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
+	Mon, 16 Oct 2006 08:08:56 -0400
+Received: from mgw-ext11.nokia.com ([131.228.20.170]:40516 "EHLO
+	mgw-ext11.nokia.com") by vger.kernel.org with ESMTP
+	id S1422658AbWJPMI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 08:08:56 -0400
+Date: Mon, 16 Oct 2006 15:08:39 +0300
+From: Jarkko Lavinen <jarkko.lavinen@nokia.com>
+To: "philipl@overt.org" <philipl@overt.org>
+Cc: Pierre Ossman <drzeus-mmc@drzeus.cx>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 RFC] mmc: Add support for mmc v4 wide-bus modes
+Message-ID: <20061016120839.GA16127@angel.research.nokia.com>
+Reply-To: Jarkko Lavinen <jarkko.lavinen@nokia.com>
+References: <21572.67.169.45.37.1160853308.squirrel@overt.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <21572.67.169.45.37.1160853308.squirrel@overt.org>
+X-Operating-System: GNU/Linux angel.research.nokia.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-OriginalArrivalTime: 16 Oct 2006 12:08:46.0667 (UTC) FILETIME=[D50121B0:01C6F11B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Hi Philip and Pierre
 
- drivers/char/sx.c               |    2 +-
- drivers/mtd/chips/jedec_probe.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+On Sat, Oct 14, 2006 at 03:15:08PM -0400, philipl@overt.org wrote:
+> I keep getting a data CRC error back - for both the reads and writes.
 
---- a/drivers/char/sx.c
-+++ b/drivers/char/sx.c
-@@ -2602,7 +2602,7 @@ static void __exit sx_exit (void)
- 		}
- 	}
- 	if (misc_deregister(&sx_fw_device) < 0) {
--		printk (KERN_INFO "sx: couldn't deregister firmware loader devic\n");
-+		printk (KERN_INFO "sx: couldn't deregister firmware loader device\n");
- 	}
- 	sx_dprintk (SX_DEBUG_CLEANUP, "Cleaning up drivers (%d)\n", sx_initialized);
- 	if (sx_initialized)
---- a/drivers/mtd/chips/jedec_probe.c
-+++ b/drivers/mtd/chips/jedec_probe.c
-@@ -1874,7 +1874,7 @@ static int cfi_jedec_setup(struct cfi_pr
- 
- 
- /*
-- * There is a BIG problem properly ID'ing the JEDEC devic and guaranteeing
-+ * There is a BIG problem properly ID'ing the JEDEC device and guaranteeing
-  * the mapped address, unlock addresses, and proper chip ID.  This function
-  * attempts to minimize errors.  It is doubtfull that this probe will ever
-  * be perfect - consequently there should be some module parameters that
+The spec says these can be ignored, both reads and writes. The
+card ignores optional CRC16 when sending data and likewise host
+ignores optional CRC when reading back.
 
+Also both the card and the host ignore all but the first two bits of
+the test pattern.
+
+> In the command table, it says that it's R1 but the sample code says
+NONE.
+
+Both CMD14 and CMD19 have R1 response.
+
+Regards
+Jarkko

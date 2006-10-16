@@ -1,157 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWJPHNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWJPHXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWJPHNF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 03:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWJPHNF
+	id S1030318AbWJPHXr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 03:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWJPHXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 03:13:05 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:51611 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751480AbWJPHND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 03:13:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eSIs1yYWYGyEJLhWlPHvbwrEptNcegLiX6Vfzf+E5R3Pot2dPbZP/+qS0aqwAivO0dJnoft7PEQIoS/jBo2MXToZPhebcAisaD/By1zbcrIgbqlzE4hu5I/5om8AtSJ5gP+YoJTg7F75q+uaSL0c8TTsglzA5mU1s06Z/zqRaSU=
-Message-ID: <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com>
-Date: Mon, 16 Oct 2006 16:13:00 +0900
-From: "Mohit Katiyar" <katiyar.mohit@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS inconsistent behaviour
-In-Reply-To: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 03:23:47 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:21121 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751484AbWJPHXq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 03:23:46 -0400
+Date: Mon, 16 Oct 2006 11:23:22 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20061016072321.GA17735@2ka.mipt.ru>
+References: <20060927150957.GA18116@2ka.mipt.ru> <a36005b50610032150x8233feqe556fd93bcb5dc73@mail.gmail.com> <20061004045527.GB32267@2ka.mipt.ru> <452363C5.1020505@redhat.com> <20061004074821.GA22688@2ka.mipt.ru> <4523ED6C.9080902@redhat.com> <20061005090214.GB1015@2ka.mipt.ru> <45251A83.9060901@redhat.com> <20061006083620.GA28009@2ka.mipt.ru> <4532B99B.9030403@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4532B99B.9030403@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 16 Oct 2006 11:23:23 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sun, Oct 15, 2006 at 03:43:39PM -0700, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >In context you have cut, one updated signal mask between calls to event
+> >delivery mechanism (using for example signal()), so it has exactly the
+> >same price.
+> 
+> No, it does not.  If the signal mask is recomputed by the program for 
+> each new wait call then you have a lot more work to do when the signal 
+> mask is implicitly specified.
 
-I am currently using 2.6.16.21-0.8-smp kernel and SLES10 distribution.
-I have two machines Machine1 and Machine2 both 4 processors SMP
-machines.
+One can set number of events before the syscall and do not remove them
+after syscall. It can be updated if there is need for that.
+ 
+> >I created it just because I think that POSIX workaround to add signals
+> >into the syscall parameters is not good enough.
+> 
+> Not good enough?  It does exactly what it is supposed to do.  What can 
+> there be "not good enough"?
 
-The /etc/fstab file on both machines is as follows
+Not to move signals into special case of events. If poll() can not work
+with them it does not mean, that they need to be specified as additional
+syscall parameter, instead change poll() to work with them, which can be
+easily done with kevents.
+ 
+> >You again cut my explanation on why just pure timeout is used.
+> >We start a syscall, which can block forever, so we want to limit it's
+> >time, and we add special parameter to show how long this syscall should
+> >run. Timeout is not about how long we should sleep (which indeed can be
+> >absolute), but how long syscall should run - which is related to the 
+> >time syscall started.
+> 
+> I know very well what a timeout is.  But the way the timeout can be 
+> specified can vary.  It is often useful (as for select, poll) to specify 
+> relative timeouts.
+> 
+> But there are equally useful uses where the timeout is needed at a 
+> specific point in time.  Without a syscall interface which can have a 
+> absolute timeout parameter we'd have to write as a poor approximation at 
+> userlever
+> 
+>     clock_gettime (CLOCK_REALTIME, &ts);
+>     struct timespec rel;
+>     rel.tv_sec = abstmo.tv_sec - ts.tv_sec;
+>     rel.tv_nsec = abstmo.tv_sec - ts.tv_nsec;
+>     if (rel.tv_nsec < 0) {
+>       rel.tv_nsec += 1000000000;
+>       --rel.tv_sec;
+>     }
+>     if (rel.tv_sec < 0)
+>       inttmo = -1;  // or whatever is used for return immediately
+>     else
+>       inttmo = rel.tv_sec * UINT64_C(1000000000) + rel.tv_nsec;
+> 
+>      wait(..., inttmo, ...)
 
-/dev/sda3 / reiserfs acl,user_xattr 1 1
-/dev/sda4 /home reiserfs acl,user_xattr 1 2
-/dev/sda2 swap swap defaults 0 0
-proc /proc proc defaults 0 0
-sysfs /sys sysfs noauto 0 0
-debugfs /sys/kernel/debug debugfs noauto 0 0
-usbfs /proc/bus/usb usbfs noauto 0 0
-devpts /dev/pts devpts mode=0620,gid=5 0 0
+Do not mix warm and soft - waiting for some period is not equal to
+syscall timeout. Waiting is possible with timer kevent user (although
+only relative timeout, can be changed to support both, not a big
+problem).
 
-## NFS
-##
-server1k:/export/server1/s25vol1 /mnt/nfs1 nfs hard,intr,tcp
-server2k:/export/server2/s25vol2 /mnt/nfs2 nfs hard,intr,tcp
-server2k:/export/server2/s25_2sp /mnt/nfs3 nfs hard,intr,tcp
+> Not only is this much more expensive to do at userlevel, it is also 
+> inadequate because calls to settimeofday() do  not cause a recomputation 
+> of the timeout.
+> 
+> See Ingo's RT futex stuff as an example for a kernel interface which 
+> does it right.
 
-Now on Machine1 when I try to repeatedly mount/unmount the nfs
-partition by the following procedure
+I'm quite sure that absolute timeouts are very usefull, but not as in
+the case of waiting for syscall completeness. In any way, kevent can be
+extended to support absolute timeouts in it's timer notifications.
 
-[Machine1:] while :; do mount -a -F -t nfs ;umount -a -t nfs ; done
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
-The partitions are mounted and unmounted two or three times and after
-that the process comes to halt and after some time the following
-message keeps on coming
-
-and mounting/unmounting stops.
-
-mount: RPC: Remote system error - Connection timed out
-
-mount: RPC: Remote system error - Connection timed out
-
-mount: RPC: Remote system error - Connection timed out
-
-.
-
-..
-
-.
-
-.
-
-On Machine2 when I try the same mounting/unmounting infinitely then
-after 30 seconds or around the following messages starts to display
-
-mount: server2k:/export/server2/s25_2sp: can't read superblock
-mount: server1k:/export/server1/s25vol1: can't read superblock
-mount: server2k:/export/server2/s25vol2: can't read superblock
-mount: server2k:/export/server2/s25_2sp: can't read superblock
-mount: server1k:/export/server1/s25vol1: can't read superblock
-
-.
-
-.
-
-.
-
-Also there are several lockd daemon created
-
-> $ ps -ef | grep lockd
-> root 21 15 0 13:51 ? 00:00:00 [kblockd/0]
-> root 22 15 0 13:51 ? 00:00:00 [kblockd/1]
-> root 23 15 0 13:51 ? 00:00:00 [kblockd/2]
-> root 24 15 0 13:51 ? 00:00:00 [kblockd/3]
-> root 11715 1 0 13:58 ? 00:00:00 [lockd]
-> root 11762 1 0 13:58 ? 00:00:00 [lockd]
-> root 11765 1 0 13:58 ? 00:00:00 [lockd]
-> root 11800 1 0 13:58 ? 00:00:00 [lockd]
-> root 11801 1 0 13:58 ? 00:00:00 [lockd]
-> root 11811 1 0 13:58 ? 00:00:00 [lockd]
-> root 11823 1 0 13:58 ? 00:00:00 [lockd]
-> root 11825 1 0 13:58 ? 00:00:00 [lockd]
-> root 11834 1 0 13:58 ? 00:00:00 [lockd]
-> root 11835 1 0 13:58 ? 00:00:00 [lockd]
-> root 11839 1 0 13:58 ? 00:00:00 [lockd]
-> root 11859 1 0 13:58 ? 00:00:00 [lockd]
-> root 11860 1 0 13:58 ? 00:00:00 [lockd]
-> root 11870 1 0 13:58 ? 00:00:00 [lockd]
-> root 11879 1 0 13:58 ? 00:00:00 [lockd]
-> root 11883 1 0 13:58 ? 00:00:00 [lockd]
-> root 11884 1 0 13:58 ? 00:00:00 [lockd]
-> root 11894 1 0 13:59 ? 00:00:00 [lockd]
-> root 11913 1 0 13:59 ? 00:00:00 [lockd]
-> root 11915 1 0 13:59 ? 00:00:00 [lockd]
-> root 11927 1 0 13:59 ? 00:00:00 [lockd]
-> root 11928 1 0 13:59 ? 00:00:00 [lockd]
-> root 11929 1 0 13:59 ? 00:00:00 [lockd]
-> root 11940 1 0 13:59 ? 00:00:00 [lockd]
-> root 11953 1 0 13:59 ? 00:00:00 [lockd]
-> root 11963 1 0 13:59 ? 00:00:00 [lockd]
-> root 11964 1 0 13:59 ? 00:00:00 [lockd]
-> root 11965 1 0 13:59 ? 00:00:00 [lockd]
-> root 11974 1 0 13:59 ? 00:00:00 [lockd]
-> root 11978 1 0 13:59 ? 00:00:00 [lockd]
-> root 11979 1 0 13:59 ? 00:00:00 [lockd]
-> root 11988 1 0 13:59 ? 00:00:00 [lockd]
-> root 11989 1 0 13:59 ? 00:00:00 [lockd]
-> root 12264 1 0 13:59 ? 00:00:00 [lockd]
-> root 12268 1 0 13:59 ? 00:00:00 [lockd]
-> root 12488 1 0 13:59 ? 00:00:00 [lockd]
-> root 12489 1 0 13:59 ? 00:00:00 [lockd]
-> root 12490 1 0 13:59 ? 00:00:00 [lockd]
-> root 12500 1 0 13:59 ? 00:00:00 [lockd]
-> nfs 12905 10345 0 13:59 pts/1 00:00:00 grep lockd
-
-There are no messages in the /var/log/messages.
-
-If I try to mount/unmount the partitions manually without a loop they
-completely work fine. I am able to mount and unmount them without any
-problem. But whenever this is put in a infinite loop it goes to
-inconsistent state.
-
-Is it a some kind of bug?
-
-Does anyone faced the same problem or anyone can help me in the case
-what is going wrong and where?
-
-TIA
-
-Mohit Katiyar
-
-HCL Technologies Ltd.
+-- 
+	Evgeniy Polyakov

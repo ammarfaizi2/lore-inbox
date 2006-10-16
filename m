@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWJPRr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWJPRsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWJPRr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 13:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWJPRr1
+	id S1161029AbWJPRsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 13:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWJPRsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 13:47:27 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:6376 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1161022AbWJPRr0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 13:47:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=rzrs556PnaUwOvpEHdH5/aw+0Ox0TGu6DpSDm5K4bovWBdeQWF4vQ+d7l4yBYqp0Te9X+TLOB9vaTdKIV5zeYTqzC3pADhHCwE7MXc9d9fHi6FIMuuA73aeiDKMmjMK4r4RdVCiYEYP3c00hF3jRUqfbcAIxV5fRCnX0guCw/d4=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Matt Domsch <Matt_Domsch@dell.com>, len.brown@intel.com
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Date: Tue, 17 Oct 2006 01:45:03 +0800
-User-Agent: KMail/1.8.2
-Cc: Richard Hughes <hughsient@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       jengelh@linux01.gwdg.de, gelma@gelma.net, ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061010161012.GA18847@lists.us.dell.com> <200610120028.29617.luming.yu@gmail.com>
-In-Reply-To: <200610120028.29617.luming.yu@gmail.com>
+	Mon, 16 Oct 2006 13:48:09 -0400
+Received: from dhost002-90.dex002.intermedia.net ([64.78.20.228]:15399 "EHLO
+	dhost002-90.dex002.intermedia.net") by vger.kernel.org with ESMTP
+	id S1161029AbWJPRsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 13:48:07 -0400
+Message-ID: <4533C596.5060804@qlusters.com>
+Date: Mon, 16 Oct 2006 19:47:02 +0200
+From: Constantine Gavrilov <constg@qlusters.com>
+Reply-To: Constantine Gavrilov <constg@qlusters.com>
+Organization: Qlusters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Would SSI clustering extensions be of interest to kernel community?
+References: <45337FE3.8020201@qlusters.com> <4533B177.7030004@gmail.com>
+In-Reply-To: <4533B177.7030004@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610170145.03779.luming.yu@gmail.com>
+X-OriginalArrivalTime: 16 Oct 2006 17:48:00.0153 (UTC) FILETIME=[38A0A090:01C6F14B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > a generic ACPI driver that exports the _BCL and _BCM method
-> > implementations via that same interface, so that systems providing
-> > that will "just work".  drivers/acpi/video.c currently exports this
-> > via /proc/acpi/video/$DEVICE/brightness, which isn't the same as
-> > /sys/class/backlight. :-(
+Please see inline...
+
+Aneesh Kumar K.V wrote:
+
 >
-> Yes, I'm working on acpi video driver transition , and have posted a patch
-> to user backlight for acpi video driver.
-> http://marc.theaimsgroup.com/?l=linux-acpi&m=115574087203605&w=2
+> I am interested in seeing the changes. I am right now working on 
+> getting parts of OpenSSI (www.openssi.org)
+> changes merged  upstream. Bruce Walker of the OpenSSI project have a 
+> design of implementing cluster wide procs. The
+> same doc can be found on www.openssi.org website. The paper talks 
+> about how to implement cluster wide proccess model
+> without requiring home/deputy concept. But yes it require some core 
+> kernel changes. But should be Conditionally enabled
+> like selinux. So overhead for non cluster users should be nill.
 
-Just updated the backlight and output sysfs support for ACPI Video driver on
-bugzilla. If you are interested this, please take a look at
-http://bugzilla.kernel.org/show_bug.cgi?id=5749#c18
+I am personally not interested in making intrusive kernel changes even 
+if it yields in true "single-system image". I want very small changes 
+(preferrably none).
 
-signed-off-by 	Luming.yu@gmail.com
+>
+> Regarding my work you can see the status here
+> http://git.openssi.org/~kvaneesh/gitweb.cgi?p=ci-to-linus.git;a=summary
+>
+> It only gets the ICS changes. That means it introduce a transport 
+> independent kernel cluster framework. Right now it supports two 
+> interconnect IPV4 and infiniband verbs.
 
-[patch 1/3] vidoe sysfs support: Add dev argument for baclight sys dev
-[patch 2/3] Add display output class support
-[patch 3/3] backlight and output sysfs support for acpi video driver
+We also have transport abstraction layer and transport plugins for 
+TCP/IP, SDP (Infiniband and possibly others), and SCI (Dolphin).
 
-Thanks,
-Luming
+> I am planning on taking the CFS changes. That should bring in 
+> clusterwide shared memory too. The way it was done in OpenSSI
+> was to hook a new nopage() function for CFS so that when we page 
+> fault, we bring the pages from other node.So i am not sure whether
+> one need a VM hook for getting clusterwide shared memory. But without 
+> seeing the code i am clueless.
+>
+Nopage will be called if there is no pte. That means, with just nopage 
+you cannot implement RO-RW transition. If you use nopage only, you 
+cannot have multiple readers, because you cannot invalidate all other 
+readers if one reader goes read-write. Thus nopage allows single reader 
+or single writer whle the page fault hook allows multiple readers and 
+single writer.
+
+-- 
+----------------------------------------
+Constantine Gavrilov
+Kernel Developer
+Qlusters Software Ltd
+1 Azrieli Center, Tel-Aviv
+Phone: +972-3-6081977
+Fax:   +972-3-6081841
+----------------------------------------
+

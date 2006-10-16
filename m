@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422783AbWJPTQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWJPTTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422783AbWJPTQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWJPTQz
+	id S1422767AbWJPTTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422851AbWJPTTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:16:55 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:57294 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422783AbWJPTQy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:16:54 -0400
-Subject: Re: [PATCH 0/5] Allow more than PAGESIZE data read in configfs
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, Joel Becker <Joel.Becker@oracle.com>,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20061014080107.GB19325@kroah.com>
-References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
-	 <20061010203511.GF7911@ca-server1.us.oracle.com>
-	 <20061011131935.448a8696.akpm@osdl.org>
-	 <20061011221822.GD7911@ca-server1.us.oracle.com>
-	 <20061011154836.9befa359.akpm@osdl.org>
-	 <1160609233.6389.82.camel@linuxchandra>  <20061014080107.GB19325@kroah.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 16 Oct 2006 12:16:48 -0700
-Message-Id: <1161026208.6389.123.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Mon, 16 Oct 2006 15:19:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:40586 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422850AbWJPTTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:19:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:from:content-type:mime-version:content-transfer-encoding:message-id:user-agent;
+        b=cQh8Meefg9b+IeO2IruvdOLH0FNsYlNXGdCCA8lkEak4PyZD2pC1wyHE6CRimpr1V9RuXt7baJqkwDDs6LUpPMSKlu3tUr9DCfGyB/VfAvWiEl0cDhZ4e71h2t45rQOtvU6E6XDmgxtUDANxgXx6v7Y8bocy0XPvebhcJRbxZgs=
+Date: Mon, 16 Oct 2006 14:19:03 -0500
+To: linux-kernel@vger.kernel.org
+Subject: copy_from_user / copy_to_user with no swap space
+From: mfbaustx <mfbaustx@gmail.com>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Message-ID: <op.thi3x1mvnwjy9v@titan>
+User-Agent: Opera Mail/9.01 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-14 at 01:01 -0700, Greg KH wrote:
-> On Wed, Oct 11, 2006 at 04:27:13PM -0700, Chandra Seetharaman wrote:
-> > On Wed, 2006-10-11 at 15:48 -0700, Andrew Morton wrote:
-> > > On Wed, 11 Oct 2006 15:18:22 -0700
-> > > Joel Becker <Joel.Becker@oracle.com> wrote:
-> > > 
-> > > > On Wed, Oct 11, 2006 at 01:19:35PM -0700, Andrew Morton wrote:
-> > > > > The patch deletes a pile of custom code from configfs and replaces it with
-> > > > > calls to standard kernel infrastructure and fixes a shortcoming/bug in the
-> > > > > process.  Migration over to the new interface is trivial and almost
-> > > > > scriptable.
-> > > > 
-> > > > 	The configfs stuff is based on the sysfs code too.  Should we
-> > > > migrate sysfs/file.c to the same seq_file code?  Serious question, if
-> > > > the cleanup is considered better.
-> > > > 
-> > > 
-> > > I don't see why not.  I don't know if anyone has though of/proposed it
-> > > before.
-> > 
-> > I can generate a patch for that too.
-> 
-> Argh!!!!
-> 
-> Are you going to honestly tell me you have a single attribute in sysfs
-> that is larger than PAGE_SIZE?  If you are getting anywhere close to
-> this, then something is really wrong and we need to talk.
+I've been trying to find or derive a definitive answer to this question  
+for a while now but can't quite get over the hump.
 
-I was replying to Andrew's reply in the thread. Thats all.
+I understand when/why copy_<to|from>_user (and siblings) are required  
+(address validation, guaranteeing a process is paged in, etc...).  The  
+question is: if you have no swap space (or virtual memory or whatever),  
+can there ever be a case in which any valid pointer to a buffer in  
+user-space would be incorrect as a result of another process's PTE being  
+present?  Put another way: can a process be partially paged?
 
-I do _not_ have any personal interests here (sysfs).
+My reasoning (which I obviously have no confidence else I wouldn't be  
+asking this question) is as follows:
 
-> 
-> greg k-h
--- 
+All processes share the same logical address space starting at 0 and  
+(usually) ending at 3GB, right?  Text sections start low and build up,  
+stacks start high and grow down.  Somewhere in there you get your heap and  
+shared memory regions.  Since noting about a logical address can identify  
+a specific process, then copy_to/from_user can do nothing to guaruntee  
+that the CORRECT process is paged in.  True?  So you're absolutely  
+obligated to DO the copy at the time the kernel is executing on behalf of  
+that process.  Once your process/thread is context swapped, you've lost  
+the [correct] information on the address mapping.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+So, IF you MUST copy_from/to_user when in the context of the process, AND  
+IF you have no virtual memory/swapping, THEN must it not be true that you  
+can ALWAYS dereferences your user space pointers?
+
+
+TIA!
 
 

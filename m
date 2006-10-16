@@ -1,50 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWJPGuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWJPGzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWJPGuk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWJPGuk
+	id S1751483AbWJPGzK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161193AbWJPGzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:50:40 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:57228 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751479AbWJPGuj (ORCPT
+	Mon, 16 Oct 2006 02:55:09 -0400
+Received: from holoclan.de ([62.75.158.126]:22993 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1751483AbWJPGzH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:50:39 -0400
-Date: Mon, 16 Oct 2006 08:43:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [build bug] x86_64, -git: Error: unknown pseudo-op: `.cfi_signal_frame'
-Message-ID: <20061016064300.GA5839@elte.hu>
-References: <20061016061037.GA12020@elte.hu> <1160980603.2388.9.camel@entropy> <20061016063602.GA4392@elte.hu>
-Mime-Version: 1.0
+	Mon, 16 Oct 2006 02:55:07 -0400
+Date: Mon, 16 Oct 2006 08:53:13 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org,
+       len.brown@intel.com, linux-acpi@vger.kernel.org
+Subject: Re: [ltp] Re: X60s w/t kern 2.6.19-rc1-git: two BUG warnings
+Message-ID: <20061016065313.GB5350@gimli>
+Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
+	linux-kernel@vger.kernel.org, len.brown@intel.com,
+	linux-acpi@vger.kernel.org
+References: <20061010062826.GC9895@gimli> <20061013154756.GT721@stusta.de> <20061016063222.GA5350@gimli>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061016063602.GA4392@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20061016063222.GA5350@gimli>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Mon, Oct 16, 2006 at 08:32:22AM +0200, Dipl.-Ing.
+	Martin Lorenz wrote: > On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian
+	Bunk wrote: > > On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz
+	wrote: > > > Dear kernel gurus, > > > > > > whatever I do and whic
+	problem I seem to get fixed new ones arise: > > > > > > now I loose ACPI
+	events after suspend/resume. not every time, but roughly > > > 3 out of
+	4 times. > > > > > > the only errornous things I see in the logs are
+	those: > > >... > > > > Which was the last working kernel? > > ok... > >
+	tested it again and found it workiing in 2.6.18 > > one strange thing
+	though: there seems to be some inconsistencies in which > script is
+	treggered by Fn+F4. > > usually it is the /etc/acpi/sleepbtn.sh script,
+	but after one suspend/resume > the /etc/acpi/sleep.sh script is
+	triggered. [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 16, 2006 at 08:32:22AM +0200, Dipl.-Ing. Martin Lorenz wrote:
+> On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian Bunk wrote:
+> > On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz wrote:
+> > > Dear kernel gurus,
+> > > 
+> > > whatever I do and whic problem I seem to get fixed new ones arise:
+> > > 
+> > > now I loose ACPI events after suspend/resume. not every time, but roughly 
+> > > 3 out of 4 times.
+> > > 
+> > > the only errornous things I see in the logs are those: 
+> > >...
+> > 
+> > Which was the last working kernel?
+> 
+> ok...
+> 
+> tested it again and found it workiing in 2.6.18 
+> 
+> one strange thing though: there seems to be some inconsistencies in which
+> script is treggered by Fn+F4.
+> 
+> usually it is the /etc/acpi/sleepbtn.sh script, but after one suspend/resume
+> the /etc/acpi/sleep.sh script is triggered.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+another uptdate:
 
-> Note that i override 'CC' instead of specifying a 'CROSS' prefix. I 
-> suspect this means as-instr does not switch over to the 
-> cross-environment and thus mis-detected the gas version?
+http://www.lorenz.eu.org/~mlo/kernel/acpid-2.6.18-ie-la-tp-41.5+0813
 
-this did not solve it either - it seems if both CROSS and CC are set 
-then CC overrides it and CROSS is ignored? Removing the CC override 
-solved the problem. But how do i insert the 'distcc' that way? Seems 
-like a Kbuild breakage to me.
+has the acpi log for the above mentioned behaviour
+and 
+http://www.lorenz.eu.org/~mlo/kernel/dmesg_boot-2.6.18-ie-la-tp-41.5+0813.out
+http://www.lorenz.eu.org/~mlo/kernel/dmesg_running-2.6.18-ie-la-tp-41.5+0813.out
+the corresponding dmesg logs - one at boot time (/var/log/dmesg) and one at
+runtime (dmesg > ...)
 
-	Ingo
+I run this 2.6.18 kernel now to work with but had to disable tp_smapi by
+forcefully unloading the module. 
+
+gruss
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

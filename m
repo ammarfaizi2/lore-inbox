@@ -1,120 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbWJPKRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWJPKUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030347AbWJPKRP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 06:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWJPKRP
+	id S1030224AbWJPKUG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 06:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWJPKUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 06:17:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38613 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030348AbWJPKRM (ORCPT
+	Mon, 16 Oct 2006 06:20:05 -0400
+Received: from mx.go2.pl ([193.17.41.41]:40654 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1030224AbWJPKUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 06:17:12 -0400
-Message-ID: <45335BEF.7010405@redhat.com>
-Date: Mon, 16 Oct 2006 03:16:15 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Eric Dumazet <dada1@cosmosbay.com>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>
-Subject: Re: [take19 1/4] kevent: Core files.
-References: <11587449471424@2ka.mipt.ru> <200610051245.03880.dada1@cosmosbay.com> <20061005105536.GA4838@2ka.mipt.ru> <200610051409.31826.dada1@cosmosbay.com> <20061005123715.GA7475@2ka.mipt.ru> <4532C2C5.6080908@redhat.com> <20061016073348.GB17735@2ka.mipt.ru>
-In-Reply-To: <20061016073348.GB17735@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 16 Oct 2006 06:20:03 -0400
+Date: Mon, 16 Oct 2006 12:25:00 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: David Johnson <dj@david-web.co.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: Hardware bug or kernel bug?
+Message-ID: <20061016102500.GA1709@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	David Johnson <dj@david-web.co.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+References: <20061013085605.GA1690@ff.dom.local> <200610131256.54546.dj@david-web.co.uk> <20061013130648.GC1690@ff.dom.local> <200610131724.40631.dj@david-web.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610131724.40631.dj@david-web.co.uk>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> The whole idea of mmap buffer seems to be broken, since those who asked
-> for creation do not like existing design and do not show theirs...
+On Fri, Oct 13, 2006 at 05:24:39PM +0100, David Johnson wrote:
+> On Friday 13 October 2006 14:06, Jarek Poplawski wrote:
+> >
+> > Probably - but only with networking. So I'd try with this debugging
+> > like in my first reply plus maybe 2.6.19-rc1 (e1000 - btw. I hope
+> > this other tested card was different model - and locking improved)
+> > and resend conclusions to netdev@vger.kernel.org.
+> >
+> 
+> OK I built a 2.6.19-rc1 kernel with a minimal config as you describe and I 
+> cannot reproduce the reboots with this kernel. My .config:
+> http://www.david-web.co.uk/download/config
 
-What kind of argumentation is that?
+I've seen more minimal minimal configs but if it works
+it is 50% of success. 
 
-    "Because my attempt to implement it doesn't work and nobody right
-     away has a better suggestion this means the idea is broken."
+> The other NIC I tried was a D-Link DL10050-based card which I think uses the 
+> dl2k module.
+> 
+> I tried to reproduce the problem under Windows (2k), which didn't reboot but 
+> did still suffer from it I believe. Randomly during an scp transfer (using 
+> the PuTTY scp client) Windows will lock-up for about 30 seconds, making an 
+> entry in the event log indicating that there was a time-out talking to the 
+> IDE controller, then continuing. Could the same thing be happening in Linux? 
+> If Linux can't talk to the IDE controller when trying to write to disk, how 
+> does it handle that?
 
-Nonsense.
+Was this lock-up effect visible during above 2.6.19-rc1 tests?
+If not I'd try to continue linux debbuging:
+- is 2.6.19-rc1 working with "normal" config (use make oldconfig
+to "upgrade" .config),
+- is 2.6.17 working with "minimal" config (use make oldconfig),
+- changing one or two options at a time try to find which one makes
+the effect returns (acpi, smp...). 
 
-It just means that time should be spend on thinking about this.  You cut 
-all this short by rushing out your attempt without any discussions. 
-Unfortunately nobody else really looked at the approach so it lingered 
-around for some weeks.  Well, now it is clear that it is not the right 
-approach and we can start thinking about it again.
+Regards,
+Jarek P.
 
-
-> You seems to not checked the code - each event can be marked as ready 
-> only one time, which means only one copy and so on.
-> It was done _specially_. And it is not limitation, but "new" approach.
-
-I know that it is done deliberately and I tell you that this is wrong 
-and unacceptable.  Realtime signals are one event which need to have 
-more than one event queued.  This is no description of what you have 
-implemented, it's a description of the reality of realtime signals.
-
-RT signals are queued.  They carry a data value (the sigval_t object) 
-which can be unique for each signal delivery.  Coalescing the signal 
-events therefore leads to information loss.
-
-Therefore, at the very least for signal we need to have the ability to 
-queue more than one event for each event source.  Not having this 
-functionality means that signals and likely other types of events cannot 
-be implemented using kevent queues.
-
-
-> Queue of the same signals or any other events has fundamental flawness
-> (as any other ring buffer implementation, which has queue size)  -
-> it's size of the queue and extremely bad case of the overflow.
-
-Of course there are additional problems.  Overflows need to be handled. 
-  But this is nothing which is unsolvable.
-
-
-> So, the same event may not be ready several times. Any design which
-> allows to create infinite number of events generated for the same case
-> is broken, since consumer can be in situation, when it can not handle
-> that flow.
-
-That's complete nonsense.  Again, for RT signals it is very reasonable 
-and not "broken" to have multiple outstanding signals.
-
-
-> That is why poll() returns only POLLIN when data is ready in
-> network stack, but is not trying to generate some kind of a signal for 
-> each byte/packet/MTU/MSS received.
-
-It makes no sense to drag poll() into this discussion.  poll() is a very 
-limited interface.  The new event handling is supposed to be the 
-opposite, namely, usable for all kinds of events.  Arguing that because 
-poll() does it like this just means you don't see what big step is 
-needed to get to the goal of a unified event handling.  The shackles of 
-poll() must be left behind.
-
-
-> RT signals have design problems, and I will not repeate the same error
-> with similar limits in kevent.
-
-I don't know what to say.  You claim to be the source of all wisdom is 
-OS design.  Maybe you should design your own OS, from ground up.  I 
-wonder how many people would like that since all your arguments are 
-squarely geared towards optimizing the implementation.  But: the 
-implementation is irrelevant without users.  The functionality users (= 
-programmers) want and need is what must drive the implementation.  And 
-RT signals are definitely heavily used and liked by programmers.  You 
-have to accept that you try to modify an OS which has that functionality 
-regardless of how much you hate it and want to fight it.
-
-
-> Mmap implementation can be added separately, since it does not affect
-> kevent core.
-
-That I doubt very much and it is why I would not want the kevent stuff 
-go into any released kernel until that "detail" is resolved.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+PS: Sorry for late reply - I was offline.

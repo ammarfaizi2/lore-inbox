@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422888AbWJPWgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWJPWhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422888AbWJPWgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 18:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422891AbWJPWgo
+	id S1422891AbWJPWhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 18:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422899AbWJPWhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 18:36:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4526 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422888AbWJPWgn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 18:36:43 -0400
-Date: Mon, 16 Oct 2006 15:36:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <R.E.Wolff@BitWizard.nl>,
-       Amit Gud <gud@eth.net>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 1/1] Char: correct pci_get_device changes
-Message-Id: <20061016153625.eda40799.akpm@osdl.org>
-In-Reply-To: <1966866271061818079@wsc.cz>
-References: <1966866271061818079@wsc.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 16 Oct 2006 18:37:24 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14536
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1422896AbWJPWhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 18:37:23 -0400
+Date: Mon, 16 Oct 2006 15:37:20 -0700 (PDT)
+Message-Id: <20061016.153720.115911255.davem@davemloft.net>
+To: jengelh@linux01.gwdg.de
+Cc: andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Sparc64 kernel message: BUG: soft lockup detected on CPU#3!
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0610162358270.30479@yvahk01.tjqt.qr>
+References: <20061016164124.GC9350@pelagius.h-e-r-e-s-y.com>
+	<20061016.135400.112621150.davem@davemloft.net>
+	<Pine.LNX.4.61.0610162358270.30479@yvahk01.tjqt.qr>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Oct 2006 01:36:45 +0200 (CEST)
-Jiri Slaby <jirislaby@gmail.com> wrote:
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Date: Tue, 17 Oct 2006 00:02:53 +0200 (MEST)
 
-> correct pci_get_device changes
+> I have not seen this soft lockup so far, though I run a 2.6.16, most 
+> likely using CONFIG_PROM_CONSOLE (redirected to ttya by prom) because
+> the machine is not a SUN4V (which SUNHV seems to be for).
 
-I suspect this patch was against -mm, but fixes problems in mainline, to
-which it doesn't apply.
-
-Could I have a new one against mainline please?  With a changelog updated
-to reflect Alan's comments?
-
-Thanks.
+You could be using one of the other serial drivers.
+Check the boot messages and your kernel config.

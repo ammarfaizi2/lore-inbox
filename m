@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422788AbWJPS2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWJPSfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422788AbWJPS2A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 14:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWJPS2A
+	id S1422793AbWJPSfp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 14:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbWJPSfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 14:28:00 -0400
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:7127 "EHLO
-	outbound2-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1422788AbWJPS17 convert rfc822-to-8bit (ORCPT
+	Mon, 16 Oct 2006 14:35:45 -0400
+Received: from colin.muc.de ([193.149.48.1]:55566 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1422793AbWJPSfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 14:27:59 -0400
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
- update pos for vector and offset
-Date: Mon, 16 Oct 2006 11:27:08 -0700
-Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6E2@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
- update pos for vector and offset
-Thread-Index: AcbxTgtywUOf0kGrTLaE4r3PFgepVgAAd2ng
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: ebiederm@xmission.com
-cc: "Andi Kleen" <ak@muc.de>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+	Mon, 16 Oct 2006 14:35:44 -0400
+Date: 16 Oct 2006 20:35:42 +0200
+Date: Mon, 16 Oct 2006 20:35:42 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Yinghai Lu <yinghai.lu@amd.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
        yhlu.kernel@gmail.com
-X-OriginalArrivalTime: 16 Oct 2006 18:27:09.0913 (UTC)
- FILETIME=[B1318C90:01C6F150]
-X-WSS-ID: 692D11770C44649962-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Subject: Re: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
+Message-ID: <20061016183542.GA41969@muc.de>
+References: <86802c440610150029k28957786v3b313e29f1f52c8@mail.gmail.com> <86802c440610151221v2217cb67t354e1ccbcee54b6a@mail.gmail.com> <86802c440610160826g6b918d9bh65948d49f668e892@mail.gmail.com> <m1zmbwb0gg.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1zmbwb0gg.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With phys_flat mode, the apic will be delivered in phys mode, we only
-can use cpu real apic id as target instead of apicid mask. Because that
-only has 8 bits. 
+On Mon, Oct 16, 2006 at 12:05:35PM -0600, Eric W. Biederman wrote:
+> For 2.6.19 we should be able to get my typos fixed, and probably
+> the default mask increased so that we are given a choice of something
+> other than cpu 0.
+> 
+> Beyond that it is going to take some additional working and thinking
+> and so it probably makes sense to have the code sit in the -mm
+> or Andi's tree for a while, and let it mature for 2.6.20.
 
-For io apic controllers, it seems the kernel didn't have pci_dev
-corresponding, and we can use address stored in mpc_config.
+I admit I lost track of the patches for this new code which went
+in while I was away.
 
-YH
+Is that the only patch needed or are there other known problems too?
 
-
+-Andi

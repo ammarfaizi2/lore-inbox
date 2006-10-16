@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWJPInf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161223AbWJPIoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWJPInf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 04:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWJPInf
+	id S1161223AbWJPIoB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 04:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161219AbWJPIn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 04:43:35 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:34327 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S964845AbWJPIne
+	Mon, 16 Oct 2006 04:43:59 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:29689 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S964847AbWJPInf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 04:43:34 -0400
-Date: Mon, 16 Oct 2006 10:44:08 +0200
+	Mon, 16 Oct 2006 04:43:35 -0400
+Date: Mon, 16 Oct 2006 10:44:10 +0200
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Greg K-H <greg@kroah.com>
 Cc: Alan Stern <stern@rowland.harvard.edu>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Patch 1/3] Driver core: Don't stop probing on ->probe errors.
-Message-ID: <20061016104408.075c6151@gondolin.boeblingen.de.ibm.com>
+Subject: [Patch 2/3] Driver core: Change function call order in
+ device_bind_driver().
+Message-ID: <20061016104410.587cbc97@gondolin.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,41 +26,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Don't stop on the first ->probe error that is not -ENODEV/-ENXIO.
+Change function call order in device_bind_driver().
 
-There might be a driver registered returning an unresonable return code, and
-this stops probing completely even though it may make sense to try the next
-possible driver. At worst, we may end up with an unbound device.
+If we create symlinks (which might fail) before adding the device to the list
+we don't have to clean up afterwards (which we didn't).
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
 ---
- drivers/base/dd.c |   17 +++++------------
- 1 files changed, 5 insertions(+), 12 deletions(-)
+ drivers/base/dd.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
 --- linux-2.6.orig/drivers/base/dd.c
 +++ linux-2.6/drivers/base/dd.c
-@@ -128,18 +128,11 @@ probe_failed:
- 	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
+@@ -80,8 +80,12 @@ static void driver_sysfs_remove(struct d
+  */
+ int device_bind_driver(struct device *dev)
+ {
+-	driver_bound(dev);
+-	return driver_sysfs_add(dev);
++	int ret;
++
++	ret = driver_sysfs_add(dev);
++	if (!ret)
++		driver_bound(dev);
++	return ret;
+ }
  
--	if (ret == -ENODEV || ret == -ENXIO) {
--		/* Driver matched, but didn't support device
--		 * or device not found.
--		 * Not an error; keep going.
--		 */
--		ret = 0;
--	} else {
--		/* driver matched but the probe failed */
--		printk(KERN_WARNING
--		       "%s: probe of %s failed with error %d\n",
--		       drv->name, dev->bus_id, ret);
--	}
-+	/*
-+	 * Ignore errors returned by ->probe so that the next driver can try
-+	 * its luck.
-+	 */
-+	ret = 0;
- done:
- 	kfree(data);
- 	atomic_dec(&probe_count);
+ struct stupid_thread_structure {

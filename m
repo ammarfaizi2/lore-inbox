@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422912AbWJPWlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422908AbWJPWki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422912AbWJPWlA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 18:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422910AbWJPWlA
+	id S1422908AbWJPWki (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 18:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422910AbWJPWki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 18:41:00 -0400
-Received: from ns2.suse.de ([195.135.220.15]:1215 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422912AbWJPWk7 (ORCPT
+	Mon, 16 Oct 2006 18:40:38 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:52420 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422908AbWJPWkh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 18:40:59 -0400
-From: Andi Kleen <ak@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC] Avoid PIT SMP lockups
-Date: Tue, 17 Oct 2006 00:40:49 +0200
-User-Agent: KMail/1.9.3
-Cc: caglar@pardus.org.tr, Gerd Hoffmann <kraxel@suse.de>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-References: <1160170736.6140.31.camel@localhost.localdomain> <200610121045.32846.caglar@pardus.org.tr> <453404F6.5040202@vmware.com>
-In-Reply-To: <453404F6.5040202@vmware.com>
+	Mon, 16 Oct 2006 18:40:37 -0400
+Message-ID: <45340A62.7050406@us.ibm.com>
+Date: Mon, 16 Oct 2006 17:40:34 -0500
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [PATCH] libsas: support NCQ for SATA disks
+References: <453027A9.3060606@us.ibm.com>
+In-Reply-To: <453027A9.3060606@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610170040.49502.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Darrick J. Wong wrote:
+> This patch adds SATAII NCQ support to libsas.  Both the use_ncq and the
+> dma_xfer flags in ata_task must be set for NCQ to work correctly on the
+> Adaptec SAS controller.  The rest of the patch adds ATA_FLAG_NCQ to
+> sata_port_info and sets up ap->scsi_host so that ata_setup_ncq doesn't
+> crash.  Please note that this patch is against the aic94xx-sas git tree,
+> not scsi-misc.  Thanks also to James Bottomley for providing an earlier
+> version of this patch from which to work.
 
-> It might only happen with SMP because the difficulty of getting good 
-> enough TSC / timer IRQ synchronization during boot increases 
-> exponentially with SMP configurations. And it might pass 10% of the time 
-> because you were lucky enough not to fire off another timer interrupt yet.
 
-We have the same problem with NMI watchdog events unfortunately. 
-Need to call something in the nmi watchdog code to make sure it is 
-not renewed and then reenabled.
-Or maybe it's better to figure out a way that yields atomic patches.
+> @@ -875,6 +881,7 @@ int sas_target_alloc(struct scsi_target 
+>  
+>  		ap->private_data = found_dev;
+>  		ap->cbl = ATA_CBL_SATA;
+> +		ap->scsi_host = shost;
+>  		found_dev->sata_dev.ap = ap;
+>  	}
+>  
 
-I think the best way is to make sure all alternative() patches
-are always done before the code can be ever executed - this
-means doing it very early for the main kernel. The only exception
-would be the LOCK prefix patching, which should be atomic.
+This doesn't look like the right fix for the oops you were seeing. The
+SAS usage of libata has ap->scsi_host as NULL, which indicates that
+libata does not own the associated scsi_host. I'm concerned you may
+have broken some other code path by making this change. I think the correct
+fix may require removing the dependence of ap->scsi_host from
+ata_dev_config_ncq. 
 
-iirc there was some more patching except lock prefixes going on for 
-SMP<->UP transisitions,  but last time I checked they didn't look 
-particularly useful and could be probably eliminated.
+Brian
 
--Andi
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center

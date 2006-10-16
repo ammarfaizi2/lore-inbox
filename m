@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422854AbWJPTcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422862AbWJPTeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422854AbWJPTcj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422855AbWJPTcj
+	id S1422862AbWJPTeV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422857AbWJPTeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:32:39 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:8356 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1422854AbWJPTcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:32:39 -0400
-Date: Mon, 16 Oct 2006 21:32:37 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@p4.localdomain
-To: balagi@justmail.de
-cc: Jens Axboe <jens.axboe@oracle.com>, linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH 2/2] 2.6.19-rc1-mm1 pktcdvd: bio write congestion
-In-Reply-To: <E1GZO8u-0006bn-VJ@www14.emo.freenet-rz.de>
-Message-ID: <Pine.LNX.4.64.0610162128100.633@p4.localdomain>
-References: <E1GZO8u-0006bn-VJ@www14.emo.freenet-rz.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 16 Oct 2006 15:34:21 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:56785 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422856AbWJPTeV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:34:21 -0400
+Date: Mon, 16 Oct 2006 20:34:19 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: mfbaustx <mfbaustx@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: copy_from_user / copy_to_user with no swap space
+Message-ID: <20061016193419.GE29920@ftp.linux.org.uk>
+References: <op.thi3x1mvnwjy9v@titan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <op.thi3x1mvnwjy9v@titan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006, balagi@justmail.de wrote:
+On Mon, Oct 16, 2006 at 02:19:03PM -0500, mfbaustx wrote:
+> stacks start high and grow down.  Somewhere in there you get your heap and  
+> shared memory regions.  Since noting about a logical address can identify  
+> a specific process, then copy_to/from_user can do nothing to guaruntee  
+> that the CORRECT process is paged in.  True?  So you're absolutely  
+> obligated to DO the copy at the time the kernel is executing on behalf of  
+> that process.  Once your process/thread is context swapped, you've lost  
+> the [correct] information on the address mapping.
+> 
+> So, IF you MUST copy_from/to_user when in the context of the process, AND  
+> IF you have no virtual memory/swapping, THEN must it not be true that you  
+> can ALWAYS dereferences your user space pointers?
 
-> the congestion control will work with both code changes, but i am
-> not sure, if using clear_queue_congested() and blk_congestion_wait()
-> is the right thing to use here: it works on global level. Any other
-> thread/driver/etc. can do a clear_queue_congested() and wake
-> up anyone waiting on this global write or read wait queue, resulting to
-> unneeded task switches.
-> The driver local solution (own waitqueue) would prevent this.....
+First of all, kernel and userland don't have to be in the same address
+space at all; not even on x86 in some configuration.  So dereferencing
+user pointer as if it had been a normal pointer simply won't work - what
+you'll get might have nothing to do with any user memory.
 
-But it would make the driver more complex. How many extra task switches 
-can you get, and how much CPU time does that consume? If it is negligible 
-I think it's better to keep the code simple.
+But even aside of that, even on architectures where kernel and userland
+_do_ share address space, there's nothing to guarantee that any given
+piece of user address space is currently present or has ever been paged
+in to start with.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Dereference that and you'll get an exception.  If you take a look at
+the guts of e.g. arch/i386/lib/usercopy.c, you'll see stuff going to
+.fixup section; when you call e.g. get_user() on address in a page that
+is currently not paged in, exception *is* generated and handled; then
+control is returned back to where we'd taken it.
+
+IOW, even low-level code on such targets has to be careful; blind dereferencing
+would simply get you an oops.  On something like ppc it's simply out of
+question - there you would be able to trigger reads from memory-mapped
+registers of hell knows what hardware.  From userland.  Confusing the
+living fsck out of hardware and drivers...  _And_ you'd get access to
+genuine kernel data.

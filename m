@@ -1,55 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWJPIiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161220AbWJPIn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWJPIiA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 04:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWJPIiA
+	id S1161220AbWJPIn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 04:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWJPInz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 04:38:00 -0400
-Received: from mail.gmx.de ([213.165.64.20]:44164 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964841AbWJPIh7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 04:37:59 -0400
-X-Authenticated: #14349625
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-From: Mike Galbraith <efault@gmx.de>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       "nmeyers@vestmark.com" <nmeyers@vestmark.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0610160107qff115d2r8adef99452560e16@mail.gmail.com>
-References: <20061013004918.GA8551@viviport.com>
-	 <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com>
-	 <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com>
-	 <1160899154.5935.19.camel@Homer.simpson.net>
-	 <1160976752.6477.3.camel@Homer.simpson.net>
-	 <b0943d9e0610160107qff115d2r8adef99452560e16@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 16 Oct 2006 09:08:30 +0000
-Message-Id: <1160989710.17131.14.camel@Homer.simpson.net>
+	Mon, 16 Oct 2006 04:43:55 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:41827 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161219AbWJPIng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 04:43:36 -0400
+Date: Mon, 16 Oct 2006 10:44:11 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Greg K-H <greg@kroah.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Patch 3/3] Driver core: Per-subsystem multithreaded probing.
+Message-ID: <20061016104411.1fb2bc57@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-16 at 09:07 +0100, Catalin Marinas wrote:
-> On 16/10/06, Mike Galbraith <efault@gmx.de> wrote:
-> > On Sun, 2006-10-15 at 07:59 +0000, Mike Galbraith wrote:
-> >
-> > > 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
-> > > CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
-> > > runs a lot faster ;-)  I'll try a stripped down config sometime.
-> >
-> > My roughly three orders of magnitude (amusing to watch:) boot slowdown
-> > turned out to be stack unwinding.  With CONFIG_UNWIND_INFO disabled,
-> > 2.6.19-rc2 + patch-2.6.19-rc1-kmemleak-0.11 runs just fine.
-> 
-> Kmemleak introduces some overhead but shouldn't be that bad.
-> DEBUG_SLAB also introduces an overhead by erasing the data in the
-> allocated blocks.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-2.6.18 with your rc6 patch booted normally with stack unwind enabled.
+Make multithreaded probing work per subsystem instead of per driver.
 
-	-Mike 
+It doesn't make much sense to probe the same device for multiple drivers in
+parallel (after all, only one driver can bind to the device). Instead, create
+a probing thread for each device that probes the drivers one after another.
+Also make the decision to use multi-threaded probe per bus instead of per
+device and adapt the pci code.
 
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+---
+ drivers/base/dd.c        |   54 +++++++++++++++++++++++------------------------
+ drivers/pci/pci-driver.c |    6 -----
+ include/linux/device.h   |    4 +--
+ include/linux/pci.h      |    2 -
+ 4 files changed, 30 insertions(+), 36 deletions(-)
+
+--- linux-2.6.orig/drivers/base/dd.c
++++ linux-2.6/drivers/base/dd.c
+@@ -88,17 +88,9 @@ int device_bind_driver(struct device *de
+ 	return ret;
+ }
+ 
+-struct stupid_thread_structure {
+-	struct device_driver *drv;
+-	struct device *dev;
+-};
+-
+ static atomic_t probe_count = ATOMIC_INIT(0);
+-static int really_probe(void *void_data)
++static int really_probe(struct device *dev, struct device_driver *drv)
+ {
+-	struct stupid_thread_structure *data = void_data;
+-	struct device_driver *drv = data->drv;
+-	struct device *dev = data->dev;
+ 	int ret = 0;
+ 
+ 	atomic_inc(&probe_count);
+@@ -138,7 +130,6 @@ probe_failed:
+ 	 */
+ 	ret = 0;
+ done:
+-	kfree(data);
+ 	atomic_dec(&probe_count);
+ 	return ret;
+ }
+@@ -177,8 +168,6 @@ int driver_probe_done(void)
+  */
+ int driver_probe_device(struct device_driver * drv, struct device * dev)
+ {
+-	struct stupid_thread_structure *data;
+-	struct task_struct *probe_task;
+ 	int ret = 0;
+ 
+ 	if (!device_is_registered(dev))
+@@ -189,19 +178,7 @@ int driver_probe_device(struct device_dr
+ 	pr_debug("%s: Matched Device %s with Driver %s\n",
+ 		 drv->bus->name, dev->bus_id, drv->name);
+ 
+-	data = kmalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-	data->drv = drv;
+-	data->dev = dev;
+-
+-	if (drv->multithread_probe) {
+-		probe_task = kthread_run(really_probe, data,
+-					 "probe-%s", dev->bus_id);
+-		if (IS_ERR(probe_task))
+-			ret = really_probe(data);
+-	} else
+-		ret = really_probe(data);
++	ret = really_probe(dev, drv);
+ 
+ done:
+ 	return ret;
+@@ -213,6 +190,19 @@ static int __device_attach(struct device
+ 	return driver_probe_device(drv, dev);
+ }
+ 
++static int device_probe_drivers(void *data)
++{
++	struct device *dev = data;
++	int ret = 0;
++
++	if (dev->bus) {
++		down(&dev->sem);
++		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++		up(&dev->sem);
++	}
++	return ret;
++}
++
+ /**
+  *	device_attach - try to attach device to a driver.
+  *	@dev:	device.
+@@ -229,14 +219,24 @@ static int __device_attach(struct device
+ int device_attach(struct device * dev)
+ {
+ 	int ret = 0;
++	struct task_struct *probe_task;
+ 
+ 	down(&dev->sem);
+ 	if (dev->driver) {
+ 		ret = device_bind_driver(dev);
+ 		if (ret == 0)
+ 			ret = 1;
+-	} else
+-		ret = bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++	} else {
++		if (dev->bus->multithread_probe) {
++			probe_task = kthread_run(device_probe_drivers, dev,
++						 "probe-%s", dev->bus_id);
++			if(IS_ERR(probe_task))
++				ret = bus_for_each_drv(dev->bus, NULL, dev,
++						       __device_attach);
++		} else
++			ret = bus_for_each_drv(dev->bus, NULL, dev,
++					       __device_attach);
++	}
+ 	up(&dev->sem);
+ 	return ret;
+ }
+--- linux-2.6.orig/drivers/pci/pci-driver.c
++++ linux-2.6/drivers/pci/pci-driver.c
+@@ -422,11 +422,6 @@ int __pci_register_driver(struct pci_dri
+ 	drv->driver.owner = owner;
+ 	drv->driver.kobj.ktype = &pci_driver_kobj_type;
+ 
+-	if (pci_multithread_probe)
+-		drv->driver.multithread_probe = pci_multithread_probe;
+-	else
+-		drv->driver.multithread_probe = drv->multithread_probe;
+-
+ 	spin_lock_init(&drv->dynids.lock);
+ 	INIT_LIST_HEAD(&drv->dynids.list);
+ 
+@@ -559,6 +554,7 @@ struct bus_type pci_bus_type = {
+ 
+ static int __init pci_driver_init(void)
+ {
++	pci_bus_type.multithread_probe = pci_multithread_probe;
+ 	return bus_register(&pci_bus_type);
+ }
+ 
+--- linux-2.6.orig/include/linux/device.h
++++ linux-2.6/include/linux/device.h
+@@ -57,6 +57,8 @@ struct bus_type {
+ 	int (*suspend_late)(struct device * dev, pm_message_t state);
+ 	int (*resume_early)(struct device * dev);
+ 	int (*resume)(struct device * dev);
++
++	unsigned int multithread_probe:1;
+ };
+ 
+ extern int __must_check bus_register(struct bus_type * bus);
+@@ -106,8 +108,6 @@ struct device_driver {
+ 	void	(*shutdown)	(struct device * dev);
+ 	int	(*suspend)	(struct device * dev, pm_message_t state);
+ 	int	(*resume)	(struct device * dev);
+-
+-	unsigned int multithread_probe:1;
+ };
+ 
+ 
+--- linux-2.6.orig/include/linux/pci.h
++++ linux-2.6/include/linux/pci.h
+@@ -356,8 +356,6 @@ struct pci_driver {
+ 	struct pci_error_handlers *err_handler;
+ 	struct device_driver	driver;
+ 	struct pci_dynids dynids;
+-
+-	int multithread_probe;
+ };
+ 
+ #define	to_pci_driver(drv) container_of(drv,struct pci_driver, driver)

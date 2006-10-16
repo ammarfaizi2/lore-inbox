@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWJPKg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWJPKh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWJPKg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 06:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWJPKg2
+	id S1751490AbWJPKh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 06:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWJPKh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 06:36:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:21187 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751092AbWJPKg2 (ORCPT
+	Mon, 16 Oct 2006 06:37:56 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:48294 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S1751490AbWJPKhz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 06:36:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Yinghai Lu" <yinghai.lu@amd.com>
-Subject: Re: [PATCH] remove duplicated cpu_mask_to_apicid in x86_64 smp.h
-Date: Mon, 16 Oct 2006 12:21:59 +0200
-User-Agent: KMail/1.9.3
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-References: <86802c440610140019u6697e4e5kbac442910c9e86c8@mail.gmail.com>
-In-Reply-To: <86802c440610140019u6697e4e5kbac442910c9e86c8@mail.gmail.com>
+	Mon, 16 Oct 2006 06:37:55 -0400
+Date: Mon, 16 Oct 2006 12:37:48 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to limit VFAT allocation?
+In-Reply-To: <4533598A.3040909@dunaweb.hu>
+Message-ID: <Pine.LNX.4.63.0610161233400.14187@alpha.polcom.net>
+References: <4533598A.3040909@dunaweb.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610161221.59393.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 October 2006 09:19, Yinghai Lu wrote:
-> inline function cpu_mask_to_apicid in smp.h is duplicated with macro
-> in mach_apic.h.
-Added thanks
+Hi,
 
--Andi
+On Mon, 16 Oct 2006, Zoltan Boszormenyi wrote:
+> I have bought a 2GB MP3 player / flash disk
+> that erroneously partitions and formats its storage.
+> The built-in firmware has an off-by-one bug that
+> creates the partition one cylinder larger that the
+> disk size allows and then it formats the VFAT fs
+> according to the buggy partition size. No wonder
+> when I try to copy large amounts of data to the
+> flash disk it detects errors and then remounts it
+> read-only.
+>
+> I tried to repartition and reformat it three times
+> with different mformat or mkdosfs options
+> but as soon as I remove it from the USB port,
+> the device detects changed disk format and
+> automatically reformats itself again, so it
+> stays buggy.
+[snip]
+> Unfortunately, the firmware is not upgradeable.
+> The device in question is a Telstar UFM-102B.
+>
+> Is there a way to tell the VFAT driver to exclude
+> the last N sectors from the allocation strategy?
+
+Maybe try to setup device mapper linear mapping backed by portion of that 
+partition that is ok (== one cylinder smaller) instead of messing with 
+filesystem drivers. And then create filesystem on top of that new device.
+
+
+Grzegorz Kulewski
+

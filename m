@@ -1,82 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422710AbWJPQMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWJPQMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422710AbWJPQMg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 12:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422711AbWJPQMg
+	id S1422706AbWJPQMX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 12:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422710AbWJPQMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 12:12:36 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:39284 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422710AbWJPQMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 12:12:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=edd2g/4JKFU5dfqXF+HVbjpne6psOHpTdeOTwrSikTSNXDSYowZZI0uW2215LiV0umwzBiswJRZoohP80QixejUvIx2ijFs3+BMpAVy9epfgboTWiZ065MlzcXMtiSZHDrRxonT9n1/YC6DM7OS7bCTOeM9oiarf0N7epOVVp7E=  ;
-Message-ID: <4533AF6C.6020207@yahoo.com.au>
-Date: Tue, 17 Oct 2006 02:12:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 16 Oct 2006 12:12:23 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:61382 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S1422706AbWJPQMX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 12:12:23 -0400
+Date: Mon, 16 Oct 2006 18:12:15 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: linux-kernel@vger.kernel.org
+Cc: shaggy@austin.ibm.com, dm-devel@redhat.com, dm-crypt@saout.de,
+       mingo@elte.hu, akpm@osdl.org
+Subject: Strange SIGSEGV problem around dmcrypt, evms and jfs
+Message-ID: <Pine.LNX.4.63.0610161737250.14187@alpha.polcom.net>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: pagefault_disable (was Re: [patch 6/6] mm: fix pagecache write
- deadlocks)
-References: <20061013143516.15438.8802.sendpatchset@linux.site>	 <20061013143616.15438.77140.sendpatchset@linux.site>	 <1160912230.5230.23.camel@lappy> <20061015115656.GA25243@wotan.suse.de>	 <1160920269.5230.29.camel@lappy> <20061015141953.GC25243@wotan.suse.de>	 <1160927224.5230.36.camel@lappy>  <20061015155727.GA539@wotan.suse.de>	 <1160928835.5230.41.camel@lappy>  <4533A411.2020207@yahoo.com.au> <1161014732.2096.9.camel@taijtu>
-In-Reply-To: <1161014732.2096.9.camel@taijtu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> On Tue, 2006-10-17 at 01:24 +1000, Nick Piggin wrote:
+Hi,
 
->>Also, the rest of the kernel tree (mainly uaccess and futexes) should be
->>converted ;)
-> 
-> 
-> Yeah, lotsa places to touch.
-> 
-> 
->>>Index: linux-2.6/mm/filemap.h
->>>===================================================================
->>>--- linux-2.6.orig/mm/filemap.h	2006-10-14 20:20:20.000000000 +0200
->>>+++ linux-2.6/mm/filemap.h	2006-10-15 17:17:45.000000000 +0200
->>>@@ -21,6 +21,22 @@ __filemap_copy_from_user_iovec_inatomic(
->>> 					size_t bytes);
->>> 
->>> /*
->>>+ * By increasing the preempt_count we make sure the arch preempt
->>>+ * handler bails out early, before taking any locks, so that the copy
->>>+ * operation gets terminated early.
->>>+ */
->>>+pagefault_static inline void disable(void)
->>>+{
->>>+	inc_preempt_count();
-> 
-> 
-> I think we also need a barrier(); here. We need to make sure the preempt
-> count is written to memory before we hit the fault handler.
+I was begining to play with dmcrypt, evms and jfs on one spare disk I 
+have (currently empty and only for tests). I produced some partitions with 
+evms and made volumes on them. Nothing strange, normal configuration. The 
+partition layout seems ok. Then I used dmcrypt mappings on top of two of 
+them to make encrypted swaps and swapon'ed them. Still everything was ok. 
+Then I tested different ciphers performance by doing dmcrypt mappings on 
+top of some other volume with different settings and dd'ed data from and 
+to them to test the speed. Then I choosen one cipher setup and and did the 
+final mapping and created and mounted  jfs on it. Then I copied one large 
+(like 4GB) file on it several times to make sure everything is ok. I 
+checked sha1sums and everything was indeed ok.
 
-It will come from this thread, but I guess the fault is not an event the
-compiler can forsee, so indeed it might optimise this into the wrong place.
-Perhaps not with any copy*user implementation we have, but at least in
-theory...
+But then all big applications (firefox, oo2, acroread, ..., opera was the 
+notable exception) couldn't start being killed by SIGSEGVs out of nowhere. 
+I reproduced it two time already (after a clean reboot): today and 
+yesterday. Maybe someone knows what is happening? For me it looks like 
+something broken some kernel memory and the kernel started doing stupid 
+things. But nothing strange has shown in logs.
 
->>>+pagefault_static inline void enable(void)
->>>+{
->>>+	dec_preempt_count();
->>>+	preempt_check_resched();
->>>+}
+One time I couldn't even shut down the machine normally, only SysRQ-B 
+worked (shutdown scripts were probably killed too or something). Every 
+application works ok (and did so for at least a year) before I will start 
+playing with dmcrypt and jfs. I am not sure where exactly the problems 
+start but will be investigating it shortly.
 
-You'll want barriers before and after the dec_preempt_count, for similar
-reasons.
+I am rather sure that my hardware is ok. Everything was and is fine till I 
+will start doing these tests. Including that testing disk (tested with 
+smart and dd and some others). My setup is:
+- Athlon (Barton) XP 2000MHz
+- Abit KW7 KT880 board
+- 1GB DDR 133
+- main disk is 80GB Samsung @ IDE (VIA southbridge)
+- testing disk is 250GB Seagate @ SATA (VIA southbridge).
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+This behavoiur was observed on 2.6.18-ck1 + vesafb-tng patch. Kernel was 
+tainted by nvidia and kqemu modules. Now I am trying to recreate this 
+problem with 2.6.18.1 with nearly all kernel debuging options turned on
+and without any proprietary modules loaded. But since I don't know exactly 
+how to reproduce the problem it may take some time so any suggestions what 
+can be wrong are welcome.
+
+Further info available on request.
+
+BTW. Why booting my machine with 2.6.18.1 with nearly all debuging on I 
+got the following. While I am nearly sure it is not the problem I am 
+writing about I will report it:
+
+Oct 16 17:29:33 kangur [   74.485627] =============================================
+Oct 16 17:29:33 kangur [   74.485767] [ INFO: possible recursive locking detected ]
+Oct 16 17:29:33 kangur [   74.485840] ---------------------------------------------
+Oct 16 17:29:33 kangur [   74.485912] evms_activate/2346 is trying to acquire lock:
+Oct 16 17:29:33 kangur [   74.485985]  (&md->io_lock){----}, at: [<f8d95458>] dm_request+0x18/0x150 [dm_mod]
+Oct 16 17:29:33 kangur [   74.486269]
+Oct 16 17:29:33 kangur [   74.486270] but task is already holding lock:
+Oct 16 17:29:33 kangur [   74.486406]  (&md->io_lock){----}, at: [<f8d95458>] dm_request+0x18/0x150 [dm_mod]
+Oct 16 17:29:33 kangur [   74.486673]
+Oct 16 17:29:33 kangur [   74.486674] other info that might help us debug this:
+Oct 16 17:29:33 kangur [   74.486813] 1 lock held by evms_activate/2346:
+Oct 16 17:29:33 kangur [   74.486883]  #0:  (&md->io_lock){----}, at: [<f8d95458>] dm_request+0x18/0x150 [dm_mod]
+Oct 16 17:29:33 kangur [   74.487191]
+Oct 16 17:29:33 kangur [   74.487192] stack backtrace:
+Oct 16 17:29:33 kangur [   74.487475]  [<c01043ad>] show_trace_log_lvl+0x18d/0x1b0
+Oct 16 17:29:33 kangur [   74.487606]  [<c0104af2>] show_trace+0x12/0x20
+Oct 16 17:29:33 kangur [   74.487728]  [<c0104b59>] dump_stack+0x19/0x20
+Oct 16 17:29:33 kangur [   74.487851]  [<c0136193>] __lock_acquire+0x813/0xd80
+Oct 16 17:29:33 kangur [   74.488044]  [<c0136a65>] lock_acquire+0x75/0xa0
+Oct 16 17:29:33 kangur [   74.488230]  [<c013298a>] down_read+0x3a/0x50
+Oct 16 17:29:33 kangur [   74.488413]  [<f8d95458>] dm_request+0x18/0x150 [dm_mod]
+Oct 16 17:29:33 kangur [   74.488543]  [<c0211517>] generic_make_request+0x147/0x1c0
+Oct 16 17:29:33 kangur [   74.489020]  [<f8d9443d>] __map_bio+0x4d/0xa0 [dm_mod]
+Oct 16 17:29:33 kangur [   74.489141]  [<f8d9517a>] __split_bio+0x34a/0x380 [dm_mod]
+Oct 16 17:29:33 kangur [   74.489263]  [<f8d95514>] dm_request+0xd4/0x150 [dm_mod]
+Oct 16 17:29:33 kangur [   74.489384]  [<c0211517>] generic_make_request+0x147/0x1c0
+Oct 16 17:29:33 kangur [   74.489745]  [<c0213bc2>] submit_bio+0x72/0x120
+Oct 16 17:29:33 kangur [   74.490112]  [<c016ee8a>] submit_bh+0xca/0x120
+Oct 16 17:29:33 kangur [   74.490358]  [<c0171f58>] block_read_full_page+0x258/0x2d0
+Oct 16 17:29:33 kangur [   74.490602]  [<c0174ecf>] blkdev_readpage+0xf/0x20
+Oct 16 17:29:33 kangur [   74.490851]  [<c0154740>] __do_page_cache_readahead+0x1b0/0x260
+Oct 16 17:29:33 kangur [   74.491071]  [<c0154852>] blockable_page_cache_readahead+0x62/0xe0
+Oct 16 17:29:33 kangur [   74.491288]  [<c0154a9d>] page_cache_readahead+0x11d/0x1d0
+Oct 16 17:29:33 kangur [   74.491504]  [<c014e6b2>] do_generic_mapping_read+0x462/0x4e0
+Oct 16 17:29:33 kangur [   74.491718]  [<c014f0de>] __generic_file_aio_read+0xee/0x220
+Oct 16 17:29:33 kangur [   74.491929]  [<c015048d>] generic_file_read+0x8d/0xb0
+Oct 16 17:29:33 kangur [   74.492141]  [<c016d94d>] vfs_read+0xad/0x180
+Oct 16 17:29:33 kangur [   74.492377]  [<c016ddbd>] sys_read+0x3d/0x70
+Oct 16 17:29:33 kangur [   74.492616]  [<c01030ed>] sysenter_past_esp+0x56/0x8d
+Oct 16 17:29:33 kangur [   74.492736]  [<b7f19410>] 0xb7f19410
+
+
+Thanks in advance,
+
+Grzegorz Kulewski
+

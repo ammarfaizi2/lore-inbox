@@ -1,123 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWJPNX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWJPN1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWJPNX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 09:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWJPNX2
+	id S1750911AbWJPN1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 09:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbWJPN1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 09:23:28 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:46976 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1750791AbWJPNX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 09:23:27 -0400
-Date: Mon, 16 Oct 2006 07:23:27 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>,
-       kernel Janitors <kernel-janitors@lists.osdl.org>
-Subject: Re: [KJ] [PATCH] drivers/serial/dz.c: Remove	save_flags()/cli()/restore_flags()
-Message-ID: <20061016132326.GE22289@parisc-linux.org>
-References: <1160983732.19143.420.camel@amol.verismonetworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1160983732.19143.420.camel@amol.verismonetworks.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 16 Oct 2006 09:27:39 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:48523 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750910AbWJPN1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 09:27:38 -0400
+Subject: Re: [PATCH] FRV: Use the correct preemption primitives in
+	kmap_atomic() and co [try #2]
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061016131049.28249.16488.stgit@warthog.cambridge.redhat.com>
+References: <20061016131049.28249.16488.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 15:27:56 +0200
+Message-Id: <1161005276.22727.20.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 12:58:52PM +0530, Amol Lad wrote:
-> Replaced save_flags()/cli()/restore_flags() pair with spin_lock
-> alternatives.
+On Mon, 2006-10-16 at 14:10 +0100, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
 > 
-> For this case, I believe spin lock plays no role but I also do not have
-> a better way.
+> Use inc/dec_preempt_count() rather than preempt_enable/disable() and manually
+> add in the compiler barriers that were provided by the latter.  This makes FRV
+> consistent with other archs.
+> 
+> Furthermore, the compiler barrier effects are now there unconditionally - at
+> least as far as preemption is concerned - because we don't want the compiler
+> moving memory accesses out of the section of code in which the mapping is in
+> force - in effect the kmap_atomic() must imply a LOCK-class barrier and the
+> kunmap_atomic() must imply an UNLOCK-class barrier to the compiler.
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
 
-I think there's a better way.  Here's the full stretch covered by that:
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-        save_flags(flags);
-        cli();
+> ---
+> 
+>  include/asm-frv/highmem.h |   27 ++++++++++++++-------------
+>  1 files changed, 14 insertions(+), 13 deletions(-)
+> 
+> diff --git a/include/asm-frv/highmem.h b/include/asm-frv/highmem.h
+> index e2247c2..0f390f4 100644
+> --- a/include/asm-frv/highmem.h
+> +++ b/include/asm-frv/highmem.h
+> @@ -82,11 +82,11 @@ ({												\
+>  	dampr = paddr | xAMPRx_L | xAMPRx_M | xAMPRx_S | xAMPRx_SS_16Kb | xAMPRx_V;		\
+>  												\
+>  	if (type != __KM_CACHE)									\
+> -		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr));				\
+> +		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr) : "memory");			\
+>  	else											\
+>  		asm volatile("movgs %0,iampr"#ampr"\n"						\
+>  			     "movgs %0,dampr"#ampr"\n"						\
+> -			     :: "r"(dampr)							\
+> +			     :: "r"(dampr) : "memory"						\
+>  			     );									\
+>  												\
+>  	asm("movsg damlr"#ampr",%0" : "=r"(damlr));						\
+> @@ -104,7 +104,7 @@ ({												  \
+>  	asm volatile("movgs %0,tplr \n"								  \
+>  		     "movgs %1,tppr \n"								  \
+>  		     "tlbpr %0,gr0,#2,#1"							  \
+> -		     : : "r"(damlr), "r"(dampr));						  \
+> +		     : : "r"(damlr), "r"(dampr) : "memory");					  \
+>  												  \
+>  	/*printk("TLB: SECN sl=%d L=%08lx P=%08lx\n", slot, damlr, dampr);*/			  \
+>  												  \
+> @@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
+>  {
+>  	unsigned long paddr;
+>  
+> -	preempt_disable();
+> +	inc_preempt_count();
+>  	paddr = page_to_phys(page);
+>  
+>  	switch (type) {
+> @@ -138,16 +138,16 @@ static inline void *kmap_atomic(struct p
+>  	}
+>  }
+>  
+> -#define __kunmap_atomic_primary(type, ampr)			\
+> -do {								\
+> -	asm volatile("movgs gr0,dampr"#ampr"\n");		\
+> -	if (type == __KM_CACHE)					\
+> -		asm volatile("movgs gr0,iampr"#ampr"\n");	\
+> +#define __kunmap_atomic_primary(type, ampr)				\
+> +do {									\
+> +	asm volatile("movgs gr0,dampr"#ampr"\n" ::: "memory");		\
+> +	if (type == __KM_CACHE)						\
+> +		asm volatile("movgs gr0,iampr"#ampr"\n" ::: "memory");	\
+>  } while(0)
+>  
+> -#define __kunmap_atomic_secondary(slot, vaddr)			\
+> -do {								\
+> -	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr));	\
+> +#define __kunmap_atomic_secondary(slot, vaddr)				\
+> +do {									\
+> +	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr) : "memory");	\
+>  } while(0)
+>  
+>  static inline void kunmap_atomic(void *kvaddr, enum km_type type)
+> @@ -170,7 +170,8 @@ static inline void kunmap_atomic(void *k
+>  	default:
+>  		BUG();
+>  	}
+> -	preempt_enable();
+> +	dec_preempt_count();
+> +	preempt_check_resched();
+>  }
+>  
+>  #endif /* !__ASSEMBLY__ */
 
-#ifndef CONFIG_SERIAL_DZ_CONSOLE
-        /* reset the chip */
-        dz_reset(&dz_ports[0]);
-#endif
-
-        /* order matters here... the trick is that flags
-           is updated... in request_irq - to immediatedly obliterate
-           it is unwise. */
-        restore_flags(flags);
-
-Now, we can obviously move the junk inside the ifdef:
-
-#ifndef CONFIG_SERIAL_DZ_CONSOLE
-        save_flags(flags);
-        cli();
-
-        /* reset the chip */
-        dz_reset(&dz_ports[0]);
-
-        restore_flags(flags);
-#endif
-
-Now, there's only one other place that dz_reset is called from, and to
-be honest, it looks like it's missing some locking too.  Looking at the
-other uses of spin_lock within this file, we can see that it's used to
-protect the DZ_ ports.
-
-So I think a better patch would look like this:
-
-diff --git a/drivers/serial/dz.c b/drivers/serial/dz.c
-index 8a98aae..de7a0b1 100644
---- a/drivers/serial/dz.c
-+++ b/drivers/serial/dz.c
-@@ -661,6 +661,8 @@ static void __init dz_init_ports(void)
- 
- static void dz_reset(struct dz_port *dport)
- {
-+       unsigned long flags;
-+       spin_lock_irqsave((&dport->port.lock, flags);
-        dz_out(dport, DZ_CSR, DZ_CLR);
- 
-        while (dz_in(dport, DZ_CSR) & DZ_CLR);
-@@ -670,6 +672,7 @@ static void dz_reset(struct dz_port *dpo
- 
-        /* enable scanning */
-        dz_out(dport, DZ_CSR, DZ_MSE);
-+       spin_unlock_irqrestore((&dport->port.lock, flags);
- }
- 
- #ifdef CONFIG_SERIAL_DZ_CONSOLE
-@@ -783,19 +786,11 @@ int __init dz_init(void)
- 
-        dz_init_ports();
- 
--       save_flags(flags);
--       cli();
--
- #ifndef CONFIG_SERIAL_DZ_CONSOLE
-        /* reset the chip */
-        dz_reset(&dz_ports[0]);
- #endif
- 
--       /* order matters here... the trick is that flags
--          is updated... in request_irq - to immediatedly obliterate
--          it is unwise. */
--       restore_flags(flags);
--
-        if (request_irq(dz_ports[0].port.irq, dz_interrupt,
-                        IRQF_DISABLED, "DZ", &dz_ports[0]))
-                panic("Unable to register DZ interrupt");
-
-But looking at the driver, there's some places we're missing locking.
-
-In dz_set_mctrl(), we read-modify-write DZ_TCR without holding a lock.
-We also do that in dz_console_setup(), but I suspect we're guaranteed
-by higher levels not to race with anything.
-
-I suspect it can't hit us in practice (due to the dz driver being for
-hardware that's UP only, but maybe with preemption, it could bite
-us ...), but there's no locking in the interrupt handler.  I think
-dz_transmit_chars() needs locking against dz_console_putchar(), for
-example.
-
-Anyway, that's enough to be going on with.

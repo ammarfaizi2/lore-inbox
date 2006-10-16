@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWJPGgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWJPGkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161194AbWJPGgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWJPGgr
+	id S1751477AbWJPGkS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWJPGkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:36:47 -0400
-Received: from sccrmhc14.comcast.net ([204.127.200.84]:3071 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1161194AbWJPGgr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:36:47 -0400
-Subject: Re: [build bug] x86_64, -git: Error: unknown pseudo-op:
-	`.cfi_signal_frame'
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-In-Reply-To: <20061016061037.GA12020@elte.hu>
-References: <20061016061037.GA12020@elte.hu>
-Content-Type: text/plain
-Date: Sun, 15 Oct 2006 23:36:43 -0700
-Message-Id: <1160980603.2388.9.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 02:40:18 -0400
+Received: from holoclan.de ([62.75.158.126]:31436 "EHLO mail.holoclan.de")
+	by vger.kernel.org with ESMTP id S1751397AbWJPGkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 02:40:16 -0400
+Date: Mon, 16 Oct 2006 08:32:22 +0200
+From: Martin Lorenz <martin@lorenz.eu.org>
+To: linux-thinkpad@linux-thinkpad.org
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [ltp] Re: X60s w/t kern 2.6.19-rc1-git: two BUG warnings
+Message-ID: <20061016063222.GA5350@gimli>
+Mail-Followup-To: linux-thinkpad@linux-thinkpad.org,
+	linux-kernel@vger.kernel.org, len.brown@intel.com,
+	linux-acpi@vger.kernel.org
+References: <20061010062826.GC9895@gimli> <20061013154756.GT721@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061013154756.GT721@stusta.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "www.holoclan.de", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian Bunk
+	wrote: > On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz wrote:
+	> > Dear kernel gurus, > > > > whatever I do and whic problem I seem to
+	get fixed new ones arise: > > > > now I loose ACPI events after
+	suspend/resume. not every time, but roughly > > 3 out of 4 times. > > >
+	> the only errornous things I see in the logs are those: > >... > >
+	Which was the last working kernel? [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-16 at 08:10 +0200, Ingo Molnar wrote:
-> using latest -git i'm getting this build bug on gcc 3.4:
+On Fri, Oct 13, 2006 at 05:47:56PM +0200, Adrian Bunk wrote:
+> On Tue, Oct 10, 2006 at 08:28:26AM +0200, Martin Lorenz wrote:
+> > Dear kernel gurus,
+> > 
+> > whatever I do and whic problem I seem to get fixed new ones arise:
+> > 
+> > now I loose ACPI events after suspend/resume. not every time, but roughly 
+> > 3 out of 4 times.
+> > 
+> > the only errornous things I see in the logs are those: 
+> >...
 > 
->  arch/x86_64/kernel/entry.S: Assembler messages:
->  arch/x86_64/kernel/entry.S:157: Error: unknown pseudo-op: `.cfi_signal_frame'
->  arch/x86_64/kernel/entry.S:215: Error: unknown pseudo-op: `.cfi_signal_frame'
->  arch/x86_64/kernel/entry.S:333: Error: unknown pseudo-op: `.cfi_signal_frame'
->  arch/x86_64/kernel/entry.S:548: Error: unknown pseudo-op: `.cfi_signal_frame'
-> 
->  gcc version 3.4.0 20040129 (Red Hat Linux 3.4.0-0.3)
-> 
-> using gcc 4.1 it doesnt happen
-> 
->  gcc version 4.1.1 20060525 (Red Hat 4.1.1-1)
-> 
-> this is caused by the following commit:
-> 
->  commit adf1423698f00d00b267f7dca8231340ce7d65ef
->  Author: Jan Beulich <jbeulich@novell.com>
->  Date:   Tue Sep 26 10:52:41 2006 +0200
-> 
-> reverting that patch solves the build problem and the resulting kernel 
-> builds and boots fine.
-> 
-> 	Ingo
+> Which was the last working kernel?
 
-This is a binutils/gas feature; gcc has nothing to do with it. I take it
-the gcc 4.1 system is FC5 with binutils 2.16.91.0.6-5 and the gcc 3.4
-system is something older?
+ok...
 
-The kernel build system is supposed to detect gas support
-for .cfi_signal_frame -- and while the i386 test is obviously broken
-(the i386 test for the directive doesn't actually use the directive),
-the AMD64 test looks like it should work (assuming as-instr works).
+tested it again and found it workiing in 2.6.18 
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+one strange thing though: there seems to be some inconsistencies in which
+script is treggered by Fn+F4.
 
+usually it is the /etc/acpi/sleepbtn.sh script, but after one suspend/resume
+the /etc/acpi/sleep.sh script is triggered.
+
+gruss
+  mlo
+--
+Dipl.-Ing. Martin Lorenz
+
+            They that can give up essential liberty 
+	    to obtain a little temporary safety 
+	    deserve neither liberty nor safety.
+                                   Benjamin Franklin
+
+please encrypt your mail to me
+GnuPG key-ID: F1AAD37D
+get it here:
+http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0xF1AAD37D
+
+ICQ UIN: 33588107

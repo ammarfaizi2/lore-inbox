@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWJPRsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWJPRuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161029AbWJPRsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 13:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWJPRsJ
+	id S1161039AbWJPRuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 13:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWJPRuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 13:48:09 -0400
-Received: from dhost002-90.dex002.intermedia.net ([64.78.20.228]:15399 "EHLO
-	dhost002-90.dex002.intermedia.net") by vger.kernel.org with ESMTP
-	id S1161029AbWJPRsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 13:48:07 -0400
-Message-ID: <4533C596.5060804@qlusters.com>
-Date: Mon, 16 Oct 2006 19:47:02 +0200
-From: Constantine Gavrilov <constg@qlusters.com>
-Reply-To: Constantine Gavrilov <constg@qlusters.com>
-Organization: Qlusters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
-X-Accept-Language: ru, en-us, en
+	Mon, 16 Oct 2006 13:50:50 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:6846 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1161039AbWJPRut convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 13:50:49 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Aneesh Kumar K.V" <aneesh.kumar@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Would SSI clustering extensions be of interest to kernel community?
-References: <45337FE3.8020201@qlusters.com> <4533B177.7030004@gmail.com>
-In-Reply-To: <4533B177.7030004@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2006 17:48:00.0153 (UTC) FILETIME=[38A0A090:01C6F14B]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Frequent RESETs with 2.6.16 megaraid_sas
+Date: Mon, 16 Oct 2006 11:50:45 -0600
+Message-ID: <0631C836DBF79F42B5A60C8C8D4E82297502D6@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Frequent RESETs with 2.6.16 megaraid_sas
+Thread-Index: AcbxSUnXcuWgzgWcQJyhlFfHYDuFrwAAda2w
+From: "Patro, Sumant" <Sumant.Patro@lsi.com>
+To: "Andrew Moise" <chops@demiurgestudios.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Oct 2006 17:50:46.0956 (UTC) FILETIME=[9C0CBEC0:01C6F14B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please see inline...
+The line you picked is a critical bug fix. However, the patch also
+contains code to handle new FW states. I would recommend you to apply
+the whole patch.
 
-Aneesh Kumar K.V wrote:
+Regards,
+Sumant 
 
->
-> I am interested in seeing the changes. I am right now working on 
-> getting parts of OpenSSI (www.openssi.org)
-> changes merged  upstream. Bruce Walker of the OpenSSI project have a 
-> design of implementing cluster wide procs. The
-> same doc can be found on www.openssi.org website. The paper talks 
-> about how to implement cluster wide proccess model
-> without requiring home/deputy concept. But yes it require some core 
-> kernel changes. But should be Conditionally enabled
-> like selinux. So overhead for non cluster users should be nill.
+-----Original Message-----
+From: Andrew Moise [mailto:chops@demiurgestudios.com] 
+Sent: Monday, October 16, 2006 10:34 AM
+To: Patro, Sumant
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Frequent RESETs with 2.6.16 megaraid_sas
 
-I am personally not interested in making intrusive kernel changes even 
-if it yields in true "single-system image". I want very small changes 
-(preferrably none).
+On 10/16/06, Patro, Sumant <Sumant.Patro@lsi.com> wrote:
+>         The patch that you have mentioned is a critical bug fix and 
+> must be applied.
 
->
-> Regarding my work you can see the status here
-> http://git.openssi.org/~kvaneesh/gitweb.cgi?p=ci-to-linus.git;a=summary
->
-> It only gets the ICS changes. That means it introduce a transport 
-> independent kernel cluster framework. Right now it supports two 
-> interconnect IPV4 and infiniband verbs.
-
-We also have transport abstraction layer and transport plugins for 
-TCP/IP, SDP (Infiniband and possibly others), and SCI (Dolphin).
-
-> I am planning on taking the CFS changes. That should bring in 
-> clusterwide shared memory too. The way it was done in OpenSSI
-> was to hook a new nopage() function for CFS so that when we page 
-> fault, we bring the pages from other node.So i am not sure whether
-> one need a VM hook for getting clusterwide shared memory. But without 
-> seeing the code i am clueless.
->
-Nopage will be called if there is no pte. That means, with just nopage 
-you cannot implement RO-RW transition. If you use nopage only, you 
-cannot have multiple readers, because you cannot invalidate all other 
-readers if one reader goes read-write. Thus nopage allows single reader 
-or single writer whle the page fault hook allows multiple readers and 
-single writer.
-
--- 
-----------------------------------------
-Constantine Gavrilov
-Kernel Developer
-Qlusters Software Ltd
-1 Azrieli Center, Tel-Aviv
-Phone: +972-3-6081977
-Fax:   +972-3-6081841
-----------------------------------------
-
+  Okay, thanks.  Is it just the one-liner I picked out that's critical,
+or is the whole "[Patch 1/6] megaraid_sas: FW transition and q size
+changes" a critical fix?
+  Please CC replies to me, as I'm not on the list.  Thanks.

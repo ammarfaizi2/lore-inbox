@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWJPPca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWJPPeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWJPPca (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 11:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWJPPca
+	id S1422663AbWJPPeo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 11:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWJPPeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 11:32:30 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35782 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422655AbWJPPc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 11:32:29 -0400
-Subject: [PATCH] intel fb: switch to pci_get API
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 16:59:12 +0100
-Message-Id: <1161014353.24237.111.camel@localhost.localdomain>
+	Mon, 16 Oct 2006 11:34:44 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:57794 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422663AbWJPPen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 11:34:43 -0400
+Date: Mon, 16 Oct 2006 17:34:37 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@muc.de
+Subject: Re: [PATCH] pci: x86-32/64 switch to pci_get API
+Message-ID: <20061016153437.GL3234@rhun.haifa.ibm.com>
+References: <1161013892.24237.100.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161013892.24237.100.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+On Mon, Oct 16, 2006 at 04:51:32PM +0100, Alan Cox wrote:
+> Use pci_get_bus_and_slot to find the router (and lock it for the kernel
+> lifetime), also use pci_get_device_reverse() to walk the list finding
+> calgary IOMMUs
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/arch/x86_64/kernel/pci-calgary.c linux-2.6.19-rc1-mm1/arch/x86_64/kernel/pci-calgary.c
+> --- linux.vanilla-2.6.19-rc1-mm1/arch/x86_64/kernel/pci-calgary.c	2006-10-13 15:10:06.000000000 +0100
+> +++ linux-2.6.19-rc1-mm1/arch/x86_64/kernel/pci-calgary.c	2006-10-13 17:14:40.000000000 +0100
+> @@ -879,7 +879,7 @@
+>  
+>  error:
+>  	do {
+> -		dev = pci_find_device_reverse(PCI_VENDOR_ID_IBM,
+> +		dev = pci_get_device_reverse(PCI_VENDOR_ID_IBM,
+>  					      PCI_DEVICE_ID_IBM_CALGARY,
+>  					      dev);
+>  		if (!dev)
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/video/intelfb/intelfbhw.c linux-2.6.19-rc1-mm1/drivers/video/intelfb/intelfbhw.c
---- linux.vanilla-2.6.19-rc1-mm1/drivers/video/intelfb/intelfbhw.c	2006-10-13 15:10:07.000000000 +0100
-+++ linux-2.6.19-rc1-mm1/drivers/video/intelfb/intelfbhw.c	2006-10-13 17:21:18.000000000 +0100
-@@ -161,7 +161,7 @@
- 		return 1;
- 
- 	/* Find the bridge device.  It is always 0:0.0 */
--	if (!(bridge_dev = pci_find_slot(0, PCI_DEVFN(0, 0)))) {
-+	if (!(bridge_dev = pci_get_bus_and_slot(0, PCI_DEVFN(0, 0)))) {
- 		ERR_MSG("cannot find bridge device\n");
- 		return 1;
- 	}
-@@ -169,6 +169,8 @@
- 	/* Get the fb aperture size and "stolen" memory amount. */
- 	tmp = 0;
- 	pci_read_config_word(bridge_dev, INTEL_GMCH_CTRL, &tmp);
-+	pci_dev_put(bridge_dev);
-+	
- 	switch (pdev->device) {
- 	case PCI_DEVICE_ID_INTEL_915G:
- 	case PCI_DEVICE_ID_INTEL_915GM:
+Looks good, this part is
+
+Acked-By: Muli Ben-Yehuda <muli@il.ibm.com>
+
+Cheers,
+Muli
 

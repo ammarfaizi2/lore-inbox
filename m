@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWJPOeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWJPOg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWJPOeR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJPOeR
+	id S1750751AbWJPOg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJPOg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:34:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:64998 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750751AbWJPOeQ (ORCPT
+	Mon, 16 Oct 2006 10:36:57 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:19175 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750751AbWJPOg4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:34:16 -0400
+	Mon, 16 Oct 2006 10:36:56 -0400
 From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with dibx000 DVB - input tree merge plans?
-Date: Mon, 16 Oct 2006 16:34:10 +0200
+To: eranian@hpl.hp.com
+Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
+Date: Mon, 16 Oct 2006 16:36:52 +0200
 User-Agent: KMail/1.9.3
-Cc: "Jiri Kosina" <jikos@jikos.cz>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz> <200610161617.51111.ak@suse.de> <4533B249.76E4.0078.0@novell.com>
-In-Reply-To: <4533B249.76E4.0078.0@novell.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161208.13628.ak@suse.de> <20061016141342.GF15540@frankl.hpl.hp.com>
+In-Reply-To: <20061016141342.GF15540@frankl.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610161634.10329.ak@suse.de>
+Message-Id: <200610161636.52721.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 October 2006 16:24, Jan Beulich wrote:
-> >> Yes, unfortunately this is another instance of gcc 4.0 generating bad
-> >> unwind data when optimizing and not accumulating outgoing args.
-> >> Andi - did you already create a patch implementing Michael's suggestion?
-> >
-> >You mean using -maccumulate-outgoing-args ? Not yet.
-> >
-> >I guess we can do it unconditionally for all gccs on both i386
-> >and x86-64, right?
+
+> With the original code, the number of callbacks you see for IDLE_START and
+> IDLE_STOP is not too obvious.
 > 
-> Yes, I concluded this from Michael's description; what I don't know is
-> whether the option isn't available on very old gcc-s.
+> On an idle system Opteron 250 with HZ=250, one would expect to see for a 10s duration:
+> 	- for CPU0      : IDLE_START = IDLE_STOP = about 5000 calls
+> 	- for other CPUs: IDLE_START = IDLE_STOP = about 2500  calls
 
-Mainline only supports gcc 3.1+ these days, so we don't really care
-about those.
+Yes.
 
-I did the change. 
+> With the original code, you get the following number of calls:
+> 
+> CPU0.IDLE_START = 44 (enter_idle)
+> CPU0.IDLE_STOP  = 5206 (exit_idle)
+> 
+> CPU1.IDLE_START = 27 (enter_idle)
+> CPU1.IDLE_STOP  = 2528 (exit_idle)
+> 
+> Now, of course, you may get "batched" interrupts where you do not return to idle
+> before you process the next interrupt. But the difference seems quite high here.
 
+Shouldn't happen for timer interrupts.
+> 
+> Do you have an explanation for this?
+
+Hmm, the last time I fixed this when you complained (post .18) i added a counter for 
+entry/exit and verified that it was balanced. I haven't rechecked since then.
+I don't know why your numbers are off. You're using the latest git tree, right?
+ 
 -Andi
+

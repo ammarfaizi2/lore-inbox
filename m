@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422793AbWJPSfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWJPSfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422793AbWJPSfp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 14:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbWJPSfp
+	id S1422792AbWJPSfR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 14:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWJPSfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 14:35:45 -0400
-Received: from colin.muc.de ([193.149.48.1]:55566 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1422793AbWJPSfo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 14:35:44 -0400
-Date: 16 Oct 2006 20:35:42 +0200
-Date: Mon, 16 Oct 2006 20:35:42 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Yinghai Lu <yinghai.lu@amd.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-Subject: Re: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
-Message-ID: <20061016183542.GA41969@muc.de>
-References: <86802c440610150029k28957786v3b313e29f1f52c8@mail.gmail.com> <86802c440610151221v2217cb67t354e1ccbcee54b6a@mail.gmail.com> <86802c440610160826g6b918d9bh65948d49f668e892@mail.gmail.com> <m1zmbwb0gg.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Oct 2006 14:35:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:51431 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422792AbWJPSfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 14:35:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=k/RvMtzexdyo+hx0P7V9gpM6KuS72hhzPLCAuv196tDmkywQS2CTvUhs5SxSPqmBUGIGX9zXRfwZBg1HJeWQcdD6Hgy1dXpczfmrFPaLu0+hrYwp6EdnMNTh+h2H5YgR/KzIcz676I54Lf9rXb4YRNiUF14dC7OaN+5nMArtRAo=
+Message-ID: <35a82d00610161135t3d65bf2ei46631e69bf6f7f12@mail.gmail.com>
+Date: Mon, 16 Oct 2006 11:35:13 -0700
+From: "Scott Baker" <smbaker@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: exported module symbols and warnings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m1zmbwb0gg.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 12:05:35PM -0600, Eric W. Biederman wrote:
-> For 2.6.19 we should be able to get my typos fixed, and probably
-> the default mask increased so that we are given a choice of something
-> other than cpu 0.
-> 
-> Beyond that it is going to take some additional working and thinking
-> and so it probably makes sense to have the code sit in the -mm
-> or Andi's tree for a while, and let it mature for 2.6.20.
+Hello,
 
-I admit I lost track of the patches for this new code which went
-in while I was away.
+I'm developing a pair of kernel modules. One module needs to export a
+symbol that will be used by the second module. I'm doing this by using
+EXPORT_SYMBOL(MySymbol) in the first module and declaring the symbol
+as extern in the second module. It works fine.
 
-Is that the only patch needed or are there other known problems too?
+However, there are a couple of warnings that I'm trying to clean up.
+The first is when building the second module (the one that uses the
+symbol). It is: "*** Warning: "MySymbol" [filename] undefined!"
 
--Andi
+The second warning occurs when insmod'ing the second module. It is:
+"no version for "MySymbol" found: kernel tainted."
+
+Can someone point me in the right direction? The modules are behaving
+fine, but the warning messages are a bit unsightly.
+
+I'm running RHEL4, kernel version 2.6.9-42.
+
+Thanks,
+Scott

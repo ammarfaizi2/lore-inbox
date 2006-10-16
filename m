@@ -1,55 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWJPH3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWJPHbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWJPH3D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 03:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWJPH3C
+	id S1030321AbWJPHbn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 03:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWJPHbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 03:29:02 -0400
-Received: from smtp8.orange.fr ([193.252.22.23]:63467 "EHLO
-	smtp-msa-out08.orange.fr") by vger.kernel.org with ESMTP
-	id S1030316AbWJPH3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 03:29:01 -0400
-X-ME-UUID: 20061016072859698.AA66218000AD@mwinf0801.orange.fr
-Subject: Re: Why aren't partitions limited to fit within the device?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Neil Brown <neilb@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
-In-Reply-To: <17714.52626.667835.228747@cse.unsw.edu.au>
-References: <17710.54489.486265.487078@cse.unsw.edu.au>
-	 <1160752047.25218.50.camel@localhost.localdomain>
-	 <17714.52626.667835.228747@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Mon, 16 Oct 2006 09:28:55 +0200
-Message-Id: <1160983735.32674.4.camel@frg-rhel40-em64t-03>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 03:31:43 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:30179 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030321AbWJPHbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 03:31:42 -0400
+Date: Mon, 16 Oct 2006 09:31:26 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Cornelia Huck <cornelia.huck@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [patch] cpu topology: consider sysfs_create_group return value
+Message-ID: <20061016073126.GA9409@osiris.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-16 at 10:08 +1000, Neil Brown wrote:
-> On Friday October 13, alan@lxorguk.ukuu.org.uk wrote:
-> > Ar Gwe, 2006-10-13 am 09:50 +1000, ysgrifennodd Neil Brown:
-> > > So:  Is there any good reason to not clip the partitions to fit
-> > > within the device - and discard those that are completely beyond
-> > > the end of the device??
-> > 
-> > Its close but not quite the right approach
-> > 
-> > > The patch at the end of the mail does that.  Is it OK to submit this
-> > > to mainline?
-> > 
-> > No I think not. Any partition which is partly outside the disk should be
-> > ignored entirely, that ensures it doesn't accidentally get mounted and
-> > trashed by an HPA or similar mixup.
-> 
-> Hmmm.. So Alan things a partially-outside-this-disk partition
-> shouldn't show up at all, and Andries thinks it should.
-> And both give reasonably believable justifications.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Maybe the whole part table should be marked as "weird" to let userspace
-run a diagnostics/repair tool on the disk.
+[patch] cpu topology: consider sysfs_create_group return value.
 
-	Xav
+Take return value of sysfs_create_group() into account. That function got
+called in case of CPU_ONLINE notification. Since callbacks are not allowed
+to fail on CPU_ONLINE notification do the sysfs group creation on
+CPU_UP_PREPARE notification.
+Also remember if creation succeeded in a bitmask. So it's possible to know
+wether it's legal to call sysfs_remove_group or not.
 
+In addition some other minor stuff:
+
+- since CPU_UP_PREPARE might fail add CPU_UP_CANCELED handling as well.
+- use hotcpu_notifier instead of register_hotcpu_notifier.
+- #ifdef code that isn't needed in the !CONFIG_HOTPLUG_CPU case.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+
+ drivers/base/topology.c |   56 +++++++++++++++++++++++++++---------------------
+ 1 file changed, 32 insertions(+), 24 deletions(-)
+
+Index: linux-2.6/drivers/base/topology.c
+===================================================================
+--- linux-2.6.orig/drivers/base/topology.c
++++ linux-2.6/drivers/base/topology.c
+@@ -94,55 +94,63 @@ static struct attribute_group topology_a
+ 	.name = "topology"
+ };
+ 
++static cpumask_t topology_dev_map = CPU_MASK_NONE;
++
+ /* Add/Remove cpu_topology interface for CPU device */
+-static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
++static int __cpuinit topology_add_dev(unsigned int cpu)
+ {
+-	sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
+-	return 0;
++	int rc;
++	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
++
++	rc = sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
++	if (!rc)
++		cpu_set(cpu, topology_dev_map);
++	return rc;
+ }
+ 
+-static int __cpuinit topology_remove_dev(struct sys_device * sys_dev)
++#ifdef CONFIG_HOTPLUG_CPU
++static void __cpuinit topology_remove_dev(unsigned int cpu)
+ {
++	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
++
++	if (!cpu_isset(cpu, topology_dev_map))
++		return;
++	cpu_clear(cpu, topology_dev_map);
+ 	sysfs_remove_group(&sys_dev->kobj, &topology_attr_group);
+-	return 0;
+ }
+ 
+ static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+-		unsigned long action, void *hcpu)
++					   unsigned long action, void *hcpu)
+ {
+ 	unsigned int cpu = (unsigned long)hcpu;
+-	struct sys_device *sys_dev;
++	int rc = 0;
+ 
+-	sys_dev = get_cpu_sysdev(cpu);
+ 	switch (action) {
+-	case CPU_ONLINE:
+-		topology_add_dev(sys_dev);
++	case CPU_UP_PREPARE:
++		rc = topology_add_dev(cpu);
+ 		break;
++	case CPU_UP_CANCELED:
+ 	case CPU_DEAD:
+-		topology_remove_dev(sys_dev);
++		topology_remove_dev(cpu);
+ 		break;
+ 	}
+-	return NOTIFY_OK;
++	return rc ? NOTIFY_BAD : NOTIFY_OK;
+ }
+-
+-static struct notifier_block __cpuinitdata topology_cpu_notifier =
+-{
+-	.notifier_call = topology_cpu_callback,
+-};
++#endif
+ 
+ static int __cpuinit topology_sysfs_init(void)
+ {
+-	int i;
++	int cpu;
++	int rc;
+ 
+-	for_each_online_cpu(i) {
+-		topology_cpu_callback(&topology_cpu_notifier, CPU_ONLINE,
+-				(void *)(long)i);
++	for_each_online_cpu(cpu) {
++		rc = topology_add_dev(cpu);
++		if (rc)
++			return rc;
+ 	}
+-
+-	register_hotcpu_notifier(&topology_cpu_notifier);
++	hotcpu_notifier(topology_cpu_callback, 0);
+ 
+ 	return 0;
+ }
+ 
+ device_initcall(topology_sysfs_init);
+-

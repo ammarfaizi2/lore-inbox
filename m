@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWJPNsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWJPN5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWJPNsM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 09:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWJPNsM
+	id S1750786AbWJPN5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 09:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWJPN5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 09:48:12 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:18144 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750763AbWJPNsL (ORCPT
+	Mon, 16 Oct 2006 09:57:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:33904 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750794AbWJPN5I convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 09:48:11 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, johnstul@us.ibm.com
-Subject: Re: [PATCH] i386 Time: Avoid PIT SMP lockups
-References: <1160596462.5973.12.camel@localhost.localdomain>
-	<20061011142646.eb41fac3.akpm@osdl.org>
-	<1160606911.5973.36.camel@localhost.localdomain>
-	<20061011160328.f3e7043a.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 16 Oct 2006 15:48:02 +0200
-In-Reply-To: <20061011160328.f3e7043a.akpm@osdl.org>
-Message-ID: <p73odsccqy5.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Oct 2006 09:57:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=bCEM0l3iQxx8IVqyj6N9bUxyd7HlkV90eoXSRsvmGtItbIZB5x0ONaLvSMW641uwMlW99Ec07iyyXCCmYdJ9x2SkdnP+cqRH113M2scN6DlSJYl/qAReuuCY5FFyFsZNflGiSvTZAPv82x+qb92BWxJy2Qhefm+J0G2YkXESGwQ=
+Date: Mon, 16 Oct 2006 15:57:05 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Constantine Gavrilov <constg@qlusters.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Would SSI clustering extensions be of interest to kernel
+ community?
+Message-Id: <20061016155705.2817f100.diegocg@gmail.com>
+In-Reply-To: <45337FE3.8020201@qlusters.com>
+References: <45337FE3.8020201@qlusters.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-> 
-> Is there any actual need to hold xtime_lock while doing the port IO?  I'd
-> have thought it would suffice to do
-> 
-> 	temp = port_io
-> 	write_seqlock(xtime_lock);
-> 	xtime = muck_with(temp);
-> 	write_sequnlock(xtime_lock);
-> 
-> ?
+El Mon, 16 Oct 2006 14:49:39 +0200,
+Constantine Gavrilov <constg@qlusters.com> escribió:
 
-That would be a good idea in general. The trouble is just that whatever race
-is there will be still there then, just harder to trigger (so instead of 
-every third boot it will muck up every 6 weeks). Not sure that is
-a real improvement.
+> 1) Is community interested in using this code? Do users require SSI 
+> product in the era when everybody is talking about partitioning of 
+> machines and not clustering?
 
--Andi
+Why not, I certainly like the idea of partitioning my machine with
+lots of XEN VMs and then joining all their power with SSI! 
+
+(couldn't resist it sorry)

@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422850AbWJPTYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422851AbWJPTZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422850AbWJPTYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 15:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422854AbWJPTYJ
+	id S1422851AbWJPTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422854AbWJPTZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 15:24:09 -0400
-Received: from server99.tchmachines.com ([72.9.230.178]:3800 "EHLO
-	server99.tchmachines.com") by vger.kernel.org with ESMTP
-	id S1422850AbWJPTYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 15:24:08 -0400
-Date: Mon, 16 Oct 2006 12:26:15 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
-       Alok Kataria <alok.kataria@calsoftinc.com>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>
-Subject: Re: [patch] slab: Fix a cpu hotplug race condition while tuning slab cpu caches
-Message-ID: <20061016192615.GA3746@localhost.localdomain>
-References: <20061016085439.GA6651@localhost.localdomain> <20061016111511.3901be27.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061016111511.3901be27.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 16 Oct 2006 15:25:21 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11952 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1422851AbWJPTZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 15:25:20 -0400
+Date: Mon, 16 Oct 2006 12:25:14 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Will Schmidt <will_schmidt@vnet.ibm.com>
+cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <1161026409.31903.15.camel@farscape>
+Message-ID: <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+References: <1160764895.11239.14.camel@farscape> 
+ <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com> 
+ <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape> 
+ <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
+ <1161026409.31903.15.camel@farscape>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 11:15:11AM -0700, Andrew Morton wrote:
-> On Mon, 16 Oct 2006 01:54:39 -0700
-> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> 
-> The problem is obvious: we have some data (the array caches) and we have a
-> data structure which is used to look up that data (cpu_online_map).  But
-> we're releasing the lock while these two things are in an inconsistent
-> state.
-> 
-> So you could have fixed this by taking cache_chain_mutex in CPU_UP_PREPARE
-> and releasing it in CPU_ONLINE and CPU_UP_CANCELED.
+On Mon, 16 Oct 2006, Will Schmidt wrote:
 
-Hmm, yes. I suppose so. Maybe we can do away with other uses of
-lock_cpu_hotplug() in slab.c as well then!  Will give it a shot. Slab
-locking might look uglier than what it already is though no?
+> Node 1 MemTotal:       327680 kB
+> Node 1 MemFree:        435704 kB
 
-> 
-> >  	list_for_each_entry(cachep, &cache_chain, next) {
-> > @@ -4087,6 +4088,7 @@ ssize_t slabinfo_write(struct file *file
-> >  		}
-> >  	}
-> >  	mutex_unlock(&cache_chain_mutex);
-> > +	unlock_cpu_hotplug();
-> >  	if (res >= 0)
-> >  		res = count;
-> >  	return res;
-> 
-> Given that this lock_cpu_hotplug() happens at a high level I guess it'll
-> avoid the usual lock_cpu_hotplug() horrors and we can live with it.  I
-> assume lockdep was enabled when you were testing this?
+Too big.
 
-Not when I tested it.  I just retested with lockdep on and things seemed 
-fine on a SMP.
+> Node 1 MemUsed:      18446744073709443592 kB
 
-Thanks,
-Kiran
+Memused is going negative?
+
+> Node 1 Active:          41412 kB
+> Node 1 Inactive:        19976 kB
+> Node 1 HighTotal:           0 kB
+> Node 1 HighFree:            0 kB
+> Node 1 LowTotal:       327680 kB
+> Node 1 LowFree:        435704 kB
+> Node 1 Dirty:               0 kB
+> Node 1 Writeback:           0 kB
+> Node 1 Mapped:              0 kB
+> Node 1 Slab:                0 kB
+
+zero slab??? That cannot be. The slab allocator always allocs on each 
+node. Or is this <2.6.18 with the strange counters that we had before?
+
+
+> Node 0 MemTotal:       229376 kB
+> Node 0 MemFree:             0 kB
+> Node 0 MemUsed:        229376 kB
+
+Node 0 is filled up during bootup?
+

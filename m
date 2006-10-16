@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWJPOSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWJPOXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWJPOSI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWJPOSI
+	id S1750711AbWJPOXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWJPOXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:18:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19104 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932094AbWJPOSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:18:05 -0400
-Subject: Re: Would SSI clustering extensions be of interest to
-	kernelcommunity?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Constantine Gavrilov <constg@qlusters.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45339234.4050400@qlusters.com>
-References: <45337FE3.8020201@qlusters.com>
-	 <1161006841.24237.33.camel@localhost.localdomain>
-	 <45339234.4050400@qlusters.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Oct 2006 15:44:50 +0100
-Message-Id: <1161009890.24237.36.camel@localhost.localdomain>
+	Mon, 16 Oct 2006 10:23:16 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:41167 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1750711AbWJPOXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:23:15 -0400
+Message-Id: <4533B249.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 16 Oct 2006 16:24:41 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Jiri Kosina" <jikos@jikos.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: dwarf2 stuck Re: lockdep warning in i2c_transfer() with
+	dibx000 DVB - input tree merge plans?
+References: <Pine.LNX.4.64.0610121521390.29022@twin.jikos.cz>
+ <Pine.LNX.4.64.0610161506570.29022@twin.jikos.cz>
+ <4533A5A5.76E4.0078.0@novell.com> <200610161617.51111.ak@suse.de>
+In-Reply-To: <200610161617.51111.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-16 am 16:07 +0200, ysgrifennodd Constantine Gavrilov:
-> SSI intrudes kernel in two places: a) IO system calls, b ) page fault
-> code for shared memory pages.
-> 
-> a) IO system calls are "packed" and forwarded to the "home" node,
-> where original syscall code is executed. 
-> b) A hook is inserted into page fault code that brings shared memory
-> pages from other nodes when necessary.
-> 
-> Apart from these two hooks, SSI code is a "standalone" kernel API
-> add-on ("add", not "change").
-> 
-> Currently, we can do both "intrusions" from the kernel module. I
-> assume that if we submit code, you will require a kernel patch that
-> explicitly calls our hooks. 
+>> Yes, unfortunately this is another instance of gcc 4.0 generating bad
+>> unwind data when optimizing and not accumulating outgoing args.
+>> Andi - did you already create a patch implementing Michael's suggestion?
+>
+>You mean using -maccumulate-outgoing-args ? Not yet.
+>
+>I guess we can do it unconditionally for all gccs on both i386
+>and x86-64, right?
 
-Yep. Thats probably the most critical single thing to review.
-> 
-> Also, continuous SSI in-kernel support may require SSI changes in the
-> following cases: a) new fields in task struct that reflect process
-> state (may affect task migration), b) changes in the page fault
-> mechanism (may effect SSI shared memory code that brings and
-> invalidates pages), c) addition of new system calls (may require
-> implementation of  SSI suspport for them).
+Yes, I concluded this from Michael's description; what I don't know is
+whether the option isn't available on very old gcc-s.
 
-SSI changes triggered from core changes are fairly expected I think
-because you need to serialize new objects.
+Jan

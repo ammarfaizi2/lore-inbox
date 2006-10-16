@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWJPGCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWJPGST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWJPGCr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 02:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWJPGCq
+	id S1030309AbWJPGST (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 02:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWJPGST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 02:02:46 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:55747 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1030300AbWJPGCq (ORCPT
+	Mon, 16 Oct 2006 02:18:19 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3293 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030309AbWJPGSS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 02:02:46 -0400
-Date: Mon, 16 Oct 2006 08:02:27 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Neil Brown <neilb@suse.de>
-Cc: vherva@vianova.fi, linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl,
-       Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: Why aren't partitions limited to fit within the device?
-Message-ID: <20061016060227.GA3090@apps.cwi.nl>
-References: <17710.54489.486265.487078@cse.unsw.edu.au> <20061015082921.GC22674@vianova.fi> <17714.51511.845336.721450@cse.unsw.edu.au>
+	Mon, 16 Oct 2006 02:18:18 -0400
+Date: Mon, 16 Oct 2006 08:10:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: [build bug] x86_64, -git: Error: unknown pseudo-op: `.cfi_signal_frame'
+Message-ID: <20061016061037.GA12020@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17714.51511.845336.721450@cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 09:50:15AM +1000, Neil Brown wrote:
-> On Sunday October 15, vherva@vianova.fi wrote:
 
-> > I wonder if there's ever a change the kernel partition detection code could
-> > _write_ on the disk, even when there's really no partition table?
-> 
-> No, kernel partition detection never writes.
+using latest -git i'm getting this build bug on gcc 3.4:
 
-There is something else that writes, however, that I have gotten complaints about.
-(But I have not investigated.)
-People doing forensics take a copy of a disk and want to preserve
-that copy as-is, never changing a single bit, only looking at it.
-But it is reported that also when a partition is mounted read-only,
-the journaling code of ext3 will write to the journal.
+ arch/x86_64/kernel/entry.S: Assembler messages:
+ arch/x86_64/kernel/entry.S:157: Error: unknown pseudo-op: `.cfi_signal_frame'
+ arch/x86_64/kernel/entry.S:215: Error: unknown pseudo-op: `.cfi_signal_frame'
+ arch/x86_64/kernel/entry.S:333: Error: unknown pseudo-op: `.cfi_signal_frame'
+ arch/x86_64/kernel/entry.S:548: Error: unknown pseudo-op: `.cfi_signal_frame'
 
-Andries
+ gcc version 3.4.0 20040129 (Red Hat Linux 3.4.0-0.3)
+
+using gcc 4.1 it doesnt happen
+
+ gcc version 4.1.1 20060525 (Red Hat 4.1.1-1)
+
+this is caused by the following commit:
+
+ commit adf1423698f00d00b267f7dca8231340ce7d65ef
+ Author: Jan Beulich <jbeulich@novell.com>
+ Date:   Tue Sep 26 10:52:41 2006 +0200
+
+reverting that patch solves the build problem and the resulting kernel 
+builds and boots fine.
+
+	Ingo

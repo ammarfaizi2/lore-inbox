@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbWJPUNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422885AbWJPUVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161054AbWJPUNi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 16:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWJPUNi
+	id S1422885AbWJPUVb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 16:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWJPUVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 16:13:38 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:37540 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1161054AbWJPUNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 16:13:38 -0400
-Message-ID: <4533E7E2.6010506@oracle.com>
-Date: Mon, 16 Oct 2006 13:13:22 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: AIO, DIO fsx tests failures on 2.6.19-rc1-mm1
-References: <1161013338.32606.2.camel@dyn9047017100.beaverton.ibm.com>	 <4533C6A1.40203@oracle.com> <1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Mon, 16 Oct 2006 16:21:31 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:8152 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1422885AbWJPUVa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 16:21:30 -0400
+Message-Id: <200610162021.k9GKLOqC015900@laptop13.inf.utfsm.cl>
+To: mfbaustx <mfbaustx@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: copy_from_user / copy_to_user with no swap space 
+In-Reply-To: Message from mfbaustx <mfbaustx@gmail.com> 
+   of "Mon, 16 Oct 2006 14:19:03 CDT." <op.thi3x1mvnwjy9v@titan> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Mon, 16 Oct 2006 17:21:24 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 16 Oct 2006 17:21:24 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Here is the easiest case to fix first :)
-> simple DIO wrote more than asked for :(
+mfbaustx <mfbaustx@gmail.com> wrote:
+> I've been trying to find or derive a definitive answer to this
+> question  for a while now but can't quite get over the hump.
 > 
-> elm3b29:~ # /root/fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
-> jnk
-> mapped writes DISABLED
-> truncating to largest ever: 0x32740
-> truncating to largest ever: 0x39212
-> truncating to largest ever: 0x3bae9
-> short write: 0x17000 bytes instead of 0x14000   <<<<<<
+> I understand when/why copy_<to|from>_user (and siblings) are required
+> (address validation, guaranteeing a process is paged in, etc...).  The
+> question is: if you have no swap space (or virtual memory or
+> whatever),  can there ever be a case in which any valid pointer to a
+> buffer in  user-space would be incorrect as a result of another
+> process's PTE being  present?  Put another way: can a process be
+> partially paged?
 
-So the answer is that -rc1-mm1 doesn't quite have the most recent
-version of this patch.  Grab the final patch at the end of this post
-from Andrew:
+Yes. The executable (including data areas) and shared libraries are demand
+paged in (and ro areas could also be evicted), so they can very well be
+only partially in memory.
 
-	http://lkml.org/lkml/2006/10/11/234
-
-It fixes up a misunderstanding that came from
-generic_file_buffered_write()'s habit of adding its 'written' input into
-the amount of bytes it announces having written in its return value.
-
->From mm-commits it looks like -mm2 will have the full patch.
-
-- z
+In any case, relying on "this kernel will never have no swap" isn't wise...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

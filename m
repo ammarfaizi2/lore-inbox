@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422930AbWJPXb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJPXar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422930AbWJPXb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 19:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422932AbWJPXb6
+	id S1750810AbWJPXar (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 19:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422932AbWJPXal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 19:31:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44475 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422930AbWJPXb5 (ORCPT
+	Mon, 16 Oct 2006 19:30:41 -0400
+Received: from ns2.suse.de ([195.135.220.15]:43463 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422930AbWJPXaZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 19:31:57 -0400
-Date: Mon, 16 Oct 2006 16:31:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] pata_marvell: Marvell 6101/6145 PATA driver
-Message-Id: <20061016163134.4560d253.akpm@osdl.org>
-In-Reply-To: <1161013206.24237.85.camel@localhost.localdomain>
-References: <1161013206.24237.85.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Oct 2006 19:30:25 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 17 Oct 2006 09:30:19 +1000
+Message-Id: <1061016233019.11342@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 003 of 5] knfsd: nfsd4: Fix error handling in nfsd's callback client
+References: <20061017092702.11224.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 16:40:06 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> +static int marvell_pre_reset(struct ata_port *ap)
-> +{
-> +	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
-> +	u32 devices;
-> +	unsigned long bar5;
-> +	void __iomem *barp;
-> +	int i;
-> +
-> +	/* Check if our port is enabled */
-> +
-> +	bar5 = pci_resource_start(pdev, 5);
-> +	barp = ioremap(bar5, 0x10);
+From: "J. Bruce Fields" <bfields@fieldses.org>
+Coverity noticed that the error handling code in the NFSv4 callback client
+sets cb->cb_client to NULL, then calls rpc_shutdown_client with the NULL
+pointer.
 
-hm.  pci_resource_start() returns a possibly-64-bit resource_size_t
-nowadays.  But ioremap() doesn't know how to remap such a thing.
+Coverity: #cid 1397
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/nfsd/nfs4callback.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff .prev/fs/nfsd/nfs4callback.c ./fs/nfsd/nfs4callback.c
+--- .prev/fs/nfsd/nfs4callback.c	2006-10-17 09:05:30.000000000 +1000
++++ ./fs/nfsd/nfs4callback.c	2006-10-17 09:05:30.000000000 +1000
+@@ -421,7 +421,7 @@ nfsd4_probe_callback(struct nfs4_client 
+ 
+ 	/* Create RPC client */
+ 	cb->cb_client = rpc_create(&args);
+-	if (!cb->cb_client) {
++	if (IS_ERR(cb->cb_client)) {
+ 		dprintk("NFSD: couldn't create callback client\n");
+ 		goto out_err;
+ 	}
+@@ -448,10 +448,10 @@ nfsd4_probe_callback(struct nfs4_client 
+ out_rpciod:
+ 	atomic_dec(&clp->cl_count);
+ 	rpciod_down();
+-	cb->cb_client = NULL;
+ out_clnt:
+ 	rpc_shutdown_client(cb->cb_client);
+ out_err:
++	cb->cb_client = NULL;
+ 	dprintk("NFSD: warning: no callback path to client %.*s\n",
+ 		(int)clp->cl_name.len, clp->cl_name.data);
+ }

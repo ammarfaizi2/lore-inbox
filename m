@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWJPEKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWJPE2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWJPEKu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 00:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWJPEKu
+	id S1751456AbWJPE2x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 00:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWJPE2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 00:10:50 -0400
-Received: from smtpout.mac.com ([17.250.248.175]:34812 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751217AbWJPEKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 00:10:49 -0400
-In-Reply-To: <17714.52626.667835.228747@cse.unsw.edu.au>
-References: <17710.54489.486265.487078@cse.unsw.edu.au> <1160752047.25218.50.camel@localhost.localdomain> <17714.52626.667835.228747@cse.unsw.edu.au>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F40F49D8-C870-420C-B6C6-FB14CADBDDA2@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
+	Mon, 16 Oct 2006 00:28:52 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:48040 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1751456AbWJPE2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 00:28:52 -0400
+Subject: Re: [PATCH] drivers/char/riscom8.c: save_flags()/cli()/sti()
+	removal
+From: Amol Lad <amol@verismonetworks.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: matthew@wil.cx, linux kernel <linux-kernel@vger.kernel.org>,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+In-Reply-To: <1160835602.5732.30.camel@localhost.localdomain>
+References: <1160739628.19143.376.camel@amol.verismonetworks.com>
+	 <1160835602.5732.30.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 10:02:12 +0530
+Message-Id: <1160973132.19143.402.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Why aren't partitions limited to fit within the device?
-Date: Mon, 16 Oct 2006 00:09:29 -0400
-To: Neil Brown <neilb@suse.de>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 15, 2006, at 20:08:50, Neil Brown wrote:
-> Hmmm.. So Alan things a partially-outside-this-disk partition
-> shouldn't show up at all, and Andries thinks it should.
-> And both give reasonably believable justifications.
->
-> Maybe we need a kernel parameter?  How about this?
->
-> [...snip...]
-> So provide a kernel-parameter which a 'safe' default.
->
->    partitions=strict
-> is the default
->    partitions=relaxed
-> means that partitions are clipped rather than rejected.
-> This kernel parameters only applies to auto-detected partitions,
-> not those set by ioctl.
+On Sat, 2006-10-14 at 15:20 +0100, Alan Cox wrote:
+> Ar Gwe, 2006-10-13 am 17:10 +0530, ysgrifennodd Amol Lad:
+> > Removed save_flags()/cli()/sti() and used (light weight) spin locks
+> > 
+> 
+> Three things I see that look problematic
 
-Perhaps it should also support partitions=none; so that those of us  
-who want to use a small userspace program and device-mapper to do the  
-partition discovery and access may do so without worrying about how  
-the kernel perceives the partitions (if at all).  It also makes it  
-fairly trivial to add support for entirely new parition types without  
-having to modify the kernel at all.
+> 2. If the irq handler itself dumbly locks to fix this then we get
+> tty_flip_buffer_push() re-entering the other code paths and deadlocking
+> if low latency is enabled
 
-Cheers,
-Kyle Moffett
+The comment above tty_flip_buffer_push() says "This function must not be
+called from IRQ context if tty->low_latency is set". In this case
+tty_flip_buffer_push() is called from IRQ context. Do you think
+tty->low_latency can still be set for this case ? or I misunderstood
+your statement completely...
+
+> 3. Some of the use of local_save/spin_lock_irq seems over-clever and
+> unneeded
+
+Let me know, I'll fix them too.
+
+> 
+> Fixable but how about we just delete the file since it has been broken
+> for ages and nobody can be using it ?
+> 
+
+If we cannot delete the file then we must fix it. It's not good the
+drivers using old and deprecated interfaces in current phase of kernel
+development.
+

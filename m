@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWJPSfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422786AbWJPSjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422792AbWJPSfR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 14:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWJPSfR
+	id S1422786AbWJPSjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 14:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422796AbWJPSjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 14:35:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:51431 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422792AbWJPSfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 14:35:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=k/RvMtzexdyo+hx0P7V9gpM6KuS72hhzPLCAuv196tDmkywQS2CTvUhs5SxSPqmBUGIGX9zXRfwZBg1HJeWQcdD6Hgy1dXpczfmrFPaLu0+hrYwp6EdnMNTh+h2H5YgR/KzIcz676I54Lf9rXb4YRNiUF14dC7OaN+5nMArtRAo=
-Message-ID: <35a82d00610161135t3d65bf2ei46631e69bf6f7f12@mail.gmail.com>
-Date: Mon, 16 Oct 2006 11:35:13 -0700
-From: "Scott Baker" <smbaker@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: exported module symbols and warnings
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 16 Oct 2006 14:39:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34996 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422786AbWJPSju (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 14:39:50 -0400
+Date: Mon, 16 Oct 2006 11:39:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, johnstul@us.ibm.com
+Subject: Re: [PATCH] i386 Time: Avoid PIT SMP lockups
+Message-Id: <20061016113937.a76f8d06.akpm@osdl.org>
+In-Reply-To: <p73odsccqy5.fsf@verdi.suse.de>
+References: <1160596462.5973.12.camel@localhost.localdomain>
+	<20061011142646.eb41fac3.akpm@osdl.org>
+	<1160606911.5973.36.camel@localhost.localdomain>
+	<20061011160328.f3e7043a.akpm@osdl.org>
+	<p73odsccqy5.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 16 Oct 2006 15:48:02 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-I'm developing a pair of kernel modules. One module needs to export a
-symbol that will be used by the second module. I'm doing this by using
-EXPORT_SYMBOL(MySymbol) in the first module and declaring the symbol
-as extern in the second module. It works fine.
+> Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > Is there any actual need to hold xtime_lock while doing the port IO?  I'd
+> > have thought it would suffice to do
+> > 
+> > 	temp = port_io
+> > 	write_seqlock(xtime_lock);
+> > 	xtime = muck_with(temp);
+> > 	write_sequnlock(xtime_lock);
+> > 
+> > ?
+> 
+> That would be a good idea in general. The trouble is just that whatever race
+> is there will be still there then, just harder to trigger (so instead of 
+> every third boot it will muck up every 6 weeks). Not sure that is
+> a real improvement.
+> 
 
-However, there are a couple of warnings that I'm trying to clean up.
-The first is when building the second module (the one that uses the
-symbol). It is: "*** Warning: "MySymbol" [filename] undefined!"
+Confused.  What race are you referring to?
 
-The second warning occurs when insmod'ing the second module. It is:
-"no version for "MySymbol" found: kernel tainted."
+This is addressing a starvation problem which is due to the slowness of the
+port-io (iirc).
 
-Can someone point me in the right direction? The modules are behaving
-fine, but the warning messages are a bit unsightly.
-
-I'm running RHEL4, kernel version 2.6.9-42.
-
-Thanks,
-Scott

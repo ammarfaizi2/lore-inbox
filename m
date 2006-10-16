@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422897AbWJPVV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWJPV1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422897AbWJPVV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 17:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422898AbWJPVV3
+	id S1161090AbWJPV1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 17:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWJPV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 17:21:29 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:37015 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1422897AbWJPVV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 17:21:28 -0400
-Message-ID: <4533F7CA.3070405@oracle.com>
-Date: Mon, 16 Oct 2006 14:21:14 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Mon, 16 Oct 2006 17:27:13 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:62471 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1161090AbWJPV1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 17:27:12 -0400
+Date: Mon, 16 Oct 2006 17:27:09 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+cc: Duncan Sands <duncan.sands@math.u-psud.fr>, Greg K-H <greg@kroah.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 3/3] Driver core: Per-subsystem multithreaded probing.
+In-Reply-To: <20061016190405.3570f547@gondolin.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610161717120.5813-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: AIO, DIO fsx tests failures on 2.6.19-rc1-mm1
-References: <1161013338.32606.2.camel@dyn9047017100.beaverton.ibm.com>	<4533C6A1.40203@oracle.com>	<1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com>	<4533E7E2.6010506@oracle.com>	<1161031099.32606.14.camel@dyn9047017100.beaverton.ibm.com> <20061016135910.be11a2dc.akpm@osdl.org>
-In-Reply-To: <20061016135910.be11a2dc.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Oct 2006, Cornelia Huck wrote:
 
->> Hmm.. with that patch applied, I still have fsx failures.
->> This time read() returning -EINVAL. Are there any other fixes
->> missing in -mm ?
+> > So the question is what do do if someone calls device_register() or
+> > device_add() with dev->driver set.  If everything succeeds except for
+> > creation of the symlinks, should the device remain registered?  The driver
+> > core has been vacillating about this recently.  I'm not sure what the 
+> > right answer is.
+> 
+> If dev->driver has not been set and symlink creation failed, we'll end
+> up with an unbound but registered device. Maybe the same should happen
+> if dev->driver had been set before (register the device but reset
+> dev->driver to NULL)?
 
-For what it's worth, the fsx I have here isn't raising errors with the
-latest patch on 1k, 2k, and 4k ext3 on a stinky old IDE drive on an old
-UP P3.
+That _seems_ reasonable.  But what do subsystem drivers expect?  They
+might assume that the binding succeeded whenever the registration 
+succeeded.  Although it may not make any real difference in the end.
 
-# /tmp/fsx -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
-/mnt/ext3-hdb4/fsx-file
-...
-truncating to largest ever: 0x3ff9f
-truncating to largest ever: 0x3ffa9
-All operations completed A-OK!
+And of course, we always have the excuse that up until a week ago, failure
+to create the symlinks would not cause device registration to fail...
 
-- z
+Alan Stern
+

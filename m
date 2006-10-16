@@ -1,121 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWJPN1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWJPN1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbWJPN1k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 09:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbWJPN1j
+	id S1750857AbWJPN1T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 09:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWJPN1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 09:27:39 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:48523 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1750910AbWJPN1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 09:27:38 -0400
-Subject: Re: [PATCH] FRV: Use the correct preemption primitives in
-	kmap_atomic() and co [try #2]
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061016131049.28249.16488.stgit@warthog.cambridge.redhat.com>
-References: <20061016131049.28249.16488.stgit@warthog.cambridge.redhat.com>
+	Mon, 16 Oct 2006 09:27:18 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7134 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750847AbWJPN1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 09:27:18 -0400
+Subject: Re: Would SSI clustering extensions be of interest to kernel
+	community?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Constantine Gavrilov <constg@qlusters.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45337FE3.8020201@qlusters.com>
+References: <45337FE3.8020201@qlusters.com>
 Content-Type: text/plain
-Date: Mon, 16 Oct 2006 15:27:56 +0200
-Message-Id: <1161005276.22727.20.camel@taijtu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
+Date: Mon, 16 Oct 2006 14:54:01 +0100
+Message-Id: <1161006841.24237.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-16 at 14:10 +0100, David Howells wrote:
-> From: David Howells <dhowells@redhat.com>
-> 
-> Use inc/dec_preempt_count() rather than preempt_enable/disable() and manually
-> add in the compiler barriers that were provided by the latter.  This makes FRV
-> consistent with other archs.
-> 
-> Furthermore, the compiler barrier effects are now there unconditionally - at
-> least as far as preemption is concerned - because we don't want the compiler
-> moving memory accesses out of the section of code in which the mapping is in
-> force - in effect the kmap_atomic() must imply a LOCK-class barrier and the
-> kunmap_atomic() must imply an UNLOCK-class barrier to the compiler.
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
+Ar Llu, 2006-10-16 am 14:49 +0200, ysgrifennodd Constantine Gavrilov:
+> 2) Are kernel maintainers interested in clustering extensions to Linux 
+> kernel? Do they see any value in them? (Our code does not require kernel 
+> changes, but we are willing to submit it for inclusion if there is 
+> interest.)
 
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+If they are doing SSI well and do not need core kernel changes then yes
+they sound very interesting to me. Historically the big concern has
+always been that things like this muck up the kernel core which affects
+the other 99.99999% of users who don't want SSI clustering.
 
-> ---
-> 
->  include/asm-frv/highmem.h |   27 ++++++++++++++-------------
->  1 files changed, 14 insertions(+), 13 deletions(-)
-> 
-> diff --git a/include/asm-frv/highmem.h b/include/asm-frv/highmem.h
-> index e2247c2..0f390f4 100644
-> --- a/include/asm-frv/highmem.h
-> +++ b/include/asm-frv/highmem.h
-> @@ -82,11 +82,11 @@ ({												\
->  	dampr = paddr | xAMPRx_L | xAMPRx_M | xAMPRx_S | xAMPRx_SS_16Kb | xAMPRx_V;		\
->  												\
->  	if (type != __KM_CACHE)									\
-> -		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr));				\
-> +		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr) : "memory");			\
->  	else											\
->  		asm volatile("movgs %0,iampr"#ampr"\n"						\
->  			     "movgs %0,dampr"#ampr"\n"						\
-> -			     :: "r"(dampr)							\
-> +			     :: "r"(dampr) : "memory"						\
->  			     );									\
->  												\
->  	asm("movsg damlr"#ampr",%0" : "=r"(damlr));						\
-> @@ -104,7 +104,7 @@ ({												  \
->  	asm volatile("movgs %0,tplr \n"								  \
->  		     "movgs %1,tppr \n"								  \
->  		     "tlbpr %0,gr0,#2,#1"							  \
-> -		     : : "r"(damlr), "r"(dampr));						  \
-> +		     : : "r"(damlr), "r"(dampr) : "memory");					  \
->  												  \
->  	/*printk("TLB: SECN sl=%d L=%08lx P=%08lx\n", slot, damlr, dampr);*/			  \
->  												  \
-> @@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
->  {
->  	unsigned long paddr;
->  
-> -	preempt_disable();
-> +	inc_preempt_count();
->  	paddr = page_to_phys(page);
->  
->  	switch (type) {
-> @@ -138,16 +138,16 @@ static inline void *kmap_atomic(struct p
->  	}
->  }
->  
-> -#define __kunmap_atomic_primary(type, ampr)			\
-> -do {								\
-> -	asm volatile("movgs gr0,dampr"#ampr"\n");		\
-> -	if (type == __KM_CACHE)					\
-> -		asm volatile("movgs gr0,iampr"#ampr"\n");	\
-> +#define __kunmap_atomic_primary(type, ampr)				\
-> +do {									\
-> +	asm volatile("movgs gr0,dampr"#ampr"\n" ::: "memory");		\
-> +	if (type == __KM_CACHE)						\
-> +		asm volatile("movgs gr0,iampr"#ampr"\n" ::: "memory");	\
->  } while(0)
->  
-> -#define __kunmap_atomic_secondary(slot, vaddr)			\
-> -do {								\
-> -	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr));	\
-> +#define __kunmap_atomic_secondary(slot, vaddr)				\
-> +do {									\
-> +	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr) : "memory");	\
->  } while(0)
->  
->  static inline void kunmap_atomic(void *kvaddr, enum km_type type)
-> @@ -170,7 +170,8 @@ static inline void kunmap_atomic(void *k
->  	default:
->  		BUG();
->  	}
-> -	preempt_enable();
-> +	dec_preempt_count();
-> +	preempt_check_resched();
->  }
->  
->  #endif /* !__ASSEMBLY__ */
+Alan
 

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWJPHZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWJPH3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWJPHZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 03:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161193AbWJPHZb
+	id S1030316AbWJPH3D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 03:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWJPH3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 03:25:31 -0400
-Received: from mail01.verismonetworks.com ([164.164.99.228]:51370 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1030319AbWJPHZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 03:25:30 -0400
-Subject: [PATCH] drivers/serial/dz.c: Remove
-	save_flags()/cli()/restore_flags()
-From: Amol Lad <amol@verismonetworks.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
+	Mon, 16 Oct 2006 03:29:02 -0400
+Received: from smtp8.orange.fr ([193.252.22.23]:63467 "EHLO
+	smtp-msa-out08.orange.fr") by vger.kernel.org with ESMTP
+	id S1030316AbWJPH3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 03:29:01 -0400
+X-ME-UUID: 20061016072859698.AA66218000AD@mwinf0801.orange.fr
+Subject: Re: Why aren't partitions limited to fit within the device?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Neil Brown <neilb@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       aeb@cwi.nl, Jens Axboe <jens.axboe@oracle.com>
+In-Reply-To: <17714.52626.667835.228747@cse.unsw.edu.au>
+References: <17710.54489.486265.487078@cse.unsw.edu.au>
+	 <1160752047.25218.50.camel@localhost.localdomain>
+	 <17714.52626.667835.228747@cse.unsw.edu.au>
 Content-Type: text/plain
-Date: Mon, 16 Oct 2006 12:58:52 +0530
-Message-Id: <1160983732.19143.420.camel@amol.verismonetworks.com>
+Date: Mon, 16 Oct 2006 09:28:55 +0200
+Message-Id: <1160983735.32674.4.camel@frg-rhel40-em64t-03>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replaced save_flags()/cli()/restore_flags() pair with spin_lock
-alternatives.
+On Mon, 2006-10-16 at 10:08 +1000, Neil Brown wrote:
+> On Friday October 13, alan@lxorguk.ukuu.org.uk wrote:
+> > Ar Gwe, 2006-10-13 am 09:50 +1000, ysgrifennodd Neil Brown:
+> > > So:  Is there any good reason to not clip the partitions to fit
+> > > within the device - and discard those that are completely beyond
+> > > the end of the device??
+> > 
+> > Its close but not quite the right approach
+> > 
+> > > The patch at the end of the mail does that.  Is it OK to submit this
+> > > to mainline?
+> > 
+> > No I think not. Any partition which is partly outside the disk should be
+> > ignored entirely, that ensures it doesn't accidentally get mounted and
+> > trashed by an HPA or similar mixup.
+> 
+> Hmmm.. So Alan things a partially-outside-this-disk partition
+> shouldn't show up at all, and Andries thinks it should.
+> And both give reasonably believable justifications.
 
-For this case, I believe spin lock plays no role but I also do not have
-a better way.
+Maybe the whole part table should be marked as "weird" to let userspace
+run a diagnostics/repair tool on the disk.
 
-Tested compile only.
-
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
---- linux-2.6.19-rc1-orig/drivers/serial/dz.c	2006-09-21 10:15:41.000000000 +0530
-+++ linux-2.6.19-rc1/drivers/serial/dz.c	2006-10-16 12:48:31.000000000 +0530
-@@ -778,13 +778,13 @@ int __init dz_init(void)
- {
- 	unsigned long flags;
- 	int ret, i;
-+	spinlock_t dz_lock = SPIN_LOCK_UNLOCKED;
- 
- 	printk("%s%s\n", dz_name, dz_version);
- 
- 	dz_init_ports();
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&dz_lock,flags);
- 
- #ifndef CONFIG_SERIAL_DZ_CONSOLE
- 	/* reset the chip */
-@@ -794,7 +794,7 @@ int __init dz_init(void)
- 	/* order matters here... the trick is that flags
- 	   is updated... in request_irq - to immediatedly obliterate
- 	   it is unwise. */
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&dz_lock,flags);
- 
- 	if (request_irq(dz_ports[0].port.irq, dz_interrupt,
- 			IRQF_DISABLED, "DZ", &dz_ports[0]))
-
+	Xav
 

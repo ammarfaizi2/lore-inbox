@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWJPIVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWJPIiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWJPIVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 04:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWJPIVu
+	id S964841AbWJPIiA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 04:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWJPIiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 04:21:50 -0400
-Received: from SMT02002.global-sp.net ([193.168.50.254]:5591 "EHLO
-	SMT02002.global-sp.net") by vger.kernel.org with ESMTP
-	id S964812AbWJPIVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 04:21:49 -0400
-Message-ID: <45334112.8070202@privacy.net>
-Date: Mon, 16 Oct 2006 10:21:38 +0200
-From: John <me@privacy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050905
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Better resolution using the hrtimers infrastructure
-References: <452DFA6D.4030300@privacy.net>
-In-Reply-To: <452DFA6D.4030300@privacy.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 16 Oct 2006 08:23:25.0292 (UTC) FILETIME=[59A30AC0:01C6F0FC]
-X-global-asp-net-MailScanner: Found to be clean
-X-global-asp-net-MailScanner-SpamCheck: 
-X-MailScanner-From: me@privacy.net
+	Mon, 16 Oct 2006 04:38:00 -0400
+Received: from mail.gmx.de ([213.165.64.20]:44164 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964841AbWJPIh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 04:37:59 -0400
+X-Authenticated: #14349625
+Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
+From: Mike Galbraith <efault@gmx.de>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       "nmeyers@vestmark.com" <nmeyers@vestmark.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0610160107qff115d2r8adef99452560e16@mail.gmail.com>
+References: <20061013004918.GA8551@viviport.com>
+	 <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com>
+	 <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com>
+	 <1160899154.5935.19.camel@Homer.simpson.net>
+	 <1160976752.6477.3.camel@Homer.simpson.net>
+	 <b0943d9e0610160107qff115d2r8adef99452560e16@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 16 Oct 2006 09:08:30 +0000
+Message-Id: <1160989710.17131.14.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John wrote:
-
-> I've been experimenting with the high-resolution timer subsystem on the
-> x86 platform (specifically, P4 2.8 GHz) running Linux 2.6.16.28. (LAPIC
-> and IOAPIC turned on, pre-emptible kernel, HZ=250)
+On Mon, 2006-10-16 at 09:07 +0100, Catalin Marinas wrote:
+> On 16/10/06, Mike Galbraith <efault@gmx.de> wrote:
+> > On Sun, 2006-10-15 at 07:59 +0000, Mike Galbraith wrote:
+> >
+> > > 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
+> > > CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
+> > > runs a lot faster ;-)  I'll try a stripped down config sometime.
+> >
+> > My roughly three orders of magnitude (amusing to watch:) boot slowdown
+> > turned out to be stack unwinding.  With CONFIG_UNWIND_INFO disabled,
+> > 2.6.19-rc2 + patch-2.6.19-rc1-kmemleak-0.11 runs just fine.
 > 
-> I wrote a small app to create a POSIX timer (timer_create(),
-> timer_settime(), etc) that fires with a given period. The scheduling
-> policy is set to SCHED_RR. After some time, the process writes the
-> distribution of "elapsed time between signals" to a file, and exits. I
-> then post-process this file to output average time between signals,
-> standard deviation, occurences +/- 5 µs and occurences +/- 10 µs.
-> 
-> [...]
+> Kmemleak introduces some overhead but shouldn't be that bad.
+> DEBUG_SLAB also introduces an overhead by erasing the data in the
+> allocated blocks.
 
-Given the dearth of replies, I assume that linux-kernel is not the 
-appropriate venue for this type of question.
+2.6.18 with your rc6 patch booted normally with stack unwind enabled.
 
-Could someone point to a better forum?
-
-Regards.
+	-Mike 
 

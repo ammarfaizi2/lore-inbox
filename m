@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWJPOzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWJPO54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWJPOzK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWJPOzK
+	id S1750736AbWJPO54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJPO54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:55:10 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:22749 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932106AbWJPOzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:55:09 -0400
-Date: Mon, 16 Oct 2006 10:53:37 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] make UML copmile
-Message-ID: <20061016145337.GD4350@ccure.user-mode-linux.org>
-References: <200610151903.k9FJ3mHG016757@devserv.devel.redhat.com>
+	Mon, 16 Oct 2006 10:57:56 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30694 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750736AbWJPO5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:57:55 -0400
+Subject: PATCH: ahci - readability tweak
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 16 Oct 2006 16:21:40 +0100
+Message-Id: <1161012100.24237.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610151903.k9FJ3mHG016757@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 15, 2006 at 03:03:48PM -0400, Ulrich Drepper wrote:
-> I need this patch to get a UML kernel to compile.  This is with the kernel
-> headers in FC6 which are automatically generated from the kernel tree.
-> Some headers are missing but those files don't need them.  At least it
-> appears so since the resuling kernel works fine.
-> 
-> Tested on x86-64.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/drivers/ata/ahci.c linux-2.6.19-rc1-mm1/drivers/ata/ahci.c
+--- linux.vanilla-2.6.19-rc1-mm1/drivers/ata/ahci.c	2006-10-13 15:10:06.000000000 +0100
++++ linux-2.6.19-rc1-mm1/drivers/ata/ahci.c	2006-10-13 17:14:40.000000000 +0100
+@@ -1046,7 +1046,7 @@
+ 	/* hmmm... a spurious interupt */
+ 
+ 	/* some devices send D2H reg with I bit set during NCQ command phase */
+-	if (ap->sactive && status & PORT_IRQ_D2H_REG_FIS)
++	if (ap->sactive && (status & PORT_IRQ_D2H_REG_FIS))
+ 		return;
+ 
+ 	/* ignore interim PIO setup fis interrupts */
 
-Thanks, Ulrich.
-
-				Jeff

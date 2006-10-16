@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWJPNAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWJPNCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWJPNAr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 09:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWJPNAr
+	id S1750705AbWJPNCg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 09:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWJPNCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 09:00:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22664 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750724AbWJPNAq (ORCPT
+	Mon, 16 Oct 2006 09:02:36 -0400
+Received: from s3.cableone.net ([24.116.0.229]:5809 "EHLO S3.cableone.net")
+	by vger.kernel.org with ESMTP id S1750705AbWJPNCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 09:00:46 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH] FRV: Use the correct preemption primitives in kmap_atomic() and co
-Date: Mon, 16 Oct 2006 14:00:23 +0100
-To: torvalds@osdl.org, akpm@osdl.org, a.p.zijlstra@chello.nl
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Message-Id: <20061016130023.27890.47357.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Mon, 16 Oct 2006 09:02:35 -0400
+Message-ID: <16554.129.240.220.12.1161003642.squirrel@peltkore.net>
+Date: Mon, 16 Oct 2006 07:00:42 -0600 (MDT)
+Subject: [PATCH] IDE: typedef struct clean-up
+From: vegard@peltkore.net
+To: linux-kernel@vger.kernel.org
+Cc: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Jens Axboe" <axboe@kernel.dk>, "Paul Bristow" <paul@paulbristow.net>,
+       "Gadi Oxman" <gadio@netvision.net.il>
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-IP-stats: Incoming Outgoing Last 0, First 236, in=997, out=9, spam=0 Known=true
+X-External-IP: 24.117.236.111
+X-Abuse-Info: Send abuse complaints to abuse@cableone.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Vegard Nossum <vegard@peltkore.net>
 
-Use inc/dec_preempt_count() rather than preempt_enable/disable() and manually
-add in the compiler barriers that were provided by the latter.  This makes FRV
-consistent with other archs.
+Replaces typedefs with struct-constructs for large parts of the IDE API
+and drivers. No semantic changes. Rationale: CodingStyle, chapter 5.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
+Signed-off-by: Vegard Nossum <vegard@peltkore.net>
 ---
 
- include/asm-frv/highmem.h |   27 ++++++++++++++-------------
- 1 files changed, 14 insertions(+), 13 deletions(-)
+Applies to Linus's 2.6 tree.
 
-diff --git a/include/asm-frv/highmem.h b/include/asm-frv/highmem.h
-index e2247c2..0f390f4 100644
---- a/include/asm-frv/highmem.h
-+++ b/include/asm-frv/highmem.h
-@@ -82,11 +82,11 @@ ({												\
- 	dampr = paddr | xAMPRx_L | xAMPRx_M | xAMPRx_S | xAMPRx_SS_16Kb | xAMPRx_V;		\
- 												\
- 	if (type != __KM_CACHE)									\
--		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr));				\
-+		asm volatile("movgs %0,dampr"#ampr :: "r"(dampr) : "memory");			\
- 	else											\
- 		asm volatile("movgs %0,iampr"#ampr"\n"						\
- 			     "movgs %0,dampr"#ampr"\n"						\
--			     :: "r"(dampr)							\
-+			     :: "r"(dampr) : "memory"						\
- 			     );									\
- 												\
- 	asm("movsg damlr"#ampr",%0" : "=r"(damlr));						\
-@@ -104,7 +104,7 @@ ({												  \
- 	asm volatile("movgs %0,tplr \n"								  \
- 		     "movgs %1,tppr \n"								  \
- 		     "tlbpr %0,gr0,#2,#1"							  \
--		     : : "r"(damlr), "r"(dampr));						  \
-+		     : : "r"(damlr), "r"(dampr) : "memory");					  \
- 												  \
- 	/*printk("TLB: SECN sl=%d L=%08lx P=%08lx\n", slot, damlr, dampr);*/			  \
- 												  \
-@@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
- {
- 	unsigned long paddr;
- 
--	preempt_disable();
-+	inc_preempt_count();
- 	paddr = page_to_phys(page);
- 
- 	switch (type) {
-@@ -138,16 +138,16 @@ static inline void *kmap_atomic(struct p
- 	}
- }
- 
--#define __kunmap_atomic_primary(type, ampr)			\
--do {								\
--	asm volatile("movgs gr0,dampr"#ampr"\n");		\
--	if (type == __KM_CACHE)					\
--		asm volatile("movgs gr0,iampr"#ampr"\n");	\
-+#define __kunmap_atomic_primary(type, ampr)				\
-+do {									\
-+	asm volatile("movgs gr0,dampr"#ampr"\n" ::: "memory");		\
-+	if (type == __KM_CACHE)						\
-+		asm volatile("movgs gr0,iampr"#ampr"\n" ::: "memory");	\
- } while(0)
- 
--#define __kunmap_atomic_secondary(slot, vaddr)			\
--do {								\
--	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr));	\
-+#define __kunmap_atomic_secondary(slot, vaddr)				\
-+do {									\
-+	asm volatile("tlbpr %0,gr0,#4,#1" : : "r"(vaddr) : "memory");	\
- } while(0)
- 
- static inline void kunmap_atomic(void *kvaddr, enum km_type type)
-@@ -170,7 +170,8 @@ static inline void kunmap_atomic(void *k
- 	default:
- 		BUG();
- 	}
--	preempt_enable();
-+	dec_preempt_count();
-+	preempt_check_resched();
- }
- 
- #endif /* !__ASSEMBLY__ */
+I figured that this kind of easy/routine job would make for a gentle
+introduction to kernel programming. However, what is the general opinion
+of this kind of work, should it be done or not? (I realize that I may be
+challenging some established habits with these changes.)
+
+Also, what are the rules for enum and function-pointer typedefs?
+CodingStyle does not discuss these cases.
+
+Complete patch is 376K and follows as a link. This violates point 6 of
+SubmittingPatches (no links), but is justified by point 7 (e-mail size).
+
+http://peltkore.net/~vegard/linux-2.6-ide-typedef-vegard.patch
+
+
+Regards from Vegard's
+

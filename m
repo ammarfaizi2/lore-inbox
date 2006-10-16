@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWJPO30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWJPOco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWJPO30 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 10:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWJPO30
+	id S1750732AbWJPOco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 10:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWJPOcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 10:29:26 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:43423 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750723AbWJPO3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 10:29:25 -0400
-Subject: Re: Driver model.. expel legacy drivers?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       John Richard Moser <nigelenki@comcast.net>,
-       Kevin K <k_krieser@sbcglobal.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1160991586.10100.6.camel@localhost>
-References: <4530570B.7030500@comcast.net>
-	 <20061014075625.GA30596@stusta.de> <4530FC8E.7020504@comcast.net>
-	 <7E4CA247-AD0A-4A20-BEAF-CDD2CA4D3FFE@sbcglobal.net>
-	 <45315A20.6090600@comcast.net>
-	 <1160870637.5732.46.camel@localhost.localdomain>
-	 <45317814.8000709@comcast.net>
-	 <1160922815.5732.54.camel@localhost.localdomain>
-	 <1160991586.10100.6.camel@localhost>
-Content-Type: text/plain
-Date: Mon, 16 Oct 2006 10:13:21 -0400
-Message-Id: <1161008002.25309.11.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 16 Oct 2006 10:32:43 -0400
+Received: from rutherford.zen.co.uk ([212.23.3.142]:15829 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1750732AbWJPOcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 10:32:42 -0400
+From: David Johnson <dj@david-web.co.uk>
+To: Jarek Poplawski <jarkao2@o2.pl>
+Subject: Re: Hardware bug or kernel bug?
+Date: Mon, 16 Oct 2006 15:32:38 +0100
+User-Agent: KMail/1.9.5
+References: <20061013085605.GA1690@ff.dom.local> <200610131724.40631.dj@david-web.co.uk> <20061016102500.GA1709@ff.dom.local>
+In-Reply-To: <20061016102500.GA1709@ff.dom.local>
+MIME-Version: 1.0
+Content-Disposition: inline
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Reply-To: dj@david-web.co.uk
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610161532.38663.dj@david-web.co.uk>
+X-Originating-Rutherford-IP: [82.69.29.67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-16 at 11:39 +0200, Kasper Sandberg wrote:
-> that makes very much sense, theres just one thing i dont understand.
-> 
-> when there is an established standard, how can it EVER be in a
-> companys best interrest to develop a new product that doesent use it,
-> and thereby requires the development of new drivers, the distributing
-> of those drivers, and all that sort? 
+On Monday 16 October 2006 11:25, Jarek Poplawski wrote:
+>
+> Was this lock-up effect visible during above 2.6.19-rc1 tests?
 
-Easy - when they think they can provide equivalent functionality and hit
-a lower price point (or make a bigger profit at the same price point) by
-violating the standard.
+No, I've not seen anything in Linux other than the reboots, which are instant 
+without any preceding lock-up.
 
-Lee
+> If not I'd try to continue linux debbuging:
+> - is 2.6.19-rc1 working with "normal" config (use make oldconfig
+> to "upgrade" .config),
 
+With 2.6.19-rc1 and a normal config, I get the reboots as usual.
+
+> - is 2.6.17 working with "minimal" config (use make oldconfig),
+
+Yes.
+
+> - changing one or two options at a time try to find which one makes
+> the effect returns (acpi, smp...).
+
+I've found the culprit - CPU Frequency Scaling.
+With it enabled I get the reboots, with it disabled I don't. That's the same 
+with every kernel version I've tried (2.6.19-rc1+rc2, 2.6.17.13 & Centos' 
+2.6.9) The system was using the p4-clockmod driver and the ondemand governor.
+
+I'm still not sure exactly what the problem is - the reboots only happen in 
+the circumstances I've mentioned and are not triggered by changes in clock 
+speed alone - but disabling cpufreq seems to make it go away...
+
+Thanks for your help,
+David.

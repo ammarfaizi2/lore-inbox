@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422939AbWJPXlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422955AbWJPXsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422939AbWJPXlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 19:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422942AbWJPXlI
+	id S1422955AbWJPXsq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 19:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422942AbWJPXsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 19:41:08 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24338 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1422939AbWJPXlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 19:41:05 -0400
-Date: Mon, 16 Oct 2006 17:40:12 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-In-reply-to: <4533B0B3.8070205@rtr.ca>
-To: Mark Lord <liml@rtr.ca>
-Cc: Jens Axboe <jens.axboe@oracle.com>, Allen Martin <AMartin@nvidia.com>,
-       Jeff Garzik <jeff@garzik.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       prakash@punnoor.de
-Message-id: <4534185C.9060401@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com>
- <452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk>
- <452F053B.2000906@shaw.ca> <4533B0B3.8070205@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Mon, 16 Oct 2006 19:48:46 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:55277 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1422955AbWJPXsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 19:48:45 -0400
+Message-ID: <45341A59.6000402@pobox.com>
+Date: Mon, 16 Oct 2006 19:48:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pata_marvell: Marvell 6101/6145 PATA driver
+References: <1161013206.24237.85.camel@localhost.localdomain> <20061016163134.4560d253.akpm@osdl.org>
+In-Reply-To: <20061016163134.4560d253.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Robert Hancock wrote:
->>
->> I also noticed that I'm still using the default 64KB libata 
->> dma_boundary value, this should be 4GB for ADMA mode (but fixed up 
->> back to the default if an ATAPI device is connected, same as with the 
->> DMA mask).
+Andrew Morton wrote:
+> On Mon, 16 Oct 2006 16:40:06 +0100
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-> Be careful of that.  The original PDC hardware for ADMA still had
-> the "don't cross a 64KB boundary" requirement.
+>> +static int marvell_pre_reset(struct ata_port *ap)
+>> +{
+>> +	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
+>> +	u32 devices;
+>> +	unsigned long bar5;
+>> +	void __iomem *barp;
+>> +	int i;
+>> +
+>> +	/* Check if our port is enabled */
+>> +
+>> +	bar5 = pci_resource_start(pdev, 5);
+>> +	barp = ioremap(bar5, 0x10);
 > 
-> Cheers
+> hm.  pci_resource_start() returns a possibly-64-bit resource_size_t
+> nowadays.  But ioremap() doesn't know how to remap such a thing.
 
-That is part of the ADMA spec - but in that case, how come the 
-pdc_adma.c driver sets the dma_boundary in the SCSI host template to 
-4GB? That seems wrong.
+These days, pci_iomap() should be used anyway.
 
-In any case, however, I really doubt the NVIDIA ADMA controller shares 
-this limitation - they provide 32 bits for the region length (standard 
-ADMA only has 16 bits), which wouldn't be very useful if you couldn't 
-cross a 64KB boundary..
+	Jeff
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+
 

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWJQWpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWJQW4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWJQWpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 18:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWJQWpX
+	id S1750984AbWJQW4H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 18:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWJQW4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 18:45:23 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:41998 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750827AbWJQWpW (ORCPT
+	Tue, 17 Oct 2006 18:56:07 -0400
+Received: from c3po.0xdef.net ([217.172.181.57]:33287 "EHLO c3po.0xdef.net")
+	by vger.kernel.org with ESMTP id S1750984AbWJQW4E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 18:45:22 -0400
-Date: Wed, 18 Oct 2006 00:45:21 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VCD not readable under 2.6.18
-Message-ID: <20061017224521.GA64471@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com> <1161040345.24237.135.camel@localhost.localdomain> <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com> <1161124732.5014.20.camel@localhost.localdomain>
+	Tue, 17 Oct 2006 18:56:04 -0400
+Date: Wed, 18 Oct 2006 00:56:03 +0200
+From: Hagen Paul Pfeifer <hagen@jauu.net>
+To: Kay Tiong Khoo <kaytiong@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stopping a process during a timer interrupt
+Message-ID: <20061017225603.GA15846@c3po.0xdef.net>
+Mail-Followup-To: Hagen Paul Pfeifer <hagen@jauu.net>,
+	Kay Tiong Khoo <kaytiong@gmail.com>, linux-kernel@vger.kernel.org
+References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com> <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1161124732.5014.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
+X-Key-Id: 98350C22
+X-Key-Fingerprint: 490F 557B 6C48 6D7E 5706 2EA2 4A22 8D45 9835 0C22
+X-GPG-Key: gpg --recv-keys --keyserver wwwkeys.eu.pgp.net 98350C22
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 11:38:52PM +0100, Alan Cox wrote:
-> Now where it all gets weirder is that some forms of VCD (especially the
-> ones for philips short lived interactive stuff) have an ISO file system
-> on them but where sector numbers in the file system for video blocks
-> point to blocks that are not 2K data blocks but mpeg blocks that the
-> file system layer can't handle, so a VCD disk can appear mountable and
-> the like.
+* Kay Tiong Khoo | 2006-10-17 18:18:25 [+0800]:
 
-PSX1 CDs are often like that too.  Video files are in mode2 sectors
-but the filesystem is ISO9660.  It's a mix of mjpeg-like and adpcm
-instead of mpeg though.
+>On a timer interrupt, I tried to stop the current process by changing
+>it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
+>However, this results in a system hang.
+>
+>I can't find a way to stop the current process during an interrupt
+>context. Does such code exist in the kernel? If not, how does one go
+>about implementing it from within a kernel module.
 
-Makes the FIBMAP restrictions annoying too.
+Take a look at some driver implementations!
+There you will find some ways how to put a process into a sleep state.
 
-  OG.
+Grep for "*->state*TASK_UNINTERRUPTIBLE" and take also a look at the
+interaction with schedule() and spinlocks.
 
+>Thanks.
+>Kay Tiong
+
+Best regards
+
+-- 
+Hagen Pfeifer

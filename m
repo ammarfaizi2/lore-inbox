@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWJQQg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWJQQik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWJQQg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWJQQg3
+	id S1751313AbWJQQik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWJQQik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:36:29 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:42204 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751293AbWJQQg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:36:28 -0400
-Date: Tue, 17 Oct 2006 20:35:36 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Johann Borck <johann.borck@densedata.com>,
-       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take19 1/4] kevent: Core files.
-Message-ID: <20061017163536.GA17692@2ka.mipt.ru>
-References: <11587449471424@2ka.mipt.ru> <200610171732.28640.dada1@cosmosbay.com> <20061017160155.GA18522@2ka.mipt.ru> <200610171826.05028.dada1@cosmosbay.com>
+	Tue, 17 Oct 2006 12:38:40 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:10890 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751278AbWJQQij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:38:39 -0400
+Subject: Re: [PATCH] libsas: support NCQ for SATA disks
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: brking@us.ibm.com, "Darrick J. Wong" <djwong@us.ibm.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>
+In-Reply-To: <4534BB5B.6080002@garzik.org>
+References: <453027A9.3060606@us.ibm.com> <45340A62.7050406@us.ibm.com>
+	 <4534BB5B.6080002@garzik.org>
+Content-Type: text/plain
+Date: Tue, 17 Oct 2006 11:35:37 -0500
+Message-Id: <1161102937.3720.11.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200610171826.05028.dada1@cosmosbay.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 17 Oct 2006 20:35:37 +0400 (MSD)
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 06:26:04PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
-> On Tuesday 17 October 2006 18:01, Evgeniy Polyakov wrote:
+On Tue, 2006-10-17 at 07:15 -0400, Jeff Garzik wrote:
+> Brian King wrote:
+> > This doesn't look like the right fix for the oops you were seeing. The
+> > SAS usage of libata has ap->scsi_host as NULL, which indicates that
+> > libata does not own the associated scsi_host. I'm concerned you may
+> > have broken some other code path by making this change. I think the correct
+> > fix may require removing the dependence of ap->scsi_host from
+> > ata_dev_config_ncq. 
 > 
-> > Ok, there is one apologist for mmap buffer implementation, who forced me
-> > to create first implementation, which was dropped due to absense of
-> > remote mental reading abilities.
-> > Ulrich, does above approach sound good for you?
-> > I actually do not want to reimplement something, that will be
-> > pointed to with words 'no matter what you say, it is broken and I do not
-> > want it' again :).
-> 
-> In my humble opinion, you should first write a 'real application', to show how 
-> the mmap buffer and kevent syscalls would be used (fast path and 
-> slow/recovery paths). I am sure it would be easier for everybody to agree on 
-> the API *before* you start coding a *lot* of hard (kernel) stuff : It would 
-> certainly save your mental CPU cycles (and ours too :) )
->
-> This 'real application' could be  the event loop of a simple HTTP server, or a 
-> basic 'echo all' server. Adding the bits about timers events and signals 
-> should be done too.
+> Yep.  I had already mentioned this on IRC.
 
-I wrote one with previous ring buffer implementation - it used timers
-and echoed when they fired, it was even described in details in one of the 
-lwn.net articles.
+I understand, but right at the moment, my priority is sorting out the
+aic94xx driver so that it works with SATA devices.  It has become
+apparent that there's some need for a bit of code sorting out in libata
+to drive intelligent sas controllers, so we can take a look at bugs in
+ata_dev_config_ncq() when someone's time frees up to look into the
+libata issues.
 
-I'm not going to waste others and my time implementing feature requests
-without at least _some_ feedback from those who asked them.
-In case when person, originally requested some feature, does not answer
-and there are other opinions, only they will be get into account of
-course.
+James
 
-> Eric
 
--- 
-	Evgeniy Polyakov
+

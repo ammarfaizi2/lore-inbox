@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWJQNRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWJQNTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWJQNRs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 09:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWJQNRs
+	id S1750897AbWJQNTi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 09:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWJQNTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 09:17:48 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:5095 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750899AbWJQNRr (ORCPT
+	Tue, 17 Oct 2006 09:19:38 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:979 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1750897AbWJQNTh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 09:17:47 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm1
-Date: Tue, 17 Oct 2006 15:17:22 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-In-Reply-To: <20061016230645.fed53c5b.akpm@osdl.org>
+	Tue, 17 Oct 2006 09:19:37 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Tue, 17 Oct 2006 15:19:36 +0200
+User-Agent: KMail/1.9.5
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+References: <11587449471424@2ka.mipt.ru> <453465B6.1000401@densedata.com> <20061017103940.GA19246@2ka.mipt.ru>
+In-Reply-To: <20061017103940.GA19246@2ka.mipt.ru>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610171517.23271.rjw@sisk.pl>
+Message-Id: <200610171519.37051.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 17 October 2006 08:06, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
-> 
-[--snip--]
-> 
-> +swsusp-improve-handling-of-highmem.patch
+On Tuesday 17 October 2006 12:39, Evgeniy Polyakov wrote:
 
-This patch needs the following small fix so that image_size is used
-properly on systems with lots of highmem:
+> I can add such notification, but its existense _is_ the broken design.
+> After such condition happend, all new events will dissapear (although
+> they are still accessible through usual queue) from mapped buffer.
+>
+> While writing this I have come to the idea on how to imrove the case of
+> the size of mapped buffer - we can make it with limited size, and when
+> it is full, some bit will be set in the shared area and obviously no new
+> events can be added there, but when user commits some events from that
+> buffer (i.e. says to kernel that appropriate kevents can be freed or
+> requeued according to theirs flags), new ready events from ready queue
+> can be copied into mapped buffer.
+>
+> It still does not solve (and I do insist that it is broken behaviour)
+> the case when kernel is going to generate infinite number of events for
+> one requested by userspace (as in case of generating new 'data_has_arrived'
+> event when new byte has been received).
 
----
-Fix swsusp to use image_size as documented on systems with lots of highmem.
+Behavior is not broken. It's quite usefull and works 99.9999% of time.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/swsusp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I was trying to suggest you but you missed my point.
 
-Index: linux-2.6.19-rc2-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.19-rc2-mm1.orig/kernel/power/swsusp.c
-+++ linux-2.6.19-rc2-mm1/kernel/power/swsusp.c
-@@ -195,6 +195,7 @@ int swsusp_shrink_memory(void)
- 		highmem_size = count_highmem_pages();
- 		size = count_data_pages() + PAGES_FOR_IO;
- 		tmp = size;
-+		size += highmem_size;
- 		for_each_zone (zone)
- 			if (populated_zone(zone)) {
- 				if (is_highmem(zone)) {
-@@ -209,7 +210,6 @@ int swsusp_shrink_memory(void)
- 		if (highmem_size < 0)
- 			highmem_size = 0;
- 
--		size += highmem_size;
- 		tmp += highmem_size;
- 		if (tmp > 0) {
- 			tmp = __shrink_memory(tmp);
+You dont want to use a bit, but a full sequence counter, 32bits.
+
+A program may handle XXX.XXX handles, but use a 4096 entries ring 
+buffer 'only'.
+
+The user program keeps a local copy of a special word 
+named 'ring_buffer_full_counter'
+
+Each time the kernel cannot queue an event in the ring buffer, it increase 
+the "ring_buffer_was_full_counter" (exported to user app in the mmap view)
+
+When the user application notice the kernel 
+changed "ring_buffer_was_full_counter" it does a full scan of all file 
+handles (preferably using poll() to get all relevant info in one syscall) :
+
+do {
+   if (read_event_from_mmap()) {handle_event(fd); continue;}
+   /* ring buffer is empty, check if we missed some events */
+   if (unlikely(mmap->ring_buffer_full_counter !=  
+my_ring_buffer_full_counter)) {
+	my_ring_buffer_full_counter = mmap->ring_buffer_full_counter;
+	/* slow PATH */
+	/* can use a big poll() for example, or just a loop without poll() */
+	for_all_file_desc_do() {
+		check if some event/data is waiting on THIS fd
+		}
+	/* 
+	}
+    else  syscall_wait_for_one_available_kevent(queue)
+}
+
+This is how a program can recover. If ring buffer has a reasonable size, this 
+kind of event should not happen very frequently. If it does (because events 
+continue to fill ring_buffer during recovery and might hit FULL again), maybe 
+a smart program is able to resize the ring_buffer, and start using it after 
+yet another recovery pass.
+If not, we dont care, because a big poll() give us many ready file-descriptors 
+in one syscall, and maybe this is much better than kevent/epoll when XX.XXX 
+events are ready.
+
+Eric

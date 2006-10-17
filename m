@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWJQSgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWJQSjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWJQSgk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 14:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWJQSgk
+	id S1751420AbWJQSjU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 14:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWJQSjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 14:36:40 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:34787 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751417AbWJQSgi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 14:36:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=sbcglobal.net;
-  h=Received:Message-ID:Date:From:User-Agent:MIME-Version:To:Subject:References:In-Reply-To:X-Enigmail-Version:Content-Type:Content-Transfer-Encoding;
-  b=rnA2xOoqh78fWRyBbR/zyyg562z7jQ/+JOWiFkM/jSUCXTqFikiXe7y+MIlRn+S15enhkRZnGAIXnmqj/z/KK2Vc1zr7qU7+yFM+Ut/pVNHNsboHMRo6M/g7Qb+zryyTZ5x6iSaX0dL9rSHxAN2FZwcO9Iz5ASGz0ZoRszbL2PY=  ;
-Message-ID: <45352148.4020706@sbcglobal.net>
-Date: Tue, 17 Oct 2006 14:30:32 -0400
-From: "Robert W. Fuller" <garbageout@sbcglobal.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060814)
+	Tue, 17 Oct 2006 14:39:20 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:27812 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751420AbWJQSjS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 14:39:18 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Date: Tue, 17 Oct 2006 21:39:26 +0300
+User-Agent: KMail/1.9.5
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+References: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de> <200610172128.20653.ismail@pardus.org.tr> <453521a4.QReHSjx3qh9sf0jr%Joerg.Schilling@fokus.fraunhofer.de>
+In-Reply-To: <453521a4.QReHSjx3qh9sf0jr%Joerg.Schilling@fokus.fraunhofer.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: nfs file locking broken
-References: <453145DD.3040501@sbcglobal.net>
-In-Reply-To: <453145DD.3040501@sbcglobal.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610172139.26853.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert W. Fuller wrote:
-> I tried to upgrade from 2.6.16.27 to 2.6.17.13.  I have also tried
-> 2.6.18.1.  I discovered NFS file locking no longer works between a Linux
-> client and an OpenBSD server.  For example, gtk-gnutella gets the
-> following error:
-> 
-> 06-10-14 15:50:19 (WARNING): fcntl(8, F_SETLK, ...) failed for
-> "/home/edison/.gtk-gnutella/gtk-gnutella.pid": Permission denied
-> 
-> gpg hangs waiting for a lock for ~/.gnupg/random_seed
+17 Eki 2006 Sal 21:32 tarihinde, Joerg Schilling şunları yazmıştı: 
+> Ismail Donmez <ismail@pardus.org.tr> wrote:
+> > > Well, this is why I did offer a preliminary version of thelatest
+> > > mkisofs sources.....
+> >
+> > Well a simple mkisofs some_file > test.iso and mounting that on a loop
+> > device worked fine.
+> >
+> > > But note: your patch does not fix the original implementation bug and
+> > > it is most unlikely that the hack will do the right things in all
+> > > cases.
+> >
+> > Well I don't know whats the original implementation bug and rock.c seems
+> > to be pretty much old with no active maintainer.
+>
+> Please read again my original mail....
+>
+> 1) you need to create images with Rock Ridge
 
-Maybe the thing to do is to Cc: the NFS guy on this?  Anybody else have
-any suggestions?
+Well tried -force-rr and it didn't generate Rock Ridge either.
 
-Is there a known fundamental change in the Linux NFS client that would
-break file locking between a Linux NFS client and an OpenBSD-3.8 NFS
-server?    Is OpenBSD-3.8 somehow broken with respect to new behavior in
-the Linux NFS client?
+> 2) a correct implementation is prepared to deal with more recent versions
+> 	without a need for new changes.
+>
+> So, if the implementation does not deal with the new version _without_
+> explicitely knowing about v1.12 it is still broken.
 
-This is very reproducible.  File locking works with 2.6.16.27.  Sometime
-thereafter it ceased to work.  There are no configuration changes to
-/etc or anything like that....  For me, it's a simple matter of choosing
-a working kernel from the GRUB menu or a broken kernel.
+I am not sure how is this possible, maybe should check how OpenSolaris does 
+this. No time for that now.
 
+Regards,
+ismail

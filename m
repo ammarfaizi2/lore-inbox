@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422962AbWJQAE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422967AbWJQAQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422962AbWJQAE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 20:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422957AbWJQAE2
+	id S1422967AbWJQAQH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 20:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWJQAQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 20:04:28 -0400
-Received: from rtr.ca ([64.26.128.89]:40465 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1422954AbWJQAE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 20:04:27 -0400
-Message-ID: <45341E08.9040100@rtr.ca>
-Date: Mon, 16 Oct 2006 20:04:24 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 16 Oct 2006 20:16:07 -0400
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:39361 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1422967AbWJQAQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 20:16:05 -0400
+Date: Tue, 17 Oct 2006 10:15:42 +1000
+From: David Gibson <dwg@au1.ibm.com>
+To: Yao Fei Zhu <walkinair@cn.ibm.com>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: Failed to boot kernel 2.6.19-rc2 due to IBM veth problem.
+Message-ID: <20061017001542.GA27359@localhost.localdomain>
+Mail-Followup-To: Yao Fei Zhu <walkinair@cn.ibm.com>,
+	linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+References: <4532613D.1090107@cn.ibm.com> <20061016014334.GA30921@localhost.localdomain> <4533C4E9.1040504@cn.ibm.com>
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Mark Lord <liml@rtr.ca>, Jens Axboe <jens.axboe@oracle.com>,
-       Allen Martin <AMartin@nvidia.com>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       prakash@punnoor.de
-Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com> <452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk> <452F053B.2000906@shaw.ca> <4533B0B3.8070205@rtr.ca> <4534185C.9060401@shaw.ca>
-In-Reply-To: <4534185C.9060401@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4533C4E9.1040504@cn.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Mark Lord wrote:
->> Robert Hancock wrote:
-..
->> Be careful of that.  The original PDC hardware for ADMA still had
->> the "don't cross a 64KB boundary" requirement.
-..
-> That is part of the ADMA spec - but in that case, how come the 
-> pdc_adma.c driver sets the dma_boundary in the SCSI host template to 
-> 4GB? That seems wrong.
+On Tue, Oct 17, 2006 at 01:44:09AM +0800, Yao Fei Zhu wrote:
+[snip]
+> > 
+> David, I have verified this fix, it works fine for me, Thanks. What's the status of it? Submitted?
 
-Ah, you are correct.  My memory is fading of such things.
-The PDC parts are good for 2^34 transfer sizes (bytes).
+Yes, I've sent it to Santiago Leon, the ibmveth maintainer and also to
+Jeff Garzik and Andrew Morton.  It is in Andrew's -mm tree already,
+haven't heard from Santiago or Jeff.
 
-Cheers
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

@@ -1,196 +1,224 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWJQR0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWJQRaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWJQR0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWJQR0I
+	id S1751347AbWJQRaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWJQRaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:26:08 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:12162 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751344AbWJQR0G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:26:06 -0400
-Date: Tue, 17 Oct 2006 10:27:11 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-Message-ID: <20061017172710.GD2062@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20061017012448.GB1781@us.ibm.com> <Pine.LNX.4.44L0.0610171115500.6016-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0610171115500.6016-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Oct 2006 13:30:08 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:59088 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751347AbWJQRaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:30:01 -0400
+Date: Tue, 17 Oct 2006 19:29:38 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: akpm@osdl.org
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Remove double cast to same type
+Message-ID: <Pine.LNX.4.61.0610171926280.23609@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 11:29:42AM -0400, Alan Stern wrote:
-> On Mon, 16 Oct 2006, Paul E. McKenney wrote:
-> 
-> > > The reason I don't like "conditionally precedes" is because it suggests
-> > > the ordering is not automatic even in the single-CPU case.
-> > 
-> > Aside from MMIO accesses, why would you be using memory barriers in the
-> > single-CPU case?
-> 
-> Obviously you wouldn't.  But you might be fooled into doing so if you saw
-> the term "conditionally precedes" together with an explanation that the
-> "condition" requires a memory barrier to be present.  You might also draw
-> this erroneous conclusion if you are on an SMP system but your variable is
-> accessed by only one of the CPUs.
+Hi,
 
-OK.  My thought would be to clearly state that memory barriers are needed
-only in the following two cases: (1) for MMIO and (2) for sharing memory
-among multiple CPUs.
+As the subject says, a simple patch to remove double-casts to the same 
+type, such as (void *)(void *)foobar (which becomes just
+(void *)foobar).
+Also remove the (int) cast in fs/cifs/connect.c at the same go.
 
-> >  If you aren't using memory barriers, then just plain
-> > "precedes" works fine -- "conditionally precedes" applies only to memory
-> > barriers acting on normal memory (again, MMIO is handled specially).
-> 
-> No, no!  Taken out of context this sentence looks terribly confused.  
-> Read it again and you'll see what I mean.  (Think about what it says for
-> people who don't use memory barriers on SMP systems.)  Here's a much more
-> accurate statement:
-> 
-> 	If you are in the single-CPU case then just plain "precedes" 
-> 	works fine for normal memory accesses (MMIO is handled
-> 	specially).
-> 
-> 	But when multiple CPUs access the same variable all ordering
-> 	is "conditional"; each CPU must use a memory barrier to
-> 	guarantee the desired ordering.
 
-"There -is- no ordering!"  (Or was that "There -is- no spoon"?)  ;-)
+Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+---
 
-You know, I am not sure we are ever going to reconcile our two
-viewpoints...
+ drivers/isdn/hisax/amd7930_fn.c   |    2 +-
+ drivers/isdn/hisax/config.c       |    2 +-
+ drivers/isdn/hisax/hfc_2bds0.c    |    2 +-
+ drivers/isdn/hisax/hfc_pci.c      |    2 +-
+ drivers/isdn/hisax/hfc_sx.c       |    2 +-
+ drivers/isdn/hisax/icc.c          |    2 +-
+ drivers/isdn/hisax/isac.c         |    2 +-
+ drivers/isdn/hisax/isar.c         |    2 +-
+ drivers/isdn/hisax/isdnl1.c       |    2 +-
+ drivers/isdn/hisax/w6692.c        |    2 +-
+ drivers/isdn/i4l/isdn_net.c       |    2 +-
+ drivers/net/hamradio/baycom_epp.c |    2 +-
+ fs/cifs/connect.c                 |    2 +-
+ 13 files changed, 13 insertions(+), 13 deletions(-)
 
-Your view (I believe) is that each execution produces some definite
-order of loads and stores, with each load and store occurring at some
-specific point in time.  Of course, a given load or store might be visible
-at different times from different CPUs, even to the point that CPUs
-might disagree on the order in which given loads and stores occurred.
+---
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/amd7930_fn.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/amd7930_fn.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/amd7930_fn.c
+@@ -789,7 +789,7 @@ Amd7930_init(struct IsdnCardState *cs)
+ void __devinit
+ setup_Amd7930(struct IsdnCardState *cs)
+ {
+-        INIT_WORK(&cs->tqueue, (void *)(void *) Amd7930_bh, cs);
++        INIT_WORK(&cs->tqueue, (void *)Amd7930_bh, cs);
+ 	cs->dbusytimer.function = (void *) dbusy_timer_handler;
+ 	cs->dbusytimer.data = (long) cs;
+ 	init_timer(&cs->dbusytimer);
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/config.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/config.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/config.c
+@@ -1584,7 +1584,7 @@ int hisax_register(struct hisax_d_if *hi
+ 	hisax_d_if->cs = cs;
+ 	cs->hw.hisax_d_if = hisax_d_if;
+ 	cs->cardmsg = hisax_cardmsg;
+-	INIT_WORK(&cs->tqueue, (void *)(void *)hisax_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)hisax_bh, cs);
+ 	cs->channel[0].d_st->l2.l2l1 = hisax_d_l2l1;
+ 	for (i = 0; i < 2; i++) {
+ 		cs->bcs[i].BC_SetStack = hisax_bc_setstack;
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/hfc_2bds0.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/hfc_2bds0.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/hfc_2bds0.c
+@@ -1072,5 +1072,5 @@ set_cs_func(struct IsdnCardState *cs)
+ 	cs->dbusytimer.function = (void *) hfc_dbusy_timer;
+ 	cs->dbusytimer.data = (long) cs;
+ 	init_timer(&cs->dbusytimer);
+-	INIT_WORK(&cs->tqueue, (void *)(void *) hfcd_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)hfcd_bh, cs);
+ }
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/hfc_pci.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/hfc_pci.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/hfc_pci.c
+@@ -1722,7 +1722,7 @@ setup_hfcpci(struct IsdnCard *card)
+ 		Write_hfc(cs, HFCPCI_INT_M2, cs->hw.hfcpci.int_m2);
+ 		/* At this point the needed PCI config is done */
+ 		/* fifos are still not enabled */
+-		INIT_WORK(&cs->tqueue, (void *)(void *) hfcpci_bh, cs);
++		INIT_WORK(&cs->tqueue, (void *)hfcpci_bh, cs);
+ 		cs->setstack_d = setstack_hfcpci;
+ 		cs->BC_Send_Data = &hfcpci_send_data;
+ 		cs->readisac = NULL;
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/hfc_sx.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/hfc_sx.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/hfc_sx.c
+@@ -1499,7 +1499,7 @@ setup_hfcsx(struct IsdnCard *card)
+ 	cs->dbusytimer.function = (void *) hfcsx_dbusy_timer;
+ 	cs->dbusytimer.data = (long) cs;
+ 	init_timer(&cs->dbusytimer);
+-	INIT_WORK(&cs->tqueue, (void *)(void *) hfcsx_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)hfcsx_bh, cs);
+ 	cs->readisac = NULL;
+ 	cs->writeisac = NULL;
+ 	cs->readisacfifo = NULL;
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/icc.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/icc.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/icc.c
+@@ -674,7 +674,7 @@ clear_pending_icc_ints(struct IsdnCardSt
+ void __devinit
+ setup_icc(struct IsdnCardState *cs)
+ {
+-	INIT_WORK(&cs->tqueue, (void *)(void *) icc_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)icc_bh, cs);
+ 	cs->dbusytimer.function = (void *) dbusy_timer_handler;
+ 	cs->dbusytimer.data = (long) cs;
+ 	init_timer(&cs->dbusytimer);
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/isac.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/isac.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/isac.c
+@@ -674,7 +674,7 @@ clear_pending_isac_ints(struct IsdnCardS
+ void __devinit
+ setup_isac(struct IsdnCardState *cs)
+ {
+-	INIT_WORK(&cs->tqueue, (void *)(void *) isac_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)isac_bh, cs);
+ 	cs->dbusytimer.function = (void *) dbusy_timer_handler;
+ 	cs->dbusytimer.data = (long) cs;
+ 	init_timer(&cs->dbusytimer);
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/isar.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/isar.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/isar.c
+@@ -1580,7 +1580,7 @@ isar_setup(struct IsdnCardState *cs)
+ 		cs->bcs[i].mode = 0;
+ 		cs->bcs[i].hw.isar.dpath = i + 1;
+ 		modeisar(&cs->bcs[i], 0, 0);
+-		INIT_WORK(&cs->bcs[i].tqueue, (void *)(void *) isar_bh, &cs->bcs[i]);
++		INIT_WORK(&cs->bcs[i].tqueue, (void *)isar_bh, &cs->bcs[i]);
+ 	}
+ }
+ 
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/isdnl1.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/isdnl1.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/isdnl1.c
+@@ -362,7 +362,7 @@ init_bcstate(struct IsdnCardState *cs, i
+ 
+ 	bcs->cs = cs;
+ 	bcs->channel = bc;
+-	INIT_WORK(&bcs->tqueue, (void *)(void *) BChannel_bh, bcs);
++	INIT_WORK(&bcs->tqueue, (void *)BChannel_bh, bcs);
+ 	spin_lock_init(&bcs->aclock);
+ 	bcs->BC_SetStack = NULL;
+ 	bcs->BC_Close = NULL;
+Index: linux-2.6.19-rc2/drivers/isdn/hisax/w6692.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/hisax/w6692.c
++++ linux-2.6.19-rc2/drivers/isdn/hisax/w6692.c
+@@ -1070,7 +1070,7 @@ setup_w6692(struct IsdnCard *card)
+ 	       id_list[cs->subtyp].card_name, cs->irq,
+ 	       cs->hw.w6692.iobase);
+ 
+-	INIT_WORK(&cs->tqueue, (void *)(void *) W6692_bh, cs);
++	INIT_WORK(&cs->tqueue, (void *)W6692_bh, cs);
+ 	cs->readW6692 = &ReadW6692;
+ 	cs->writeW6692 = &WriteW6692;
+ 	cs->readisacfifo = &ReadISACfifo;
+Index: linux-2.6.19-rc2/drivers/isdn/i4l/isdn_net.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/isdn/i4l/isdn_net.c
++++ linux-2.6.19-rc2/drivers/isdn/i4l/isdn_net.c
+@@ -2596,7 +2596,7 @@ isdn_net_new(char *name, struct net_devi
+ 	netdev->local->netdev = netdev;
+ 	netdev->local->next = netdev->local;
+ 
+-	INIT_WORK(&netdev->local->tqueue, (void *)(void *) isdn_net_softint, netdev->local);
++	INIT_WORK(&netdev->local->tqueue, (void *)isdn_net_softint, netdev->local);
+ 	spin_lock_init(&netdev->local->xmit_lock);
+ 
+ 	netdev->local->isdn_device = -1;
+Index: linux-2.6.19-rc2/drivers/net/hamradio/baycom_epp.c
+===================================================================
+--- linux-2.6.19-rc2.orig/drivers/net/hamradio/baycom_epp.c
++++ linux-2.6.19-rc2/drivers/net/hamradio/baycom_epp.c
+@@ -889,7 +889,7 @@ static int epp_open(struct net_device *d
+                 return -EBUSY;
+         }
+         dev->irq = /*pp->irq*/ 0;
+-	INIT_WORK(&bc->run_work, (void *)(void *)epp_bh, dev);
++	INIT_WORK(&bc->run_work, (void *)epp_bh, dev);
+ 	bc->work_running = 1;
+ 	bc->modem = EPP_CONVENTIONAL;
+ 	if (eppconfig(bc))
+Index: linux-2.6.19-rc2/fs/cifs/connect.c
+===================================================================
+--- linux-2.6.19-rc2.orig/fs/cifs/connect.c
++++ linux-2.6.19-rc2/fs/cifs/connect.c
+@@ -1774,7 +1774,7 @@ cifs_mount(struct super_block *sb, struc
+ 			so no need to spinlock this init of tcpStatus */
+ 			srvTcp->tcpStatus = CifsNew;
+ 			init_MUTEX(&srvTcp->tcpSem);
+-			rc = (int)kernel_thread((void *)(void *)cifs_demultiplex_thread, srvTcp,
++			rc = kernel_thread((void *)cifs_demultiplex_thread, srvTcp,
+ 				      CLONE_FS | CLONE_FILES | CLONE_VM);
+ 			if(rc < 0) {
+ 				rc = -ENOMEM;
+#<EOF>
 
-My view is that individual loads and stores are complex operations, each
-of which takes significant time to complete.  A pair of these operations
-can therefore overlap in time, so that it might or might not make sense
-to say that the pair occurred in any order at all -- nor to say that
-any given load or store happens at a single point in time.  I described
-this earlier as loads and stores being "fuzzy".
+quilt is good stuff..
 
-The odds of you (or anyone) being able to pry me out of my viewpoint
-are extremely low -- in fact, if such a thing were possible, the
-odds would be represented by a negative number.  The reason for this
-admittedly unreasonable attitude is that every time I have strayed from
-this viewpoint over the past decade or two, I have been brutally punished
-by the appearance of large numbers of subtle and hard-to-find bugs.
-My intuition about sequencing and ordering is so strong that if I let
-it gain a foothold, it will blind me to the possibility of these bugs
-occurring.  I can either deny that the loads and stores happen in any
-order whatsoever (which works, but is very hard to explain), or assert
-that they take non-zero time to execute and can therefore overlap.
-
-That said, I do recognize that my viewpoint is not universally applicable.
-
-Someone using locking will probably be much more productive if they
-leverage their intuition, assuming that locks are acquired and released
-in a definite order and that all the memory references in the critical
-sections executing in order, each at a definite point in time.  After all,
-the whole point of the locking primitives and their associated memory
-barriers is to present exactly this illusion.  It is quite possible that
-it is better to use a viewpoint like yours when thinking about MMIO
-accesses -- and given your work in USB and PCI, it might well be very
-difficult to pry -you- out of -your- viewpoint.
-
-But I believe that taking a viewpoint very similar to mine is critical
-for getting the low-level synchronization primitives even halfway correct.
-(Obscene quantities of testing are required as well.)
-
-So, how to proceed?
-
-One approach would be to demonstrate counter-intuitive results with a
-small program (and I do have several at hand), enumerate the viewpoints,
-and then use examples.
-
-Another approach would be to use a formalism.  Notations such as ">p"
-(comes before) and "<p" (comes after) for program order and ">v"/"<v"
-for order of values in a given variable have been used in the past.
-These could be coupled with something vaguely resembling you suggestion
-for loads and stores: l(v,c,l) for load from variable "v" by CPU "c"
-at code line number "l" and s(v,c,l,n) for store to variable "v" by CPU
-"c" at code line number "l" with new value "n".  (In the examples below,
-"l" can be omitted, since there is only one of each per CPU.)
-
-If we were to take your choice for the transitivity required for locking,
-we would need to also define an ">a"/"<a" or some such denoting a
-chain of values where the last assignment was performed atomically
-(possibly also by a particular CPU).  In that case, ">v"/"<v" would
-denote values separated by a single assignment.  However, for simplicity
-of nomenclature, I am taking my choice for this example -- if there is
-at least one CPU that actually requires the atomic operation, then the
-final result will need the more complex nomenclature.
-
-Then take the usual code, with all variables initially zero:
-
-	CPU 0			CPU 1
-
-	A=1			Y=B
-	smp_mb()		smp_mb()
-	B=1			X=A
-
-Then the description of a memory barrier ends up being something like
-the following:
-
-	Given the following:
-	
-		l(B,1,) >p smp_mb() >p l(A,1,), and
-		s(A,0,,1) >p smp_mb() >p s(B,0,,1):
-
-	Then:
-
-		s(B,0,,1) >v l(B,1,) -> s(A,0,,1) >v l(A,1,).
-
-This notation correctly distinguishes the following two cases (all
-variables initially zero):
-
-	CPU 0			CPU 1			CPU 2
-
-	A=1			while (B==0);		while (C==0);
-	smp_mb()		C=1			smp_mb()
-	B=1						assert(A==1) <fails>
-
-and:
-
-	CPU 0			CPU 1			CPU 2
-
-	A=1			while (B==0);		while (B<2);
-	smp_mb()		B++			smp_mb()
-	B=1						assert(A==1) <succeeds>
-
-In the first case, we don't have s(B,0,,1) >v l(C,2,).  Therefore,
-we cannot rely on s(A,0,,1) >v l(A,2,).  In the second case, we do
-have s(B,0,,1) >v l(B,2,), so s(A,0,,1) >v l(A,2,) must hold.
-
-My guess is that this formal approach is absolutely required for the
-more mathematically inclined, but that it will instead be an obstacle
-to understanding (in fact, an obstacle even to reading!) for many people.
-
-So my thought is to put the formal approach later on as reference material.
-And probably to improve the notation -- the ",,"s look ugly.
-
-Thoughts?
-
-						Thanx, Paul
-
-PS.  One difference between our two viewpoints is that I would forbid
-     something like "s(A,0,,1) >v s(B,0,,1)", instead permitting ">v"/"<v"
-     to be used on loads and stores of a single variable, with the exception
-     of MMIO.  My guess is that you are just fine with orderings of
-     assignments to different variables.  ;-)
-
-     My example formalism for a memory barrier says nothing about the
-     actual order in which the assignments to A and B occurred, nor about
-     the actual order in which the loads from A and B occurred.  No such
-     ordering is required to describe the action of the memory barrier.
+	-`J'
+-- 

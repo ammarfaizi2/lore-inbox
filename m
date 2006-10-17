@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWJQTk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWJQTk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWJQTk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWJQTk5
+	id S1751227AbWJQTk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWJQTk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:40:57 -0400
+	Tue, 17 Oct 2006 15:40:59 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:51087 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751230AbWJQTk4 convert rfc822-to-8bit
+	by vger.kernel.org with ESMTP id S1751227AbWJQTk5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:40:56 -0400
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
-Date: Tue, 17 Oct 2006 21:28:20 +0300
-User-Agent: KMail/1.9.5
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
-References: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de> <200610172041.42873.ismail@pardus.org.tr> <45351d1d.zzAZVd00Wr6s9fu8%Joerg.Schilling@fokus.fraunhofer.de>
-In-Reply-To: <45351d1d.zzAZVd00Wr6s9fu8%Joerg.Schilling@fokus.fraunhofer.de>
+	Tue, 17 Oct 2006 15:40:57 -0400
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
+Subject: RE: [PATCH] x86_64: store Socket ID in phys_proc_id
+Date: Tue, 17 Oct 2006 11:26:30 -0700
+Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6F9@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64: store Socket ID in phys_proc_id
+Thread-Index: AcbyGPiQWWrkqECQREeh6Mf9uLzwgQAAEdjg
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+X-OriginalArrivalTime: 17 Oct 2006 18:26:31.0116 (UTC)
+ FILETIME=[C47B58C0:01C6F219]
+X-WSS-ID: 692BFFDD0C44737192-01-01
 Content-Type: text/plain;
-  charset="utf-8"
+ charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610172128.20653.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-17 Eki 2006 Sal 21:12 tarihinde, Joerg Schilling şunları yazmıştı: 
-> Ismail Donmez <ismail@pardus.org.tr> wrote:
-> > 17 Eki 2006 Sal 17:45 tarihinde, Joerg Schilling Å?unlarÄ± yazmÄ±Å?tÄ±:
-> > > Hi,
-> > >
-> > > while working on better ISO-9660 support for the Solaris Kernel,
-> > > I recently enhanced mkisofs to support the Rock Ridge Standard version
-> > > 1.12 from 1994.
-> > >
-> > > The difference bewteen version 1.12 and 1.10 (this is what previous
-> > > mkisofs versions did implement) is that the "PX" field is now 8 Byte
-> > > bigger than before (44 instead of 36 bytes).
-> >
-> > Is there a test iso file somewhere? I think the attached *untested* patch
-> > will fix it.
->
-> Well, this is why I did offer a preliminary version of thelatest mkisofs
-> sources.....
+From: Andi Kleen [mailto:ak@muc.de] 
 
-Well a simple mkisofs some_file > test.iso and mounting that on a loop device 
-worked fine.
+>> So for the apic id lifted system, for example BSP with apicid 0x10,
+the
+>> phys_proc_id will be 8.
+
+>How is that a problem? 
+
+Socket ID is 0 for first Physical processor?
+
+>> It also removed ht_nodeid calculating, because We already have
+correct
+>> socket id for sure.
+
+>we've had cases where it wasn't identical, that is when i originally
+>added that code.
+
+OK, it must be system with Horus?
+
+YH
 
 
-> But note: your patch does not fix the original implementation bug and it is
-> most unlikely that the hack will do the right things in all cases.
-
-Well I don't know whats the original implementation bug and rock.c seems to be 
-pretty much old with no active maintainer.
-
-Regards,
-ismail

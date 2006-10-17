@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWJQMRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWJQMSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWJQMRb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 08:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWJQMRb
+	id S1750781AbWJQMSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 08:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWJQMSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 08:17:31 -0400
-Received: from mx2.suse.de ([195.135.220.15]:44219 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750739AbWJQMRa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 08:17:30 -0400
-From: Andi Kleen <ak@suse.de>
-To: caglar@pardus.org.tr
-Subject: Re: [RFC] Avoid PIT SMP lockups
-Date: Tue, 17 Oct 2006 14:16:50 +0200
-User-Agent: KMail/1.9.3
-Cc: Zachary Amsden <zach@vmware.com>, Gerd Hoffmann <kraxel@suse.de>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-References: <1160170736.6140.31.camel@localhost.localdomain> <200610170121.51492.caglar@pardus.org.tr> <200610171505.53576.caglar@pardus.org.tr>
-In-Reply-To: <200610171505.53576.caglar@pardus.org.tr>
+	Tue, 17 Oct 2006 08:18:41 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36622 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750781AbWJQMSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 08:18:40 -0400
+Date: Tue, 17 Oct 2006 14:18:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vgoyal@in.ibm.com, Steve Fox <drfickle@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Martin Bligh <mbligh@mbligh.org>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, kmannth@us.ibm.com,
+       Andy Whitcroft <apw@shadowen.org>, Mel Gorman <mel@csn.ul.ie>
+Subject: Re: 2.6.18-mm2 boot failure on x86-64
+Message-ID: <20061017121836.GI30596@stusta.de>
+References: <200610052250.55146.ak@suse.de> <1160101394.29690.48.camel@flooterbu> <20061006143312.GB9881@skynet.ie> <20061006153629.GA19756@in.ibm.com> <20061006171105.GC9881@skynet.ie> <1160157830.29690.66.camel@flooterbu> <20061006200436.GG19756@in.ibm.com> <Pine.LNX.4.64.0610091049390.30765@skynet.skynet.ie> <20061016181613.GA30090@in.ibm.com> <20061016165814.13b99e5e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610171416.50881.ak@suse.de>
+In-Reply-To: <20061016165814.13b99e5e.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 14:05, S.Çağlar Onur wrote:
-> 17 Eki 2006 Sal 01:21 tarihinde, S.Çağlar Onur şunları yazmıştı: 
-> > 17 Eki 2006 Sal 01:17 tarihinde, Zachary Amsden şunları yazmıştı:
-> > > My nasty quick patch might not apply - the only tree I've got is a very
-> > > hacked 2.6.18-rc6-mm1+local-patches thing, but the fix should be obvious
-> > > enough.
-> >
-> > Ok, I'll test and report back...
+On Mon, Oct 16, 2006 at 04:58:14PM -0700, Andrew Morton wrote:
+> On Mon, 16 Oct 2006 14:16:13 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
 > 
-> Both 2.6.18 and 2.6.18.1 boots without any problem (and of course without 
-> noreplacement workarund) with that patch.
+> > 
+> > Can you please have a look at the attached patch
+> 
+> Looks like a fine patch to me, although it could benefit from a comment
+> explaining why all those PAGE_ALIGN()s are in there.
+> 
+> > and include it in -mm.
+> 
+> Does it fix a patch in -mm or is it needed in mainline?
 
-Ok thanks.
+The bug in my list was reported to be present in mainline [1].
 
-I still think we need a solution for the NMIs though. I will think
-about it.
+cu
+Adrian
 
--Andi
+[1] http://lkml.org/lkml/2006/10/4/394
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

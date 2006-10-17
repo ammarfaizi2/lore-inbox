@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWJQQ0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWJQQ3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWJQQ0H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWJQQ0H
+	id S1751305AbWJQQ3L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWJQQ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:26:07 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:35803 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751284AbWJQQ0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:26:05 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [take19 1/4] kevent: Core files.
-Date: Tue, 17 Oct 2006 18:26:04 +0200
-User-Agent: KMail/1.9.5
-Cc: Johann Borck <johann.borck@densedata.com>,
-       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-References: <11587449471424@2ka.mipt.ru> <200610171732.28640.dada1@cosmosbay.com> <20061017160155.GA18522@2ka.mipt.ru>
-In-Reply-To: <20061017160155.GA18522@2ka.mipt.ru>
+	Tue, 17 Oct 2006 12:29:10 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35089 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751277AbWJQQ3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:29:09 -0400
+Date: Tue, 17 Oct 2006 18:29:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.6.19-rc2: known unfixed regressions (v2)
+Message-ID: <20061017162905.GD3502@stusta.de>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061017155934.GC3502@stusta.de> <20061017162323.GA6467@aepfle.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610171826.05028.dada1@cosmosbay.com>
+In-Reply-To: <20061017162323.GA6467@aepfle.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 18:01, Evgeniy Polyakov wrote:
+On Tue, Oct 17, 2006 at 06:23:23PM +0200, Olaf Hering wrote:
+> On Tue, Oct 17, Adrian Bunk wrote:
+> 
+> > Subject    : monitor not active after boot
+> > References : http://lkml.org/lkml/2006/10/5/338
+> > Submitter  : Olaf Hering <olaf@aepfle.de>
+> > Caused-By  : Antonino Daplas <adaplas@pol.net>
+> >              commit 346bc21026e7a92e1d7a4a1b3792c5e8b686133d
+> > Status     : unknown
+> 
+> The nvidiafb change was removed again. I will see if I can figure out
+> why the EDID is lost.
 
-> Ok, there is one apologist for mmap buffer implementation, who forced me
-> to create first implementation, which was dropped due to absense of
-> remote mental reading abilities.
-> Ulrich, does above approach sound good for you?
-> I actually do not want to reimplement something, that will be
-> pointed to with words 'no matter what you say, it is broken and I do not
-> want it' again :).
+Thanks for the information, I missed this patch.
 
-In my humble opinion, you should first write a 'real application', to show how 
-the mmap buffer and kevent syscalls would be used (fast path and 
-slow/recovery paths). I am sure it would be easier for everybody to agree on 
-the API *before* you start coding a *lot* of hard (kernel) stuff : It would 
-certainly save your mental CPU cycles (and ours too :) )
+cu
+Adrian
 
-This 'real application' could be  the event loop of a simple HTTP server, or a 
-basic 'echo all' server. Adding the bits about timers events and signals 
-should be done too.
+-- 
 
-Eric
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

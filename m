@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWJQRgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWJQRko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWJQRgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWJQRgA
+	id S1751350AbWJQRko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWJQRko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:36:00 -0400
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:62858 "EHLO
-	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751363AbWJQRf7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:35:59 -0400
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [PATCH] x86_64: using irq_domain in ioapic_retrigger_irq
-Date: Tue, 17 Oct 2006 10:28:17 -0700
-Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6F3@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64: using irq_domain in ioapic_retrigger_irq
-Thread-Index: AcbyDzk/FiEMEu7xTq+Oa5rAG5C3SwAAjuSg
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: ebiederm@xmission.com
-cc: "Andi Kleen" <ak@muc.de>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-X-OriginalArrivalTime: 17 Oct 2006 17:28:18.0647 (UTC)
- FILETIME=[A2CEDE70:01C6F211]
-X-WSS-ID: 692BCD380C44734070-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Tue, 17 Oct 2006 13:40:44 -0400
+Received: from solarneutrino.net ([66.199.224.43]:7438 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1751350AbWJQRkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:40:43 -0400
+Date: Tue, 17 Oct 2006 13:40:20 -0400
+To: Keith Packard <keithp@keithp.com>
+Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
+Message-ID: <20061017174020.GA24789@tau.solarneutrino.net>
+References: <20061013194516.GB19283@tau.solarneutrino.net> <1160849723.3943.41.camel@neko.keithp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1160849723.3943.41.camel@neko.keithp.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good, So need to find out the correct mask for irq ever used.
+On Sat, Oct 14, 2006 at 11:15:23AM -0700, Keith Packard wrote:
+> On Fri, 2006-10-13 at 15:45 -0400, Ryan Richter wrote:
+> > I have a new Intel 965G board, and I'm trying to get DRI working.
+> > Direct rendering is enabled, but all GL programs crash immediately.
+> > The message 'DRM_I830_CMDBUFFER: -22' is printed on the tty, and the
+> > kernel says:
+> > 
+> > [drm:i915_cmdbuffer] *ERROR* i915_dispatch_cmdbuffer failed
+> 
+> The 915 DRM validates commands sent to the card from the application to
+> ensure they aren't directing the card to access memory outside of the
+> graphics area. At present the module validates only 915/945 commands
+> correctly and the 965 uses slightly different commands. I haven't walked
+> over the entire GL library, but it seems possible that this error is
+> being caused by the mis-validation of the command stream. We need to
+> update the DRM driver to reflect the new commands, but in the meanwhile,
+> you might try disabling the validation in the kernel (which will expose
+> your system to a local root compromise) and seeing if that doesn't
+> eliminate this message.
+
+So do I want something like
 
 
+static int do_validate_cmd(int cmd)
+{
+	return 1;
+}
 
+in i915_dma.c?
+
+Thanks,
+-ryan

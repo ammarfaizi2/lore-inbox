@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWJQRx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWJQR5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWJQRx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWJQRx0
+	id S1751367AbWJQR5k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWJQR5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:53:26 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:3635 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751174AbWJQRxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:53:25 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=GPPqKRa4MGchnJF42vvl1KpAIA+Zxud+xCL6G6CNaGgLkGQ/f7huKDcw5Owc7eGXx
-	v7BsMk/uPz6TevlQ50NxQ==
-Message-ID: <45351877.9030107@google.com>
-Date: Tue, 17 Oct 2006 10:52:55 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Tue, 17 Oct 2006 13:57:39 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39578 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751367AbWJQR5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:57:39 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Andi Kleen" <ak@muc.de>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+Subject: Re: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
+References: <5986589C150B2F49A46483AC44C7BCA412D6E7@ssvlexmb2.amd.com>
+Date: Tue, 17 Oct 2006 11:55:34 -0600
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D6E7@ssvlexmb2.amd.com>
+	(Yinghai Lu's message of "Mon, 16 Oct 2006 12:52:06 -0700")
+Message-ID: <m18xjeaktl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [RFC] Remove temp_priority
-References: <45351423.70804@google.com> <4535160E.2010908@yahoo.com.au>
-In-Reply-To: <4535160E.2010908@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Martin Bligh wrote:
-> 
->> This is not tested yet. What do you think?
->>
->> This patch removes temp_priority, as it is racy. We're setting
->> prev_priority from it, and yet temp_priority could have been
->> set back to DEF_PRIORITY by another reclaimer.
-> 
-> 
-> I like it.
+"Lu, Yinghai" <yinghai.lu@amd.com> writes:
 
-OK, I think that should fix most of it, and I'll admit it's cleaner
-than the first one.
+>>So to get things going making TARGET_CPUS cpu_online_map looks like
+>>the right thing to do.
+>
+> Yes. but need to other reference to TARGET_CPUS to verify...it doesn't
+> break sth.
 
-> I wonder if we should get kswapd to stick its priority
-> into the zone at the point where zone_watermark_ok becomes true,
-> rather than setting all zones to the lowest priority? That would
-> require a bit more logic though I guess.
- >
-> For that matter (going off the topic a bit), I wonder if
-> try_to_free_pages should have a watermark check there too? This
-> might help reduce the latency issue you brought up where one process
-> has reclaimed a lot of pages, but another isn't making any progress
-> and has to go through the full priority range? Maybe that's
-> statistically pretty unlikely?
+I just looked and tested and we are fine.
 
-I've been mulling over how to kill prev_priority (and make everyone
-happy, including akpm). My original thought was to keep a different
-min_priority for each of GFP_IO, GFP_IO|GFP_FS, and the no IO ones.
-But we still have the problem of how to accurately set the min back
-up when we are sucessful.
+>>My question is are your io_apics pci devices?  Not does the kernel
+>>have them.
+>
+> Yes, I'm testing with 32 amd8132 in the simulator. Or forget about about
+> ioapic, and use MSI, and HT-irq directly...?
 
-Perhaps we should be a little more radical, and treat everyone apart
-from kswapd as independant. Keep a kswapd_priority in the zone
-structure, and all the direct reclaimers have their own local priority.
-Then we set distress from min(kswap_priority, priority). All that does
-is kick the direct reclaimers up a bit faster - kswapd has the easiest
-time reclaiming pages, so that should never be too low.
+Ok.  So if want a pci device we can have one :)
+Usually what I have seen is that all io_apics except the
+first one show up as pci devices.
 
-M.
+>>There are a lot of ways we can approach assigning irqs to cpus and
+> there
+>>is a lot of work there.  I think Adrian Bunk has been doing some work
+>>with the user space irq balancer, and should probably be involved.
+>
+> Right. We need only do needed in kernel space, and leave most to irq
+> balancer.
 
+Actually I was just being pragmatic.  Make it work now.  Make it optimal
+later :)
 
-
-
+Eric

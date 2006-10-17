@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWJQQPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWJQQRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWJQQPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWJQQPZ
+	id S1751271AbWJQQRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWJQQRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:15:25 -0400
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:59889 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751175AbWJQQPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:15:24 -0400
-Message-ID: <45350182.8030801@cn.ibm.com>
-Date: Wed, 18 Oct 2006 00:14:58 +0800
-From: Yao Fei Zhu <walkinair@cn.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: Nathan Lynch <ntl@pobox.com>
-CC: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [Regression] cpu hotplug failed on kernel 2.6.19-rc2
-References: <4534D7C6.2080402@cn.ibm.com> <20061017161251.GB18689@localdomain>
-In-Reply-To: <20061017161251.GB18689@localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 17 Oct 2006 12:17:33 -0400
+Received: from xenotime.net ([66.160.160.81]:40337 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751271AbWJQQRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:17:33 -0400
+Date: Tue, 17 Oct 2006 09:19:01 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: config SYSCTL_SYSCALL
+Message-Id: <20061017091901.7193312a.rdunlap@xenotime.net>
+In-Reply-To: <453519EE.76E4.0078.0@novell.com>
+References: <453519EE.76E4.0078.0@novell.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Lynch 写道:
-> Yao Fei Zhu wrote:
-> 
-> 
->>Running cpu hotplug regression tsstcase lhcs_regression on kernel
->>2.6.19-rc2/IBM System p5 will fall into xmon.
-> 
-> 
-> Your subject implies this is a regression; what is the most recent
-> kernel that worked?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-2.6.18 works. Not tested on 2.6.19-rc1.
+On Tue, 17 Oct 2006 16:59:10 +0100 Jan Beulich wrote:
 
+> What is the purpose of
+> 
+> config SYSCTL_SYSCALL
+> 	bool "Sysctl syscall support" if EMBEDDED
+> 	default n
+> 
+> Allowing only embedded to turn this *on* ? Normally, you want
+> embedded to have more freedom in turning stuff off, so this
+> looks odd to me (and on one of my older boxes I definitely have
+> at least one OS-provided tool that uses this syscall, so I'd like
+> to be able to turn it on.
+
+You can't enable it (after enabling EMBEDDED)?
+
+Feel free to send a patch to remove /if EMBEDDED/
+and move the Kconfig entry up above all of the EMBEDDED options.
+
+---
+~Randy

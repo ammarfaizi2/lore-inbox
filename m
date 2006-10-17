@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161216AbWJQKna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWJQKxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161216AbWJQKna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 06:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJQKn3
+	id S1422913AbWJQKxT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 06:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422907AbWJQKxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 06:43:29 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:5014 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1161216AbWJQKn2 (ORCPT
+	Tue, 17 Oct 2006 06:53:19 -0400
+Received: from mx2.suse.de ([195.135.220.15]:31152 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422899AbWJQKxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 06:43:28 -0400
-Date: Tue, 17 Oct 2006 14:42:43 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Johann Borck <johann.borck@densedata.com>,
-       Ulrich Drepper <drepper@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>,
-       Ulrich Drepper <drepper@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [take19 1/4] kevent: Core files.
-Message-ID: <20061017104242.GB19246@2ka.mipt.ru>
-References: <11587449471424@2ka.mipt.ru> <4532C2C5.6080908@redhat.com> <453465B6.1000401@densedata.com> <200610170100.10500.chase.venters@clientec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Tue, 17 Oct 2006 06:53:18 -0400
+From: Andi Kleen <ak@suse.de>
+To: Ian Kent <raven@themaw.net>
+Subject: Re: BUG dcache.c:613 during autofs unmounting in 2.6.19rc2
+Date: Tue, 17 Oct 2006 12:50:56 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <200610161658.58288.ak@suse.de> <1161058535.11489.6.camel@localhost>
+In-Reply-To: <1161058535.11489.6.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610170100.10500.chase.venters@clientec.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 17 Oct 2006 14:42:44 +0400 (MSD)
+Message-Id: <200610171250.56522.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 12:59:47AM -0500, Chase Venters (chase.venters@clientec.com) wrote:
-> On Tuesday 17 October 2006 00:09, Johann Borck wrote:
-> > Regarding mukevent I'm thinking of a event-type specific struct, that is
-> > filled by the originating code, and placed into a per-event-type ring
-> > buffer (which  requires modification of kevent_wait).
+On Tuesday 17 October 2006 06:15, Ian Kent wrote:
+> On Mon, 2006-10-16 at 16:58 +0200, Andi Kleen wrote:
+> > While unmounting autofs on shutdown my workstation got a dcache.c:613 BUG 
+> > with 2.6.19rc2.
+> > 
+> > Only jpegs available unfortunately:
+> > 
+> > http://one.firstfloor.org/~andi/autofs-oops1.jpg
+> > http://one.firstfloor.org/~andi/autofs-oops2.jpg
+> > 
+> > I think it was autofs3 instead of autofs4 - at least I got both compiled in.
+> > The autofs user land was autofs-4.1.4 (-6 suse rpm) 
 > 
-> I'd personally worry about an implementation that used a per-event-type ring 
-> buffer, because you're still left having to hack around starvation issues in 
-> user-space. It is of course possible under the current model for anyone who 
-> wants per-event-type ring buffers to have them - just make separate kevent 
-> sets.
+> Don't think compiling both in is a good idea.
+> They both register as "autofs" so you really should choose one and
+> disable the other.
 > 
-> I haven't thought this through all the way yet, but why not have variable 
-> length event structures and have the kernel fill in a "next" pointer in each 
-> one? This could even be used to keep backwards binary compatibility while 
+> For my part I have to recommend autofs4 (personally I'd like to see the
+> autofs v3 module deprecated) and autofs4 is really needed if your using
+> autofs version 4 or above.
 
-Why do we want variable size structures in mmap ring buffer?
+Well it always worked this way in earlier kernels and even if the
+wrong module was suddenly used for some reason it shouldn't BUG.
+So something is broken.
 
-> adding additional fields to the structures over time, though no space would 
-> be wasted on modern programs. You still end up with a question of what to do 
-> in case of overflow, but I'm thinking the thing to do in that case might be 
-> to start pushing overflow events onto a linked list which can be written back 
-> into the ring buffer when space becomes available. The appropriate behavior 
-> would be to throw new events on the linked list if the linked list had any 
-> events, so that things are delivered in order, but write to the mapped buffer 
-> directly otherwise.
-
-I think in a similar way.
-Kevent actually do not require such list, since it has already queue of
-the ready events.
-
--- 
-	Evgeniy Polyakov
+-Andi

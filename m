@@ -1,280 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWJQXgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWJQXjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWJQXgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 19:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWJQXgh
+	id S1751156AbWJQXjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 19:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJQXjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 19:36:37 -0400
-Received: from wizardsworks.org ([71.216.230.3]:40357 "EHLO
-	constellation.wizardsworks.org") by vger.kernel.org with ESMTP
-	id S1751027AbWJQXgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 19:36:36 -0400
-Date: Tue, 17 Oct 2006 17:48:46 -0500 (CDT)
-From: Greg Chandler <chandleg@constellation.wizardsworks.org>
-To: dmitry.torokhov@gmail.com
-cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-Subject: RE: Touchscreen hardware hacking/driver hacking.
-Message-ID: <Pine.LNX.4.64.0610171743530.952@constellation.wizardsworks.org>
+	Tue, 17 Oct 2006 19:39:09 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:43964 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751156AbWJQXjH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 19:39:07 -0400
+Message-ID: <4535698A.4050406@us.ibm.com>
+Date: Tue, 17 Oct 2006 16:38:50 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: Zach Brown <zach.brown@oracle.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: AIO, DIO fsx tests failures on 2.6.19-rc1-mm1
+References: <1161013338.32606.2.camel@dyn9047017100.beaverton.ibm.com>	<4533C6A1.40203@oracle.com>	<1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com>	<4533E7E2.6010506@oracle.com>	<1161031099.32606.14.camel@dyn9047017100.beaverton.ibm.com>	<20061016135910.be11a2dc.akpm@osdl.org>	<453559D5.4000809@us.ibm.com> <20061017161014.756e8a97.akpm@osdl.org>
+In-Reply-To: <20061017161014.756e8a97.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> On Tue, 17 Oct 2006 15:31:49 -0700
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>   
+>> Andrew Morton wrote:
+>>     
+>>> On Mon, 16 Oct 2006 13:38:19 -0700
+>>> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>>>
+>>>   
+>>>       
+>>>>> So the answer is that -rc1-mm1 doesn't quite have the most recent
+>>>>> version of this patch.  Grab the final patch at the end of this post
+>>>>> from Andrew:
+>>>>>
+>>>>> 	http://lkml.org/lkml/2006/10/11/234
+>>>>>
+>>>>> It fixes up a misunderstanding that came from
+>>>>> generic_file_buffered_write()'s habit of adding its 'written' input into
+>>>>> the amount of bytes it announces having written in its return value.
+>>>>>
+>>>>> From mm-commits it looks like -mm2 will have the full patch.
+>>>>>
+>>>>>       
+>>>>>           
+>>>> Hmm.. with that patch applied, I still have fsx failures.
+>>>> This time read() returning -EINVAL. Are there any other fixes
+>>>> missing in -mm ?
+>>>>     
+>>>>         
+>>> Probably.  I need to get off butt and prepare rc2-mm1.
+>>>
+>>> The below is the full patch against 2.6.19-rc2.  Please test this version.
+>>>
+>>>
+>>> From: Jeff Moyer <jmoyer@redhat.com>
+>>>
+>>> When direct-io falls back to buffered write, it will just leave the dirty data
+>>> floating about in pagecache, pending regular writeback.
+>>>
+>>> But normal direct-io semantics are that IO is synchronous, and that it leaves
+>>> no pagecache behind.
+>>>
+>>> So change the fallback-to-buffered-write code to sync the file region and to
+>>> then strip away the pagecache, just as a regular direct-io write would do.
+>>>
+>>>   
+>>>       
+>> Okay. Finally tracked down the problem I am running into.
+>> This happens only on reiserfs
+>>
+>> # /root/fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
+>> jnk
+>> mapped writes DISABLED
+>> truncating to largest ever: 0x32740
+>> truncating to largest ever: 0x39212
+>> truncating to largest ever: 0x3bae9
+>> truncating to largest ever: 0x3c1e3
+>> truncating to largest ever: 0x3d1cd
+>> truncating to largest ever: 0x3e8b8
+>> truncating to largest ever: 0x3ed14
+>> truncating to largest ever: 0x3f9c2
+>> truncating to largest ever: 0x3ff9f
+>> doread: read: Invalid argument
+>> Segmentation fault
+>>
+>> Here is the strace for it
+>> ..
+>> ftruncate(3, 2721)                      = 0
+>> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+>> lseek(3, 0, SEEK_END)                   = 2721
+>> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+>> lseek(3, 0, SEEK_END)                   = 2721
+>> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+>> lseek(3, 0, SEEK_END)                   = 2721
+>> lseek(3, 0, SEEK_SET)                   = 0
+>> read(3, 0x50a800, 2048)                 = -1 EINVAL (Invalid argument)
+>>
+>> reiserfs getblock() is returing -EINVAL. There is comment in the code
+>> about tail handling and returning EINVAL. BTW, this is not a -mm
+>> issue, it happens on mainline too...
+>>
+>>     
+>
+> Does it fail in mainline, or only in
+> mainline+direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write.patch?
+>
+>   
+It fails on mailine (2.6.19-rc1). I will double check my tree just in case..
 
-I'm not sure this will help all too much, but at least I have the 
-strings...
+Thanks,
+Badari
 
-
-Here is what dmidecode spat out:
-
-# dmidecode 2.8
-SMBIOS 2.3 present.
-23 structures occupying 646 bytes.
-Table at 0x000DC010.
-
-Handle 0x0000, DMI type 0, 20 bytes
-BIOS Information
- 	Vendor: Phoenix Technologies Ltd.
- 	Version: 1.06VB
- 	Release Date: 03/13/2003
- 	Address: 0xE7A00
- 	Runtime Size: 99840 bytes
- 	ROM Size: 512 kB
- 	Characteristics:
- 		ISA is supported
- 		PCI is supported
- 		PC Card (PCMCIA) is supported
- 		PNP is supported
- 		APM is supported
- 		BIOS is upgradeable
- 		BIOS shadowing is allowed
- 		Selectable boot is supported
- 		EDD is supported
- 		Print screen service is supported (int 5h)
- 		8042 keyboard services are supported (int 9h)
- 		Serial services are supported (int 14h)
- 		Printer services are supported (int 17h)
- 		CGA/mono video services are supported (int 10h)
- 		ACPI is supported
- 		USB legacy is supported
- 		Smart battery is supported
- 		BIOS boot specification is supported
-
-Handle 0x0001, DMI type 1, 25 bytes
-System Information
- 	Manufacturer: HITACHI
- 	Product Name: FLORA-ie 55mi
- 	Version: crusoe/ALi1535
- 	Serial Number: 0
- 	UUID: 00000000-0000-0000-0000-FFFFFFFFFFFF
- 	Wake-up Type: Power Switch
-
-Handle 0x0002, DMI type 3, 17 bytes
-Chassis Information
- 	Manufacturer: HITACHI
- 	Type: Portable
- 	Lock: Not Present
- 	Version: crusoe/ALi1535
- 	Serial Number: XXXXXXXXXXXXXXXX
- 	Asset Tag: 0
- 	Boot-up State: Safe
- 	Power Supply State: Safe
- 	Thermal State: Safe
- 	Security Status: None
- 	OEM Information: 0x00001234
-
-Handle 0x0003, DMI type 4, 32 bytes
-Processor Information
- 	Socket Designation: CPU
- 	Type: Central Processor
- 	Family: K6-3
- 	Manufacturer: Transmeta
- 	ID: 43 05 00 00 3F 89 84 00
- 	Signature: Family 5, Model 4, Stepping 3
- 	Flags:
- 		FPU (Floating-point unit on-chip)
- 		VME (Virtual mode extension)
- 		DE (Debugging extension)
- 		PSE (Page size extension)
- 		TSC (Time stamp counter)
- 		MSR (Model specific registers)
- 		CX8 (CMPXCHG8 instruction supported)
- 		SEP (Fast system call)
- 		CMOV (Conditional move instruction supported)
- 		PSN (Processor serial number present and enabled)
- 		MMX (MMX technology supported)
- 	Version: Crusoe(tm)
- 	Voltage: 1.6 V
- 	External Clock: 66 MHz
- 	Max Speed: 400 MHz
- 	Current Speed: 400 MHz
- 	Status: Populated, Enabled
- 	Upgrade: None
- 	L1 Cache Handle: 0x0004
- 	L2 Cache Handle: 0x0005
- 	L3 Cache Handle: Not Provided
-
-Handle 0x0004, DMI type 7, 19 bytes
-Cache Information
- 	Socket Designation: Cache1
- 	Configuration: Enabled, Not Socketed, Level 1
- 	Operational Mode: Write Back
- 	Location: Internal
- 	Installed Size: 128 KB
- 	Maximum Size: 128 KB
- 	Supported SRAM Types:
- 		Pipeline Burst
- 	Installed SRAM Type: Pipeline Burst
- 	Speed: Unknown
- 	Error Correction Type: None
- 	System Type: Unknown
- 	Associativity: Unknown
-
-Handle 0x0005, DMI type 7, 19 bytes
-Cache Information
- 	Socket Designation: Cache2
- 	Configuration: Enabled, Not Socketed, Level 2
- 	Operational Mode: Write Back
- 	Location: Internal
- 	Installed Size: 256 KB
- 	Maximum Size: 256 KB
- 	Supported SRAM Types:
- 		Pipeline Burst
- 	Installed SRAM Type: None
- 	Speed: Unknown
- 	Error Correction Type: None
- 	System Type: Unknown
- 	Associativity: Unknown
-
-Handle 0x0006, DMI type 8, 9 bytes
-Port Connector Information
- 	Internal Reference Designator: Not Specified
- 	Internal Connector Type: None
- 	External Reference Designator: SERIAL
- 	External Connector Type: None
- 	Port Type: Serial Port 16550A Compatible
-
-Handle 0x0007, DMI type 8, 9 bytes
-Port Connector Information
- 	Internal Reference Designator: Not Specified
- 	Internal Connector Type: None
- 	External Reference Designator: USB1
- 	External Connector Type: Access Bus (USB)
- 	Port Type: USB
-
-Handle 0x0008, DMI type 8, 9 bytes
-Port Connector Information
- 	Internal Reference Designator: Not Specified
- 	Internal Connector Type: None
- 	External Reference Designator: USB2
- 	External Connector Type: Access Bus (USB)
- 	Port Type: USB
-
-Handle 0x0009, DMI type 8, 9 bytes
-Port Connector Information
- 	Internal Reference Designator: Not Specified
- 	Internal Connector Type: None
- 	External Reference Designator: MICROPHONE MINI JACK
- 	External Connector Type: Other
- 	Port Type: Other
-
-Handle 0x000A, DMI type 8, 9 bytes
-Port Connector Information
- 	Internal Reference Designator: Not Specified
- 	Internal Connector Type: None
- 	External Reference Designator: AUDIO OUT MINI JACK
- 	External Connector Type: Mini Jack (headphones)
- 	Port Type: Audio Port
-
-Handle 0x000D, DMI type 9, 13 bytes
-System Slot Information
- 	Designation: PCCARD SLOT1
- 	Type: 16-bit PC Card (PCMCIA)
- 	Current Usage: Unknown
- 	Length: Other
- 	ID: Adapter 0, Socket 1
- 	Characteristics:
- 		5.0 V is provided
- 		3.3 V is provided
- 		PC Card-16 is supported
- 		Modem ring resume is supported
-
-Handle 0x000E, DMI type 16, 15 bytes
-Physical Memory Array
- 	Location: System Board Or Motherboard
- 	Use: System Memory
- 	Error Correction Type: None
- 	Maximum Capacity: 128 MB
- 	Error Information Handle: Not Provided
- 	Number Of Devices: 1
-
-Handle 0x000F, DMI type 17, 23 bytes
-Memory Device
- 	Array Handle: 0x000E
- 	Error Information Handle: Not Provided
- 	Total Width: 64 bits
- 	Data Width: 64 bits
- 	Size: 128 MB
- 	Form Factor: DIMM
- 	Set: 1
- 	Locator: Socket
- 	Bank Locator: Bank0
- 	Type: SDRAM
- 	Type Detail: Synchronous
- 	Speed: 100 MHz (10.0 ns)
-
-Handle 0x0010, DMI type 17, 23 bytes
-Memory Device
- 	Array Handle: 0x000E
- 	Error Information Handle: Not Provided
- 	Total Width: 64 bits
- 	Data Width: 64 bits
- 	Size: 112 MB
- 	Form Factor: DIMM
- 	Set: 2
- 	Locator: Base
- 	Bank Locator: Bank1
- 	Type: SDRAM
- 	Type Detail: Synchronous
- 	Speed: 100 MHz (10.0 ns)
-
-Handle 0x0011, DMI type 19, 15 bytes
-Memory Array Mapped Address
- 	Starting Address: 0x00000000000
- 	Ending Address: 0x0000EFFFFFF
- 	Range Size: 240 MB
- 	Physical Array Handle: 0x000E
- 	Partition Width: 0
-
-Handle 0x0012, DMI type 20, 19 bytes
-Memory Device Mapped Address
- 	Starting Address: 0x00000000000
- 	Ending Address: 0x00007FFFFFF
- 	Range Size: 128 MB
- 	Physical Device Handle: 0x000F
- 	Memory Array Mapped Address Handle: 0x0011
- 	Partition Row Position: Unknown
-
-Handle 0x0013, DMI type 20, 19 bytes
-Memory Device Mapped Address
- 	Starting Address: 0x00008000000
- 	Ending Address: 0x0000EFFFFFF
- 	Range Size: 112 MB
- 	Physical Device Handle: 0x0010
- 	Memory Array Mapped Address Handle: 0x0011
- 	Partition Row Position: Unknown
-
-Handle 0x0014, DMI type 21, 7 bytes
-Built-in Pointing Device
- 	Type: Track Ball
- 	Interface: PS/2
- 	Buttons: 0
-
-Handle 0x0015, DMI type 32, 20 bytes
-System Boot Information
- 	Status: <OUT OF SPEC>
-
-Handle 0x0016, DMI type 127, 4 bytes
-End Of Table
-
-Wrong DMI structures count: 23 announced, only 21 decoded.

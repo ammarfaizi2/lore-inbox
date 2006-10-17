@@ -1,46 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423058AbWJQLPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423051AbWJQLQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423058AbWJQLPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 07:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423054AbWJQLPn
+	id S1423051AbWJQLQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 07:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423059AbWJQLQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 07:15:43 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:13201 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1423042AbWJQLPm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 07:15:42 -0400
-Message-ID: <4534BB5B.6080002@garzik.org>
-Date: Tue, 17 Oct 2006 07:15:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 17 Oct 2006 07:16:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:57160 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1423051AbWJQLQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 07:16:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Sa98vaql2Guq8HuPqRGb+j9O2DiUR/fitEaWw7DZUj1ErlISFVuvQ6lsEt0nXA7lyQLSaVT8vpGVjuTd4UZLzqC1MVPGzSQvZ2ZsoojwI3TNw89DZRbzwT2TBUJ9K/SvQeVVwFINElSljEUXUGlgabHrKdvG5uOS5oQSPhEKLQc=
+Date: Tue, 17 Oct 2006 20:16:34 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@zeniv.linux.org.uk, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] file: kill unnecessary timer in fdtable_defer
+Message-ID: <20061017111634.GD13677@htj.dyndns.org>
 MIME-Version: 1.0
-To: brking@us.ibm.com
-CC: "Darrick J. Wong" <djwong@us.ibm.com>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>,
-       Mike Anderson <andmike@us.ibm.com>
-Subject: Re: [PATCH] libsas: support NCQ for SATA disks
-References: <453027A9.3060606@us.ibm.com> <45340A62.7050406@us.ibm.com>
-In-Reply-To: <45340A62.7050406@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian King wrote:
-> This doesn't look like the right fix for the oops you were seeing. The
-> SAS usage of libata has ap->scsi_host as NULL, which indicates that
-> libata does not own the associated scsi_host. I'm concerned you may
-> have broken some other code path by making this change. I think the correct
-> fix may require removing the dependence of ap->scsi_host from
-> ata_dev_config_ncq. 
+free_fdtable_rc() schedules timer to reschedule fddef->wq if
+schedule_work() on it returns 0.  However, schedule_work() guarantees
+that the target work is executed at least once after the scheduling
+regardless of its return value.  0 return simply means that the work
+was already pending and thus no further action was required.
 
-Yep.  I had already mentioned this on IRC.
+Another problem is that it used contant '5' as @expires argument to
+mod_timer().
 
-	Jeff
+Kill unnecessary fddef->timer.
 
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>
+---
 
+This patch was first posted on August 20th.  The original thread can
+be seen at the following URL.
+
+http://thread.gmane.org/gmane.linux.kernel/438712/focus=438712
+
+Dipankar objected but the discussion was dropped in the middle.
+Please read the thread for more info.  I still think this patch is
+correct.
+
+Andrew, please push this patch through -mm if this looks correct.
+
+Thanks.
+
+ file.c |   29 ++---------------------------
+  1 file changed, 2 insertions(+), 27 deletions(-)
+
+diff --git a/fs/file.c b/fs/file.c
+index 8e81775..d91db2c 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -21,7 +21,6 @@ #include <linux/workqueue.h>
+ struct fdtable_defer {
+ 	spinlock_t lock;
+ 	struct work_struct wq;
+-	struct timer_list timer;
+ 	struct fdtable *next;
+ };
+ 
+@@ -75,22 +74,6 @@ static void __free_fdtable(struct fdtabl
+ 	kfree(fdt);
+ }
+ 
+-static void fdtable_timer(unsigned long data)
+-{
+-	struct fdtable_defer *fddef = (struct fdtable_defer *)data;
+-
+-	spin_lock(&fddef->lock);
+-	/*
+-	 * If someone already emptied the queue return.
+-	 */
+-	if (!fddef->next)
+-		goto out;
+-	if (!schedule_work(&fddef->wq))
+-		mod_timer(&fddef->timer, 5);
+-out:
+-	spin_unlock(&fddef->lock);
+-}
+-
+ static void free_fdtable_work(struct fdtable_defer *f)
+ {
+ 	struct fdtable *fdt;
+@@ -142,13 +125,8 @@ static void free_fdtable_rcu(struct rcu_
+ 		spin_lock(&fddef->lock);
+ 		fdt->next = fddef->next;
+ 		fddef->next = fdt;
+-		/*
+-		 * vmallocs are handled from the workqueue context.
+-		 * If the per-cpu workqueue is running, then we
+-		 * defer work scheduling through a timer.
+-		 */
+-		if (!schedule_work(&fddef->wq))
+-			mod_timer(&fddef->timer, 5);
++		/* vmallocs are handled from the workqueue context */
++		schedule_work(&fddef->wq);
+ 		spin_unlock(&fddef->lock);
+ 		put_cpu_var(fdtable_defer_list);
+ 	}
+@@ -352,9 +330,6 @@ static void __devinit fdtable_defer_list
+ 	struct fdtable_defer *fddef = &per_cpu(fdtable_defer_list, cpu);
+ 	spin_lock_init(&fddef->lock);
+ 	INIT_WORK(&fddef->wq, (void (*)(void *))free_fdtable_work, fddef);
+-	init_timer(&fddef->timer);
+-	fddef->timer.data = (unsigned long)fddef;
+-	fddef->timer.function = fdtable_timer;
+ 	fddef->next = NULL;
+ }
+ 

@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWJQRko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJQRlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWJQRko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWJQRko
+	id S1751355AbWJQRlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWJQRlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:40:44 -0400
-Received: from solarneutrino.net ([66.199.224.43]:7438 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751350AbWJQRkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:40:43 -0400
-Date: Tue, 17 Oct 2006 13:40:20 -0400
-To: Keith Packard <keithp@keithp.com>
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-Message-ID: <20061017174020.GA24789@tau.solarneutrino.net>
-References: <20061013194516.GB19283@tau.solarneutrino.net> <1160849723.3943.41.camel@neko.keithp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1160849723.3943.41.camel@neko.keithp.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Tue, 17 Oct 2006 13:41:37 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:62166 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751360AbWJQRlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:41:36 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Date: Tue, 17 Oct 2006 20:41:41 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Me@fokus.fraunhofer.de
+References: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de>
+In-Reply-To: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_WXRNFqXKZ2zloMJ"
+Message-Id: <200610172041.42873.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 14, 2006 at 11:15:23AM -0700, Keith Packard wrote:
-> On Fri, 2006-10-13 at 15:45 -0400, Ryan Richter wrote:
-> > I have a new Intel 965G board, and I'm trying to get DRI working.
-> > Direct rendering is enabled, but all GL programs crash immediately.
-> > The message 'DRM_I830_CMDBUFFER: -22' is printed on the tty, and the
-> > kernel says:
-> > 
-> > [drm:i915_cmdbuffer] *ERROR* i915_dispatch_cmdbuffer failed
-> 
-> The 915 DRM validates commands sent to the card from the application to
-> ensure they aren't directing the card to access memory outside of the
-> graphics area. At present the module validates only 915/945 commands
-> correctly and the 965 uses slightly different commands. I haven't walked
-> over the entire GL library, but it seems possible that this error is
-> being caused by the mis-validation of the command stream. We need to
-> update the DRM driver to reflect the new commands, but in the meanwhile,
-> you might try disabling the validation in the kernel (which will expose
-> your system to a local root compromise) and seeing if that doesn't
-> eliminate this message.
+--Boundary-00=_WXRNFqXKZ2zloMJ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-So do I want something like
+17 Eki 2006 Sal 17:45 tarihinde, Joerg Schilling =C5=9Funlar=C4=B1 yazm=C4=
+=B1=C5=9Ft=C4=B1:=20
+> Hi,
+>
+> while working on better ISO-9660 support for the Solaris Kernel,
+> I recently enhanced mkisofs to support the Rock Ridge Standard version 1.=
+12
+> from 1994.
+>
+> The difference bewteen version 1.12 and 1.10 (this is what previous
+> mkisofs versions did implement) is that the "PX" field is now 8 Byte
+> bigger than before (44 instead of 36 bytes).
 
+Is there a test iso file somewhere? I think the attached *untested* patch w=
+ill=20
+fix it.
 
-static int do_validate_cmd(int cmd)
-{
-	return 1;
-}
+Regards,
+ismail
 
-in i915_dma.c?
+--Boundary-00=_WXRNFqXKZ2zloMJ
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="rock.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="rock.patch"
 
-Thanks,
--ryan
+diff --git a/fs/isofs/rock.c b/fs/isofs/rock.c
+index f3a1db3..061a633 100644
+--- a/fs/isofs/rock.c
++++ b/fs/isofs/rock.c
+@@ -349,6 +349,7 @@ #endif
+ 			inode->i_nlink = isonum_733(rr->u.PX.n_links);
+ 			inode->i_uid = isonum_733(rr->u.PX.uid);
+ 			inode->i_gid = isonum_733(rr->u.PX.gid);
++                       inode->i_ino = isonum_733(rr->u.PX.ino);
+ 			break;
+ 		case SIG('P', 'N'):
+ 			{
+diff --git a/fs/isofs/rock.h b/fs/isofs/rock.h
+index ed09e2b..faf92c6 100644
+--- a/fs/isofs/rock.h
++++ b/fs/isofs/rock.h
+@@ -33,6 +33,7 @@ struct RR_PX_s {
+ 	char n_links[8];
+ 	char uid[8];
+ 	char gid[8];
++       char ino[8];
+ };
+ 
+ struct RR_PN_s {
+
+--Boundary-00=_WXRNFqXKZ2zloMJ--

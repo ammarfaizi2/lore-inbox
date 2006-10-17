@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWJQRxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWJQRxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWJQRxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWJQRxL
+	id S1751371AbWJQRxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWJQRxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:53:11 -0400
-Received: from colin.muc.de ([193.149.48.1]:51726 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1750833AbWJQRxK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:53:10 -0400
-Date: 17 Oct 2006 19:53:08 +0200
-Date: Tue, 17 Oct 2006 19:53:08 +0200
-From: Andi Kleen <ak@muc.de>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-Subject: Re: [PATCH] x86_64: store Socket ID in phys_proc_id
-Message-ID: <20061017175308.GB15429@muc.de>
-References: <5986589C150B2F49A46483AC44C7BCA412D6E3@ssvlexmb2.amd.com> <86802c440610170834q5921908u5bcd7c2cb4b78dd5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610170834q5921908u5bcd7c2cb4b78dd5@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Oct 2006 13:53:36 -0400
+Received: from 200-168-80-91.dsl.telesp.net.br ([200.168.80.91]:18448 "EHLO
+	200-168-80-91.dsl.telesp.net.br") by vger.kernel.org with ESMTP
+	id S1751359AbWJQRxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:53:35 -0400
+Message-ID: <008e01c6f215$42777d80$0100a8c0@200-168-80-91.dsl.telesp.net.br>
+From: "Yanochka" <info@5pm.ru>
+To: "Jan" <netdev@vger.kernel.org>
+Subject: Hi my Dear Stranger
+Date: Tue, 17 Oct 2006 20:54:20 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 08:34:47AM -0700, Yinghai Lu wrote:
-> Current code store phys_proc_id with init APIC ID, and later will change
-> to apicid>>bits.
-> 
-> So for the apic id lifted system, for example BSP with apicid 0x10, the
-> phys_proc_id will be 8.
+Hello my Dear Stranger!
 
-How is that a problem? 
+I think we had correspondence a long time ago if it was not you I am sorry.
+If it was I could not answer you because my Mozilla mail manager was down for a 
+long time and I could not fix it only with my friend's help I got the emails 
+address out for me ..:)
+I hope it was whom we were corresponded with you are still interested, as I am, 
+though I realize much time has passed since then...
+I really don't know where to start ....
+Maybe you could tell me a little about yourself since I lost our early letters, 
+your appearance,age , hobbies, and are you still in the search?
+If it was you I wrote to and you are interested to get to know me better, I have 
+a profile at :
+http://www.findsomelove.com/myhoney
+
+Don't really know what else to say for now I hope this is the right address
+
+Let me know if you are interested, And I hope
+you won't run when you see my picture :-)
+
+au revoir
+
+Yana K.
 
 
-> This patch use initial APIC ID to get Socket ID.
-> 
-> It also removed ht_nodeid calculating, because We already have correct
-> socket id for sure.
-
-we've had cases where it wasn't identical, that is when i originally
-added that code.
-
--Andi

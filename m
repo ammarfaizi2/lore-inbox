@@ -1,84 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWJQUUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWJQUXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWJQUUb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 16:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWJQUUb
+	id S1751260AbWJQUXE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 16:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWJQUXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 16:20:31 -0400
-Received: from mail.suse.de ([195.135.220.2]:63641 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751254AbWJQUUa (ORCPT
+	Tue, 17 Oct 2006 16:23:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751266AbWJQUXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 16:20:30 -0400
-Date: Tue, 17 Oct 2006 22:19:22 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Pavel Machek <pavel@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] swsusp: fix platform mode
-Message-ID: <20061017201922.GA4915@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Operating-System: openSUSE 10.2 (i586) Alpha5plus, Kernel 2.6.18-14-default
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 17 Oct 2006 16:23:01 -0400
+Date: Tue, 17 Oct 2006 13:22:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org, Michael Ellerman <michael@ellerman.id.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061017132245.12499c1d.akpm@osdl.org>
+In-Reply-To: <4535310C.40708@goop.org>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<4535310C.40708@goop.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point after 2.6.13, in-kernel software suspend got "incomplete"
-for the so-called "platform" mode. pm_ops->prepare() is never called.
-A visible sign of this is the "moon" light on thinkpads not flashing
-during suspend. Fix by readding the pm_ops->prepare call during suspend.
+On Tue, 17 Oct 2006 12:37:48 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-Signed-off-by: Stefan Seyfried <seife@suse.de>
-Acked-by: "Rafael J. Wysocki" <rjw@sisk.pl>
----
+> Andrew Morton wrote:
+> > -generic-implementatation-of-bug.patch
+> > -generic-implementatation-of-bug-fix.patch
+> > +generic-bug-implementation.patch
+> >  generic-bug-for-i386.patch
+> >  generic-bug-for-x86-64.patch
+> >  uml-add-generic-bug-support.patch
+> >  use-generic-bug-for-ppc.patch
+> >  bug-test-1.patch
+> >
+> >  Updated generic-BUG-handling patches
+> >   
+> I thought the powerpc patch had been given a clean bill of health?  Or 
+> was there still a problem with it?
 
- kernel/power/disk.c |   22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+No, last time I tested it the machine still froze after "returning from
+prom_init".  ie: before it had done any WARNs or BUGs.  It's rather
+mysterious.
 
---- linux/kernel/power/disk.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18.patched/kernel/power/disk.c	2006-10-17 22:03:26.000000000 +0200
-@@ -27,6 +27,22 @@ char resume_file[256] = CONFIG_PM_STD_PA
- dev_t swsusp_resume_device;
- 
- /**
-+ *	platform_prepare - prepare the machine for hibernation using the
-+ *	platform driver if so configured and return an error code if it fails
-+ */
-+
-+static inline int platform_prepare(void)
-+{
-+	int error = 0;
-+
-+	if (pm_disk_mode == PM_DISK_PLATFORM) {
-+		if (pm_ops && pm_ops->prepare)
-+			error = pm_ops->prepare(PM_SUSPEND_DISK);
-+	}
-+	return error;
-+}
-+
-+/**
-  *	power_down - Shut machine down for hibernate.
-  *	@mode:		Suspend-to-disk mode
-  *
-@@ -79,9 +95,15 @@ static int prepare_processes(void)
- 		goto thaw;
- 	}
- 
-+	error = platform_prepare();
-+	if (error)
-+		goto thaw;
-+
- 	/* Free memory before shutting down devices. */
- 	if (!(error = swsusp_shrink_memory()))
- 		return 0;
-+
-+	platform_finish();
- thaw:
- 	thaw_processes();
- 	enable_nonboot_cpus();
--- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

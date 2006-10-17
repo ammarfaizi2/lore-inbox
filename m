@@ -1,29 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWJQTog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWJQTrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWJQTog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWJQTog
+	id S1751243AbWJQTrx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJQTrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:44:36 -0400
-Received: from 82-35-2-74.cable.ubr01.hari.blueyonder.co.uk ([82.35.2.74]:11789
-	"HELO 82-35-2-74.cable.ubr01.hari.blueyonder.co.uk")
-	by vger.kernel.org with SMTP id S1751195AbWJQTof (ORCPT
+	Tue, 17 Oct 2006 15:47:52 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:63107 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1751243AbWJQTrw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:44:35 -0400
-Date: Tue, 17 Oct 2006 13:53:36 -0400
-From: Abraham Hagen <mainorrwdv@meelis.ee>
-Reply-To: Abraham Hagen <mainorrwdv@meelis.ee>
-Message-ID: <674613168137.201992090545@meelis.ee>
-To: <linux-kernel@vger.kernel.org>
-Subject: sexuaally expplicit:Groupp well-favoured teeens hardccore!
+	Tue, 17 Oct 2006 15:47:52 -0400
+Date: Tue, 17 Oct 2006 21:49:48 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] 2.6.19-rc2-mm1 pktcdvd: bio write congestion using blk_congestion_wait()
+Reply-To: balagi@justmail.de
+From: "Thomas Maier" <balagi@justmail.de>
+Cc: petero2@telia.com, akpm@osdl.org, "Jens Axboe" <jens.axboe@oracle.com>
+Content-Type: multipart/mixed; boundary=----------CZV55v7uZ8vtYvIGlQrvEl
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <op.thkz1adbiudtyh@master>
+User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------------CZV55v7uZ8vtYvIGlQrvEl
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-optimum Eighteens in harrdcore actionn!
+Hello,
 
-http://girlsxxx0016.com
+this adds a bio write queue congestion control
+to the pktcdvd driver with fixed on/off marks.
+It prevents that the driver consumes a unlimited
+amount of write requests.
+
+Needs this patch named:
+[PATCH 1/2] 2.6.19-rc2-mm1 ll_rw_blk.c: export clear_queue_congested and set_queue_congested
+
+I hope this code is ok now ;)
+(Maybe the surrounding spin_locks can be removed,
+but for atomic access to bio_write_size etc., they may
+be a good thing...)
+
+Signed-off-by: Thomas Maier <balagi@justmail.de>
+
+
+------------CZV55v7uZ8vtYvIGlQrvEl
+Content-Disposition: attachment; filename=2-wqueue-congestion-2.6.19-rc2-mm1.patch
+Content-Type: application/octet-stream; name=2-wqueue-congestion-2.6.19-rc2-mm1.patch
+Content-Transfer-Encoding: Base64
+
+ZGlmZiAtdXJwTiBsaW51eC0yLjYuMTktcmMyLW1tMS9kcml2ZXJzL2Jsb2NrL3Br
+dGNkdmQuYyAyLXdxdWV1ZS1jb25nZXN0aW9uLTIuNi4xOS1yYzItbW0xL2RyaXZl
+cnMvYmxvY2svcGt0Y2R2ZC5jCi0tLSBsaW51eC0yLjYuMTktcmMyLW1tMS9kcml2
+ZXJzL2Jsb2NrL3BrdGNkdmQuYwkyMDA2LTEwLTE3IDIwOjE3OjQ5LjAwMDAwMDAw
+MCArMDIwMAorKysgMi13cXVldWUtY29uZ2VzdGlvbi0yLjYuMTktcmMyLW1tMS9k
+cml2ZXJzL2Jsb2NrL3BrdGNkdmQuYwkyMDA2LTEwLTE3IDIwOjUwOjM0LjAwMDAw
+MDAwMCArMDIwMApAQCAtODQsNiArODQsOCBAQAogc3RhdGljIHN0cnVjdCBwa3Rj
+ZHZkX2RldmljZSAqcGt0X2RldnNbTUFYX1dSSVRFUlNdOwogc3RhdGljIHN0cnVj
+dCBwcm9jX2Rpcl9lbnRyeSAqcGt0X3Byb2M7CiBzdGF0aWMgaW50IHBrdGRldl9t
+YWpvcjsKK3N0YXRpYyBpbnQgd3JpdGVfY29uZ2VzdGlvbl9vbiAgPSBQS1RfV1JJ
+VEVfQ09OR0VTVElPTl9PTjsKK3N0YXRpYyBpbnQgd3JpdGVfY29uZ2VzdGlvbl9v
+ZmYgPSBQS1RfV1JJVEVfQ09OR0VTVElPTl9PRkY7CiBzdGF0aWMgc3RydWN0IG11
+dGV4IGN0bF9tdXRleDsJLyogU2VyaWFsaXplIG9wZW4vY2xvc2Uvc2V0dXAvdGVh
+cmRvd24gKi8KIHN0YXRpYyBtZW1wb29sX3QgKnBzZF9wb29sOwogCkBAIC04OTQs
+NiArODk2LDcgQEAgc3RhdGljIGludCBwa3RfaGFuZGxlX3F1ZXVlKHN0cnVjdCBw
+a3RjZAogCXNlY3Rvcl90IHpvbmUgPSAwOyAvKiBTdXBwcmVzcyBnY2Mgd2Fybmlu
+ZyAqLwogCXN0cnVjdCBwa3RfcmJfbm9kZSAqbm9kZSwgKmZpcnN0X25vZGU7CiAJ
+c3RydWN0IHJiX25vZGUgKm47CisJaW50IHdha2V1cDsKIAogCVZQUklOVEsoImhh
+bmRsZV9xdWV1ZVxuIik7CiAKQEAgLTk2Niw3ICs5NjksMTMgQEAgdHJ5X25leHRf
+YmlvOgogCQlwa3QtPndyaXRlX3NpemUgKz0gYmlvLT5iaV9zaXplIC8gQ0RfRlJB
+TUVTSVpFOwogCQlzcGluX3VubG9jaygmcGt0LT5sb2NrKTsKIAl9CisJLyogY2hl
+Y2sgd3JpdGUgY29uZ2VzdGlvbiBtYXJrcywgYW5kIGlmIGJpb19xdWV1ZV9zaXpl
+IGlzCisJICAgYmVsb3csIHdha2UgdXAgYW55IHdhaXRlcnMgKi8KKwl3YWtldXAg
+PSAocGQtPndyaXRlX2Nvbmdlc3Rpb25fb24gPiAwCisJIAkJJiYgcGQtPmJpb19x
+dWV1ZV9zaXplIDw9IHBkLT53cml0ZV9jb25nZXN0aW9uX29mZik7CiAJc3Bpbl91
+bmxvY2soJnBkLT5sb2NrKTsKKwlpZiAod2FrZXVwKQorCQlibGtfY2xlYXJfcXVl
+dWVfY29uZ2VzdGVkKHBkLT5kaXNrLT5xdWV1ZSwgV1JJVEUpOwogCiAJcGt0LT5z
+bGVlcF90aW1lID0gbWF4KFBBQ0tFVF9XQUlUX1RJTUUsIDEpOwogCXBrdF9zZXRf
+c3RhdGUocGt0LCBQQUNLRVRfV0FJVElOR19TVEFURSk7CkBAIC0yMTc5LDYgKzIx
+ODgsMjMgQEAgc3RhdGljIGludCBwa3RfbWFrZV9yZXF1ZXN0KHJlcXVlc3RfcXVl
+dQogCX0KIAlzcGluX3VubG9jaygmcGQtPmNkcncuYWN0aXZlX2xpc3RfbG9jayk7
+CiAKKyAJLyoKKwkgKiBUZXN0IGlmIHRoZXJlIGlzIGVub3VnaCByb29tIGxlZnQg
+aW4gdGhlIGJpbyB3b3JrIHF1ZXVlCisJICogKHF1ZXVlIHNpemUgPj0gY29uZ2Vz
+dGlvbiBvbiBtYXJrKS4KKwkgKiBJZiBub3QsIHdhaXQgdGlsbCB0aGUgd29yayBx
+dWV1ZSBzaXplIGlzIGJlbG93IHRoZSBjb25nZXN0aW9uIG9mZiBtYXJrLgorCSAq
+LworCXNwaW5fbG9jaygmcGQtPmxvY2spOworCWlmIChwZC0+d3JpdGVfY29uZ2Vz
+dGlvbl9vbiA+IDAKKwkgICAgJiYgcGQtPmJpb19xdWV1ZV9zaXplID49IHBkLT53
+cml0ZV9jb25nZXN0aW9uX29uKSB7CisJCWJsa19zZXRfcXVldWVfY29uZ2VzdGVk
+KHEsIFdSSVRFKTsKKwkJZG8geworCQkJc3Bpbl91bmxvY2soJnBkLT5sb2NrKTsK
+KwkJCWJsa19jb25nZXN0aW9uX3dhaXQoV1JJVEUsIEhaKTsKKwkJCXNwaW5fbG9j
+aygmcGQtPmxvY2spOworCQl9IHdoaWxlKHBkLT5iaW9fcXVldWVfc2l6ZSA+IHBk
+LT53cml0ZV9jb25nZXN0aW9uX29mZik7CisJfQorCXNwaW5fdW5sb2NrKCZwZC0+
+bG9jayk7CisKIAkvKgogCSAqIE5vIG1hdGNoaW5nIHBhY2tldCBmb3VuZC4gU3Rv
+cmUgdGhlIGJpbyBpbiB0aGUgd29yayBxdWV1ZS4KIAkgKi8KQEAgLTIyOTgsNiAr
+MjMyNCw5IEBAIHN0YXRpYyBpbnQgcGt0X3NlcV9zaG93KHN0cnVjdCBzZXFfZmls
+ZSAKIAlzZXFfcHJpbnRmKG0sICJcdHN0YXRlOlx0XHRcdGk6JWQgb3c6JWQgcnc6
+JWQgd3c6JWQgcmVjOiVkIGZpbjolZFxuIiwKIAkJICAgc3RhdGVzWzBdLCBzdGF0
+ZXNbMV0sIHN0YXRlc1syXSwgc3RhdGVzWzNdLCBzdGF0ZXNbNF0sIHN0YXRlc1s1
+XSk7CiAKKwlzZXFfcHJpbnRmKG0sICJcdHdyaXRlIGNvbmdlc3Rpb24gbWFya3M6
+XHRvZmY9JWQgb249JWRcbiIsCisJCQlwZC0+d3JpdGVfY29uZ2VzdGlvbl9vZmYs
+CisJCQlwZC0+d3JpdGVfY29uZ2VzdGlvbl9vbik7CiAJcmV0dXJuIDA7CiB9CiAK
+QEAgLTI0NzQsNiArMjUwMyw5IEBAIHN0YXRpYyBpbnQgcGt0X3NldHVwX2Rldihk
+ZXZfdCBkZXYsIGRldl8KIAlpbml0X3dhaXRxdWV1ZV9oZWFkKCZwZC0+d3F1ZXVl
+KTsKIAlwZC0+YmlvX3F1ZXVlID0gUkJfUk9PVDsKIAorCXBkLT53cml0ZV9jb25n
+ZXN0aW9uX29uICA9IHdyaXRlX2Nvbmdlc3Rpb25fb247CisJcGQtPndyaXRlX2Nv
+bmdlc3Rpb25fb2ZmID0gd3JpdGVfY29uZ2VzdGlvbl9vZmY7CisKIAlkaXNrID0g
+YWxsb2NfZGlzaygxKTsKIAlpZiAoIWRpc2spCiAJCWdvdG8gb3V0X21lbTsKZGlm
+ZiAtdXJwTiBsaW51eC0yLjYuMTktcmMyLW1tMS9pbmNsdWRlL2xpbnV4L3BrdGNk
+dmQuaCAyLXdxdWV1ZS1jb25nZXN0aW9uLTIuNi4xOS1yYzItbW0xL2luY2x1ZGUv
+bGludXgvcGt0Y2R2ZC5oCi0tLSBsaW51eC0yLjYuMTktcmMyLW1tMS9pbmNsdWRl
+L2xpbnV4L3BrdGNkdmQuaAkyMDA2LTEwLTE3IDIwOjE3OjQ5LjAwMDAwMDAwMCAr
+MDIwMAorKysgMi13cXVldWUtY29uZ2VzdGlvbi0yLjYuMTktcmMyLW1tMS9pbmNs
+dWRlL2xpbnV4L3BrdGNkdmQuaAkyMDA2LTEwLTE3IDIwOjM0OjUzLjAwMDAwMDAw
+MCArMDIwMApAQCAtMTEyLDYgKzExMiwxMiBAQCBzdHJ1Y3QgcGt0X2N0cmxfY29t
+bWFuZCB7CiAjaW5jbHVkZSA8bGludXgvY29tcGxldGlvbi5oPgogI2luY2x1ZGUg
+PGxpbnV4L2Nkcm9tLmg+CiAKKworLyogZGVmYXVsdCBiaW8gd3JpdGUgcXVldWUg
+Y29uZ2VzdGlvbiBtYXJrcyAqLworI2RlZmluZSBQS1RfV1JJVEVfQ09OR0VTVElP
+Tl9PTiAgICAxMDAwMAorI2RlZmluZSBQS1RfV1JJVEVfQ09OR0VTVElPTl9PRkYg
+ICA5MDAwCisKKwogc3RydWN0IHBhY2tldF9zZXR0aW5ncwogewogCV9fdTMyCQkJ
+c2l6ZTsJCS8qIHBhY2tldCBzaXplIGluICg1MTIgYnl0ZSkgc2VjdG9ycyAqLwpA
+QCAtMjcxLDYgKzI3Nyw5IEBAIHN0cnVjdCBwa3RjZHZkX2RldmljZQogCiAJc3Ry
+dWN0IHBhY2tldF9pb3NjaGVkICAgaW9zY2hlZDsKIAlzdHJ1Y3QgZ2VuZGlzawkJ
+KmRpc2s7CisKKwlpbnQJCQl3cml0ZV9jb25nZXN0aW9uX29mZjsKKwlpbnQJCQl3
+cml0ZV9jb25nZXN0aW9uX29uOwogfTsKIAogI2VuZGlmIC8qIF9fS0VSTkVMX18g
+Ki8K
+------------CZV55v7uZ8vtYvIGlQrvEl--
 

@@ -1,86 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWJQHLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWJQHMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWJQHLM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 03:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWJQHLM
+	id S932177AbWJQHMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 03:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWJQHMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 03:11:12 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:23074 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932175AbWJQHLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 03:11:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Y1IwjIGiipkWjBjQ4/8WyZubsNTVU/6y6hIvuZVVQrnrNR3RdT6wQyEW5a3Sc55BlvdQ8I8LRbU4LBjvmd/WfSqOYucIqgEurMjBAf7LPx76ZozdM+PFVNJgQpeKhsZ8veluKJi6Nb/kKzinZBKyeGhWwjTMEBDtj3NHFcToshY=
-Date: Tue, 17 Oct 2006 00:11:03 -0700
-From: Amit Choudhary <amit2030@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.19-rc2] drivers/media/video/stv680.c: check kmalloc()
- return value.
-Message-Id: <20061017001103.e29905ab.amit2030@gmail.com>
-Organization: X
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 17 Oct 2006 03:12:36 -0400
+Received: from fc-cn.com ([218.25.172.144]:13582 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932176AbWJQHMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 03:12:34 -0400
+Message-ID: <4534865E.7020504@fc-cn.com>
+Date: Tue, 17 Oct 2006 15:29:34 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+Organization: FCD
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC][PATCH 3/9] actual generic PAGE_SIZE infrastructure
+References: <20060830221604.E7320C0F@localhost.localdomain> <20060830221606.40937644@localhost.localdomain>
+In-Reply-To: <20060830221606.40937644@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Check the return value of kmalloc() in function stv680_start_stream(), in file drivers/media/video/stv680.c.
+Dave Hansen wrote:
 
-Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+>* Add _ALIGN_UP() which we'll use now and _ALIGN_DOWN(), just for
+>  parity.
+>* Define ASM_CONST() macro to help using constants in both assembly
+>  and C code.  Several architectures have some form of this, and
+>  they will be consolidated around this one.
+>* Actually create PAGE_SHIFT and PAGE_SIZE macros
+>* For now, require that architectures enable GENERIC_PAGE_SIZE in
+>  order to get this new code.  This option will be removed by the
+>  last patch in the series, and makes the series bisect-safe.
+>* Note that this moves the compiler.h define outside of the
+>  #ifdef __KERNEL__, but that's OK because it has its own.
+>
+>Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+>---
+>
+> threadalloc-dave/include/asm-generic/page.h |   31 ++++++++++++++++++--
+> threadalloc-dave/mm/Kconfig                 |   43 ++++++++++++++++++++++++++++
+> 2 files changed, 71 insertions(+), 3 deletions(-)
+>
+>diff -puN include/asm-generic/page.h~generic-PAGE_SIZE-infrastructure include/asm-generic/page.h
+>--- threadalloc/include/asm-generic/page.h~generic-PAGE_SIZE-infrastructure	2006-08-30 15:15:00.000000000 -0700
+>+++ threadalloc-dave/include/asm-generic/page.h	2006-08-30 15:15:01.000000000 -0700
+>@@ -1,11 +1,36 @@
+> #ifndef _ASM_GENERIC_PAGE_H
+> #define _ASM_GENERIC_PAGE_H
+> 
+>+#include <linux/compiler.h>
+>+#include <linux/align.h>
+>+
+> #ifdef __KERNEL__
+>-#ifndef __ASSEMBLY__
+> 
+>-#include <linux/compiler.h>
+>+#ifdef __ASSEMBLY__
+>+#define ASM_CONST(x) x
+>+#else
+>+#define __ASM_CONST(x) x##UL
+>+#define ASM_CONST(x) __ASM_CONST(x)
+>+#endif
+>+
+>+#ifdef CONFIG_ARCH_GENERIC_PAGE_SIZE
+>+
+>+#define PAGE_SHIFT      CONFIG_PAGE_SHIFT
+>+#define PAGE_SIZE       (ASM_CONST(1) << PAGE_SHIFT)
+>  
+>
 
-diff --git a/drivers/media/video/stv680.c b/drivers/media/video/stv680.c
-index 6d1ef1e..a1ec3ac 100644
---- a/drivers/media/video/stv680.c
-+++ b/drivers/media/video/stv680.c
-@@ -687,7 +687,7 @@ static int stv680_start_stream (struct u
- 		stv680->sbuf[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
- 		if (stv680->sbuf[i].data == NULL) {
- 			PDEBUG (0, "STV(e): Could not kmalloc raw data buffer %i", i);
--			return -1;
-+			goto nomem_err;
- 		}
- 	}
- 
-@@ -698,7 +698,7 @@ static int stv680_start_stream (struct u
- 		stv680->scratch[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
- 		if (stv680->scratch[i].data == NULL) {
- 			PDEBUG (0, "STV(e): Could not kmalloc raw scratch buffer %i", i);
--			return -1;
-+			goto nomem_err;
- 		}
- 		stv680->scratch[i].state = BUFFER_UNUSED;
- 	}
-@@ -706,7 +706,7 @@ static int stv680_start_stream (struct u
- 	for (i = 0; i < STV680_NUMSBUF; i++) {
- 		urb = usb_alloc_urb (0, GFP_KERNEL);
- 		if (!urb)
--			return -ENOMEM;
-+			goto nomem_err;
- 
- 		/* sbuf is urb->transfer_buffer, later gets memcpyed to scratch */
- 		usb_fill_bulk_urb (urb, stv680->udev,
-@@ -721,6 +721,21 @@ static int stv680_start_stream (struct u
- 
- 	stv680->framecount = 0;
- 	return 0;
-+
-+ nomem_err:
-+	for (i = 0; i < STV680_NUMSCRATCH; i++) {
-+		kfree(stv680->scratch[i].data);
-+		stv680->scratch[i].data = NULL;
-+	}
-+	for (i = 0; i < STV680_NUMSBUF; i++) {
-+		usb_kill_urb(stv680->urb[i]);
-+		usb_free_urb(stv680->urb[i]);
-+		stv680->urb[i] = NULL;
-+		kfree(stv680->sbuf[i].data);
-+		stv680->sbuf[i].data = NULL;
-+	}
-+	return -ENOMEM;
-+
- }
- 
- static int stv680_stop_stream (struct usb_stv *stv680)
+Your generic page.h hides PAGE_SIZE under "#ifdef __KERNEL__".
+That would cause severe userland compile failures.
+
+Most archs have PAGE_SIZE visible to userland.
+Please keep PAGE_SIZE and its friends outside "#ifdef __KERNEL__".
+
+
+-- qiyong
+
+>+
+>+/*
+>+ * Subtle: (1 << PAGE_SHIFT) is an int, not an unsigned long. So if we
+>+ * assign PAGE_MASK to a larger type it gets extended the way we want
+>+ * (i.e. with 1s in the high bits)
+>+ */
+>+#define PAGE_MASK      (~((1 << PAGE_SHIFT) - 1))
+> 
+>+/* to align the pointer to the (next) page boundary */
+>+#define PAGE_ALIGN(addr)        ALIGN(addr, PAGE_SIZE)
+>+
+>+#endif /* CONFIG_ARCH_GENERIC_PAGE_SIZE */
+>+
+>+#ifndef __ASSEMBLY__
+> #ifndef CONFIG_ARCH_HAVE_GET_ORDER
+> /* Pure 2^n version of get_order */
+> static __inline__ __attribute_const__ int get_order(unsigned long size)
+>@@ -22,7 +47,7 @@ static __inline__ __attribute_const__ in
+> }
+> 
+> #endif	/* CONFIG_ARCH_HAVE_GET_ORDER */
+>-#endif /*  __ASSEMBLY__ */
+>+#endif  /* __ASSEMBLY__ */
+> #endif	/* __KERNEL__ */
+> 
+> #endif	/* _ASM_GENERIC_PAGE_H */
+>  
+>
+-- 
+Qi Yong
+

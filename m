@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWJQSE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWJQSFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWJQSE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 14:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWJQSE2
+	id S1751407AbWJQSFl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 14:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWJQSFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 14:04:28 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24516 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750816AbWJQSE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 14:04:27 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Yinghai Lu <yinghai.lu@amd.com>
-Subject: [PATCH] x86_64 irq: Use irq_domain in ioapic_retrigger_irq
-Date: Tue, 17 Oct 2006 12:02:38 -0600
-Message-ID: <m13b9makht.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 17 Oct 2006 14:05:41 -0400
+Received: from outbound-ash.frontbridge.com ([206.16.192.249]:16614 "EHLO
+	outbound2-ash-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751407AbWJQSFk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 14:05:40 -0400
+X-BigFish: VP
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: RE: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
+ update pos for vector and offset
+Date: Tue, 17 Oct 2006 11:05:31 -0700
+Message-ID: <5986589C150B2F49A46483AC44C7BCA412D6F7@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when
+ update pos for vector and offset
+Thread-Index: AcbyFf1cHBufMDcSTeWa1j358q9k2wAADHQg
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: ebiederm@xmission.com
+cc: "Andi Kleen" <ak@muc.de>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+X-OriginalArrivalTime: 17 Oct 2006 18:05:32.0072 (UTC)
+ FILETIME=[D6087A80:01C6F216]
+X-WSS-ID: 692BC4E60CK4517784-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
+>I just looked and tested and we are fine.
 
-Thanks to YH Lu for spotting this.  It appears I missed
-this function when I refactored allocate_irq_vector and
-introduced irq_domain, with the result that all retriggered
-irqs would go to cpu 0 even if we were not prepared to
-receive them there.
+Yes. my test is ok, We can change cpumask_of_cpu(0) in
+physflat_target_cpus to cpu_online_map. Or just use flat_target_cpus
+instead of physflat_target_cpus.
 
-While reviewing YH's patch I also noticed that this function was
-missing locking, and since I am now reading two values from
-two diffrent arrays that looks like a race we might be able
-to hit in the real world.
+YH
 
-Cc: Yinghai Lu <yinghai.lu@amd.com>
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/x86_64/kernel/io_apic.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index 49e94f7..2207d4a 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -1255,12 +1255,15 @@ static int ioapic_retrigger_irq(unsigned
- {
- 	cpumask_t mask;
- 	unsigned vector;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&vector_lock, flags);
- 	vector = irq_vector[irq];
- 	cpus_clear(mask);
--	cpu_set(vector >> 8, mask);
-+	cpu_set(first_cpu(irq_domain[irq]), mask);
- 
--	send_IPI_mask(mask, vector & 0xff);
-+	send_IPI_mask(mask, vector);
-+	spin_unlock_irqrestore(&vector_lock, flags);
- 
- 	return 1;
- }
--- 
-1.4.2.rc3.g7e18e-dirty
 

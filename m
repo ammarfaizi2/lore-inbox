@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWJQShW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWJQSg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWJQShW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 14:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWJQSgt
+	id S1751416AbWJQSg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 14:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWJQSg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 14:36:49 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:23179 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751383AbWJQSgm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 14:36:42 -0400
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
-Date: Tue, 17 Oct 2006 21:32:53 +0300
-User-Agent: KMail/1.9.5
-Cc: kronos.it@gmail.com, schilling@fokus.fraunhofer.de,
-       linux-kernel@vger.kernel.org
-References: <20061017180210.GA20287@dreamland.darkstar.lan> <200610172114.30268.ismail@pardus.org.tr> <45351de7.ky2ldiUVUFoikxQ6%Joerg.Schilling@fokus.fraunhofer.de>
-In-Reply-To: <45351de7.ky2ldiUVUFoikxQ6%Joerg.Schilling@fokus.fraunhofer.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610172132.54137.ismail@pardus.org.tr>
+	Tue, 17 Oct 2006 14:36:27 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:34275 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751416AbWJQSg0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 14:36:26 -0400
+Date: Tue, 17 Oct 2006 11:29:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@suse.de>,
+       Carsten Otte <cotte@freenet.de>
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061017112931.80ce9ca4.akpm@osdl.org>
+In-Reply-To: <4534FA99.2080009@fr.ibm.com>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<4534FA99.2080009@fr.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-17 Eki 2006 Sal 21:16 tarihinde, Joerg Schilling şunları yazmıştı: 
-> Ismail Donmez <ismail@pardus.org.tr> wrote:
-> > I was just trying a fast hack to see it works ;-) but iso files produced
-> > by latest mkisofs works fine even without patching.
->
-> Did you _really_ use the latest mkisofs?
+On Tue, 17 Oct 2006 17:45:29 +0200
+Cedric Le Goater <clg@fr.ibm.com> wrote:
 
-Yes :
+> > +mm-fix-pagecache-write-deadlocks.patch
+> 
+> filemap_xip.c needs a fix also.
+> 
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+> ---
+>  mm/filemap_xip.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: 2.6.19-rc2-mm1/mm/filemap_xip.c
+> ===================================================================
+> --- 2.6.19-rc2-mm1.orig/mm/filemap_xip.c
+> +++ 2.6.19-rc2-mm1/mm/filemap_xip.c
+> @@ -317,7 +317,7 @@ __xip_file_write(struct file *filp, cons
+>  			break;
+>  		}
+>  
+> -		copied = filemap_copy_from_user(page, offset, buf, bytes);
+> +		copied = filemap_copy_from_user_atomic(page, offset, buf, bytes);
+>  		flush_dcache_page(page);
+>  		if (likely(copied > 0)) {
+>  			status = copied;
 
-[~]> ./mkisofs MeGUI-x264_generic_profiles_v31.7z > test.iso
-Total translation table size: 0
-Total rockridge attributes bytes: 0
-Total directory bytes: 0
-Path table size(bytes): 10
-Max brk space used 21000
-176 extents written (0 MB)
+<looks>
 
-[~]> sudo mount -o loop -t iso9660 test.iso ./test
+I think it might actually be that simple.  I expected a lot more fuss than
+that.
 
-[~]> ls test
-megui_x2.7z
-
-[~]> ./mkisofs --version
-mkisofs 2.01.01a18 (i686-pc-linux-gnu)

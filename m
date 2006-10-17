@@ -1,62 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWJQQWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWJQQXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbWJQQWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWJQQWM
+	id S1751287AbWJQQXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWJQQXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:22:12 -0400
-Received: from rtr.ca ([64.26.128.89]:5646 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751279AbWJQQWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:22:10 -0400
-Message-ID: <4535032F.2080807@rtr.ca>
-Date: Tue, 17 Oct 2006 12:22:07 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Jens Axboe <jens.axboe@oracle.com>, Allen Martin <AMartin@nvidia.com>,
-       Jeff Garzik <jeff@garzik.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       prakash@punnoor.de
-Subject: Re: [PATCH] sata_nv ADMA/NCQ support for nForce4
-References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com> <452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk> <452F053B.2000906@shaw.ca> <20061013080434.GE6515@kernel.dk> <45344F4D.6070703@shaw.ca> <45345015.2010601@rtr.ca> <45345B16.4090505@shaw.ca>
-In-Reply-To: <45345B16.4090505@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 17 Oct 2006 12:23:51 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:961 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751269AbWJQQXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:23:50 -0400
+X-Sasl-enc: Zz+SnqM/cDmLbpCS6uQB2iwUP71vqjBj37+wTd+5HMUg 1161102231
+Subject: Re: AUTOFS3: Make sure all dentries refs are released before
+	calling kill_anon_super()
+From: Ian Kent <raven@themaw.net>
+To: David Howells <dhowells@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20312.1161101882@redhat.com>
+References: <200610161658.58288.ak@suse.de>   <20312.1161101882@redhat.com>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 00:23:41 +0800
+Message-Id: <1161102221.4937.64.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Mark Lord wrote:
->> Robert Hancock wrote:
->>>
->>> +/* ADMA Physical Region Descriptor - one SG segment */
->>> +struct nv_adma_prd {
->>> +    __le64            addr;
->>> +    __le32            len;
->>> +    u8            flags;
->>> +    u8            packet_len;
-..
->>> +struct nv_adma_cpb {
->>> +    u8            resp_flags;    //0
->>> +    u8            reserved1;     //1
->>> +    u8            ctl_flags;     //2
->>> +    // len is length of taskfile in 64 bit words
->>> +     u8            len;           //3 +    u8            
->>> tag;           //4
->>> +    u8            next_cpb_idx;  //5
->..
->> Are those CPB / PRD structs endian-safe when using a big-endian CPU?
->>
->> Cheers
+On Tue, 2006-10-17 at 17:18 +0100, David Howells wrote:
+> Make sure all dentries refs are released before calling kill_anon_super() so
+> that the assumption that generic_shutdown_super() can completely destroy the
+> dentry tree for there will be no external references holds true.
 > 
-> They should be, I believe cpu_to_leXX is used whenever the multi-byte 
-> elements are being written. 
-
-I was thinking more about the non wordsized fields,
-such as the various u8 bytes that gcc will lay out differently
-depending upon endianess.
-
-Cheers
+> What was being done in the put_super() superblock op, is now done in the
+> kill_sb() filesystem op instead, prior to calling kill_anon_super().
+> 
+> The call to shrink_dcache_sb() is removed as it is redundant since
+> shrink_dcache_for_umount() will now be called after the cleanup routine.
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by: Ian Kent <raven@themaw.net>
+> ---
+> 
+>  fs/autofs/autofs_i.h |    1 +
+>  fs/autofs/dirhash.c  |    1 -
+>  fs/autofs/init.c     |    2 +-
+>  fs/autofs/inode.c    |    4 ++--
+>  4 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/autofs/autofs_i.h b/fs/autofs/autofs_i.h
+> index c7700d9..906ba5c 100644
+> --- a/fs/autofs/autofs_i.h
+> +++ b/fs/autofs/autofs_i.h
+> @@ -149,6 +149,7 @@ extern const struct file_operations auto
+>  /* Initializing function */
+>  
+>  int autofs_fill_super(struct super_block *, void *, int);
+> +void autofs_kill_sb(struct super_block *sb);
+>  
+>  /* Queue management functions */
+>  
+> diff --git a/fs/autofs/dirhash.c b/fs/autofs/dirhash.c
+> index 3fded38..bf8c8af 100644
+> --- a/fs/autofs/dirhash.c
+> +++ b/fs/autofs/dirhash.c
+> @@ -246,5 +246,4 @@ void autofs_hash_nuke(struct autofs_sb_i
+>  			kfree(ent);
+>  		}
+>  	}
+> -	shrink_dcache_sb(sbi->sb);
+>  }
+> diff --git a/fs/autofs/init.c b/fs/autofs/init.c
+> index aca1237..cea5219 100644
+> --- a/fs/autofs/init.c
+> +++ b/fs/autofs/init.c
+> @@ -24,7 +24,7 @@ static struct file_system_type autofs_fs
+>  	.owner		= THIS_MODULE,
+>  	.name		= "autofs",
+>  	.get_sb		= autofs_get_sb,
+> -	.kill_sb	= kill_anon_super,
+> +	.kill_sb	= autofs_kill_sb,
+>  };
+>  
+>  static int __init init_autofs_fs(void)
+> diff --git a/fs/autofs/inode.c b/fs/autofs/inode.c
+> index 2c9759b..54c518c 100644
+> --- a/fs/autofs/inode.c
+> +++ b/fs/autofs/inode.c
+> @@ -20,7 +20,7 @@ #include <linux/magic.h>
+>  #include "autofs_i.h"
+>  #include <linux/module.h>
+>  
+> -static void autofs_put_super(struct super_block *sb)
+> +void autofs_kill_sb(struct super_block *sb)
+>  {
+>  	struct autofs_sb_info *sbi = autofs_sbi(sb);
+>  	unsigned int n;
+> @@ -37,13 +37,13 @@ static void autofs_put_super(struct supe
+>  	kfree(sb->s_fs_info);
+>  
+>  	DPRINTK(("autofs: shutting down\n"));
+> +	kill_anon_super(sb);
+>  }
+>  
+>  static void autofs_read_inode(struct inode *inode);
+>  
+>  static struct super_operations autofs_sops = {
+>  	.read_inode	= autofs_read_inode,
+> -	.put_super	= autofs_put_super,
+>  	.statfs		= simple_statfs,
+>  };
+>  
 

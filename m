@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWJQUfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWJQUjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWJQUfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 16:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWJQUfG
+	id S1750751AbWJQUjT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 16:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWJQUjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 16:35:06 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:3992 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751377AbWJQUfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 16:35:02 -0400
-Date: Tue, 17 Oct 2006 16:33:39 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew James Wade <andrew.j.wade@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       hch@infradead.org, Al Viro <viro@ftp.linux.org.uk>,
-       linux-fsdevel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>,
-       ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
-Subject: Re: [PATCH 1 of 2] fsstack: Introduce fsstack_copy_{attr,inode}_*
-Message-ID: <20061017203339.GA30847@filer.fsl.cs.sunysb.edu>
-References: <fe7c146c6457a4b288ab.1161060147@thor.fsl.cs.sunysb.edu> <Pine.LNX.4.61.0610171237220.22888@yvahk01.tjqt.qr>
+	Tue, 17 Oct 2006 16:39:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750751AbWJQUjT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 16:39:19 -0400
+Date: Tue, 17 Oct 2006 13:39:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: balagi@justmail.de
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com,
+       "Jens Axboe" <jens.axboe@oracle.com>
+Subject: Re: [PATCH 1/2] 2.6.19-rc2-mm1 ll_rw_blk.c: export
+ clear_queue_congested and set_queue_congested
+Message-Id: <20061017133907.7155b2ac.akpm@osdl.org>
+In-Reply-To: <op.thkzomdriudtyh@master>
+References: <op.thkzomdriudtyh@master>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0610171237220.22888@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 12:40:31PM +0200, Jan Engelhardt wrote:
-> 
-> >To: null@josefsipek.net
-> 
-> (Superb idea to prekill any Cc, re-adding them)
- 
-Yeah, I like to test the emails but I accidentally sent them. From now on,
-no testing :)
- 
-> >+void __fsstack_copy_attr_all(struct inode *dest,
-> >+			     const struct inode *src,
-> >+			     int (*get_nlinks)(struct inode *))
-> >+{
-> >[big]
-> >+}
-> >+
-> >+/* externs for fs/stack.c */
-> >+extern void __fsstack_copy_attr_all(struct inode *dest,
-> >+				    const struct inode *src,
-> >+				    int (*get_nlinks)(struct inode *));
-> >+
-> >+static inline void fsstack_copy_attr_all(struct inode *dest,
-> >+					 const struct inode *src)
-> >+{
-> >+	__fsstack_copy_attr_all(dest, src, NULL);
-> >+}
-> 
-> Do we really need this indirection? Can't __fsstack_copy_attr_all be 
-> named fsstack_copy_attr_all instead?
+On Tue, 17 Oct 2006 21:42:12 +0200
+"Thomas Maier" <balagi@justmail.de> wrote:
 
-I suppose it could. There is no API-breakage to avoid.
+> Hello,
+> 
+> this patch exports the clear_queue_congested()
+> and set_queue_congested() functions located in ll_rw_blk.c
+> 
+> The functions are renamed to blk_clear_queue_congested()
+> and blk_set_queue_congested().
 
-Josef "Jeff" Sipek.
+OK.
 
--- 
-Computer Science is no more about computers than astronomy is about
-telescopes.
-		- Edsger Dijkstra
+Aside:
+
+The congestion info really has nothing to do with "queues".  It is actually
+an attribute of the backing_dev_info.  NFS should/will be using them, and
+NFS doesn't have queues.
+
+What we should have is set_bdi_read_congested(),
+clear_bdi_read_congested(), bdi_read_congested(), bdi_write_congested(),
+etc.  Some of these are already in backing-dev.h.
+
+Sometime we should add [set|clear]_bdi_[read|write]_congested() to
+backing-dev.h and make the block code call them.  And move the waitqueue
+stuff in clear_queue_congested() out of the block layer and into, umm, mm/
+I guess.  And rename blk_congestion_wait() to congestion_wait() and move it
+into mm/ too.
+
+If all of this is done, the kernel would actually link with CONFIG_BLOCK=n.
+
+But none of this has anything to do with your patch, except that we need to
+get your patch in fast because we'd like CONFIG_BLOCK=n to work.
+
+> (needed in the pktcdvd driver's bio write congestion control)
+> 
+> (have the bits set with set_queue_congested() any use?
+> seems they are never used by anyone....)
+
+bdi_write_congested() is tested in several places.  bdi_read_congested() is
+tested in the readahead code too, although I doubt if queues get
+read-congested very often.
+
+
+> Signed-off-by: Thomas Maier <balagi@justmail.de>
+> 
+> 

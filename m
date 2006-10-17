@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWJQKLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbWJQKRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWJQKLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 06:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWJQKLZ
+	id S1161047AbWJQKRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 06:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWJQKRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 06:11:25 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:44436 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932167AbWJQKLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 06:11:24 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove quirk_via_abnormal_poweroff
-Date: Tue, 17 Oct 2006 12:13:17 +0200
-User-Agent: KMail/1.9.4
-Cc: Dave Jones <davej@redhat.com>, mjg59@srcf.ucam.org,
-       Greg KH <gregkh@suse.de>
+	Tue, 17 Oct 2006 06:17:17 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:24734 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161047AbWJQKRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 06:17:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uLL8vTQ2AJY8mieHcr33RppC9xVVec+dxwW9/8G3XzHRlgsYrPwVsOIm9isW2r+vlgyln791f2fdgsWIPbYo72e+1x0wpxsX5Z2u9rd6nrmMfi5ooaNDUt9OhFgsE/RGpm4whvRrldqmHHAAjptsLWZINBEqZkH9lvGIV26ypJk=
+Message-ID: <3420082f0610170317n7a712a4du9801c86506f51389@mail.gmail.com>
+Date: Tue, 17 Oct 2006 15:17:16 +0500
+From: "Irfan Habib" <irfan.habib@gmail.com>
+To: "Jay Vaughan" <jv@access-music.de>
+Subject: Re: getting a return from a system call
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <a06230915c15a5acf6842@192.168.2.100>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610171213.18093.annabellesgarden@yahoo.de>
-X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
+References: <3420082f0610170245x1a3fa82ft88246b25cab09942@mail.gmail.com>
+	 <a06230915c15a5acf6842@192.168.2.100>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+and what about long? I tried return type long, it also always returned
+0, instead of the custom one I was returning
 
-My K8T800 mobo resumes fine from suspend to ram with and without
-patch applied against 2.6.18.
-quirk_via_abnormal_poweroff makes some boards not boot 2.6.18,
-so IMO patch should go to head, 2.6.18.2 and everywhere
-"ACPI: ACPICA 20060623" has been applied.
-
-      Karsten
-
-----------------------------------------------------------------
-Remove quirk_via_abnormal_poweroff
-
-Obsoleted by "ACPI: ACPICA 20060623":
-<snip>
-    Implemented support for "ignored" bits in the ACPI
-    registers.  According to the ACPI specification, these
-    bits should be preserved when writing the registers via
-    a read/modify/write cycle. There are 3 bits preserved
-    in this manner: PM1_CONTROL[0] (SCI_EN), PM1_CONTROL[9],
-    and PM1_STATUS[11].
-    http://bugzilla.kernel.org/show_bug.cgi?id=3691
-</snip>
-
-Signed-off-by: Karsten Wiese <fzu@wemgehoertderstaat.de>
----
- drivers/pci/quirks.c |   27 ---------------------------
- 1 files changed, 0 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 23b599d..a53f713 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -683,33 +683,6 @@ static void __devinit quirk_vt82c598_id(
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_vt82c598_id );
- 
--#ifdef CONFIG_ACPI_SLEEP
--
--/*
-- * Some VIA systems boot with the abnormal status flag set. This can cause
-- * the BIOS to re-POST the system on resume rather than passing control
-- * back to the OS.  Clear the flag on boot
-- */
--static void __devinit quirk_via_abnormal_poweroff(struct pci_dev *dev)
--{
--	u32 reg;
--
--	acpi_hw_register_read(ACPI_MTX_DO_NOT_LOCK, ACPI_REGISTER_PM1_STATUS,
--				&reg);
--
--	if (reg & 0x800) {
--		printk("Clearing abnormal poweroff flag\n");
--		acpi_hw_register_write(ACPI_MTX_DO_NOT_LOCK,
--					ACPI_REGISTER_PM1_STATUS,
--					(u16)0x800);
--	}
--}
--
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8235, quirk_via_abnormal_poweroff);
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, quirk_via_abnormal_poweroff);
--
--#endif
--
- /*
-  * CardBus controllers have a legacy base address that enables them
-  * to respond as i82365 pcmcia controllers.  We don't want them to
--- 
-1.4.2.3
-
+On 10/17/06, Jay Vaughan <jv@access-music.de> wrote:
+>
+> You can't use floats in kernel system calls ..
+>
+> j.
+>
+> At 14:45 +0500 17/10/06, Irfan Habib wrote:
+> >Hi,
+> >
+> >I'm trying to build a system call which returns a float, and is defined as :
+> >asmlinkage float sys_ph_pinfo(int pid, int mode)
+> >
+> >but in a user level program every time, I evaluate it, I always get
+> >a return 0!
+> >How do I capture the return of a system call?
+> >
+> >Also is it possible that a system call return a structure or array?
+> >Will that be available in user space? My hunch is that this is not
+> >possible, as kernel memory space is disjoint form the user memory
+> >space, but just for information.
+> >
+> >Regards,
+> >Irfan
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+> --
+>
+> ;
+>
+> Jay Vaughan
+>
+>

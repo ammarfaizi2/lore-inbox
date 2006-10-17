@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWJQOqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWJQOsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWJQOqg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 10:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWJQOqf
+	id S1751129AbWJQOsl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 10:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWJQOsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 10:46:35 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33680 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751121AbWJQOqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 10:46:35 -0400
-Subject: Re: 2.6.18-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: dipankar@in.ibm.com
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20061013221624.GD7477@in.ibm.com>
-References: <20060920141907.GA30765@elte.hu>
-	 <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com>
-	 <200610132318.02512.annabellesgarden@yahoo.de>
-	 <20061013212450.GC7477@in.ibm.com> <1160777536.4201.31.camel@mindpipe>
-	 <20061013221624.GD7477@in.ibm.com>
-Content-Type: text/plain
-Date: Tue, 17 Oct 2006 10:46:35 -0400
-Message-Id: <1161096395.2919.57.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 10:48:41 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:23505 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751129AbWJQOsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 10:48:40 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de>
+Date: Tue, 17 Oct 2006 16:45:43 +0200
+To: linux-kernel@vger.kernel.org
+Cc: Me@fokus.fraunhofer.de
+Subject: Linux ISO-9660 Rock Ridge bug needs fix
+User-Agent: nail 11.22 3/20/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-10-14 at 03:46 +0530, Dipankar Sarma wrote:
-> > FWIW, I am also seeing hard lockups every 12-24 hours but the box is
-> > headless and I don't have the bandwidth to debug these further.  It
-> was
-> > stable with 2.6.17-rt*.
-> 
-> Can you try whatever you were doing with nmi_watchdog=0 ? If it is
-> stable, then that would explain the problem. I believe Andi enabled
-> nmi watchdog on x86_64 by default recently, that might be why
-> we are seeing it now. 
+Hi,
 
-Looks like that was the problem, the hard lockups are gone.
+while working on better ISO-9660 support for the Solaris Kernel,
+I recently enhanced mkisofs to support the Rock Ridge Standard version 1.12
+from 1994.
 
-Lee
+The difference bewteen version 1.12 and 1.10 (this is what previous
+mkisofs versions did implement) is that the "PX" field is now 8 Byte
+bigger than before (44 instead of 36 bytes).
 
+As Rock Ridge is a protocol that implements a list of size tagged fields,
+this change in mkisofs should not be a problem and in fact is not for Solaris
+or FreeBSD. As Linux does not implement Rock Rige correctly, Linux will
+reject CDs/DVDs that have been created by a recent mkisofs.
+
+As Linux will completely disable RR because of this bug, it must be called
+a showstopper bug that needs immediate fixing and that also needs to be 
+backported.
+
+The recent version of cdrtools that include the new mkisofs is located at:
+
+ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-2.01.01a18-pre.tar.bz2
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWJQSh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWJQSgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWJQSh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 14:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWJQShW
+	id S1751414AbWJQSgr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 14:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWJQSgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 14:37:22 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:27531 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750944AbWJQShC (ORCPT
+	Tue, 17 Oct 2006 14:36:44 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:41955 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751414AbWJQSgk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 14:37:02 -0400
-Date: Tue, 17 Oct 2006 14:27:42 -0400
-From: Dave Jones <davej@redhat.com>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH] Remove quirk_via_abnormal_poweroff
-Message-ID: <20061017182742.GC20600@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Karsten Wiese <annabellesgarden@yahoo.de>,
-	linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org,
-	Greg KH <gregkh@suse.de>
-References: <200610171213.18093.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610171213.18093.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.2i
+	Tue, 17 Oct 2006 14:36:40 -0400
+Message-ID: <453522B1.7040103@goop.org>
+Date: Tue, 17 Oct 2006 11:36:33 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+CC: compudj@krystal.dyndns.org, mbligh@google.com, fche@redhat.com,
+       masami.hiramatsu.pt@hitachi.com, prasanna@in.ibm.com, akpm@osdl.org,
+       mingo@elte.hu, mathieu.desnoyers@polymtl.ca, lethal@linux-sh.org,
+       linux-kernel@vger.kernel.org, jes@sgi.com, zanussi@us.ibm.com,
+       richardj_moore@uk.ibm.com, michel.dagenais@polymtl.ca,
+       hch@infradead.org, gregkh@suse.de, tglx@linutronix.de,
+       wcohen@redhat.com, ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       alan@lxorguk.ukuu.org.uk, karim@opersys.com, pavel@suse.cz,
+       joe@perches.com, rdunlap@xenotime.net, jrs@us.ibm.com
+Subject: Re: [PATCH] Linux Kernel Markers 0.20 for 2.6.17
+References: <20060930180443.GB25761@Krystal> <20061018.005122.07644172.anemo@mba.ocn.ne.jp>
+In-Reply-To: <20061018.005122.07644172.anemo@mba.ocn.ne.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 12:13:17PM +0200, Karsten Wiese wrote:
- > Hi
- > 
- > My K8T800 mobo resumes fine from suspend to ram with and without
- > patch applied against 2.6.18.
- > quirk_via_abnormal_poweroff makes some boards not boot 2.6.18,
- > so IMO patch should go to head, 2.6.18.2 and everywhere
- > "ACPI: ACPICA 20060623" has been applied.
+Atsushi Nemoto wrote:
+> When I compiled this with gcc 4.1.1 (mips), ".markers" section was
+> empty.
+>
+> I suppose "unused" attribute is not suitable for modern gcc.  Maybe
+> __attribute_used__ should be used?
+>   
 
-ACK, I applied a similar patch to the Fedora kernel which doesn't
-seem to have had any immediate bad effects on the boxes I've had
-access to (Tested on several different VIA systems).
+It should be, but it still won't work.  There's a gcc bug which ignores 
+the attribute for local-scope static variables:  
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=29299
 
-Signed-off-by: Dave Jones <davej@redhat.com>
 
-	Dave
+    J
 
--- 
-http://www.codemonkey.org.uk

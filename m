@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbWJQKS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWJQKid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161139AbWJQKS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 06:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161161AbWJQKS1
+	id S1161206AbWJQKid (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 06:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWJQKid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 06:18:27 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:32065 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161139AbWJQKS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 06:18:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JJMrqrG+Ojz5o4N1PX+4za8sENidL3ks6+NwTdQ+cwoLl9LRgUtzCr/lW4ogCiA7jkHy8GFhuNpL766Ni0kabznkU9RJoSIx2wLEXz74+3QouyVcGygDiMgTPNV0SDoeTn58MQcE70CJEnnFVWG+NU/rNkqzaEZB1GKW6qA905c=
-Message-ID: <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
-Date: Tue, 17 Oct 2006 18:18:25 +0800
-From: "Kay Tiong Khoo" <kaytiong@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: stopping a process during a timer interrupt
-In-Reply-To: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com>
+	Tue, 17 Oct 2006 06:38:33 -0400
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:28603 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1161206AbWJQKic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 06:38:32 -0400
+Message-ID: <4534B2CA.1000108@cn.ibm.com>
+Date: Tue, 17 Oct 2006 18:39:06 +0800
+From: Yi CDL Yang <yyangcdl@cn.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org
+Subject: [PATCH 2.6.19-rc2]: Fix protdrv_pci.c compile error
+X-MIMETrack: Itemize by SMTP Server on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 10/17/2006 18:41:45,
+	Serialize by Router on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 10/17/2006 18:41:47,
+	Serialize complete at 10/17/2006 18:41:47
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com>
+Content-Type: text/plain; charset=GB2312
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a timer interrupt, I tried to stop the current process by changing
-it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
-However, this results in a system hang.
+When CONFIG_PM isn't set, the compiler will report the following error:
 
-I can't find a way to stop the current process during an interrupt
-context. Does such code exist in the kernel? If not, how does one go
-about implementing it from within a kernel module.
+drivers/built-in.o: In function `.pcie_portdrv_slot_reset':
+portdrv_pci.c:(.text+0xa80c): undefined reference to `.pcie_portdrv_restore_config'
+make: *** [.tmp_vmlinux1] Error 1
 
-Thanks.
-Kay Tiong
+The problem is that pcie_portdrv_restore_config isn't defiend when PM is disabled.
+
+
+This patch fixes this problem, please consider to apply, thanks.
+
+Signed-off by Yi Yang <yyangcdl@cn.ibm.com>
+
+--- a/drivers/pci/pcie/portdrv_pci.c	2006-10-13 12:25:04.000000000 -0400
++++ b/drivers/pci/pcie/portdrv_pci.c	2006-10-16 18:49:43.000000000 -0400
+@@ -37,7 +37,6 @@ static int pcie_portdrv_save_config(stru
+ 	return pci_save_state(dev);
+ }
+ 
+-#ifdef CONFIG_PM
+ static int pcie_portdrv_restore_config(struct pci_dev *dev)
+ {
+ 	int retval;
+@@ -50,6 +49,7 @@ static int pcie_portdrv_restore_config(s
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
+ static int pcie_portdrv_suspend(struct pci_dev *dev, pm_message_t state)
+ {
+ 	int ret = pcie_port_device_suspend(dev, state);
+ 
+
+

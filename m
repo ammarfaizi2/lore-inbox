@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWJQQ3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWJQQab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWJQQ3L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWJQQ3K
+	id S1751303AbWJQQab (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWJQQaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:29:10 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35089 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751277AbWJQQ3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:29:09 -0400
-Date: Tue, 17 Oct 2006 18:29:05 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v2)
-Message-ID: <20061017162905.GD3502@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061017155934.GC3502@stusta.de> <20061017162323.GA6467@aepfle.de>
+	Tue, 17 Oct 2006 12:30:30 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:47579 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1751298AbWJQQa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:30:29 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: John Philips <johnphilips42@yahoo.com>
+Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
+Date: Tue, 17 Oct 2006 18:30:29 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <20061017145336.65223.qmail@web57803.mail.re3.yahoo.com>
+In-Reply-To: <20061017145336.65223.qmail@web57803.mail.re3.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061017162323.GA6467@aepfle.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610171830.29823.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 06:23:23PM +0200, Olaf Hering wrote:
-> On Tue, Oct 17, Adrian Bunk wrote:
-> 
-> > Subject    : monitor not active after boot
-> > References : http://lkml.org/lkml/2006/10/5/338
-> > Submitter  : Olaf Hering <olaf@aepfle.de>
-> > Caused-By  : Antonino Daplas <adaplas@pol.net>
-> >              commit 346bc21026e7a92e1d7a4a1b3792c5e8b686133d
-> > Status     : unknown
-> 
-> The nvidiafb change was removed again. I will see if I can figure out
-> why the EDID is lost.
+On Tuesday 17 October 2006 16:53, John Philips wrote:
+> > Could you send us, once your machine is handling its typical load :
+> >
+> > lspci -v
+> > ethtool -S eth6
+> > tc -s -d qdisc
+> > cat /proc/slabinfo
+> > cat /proc/meminfo
+>
+> Eric,
+>
+> Here's the output of the commands you mentioned.  The box is handling a
+> medium amount of load right now.  I set eth6 back to auto-negotiation, and
+> haven't seen the kernel BUG messages for the past 1/2 hour.
 
-Thanks for the information, I missed this patch.
+OK, could you please send now :
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ifconfig eth6
+cat /proc/interrupts

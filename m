@@ -1,34 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJQOFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWJQOIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWJQOFe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 10:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWJQOFe
+	id S1750993AbWJQOIM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 10:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWJQOIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 10:05:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63161 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751034AbWJQOFd (ORCPT
+	Tue, 17 Oct 2006 10:08:11 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:1669 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750993AbWJQOIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 10:05:33 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1161093310.4937.37.camel@localhost> 
-References: <1161093310.4937.37.camel@localhost>  <200610161658.58288.ak@suse.de> <1161058535.11489.6.camel@localhost> <200610171250.56522.ak@suse.de> 
-To: Ian Kent <raven@themaw.net>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: BUG dcache.c:613 during autofs unmounting in 2.6.19rc2 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 17 Oct 2006 15:05:07 +0100
-Message-ID: <23461.1161093907@redhat.com>
+	Tue, 17 Oct 2006 10:08:10 -0400
+Date: Tue, 17 Oct 2006 18:07:40 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+Message-ID: <20061017140740.GA20686@2ka.mipt.ru>
+References: <11587449471424@2ka.mipt.ru> <200610171519.37051.dada1@cosmosbay.com> <20061017134206.GC20225@2ka.mipt.ru> <200610171552.35470.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <200610171552.35470.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 17 Oct 2006 18:07:41 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> wrote:
+On Tue, Oct 17, 2006 at 03:52:34PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> > What about the case, which I described in other e-mail, when in case of
+> > the full ring buffer, no new events are written there, and when
+> > userspace commits (i.e. marks as ready to be freed or requeued by kernel)
+> > some events, new ones will be copied from ready queue into the buffer?
+> 
+> Then, user might receive 'false events', exactly like poll()/select()/epoll() 
+> can do sometime. IE a 'ready' indication while there is no current event 
+> available on a particular fd / event_source.
 
-> There have been some changes in this area (David Howells made some
-> changes which affected autofs4) and I'm not sure that the autofs module
-> was reviewed. I didn't look closely at it at the time, I guess I should
-> have. Sorry.
+Only if user simultaneously uses oth interfaces and remove even from the
+queue when it's copy was in mapped buffer, but in that case it's user's
+problem (and if we do want, we can store pointer/index of the ring
+buffer entry, so when event is removed from the ready queue (using 
+kevent_get_events()), appropriate entry in the ring buffer will be
+updated to show that it is no longer valid.
 
-It looks like my fixes for autofs4 need applying to autofs also.
+> This should be safe, since those programs already ignore read() 
+> returns -EAGAIN and other similar things.
+> 
+> Programmer prefers to receive two 'event available' indications than ZERO (and 
+> be stuck for infinite time). Of course, hot path (normal cases) should return 
+> one 'event' only.
+> 
+> In order words, being ultra fast 99.99 % of the time, but being able to block 
+> forever once in a while is not an option.
 
-David
+Have I missed something? It looks like the only problematic situation is
+described above when user simultaneously uses both interfaces.
+
+> Eric
+
+-- 
+	Evgeniy Polyakov

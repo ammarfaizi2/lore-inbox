@@ -1,84 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWJQJfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422875AbWJQJhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbWJQJfE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 05:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWJQJfD
+	id S1422875AbWJQJhs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 05:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423198AbWJQJhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 05:35:03 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:41295 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161041AbWJQJfB (ORCPT
+	Tue, 17 Oct 2006 05:37:48 -0400
+Received: from main.gmane.org ([80.91.229.2]:42217 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1422875AbWJQJhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 05:35:01 -0400
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Linux Memory Management <linux-mm@kvack.org>
-Subject: [PATCH] mm:D-cache aliasing issue in cow_user_page
-From: Dmitriy Monakhov <dmonakhov@openvz.org>
-Date: Tue, 17 Oct 2006 13:15:37 +0400
-Message-ID: <8764ejqp52.fsf@sw.ru>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Tue, 17 Oct 2006 05:37:47 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [build bug] x86_64, -git: Error: unknown pseudo-op: `.cfi_signal_frame'
+Date: Tue, 17 Oct 2006 09:37:22 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnej8lv9.2lu.olecom@flower.upol.cz>
+References: <20061016061037.GA12020@elte.hu> <1160980603.2388.9.camel@entropy> <20061016063602.GA4392@elte.hu> <20061016064300.GA5839@elte.hu>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Hallo.
 
- from mm/memory.c:
-  1434  static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va)
-  1435  {
-  1436          /*
-  1437           * If the source page was a PFN mapping, we don't have
-  1438           * a "struct page" for it. We do a best-effort copy by
-  1439           * just copying from the original user address. If that
-  1440           * fails, we just zero-fill it. Live with it.
-  1441           */
-  1442          if (unlikely(!src)) {
-  1443                  void *kaddr = kmap_atomic(dst, KM_USER0);
-  1444                  void __user *uaddr = (void __user *)(va & PAGE_MASK);
-  1445  
-  1446                  /*
-  1447                   * This really shouldn't fail, because the page is there
-  1448                   * in the page tables. But it might just be unreadable,
-  1449                   * in which case we just give up and fill the result with
-  1450                   * zeroes.
-  1451                   */
-  1452                  if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
-  1453                          memset(kaddr, 0, PAGE_SIZE);
-  1454                  kunmap_atomic(kaddr, KM_USER0);
-  #### D-cache have to be flushed here.
-  #### It seems it is just forgotten.
+On 2006-10-16, Ingo Molnar wrote:
+>
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+>> Note that i override 'CC' instead of specifying a 'CROSS' prefix. I 
+>> suspect this means as-instr does not switch over to the 
+>> cross-environment and thus mis-detected the gas version?
 
-  1455                  return;
-  1456                  
-  1457          }
-  1458          copy_user_highpage(dst, src, va);
-  #### Ok here. flush_dcache_page() called from this func if arch need it 
-  1459  }
+Do you mean 'CROSS_COMPILE' ?
 
-Following is the patch  fix this issue:
-Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
----
+> this did not solve it either - it seems if both CROSS and CC are set 
+> then CC overrides it and CROSS is ignored? Removing the CC override 
+> solved the problem. But how do i insert the 'distcc' that way? Seems 
+> like a Kbuild breakage to me.
 
---=-=-=
-Content-Disposition: inline;
-  filename=d-cache-aliasing-issue-in-cow-user-page.patch
+CC with friends is set like this:
 
-diff --git a/mm/memory.c b/mm/memory.c
-index b5a4aad..156861f 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1452,6 +1452,7 @@ static inline void cow_user_page(struct 
- 		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
- 			memset(kaddr, 0, PAGE_SIZE);
- 		kunmap_atomic(kaddr, KM_USER0);
-+		flush_dcache_page(dst);
- 		return;
- 		
- 	}
++--[linux/Makefile]
+|[...]
+|AS		= $(CROSS_COMPILE)as
+|LD		= $(CROSS_COMPILE)ld
+|CC		= $(CROSS_COMPILE)gcc
+|CPP		= $(CC) -E
+|[...]
++--
 
---=-=-=
+So, i think, you must set 'CROSS_COMPILE' first and then 'CC' like this:
+(exporing PATH in shell, of course)
++--
+$ make CROSS_COMPILE=x86_64-pc-linux- 'CC=distcc $(CROSS_COMPILE)gcc'
++--
 
----
-
---=-=-=--
+(BTW, it's funny to see arch-*unknown*-linux...
+Like something is deeply hidden and is a very big secret ;)
+____
 

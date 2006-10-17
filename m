@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423037AbWJQEh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423053AbWJQEwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423037AbWJQEh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 00:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423036AbWJQEh2
+	id S1423053AbWJQEwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 00:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423050AbWJQEwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 00:37:28 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37591 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1423033AbWJQEh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 00:37:27 -0400
-Date: Tue, 17 Oct 2006 05:37:26 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [RFC] typechecking for get_unaligned/put_unaligned
-Message-ID: <20061017043726.GG29920@ftp.linux.org.uk>
-References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Oct 2006 00:52:45 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:23006 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1423054AbWJQEwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 00:52:44 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 0 of 2] fsstack: generic stackable filesystem helper functions
+Message-Id: <patchbomb.1161060146@thor.fsl.cs.sunysb.edu>
+Date: Tue, 17 Oct 2006 00:42:26 -0400
+From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+To: null@josefsipek.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 06:50:54PM -0700, Linus Torvalds wrote:
+From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-> > 	c) how about gradually switching to linux/unaligned.h?
-> 
-> I'd prefer not to, if only because it's an unnecessary compile-time 
-> overhead for nice sane architectures like x86, which don't need any of the 
-> unaligned crap.
-> 
-> Since x86[-64] is clearly the main architecture, dis-optimizing for that 
-> one sounds like a bad idea.
+The following patches introduce fsstack_copy_* functions. These functions
+copy inode attributes (such as {a,c,m}time, mode, etc.) from one inode to
+another.
 
-Hrm...  I'm not sure that I buy that argument - we have relatively few
-callers of these suckers and I doubt that it will affect compile time
-in a measurable way.  FWIW, that reminds me - I ought to resurrect the
-patchset killing bogus dependencies; I modified sparse to collect stats
-on how many times each #include actually pulls a header during build,
-added those to data on dependencies (from .cmd.*) and got interesting results.
+While, intended for stackable filesystems any portion of the kernel wishing
+to copy inode attributes can use them.
 
-There are several #includes with very high impact; the worst happens
-to be module.h -> sched.h, followed by several includes of fs.h.  These
-turned out to be easy to kill (i.e. few places actually needed compensatory
-#include added) and that had seriously cut down on total dependencies.
-The patches will need to be redone due to bitrot, but they are not
-hard to reproduce.  The really interesting observation is that such
-high-impact includes exist and can be found by this technics...
+This series consists of two patches, the first introduces the fsstack
+functions, and the second makes eCryptfs a user.
 
-As for get_unaligned() and friends...  Dunno.  The thing is, most of
-the targets have them with piss-poor type safety (e.g. asm-generic
-put_unaligned() starts with casting val to __u64; there goes any chance
-to get any useful warnings from cc(1) *and* we get fun warnings from
-sparse every bloody time we use it on __be32, etc.).
+Changes since previous submission:
 
-I can fix those one by one, but I still think that it would be better
-to keep the typechecking in one place...
+- rename to fsstack (akpm)
+- removed fstack_copy_attr_timesizes (akpm)
+- move non-inlined functions to fs/stack.c (Jan Engelhardt)
 
-PS: while a few hundreds of callers per allmodconfig build are minor noise
-in compile time, the noise from a few hundreds of bogus warnings is
-quite considerable ;-)
+Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+
+

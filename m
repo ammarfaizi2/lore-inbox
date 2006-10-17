@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423130AbWJQGZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWJQGen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423130AbWJQGZV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 02:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423141AbWJQGZV
+	id S1423146AbWJQGen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 02:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423148AbWJQGen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 02:25:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:34472 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1423130AbWJQGZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 02:25:19 -0400
+	Tue, 17 Oct 2006 02:34:43 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:1884 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1423146AbWJQGem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 02:34:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=HRTEOmfQUvVeVbgOQzK3S5gazGykfAKIri+9RBjnFHvKp5BA88awI7NS5mr/WGigZaLwxem1JhoPqJDa4dAn/fTUmIGxZdJLgcH1o3iLA4nuVyQOqxRM5AfFidI+/fgljMUoAB9SYRdlLPHAabq9NpMbIepgxM+foG0fOZt+nhY=
-Date: Tue, 17 Oct 2006 15:25:59 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Harald Welte <laforge@gnumonks.org>
-Subject: [PATCH] cm4000_cs: fix return value check
-Message-ID: <20061017062559.GB13100@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Harald Welte <laforge@gnumonks.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=bAj0KeNVv+h+IBvq8x+eIX045MqlsInLGdR6MTj1Wc7pegaYA/+NrXUsbdYNn+1vbq1OA4kv+UuXnWqxvdcRvsRtf9x2/JYF1W4qWNWJPAcdm80X4PE60UFzyaUvme02OxhrZ/3lHRTilZ3EIHsXmGxGjQ/Ojg9yCxTDXlAw3ZQ=  ;
+Message-ID: <45347951.3050907@yahoo.com.au>
+Date: Tue, 17 Oct 2006 16:33:53 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: Martin Bligh <mbligh@google.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH] Use min of two prio settings in calculating distress
+ for reclaim
+References: <4534323F.5010103@google.com>
+In-Reply-To: <4534323F.5010103@google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of class_create() need to be checked with IS_ERR().
-And register_chrdev() returns errno on failure.
-This patch includes these fixes for cm4000_cs and cm4040_cs.
+Martin Bligh wrote:
 
-Cc: Harald Welte <laforge@gnumonks.org>
-Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
+> Another bug is that if try_to_free_pages / balance_pgdat are called
+> with a gfp_mask specifying GFP_IO and/or GFP_FS, they may reclaim
+> the requisite number of pages, and reset prev_priority to DEF_PRIORITY.
+>
+> However, another reclaimer without those gfp_mask flags set may still
+> be struggling to reclaim pages. The easy fix for this is to key the
+> distress calculation not off zone->prev_priority, but also take into
+> account the local caller's priority by using:
+> min(zone->prev_priority, sc->priority)
 
- drivers/char/pcmcia/cm4000_cs.c |    6 +++---
- drivers/char/pcmcia/cm4040_cs.c |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
 
-Index: 2.6-rc/drivers/char/pcmcia/cm4000_cs.c
-===================================================================
---- 2.6-rc.orig/drivers/char/pcmcia/cm4000_cs.c
-+++ 2.6-rc/drivers/char/pcmcia/cm4000_cs.c
-@@ -1973,14 +1973,14 @@ static int __init cmm_init(void)
- 	printk(KERN_INFO "%s\n", version);
- 
- 	cmm_class = class_create(THIS_MODULE, "cardman_4000");
--	if (!cmm_class)
--		return -1;
-+	if (IS_ERR(cmm_class))
-+		return PTR_ERR(cmm_class);
- 
- 	major = register_chrdev(0, DEVICE_NAME, &cm4000_fops);
- 	if (major < 0) {
- 		printk(KERN_WARNING MODULE_NAME
- 			": could not get major number\n");
--		return -1;
-+		return major;
- 	}
- 
- 	rc = pcmcia_register_driver(&cm4000_driver);
-Index: 2.6-rc/drivers/char/pcmcia/cm4040_cs.c
-===================================================================
---- 2.6-rc.orig/drivers/char/pcmcia/cm4040_cs.c
-+++ 2.6-rc/drivers/char/pcmcia/cm4040_cs.c
-@@ -721,14 +721,14 @@ static int __init cm4040_init(void)
- 
- 	printk(KERN_INFO "%s\n", version);
- 	cmx_class = class_create(THIS_MODULE, "cardman_4040");
--	if (!cmx_class)
--		return -1;
-+	if (IS_ERR(cmx_class))
-+		return PTR_ERR(cmx_class);
- 
- 	major = register_chrdev(0, DEVICE_NAME, &reader_fops);
- 	if (major < 0) {
- 		printk(KERN_WARNING MODULE_NAME
- 			": could not get major number\n");
--		return -1;
-+		return major;
- 	}
- 
- 	rc = pcmcia_register_driver(&reader_driver);
+Does it really matter who is doing the actual reclaiming? IMO, if the
+non-crippled (GFP_IO|GFP_FS) reclaimer is making progress, the other
+guy doesn't need to start swapping, and should soon notice that some
+pages are getting freed up.
+
+Workloads where non GFP_IO or GFP_FS reclaimers are having a lot of
+trouble indicates that either it is very swappy or page writeback has
+broken down and lots of dirty pages are being reclaimed off the LRU.
+In either case, they are likely to continue to have problems, even if
+they are now able to unmap the odd page.
+
+What are the empirical effects of this patch? What's the numbers? And
+what have you done to akpm? ;)
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

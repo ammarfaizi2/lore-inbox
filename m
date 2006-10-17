@@ -1,171 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWJQQZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWJQQ0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWJQQZG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWJQQZG
+	id S1751284AbWJQQ0H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWJQQ0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:25:06 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:18669 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751292AbWJQQZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:25:02 -0400
-Date: Tue, 17 Oct 2006 18:25:36 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg K-H <greg@kroah.com>, Duncan Sands <duncan.sands@math.u-psud.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 4/4] Driver core: Don't fail attaching the device if it
- cannot be bound.
-Message-ID: <20061017182536.48c8cb91@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <Pine.LNX.4.44L0.0610171158390.6016-100000@iolanthe.rowland.org>
-References: <20061017130602.5ae67a15@gondolin.boeblingen.de.ibm.com>
-	<Pine.LNX.4.44L0.0610171158390.6016-100000@iolanthe.rowland.org>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 17 Oct 2006 12:26:07 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:35803 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1751284AbWJQQ0F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:26:05 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Tue, 17 Oct 2006 18:26:04 +0200
+User-Agent: KMail/1.9.5
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+References: <11587449471424@2ka.mipt.ru> <200610171732.28640.dada1@cosmosbay.com> <20061017160155.GA18522@2ka.mipt.ru>
+In-Reply-To: <20061017160155.GA18522@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610171826.05028.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Oct 2006 12:04:28 -0400 (EDT),
-Alan Stern <stern@rowland.harvard.edu> wrote:
+On Tuesday 17 October 2006 18:01, Evgeniy Polyakov wrote:
 
-> > -int bus_attach_device(struct device * dev)
-> > +void bus_attach_device(struct device * dev)
-> >  {
-> >  	struct bus_type *bus = dev->bus;
-> > -	int ret = 0;
-> > +	int ret;
-> >  
-> >  	if (bus) {
-> >  		dev->is_registered = 1;
-> >  		ret = device_attach(dev);
-> > -		if (ret >= 0) {
-> > +		BUG_ON(ret < 0);
-> > +		if (ret >= 0)
-> >  			klist_add_tail(&dev->knode_bus, &bus->klist_devices);
-> > -			ret = 0;
-> > -		} else
-> > +		else
-> >  			dev->is_registered = 0;
-> 
-> It looks odd to test the value of ret when you've just crashed the system 
-> if ret < 0.  You probably should change the BUG_ON to a WARN_ON or 
-> something similar.
+> Ok, there is one apologist for mmap buffer implementation, who forced me
+> to create first implementation, which was dropped due to absense of
+> remote mental reading abilities.
+> Ulrich, does above approach sound good for you?
+> I actually do not want to reimplement something, that will be
+> pointed to with words 'no matter what you say, it is broken and I do not
+> want it' again :).
 
-OK, WARN_ON is probably better (but it should never happen anyway).
-Updated patch below.
+In my humble opinion, you should first write a 'real application', to show how 
+the mmap buffer and kevent syscalls would be used (fast path and 
+slow/recovery paths). I am sure it would be easier for everybody to agree on 
+the API *before* you start coding a *lot* of hard (kernel) stuff : It would 
+certainly save your mental CPU cycles (and ours too :) )
 
+This 'real application' could be  the event loop of a simple HTTP server, or a 
+basic 'echo all' server. Adding the bits about timers events and signals 
+should be done too.
 
-
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-
-Don't fail bus_attach_device() if the device cannot be bound.
-
-If dev->driver has been specified, reset it to NULL if device_bind_driver()
-failed and add the device as an unbound device. As a result, bus_attach_device()
-now cannot fail, and we can remove some checking from device_add().
-
-Also remove an unneeded check in bus_rescan_devices_helper().
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-
----
- drivers/base/base.h |    2 +-
- drivers/base/bus.c  |   13 +++++--------
- drivers/base/core.c |    5 +----
- drivers/base/dd.c   |    6 +++++-
- 4 files changed, 12 insertions(+), 14 deletions(-)
-
---- linux-2.6.orig/drivers/base/dd.c
-+++ linux-2.6/drivers/base/dd.c
-@@ -221,7 +221,7 @@ static int device_probe_drivers(void *da
-  *
-  *	Returns 1 if the device was bound to a driver;
-  *	0 if no matching device was found or multithreaded probing is done;
-- *	error code otherwise.
-+ *	-ENODEV if the device is not registered.
-  *
-  *	When called for a USB interface, @dev->parent->sem must be held.
-  */
-@@ -235,6 +235,10 @@ int device_attach(struct device * dev)
- 		ret = device_bind_driver(dev);
- 		if (ret == 0)
- 			ret = 1;
-+		else {
-+			dev->driver = NULL;
-+			ret = 0;
-+		}
- 	} else {
- 		if (dev->bus->multithread_probe)
- 			probe_task = kthread_run(device_probe_drivers, dev,
---- linux-2.6.orig/drivers/base/core.c
-+++ linux-2.6/drivers/base/core.c
-@@ -479,8 +479,7 @@ int device_add(struct device *dev)
- 	if ((error = bus_add_device(dev)))
- 		goto BusError;
- 	kobject_uevent(&dev->kobj, KOBJ_ADD);
--	if ((error = bus_attach_device(dev)))
--		goto AttachError;
-+	bus_attach_device(dev);
- 	if (parent)
- 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
- 
-@@ -499,8 +498,6 @@ int device_add(struct device *dev)
-  	kfree(class_name);
- 	put_device(dev);
- 	return error;
-- AttachError:
--	bus_remove_device(dev);
-  BusError:
- 	device_pm_remove(dev);
-  PMError:
---- linux-2.6.orig/drivers/base/base.h
-+++ linux-2.6/drivers/base/base.h
-@@ -16,7 +16,7 @@ extern int cpu_dev_init(void);
- extern int attribute_container_init(void);
- 
- extern int bus_add_device(struct device * dev);
--extern int bus_attach_device(struct device * dev);
-+extern void bus_attach_device(struct device * dev);
- extern void bus_remove_device(struct device * dev);
- extern struct bus_type *get_bus(struct bus_type * bus);
- extern void put_bus(struct bus_type * bus);
---- linux-2.6.orig/drivers/base/bus.c
-+++ linux-2.6/drivers/base/bus.c
-@@ -406,21 +406,20 @@ out_put:
-  *	- Add device to bus's list of devices.
-  *	- Try to attach to driver.
-  */
--int bus_attach_device(struct device * dev)
-+void bus_attach_device(struct device * dev)
- {
- 	struct bus_type *bus = dev->bus;
--	int ret = 0;
-+	int ret;
- 
- 	if (bus) {
- 		dev->is_registered = 1;
- 		ret = device_attach(dev);
--		if (ret >= 0) {
-+		WARN_ON(ret < 0);
-+		if (ret >= 0)
- 			klist_add_tail(&dev->knode_bus, &bus->klist_devices);
--			ret = 0;
--		} else
-+		else
- 			dev->is_registered = 0;
- 	}
--	return ret;
- }
- 
- /**
-@@ -593,8 +592,6 @@ static int __must_check bus_rescan_devic
- 		ret = device_attach(dev);
- 		if (dev->parent)
- 			up(&dev->parent->sem);
--		if (ret > 0)
--			ret = 0;
- 	}
- 	return ret < 0 ? ret : 0;
- }
+Eric

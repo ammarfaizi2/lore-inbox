@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422983AbWJQCod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423000AbWJQCrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422983AbWJQCod (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 22:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422985AbWJQCod
+	id S1423000AbWJQCrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 22:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423003AbWJQCrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 22:44:33 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:45221 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1422983AbWJQCoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 22:44:32 -0400
-Date: Mon, 16 Oct 2006 22:44:18 -0400
+	Mon, 16 Oct 2006 22:47:12 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:14713 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1423000AbWJQCrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 22:47:10 -0400
+Date: Mon, 16 Oct 2006 22:47:09 -0400
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: raw1394 problems galore
 In-reply-to: <200610161921.22847.dan@dennedy.org>
@@ -19,7 +19,7 @@ Cc: linux1394-user@lists.sourceforge.net,
        For users of Fedora Core releases 
 	<fedora-list@redhat.com>,
        linux-kernel@vger.kernel.org
-Message-id: <45344382.900@verizon.net>
+Message-id: <4534442D.8010200@verizon.net>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Content-transfer-encoding: 7bit
@@ -66,22 +66,9 @@ Dan Dennedy wrote:
 > The majority of problem reports are just the opposite with the majority 
 > resolved by unloading eth1394!
 > 
-After a fresh install of kernel-2.6.18-1.2200.fc5 and friends tonight, 
-it all, for kino-0.9.2, Just Works(TM) with one minor exception.  The 
-sound I hear while not capturing is intermittently all tore up, very 
-choppy.  This effect seems to come and go at random intervals, but I 
-didn't notice it when playing back the capture later.
-
-All previous kernels were 2.6.17-1 with whatever the redhat folks 
-patched in for their usage.
-
-FWIW, even dvcont works now.  So ATM, and until I get that wedding tape 
-into my hands (its at home, while I'm sitting in a motel waiting on a 
-freight shipment that SHOULD have been here Sept 28th, am a happy camper 
-but twiddling my arthritic thumbs to the point of needing pain meds.
-
-In other words, YIPPEE!
+Let me append that with this kernel, gscanbus also works as expected, 
+including controlling the camera.  Wahoo!
 
 -- 
-Cheers everybody, Gene
+Cheers, Gene
 

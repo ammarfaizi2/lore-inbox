@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWJQXRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWJQXTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWJQXRy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 19:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWJQXRy
+	id S1751088AbWJQXTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 19:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWJQXTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 19:17:54 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:20874 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751083AbWJQXRx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 19:17:53 -0400
-Subject: Re: [PATCH] Undeprecate the sysctl system call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: Andrew Morton <akpm@osdl.org>, Randy Dunlap <rdunlap@xenotime.net>,
-       Jan Beulich <jbeulich@novell.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Eric Biederman <ebiederm@xmission.com>
-In-Reply-To: <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-References: <453519EE.76E4.0078.0@novell.com>
-	 <20061017091901.7193312a.rdunlap@xenotime.net>
-	 <Pine.LNX.4.64.0610171401130.10587@lancer.cnet.absolutedigital.net>
-	 <1161123096.5014.0.camel@localhost.localdomain>
-	 <20061017150016.8dbad3c5.akpm@osdl.org>
-	 <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-Content-Type: text/plain
+	Tue, 17 Oct 2006 19:19:20 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:19871 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751088AbWJQXTT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 19:19:19 -0400
+Message-ID: <453564F5.80202@us.ibm.com>
+Date: Tue, 17 Oct 2006 16:19:17 -0700
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI: Processor native C-states using MWAIT
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 00:19:36 +0100
-Message-Id: <1161127177.5014.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-17 am 19:09 -0400, ysgrifennodd Cal Peake:
-> On Tue, 17 Oct 2006, Andrew Morton wrote:
-> 
-> > yes, it appears that we screwed that up, but I haven't got around to thinking about
-> > it yet.
-> 
-> Well, here's a patch that hopefully solves the mess :)
-> 
-> From: Cal Peake <cp@absolutedigital.net>
+This patch breaks C-state discovery on my IBM IntelliStation Z30
+because the return value of acpi_processor_get_power_info_fadt is not
+assigned to "result" in the case that acpi_processor_get_power_info_cst
+returns -ENODEV.  Thus, if ACPI provides C-state data via the FADT and
+not _CST (as is the case on this machine), we incorrectly exit the
+function with -ENODEV after reading the FADT.  The attached patch
+sets the value of result so that we don't exit early.
 
-Acked-by: Alan Cox <alan@redhat.com>
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 
-sysctl() should probably be described as obsolete in the manual pages
-for sysctl(2) but it doesn't want pulling out of the kernel.
+--
 
-Alan
-
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 526387d..5c118cb 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -962,7 +962,7 @@ static int acpi_processor_get_power_info
+ 
+ 	result = acpi_processor_get_power_info_cst(pr);
+ 	if (result == -ENODEV)
+-		acpi_processor_get_power_info_fadt(pr);
++		result = acpi_processor_get_power_info_fadt(pr);
+ 
+ 	if (result)
+ 		return result;

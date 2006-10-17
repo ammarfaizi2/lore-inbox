@@ -1,100 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWJQNuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWJQNwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWJQNuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 09:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWJQNuP
+	id S1750972AbWJQNwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 09:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWJQNwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 09:50:15 -0400
-Received: from web57810.mail.re3.yahoo.com ([68.142.236.88]:18861 "HELO
-	web57810.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1750958AbWJQNuO convert rfc822-to-8bit (ORCPT
+	Tue, 17 Oct 2006 09:52:37 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:33492 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1750972AbWJQNwg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 09:50:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=k444AKpFMsa1D/RVpMdQjNusOivZ8dTxP1Xvs+OBe72a0WaBx1S/egGilrD8kZb1NkUJ2vFUNFi+XcTq13IOLWNut7AaF7gBhS2NN20Sn+jPHY/2NK6TVO99pEpcQs83KdI7yE/zDZvku85rWgdC2c72RpUbF1CdCRa45AN3xA0=  ;
-Message-ID: <20061017135013.19302.qmail@web57810.mail.re3.yahoo.com>
-Date: Tue, 17 Oct 2006 06:50:12 -0700 (PDT)
-From: John Philips <johnphilips42@yahoo.com>
-Subject: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org
+	Tue, 17 Oct 2006 09:52:36 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Tue, 17 Oct 2006 15:52:34 +0200
+User-Agent: KMail/1.9.5
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+References: <11587449471424@2ka.mipt.ru> <200610171519.37051.dada1@cosmosbay.com> <20061017134206.GC20225@2ka.mipt.ru>
+In-Reply-To: <20061017134206.GC20225@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610171552.35470.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 17 October 2006 15:42, Evgeniy Polyakov wrote:
+> On Tue, Oct 17, 2006 at 03:19:36PM +0200, Eric Dumazet (dada1@cosmosbay.com) 
+wrote:
+> > On Tuesday 17 October 2006 12:39, Evgeniy Polyakov wrote:
+> > > I can add such notification, but its existense _is_ the broken design.
+> > > After such condition happend, all new events will dissapear (although
+> > > they are still accessible through usual queue) from mapped buffer.
+> > >
+> > > While writing this I have come to the idea on how to imrove the case of
+> > > the size of mapped buffer - we can make it with limited size, and when
+> > > it is full, some bit will be set in the shared area and obviously no
+> > > new events can be added there, but when user commits some events from
+> > > that buffer (i.e. says to kernel that appropriate kevents can be freed
+> > > or requeued according to theirs flags), new ready events from ready
+> > > queue can be copied into mapped buffer.
+> > >
+> > > It still does not solve (and I do insist that it is broken behaviour)
+> > > the case when kernel is going to generate infinite number of events for
+> > > one requested by userspace (as in case of generating new
+> > > 'data_has_arrived' event when new byte has been received).
+> >
+> > Behavior is not broken. It's quite usefull and works 99.9999% of time.
+> >
+> > I was trying to suggest you but you missed my point.
+> >
+> > You dont want to use a bit, but a full sequence counter, 32bits.
+> >
+> > A program may handle XXX.XXX handles, but use a 4096 entries ring
+> > buffer 'only'.
+> >
+> > The user program keeps a local copy of a special word
+> > named 'ring_buffer_full_counter'
+> >
+> > Each time the kernel cannot queue an event in the ring buffer, it
+> > increase the "ring_buffer_was_full_counter" (exported to user app in the
+> > mmap view)
+> >
+> > When the user application notice the kernel
+> > changed "ring_buffer_was_full_counter" it does a full scan of all file
+> > handles (preferably using poll() to get all relevant info in one syscall)
+> > :
+>
+> I.e. to scan the rest of the xxx.xxx events?
+>
+> > do {
+> >    if (read_event_from_mmap()) {handle_event(fd); continue;}
+> >    /* ring buffer is empty, check if we missed some events */
+> >    if (unlikely(mmap->ring_buffer_full_counter !=
+> > my_ring_buffer_full_counter)) {
+> > 	my_ring_buffer_full_counter = mmap->ring_buffer_full_counter;
+> > 	/* slow PATH */
+> > 	/* can use a big poll() for example, or just a loop without poll() */
+> > 	for_all_file_desc_do() {
+> > 		check if some event/data is waiting on THIS fd
+> > 		}
+> > 	/*
+> > 	}
+> >     else  syscall_wait_for_one_available_kevent(queue)
+> > }
+> >
+> > This is how a program can recover. If ring buffer has a reasonable size,
+> > this kind of event should not happen very frequently. If it does (because
+> > events continue to fill ring_buffer during recovery and might hit FULL
+> > again), maybe a smart program is able to resize the ring_buffer, and
+> > start using it after yet another recovery pass.
+> > If not, we dont care, because a big poll() give us many ready
+> > file-descriptors in one syscall, and maybe this is much better than
+> > kevent/epoll when XX.XXX events are ready.
+>
+> What about the case, which I described in other e-mail, when in case of
+> the full ring buffer, no new events are written there, and when
+> userspace commits (i.e. marks as ready to be freed or requeued by kernel)
+> some events, new ones will be copied from ready queue into the buffer?
 
-I recently upgraded some router/NAT devices from 2.4.25 to 2.6.17.8.  They're using VIA C3 processors and NatSemi DP83815 NICs.
+Then, user might receive 'false events', exactly like poll()/select()/epoll() 
+can do sometime. IE a 'ready' indication while there is no current event 
+available on a particular fd / event_source.
 
-Right after the upgrade I started noticing these error messages on one of the heavier-loaded boxes.  This particular box routes and does NAT for around 400 users, peaking at 6Mb/sec of throughput.
+This should be safe, since those programs already ignore read() 
+returns -EAGAIN and other similar things.
 
-The errors were happening about every 3-5 minutes.  I statically set eth6 to 100baseTX-FD with mii-tool, and now the errors appear every few hours for 10-20 minute stretches.
+Programmer prefers to receive two 'event available' indications than ZERO (and 
+be stuck for infinite time). Of course, hot path (normal cases) should return 
+one 'event' only.
 
-I searched Google and couldn't find any insight (FYI, I'm NOT using the CIPE patches).
-
-Any ideas?
-
-Oct 16 16:51:32 localhost kernel: NETDEV WATCHDOG: eth6: transmit timed out
-Oct 16 16:51:32 localhost kernel: eth6: Transmit timed out, status 0x000000, resetting...
-Oct 16 16:51:32 localhost kernel: eth6: DSPCFG accepted after 0 usec.
-Oct 16 16:51:32 localhost kernel: eth6: Setting full-duplex based on negotiated link capability.
-Oct 16 16:51:36 localhost kernel: NETDEV WATCHDOG: eth6: transmit timed out
-Oct 16 16:51:36 localhost kernel: eth6: Transmit timed out, status 0x000000, resetting...
-Oct 16 16:51:36 localhost kernel: eth6: DSPCFG accepted after 0 usec.
-Oct 16 16:51:36 localhost kernel: eth6: Setting full-duplex based on negotiated link capability.
-Oct 16 16:51:43 localhost kernel: eth6: Transmit timed out, status 0x000000, resetting...
-Oct 16 16:51:43 localhost kernel: NETDEV WATCHDOG: eth6: transmit timed out
-Oct 16 16:51:43 localhost kernel: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-Oct 16 16:51:43 localhost kernel: <c029a975> __kfree_skb+0xa5/0x120  <c0236790> drain_tx+0x20/0x40
-Oct 16 16:51:43 localhost kernel: <c011c0fb> local_bh_enable+0x6b/0x70  <c0310bd1> destroy_conntrack+0x31/0xe0
-Oct 16 16:51:43 localhost kernel: <c02367bf> reinit_ring+0xf/0x50  <c0237fdf> tx_timeout+0x4f/0xe0
-Oct 16 16:51:43 localhost kernel: <c0105d67> timer_interrupt+0x67/0x70  <c02aa500> dev_watchdog+0x0/0xb0
-Oct 16 16:51:43 localhost kernel: <c011bf52> __do_softirq+0x42/0x90  <c011bfc6> do_softirq+0x26/0x30
-Oct 16 16:51:43 localhost kernel: <c02aa5a0> dev_watchdog+0xa0/0xb0  <c011f3f9> run_timer_softirq+0x129/0x170
-Oct 16 16:51:43 localhost kernel: <c0101cab> default_idle+0x2b/0x60  <c0101d1a> cpu_idle+0x3a/0x50
-Oct 16 16:51:43 localhost kernel: <c0104a1e> do_IRQ+0x1e/0x30  <c0102d8a> common_interrupt+0x1a/0x20
-Oct 16 16:51:43 localhost kernel: <c0408676> start_kernel+0x1e6/0x2b0  <c0408220> unknown_bootoption+0x0/0x270
-Oct 16 16:51:43 localhost kernel: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-Oct 16 16:51:43 localhost kernel: <c029a975> __kfree_skb+0xa5/0x120  <c0236790> drain_tx+0x20/0x40
-Oct 16 16:51:43 localhost kernel: <c011c0fb> local_bh_enable+0x6b/0x70  <c0310c16> destroy_conntrack+0x76/0xe0
-Oct 16 16:51:43 localhost kernel: <c02367bf> reinit_ring+0xf/0x50  <c0237fdf> tx_timeout+0x4f/0xe0
-Oct 16 16:51:43 localhost kernel: <c02aa5a0> dev_watchdog+0xa0/0xb0  <c011f3f9> run_timer_softirq+0x129/0x170
-Oct 16 16:51:43 localhost kernel: <c0105d67> timer_interrupt+0x67/0x70  <c02aa500> dev_watchdog+0x0/0xb0
-Oct 16 16:51:43 localhost kernel: <c011bf52> __do_softirq+0x42/0x90  <c011bfc6> do_softirq+0x26/0x30
-Oct 16 16:51:43 localhost kernel: <c0104a1e> do_IRQ+0x1e/0x30  <c0102d8a> common_interrupt+0x1a/0x20
-Oct 16 16:51:43 localhost kernel: <c0101cab> default_idle+0x2b/0x60  <c0101d1a> cpu_idle+0x3a/0x50
-Oct 16 16:51:43 localhost kernel: <c0408676> start_kernel+0x1e6/0x2b0  <c0408220> unknown_bootoption+0x0/0x270
-Oct 16 16:51:43 localhost kernel: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-Oct 16 16:51:43 localhost kernel: <c011c0fb> local_bh_enable+0x6b/0x70  <c0310bd1> destroy_conntrack+0x31/0xe0
-Oct 16 16:51:43 localhost kernel: <c029a975> __kfree_skb+0xa5/0x120  <c0236790> drain_tx+0x20/0x40
-Oct 16 16:51:43 localhost kernel: <c02aa5a0> dev_watchdog+0xa0/0xb0  <c011f3f9> run_timer_softirq+0x129/0x170
-Oct 16 16:51:43 localhost kernel: <c02367bf> reinit_ring+0xf/0x50  <c0237fdf> tx_timeout+0x4f/0xe0
-Oct 16 16:51:43 localhost kernel: <c0105d67> timer_interrupt+0x67/0x70  <c02aa500> dev_watchdog+0x0/0xb0
-Oct 16 16:51:43 localhost kernel: <c011bf52> __do_softirq+0x42/0x90  <c011bfc6> do_softirq+0x26/0x30
-Oct 16 16:51:43 localhost kernel: <c0104a1e> do_IRQ+0x1e/0x30  <c0102d8a> common_interrupt+0x1a/0x20
-Oct 16 16:51:43 localhost kernel: <c0101cab> default_idle+0x2b/0x60  <c0101d1a> cpu_idle+0x3a/0x50
-Oct 16 16:51:43 localhost kernel: <c0408676> start_kernel+0x1e6/0x2b0  <c0408220> unknown_bootoption+0x0/0x270
-Oct 16 16:51:43 localhost kernel: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-Oct 16 16:51:43 localhost kernel: <c011c0fb> local_bh_enable+0x6b/0x70  <c0310c16> destroy_conntrack+0x76/0xe0
-Oct 16 16:51:43 localhost kernel: <c029a975> __kfree_skb+0xa5/0x120  <c0236790> drain_tx+0x20/0x40
-Oct 16 16:51:43 localhost kernel: <c0105d67> timer_interrupt+0x67/0x70  <c02aa500> dev_watchdog+0x0/0xb0
-Oct 16 16:51:43 localhost kernel: <c02aa5a0> dev_watchdog+0xa0/0xb0  <c011f3f9> run_timer_softirq+0x129/0x170
-Oct 16 16:51:43 localhost kernel: <c02367bf> reinit_ring+0xf/0x50  <c0237fdf> tx_timeout+0x4f/0xe0
-Oct 16 16:51:43 localhost kernel: <c0104a1e> do_IRQ+0x1e/0x30  <c0102d8a> common_interrupt+0x1a/0x20
-Oct 16 16:51:43 localhost kernel: <c011bf52> __do_softirq+0x42/0x90  <c011bfc6> do_softirq+0x26/0x30
-Oct 16 16:51:43 localhost kernel: <c0101cab> default_idle+0x2b/0x60  <c0101d1a> cpu_idle+0x3a/0x50
-Oct 16 16:51:43 localhost kernel: <c0408676> start_kernel+0x1e6/0x2b0  <c0408220> unknown_bootoption+0x0/0x270
-Oct 16 16:51:43 localhost kernel: eth6: DSPCFG accepted after 0 usec.
-Oct 16 16:51:43 localhost kernel: eth6: Setting full-duplex based on negotiated link capability.
-Oct 16 16:51:47 localhost kernel: NETDEV WATCHDOG: eth6: transmit timed out
-Oct 16 16:51:47 localhost kernel: eth6: Transmit timed out, status 0x000000, resetting...
-Oct 16 16:51:47 localhost kernel: eth6: DSPCFG accepted after 0 usec.
-Oct 16 16:51:47 localhost kernel: eth6: Setting full-duplex based on negotiated link capability.
-
-
-
+In order words, being ultra fast 99.99 % of the time, but being able to block 
+forever once in a while is not an option.
+ 
+Eric
 

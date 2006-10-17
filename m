@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423118AbWJQFb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423126AbWJQGAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423118AbWJQFb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 01:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423117AbWJQFb7
+	id S1423126AbWJQGAY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 02:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423128AbWJQGAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 01:31:59 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:37255 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S1423114AbWJQFb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 01:31:58 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.4.2.4
-cc: linux-kernel@vger.kernel.org
-Date: Mon, 16 Oct 2006 22:31:56 -0700
-Message-ID: <7vvemjqzhv.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Tue, 17 Oct 2006 02:00:24 -0400
+Received: from relay03.pair.com ([209.68.5.17]:2315 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1423126AbWJQGAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 02:00:23 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Johann Borck <johann.borck@densedata.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+Date: Tue, 17 Oct 2006 00:59:47 -0500
+User-Agent: KMail/1.9.4
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Eric Dumazet <dada1@cosmosbay.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>
+References: <11587449471424@2ka.mipt.ru> <4532C2C5.6080908@redhat.com> <453465B6.1000401@densedata.com>
+In-Reply-To: <453465B6.1000401@densedata.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610170100.10500.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.4.2.4 is available at the
-usual places:
+On Tuesday 17 October 2006 00:09, Johann Borck wrote:
+> Regarding mukevent I'm thinking of a event-type specific struct, that is
+> filled by the originating code, and placed into a per-event-type ring
+> buffer (which  requires modification of kevent_wait).
 
-  http://www.kernel.org/pub/software/scm/git/
+I'd personally worry about an implementation that used a per-event-type ring 
+buffer, because you're still left having to hack around starvation issues in 
+user-space. It is of course possible under the current model for anyone who 
+wants per-event-type ring buffers to have them - just make separate kevent 
+sets.
 
-  git-1.4.2.4.tar.{gz,bz2}			(tarball)
-  git-htmldocs-1.4.2.4.tar.{gz,bz2}		(preformatted docs)
-  git-manpages-1.4.2.4.tar.{gz,bz2}		(preformatted docs)
-  RPMS/$arch/git-*-1.4.2.4-1.$arch.rpm	(RPM)
+I haven't thought this through all the way yet, but why not have variable 
+length event structures and have the kernel fill in a "next" pointer in each 
+one? This could even be used to keep backwards binary compatibility while 
+adding additional fields to the structures over time, though no space would 
+be wasted on modern programs. You still end up with a question of what to do 
+in case of overflow, but I'm thinking the thing to do in that case might be 
+to start pushing overflow events onto a linked list which can be written back 
+into the ring buffer when space becomes available. The appropriate behavior 
+would be to throw new events on the linked list if the linked list had any 
+events, so that things are delivered in order, but write to the mapped buffer 
+directly otherwise.
 
-We are close to 1.4.3, so this update coulc become moot very
-soon, but just in case we have to delay it, I am pushing this
-out for a rather important performance fix.  Without it, "git
-diff" on 64-bit machines can run 100x times slower than it
-should be on unfortunate input.
+Deciding when to do that is tricky, and I haven't thought through the 
+implications fully when I say this, but what about activating a bottom half 
+when more space becomes available, and let that drain overflowed events back 
+into the mapped buffer? Or perhaps the time to do it would be in the next 
+blocking wait, when the queue emptied? 
 
-Many thanks go to Jim Mayering for giving an easy to reproduce
-initial problem report, and Linus and Davide Libenzi to quickly
-come up with a fix.
+I think it is very important to avoid any limits that can not be adjusted on 
+the fly at run-time by CAP_SYS_ADMIN or what have you. Doing it this way may 
+have other problems I've ignored but at least the big one - compile-time 
+capacity limits in the year 2006 - would be largely avoided :P
 
-Unfortunately I do not have access to any RPM capable machine
-other than an x86-64 right now hence there is no RPM for x86-32
-for this release yet (but 32-bit machines do not need this fix
-to begin with, so it's Ok).
+Nothing real solid yet, just some electrical storms in the grey matter...
 
-----------------------------------------------------------------
-
-There is only one change since v1.4.2.3.
-
-Linus Torvalds:
-      Fix hash function in xdiff library
-
-
+Thanks,
+Chase

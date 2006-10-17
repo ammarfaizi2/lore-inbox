@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWJQV1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWJQV1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWJQV1j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 17:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWJQV1g
+	id S1750733AbWJQV1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 17:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWJQV1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 17:27:36 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:30587 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750754AbWJQV1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 17:27:18 -0400
+	Tue, 17 Oct 2006 17:27:39 -0400
+Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:36440 "HELO
+	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750725AbWJQV1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 17:27:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
   h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=Si/w3VvCSx2uLVWMvLpum2/JSJqkaz2x9n7nBnOL6iYahecrrsF01aZwHmopFlzG4PNal4SFDGTiGpEYz8jaqERzGRQLeg6VGPshdEV0Fkq6w4qzm7IefSrCJTLp6X6IrzRiK98J8t+r3q//KtR7gP8U+ZoH6x1wQYe6Zb763po=  ;
+  b=WqoatGwo3FKU6CmnGAZqbC2n7QIEiBwVXXY0uyFYc6hlBfmRK8hBUcW6BLGBBM6X/lqzgiAQ5jzVSmw/PxVGSAWl/1byKRJjKCyFFMDTvV8vfuQtNtxdN9qbHWKD87KsjWCGUHq9pZp1OSd13EbzL3RgR3hTHQ2RZ1zsHi9RY28=  ;
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 07/10] uml: use DEFCONFIG_LIST to avoid reading host's config
-Date: Tue, 17 Oct 2006 23:27:17 +0200
+Subject: [PATCH 05/10] uml: code convention cleanup of a file
+Date: Tue, 17 Oct 2006 23:27:13 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061017212717.26445.77935.stgit@americanbeauty.home.lan>
+Message-Id: <20061017212713.26445.72572.stgit@americanbeauty.home.lan>
 In-Reply-To: <20061017211943.26445.75719.stgit@americanbeauty.home.lan>
 References: <20061017211943.26445.75719.stgit@americanbeauty.home.lan>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -30,77 +30,156 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-This should make sure that, for UML, host's configuration files are not
-considered, which avoids various pains to the user. Our dependency are such that
-the obtained Kconfig will be valid and will lead to successful compilation -
-however they cannot prevent an user from disabling any boot device, and if an
-option is not set in the read .config (say /boot/config-XXX), with make
-menuconfig ARCH=um, it is not set. This always disables UBD and all console I/O
-channels, which leads to non-working UML kernels, so this bothers users -
-especially now, since it will happen on almost every machine
-(/boot/config-`uname -r` exists almost on every machine). It can be workarounded
-with make defconfig ARCH=um, but it is non-obvious and can be avoided, so please
-_do_ merge this patch.
+Fix coding conventions violations is arch/um/os-Linux/helper.c.
 
-Given the existence of options, it could be interesting to implement
-(additionally) "option required" - with it, Kconfig will refuse reading a
-.config file (from wherever it comes) if the given option is not set. With this,
-one could mark with it the option characteristic of the given architecture (it
-was an old proposal of Roman Zippel, when I pointed out our problem):
-
-config UML
-	option required
-	default y
-
-However this should be further discussed:
-*) for x86, it must support constructs like:
-
-==arch/i386/Kconfig==
-config 64BIT
-	option required
-	default n
-where Kconfig must require that CONFIG_64BIT is disabled or not present in the
-read .config.
-
-*) do we want to do such checks only for the starting defconfig or also for
-   .config? Which leads to:
-*) I may want to port a x86_64 .config to x86 and viceversa, or even among more
-   different archs. Should that be allowed, and in which measure (the user may
-   force skipping the check for a .config or it is only given a warning by
-   default)?
-
-Cc: Roman Zippel <zippel@linux-m68k.org>
-Cc: kbuild-devel@lists.sourceforge.net
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/Kconfig |    5 +++++
- init/Kconfig    |    1 +
- 2 files changed, 6 insertions(+), 0 deletions(-)
+ arch/um/os-Linux/helper.c |   53 ++++++++++++++++++++++++---------------------
+ 1 files changed, 28 insertions(+), 25 deletions(-)
 
-diff --git a/arch/um/Kconfig b/arch/um/Kconfig
-index 78fb619..1e068b4 100644
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -1,3 +1,8 @@
-+config DEFCONFIG_LIST
-+	string
-+	option defconfig_list
-+	default "arch/$ARCH/defconfig"
-+
- # UML uses the generic IRQ sugsystem
- config GENERIC_HARDIRQS
- 	bool
-diff --git a/init/Kconfig b/init/Kconfig
-index 1038293..c8b2624 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1,5 +1,6 @@
- config DEFCONFIG_LIST
- 	string
-+	depends on !UML
- 	option defconfig_list
- 	default "/lib/modules/$UNAME_RELEASE/.config"
- 	default "/etc/kernel-config"
+diff --git a/arch/um/os-Linux/helper.c b/arch/um/os-Linux/helper.c
+index f72c512..e887179 100644
+--- a/arch/um/os-Linux/helper.c
++++ b/arch/um/os-Linux/helper.c
+@@ -38,17 +38,17 @@ static int helper_child(void *arg)
+ 	char **argv = data->argv;
+ 	int errval;
+ 
+-	if(helper_pause){
++	if (helper_pause) {
+ 		signal(SIGHUP, helper_hup);
+ 		pause();
+ 	}
+-	if(data->pre_exec != NULL)
++	if (data->pre_exec != NULL)
+ 		(*data->pre_exec)(data->pre_data);
+ 	errval = execvp_noalloc(data->buf, argv[0], argv);
+ 	printk("helper_child - execvp of '%s' failed - errno = %d\n", argv[0], -errval);
+ 	os_write_file(data->fd, &errval, sizeof(errval));
+ 	kill(os_getpid(), SIGKILL);
+-	return(0);
++	return 0;
+ }
+ 
+ /* Returns either the pid of the child process we run or -E* on failure.
+@@ -60,20 +60,21 @@ int run_helper(void (*pre_exec)(void *),
+ 	unsigned long stack, sp;
+ 	int pid, fds[2], ret, n;
+ 
+-	if((stack_out != NULL) && (*stack_out != 0))
++	if ((stack_out != NULL) && (*stack_out != 0))
+ 		stack = *stack_out;
+-	else stack = alloc_stack(0, __cant_sleep());
+-	if(stack == 0)
++	else
++		stack = alloc_stack(0, __cant_sleep());
++	if (stack == 0)
+ 		return -ENOMEM;
+ 
+ 	ret = os_pipe(fds, 1, 0);
+-	if(ret < 0){
++	if (ret < 0) {
+ 		printk("run_helper : pipe failed, ret = %d\n", -ret);
+ 		goto out_free;
+ 	}
+ 
+ 	ret = os_set_exec_close(fds[1], 1);
+-	if(ret < 0){
++	if (ret < 0) {
+ 		printk("run_helper : setting FD_CLOEXEC failed, ret = %d\n",
+ 		       -ret);
+ 		goto out_close;
+@@ -86,7 +87,7 @@ int run_helper(void (*pre_exec)(void *),
+ 	data.fd = fds[1];
+ 	data.buf = __cant_sleep() ? um_kmalloc_atomic(PATH_MAX) : um_kmalloc(PATH_MAX);
+ 	pid = clone(helper_child, (void *) sp, CLONE_VM | SIGCHLD, &data);
+-	if(pid < 0){
++	if (pid < 0) {
+ 		ret = -errno;
+ 		printk("run_helper : clone failed, errno = %d\n", errno);
+ 		goto out_free2;
+@@ -98,10 +99,10 @@ int run_helper(void (*pre_exec)(void *),
+ 	/* Read the errno value from the child, if the exec failed, or get 0 if
+ 	 * the exec succeeded because the pipe fd was set as close-on-exec. */
+ 	n = os_read_file(fds[0], &ret, sizeof(ret));
+-	if(n == 0)
++	if (n == 0) {
+ 		ret = pid;
+-	else {
+-		if(n < 0){
++	} else {
++		if (n < 0) {
+ 			printk("run_helper : read on pipe failed, ret = %d\n",
+ 			       -n);
+ 			ret = n;
+@@ -117,10 +118,11 @@ out_close:
+ 		close(fds[1]);
+ 	close(fds[0]);
+ out_free:
+-	if(stack_out == NULL)
++	if (stack_out == NULL)
+ 		free_stack(stack, 0);
+-	else *stack_out = stack;
+-	return(ret);
++	else
++		*stack_out = stack;
++	return ret;
+ }
+ 
+ int run_helper_thread(int (*proc)(void *), void *arg, unsigned int flags,
+@@ -130,31 +132,32 @@ int run_helper_thread(int (*proc)(void *
+ 	int pid, status, err;
+ 
+ 	stack = alloc_stack(stack_order, __cant_sleep());
+-	if(stack == 0) return(-ENOMEM);
++	if (stack == 0)
++		return -ENOMEM;
+ 
+ 	sp = stack + (page_size() << stack_order) - sizeof(void *);
+ 	pid = clone(proc, (void *) sp, flags | SIGCHLD, arg);
+-	if(pid < 0){
++	if (pid < 0) {
+ 		err = -errno;
+ 		printk("run_helper_thread : clone failed, errno = %d\n",
+ 		       errno);
+ 		return err;
+ 	}
+-	if(stack_out == NULL){
++	if (stack_out == NULL) {
+ 		CATCH_EINTR(pid = waitpid(pid, &status, 0));
+-		if(pid < 0){
++		if (pid < 0) {
+ 			err = -errno;
+ 			printk("run_helper_thread - wait failed, errno = %d\n",
+ 			       errno);
+ 			pid = err;
+ 		}
+-		if(!WIFEXITED(status) || (WEXITSTATUS(status) != 0))
++		if (!WIFEXITED(status) || (WEXITSTATUS(status) != 0))
+ 			printk("run_helper_thread - thread returned status "
+ 			       "0x%x\n", status);
+ 		free_stack(stack, stack_order);
+-	}
+-	else *stack_out = stack;
+-	return(pid);
++	} else
++		*stack_out = stack;
++	return pid;
+ }
+ 
+ int helper_wait(int pid)
+@@ -162,9 +165,9 @@ int helper_wait(int pid)
+ 	int ret;
+ 
+ 	CATCH_EINTR(ret = waitpid(pid, NULL, WNOHANG));
+-	if(ret < 0){
++	if (ret < 0) {
+ 		ret = -errno;
+ 		printk("helper_wait : waitpid failed, errno = %d\n", errno);
+ 	}
+-	return(ret);
++	return ret;
+ }
 Chiacchiera con i tuoi amici in tempo reale! 
  http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWJQP3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWJQP3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWJQP3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 11:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWJQP3I
+	id S1751138AbWJQP3o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 11:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWJQP3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 11:29:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16011 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751134AbWJQP3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 11:29:06 -0400
-Date: Tue, 17 Oct 2006 08:28:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [RFC] typechecking for get_unaligned/put_unaligned 
-In-Reply-To: <27543.1161075840@redhat.com>
-Message-ID: <Pine.LNX.4.64.0610170825581.3962@g5.osdl.org>
-References: <20061017005025.GF29920@ftp.linux.org.uk>  <27543.1161075840@redhat.com>
+	Tue, 17 Oct 2006 11:29:44 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:53770 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751138AbWJQP3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 11:29:43 -0400
+Date: Tue, 17 Oct 2006 11:29:42 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+In-Reply-To: <20061017012448.GB1781@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610171115500.6016-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Oct 2006, Paul E. McKenney wrote:
 
-
-On Tue, 17 Oct 2006, David Howells wrote:
-
-> Al Viro <viro@ftp.linux.org.uk> wrote:
+> > The reason I don't like "conditionally precedes" is because it suggests
+> > the ordering is not automatic even in the single-CPU case.
 > 
-> > 	* sizeof(*ptr) should be one of 1, 2, 4, 8
-> 
-> Should we give an error if someone tries passing a 1-byte-sized memory location
-> to get/put_unaligned()?  I suspect it might be best to reduce to a trivial
-> direct assignment in that case.
+> Aside from MMIO accesses, why would you be using memory barriers in the
+> single-CPU case?
 
-Note that in some cases, you have different architectures having different 
-sizes, and it could potentially be the case that one architecture has a 
-1-byte thing, and another has a 2-byte thing.
+Obviously you wouldn't.  But you might be fooled into doing so if you saw
+the term "conditionally precedes" together with an explanation that the
+"condition" requires a memory barrier to be present.  You might also draw
+this erroneous conclusion if you are on an SMP system but your variable is
+accessed by only one of the CPUs.
 
-It's unlikely to be an issue for single-byte cases, but it definitely 
-happens for other equivalent things (ie "get_user()" often has 2 vs 4-byte 
-accesses, and obviously the 4- vs 8-byte thing through 32/64-bit values 
-depending on the size of the machine).
+>  If you aren't using memory barriers, then just plain
+> "precedes" works fine -- "conditionally precedes" applies only to memory
+> barriers acting on normal memory (again, MMIO is handled specially).
 
-So at least in _theory_ it's quite possible that a single-byte access can 
-make sense, simply because the size might depend on a config option.
+No, no!  Taken out of context this sentence looks terribly confused.  
+Read it again and you'll see what I mean.  (Think about what it says for
+people who don't use memory barriers on SMP systems.)  Here's a much more
+accurate statement:
 
-		Linus
+	If you are in the single-CPU case then just plain "precedes" 
+	works fine for normal memory accesses (MMIO is handled
+	specially).
+
+	But when multiple CPUs access the same variable all ordering
+	is "conditional"; each CPU must use a memory barrier to
+	guarantee the desired ordering.
+
+Alan
+

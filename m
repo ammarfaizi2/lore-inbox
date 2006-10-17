@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423159AbWJQI3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423171AbWJQIg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423159AbWJQI3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 04:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423160AbWJQI3U
+	id S1423171AbWJQIg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 04:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423169AbWJQIg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 04:29:20 -0400
-Received: from shoshil.marvell.com ([199.203.130.250]:47189 "EHLO
-	il.marvell.com") by vger.kernel.org with ESMTP id S1423159AbWJQI3T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 04:29:19 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: DIrect-IO using kernel buffers
-Date: Tue, 17 Oct 2006 10:28:40 +0200
-Message-ID: <B9FFC3F97441D04093A504CEA31B7C41E9179C@msilexch01.marvell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: DIrect-IO using kernel buffers
-Thread-Index: AcbxNWs1rrdfcuX0RIKTlTAH4rjFXQAkI0LQ
-From: "Ronen Shitrit" <rshitrit@marvell.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Linux Memory Management" <linux-mm@kvack.org>
+	Tue, 17 Oct 2006 04:36:57 -0400
+Received: from poczta.o2.pl ([193.17.41.142]:28035 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1423167AbWJQIg4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 04:36:56 -0400
+Date: Tue, 17 Oct 2006 10:41:57 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
+Subject: Re: Linux 2.6.17.14
+Message-ID: <20061017084157.GC1742@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	davem@davemloft.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061016220426.GA9194@kroah.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On 17-10-2006 00:04, Greg KH wrote:
+...
+> diff --git a/net/sched/cls_basic.c b/net/sched/cls_basic.c
+> index dfb300b..0f42544 100644
+> --- a/net/sched/cls_basic.c
+> +++ b/net/sched/cls_basic.c
+> @@ -197,7 +197,7 @@ static int basic_change(struct tcf_proto
+>  	if (handle)
+>  		f->handle = handle;
+>  	else {
+> -		int i = 0x80000000;
+> +		unsigned int i = 0x80000000;
+>  		do {
+>  			if (++head->hgenerator == 0x7FFFFFFF)
+>  				head->hgenerator = 1;
 
-I'm using kernel 2.6.12.
-I'm trying to improve the usb gadget file storage implementation by
-making it accessing the file storage with O_DIRECT,
-In general what I'm trying to do is use DirectIO with buffer which was
-allocated by kmalloc.
+		} while (--i > 0 && basic_get(tp, head->hgenerator));
 
-When trying to do so I get kernel panic, after some debug, I found that
-I can't call get_user_pages on pages allocated by the kernel (kmalloc),
-Is it correct??
-Any way, I implemented some basic function get_kernel_pages to fill the
-page array with the pages pointer of the kernel buffer,
-Then I got lots of errors on illegal buffer freeing, I did some more
-debug and I found that the direct-io is using the get_page and put_page
-in order to increment the counter of the page and to make sure no one
-will release them while the direct-io is using them, after the direct-io
-is doing put_page it check if the page_count is 0, if so it release it
-(see page_cache_release in direct-io.c), by doing this the direct-io is
-trying to release the pages which I allocated by kmalloc and I get
-errors.
-So what I get is that the direct-io increments the count and then
-decrements it and the count get to zero,
-So I checked the count of the pages which I got from kmalloc and I found
-that only the first page count is 0 (i.e. one process is using it) and
-the rest were initialized by -1 (i.e. no process is using this buffer),
-Is this a bug??
-Any suggestion on how to use DirectIO with kernel buffers??
+		if (i <= 0) {
+...
 
-Regards
-Ronen Shitrit
+I know it should be seen earlier but maybe somebody
+should make it less funny at a next chance:
 
+		if (i == 0) {
+ 
+Jarek P.

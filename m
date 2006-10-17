@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422953AbWJQABy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422962AbWJQAE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422953AbWJQABy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 20:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422959AbWJQABy
+	id S1422962AbWJQAE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 20:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422957AbWJQAE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 20:01:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59588 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422953AbWJQABw (ORCPT
+	Mon, 16 Oct 2006 20:04:28 -0400
+Received: from rtr.ca ([64.26.128.89]:40465 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1422954AbWJQAE1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 20:01:52 -0400
-Date: Mon, 16 Oct 2006 16:58:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: Steve Fox <drfickle@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Martin Bligh <mbligh@mbligh.org>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       kmannth@us.ibm.com, Andy Whitcroft <apw@shadowen.org>,
-       Adrian Bunk <bunk@stusta.de>, Mel Gorman <mel@csn.ul.ie>
-Subject: Re: 2.6.18-mm2 boot failure on x86-64
-Message-Id: <20061016165814.13b99e5e.akpm@osdl.org>
-In-Reply-To: <20061016181613.GA30090@in.ibm.com>
-References: <200610052105.00359.ak@suse.de>
-	<1160080954.29690.44.camel@flooterbu>
-	<200610052250.55146.ak@suse.de>
-	<1160101394.29690.48.camel@flooterbu>
-	<20061006143312.GB9881@skynet.ie>
-	<20061006153629.GA19756@in.ibm.com>
-	<20061006171105.GC9881@skynet.ie>
-	<1160157830.29690.66.camel@flooterbu>
-	<20061006200436.GG19756@in.ibm.com>
-	<Pine.LNX.4.64.0610091049390.30765@skynet.skynet.ie>
-	<20061016181613.GA30090@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Oct 2006 20:04:27 -0400
+Message-ID: <45341E08.9040100@rtr.ca>
+Date: Mon, 16 Oct 2006 20:04:24 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Mark Lord <liml@rtr.ca>, Jens Axboe <jens.axboe@oracle.com>,
+       Allen Martin <AMartin@nvidia.com>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       prakash@punnoor.de
+Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com> <452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk> <452F053B.2000906@shaw.ca> <4533B0B3.8070205@rtr.ca> <4534185C.9060401@shaw.ca>
+In-Reply-To: <4534185C.9060401@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Oct 2006 14:16:13 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+Robert Hancock wrote:
+> Mark Lord wrote:
+>> Robert Hancock wrote:
+..
+>> Be careful of that.  The original PDC hardware for ADMA still had
+>> the "don't cross a 64KB boundary" requirement.
+..
+> That is part of the ADMA spec - but in that case, how come the 
+> pdc_adma.c driver sets the dma_boundary in the SCSI host template to 
+> 4GB? That seems wrong.
 
-> 
-> Can you please have a look at the attached patch
+Ah, you are correct.  My memory is fading of such things.
+The PDC parts are good for 2^34 transfer sizes (bytes).
 
-Looks like a fine patch to me, although it could benefit from a comment
-explaining why all those PAGE_ALIGN()s are in there.
-
-> and include it in -mm.
-
-Does it fix a patch in -mm or is it needed in mainline?
-
-
+Cheers

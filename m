@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423200AbWJQJod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWJQJp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423200AbWJQJod (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 05:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423201AbWJQJod
+	id S1161031AbWJQJp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 05:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423202AbWJQJp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 05:44:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:41151 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423200AbWJQJoc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 05:44:32 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 17 Oct 2006 05:45:59 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:38771 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161031AbWJQJp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 05:45:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Lz7GccrW7LWr9eJ8bAaa18XMalCawDTSU0llPAr3fMiWUD5sUFoiu7yAbjx7dTtYaPrmcKR5E8mu6TLpUzRxStOAJDZDscGmDdmsdxezQtiNhdIdg4ErFsKQXvC0coKDAZVRGtIunL5opI+K1+HzjSEtThnTFVTxG1pr2TGOTD4=
+Message-ID: <3420082f0610170245x1a3fa82ft88246b25cab09942@mail.gmail.com>
+Date: Tue, 17 Oct 2006 14:45:57 +0500
+From: "Irfan Habib" <irfan.habib@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: [PATCH RFC] kbuild: more headers_check fix for non-in-tree builds (was [BUG 2.6.19-rc2-g51018b0a] No rule to make target /mnt/md0/devel/linux-git/include/linux/version.h)
-Date: Tue, 17 Oct 2006 09:43:42 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnej8vcn.2lu.olecom@flower.upol.cz>
-References: <6bffcb0e0610160352h2bd86f33x72c438c7e8bdf810@mail.gmail.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>,  LKML <linux-kernel@vger.kernel.org>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+Subject: getting a return from a system call
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-"'objhdr-y' are generated files", thus they are not in $(srctree).
-Kbuild.include already included in root Makefile.
+I'm trying to build a system call which returns a float, and is defined as :
+asmlinkage float sys_ph_pinfo(int pid, int mode)
 
-Signed-off-by: Oleg Verych <olecom@flower.upol.cz>
+but in a user level program every time, I evaluate it, I always get a return 0!
+How do I capture the return of a system call?
 
----
- scripts/Makefile.headersinst |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Also is it possible that a system call return a structure or array?
+Will that be available in user space? My hunch is that this is not
+possible, as kernel memory space is disjoint form the user memory
+space, but just for information.
 
-Index: linux-2.6.19-rc2/scripts/Makefile.headersinst
-===================================================================
---- linux-2.6.19-rc2.orig/scripts/Makefile.headersinst	2006-10-17 06:31:48.379349215 +0000
-+++ linux-2.6.19-rc2/scripts/Makefile.headersinst	2006-10-17 06:32:30.161730257 +0000
-@@ -39,8 +39,6 @@
- 
- include $(KBUILDFILES)
- 
--include scripts/Kbuild.include 
--
- # If this is include/asm-$(ARCH) and there's no $(ALTARCH), then
- # override $(_dst) so that we install to include/asm directly.
- # Unless $(BIASMDIR) is set, in which case we're probably doing
-@@ -168,7 +166,7 @@
- 	$(call cmd,gen)
- 
- else
--$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-+$(objhdr-y) : $(INSTALL_HDR_PATH)/$(_dst)/%.h: $(obj)/%.h $(KBUILDFILES)
- 	$(call cmd,o_hdr_install)
- 
- $(header-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-
-
-
+Regards,
+Irfan

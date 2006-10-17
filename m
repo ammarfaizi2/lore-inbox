@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423185AbWJQJYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWJQJfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423185AbWJQJYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 05:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423184AbWJQJYN
+	id S1422677AbWJQJfE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 05:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWJQJfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 05:24:13 -0400
-Received: from science.horizon.com ([192.35.100.1]:50489 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1423185AbWJQJYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 05:24:12 -0400
-Date: 17 Oct 2006 05:24:10 -0400
-Message-ID: <20061017092410.16731.qmail@science.horizon.com>
-From: linux@horizon.com
-To: gk@garethknight.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic signal code (small new feature - userspace signal mask), kernel 2.6.16
-Cc: ak@suse.de, linux@horizon.com, torvalds@osdl.org
+	Tue, 17 Oct 2006 05:35:03 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:41295 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1161041AbWJQJfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 05:35:01 -0400
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Linux Memory Management <linux-mm@kvack.org>
+Subject: [PATCH] mm:D-cache aliasing issue in cow_user_page
+From: Dmitriy Monakhov <dmonakhov@openvz.org>
+Date: Tue, 17 Oct 2006 13:15:37 +0400
+Message-ID: <8764ejqp52.fsf@sw.ru>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is a proposed addition to the linux kernel to reduce the  
-> overhead required to mask signals.  The intended usage is an  
-> application with critical sections that need to be guarded against  
-> deadlock by preventing signals from being delivered whilst inside one  
-> of the critical sections.  Currently such applications may be very  
-> heavy users of the sigprocmask syscall, this proposal provides an  
-> additional signal mask stored in userspace that can be updated with a  
-> simple store rather than a syscall.
+--=-=-=
 
-Wouldn't a simpler solution be to provide a way to cancel signal
-delivery after it's hit user-space?
+ from mm/memory.c:
+  1434  static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va)
+  1435  {
+  1436          /*
+  1437           * If the source page was a PFN mapping, we don't have
+  1438           * a "struct page" for it. We do a best-effort copy by
+  1439           * just copying from the original user address. If that
+  1440           * fails, we just zero-fill it. Live with it.
+  1441           */
+  1442          if (unlikely(!src)) {
+  1443                  void *kaddr = kmap_atomic(dst, KM_USER0);
+  1444                  void __user *uaddr = (void __user *)(va & PAGE_MASK);
+  1445  
+  1446                  /*
+  1447                   * This really shouldn't fail, because the page is there
+  1448                   * in the page tables. But it might just be unreadable,
+  1449                   * in which case we just give up and fill the result with
+  1450                   * zeroes.
+  1451                   */
+  1452                  if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
+  1453                          memset(kaddr, 0, PAGE_SIZE);
+  1454                  kunmap_atomic(kaddr, KM_USER0);
+  #### D-cache have to be flushed here.
+  #### It seems it is just forgotten.
 
-Then user space can keep its own block mask, which is maintained as
-a superset of the kernel block mask.  Then a critical section would,
-in the fast path, proceed like:
+  1455                  return;
+  1456                  
+  1457          }
+  1458          copy_user_highpage(dst, src, va);
+  #### Ok here. flush_dcache_page() called from this func if arch need it 
+  1459  }
 
-- Block signals -> Noted in user-space only
-- Do critical section (part 1)
-- Do critical section (part 2)
-- Unblock signals -> Noted in user-space only
-- More code
+Following is the patch  fix this issue:
+Signed-off-by: Dmitriy Monakhov <dmonakhov@openvz.org>
+---
 
-And if something bad happened
+--=-=-=
+Content-Disposition: inline;
+  filename=d-cache-aliasing-issue-in-cow-user-page.patch
 
-- Block signals -> Noted in user-space only
-- Do critical section (part 1)
-  - Signal arrives
-  - Test against user-space mask
-  - Tell kernel about all blocked signals -> Note new kernel mask
-  - Return "please try again later" from signal handler
-- Do critical section (part 2)
-- Unblock signals -> Note that it's less than kernel mask
-  - Tell kernel about newly unblocked signals
-  - Signal arrives (again)
-  - Test against user-space mask
-  - Call registered signal handler
-  - Return "signal handled"
-- More code
-   
-This does do the whole signal delivery dance twice if it gets unlucky,
-but keeps a conceptually simpler kernel interface.
+diff --git a/mm/memory.c b/mm/memory.c
+index b5a4aad..156861f 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1452,6 +1452,7 @@ static inline void cow_user_page(struct 
+ 		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
+ 			memset(kaddr, 0, PAGE_SIZE);
+ 		kunmap_atomic(kaddr, KM_USER0);
++		flush_dcache_page(dst);
+ 		return;
+ 		
+ 	}
 
-The one thing that might be complicated is pthread signal delivery.
-"Please try again later" could need to go back to the process layer and
-immediately re-deliver it to a different thread.
+--=-=-=
+
+---
+
+--=-=-=--
+

@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWJQTgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWJQTiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWJQTgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWJQTgJ
+	id S1751197AbWJQTiq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWJQTiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:36:09 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:64796 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1751192AbWJQTgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:36:08 -0400
-Date: Tue, 17 Oct 2006 21:36:45 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
-Message-ID: <20061017193645.GM7854@kernel.dk>
-References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr> <200610171857.k9HIvq1M009488@turing-police.cc.vt.edu> <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Oct 2006 15:38:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:57180 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751197AbWJQTip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 15:38:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Cax167AIbbdTjIlvdsTysMy3MTPBuNdNEMAoREfQ7nKBypBIaeHfKShVWKKCctt8lBrb5m+cp5kZvo/rfc4DKjX7asTLP3dIG8iJqjg5JHOq+gs8p4UhX9u7DcO9LanTG2yJ2Xl87NvdxHT6Lh/5T2TVaHUkLNQ+pr883shei1I=
+Message-ID: <84144f020610171238m59b534acrf817142320af0eec@mail.gmail.com>
+Date: Tue, 17 Oct 2006 22:38:42 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Luca Tettamanti" <kronos.it@gmail.com>
+Subject: Re: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Cc: linux-kernel@vger.kernel.org, "Ismail Donmez" <ismail@pardus.org.tr>,
+       "Joerg Schilling" <schilling@fokus.fraunhofer.de>
+In-Reply-To: <20061017180210.GA20287@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr>
+References: <200610172041.42873.ismail@pardus.org.tr>
+	 <20061017180210.GA20287@dreamland.darkstar.lan>
+X-Google-Sender-Auth: 42af77609aff9a6a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17 2006, Jan Engelhardt wrote:
-> 
-> >> fs/Kconfig has:
-> >> 
-> >> if BLOCK
-> >> menu "DOS/FAT/NT Filesystems"
-> >
-> >> Why is it wrapped into BLOCK, or, why are all of the other filesystems 
-> >> which require a block device?
-> >
-> >Some filesystems (such as /proc, /sys, and so on - basicaly, the "pseudo" file
-> >systems) are able to stand by themselves.  Filesystems that read actual blocks
-> >of data off actual media will require the services of the block layer to do
-> >that.  So if you've built a tiny embedded kernel that doesn't include the block
-> >layer, you can't read those sorts of filesystems....
-> 
-> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
-> of being wrapped into if BLOCK. Not really consistent but whatever.
+On 10/17/06, Luca Tettamanti <kronos.it@gmail.com> wrote:
+> Now, who is in charge of isofs?
 
-Feel free to send in patches that make things more consistent.
+Try fsdevel and/or akpm.
 
--- 
-Jens Axboe
-
+                             Pekka

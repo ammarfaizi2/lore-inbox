@@ -1,107 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWJQPdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWJQPeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWJQPdj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 11:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWJQPdj
+	id S1751149AbWJQPeu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 11:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWJQPeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 11:33:39 -0400
-Received: from berlioz.imada.sdu.dk ([130.225.128.12]:18678 "EHLO
-	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
-	id S1751139AbWJQPdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 11:33:38 -0400
-From: Hans Henrik Happe <hhh@imada.sdu.dk>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [take19 1/4] kevent: Core files.
-Date: Tue, 17 Oct 2006 17:33:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Johann Borck <johann.borck@densedata.com>,
-       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-References: <11587449471424@2ka.mipt.ru> <20061017140740.GA20686@2ka.mipt.ru> <200610171625.00515.dada1@cosmosbay.com>
-In-Reply-To: <200610171625.00515.dada1@cosmosbay.com>
+	Tue, 17 Oct 2006 11:34:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:10113 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751149AbWJQPes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 11:34:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=jg8TGpMoAN45HVyAQ014L6orTAe11s5mnph4kO66fiLSP8GYV0XCnmhbBQfuBpUx0GAbmhcZHLZT+z/AtR9zTj8VzJgs4aTr+sM2Ri1RezfMoGQY9LxvNmW8LNoNW0ni0QFtGIZNj0v3TvXVWLddwTeYdfeqIMBAID/mBIymR6I=
+Message-ID: <86802c440610170834q5921908u5bcd7c2cb4b78dd5@mail.gmail.com>
+Date: Tue, 17 Oct 2006 08:34:47 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+Subject: Re: [PATCH] x86_64: store Socket ID in phys_proc_id
+Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D6E3@ssvlexmb2.amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610171733.31710.hhh@imada.sdu.dk>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_98416_30282581.1161099287030"
+References: <5986589C150B2F49A46483AC44C7BCA412D6E3@ssvlexmb2.amd.com>
+X-Google-Sender-Auth: 3f01ef9e650977b6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 16:25, Eric Dumazet wrote:
-> On Tuesday 17 October 2006 16:07, Evgeniy Polyakov wrote:
-> > On Tue, Oct 17, 2006 at 03:52:34PM +0200, Eric Dumazet 
-(dada1@cosmosbay.com) 
-> wrote:
-> > > > What about the case, which I described in other e-mail, when in case 
-of
-> > > > the full ring buffer, no new events are written there, and when
-> > > > userspace commits (i.e. marks as ready to be freed or requeued by
-> > > > kernel) some events, new ones will be copied from ready queue into the
-> > > > buffer?
-> > >
-> > > Then, user might receive 'false events', exactly like
-> > > poll()/select()/epoll() can do sometime. IE a 'ready' indication while
-> > > there is no current event available on a particular fd / event_source.
-> >
-> > Only if user simultaneously uses oth interfaces and remove even from the
-> > queue when it's copy was in mapped buffer, but in that case it's user's
-> > problem (and if we do want, we can store pointer/index of the ring
-> > buffer entry, so when event is removed from the ready queue (using
-> > kevent_get_events()), appropriate entry in the ring buffer will be
-> > updated to show that it is no longer valid.
-> >
-> > > This should be safe, since those programs already ignore read()
-> > > returns -EAGAIN and other similar things.
-> > >
-> > > Programmer prefers to receive two 'event available' indications than 
-ZERO
-> > > (and be stuck for infinite time). Of course, hot path (normal cases)
-> > > should return one 'event' only.
-> > >
-> > > In order words, being ultra fast 99.99 % of the time, but being able to
-> > > block forever once in a while is not an option.
-> >
-> > Have I missed something? It looks like the only problematic situation is
-> > described above when user simultaneously uses both interfaces.
-> 
-> In my point of view, user of the 'mmaped ring buffer' should be prepared to 
-> use both interfaces. Or else you are forced to presize the ring buffer to 
-> insane limits.
+------=_Part_98416_30282581.1161099287030
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I don't see why overflow couldn't be handle by a syscall telling the kernel 
-that the buffer is ready for new events. As mentioned most of the time 
-overflow should not happend and if it does the syscall should be amortized 
-nicely by the number of events.
+Current code store phys_proc_id with init APIC ID, and later will change
+to apicid>>bits.
 
-> That is :
-> - Most of the time, we expect consuming events via mmaped ring buffer and no 
-> syscalls.
-> - In case we notice a 'mmaped ring buffer overflow', syscalls to get/consume 
-> events that could not be stored in mmaped buffer (but queued by kevent 
-> subsystem). If not stored by kevent subsystem (memory failure ?), revert to 
-> poll() to fetch all 'missed fds' in one row. Go back to normal mode.
-> 
-> - In case of empty ring buffer (or no mmap support at all, because this app 
-> doesnt expect lot of events per time unit, or because kevent dont have mmap 
-> support) : Be able to syscall and wait for an event.
+So for the apic id lifted system, for example BSP with apicid 0x10, the
+phys_proc_id will be 8.
 
-As I see it there are two main problems with a mmapped ring buffer (correct me 
-if I'm wrong):
+This patch use initial APIC ID to get Socket ID.
 
-1. Overflow.
-2. Handle multiple kernel event that only needs one  user event. I.e. multiple 
-packet arriving at the same socket. The user should only see one IN event at 
-the time he is ready to handle it.
+It also removed ht_nodeid calculating, because We already have correct
+socket id for sure.
 
-In an earlier post I suggested a scheme that solves these issues. It was based 
-on the assumption that kernel and user-space share index variables and can 
-read/update them atomically without much overhead. Only in cases where the 
-buffer is empty and full system call would be required.
+Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
 
-Hans Henrik Happe
+------=_Part_98416_30282581.1161099287030
+Content-Type: text/x-patch; name=setup_c.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_etegesdr
+Content-Disposition: attachment; filename="setup_c.diff"
+
+ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9zZXR1cC5jIGIvYXJjaC94ODZfNjQva2Vy
+bmVsL3NldHVwLmMKaW5kZXggZmM5NDRiNS4uZDMwZjc4YSAxMDA2NDQKLS0tIGEvYXJjaC94ODZf
+NjQva2VybmVsL3NldHVwLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL3NldHVwLmMKQEAgLTY0
+MywzNCArNjQzLDIwIEBAICNlbmRpZgogCiAJLyogTG93IG9yZGVyIGJpdHMgZGVmaW5lIHRoZSBj
+b3JlIGlkIChpbmRleCBvZiBjb3JlIGluIHNvY2tldCkgKi8KIAljLT5jcHVfY29yZV9pZCA9IGMt
+PnBoeXNfcHJvY19pZCAmICgoMSA8PCBiaXRzKS0xKTsKLQkvKiBDb252ZXJ0IHRoZSBBUElDIElE
+IGludG8gdGhlIHNvY2tldCBJRCAqLwotCWMtPnBoeXNfcHJvY19pZCA9IHBoeXNfcGtnX2lkKGJp
+dHMpOworCS8qIENvbnZlcnQgdGhlIGluaXRpYWwgQVBJQyBJRCBpbnRvIHRoZSBzb2NrZXQgSUQg
+Ki8KKwljLT5waHlzX3Byb2NfaWQgPj49IGJpdHM7IAogCiAjaWZkZWYgQ09ORklHX05VTUEKICAg
+CW5vZGUgPSBjLT5waHlzX3Byb2NfaWQ7CiAgCWlmIChhcGljaWRfdG9fbm9kZVthcGljaWRdICE9
+IE5VTUFfTk9fTk9ERSkKICAJCW5vZGUgPSBhcGljaWRfdG9fbm9kZVthcGljaWRdOwogIAlpZiAo
+IW5vZGVfb25saW5lKG5vZGUpKSB7Ci0gCQkvKiBUd28gcG9zc2liaWxpdGllcyBoZXJlOgotIAkJ
+ICAgLSBUaGUgQ1BVIGlzIG1pc3NpbmcgbWVtb3J5IGFuZCBubyBub2RlIHdhcyBjcmVhdGVkLgot
+IAkJICAgSW4gdGhhdCBjYXNlIHRyeSBwaWNraW5nIG9uZSBmcm9tIGEgbmVhcmJ5IENQVQotIAkJ
+ICAgLSBUaGUgQVBJQyBJRHMgZGlmZmVyIGZyb20gdGhlIEh5cGVyVHJhbnNwb3J0IG5vZGUgSURz
+Ci0gCQkgICB3aGljaCB0aGUgSzggbm9ydGhicmlkZ2UgcGFyc2luZyBmaWxscyBpbi4KLSAJCSAg
+IEFzc3VtZSB0aGV5IGFyZSBhbGwgaW5jcmVhc2VkIGJ5IGEgY29uc3RhbnQgb2Zmc2V0LAotIAkJ
+ICAgYnV0IGluIHRoZSBzYW1lIG9yZGVyIGFzIHRoZSBIVCBub2RlaWRzLgotIAkJICAgSWYgdGhh
+dCBkb2Vzbid0IHJlc3VsdCBpbiBhIHVzYWJsZSBub2RlIGZhbGwgYmFjayB0byB0aGUKLSAJCSAg
+IHBhdGggZm9yIHRoZSBwcmV2aW91cyBjYXNlLiAgKi8KLSAJCWludCBodF9ub2RlaWQgPSBhcGlj
+aWQgLSAoY3B1X2RhdGFbMF0ucGh5c19wcm9jX2lkIDw8IGJpdHMpOwotIAkJaWYgKGh0X25vZGVp
+ZCA+PSAwICYmCi0gCQkgICAgYXBpY2lkX3RvX25vZGVbaHRfbm9kZWlkXSAhPSBOVU1BX05PX05P
+REUpCi0gCQkJbm9kZSA9IGFwaWNpZF90b19ub2RlW2h0X25vZGVpZF07CiAgCQkvKiBQaWNrIGEg
+bmVhcmJ5IG5vZGUgKi8KLSAJCWlmICghbm9kZV9vbmxpbmUobm9kZSkpCi0gCQkJbm9kZSA9IG5l
+YXJieV9ub2RlKGFwaWNpZCk7CisJCW5vZGUgPSBuZWFyYnlfbm9kZShhcGljaWQpOwogIAl9CiAJ
+bnVtYV9zZXRfbm9kZShjcHUsIG5vZGUpOwogCi0JcHJpbnRrKEtFUk5fSU5GTyAiQ1BVICVkLyV4
+IC0+IE5vZGUgJWRcbiIsIGNwdSwgYXBpY2lkLCBub2RlKTsKKwlwcmludGsoS0VSTl9JTkZPICJD
+UFUgJWQvMHglMDJ4IC0+IE5vZGUgJWRcbiIsIGNwdSwgYXBpY2lkLCBub2RlKTsKICNlbmRpZgog
+I2VuZGlmCiB9CkBAIC05MjgsNyArOTE0LDcgQEAgdm9pZCBfX2NwdWluaXQgZWFybHlfaWRlbnRp
+ZnlfY3B1KHN0cnVjdAogCX0KIAogI2lmZGVmIENPTkZJR19TTVAKLQljLT5waHlzX3Byb2NfaWQg
+PSAoY3B1aWRfZWJ4KDEpID4+IDI0KSAmIDB4ZmY7CisJYy0+cGh5c19wcm9jX2lkID0gKGNwdWlk
+X2VieCgxKSA+PiAyNCkgJiAweGZmOyAvKiBpbml0aWFsIEFQSUMgSUQgKi8KICNlbmRpZgogfQog
+CkBAIC0xMTM2LDYgKzExMjIsNyBAQCAjZW5kaWYKICNpZmRlZiBDT05GSUdfU01QCiAJaWYgKHNt
+cF9udW1fc2libGluZ3MgKiBjLT54ODZfbWF4X2NvcmVzID4gMSkgewogCQlpbnQgY3B1ID0gYyAt
+IGNwdV9kYXRhOworCQlzZXFfcHJpbnRmKG0sICJhcGljIGlkXHRcdDogMHglMDJ4XG4iLCB4ODZf
+Y3B1X3RvX2FwaWNpZFtjcHVdKTsKIAkJc2VxX3ByaW50ZihtLCAicGh5c2ljYWwgaWRcdDogJWRc
+biIsIGMtPnBoeXNfcHJvY19pZCk7CiAJCXNlcV9wcmludGYobSwgInNpYmxpbmdzXHQ6ICVkXG4i
+LCBjcHVzX3dlaWdodChjcHVfY29yZV9tYXBbY3B1XSkpOwogCQlzZXFfcHJpbnRmKG0sICJjb3Jl
+IGlkXHRcdDogJWRcbiIsIGMtPmNwdV9jb3JlX2lkKTsK
+------=_Part_98416_30282581.1161099287030--

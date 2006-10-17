@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWJQKxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422957AbWJQKzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422913AbWJQKxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 06:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422907AbWJQKxT
+	id S1422957AbWJQKzR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 06:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422935AbWJQKzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 06:53:19 -0400
-Received: from mx2.suse.de ([195.135.220.15]:31152 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422899AbWJQKxS (ORCPT
+	Tue, 17 Oct 2006 06:55:17 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:31718 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422852AbWJQKzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 06:53:18 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ian Kent <raven@themaw.net>
-Subject: Re: BUG dcache.c:613 during autofs unmounting in 2.6.19rc2
-Date: Tue, 17 Oct 2006 12:50:56 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <200610161658.58288.ak@suse.de> <1161058535.11489.6.camel@localhost>
-In-Reply-To: <1161058535.11489.6.camel@localhost>
+	Tue, 17 Oct 2006 06:55:14 -0400
+Date: Tue, 17 Oct 2006 12:40:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Josef Jeff Sipek <jsipek@cs.sunysb.edu>
+cc: Andrew James Wade <andrew.j.wade@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       hch@infradead.org, Al Viro <viro@ftp.linux.org.uk>,
+       linux-fsdevel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>,
+       ezk@cs.sunysb.edu, mhalcrow@us.ibm.com
+Subject: Re: [PATCH 1 of 2] fsstack: Introduce fsstack_copy_{attr,inode}_*
+In-Reply-To: <fe7c146c6457a4b288ab.1161060147@thor.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0610171237220.22888@yvahk01.tjqt.qr>
+References: <fe7c146c6457a4b288ab.1161060147@thor.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610171250.56522.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 06:15, Ian Kent wrote:
-> On Mon, 2006-10-16 at 16:58 +0200, Andi Kleen wrote:
-> > While unmounting autofs on shutdown my workstation got a dcache.c:613 BUG 
-> > with 2.6.19rc2.
-> > 
-> > Only jpegs available unfortunately:
-> > 
-> > http://one.firstfloor.org/~andi/autofs-oops1.jpg
-> > http://one.firstfloor.org/~andi/autofs-oops2.jpg
-> > 
-> > I think it was autofs3 instead of autofs4 - at least I got both compiled in.
-> > The autofs user land was autofs-4.1.4 (-6 suse rpm) 
-> 
-> Don't think compiling both in is a good idea.
-> They both register as "autofs" so you really should choose one and
-> disable the other.
-> 
-> For my part I have to recommend autofs4 (personally I'd like to see the
-> autofs v3 module deprecated) and autofs4 is really needed if your using
-> autofs version 4 or above.
 
-Well it always worked this way in earlier kernels and even if the
-wrong module was suddenly used for some reason it shouldn't BUG.
-So something is broken.
+>To: null@josefsipek.net
 
--Andi
+(Superb idea to prekill any Cc, re-adding them)
+
+>+void __fsstack_copy_attr_all(struct inode *dest,
+>+			     const struct inode *src,
+>+			     int (*get_nlinks)(struct inode *))
+>+{
+>[big]
+>+}
+>+
+>+/* externs for fs/stack.c */
+>+extern void __fsstack_copy_attr_all(struct inode *dest,
+>+				    const struct inode *src,
+>+				    int (*get_nlinks)(struct inode *));
+>+
+>+static inline void fsstack_copy_attr_all(struct inode *dest,
+>+					 const struct inode *src)
+>+{
+>+	__fsstack_copy_attr_all(dest, src, NULL);
+>+}
+
+Do we really need this indirection? Can't __fsstack_copy_attr_all be 
+named fsstack_copy_attr_all instead?
+
+
+	-`J'
+-- 

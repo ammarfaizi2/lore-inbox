@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWJQTSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWJQTSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWJQTSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWJQTSQ
+	id S1751178AbWJQTSz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWJQTSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:18:16 -0400
-Received: from web57803.mail.re3.yahoo.com ([68.142.236.81]:27068 "HELO
-	web57803.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1751170AbWJQTSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:18:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ct+AJIrdOiD0iu57YLgBDO2hX1op6uhZmklU+K1I7zG4iNAA6kKYdNGerHq7uPs6ERplcwhaHU1Xlxi9/jMjpwgZAgr/a0hOLFMtzhxU4uajwx06iqB5iHt83PwF4Q7hroLJKcbxXqJ4Wh+kyod9/x6ya864cSQUD/7XOto9c9U=  ;
-Message-ID: <20061017191814.55313.qmail@web57803.mail.re3.yahoo.com>
-Date: Tue, 17 Oct 2006 12:18:14 -0700 (PDT)
-From: John Philips <johnphilips42@yahoo.com>
-Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <200610171853.56170.dada1@cosmosbay.com>
-MIME-Version: 1.0
+	Tue, 17 Oct 2006 15:18:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5852 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751178AbWJQTSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 15:18:54 -0400
+Date: Tue, 17 Oct 2006 12:18:23 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: dino@in.ibm.com, suresh.b.siddha@intel.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
+       rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
+Message-Id: <20061017121823.e6f695aa.pj@sgi.com>
+In-Reply-To: <20061017114306.A19690@unix-os.sc.intel.com>
+References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com>
+	<20061017114306.A19690@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hum, given your slow cpu, you might revert tx queue
-> length to 2.4.XX level 
-> (100 instead of 1000)
+> What happens when the job in the cpuset with no sched domain
+> becomes active? In this case, scheduler can't make use of all cpus
+> that this cpuset is allowed to use.
 
-I tried that, it didn't help any.
+What happens then is that the job manager marks the cpuset of this
+newly activated job as being a sched_domain.
 
-> Are you sure you cannot post here : 
-> 
-> tc -s -d qdisc show dev eth6
+And if the job manager doesn't do that, and sets up a situation in
+which the scheduler domains don't line up with the active jobs, then
+they can't get scheduler load balancing across all the CPUs in those
+jobs cpusets.  That's exactly what they asked for -- that's exactly
+what they got.
 
-As I said, there are rules in place for every single
-IP in a /22 subnet.  It would be over 12000 lines.  I
-tried turning off the traffic shaping, it didn't help.
- 
-> You might want to make inet_peer_cache purge faster
-> :
-> 
-> echo 1 >/proc/sys/net/ipv4/inet_peer_gc_mintime
-> echo 2 >/proc/sys/net/ipv4/inet_peer_gc_maxtime
+(Actually, is that right?  I thought load balancing would still occur
+at higher levels in the sched domain/group hierarchy, just not as
+often.)
 
-I tried that as well, unfortunately it didn't help.
+It is not the kernels job to make it impossible for user code to do
+stupid things.  It's the kernels job to offer up various mechanisms,
+and let user space code decide what to do when.
 
-It's worth noting that this behavior happens at
-seemingly random times for random amounts of time.  It
-also causes the interface to auto-negotiate it's
-settings again.  During these periods, ping times to a
-switch plugged directly into eth6 are 4000+ms.  When I
-statically set the interface to 100baseT/full duplex
-with mii-tool, ping times to the switch immediately
-return to normal.  Unfortunately this fix only lasts a
-few minutes, because the interface hangs up and
-returns to auto-negotiation.
+And, anyhow, how does this differ from overloading the cpu_exclusive
+flag to define sched domains.  One can setup the same thing there,
+where a job can't balance across all its CPUs:
 
-Also, I know this isn't a problem with my hardware
-since it started happening immediately after I
-upgraded the kernel from 2.4.25.
+	/dev/cpuset/cs1		cpu_exclusive = 1; cpus = 0-7
+	/dev/cpuset/cs1/suba	cpu_exclusive = 1; cpus = 0-3
+	/dev/cpuset/cs1/subb	cpu_exclusive = 1; cpus = 4-7
 
-Thanks.
+(sched_domain_enabled = 0 in all cpusets)
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+If you put a task in cpuset "cs1" (not in one of the sub cpusets)
+then it can't load balance between CPUs 0-3 and CPUs 4-7 (or can't
+load balance as often - depending on how this works.)
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

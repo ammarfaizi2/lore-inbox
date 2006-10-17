@@ -1,57 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWJQOEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWJQOFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWJQOEA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 10:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWJQOEA
+	id S1751037AbWJQOFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 10:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWJQOFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 10:04:00 -0400
-Received: from main.gmane.org ([80.91.229.2]:1199 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751031AbWJQOD7 (ORCPT
+	Tue, 17 Oct 2006 10:05:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63161 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751034AbWJQOFd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 10:03:59 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: [PATCH .19-rc2] kbuild: Another 'headers*' fix for non in-tree build
-Date: Tue, 17 Oct 2006 14:03:05 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnej9p0r.2m4.olecom@flower.upol.cz>
-References: <6bffcb0e0610160352h2bd86f33x72c438c7e8bdf810@mail.gmail.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>, LKML <linux-kernel@vger.kernel.org>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Tue, 17 Oct 2006 10:05:33 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1161093310.4937.37.camel@localhost> 
+References: <1161093310.4937.37.camel@localhost>  <200610161658.58288.ak@suse.de> <1161058535.11489.6.camel@localhost> <200610171250.56522.ak@suse.de> 
+To: Ian Kent <raven@themaw.net>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: BUG dcache.c:613 during autofs unmounting in 2.6.19rc2 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 17 Oct 2006 15:05:07 +0100
+Message-ID: <23461.1161093907@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ian Kent <raven@themaw.net> wrote:
 
- While it mostly work, version.h header *is* generated, thus resides
- in $(objtree), not $(srctree).
- This broke headers_install, thus headers_check.
+> There have been some changes in this area (David Howells made some
+> changes which affected autofs4) and I'm not sure that the autofs module
+> was reviewed. I didn't look closely at it at the time, I guess I should
+> have. Sorry.
 
-Signed-off-by: Oleg Verych <olecom@flower.upol.cz>
+It looks like my fixes for autofs4 need applying to autofs also.
 
----
- was [BUG 2.6.19-rc2-g51018b0a] No rule to make target
-       /mnt/md0/devel/linux-git/include/linux/version.h
- by Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-
- Test it, please, Michal. I think this, non-rfc version, is OK for 2.6.19.
-
- scripts/Makefile.headersinst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.19-rc2/scripts/Makefile.headersinst
-===================================================================
---- linux-2.6.19-rc2.orig/scripts/Makefile.headersinst	2006-10-17 13:40:58.091384132 +0000
-+++ linux-2.6.19-rc2/scripts/Makefile.headersinst	2006-10-17 13:42:03.591116749 +0000
-@@ -168,7 +168,7 @@
- 	$(call cmd,gen)
- 
- else
--$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-+$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(objtree)/$(obj)/%.h $(KBUILDFILES)
- 	$(call cmd,o_hdr_install)
- 
- $(header-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
-
+David

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWJQR5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWJQR6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWJQR5k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWJQR5j
+	id S1750777AbWJQR6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWJQR6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:57:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39578 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751367AbWJQR5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:57:39 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: "Andi Kleen" <ak@muc.de>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-Subject: Re: Fwd: [PATCH] x86_64: typo in __assign_irq_vector when update pos for vector and offset
-References: <5986589C150B2F49A46483AC44C7BCA412D6E7@ssvlexmb2.amd.com>
-Date: Tue, 17 Oct 2006 11:55:34 -0600
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D6E7@ssvlexmb2.amd.com>
-	(Yinghai Lu's message of "Mon, 16 Oct 2006 12:52:06 -0700")
-Message-ID: <m18xjeaktl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 17 Oct 2006 13:58:39 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:47753 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1750777AbWJQR6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:58:37 -0400
+To: Mark Lord <lkml@rtr.ca>
+Cc: Robert Hancock <hancockr@shaw.ca>, Jens Axboe <jens.axboe@oracle.com>,
+       Allen Martin <AMartin@nvidia.com>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       prakash@punnoor.de
+Subject: Re: [PATCH] sata_nv ADMA/NCQ support for nForce4
+X-Message-Flag: Warning: May contain useful information
+References: <DBFABB80F7FD3143A911F9E6CFD477B018E8171B@hqemmail02.nvidia.com>
+	<452C7C1D.3040704@shaw.ca> <20061011103038.GK6515@kernel.dk>
+	<452F053B.2000906@shaw.ca> <20061013080434.GE6515@kernel.dk>
+	<45344F4D.6070703@shaw.ca> <45345015.2010601@rtr.ca>
+	<45345B16.4090505@shaw.ca> <4535032F.2080807@rtr.ca>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 17 Oct 2006 10:58:34 -0700
+In-Reply-To: <4535032F.2080807@rtr.ca> (Mark Lord's message of "Tue, 17 Oct 2006 12:22:07 -0400")
+Message-ID: <adaslhmu8mt.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 Oct 2006 17:58:36.0397 (UTC) FILETIME=[DE4581D0:01C6F215]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lu, Yinghai" <yinghai.lu@amd.com> writes:
+    Mark> I was thinking more about the non wordsized fields, such as
+    Mark> the various u8 bytes that gcc will lay out differently
+    Mark> depending upon endianess.
 
->>So to get things going making TARGET_CPUS cpu_online_map looks like
->>the right thing to do.
->
-> Yes. but need to other reference to TARGET_CPUS to verify...it doesn't
-> break sth.
+I don't know of any gcc version that changes the order of struct
+fields.  You might be thinking of bitfields, which are laid out in an
+endian-dependent way.
 
-I just looked and tested and we are fine.
-
->>My question is are your io_apics pci devices?  Not does the kernel
->>have them.
->
-> Yes, I'm testing with 32 amd8132 in the simulator. Or forget about about
-> ioapic, and use MSI, and HT-irq directly...?
-
-Ok.  So if want a pci device we can have one :)
-Usually what I have seen is that all io_apics except the
-first one show up as pci devices.
-
->>There are a lot of ways we can approach assigning irqs to cpus and
-> there
->>is a lot of work there.  I think Adrian Bunk has been doing some work
->>with the user space irq balancer, and should probably be involved.
->
-> Right. We need only do needed in kernel space, and leave most to irq
-> balancer.
-
-Actually I was just being pragmatic.  Make it work now.  Make it optimal
-later :)
-
-Eric
+ - R.

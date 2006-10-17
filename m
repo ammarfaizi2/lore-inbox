@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423146AbWJQGen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423147AbWJQGhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423146AbWJQGen (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 02:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423148AbWJQGen
+	id S1423147AbWJQGhv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 02:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423149AbWJQGhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 02:34:43 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:1884 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1423146AbWJQGem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 02:34:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=bAj0KeNVv+h+IBvq8x+eIX045MqlsInLGdR6MTj1Wc7pegaYA/+NrXUsbdYNn+1vbq1OA4kv+UuXnWqxvdcRvsRtf9x2/JYF1W4qWNWJPAcdm80X4PE60UFzyaUvme02OxhrZ/3lHRTilZ3EIHsXmGxGjQ/Ojg9yCxTDXlAw3ZQ=  ;
-Message-ID: <45347951.3050907@yahoo.com.au>
-Date: Tue, 17 Oct 2006 16:33:53 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
-X-Accept-Language: en
+	Tue, 17 Oct 2006 02:37:51 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:62644 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1423147AbWJQGhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 02:37:50 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=FBnhE1b2LAQaydlbqrNtOlsAoRyEXEZOcrylxyPplMRY3BuWOT2kGR0lfx5YUaS5H
+	SsBINApZlIDz4mmDcF1Sg==
+Message-ID: <453479D2.1090302@google.com>
+Date: Mon, 16 Oct 2006 23:36:02 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH] Use min of two prio settings in calculating distress
- for reclaim
-References: <4534323F.5010103@google.com>
-In-Reply-To: <4534323F.5010103@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: [PATCH] Fix bug in try_to_free_pages and balance_pgdat when they
+ fail to reclaim pages
+References: <453425A5.5040304@google.com> <453475A4.2000504@yahoo.com.au>
+In-Reply-To: <453475A4.2000504@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
+Nick Piggin wrote:
+> Martin Bligh wrote:
+> 
+>> The same bug is contained in both try_to_free_pages and balance_pgdat.
+>> On reclaiming the requisite number of pages we correctly set
+>> prev_priority back to DEF_PRIORITY.
+> 
+> 
+> AFAIKS, we set prev_priority to the priority at which the zone was
+> deemed to require no more reclaiming, not DEF_PRIORITY.
 
-> Another bug is that if try_to_free_pages / balance_pgdat are called
-> with a gfp_mask specifying GFP_IO and/or GFP_FS, they may reclaim
-> the requisite number of pages, and reset prev_priority to DEF_PRIORITY.
->
-> However, another reclaimer without those gfp_mask flags set may still
-> be struggling to reclaim pages. The easy fix for this is to key the
-> distress calculation not off zone->prev_priority, but also take into
-> account the local caller's priority by using:
-> min(zone->prev_priority, sc->priority)
+Well, it's zone->temp_priority, which was set to DEF_PRIORITY at the
+top of the function, though I suppose something else might have
+changed it since.
 
+>> However, we ALSO do this even
+>> if we loop over all priorities and fail to reclaim.
+> 
+> 
+> If that happens, shouldn't prev_priority be set to 0?
 
-Does it really matter who is doing the actual reclaiming? IMO, if the
-non-crippled (GFP_IO|GFP_FS) reclaimer is making progress, the other
-guy doesn't need to start swapping, and should soon notice that some
-pages are getting freed up.
+Yes, but it's not. We fall off the bottom of the loop, and set it
+back to temp_priority. At best, the code is unclear.
 
-Workloads where non GFP_IO or GFP_FS reclaimers are having a lot of
-trouble indicates that either it is very swappy or page writeback has
-broken down and lots of dirty pages are being reclaimed off the LRU.
-In either case, they are likely to continue to have problems, even if
-they are now able to unmap the odd page.
+I suppose shrink_zones() might in theory knock temp_priority down
+as it goes, so it might come out right. But given that it's a global
+(per zone), not per-reclaimer, I fail to see how that's really safe.
+Supposing someone else has just started reclaim, and is still at
+prio 12?
 
-What are the empirical effects of this patch? What's the numbers? And
-what have you done to akpm? ;)
---
+Moreover, whilst try_to_free_pages calls shrink_zones, balance_pgdat
+does not. Nothing else I can see sets temp_priority.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ > I don't agree the patch is correct.
+
+You think it's doing something wrong? Or just unnecessary?
+
+I'm inclined to think the whole concept of temp_priority and
+prev_priority are pretty broken. This may not fix the whole thing,
+but it seems to me to make it better than it was before.
+
+> We saw problems with this before releasing SLES10 too. See
+> zone_is_near_oom and other changesets from around that era. I would
+> like to know what workload was prevented from going OOM with these
+> changes, but zone_is_near_oom didn't help -- it must have been very
+> marginal (or there may indeed be a bug somewhere).
+
+Google production workload. Multiple reclaimers operating - one is
+down to priority 0 on the reclaim, but distress is still set to 0,
+thanks to prev_priority being borked. Hence we don't reclaim mapped
+pages, the reclaim fails, OOM killer kicks in.
+
+Forward ported from an earlier version of 2.6 ... but I don't see
+why we need extra heuristics here, it seems like a clear and fairly
+simple bug. We're in deep crap with reclaim, and we go set the
+global indicator back to "oh no, everything's fine". Not a good plan.
+
+M.

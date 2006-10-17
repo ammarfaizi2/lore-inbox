@@ -1,309 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWJQV3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWJQVcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbWJQV3q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 17:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWJQV3o
+	id S1750732AbWJQVcX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 17:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWJQVcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 17:29:44 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:46971 "HELO
-	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750699AbWJQV1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 17:27:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:Subject:Date:To:Cc:Bcc:Message-Id:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:User-Agent;
-  b=MGwbV8qB/qtfbzVHmY4GvJOiKXaXYMMYZlhSbHYhNXIki04JMXb0Ii1etkZYp2JtqgXsVIfl22Kgo8kCZDZmyQUtFGEDWosecWuiMuawPt5m9tQr1zavM50ynNKMwpUPTMAOz8CSBL/j180zaUaOi9uREw1FJmQ+6qtJpfS7H7Y=  ;
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 02/10] uml: split memory allocation prototypes out of user.h
-Date: Tue, 17 Oct 2006 23:27:07 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20061017212707.26445.67427.stgit@americanbeauty.home.lan>
-In-Reply-To: <20061017211943.26445.75719.stgit@americanbeauty.home.lan>
-References: <20061017211943.26445.75719.stgit@americanbeauty.home.lan>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Tue, 17 Oct 2006 17:32:23 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:19335 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750732AbWJQVcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 17:32:22 -0400
+Date: Tue, 17 Oct 2006 14:29:57 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Prakash Punnoor <prakash@punnoor.de>, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
+       perex@suse.cz, alsa-devel@alsa-project.org, hnguyen@de.ibm.com
+Subject: Re: [RFC: 2.6.19 patch] snd-hda-intel: default MSI to off
+Message-Id: <20061017142957.b4f0c1fe.randy.dunlap@oracle.com>
+In-Reply-To: <20061017211301.GE3502@stusta.de>
+References: <200610050938.10997.prakash@punnoor.de>
+	<5aa69f860610051030l7323ec2el545873570052f077@mail.gmail.com>
+	<200610052309.01155.prakash@punnoor.de>
+	<20061017211301.GE3502@stusta.de>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+On Tue, 17 Oct 2006 23:13:01 +0200 Adrian Bunk wrote:
 
-user.h is too generic a header name. I've split out allocation routines from it.
+> On Thu, Oct 05, 2006 at 11:08:57PM +0200, Prakash Punnoor wrote:
+> > Am Donnerstag 05 Oktober 2006 19:30 schrieb Fatih A????c??:
+> > > 2006/10/5, Prakash Punnoor <prakash@punnoor.de>:
+> > > > Hi,
+> > > >
+> > > > subjects say it all. Without irqpoll my nic doesn't work anymore. I added
+> > > > Ingo
+> > > > to cc, as my IRQs look different, so it may be a prob of APIC routing or
+> > > > the
+> > > > like.
+> > 
+> > > > Can you try booting with pci=nomsi ? I have a similar problem with my
+> > 
+> > I used snd-hda-intel.disable_msi=1 and this actually helped! Now the nforce 
+> > nic works w/o problems. So it was the audio driver causing havoc on the nic. 
+> >...
+> 
+> Unless someone finds and fixes what causes such problems, I'd therefore 
+> suggest the patch below to let MSI support to be turned off by default.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+MSI works with my sound, ethernet, and SATA:
+
+ 66:    1131814          0         PCI-MSI  libata
+ 98:      89556          0         PCI-MSI  HDA Intel
+106:     943530          0         PCI-MSI  eth0
+
+so maybe this should be done for nforce chipsets or
+whatever is seeing the problem?
+
+
+> <--  snip  -->
+> 
+> 
+> As reported in http://lkml.org/lkml/2006/10/7/164, MSI support in 
+> snd-hda-intel seems to break some previously working setups.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  Documentation/sound/alsa/ALSA-Configuration.txt |    2 +-
+>  sound/pci/hda/hda_intel.c                       |   14 +++++++-------
+>  2 files changed, 8 insertions(+), 8 deletions(-)
+> 
+> --- linux-2.6/Documentation/sound/alsa/ALSA-Configuration.txt.old	2006-10-17 18:11:48.000000000 +0200
+> +++ linux-2.6/Documentation/sound/alsa/ALSA-Configuration.txt	2006-10-17 18:12:54.000000000 +0200
+> @@ -753,7 +753,7 @@
+>      position_fix - Fix DMA pointer (0 = auto, 1 = none, 2 = POSBUF, 3 = FIFO size)
+>      single_cmd  - Use single immediate commands to communicate with
+>  		codecs (for debugging only)
+> -    disable_msi - Disable Message Signaled Interrupt (MSI)
+> +    enable_msi - Enable Message Signaled Interrupt (MSI)
+>  
+>      This module supports one card and autoprobe.
+>  
+> --- linux-2.6/sound/pci/hda/hda_intel.c.old	2006-10-17 18:10:05.000000000 +0200
+> +++ linux-2.6/sound/pci/hda/hda_intel.c	2006-10-17 18:10:56.000000000 +0200
+> @@ -55,7 +55,7 @@
+>  static int position_fix;
+>  static int probe_mask = -1;
+>  static int single_cmd;
+> -static int disable_msi;
+> +static int enable_msi;
+>  
+>  module_param(index, int, 0444);
+>  MODULE_PARM_DESC(index, "Index value for Intel HD audio interface.");
+> @@ -69,8 +69,8 @@
+>  MODULE_PARM_DESC(probe_mask, "Bitmask to probe codecs (default = -1).");
+>  module_param(single_cmd, bool, 0444);
+>  MODULE_PARM_DESC(single_cmd, "Use single command to communicate with codecs (for debugging only).");
+> -module_param(disable_msi, int, 0);
+> -MODULE_PARM_DESC(disable_msi, "Disable Message Signaled Interrupt (MSI)");
+> +module_param(enable_msi, int, 0);
+> +MODULE_PARM_DESC(enable_msi, "Enable Message Signaled Interrupt (MSI)");
+>  
+>  
+>  /* just for backward compatibility */
+> @@ -1381,7 +1381,7 @@
+>  	azx_free_cmd_io(chip);
+>  	if (chip->irq >= 0)
+>  		free_irq(chip->irq, chip);
+> -	if (!disable_msi)
+> +	if (enable_msi)
+>  		pci_disable_msi(chip->pci);
+>  	pci_disable_device(pci);
+>  	pci_save_state(pci);
+> @@ -1395,7 +1395,7 @@
+>  
+>  	pci_restore_state(pci);
+>  	pci_enable_device(pci);
+> -	if (!disable_msi)
+> +	if (enable_msi)
+>  		pci_enable_msi(pci);
+>  	/* FIXME: need proper error handling */
+>  	request_irq(pci->irq, azx_interrupt, IRQF_DISABLED|IRQF_SHARED,
+> @@ -1437,7 +1437,7 @@
+>  
+>  	if (chip->irq >= 0) {
+>  		free_irq(chip->irq, (void*)chip);
+> -		if (!disable_msi)
+> +		if (enable_msi)
+>  			pci_disable_msi(chip->pci);
+>  	}
+>  	if (chip->remap_addr)
+> @@ -1523,7 +1523,7 @@
+>  		goto errout;
+>  	}
+>  
+> -	if (!disable_msi)
+> +	if (enable_msi)
+>  		pci_enable_msi(pci);
+>  
+>  	if (request_irq(pci->irq, azx_interrupt, IRQF_DISABLED|IRQF_SHARED,
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 ---
-
- arch/um/drivers/cow_sys.h                |    1 +
- arch/um/drivers/daemon_user.c            |    1 +
- arch/um/drivers/fd.c                     |    1 +
- arch/um/drivers/mcast_user.c             |    1 +
- arch/um/drivers/net_user.c               |    1 +
- arch/um/drivers/pcap_user.c              |    1 +
- arch/um/drivers/port_user.c              |    1 +
- arch/um/drivers/pty.c                    |    1 +
- arch/um/drivers/slip_user.c              |    1 +
- arch/um/drivers/tty.c                    |    1 +
- arch/um/include/um_malloc.h              |   17 +++++++++++++++++
- arch/um/include/user.h                   |    6 ------
- arch/um/include/user_util.h              |    1 -
- arch/um/kernel/irq.c                     |    1 +
- arch/um/kernel/process.c                 |    1 +
- arch/um/os-Linux/drivers/ethertap_user.c |    1 +
- arch/um/os-Linux/irq.c                   |    1 +
- arch/um/os-Linux/main.c                  |    1 +
- arch/um/os-Linux/sigio.c                 |    1 +
- 19 files changed, 33 insertions(+), 7 deletions(-)
-
-diff --git a/arch/um/drivers/cow_sys.h b/arch/um/drivers/cow_sys.h
-index 7a5b4af..c6a3084 100644
---- a/arch/um/drivers/cow_sys.h
-+++ b/arch/um/drivers/cow_sys.h
-@@ -5,6 +5,7 @@ #include "kern_util.h"
- #include "user_util.h"
- #include "os.h"
- #include "user.h"
-+#include "um_malloc.h"
- 
- static inline void *cow_malloc(int size)
- {
-diff --git a/arch/um/drivers/daemon_user.c b/arch/um/drivers/daemon_user.c
-index 77954ea..310af0f 100644
---- a/arch/um/drivers/daemon_user.c
-+++ b/arch/um/drivers/daemon_user.c
-@@ -17,6 +17,7 @@ #include "kern_util.h"
- #include "user_util.h"
- #include "user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- #define MAX_PACKET (ETH_MAX_PACKET + ETH_HEADER_OTHER)
- 
-diff --git a/arch/um/drivers/fd.c b/arch/um/drivers/fd.c
-index 108b7da..218aa0e 100644
---- a/arch/um/drivers/fd.c
-+++ b/arch/um/drivers/fd.c
-@@ -12,6 +12,7 @@ #include "user.h"
- #include "user_util.h"
- #include "chan_user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- struct fd_chan {
- 	int fd;
-diff --git a/arch/um/drivers/mcast_user.c b/arch/um/drivers/mcast_user.c
-index 4d2bd39..8138f5e 100644
---- a/arch/um/drivers/mcast_user.c
-+++ b/arch/um/drivers/mcast_user.c
-@@ -23,6 +23,7 @@ #include "kern_util.h"
- #include "user_util.h"
- #include "user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- #define MAX_PACKET (ETH_MAX_PACKET + ETH_HEADER_OTHER)
- 
-diff --git a/arch/um/drivers/net_user.c b/arch/um/drivers/net_user.c
-index f3a3f8a..0ffd7ac 100644
---- a/arch/um/drivers/net_user.c
-+++ b/arch/um/drivers/net_user.c
-@@ -18,6 +18,7 @@ #include "user_util.h"
- #include "kern_util.h"
- #include "net_user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- int tap_open_common(void *dev, char *gate_addr)
- {
-diff --git a/arch/um/drivers/pcap_user.c b/arch/um/drivers/pcap_user.c
-index 2ef641d..11921a7 100644
---- a/arch/um/drivers/pcap_user.c
-+++ b/arch/um/drivers/pcap_user.c
-@@ -12,6 +12,7 @@ #include <asm/types.h>
- #include "net_user.h"
- #include "pcap_user.h"
- #include "user.h"
-+#include "um_malloc.h"
- 
- #define MAX_PACKET (ETH_MAX_PACKET + ETH_HEADER_OTHER)
- 
-diff --git a/arch/um/drivers/port_user.c b/arch/um/drivers/port_user.c
-index f2e8fc4..bc6afaf 100644
---- a/arch/um/drivers/port_user.c
-+++ b/arch/um/drivers/port_user.c
-@@ -19,6 +19,7 @@ #include "user.h"
- #include "chan_user.h"
- #include "port.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- struct port_chan {
- 	int raw;
-diff --git a/arch/um/drivers/pty.c b/arch/um/drivers/pty.c
-index abec620..829a5ec 100644
---- a/arch/um/drivers/pty.c
-+++ b/arch/um/drivers/pty.c
-@@ -13,6 +13,7 @@ #include "user.h"
- #include "user_util.h"
- #include "kern_util.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- struct pty_chan {
- 	void (*announce)(char *dev_name, int dev);
-diff --git a/arch/um/drivers/slip_user.c b/arch/um/drivers/slip_user.c
-index 8460285..7eddacc 100644
---- a/arch/um/drivers/slip_user.c
-+++ b/arch/um/drivers/slip_user.c
-@@ -15,6 +15,7 @@ #include "net_user.h"
- #include "slip.h"
- #include "slip_common.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- void slip_user_init(void *data, void *dev)
- {
-diff --git a/arch/um/drivers/tty.c b/arch/um/drivers/tty.c
-index 11de3ac..d95d643 100644
---- a/arch/um/drivers/tty.c
-+++ b/arch/um/drivers/tty.c
-@@ -11,6 +11,7 @@ #include "chan_user.h"
- #include "user_util.h"
- #include "user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- struct tty_chan {
- 	char *dev;
-diff --git a/arch/um/include/um_malloc.h b/arch/um/include/um_malloc.h
-new file mode 100644
-index 0000000..0363a9b
---- /dev/null
-+++ b/arch/um/include/um_malloc.h
-@@ -0,0 +1,17 @@
-+/*
-+ * Copyright (C) 2005 Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-+ * Licensed under the GPL
-+ */
-+
-+#ifndef __UM_MALLOC_H__
-+#define __UM_MALLOC_H__
-+
-+extern void *um_kmalloc(int size);
-+extern void *um_kmalloc_atomic(int size);
-+extern void kfree(const void *ptr);
-+
-+extern void *um_vmalloc(int size);
-+extern void *um_vmalloc_atomic(int size);
-+extern void vfree(void *ptr);
-+
-+#endif /* __UM_MALLOC_H__ */
-diff --git a/arch/um/include/user.h b/arch/um/include/user.h
-index 39f8c88..acadce3 100644
---- a/arch/um/include/user.h
-+++ b/arch/um/include/user.h
-@@ -11,17 +11,11 @@ extern void panic(const char *fmt, ...)
- extern int printk(const char *fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
- extern void schedule(void);
--extern void *um_kmalloc(int size);
--extern void *um_kmalloc_atomic(int size);
--extern void kfree(void *ptr);
- extern int in_aton(char *str);
- extern int open_gdb_chan(void);
- /* These use size_t, however unsigned long is correct on both i386 and x86_64. */
- extern unsigned long strlcpy(char *, const char *, unsigned long);
- extern unsigned long strlcat(char *, const char *, unsigned long);
--extern void *um_vmalloc(int size);
--extern void *um_vmalloc_atomic(int size);
--extern void vfree(void *ptr);
- 
- #endif
- 
-diff --git a/arch/um/include/user_util.h b/arch/um/include/user_util.h
-index 802d784..06625fe 100644
---- a/arch/um/include/user_util.h
-+++ b/arch/um/include/user_util.h
-@@ -52,7 +52,6 @@ extern int linux_main(int argc, char **a
- extern void set_cmdline(char *cmd);
- extern void input_cb(void (*proc)(void *), void *arg, int arg_len);
- extern int get_pty(void);
--extern void *um_kmalloc(int size);
- extern int switcheroo(int fd, int prot, void *from, void *to, int size);
- extern void do_exec(int old_pid, int new_pid);
- extern void tracer_panic(char *msg, ...)
-diff --git a/arch/um/kernel/irq.c b/arch/um/kernel/irq.c
-index ef25956..5c1e611 100644
---- a/arch/um/kernel/irq.c
-+++ b/arch/um/kernel/irq.c
-@@ -31,6 +31,7 @@ #include "irq_user.h"
- #include "irq_kern.h"
- #include "os.h"
- #include "sigio.h"
-+#include "um_malloc.h"
- #include "misc_constants.h"
- 
- /*
-diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
-index fe6c64a..348b272 100644
---- a/arch/um/kernel/process.c
-+++ b/arch/um/kernel/process.c
-@@ -46,6 +46,7 @@ #include "os.h"
- #include "mode.h"
- #include "mode_kern.h"
- #include "choose-mode.h"
-+#include "um_malloc.h"
- 
- /* This is a per-cpu array.  A processor only modifies its entry and it only
-  * cares about its entry, so it's OK if another processor is modifying its
-diff --git a/arch/um/os-Linux/drivers/ethertap_user.c b/arch/um/os-Linux/drivers/ethertap_user.c
-index f559bdf..863981b 100644
---- a/arch/um/os-Linux/drivers/ethertap_user.c
-+++ b/arch/um/os-Linux/drivers/ethertap_user.c
-@@ -20,6 +20,7 @@ #include "user_util.h"
- #include "net_user.h"
- #include "etap.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- #define MAX_PACKET ETH_MAX_PACKET
- 
-diff --git a/arch/um/os-Linux/irq.c b/arch/um/os-Linux/irq.c
-index a97206d..d46b818 100644
---- a/arch/um/os-Linux/irq.c
-+++ b/arch/um/os-Linux/irq.c
-@@ -18,6 +18,7 @@ #include "process.h"
- #include "sigio.h"
- #include "irq_user.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- static struct pollfd *pollfds = NULL;
- static int pollfds_num = 0;
-diff --git a/arch/um/os-Linux/main.c b/arch/um/os-Linux/main.c
-index d1c5670..685feaa 100644
---- a/arch/um/os-Linux/main.c
-+++ b/arch/um/os-Linux/main.c
-@@ -23,6 +23,7 @@ #include "mode.h"
- #include "choose-mode.h"
- #include "uml-config.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- /* Set in set_stklim, which is called from main and __wrap_malloc.
-  * __wrap_malloc only calls it if main hasn't started.
-diff --git a/arch/um/os-Linux/sigio.c b/arch/um/os-Linux/sigio.c
-index f645776..925a652 100644
---- a/arch/um/os-Linux/sigio.c
-+++ b/arch/um/os-Linux/sigio.c
-@@ -19,6 +19,7 @@ #include "kern_util.h"
- #include "user_util.h"
- #include "sigio.h"
- #include "os.h"
-+#include "um_malloc.h"
- 
- /* Protected by sigio_lock(), also used by sigio_cleanup, which is an
-  * exitcall.
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+~Randy

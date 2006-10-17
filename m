@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423000AbWJQCrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422985AbWJQDAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423000AbWJQCrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 22:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423003AbWJQCrM
+	id S1422985AbWJQDAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 23:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWJQDAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 22:47:12 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:14713 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1423000AbWJQCrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 22:47:10 -0400
-Date: Mon, 16 Oct 2006 22:47:09 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: raw1394 problems galore
-In-reply-to: <200610161921.22847.dan@dennedy.org>
-To: Dan Dennedy <dan@dennedy.org>
-Cc: linux1394-user@lists.sourceforge.net,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       For users of Fedora Core releases 
-	<fedora-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Message-id: <4534442D.8010200@verizon.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <4532DF11.9060704@verizon.net> <4533DDA2.2050008@verizon.net>
- <4533FBD8.7050101@s5r6.in-berlin.de> <200610161921.22847.dan@dennedy.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 16 Oct 2006 23:00:22 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8609 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030212AbWJQDAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 23:00:20 -0400
+Date: Mon, 16 Oct 2006 19:59:52 -0700
+From: Paul Jackson <pj@sgi.com>
+To: sekharan@us.ibm.com
+Cc: greg@kroah.com, menage@google.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, matthltc@us.ibm.com
+Subject: Re: [ckrm-tech] [PATCH 0/5] Allow more than PAGESIZE data read in
+ configfs
+Message-Id: <20061016195952.415f4939.pj@sgi.com>
+In-Reply-To: <1161037741.5057.2.camel@linuxchandra>
+References: <20061010182043.20990.83892.sendpatchset@localhost.localdomain>
+	<20061010203511.GF7911@ca-server1.us.oracle.com>
+	<6599ad830610101431j33a5dc55h6878d5bc6db91e85@mail.gmail.com>
+	<20061010215808.GK7911@ca-server1.us.oracle.com>
+	<1160527799.1674.91.camel@localhost.localdomain>
+	<20061011012851.GR7911@ca-server1.us.oracle.com>
+	<20061011223927.GA29943@kroah.com>
+	<1160609160.6389.80.camel@linuxchandra>
+	<20061012235127.GA15767@kroah.com>
+	<1161025825.6389.119.camel@linuxchandra>
+	<20061016133256.e09e76ac.pj@sgi.com>
+	<1161037741.5057.2.camel@linuxchandra>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Dennedy wrote:
-> On Monday 16 October 2006 2:38 pm, Stefan Richter wrote:
->> Gene Heskett wrote:
->>> kino-0.8 receives video from it in real time and is doing so right now,
->>> and can capture it to file, and then play/edit that file, or could
->>> saturday when I last tried it.  I ASSume that kino-0.9.2 could also
->>> play/edit that file, but have not verified that by reinstalling 0.9.2.
->> ...
->>> I was told it was a total rewrite of bad code when I complained about a
->>> year ago.  My reply at the time was that it worked, and I don't often
->>> fix things that are working.  I'm getting lazy in my dotage I guess.
->> I don't remember what was changed at that time. Maybe that was the
->> addition of the new isochronous interface that I mentioned. The old one
->> was (is?) still there but maybe there were interactions... 
-> 
-> Allow me to help clarify. There are 4 interfaces for capturing DV--I kid you 
-> not! One is video1394, which Kino has never supported for capture. Kino 0.8.0 
-> supports legacy raw1394 and dv1394 switchable via Preferences. Gene is using 
-> the legacy raw1394 in that version, based upon a screenshot he sent. Kino 
-> 0.9.2 supports dv1394 and libiec61883 (atop raw1394 rawiso) switchable ONLY 
-> at build time requiring an explicit configure option for dv1394. This is to 
-> coerce builders to the newest and best capture interface.
-> 
->> However this  is not related to the inability to issue AV/C commands, which
->> are issued asynchronously.  
-> 
-> Correct; it is very curious that his device is not recognized via configROM 
-> probes and does not respond to AV/C control commands. This now impacts Kino 
-> 0.9.2 with libiec61883 (Gene's configuration) because I simplified the UI for 
-> the typical case--the one where 1394 asynch works. In that case, the first 
-> recognized camera during a bus traversal (or selectable via a simple pulldown 
-> menu) lets Kino determine on which 1394 port this device sits in order to 
-> make capture "just work." (permissions issues to /dev/raw1394 aside :-) It is 
-> very rare that someone can capture but not have AV/C and device recognition. 
-> The majority of problem reports are just the opposite with the majority 
-> resolved by unloading eth1394!
-> 
-Let me append that with this kernel, gscanbus also works as expected, 
-including controlling the camera.  Wahoo!
+> Quick look at the seq_file interfaces shows there is no such capability.
+
+Perhaps a seq file size limit could be added.  Not sure if that's
+a good idea or not ...
+
+Ah - cap the count + ppos the user passed in to configfs_read_file,
+before passing these values to flush_read_buffer().
+
+If the user asks for more than is allowed, give them only what they are
+allowed, by passing a smaller count to flush_read_buffer().  If they
+start at a position past what's allowed, force a huge ppos and let them
+see the resulting EOF.  Disclaimer - I too am no seq_file expert ;).
+
+This should be just a few more lines in configfs_read_file() on
+top of your current patches adapting it to seq_file.
+
+Granted - it is not going in directly in one step to the objective you
+seek, that being a configfs suitable for displaying a long vector of
+process id's, so that Resource Groups can make use of it (and maybe
+someday cpusets, too.)
+
+But it gains the code reduction and reuse benefits of your patch
+set, and gets this conversation unwedged, so we can go on to discuss
+whether or not it would be a good idea go add a suitable vector
+interface to seq_file, without threatening the excellent improvements
+that sysfs/configfs have made over the old /proc style mess.
 
 -- 
-Cheers, Gene
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

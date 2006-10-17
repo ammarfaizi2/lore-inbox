@@ -1,120 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWJQXjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWJQXut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWJQXjK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 19:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWJQXjJ
+	id S1751187AbWJQXut (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 19:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWJQXut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 19:39:09 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:43964 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751156AbWJQXjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 19:39:07 -0400
-Message-ID: <4535698A.4050406@us.ibm.com>
-Date: Tue, 17 Oct 2006 16:38:50 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Zach Brown <zach.brown@oracle.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: AIO, DIO fsx tests failures on 2.6.19-rc1-mm1
-References: <1161013338.32606.2.camel@dyn9047017100.beaverton.ibm.com>	<4533C6A1.40203@oracle.com>	<1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com>	<4533E7E2.6010506@oracle.com>	<1161031099.32606.14.camel@dyn9047017100.beaverton.ibm.com>	<20061016135910.be11a2dc.akpm@osdl.org>	<453559D5.4000809@us.ibm.com> <20061017161014.756e8a97.akpm@osdl.org>
-In-Reply-To: <20061017161014.756e8a97.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 19:50:49 -0400
+Received: from solarneutrino.net ([66.199.224.43]:23310 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1751172AbWJQXus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 19:50:48 -0400
+Date: Tue, 17 Oct 2006 19:50:40 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Avi Kivity <avi@argo.co.il>, "Dr. David Alan Gilbert" <dave@treblig.org>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: DVD drive not recognized on Intel G965 (2.6.19-rc2)
+Message-ID: <20061017235040.GA25185@tau.solarneutrino.net>
+References: <20061017180420.GD24789@tau.solarneutrino.net> <453533AB.9020801@argo.co.il> <1161124349.5014.12.camel@localhost.localdomain> <20061017222310.GA24891@tau.solarneutrino.net> <1161127585.5014.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1161127585.5014.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 17 Oct 2006 15:31:49 -0700
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
->   
->> Andrew Morton wrote:
->>     
->>> On Mon, 16 Oct 2006 13:38:19 -0700
->>> Badari Pulavarty <pbadari@us.ibm.com> wrote:
->>>
->>>   
->>>       
->>>>> So the answer is that -rc1-mm1 doesn't quite have the most recent
->>>>> version of this patch.  Grab the final patch at the end of this post
->>>>> from Andrew:
->>>>>
->>>>> 	http://lkml.org/lkml/2006/10/11/234
->>>>>
->>>>> It fixes up a misunderstanding that came from
->>>>> generic_file_buffered_write()'s habit of adding its 'written' input into
->>>>> the amount of bytes it announces having written in its return value.
->>>>>
->>>>> From mm-commits it looks like -mm2 will have the full patch.
->>>>>
->>>>>       
->>>>>           
->>>> Hmm.. with that patch applied, I still have fsx failures.
->>>> This time read() returning -EINVAL. Are there any other fixes
->>>> missing in -mm ?
->>>>     
->>>>         
->>> Probably.  I need to get off butt and prepare rc2-mm1.
->>>
->>> The below is the full patch against 2.6.19-rc2.  Please test this version.
->>>
->>>
->>> From: Jeff Moyer <jmoyer@redhat.com>
->>>
->>> When direct-io falls back to buffered write, it will just leave the dirty data
->>> floating about in pagecache, pending regular writeback.
->>>
->>> But normal direct-io semantics are that IO is synchronous, and that it leaves
->>> no pagecache behind.
->>>
->>> So change the fallback-to-buffered-write code to sync the file region and to
->>> then strip away the pagecache, just as a regular direct-io write would do.
->>>
->>>   
->>>       
->> Okay. Finally tracked down the problem I am running into.
->> This happens only on reiserfs
->>
->> # /root/fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
->> jnk
->> mapped writes DISABLED
->> truncating to largest ever: 0x32740
->> truncating to largest ever: 0x39212
->> truncating to largest ever: 0x3bae9
->> truncating to largest ever: 0x3c1e3
->> truncating to largest ever: 0x3d1cd
->> truncating to largest ever: 0x3e8b8
->> truncating to largest ever: 0x3ed14
->> truncating to largest ever: 0x3f9c2
->> truncating to largest ever: 0x3ff9f
->> doread: read: Invalid argument
->> Segmentation fault
->>
->> Here is the strace for it
->> ..
->> ftruncate(3, 2721)                      = 0
->> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
->> lseek(3, 0, SEEK_END)                   = 2721
->> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
->> lseek(3, 0, SEEK_END)                   = 2721
->> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
->> lseek(3, 0, SEEK_END)                   = 2721
->> lseek(3, 0, SEEK_SET)                   = 0
->> read(3, 0x50a800, 2048)                 = -1 EINVAL (Invalid argument)
->>
->> reiserfs getblock() is returing -EINVAL. There is comment in the code
->> about tail handling and returning EINVAL. BTW, this is not a -mm
->> issue, it happens on mainline too...
->>
->>     
->
-> Does it fail in mainline, or only in
-> mainline+direct-io-sync-and-invalidate-file-region-when-falling-back-to-buffered-write.patch?
->
->   
-It fails on mailine (2.6.19-rc1). I will double check my tree just in case..
+On Wed, Oct 18, 2006 at 12:26:25AM +0100, Alan Cox wrote:
+> Ar Maw, 2006-10-17 am 18:23 -0400, ysgrifennodd Ryan Richter:
+> > 02:00.0 IDE interface: Marvell Technology Group Ltd. Unknown device 6101 (rev b1) (prog-if 8f [Master SecP SecO PriP PriO])
+> > 	Subsystem: Marvell Technology Group Ltd. Unknown device 6101
+> 
+> That should work with libata and the newest driver version I posted (the
+> earlier one won't handle the 6101 just 6145). You need at least rev
+> 0.0.4t.
+
+OK, now it's doing a little better.  It seems to recognize the
+controller and drive, but it's not getting assigned a /dev/[sh]d? device
+(it doesn't show up in /proc/diskstats, e.g.).  Here's the relevant
+portion of dmesg:
+
+
+ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 17 (level, low) -> IRQ 17
+PCI: Setting latency timer of device 0000:02:00.0 to 64
+ata5: PATA max UDMA/100 cmd 0x1018 ctl 0x1026 bmdma 0x1000 irq 17
+scsi4 : pata_marvell
+BAR5:00:00 01:7F 02:22 03:CA 04:00 05:00 06:00 07:00 08:00 09:00 0A:00 0B:00 0C:01 0D:00 0E:00 0F:00 
+ata5.00: ATAPI, max UDMA/33
+ata5.00: applying bridge limits
+ata5.00: configured for UDMA/33
+scsi 4:0:0:0: CD-ROM            HL-DT-ST DVDRAM GSA-H10N  JL10 PQ: 0 ANSI: 5
+scsi 4:0:0:0: Attached scsi generic sg0 type 5
 
 Thanks,
-Badari
-
+-ryan

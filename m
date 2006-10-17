@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWJQW7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWJQXE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWJQW7v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 18:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWJQW7v
+	id S1751035AbWJQXE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 19:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWJQXE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 18:59:51 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42978 "EHLO
+	Tue, 17 Oct 2006 19:04:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12719 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751010AbWJQW7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 18:59:50 -0400
-Subject: Re: DVD drive not recognized on Intel G965 (2.6.19-rc2)
+	id S1751023AbWJQXE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 19:04:27 -0400
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-Cc: Avi Kivity <avi@argo.co.il>, "Dr. David Alan Gilbert" <dave@treblig.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20061017222310.GA24891@tau.solarneutrino.net>
-References: <20061017180420.GD24789@tau.solarneutrino.net>
-	 <453533AB.9020801@argo.co.il>
-	 <1161124349.5014.12.camel@localhost.localdomain>
-	 <20061017222310.GA24891@tau.solarneutrino.net>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Cc: jlamanna@gmail.com, schilling@fokus.fraunhofer.de,
+       linux-kernel@vger.kernel.org, ismail@pardus.org.tr
+In-Reply-To: <4535581c.0EJOm7ejIJzKFKJj%Joerg.Schilling@fokus.fraunhofer.de>
+References: <4535460c.5a4933ac.778b.ffffc157@mx.google.com>
+	 <45354bf7.Lo5w3vkS8/cH+1PI%Joerg.Schilling@fokus.fraunhofer.de>
+	 <aa4c40ff0610171451l5597dc55i97fcad4cf111acd2@mail.gmail.com>
+	 <4535581c.0EJOm7ejIJzKFKJj%Joerg.Schilling@fokus.fraunhofer.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 00:26:25 +0100
-Message-Id: <1161127585.5014.27.camel@localhost.localdomain>
+Date: Wed, 18 Oct 2006 00:06:37 +0100
+Message-Id: <1161126397.5014.29.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-17 am 18:23 -0400, ysgrifennodd Ryan Richter:
-> 02:00.0 IDE interface: Marvell Technology Group Ltd. Unknown device 6101 (rev b1) (prog-if 8f [Master SecP SecO PriP PriO])
-> 	Subsystem: Marvell Technology Group Ltd. Unknown device 6101
+Ar Mer, 2006-10-18 am 00:24 +0200, ysgrifennodd Joerg Schilling:
+> This is not true, the inode numbe is not sufficient to identify a file.
+> 
+> But if you are not a fs expert, you should not continue....
 
-That should work with libata and the newest driver version I posted (the
-earlier one won't handle the 6101 just 6145). You need at least rev
-0.0.4t.
+And pray how does someone become an expert ? By doing things and by
+learning as you do them. Carry on and ignore Mr Negativity please.
 
 Alan
-

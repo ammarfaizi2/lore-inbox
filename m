@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWJQQy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWJQQyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWJQQy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWJQQy0
+	id S1751325AbWJQQyl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWJQQyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:54:26 -0400
-Received: from pat.uio.no ([129.240.10.4]:749 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751321AbWJQQyZ (ORCPT
+	Tue, 17 Oct 2006 12:54:41 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:62394 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751325AbWJQQyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:54:25 -0400
-Subject: Re: [REGRESSION] nfs client: Read-only file system (2.6.19-rc1,2)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4534F59D.4040505@gmail.com>
-References: <4534F59D.4040505@gmail.com>
-Content-Type: text/plain
-Date: Tue, 17 Oct 2006 12:54:11 -0400
-Message-Id: <1161104051.5559.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.802, required 12,
-	autolearn=disabled, AWL 1.20, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 17 Oct 2006 12:54:39 -0400
+Date: Tue, 17 Oct 2006 18:53:48 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David Miller <davem@davemloft.net>
+cc: andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Sparc64 kernel message: BUG: soft lockup detected on CPU#3!
+In-Reply-To: <20061016.174100.48529083.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0610170843150.17410@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0610162358270.30479@yvahk01.tjqt.qr>
+ <20061016.153720.115911255.davem@davemloft.net> <Pine.LNX.4.61.0610170053280.30479@yvahk01.tjqt.qr>
+ <20061016.174100.48529083.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-17 at 17:24 +0200, Jiri Slaby wrote:
-> Hi!
-> 
-> I can't write on mounted nfs filesystem since 2.6.19-rc1 (nfs client):
-> touch: cannot touch `aaa': Read-only file system
-> 
-> strace says:
-> open("aaa", O_WRONLY|O_NONBLOCK|O_CREAT|O_NOCTTY|O_LARGEFILE, 0666) = -1 EROFS 
-> (Read-only file system)
-> 
-> 2.6.18 behaves correctly. Settings are the same, does anybody have any clue?
-> 
-> regards,
 
-What does "cat /proc/mounts" say?
+>What kind of system is this?
 
+Yes it's Ultra/E250.
+
+>The two SU serial ports are usually for keyboard and mouse.
+>
+>If you have 4 SAB ports, I'm guessing this is an Ultra250.
+>The 3rd and 4th SAB port are usually used for RSC on the
+>Ultra250 machines, the 1st and 2nd for normal ttya and ttyb
+>serial.
+
+ttya... backside. ttyb... backside. RSC... backside in a PCI slot, that 
+makes three. Where is the 4th?
+
+
+	-`J'
+-- 

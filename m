@@ -1,52 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWJQHFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWJQHLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWJQHFI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 03:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWJQHFH
+	id S932175AbWJQHLM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 03:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWJQHLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 03:05:07 -0400
-Received: from poczta.o2.pl ([193.17.41.142]:60076 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S932177AbWJQHFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 03:05:06 -0400
-Date: Tue, 17 Oct 2006 09:10:05 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: David Johnson <dj@david-web.co.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: Hardware bug or kernel bug?
-Message-ID: <20061017071005.GA1742@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	David Johnson <dj@david-web.co.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-References: <20061013085605.GA1690@ff.dom.local> <200610131724.40631.dj@david-web.co.uk> <20061016102500.GA1709@ff.dom.local> <200610161532.38663.dj@david-web.co.uk>
+	Tue, 17 Oct 2006 03:11:12 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:23074 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932175AbWJQHLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 03:11:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Y1IwjIGiipkWjBjQ4/8WyZubsNTVU/6y6hIvuZVVQrnrNR3RdT6wQyEW5a3Sc55BlvdQ8I8LRbU4LBjvmd/WfSqOYucIqgEurMjBAf7LPx76ZozdM+PFVNJgQpeKhsZ8veluKJi6Nb/kKzinZBKyeGhWwjTMEBDtj3NHFcToshY=
+Date: Tue, 17 Oct 2006 00:11:03 -0700
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.19-rc2] drivers/media/video/stv680.c: check kmalloc()
+ return value.
+Message-Id: <20061017001103.e29905ab.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610161532.38663.dj@david-web.co.uk>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 16, 2006 at 03:32:38PM +0100, David Johnson wrote:
-...
-> I've found the culprit - CPU Frequency Scaling.
-> With it enabled I get the reboots, with it disabled I don't. That's the same 
-> with every kernel version I've tried (2.6.19-rc1+rc2, 2.6.17.13 & Centos' 
-> 2.6.9) The system was using the p4-clockmod driver and the ondemand governor.
-> 
-> I'm still not sure exactly what the problem is - the reboots only happen in 
-> the circumstances I've mentioned and are not triggered by changes in clock 
-> speed alone - but disabling cpufreq seems to make it go away...
+Description: Check the return value of kmalloc() in function stv680_start_stream(), in file drivers/media/video/stv680.c.
 
-I see you devoted a lot of work and time to this testing
-and for sure it will help people who read this to
-diagnose similar problems but I think it could be even
-more valuable if you'd try (after some rest!) to find
-if "Enable CPUfreq debugging" plus adding to kernel
-command line cpufreq.debug=<value> (according to help
-screen) would return any error messages that could be
-send to bugzilla and/or cpufreq maintainer. 
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
-Best regards,
-
-Jarek P.
+diff --git a/drivers/media/video/stv680.c b/drivers/media/video/stv680.c
+index 6d1ef1e..a1ec3ac 100644
+--- a/drivers/media/video/stv680.c
++++ b/drivers/media/video/stv680.c
+@@ -687,7 +687,7 @@ static int stv680_start_stream (struct u
+ 		stv680->sbuf[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
+ 		if (stv680->sbuf[i].data == NULL) {
+ 			PDEBUG (0, "STV(e): Could not kmalloc raw data buffer %i", i);
+-			return -1;
++			goto nomem_err;
+ 		}
+ 	}
+ 
+@@ -698,7 +698,7 @@ static int stv680_start_stream (struct u
+ 		stv680->scratch[i].data = kmalloc (stv680->rawbufsize, GFP_KERNEL);
+ 		if (stv680->scratch[i].data == NULL) {
+ 			PDEBUG (0, "STV(e): Could not kmalloc raw scratch buffer %i", i);
+-			return -1;
++			goto nomem_err;
+ 		}
+ 		stv680->scratch[i].state = BUFFER_UNUSED;
+ 	}
+@@ -706,7 +706,7 @@ static int stv680_start_stream (struct u
+ 	for (i = 0; i < STV680_NUMSBUF; i++) {
+ 		urb = usb_alloc_urb (0, GFP_KERNEL);
+ 		if (!urb)
+-			return -ENOMEM;
++			goto nomem_err;
+ 
+ 		/* sbuf is urb->transfer_buffer, later gets memcpyed to scratch */
+ 		usb_fill_bulk_urb (urb, stv680->udev,
+@@ -721,6 +721,21 @@ static int stv680_start_stream (struct u
+ 
+ 	stv680->framecount = 0;
+ 	return 0;
++
++ nomem_err:
++	for (i = 0; i < STV680_NUMSCRATCH; i++) {
++		kfree(stv680->scratch[i].data);
++		stv680->scratch[i].data = NULL;
++	}
++	for (i = 0; i < STV680_NUMSBUF; i++) {
++		usb_kill_urb(stv680->urb[i]);
++		usb_free_urb(stv680->urb[i]);
++		stv680->urb[i] = NULL;
++		kfree(stv680->sbuf[i].data);
++		stv680->sbuf[i].data = NULL;
++	}
++	return -ENOMEM;
++
+ }
+ 
+ static int stv680_stop_stream (struct usb_stv *stv680)

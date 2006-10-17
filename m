@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWJQSSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWJQSWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWJQSSs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 14:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWJQSSs
+	id S1750748AbWJQSWv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 14:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWJQSWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 14:18:48 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:48351 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751189AbWJQSSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 14:18:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tq8BYNPopUA4r6y7JIREsWgcvTF71pykh1F06e5FNe4qpGcGELvt8y6RkwgjMk3lPNJiNHNMwxHIeXU4vJrSPBzu9YYQt1U4GS+G/xjc+Be4vxPioqqK9dyaNBOzvII2MhDnBTlOl2sw0+u479OeDXlnPQLxc5U/xwG/v492XRE=
-Message-ID: <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
-Date: Tue, 17 Oct 2006 20:16:35 +0200
-From: wixor <wixorpeek@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VCD not readable under 2.6.18
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1161040345.24237.135.camel@localhost.localdomain>
+	Tue, 17 Oct 2006 14:22:51 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:8614 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750748AbWJQSWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 14:22:50 -0400
+Date: Tue, 17 Oct 2006 20:16:07 +0200
+From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
+To: kronos.it@gmail.com, ismail@pardus.org.tr
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Message-ID: <45351de7.ky2ldiUVUFoikxQ6%Joerg.Schilling@fokus.fraunhofer.de>
+References: <20061017180210.GA20287@dreamland.darkstar.lan>
+ <200610172114.30268.ismail@pardus.org.tr>
+In-Reply-To: <200610172114.30268.ismail@pardus.org.tr>
+User-Agent: nail 11.22 3/20/05
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
-	 <1161040345.24237.135.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/17/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Multimedia sectors on a VCD are not readable by dd or the filesystem
-> layer, you must use a specific vcd player app so the dd test fail is
-> expected.
-Hmm.... so this is more like audio CD with separate tracks and no data
-track than like film on DVD? OK then, but how does xine tell kernel
-"give me video tracks"? Is there some magic switch_to_video ioctl on
-cdrom devices or what? And should the dd test fail with kernel errors
-or just with dd saying 'the device is empty'? And why even hal doesn't
-recognize the disc as video cd, but recognizes audio cds? (ok, it does
-not recognize all video cds I have, but only this one is unplayable,
-so it is probably lack of support, just asking to make sure).
+Ismail Donmez <ismail@pardus.org.tr> wrote:
 
->The xine one is more interesting. Is Xine being fooled by the
->fact its a multisession disk of some form perhaps >?
-The xine does not display any errors. It just hangs and I have to kill
-(-TERM is enough) it. Well..... i have no idea, really. The original
-CD is bought, so i suspect it is classical old-style traditional disc
-with no multi sessions. It is compatibile with VCD2.0 standard as far
-as i remember, but I might be wrong as well. The copy of it I made is
-made by nero express & windows xp on other machine, so I belive it is
-bitwise exact (which is propably wrong, but... :D). The both original
-and copy behave in the same way. Is there any way to dump the disc
-structure?
+> I was just trying a fast hack to see it works ;-) but iso files produced by 
+> latest mkisofs works fine even without patching.
 
-One more - winxp shows files and directories on this linux-unplayable
-vcd. Is it like there no directories in fact, and all this contents is
-just file virtualization of the vcd tracks (but why the hell would be
-autorun.inf and some executable !! file there?) or there is some data
-track there, but it is non-standard or not supported? I can provide
-you with nero image of the disc i have used during copying
-(450mbytes), but i'm not broadband, and you propably also have some
-better things to transmit, so....
+Did you _really_ use the latest mkisofs?
 
-Thanks for replies
---
-wixor
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

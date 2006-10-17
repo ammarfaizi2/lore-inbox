@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422968AbWJQCVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422932AbWJQCcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422968AbWJQCVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Oct 2006 22:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422969AbWJQCVy
+	id S1422932AbWJQCcm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Oct 2006 22:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422970AbWJQCcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Oct 2006 22:21:54 -0400
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:29948 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1422968AbWJQCVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Oct 2006 22:21:53 -0400
-From: Dan Dennedy <dan@dennedy.org>
-To: linux1394-user@lists.sourceforge.net
-Subject: Re: raw1394 problems galore
-Date: Mon, 16 Oct 2006 19:21:22 -0700
-User-Agent: KMail/1.9.1
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       For users of Fedora Core releases 
-	<fedora-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-References: <4532DF11.9060704@verizon.net> <4533DDA2.2050008@verizon.net> <4533FBD8.7050101@s5r6.in-berlin.de>
-In-Reply-To: <4533FBD8.7050101@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610161921.22847.dan@dennedy.org>
+	Mon, 16 Oct 2006 22:32:42 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:17765 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1422932AbWJQCcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Oct 2006 22:32:41 -0400
+Date: Mon, 16 Oct 2006 22:32:39 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: raw1394 problems galore FIXED!!!!!
+In-reply-to: <45342789.2050506@verizon.net>
+To: For users of Fedora Core releases <fedora-list@redhat.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
+       linux1394-user@lists.sourceforge.net
+Message-id: <453440C7.2060800@verizon.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <4532DF11.9060704@verizon.net> <4533B889.5060302@s5r6.in-berlin.de>
+ <4533DDA2.2050008@verizon.net> <4533FBD8.7050101@s5r6.in-berlin.de>
+ <45342789.2050506@verizon.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 October 2006 2:38 pm, Stefan Richter wrote:
-> Gene Heskett wrote:
-> > kino-0.8 receives video from it in real time and is doing so right now,
-> > and can capture it to file, and then play/edit that file, or could
-> > saturday when I last tried it.  I ASSume that kino-0.9.2 could also
-> > play/edit that file, but have not verified that by reinstalling 0.9.2.
-> ...
-> > I was told it was a total rewrite of bad code when I complained about a
-> > year ago.  My reply at the time was that it worked, and I don't often
-> > fix things that are working.  I'm getting lazy in my dotage I guess.
->
-> I don't remember what was changed at that time. Maybe that was the
-> addition of the new isochronous interface that I mentioned. The old one
-> was (is?) still there but maybe there were interactions... 
+[...]
 
-Allow me to help clarify. There are 4 interfaces for capturing DV--I kid you 
-not! One is video1394, which Kino has never supported for capture. Kino 0.8.0 
-supports legacy raw1394 and dv1394 switchable via Preferences. Gene is using 
-the legacy raw1394 in that version, based upon a screenshot he sent. Kino 
-0.9.2 supports dv1394 and libiec61883 (atop raw1394 rawiso) switchable ONLY 
-at build time requiring an explicit configure option for dv1394. This is to 
-coerce builders to the newest and best capture interface.
+This is going to sound rather silly, because I did try a couple of 
+earlier kernels before I started posting about this problem.
 
-> However this  is not related to the inability to issue AV/C commands, which
-> are issued asynchronously.  
+Tonight, I saw that kernel-2.6.18-1.2200.fc5.i686 was available, along 
+with the matching kmod-ndiswrapper pieces and kmod-ntfs in versions 
+2.6.18-1.2200.fc5 were available, so I installed them and rebooted.
 
-Correct; it is very curious that his device is not recognized via configROM 
-probes and does not respond to AV/C control commands. This now impacts Kino 
-0.9.2 with libiec61883 (Gene's configuration) because I simplified the UI for 
-the typical case--the one where 1394 asynch works. In that case, the first 
-recognized camera during a bus traversal (or selectable via a simple pulldown 
-menu) lets Kino determine on which 1394 port this device sits in order to 
-make capture "just work." (permissions issues to /dev/raw1394 aside :-) It is 
-very rare that someone can capture but not have AV/C and device recognition. 
-The majority of problem reports are just the opposite with the majority 
-resolved by unloading eth1394!
+Now kino-0.8 works sortof, wants to crash.
+And kino-0.9.2 apparently works flawlessly, as does dvcont.
+
+Looking into the logs, I see this during the boot:
+Oct 16 20:20:29 diablo kernel: ohci1394: fw-host0: OHCI-1394 1.1 (PCI): 
+IRQ=[10]  MMIO=[c0209000-c02097ff]  Max Packet=[2048]  IR/IT contexts=[
+4/8]
+Oct 16 20:20:29 diablo kernel: audit(1161044396.750:4): avc:  denied  { 
+getattr } for  pid=1310 comm="pam_console_app" name="raw1394" dev=tmpfs
+  ino=4494 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c255 
+tcontext=system_u:object_r:device_t:s0 tclass=chr_file
+Oct 16 20:20:29 diablo kernel: audit(1161044396.750:5): avc:  denied  { 
+setattr } for  pid=1310 comm="pam_console_app" name="raw1394" dev=tmpfs
+  ino=4494 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c255 
+tcontext=system_u:object_r:device_t:s0 tclass=chr_file
+
+And I believe the camera was plugged in and powered up during the boot 
+as there are no further messages in the log & I've been playing with a 
+very wide grin on my face for about half an hour with it.
+
+So it was a kernel problem all along!
+
+Just one question here.  Am I the only idiot that actually wants to do 
+work on linux?  On second thought, I might not like the answer :-)
+
+Anyway, end of thread, till the next time :)
 
 -- 
-+-DRD-+
+Cheers, Gene
+

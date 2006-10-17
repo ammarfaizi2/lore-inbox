@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161206AbWJQKid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161211AbWJQKjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161206AbWJQKid (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 06:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWJQKid
+	id S1161211AbWJQKjm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 06:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161212AbWJQKjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 06:38:33 -0400
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:28603 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1161206AbWJQKic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 06:38:32 -0400
-Message-ID: <4534B2CA.1000108@cn.ibm.com>
-Date: Tue, 17 Oct 2006 18:39:06 +0800
-From: Yi CDL Yang <yyangcdl@cn.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [PATCH 2.6.19-rc2]: Fix protdrv_pci.c compile error
-X-MIMETrack: Itemize by SMTP Server on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 10/17/2006 18:41:45,
-	Serialize by Router on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 10/17/2006 18:41:47,
-	Serialize complete at 10/17/2006 18:41:47
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=GB2312
+	Tue, 17 Oct 2006 06:39:42 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:10347 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1161211AbWJQKjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 06:39:41 -0400
+Date: Tue, 17 Oct 2006 06:39:38 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: raw1394 problems galore FIXED!!!!!
+In-reply-to: <4534755B.2000804@s5r6.in-berlin.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: For users of Fedora Core releases <fedora-list@redhat.com>,
+       linux-kernel@vger.kernel.org, linux1394-user@lists.sourceforge.net
+Message-id: <4534B2EA.1040309@verizon.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <4532DF11.9060704@verizon.net> <4533B889.5060302@s5r6.in-berlin.de>
+ <4533DDA2.2050008@verizon.net> <4533FBD8.7050101@s5r6.in-berlin.de>
+ <45342789.2050506@verizon.net> <453440C7.2060800@verizon.net>
+ <4534755B.2000804@s5r6.in-berlin.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When CONFIG_PM isn't set, the compiler will report the following error:
+Stefan Richter wrote:
+> Gene Heskett wrote:
+> ..
+>> Tonight, I saw that kernel-2.6.18-1.2200.fc5.i686 was available, along
+>> with the matching kmod-ndiswrapper pieces and kmod-ntfs in versions
+>> 2.6.18-1.2200.fc5 were available, so I installed them and rebooted.
+>>
+>> Now kino-0.8 works sortof, wants to crash.
+>> And kino-0.9.2 apparently works flawlessly, as does dvcont.
+> ...
+>> So it was a kernel problem all along!
+> ...
+> 
+> I have no idea what we did between 2.6.17 and .18 that made it work. Or
+> was it just the reboot after kernel update which brought it into shape?
 
-drivers/built-in.o: In function `.pcie_portdrv_slot_reset':
-portdrv_pci.c:(.text+0xa80c): undefined reference to `.pcie_portdrv_restore_config'
-make: *** [.tmp_vmlinux1] Error 1
+It was rebooted many times on the previous kernel.  This kernel also 
+'feels' considerably faster.
 
-The problem is that pcie_portdrv_restore_config isn't defiend when PM is disabled.
-
-
-This patch fixes this problem, please consider to apply, thanks.
-
-Signed-off by Yi Yang <yyangcdl@cn.ibm.com>
-
---- a/drivers/pci/pcie/portdrv_pci.c	2006-10-13 12:25:04.000000000 -0400
-+++ b/drivers/pci/pcie/portdrv_pci.c	2006-10-16 18:49:43.000000000 -0400
-@@ -37,7 +37,6 @@ static int pcie_portdrv_save_config(stru
- 	return pci_save_state(dev);
- }
- 
--#ifdef CONFIG_PM
- static int pcie_portdrv_restore_config(struct pci_dev *dev)
- {
- 	int retval;
-@@ -50,6 +49,7 @@ static int pcie_portdrv_restore_config(s
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
- static int pcie_portdrv_suspend(struct pci_dev *dev, pm_message_t state)
- {
- 	int ret = pcie_port_device_suspend(dev, state);
- 
-
+-- 
+Cheers, Gene
 

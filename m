@@ -1,80 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWJQTsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJQTtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWJQTsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWJQTsp
+	id S1751164AbWJQTtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWJQTtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:48:45 -0400
-Received: from [151.97.230.90] ([151.97.230.90]:20950 "EHLO memento.home.lan")
-	by vger.kernel.org with ESMTP id S1750912AbWJQTso (ORCPT
+	Tue, 17 Oct 2006 15:49:16 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:47012 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751245AbWJQTst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:48:44 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-To: stable@kernel.org
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: uml: make Uml compile on FC6 kernel headers
-Date: Tue, 17 Oct 2006 17:01:13 +0200
-Message-Id: <11610972733507-git-send-email-blaisorblade@yahoo.it>
-X-Mailer: git-send-email 1.4.2.3.g99b7
+	Tue, 17 Oct 2006 15:48:49 -0400
+Date: Tue, 17 Oct 2006 21:47:48 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jens Axboe <jens.axboe@oracle.com>
+cc: Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
+In-Reply-To: <20061017193645.GM7854@kernel.dk>
+Message-ID: <Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr>
+ <200610171857.k9HIvq1M009488@turing-police.cc.vt.edu>
+ <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr> <20061017193645.GM7854@kernel.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ulrich Drepper <drepper@redhat.com>
+>> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
+>> of being wrapped into if BLOCK. Not really consistent but whatever.
+>
+>Feel free to send in patches that make things more consistent.
 
-I need this patch to get a UML kernel to compile.  This is with the kernel
-headers in FC6 which are automatically generated from the kernel tree. 
-Some headers are missing but those files don't need them.  At least it
-appears so since the resulting kernel works fine.
+How would you like things? if BLOCK or depends on BLOCK?
+Does menuconfig/oldconfig/etc. parse the whole config structure faster 
+it it done either way?
 
-Tested on x86-64.
-
-Signed-off-by: Ulrich Drepper <drepper@redhat.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- arch/um/include/kern_util.h    |    1 -
- arch/um/sys-x86_64/stub_segv.c |    1 -
- 2 files changed, 2 deletions(-)
-
-diff -puN arch/um/include/kern_util.h~make-uml-copmile arch/um/include/kern_util.h
---- a/arch/um/include/kern_util.h~make-uml-copmile
-+++ a/arch/um/include/kern_util.h
-@@ -6,7 +6,6 @@
- #ifndef __KERN_UTIL_H__
- #define __KERN_UTIL_H__
- 
--#include "linux/threads.h"
- #include "sysdep/ptrace.h"
- #include "sysdep/faultinfo.h"
- 
-diff -puN arch/um/sys-x86_64/stub_segv.c~make-uml-copmile arch/um/sys-x86_64/stub_segv.c
---- a/arch/um/sys-x86_64/stub_segv.c~make-uml-copmile
-+++ a/arch/um/sys-x86_64/stub_segv.c
-@@ -5,7 +5,6 @@
- 
- #include <stddef.h>
- #include <signal.h>
--#include <linux/compiler.h>
- #include <asm/unistd.h>
- #include "uml-config.h"
- #include "sysdep/sigcontext.h"
-_
-
-Patches currently in -mm which might be from drepper@redhat.com are
-
-make-uml-copmile.patch
-honour-mnt_noexec-for-access.patch
-kevent-core-files.patch
-kevent-core-files-fix.patch
-kevent-core-files-s390-hack.patch
-kevent-poll-select-notifications.patch
-kevent-socket-notifications.patch
-kevent-socket-notifications-fix-2.patch
-kevent-socket-notifications-fix-4.patch
-kevent-timer-notifications.patch
-
-
+	-`J'
+-- 

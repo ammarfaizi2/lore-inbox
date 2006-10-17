@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWJQTtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWJQTuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWJQTtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWJQTtO
+	id S1751257AbWJQTuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWJQTuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:49:14 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:33807 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751247AbWJQTtB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:49:01 -0400
-Message-ID: <453533AB.9020801@argo.co.il>
-Date: Tue, 17 Oct 2006 21:48:59 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Tue, 17 Oct 2006 15:50:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:11162 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751252AbWJQTuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 15:50:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=qtRsFU5bnzs6hUhWZbwPPMfLQfHy9RoAujkg65kEQ044hPxBhFynFwP9fwLmAq6b/R4ZcBLB7aWB430+IpJhviCENFiuXUMp6p7oJRQ1C3swneHwizarLqOTawjIwCQ8mgadVuzco991evAx1VomP5FooSkz0qZ9SHlZRUBjqlc=
+Date: Tue, 17 Oct 2006 21:50:22 +0200
+From: Luca Tettamanti <kronos.it@gmail.com>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Cc: ismail@pardus.org.tr, linux-kernel@vger.kernel.org
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Message-ID: <20061017195022.GA23792@dreamland.darkstar.lan>
+References: <20061017180210.GA20287@dreamland.darkstar.lan> <200610172114.30268.ismail@pardus.org.tr> <45351de7.ky2ldiUVUFoikxQ6%Joerg.Schilling@fokus.fraunhofer.de>
 MIME-Version: 1.0
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-CC: "Dr. David Alan Gilbert" <dave@treblig.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: DVD drive not recognized on Intel G965 (2.6.19-rc2)
-References: <20061017180420.GD24789@tau.solarneutrino.net>
-In-Reply-To: <20061017180420.GD24789@tau.solarneutrino.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Oct 2006 19:48:59.0330 (UTC) FILETIME=[49D8E220:01C6F225]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45351de7.ky2ldiUVUFoikxQ6%Joerg.Schilling@fokus.fraunhofer.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Richter wrote:
->
-> On Sat, Oct 14, 2006 at 01:56:44PM +0100, Dr. David Alan Gilbert wrote:
-> > * Ryan Richter (ryan@tau.solarneutrino.net) wrote:
-> > > Hi, I have a new machine with an Intel 965G chipset.  There's a DVD
-> > > drive on the IDE port that I can boot off of, but linux doesn't 
-> find it.
-> > >
-> >
-> > Hi Ryan,
-> >   I suspect that the DVD is connected to a JMicron IDE coontroller not
-> > to the 965 itself? I might be wrong but I'd heard fo a few 965 machines
-> > like that?
-> > Try turning that on in the kernel config
->
-> I tried the JMicron driver, but it didn't find a controller.  This board
-> has only one PATA port, and I'm pretty sure it's from the Intel
-> southbridge.
->
+Il Tue, Oct 17, 2006 at 08:16:07PM +0200, Joerg Schilling ha scritto: 
+> Ismail Donmez <ismail@pardus.org.tr> wrote:
+> 
+> > I was just trying a fast hack to see it works ;-) but iso files produced by 
+> > latest mkisofs works fine even without patching.
+> 
+> Did you _really_ use the latest mkisofs?
 
-I have a similar board.
+Yes, of course. As I said, the size of PX record is different:
 
-Try adding all-generic-ide to the kernel command line, and if that 
-fails, post your lspci output.
+000b820: 0100 5350 0701 beef 0052 5205 0181 5058  ..SP.....RR...PX
+000b830: 2c01 6d41 0000 0000 416d 0200 0000 0000  ,.mA....Am......
+         ^^ size is 44
 
+but isofs (I'm using 2.6.19-rc2) doesn't care. If I'm reading the code
+correctly record size is validated against (dentry size - name len -
+records already parsed); it may be possibile to trigger the failure with
+a certain combination of records (directory relocation?).
+With my patch it should never happens that expected attributes size is
+greater than dentry size.
+Anyway, if you have a (small) image that triggers the error I can double
+check the code.
+
+
+Luca
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+#include <stdio.h> 
+int main(void) {printf("\t\t\b\b\b\b\b\b");
+printf("\t\t\b\b\b\b\b\b");return 0;}

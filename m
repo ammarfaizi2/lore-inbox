@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWJQN7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWJQOEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWJQN7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 09:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWJQN7N
+	id S1751032AbWJQOEA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 10:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWJQOEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 09:59:13 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:58281 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751019AbWJQN7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 09:59:11 -0400
-X-Sasl-enc: aNzAnebvnCm3vzh/C4E41uq0ZJj2XNDo2jYUJHrF+kys 1161093552
-Subject: Re: BUG dcache.c:613 during autofs unmounting in 2.6.19rc2
-From: Ian Kent <raven@themaw.net>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1161093310.4937.37.camel@localhost>
-References: <200610161658.58288.ak@suse.de>
-	 <1161058535.11489.6.camel@localhost>  <200610171250.56522.ak@suse.de>
-	 <1161093310.4937.37.camel@localhost>
-Content-Type: text/plain
-Date: Tue, 17 Oct 2006 21:59:04 +0800
-Message-Id: <1161093544.4937.41.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 10:04:00 -0400
+Received: from main.gmane.org ([80.91.229.2]:1199 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751031AbWJQOD7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 10:03:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: [PATCH .19-rc2] kbuild: Another 'headers*' fix for non in-tree build
+Date: Tue, 17 Oct 2006 14:03:05 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnej9p0r.2m4.olecom@flower.upol.cz>
+References: <6bffcb0e0610160352h2bd86f33x72c438c7e8bdf810@mail.gmail.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: Oleg Verych <olecom@flower.upol.cz>, LKML <linux-kernel@vger.kernel.org>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-17 at 21:55 +0800, Ian Kent wrote:
-> > Well it always worked this way in earlier kernels and even if the
-> > wrong module was suddenly used for some reason it shouldn't BUG.
-> > So something is broken.
-> 
-> True.
-> 
-> There have been some changes in this area (David Howells made some
-> changes which affected autofs4) and I'm not sure that the autofs module
-> was reviewed. I didn't look closely at it at the time, I guess I should
-> have. Sorry.
-> 
-> It will take a while longer to work out if the autofs if open to the
-> same issue resulting from Davids change.
 
-Oh forgot .. I know it may be hard to do but could you try and confirm
-whether it was autofs or autofs4. They are very different and I don't
-want to stare at code trying to work out what's wrong if it's not
-broken.
+ While it mostly work, version.h header *is* generated, thus resides
+ in $(objtree), not $(srctree).
+ This broke headers_install, thus headers_check.
 
-> 
-> Ian
-> 
+Signed-off-by: Oleg Verych <olecom@flower.upol.cz>
+
+---
+ was [BUG 2.6.19-rc2-g51018b0a] No rule to make target
+       /mnt/md0/devel/linux-git/include/linux/version.h
+ by Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+
+ Test it, please, Michal. I think this, non-rfc version, is OK for 2.6.19.
+
+ scripts/Makefile.headersinst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.19-rc2/scripts/Makefile.headersinst
+===================================================================
+--- linux-2.6.19-rc2.orig/scripts/Makefile.headersinst	2006-10-17 13:40:58.091384132 +0000
++++ linux-2.6.19-rc2/scripts/Makefile.headersinst	2006-10-17 13:42:03.591116749 +0000
+@@ -168,7 +168,7 @@
+ 	$(call cmd,gen)
+ 
+ else
+-$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
++$(objhdr-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(objtree)/$(obj)/%.h $(KBUILDFILES)
+ 	$(call cmd,o_hdr_install)
+ 
+ $(header-y) :		$(INSTALL_HDR_PATH)/$(_dst)/%.h: $(srctree)/$(obj)/%.h $(KBUILDFILES)
 

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWJQRml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWJQRxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWJQRml (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 13:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWJQRml
+	id S1750833AbWJQRxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 13:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWJQRxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 13:42:41 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:8050 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751360AbWJQRmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 13:42:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=UGVhoWiP3HvIodGz1shAGNeUrRBvIjsjRJuksR0PrSutCU8P25kfGeDIIr5f3xkVh1LfRZ0Fz5CJ01zirIBs6tQEBABlTfRERT/sRQvLuItqQu9ptq2xo131i3O4ioYY8bsQCRGadgVlLYCivI8ixg8FEW09PYP10ycP1WFMj1Y=  ;
-Message-ID: <4535160E.2010908@yahoo.com.au>
-Date: Wed, 18 Oct 2006 03:42:38 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [RFC] Remove temp_priority
-References: <45351423.70804@google.com>
-In-Reply-To: <45351423.70804@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 13:53:11 -0400
+Received: from colin.muc.de ([193.149.48.1]:51726 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750833AbWJQRxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 13:53:10 -0400
+Date: 17 Oct 2006 19:53:08 +0200
+Date: Tue, 17 Oct 2006 19:53:08 +0200
+From: Andi Kleen <ak@muc.de>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       yhlu.kernel@gmail.com
+Subject: Re: [PATCH] x86_64: store Socket ID in phys_proc_id
+Message-ID: <20061017175308.GB15429@muc.de>
+References: <5986589C150B2F49A46483AC44C7BCA412D6E3@ssvlexmb2.amd.com> <86802c440610170834q5921908u5bcd7c2cb4b78dd5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c440610170834q5921908u5bcd7c2cb4b78dd5@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> This is not tested yet. What do you think?
+On Tue, Oct 17, 2006 at 08:34:47AM -0700, Yinghai Lu wrote:
+> Current code store phys_proc_id with init APIC ID, and later will change
+> to apicid>>bits.
 > 
-> This patch removes temp_priority, as it is racy. We're setting
-> prev_priority from it, and yet temp_priority could have been
-> set back to DEF_PRIORITY by another reclaimer.
+> So for the apic id lifted system, for example BSP with apicid 0x10, the
+> phys_proc_id will be 8.
 
-I like it. I wonder if we should get kswapd to stick its priority
-into the zone at the point where zone_watermark_ok becomes true,
-rather than setting all zones to the lowest priority? That would
-require a bit more logic though I guess.
+How is that a problem? 
 
-For that matter (going off the topic a bit), I wonder if
-try_to_free_pages should have a watermark check there too? This
-might help reduce the latency issue you brought up where one process
-has reclaimed a lot of pages, but another isn't making any progress
-and has to go through the full priority range? Maybe that's
-statistically pretty unlikely?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> This patch use initial APIC ID to get Socket ID.
+> 
+> It also removed ht_nodeid calculating, because We already have correct
+> socket id for sure.
+
+we've had cases where it wasn't identical, that is when i originally
+added that code.
+
+-Andi

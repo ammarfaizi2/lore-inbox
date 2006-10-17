@@ -1,124 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWJQTkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWJQTkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWJQTkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWJQTkV
+	id S1751223AbWJQTkY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWJQTkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:40:21 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:2953 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S1751218AbWJQTkU (ORCPT
+	Tue, 17 Oct 2006 15:40:24 -0400
+Received: from sp604001mt.neufgp.fr ([84.96.92.60]:52118 "EHLO Smtp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1751223AbWJQTkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:40:20 -0400
-Date: Tue, 17 Oct 2006 21:42:12 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] 2.6.19-rc2-mm1 ll_rw_blk.c: export clear_queue_congested and set_queue_congested
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
-Cc: petero2@telia.com, akpm@osdl.org, "Jens Axboe" <jens.axboe@oracle.com>
-Content-Type: multipart/mixed; boundary=----------LgepRLBi4lHh3VOTuY3Gxk
-MIME-Version: 1.0
-Message-ID: <op.thkzomdriudtyh@master>
-User-Agent: Opera Mail/9.00 (Win32)
+	Tue, 17 Oct 2006 15:40:23 -0400
+Date: Tue, 17 Oct 2006 21:28:21 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
+In-reply-to: <20061017191814.55313.qmail@web57803.mail.re3.yahoo.com>
+To: John Philips <johnphilips42@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Message-id: <45352ED5.70505@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <20061017191814.55313.qmail@web57803.mail.re3.yahoo.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------LgepRLBi4lHh3VOTuY3Gxk
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+John Philips a écrit :
+>> Hum, given your slow cpu, you might revert tx queue
+>> length to 2.4.XX level 
+>> (100 instead of 1000)
+> 
+> I tried that, it didn't help any.
+> 
+>> Are you sure you cannot post here : 
+>>
+>> tc -s -d qdisc show dev eth6
+> 
+> As I said, there are rules in place for every single
+> IP in a /22 subnet.  It would be over 12000 lines.  I
+> tried turning off the traffic shaping, it didn't help.
+>  
+>> You might want to make inet_peer_cache purge faster
+>> :
+>>
+>> echo 1 >/proc/sys/net/ipv4/inet_peer_gc_mintime
+>> echo 2 >/proc/sys/net/ipv4/inet_peer_gc_maxtime
+> 
+> I tried that as well, unfortunately it didn't help.
 
-Hello,
+This was just to reduce size of the table (and time of the lookups), not to 
+solve the nic problem at all :)
 
-this patch exports the clear_queue_congested()
-and set_queue_congested() functions located in ll_rw_blk.c
+> 
+> It's worth noting that this behavior happens at
+> seemingly random times for random amounts of time.  It
+> also causes the interface to auto-negotiate it's
+> settings again.  During these periods, ping times to a
+> switch plugged directly into eth6 are 4000+ms.  When I
+> statically set the interface to 100baseT/full duplex
+> with mii-tool, ping times to the switch immediately
+> return to normal.  Unfortunately this fix only lasts a
+> few minutes, because the interface hangs up and
+> returns to auto-negotiation.
+> 
+> Also, I know this isn't a problem with my hardware
+> since it started happening immediately after I
+> upgraded the kernel from 2.4.25.
 
-The functions are renamed to blk_clear_queue_congested()
-and blk_set_queue_congested().
+Yes, I supposed that your hardware was running OK with previous kernels.
 
-(needed in the pktcdvd driver's bio write congestion control)
-
-(have the bits set with set_queue_congested() any use?
-seems they are never used by anyone....)
-
-Signed-off-by: Thomas Maier <balagi@justmail.de>
-
-
-------------LgepRLBi4lHh3VOTuY3Gxk
-Content-Disposition: attachment; filename=1-export-queue-congestion-ll_rw_blk-2.6.19-rc2-mm1.patch
-Content-Type: application/octet-stream; name=1-export-queue-congestion-ll_rw_blk-2.6.19-rc2-mm1.patch
-Content-Transfer-Encoding: Base64
-
-ZGlmZiAtdXJwTiBsaW51eC0yLjYuMTktcmMyLW1tMS5ibGsvYmxvY2svbGxfcndf
-YmxrLmMgMS1leHBvcnQtcXVldWUtY29uZ2VzdGlvbi1sbF9yd19ibGstMi42LjE5
-LXJjMi1tbTEvYmxvY2svbGxfcndfYmxrLmMKLS0tIGxpbnV4LTIuNi4xOS1yYzIt
-bW0xLmJsay9ibG9jay9sbF9yd19ibGsuYwkyMDA2LTEwLTE3IDIxOjIwOjQyLjAw
-MDAwMDAwMCArMDIwMAorKysgMS1leHBvcnQtcXVldWUtY29uZ2VzdGlvbi1sbF9y
-d19ibGstMi42LjE5LXJjMi1tbTEvYmxvY2svbGxfcndfYmxrLmMJMjAwNi0xMC0x
-NyAyMToxNzoyMS4wMDAwMDAwMDAgKzAyMDAKQEAgLTExNyw3ICsxMTcsNyBAQCBz
-dGF0aWMgdm9pZCBibGtfcXVldWVfY29uZ2VzdGlvbl90aHJlc2hvCiAgKiBjb25n
-ZXN0ZWQgcXVldWVzLCBhbmQgd2FrZSB1cCBhbnlvbmUgd2hvIHdhcyB3YWl0aW5n
-IGZvciByZXF1ZXN0cyB0byBiZQogICogcHV0IGJhY2suCiAgKi8KLXN0YXRpYyB2
-b2lkIGNsZWFyX3F1ZXVlX2Nvbmdlc3RlZChyZXF1ZXN0X3F1ZXVlX3QgKnEsIGlu
-dCBydykKK3ZvaWQgYmxrX2NsZWFyX3F1ZXVlX2Nvbmdlc3RlZChyZXF1ZXN0X3F1
-ZXVlX3QgKnEsIGludCBydykKIHsKIAllbnVtIGJkaV9zdGF0ZSBiaXQ7CiAJd2Fp
-dF9xdWV1ZV9oZWFkX3QgKndxaCA9ICZjb25nZXN0aW9uX3dxaFtyd107CkBAIC0x
-MjksMTEgKzEyOSwxMyBAQCBzdGF0aWMgdm9pZCBjbGVhcl9xdWV1ZV9jb25nZXN0
-ZWQocmVxdWVzCiAJCXdha2VfdXAod3FoKTsKIH0KIAorRVhQT1JUX1NZTUJPTChi
-bGtfY2xlYXJfcXVldWVfY29uZ2VzdGVkKTsKKwogLyoKICAqIEEgcXVldWUgaGFz
-IGp1c3QgZW50ZXJlZCBjb25nZXN0aW9uLiAgRmxhZyB0aGF0IGluIHRoZSBxdWV1
-ZSdzIFZNLXZpc2libGUKICAqIHN0YXRlIGZsYWdzIGFuZCBpbmNyZW1lbnQgdGhl
-IGdsb2JhbCBnb3VudGVyIG9mIGNvbmdlc3RlZCBxdWV1ZXMuCiAgKi8KLXN0YXRp
-YyB2b2lkIHNldF9xdWV1ZV9jb25nZXN0ZWQocmVxdWVzdF9xdWV1ZV90ICpxLCBp
-bnQgcncpCit2b2lkIGJsa19zZXRfcXVldWVfY29uZ2VzdGVkKHJlcXVlc3RfcXVl
-dWVfdCAqcSwgaW50IHJ3KQogewogCWVudW0gYmRpX3N0YXRlIGJpdDsKIApAQCAt
-MTQxLDYgKzE0Myw4IEBAIHN0YXRpYyB2b2lkIHNldF9xdWV1ZV9jb25nZXN0ZWQo
-cmVxdWVzdF8KIAlzZXRfYml0KGJpdCwgJnEtPmJhY2tpbmdfZGV2X2luZm8uc3Rh
-dGUpOwogfQogCitFWFBPUlRfU1lNQk9MKGJsa19zZXRfcXVldWVfY29uZ2VzdGVk
-KTsKKwogLyoqCiAgKiBibGtfZ2V0X2JhY2tpbmdfZGV2X2luZm8gLSBnZXQgdGhl
-IGFkZHJlc3Mgb2YgYSBxdWV1ZSdzIGJhY2tpbmdfZGV2X2luZm8KICAqIEBiZGV2
-OglkZXZpY2UKQEAgLTIwNjYsNyArMjA3MCw3IEBAIHN0YXRpYyB2b2lkIF9fZnJl
-ZWRfcmVxdWVzdChyZXF1ZXN0X3F1ZXUKIAlzdHJ1Y3QgcmVxdWVzdF9saXN0ICpy
-bCA9ICZxLT5ycTsKIAogCWlmIChybC0+Y291bnRbcnddIDwgcXVldWVfY29uZ2Vz
-dGlvbl9vZmZfdGhyZXNob2xkKHEpKQotCQljbGVhcl9xdWV1ZV9jb25nZXN0ZWQo
-cSwgcncpOworCQlibGtfY2xlYXJfcXVldWVfY29uZ2VzdGVkKHEsIHJ3KTsKIAog
-CWlmIChybC0+Y291bnRbcnddICsgMSA8PSBxLT5ucl9yZXF1ZXN0cykgewogCQlp
-ZiAod2FpdHF1ZXVlX2FjdGl2ZSgmcmwtPndhaXRbcnddKSkKQEAgLTIxMzYsNyAr
-MjE0MCw3IEBAIHN0YXRpYyBzdHJ1Y3QgcmVxdWVzdCAqZ2V0X3JlcXVlc3QocmVx
-dWUKIAkJCQl9CiAJCQl9CiAJCX0KLQkJc2V0X3F1ZXVlX2Nvbmdlc3RlZChxLCBy
-dyk7CisJCWJsa19zZXRfcXVldWVfY29uZ2VzdGVkKHEsIHJ3KTsKIAl9CiAKIAkv
-KgpAQCAtMzgyNCwxNCArMzgyOCwxNCBAQCBxdWV1ZV9yZXF1ZXN0c19zdG9yZShz
-dHJ1Y3QgcmVxdWVzdF9xdWV1CiAJYmxrX3F1ZXVlX2Nvbmdlc3Rpb25fdGhyZXNo
-b2xkKHEpOwogCiAJaWYgKHJsLT5jb3VudFtSRUFEXSA+PSBxdWV1ZV9jb25nZXN0
-aW9uX29uX3RocmVzaG9sZChxKSkKLQkJc2V0X3F1ZXVlX2Nvbmdlc3RlZChxLCBS
-RUFEKTsKKwkJYmxrX3NldF9xdWV1ZV9jb25nZXN0ZWQocSwgUkVBRCk7CiAJZWxz
-ZSBpZiAocmwtPmNvdW50W1JFQURdIDwgcXVldWVfY29uZ2VzdGlvbl9vZmZfdGhy
-ZXNob2xkKHEpKQotCQljbGVhcl9xdWV1ZV9jb25nZXN0ZWQocSwgUkVBRCk7CisJ
-CWJsa19jbGVhcl9xdWV1ZV9jb25nZXN0ZWQocSwgUkVBRCk7CiAKIAlpZiAocmwt
-PmNvdW50W1dSSVRFXSA+PSBxdWV1ZV9jb25nZXN0aW9uX29uX3RocmVzaG9sZChx
-KSkKLQkJc2V0X3F1ZXVlX2Nvbmdlc3RlZChxLCBXUklURSk7CisJCWJsa19zZXRf
-cXVldWVfY29uZ2VzdGVkKHEsIFdSSVRFKTsKIAllbHNlIGlmIChybC0+Y291bnRb
-V1JJVEVdIDwgcXVldWVfY29uZ2VzdGlvbl9vZmZfdGhyZXNob2xkKHEpKQotCQlj
-bGVhcl9xdWV1ZV9jb25nZXN0ZWQocSwgV1JJVEUpOworCQlibGtfY2xlYXJfcXVl
-dWVfY29uZ2VzdGVkKHEsIFdSSVRFKTsKIAogCWlmIChybC0+Y291bnRbUkVBRF0g
-Pj0gcS0+bnJfcmVxdWVzdHMpIHsKIAkJYmxrX3NldF9xdWV1ZV9mdWxsKHEsIFJF
-QUQpOwpkaWZmIC11cnBOIGxpbnV4LTIuNi4xOS1yYzItbW0xLmJsay9pbmNsdWRl
-L2xpbnV4L2Jsa2Rldi5oIDEtZXhwb3J0LXF1ZXVlLWNvbmdlc3Rpb24tbGxfcndf
-YmxrLTIuNi4xOS1yYzItbW0xL2luY2x1ZGUvbGludXgvYmxrZGV2LmgKLS0tIGxp
-bnV4LTIuNi4xOS1yYzItbW0xLmJsay9pbmNsdWRlL2xpbnV4L2Jsa2Rldi5oCTIw
-MDYtMTAtMTcgMjE6MjA6NDIuMDAwMDAwMDAwICswMjAwCisrKyAxLWV4cG9ydC1x
-dWV1ZS1jb25nZXN0aW9uLWxsX3J3X2Jsay0yLjYuMTktcmMyLW1tMS9pbmNsdWRl
-L2xpbnV4L2Jsa2Rldi5oCTIwMDYtMTAtMTcgMjE6MTc6MjEuMDAwMDAwMDAwICsw
-MjAwCkBAIC02NTEsNiArNjUxLDggQEAgZXh0ZXJuIHZvaWQgYmxrX3JlY291bnRf
-c2VnbWVudHMocmVxdWVzdAogZXh0ZXJuIGludCBzY3NpX2NtZF9pb2N0bChzdHJ1
-Y3QgZmlsZSAqLCBzdHJ1Y3QgZ2VuZGlzayAqLCB1bnNpZ25lZCBpbnQsIHZvaWQg
-X191c2VyICopOwogZXh0ZXJuIGludCBzZ19zY3NpX2lvY3RsKHN0cnVjdCBmaWxl
-ICosIHN0cnVjdCByZXF1ZXN0X3F1ZXVlICosCiAJCXN0cnVjdCBnZW5kaXNrICos
-IHN0cnVjdCBzY3NpX2lvY3RsX2NvbW1hbmQgX191c2VyICopOworZXh0ZXJuIHZv
-aWQgYmxrX2NsZWFyX3F1ZXVlX2Nvbmdlc3RlZChyZXF1ZXN0X3F1ZXVlX3QgKnEs
-IGludCBydyk7CitleHRlcm4gdm9pZCBibGtfc2V0X3F1ZXVlX2Nvbmdlc3RlZChy
-ZXF1ZXN0X3F1ZXVlX3QgKnEsIGludCBydyk7CiBleHRlcm4gdm9pZCBibGtfc3Rh
-cnRfcXVldWUocmVxdWVzdF9xdWV1ZV90ICpxKTsKIGV4dGVybiB2b2lkIGJsa19z
-dG9wX3F1ZXVlKHJlcXVlc3RfcXVldWVfdCAqcSk7CiBleHRlcm4gdm9pZCBibGtf
-c3luY19xdWV1ZShzdHJ1Y3QgcmVxdWVzdF9xdWV1ZSAqcSk7Cg==
-
-------------LgepRLBi4lHh3VOTuY3Gxk--
+Which NIC driver is handling eth6 ?
 

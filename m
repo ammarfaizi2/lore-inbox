@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWJQUXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJQUaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWJQUXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 16:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWJQUXE
+	id S1751359AbWJQUaq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 16:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWJQUaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 16:23:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29331 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751266AbWJQUXB (ORCPT
+	Tue, 17 Oct 2006 16:30:46 -0400
+Received: from dxv01.wellsfargo.com ([151.151.5.42]:64218 "EHLO
+	dxv01.wellsfargo.com") by vger.kernel.org with ESMTP
+	id S1751246AbWJQUap convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 16:23:01 -0400
-Date: Tue, 17 Oct 2006 13:22:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.6.19-rc2-mm1
-Message-Id: <20061017132245.12499c1d.akpm@osdl.org>
-In-Reply-To: <4535310C.40708@goop.org>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	<4535310C.40708@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 16:30:45 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: Touchscreen hardware hacking/driver hacking.
+Date: Tue, 17 Oct 2006 15:30:43 -0500
+Message-ID: <E8C008223DD5F64485DFBDF6D4B7F71D020C5E83@msgswbmnmsp25.wellsfargo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Touchscreen hardware hacking/driver hacking.
+Thread-Index: AcbyKxw2Q/Mp7F99RUaKI0Ab6CYmpg==
+From: <Greg.Chandler@wellsfargo.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Oct 2006 20:30:44.0166 (UTC) FILETIME=[1ED88660:01C6F22B]
+X-WFMX: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Oct 2006 12:37:48 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Andrew Morton wrote:
-> > -generic-implementatation-of-bug.patch
-> > -generic-implementatation-of-bug-fix.patch
-> > +generic-bug-implementation.patch
-> >  generic-bug-for-i386.patch
-> >  generic-bug-for-x86-64.patch
-> >  uml-add-generic-bug-support.patch
-> >  use-generic-bug-for-ppc.patch
-> >  bug-test-1.patch
-> >
-> >  Updated generic-BUG-handling patches
-> >   
-> I thought the powerpc patch had been given a clean bill of health?  Or 
-> was there still a problem with it?
+I'm working on a prototype Hitachi tablet, it uses a Fujitsu 4-wire
+resistive touchscreen. {10.4" I think}
+I've found that windows-xp embedded uses a generic ps/2 driver for the
+device.
 
-No, last time I tested it the machine still froze after "returning from
-prom_init".  ie: before it had done any WARNs or BUGs.  It's rather
-mysterious.
+I've ripped this thing to pieces on several occasions looking for chips
+to help the porting, my problem is that I can not find the
+analog-digital converter for this thing.  The connector goes to a
+surface mount header on an 8 layer board.
+I loose the traces almost instantly.  Given that I can't find the
+converter anywhere what should I do next?
 
+I've done my homework and found that this HAS to be either serial or usb
+attached according to Fujitsu.
+Aparently it's neither.  There are no unknown USB devices {or known
+matching}, and there is no activity on the single serial port on the
+system.  Since the windows driver uses PS/2 as the interface I have a
+horrible feeling this thing has an interpretation layer that makes it a
+PS/2 mouse, and that may or may not royally be a nightmare.
+
+I would have posted this to a different group but there is no "input"
+mailing list.
+
+Help?
+
+
+I'll give a reward to anyone willing to actually help me get this hacked
+out.
+Reward defined:
+  Permanent shell access to my personal development envirnoment for
+testing kernel code.
+  Equipment in the environment: ARM, Alpha, x86-32, MIPS/Origin, HPPA,
+SPARC, PPC
+
+--Greg Chandler

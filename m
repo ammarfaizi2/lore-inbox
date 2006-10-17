@@ -1,38 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWJQQYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWJQQZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWJQQYl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWJQQYk
+	id S1751292AbWJQQZG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWJQQZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:24:40 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:18588 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S1751277AbWJQQYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:24:40 -0400
-Date: Tue, 17 Oct 2006 18:23:23 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v2)
-Message-ID: <20061017162323.GA6467@aepfle.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061017155934.GC3502@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20061017155934.GC3502@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 17 Oct 2006 12:25:06 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:18669 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751292AbWJQQZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 12:25:02 -0400
+Date: Tue, 17 Oct 2006 18:25:36 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg K-H <greg@kroah.com>, Duncan Sands <duncan.sands@math.u-psud.fr>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 4/4] Driver core: Don't fail attaching the device if it
+ cannot be bound.
+Message-ID: <20061017182536.48c8cb91@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <Pine.LNX.4.44L0.0610171158390.6016-100000@iolanthe.rowland.org>
+References: <20061017130602.5ae67a15@gondolin.boeblingen.de.ibm.com>
+	<Pine.LNX.4.44L0.0610171158390.6016-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, Adrian Bunk wrote:
+On Tue, 17 Oct 2006 12:04:28 -0400 (EDT),
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-> Subject    : monitor not active after boot
-> References : http://lkml.org/lkml/2006/10/5/338
-> Submitter  : Olaf Hering <olaf@aepfle.de>
-> Caused-By  : Antonino Daplas <adaplas@pol.net>
->              commit 346bc21026e7a92e1d7a4a1b3792c5e8b686133d
-> Status     : unknown
+> > -int bus_attach_device(struct device * dev)
+> > +void bus_attach_device(struct device * dev)
+> >  {
+> >  	struct bus_type *bus = dev->bus;
+> > -	int ret = 0;
+> > +	int ret;
+> >  
+> >  	if (bus) {
+> >  		dev->is_registered = 1;
+> >  		ret = device_attach(dev);
+> > -		if (ret >= 0) {
+> > +		BUG_ON(ret < 0);
+> > +		if (ret >= 0)
+> >  			klist_add_tail(&dev->knode_bus, &bus->klist_devices);
+> > -			ret = 0;
+> > -		} else
+> > +		else
+> >  			dev->is_registered = 0;
+> 
+> It looks odd to test the value of ret when you've just crashed the system 
+> if ret < 0.  You probably should change the BUG_ON to a WARN_ON or 
+> something similar.
 
-The nvidiafb change was removed again. I will see if I can figure out
-why the EDID is lost.
+OK, WARN_ON is probably better (but it should never happen anyway).
+Updated patch below.
 
+
+
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+Don't fail bus_attach_device() if the device cannot be bound.
+
+If dev->driver has been specified, reset it to NULL if device_bind_driver()
+failed and add the device as an unbound device. As a result, bus_attach_device()
+now cannot fail, and we can remove some checking from device_add().
+
+Also remove an unneeded check in bus_rescan_devices_helper().
+
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+---
+ drivers/base/base.h |    2 +-
+ drivers/base/bus.c  |   13 +++++--------
+ drivers/base/core.c |    5 +----
+ drivers/base/dd.c   |    6 +++++-
+ 4 files changed, 12 insertions(+), 14 deletions(-)
+
+--- linux-2.6.orig/drivers/base/dd.c
++++ linux-2.6/drivers/base/dd.c
+@@ -221,7 +221,7 @@ static int device_probe_drivers(void *da
+  *
+  *	Returns 1 if the device was bound to a driver;
+  *	0 if no matching device was found or multithreaded probing is done;
+- *	error code otherwise.
++ *	-ENODEV if the device is not registered.
+  *
+  *	When called for a USB interface, @dev->parent->sem must be held.
+  */
+@@ -235,6 +235,10 @@ int device_attach(struct device * dev)
+ 		ret = device_bind_driver(dev);
+ 		if (ret == 0)
+ 			ret = 1;
++		else {
++			dev->driver = NULL;
++			ret = 0;
++		}
+ 	} else {
+ 		if (dev->bus->multithread_probe)
+ 			probe_task = kthread_run(device_probe_drivers, dev,
+--- linux-2.6.orig/drivers/base/core.c
++++ linux-2.6/drivers/base/core.c
+@@ -479,8 +479,7 @@ int device_add(struct device *dev)
+ 	if ((error = bus_add_device(dev)))
+ 		goto BusError;
+ 	kobject_uevent(&dev->kobj, KOBJ_ADD);
+-	if ((error = bus_attach_device(dev)))
+-		goto AttachError;
++	bus_attach_device(dev);
+ 	if (parent)
+ 		klist_add_tail(&dev->knode_parent, &parent->klist_children);
+ 
+@@ -499,8 +498,6 @@ int device_add(struct device *dev)
+  	kfree(class_name);
+ 	put_device(dev);
+ 	return error;
+- AttachError:
+-	bus_remove_device(dev);
+  BusError:
+ 	device_pm_remove(dev);
+  PMError:
+--- linux-2.6.orig/drivers/base/base.h
++++ linux-2.6/drivers/base/base.h
+@@ -16,7 +16,7 @@ extern int cpu_dev_init(void);
+ extern int attribute_container_init(void);
+ 
+ extern int bus_add_device(struct device * dev);
+-extern int bus_attach_device(struct device * dev);
++extern void bus_attach_device(struct device * dev);
+ extern void bus_remove_device(struct device * dev);
+ extern struct bus_type *get_bus(struct bus_type * bus);
+ extern void put_bus(struct bus_type * bus);
+--- linux-2.6.orig/drivers/base/bus.c
++++ linux-2.6/drivers/base/bus.c
+@@ -406,21 +406,20 @@ out_put:
+  *	- Add device to bus's list of devices.
+  *	- Try to attach to driver.
+  */
+-int bus_attach_device(struct device * dev)
++void bus_attach_device(struct device * dev)
+ {
+ 	struct bus_type *bus = dev->bus;
+-	int ret = 0;
++	int ret;
+ 
+ 	if (bus) {
+ 		dev->is_registered = 1;
+ 		ret = device_attach(dev);
+-		if (ret >= 0) {
++		WARN_ON(ret < 0);
++		if (ret >= 0)
+ 			klist_add_tail(&dev->knode_bus, &bus->klist_devices);
+-			ret = 0;
+-		} else
++		else
+ 			dev->is_registered = 0;
+ 	}
+-	return ret;
+ }
+ 
+ /**
+@@ -593,8 +592,6 @@ static int __must_check bus_rescan_devic
+ 		ret = device_attach(dev);
+ 		if (dev->parent)
+ 			up(&dev->parent->sem);
+-		if (ret > 0)
+-			ret = 0;
+ 	}
+ 	return ret < 0 ? ret : 0;
+ }

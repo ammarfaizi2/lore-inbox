@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWJQTkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWJQTk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWJQTkY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWJQTkY
+	id S1751228AbWJQTk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWJQTk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:40:24 -0400
-Received: from sp604001mt.neufgp.fr ([84.96.92.60]:52118 "EHLO Smtp.neuf.fr")
-	by vger.kernel.org with ESMTP id S1751223AbWJQTkX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:40:23 -0400
-Date: Tue, 17 Oct 2006 21:28:21 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-In-reply-to: <20061017191814.55313.qmail@web57803.mail.re3.yahoo.com>
-To: John Philips <johnphilips42@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Message-id: <45352ED5.70505@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <20061017191814.55313.qmail@web57803.mail.re3.yahoo.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Tue, 17 Oct 2006 15:40:57 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:51087 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751230AbWJQTk4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 15:40:56 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: TUBITAK/UEKAE
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Date: Tue, 17 Oct 2006 21:28:20 +0300
+User-Agent: KMail/1.9.5
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+References: <200610171445.k9HEji8R018455@burner.fokus.fraunhofer.de> <200610172041.42873.ismail@pardus.org.tr> <45351d1d.zzAZVd00Wr6s9fu8%Joerg.Schilling@fokus.fraunhofer.de>
+In-Reply-To: <45351d1d.zzAZVd00Wr6s9fu8%Joerg.Schilling@fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610172128.20653.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Philips a �crit :
->> Hum, given your slow cpu, you might revert tx queue
->> length to 2.4.XX level 
->> (100 instead of 1000)
-> 
-> I tried that, it didn't help any.
-> 
->> Are you sure you cannot post here : 
->>
->> tc -s -d qdisc show dev eth6
-> 
-> As I said, there are rules in place for every single
-> IP in a /22 subnet.  It would be over 12000 lines.  I
-> tried turning off the traffic shaping, it didn't help.
->  
->> You might want to make inet_peer_cache purge faster
->> :
->>
->> echo 1 >/proc/sys/net/ipv4/inet_peer_gc_mintime
->> echo 2 >/proc/sys/net/ipv4/inet_peer_gc_maxtime
-> 
-> I tried that as well, unfortunately it didn't help.
+17 Eki 2006 Sal 21:12 tarihinde, Joerg Schilling şunları yazmıştı: 
+> Ismail Donmez <ismail@pardus.org.tr> wrote:
+> > 17 Eki 2006 Sal 17:45 tarihinde, Joerg Schilling Å?unlarÄ± yazmÄ±Å?tÄ±:
+> > > Hi,
+> > >
+> > > while working on better ISO-9660 support for the Solaris Kernel,
+> > > I recently enhanced mkisofs to support the Rock Ridge Standard version
+> > > 1.12 from 1994.
+> > >
+> > > The difference bewteen version 1.12 and 1.10 (this is what previous
+> > > mkisofs versions did implement) is that the "PX" field is now 8 Byte
+> > > bigger than before (44 instead of 36 bytes).
+> >
+> > Is there a test iso file somewhere? I think the attached *untested* patch
+> > will fix it.
+>
+> Well, this is why I did offer a preliminary version of thelatest mkisofs
+> sources.....
 
-This was just to reduce size of the table (and time of the lookups), not to 
-solve the nic problem at all :)
+Well a simple mkisofs some_file > test.iso and mounting that on a loop device 
+worked fine.
 
-> 
-> It's worth noting that this behavior happens at
-> seemingly random times for random amounts of time.  It
-> also causes the interface to auto-negotiate it's
-> settings again.  During these periods, ping times to a
-> switch plugged directly into eth6 are 4000+ms.  When I
-> statically set the interface to 100baseT/full duplex
-> with mii-tool, ping times to the switch immediately
-> return to normal.  Unfortunately this fix only lasts a
-> few minutes, because the interface hangs up and
-> returns to auto-negotiation.
-> 
-> Also, I know this isn't a problem with my hardware
-> since it started happening immediately after I
-> upgraded the kernel from 2.4.25.
 
-Yes, I supposed that your hardware was running OK with previous kernels.
+> But note: your patch does not fix the original implementation bug and it is
+> most unlikely that the hack will do the right things in all cases.
 
-Which NIC driver is handling eth6 ?
+Well I don't know whats the original implementation bug and rock.c seems to be 
+pretty much old with no active maintainer.
 
+Regards,
+ismail

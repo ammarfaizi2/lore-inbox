@@ -1,184 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWJQW0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWJQW1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWJQW0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 18:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWJQW0j
+	id S1750820AbWJQW1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 18:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWJQW1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 18:26:39 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:37328 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1750798AbWJQW0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 18:26:39 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] Make sym_change_count static, let it be altered by 2 functions only
-Date: Wed, 18 Oct 2006 00:28:44 +0200
-User-Agent: KMail/1.9.4
-References: <200610180023.04978.annabellesgarden@yahoo.de> <200610180027.16967.annabellesgarden@yahoo.de>
-In-Reply-To: <200610180027.16967.annabellesgarden@yahoo.de>
+	Tue, 17 Oct 2006 18:27:34 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:13186 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750820AbWJQW1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 18:27:33 -0400
+Date: Wed, 18 Oct 2006 00:24:28 +0200
+From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
+To: jlamanna@gmail.com
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       ismail@pardus.org.tr
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Message-ID: <4535581c.0EJOm7ejIJzKFKJj%Joerg.Schilling@fokus.fraunhofer.de>
+References: <4535460c.5a4933ac.778b.ffffc157@mx.google.com>
+ <45354bf7.Lo5w3vkS8/cH+1PI%Joerg.Schilling@fokus.fraunhofer.de>
+ <aa4c40ff0610171451l5597dc55i97fcad4cf111acd2@mail.gmail.com>
+In-Reply-To: <aa4c40ff0610171451l5597dc55i97fcad4cf111acd2@mail.gmail.com>
+User-Agent: nail 11.22 3/20/05
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610180028.45011.annabellesgarden@yahoo.de>
-X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
+Content-Type: text/plain; charset=ISO8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"James Lamanna" <jlamanna@gmail.com> wrote:
 
-Those two functions are
-	void sym_set_change_count(int count)
-and
-	void sym_add_change_count(int count)
-.
-All write accesses to sym_change_count are replaced by calls to
-above functions.
-Variable and changer-functions are moved to confdata.c.
-IMO thats ok, as sym_change_count is an attribute of the .config's
-change state.
+> > the wrong way.... because the error text is wrong. It should be corrected into
+> >
+> > "rock: directory entry would _underflow_ storage\n"
+>
+> Yes I saw this check and misinterpreted it initially also.
+>
+> I actually think 'overflow' is still correct since its testing for the
+> calcuated size (directory entry) being larger than the size reported
+> by the filesystem (storage).
+>
+> I still submit my patch to Linus et. al. for consideration that also
+> detects overflow in the case of a v 1.12 PX entry. I may have time to
+> build a git kernel today or tomorrow and actually test it against a RR
+> iso image.
 
-Signed-off-by: Karsten Wiese <fzu@wemgehoertderstaat.de>
----
- scripts/kconfig/confdata.c          |   20 ++++++++++++++++----
- scripts/kconfig/lkc.h               |    2 ++
- scripts/kconfig/lkc_proto.h         |    1 -
- scripts/kconfig/symbol.c            |    3 +--
- scripts/kconfig/zconf.tab.c_shipped |    2 +-
- scripts/kconfig/zconf.y             |    2 +-
- 6 files changed, 21 insertions(+), 9 deletions(-)
+If you test for the case that the on disk structure is bigger than expected, 
+then you break the RR standard.
 
-diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-index 140742e..4bbbb5b 100644
---- a/scripts/kconfig/confdata.c
-+++ b/scripts/kconfig/confdata.c
-@@ -100,7 +100,7 @@ int conf_read_simple(const char *name, i
- 		in = zconf_fopen(name);
- 		if (in)
- 			goto load;
--		sym_change_count++;
-+		sym_add_change_count(1);
- 		if (!sym_defconfig_list)
- 			return 1;
- 
-@@ -312,7 +312,7 @@ int conf_read(const char *name)
- 	struct expr *e;
- 	int i, flags;
- 
--	sym_change_count = 0;
-+	sym_set_change_count(0);
- 
- 	if (conf_read_simple(name, S_DEF_USER))
- 		return 1;
-@@ -364,7 +364,7 @@ int conf_read(const char *name)
- 		sym->flags &= flags | ~SYMBOL_DEF_USER;
- 	}
- 
--	sym_change_count += conf_warnings || conf_unsaved;
-+	sym_add_change_count(conf_warnings || conf_unsaved);
- 
- 	return 0;
- }
-@@ -528,7 +528,7 @@ int conf_write(const char *name)
- 		 "# configuration written to %s\n"
- 		 "#\n"), newname);
- 
--	sym_change_count = 0;
-+	sym_set_change_count(0);
- 
- 	return 0;
- }
-@@ -766,6 +766,18 @@ int conf_write_autoconf(void)
- 	return 0;
- }
- 
-+static int sym_change_count;
-+
-+void sym_set_change_count(int count)
-+{
-+	sym_change_count = count;
-+}
-+
-+void sym_add_change_count(int count)
-+{
-+	sym_change_count += count;
-+}
-+
- bool conf_get_changed(void)
- {
- 	return sym_change_count;
-diff --git a/scripts/kconfig/lkc.h b/scripts/kconfig/lkc.h
-index 2628023..9b2706a 100644
---- a/scripts/kconfig/lkc.h
-+++ b/scripts/kconfig/lkc.h
-@@ -65,6 +65,8 @@ char *zconf_curname(void);
- 
- /* confdata.c */
- char *conf_get_default_confname(void);
-+void sym_set_change_count(int count);
-+void sym_add_change_count(int count);
- 
- /* kconfig_load.c */
- void kconfig_load(void);
-diff --git a/scripts/kconfig/lkc_proto.h b/scripts/kconfig/lkc_proto.h
-index 9f1823c..84bb139 100644
---- a/scripts/kconfig/lkc_proto.h
-+++ b/scripts/kconfig/lkc_proto.h
-@@ -17,7 +17,6 @@ P(menu_get_parent_menu,struct menu *,(st
- 
- /* symbol.c */
- P(symbol_hash,struct symbol *,[SYMBOL_HASHSIZE]);
--P(sym_change_count,int,);
- 
- P(sym_lookup,struct symbol *,(const char *name, int isconst));
- P(sym_find,struct symbol *,(const char *name));
-diff --git a/scripts/kconfig/symbol.c b/scripts/kconfig/symbol.c
-index ee225ce..8f06c47 100644
---- a/scripts/kconfig/symbol.c
-+++ b/scripts/kconfig/symbol.c
-@@ -30,7 +30,6 @@ struct symbol symbol_yes = {
- 	.flags = SYMBOL_VALID,
- };
- 
--int sym_change_count;
- struct symbol *sym_defconfig_list;
- struct symbol *modules_sym;
- tristate modules_val;
-@@ -379,7 +378,7 @@ void sym_clear_all_valid(void)
- 
- 	for_all_symbols(i, sym)
- 		sym->flags &= ~SYMBOL_VALID;
--	sym_change_count++;
-+	sym_add_change_count(1);
- 	if (modules_sym)
- 		sym_calc_value(modules_sym);
- }
-diff --git a/scripts/kconfig/zconf.tab.c_shipped b/scripts/kconfig/zconf.tab.c_shipped
-index 2fb0a4f..d777fe8 100644
---- a/scripts/kconfig/zconf.tab.c_shipped
-+++ b/scripts/kconfig/zconf.tab.c_shipped
-@@ -2135,7 +2135,7 @@ #endif
- 		sym_check_deps(sym);
-         }
- 
--	sym_change_count = 1;
-+	sym_set_change_count(1);
- }
- 
- const char *zconf_tokenname(int token)
-diff --git a/scripts/kconfig/zconf.y b/scripts/kconfig/zconf.y
-index ab44feb..04a5864 100644
---- a/scripts/kconfig/zconf.y
-+++ b/scripts/kconfig/zconf.y
-@@ -504,7 +504,7 @@ #endif
- 		sym_check_deps(sym);
-         }
- 
--	sym_change_count = 1;
-+	sym_set_change_count(1);
- }
- 
- const char *zconf_tokenname(int token)
+
+> > Using the inode field from RRip 1.12 is definitely not trivial as it may affect
+> > many parts of the source and needs intensive testing.
+>
+> Yes. If it is actually correct it allows for the use of iget_locked()
+> in isofs/inode.c instead of iget5_locked() (per
+> Documentation/filesystems/vfs.txt). Though I'll let a real VFS person
+> decide if that has any advantages.
+
+This is not true, the inode numbe is not sufficient to identify a file.
+
+But if you are not a fs expert, you should not continue....
+
+Maging this change work for trivial cases will take an hour, making it work
+for the non-obvious cases may take more than a week.
+
+Jörg
+
 -- 
-1.4.2.3
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWJQQab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWJQQg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWJQQab (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 12:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWJQQaa
+	id S1751309AbWJQQg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 12:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWJQQg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 12:30:30 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:47579 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751298AbWJQQa3 (ORCPT
+	Tue, 17 Oct 2006 12:36:29 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:42204 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751293AbWJQQg2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 12:30:29 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: John Philips <johnphilips42@yahoo.com>
-Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-Date: Tue, 17 Oct 2006 18:30:29 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-References: <20061017145336.65223.qmail@web57803.mail.re3.yahoo.com>
-In-Reply-To: <20061017145336.65223.qmail@web57803.mail.re3.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Oct 2006 12:36:28 -0400
+Date: Tue, 17 Oct 2006 20:35:36 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+Message-ID: <20061017163536.GA17692@2ka.mipt.ru>
+References: <11587449471424@2ka.mipt.ru> <200610171732.28640.dada1@cosmosbay.com> <20061017160155.GA18522@2ka.mipt.ru> <200610171826.05028.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200610171830.29823.dada1@cosmosbay.com>
+In-Reply-To: <200610171826.05028.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 17 Oct 2006 20:35:37 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 16:53, John Philips wrote:
-> > Could you send us, once your machine is handling its typical load :
-> >
-> > lspci -v
-> > ethtool -S eth6
-> > tc -s -d qdisc
-> > cat /proc/slabinfo
-> > cat /proc/meminfo
+On Tue, Oct 17, 2006 at 06:26:04PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> On Tuesday 17 October 2006 18:01, Evgeniy Polyakov wrote:
+> 
+> > Ok, there is one apologist for mmap buffer implementation, who forced me
+> > to create first implementation, which was dropped due to absense of
+> > remote mental reading abilities.
+> > Ulrich, does above approach sound good for you?
+> > I actually do not want to reimplement something, that will be
+> > pointed to with words 'no matter what you say, it is broken and I do not
+> > want it' again :).
+> 
+> In my humble opinion, you should first write a 'real application', to show how 
+> the mmap buffer and kevent syscalls would be used (fast path and 
+> slow/recovery paths). I am sure it would be easier for everybody to agree on 
+> the API *before* you start coding a *lot* of hard (kernel) stuff : It would 
+> certainly save your mental CPU cycles (and ours too :) )
 >
-> Eric,
->
-> Here's the output of the commands you mentioned.  The box is handling a
-> medium amount of load right now.  I set eth6 back to auto-negotiation, and
-> haven't seen the kernel BUG messages for the past 1/2 hour.
+> This 'real application' could be  the event loop of a simple HTTP server, or a 
+> basic 'echo all' server. Adding the bits about timers events and signals 
+> should be done too.
 
-OK, could you please send now :
+I wrote one with previous ring buffer implementation - it used timers
+and echoed when they fired, it was even described in details in one of the 
+lwn.net articles.
 
-ifconfig eth6
-cat /proc/interrupts
+I'm not going to waste others and my time implementing feature requests
+without at least _some_ feedback from those who asked them.
+In case when person, originally requested some feature, does not answer
+and there are other opinions, only they will be get into account of
+course.
+
+> Eric
+
+-- 
+	Evgeniy Polyakov

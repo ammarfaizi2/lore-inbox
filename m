@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWJQTtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWJQTsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWJQTtp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 15:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWJQTtQ
+	id S1750929AbWJQTsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 15:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWJQTsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 15:49:16 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:47012 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751245AbWJQTst (ORCPT
+	Tue, 17 Oct 2006 15:48:46 -0400
+Received: from [151.97.230.90] ([151.97.230.90]:21462 "EHLO memento.home.lan")
+	by vger.kernel.org with ESMTP id S1750929AbWJQTso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 15:48:49 -0400
-Date: Tue, 17 Oct 2006 21:47:48 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jens Axboe <jens.axboe@oracle.com>
-cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
-In-Reply-To: <20061017193645.GM7854@kernel.dk>
-Message-ID: <Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr>
- <200610171857.k9HIvq1M009488@turing-police.cc.vt.edu>
- <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr> <20061017193645.GM7854@kernel.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 17 Oct 2006 15:48:44 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+To: stable@kernel.org
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: uml: fix processor selection to exclude unsupported processors and features
+Date: Tue, 17 Oct 2006 16:58:44 +0200
+Message-Id: <11610971243583-git-send-email-blaisorblade@yahoo.it>
+X-Mailer: git-send-email 1.4.2.3.g99b7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
->> of being wrapped into if BLOCK. Not really consistent but whatever.
->
->Feel free to send in patches that make things more consistent.
+Makes UML compile on any possible processor choice. The two problems were:
 
-How would you like things? if BLOCK or depends on BLOCK?
-Does menuconfig/oldconfig/etc. parse the whole config structure faster 
-it it done either way?
+*) x86 code, when 386 is selected, checks at runtime boot_cpuflags, which we do
+   not have.
+*) 3Dnow support for memcpy() et al. does not compile currently and fixing this
+   is not trivial, so simply disable it; with this change, if one selects MK7
+   UML compiles (while it did not).
+Merged upstream; I'm resending since spam filters blocked my previous mail.
 
-	-`J'
--- 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Index: linux-2.6.git/arch/i386/Kconfig.cpu
+===================================================================
+--- linux-2.6.git.orig/arch/i386/Kconfig.cpu
++++ linux-2.6.git/arch/i386/Kconfig.cpu
+@@ -7,6 +7,7 @@ choice
+ 
+ config M386
+ 	bool "386"
++	depends on !UML
+ 	---help---
+ 	  This is the processor type of your CPU. This information is used for
+ 	  optimizing purposes. In order to compile a kernel that can run on
+@@ -301,7 +302,7 @@ config X86_USE_PPRO_CHECKSUM
+ 
+ config X86_USE_3DNOW
+ 	bool
+-	depends on MCYRIXIII || MK7 || MGEODE_LX
++	depends on (MCYRIXIII || MK7 || MGEODE_LX) && !UML
+ 	default y
+ 
+ config X86_OOSTORE

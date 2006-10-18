@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWJRKKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWJRKMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWJRKKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 06:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWJRKKf
+	id S932182AbWJRKMf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 06:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWJRKMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 06:10:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27575 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750785AbWJRKKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 06:10:34 -0400
-Date: Wed, 18 Oct 2006 03:10:21 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Robin Holt <holt@sgi.com>
-Cc: suresh.b.siddha@intel.com, dino@in.ibm.com, menage@google.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
-       rohitseth@google.com, dipankar@in.ibm.com, nickpiggin@yahoo.com.au
-Subject: Re: exclusive cpusets broken with cpu hotplug
-Message-Id: <20061018031021.9920552e.pj@sgi.com>
-In-Reply-To: <20061018095621.GB15877@lnx-holt.americas.sgi.com>
-References: <20061017192547.B19901@unix-os.sc.intel.com>
-	<20061018001424.0c22a64b.pj@sgi.com>
-	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Oct 2006 06:12:35 -0400
+Received: from mail-in-12.arcor-online.net ([151.189.21.52]:38374 "EHLO
+	mail-in-12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932182AbWJRKMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 06:12:34 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [RFC: 2.6.19 patch] snd-hda-intel: default MSI to off
+Date: Wed, 18 Oct 2006 12:12:48 +0200
+User-Agent: KMail/1.9.5
+Cc: Adrian Bunk <bunk@stusta.de>, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org, hnguyen@de.ibm.com
+References: <200610050938.10997.prakash@punnoor.de> <20061017211301.GE3502@stusta.de> <20061017144053.29b6b29c@freekitty>
+In-Reply-To: <20061017144053.29b6b29c@freekitty>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8121510.MIUtiWASzF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610181212.48952.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin wrote:
-> Could this be as simple as a CPU_UP_PREPARE or CPU_DOWN_PREPARE
-> removing all the cpu_exclusive cpusets and a CPU_UP_CANCELLED,
-> CPU_DOWN_CANCELLED, CPU_ONLINE, CPU_DEAD going through and
-> partitioning all the cpu_exclusive cpusets.
+--nextPart8121510.MIUtiWASzF
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Perhaps.
+Am Dienstag 17 Oktober 2006 23:40 schrieb Stephen Hemminger:
+> On Tue, 17 Oct 2006 23:13:01 +0200
+>
+> Adrian Bunk <bunk@stusta.de> wrote:
+> > On Thu, Oct 05, 2006 at 11:08:57PM +0200, Prakash Punnoor wrote:
+> > > Am Donnerstag 05 Oktober 2006 19:30 schrieb Fatih A????c??:
+> > > > 2006/10/5, Prakash Punnoor <prakash@punnoor.de>:
+> > > > > Hi,
+> > > > >
+> > > > > subjects say it all. Without irqpoll my nic doesn't work anymore.=
+ I
+> > > > > added Ingo
+> > > > > to cc, as my IRQs look different, so it may be a prob of APIC
+> > > > > routing or the
+> > > > > like.
+> > > > >
+> > > > > Can you try booting with pci=3Dnomsi ? I have a similar problem w=
+ith
+> > > > > my
+> > >
+> > > I used snd-hda-intel.disable_msi=3D1 and this actually helped! Now the
+> > > nforce nic works w/o problems. So it was the audio driver causing hav=
+oc
+> > > on the nic. ...
+> >
+> > Unless someone finds and fixes what causes such problems, I'd therefore
+> > suggest the patch below to let MSI support to be turned off by default.
 
-The somewhat related problems, in my book, are:
+Could it perhaps be that the forcedeth driver isn't MSI aware and this caus=
+es=20
+breakage?
 
- 1) I don't know how to tell what sched domains/groups a system has, nor
-    how to tell my customers how to see what sched domains they have, and
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
- 2) I suspect that Mr. Cpusets doesn't understand sched domains and that
-    Mr. Sched Domain doesn't understand cpusets, and that we've ended
-    up with some inscrutable and likely unsuitable interactions between
-    the two as a result, which in particular don't result in cpusets
-    driving the sched domain configuration in the desired ways for some
-    of the less trivial configs.
+--nextPart8121510.MIUtiWASzF
+Content-Type: application/pgp-signature
 
-    Well ... at least the first suspcicion above is a near certainty ;).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+iD8DBQBFNf4gxU2n/+9+t5gRAjsrAKDjX1Akfp5p1tAkUmKnWZitnP6jxgCgjFEG
+zZ6jt9hmlGu1qaX0r+iuf0o=
+=IRcl
+-----END PGP SIGNATURE-----
+
+--nextPart8121510.MIUtiWASzF--

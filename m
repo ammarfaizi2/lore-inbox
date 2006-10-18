@@ -1,84 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWJRUve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422806AbWJRUyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751496AbWJRUve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWJRUve
+	id S1422806AbWJRUyg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWJRUyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:51:34 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:53467 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751496AbWJRUvd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:51:33 -0400
-Date: Wed, 18 Oct 2006 13:51:20 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Stephane Eranian <eranian@hpl.hp.com>
-Subject: Re: [PATCH] i386 add Intel Core related PMU MSRs
-Message-ID: <20061018205120.GB20590@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061018092723.GB19522@frankl.hpl.hp.com>
+	Wed, 18 Oct 2006 16:54:36 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:30536 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1030281AbWJRUyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 16:54:35 -0400
+Subject: Re: [PATCH -rt] powerpc update
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, tglx@linutronix.de,
+       mgreer@mvista.com, sshtylyov@ru.mvista.com, sshtylyov@ru.mvista.com
+In-Reply-To: <20061018143318.GB25141@elte.hu>
+References: <20061003155358.756788000@dwalker1.mvista.com>
+	 <20061018072858.GA29576@elte.hu>
+	 <1161181941.23082.32.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061018143318.GB25141@elte.hu>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 13:54:33 -0700
+Message-Id: <1161204873.19590.14.camel@dwalker1.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018092723.GB19522@frankl.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, Oct 18, 2006 at 02:27:23AM -0700, Stephane Eranian wrote:
+On Wed, 2006-10-18 at 16:33 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
-> The following patch adds to the i386 tree a bunch of MSRs related to performance
-> monitoring for the processors based on Intel Core microarchitecture. It also adds
-> some architectural MSRs for PEBS. A similar patch was posted for x86-64.
+> > On Wed, 2006-10-18 at 09:28 +0200, Ingo Molnar wrote:
+> > > * Daniel Walker <dwalker@mvista.com> wrote:
+> > > 
+> > > > Pay close attention to the fasteoi interrupt threading. I added usage 
+> > > > of mask/unmask instead of using level handling, which worked well on 
+> > > > PPC.
+> > > 
+> > > this is wrong - it should be doing mask+ack.
+> > 
+> > The main reason I did it this way is cause the current threaded eoi 
+> > expected the line to be masked. So if you happen to have a eoi that's 
+> > threaded you get a warning then the interrupt hangs.
 > 
-> changelog:
->         - add Intel Precise-Event Based sampling (PEBS) related MSR
->         - add Intel Data Save (DS) Area related MSR
->         - add Intel Core microarchitecure performance counter MSRs
->
-I realized there was a typo for one of the MSR (MSR_CORE_PERF_FIXED_CTR_CTRL).
-Here is a resubmit of the same patch. The x86-64 also has the typo. Sorry about that.
+> does that in fact happen on -rt6? If yes, could you send the warning 
+> that is produced?
 
-changelog:
-        - add Intel Precise-Event Based sampling (PEBS) related MSR
-        - add Intel Data Save (DS) Area related MSR
-        - add Intel Core microarchitecure performance counter MSRs
+Here's the kernel messages (from Sergei who is CC'd)
+---
+Subject: 2.6.18-rt6 failure on MPC8540ADS
 
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
+   My PPC32 board doesn't boot with 2.6.18-rt6, I'm getting this nice trace:
+
+Time: timebase clocksource has been installed.
+Unable to handle kernel paging request for instruction fetch
+Faulting instruction address: 0x00000000
+Oops: Kernel access of bad area, sig: 11 [#1]
+PREEMPT
+Modules linked in:
+NIP: 00000000 LR: C0051AA8 CTR: 00000000
+REGS: c0615cf0 TRAP: 0400   Not tainted  (2.6.18_dev)
+MSR: 00021000 <ME>  CR: 42028088  XER: 20000000
+TASK = cffea600[4] 'softirq-timer/0' THREAD: c0614000
+GPR00: C0051A94 C0615DA0 CFFEA600 00000035 C0339CC0 00000035 00000013 00000003
+GPR08: 00010000 00000000 FCFED080 C0480035 28028084 00000000 0FFFE700 FFFFFFFF
+GPR16: FFFD7C1E FFFFFFFF FFFD7B78 C02E5930 00000000 00028488 00000000 FFFFFFFF
+GPR24: C033FB1C C0699498 00008000 C0615DE0 C06BBCA0 C0614000 00000035 C0323AC0
+NIP [00000000] _start+0x40000000/0x20
+LR [C0051AA8] handle_fasteoi_irq+0x170/0x1b8
+Call Trace:
+[C0615DA0] [C0051A94] handle_fasteoi_irq+0x15c/0x1b8 (unreliable)
+[C0615DC0] [C00045A4] do_IRQ+0x9c/0xbc
+[C0615DD0] [C000E0C8] ret_from_except+0x0/0x18
+[C0615E90] [C01B4A90] phy_write+0x2c/0x6c
+[C0615EC0] [C01B6450] marvell_config_aneg+0x24/0xc8
+[C0615ED0] [C01B48F8] phy_start_aneg+0x44/0xcc
+[C0615EF0] [C01B50E8] phy_timer+0xd8/0x588
+[C0615F10] [C0031EC4] run_timer_softirq+0x224/0x1048
+[C0615F80] [C002D1EC] ksoftirqd+0x100/0x1ac
+[C0615FC0] [C003F36C] kthread+0xc0/0xfc
+[C0615FF0] [C000EC4C] original_kernel_thread+0x44/0x60
+Instruction dump:
+XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  <0>Kernel panic - not syncing: Fatal exception in interrupt
+Call Trace:
+[C0615C30] [C0006DA8] show_stack+0x3c/0x1a0 (unreliable)
+[C0615C60] [C0026484] panic+0x98/0x170
+[C0615CB0] [C000BF60] die+0x120/0x130
+[C0615CD0] [C0010D38] bad_page_fault+0xcc/0xe8
+[C0615CE0] [C000DF24] handle_page_fault+0x7c/0x80
+[C0615DA0] [C0051A94] handle_fasteoi_irq+0x15c/0x1b8
+[C0615DC0] [C00045A4] do_IRQ+0x9c/0xbc
+[C0615DD0] [C000E0C8] ret_from_except+0x0/0x18
+[C0615E90] [C01B4A90] phy_write+0x2c/0x6c
+[C0615EC0] [C01B6450] marvell_config_aneg+0x24/0xc8
+[C0615ED0] [C01B48F8] phy_start_aneg+0x44/0xcc
+[C0615EF0] [C01B50E8] phy_timer+0xd8/0x588
+[C0615F10] [C0031EC4] run_timer_softirq+0x224/0x1048
+[C0615F80] [C002D1EC] ksoftirqd+0x100/0x1ac
+[C0615FC0] [C003F36C] kthread+0xc0/0xfc
+[C0615FF0] [C000EC4C] original_kernel_thread+0x44/0x60
+
+    After looking into the source, I figured out that handle_fasteoi_irq() is 
+trying to call ack() handler for the irq_chip but arch/powerpc/sysdev/mpic.c 
+(driving OpenPIC-compatible chips) doesn't have it (and I suppose is not 
+obliged to since it's using the "fasteoi" flow)...
+
+WBR, Sergei
 
 
-diff --git a/include/asm-i386/msr.h b/include/asm-i386/msr.h
-index 62b76cd..1820d9d 100644
---- a/include/asm-i386/msr.h
-+++ b/include/asm-i386/msr.h
-@@ -141,6 +141,10 @@ #define MSR_IA32_MC0_STATUS		0x401
- #define MSR_IA32_MC0_ADDR		0x402
- #define MSR_IA32_MC0_MISC		0x403
- 
-+#define MSR_IA32_PEBS_ENABLE		0x3f1
-+#define MSR_IA32_DS_AREA		0x600
-+#define MSR_IA32_PERF_CAPABILITIES	0x345
-+
- /* Pentium IV performance counter MSRs */
- #define MSR_P4_BPU_PERFCTR0 		0x300
- #define MSR_P4_BPU_PERFCTR1 		0x301
-@@ -284,4 +288,13 @@ #define MSR_TMTA_LONGRUN_FLAGS		0x808680
- #define MSR_TMTA_LRTI_READOUT		0x80868018
- #define MSR_TMTA_LRTI_VOLT_MHZ		0x8086801a
- 
-+/* Intel Core-based CPU performance counters */
-+#define MSR_CORE_PERF_FIXED_CTR0	0x309
-+#define MSR_CORE_PERF_FIXED_CTR1	0x30a
-+#define MSR_CORE_PERF_FIXED_CTR2	0x30b
-+#define MSR_CORE_PERF_FIXED_CTR_CTRL	0x38d
-+#define MSR_CORE_PERF_GLOBAL_STATUS	0x38e
-+#define MSR_CORE_PERF_GLOBAL_CTRL	0x38f
-+#define MSR_CORE_PERF_GLOBAL_OVF_CTRL	0x390
-+
- #endif /* __ASM_MSR_H */
+

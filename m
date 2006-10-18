@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422705AbWJRRQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422710AbWJRRRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422705AbWJRRQY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422710AbWJRRQX
+	id S1422710AbWJRRRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbWJRRRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:16:23 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15825 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422709AbWJRRQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:16:22 -0400
-Subject: Re: PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <45364EEF.7010901@mnsu.edu>
-References: <45364EEF.7010901@mnsu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 18:18:48 +0100
-Message-Id: <1161191928.9363.96.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 18 Oct 2006 13:17:23 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:16050 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
+	id S1422710AbWJRRRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:17:22 -0400
+X-ORBL: [67.117.73.34]
+Date: Wed, 18 Oct 2006 20:16:53 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Samuel Ortiz <samuel@sortiz.org>
+Cc: Komal Shah <komal_shah802003@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Missed OMAP IrDA patch for 2.6.19?
+Message-ID: <20061018171652.GF4439@atomide.com>
+References: <20061005170906.22410.qmail@web37915.mail.mud.yahoo.com> <20061009231042.GC4696@sortiz.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061009231042.GC4696@sortiz.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-18 am 10:57 -0500, ysgrifennodd Jeffrey Hundstad:
-> As per request of the kernel logs:
+Hi,
+
+* Samuel Ortiz <samuel@sortiz.org> [061009 18:56]:
+> Hi Komal,
 > 
-> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.2
+> On Thu, Oct 05, 2006 at 10:09:06AM -0700, Komal Shah wrote:
+> > Samuel,
+> > 
+> > Why the following patch never made it to -mm tree
+> > OR to your IrDA tree for considering under 2.6.19?
+> I had another look at the patch, and I just saw that it depends on
+> GPIOEXPANDER_OMAP. This symbol is currently only defined in Tony's tree, so
+> it would make more sense for Tony to push it there first.
 
+OK, netdev tree is the way to get this into mainline. Mainline tree
+already has include/asm-arm/arch-omap/gpioexpander.h, but not
+drivers/i2c/chips/gpio_expander_omap.c.
 
-This is one of those old "not actually a warning but noise that never
-got turned off" cases. As it happens the -mm tree rips that code out
-anyway.
+The gpio_expander_omap.c (which really is TI PCF8574) issues need
+to be sorted out with the I2C folks, so meanwhile I suggest to continue
+these two independently of each other. Especially since the IrDA drive
+driver is usable on H2.
+ 
+> Tony, can you push this patch to your tree ? I ACKed it after the second
+> iteration.
+> 
+> Cheers,
+> Samuel.
+> 
+> 
+> > http://lkml.org/lkml/2006/8/27/141
 
-Thanks for the report
+I'll push it, I guess I must have missed the original message.
 
-Alan
+Regards,
 
+Tony

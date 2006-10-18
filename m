@@ -1,234 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422755AbWJRSTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422758AbWJRSVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422755AbWJRSTv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 14:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422757AbWJRSTu
+	id S1422758AbWJRSVX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422760AbWJRSVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 14:19:50 -0400
-Received: from rrr4-v3.mail.re1.yahoo.com ([66.196.101.125]:17330 "HELO
-	rrr4-v3.mail.re1.yahoo.com") by vger.kernel.org with SMTP
-	id S1422755AbWJRSTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 14:19:49 -0400
+	Wed, 18 Oct 2006 14:21:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:65111 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422758AbWJRSVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:21:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=atKAh9PAPVIvbzu5NIzL+7wTh38X/kMBSMhO465Ed6DRGKE94Gl8MUPLpDGQKSPW+RfEIxyR/omlsxN3DeecyAZXCJ6TbfI2aNEuh9NXGhjDG9fNcic1wwhRBZ2G8xna3l6iYjTARhlD0sjlfHwfC1xBNopoh7+gqSla1aYMrPw=  ;
-Message-ID: <20061018181948.84174.qmail@web57801.mail.re3.yahoo.com>
-Date: Wed, 18 Oct 2006 11:19:48 -0700 (PDT)
-From: John Philips <johnphilips42@yahoo.com>
-Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <453542EC.90509@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-162668008-1161195588=:81337"
-Content-Transfer-Encoding: 8bit
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=GA7DpSdrKf3v7OFza/xDXIa9P8mY2MBS9MDRhAPp4vnTHzY7tDp7wliHXGFT3PuoMe0XqqGBzT1S6dMfB8x2DyawNNZfeSVgax6a+BFZ9U/iCyrODpf11rMwv8p2ntwRQpudlI8YB2BKgKS0ROwLOOy3Zmx+OjIpqMXBHoE9kmc=
+Date: Wed, 18 Oct 2006 22:21:16 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] OOM killer meets userspace headers
+Message-ID: <20061018182116.GB5345@martell.zuzino.mipt.ru>
+References: <20061018145305.GA5345@martell.zuzino.mipt.ru> <20061018150948.GA7371@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061018150948.GA7371@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-162668008-1161195588=:81337
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Wed, Oct 18, 2006 at 04:09:48PM +0100, Christoph Hellwig wrote:
+> On Wed, Oct 18, 2006 at 06:53:05PM +0400, Alexey Dobriyan wrote:
+> > Despite mm.h is not being exported header, it does contain one thing
+> > which is part of userspace ABI -- value disabling OOM killer. So,
+> > a) export mm.h to userspace
+> > b) got OOM_DISABLE disable define out of __KERNEL__ prison.
+> > c) turn bound values suitable for /proc/$PID/oom_adj into defines and export
+> >    them too.
+> > d) put some headers into __KERNEL__ prison. It'd bizarre to include mm.h and
+> >    get capability stuff.
+>
+> NACK, mm.h is far too big for that.  Just create a tiny oom.h for those
+> values.
 
-Eric,
+It _will_ be tiny after "make headers_install". OTOH, oom.h indeed looks
+like logical place.
 
-Today I upgraded a few routers running 2.6.11.6 to the
-same 2.6.17.8 kernel and experienced the same issues. 
-It only happens on the boxes with the NatSemi card.
 
-Attached you will find a diff between the natsemi.c
-driver from 2.6.11.6 and 2.6.17.8.  Perhaps you'll see
-where the problem exists (I don't understand C code).
+[PATCH v2] OOM killer meets userspace headers
 
-Thanks
+Despite mm.h is not being exported header, it does contain one thing
+which is part of userspace ABI -- value disabling OOM killer for given
+process. So,
+a) create and export include/linux/oom.h
+b) move OOM_DISABLE define there.
+c) turn bounding values of /proc/$PID/oom_adj into defines and export
+   them too.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-162668008-1161195588=:81337
-Content-Type: application/octet-stream; name="natsemi.c_2.6.11.6-2.6.11.17.diff"
-Content-Transfer-Encoding: base64
-Content-Description: 3596274229-natsemi.c_2.6.11.6-2.6.11.17.diff
-Content-Disposition: attachment; filename="natsemi.c_2.6.11.6-2.6.11.17.diff"
+Note: mass __KERNEL__ removal will be done later.
 
-NmQ1CjwgCVBvcnRpb25zIGNvcHlyaWdodCAyMDA0IEhhcmFsZCBXZWx0ZSA8
-bGFmb3JnZUBnbnVtb25rcy5vcmc+CjEzOGExMzgsMTM5Cj4gCSogc3VwcG9y
-dCBmb3IgYW4gZXh0ZXJuYWwgUEhZCj4gCSogTkFQSQoxNjJkMTYyCjwgI2lu
-Y2x1ZGUgPGxpbnV4L3ByZWZldGNoLmg+CjE4NWExODYsMTg3Cj4gLyogTWF4
-aW11bSBldmVudHMgKFJ4IHBhY2tldHMsIGV0Yy4pIHRvIGhhbmRsZSBhdCBl
-YWNoIGludGVycnVwdC4gKi8KPiBzdGF0aWMgaW50IG1heF9pbnRlcnJ1cHRf
-d29yayA9IDIwOwoxOTBjMTkyCjwgc3RhdGljIGNvbnN0IGludCBtdWx0aWNh
-c3RfZmlsdGVyX2xpbWl0ID0gMTAwOwotLS0KPiBzdGF0aWMgaW50IG11bHRp
-Y2FzdF9maWx0ZXJfbGltaXQgPSAxMDA7CjIyOWMyMzEKPCAjZGVmaW5lIE5B
-VFNFTUlfREVGX0VFUFJPTV9TSVpFCTI0IC8qIDEyIDE2LWJpdCB2YWx1ZXMg
-Ki8KLS0tCj4gI2RlZmluZSBOQVRTRU1JX0VFUFJPTV9TSVpFCTI0IC8qIDEy
-IDE2LWJpdCB2YWx1ZXMgKi8KMjQxYzI0Mwo8IHN0YXRpYyBjb25zdCBjaGFy
-IHZlcnNpb25bXSBfX2RldmluaXRkYXRhID0KLS0tCj4gc3RhdGljIGNoYXIg
-dmVyc2lvbltdIF9fZGV2aW5pdGRhdGEgPQoyNTFhMjU0Cj4gbW9kdWxlX3Bh
-cmFtKG1heF9pbnRlcnJ1cHRfd29yaywgaW50LCAwKTsKMjU2YTI2MCwyNjEK
-PiBNT0RVTEVfUEFSTV9ERVNDKG1heF9pbnRlcnJ1cHRfd29yaywgCj4gCSJE
-UDgzODF4IG1heGltdW0gZXZlbnRzIGhhbmRsZWQgcGVyIGludGVycnVwdCIp
-OwozNzJjMzc3Cjwgc3RhdGljIGNvbnN0IHN0cnVjdCB7Ci0tLQo+IHN0YXRp
-YyBzdHJ1Y3Qgewo2ODksNjkwZDY5Mwo8IAkvKiBJbnRlcnJ1cHQgc3RhdHVz
-ICovCjwgCXUzMiBpbnRyX3N0YXR1czsKNzE3LDcxOGQ3MTkKPCAJLyogRUVQ
-Uk9NIGRhdGEgKi8KPCAJaW50IGVlcHJvbV9zaXplOwo3NTAsNzUxYzc1MQo8
-IHN0YXRpYyBpbnQgbmF0c2VtaV9wb2xsKHN0cnVjdCBuZXRfZGV2aWNlICpk
-ZXYsIGludCAqYnVkZ2V0KTsKPCBzdGF0aWMgdm9pZCBuZXRkZXZfcngoc3Ry
-dWN0IG5ldF9kZXZpY2UgKmRldiwgaW50ICp3b3JrX2RvbmUsIGludCB3b3Jr
-X3RvX2RvKTsKLS0tCj4gc3RhdGljIHZvaWQgbmV0ZGV2X3J4KHN0cnVjdCBu
-ZXRfZGV2aWNlICpkZXYpOwo3NzksNzkwZDc3OAo8IHN0YXRpYyBpbmxpbmUg
-dm9pZCBuYXRzZW1pX2lycV9lbmFibGUoc3RydWN0IG5ldF9kZXZpY2UgKmRl
-dikKPCB7CjwgCXdyaXRlbCgxLCBuc19pb2FkZHIoZGV2KSArIEludHJFbmFi
-bGUpOwo8IAlyZWFkbChuc19pb2FkZHIoZGV2KSArIEludHJFbmFibGUpOwo8
-IH0KPCAKPCBzdGF0aWMgaW5saW5lIHZvaWQgbmF0c2VtaV9pcnFfZGlzYWJs
-ZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQo8IHsKPCAJd3JpdGVsKDAsIG5z
-X2lvYWRkcihkZXYpICsgSW50ckVuYWJsZSk7CjwgCXJlYWRsKG5zX2lvYWRk
-cihkZXYpICsgSW50ckVuYWJsZSk7CjwgfQo8IAo4OTQsODk1ZDg4MQo8IAlu
-cC0+aW50cl9zdGF0dXMgPSAwOwo8IAlucC0+ZWVwcm9tX3NpemUgPSBOQVRT
-RU1JX0RFRl9FRVBST01fU0laRTsKOTQ5LDk1MWQ5MzQKPCAJZGV2LT5wb2xs
-ID0gbmF0c2VtaV9wb2xsOwo8IAlkZXYtPndlaWdodCA9IDY0Owo8IAoxNTA0
-LDE1MjhkMTQ4Ngo8IHN0YXRpYyB2b2lkIHJlc2V0X3J4KHN0cnVjdCBuZXRf
-ZGV2aWNlICpkZXYpCjwgewo8IAlpbnQgaTsKPCAJc3RydWN0IG5ldGRldl9w
-cml2YXRlICpucCA9IG5ldGRldl9wcml2KGRldik7CjwgCXZvaWQgX19pb21l
-bSAqaW9hZGRyID0gbnNfaW9hZGRyKGRldik7CjwgCjwgCW5wLT5pbnRyX3N0
-YXR1cyAmPSB+UnhSZXNldERvbmU7CjwgCjwgCXdyaXRlbChSeFJlc2V0LCBp
-b2FkZHIgKyBDaGlwQ21kKTsKPCAKPCAJZm9yIChpPTA7aTxOQVRTRU1JX0hX
-X1RJTUVPVVQ7aSsrKSB7CjwgCQlucC0+aW50cl9zdGF0dXMgfD0gcmVhZGwo
-aW9hZGRyICsgSW50clN0YXR1cyk7CjwgCQlpZiAobnAtPmludHJfc3RhdHVz
-ICYgUnhSZXNldERvbmUpCjwgCQkJYnJlYWs7CjwgCQl1ZGVsYXkoMTUpOwo8
-IAl9CjwgCWlmIChpPT1OQVRTRU1JX0hXX1RJTUVPVVQpIHsKPCAJCXByaW50
-ayhLRVJOX1dBUk5JTkcgIiVzOiBSWCByZXNldCBkaWQgbm90IGNvbXBsZXRl
-IGluICVkIHVzZWMuXG4iLAo8IAkJICAgICAgIGRldi0+bmFtZSwgaSoxNSk7
-CjwgCX0gZWxzZSBpZiAobmV0aWZfbXNnX2h3KG5wKSkgewo8IAkJcHJpbnRr
-KEtFUk5fV0FSTklORyAiJXM6IFJYIHJlc2V0IHRvb2sgJWQgdXNlYy5cbiIs
-CjwgCQkgICAgICAgZGV2LT5uYW1lLCBpKjE1KTsKPCAJfQo8IH0KPCAKMTk3
-MWMxOTI5CjwgCQkJCXNrYi0+ZGF0YSwgYnVmbGVuLCBQQ0lfRE1BX0ZST01E
-RVZJQ0UpOwotLS0KPiAJCQkJc2tiLT50YWlsLCBidWZsZW4sIFBDSV9ETUFf
-RlJPTURFVklDRSk7CjIyMDMsMjIwNGMyMTYxLDIxNjIKPCAvKiBUaGUgaW50
-ZXJydXB0IGhhbmRsZXIgZG9lc24ndCBhY3R1YWxseSBoYW5kbGUgaW50ZXJy
-dXB0cyBpdHNlbGYsIGl0CjwgICogc2NoZWR1bGVzIGEgTkFQSSBwb2xsIGlm
-IHRoZXJlIGlzIGFueXRoaW5nIHRvIGRvLiAqLwotLS0KPiAvKiBUaGUgaW50
-ZXJydXB0IGhhbmRsZXIgZG9lcyBhbGwgb2YgdGhlIFJ4IHRocmVhZCB3b3Jr
-IGFuZCBjbGVhbnMgdXAKPiAgICBhZnRlciB0aGUgVHggdGhyZWFkLiAqLwoy
-MjA5YTIxNjgsMjE2OQo+IAlpbnQgYm9ndXNjbnQgPSBtYXhfaW50ZXJydXB0
-X3dvcms7Cj4gCXVuc2lnbmVkIGludCBoYW5kbGVkID0gMDsKMjIxMywyMjI2
-YzIxNzMsMjE3NQo8IAkKPCAJLyogUmVhZGluZyBhdXRvbWF0aWNhbGx5IGFj
-a25vd2xlZGdlcy4gKi8KPCAJbnAtPmludHJfc3RhdHVzID0gcmVhZGwoaW9h
-ZGRyICsgSW50clN0YXR1cyk7CjwgCjwgCWlmIChuZXRpZl9tc2dfaW50cihu
-cCkpCjwgCQlwcmludGsoS0VSTl9ERUJVRwo8IAkJICAgICAgICIlczogSW50
-ZXJydXB0LCBzdGF0dXMgJSMwOHgsIG1hc2sgJSMwOHguXG4iLAo8IAkJICAg
-ICAgIGRldi0+bmFtZSwgbnAtPmludHJfc3RhdHVzLAo8IAkJICAgICAgIHJl
-YWRsKGlvYWRkciArIEludHJNYXNrKSk7CjwgCjwgCWlmICghbnAtPmludHJf
-c3RhdHVzKSAKPCAJCXJldHVybiBJUlFfTk9ORTsKPCAKPCAJcHJlZmV0Y2go
-Jm5wLT5yeF9za2J1ZmZbbnAtPmN1cl9yeCAlIFJYX1JJTkdfU0laRV0pOwot
-LS0KPiAJZG8gewo+IAkJLyogUmVhZGluZyBhdXRvbWF0aWNhbGx5IGFja25v
-d2xlZGdlcyBhbGwgaW50IHNvdXJjZXMuICovCj4gCQl1MzIgaW50cl9zdGF0
-dXMgPSByZWFkbChpb2FkZHIgKyBJbnRyU3RhdHVzKTsKMjIyOCwyMjM0YzIx
-NzcsMjE4MQo8IAlpZiAobmV0aWZfcnhfc2NoZWR1bGVfcHJlcChkZXYpKSB7
-CjwgCQkvKiBEaXNhYmxlIGludGVycnVwdHMgYW5kIHJlZ2lzdGVyIGZvciBw
-b2xsICovCjwgCQluYXRzZW1pX2lycV9kaXNhYmxlKGRldik7CjwgCQlfX25l
-dGlmX3J4X3NjaGVkdWxlKGRldik7CjwgCX0KPCAJcmV0dXJuIElSUV9IQU5E
-TEVEOwo8IH0KLS0tCj4gCQlpZiAobmV0aWZfbXNnX2ludHIobnApKQo+IAkJ
-CXByaW50ayhLRVJOX0RFQlVHCj4gCQkJCSIlczogSW50ZXJydXB0LCBzdGF0
-dXMgJSMwOHgsIG1hc2sgJSMwOHguXG4iLAo+IAkJCQlkZXYtPm5hbWUsIGlu
-dHJfc3RhdHVzLAo+IAkJCQlyZWFkbChpb2FkZHIgKyBJbnRyTWFzaykpOwoy
-MjM2LDIyNDJjMjE4MywyMTg1CjwgLyogVGhpcyBpcyB0aGUgTkFQSSBwb2xs
-IHJvdXRpbmUuICBBcyB3ZWxsIGFzIHRoZSBzdGFuZGFyZCBSWCBoYW5kbGlu
-Zwo8ICAqIGl0IGFsc28gaGFuZGxlcyBhbGwgb3RoZXIgaW50ZXJydXB0cyB0
-aGF0IHRoZSBjaGlwIG1pZ2h0IHJhaXNlLgo8ICAqLwo8IHN0YXRpYyBpbnQg
-bmF0c2VtaV9wb2xsKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsIGludCAqYnVk
-Z2V0KQo8IHsKPCAJc3RydWN0IG5ldGRldl9wcml2YXRlICpucCA9IG5ldGRl
-dl9wcml2KGRldik7CjwgCXZvaWQgX19pb21lbSAqIGlvYWRkciA9IG5zX2lv
-YWRkcihkZXYpOwotLS0KPiAJCWlmIChpbnRyX3N0YXR1cyA9PSAwKQo+IAkJ
-CWJyZWFrOwo+IAkJaGFuZGxlZCA9IDE7CjIyNDQsMjI0NWMyMTg3LDIxOTEK
-PCAJaW50IHdvcmtfdG9fZG8gPSBtaW4oKmJ1ZGdldCwgZGV2LT5xdW90YSk7
-CjwgCWludCB3b3JrX2RvbmUgPSAwOwotLS0KPiAJCWlmIChpbnRyX3N0YXR1
-cyAmCj4gCQkgICAoSW50clJ4RG9uZSB8IEludHJSeEludHIgfCBSeFN0YXR1
-c0ZJRk9PdmVyIHwKPiAJCSAgICBJbnRyUnhFcnIgfCBJbnRyUnhPdmVycnVu
-KSkgewo+IAkJCW5ldGRldl9yeChkZXYpOwo+IAkJfQoyMjQ3LDIyNDljMjE5
-MywyMTk0CjwgCWRvIHsKPCAJCWlmIChucC0+aW50cl9zdGF0dXMgJgo8IAkJ
-ICAgIChJbnRyVHhEb25lIHwgSW50clR4SW50ciB8IEludHJUeElkbGUgfCBJ
-bnRyVHhFcnIpKSB7Ci0tLQo+IAkJaWYgKGludHJfc3RhdHVzICYKPiAJCSAg
-IChJbnRyVHhEb25lIHwgSW50clR4SW50ciB8IEludHJUeElkbGUgfCBJbnRy
-VHhFcnIpKSB7CjIyNTYsMjI2OWMyMjAxLDIyMDIKPCAJCWlmIChucC0+aW50
-cl9zdGF0dXMgJiBJbnRyQWJub3JtYWxTdW1tYXJ5KQo8IAkJCW5ldGRldl9l
-cnJvcihkZXYsIG5wLT5pbnRyX3N0YXR1cyk7CjwgCQkKPCAJCWlmIChucC0+
-aW50cl9zdGF0dXMgJgo8IAkJICAgIChJbnRyUnhEb25lIHwgSW50clJ4SW50
-ciB8IFJ4U3RhdHVzRklGT092ZXIgfAo8IAkJICAgICBJbnRyUnhFcnIgfCBJ
-bnRyUnhPdmVycnVuKSkgewo8IAkJCW5ldGRldl9yeChkZXYsICZ3b3JrX2Rv
-bmUsIHdvcmtfdG9fZG8pOwo8IAkJfQo8IAkJCjwgCQkqYnVkZ2V0IC09IHdv
-cmtfZG9uZTsKPCAJCWRldi0+cXVvdGEgLT0gd29ya19kb25lOwo8IAo8IAkJ
-aWYgKHdvcmtfZG9uZSA+PSB3b3JrX3RvX2RvKQo8IAkJCXJldHVybiAxOwot
-LS0KPiAJCWlmIChpbnRyX3N0YXR1cyAmIEludHJBYm5vcm1hbFN1bW1hcnkp
-Cj4gCQkJbmV0ZGV2X2Vycm9yKGRldiwgaW50cl9zdGF0dXMpOwoyMjcxLDIy
-NzRjMjIwNCwyMjEyCjwgCQlucC0+aW50cl9zdGF0dXMgPSByZWFkbChpb2Fk
-ZHIgKyBJbnRyU3RhdHVzKTsKPCAJfSB3aGlsZSAobnAtPmludHJfc3RhdHVz
-KTsKPCAKPCAJbmV0aWZfcnhfY29tcGxldGUoZGV2KTsKLS0tCj4gCQlpZiAo
-LS1ib2d1c2NudCA8IDApIHsKPiAJCQlpZiAobmV0aWZfbXNnX2ludHIobnAp
-KQo+IAkJCQlwcmludGsoS0VSTl9XQVJOSU5HCj4gCQkJCQkiJXM6IFRvbyBt
-dWNoIHdvcmsgYXQgaW50ZXJydXB0LCAiCj4gCQkJCQkic3RhdHVzPSUjMDh4
-LlxuIiwKPiAJCQkJCWRldi0+bmFtZSwgaW50cl9zdGF0dXMpOwo+IAkJCWJy
-ZWFrOwo+IAkJfQo+IAl9IHdoaWxlICgxKTsKMjI3NiwyMjgxYzIyMTQsMjIx
-NQo8IAkvKiBSZWVuYWJsZSBpbnRlcnJ1cHRzIHByb3ZpZGluZyBub3RoaW5n
-IGlzIHRyeWluZyB0byBzaHV0CjwgCSAqIHRoZSBjaGlwIGRvd24uICovCjwg
-CXNwaW5fbG9jaygmbnAtPmxvY2spOwo8IAlpZiAoIW5wLT5oYW5kc19vZmYg
-JiYgbmV0aWZfcnVubmluZyhkZXYpKQo8IAkJbmF0c2VtaV9pcnFfZW5hYmxl
-KGRldik7CjwgCXNwaW5fdW5sb2NrKCZucC0+bG9jayk7Ci0tLQo+IAlpZiAo
-bmV0aWZfbXNnX2ludHIobnApKQo+IAkJcHJpbnRrKEtFUk5fREVCVUcgIiVz
-OiBleGl0aW5nIGludGVycnVwdC5cbiIsIGRldi0+bmFtZSk7CjIyODNjMjIx
-Nwo8IAlyZXR1cm4gMDsKLS0tCj4gCXJldHVybiBJUlFfUkVUVkFMKGhhbmRs
-ZWQpOwoyMjg4YzIyMjIKPCBzdGF0aWMgdm9pZCBuZXRkZXZfcngoc3RydWN0
-IG5ldF9kZXZpY2UgKmRldiwgaW50ICp3b3JrX2RvbmUsIGludCB3b3JrX3Rv
-X2RvKQotLS0KPiBzdGF0aWMgdm9pZCBuZXRkZXZfcngoc3RydWN0IG5ldF9k
-ZXZpY2UgKmRldikKMjMwNiwyMzExZDIyMzkKPCAKPCAJCWlmICgqd29ya19k
-b25lID49IHdvcmtfdG9fZG8pCjwgCQkJYnJlYWs7CjwgCjwgCQkoKndvcmtf
-ZG9uZSkrKzsKPCAKMjMyMywyMzM5ZDIyNTAKPCAKPCAJCQkJLyogVGhlIFJY
-IHN0YXRlIG1hY2hpbmUgaGFzIHByb2JhYmx5CjwgCQkJCSAqIGxvY2tlZCB1
-cCBiZW5lYXRoIHVzLiAgRm9sbG93IHRoZQo8IAkJCQkgKiByZXNldCBwcm9j
-ZWR1cmUgZG9jdW1lbnRlZCBpbgo8IAkJCQkgKiBBTi0xMjg3LiAqLwo8IAo8
-IAkJCQlzcGluX2xvY2tfaXJxKCZucC0+bG9jayk7CjwgCQkJCXJlc2V0X3J4
-KGRldik7CjwgCQkJCXJlaW5pdF9yeChkZXYpOwo8IAkJCQl3cml0ZWwobnAt
-PnJpbmdfZG1hLCBpb2FkZHIgKyBSeFJpbmdQdHIpOwo8IAkJCQljaGVja19s
-aW5rKGRldik7CjwgCQkJCXNwaW5fdW5sb2NrX2lycSgmbnAtPmxvY2spOwo8
-IAo8IAkJCQkvKiBXZSdsbCBlbmFibGUgUlggb24gZXhpdCBmcm9tIHRoaXMK
-PCAJCQkJICogZnVuY3Rpb24uICovCjwgCQkJCWJyZWFrOwo8IAoyMzcyYzIy
-ODMKPCAJCQkJCW5wLT5yeF9za2J1ZmZbZW50cnldLT5kYXRhLCBwa3RfbGVu
-LCAwKTsKLS0tCj4gCQkJCQlucC0+cnhfc2tidWZmW2VudHJ5XS0+dGFpbCwg
-cGt0X2xlbiwgMCk7CjIzODVjMjI5Ngo8IAkJCW5ldGlmX3JlY2VpdmVfc2ti
-KHNrYik7Ci0tLQo+IAkJCW5ldGlmX3J4KHNrYik7CjI1MjUsMjUyN2MyNDM2
-LDI0MzgKPCAJCQl3cml0ZWwoSEFTSF9UQUJMRSArIGksIGlvYWRkciArIFJ4
-RmlsdGVyQWRkcik7CjwgCQkJd3JpdGVsKChtY19maWx0ZXJbaSArIDFdIDw8
-IDgpICsgbWNfZmlsdGVyW2ldLAo8IAkJCSAgICAgICBpb2FkZHIgKyBSeEZp
-bHRlckRhdGEpOwotLS0KPiAJCQl3cml0ZXcoSEFTSF9UQUJMRSArIGksIGlv
-YWRkciArIFJ4RmlsdGVyQWRkcik7Cj4gCQkJd3JpdGV3KChtY19maWx0ZXJb
-aSsxXTw8OCkgKyBtY19maWx0ZXJbaV0sCj4gCQkJCWlvYWRkciArIFJ4Rmls
-dGVyRGF0YSk7CjI1ODgsMjU4OWMyNDk5CjwgCXN0cnVjdCBuZXRkZXZfcHJp
-dmF0ZSAqbnAgPSBuZXRkZXZfcHJpdihkZXYpOwo8IAlyZXR1cm4gbnAtPmVl
-cHJvbV9zaXplOwotLS0KPiAJcmV0dXJuIE5BVFNFTUlfRUVQUk9NX1NJWkU7
-CjI2NzZjMjU4Ngo8IAl1OCAqZWVidWY7Ci0tLQo+IAl1OCBlZWJ1ZltOQVRT
-RU1JX0VFUFJPTV9TSVpFXTsKMjY3OSwyNjgyZDI1ODgKPCAJZWVidWYgPSBr
-bWFsbG9jKG5wLT5lZXByb21fc2l6ZSwgR0ZQX0tFUk5FTCk7CjwgCWlmICgh
-ZWVidWYpCjwgCQlyZXR1cm4gLUVOT01FTTsKPCAKMjY4OWQyNTk0CjwgCWtm
-cmVlKGVlYnVmKTsKMzA0NWQyOTQ5CjwgCXN0cnVjdCBuZXRkZXZfcHJpdmF0
-ZSAqbnAgPSBuZXRkZXZfcHJpdihkZXYpOwozMDQ4YzI5NTIKPCAJZm9yIChp
-ID0gMDsgaSA8IG5wLT5lZXByb21fc2l6ZS8yOyBpKyspIHsKLS0tCj4gCWZv
-ciAoaSA9IDA7IGkgPCBOQVRTRU1JX0VFUFJPTV9TSVpFLzI7IGkrKykgewoz
-MTczYzMwNzcsMzA3OQo8IAluYXRzZW1pX2lycV9kaXNhYmxlKGRldik7Ci0t
-LQo+IAkvKiBEaXNhYmxlIGludGVycnVwdHMsIGFuZCBmbHVzaCBwb3N0ZWQg
-d3JpdGVzICovCj4gCXdyaXRlbCgwLCBpb2FkZHIgKyBJbnRyRW5hYmxlKTsK
-PiAJcmVhZGwoaW9hZGRyICsgSW50ckVuYWJsZSk7CjMyNTUsMzI1N2QzMTYw
-CjwgICogICAgICAqIG5hdHNlbWlfcG9sbDogY2hlY2tzIGJlZm9yZSByZWVu
-YWJsaW5nIGludGVycnVwdHMuICBzdXNwZW5kCjwgICogICAgICAgICAgICAg
-IHNldHMgaGFuZHNfb2ZmLCBkaXNhYmxlcyBpbnRlcnJ1cHRzIGFuZCB0aGVu
-IHdhaXRzIHdpdGgKPCAgKiAgICAgICAgICAgICAgbmV0aWZfcG9sbF9kaXNh
-YmxlKCkuCjMyNjJjMzE2NQo8IHN0YXRpYyBpbnQgbmF0c2VtaV9zdXNwZW5k
-IChzdHJ1Y3QgcGNpX2RldiAqcGRldiwgcG1fbWVzc2FnZV90IHN0YXRlKQot
-LS0KPiBzdGF0aWMgaW50IG5hdHNlbWlfc3VzcGVuZCAoc3RydWN0IHBjaV9k
-ZXYgKnBkZXYsIHUzMiBzdGF0ZSkKMzI4MywzMjg0ZDMxODUKPCAJCW5ldGlm
-X3BvbGxfZGlzYWJsZShkZXYpOwo8IAozMzM3ZDMyMzcKPCAJbmV0aWZfcG9s
-bF9lbmFibGUoZGV2KTsK
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
---0-162668008-1161195588=:81337--
+ fs/proc/base.c       |    4 +++-
+ include/linux/Kbuild |    1 +
+ include/linux/mm.h   |    3 ---
+ include/linux/oom.h  |   10 ++++++++++
+ mm/oom_kill.c        |    1 +
+ 5 files changed, 15 insertions(+), 4 deletions(-)
+
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -72,6 +72,7 @@ #include <linux/cpuset.h>
+ #include <linux/audit.h>
+ #include <linux/poll.h>
+ #include <linux/nsproxy.h>
++#include <linux/oom.h>
+ #include "internal.h"
+ 
+ /* NOTE:
+@@ -689,7 +690,8 @@ static ssize_t oom_adjust_write(struct f
+ 	if (copy_from_user(buffer, buf, count))
+ 		return -EFAULT;
+ 	oom_adjust = simple_strtol(buffer, &end, 0);
+-	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
++	if ((oom_adjust < OOM_ADJUST_MIN || oom_adjust > OOM_ADJUST_MAX) &&
++	     oom_adjust != OOM_DISABLE)
+ 		return -EINVAL;
+ 	if (*end == '\n')
+ 		end++;
+--- a/include/linux/Kbuild
++++ b/include/linux/Kbuild
+@@ -120,6 +120,7 @@ header-y += netrom.h
+ header-y += nfs2.h
+ header-y += nfs4_mount.h
+ header-y += nfs_mount.h
++header-y += oom.h
+ header-y += param.h
+ header-y += pci_ids.h
+ header-y += pci_regs.h
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1115,9 +1115,6 @@ int in_gate_area_no_task(unsigned long a
+ #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
+ #endif	/* __HAVE_ARCH_GATE_AREA */
+ 
+-/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
+-#define OOM_DISABLE -17
+-
+ int drop_caches_sysctl_handler(struct ctl_table *, int, struct file *,
+ 					void __user *, size_t *, loff_t *);
+ unsigned long shrink_slab(unsigned long scanned, gfp_t gfp_mask,
+--- /dev/null
++++ b/include/linux/oom.h
+@@ -0,0 +1,10 @@
++#ifndef __INCLUDE_LINUX_OOM_H
++#define __INCLUDE_LINUX_OOM_H
++
++/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
++#define OOM_DISABLE (-17)
++/* inclusive */
++#define OOM_ADJUST_MIN (-16)
++#define OOM_ADJUST_MAX 15
++
++#endif
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -15,6 +15,7 @@
+  *  kernel subsystems and hints as to where to find out what things do.
+  */
+ 
++#include <linux/oom.h>
+ #include <linux/mm.h>
+ #include <linux/sched.h>
+ #include <linux/swap.h>
+

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWJRRzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWJRRzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbWJRRzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWJRRzK
+	id S1751518AbWJRRzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422709AbWJRRzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:55:10 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:2491 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751521AbWJRRzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:55:08 -0400
-Date: Wed, 18 Oct 2006 10:56:34 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
-Message-Id: <20061018105634.2f8cb629.randy.dunlap@oracle.com>
-In-Reply-To: <20061018070922.GB24452@kernel.dk>
-References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr>
-	<200610171857.k9HIvq1M009488@turing-police.cc.vt.edu>
-	<Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr>
-	<20061017193645.GM7854@kernel.dk>
-	<Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr>
-	<20061018070922.GB24452@kernel.dk>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 18 Oct 2006 13:55:05 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:64163 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751518AbWJRRzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:55:03 -0400
+Date: Wed, 18 Oct 2006 23:24:58 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: pj@sgi.com, menage@google.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, rohitseth@google.com,
+       dipankar@in.ibm.com, nickpiggin@yahoo.com.au
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-ID: <20061018175458.GC7885@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20061017192547.B19901@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061017192547.B19901@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 09:09:22 +0200 Jens Axboe wrote:
-
-> On Tue, Oct 17 2006, Jan Engelhardt wrote:
-> > >> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
-> > >> of being wrapped into if BLOCK. Not really consistent but whatever.
-> > >
-> > >Feel free to send in patches that make things more consistent.
-> > 
-> > How would you like things? if BLOCK or depends on BLOCK?
+On Tue, Oct 17, 2006 at 07:25:48PM -0700, Siddha, Suresh B wrote:
+> When ever a cpu hotplug happens, current kernel calls build_sched_domains()
+> with cpu_online_map. That will destroy all the domain partitions(done by
+> partition_sched_domains()) setup so far by exclusive cpusets.
 > 
-> Well, if you can hide an entire block with if BLOCK, then that would be
-> preferred. Otherwise depends on BLOCK.
+> And its not just cpu hotplug, this happens even if someone changes multi core
+> sched power savings policy.
 > 
-> > Does menuconfig/oldconfig/etc. parse the whole config structure faster 
-> > it it done either way?
+> Anyone would like to fix it up? In the presence of cpusets, we basically
+> need to traverse all the exclusive sets and setup the sched domains
+> accordingly.
 > 
-> I'd be surprised if if BLOCK wasn't faster over, say, 10 depends on
-> BLOCK.
+> If no one does :( then I will do that when I get some time...
 
-Jens,
-Has anyone looked at what BLOCK=n does to mm/page-writeback.c ?
-It calls blk_congestion_end(), which isn't there.
+Suresh,
 
-mm/built-in.o: In function `writeback_congestion_end':
-(.text.writeback_congestion_end+0xc): undefined reference to `blk_congestion_end'
-make: *** [.tmp_vmlinux1] Error 1
-Command exited with non-zero status 2
+I have a patch (though a very old one...) for handling hotplug and cpusets.
+However there were some ugly locking issues and nesting of locks that I
+ran into and I never got the time to sort them out. Also there didnt
+seem to be any users for it and so I had no motivation to further complicate
+the cpusets code/sched domains code. However I can dust up the patches if
+there is a need
 
-
----
-~Randy
+	-Dinakar

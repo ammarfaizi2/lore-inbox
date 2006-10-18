@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWJRINm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWJRIOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWJRINm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 04:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWJRINm
+	id S932095AbWJRIOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 04:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWJRIOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 04:13:42 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21425 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751442AbWJRINl (ORCPT
+	Wed, 18 Oct 2006 04:14:46 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26265 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932095AbWJRIOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 04:13:41 -0400
-Date: Wed, 18 Oct 2006 10:05:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: dwalker@mvista.com, Clark Williams <williams@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: hrtimers bug message on 2.6.18-rt4
-Message-ID: <20061018080519.GA4235@elte.hu>
-References: <45214EDC.6060706@redhat.com> <1159811130.5873.5.camel@localhost.localdomain> <1159921845.1979.9.camel@dwalker1.mvista.com> <1159922315.14866.2.camel@localhost> <20061018075654.GA1514@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018075654.GA1514@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 18 Oct 2006 04:14:45 -0400
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org
+Cc: neilb@suse.de, nfs@lists.sourceforge.net, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, gnb@melbourne.sgi.com
+Date: Wed, 18 Oct 2006 01:13:36 -0700
+Message-Id: <20061018081336.18477.55297.sendpatchset@sam.engr.sgi.com>
+Subject: [PATCH] lib cpumask.c should include nodemask.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Paul Jackson <pj@sgi.com>
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+With the addition of some nodemask related code to lib/cpumask.c, we
+should now include nodemask.h in this file for the for_each_node_mask()
+and node_possible_map definitions.
 
-> 
-> * john stultz <johnstul@us.ibm.com> wrote:
-> 
-> > > With ltpstess . It has a settimeofday test which can trigger it. It 
-> > > gets called with wild values.
-> > 
-> > Hmmm... That sounds like a false positive, where Ingo's time warp 
-> > checking code isn't resetting on settimeofday() calls.
-> 
-> that's weird - clock_was_set() does call time_warp_clock_was_set().
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-found it: clock_was_set() is a NOP on !hres, so it doesnt call 
-warp_check_clock_was_changed().
+---
 
-	Ingo
+ lib/cpumask.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+--- 2.6.19-rc2-mm1.orig/lib/cpumask.c	2006-10-17 17:36:23.000000000 -0700
++++ 2.6.19-rc2-mm1/lib/cpumask.c	2006-10-17 17:37:23.000000000 -0700
+@@ -1,6 +1,7 @@
+ #include <linux/kernel.h>
+ #include <linux/bitops.h>
+ #include <linux/cpumask.h>
++#include <linux/nodemask.h>
+ #include <linux/module.h>
+ 
+ int __first_cpu(const cpumask_t *srcp)
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

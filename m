@@ -1,105 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWJRFJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWJRFbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWJRFJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 01:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWJRFJo
+	id S1751388AbWJRFbh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 01:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWJRFbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 01:09:44 -0400
-Received: from bgerelbas02.asiapac.hp.net ([15.219.201.135]:29394 "EHLO
-	bgerelbas02.asiapac.hp.net") by vger.kernel.org with ESMTP
-	id S1751377AbWJRFJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 01:09:44 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6F273.8B296158"
-Subject: FW: About the request queue of block device
-Date: Wed, 18 Oct 2006 10:39:09 +0530
-Message-ID: <B57F74065657FA4F85110272279E461B01512327@BGEEXC07.asiapacific.cpqcorp.net>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: About the request queue of block device
-Thread-Index: AcbxrgZOziwWFGPQTx+L2hc3KBNF5AAxRt/AAAASjGA=
-From: "Palakodeti, Srinivasa Rao (STSD)" <palakodetisrinivasa.rao@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Oct 2006 05:09:09.0876 (UTC) FILETIME=[8B4B3340:01C6F273]
+	Wed, 18 Oct 2006 01:31:37 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:10741 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751388AbWJRFbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 01:31:36 -0400
+Date: Tue, 17 Oct 2006 22:32:57 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: zippel@linux-m68k.org, sam@ravnborg.org, rob@landley.net
+Subject: [PATCH] kbuild: make*config usage doc.
+Message-Id: <20061017223257.c646f616.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Is this useful for anyone?
 
-------_=_NextPart_001_01C6F273.8B296158
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Is anything happening with mini.config or a replacement for it?
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Create a kconfig user assistance guide, with a few tips and hints
+about using menuconfig, xconfig, and gconfig.
+
+Mostly contains user interface and search topics, along with
+mini.config/custom.config usage.
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ Documentation/kbuild/00-INDEX         |    2 
+ Documentation/kbuild/make-configs.txt |  167 ++++++++++++++++++++++++++++++++++
+ README                                |   17 +--
+ 3 files changed, 175 insertions(+), 11 deletions(-)
+
+--- linux-2619-rc2-ppc.orig/Documentation/kbuild/00-INDEX
++++ linux-2619-rc2-ppc/Documentation/kbuild/00-INDEX
+@@ -4,5 +4,7 @@ kconfig-language.txt
+ 	- specification of Config Language, the language in Kconfig files
+ makefiles.txt
+ 	- developer information for linux kernel makefiles
++make-configs.txt
++	- usage help for make *config
+ modules.txt
+ 	- how to build modules and to install them
+--- /dev/null
++++ linux-2619-rc2-ppc/Documentation/kbuild/make-configs.txt
+@@ -0,0 +1,167 @@
++This file contains some assistance for using "make *config".
++
++Use "make help" to list all of the possible configuration targets.
++
++The xconfig ('qconf') and menuconfig ('mconf') programs also
++have embedded help text.  Be sure to check it for navigation,
++search, and other general help text.
++
++======================================================================
++General
++--------------------------------------------------
++
++New kernel releases often introduce new config symbols.  Often more
++important, new kernel releases may rename config symbols.  When
++this happens, using a previously working .config file and running
++"make oldconfig" won't necessarily produce a working new kernel
++for you, so you may find that you need to see what NEW kernel
++symbols have been introduced.
++
++To see a list of new config symbols when using "make oldconfig", use
++
++	cp user/some/old.config .config
++	yes "" | make oldconfig >conf.new
++
++and the config program will list as (NEW) any new symbols that have
++unknown values.  Of course, the .config file is also updated with
++new (default) values, so you can use:
++
++	grep "(NEW)" conf.new
++
++to see the new config symbols or you can 'diff' the previous and
++new .config files to see the differences:
++
++	diff .config.old .config | less
++
++(Yes, we need something better here.)
++
++
++======================================================================
++menuconfig
++--------------------------------------------------
++
++SEARCHING for CONFIG symbols
++
++Searching in menuconfig:
++
++	The Search function searches for kernel configuration symbol
++	names, so you have to know something close to what you are
++	looking for.
++
++	Example:
++		/hotplug
++		This lists all config symbols that contain "hotplug",
++		e.g., HOTPLUG, HOTPLUG_CPU, MEMORY_HOTPLUG.
++
++	For search help, enter / followed TAB-TAB-TAB (to highlight
++	<Help>) and Enter.  This will tell you that you can also use
++	regular expressions (regexes) in the search string, so if you
++	are not interested in MEMORY_HOTPLUG, you could try
++
++		/^hotplug
++
++
++______________________________________________________________________
++Color Themes for 'menuconfig'
++
++It is possible to select different color themes using the variable
++MENUCONFIG_COLOR.  To select a theme use:
++
++	make MENUCONFIG_COLOR=<theme> menuconfig
++
++Available themes are:
++  mono       => selects colors suitable for monochrome displays
++  blackbg    => selects a color scheme with black background
++  classic    => theme with blue background. The classic look
++  bluetitle  => a LCD friendly version of classic. (default)
++
++______________________________________________________________________
++Environment variables in 'menuconfig'
++
++KCONFIG_ALLCONFIG
++--------------------------------------------------
++(partially based on lkml email from/by Rob Landley, re: miniconfig)
++--------------------------------------------------
++The allyesconfig/allmodconfig/allnoconfig/randconfig variants can
++also use the environment variable KCONFIG_ALLCONFIG as a flag or a
++filename that contains config symbols that the user requires to be
++set to a specific value.  If KCONFIG_ALLCONFIG is used without a
++filename, "make *config" checks for a file named
++"all{yes/mod/no/random}.config" (corresponding to the *config command
++that was used) for symbol values that are to be forced.  If this file
++is not found, it checks for a file named "all.config" to contain forced
++values.
++
++This enables you to create "miniature" config (miniconfig) or custom
++config files containing just the config symbols that you are interested
++in.  Then the kernel config system generates the full .config file,
++including dependencies of your miniconfig file, based on the miniconfig
++file.
++
++This 'KCONFIG_ALLCONFIG' file is a config file which contains
++(usually a subset of all) preset config symbols.  These variable
++settings are still subject to normal dependency checks.
++
++Examples:
++	KCONFIG_ALLCONFIG=custom-notebook.config make allnoconfig
++or
++	KCONFIG_ALLCONFIG=mini.config make allnoconfig
++or
++	make KCONFIG_ALLCONFIG=mini.config allnoconfig
++
++These examples will disable most options (allnoconfig) but enable or
++disable the options that are explicitly listed in the specified
++mini-config files.
++
++KCONFIG_NOSILENTUPDATE
++--------------------------------------------------
++If this variable has a non-blank value, it prevents silent kernel
++config udpates (requires explicit updates).
++
++______________________________________________________________________
++menuconfig User Interface Options
++----------------------------------------------------------------------
++LINES and COLUMNS
++--------------------------------------------------
++See the menuconfig embedded help text.
++
++MENUCONFIG_MODE
++--------------------------------------------------
++This mode shows all sub-menus in one large tree.
++
++Example:
++	MENUCONFIG_MODE=single_menu make menuconfig
++
++======================================================================
++xconfig
++--------------------------------------------------
++
++Searching in xconfig:
++
++	The Search function searches for kernel configuration symbol
++	names, so you have to know something close to what you are
++	looking for.
++
++	Example:
++		Ctrl-F hotplug
++	or
++		Menu: File, Search, hotplug
++
++	lists all config symbol entries that contain "hotplug" in
++	the symbol name.  In this Search dialog, you may change the
++	config setting for any of the entries that are not grayed out.
++	You can also enter a different search string without having
++	to return to the main menu.
++
++
++======================================================================
++gconfig
++--------------------------------------------------
++
++Searching in gconfig:
++
++	none (gconfig isn't maintained as well as xconfig or menuconfig);
++	however, gconfig does have a few more viewing choices than
++	xconfig does.
++
++###
+--- linux-2619-rc2-ppc.orig/README
++++ linux-2619-rc2-ppc/README
+@@ -50,9 +50,9 @@ DOCUMENTATION:
+ 
+  - The Documentation/DocBook/ subdirectory contains several guides for
+    kernel developers and users.  These guides can be rendered in a
+-   number of formats:  PostScript (.ps), PDF, and HTML, among others.
+-   After installation, "make psdocs", "make pdfdocs", or "make htmldocs"
+-   will render the documentation in the requested format.
++   number of formats:  PostScript (.ps), PDF, HTML, & man-pages, among others.
++   After installation, "make psdocs", "make pdfdocs", "make htmldocs",
++   or "make mandocs" will render the documentation in the requested format.
+ 
+ INSTALLING the kernel:
+ 
+@@ -183,14 +183,9 @@ CONFIGURING the kernel:
+ 	"make randconfig"  Create a ./.config file by setting symbol
+ 			   values to random values.
+ 
+-   The allyesconfig/allmodconfig/allnoconfig/randconfig variants can
+-   also use the environment variable KCONFIG_ALLCONFIG to specify a
+-   filename that contains config options that the user requires to be
+-   set to a specific value.  If KCONFIG_ALLCONFIG=filename is not used,
+-   "make *config" checks for a file named "all{yes/mod/no/random}.config"
+-   for symbol values that are to be forced.  If this file is not found,
+-   it checks for a file named "all.config" to contain forced values.
+-   
++   You can find more information on using the Linux kernel config tools
++   in Documentation/kbuild/make-configs.txt.
++
+ 	NOTES on "make config":
+ 	- having unnecessary drivers will make the kernel bigger, and can
+ 	  under some circumstances lead to problems: probing for a
 
 
-Hi,
 
-I am using the attached code for Layering floppy drivers.=20
-
-It is not working. I am not able to write anything to floppy. Could you
-help me in this? I have attached the file.
-
-
-Regards,
-Srinivas
-
-------_=_NextPart_001_01C6F273.8B296158
-Content-Type: application/octet-stream;
-	name="InterFloppy.c"
-Content-Transfer-Encoding: base64
-Content-Description: InterFloppy.c
-Content-Disposition: attachment;
-	filename="InterFloppy.c"
-
-I2RlZmluZSBNT0RVTEUNCiNkZWZpbmUgX19LRVJORUxfXyANCiNkZWZpbmUgX19OT19WRVJTSU9O
-X18NCg0KICAgLy8gTmVlZGVkIGJ5IGFsbCBtb2R1bGVzDQojaW5jbHVkZSA8bGludXgva2VybmVs
-Lmg+IA0KI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPiANCiNpbmNsdWRlIDxsaW51eC9ibGtkZXYu
-aD4NCiAgLy8gTmVlZGVkIGZvciBLRVJOX0FMRVJUDQojaW5jbHVkZSA8bGludXgvc2NoZWQuaD4N
-CiNpbmNsdWRlIDxsaW51eC9mcy5oPg0KDQovLyNkZWZpbmUgU0NIRURfWUlFTEQgMQ0Kc3Bpbmxv
-Y2tfdCBpb19yZXF1ZXN0X2xvY2sgPSBTUElOX0xPQ0tfVU5MT0NLRUQ7DQovL3R5cGVkZWYgIHN0
-cnVjdCBidWZmZXJfaGVhZCAqIHBteV9iX2VuZF9pbzsNCnR5cGVkZWYgdm9pZCAoKmJfZW5kX2lv
-MSkoc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9kYXRlKTsgLyogSS9PIGNvbXBsZXRp
-b24gKi8NCg0KdHlwZWRlZiBzdHJ1Y3Qgew0Kc3RydWN0IGJ1ZmZlcl9oZWFkICpiaDsNCnZvaWQg
-KCpiX2VuZF9pbykoc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9kYXRlKTsgLyogSS9P
-IGNvbXBsZXRpb24gKi8NCi8vYl9lbmRfaW8xIGJfZW5kX2lvOw0KDQp9bXlfYl9lbmRfaW8sICog
-cG15X2JfZW5kX2lvOw0KDQoNCmFzbWxpbmthZ2Ugdm9pZCBrdGlfYl9lbmRfaW8oc3RydWN0IGJ1
-ZmZlcl9oZWFkICpiaCwgaW50IHVwdG9kYXRlKQ0Kew0KaW50IGo7DQoNCnByaW50aygiSW4ga3Rp
-X2JfZW5kX2lvIFxuICIpOw0KLy9zdHJ1Y3QgYnVmZmVyX2hlYWQgcHJpdmF0ZTsNCnBteV9iX2Vu
-ZF9pbyBwcml2YXRlOw0KDQoNCnByaXZhdGUgPSBiaC0+Yl9wcml2YXRlOw0KYmgtPmJfcHJpdmF0
-ZSA9IE5VTEw7DQpiaC0+Yl9lbmRfaW8gPSBwcml2YXRlLT5iX2VuZF9pbzsNCg0KDQppZih1cHRv
-ZGF0ZSl7DQpmb3IoaiA9IDA7IGogPCBiaC0+Yl9zaXplOyBqICsrKQ0KYmgtPmJfZGF0YVtqXSBe
-PSAweGFhOw0KfQ0KDQoNCmJoLT5iX2VuZF9pbyhiaCwgdXB0b2RhdGUpOw0KDQoNCmtmcmVlKHBy
-aXZhdGUpOw0KfQ0KDQoNCmFzbWxpbmthZ2UgaW50ICgqb3JpZ2luYWxfbWFrZV9yZXF1ZXN0X2Zu
-KShyZXF1ZXN0X3F1ZXVlX3QgKiBxLCBpbnQgcncsc3RydWN0IGJ1ZmZlcl9oZWFkICpiaCk7DQoN
-Cg0KYXNtbGlua2FnZSBwbXlfYl9lbmRfaW8ga3RpX2dldF9wcml2YXRlKHZvaWQpDQp7DQoNCiNp
-ZiAxDQpwbXlfYl9lbmRfaW8gcHRyID0gTlVMTDsNCndoaWxlICghcHRyKSB7DQpwdHIgPSAocG15
-X2JfZW5kX2lvKWttYWxsb2Moc2l6ZW9mKG15X2JfZW5kX2lvKSwgR0ZQX05PSU8pOw0KaWYoIXB0
-cikgew0KX19zZXRfY3VycmVudF9zdGF0ZShUQVNLX1JVTk5JTkcpOw0KY3VycmVudC0+cG9saWN5
-IHw9IFNDSEVEX05PUk1BTDsNCnNjaGVkdWxlKCk7DQp9DQoNCn0NCiNlbmRpZiANCg0KcmV0dXJu
-IHB0cjsNCn0NCg0KDQphc21saW5rYWdlIGludCBrdGlfbWFrZV9yZXF1ZXN0X2ZuKHJlcXVlc3Rf
-cXVldWVfdCAqIHEsIGludCBydywNCnN0cnVjdCBidWZmZXJfaGVhZCAqYmgpDQp7DQppbnQgcmV0
-Y29kZTsNCmludCBpOw0KcG15X2JfZW5kX2lvIHByaXZhdGU7DQoNCg0Kc3dpdGNoIChydykgew0K
-Y2FzZSBSRUFEQToNCmNhc2UgUkVBRDoNCglwcmludGsoIkluIGt0aV9tYWtlX3JlcXVlc3RfZm4g
-cmVhZFxuIik7DQpwcml2YXRlID0ga3RpX2dldF9wcml2YXRlKCk7DQpwcml2YXRlLT5iaCA9IGJo
-Ow0KcHJpdmF0ZS0+Yl9lbmRfaW8gPSBiaC0+Yl9lbmRfaW87DQpiaC0+Yl9wcml2YXRlID0gcHJp
-dmF0ZTsNCg0KDQpiaC0+Yl9lbmRfaW8gPSBrdGlfYl9lbmRfaW87DQoNCg0KYnJlYWs7DQoNCg0K
-Y2FzZSBXUklURToNCi8qDQoJDQoJcHJpbnRrKCJJbiBrdGlfbWFrZV9yZXF1ZXN0X2ZuIHdyaXRl
-XG4iKTsNCmZvcihpID0gMDsgaSA8IGJoLT5iX3NpemU7IGkgKyspDQpiaC0+Yl9kYXRhW2ldIF49
-IDB4YWE7DQoqLw0KDQpicmVhazsNCn0NCg0KDQpyZXRjb2RlID0gb3JpZ2luYWxfbWFrZV9yZXF1
-ZXN0X2ZuKHEsIHJ3LCBiaCk7DQpyZXR1cm4gcmV0Y29kZTsNCn0NCg0KDQppbnQgaW5pdF9tb2R1
-bGUoKQ0Kew0KDQoNCnByaW50aygiSW4gSW50ZXJGbG9wcHkgbW9kdWxlIHN0YXJ0IFxuIik7DQpz
-cGluX2xvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spOw0Kb3JpZ2luYWxfbWFrZV9yZXF1ZXN0X2Zu
-ID0gYmxrX2RldlsyXS5yZXF1ZXN0X3F1ZXVlLm1ha2VfcmVxdWVzdF9mbjsNCmJsa19kZXZbMl0u
-cmVxdWVzdF9xdWV1ZS5tYWtlX3JlcXVlc3RfZm4gPSBrdGlfbWFrZV9yZXF1ZXN0X2ZuOw0Kc3Bp
-bl91bmxvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spOw0KcHJpbnRrKCJJbiBJbnRlckZsb3BweSBt
-b2R1bGUgZW5kIFxuIik7DQoNCnJldHVybiAwOw0KfQ0KDQoNCnZvaWQgY2xlYW51cF9tb2R1bGUo
-KQ0Kew0KcHJpbnRrKCJDbGVhbiBJbnRlckZsb3BweSBtb2R1bGUgc3RhcnQgXG4iKTsNCnNwaW5f
-bG9ja19pcnEoJmlvX3JlcXVlc3RfbG9jayk7DQpibGtfZGV2WzJdLnJlcXVlc3RfcXVldWUubWFr
-ZV9yZXF1ZXN0X2ZuID0gb3JpZ2luYWxfbWFrZV9yZXF1ZXN0X2ZuOw0Kc3Bpbl91bmxvY2tfaXJx
-KCZpb19yZXF1ZXN0X2xvY2spOw0KcHJpbnRrKCJDbGVhbiBJbnRlckZsb3BweSBtb2R1bGUgZW5k
-IFxuIik7DQp9DQoNCg==
-
-------_=_NextPart_001_01C6F273.8B296158--
+---

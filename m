@@ -1,74 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWJRIZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWJRIYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWJRIZV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 04:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWJRIZU
+	id S1750885AbWJRIYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 04:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWJRIYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 04:25:20 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:24772 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751054AbWJRIZS (ORCPT
+	Wed, 18 Oct 2006 04:24:30 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:55745 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1750882AbWJRIY3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 04:25:18 -0400
-Date: Wed, 18 Oct 2006 10:16:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [patch] genirq: clean up irq-flow-type naming, fix
-Message-ID: <20061018081659.GA5778@elte.hu>
-References: <20061018080411.GA13340@aepfle.de>
+	Wed, 18 Oct 2006 04:24:29 -0400
+Date: Wed, 18 Oct 2006 10:29:32 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Amit Choudhary <amit2030@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc2] [REVISED] drivers/media/video/se401.c: check kmalloc() return value.
+Message-ID: <20061018082931.GA2051@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Amit Choudhary <amit2030@gmail.com>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061018080411.GA13340@aepfle.de>
+In-Reply-To: <20061017213155.35983846.amit2030@gmail.com>
 User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Olaf Hering <olaf@aepfle.de> wrote:
-
-> There is no prototype anymore, but still many users.
+On 18-10-2006 06:31, Amit Choudhary wrote:
+> Description: Check the return value of kmalloc() in function se401_start_stream(), in file drivers/media/video/se401.c.
 > 
-> a460e745e8f9c75a0525ff94154a0629f9d3e05d is likely the culprit:
->  [PATCH] genirq: clean up irq-flow-type naming
+> Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+> 
+> diff --git a/drivers/media/video/se401.c b/drivers/media/video/se401.c
+> index 7aeec57..fe94227 100644
+> --- a/drivers/media/video/se401.c
+> +++ b/drivers/media/video/se401.c
+> @@ -450,6 +450,8 @@ static int se401_start_stream(struct usb
+>  	}
+>  	for (i=0; i<SE401_NUMSBUF; i++) {
+>  		se401->sbuf[i].data=kmalloc(SE401_PACKETSIZE, GFP_KERNEL);
+> +		if (!se401->sbuf[i].data)
+> +			goto nomem_err;
+>  	}
+>  
+>  	se401->bayeroffset=0;
+> @@ -458,13 +460,15 @@ static int se401_start_stream(struct usb
+>  	se401->scratch_overflow=0;
+>  	for (i=0; i<SE401_NUMSCRATCH; i++) {
+>  		se401->scratch[i].data=kmalloc(SE401_PACKETSIZE, GFP_KERNEL);
+> +		if (!se401->scratch[i].data)
+> +			goto nomem_err;
+>  		se401->scratch[i].state=BUFFER_UNUSED;
+>  	}
+>  
+>  	for (i=0; i<SE401_NUMSBUF; i++) {
+>  		urb=usb_alloc_urb(0, GFP_KERNEL);
+>  		if(!urb)
+> -			return -ENOMEM;
+> +			goto nomem_err;
+>  
+>  		usb_fill_bulk_urb(urb, se401->dev,
+>  			usb_rcvbulkpipe(se401->dev, SE401_VIDEO_ENDPOINT),
+> @@ -482,6 +486,20 @@ static int se401_start_stream(struct usb
+>  	se401->framecount=0;
+>  
+>  	return 0;
+> +
+> + nomem_err:
+> +	for (i=0; i<SE401_NUMSBUF; i++) {
+> +		usb_kill_urb(se401->urb[i]);
+> +		usb_free_urb(se401->urb[i]);
+> +		se401->urb[i] = NULL;
+> +		kfree(se401->sbuf[i].data);
+...
 
-oops, that was unintended. The patch below should fix this.
+I see before se401_start_stream usually this is done: 
 
-	Ingo
+static int se401_stop_stream(struct usb_se401 *se401)
+{
+...
+	for (i=0; i<SE401_NUMSBUF; i++) if (se401->urb[i]) {
+		usb_kill_urb(se401->urb[i]);
+		usb_free_urb(se401->urb[i]);
+		se401->urb[i]=NULL;
+		kfree(se401->sbuf[i].data);
+	}
+	for (i=0; i<SE401_NUMSCRATCH; i++) {
+		kfree(se401->scratch[i].data);
+		se401->scratch[i].data=NULL;
+	}
 
---------------->
-Subject: genirq: clean up irq-flow-type naming, fix
-From: Ingo Molnar <mingo@elte.hu>
+	return 0;
+}
 
-re-add the set_irq_chip_and_handler() prototype, it's still widely used.
+... but because above there is no: 
+se401->sbuf[i].data=NULL;
+after kfree(se401->sbuf[i].data);
+it is possible that in se401_start_stream we have
+kmalloc error for e.g. i == 0 but kfree for i >= 1,
+which could be not NULL (but kfreed)... 
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- include/linux/irq.h |    3 +++
- 1 file changed, 3 insertions(+)
+Regards,
 
-Index: linux/include/linux/irq.h
-===================================================================
---- linux.orig/include/linux/irq.h
-+++ linux/include/linux/irq.h
-@@ -322,6 +322,9 @@ extern struct irq_chip no_irq_chip;
- extern struct irq_chip dummy_irq_chip;
- 
- extern void
-+set_irq_chip_and_handler(unsigned int irq, struct irq_chip *chip,
-+			 irq_flow_handler_t handle);
-+extern void
- set_irq_chip_and_handler_name(unsigned int irq, struct irq_chip *chip,
- 			      irq_flow_handler_t handle, const char *name);
- 
+Jarek P.

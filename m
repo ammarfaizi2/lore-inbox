@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWJRTdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161320AbWJRTeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161318AbWJRTdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbWJRTdg
+	id S1161320AbWJRTeg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161322AbWJRTeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:33:36 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:57836 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161318AbWJRTdf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:33:35 -0400
-Message-ID: <4536818E.3060505@fr.ibm.com>
-Date: Wed, 18 Oct 2006 21:33:34 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Wed, 18 Oct 2006 15:34:36 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:16733 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161321AbWJRTef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 15:34:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Ns8OSgRFxwljqrGWEKQPZ2Bve2095cm1Y0WKh2DVQH1mJ+8FCj52CZ7TOiplaKGGzcSO105qvcgxG1bBOxJHFeyjxK/bhSu83K9GH9xr+7u1UHcFcB8Rd6a4V+nJSgqgsaY3lnB61wo1bTAKV7eR+5gMw6Nh811YIy5niREKG+c=  ;
+Message-ID: <453681C9.7020904@yahoo.com.au>
+Date: Thu, 19 Oct 2006 05:34:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm1
-References: <20061016230645.fed53c5b.akpm@osdl.org> <45367210.4040507@googlemail.com> <200610182118.31371.rjw@sisk.pl>
-In-Reply-To: <200610182118.31371.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-15
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+Subject: Re: [PATCH] OOM killer meets userspace headers
+References: <20061018145305.GA5345@martell.zuzino.mipt.ru> <453642D1.1010302@yahoo.com.au> <20061018184655.GC5345@martell.zuzino.mipt.ru> <45367C93.3040804@yahoo.com.au> <20061018192404.GE5345@martell.zuzino.mipt.ru>
+In-Reply-To: <20061018192404.GE5345@martell.zuzino.mipt.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Wednesday, 18 October 2006 20:27, Gabriel C wrote:
->> Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
->>>   
->> Hello,
->>
->> I got this build error with 2.6.19-rc2-mm1:
->>
->> CHK include/linux/compile.h
->> UPD include/linux/compile.h
->> CC init/version.o
->> LD init/built-in.o
->> LD .tmp_vmlinux1
->> mm/built-in.o: In function `xip_file_write':
->> (.text+0x19a47): undefined reference to `filemap_copy_from_user'
->> make: *** [.tmp_vmlinux1] Error 1
+Alexey Dobriyan wrote:
+> On Thu, Oct 19, 2006 at 05:12:19AM +1000, Nick Piggin wrote:
 > 
-> \metoo
+>>Alexey Dobriyan wrote:
+>>
+>>>On Thu, Oct 19, 2006 at 01:05:53AM +1000, Nick Piggin wrote:
+>>>
+>>>
+>>>>>+#define OOM_ADJUST_MIN (-16)
+>>>>>+#define OOM_ADJUST_MAX 15
+>>>>
+>>>>Why do you need the () for the -ves?
+>>>
+>>>
+>>>-16 is two tokens. Not that someone is going to do huge arithmetic with
+>>>OOM adjustments and screwup himself, but still...
+>>
+>>How can they screw themselves up? AFAIKS, the - directly to the left
+>>of the literal will bind more tightly than any other valid operator.
+> 
+> 
+> Hmmm... c.l.c lists two reasons: a) =- being synonym of -= in pre-ANSI
+> days, and b) fat fingers
+> 
+> 	#define EOF -1
+> 	while ((c = getchar()) != 3 EOF)
 
-Here's a fix i sent to andrew.
+I can't say I care about those problems to justify the uglification
+(or churning the tree).
 
-C.
+If the operator were legitimately able to leak out, obviously () is
+a good thing. Otherwise...
 
-
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
----
- mm/filemap_xip.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: 2.6.19-rc2-mm1/mm/filemap_xip.c
-===================================================================
---- 2.6.19-rc2-mm1.orig/mm/filemap_xip.c
-+++ 2.6.19-rc2-mm1/mm/filemap_xip.c
-@@ -317,7 +317,7 @@ __xip_file_write(struct file *filp, cons
- 			break;
- 		}
- 
--		copied = filemap_copy_from_user(page, offset, buf, bytes);
-+		copied = filemap_copy_from_user_atomic(page, offset, buf, bytes);
- 		flush_dcache_page(page);
- 		if (likely(copied > 0)) {
- 			status = copied;
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

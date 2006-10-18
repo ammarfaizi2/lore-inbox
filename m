@@ -1,137 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422690AbWJRQ4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWJRRE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422690AbWJRQ4N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422694AbWJRQ4N
+	id S1161180AbWJRRE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWJRRE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:56:13 -0400
-Received: from taganka54-host.corbina.net ([213.234.233.54]:46540 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1422690AbWJRQ4M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:56:12 -0400
-Date: Wed, 18 Oct 2006 20:55:58 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Prarit Bhargava <prarit@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC][PATCH] ->signal->tty locking
-Message-ID: <20061018165558.GA2062@oleg>
-References: <1160992420.22727.14.camel@taijtu> <20061017081018.GA115@oleg> <1161080221.3036.38.camel@taijtu> <20061017123307.GA209@oleg> <1161090004.3036.43.camel@taijtu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161090004.3036.43.camel@taijtu>
-User-Agent: Mutt/1.5.11
+	Wed, 18 Oct 2006 13:04:28 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:36077 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161180AbWJRRE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:04:27 -0400
+Date: Wed, 18 Oct 2006 10:04:07 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: [RFC] sched_tick with interrupts enabled
+Message-ID: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/17, Peter Zijlstra wrote:
->
-> How about something like this; I'm still shaky on the lifetime rules of
-> tty objects, I'm about to add a refcount and spinlock/mutex to
-> tty_struct, this is madness....
+scheduler_tick() has the potential of running for some time if f.e.
+sched_domains for a system with 1024 processors have to be balanced.
+We currently do all of that with interrupts disabled. So we may be unable
+to service interrupts for some time.
 
-Sorry for delay, a couple of minor nits...
+I wonder if it would be possible to put the sched_tick() into a tasklet and
+allow interrupts to be enabled? Preemption is still disabled and so we
+are stuck on a cpu.
 
->  static void do_tty_hangup(void *data)
->  {
-> @@ -1355,14 +1355,18 @@ static void do_tty_hangup(void *data)
->  	read_lock(&tasklist_lock);
->  	if (tty->session > 0) {
->  		do_each_task_pid(tty->session, PIDTYPE_SID, p) {
-> +			spin_lock_irq(&p->sighand->siglock);
->  			if (p->signal->tty == tty)
->  				p->signal->tty = NULL;
-> -			if (!p->signal->leader)
-> +			if (!p->signal->leader) {
-> +				spin_unlock_irq(&p->sighand->siglock);
->  				continue;
-> -			group_send_sig_info(SIGHUP, SEND_SIG_PRIV, p);
-> -			group_send_sig_info(SIGCONT, SEND_SIG_PRIV, p);
-> +			}
-> +			__group_send_sig_info(SIGHUP, SEND_SIG_PRIV, p);
-> +			__group_send_sig_info(SIGCONT, SEND_SIG_PRIV, p);
+This can only work if we are sure that no scheduler activity is performed
+from interrupt code or from other tasklets that may potentially run.
 
-So we are skipping security_task_kill() and audit_signal_info().
-I don't claim this is bad, I just don't know.
+sched_tick() takes the lock on a request queue without disabling interrupts.
+So any other attempt to invoke scheduler functions from interrupts or
+tasklets will cause a deadlock.
 
-> @@ -2899,6 +2919,7 @@ static int tiocsctty(struct tty_struct *
->  	 */
->  	if (!current->signal->leader || current->signal->tty)
->  		return -EPERM;
-> +	mutex_lock(&tty_mutex);
+I tested this patch with AIM7 and things seem to be fine.
 
-This is still racy (consider 2 threads doing tiocsctty() at the same time),
-probably it is better to take tty_mutex before the check?
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-> --- linux-2.6.18.noarch.orig/include/linux/tty.h
-> +++ linux-2.6.18.noarch/include/linux/tty.h
-> @@ -338,5 +338,33 @@ static inline dev_t tty_devnum(struct tt
->  	return MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
->  }
->  
-> +static inline void proc_set_tty(struct task_struct *p, struct tty_struct *tty)
-> +{
-> +	spin_lock_irq(&p->sighand->siglock);
-> +	p->signal->tty = tty;
-> +	spin_unlock_irq(&p->sighand->siglock);
-> +}
-
-Note that it is always called with tty == NULL parameter. That is why
-I proposed proc_clear_tty(struct task_struct *p). We can't use this
-helper for tiocsctty/tty_open anyway.
-
-> +static inline void session_clear_tty(pid_t session)
-> +{
-> +	struct task_struct *p;
-> +	do_each_task_pid(session, PIDTYPE_SID, p) {
-> +		proc_set_tty(p, NULL);
-> +	} while_each_task_pid(session, PIDTYPE_SID, p);
-> +}
-> +
-
-I'd suggest to move it to tty_io.c and make it static (not inline).
-
-> ===================================================================
-> --- linux-2.6.18.noarch.orig/security/selinux/hooks.c
-> +++ linux-2.6.18.noarch/security/selinux/hooks.c
-> @@ -1708,9 +1708,10 @@ static inline void flush_unauthorized_fi
->  	struct tty_struct *tty;
->  	struct fdtable *fdt;
->  	long j = -1;
-> +	int drop_tty = 0;
->  
->  	mutex_lock(&tty_mutex);
-> -	tty = current->signal->tty;
-> +	tty = current_get_tty();
->  	if (tty) {
->  		file_list_lock();
->  		file = list_entry(tty->tty_files.next, typeof(*file), f_u.fu_list);
-> @@ -1723,12 +1724,18 @@ static inline void flush_unauthorized_fi
->  			struct inode *inode = file->f_dentry->d_inode;
->  			if (inode_has_perm(current, inode,
->  					   FILE__READ | FILE__WRITE, NULL)) {
-> -				/* Reset controlling tty. */
-> -				current->signal->tty = NULL;
-> -				current->signal->tty_old_pgrp = 0;
-> +				drop_tty = 1;
->  			}
->  		}
->  		file_list_unlock();
-> +
-> +		if (drop_tty) {
-> +			/* Reset controlling tty. */
-> +			spin_lock_irq(&current->sighand->siglock);
-> +			current->signal->tty = NULL;
-> +			current->signal->tty_old_pgrp = 0;
-
-Probably the last line should go to proc_clear_tty() ?
-
-On the other hand, when signal->tty != NULL, ->tty_old_pgrp
-should be == 0, may be it is unneeded.
-
-In any case, I think we should use proc_set_tty() here.
-
-Oleg.
-
+Index: linux-2.6.19-rc2-mm1/kernel/timer.c
+===================================================================
+--- linux-2.6.19-rc2-mm1.orig/kernel/timer.c	2006-10-18 11:52:53.160984800 -0500
++++ linux-2.6.19-rc2-mm1/kernel/timer.c	2006-10-18 11:53:10.039399811 -0500
+@@ -1210,8 +1210,14 @@ static void update_wall_time(void)
+ 	}
+ }
+ 
++static void sched_tick_action(unsigned long dummy)
++{
++	scheduler_tick();
++}
++
++static DECLARE_TASKLET(scheduler_tick_tasklet, sched_tick_action, 0);
+ /*
+- * Called from the timer interrupt handler to charge one tick to the current 
++ * Called from the timer interrupt handler to charge one tick to the current
+  * process.  user_tick is 1 if the tick is user time, 0 for system.
+  */
+ void update_process_times(int user_tick)
+@@ -1227,7 +1233,7 @@ void update_process_times(int user_tick)
+ 	run_local_timers();
+ 	if (rcu_pending(cpu))
+ 		rcu_check_callbacks(cpu, user_tick);
+-	scheduler_tick();
++	tasklet_schedule(&scheduler_tick_tasklet);
+  	run_posix_cpu_timers(p);
+ }
+ 
+Index: linux-2.6.19-rc2-mm1/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc2-mm1.orig/kernel/sched.c	2006-10-18 11:52:51.768286047 -0500
++++ linux-2.6.19-rc2-mm1/kernel/sched.c	2006-10-18 11:53:10.003263868 -0500
+@@ -1608,9 +1608,10 @@ void fastcall sched_fork(struct task_str
+ 		 * runqueue lock is not a problem.
+ 		 */
+ 		current->time_slice = 1;
++		local_irq_enable();
+ 		scheduler_tick();
+-	}
+-	local_irq_enable();
++	} else
++		local_irq_enable();
+ 	put_cpu();
+ }
+ 
+@@ -3040,7 +3041,8 @@ void account_steal_time(struct task_stru
+ 
+ /*
+  * This function gets called by the timer code, with HZ frequency.
+- * We call it with interrupts disabled.
++ * We call it with interrupts enabled. However, the thread is
++ * pinned to a specific cpu.
+  *
+  * It also gets called by the fork code, when changing the parent's
+  * timeslices.

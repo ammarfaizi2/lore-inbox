@@ -1,64 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422892AbWJRURr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422859AbWJRUQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422892AbWJRURr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422815AbWJRUQa
+	id S1422859AbWJRUQV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422815AbWJRUJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:16:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:17842 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422852AbWJRUJk (ORCPT
+	Wed, 18 Oct 2006 16:09:17 -0400
+Received: from mx1.suse.de ([195.135.220.2]:6066 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422810AbWJRUJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:09:40 -0400
+	Wed, 18 Oct 2006 16:09:12 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 11/16] driver core fixes: device_create_file() retval check in dmapool.c
-Date: Wed, 18 Oct 2006 13:09:02 -0700
-Message-Id: <11612021801495-git-send-email-greg@kroah.com>
+Cc: "Ed L. Cashin" <ecashin@coraid.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 2/15] aoe: update copyright date
+Date: Wed, 18 Oct 2006 13:08:53 -0700
+Message-Id: <11612021491255-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.4
-In-Reply-To: <11612021771048-git-send-email-greg@kroah.com>
-References: <20061018195833.GA21808@kroah.com> <1161202147758-git-send-email-greg@kroah.com> <11612021503109-git-send-email-greg@kroah.com> <1161202153578-git-send-email-greg@kroah.com> <11612021563449-git-send-email-greg@kroah.com> <11612021603361-git-send-email-greg@kroah.com> <1161202163247-git-send-email-greg@kroah.com> <1161202166551-git-send-email-greg@kroah.com> <11612021701905-git-send-email-greg@kroah.com> <11612021733101-git-send-email-greg@kroah.com> <11612021771048-git-send-email-greg@kroah.com>
+In-Reply-To: <11612021463993-git-send-email-greg@kroah.com>
+References: <20061018200433.GA10079@kroah.com> <11612021463993-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Ed L. Cashin <ecashin@coraid.com>
 
-Check for device_create_file() return value in dma_pool_create().
+Update the copyright year to 2006.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+Acked-by: Alan Cox <alan@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/dmapool.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/block/aoe/aoe.h     |    2 +-
+ drivers/block/aoe/aoeblk.c  |    2 +-
+ drivers/block/aoe/aoechr.c  |    2 +-
+ drivers/block/aoe/aoecmd.c  |    2 +-
+ drivers/block/aoe/aoedev.c  |    2 +-
+ drivers/block/aoe/aoemain.c |    2 +-
+ drivers/block/aoe/aoenet.c  |    2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/base/dmapool.c b/drivers/base/dmapool.c
-index 33c5cce..b2efbd4 100644
---- a/drivers/base/dmapool.c
-+++ b/drivers/base/dmapool.c
-@@ -141,11 +141,20 @@ dma_pool_create (const char *name, struc
- 	init_waitqueue_head (&retval->waitq);
- 
- 	if (dev) {
-+		int ret;
-+
- 		down (&pools_lock);
- 		if (list_empty (&dev->dma_pools))
--			device_create_file (dev, &dev_attr_pools);
-+			ret = device_create_file (dev, &dev_attr_pools);
-+		else
-+			ret = 0;
- 		/* note:  not currently insisting "name" be unique */
--		list_add (&retval->pools, &dev->dma_pools);
-+		if (!ret)
-+			list_add (&retval->pools, &dev->dma_pools);
-+		else {
-+			kfree(retval);
-+			retval = NULL;
-+		}
- 		up (&pools_lock);
- 	} else
- 		INIT_LIST_HEAD (&retval->pools);
+diff --git a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+index 6eebcb7..507c377 100644
+--- a/drivers/block/aoe/aoe.h
++++ b/drivers/block/aoe/aoe.h
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ #define VERSION "22"
+ #define AOE_MAJOR 152
+ #define DEVICE_NAME "aoe"
+diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+index 393b86a..fa0e8ca 100644
+--- a/drivers/block/aoe/aoeblk.c
++++ b/drivers/block/aoe/aoeblk.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoeblk.c
+  * block device routines
+diff --git a/drivers/block/aoe/aoechr.c b/drivers/block/aoe/aoechr.c
+index 1bc1cf9..8a7a081 100644
+--- a/drivers/block/aoe/aoechr.c
++++ b/drivers/block/aoe/aoechr.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoechr.c
+  * AoE character device driver
+diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
+index 39da28d..d1d8759 100644
+--- a/drivers/block/aoe/aoecmd.c
++++ b/drivers/block/aoe/aoecmd.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoecmd.c
+  * Filesystem request handling methods
+diff --git a/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
+index c2bc3ed..c7e05ed 100644
+--- a/drivers/block/aoe/aoedev.c
++++ b/drivers/block/aoe/aoedev.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoedev.c
+  * AoE device utility functions; maintains device list.
+diff --git a/drivers/block/aoe/aoemain.c b/drivers/block/aoe/aoemain.c
+index de08491..727c34d 100644
+--- a/drivers/block/aoe/aoemain.c
++++ b/drivers/block/aoe/aoemain.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoemain.c
+  * Module initialization routines, discover timer
+diff --git a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
+index c1434ed..1bba140 100644
+--- a/drivers/block/aoe/aoenet.c
++++ b/drivers/block/aoe/aoenet.c
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2004 Coraid, Inc.  See COPYING for GPL terms. */
++/* Copyright (c) 2006 Coraid, Inc.  See COPYING for GPL terms. */
+ /*
+  * aoenet.c
+  * Ethernet portion of AoE driver
 -- 
 1.4.2.4
 

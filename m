@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWJRXXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbWJRXZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWJRXXN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWJRXXN
+	id S1751539AbWJRXZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWJRXZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:23:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28341 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751137AbWJRXXN (ORCPT
+	Wed, 18 Oct 2006 19:25:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24809 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751539AbWJRXZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:23:13 -0400
-Date: Wed, 18 Oct 2006 16:09:39 -0700
-From: Greg KH <greg@kroah.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: Greg.Chandler@wellsfargo.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel oops with extended serial stuff turned on...
-Message-ID: <20061018230939.GA7713@kroah.com>
-References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 18 Oct 2006 19:25:19 -0400
+Date: Wed, 18 Oct 2006 16:25:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061018162507.efa7b91a.akpm@osdl.org>
+In-Reply-To: <1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
+	<45364CE9.7050002@yahoo.com.au>
+	<1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
+	<45366515.4050308@yahoo.com.au>
+	<1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+	<20061018154402.ef49874a.akpm@osdl.org>
+	<1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 05:35:17PM -0500, Kilau, Scott wrote:
-> Hi Greg,
+On Wed, 18 Oct 2006 16:01:05 -0700
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+
+> > Is the NMI watchdog ticking over?
 > 
-> > 
-> > I don't understand, what problem is occuring here?  Who is trying to
-> > register with sysfs twice?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
+> I think so.
 > 
-> The original warning/error he gets is:
-> 
-> > kobject_add failed for ttyM0 with -EEXIST, don't try to register
-> things
-> > with the same name in the same directory.
-> 
-> Presumably this means that "ttyM0" was already registered with
-> sysfs/udev already...
+> # dmesg | grep NMI
+> ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+> ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+> ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
+> ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
+> testing NMI watchdog ... OK.
 
-Yes (sysfs, not udev, there is no kernel portion of udev, sorry).
 
-> In my out-of-tree driver's case, I used to use "TTY_DRIVER_NO_DEVFS" as
-> a flag.
-> 
-> When that flag went away, I did not put in "TTY_DRIVER_DYNAMIC_DEV" by
-> mistake,
-> and I got the same error as Greg C.
-> I had to push in "TTY_DRIVER_DYNAMIC_DEV" to fix my problem...
+What does it say in /proc/interrupts?
 
-What other driver is using the ttyM0 name?
+The x86_64 nmi watchdog handling looks rather complex.
 
-> I don't know much (anything) about the isicom.c driver, so maybe I am
-> reading
-> something into that error that shouldn't be read into it...
+<checks a couple of x86-64 machines>
 
-Any pointer to your driver's code so I can see if you are doing
-something odd here?  Any reason it's just not in the main kernel tree so
-I would have fixed it up at the time I did the other fixes?
+The /proc/interrutps NMI count seems to be going up by about
+one-per-minute.  How odd.   Maybe you just need to wait longer.
 
-thanks,
+Or try booting with nmi_watchdog=2 (Documentation/x86_64/boot-options.txt).
 
-greg k-h
+There's an empty directory /sys/devices/system/lapic_nmi/lapic_nmi0/.  I
+wonder what that does?
+

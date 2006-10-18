@@ -1,86 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWJRKMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWJRKNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWJRKMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 06:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWJRKMf
+	id S932184AbWJRKNq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 06:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWJRKNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 06:12:35 -0400
-Received: from mail-in-12.arcor-online.net ([151.189.21.52]:38374 "EHLO
-	mail-in-12.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932182AbWJRKMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 06:12:34 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [RFC: 2.6.19 patch] snd-hda-intel: default MSI to off
-Date: Wed, 18 Oct 2006 12:12:48 +0200
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, hnguyen@de.ibm.com
-References: <200610050938.10997.prakash@punnoor.de> <20061017211301.GE3502@stusta.de> <20061017144053.29b6b29c@freekitty>
-In-Reply-To: <20061017144053.29b6b29c@freekitty>
+	Wed, 18 Oct 2006 06:13:45 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:48974 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932184AbWJRKNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 06:13:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ddPS/cCoJ65EStP3PTI6z+IOGFl/QiwPDRhwuSvVnKsWT8AJ7BmR7a+4h02N1x5xGYIJ83GYf4lKgFYgzaZQbC+yPJQuEdrNDXKi93eyihyDrpjO06zZa0DxF7GFUspzSN0+fc21BBZY83bj3UxjpQVEbyxnuYVkyfIXdpvxIVk=
+Message-ID: <b0943d9e0610180313ob813549r8181504c50de8a52@mail.gmail.com>
+Date: Wed, 18 Oct 2006 11:13:44 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.19-rc1 00/10] Kernel memory leak detector 0.11
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0610090718x185cc03cv20a117cf8f3c45e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart8121510.MIUtiWASzF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610181212.48952.prakash@punnoor.de>
+Content-Disposition: inline
+References: <20061009124813.2695.8123.stgit@localhost.localdomain>
+	 <6bffcb0e0610090718x185cc03cv20a117cf8f3c45e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8121510.MIUtiWASzF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Michal,
 
-Am Dienstag 17 Oktober 2006 23:40 schrieb Stephen Hemminger:
-> On Tue, 17 Oct 2006 23:13:01 +0200
->
-> Adrian Bunk <bunk@stusta.de> wrote:
-> > On Thu, Oct 05, 2006 at 11:08:57PM +0200, Prakash Punnoor wrote:
-> > > Am Donnerstag 05 Oktober 2006 19:30 schrieb Fatih A????c??:
-> > > > 2006/10/5, Prakash Punnoor <prakash@punnoor.de>:
-> > > > > Hi,
-> > > > >
-> > > > > subjects say it all. Without irqpoll my nic doesn't work anymore.=
- I
-> > > > > added Ingo
-> > > > > to cc, as my IRQs look different, so it may be a prob of APIC
-> > > > > routing or the
-> > > > > like.
-> > > > >
-> > > > > Can you try booting with pci=3Dnomsi ? I have a similar problem w=
-ith
-> > > > > my
-> > >
-> > > I used snd-hda-intel.disable_msi=3D1 and this actually helped! Now the
-> > > nforce nic works w/o problems. So it was the audio driver causing hav=
-oc
-> > > on the nic. ...
-> >
-> > Unless someone finds and fixes what causes such problems, I'd therefore
-> > suggest the patch below to let MSI support to be turned off by default.
+On 09/10/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> I have a new false positives :)
+> http://www.stardust.webpages.pl/files/o_bugs/kmemleak-0.11/ml.txt
 
-Could it perhaps be that the forcedeth driver isn't MSI aware and this caus=
-es=20
-breakage?
+I eventually found some time to look at these reports. See below for
+comments (I removed the duplicates):
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+unreferenced object 0xdff2213c (size 398):
+  [<c0166bc1>] memleak_alloc
+  [<c0164d15>] __kmalloc_track_caller
+  [<c01548c1>] __kzalloc
+  [<c024361b>] platform_device_alloc
+  [<c03e9076>] add_pcspkr
+  [<c03e48bd>] do_initcalls
+  [<c03e496a>] do_basic_setup
+  [<c0100421>] init
+  [<c01039ab>] kernel_thread_helper
+  [<ffffffff>]
 
---nextPart8121510.MIUtiWASzF
-Content-Type: application/pgp-signature
+Kmemleak is probably right in that this code will never be able to
+free the platform device (the pointer was only stored on the stack).
+However, this won't be needed and I'll mark it as not being a leak.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+unreferenced object 0xf4f4eb68 (size 8):
+  [<c0166bc1>] memleak_alloc
+  [<c0164d15>] __kmalloc_track_caller
+  [<c01548c1>] __kzalloc
+  [<c0166479>] __percpu_alloc_mask
+  [<fd954a1b>] snmp6_mib_init
+  [<fd926017>] ip6t_hook
+  [<fd9260f2>] __param_forward
+  [<c013b5ad>] sys_init_module
+  [<c0102dd5>] sysenter_past_esp
+  [<ffffffff>]
 
-iD8DBQBFNf4gxU2n/+9+t5gRAjsrAKDjX1Akfp5p1tAkUmKnWZitnP6jxgCgjFEG
-zZ6jt9hmlGu1qaX0r+iuf0o=
-=IRcl
------END PGP SIGNATURE-----
+This might be a real leak since the previous kmemleak versions were
+ignoring all the percpu allocations. I'm a bit confused about the
+calling chain between ip6t_hook and snmp6_mib_init. Maybe the network
+people could shed some light on this.
 
---nextPart8121510.MIUtiWASzF--
+unreferenced object 0xf4a17304 (size 1412):
+  [<c0166bc1>] memleak_alloc
+  [<c0164c2d>] __kmalloc
+  [<fd95c587>] addrconf_sysctl_register
+  [<fd926337>] __param_forward
+  [<fd92619e>] __param_forward
+  [<c013b5ad>] sys_init_module
+  [<c0102dd5>] sysenter_past_esp
+  [<ffffffff>]
+unreferenced object 0xf48f75bc (size 8):
+  [<c0166bc1>] memleak_alloc
+  [<c0164d15>] __kmalloc_track_caller
+  [<c0154915>] kstrdup
+  [<fd95c5fa>] addrconf_sysctl_register
+  [<fd926337>] __param_forward
+  [<fd92619e>] __param_forward
+  [<c013b5ad>] sys_init_module
+  [<c0102dd5>] sysenter_past_esp
+  [<ffffffff>]
+
+I have the same problem with the stack trace here - can't find
+__param_forward in the code and it also looks strange to have a
+recursive call into this function.
+
+I suspect you use the skge.c Ethernet driver. Is it possible to link
+this into the kernel (not as a module) and maybe together with the
+networking stuff? It might show a clearer stack trace.
+
+unreferenced object 0xf44869e4 (size 160):
+  [<c0166bc1>] memleak_alloc
+  [<c0164a30>] kmem_cache_alloc
+  [<c02a91a0>] __alloc_skb
+  [<f9882439>] FillRxDescriptor
+  [<f9882408>] FillRxRing
+  [<f9881bdf>] SkGeOpen
+  [<c02adcda>] dev_open
+  [<c02af332>] dev_change_flags
+  [<c02e27dd>] devinet_ioctl
+  [<c02e4372>] inet_ioctl
+  [<c02a5844>] sock_ioctl
+  [<ffffffff>]
+unreferenced object 0xf45101ec (size 1828):
+  [<c0166bc1>] memleak_alloc
+  [<c0164d15>] __kmalloc_track_caller
+  [<c02a91cb>] __alloc_skb
+  [<f9882439>] FillRxDescriptor
+  [<f9882408>] FillRxRing
+  [<f9881bdf>] SkGeOpen
+  [<c02adcda>] dev_open
+  [<c02af332>] dev_change_flags
+  [<c02e27dd>] devinet_ioctl
+  [<c02e4372>] inet_ioctl
+  [<c02a5844>] sock_ioctl
+  [<ffffffff>]
+
+The above is probably not a leak but it looks more like badly written
+code. It looks like the pointers to the sk_buff structures are stored
+in memory allocated by pci_alloc_consistent. Kmemleak doesn't scan
+this area as it is usually meant for DMA'ing data and not for holding
+pointers kernel structures. I can mark it as not a leak.
+
+Thanks.
+
+-- 
+Catalin

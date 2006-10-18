@@ -1,32 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWJRQJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWJRQJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161225AbWJRQJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJRQJ2
+	id S1422640AbWJRQJp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbWJRQJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:09:28 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:3241 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1161225AbWJRQJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:09:28 -0400
-Date: Wed, 18 Oct 2006 10:09:26 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Brian King <brking@us.ibm.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Adam Belay <abelay@MIT.EDU>
-Subject: Re: [linux-pm] [PATCH] Block on access to temporarily unavailable pci device
-Message-ID: <20061018160926.GS22289@parisc-linux.org>
-References: <Pine.LNX.4.44L0.0610181151450.6766-100000@iolanthe.rowland.org> <1161187503.9363.75.camel@localhost.localdomain>
+	Wed, 18 Oct 2006 12:09:45 -0400
+Received: from mail.suse.de ([195.135.220.2]:47748 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422636AbWJRQJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:09:43 -0400
+Date: Wed, 18 Oct 2006 09:09:45 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB fixes and drivers for 2.6.18-rc2
+Message-ID: <20061018160945.GC24764@suse.de>
+References: <20061017215027.GA12839@kroah.com> <20061018060639.GA1709@ff.dom.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161187503.9363.75.camel@localhost.localdomain>
+In-Reply-To: <20061018060639.GA1709@ff.dom.local>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 05:05:02PM +0100, Alan Cox wrote:
-> If the user specified O_NDELAY then -EWOULDBLOCK not wait
+On Wed, Oct 18, 2006 at 08:06:39AM +0200, Jarek Poplawski wrote:
+> On 17-10-2006 23:50, Greg KH wrote:
+> > Here are some USB bugfixes and two new drivers for 2.6.18-rc2.
+> ...
+> 
+> Probably they could be applied to 2.6.19-rc2 also... 
 
-sysfs doesn't give us the struct file, so we can't tell.
+Ugh, that's what I get for using a template for these messages...

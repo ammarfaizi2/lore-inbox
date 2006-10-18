@@ -1,79 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422856AbWJRUJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422824AbWJRUKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422856AbWJRUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWJRUJj
+	id S1422824AbWJRUKU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422814AbWJRUKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:09:39 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:36330 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422842AbWJRUJh (ORCPT
+	Wed, 18 Oct 2006 16:10:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11442 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422808AbWJRUJT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:09:37 -0400
+	Wed, 18 Oct 2006 16:09:19 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 10/16] driver core fixes: device_add() cleanup on error
-Date: Wed, 18 Oct 2006 13:09:01 -0700
-Message-Id: <11612021771048-git-send-email-greg@kroah.com>
+Subject: [PATCH 5/16] sysfs: remove duplicated dput in sysfs_update_file
+Date: Wed, 18 Oct 2006 13:08:56 -0700
+Message-Id: <11612021603361-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.4
-In-Reply-To: <11612021733101-git-send-email-greg@kroah.com>
-References: <20061018195833.GA21808@kroah.com> <1161202147758-git-send-email-greg@kroah.com> <11612021503109-git-send-email-greg@kroah.com> <1161202153578-git-send-email-greg@kroah.com> <11612021563449-git-send-email-greg@kroah.com> <11612021603361-git-send-email-greg@kroah.com> <1161202163247-git-send-email-greg@kroah.com> <1161202166551-git-send-email-greg@kroah.com> <11612021701905-git-send-email-greg@kroah.com> <11612021733101-git-send-email-greg@kroah.com>
+In-Reply-To: <11612021563449-git-send-email-greg@kroah.com>
+References: <20061018195833.GA21808@kroah.com> <1161202147758-git-send-email-greg@kroah.com> <11612021503109-git-send-email-greg@kroah.com> <1161202153578-git-send-email-greg@kroah.com> <11612021563449-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
-Check for return code of device_create_file() and correct cleanup in
-the error case in device_add().
+Following function can drops d_count twice against one reference
+by lookup_one_len.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+<SOURCE>
+/**
+ * sysfs_update_file - update the modified timestamp on an object attribute.
+ * @kobj: object we're acting for.
+ * @attr: attribute descriptor.
+ */
+int sysfs_update_file(struct kobject * kobj, const struct attribute * attr)
+{
+        struct dentry * dir = kobj->dentry;
+        struct dentry * victim;
+        int res = -ENOENT;
+
+        mutex_lock(&dir->d_inode->i_mutex);
+        victim = lookup_one_len(attr->name, dir, strlen(attr->name));
+        if (!IS_ERR(victim)) {
+                /* make sure dentry is really there */
+                if (victim->d_inode &&
+                    (victim->d_parent->d_inode == dir->d_inode)) {
+                        victim->d_inode->i_mtime = CURRENT_TIME;
+                        fsnotify_modify(victim);
+
+                        /**
+                         * Drop reference from initial sysfs_get_dentry().
+                         */
+                        dput(victim);
+                        res = 0;
+                } else
+                        d_drop(victim);
+
+                /**
+                 * Drop the reference acquired from sysfs_get_dentry() above.
+                 */
+                dput(victim);
+        }
+        mutex_unlock(&dir->d_inode->i_mutex);
+
+        return res;
+}
+</SOURCE>
+
+PCI-hotplug (drivers/pci/hotplug/pci_hotplug_core.c) is only user of
+this function. I confirmed that dentry of /sys/bus/pci/slots/XXX/*
+have negative d_count value.
+
+This patch removes unnecessary dput().
+
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Acked-by: Maneesh Soni <maneesh@in.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/core.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
+ fs/sysfs/file.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index aee3743..365f709 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -433,14 +433,16 @@ int device_add(struct device *dev)
- 	if (dev->driver)
- 		dev->uevent_attr.attr.owner = dev->driver->owner;
- 	dev->uevent_attr.store = store_uevent;
--	device_create_file(dev, &dev->uevent_attr);
-+	error = device_create_file(dev, &dev->uevent_attr);
-+	if (error)
-+		goto attrError;
- 
- 	if (MAJOR(dev->devt)) {
- 		struct device_attribute *attr;
- 		attr = kzalloc(sizeof(*attr), GFP_KERNEL);
- 		if (!attr) {
- 			error = -ENOMEM;
--			goto PMError;
-+			goto ueventattrError;
- 		}
- 		attr->attr.name = "dev";
- 		attr->attr.mode = S_IRUGO;
-@@ -450,7 +452,7 @@ int device_add(struct device *dev)
- 		error = device_create_file(dev, attr);
- 		if (error) {
- 			kfree(attr);
--			goto attrError;
-+			goto ueventattrError;
- 		}
- 
- 		dev->devt_attr = attr;
-@@ -507,6 +509,8 @@ int device_add(struct device *dev)
- 		device_remove_file(dev, dev->devt_attr);
- 		kfree(dev->devt_attr);
- 	}
-+ ueventattrError:
-+	device_remove_file(dev, &dev->uevent_attr);
-  attrError:
- 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
+diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
+index 146f1de..93218cc 100644
+--- a/fs/sysfs/file.c
++++ b/fs/sysfs/file.c
+@@ -483,11 +483,6 @@ int sysfs_update_file(struct kobject * k
+ 		    (victim->d_parent->d_inode == dir->d_inode)) {
+ 			victim->d_inode->i_mtime = CURRENT_TIME;
+ 			fsnotify_modify(victim);
+-
+-			/**
+-			 * Drop reference from initial sysfs_get_dentry().
+-			 */
+-			dput(victim);
+ 			res = 0;
+ 		} else
+ 			d_drop(victim);
 -- 
 1.4.2.4
 

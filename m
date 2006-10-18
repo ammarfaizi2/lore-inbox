@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422763AbWJRSbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422769AbWJRSbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422763AbWJRSbP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 14:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422768AbWJRSbO
+	id S1422769AbWJRSbf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWJRSbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 14:31:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30594 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422763AbWJRSbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 14:31:14 -0400
-Date: Wed, 18 Oct 2006 11:31:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Albert Cahalan <acahalan@gmail.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       ebiederm@xmission.com
-Subject: Re: sysctl
-In-Reply-To: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
-References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	Wed, 18 Oct 2006 14:31:35 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:20323 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422769AbWJRSb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:31:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=3ds8FBH/O3kQFmP4PMEtShLFsmjPFgcskMDf9H2Et+fu1teWAXVBAWIPpd6g6icepAdxUsmlz9x78ssGE6CsdSwQud1TAnMGvSX31ajxiRfD4Mo7Sy0lDnFAuejCtbn3kCvOQc8gypcn/OgVKSiGoKiUjE8BY1Cma/ywzgbPwIg=  ;
+Message-ID: <453672FD.9080206@yahoo.com.au>
+Date: Thu, 19 Oct 2006 04:31:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Chris Mason <chris.mason@oracle.com>
+Subject: Re: 2.6.19-rc2-mm1
+References: <20061016230645.fed53c5b.akpm@osdl.org>	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>	 <45364CE9.7050002@yahoo.com.au>	 <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>	 <45366515.4050308@yahoo.com.au> <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com> <45366F08.6050903@yahoo.com.au>
+In-Reply-To: <45366F08.6050903@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
 
+> I can't see anything yet, but I'll keep looking (and try to reproduce
+> if I can get TLP working).
 
-On Wed, 18 Oct 2006, Albert Cahalan wrote:
-> 
-> I guess the sysctl question has been answered then,
-> especially since random normal apps use sysctl.
+Ah, it is probably exercising the -EFAULT path, and the code in
+Andrew's tree goes into an infinite loop I think.
 
-I have yet to find a _single_ app that really uses sysctl, actually. Can 
-you name one?
+We can't test for a fault off the atomic copy, because that needn't
+indicate an unmapped area. What we need to do is change
+fault_in_pages_readable to return ret, and catch and return that
+in the caller if it is an error.
 
-There's apparently some library functions that has used it in the past, 
-and I've seen a few effects of that:
+My usual workstation is down ATM otherwise I would send you a patch.
+Unless someone beats me to it, I'll send you one tomorrow.
 
-	warning: process `wish' used the removed sysctl system call
+Thanks,
+Nick
 
-but the users all had fallback positions, so I don't think anything 
-actually broke.
-
-(The situation may be different with older libraries, which is why it's 
-still an option to compile in sysctl. None of the machines I had access 
-to cared at all, though).
-
-		Linus
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

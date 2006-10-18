@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423097AbWJRWYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423103AbWJRW3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423097AbWJRWYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423104AbWJRWYq
+	id S1423103AbWJRW3l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJRW3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:24:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1423095AbWJRWYp (ORCPT
+	Wed, 18 Oct 2006 18:29:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14757 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1423100AbWJRW3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:24:45 -0400
-Date: Wed, 18 Oct 2006 18:24:33 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: acpi-devel@lists.sourceforge.net
-Subject: SMP broken on pre-ACPI machine.
-Message-ID: <20061018222433.GA4770@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	acpi-devel@lists.sourceforge.net
-Mime-Version: 1.0
+	Wed, 18 Oct 2006 18:29:40 -0400
+Date: Wed, 18 Oct 2006 14:34:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MSI messages in 2.6.19-rc2
+Message-ID: <20061018213451.GC5206@kroah.com>
+References: <20061016133005.08d20b18@freekitty>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061016133005.08d20b18@freekitty>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been chasing a bug that got filed against the Fedora kernel
-a while back:  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199052
-This is a dual pentium pro from an era before we had ACPI, and
-it seems to be falling foul of this test in smpboot.c  ..
+On Mon, Oct 16, 2006 at 01:30:05PM -0700, Stephen Hemminger wrote:
+> Got this on boot up, doesn't seem to be reliably reproducible.
+> System ran okay. My guess is it is a mulithread probe issue
+> 
+> [    2.773198] assign_interrupt_mode Found MSI capability
+> [    2.773227] assign_interrupt_mode Found MSI capability
+> [    2.773291] kmem_cache_create: duplicate cache msi_cache
 
-    if (!smp_found_config && !acpi_lapic) {
-        printk(KERN_NOTICE "SMP motherboard not detected.\n");
-        smpboot_clear_io_apic_irqs();
-        phys_cpu_present_map = physid_mask_of_physid(0);
-        if (APIC_init_uniprocessor())
-            printk(KERN_NOTICE "Local APIC not detected."
-                       " Using dummy APIC emulation.\n");
-        map_cpu_to_logical_apicid();
-        cpu_set(0, cpu_sibling_map[0]);
-        cpu_set(0, cpu_core_map[0]);
-        return;
-    }
+Yes it is :(
 
+I'll make up a patch to fix this, thanks for letting me know.
 
-My initial reaction is that the !acpi_lapic test should be conditional
-on some variable that gets set if the ACPI parsing actually succeeded.
-
-Thoughts?
-
-	Dave
-
--- 
-http://www.codemonkey.org.uk
+greg k-h

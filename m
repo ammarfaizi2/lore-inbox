@@ -1,107 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWJRJfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWJRJiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWJRJfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 05:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWJRJfL
+	id S932132AbWJRJiR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 05:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWJRJiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 05:35:11 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:5552 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751016AbWJRJfJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 05:35:09 -0400
-Message-ID: <4535F47D.4060009@aitel.hist.no>
-Date: Wed, 18 Oct 2006 11:31:41 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
- from card reader
-References: <Pine.LNX.4.44L0.0610131408240.6612-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0610131408240.6612-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 18 Oct 2006 05:38:17 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:48585 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S932132AbWJRJiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 05:38:16 -0400
+Subject: [PATCH] drivers/isdn: Handcrafted MIN/MAX Macro removal
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: kkeil@suse.de
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 15:11:37 +0530
+Message-Id: <1161164497.20400.137.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> Verbose usb-storage debugging messages would help more 
-> (CONFIG_USB_STORAGE_DEBUG and CONFIG_USB_DEBUG).  If the kernel hangs very 
-> badly you might need to use a serial console to capture all the logging 
-> information.
->   
-Version information first: This is 2.6.19-rc1, not mm1.  I apparently
-forgot to apply the mm1 patch before compiling it.
+Cleanups done to use min/max macros from kernel.h. Handcrafted MIN/MAX
+macros are changed to use macros in kernel.h
 
-I got a BUG, which I could write down by getting X out of the way first.
-It is repeatable, just ask if I omitted something cruical. On bootup,
-the verbose debugging complains about read errors on sdc,
-I guess the kernel tries to get the partition table.  I have no idea
-why there is read errors - that shouldn't hang anything though.
+Tested using allmodconfig
 
-To bring it down:
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+ debug.c    |    4 ++--
+ di.c       |    8 ++++----
+ io.c       |    2 +-
+ istream.c  |    4 ++--
+ platform.h |    8 --------
+ 5 files changed, 9 insertions(+), 17 deletions(-)
+---
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/debug.c linux-2.6.19-rc2/drivers/isdn/hardware/eicon/debug.c
+--- linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/debug.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc2/drivers/isdn/hardware/eicon/debug.c	2006-10-18 11:25:46.000000000 +0530
+@@ -756,14 +756,14 @@ int diva_get_driver_info (dword id, byte
+ 
+     data_length -= 9;
+ 
+-    if ((to_copy = MIN(strlen(clients[id].drvName), data_length-1))) {
++    if ((to_copy = min(strlen(clients[id].drvName), (size_t)(data_length-1)))) {
+       memcpy (p, clients[id].drvName, to_copy);
+       p += to_copy;
+       data_length -= to_copy;
+       if ((data_length >= 4) && clients[id].hDbg->drvTag[0]) {
+         *p++ = '(';
+         data_length -= 1;
+-        if ((to_copy = MIN(strlen(clients[id].hDbg->drvTag), data_length-2))) {
++        if ((to_copy = min(strlen(clients[id].hDbg->drvTag), (size_t)(data_length-2)))) {
+           memcpy (p, clients[id].hDbg->drvTag, to_copy);
+           p += to_copy;
+           data_length -= to_copy;
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/di.c linux-2.6.19-rc2/drivers/isdn/hardware/eicon/di.c
+--- linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/di.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc2/drivers/isdn/hardware/eicon/di.c	2006-10-18 11:25:46.000000000 +0530
+@@ -133,7 +133,7 @@ void pr_out(ADAPTER * a)
+     i = this->XCurrent;
+     X = PTR_X(a,this);
+     while(i<this->XNum && length<270) {
+-      clength = MIN((word)(270-length),X[i].PLength-this->XOffset);
++      clength = min((word)(270-length),(word)(X[i].PLength-this->XOffset));
+       a->ram_out_buffer(a,
+                         &ReqOut->XBuffer.P[length],
+                         PTR_P(a,this,&X[i].P[this->XOffset]),
+@@ -622,7 +622,7 @@ byte isdn_ind(ADAPTER * a,
+                                                      sizeof(a->stream_buffer),
+                                                      &final, NULL, NULL);
+         }
+-        IoAdapter->RBuffer.length = MIN(MLength, 270);
++        IoAdapter->RBuffer.length = min(MLength, (word)270);
+         if (IoAdapter->RBuffer.length != MLength) {
+           this->complete = 0;
+         } else {
+@@ -676,9 +676,9 @@ byte isdn_ind(ADAPTER * a,
+         this->RCurrent++;
+       }
+       if (cma) {
+-        clength = MIN(MLength, R[this->RCurrent].PLength-this->ROffset);
++        clength = min(MLength, (word)(R[this->RCurrent].PLength-this->ROffset));
+       } else {
+-        clength = MIN(a->ram_inw(a, &RBuffer->length)-offset,
++        clength = min(a->ram_inw(a, &RBuffer->length)-offset,
+                       R[this->RCurrent].PLength-this->ROffset);
+       }
+       if(R[this->RCurrent].P) {
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/io.c linux-2.6.19-rc2/drivers/isdn/hardware/eicon/io.c
+--- linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/io.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc2/drivers/isdn/hardware/eicon/io.c	2006-10-18 11:25:46.000000000 +0530
+@@ -262,7 +262,7 @@ void request(PISDN_ADAPTER IoAdapter, EN
+     case IDI_SYNC_REQ_XDI_GET_CAPI_PARAMS: {
+        diva_xdi_get_capi_parameters_t prms, *pI = &syncReq->xdi_capi_prms.info;
+        memset (&prms, 0x00, sizeof(prms));
+-       prms.structure_length = MIN(sizeof(prms), pI->structure_length);
++       prms.structure_length = min(sizeof(prms), pI->structure_length);
+        memset (pI, 0x00, pI->structure_length);
+        prms.flag_dynamic_l1_down    = (IoAdapter->capi_cfg.cfg_1 & \
+          DIVA_XDI_CAPI_CFG_1_DYNAMIC_L1_ON) ? 1 : 0;
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/istream.c linux-2.6.19-rc2/drivers/isdn/hardware/eicon/istream.c
+--- linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/istream.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.19-rc2/drivers/isdn/hardware/eicon/istream.c	2006-10-18 11:25:46.000000000 +0530
+@@ -92,7 +92,7 @@ int diva_istream_write (void* context,
+     return (-1); /* was not able to write       */
+    break;     /* only part of message was written */
+   }
+-  to_write = MIN(length, DIVA_DFIFO_DATA_SZ);
++  to_write = min(length, DIVA_DFIFO_DATA_SZ);
+   if (to_write) {
+    a->ram_out_buffer (a,
+ #ifdef PLATFORM_GT_32BIT
+@@ -176,7 +176,7 @@ int diva_istream_read (void* context,
+     return (-1); /* was not able to read */
+    break;
+   }
+-  to_read = MIN(max_length, tmp[1]);
++  to_read = min(max_length, (int)tmp[1]);
+   if (to_read) {
+    a->ram_in_buffer(a,
+ #ifdef PLATFORM_GT_32BIT
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/platform.h linux-2.6.19-rc2/drivers/isdn/hardware/eicon/platform.h
+--- linux-2.6.19-rc2-orig/drivers/isdn/hardware/eicon/platform.h	2006-09-21 10:15:33.000000000 +0530
++++ linux-2.6.19-rc2/drivers/isdn/hardware/eicon/platform.h	2006-10-18 11:25:46.000000000 +0530
+@@ -83,14 +83,6 @@
+ #define	NULL	((void *) 0)
+ #endif
+ 
+-#ifndef	MIN
+-#define MIN(a,b)	((a)>(b) ? (b) : (a))
+-#endif
+-
+-#ifndef	MAX
+-#define MAX(a,b)	((a)>(b) ? (a) : (b))
+-#endif
+-
+ #ifndef	far
+ #define far
+ #endif
 
-dd if=/dev/sdc of=sdc.dump bs=1M
-
-sd 0:0:0:2 ioctl_internal_command return code: 8000002
- :Current: Sense key: Hardware Error
-  Additional Sense: End_of_data detected
-cut here----
-Kernel BUG at [Verbose debugging unavailable]
-invalid opcode: 0000 [#1]
-cpu:0
-EIP: 0060:[<c031f823>] Not tainted VLI
-Eflags: 00010002  (2.6.16-rc1 #16)
-EIP is at start_unlink_async
-eax:00000000 ebx:dfe69180 ecx:e0832020 edx:00000005
-esi:dffdb6bc edi:00010021 ebp:dffdb6bc esp:c0664d58
-ds:007b es:007b ss:0068
-Process swapper . . .
-stack . . .
-Call trace
-ehci_urb_dequeue
-unlink1
-usb_hcd_unlink_urb
-sg_complete
-usb_hcd_giveback_urb
-qh_completions
-ehci_work
-ehci_irq
-usb_hcd_irq
-handle_IRQ_event
-handle_fasteoi_irq
-do_IRQ
-
-Code 5d e9 8e 31 ff ff f6 43 28 01 75 b8 c7 43 24 00 00 00 00 eb af . . .
-<0>Kernel Panic - not syncing fatal exception in interrupt
-<0>Rebooting in 300 seconds
-
-It did reboot in 300 seconds, I had to crash twice to get this much written down.
-I checked that stuff written down the first time was identical.
-
-Invalid opcode suggest a compiler bug or memory scribble, or possibly
-calling a bad function pointer. The crash is trivial to reproduce,
-just ask me.
-
-In case it matters:
-$ lspci
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] SiS645DX Host & Memory & AGP Controller
-00:01.0 PCI bridge: Silicon Integrated Systems [SiS] Virtual PCI-to-PCI bridge (AGP)
-00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS962 [MuTIOL Media IO] (rev 04)
-00:02.1 SMBus: Silicon Integrated Systems [SiS] SiS961/2 SMBus Controller
-00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
-00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] AC'97 Sound Controller (rev a0)
-00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
-00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
-00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
-00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 Controller
-00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
-
-
-Helge 
 

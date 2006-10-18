@@ -1,471 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWJRQd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbWJRQfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWJRQd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422665AbWJRQd5
+	id S1161200AbWJRQfs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJRQfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:33:57 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:33933 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422663AbWJRQdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:33:55 -0400
-Date: Wed, 18 Oct 2006 18:34:01 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Please pull git390 'for-linus' branch
-Message-ID: <20061018163401.GB15229@skybase>
+	Wed, 18 Oct 2006 12:35:48 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:28049 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1161200AbWJRQfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:35:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=Zmk53SlXM4XL5CwUma0bQOSjBGsHKhyrQw6afQakCmQZp2mlRHJ86JwlXiYKJRMVclt3MGn0k/WLnmtFRdkPskaAws2vm000TS+RXiTMow+kl3IRzSFN1Rf0qN3RlGwG/fw+olp5uhR8PkSYb4lJalQKge3iCPnn9fGWlAXRl2A=
+Date: Thu, 19 Oct 2006 01:36:33 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Subject: [PATCH 1/6] bit revese library
+Message-ID: <20061018163633.GA21820@localhost>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from 'for-linus' branch of
+This patch provides two bit reverse functions and bit reverse table.
 
-	git://git390.osdl.marist.edu/pub/scm/linux-2.6.git for-linus
+- reverse the order of bits in a u32 value
 
-to receive the following updates:
+	u8 bitrev8(u8 x);
 
- Documentation/s390/CommonIO         |    2 +
- Documentation/s390/cds.txt          |   52 ++++++++++++++++-------------------
- Documentation/s390/driver-model.txt |    3 ++
- arch/s390/defconfig                 |   12 +++-----
- arch/s390/kernel/compat_linux.c     |    2 +
- arch/s390/kernel/syscalls.S         |    1 +
- drivers/s390/block/dasd.c           |    1 +
- drivers/s390/char/monwriter.c       |   14 +++++++--
- drivers/s390/cio/device_fsm.c       |    4 +++
- drivers/s390/cio/qdio.c             |    2 +
- include/asm-s390/pgtable.h          |   50 +++++++++++++++++++++++++++-------
- include/asm-s390/unistd.h           |    3 +-
- 12 files changed, 94 insertions(+), 52 deletions(-)
+- reverse the order of bits in a u32 value
 
-Cedric Le Goater:
-      [S390] fix vmlinux link when CONFIG_SYSIPC=n
+	u32 bitrev32(u32 x);
 
-Cornelia Huck:
-      [S390] cio: sch_no -> schid.sch_no conversion.
-      [S390] cio: update documentation.
+- byte reverse table
 
-Heiko Carstens:
-      [S390] Wire up epoll_pwait syscall.
+	const u8 byte_rev_table[256];
 
-Martin Schwidefsky:
-      [S390] Fix pte type checking.
-      [S390] update default configuration
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-Melissa Howland:
-      [S390] monwriter find header logic.
+ include/linux/bitrev.h |   15 +++++++++++++
+ lib/Kconfig            |    3 ++
+ lib/Makefile           |    1 
+ lib/bitrev.c           |   54 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 73 insertions(+)
 
-Peter Oberparleiter:
-      [S390] cio: invalid device operational notification
-
-Stefan Weinhuber:
-      [S390] dasd: clean up timer.
-
-diff --git a/Documentation/s390/CommonIO b/Documentation/s390/CommonIO
-index 59d1166..d684a6a 100644
---- a/Documentation/s390/CommonIO
-+++ b/Documentation/s390/CommonIO
-@@ -66,7 +66,7 @@ Command line parameters
- 
-   When a device is un-ignored, device recognition and sensing is performed and 
-   the device driver will be notified if possible, so the device will become
--  available to the system.
-+  available to the system. Note that un-ignoring is performed asynchronously.
- 
-   You can also add ranges of devices to be ignored by piping to 
-   /proc/cio_ignore; "add <device range>, <device range>, ..." will ignore the
-diff --git a/Documentation/s390/cds.txt b/Documentation/s390/cds.txt
-index d80e573..32a96cc 100644
---- a/Documentation/s390/cds.txt
-+++ b/Documentation/s390/cds.txt
-@@ -174,14 +174,10 @@ read_dev_chars() - Read Device Character
- 
- This routine returns the characteristics for the device specified.
- 
--The function is meant to be called with an irq handler in place; that is,
-+The function is meant to be called with the device already enabled; that is,
- at earliest during set_online() processing.
- 
--While the request is processed synchronously, the device interrupt
--handler is called for final ending status. In case of error situations the
--interrupt handler may recover appropriately. The device irq handler can
--recognize the corresponding interrupts by the interruption parameter be
--0x00524443. The ccw_device must not be locked prior to calling read_dev_chars().
-+The ccw_device must not be locked prior to calling read_dev_chars().
- 
- The function may be called enabled or disabled.
- 
-@@ -410,26 +406,7 @@ individual flag meanings.
- 
- Usage Notes :
- 
--Prior to call ccw_device_start() the device driver must assure disabled state,
--i.e. the I/O mask value in the PSW must be disabled. This can be accomplished
--by calling local_save_flags( flags). The current PSW flags are preserved and
--can be restored by local_irq_restore( flags) at a later time.
--
--If the device driver violates this rule while running in a uni-processor
--environment an interrupt might be presented prior to the ccw_device_start()
--routine returning to the device driver main path. In this case we will end in a
--deadlock situation as the interrupt handler will try to obtain the irq
--lock the device driver still owns (see below) !
--
--The driver must assure to hold the device specific lock. This can be
--accomplished by
--
--(i)  spin_lock(get_ccwdev_lock(cdev)), or
--(ii) spin_lock_irqsave(get_ccwdev_lock(cdev), flags)
--
--Option (i) should be used if the calling routine is running disabled for
--I/O interrupts (see above) already. Option (ii) obtains the device gate und
--puts the CPU into I/O disabled state by preserving the current PSW flags.
-+ccw_device_start() must be called disabled and with the ccw device lock held.
- 
- The device driver is allowed to issue the next ccw_device_start() call from
- within its interrupt handler already. It is not required to schedule a
-@@ -488,7 +465,7 @@ int ccw_device_resume(struct ccw_device 
- 
- cdev - ccw_device the resume operation is requested for
- 
--The resume_IO() function returns:
-+The ccw_device_resume() function returns:
- 
-         0  - suspended channel program is resumed
- -EBUSY     - status pending
-@@ -507,6 +484,8 @@ a long-running channel program or the de
- a halt subchannel (HSCH) I/O command. For those purposes the ccw_device_halt()
- command is provided.
- 
-+ccw_device_halt() must be called disabled and with the ccw device lock held.
+Index: work-fault-inject/include/linux/bitrev.h
+===================================================================
+--- /dev/null
++++ work-fault-inject/include/linux/bitrev.h
+@@ -0,0 +1,15 @@
++#ifndef _LINUX_BITREV_H
++#define _LINUX_BITREV_H
 +
- int ccw_device_halt(struct ccw_device *cdev,
-                     unsigned long intparm);
- 
-@@ -517,7 +496,7 @@ intparm : interruption parameter; value 
- 
- The ccw_device_halt() function returns :
- 
--      0 - successful completion or request successfully initiated
-+      0 - request successfully initiated
- -EBUSY  - the device is currently busy, or status pending.
- -ENODEV - cdev invalid.
- -EINVAL - The device is not operational or the ccw device is not online.
-@@ -533,6 +512,23 @@ can then perform an appropriate action. 
- read to a network device (with or without PCI flag) a ccw_device_halt()
- is required to end the pending operation.
- 
-+ccw_device_clear() - Terminage I/O Request Processing
++#include <linux/types.h>
 +
-+In order to terminate all I/O processing at the subchannel, the clear subchannel
-+(CSCH) command is used. It can be issued via ccw_device_clear().
++extern u8 const byte_rev_table[256];
 +
-+ccw_device_clear() must be called disabled and with the ccw device lock held.
++static inline u8 bitrev8(u8 byte)
++{
++	return byte_rev_table[byte];
++}
 +
-+int ccw_device_clear(struct ccw_device *cdev, unsigned long intparm);
++extern u32 bitrev32(u32 in);
 +
-+cdev:	 ccw_device the clear operation is requested for
-+intparm: interruption parameter (see ccw_device_halt())
++#endif /* _LINUX_BITREV_H */
+Index: work-fault-inject/lib/Kconfig
+===================================================================
+--- work-fault-inject.orig/lib/Kconfig
++++ work-fault-inject/lib/Kconfig
+@@ -4,6 +4,9 @@
+ 
+ menu "Library routines"
+ 
++config BITREVERSE
++	tristate
 +
-+The ccw_device_clear() function returns:
+ config CRC_CCITT
+ 	tristate "CRC-CCITT functions"
+ 	help
+Index: work-fault-inject/lib/Makefile
+===================================================================
+--- work-fault-inject.orig/lib/Makefile
++++ work-fault-inject/lib/Makefile
+@@ -35,6 +35,7 @@ ifneq ($(CONFIG_HAVE_DEC_LOCK),y)
+   lib-y += dec_and_lock.o
+ endif
+ 
++obj-$(CONFIG_BITREVERSE) += bitrev.o
+ obj-$(CONFIG_CRC_CCITT)	+= crc-ccitt.o
+ obj-$(CONFIG_CRC16)	+= crc16.o
+ obj-$(CONFIG_CRC32)	+= crc32.o
+Index: work-fault-inject/lib/bitrev.c
+===================================================================
+--- /dev/null
++++ work-fault-inject/lib/bitrev.c
+@@ -0,0 +1,54 @@
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/bitrev.h>
 +
-+      0 - request successfully initiated
-+-ENODEV - cdev invalid
-+-EINVAL - The device is not operational or the ccw device is not online.
- 
- Miscellaneous Support Routines
- 
-diff --git a/Documentation/s390/driver-model.txt b/Documentation/s390/driver-model.txt
-index 62c0823..77bf450 100644
---- a/Documentation/s390/driver-model.txt
-+++ b/Documentation/s390/driver-model.txt
-@@ -239,6 +239,9 @@ status - Can be 'online' or 'offline'.
- 
- type - The physical type of the channel path.
- 
-+shared - Whether the channel path is shared.
++const u8 byte_rev_table[256] = {
++	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
++	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
++	0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
++	0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
++	0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4,
++	0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
++	0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec,
++	0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
++	0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2,
++	0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
++	0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea,
++	0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
++	0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6,
++	0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
++	0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee,
++	0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
++	0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1,
++	0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
++	0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9,
++	0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
++	0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5,
++	0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
++	0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed,
++	0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
++	0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3,
++	0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
++	0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb,
++	0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
++	0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7,
++	0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
++	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
++	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
++};
++EXPORT_SYMBOL_GPL(byte_rev_table);
 +
-+cmg - The channel measurement group.
- 
- 3. System devices
- -----------------
-diff --git a/arch/s390/defconfig b/arch/s390/defconfig
-index a325739..c313e9a 100644
---- a/arch/s390/defconfig
-+++ b/arch/s390/defconfig
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.18
--# Wed Oct  4 19:45:46 2006
-+# Linux kernel version: 2.6.19-rc2
-+# Wed Oct 18 17:11:10 2006
- #
- CONFIG_MMU=y
- CONFIG_LOCKDEP_SUPPORT=y
-@@ -211,6 +211,7 @@ CONFIG_INET6_XFRM_MODE_TRANSPORT=y
- CONFIG_INET6_XFRM_MODE_TUNNEL=y
- CONFIG_INET6_XFRM_MODE_BEET=y
- # CONFIG_INET6_XFRM_MODE_ROUTEOPTIMIZATION is not set
-+CONFIG_IPV6_SIT=y
- # CONFIG_IPV6_TUNNEL is not set
- # CONFIG_IPV6_SUBTREES is not set
- # CONFIG_IPV6_MULTIPLE_TABLES is not set
-@@ -528,6 +529,7 @@ CONFIG_EXT3_FS=y
- CONFIG_EXT3_FS_XATTR=y
- # CONFIG_EXT3_FS_POSIX_ACL is not set
- # CONFIG_EXT3_FS_SECURITY is not set
-+# CONFIG_EXT4DEV_FS is not set
- CONFIG_JBD=y
- # CONFIG_JBD_DEBUG is not set
- CONFIG_FS_MBCACHE=y
-@@ -646,10 +648,6 @@ #
- # CONFIG_NLS is not set
- 
- #
--# Distributed Lock Manager
--#
--
--#
- # Instrumentation Support
- #
- 
-@@ -669,7 +667,6 @@ CONFIG_MAGIC_SYSRQ=y
- # CONFIG_UNUSED_SYMBOLS is not set
- CONFIG_DEBUG_KERNEL=y
- CONFIG_LOG_BUF_SHIFT=17
--# CONFIG_DETECT_SOFTLOCKUP is not set
- # CONFIG_SCHEDSTATS is not set
- # CONFIG_DEBUG_SLAB is not set
- CONFIG_DEBUG_PREEMPT=y
-@@ -690,6 +687,7 @@ # CONFIG_DEBUG_LIST is not set
- # CONFIG_FRAME_POINTER is not set
- # CONFIG_UNWIND_INFO is not set
- CONFIG_FORCED_INLINING=y
-+CONFIG_HEADERS_CHECK=y
- # CONFIG_RCU_TORTURE_TEST is not set
- # CONFIG_LKDTM is not set
- 
-diff --git a/arch/s390/kernel/compat_linux.c b/arch/s390/kernel/compat_linux.c
-index e15e148..2001767 100644
---- a/arch/s390/kernel/compat_linux.c
-+++ b/arch/s390/kernel/compat_linux.c
-@@ -295,6 +295,7 @@ static inline long put_tv32(struct compa
-  *
-  * This is really horribly ugly.
-  */
-+#ifdef CONFIG_SYSVIPC
- asmlinkage long sys32_ipc(u32 call, int first, int second, int third, u32 ptr)
- {
- 	if (call >> 16)		/* hack for backward compatibility */
-@@ -338,6 +339,7 @@ asmlinkage long sys32_ipc(u32 call, int 
- 
- 	return -ENOSYS;
- }
-+#endif
- 
- asmlinkage long sys32_truncate64(const char __user * path, unsigned long high, unsigned long low)
- {
-diff --git a/arch/s390/kernel/syscalls.S b/arch/s390/kernel/syscalls.S
-index e59baec..a4ceae3 100644
---- a/arch/s390/kernel/syscalls.S
-+++ b/arch/s390/kernel/syscalls.S
-@@ -320,3 +320,4 @@ SYSCALL(sys_tee,sys_tee,sys_tee_wrapper)
- SYSCALL(sys_vmsplice,sys_vmsplice,compat_sys_vmsplice_wrapper)
- NI_SYSCALL							/* 310 sys_move_pages */
- SYSCALL(sys_getcpu,sys_getcpu,sys_getcpu_wrapper)
-+SYSCALL(sys_epoll_pwait,sys_epoll_pwait,sys_ni_syscall)
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index d0647d1..79ffef6 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -203,6 +203,7 @@ dasd_state_basic_to_known(struct dasd_de
- 	rc = dasd_flush_ccw_queue(device, 1);
- 	if (rc)
- 		return rc;
-+	dasd_clear_timer(device);
- 
- 	DBF_DEV_EVENT(DBF_EMERG, device, "%p debug area deleted", device);
- 	if (device->debug_area != NULL) {
-diff --git a/drivers/s390/char/monwriter.c b/drivers/s390/char/monwriter.c
-index abd02ed..b9b0fc3 100644
---- a/drivers/s390/char/monwriter.c
-+++ b/drivers/s390/char/monwriter.c
-@@ -73,12 +73,15 @@ static inline struct mon_buf *monwrite_f
- 	struct mon_buf *entry, *next;
- 
- 	list_for_each_entry_safe(entry, next, &monpriv->list, list)
--		if (entry->hdr.applid == monhdr->applid &&
-+		if ((entry->hdr.mon_function == monhdr->mon_function ||
-+		     monhdr->mon_function == MONWRITE_STOP_INTERVAL) &&
-+		    entry->hdr.applid == monhdr->applid &&
- 		    entry->hdr.record_num == monhdr->record_num &&
- 		    entry->hdr.version == monhdr->version &&
- 		    entry->hdr.release == monhdr->release &&
- 		    entry->hdr.mod_level == monhdr->mod_level)
- 			return entry;
++static __always_inline u16 bitrev16(u16 x)
++{
++	return (bitrev8(x & 0xff) << 8) | bitrev8(x >> 8);
++}
 +
- 	return NULL;
- }
- 
-@@ -92,7 +95,9 @@ static int monwrite_new_hdr(struct mon_p
- 	    monhdr->mon_function > MONWRITE_START_CONFIG ||
- 	    monhdr->hdrlen != sizeof(struct monwrite_hdr))
- 		return -EINVAL;
--	monbuf = monwrite_find_hdr(monpriv, monhdr);
-+	monbuf = NULL;
-+	if (monhdr->mon_function != MONWRITE_GEN_EVENT)
-+		monbuf = monwrite_find_hdr(monpriv, monhdr);
- 	if (monbuf) {
- 		if (monhdr->mon_function == MONWRITE_STOP_INTERVAL) {
- 			monhdr->datalen = monbuf->hdr.datalen;
-@@ -104,7 +109,7 @@ static int monwrite_new_hdr(struct mon_p
- 			kfree(monbuf);
- 			monbuf = NULL;
- 		}
--	} else {
-+	} else if (monhdr->mon_function != MONWRITE_STOP_INTERVAL) {
- 		if (mon_buf_count >= mon_max_bufs)
- 			return -ENOSPC;
- 		monbuf = kzalloc(sizeof(struct mon_buf), GFP_KERNEL);
-@@ -118,7 +123,8 @@ static int monwrite_new_hdr(struct mon_p
- 		}
- 		monbuf->hdr = *monhdr;
- 		list_add_tail(&monbuf->list, &monpriv->list);
--		mon_buf_count++;
-+		if (monhdr->mon_function != MONWRITE_GEN_EVENT)
-+			mon_buf_count++;
- 	}
- 	monpriv->current_buf = monbuf;
- 	return 0;
-diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
-index fcaf28d..de3d085 100644
---- a/drivers/s390/cio/device_fsm.c
-+++ b/drivers/s390/cio/device_fsm.c
-@@ -578,9 +578,13 @@ ccw_device_verify_done(struct ccw_device
- 		}
- 		break;
- 	case -ETIME:
-+		/* Reset oper notify indication after verify error. */
-+		cdev->private->flags.donotify = 0;
- 		ccw_device_done(cdev, DEV_STATE_BOXED);
- 		break;
- 	default:
-+		/* Reset oper notify indication after verify error. */
-+		cdev->private->flags.donotify = 0;
- 		PREPARE_WORK(&cdev->private->kick_work,
- 			     ccw_device_nopath_notify, cdev);
- 		queue_work(ccw_device_notify_work, &cdev->private->kick_work);
-diff --git a/drivers/s390/cio/qdio.c b/drivers/s390/cio/qdio.c
-index 0648ce5..476aa1d 100644
---- a/drivers/s390/cio/qdio.c
-+++ b/drivers/s390/cio/qdio.c
-@@ -3529,7 +3529,7 @@ do_QDIO(struct ccw_device *cdev,unsigned
- #ifdef CONFIG_QDIO_DEBUG
- 	char dbf_text[20];
- 
--	sprintf(dbf_text,"doQD%04x",cdev->private->sch_no);
-+	sprintf(dbf_text,"doQD%04x",cdev->private->schid.sch_no);
-  	QDIO_DBF_TEXT3(0,trace,dbf_text);
- #endif /* CONFIG_QDIO_DEBUG */
- 
-diff --git a/include/asm-s390/pgtable.h b/include/asm-s390/pgtable.h
-index 519f0a5..36bb6da 100644
---- a/include/asm-s390/pgtable.h
-+++ b/include/asm-s390/pgtable.h
-@@ -200,18 +200,45 @@ #endif /* __s390x__ */
-  */
- 
- /* Hardware bits in the page table entry */
--#define _PAGE_RO        0x200          /* HW read-only                     */
--#define _PAGE_INVALID   0x400          /* HW invalid                       */
-+#define _PAGE_RO	0x200		/* HW read-only bit  */
-+#define _PAGE_INVALID	0x400		/* HW invalid bit    */
-+#define _PAGE_SWT	0x001		/* SW pte type bit t */
-+#define _PAGE_SWX	0x002		/* SW pte type bit x */
- 
--/* Mask and six different types of pages. */
--#define _PAGE_TYPE_MASK		0x601
-+/* Six different types of pages. */
- #define _PAGE_TYPE_EMPTY	0x400
- #define _PAGE_TYPE_NONE		0x401
--#define _PAGE_TYPE_SWAP		0x600
--#define _PAGE_TYPE_FILE		0x601
-+#define _PAGE_TYPE_SWAP		0x403
-+#define _PAGE_TYPE_FILE		0x601	/* bit 0x002 is used for offset !! */
- #define _PAGE_TYPE_RO		0x200
- #define _PAGE_TYPE_RW		0x000
- 
-+/*
-+ * PTE type bits are rather complicated. handle_pte_fault uses pte_present,
-+ * pte_none and pte_file to find out the pte type WITHOUT holding the page
-+ * table lock. ptep_clear_flush on the other hand uses ptep_clear_flush to
-+ * invalidate a given pte. ipte sets the hw invalid bit and clears all tlbs
-+ * for the page. The page table entry is set to _PAGE_TYPE_EMPTY afterwards.
-+ * This change is done while holding the lock, but the intermediate step
-+ * of a previously valid pte with the hw invalid bit set can be observed by
-+ * handle_pte_fault. That makes it necessary that all valid pte types with
-+ * the hw invalid bit set must be distinguishable from the four pte types
-+ * empty, none, swap and file.
-+ *
-+ *			irxt  ipte  irxt
-+ * _PAGE_TYPE_EMPTY	1000   ->   1000
-+ * _PAGE_TYPE_NONE	1001   ->   1001
-+ * _PAGE_TYPE_SWAP	1011   ->   1011
-+ * _PAGE_TYPE_FILE	11?1   ->   11?1
-+ * _PAGE_TYPE_RO	0100   ->   1100
-+ * _PAGE_TYPE_RW	0000   ->   1000
-+ *
-+ * pte_none is true for bits combinations 1000, 1100
-+ * pte_present is true for bits combinations 0000, 0010, 0100, 0110, 1001
-+ * pte_file is true for bits combinations 1101, 1111
-+ * swap pte is 1011 and 0001, 0011, 0101, 0111, 1010 and 1110 are invalid.
++/**
++ * bitrev32 - reverse the order of bits in a u32 value
++ * @x: value to be bit-reversed
 + */
-+
- #ifndef __s390x__
- 
- /* Bits in the segment table entry */
-@@ -365,18 +392,21 @@ #endif /* __s390x__ */
- 
- static inline int pte_none(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_EMPTY;
-+	return (pte_val(pte) & _PAGE_INVALID) && !(pte_val(pte) & _PAGE_SWT);
- }
- 
- static inline int pte_present(pte_t pte)
- {
--	return !(pte_val(pte) & _PAGE_INVALID) ||
--		(pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_NONE;
-+	unsigned long mask = _PAGE_RO | _PAGE_INVALID | _PAGE_SWT | _PAGE_SWX;
-+	return (pte_val(pte) & mask) == _PAGE_TYPE_NONE ||
-+		(!(pte_val(pte) & _PAGE_INVALID) &&
-+		 !(pte_val(pte) & _PAGE_SWT));
- }
- 
- static inline int pte_file(pte_t pte)
- {
--	return (pte_val(pte) & _PAGE_TYPE_MASK) == _PAGE_TYPE_FILE;
-+	unsigned long mask = _PAGE_RO | _PAGE_INVALID | _PAGE_SWT;
-+	return (pte_val(pte) & mask) == _PAGE_TYPE_FILE;
- }
- 
- #define pte_same(a,b)	(pte_val(a) == pte_val(b))
-diff --git a/include/asm-s390/unistd.h b/include/asm-s390/unistd.h
-index a19238c..71d3c21 100644
---- a/include/asm-s390/unistd.h
-+++ b/include/asm-s390/unistd.h
-@@ -249,8 +249,9 @@ #define __NR_tee		308
- #define __NR_vmsplice		309
- /* Number 310 is reserved for new sys_move_pages */
- #define __NR_getcpu		311
-+#define __NR_epoll_pwait	312
- 
--#define NR_syscalls 312
-+#define NR_syscalls 313
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
++u32 bitrev32(u32 x)
++{
++	return (bitrev16(x & 0xffff) << 16) | bitrev16(x >> 16);
++}
++EXPORT_SYMBOL(bitrev32);

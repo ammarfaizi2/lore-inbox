@@ -1,58 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWJRPdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbWJRPdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161168AbWJRPdk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161178AbWJRPdj
+	id S1161137AbWJRPdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbWJRPdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:33:39 -0400
-Received: from web57803.mail.re3.yahoo.com ([68.142.236.81]:6541 "HELO
-	web57803.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1161121AbWJRPdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:33:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=0SzrNVPtObN6omcgQWwu8KrrUVkTEap5pfgryBJhTS1DmiPvlN8AGWSS51x1fF0SfVBY2BFlos4fGr/DD+nn44XtiMMFQOm7+lTjDKmdvTsII2szs8t4LmPPZB3NZePK5HfRtCYCM8vMTu57DlJ+NARnQwi4zf7gLUCAD5ywPI4=  ;
-Message-ID: <20061018153337.39388.qmail@web57803.mail.re3.yahoo.com>
-Date: Wed, 18 Oct 2006 08:33:37 -0700 (PDT)
-From: John Philips <johnphilips42@yahoo.com>
-Subject: Re: BUG: warning at kernel/softirq.c:141/local_bh_enable()
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <453542EC.90509@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 18 Oct 2006 11:33:36 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:48108 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161137AbWJRPdf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:33:35 -0400
+Subject: Re: 2.6.19-rc2-mm1
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061016230645.fed53c5b.akpm@osdl.org>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 08:33:19 -0700
+Message-Id: <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > eth6 is a NatSemi DP83815 NIC
+On Mon, 2006-10-16 at 23:06 -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
 > 
-> Well... lot of changes in drivers/net/natsemi.c
-> between 2.4 and 2.6
 > 
-> Previous versions had a max_interrupt_work = 20;
-> RX_RING_SIZE is 32 for this NIC
-> 
-> But NAPI standard weight is 64, maybe you should try
-> to lower it ? (so that an 
-> interrupt dont try to queue/dequeue too many packets
-> at once)
-> 
-> /proc/sys/net/core/dev_weight
-> /proc/sys/net/core/netdev_budget
-
-Eric,
-
-Thanks for the suggestions, but I don't really
-understand what you're saying.
-
-Currently dev_weight is 64 and netdev_budget is 300. 
-What do you recommend I set them to?
+> - Added the hwmon and i2c trees to the -mm lineup.  These are quilt-style
+>   trees, maintained by Jean Delvare.
 
 
+LTP writev tests seems to lockup the machine. reiserfs issue ?
+Didn't you have a patch to dump other CPUs also when this happens ?
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Thanks,
+Badari
+
+BUG: soft lockup detected on CPU#2!
+
+Call Trace:
+ <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
+ [<ffffffff8022e10f>] __do_softirq+0x5f/0xd0
+ [<ffffffff80232067>] update_process_times+0x57/0x90
+ [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff80326ce0>] __copy_user_nocache+0x20/0x150
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ <EOI>  [<ffffffff802b8de0>] reiserfs_get_block+0x0/0x10c0
+ [<ffffffff80295198>] __block_prepare_write+0x158/0x470
+ [<ffffffff802b8de0>] reiserfs_get_block+0x0/0x10c0
+ [<ffffffff802954ca>] block_prepare_write+0x1a/0x30
+ [<ffffffff802b7cea>] reiserfs_prepare_write+0xca/0x140
+ [<ffffffff8024e9d2>] generic_file_buffered_write+0x2b2/0x610
+ [<ffffffff8022d84b>] current_fs_time+0x3b/0x40
+ [<ffffffff8024f157>] __generic_file_aio_write_nolock+0x427/0x4b0
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff8024f247>] generic_file_aio_write+0x67/0xd0
+ [<ffffffff8024f1e0>] generic_file_aio_write+0x0/0xd0
+ [<ffffffff80271f53>] do_sync_readv_writev+0xc3/0x110
+ [<ffffffff8023d910>] autoremove_wake_function+0x0/0x30
+ [<ffffffff8035c18d>] tty_default_put_char+0x1d/0x30
+ [<ffffffff803618c4>] write_chan+0x374/0x3a0
+ [<ffffffff80271daa>] rw_copy_check_uvector+0x8a/0x130
+ [<ffffffff802726ef>] do_readv_writev+0xef/0x200
+ [<ffffffff8035e349>] tty_write+0x219/0x250
+ [<ffffffff80272d43>] sys_writev+0x53/0xc0
+ [<ffffffff80209c1e>] system_call+0x7e/0x83
+
+BUG: soft lockup detected on CPU#2!
+
+Call Trace:
+ <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
+ [<ffffffff80232067>] update_process_times+0x57/0x90
+ [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ <EOI>  [<ffffffff8025f3e2>] find_vma+0x12/0x70
+ [<ffffffff8021e6e5>] do_page_fault+0x3c5/0x870
+ [<ffffffff802bc2e1>] reiserfs_commit_page+0xe1/0x220
+ [<ffffffff8048012d>] error_exit+0x0/0x84
+ [<ffffffff8024e89e>] generic_file_buffered_write+0x17e/0x610
+ [<ffffffff8024eb47>] generic_file_buffered_write+0x427/0x610
+ [<ffffffff8022d84b>] current_fs_time+0x3b/0x40
+ [<ffffffff8024f157>] __generic_file_aio_write_nolock+0x427/0x4b0
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff8024f247>] generic_file_aio_write+0x67/0xd0
+ [<ffffffff8024f1e0>] generic_file_aio_write+0x0/0xd0
+ [<ffffffff80271f53>] do_sync_readv_writev+0xc3/0x110
+ [<ffffffff8023d910>] autoremove_wake_function+0x0/0x30
+ [<ffffffff8035c18d>] tty_default_put_char+0x1d/0x30
+ [<ffffffff803618c4>] write_chan+0x374/0x3a0
+ [<ffffffff80271daa>] rw_copy_check_uvector+0x8a/0x130
+ [<ffffffff802726ef>] do_readv_writev+0xef/0x200
+ [<ffffffff8035e349>] tty_write+0x219/0x250
+ [<ffffffff80272d43>] sys_writev+0x53/0xc0
+ [<ffffffff80209c1e>] system_call+0x7e/0x83
+
+BUG: soft lockup detected on CPU#2!
+
+Call Trace:
+ <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
+ [<ffffffff8022e10f>] __do_softirq+0x5f/0xd0
+ [<ffffffff80232067>] update_process_times+0x57/0x90
+ [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ <EOI>  [<ffffffff80256320>] mark_page_accessed+0x30/0x40
+ [<ffffffff8024eb3f>] generic_file_buffered_write+0x41f/0x610
+ [<ffffffff8022d84b>] current_fs_time+0x3b/0x40
+ [<ffffffff8024f157>] __generic_file_aio_write_nolock+0x427/0x4b0
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff8024f247>] generic_file_aio_write+0x67/0xd0
+ [<ffffffff8024f1e0>] generic_file_aio_write+0x0/0xd0
+ [<ffffffff80271f53>] do_sync_readv_writev+0xc3/0x110
+ [<ffffffff8023d910>] autoremove_wake_function+0x0/0x30
+ [<ffffffff8035c18d>] tty_default_put_char+0x1d/0x30
+ [<ffffffff803618c4>] write_chan+0x374/0x3a0
+ [<ffffffff80271daa>] rw_copy_check_uvector+0x8a/0x130
+ [<ffffffff802726ef>] do_readv_writev+0xef/0x200
+ [<ffffffff8035e349>] tty_write+0x219/0x250
+ [<ffffffff80272d43>] sys_writev+0x53/0xc0
+ [<ffffffff80209c1e>] system_call+0x7e/0x83
+
+
+

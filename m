@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWJRNEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160998AbWJRNI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWJRNEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 09:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWJRNEs
+	id S1160998AbWJRNI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 09:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWJRNI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 09:04:48 -0400
-Received: from colin.muc.de ([193.149.48.1]:53778 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1030267AbWJRNEr (ORCPT
+	Wed, 18 Oct 2006 09:08:59 -0400
+Received: from ns.suse.de ([195.135.220.2]:62666 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030273AbWJRNI6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 09:04:47 -0400
-Date: 18 Oct 2006 15:04:45 +0200
-Date: Wed, 18 Oct 2006 15:04:45 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       yhlu.kernel@gmail.com
-Subject: Re: [PATCH] x86_64: store Socket ID in phys_proc_id
-Message-ID: <20061018130445.GA68136@muc.de>
-References: <5986589C150B2F49A46483AC44C7BCA412D700@ssvlexmb2.amd.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Oct 2006 09:08:58 -0400
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Undeprecate the sysctl system call
+Date: Wed, 18 Oct 2006 15:08:54 +0200
+User-Agent: KMail/1.9.3
+Cc: Cal Peake <cp@absolutedigital.net>, Andrew Morton <akpm@osdl.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <453519EE.76E4.0078.0@novell.com> <200610181441.51748.ak@suse.de> <1161176382.9363.35.camel@localhost.localdomain>
+In-Reply-To: <1161176382.9363.35.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D700@ssvlexmb2.amd.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610181508.54237.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17, 2006 at 02:15:38PM -0700, Lu, Yinghai wrote:
-> From: Andi Kleen [mailto:ak@muc.de] 
+On Wednesday 18 October 2006 14:59, Alan Cox wrote:
+> Ar Mer, 2006-10-18 am 14:41 +0200, ysgrifennodd Andi Kleen:
+> > It's less work long term, mostly because all the rejects for sysctl.h will 
+> > go away. And it's more compatible than just removing sysctl(2) completely.
 > 
-> >> Socket ID is 0 for first Physical processor?
-> >It must just be some unique ID for each socket.
-> 
-> For dual core, if I lift AP's APIC ID and no touch BSP's APIC ID.
-> For example, BSP is still 0, and second core is 0x11.
-> The phys_proc_id will be 0 for BSP, and 8 for second core.
-> So I suggest you to use initial APIC ID to get socket id instead of APIC
-> ID.
+> What rejects for sysctl.h, nobody is going to add new entries to
+> sysctl(2) so there will be no rejects.
 
-Hmm, that might make sense yes.
+Yes, but it still means the bizarre register_sysctl() call convention
+has to be maintained internally.
 
-I'm just afraid what I will break again if i touch this -- it took several
-iterations to get it to this state which AFAIK works everywhere right now.
-And when it breaks it's usually subtle as "system boots, but runs
-slower when ACPI is turned off because NUMA nodes are off" 
+If the existing sysctl.c/sysctl.h stuff wasn't needed anymore this
+could be replaced with a sane
 
-Can you remind me again what would be fixed by using the initial APIC ID?
-Just prettier numbering in your lifted APIC IDs case? Or something
-else too?
+register_sysctl_name("a/b/c", &sysctl_struct) 
+
+and clean up a lot of code.
 
 -Andi
-

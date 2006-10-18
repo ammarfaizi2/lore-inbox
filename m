@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422849AbWJRUJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422856AbWJRUJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422849AbWJRUJn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422858AbWJRUJm
+	id S1422856AbWJRUJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWJRUJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:09:42 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:9157 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1422849AbWJRUJh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 16:09:39 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:36330 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422842AbWJRUJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 18 Oct 2006 16:09:37 -0400
-Date: Wed, 18 Oct 2006 22:09:36 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Mohit Katiyar <katiyar.mohit@gmail.com>,
-       Linux NFS mailing list <nfs@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] NFS inconsistent behaviour
-Message-ID: <20061018200936.GA14733@janus>
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com> <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com> <20061016084656.GA13292@janus> <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com> <20061016093904.GA13866@janus> <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com> <20061018063945.GA5917@janus> <1161194229.6095.81.camel@lade.trondhjem.org> <20061018183807.GA12018@janus> <1161199580.6095.112.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161199580.6095.112.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
-X-BotBait: val@frankvm.com, kuil@frankvm.com
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 10/16] driver core fixes: device_add() cleanup on error
+Date: Wed, 18 Oct 2006 13:09:01 -0700
+Message-Id: <11612021771048-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.2.4
+In-Reply-To: <11612021733101-git-send-email-greg@kroah.com>
+References: <20061018195833.GA21808@kroah.com> <1161202147758-git-send-email-greg@kroah.com> <11612021503109-git-send-email-greg@kroah.com> <1161202153578-git-send-email-greg@kroah.com> <11612021563449-git-send-email-greg@kroah.com> <11612021603361-git-send-email-greg@kroah.com> <1161202163247-git-send-email-greg@kroah.com> <1161202166551-git-send-email-greg@kroah.com> <11612021701905-git-send-email-greg@kroah.com> <11612021733101-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 03:26:20PM -0400, Trond Myklebust wrote:
-> On Wed, 2006-10-18 at 20:38 +0200, Frank van Maarseveen wrote:
-> > I ran out of privileged ports due to treemounting on /net from about 50
-> > servers. The autofs program map for this uses the "showmount" command and
-> > that one apparently uses privileged ports too (buried inside RPC client
-> > libs part of glibc IIRC). The combination broke autofs and a number of
-> > other services because there were no privileged ports left anymore.
-> 
-> Yeah. The RPC library appears to always try to grab a privileged port if
-> it can. One solution would be to have the autofs scripts drop all
-> privileges before calling showmount.
-> 
-> I suppose we could also change the showmount program to create a socket
-> that is bound to an unprivileged port, then use
-> clnttcp_create()/clntudp_create().
-> 
-> We could probably do the same in the "mount" program when doing things
-> like interrogating the portmapper, probing for rpc ports etc. The only
-> case where mount might actually need to use a privileged port is when
-> talking to mountd. Even then, it could be trained to first try using an
-> unprivileged port.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-If we could fix why there are that many connections in state TIME_WAIT
-then using privileged ports would not be a problem either.
+Check for return code of device_create_file() and correct cleanup in
+the error case in device_add().
 
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/base/core.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index aee3743..365f709 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -433,14 +433,16 @@ int device_add(struct device *dev)
+ 	if (dev->driver)
+ 		dev->uevent_attr.attr.owner = dev->driver->owner;
+ 	dev->uevent_attr.store = store_uevent;
+-	device_create_file(dev, &dev->uevent_attr);
++	error = device_create_file(dev, &dev->uevent_attr);
++	if (error)
++		goto attrError;
+ 
+ 	if (MAJOR(dev->devt)) {
+ 		struct device_attribute *attr;
+ 		attr = kzalloc(sizeof(*attr), GFP_KERNEL);
+ 		if (!attr) {
+ 			error = -ENOMEM;
+-			goto PMError;
++			goto ueventattrError;
+ 		}
+ 		attr->attr.name = "dev";
+ 		attr->attr.mode = S_IRUGO;
+@@ -450,7 +452,7 @@ int device_add(struct device *dev)
+ 		error = device_create_file(dev, attr);
+ 		if (error) {
+ 			kfree(attr);
+-			goto attrError;
++			goto ueventattrError;
+ 		}
+ 
+ 		dev->devt_attr = attr;
+@@ -507,6 +509,8 @@ int device_add(struct device *dev)
+ 		device_remove_file(dev, dev->devt_attr);
+ 		kfree(dev->devt_attr);
+ 	}
++ ueventattrError:
++	device_remove_file(dev, &dev->uevent_attr);
+  attrError:
+ 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
+ 	kobject_del(&dev->kobj);
 -- 
-Frank
+1.4.2.4
+

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161276AbWJRTRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161292AbWJRTTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161276AbWJRTRY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWJRTRY
+	id S1161292AbWJRTTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWJRTTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:17:24 -0400
-Received: from av1.karneval.cz ([81.27.192.123]:2064 "EHLO av1.karneval.cz")
-	by vger.kernel.org with ESMTP id S1161276AbWJRTRW (ORCPT
+	Wed, 18 Oct 2006 15:19:09 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:54665 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1161292AbWJRTTF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:17:22 -0400
-Message-ID: <453679D0.8060101@gmail.com>
-Date: Wed, 18 Oct 2006 21:00:32 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Wed, 18 Oct 2006 15:19:05 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Gabriel C <nix.or.die@googlemail.com>
+Subject: Re: 2.6.19-rc2-mm1
+Date: Wed, 18 Oct 2006 21:18:30 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20061016230645.fed53c5b.akpm@osdl.org> <45367210.4040507@googlemail.com>
+In-Reply-To: <45367210.4040507@googlemail.com>
 MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-CC: linux-acpi@vger.kernel.org
-Subject: speedstep-centrino: ENODEV
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610182118.31371.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wednesday, 18 October 2006 20:27, Gabriel C wrote:
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
+> >   
+> 
+> Hello,
+> 
+> I got this build error with 2.6.19-rc2-mm1:
+> 
+> CHK include/linux/compile.h
+> UPD include/linux/compile.h
+> CC init/version.o
+> LD init/built-in.o
+> LD .tmp_vmlinux1
+> mm/built-in.o: In function `xip_file_write':
+> (.text+0x19a47): undefined reference to `filemap_copy_from_user'
+> make: *** [.tmp_vmlinux1] Error 1
 
-How is it possible to find out whether or not speedstep-centrino is supported. I 
-have
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.60GHz
-stepping        : 6
-cpu MHz         : 1600.149
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr pge mca cmov pat 
-clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
-bogomips        : 3201.52
-
-processor, but speedstep-centrino returns ENODEV because of lack of _PCT et al 
-entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). It is possible to 
-hard-code that values to speedstep-centrino as for banias cpus or use corrected 
-DSDT that will contain _PCT, _PSS and _PPC, but where may I obtain these values?
-
-This is Asus M6R notebook, some DSDT parts of this piece of HW are really ugly 
-(problems with acpi some time ago).
-
-I may use p4-clockmod (and it points me to speedstep-centrino module), but if I 
-am correct, it doesn't save battery life?
-
-thanks,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+\metoo

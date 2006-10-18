@@ -1,85 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWJRD7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWJRELM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWJRD7n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 23:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWJRD7n
+	id S1751365AbWJRELM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 00:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWJRELM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 23:59:43 -0400
-Received: from ausmtp06.au.ibm.com ([202.81.18.155]:46818 "EHLO
-	ausmtp06.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1751308AbWJRD7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 23:59:42 -0400
-Message-ID: <4535A89E.9070609@in.ibm.com>
-Date: Wed, 18 Oct 2006 09:37:58 +0530
-From: Srinivasa Ds <srinivasa@in.ibm.com>
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Issues with possible recursive locking
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 00:11:12 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:29336 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751361AbWJRELL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 00:11:11 -0400
+Date: Wed, 18 Oct 2006 08:10:14 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Johann Borck <johann.borck@densedata.com>,
+       Ulrich Drepper <drepper@redhat.com>, Ulrich Drepper <drepper@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 1/4] kevent: Core files.
+Message-ID: <20061018041014.GA14588@2ka.mipt.ru>
+References: <11587449471424@2ka.mipt.ru> <200610171826.05028.dada1@cosmosbay.com> <20061017163536.GA17692@2ka.mipt.ru> <200610171845.54719.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <200610171845.54719.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 18 Oct 2006 08:10:16 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I was removing dlm module,I hit in to below error.
+On Tue, Oct 17, 2006 at 06:45:54PM +0200, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> On Tuesday 17 October 2006 18:35, Evgeniy Polyakov wrote:
+> > On Tue, Oct 17, 2006 at 06:26:04PM +0200, Eric Dumazet (dada1@cosmosbay.com) 
+> wrote:
+> > > On Tuesday 17 October 2006 18:01, Evgeniy Polyakov wrote:
+> > > > Ok, there is one apologist for mmap buffer implementation, who forced
+> > > > me to create first implementation, which was dropped due to absense of
+> > > > remote mental reading abilities.
+> > > > Ulrich, does above approach sound good for you?
+> > > > I actually do not want to reimplement something, that will be
+> > > > pointed to with words 'no matter what you say, it is broken and I do
+> > > > not want it' again :).
+> > >
+> > > In my humble opinion, you should first write a 'real application', to
+> > > show how the mmap buffer and kevent syscalls would be used (fast path and
+> > > slow/recovery paths). I am sure it would be easier for everybody to agree
+> > > on the API *before* you start coding a *lot* of hard (kernel) stuff : It
+> > > would certainly save your mental CPU cycles (and ours too :) )
+> > >
+> > > This 'real application' could be  the event loop of a simple HTTP server,
+> > > or a basic 'echo all' server. Adding the bits about timers events and
+> > > signals should be done too.
+> >
+> > I wrote one with previous ring buffer implementation - it used timers
+> > and echoed when they fired, it was even described in details in one of the
+> > lwn.net articles.
+> >
+> > I'm not going to waste others and my time implementing feature requests
+> > without at least _some_ feedback from those who asked them.
+> > In case when person, originally requested some feature, does not answer
+> > and there are other opinions, only they will be get into account of
+> > course.
+> 
+> I am not sure I understand what you wrote, English is not our native language.
+> 
+> I think many people gave you feedbacks. I feel that all feedback on this 
+> mailing list is constructive. Many posts/patches on this list are never 
+> commented at all.
 
-========================================== 
-[ INFO: possible recursive locking detected ]
+And I do greatly appreciate feedback from those people!
 
-2.6.18#1
----------------------------------------------
-modprobe/4501 is trying to acquire lock:
-(&inode->i_mutex){--..}, at: [<c0611e5a>] mutex_lock+0x21/0x24
+But I do not understand why I never got feedback on initial design and
+implementation (and then created as far as I recall at least 10
+releases) from Ulrich, who first asked for such a feture. 
+So right now I'm waiting for his opinion on that problem, even if it will 
+be 'it sucks' again, but at least in that case I will not waste people's time.
 
-but task is already holding lock:
-(&inode->i_mutex){--..}, at: [<c0611e5a>] mutex_lock+0x21/0x24
+Ulrich, could you please comment on design notes sent couple of mail
+above?
 
-other info that might help us debug this:
-1 lock held by modprobe/4501:
-#0:  (&inode->i_mutex){--..}, at: [<c0611e5a>] mutex_lock+0x21/0x24
+> Eric
 
-stack backtrace:
-[<c04051ed>] show_trace_log_lvl+0x58/0x16a
-[<c04057fa>] show_trace+0xd/0x10
-[<c0405913>] dump_stack+0x19/0x1b
-[<c043b6f1>] __lock_acquire+0x778/0x99c
-[<c043be86>] lock_acquire+0x4b/0x6d
-[<c0611ceb>] __mutex_lock_slowpath+0xbc/0x20a
-[<c0611e5a>] mutex_lock+0x21/0x24
-[<f89c2562>] configfs_unregister_subsystem+0x3e/0xa8 [configfs]
-[<f8f4263f>] dlm_config_exit+0xd/0xf [dlm]
-[<f8f4db94>] exit_dlm+0x12/0x23 [dlm]
-[<c0442790>] sys_delete_module+0x18d/0x1b5
-[<c0403fb7>] syscall_call+0x7/0xb
-===========================================================
-Cause for this problem is, lock-validator validates the locks through 
-lock class. And by definition,a lock in struct inode considered as one 
-class, irrespective of number of of instances of different inode present 
-in the system.
-Hence 2 consecutive mutex lock on d_inode->i_mutex considered as 
-recursive lock,eventhough both inodes are different. Thats what 
-happening below. Is it not a kernel design constraint ??
-
-==============================================
-void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
-{
-       struct config_group *group = &subsys->su_group;
-       struct dentry *dentry = group->cg_item.ci_dentry;
-
-       if (dentry->d_parent != configfs_sb->s_root) {
-               printk(KERN_ERR "configfs: Tried to unregister 
-non-subsystem!\n");
-               return;
-       }
-
-       mutex_lock(&configfs_sb->s_root->d_inode->i_mutex);
-       mutex_lock(&dentry->d_inode->i_mutex);                         
-==> problem is here
-       if (configfs_detach_prep(dentry)) {
-               printk(KERN_ERR "configfs: Tried to unregister non-empty
-subsystem!\n");
-       }
-===========================================
-
-
+-- 
+	Evgeniy Polyakov

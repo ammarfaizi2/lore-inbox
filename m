@@ -1,89 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWJRHUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWJRHY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWJRHUy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 03:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWJRHUx
+	id S1750900AbWJRHY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 03:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWJRHY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 03:20:53 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7071 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751114AbWJRHUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 03:20:51 -0400
-Date: Wed, 18 Oct 2006 09:12:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.18-rt1
-Message-ID: <20061018071258.GA27949@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <1159639564.4067.43.camel@mindpipe> <20060930181804.GA28768@in.ibm.com> <200610132318.02512.annabellesgarden@yahoo.de> <20061013212450.GC7477@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061013212450.GC7477@in.ibm.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 18 Oct 2006 03:24:58 -0400
+Received: from mail-1.netbauds.net ([62.232.161.102]:10906 "EHLO
+	mail-1.netbauds.net") by vger.kernel.org with ESMTP
+	id S1750900AbWJRHY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 03:24:57 -0400
+Message-ID: <4535D6BD.5030302@netbauds.net>
+Date: Wed, 18 Oct 2006 08:24:45 +0100
+From: "Darryl L. Miles" <darryl@netbauds.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-GB; rv:1.8.0.7) Gecko/20060929 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18.1 capset() returns EPERM for bind running as root
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Dipankar Sarma <dipankar@in.ibm.com> wrote:
+This was working on 2.6.15.6.
 
-> Sorry, I should have published my investigations long ago. I tracked 
-> this down (atleast the crash in my machine) to NMI interference with 
-> rcu_read_lock()/rcu_read_unlock(). We use those APIs from NMI context 
-> as well 
-> (default_do_nmi()->notify_die()->atomic_notifier_call_chain()).
-> 
-> Can you try with nmi_watchdog=0 in the kernel command line ?
-> 
-> Paul has an NMI-safe patch for rcupreempt which I am adopting and 
-> testing at the moment. If this works well, I will publish a new 
-> patchset.
+# uname -a
+Linux xxxxxxxx 2.6.18.1 #5 SMP Wed Oct 18 07:08:29 BST 2006 i686 i686 
+i386 GNU/Linux
+# id
+uid=0(root) gid=0(root) 
+groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
 
-spent some good time debugging this 2 weeks ago and added the fix below 
-to rt5, but i forgot to do the symmetric fix for x86_64...
+# strace /opt/named/named-9.3.1beta2
+...SNIP...
 
-	Ingo
+getuid32()                              = 0
+capset(0x19980330, 0, {CAP_DAC_READ_SEARCH|CAP_SETGID|CAP_SETUID|CAP_NET_BIND_SERVICE|CAP_SYS_CHROOT|CAP_SYS_RESOURCE, CAP_DAC_READ_SEARCH|CAP_SETGID|CAP_SETUID|CAP_NET_BIND_SERVICE|CAP_SYS_CHROOT|CAP_SYS_RESOURCE, CAP_DAC_READ_SEARCH|CAP_SETGID|CAP_SETUID|CAP_NET_BIND_SERVICE|CAP_SYS_CHROOT|CAP_SYS_RESOURCE}) = -1 EPERM (Operation not permitted)
+write(2, "named-9.3.1beta2: ", 18named-9.3.1beta2: )      = 18
+write(2, "capset failed: Operation not per"..., 109capset failed: Operation not permitted: please ensure that the capset kernel module is loaded.  see insmod(8)) = 109
+write(2, "\n", 1
+)                       = 1
+exit_group(1)                           = ?
+#
 
------------>
- arch/i386/kernel/traps.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Index: linux/arch/i386/kernel/traps.c
-===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -716,9 +716,6 @@ static void default_do_nmi(struct pt_reg
- 		reason = get_nmi_reason();
-  
- 	if (!(reason & 0xc0)) {
--		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 2, SIGINT)
--							== NOTIFY_STOP)
--			return;
- #ifdef CONFIG_X86_LOCAL_APIC
- 		/*
- 		 * Ok, so this is none of the documented NMI sources,
-@@ -729,6 +726,9 @@ static void default_do_nmi(struct pt_reg
- 			return;
- 		}
- #endif
-+		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 2, SIGINT)
-+							== NOTIFY_STOP)
-+			return;
- 		unknown_nmi_error(reason, regs);
- 		return;
- 	}
+-- 
+Darryl L. Miles
+
 

@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbWJRXZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422894AbWJRXcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751539AbWJRXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWJRXZU
+	id S1422894AbWJRXcj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423101AbWJRXci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:25:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24809 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751539AbWJRXZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:25:19 -0400
-Date: Wed, 18 Oct 2006 16:25:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc2-mm1
-Message-Id: <20061018162507.efa7b91a.akpm@osdl.org>
-In-Reply-To: <1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	<1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
-	<45364CE9.7050002@yahoo.com.au>
-	<1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
-	<45366515.4050308@yahoo.com.au>
-	<1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
-	<20061018154402.ef49874a.akpm@osdl.org>
-	<1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 19:32:38 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54526 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1422894AbWJRXci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 19:32:38 -0400
+Date: Thu, 19 Oct 2006 01:29:32 +0200
+From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
+To: 7eggert@gmx.de
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       kronos.it@gmail.com, ismail@pardus.org.tr, 7eggert@gmx.de
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+Message-ID: <4536b8dc.nfxUMeg8jVJ9WF95%Joerg.Schilling@fokus.fraunhofer.de>
+References: <771eN-VK-9@gated-at.bofh.it>
+ <771yn-1XU-65@gated-at.bofh.it> <E1GZy4L-00015O-AV@be1.lrz>
+ <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
+ <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
+User-Agent: nail 11.22 3/20/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 16:01:05 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+Bodo Eggert <7eggert@gmx.de> wrote:
 
-> > Is the NMI watchdog ticking over?
-> 
-> I think so.
-> 
-> # dmesg | grep NMI
-> ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-> ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-> ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
-> ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
-> testing NMI watchdog ... OK.
+> On Wed, 18 Oct 2006, Joerg Schilling wrote:
+> > Bodo Eggert <7eggert@elstempel.de> wrote:
+>
+> > > BTW2, Just to be cautionous: what will happen if somebody forces the same
+> > > inode number on two different entries?
+>
+> [...]
+> > This is something you cannot check.
+>
+> Exactly that's why I'd ignore the on-disk "inode number" and instead use
+> the generated one untill someone comes along with a clever idea to fix
+> the issue or can show that it's mostly hermless.
+
+I could understand you in case that Linux would do some basic consistency checks
+in the iso-9660 code already.....
+
+Show me another program besides mkisofs that implements inode numbers _and_ does
+it wrong.
 
 
-What does it say in /proc/interrupts?
+Jörg
 
-The x86_64 nmi watchdog handling looks rather complex.
-
-<checks a couple of x86-64 machines>
-
-The /proc/interrutps NMI count seems to be going up by about
-one-per-minute.  How odd.   Maybe you just need to wait longer.
-
-Or try booting with nmi_watchdog=2 (Documentation/x86_64/boot-options.txt).
-
-There's an empty directory /sys/devices/system/lapic_nmi/lapic_nmi0/.  I
-wonder what that does?
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWJRGoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWJRGyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWJRGoL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 02:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWJRGoL
+	id S964793AbWJRGyv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 02:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWJRGyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 02:44:11 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:33006 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964778AbWJRGoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 02:44:10 -0400
-Message-ID: <4535CD32.2010502@impulze.org>
-Date: Wed, 18 Oct 2006 08:44:02 +0200
-From: Daniel Mierswa <impulze@impulze.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061018)
+	Wed, 18 Oct 2006 02:54:51 -0400
+Received: from ranger.systems.pipex.net ([62.241.162.32]:56993 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S964793AbWJRGyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 02:54:50 -0400
+Message-ID: <4535CFB1.2010403@tungstengraphics.com>
+Date: Wed, 18 Oct 2006 07:54:41 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ASUS M2NPV-VM APIC/ACPI Bug (patched)
-Content-Type: text/plain; charset=ISO-8859-15
+To: Keith Packard <keithp@keithp.com>
+Cc: Ryan Richter <ryan@tau.solarneutrino.net>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
+References: <20061013194516.GB19283@tau.solarneutrino.net>	<1160849723.3943.41.camel@neko.keithp.com>	<20061017174020.GA24789@tau.solarneutrino.net> <1161124062.25439.8.camel@neko.keithp.com>
+In-Reply-To: <1161124062.25439.8.camel@neko.keithp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:477985ecf28e42b783e12f32bfe78b70
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people have deeper problems with the Asus M2NPV-VM mainboard
-(rather the chipset of the mainboard).
-A google for "Asus M2NPV-VM apic" shows that. I'm one of them,
-desperately searching a way to fix that, using that board with an AMD
-Athlon64 X2 3800+ Dual Core Processor.
-It wouldn't boot because of APIC and ACPI errors. There were "kind of"
-workarounds by passing acpi=off/noirq and noapic to the kernel which
-resulted in sometimes bad internal clock. I for myself had the same
-problem and due to the error with my internal system clock all
-applications and drivers gone mad, including
-sound,video,graphics,usb,etc.. I googled around and saw the following:
-http://lkml.org/lkml/2006/8/13/25
-Actually that was a patch created for the 2.6.18-rc4 kernel. I tried
-several kernels all with the same results. Some of them are
-2.6.18-mm3, 2.6.19-rc2, 2.6.17, 2.6.18, 2.6.18.1, some gentoo patched
-sources and what not. All will hang after the io scheduler gets loaded,
-passing acpi=off/noirq to the kernel will workaround that one. Then it
-will boot on and finally reach the ochi_hcd driver which will not load
-because of shared IRQ problems, passing nousb to the kernel will
-workaround that. It will boot more and come to the dhcp client, where it
-fails because of an Interrupt error.
-Some people passing noapic acpi=off/noirq to the kernel got later sound
-problems, they fixed that by passing "snd-hda-intel model=3stack
-position_fix=1" which worked around that interrupt problem. So with the
-patch provided on http://lkml.org/lkml/2006/8/13/25 it all works out.
-The internal system clock works just fine, the drivers load
- all fine, no need to patch the sound,graphics or anything at all. No
-need for kernel parameters either. Here's the patch again, created by
-diff -ur on the current 2.6.18.1 kernel:
+This is all a little confusing as the driver doesn't really use that 
+path in normal operation except for a single command - MI_FLUSH, which 
+is shared between the architectures.  In normal operation the hardware 
+does the validation for us for the bulk of the command stream.  If there 
+  were missing functionality in that ioctl, it would be failing 
+everywhere, not just in this one case.
 
---- io_apic.c.orig	2006-10-18 08:02:50.000000000 +0200
-+++ io_apic.c	2006-10-18 07:40:48.000000000 +0200
-@@ -337,12 +337,12 @@
- 					nvidia_hpet_detected = 0;
- 					acpi_table_parse(ACPI_HPET,
- 							nvidia_hpet_check);
--					if (nvidia_hpet_detected == 0) {
-+/*					if (nvidia_hpet_detected == 0) {
- 						acpi_skip_timer_override = 1;
- 						printk(KERN_INFO "Nvidia board "
- 						    "detected. Ignoring ACPI "
- 						    "timer override.\n");
--					}
-+					}*/
- #endif
- 					/* RED-PEN skip them on mptables too? */
- 					return;
+I guess the questions I'd have are
+	- did the driver work before the kernel upgrade?
+	- what path in userspace is seeing you end up in this ioctl?
+	- and like Keith, what commands are you seeing?
 
-Is there a small chance by getting that fixed in next kernel versions?
-Greets impulze
+The final question is interesting not because we want to extend the 
+ioctl to cover those, but because it will give a clue how you ended up 
+there in the first place.
+
+Keith
+
+Keith Packard wrote:
+> On Tue, 2006-10-17 at 13:40 -0400, Ryan Richter wrote:
+> 
+>> So do I want something like
+>>
+>>
+>> static int do_validate_cmd(int cmd)
+>> {
+>> 	return 1;
+>> }
+>>
+>> in i915_dma.c?
+> 
+> that will certainly avoid any checks. Another alternative is to printk
+> the cmd which fails validation so we can see what needs adding here.
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
 

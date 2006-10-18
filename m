@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWJRIFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWJRINm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWJRIFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 04:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWJRIFm
+	id S1751442AbWJRINm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 04:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWJRINm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 04:05:42 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3537 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932094AbWJRIFk (ORCPT
+	Wed, 18 Oct 2006 04:13:42 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:21425 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751442AbWJRINl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 04:05:40 -0400
-Date: Wed, 18 Oct 2006 09:56:54 +0200
+	Wed, 18 Oct 2006 04:13:41 -0400
+Date: Wed, 18 Oct 2006 10:05:19 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: john stultz <johnstul@us.ibm.com>
 Cc: dwalker@mvista.com, Clark Williams <williams@redhat.com>,
        Thomas Gleixner <tglx@linutronix.de>,
        LKML <linux-kernel@vger.kernel.org>
 Subject: Re: hrtimers bug message on 2.6.18-rt4
-Message-ID: <20061018075654.GA1514@elte.hu>
-References: <45214EDC.6060706@redhat.com> <1159811130.5873.5.camel@localhost.localdomain> <1159921845.1979.9.camel@dwalker1.mvista.com> <1159922315.14866.2.camel@localhost>
+Message-ID: <20061018080519.GA4235@elte.hu>
+References: <45214EDC.6060706@redhat.com> <1159811130.5873.5.camel@localhost.localdomain> <1159921845.1979.9.camel@dwalker1.mvista.com> <1159922315.14866.2.camel@localhost> <20061018075654.GA1514@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1159922315.14866.2.camel@localhost>
+In-Reply-To: <20061018075654.GA1514@elte.hu>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-SpamScore: -2.8
 X-ELTE-SpamLevel: 
@@ -37,14 +37,20 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* john stultz <johnstul@us.ibm.com> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> > With ltpstess . It has a settimeofday test which can trigger it. It 
-> > gets called with wild values.
 > 
-> Hmmm... That sounds like a false positive, where Ingo's time warp 
-> checking code isn't resetting on settimeofday() calls.
+> * john stultz <johnstul@us.ibm.com> wrote:
+> 
+> > > With ltpstess . It has a settimeofday test which can trigger it. It 
+> > > gets called with wild values.
+> > 
+> > Hmmm... That sounds like a false positive, where Ingo's time warp 
+> > checking code isn't resetting on settimeofday() calls.
+> 
+> that's weird - clock_was_set() does call time_warp_clock_was_set().
 
-that's weird - clock_was_set() does call time_warp_clock_was_set().
+found it: clock_was_set() is a NOP on !hres, so it doesnt call 
+warp_check_clock_was_changed().
 
 	Ingo

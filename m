@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWJRO5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbWJRPAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbWJRO5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbWJRO5Y
+	id S1161111AbWJRPAY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWJRPAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:57:24 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:38331 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1161084AbWJRO5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:57:23 -0400
-Date: Wed, 18 Oct 2006 08:57:22 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Brian King <brking@us.ibm.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
-Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
-Message-ID: <20061018145722.GP22289@parisc-linux.org>
-References: <20061017145146.GJ22289@parisc-linux.org> <45354A59.3010109@us.ibm.com> <20061018145104.GN22289@parisc-linux.org>
+	Wed, 18 Oct 2006 11:00:24 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45445 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161111AbWJRPAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:00:23 -0400
+Message-ID: <453641DD.1040602@torque.net>
+Date: Wed, 18 Oct 2006 11:01:49 -0400
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018145104.GN22289@parisc-linux.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, emschwar@debian.org, robbat2@gentoo.org
+Subject: [Announce] sg3_utils-1.22 available
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 08:51:04AM -0600, Matthew Wilcox wrote:
-> This reimplementation uses a global wait queue and a bit per device.
-> I've open-coded prepare_to_wait() / finish_wait() as I could optimise
-> it significantly by knowing that the pci_lock protected us at all points.
+sg3_utils is a package of command line utilities for sending
+SCSI (and some ATA) commands to devices. This package targets
+the linux kernel (lk) 2.6 and lk 2.4 series. In the lk 2.6
+series these utilities (except sgp_dd) can be used with any
+devices that support the SG_IO ioctl.
 
-I forgot to report how I've tested it.  Using the 'test' patch from
-yesterday, I have two processes running lspci in an infinite loop.  When
-I write a 1 to /sys/bus/pci/devices/0000\:00\:01.0/block, they both
-halt.  When I write a 0, they both resume.
+This version adds the sg_sat_identify utility. This sends
+an ATA IDENTIFY (PACKET) DEVICE command through a SAT layer
+and can format its response suitable for hdparm ('--Istdin')
+to decode. See the CHANGELOG for more information.
 
-Then I tried doing echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block a
-second time, and I got the WARNing I expected.
+A tarball, rpm and deb can be found at (see table 2):
+http://www.torque.net/sg
+For an overview of sg3_utils see this page:
+http://www.torque.net/sg/sg3_utils.html
+The sg_dd utility has its own page at:
+http://www.torque.net/sg/sg_dd.html
+The SG_IO ioctl is discussed at:
+http://www.torque.net/sg/sg_io.html
+A changelog can be found at:
+http://www.torque.net/sg/p/sg3_utils.CHANGELOG
 
-animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
-animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
-animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
+A release announcement has been sent to freshmeat.net .
 
-They both resumed (as expected; we don't support nesting).
-
-animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
-animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.1/block                     
-animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
-animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.1/block                     
-
-Both resumed only after the second echo 0 (as lspci reads all devices
-before printing anything).
-
-It's not exactly rigorous testing, but I couldn't think of any other
-cases to try.
+Doug Gilbert

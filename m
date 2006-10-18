@@ -1,75 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWJRMQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWJRMXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWJRMQy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 08:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWJRMQy
+	id S1751478AbWJRMXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 08:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWJRMXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 08:16:54 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:20065 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751472AbWJRMQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 08:16:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=hMi5G5kONJ5i/qS9R/W3NfhCI3mBtl9VzIvxmI1y6dSuKo1w0Ta9pZm1Zb1M4dtl+r7ja6oWBRXPXCgyhu3UXPX/ylZUwkIpVnTzK6Cv3pIT4jftpmCC2DyicKsaUW1zKcBkWbs/B6ThcK6cpNrv9b6ZkVTNrewO2h/VC3tmz9k=  ;
-Message-ID: <45361B32.8040604@yahoo.com.au>
-Date: Wed, 18 Oct 2006 22:16:50 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Robin Holt <holt@sgi.com>, suresh.b.siddha@intel.com, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
-Subject: Re: exclusive cpusets broken with cpu hotplug
-References: <20061017192547.B19901@unix-os.sc.intel.com>	<20061018001424.0c22a64b.pj@sgi.com>	<20061018095621.GB15877@lnx-holt.americas.sgi.com> <20061018031021.9920552e.pj@sgi.com>
-In-Reply-To: <20061018031021.9920552e.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 08:23:24 -0400
+Received: from unthought.net ([212.97.129.88]:55302 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751478AbWJRMXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 08:23:22 -0400
+Date: Wed, 18 Oct 2006 14:23:24 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Phetteplace, Thad (GE Healthcare, consultant)" 
+	<Thad.Phetteplace@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bandwidth Allocations under CFQ I/O Scheduler
+Message-ID: <20061018122323.GW23492@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Jens Axboe <jens.axboe@oracle.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Phetteplace, Thad (GE Healthcare, consultant)" <Thad.Phetteplace@ge.com>,
+	linux-kernel@vger.kernel.org
+References: <CAEAF2308EEED149B26C2C164DFB20F4E7EAFE@ALPMLVEM06.e2k.ad.ge.com> <1161048269.3245.26.camel@laptopd505.fenrus.org> <20061017132312.GD7854@kernel.dk> <20061018080030.GU23492@unthought.net> <1161164456.3128.81.camel@laptopd505.fenrus.org> <20061018113001.GV23492@unthought.net> <20061018114913.GG24452@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061018114913.GG24452@kernel.dk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Robin wrote:
+On Wed, Oct 18, 2006 at 01:49:14PM +0200, Jens Axboe wrote:
+> On Wed, Oct 18 2006, Jakob Oestergaard wrote:
+...
+> > I have no idea how much bandwidth my database needs... But I have a
+> > rough idea about how many I/O operations it does for a given operation.
+> > And if I don't, strace can tell me pretty quick :)
 > 
->>Could this be as simple as a CPU_UP_PREPARE or CPU_DOWN_PREPARE
->>removing all the cpu_exclusive cpusets and a CPU_UP_CANCELLED,
->>CPU_DOWN_CANCELLED, CPU_ONLINE, CPU_DEAD going through and
->>partitioning all the cpu_exclusive cpusets.
-> 
-> 
-> Perhaps.
-> 
-> The somewhat related problems, in my book, are:
-> 
->  1) I don't know how to tell what sched domains/groups a system has, nor
->     how to tell my customers how to see what sched domains they have, and
+> That's crazy. So you want a user of this to strace and write a script
+> parsing strace output to tell you possibly how many iops/sec you need?
 
-I don't know if you want customers do know what domains they have. I think
-you should avoid having explicit control over sched-domains in your cpusets
-completely, and just have the cpusets create partitioned domains whenever
-it can.
+Come up with something better then, genious  :)
 
+strace for iops is doable albeit complicated.
+
+Determining MiB/sec requirement for sufficient db performance is
+impossible.
+
+> > 
+> > So, what I'm arguing is; you will not want to specify a fixed sequential
+> > bandwidth for your mp3 player.
+> >
+> > What you want to do is this: Allocate 5 iops/sec for your mp3 player
+> > because either a quick calculation - or - experience has shown that this
+> > is enough for it to keep its buffer from depleting at all times.
 > 
->  2) I suspect that Mr. Cpusets doesn't understand sched domains and that
->     Mr. Sched Domain doesn't understand cpusets, and that we've ended
->     up with some inscrutable and likely unsuitable interactions between
->     the two as a result, which in particular don't result in cpusets
->     driving the sched domain configuration in the desired ways for some
->     of the less trivial configs.
+> But that is the only number that makes sense. To give some sort of soft
+> QOS for bandwidth, you need the file given so the kernel can bring in
+> the meta data (to avoid those seeks) and see how the file is laid out.
+
+Ok I see where you're going. I think it sounds very complicated - for
+the user and for the kernel.
+
+Would you want to limit bandwidth on a per-file or per-process basis?
+You're talking files, above, I was thinking about processes (consumers
+if you like) the whole time.
+
+Have you thought about how this would work in the long run, with many
+files coming into use? The kernel can't have the meta-data cached for
+all files - so the reading-in of metadata would affect the remaining
+available disk performance... 
+
+> For the mp3 case, you should not even need to ask the user anything. The
+> player app knows exactly how much bandwidth it needs and what kind of
+> latency, if can tell from the bitrate of the media.
+
+Agreed. And this holds true for both base metrics, bandwidth or iops/sec.
+
+> What you are arguing
+> for is doing trial and error
+
+Sort-of correct.
+
+> with a magic iops/sec metric that is both
+> hard to understand and impossible to quantify.
+
+iops/sec is what you get from your disks. In real world scenarios. It's
+no more magic than the real world, and no harder to understand than real
+world disks. Although I admit real-world disks can be a bitch at times ;)
+
+My argument is that it is simpler to understand than bandwidth.
+
+Sure, for the streaming file example bandwidth sounds simple. But how
+many real-world applications are like that?  What about databases? What
+about web servers?  What about mail servers?  What about 99% of the
+real-world applications out there that are not streaming audio or video
+players?
+
+> > Limiting on iops/sec rather than bandwidth, is simply accepting that
+> > bandwidth does not make sense (because you cannot know how much of it
+> > you have and therefore you cannot slice up your total capacity), and,
+> > realizing that bandwidth in the scenarios where limiting is interesting
+> > is in reality bound by seeks rather than sequential on-disk throughput.
 > 
->     Well ... at least the first suspcicion above is a near certainty ;).
+> I don't understand your arguments, to be honest. If you can tell the
+> iops/sec rate for a given workload, you can certainly see the bandwidth
+> as well.
 
-cpusets is the only thing that messes with sched-domains (excluding the
-isolcpus -- that seems to require a small change to partition_sched_domains,
-but forget that for now).
+My thesis is, that for most applications it is not the bandwidth you
+care about.
 
-And so you should know what partitioning to build at any point when asked.
-So we could have a call to cpusets at the end of arch_init_sched_domains,
-which asks for the domains to be partitioned, no?
+If I am not right in this, sure, you have a point then. But hey, how
+many of the applications out there are mp3 players?  (in other words;
+please oh please, prove me wrong, I like it :)
+
+> Both iops/sec and bandwidth will vary wildly depending on the
+> workload(s) on the disk.
+
+The total iops/sec "available" from a given disk will not vary a lot,
+compared to how the total bandwidth available from a given disk will
+vary.
+
+...
+> > I can only see a problem with specifying iops/sec in the one scenario
+> > where you have multiple sequential readers or writers, and you want to
+> > distribute bandwidth between them.
+> 
+> If you only have one app doing io, you don't need QOS.
+
+Precisely!
+
+In the *one* case where it is actually possible to implement a QOS
+system based on bandwidth, you don't need QOS.
+
+With more than 1 client, you get seeks, and then bandwidth is no longer
+a sensible measure.
+
+> The thing is, you
+> always have competing apps. Even with only one user space app running,
+> the kernel may still generate io for you.
+
+Sing it brother, sing it!  ;)
+
+> > In all other scenarios, I believe iops/sec is by far a superios way of
+> > describing the ressource allocation. For two reasons:
+> > 1)  It describes what the hardware provides
+> > 2)  By describing a concept based on the real world it may actually be
+> >     possible to implement so that it works as intended
+> 
+> Same arguments. You can't universally state that this disk gives you
+> 80MiB/sec, and you can't universally state that this disk gives you 1000
+> iops/sec.
+
+I agree.
+
+But I would be lying a lot less if I made the claim in iops/sec  :)
+
+They will vary a factor of two or three, depending on their nature.
+
+Bandwidth will vary three to five orders of magnitude depending on the
+nature of the I/O operations issued to the device.
+
+> You need to also define the conditions for when it can provide
+> this performance. So if you instead say this disk does 80MiB/sec if read
+> with at least 8KiB blocks from lba 0 to 50000 sequentially. Or you can
+> state the same with iops/sec.
+
+Yep.
+
+However, for the interface to be useful, it needs two things as I see it
+(and I may well be overlooking something):
+1) It needs to be simple to use
+2) It needs to do what it claims, "well enough"
+
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+ / jakob
+

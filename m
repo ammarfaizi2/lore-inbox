@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWJRIF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWJRIFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWJRIF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 04:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWJRIF2
+	id S932067AbWJRIFn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 04:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWJRIFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 04:05:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49132 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751442AbWJRIF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 04:05:26 -0400
-Date: Wed, 18 Oct 2006 10:05:47 +0200
-From: Jan Kara <jack@suse.cz>
-To: Suzuki K P <suzuki@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, vs@namesys.com,
-       lkml <linux-kernel@vger.kernel.org>, Dale Mosby <k7fw@us.ibm.com>
-Subject: Re: [RFC] Patch to fix reiserfs bad path release panic on 2.6.19-rc1
-Message-ID: <20061018080547.GD19879@atrey.karlin.mff.cuni.cz>
-References: <45357F73.9010302@in.ibm.com>
+	Wed, 18 Oct 2006 04:05:42 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3537 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932094AbWJRIFk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 04:05:40 -0400
+Date: Wed, 18 Oct 2006 09:56:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: dwalker@mvista.com, Clark Williams <williams@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: hrtimers bug message on 2.6.18-rt4
+Message-ID: <20061018075654.GA1514@elte.hu>
+References: <45214EDC.6060706@redhat.com> <1159811130.5873.5.camel@localhost.localdomain> <1159921845.1979.9.camel@dwalker1.mvista.com> <1159922315.14866.2.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45357F73.9010302@in.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1159922315.14866.2.camel@localhost>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-> * fix reiserfs/inode.c : restart_transaction() to release the path in all cases.
+* john stultz <johnstul@us.ibm.com> wrote:
+
+> > With ltpstess . It has a settimeofday test which can trigger it. It 
+> > gets called with wild values.
 > 
-> The restart_transaction() doesn't release the path when the the
-> journal handle has a refcount > 1. This would trigger a
-> reiserfs_panic() if we encounter an -ENOSPC / -EDQUOT in
-> reiserfs_get_block(). 
-  Yes, your analysis seems to be correct. I've looked at places where
-restart_transaction() is called and all expect path to be released.
+> Hmmm... That sounds like a false positive, where Ingo's time warp 
+> checking code isn't resetting on settimeofday() calls.
 
-> Signed-off-by: Suzuki K P <suzuki@in.ibm.com>
-You can add:
-  Signed-off-by: Jan Kara <jack@suse.cz>
+that's weird - clock_was_set() does call time_warp_clock_was_set().
 
-BTW: The more appropriate audience for this patch is at
-reiserfs-list@namesys.com.
-
-								Honza
-
-> Index: linux-2.6.19-rc1/fs/reiserfs/inode.c
-> ===================================================================
-> --- linux-2.6.19-rc1.orig/fs/reiserfs/inode.c	2006-10-12 02:13:12.000000000 -0700
-> +++ linux-2.6.19-rc1/fs/reiserfs/inode.c	2006-10-13 16:38:32.000000000 -0700
-> @@ -216,11 +216,12 @@
->  	BUG_ON(!th->t_trans_id);
->  	BUG_ON(!th->t_refcount);
->  
-> +	pathrelse(path);
-> +
->  	/* we cannot restart while nested */
->  	if (th->t_refcount > 1) {
->  		return 0;
->  	}
-> -	pathrelse(path);
->  	reiserfs_update_sd(th, inode);
->  	err = journal_end(th, s, len);
->  	if (!err) {
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+	Ingo

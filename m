@@ -1,70 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945895AbWJRWfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945898AbWJRWgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945895AbWJRWfU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945898AbWJRWfU
+	id S1945898AbWJRWgV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945899AbWJRWgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:35:20 -0400
-Received: from mail29.messagelabs.com ([216.82.249.147]:21681 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S1945895AbWJRWfT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:35:19 -0400
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-13.tower-29.messagelabs.com!1161210918!32464014!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: kernel oops with extended serial stuff turned on...
-Date: Wed, 18 Oct 2006 17:35:17 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel oops with extended serial stuff turned on...
-Thread-Index: AcbzBOZ3Sp7s95zkTIiU47Rel4wjwAAAA9Yg
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <Greg.Chandler@wellsfargo.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Oct 2006 22:35:18.0351 (UTC) FILETIME=[B03865F0:01C6F305]
+	Wed, 18 Oct 2006 18:36:21 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:44980 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1945898AbWJRWgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 18:36:20 -0400
+Subject: 2.6.19-rc2-mm1 unwinder issues ?
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jan Beulich <jbeulich@novell.com>, ak@suse.de
+Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 15:36:06 -0700
+Message-Id: <1161210966.18117.33.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Hi Andi,
 
-> 
-> I don't understand, what problem is occuring here?  Who is trying to
-> register with sysfs twice?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+I am not getting stack traces properly on 2.6.19-rc2-mm1 again 
+(on my amd64 box).
 
-The original warning/error he gets is:
+Wondering, if the unwinder code changed again ??
 
-> kobject_add failed for ttyM0 with -EEXIST, don't try to register
-things
-> with the same name in the same directory.
+Thanks,
+Badari
 
-Presumably this means that "ttyM0" was already registered with
-sysfs/udev already...
+Without CONFIG_STACK_UNWIND:
+BUG: soft lockup detected on CPU#1!
 
-In my out-of-tree driver's case, I used to use "TTY_DRIVER_NO_DEVFS" as
-a flag.
+Call Trace:
+ <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
+ [<ffffffff8022e10f>] __do_softirq+0x5f/0xd0
+ [<ffffffff80232067>] update_process_times+0x57/0x90
+ [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ <EOI>  [<ffffffff802d9210>] ext3_journal_dirty_data+0x0/0x50
+ [<ffffffff802ea27f>] journal_dirty_data+0x2f/0x200
+ [<ffffffff8048012d>] error_exit+0x0/0x84
+ [<ffffffff802d922d>] ext3_journal_dirty_data+0x1d/0x50
+ [<ffffffff802d84b8>] walk_page_buffers+0x68/0xb0
+ [<ffffffff802d9210>] ext3_journal_dirty_data+0x0/0x50
+ [<ffffffff802db488>] ext3_ordered_commit_write+0x58/0xd0
+ [<ffffffff8024eb29>] generic_file_buffered_write+0x409/0x610
+ [<ffffffff8022d84b>] current_fs_time+0x3b/0x40
+ [<ffffffff8022023c>] task_rq_lock+0x4c/0x90
+ [<ffffffff8024f157>] __generic_file_aio_write_nolock+0x427/0x4b0
+ [<ffffffff8022192c>] try_to_wake_up+0x39c/0x3c0
+ [<ffffffff8021fad4>] __wake_up_common+0x44/0x80
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff8024f247>] generic_file_aio_write+0x67/0xd0
+ [<ffffffff802d7153>] ext3_file_write+0x23/0xc0
+ [<ffffffff802d7130>] ext3_file_write+0x0/0xc0
+ [<ffffffff80271f53>] do_sync_readv_writev+0xc3/0x110
+ [<ffffffff8023d910>] autoremove_wake_function+0x0/0x30
+ [<ffffffff8035c18d>] tty_default_put_char+0x1d/0x30
+ [<ffffffff803618c4>] write_chan+0x374/0x3a0
+ [<ffffffff80271daa>] rw_copy_check_uvector+0x8a/0x130
+ [<ffffffff802726ef>] do_readv_writev+0xef/0x200
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff80272d43>] sys_writev+0x53/0xc0
+ [<ffffffff80209c1e>] system_call+0x7e/0x83
 
-When that flag went away, I did not put in "TTY_DRIVER_DYNAMIC_DEV" by
-mistake,
-and I got the same error as Greg C.
-I had to push in "TTY_DRIVER_DYNAMIC_DEV" to fix my problem...
 
-I don't know much (anything) about the isicom.c driver, so maybe I am
-reading
-something into that error that shouldn't be read into it...
 
-Scott
+
+With CONFIG_STACK_UNWIND:
+
+BUG: soft lockup detected on CPU#2!
+
+Call Trace:
+ [<ffffffff8020b481>] show_trace+0x41/0x70
+ [<ffffffff8020b4c2>] dump_stack+0x12/0x20
+ [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
+ [<ffffffff802322e7>] update_process_times+0x57/0x90
+ [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ [<0000000000000010>]
+
+

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWJROcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWJROey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWJROcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWJROcY
+	id S1161029AbWJROey (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWJROey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:32:24 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:16369 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1161036AbWJROcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:32:23 -0400
-Subject: Re: [PATCH -rt] powerpc update
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, tglx@linutronix.de,
-       mgreer@mvista.com, sshtylyov@ru.mvista.com
-In-Reply-To: <20061018072858.GA29576@elte.hu>
-References: <20061003155358.756788000@dwalker1.mvista.com>
-	 <20061018072858.GA29576@elte.hu>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 07:32:21 -0700
-Message-Id: <1161181941.23082.32.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	Wed, 18 Oct 2006 10:34:54 -0400
+Received: from mga05.intel.com ([192.55.52.89]:42247 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161029AbWJROex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:34:53 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,325,1157353200"; 
+   d="scan'208"; a="5144903:sNHT376247061"
+Date: Wed, 18 Oct 2006 07:14:47 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Paul Jackson <pj@sgi.com>, Robin Holt <holt@sgi.com>,
+       suresh.b.siddha@intel.com, dino@in.ibm.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
+       rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-ID: <20061018071447.A25760@unix-os.sc.intel.com>
+References: <20061017192547.B19901@unix-os.sc.intel.com> <20061018001424.0c22a64b.pj@sgi.com> <20061018095621.GB15877@lnx-holt.americas.sgi.com> <20061018031021.9920552e.pj@sgi.com> <45361B32.8040604@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <45361B32.8040604@yahoo.com.au>; from nickpiggin@yahoo.com.au on Wed, Oct 18, 2006 at 10:16:50PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 09:28 +0200, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+On Wed, Oct 18, 2006 at 10:16:50PM +1000, Nick Piggin wrote:
+> Paul Jackson wrote:
+> >  1) I don't know how to tell what sched domains/groups a system has, nor
+
+Paul, atleast for debugging one can know that by defining SCHED_DOMAIN_DEBUG
+
+> >     how to tell my customers how to see what sched domains they have, and
 > 
-> > Pay close attention to the fasteoi interrupt threading. I added usage 
-> > of mask/unmask instead of using level handling, which worked well on 
-> > PPC.
+> I don't know if you want customers do know what domains they have. I think
+
+At the first glance, I have to agree with Nick. All the customer wants is a
+mechanism to specify group these cpus together for scheduling...
+
+But looking at how cpusets interact with sched-domains and especially for
+large systems, it will probably be useful if we export the topology through /sys
+
+> cpusets is the only thing that messes with sched-domains (excluding the
+> isolcpus -- that seems to require a small change to partition_sched_domains,
+> but forget that for now).
 > 
-> this is wrong - it should be doing mask+ack.
+> And so you should know what partitioning to build at any point when asked.
+> So we could have a call to cpusets at the end of arch_init_sched_domains,
+> which asks for the domains to be partitioned, no?
 
-The main reason I did it this way is cause the current threaded eoi
-expected the line to be masked. So if you happen to have a eoi that's
-threaded you get a warning then the interrupt hangs. 
+yes.
 
-> also note that you changed:
+Robin, Right now everyone is calling arch_init_sched_domain() with
+cpu_online_map. We can remove this argument and in the presence of cpusets,
+this routine can go through exclusive cpusets and partition the domains
+accordinly. Otherwise we can simply build one domain partition with
+cpu_online_map.
 
-> > -		goto out_unlock;
-> 
-> to:
-> 
-> > +		goto out;
-> 
-> and you even tried to hide your tracks:
-
-hiding something? I made note of these changes specifically so you would
-review them.
-
-Daniel
-
+thanks,
+suresh

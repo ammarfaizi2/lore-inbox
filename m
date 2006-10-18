@@ -1,110 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWJRHBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWJRHFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWJRHBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 03:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWJRHBU
+	id S1750849AbWJRHFg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 03:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWJRHFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 03:01:20 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:36777 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1750743AbWJRHBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 03:01:20 -0400
-Date: Wed, 18 Oct 2006 08:01:17 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet.skynet.ie
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Ryan Richter <ryan@tau.solarneutrino.net>
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-In-Reply-To: <4535CFB1.2010403@tungstengraphics.com>
-Message-ID: <Pine.LNX.4.64.0610180800150.16077@skynet.skynet.ie>
-References: <20061013194516.GB19283@tau.solarneutrino.net>
- <1160849723.3943.41.camel@neko.keithp.com> <20061017174020.GA24789@tau.solarneutrino.net>
- <1161124062.25439.8.camel@neko.keithp.com> <4535CFB1.2010403@tungstengraphics.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 18 Oct 2006 03:05:36 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43175 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750843AbWJRHFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 03:05:35 -0400
+Date: Wed, 18 Oct 2006 00:05:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: suresh.b.siddha@intel.com, dino@in.ibm.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
+       rohitseth@google.com, dipankar@in.ibm.com, nickpiggin@yahoo.com.au
+Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
+Message-Id: <20061018000512.1d13aabd.pj@sgi.com>
+In-Reply-To: <20061017190144.A19901@unix-os.sc.intel.com>
+References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com>
+	<20061017114306.A19690@unix-os.sc.intel.com>
+	<20061017121823.e6f695aa.pj@sgi.com>
+	<20061017190144.A19901@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suresh wrote:
+> > What happens then is that the job manager marks the cpuset of this
+> > newly activated job as being a sched_domain.
+> 
+> With your patch, that will fail because there is already a cpuset defining
+> a sched domain and which overlaps with the one that is becoming active.
 
-Does the DRM git tree work would also be interesting,...
+No, this does not fail.  The job manager also turned off the other cpusets
+sched_domain flag, because that job went inactive.
 
-I haven't merged up Michel's drawable/blank changes for 2.6.19 as they 
-were much too new for it, but do we have a backwards compat issue perhaps 
-or something similiar?
+The job manager does not run active jobs on overlapping CPUs.  It marks
+the cpusets of only the active jobs as sched domains, and turns off the
+sched_domain flag on the cpusets of the inactive jobs.
 
-Dave.
+> So job manager need to set/reset these flags when ever jobs in overlaping
+> cpusets become active/inactive. Is that where you are going with this patch?
 
-On Wed, 18 Oct 2006, Keith Whitwell wrote:
+Yes.  Jobs don't go active or inactive all that often, and when they do,
+the job manager expects to do a fair bit of work to reassign the CPU
+and Memory resources to the newly activated job.
 
-> This is all a little confusing as the driver doesn't really use that
-> path in normal operation except for a single command - MI_FLUSH, which
-> is shared between the architectures.  In normal operation the hardware
-> does the validation for us for the bulk of the command stream.  If there
->  were missing functionality in that ioctl, it would be failing
-> everywhere, not just in this one case.
->
-> I guess the questions I'd have are
-> 	- did the driver work before the kernel upgrade?
-> 	- what path in userspace is seeing you end up in this ioctl?
-> 	- and like Keith, what commands are you seeing?
->
-> The final question is interesting not because we want to extend the
-> ioctl to cover those, but because it will give a clue how you ended up
-> there in the first place.
->
-> Keith
->
-> Keith Packard wrote:
->> On Tue, 2006-10-17 at 13:40 -0400, Ryan Richter wrote:
->>
->>> So do I want something like
->>>
->>>
->>> static int do_validate_cmd(int cmd)
->>> {
->>> 	return 1;
->>> }
->>>
->>> in i915_dma.c?
->>
->> that will certainly avoid any checks. Another alternative is to printk
->> the cmd which fails validation so we can see what needs adding here.
->>
->>
->>
->> ------------------------------------------------------------------------
->>
->> -------------------------------------------------------------------------
->> Using Tomcat but need to do more? Need to support web services, security?
->> Get stuff done quickly with pre-integrated technology to make your job easier
->> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
->> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
->>
->>
->> ------------------------------------------------------------------------
->>
->> --
->> _______________________________________________
->> Dri-devel mailing list
->> Dri-devel@lists.sourceforge.net
->> https://lists.sourceforge.net/lists/listinfo/dri-devel
->
->
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
->
+For example, one job might have to be inactivated before completion
+because some other job of higher or more urgent priority has come along
+and should get those resources.
+
+For a more specific example, one might have three small jobs, on three
+small, non-overlapping cpusets, that have to be made inactive to run one
+larger job using the combined resources of those cpusets, as one larger
+cpuset.  If say the jobs were CPU bound, but didn't need all the memory
+on those nodes, it might be desirable to just inactivate the three
+small jobs inplace, define a new cpuset that contains the union of the
+three small cpusets, and run the new, larger, higher priority job
+there.  Then when that new big job finishes, reactivate the original
+three small jobs, which would include tearing down the one big cpuset,
+and re-enabling the sched_domain flag on the three small cpusets.
+
+> Once the sched domains are partitioned, there is no interaction/scheduling
+> happening between those partitions.
+
+Ok ...
+
+Is there anyway to determine, on a running system, what sched domains
+and groups are present?
+
+Given the difficulty I am having predicting what sched domains will
+result from a particular setup, as well as your parallel thread on the
+problems with the interaction of cpu_hotplug and sched domains, it
+would seem that it is not easy for others to know how a running systems
+sched domains are layed out.
+
+Does a sched domain configuration depend on the order in which the
+partition_sched_domains() calls are made?  If so, wouldn't this make it
+difficult to determine the actual sched domain configuration of a live
+system?
+
+How would -you- determine the sched domains defined on a live system?
+
+How would you advise me to explain to my users how to determine this?
+
+> > If you put a task in cpuset "cs1" (not in one of the sub cpusets)
+> > then it can't load balance between CPUs 0-3 and CPUs 4-7 (or can't
+> > load balance as often - depending on how this works.)
+> 
+> hmm... tasks in "cs1" won't properly be balanced between 0-7cpus..
+
+er eh - yes - like I just said.
+
+> In this case, shouldn't we remove cpus0-3 from "cs1" cpus_allowed?
+
+No, you missed my point.  The point of my example wasn't to show how to
+do this right.  It was to show that even the existing cpu_exclusive
+flag lets one create sched domains configurations that might not be
+what one wanted.
+
+If the basis for your objections to my patch was that one could create
+bogus sched domain configurations, I claim that's nothing new.  What's
+more it is not a valid objection.  Most kernel facilities let one do
+bogus things.  What matters is that people can understand what they are
+doing and can figure out how to get the kernel to do useful things.
+
+We are not designing scheduler internals here, where the kernel is left
+pretty much on its own to do the best it can, with a generous dose of
+magic and heuristics.  We are designing kernel-user API's, which should
+be transparent, repeatable and predictable.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

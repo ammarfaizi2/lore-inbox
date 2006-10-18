@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWJRPku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161184AbWJRPol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161169AbWJRPku (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWJRPku
+	id S1161184AbWJRPol (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWJRPol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:40:50 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:31905 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1161169AbWJRPkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:40:49 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Sebastian Biallas <sb@biallas.net>
-Subject: Re: PCI-DMA: Disabling IOMMU
-Date: Wed, 18 Oct 2006 17:41:03 +0200
-User-Agent: KMail/1.9.5
-References: <45364248.2020901@biallas.net>
-In-Reply-To: <45364248.2020901@biallas.net>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 18 Oct 2006 11:44:41 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:19882 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1161184AbWJRPok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:44:40 -0400
+Date: Wed, 18 Oct 2006 11:44:26 -0400
+From: Chris Mason <chris.mason@oracle.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Zach Brown <zach.brown@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: AIO, DIO fsx tests failures on 2.6.19-rc1-mm1
+Message-ID: <20061018154426.GE16570@think.oraclecorp.com>
+References: <1161013338.32606.2.camel@dyn9047017100.beaverton.ibm.com> <4533C6A1.40203@oracle.com> <1161021586.32606.6.camel@dyn9047017100.beaverton.ibm.com> <4533E7E2.6010506@oracle.com> <1161031099.32606.14.camel@dyn9047017100.beaverton.ibm.com> <20061016135910.be11a2dc.akpm@osdl.org> <453559D5.4000809@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1886508.S28QdfIql7";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610181741.03428.prakash@punnoor.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453559D5.4000809@us.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1886508.S28QdfIql7
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Oct 17, 2006 at 03:31:49PM -0700, Badari Pulavarty wrote:
+> Okay. Finally tracked down the problem I am running into.
+> This happens only on reiserfs
+> 
+> # /root/fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
+> jnk
+> mapped writes DISABLED
+> doread: read: Invalid argument
+> Segmentation fault
+> 
+> Here is the strace for it
+> ..
+> ftruncate(3, 2721)                      = 0
+> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+> lseek(3, 0, SEEK_END)                   = 2721
+> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+> lseek(3, 0, SEEK_END)                   = 2721
+> fstat(3, {st_mode=S_IFREG|0644, st_size=2721, ...}) = 0
+> lseek(3, 0, SEEK_END)                   = 2721
+> lseek(3, 0, SEEK_SET)                   = 0
+> read(3, 0x50a800, 2048)                 = -1 EINVAL (Invalid argument)
+> 
+> reiserfs getblock() is returing -EINVAL. There is comment in the code
+> about tail handling and returning EINVAL. BTW, this is not a -mm
+> issue, it happens on mainline too...
 
-Am Mittwoch 18 Oktober 2006 17:03 schrieben Sie:
-> Hi,
->
-> Linux ouputs some strange "PCI-DMA: Disabling IOMMU" on booting. It's a
-> ALiveNF4G motherboard with an Athlon64 X2 running vanilla Linux 2.6.18.1
-> (which supports all hardware out of the box, pretty cool).
->
-> Should I worry about this IOMMU-disabling? All other Linux/IOMMU stuff I
-> found had AGP or BIOS messages nearby, but I only get this single
-> "PCI-DMA: Disabling IOMMU" line, without any hint.
+Yes, reiserfs doesn't allow O_DIRECT on tails.  You'll have to mount -o
+notail for this test.
 
-Unless you have >=3D4GB of RAM using IOMMU makes no sense, thus it gets=20
-disabled.
-
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart1886508.S28QdfIql7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFNksPxU2n/+9+t5gRAgznAKCkz3KCZ5z/7PQp3U3PcTqM8hQ1cwCg1j8T
-Uke/5HJpwt6bH5SvnDd+Gg4=
-=h+ta
------END PGP SIGNATURE-----
-
---nextPart1886508.S28QdfIql7--
+-chris

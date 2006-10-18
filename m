@@ -1,148 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422799AbWJRUHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWJRUHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422799AbWJRUHH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWJRUGt
+	id S1422663AbWJRUHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422808AbWJRUHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:06:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6373 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932131AbWJRUGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:06:44 -0400
-Date: Wed, 18 Oct 2006 13:02:38 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: [GIT PATCH] PCI and PCI hotplug fixes for 2.6.19-rc2
-Message-ID: <20061018200238.GA29443@kroah.com>
+	Wed, 18 Oct 2006 16:07:51 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:54321 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422663AbWJRUHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 16:07:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=UilPx1JuW88vp6lRIbsCEVoon1m41GxoWH7iinNj37Jx3Z8wQGzp5Xv6o9TF/m3dTnmyYhFiurEqZ5TbjBFXDHHLfxBHwXmZlSrAApAA8rs1icU6pX2Q5qvvLJUzmJLkrYxs+ul1+uVX4PcsKcuC/7I61MHlVeGNstAnGxio4vo=
+Message-ID: <84144f020610181307r7566aa2bp3d7f31388574d457@mail.gmail.com>
+Date: Wed, 18 Oct 2006 23:07:33 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Russell Cattelan" <cattelan@thebarn.com>
+Subject: Re: Re: [xfs-masters] Re: [PATCH] fs/xfs: Handcrafted MIN/MAX macro removal
+Cc: "Amol Lad" <amol@verismonetworks.com>,
+       "linux kernel" <linux-kernel@vger.kernel.org>, xfs@oss.sgi.com
+In-Reply-To: <1161193885.5723.168.camel@xenon.msp.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <1161169068.20400.149.camel@amol.verismonetworks.com>
+	 <1161193885.5723.168.camel@xenon.msp.redhat.com>
+X-Google-Sender-Auth: c8bcb055ea22d5ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some PCI and PCI hotplug patches for 2.6.19-rc2, and a single
-PnP fix too.
+On 10/18/06, Russell Cattelan <cattelan@thebarn.com> wrote:
+> This change doesn't seem to do anything?
 
-Big things here include the ability to now build pci hotplug drivers
-outside of the main kernel tree, and the change of the PCI Hotplug
-subsystem maintainer to Kristen Carlson Accardi, as she has done such a
-great job with it in the past.
-
-All of these patches have been in the -mm tree for a while.
-
-Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-
-The full patches will be sent to the linux-pci mailing list, if anyone
-wants to see them.
-
-thanks,
-
-greg k-h
-
- Documentation/MSI-HOWTO.txt                        |   63 ++++++++++++
- Documentation/kernel-parameters.txt                |    5 +
- MAINTAINERS                                        |    4 -
- arch/i386/pci/common.c                             |   59 +++++++++++
- arch/i386/pci/fixup.c                              |   45 ---------
- arch/i386/pci/pci.h                                |    7 +
- drivers/pci/hotplug/acpi_pcihp.c                   |    2 
- drivers/pci/hotplug/acpiphp.h                      |    2 
- drivers/pci/hotplug/acpiphp_core.c                 |    2 
- drivers/pci/hotplug/acpiphp_glue.c                 |    2 
- drivers/pci/hotplug/acpiphp_ibm.c                  |    1 
- drivers/pci/hotplug/cpci_hotplug_core.c            |    2 
- drivers/pci/hotplug/cpci_hotplug_pci.c             |    2 
- drivers/pci/hotplug/cpcihp_generic.c               |    4 -
- drivers/pci/hotplug/cpqphp.h                       |    1 
- drivers/pci/hotplug/cpqphp_core.c                  |    1 
- drivers/pci/hotplug/cpqphp_ctrl.c                  |    1 
- drivers/pci/hotplug/cpqphp_nvram.c                 |    1 
- drivers/pci/hotplug/cpqphp_pci.c                   |    1 
- drivers/pci/hotplug/cpqphp_sysfs.c                 |    1 
- drivers/pci/hotplug/fakephp.c                      |   13 ++-
- drivers/pci/hotplug/ibmphp.h                       |    2 
- drivers/pci/hotplug/pci_hotplug_core.c             |   11 +-
- drivers/pci/hotplug/pciehp.h                       |   11 +-
- drivers/pci/hotplug/pciehp_core.c                  |    6 +
- drivers/pci/hotplug/pciehp_ctrl.c                  |  104 +++++++++++---------
- drivers/pci/hotplug/pciehp_hpc.c                   |    2 
- drivers/pci/hotplug/pcihp_skeleton.c               |    2 
- drivers/pci/hotplug/rpadlpar_sysfs.c               |    2 
- drivers/pci/hotplug/rpaphp_core.c                  |    2 
- drivers/pci/hotplug/sgi_hotplug.c                  |    2 
- drivers/pci/hotplug/shpchp.h                       |    4 -
- drivers/pci/hotplug/shpchp_hpc.c                   |   82 ++++++++++------
- drivers/pci/msi.c                                  |   16 ++-
- drivers/pci/pcie/portdrv.h                         |    4 +
- drivers/pci/pcie/portdrv_core.c                    |    3 -
- drivers/pci/pcie/portdrv_pci.c                     |    2 
- drivers/pci/probe.c                                |   92 ++++++++++++++++++
- drivers/pci/quirks.c                               |   97 +++++++++++++++++--
- drivers/pci/rom.c                                  |    5 +
- drivers/pci/search.c                               |   72 +++++++++++++-
- drivers/pnp/pnpacpi/rsparser.c                     |   41 +++++---
- include/linux/pci.h                                |    4 +
- .../pci/hotplug => include/linux}/pci_hotplug.h    |    2 
- 44 files changed, 584 insertions(+), 203 deletions(-)
- rename drivers/pci/hotplug/pci_hotplug.h => include/linux/pci_hotplug.h (99%)
-
----------------
-
-Akinobu Mita:
-      cpcihp_generic: prevent loading without "bridge" parameter
-
-Alan Cox:
-      pci: Stamp out pci_find_* usage in fakephp
-      PCI: quirks: switch quirks code offender to use pci_get API
-      pci: Additional search functions
-
-Amol Lad:
-      PCI hotplug: ioremap balanced with iounmap
-
-Andrew Morton:
-      PCI: pcie-check-and-return-bus_register-errors fix
-
-Brice Goglin:
-      PCI: Improve pci_msi_supported() comments
-      PCI: Update MSI-HOWTO.txt according to pci_msi_supported()
-
-Daniel Drake:
-      PCI: VIA IRQ quirk behaviour change
-
-Daniel Ritz:
-      PCI: add ICH7/8 ACPI/GPIO io resource quirks
-
-eiichiro.oiwa.nm@hitachi.com:
-      PCI: Turn pci_fixup_video into generic for embedded VGA
-
-Eric Sesterhenn:
-      pciehp: Remove unnecessary check in pciehp_ctrl.c
-
-Greg Kroah-Hartman:
-      PCI Hotplug: move pci_hotplug.h to include/linux/
-
-Kenji Kaneshige:
-      shpchp: fix shpchp_wait_cmd in poll
-      pciehp: fix improper info messages
-      pciehp - add missing locking
-      shpchp: fix command completion check
-      shpchp: remove unnecessary cmd_busy member from struct controller
-
-Kristen Carlson Accardi:
-      change pci hotplug subsystem maintainer to Kristen
-
-Matt Domsch:
-      PCI: optionally sort device lists breadth-first
-
-Vojtech Pavlik:
-      Fix DMA resource allocation in ACPIPnP
-
-Zhang, Yanmin:
-      PCI: fix pcie_portdrv_restore_config undefined without CONFIG_PM error
-
+It kills useless wrappers from kernel code making it easier to read
+and maintain for _Linux_ developers.

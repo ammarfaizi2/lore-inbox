@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWJRE0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWJRE0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWJRE0M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 00:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWJRE0L
+	id S932075AbWJRE0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 00:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWJRE0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 00:26:11 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:27866 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932072AbWJRE0I (ORCPT
+	Wed, 18 Oct 2006 00:26:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10900 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932075AbWJRE0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 00:26:08 -0400
-Subject: Re: [PATCH 1/1] lseek - SEEK_HOLE/SEEK_DATA support
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Eric L <e.codemonkey@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <946a3fda0610171929m5b656be8r60c3e3241062ad27@mail.gmail.com>
-References: <946a3fda0610161830u2070c903h7faa93d2dda3786f@mail.gmail.com>
-	 <1161092211.14171.22.camel@kleikamp.austin.ibm.com>
-	 <946a3fda0610171929m5b656be8r60c3e3241062ad27@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 17 Oct 2006 23:26:00 -0500
-Message-Id: <1161145562.23979.5.camel@kleikamp.austin.ibm.com>
+	Wed, 18 Oct 2006 00:26:50 -0400
+Date: Wed, 18 Oct 2006 00:26:39 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: airlied@linux.ie
+Subject: [DRM] fix return code in error case.
+Message-ID: <20061018042639.GA7437@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, airlied@linux.ie
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-17 at 21:29 -0500, Eric L wrote:
+The other failure returns in this function are negative, so make
+this one do the same.
 
-> > vfs_lseek.patch:
-> >
-> > Can you add definititions of SEEK_HOLE and SEEK_DATA to fs.h?  I really
-> > don't like that the code doesn't use the symbolic constants.
-> >
-> 
-> Agreed.  When I originally wrote it against 2.6.17.7, I couldn't find
-> any precedent for adding such defines, but I see they are in 2.6.18.1
-> at least.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Yeah, I realize the original code used 1 & 2, but this is a good
-opportunity to improve that.
+diff --git a/drivers/char/drm/savage_state.c b/drivers/char/drm/savage_state.c
+index ef2581d..1ca1e9c 100644
+--- a/drivers/char/drm/savage_state.c
++++ b/drivers/char/drm/savage_state.c
+@@ -994,7 +994,7 @@ int savage_bci_cmdbuf(DRM_IOCTL_ARGS)
+ 	if (cmdbuf.size) {
+ 		kcmd_addr = drm_alloc(cmdbuf.size * 8, DRM_MEM_DRIVER);
+ 		if (kcmd_addr == NULL)
+-			return ENOMEM;
++			return DRM_ERR(ENOMEM);
+ 
+ 		if (DRM_COPY_FROM_USER(kcmd_addr, cmdbuf.cmd_addr,
+ 				       cmdbuf.size * 8))
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
 
-> 
-> Thanks for the comments.  I've made these changes.  Should I resubmit
-> it to the mailing list (inline this time)?
-
-Yeah, that would be great.  You may get a bigger response if you cc'ed
-linux-kernel@vger.kernel.org as well.
-
-> - Eric
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+http://www.codemonkey.org.uk

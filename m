@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422749AbWJRSLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWJRSMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422749AbWJRSLF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 14:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWJRSLE
+	id S1422751AbWJRSMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422750AbWJRSMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 14:11:04 -0400
-Received: from mga05.intel.com ([192.55.52.89]:22863 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1422749AbWJRSLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 14:11:02 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,325,1157353200"; 
-   d="scan'208"; a="148487454:sNHT3209907477"
-Date: Wed, 18 Oct 2006 10:50:35 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com,
-       nickpiggin@yahoo.com.au
-Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
-Message-ID: <20061018105035.B26521@unix-os.sc.intel.com>
-References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com> <20061017114306.A19690@unix-os.sc.intel.com> <20061017121823.e6f695aa.pj@sgi.com> <20061017190144.A19901@unix-os.sc.intel.com> <20061018000512.1d13aabd.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061018000512.1d13aabd.pj@sgi.com>; from pj@sgi.com on Wed, Oct 18, 2006 at 12:05:12AM -0700
+	Wed, 18 Oct 2006 14:12:43 -0400
+Received: from av2.karneval.cz ([81.27.192.122]:12860 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1422751AbWJRSMm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:12:42 -0400
+Message-ID: <45366D12.3070200@gmail.com>
+Date: Wed, 18 Oct 2006 20:06:10 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: "J. Bruce Fields" <bfields@fieldses.org>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Sven Hoexter <shoexter@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [REGRESSION] nfs client: Read-only file system (2.6.19-rc1,2)
+References: <4534F59D.4040505@gmail.com> <1161104051.5559.5.camel@lade.trondhjem.org> <eh4hhb$sp7$1@sea.gmane.org> <4535EB4F.4070406@gmail.com> <45364C51.2000004@gmail.com> <1161192121.6095.58.camel@lade.trondhjem.org> <453667F1.4040504@gmail.com> <20061018180233.GF5374@fieldses.org>
+In-Reply-To: <20061018180233.GF5374@fieldses.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 12:05:12AM -0700, Paul Jackson wrote:
-> Suresh wrote:
-> > > What happens then is that the job manager marks the cpuset of this
-> > > newly activated job as being a sched_domain.
-> > 
-> > With your patch, that will fail because there is already a cpuset defining
-> > a sched domain and which overlaps with the one that is becoming active.
+J. Bruce Fields wrote:
+> On Wed, Oct 18, 2006 at 07:44:17PM +0200, Jiri Slaby wrote:
+>> Trond Myklebust wrote:
+>>> I'll bet that you have always had a subdirectory of the exact same
+>>> filesystem mounted somewhere else ro, right?
+>> Yup, exactly: /usr -ro and /home -rw on the same (hda3) partition.
 > 
-> No, this does not fail.  The job manager also turned off the other cpusets
-> sched_domain flag, because that job went inactive.
-> 
-> The job manager does not run active jobs on overlapping CPUs.  It marks
-> the cpusets of only the active jobs as sched domains, and turns off the
-> sched_domain flag on the cpusets of the inactive jobs.
+> Just out of curiosity--why are you doing that?
 
-So why can't the job manager remove the cpus from inactive cpusets and add
-it to the cpuset that job manager is interested in.
+Not me :). I do not admin that machine.
 
-Not sure what additional functionality your are adding here.
-
-> > In this case, shouldn't we remove cpus0-3 from "cs1" cpus_allowed?
-> 
-> No, you missed my point.  The point of my example wasn't to show how to
-> do this right.  It was to show that even the existing cpu_exclusive
-> flag lets one create sched domains configurations that might not be
-> what one wanted.
-
-I agree with your point. Lets take this out of discussion for now.
+> On the linux server, at least, that doesn't really prevent writing to
+> /usr unless you've also turned on subtree checking.  And subtree
+> checking causes other problems.
 
 thanks,
-suresh
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

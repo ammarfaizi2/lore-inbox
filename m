@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161293AbWJRTYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161313AbWJRT0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161293AbWJRTYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWJRTYO
+	id S1161313AbWJRT0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161310AbWJRT0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:24:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:45936 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161293AbWJRTYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:24:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=P65EdhCJxX9K0tdmsX3uj6nttTek71j+v9q8bTOukMCXUVoGGA8f9zp2/jUkpdk2Kr24mN2JTyZ/7f4JdxnUFo3Oc2YBNQZd6hkeLbE34n3Xa1EE+DdFPfLZ/tkt33XLo9zY4gNktVoCYYCV0ERAt+fpVdggaiPlmsb/cOVC3vg=
-Date: Wed, 18 Oct 2006 23:24:04 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: Re: [PATCH] OOM killer meets userspace headers
-Message-ID: <20061018192404.GE5345@martell.zuzino.mipt.ru>
-References: <20061018145305.GA5345@martell.zuzino.mipt.ru> <453642D1.1010302@yahoo.com.au> <20061018184655.GC5345@martell.zuzino.mipt.ru> <45367C93.3040804@yahoo.com.au>
+	Wed, 18 Oct 2006 15:26:35 -0400
+Received: from pat.uio.no ([129.240.10.4]:62635 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161313AbWJRT0e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 15:26:34 -0400
+Subject: Re: NFS inconsistent behaviour
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: Mohit Katiyar <katiyar.mohit@gmail.com>, linux-kernel@vger.kernel.org,
+       Linux NFS mailing list <nfs@lists.sourceforge.net>
+In-Reply-To: <20061018183807.GA12018@janus>
+References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
+	 <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com>
+	 <20061016084656.GA13292@janus>
+	 <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com>
+	 <20061016093904.GA13866@janus>
+	 <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
+	 <20061018063945.GA5917@janus> <1161194229.6095.81.camel@lade.trondhjem.org>
+	 <20061018183807.GA12018@janus>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 15:26:20 -0400
+Message-Id: <1161199580.6095.112.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45367C93.3040804@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.687, required 12,
+	autolearn=disabled, AWL 1.31, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 05:12:19AM +1000, Nick Piggin wrote:
-> Alexey Dobriyan wrote:
-> >On Thu, Oct 19, 2006 at 01:05:53AM +1000, Nick Piggin wrote:
-> >
-> >>>+#define OOM_ADJUST_MIN (-16)
-> >>>+#define OOM_ADJUST_MAX 15
-> >>
-> >>Why do you need the () for the -ves?
-> >
-> >
-> >-16 is two tokens. Not that someone is going to do huge arithmetic with
-> >OOM adjustments and screwup himself, but still...
-> 
-> How can they screw themselves up? AFAIKS, the - directly to the left
-> of the literal will bind more tightly than any other valid operator.
+On Wed, 2006-10-18 at 20:38 +0200, Frank van Maarseveen wrote:
+> I ran out of privileged ports due to treemounting on /net from about 50
+> servers. The autofs program map for this uses the "showmount" command and
+> that one apparently uses privileged ports too (buried inside RPC client
+> libs part of glibc IIRC). The combination broke autofs and a number of
+> other services because there were no privileged ports left anymore.
 
-Hmmm... c.l.c lists two reasons: a) =- being synonym of -= in pre-ANSI
-days, and b) fat fingers
+Yeah. The RPC library appears to always try to grab a privileged port if
+it can. One solution would be to have the autofs scripts drop all
+privileges before calling showmount.
 
-	#define EOF -1
-	while ((c = getchar()) != 3 EOF)
+I suppose we could also change the showmount program to create a socket
+that is bound to an unprivileged port, then use
+clnttcp_create()/clntudp_create().
+
+We could probably do the same in the "mount" program when doing things
+like interrogating the portmapper, probing for rpc ports etc. The only
+case where mount might actually need to use a privileged port is when
+talking to mountd. Even then, it could be trained to first try using an
+unprivileged port.
+
+Cheers,
+  Trond
 

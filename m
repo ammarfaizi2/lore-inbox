@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423143AbWJRXBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423142AbWJRXEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423143AbWJRXBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWJRXBT
+	id S1423142AbWJRXEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWJRXEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:01:19 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:46470 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423138AbWJRXBS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:01:18 -0400
-Subject: Re: 2.6.19-rc2-mm1
-From: Badari Pulavarty <pbadari@us.ibm.com>
+	Wed, 18 Oct 2006 19:04:51 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:18128 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1423142AbWJRXEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 19:04:50 -0400
+Date: Thu, 19 Oct 2006 01:04:42 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061018154402.ef49874a.akpm@osdl.org>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
-	 <45364CE9.7050002@yahoo.com.au>
-	 <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
-	 <45366515.4050308@yahoo.com.au>
-	 <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
-	 <20061018154402.ef49874a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 16:01:05 -0700
-Message-Id: <1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm1
+In-Reply-To: <Pine.LNX.4.64.0610190055440.29022@twin.jikos.cz>
+Message-ID: <Pine.LNX.4.64.0610190103190.29022@twin.jikos.cz>
+References: <20061016230645.fed53c5b.akpm@osdl.org> <453675A6.9080001@googlemail.com>
+ <Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz> <20061018152947.bb404481.akpm@osdl.org>
+ <Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz> <20061018154636.2317059a.akpm@osdl.org>
+ <Pine.LNX.4.64.0610190055440.29022@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 15:44 -0700, Andrew Morton wrote:
-> On Wed, 18 Oct 2006 10:58:23 -0700
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> 
-> > > > No. seems to be generic issue .. (happens with ext3 also) :(
-> > > 
-> > > I think I may have missed a fix for ext3 ordered and journalled too
-> > > (I've just sent a patch to Andrew privately).
-> > > 
-> > > Sorry. Can you try with ext2? Alternatively, try with ext3 or reiserfs
-> > > and change the line in mm/filemap.c:generic_file_buffered_write from
-> > > 
-> > > 		status = a_ops->commit_write(file, page, offset, offset+copied);
-> > > to
-> > > 		status = a_ops->commit_write(file, page, offset, offset+bytes);
-> > > 
-> > > and see if that solves your problem (that will result in rubbish being
-> > > temporarily visible, but there is a similar problem upstream anyway, so it
-> > > shouldn't cause other failures in your test).
-> > 
-> > No. Above change didn't help either :(
-> > 
-> > Thanks,
-> > Badari
-> > 
-> > BUG: soft lockup detected on CPU#1!
-> 
-> We should have got an all-CPU backtrace via the fancy new trigger_all_cpu_backtrace()
-> thing.
+On Thu, 19 Oct 2006, Jiri Kosina wrote:
 
-Yes. Thought so..
+>  void i_size_write(struct inode *inode, loff_t i_size)
+>  {
+> -	WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
+> +	/* calling us without i_mutex is OK when not connected to dentry yet */
+> +	if (list_empty(&inode->i_dentry))
+> +		WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
+>  #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
+>  	write_seqcount_begin(&inode->i_size_seqcount);
+>  	inode->i_size = i_size;
+> diff --git a/fs/namei.c b/fs/namei.c
 
-> 
-> Is the NMI watchdog ticking over?
+This if of course bogus, the one below should be better, sorry
 
-I think so.
+[PATCH] Fix spurious warning in i_size_write
 
-# dmesg | grep NMI
-ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
-ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
-testing NMI watchdog ... OK.
+i_size_write() can be legitimately called without inode->i_mutex locked.
+This is OK in cases when the inode has not been yet linked into
+the parent dentry, so no race condition on i_size can occur.
 
-Thanks,
-Badari
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
 
+--- 
+
+ fs/inode.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/fs/inode.c b/fs/inode.c
+index bb88835..11d8794 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1386,7 +1386,9 @@ void __init inode_init(unsigned long mem
+ 
+ void i_size_write(struct inode *inode, loff_t i_size)
+ {
+-	WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
++	/* calling us without i_mutex is OK when not connected to dentry yet */
++	if (!list_empty(&inode->i_dentry))
++		WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
+ #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
+ 	write_seqcount_begin(&inode->i_size_seqcount);
+ 	inode->i_size = i_size;
+
+-- 
+Jiri Kosina

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWJRPNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWJRPNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161163AbWJRPNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbWJRPNF
+	id S1161166AbWJRPNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbWJRPNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:13:05 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19892 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161163AbWJRPNC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:13:02 -0400
-Date: Wed, 18 Oct 2006 08:12:51 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Will Schmidt <will_schmidt@vnet.ibm.com>, akpm@osdl.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
-References: <1160764895.11239.14.camel@farscape>
- <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com>
- <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
- <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
- <1161026409.31903.15.camel@farscape> <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	Wed, 18 Oct 2006 11:13:23 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:7401 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1161162AbWJRPNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:13:20 -0400
+Date: Wed, 18 Oct 2006 09:13:19 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Alexey Dobriyan <adobriyan@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: dealing with excessive includes
+Message-ID: <20061018151319.GQ22289@parisc-linux.org>
+References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk> <20061018091944.GA5343@martell.zuzino.mipt.ru> <20061018093126.GM29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006, Paul Mackerras wrote:
+On Wed, Oct 18, 2006 at 08:04:24AM -0700, Linus Torvalds wrote:
+> On Wed, 18 Oct 2006, Al Viro wrote:
+> >
+> > +#define lock_super(x) do {		\
+> > +	struct super_block *sb = x;	\
+> > +	get_fs_excl();			\
+> > +	mutex_lock(&sb->s_lock);	\
+> > +} while(0)
+> 
+> Don't do this. The "x" passed in may be "sb", and then you end up with 
+> bogus code.
 
-> Since this is a virtualized system there is every possibility that the
-> memory we get won't be divided into nodes in the nice neat manner you
-> seem to be expecting.  It just depends on what memory the hypervisor
-> has free, and on what nodes, when the partition is booted.
+For this one, I see a third way:
 
-The only expectation is that memory is available on the node that you are 
-bootstrapping the slab allocator from.
- 
-> In other words, the assumption that node pfn ranges won't overlap is
-> completely untenable for us.
+#define lock_super(sb) do {		\
+	get_fs_excl();			\
+	mutex_lock(&(sb)->s_lock);	\
+} while (0)
 
-That does not matter for this problem.,
- 
-> Linus' tree is currently broken for us.  Any suggestions for how to
-> fix it, since I am not very familiar with the NUMA code?
+It does have the disadvantage that you can pass *anything* that has
+an s_lock field in ... but I don't think that's a very likely thing
+to happen.
 
-Have memory available for slab boot strap on node 0? Or modify the boot 
-code in such a way that it runs on node 1 or any other node that has 
-memory available.
-
-
+Or you could use _sb as the local variable, since it's a reserved
+identifier.

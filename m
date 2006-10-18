@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWJRNZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWJRNe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWJRNZi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 09:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWJRNZi
+	id S1751481AbWJRNe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 09:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWJRNe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 09:25:38 -0400
-Received: from flvpn.ccur.com ([66.10.65.2]:11929 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S932136AbWJRNZh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 09:25:37 -0400
-Date: Wed, 18 Oct 2006 09:25:30 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: mingo@elte.hu
+	Wed, 18 Oct 2006 09:34:59 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:7127 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1161011AbWJRNe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 09:34:58 -0400
+Date: Wed, 18 Oct 2006 09:34:30 -0400
+To: Paul B Schroeder <pschroeder@uplogix.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.18-rt6 sysctl conflict
-Message-ID: <20061018132530.GA30767@tsunami.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
+Subject: Re: [PATCH] Exar quad port serial
+Message-ID: <20061018133430.GU30991@csclub.uwaterloo.ca>
+References: <1160068402.29393.7.camel@rupert> <20061005173628.GB30993@csclub.uwaterloo.ca> <45357CA1.80706@uplogix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <45357CA1.80706@uplogix.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Repair conflict between 2.6.18 and preempt-rt's sysctl(2) addition.
+On Tue, Oct 17, 2006 at 08:00:17PM -0500, Paul B Schroeder wrote:
+> Sorry for the late response..  Here is a fuller explanation.  Maybe 
+> somebody out there has a better solution:
+> 
+> This is on our "Envoy" boxes which we have, according to the documentation, 
+> an "Exar ST16C554/554D Quad UART with 16-byte Fifo's".  The box also has 
+> two other "on-board" serial ports and a modem chip.
+> 
+> The two on-board serial UARTs were being detected along with the first two 
+> Exar UARTs.  The last two Exar UARTs were not showing up and neither was 
+> the modem.
+> 
+> This patch was the only way I could the kernel to see beyond the standard 
+> four serial ports and get all four of the Exar UARTs to show up.
+> 
+> I hope this explains it well enough..
 
-Signed-off-by: Joe Korty <joe.korty@ccur.com>
+I suspect all you have to do might be to change how many ports it looks
+for.  The default max ports is 4 I believe on many kernel versions.
 
-Index: new/include/linux/sysctl.h
-===================================================================
---- new.orig/include/linux/sysctl.h	2006-10-18 09:18:34.000000000 -0400
-+++ new/include/linux/sysctl.h	2006-10-18 09:20:03.000000000 -0400
-@@ -150,7 +150,7 @@
- 	KERN_IA64_UNALIGNED=72, /* int: ia64 unaligned userland trap enable */
- 	KERN_COMPAT_LOG=73,	/* int: print compat layer  messages */
- 	KERN_MAX_LOCK_DEPTH=74,
--	KERN_TIMEOUT_GRANULARITY=73, /* int: timeout granularity in jiffies */
-+	KERN_TIMEOUT_GRANULARITY=75, /* int: timeout granularity in jiffies */
- };
- 
- 
+Look for CONFIG_SERIAL_8250_NR_UARTS and
+CONFIG_SERIAL_8250_RUNTIME_UARTS in the kernel config.
+
+If that doesn't work and you do need a special driver, at least label it
+with more detail like 'for exar st16c554 quad uart' or 'for envoy board'
+or whatever makes it clear which hardware it is for.  I use exar pci
+uarts (exar XR17d15[248] chips) which work fine already with the 8250
+driver, or optionally with the jsm driver with a small change to the
+list if pci identifiers.  THey of course would not work with your driver
+since they are completely different exar chips (even though one is also
+a quad uart, although 64byte fifo).
+
+--
+Len Sorensen

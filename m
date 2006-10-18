@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWJREXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWJRE0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWJREXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 00:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWJREXh
+	id S932072AbWJRE0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 00:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWJRE0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 00:23:37 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:9644 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S932067AbWJREXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 00:23:36 -0400
-Date: Wed, 18 Oct 2006 00:23:23 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       mhalcrow@us.ibm.com, penberg@cs.helsinki.fi,
-       linux-fsdevel@vger.kernel.org
-Subject: fsstack: struct path
-Message-ID: <20061018042323.GA8537@filer.fsl.cs.sunysb.edu>
+	Wed, 18 Oct 2006 00:26:11 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:27866 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932072AbWJRE0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 00:26:08 -0400
+Subject: Re: [PATCH 1/1] lseek - SEEK_HOLE/SEEK_DATA support
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Eric L <e.codemonkey@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <946a3fda0610171929m5b656be8r60c3e3241062ad27@mail.gmail.com>
+References: <946a3fda0610161830u2070c903h7faa93d2dda3786f@mail.gmail.com>
+	 <1161092211.14171.22.camel@kleikamp.austin.ibm.com>
+	 <946a3fda0610171929m5b656be8r60c3e3241062ad27@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 17 Oct 2006 23:26:00 -0500
+Message-Id: <1161145562.23979.5.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Few weeks ago, I noticed that fs/namei.c defines struct path:
+On Tue, 2006-10-17 at 21:29 -0500, Eric L wrote:
 
-struct path {
-	struct vfsmount *mnt;
-	struct dentry *dentry;
-};
+> > vfs_lseek.patch:
+> >
+> > Can you add definititions of SEEK_HOLE and SEEK_DATA to fs.h?  I really
+> > don't like that the code doesn't use the symbolic constants.
+> >
+> 
+> Agreed.  When I originally wrote it against 2.6.17.7, I couldn't find
+> any precedent for adding such defines, but I see they are in 2.6.18.1
+> at least.
 
-I think it would make sense to move it into include/linux/ as it is quite
-useful (and it would discourage the (ab)use of struct nameidata.)
+Yeah, I realize the original code used 1 & 2, but this is a good
+opportunity to improve that.
 
-The fsstack code could benefit from it as the stackable fs dentries have to
-keep track of the lower dentry as well as the lower vfsmount.
+> 
+> Thanks for the comments.  I've made these changes.  Should I resubmit
+> it to the mailing list (inline this time)?
 
-One, rather unfortunate, fact is that struct path is also defined in
-include/linux/reiserfs_fs.h as something completely different - reiserfs
-specific.
+Yeah, that would be great.  You may get a bigger response if you cc'ed
+linux-kernel@vger.kernel.org as well.
 
-Any thoughts?
-
-Josef "Jeff" Sipek.
-
+> - Eric
 -- 
-I already backed up the box once, I can do it again.
+David Kleikamp
+IBM Linux Technology Center
+

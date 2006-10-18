@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWJQX4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWJRAEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWJQX4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 19:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWJQX4w
+	id S1751269AbWJRAEr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 20:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWJRAEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 19:56:52 -0400
-Received: from solarneutrino.net ([66.199.224.43]:24078 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751169AbWJQX4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 19:56:51 -0400
-Date: Tue, 17 Oct 2006 19:56:43 -0400
-To: Keith Packard <keithp@keithp.com>
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-Message-ID: <20061017235643.GB25185@tau.solarneutrino.net>
-References: <20061013194516.GB19283@tau.solarneutrino.net> <1160849723.3943.41.camel@neko.keithp.com> <20061017174020.GA24789@tau.solarneutrino.net> <1161124062.25439.8.camel@neko.keithp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1161124062.25439.8.camel@neko.keithp.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Tue, 17 Oct 2006 20:04:47 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7547 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751269AbWJRAEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 20:04:46 -0400
+Date: Tue, 17 Oct 2006 18:04:45 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: DVD drive not recognized on Intel G965 (2.6.19-rc2)
+In-reply-to: <fa.paSx93/SManW+OpcJogK3J+c4ko@ifi.uio.no>
+To: Ryan Richter <ryan@tau.solarneutrino.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-id: <45356F9D.1040801@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.+LL0mtbE/Bz60PyS85+t8B79Ezs@ifi.uio.no>
+ <fa.1SqKNeCDF8Npq346iTKoMm9VsZA@ifi.uio.no>
+ <fa.Pv0aCiuECqQxYFPaYvteocXd8Uw@ifi.uio.no>
+ <fa.bjzNjOSBu3uMj6sIe3BIYFkx68o@ifi.uio.no>
+ <fa.KSK/FAnjEXEBkiw4cVerx6eh67U@ifi.uio.no>
+ <fa.paSx93/SManW+OpcJogK3J+c4ko@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 06:27:42AM +0800, Keith Packard wrote:
-> On Tue, 2006-10-17 at 13:40 -0400, Ryan Richter wrote:
+Ryan Richter wrote:
+> On Wed, Oct 18, 2006 at 12:26:25AM +0100, Alan Cox wrote:
+>> Ar Maw, 2006-10-17 am 18:23 -0400, ysgrifennodd Ryan Richter:
+>>> 02:00.0 IDE interface: Marvell Technology Group Ltd. Unknown device 6101 (rev b1) (prog-if 8f [Master SecP SecO PriP PriO])
+>>> 	Subsystem: Marvell Technology Group Ltd. Unknown device 6101
+>> That should work with libata and the newest driver version I posted (the
+>> earlier one won't handle the 6101 just 6145). You need at least rev
+>> 0.0.4t.
 > 
-> > So do I want something like
-> > 
-> > 
-> > static int do_validate_cmd(int cmd)
-> > {
-> > 	return 1;
-> > }
-> > 
-> > in i915_dma.c?
+> OK, now it's doing a little better.  It seems to recognize the
+> controller and drive, but it's not getting assigned a /dev/[sh]d? device
+> (it doesn't show up in /proc/diskstats, e.g.).  Here's the relevant
+> portion of dmesg:
 > 
-> that will certainly avoid any checks. Another alternative is to printk
-> the cmd which fails validation so we can see what needs adding here.
+> 
+> ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 17 (level, low) -> IRQ 17
+> PCI: Setting latency timer of device 0000:02:00.0 to 64
+> ata5: PATA max UDMA/100 cmd 0x1018 ctl 0x1026 bmdma 0x1000 irq 17
+> scsi4 : pata_marvell
+> BAR5:00:00 01:7F 02:22 03:CA 04:00 05:00 06:00 07:00 08:00 09:00 0A:00 0B:00 0C:01 0D:00 0E:00 0F:00 
+> ata5.00: ATAPI, max UDMA/33
+> ata5.00: applying bridge limits
+> ata5.00: configured for UDMA/33
+> scsi 4:0:0:0: CD-ROM            HL-DT-ST DVDRAM GSA-H10N  JL10 PQ: 0 ANSI: 5
+> scsi 4:0:0:0: Attached scsi generic sg0 type 5
 
-With just the above, running a GL client (even glxinfo) locks up the
-display such that it can't be recovered without a reboot.  It doesn't
-kill the machine, though. What looks like a 64x64 block of garbage
-appears on the screen. The kernel says
+Is the sr driver compiled in/loaded? The drive will show up as something 
+like /dev/sr0 or /dev/scd0, depending on distribution.
 
-[drm:i915_wait_irq] *ERROR* i915_wait_irq: EBUSY -- rec: 0 emitted: 2
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-If instead I change the validate_cmd function to:
-
-
-static int validate_cmd(int cmd)
-{
-        int ret = do_validate_cmd(cmd);
-
-        if(!ret)
-                printk("validate_cmd( %x ): %d\n", cmd, ret);
-
-        return 1;
-}
-
-I get basically the same behavior, but different output:
-
-
-validate_cmd( 1e3f0003 ): 0
-validate_cmd( 1e3f0003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( d70003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( d90003 ): 0
-validate_cmd( 8d8c0003 ): 0
-validate_cmd( d70003 ): 0
-[drm:i915_batchbuffer] *ERROR* i915_batchbuffer called without lock held
-
-Thanks,
--ryan

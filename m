@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161313AbWJRT0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161312AbWJRTb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161313AbWJRT0f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161310AbWJRT0f
+	id S1161312AbWJRTb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161311AbWJRTb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:26:35 -0400
-Received: from pat.uio.no ([129.240.10.4]:62635 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161313AbWJRT0e (ORCPT
+	Wed, 18 Oct 2006 15:31:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9113 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161312AbWJRTb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:26:34 -0400
-Subject: Re: NFS inconsistent behaviour
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: Mohit Katiyar <katiyar.mohit@gmail.com>, linux-kernel@vger.kernel.org,
-       Linux NFS mailing list <nfs@lists.sourceforge.net>
-In-Reply-To: <20061018183807.GA12018@janus>
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
-	 <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com>
-	 <20061016084656.GA13292@janus>
-	 <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com>
-	 <20061016093904.GA13866@janus>
-	 <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
-	 <20061018063945.GA5917@janus> <1161194229.6095.81.camel@lade.trondhjem.org>
-	 <20061018183807.GA12018@janus>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 15:26:20 -0400
-Message-Id: <1161199580.6095.112.camel@lade.trondhjem.org>
+	Wed, 18 Oct 2006 15:31:28 -0400
+Date: Wed, 18 Oct 2006 12:31:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Cal Peake <cp@absolutedigital.net>, Andi Kleen <ak@suse.de>,
+       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHv2] Undeprecate the sysctl system call
+Message-Id: <20061018123115.662ec5c7.akpm@osdl.org>
+In-Reply-To: <1161189661.9363.83.camel@localhost.localdomain>
+References: <453519EE.76E4.0078.0@novell.com>
+	<200610181441.51748.ak@suse.de>
+	<1161176382.9363.35.camel@localhost.localdomain>
+	<200610181508.54237.ak@suse.de>
+	<Pine.LNX.4.64.0610181214060.7303@lancer.cnet.absolutedigital.net>
+	<1161189661.9363.83.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.687, required 12,
-	autolearn=disabled, AWL 1.31, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 20:38 +0200, Frank van Maarseveen wrote:
-> I ran out of privileged ports due to treemounting on /net from about 50
-> servers. The autofs program map for this uses the "showmount" command and
-> that one apparently uses privileged ports too (buried inside RPC client
-> libs part of glibc IIRC). The combination broke autofs and a number of
-> other services because there were no privileged ports left anymore.
+On Wed, 18 Oct 2006 17:41:01 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Yeah. The RPC library appears to always try to grab a privileged port if
-it can. One solution would be to have the autofs scripts drop all
-privileges before calling showmount.
+> Ar Mer, 2006-10-18 am 12:20 -0400, ysgrifennodd Cal Peake:
+> > Until something better comes along this'll get us back to the status quo.
+> > 
+> > @Andrew, this patch is a replacement for the one from yesterday.
+> > 
+> > From: Cal Peake <cp@absolutedigital.net>
+> > 
+> > Undeprecate the sysctl system call and default to always include it with
+> > the option for embedded folks to exclude it.  Also, remove it's entry from
+> > the feature removal file and fixup the comment in it's header file.
+> > 
+> > Signed-off-by: Cal Peake <cp@absolutedigital.net>
+> 
+> Acked-by: Alan Cox <alan@redhat.com>
+> 
+> Maybe also add "Do not add new entries to these tables" to address
+> Andi's concern about people updating them.
 
-I suppose we could also change the showmount program to create a socket
-that is bound to an unprivileged port, then use
-clnttcp_create()/clntudp_create().
+I agree that those tables in sysctl.h are a right royal pita to maintain. 
+And there sure is a lot of gunk in there which it would be nice to scrap.
 
-We could probably do the same in the "mount" program when doing things
-like interrogating the portmapper, probing for rpc ports etc. The only
-case where mount might actually need to use a privileged port is when
-talking to mountd. Even then, it could be trained to first try using an
-unprivileged port.
+So Andi's plan sounds reasonable to me - it'd only take a few lines to
+implement sysctl(CTL_KERN/KERN_VERSION) as a back-compat thing (and it'll
+be faster!).  And we add a printk so we find out which other sysctls (if
+any) are being used in the wild.
 
-Cheers,
-  Trond
+?
 

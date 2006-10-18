@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWJROV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWJROZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWJROV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWJROV1
+	id S1030263AbWJROZj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWJROZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:21:27 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:36564 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030256AbWJROVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:21:25 -0400
-Date: Wed, 18 Oct 2006 23:21:10 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: "Brown, Len" <len.brown@intel.com>
-Subject: [PATCH](acpi:memory hotplug) Change log level of a message of acpi_memhotplug to KERN_DEBUG
-Cc: Andrew Morton <akpm@osdl.org>,
-       Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>,
-       ACPI-ML <linux-acpi@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20061018230110.2AE0.Y-GOTO@jp.fujitsu.com>
+	Wed, 18 Oct 2006 10:25:39 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:7863 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932194AbWJROZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:25:38 -0400
+Date: Wed, 18 Oct 2006 10:25:12 -0400
+From: Chris Mason <chris.mason@oracle.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>, Neil Brown <neilb@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/6] mm: fix pagecache write deadlocks
+Message-ID: <20061018142512.GA16570@think.oraclecorp.com>
+References: <20061013143516.15438.8802.sendpatchset@linux.site> <20061013143616.15438.77140.sendpatchset@linux.site>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.27 [ja]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061013143616.15438.77140.sendpatchset@linux.site>
+User-Agent: Mutt/1.5.12-2006-07-14
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch may be a bit trivial. But, I suppose this message seems
-quite useless except debugging. It just shows "Hotplug Mem Device".
-System admin can't know anything by this message.
-So, I would like to change it to KERN_DEBUG.
+> Index: linux-2.6/fs/buffer.c
+> ===================================================================
+> --- linux-2.6.orig/fs/buffer.c
+> +++ linux-2.6/fs/buffer.c
+> @@ -1856,6 +1856,9 @@ static int __block_commit_write(struct i
+>  	unsigned blocksize;
+>  	struct buffer_head *bh, *head;
+>  
+> +	if (from == to)
+> +		return 0;
+> +
+>  	blocksize = 1 << inode->i_blkbits;
 
-This patch is for 2.6.19-rc2.
+reiserfs v3 copied the __block_commit_write logic for checking for a
+partially updated page, so reiserfs_commit_page will have to be updated
+to handle from==to.  Right now it will set the page up to date.
 
-Please apply.
+I also used a prepare/commit pare where from==to as a way to trigger
+tail conversions in the lilo ioctl.  I'll both for you and make a
+patch.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
----
- drivers/acpi/acpi_memhotplug.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Index: linux-2.6.18/drivers/acpi/acpi_memhotplug.c
-===================================================================
---- linux-2.6.18.orig/drivers/acpi/acpi_memhotplug.c	2006-10-18 22:50:44.000000000 +0900
-+++ linux-2.6.18/drivers/acpi/acpi_memhotplug.c	2006-10-18 22:51:47.000000000 +0900
-@@ -416,7 +416,7 @@
- 	/* Set the device state */
- 	mem_device->state = MEMORY_POWER_ON_STATE;
- 
--	printk(KERN_INFO "%s \n", acpi_device_name(device));
-+	printk(KERN_DEBUG "%s \n", acpi_device_name(device));
- 
- 	return result;
- }
-
--- 
-Yasunori Goto 
-
-
+-chris

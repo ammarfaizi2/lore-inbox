@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWJRObM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWJROcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWJRObM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWJRObM
+	id S1161036AbWJROcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWJROcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:31:12 -0400
-Received: from mx0.karneval.cz ([81.27.192.122]:38157 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S1160999AbWJRObL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:31:11 -0400
-Message-ID: <45363AA1.1070604@stud.feec.vutbr.cz>
-Date: Wed, 18 Oct 2006 16:30:57 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: IceDove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: Kay Tiong Khoo <kaytiong@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: stopping a process during a timer interrupt
-References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com> <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
-In-Reply-To: <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 18 Oct 2006 10:32:24 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:16369 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1161036AbWJROcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:32:23 -0400
+Subject: Re: [PATCH -rt] powerpc update
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, tglx@linutronix.de,
+       mgreer@mvista.com, sshtylyov@ru.mvista.com
+In-Reply-To: <20061018072858.GA29576@elte.hu>
+References: <20061003155358.756788000@dwalker1.mvista.com>
+	 <20061018072858.GA29576@elte.hu>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 07:32:21 -0700
+Message-Id: <1161181941.23082.32.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Tiong Khoo skrev:
-> On a timer interrupt, I tried to stop the current process by changing
-> it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
-> However, this results in a system hang.
+On Wed, 2006-10-18 at 09:28 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
-> I can't find a way to stop the current process during an interrupt
-> context. Does such code exist in the kernel? If not, how does one go
-> about implementing it from within a kernel module.
+> > Pay close attention to the fasteoi interrupt threading. I added usage 
+> > of mask/unmask instead of using level handling, which worked well on 
+> > PPC.
+> 
+> this is wrong - it should be doing mask+ack.
 
-In interrupt context there's no "current process" by definition.
+The main reason I did it this way is cause the current threaded eoi
+expected the line to be masked. So if you happen to have a eoi that's
+threaded you get a warning then the interrupt hangs. 
 
-Michal
+> also note that you changed:
+
+> > -		goto out_unlock;
+> 
+> to:
+> 
+> > +		goto out;
+> 
+> and you even tried to hide your tracks:
+
+hiding something? I made note of these changes specifically so you would
+review them.
+
+Daniel
+

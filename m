@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422630AbWJRQGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422628AbWJRQGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422630AbWJRQGN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422628AbWJRQGM
+	id S1422628AbWJRQGk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422632AbWJRQGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:06:12 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:10926 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161225AbWJRQGK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:06:10 -0400
-Date: Wed, 18 Oct 2006 17:06:09 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-Message-ID: <20061018160609.GO29920@ftp.linux.org.uk>
-References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk> <20061018091944.GA5343@martell.zuzino.mipt.ru> <20061018093126.GM29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Oct 2006 12:06:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35512 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1422628AbWJRQGj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:06:39 -0400
+Date: Wed, 18 Oct 2006 09:06:31 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: Will Schmidt <will_schmidt@vnet.ibm.com>, akpm@osdl.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0610180858440.27799@schroedinger.engr.sgi.com>
+References: <1160764895.11239.14.camel@farscape>
+ <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com>
+ <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
+ <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
+ <1161026409.31903.15.camel@farscape> <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+ <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+ <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 08:04:24AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 18 Oct 2006, Al Viro wrote:
-> >
-> > +#define lock_super(x) do {		\
-> > +	struct super_block *sb = x;	\
-> > +	get_fs_excl();			\
-> > +	mutex_lock(&sb->s_lock);	\
-> > +} while(0)
-> 
-> Don't do this. The "x" passed in may be "sb", and then you end up with 
-> bogus code.
+On Wed, 18 Oct 2006, Paul Mackerras wrote:
 
-*duh*
- 
-> I think the solution to these kinds of things is either
->  - just bite the bullet, and make it out-of-line. A function call isn't 
->    that expensive, and is sometimes actually cheaper due to I$ issues.
->  - have a separate trivial header file, and only include it for people who 
->    actually need these things (very few files, actually - it's usually 
->    just one file per filesystem)
-> 
-> In this case, since it's _so_ simple, and since it's _so_ specialized, I 
-> think #2 is the right one. Normally, uninlining would be.
+> Linus' tree is currently broken for us.  Any suggestions for how to
+> fix it, since I am not very familiar with the NUMA code?
 
-Actually, after reading that code I suspect that get_fs_excl() in there
-is the wrong thing to do.  Why?  Because the logics is all wrong.
+I am not very familiar with the powerpc code and what I got here is 
+conjecture from various messages. It would help to get some clarification 
+on what is going on with node 0 memory. Is there really no memory 
+available from node 0 on bootup? Why is this? 
 
-Look what we do under lock_super().  There are two things: ->remount_fs()
-and ->write_super().  Plus whatever low-level filesystems are using
-lock_super() for.
+If this is the case then you already have had issues for long time with 
+per node memory lists being contaminated on bootup.
 
-I would argue that we want to move get_fs_excl() down to the places in
-->write_super() that actually want to do something deserving it.  And
-to be honest, I'm not at all sure that lock_super() should survive
-at upper layers, but that's a longer story...
+Why would you attempt to boot linux on a memory node without 
+memory?

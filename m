@@ -1,102 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423071AbWJRXfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423145AbWJRXf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423071AbWJRXfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWJRXfJ
+	id S1423145AbWJRXf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423148AbWJRXf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:35:09 -0400
-Received: from web58114.mail.re3.yahoo.com ([68.142.236.137]:38836 "HELO
-	web58114.mail.re3.yahoo.com") by vger.kernel.org with SMTP
-	id S1423105AbWJRXfI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:35:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=FLYGvLFOFbz7bmJ6bs70psWzs3IohyovJ3S2QD7JlQaGW2LvHeGE5sCr+CaXrk1ZWxSK5bYU6uBE0+/Yrl9w60kPodR5jaK0SMkdOrbGZ5XIt6Xp5QjrJpYLwPOnsLGx6iHBkmM/7zSk4gMCMbw4TdkpekLeSM7tfBdhgXyxKco=  ;
-Message-ID: <20061018233507.16615.qmail@web58114.mail.re3.yahoo.com>
-Date: Wed, 18 Oct 2006 16:35:07 -0700 (PDT)
-From: Open Source <opensource3141@yahoo.com>
-Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Wed, 18 Oct 2006 19:35:26 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:48631 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1423145AbWJRXfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 19:35:24 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: IS_ERR Threshold Value
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Ralf Baechle <ralf@linux-mips.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       Erik Frederiksen <erik_frederiksen@pmc-sierra.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 19 Oct 2006 01:29:29 +0200
+References: <6sPiW-295-5@gated-at.bofh.it> <6sPsw-2y4-19@gated-at.bofh.it> <6t9hu-6l6-11@gated-at.bofh.it> <76GtI-T6-21@gated-at.bofh.it> <77jbT-1y3-29@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1GaKr7-0001A5-Mg@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan and all,
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-I have run the "strace -r -f" as you had recommended
-and the problem revealed itself.  I did some cross-checking
-and I'm pretty sure I have found the issue.
+>>> +#define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
+> 
+> There seems to be a slight problem with doing that. Running
+> `ldd /bin/bash` prints out
+> 
+> linux-gate.so.1 =>  (0xffffe000)
+> 
+> and the topmost address a kernel function can return is 0xFFFFf000 when
+> MAX_ERRNO=4095, but that is going to be tight with the vdso mapped at
+> 0xffffE000.
 
-Basically, I was barking up the wrong tree in assuming
-this was a USB subsystem issue.  As people correctly
-pointed out, the change to CONFIG_HZ has affected
-many things.  In my case, I was using a library that issued
-a nanosleep for a particular amount of time. Most often
-the sleep time is 0, but the library was still calling
-nanosleep({0, 0}).  This seemed to put the running process
-to sleep (for 0 time) but it only was woken up at the next
-timer interrupt (1 ms period for pre-2.6.13 and 4 ms for
-2.6.13 and up).
+http://www.trilithium.com/johan/2005/08/linux-gate/
 
-I do not know if this is the desired behavior of nanosleep.
- For example, In Windows, calling Sleep with a zero time,
-and no other processes hogging the CPU, does not seem
-illicit the same effect as in Linux.  There, no time is
-expended.  However, I can understand that there could
-be technical reasons to leave nanosleep's behavior like this.
+"... an x86 box where processes live in plain old 32-bit address spaces
+divided into pages of 4096 bytes, making ffffe000 the penultimate page.
+The very last page is reserved to catch accesses through invalid pointers,
+e.g. dereferencing a decremented NULL pointer or a MAP_FAILED pointer
+returned from mmap."
 
-In any case, I apologize for causing ruckus and shifting
-the blame incorrectly to USB.  Thank you all for your
-advice.  I wouldn't have been able to narrow it down so
-easily without it, especially the use of "strace -r" which is
-something very useful that I did not know despite
-developing on Linux for over a decade!
+Therefore, MAX_ERRNO < PAGE_SIZE is safe.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-Furthermore, I am very glad to know that this is not one
-of those user-mode-issues-that-can-only-be-solved-by-going-
-to-kernel-mode. At least my intuition was correct there.  Things
-should be snappy if no other processes are running on the system,
-even if the application is in user mode!
-
-Also, here are a few articles that might be useful to other
-scheduler newbies like myself:
-
-] http://josh.trancesoftware.com/linux/linux_cpu_scheduler.pdf
-] http://kerneltrap.org/node/5411
-
-Thanks again.
-Satisfied Open Source Fan
-
-
------ Original Message ----
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Open Source <opensource3141@yahoo.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>; linux-usb-devel@lists.sourceforge.net; WolfgangMües <wolfgang@iksw-muees.de>; linux-kernel@vger.kernel.org
-Sent: Friday, October 13, 2006 4:41:44 PM
-Subject: Re: [linux-usb-devel] USB performance bug since kernel 2.6.13 (CRITICAL???)
-
-Ar Gwe, 2006-10-13 am 16:02 -0700, ysgrifennodd Open Source:
-> clear understanding of what is causing it.  As it stands it doesn't
-> seem like even the experts know exactly where this
-> delay is being caused.
-
-strace should tell you precisely how long each syscall takes if you ask
-it to trace things nicely. If you have code trying to wait for a tiny
-time then HZ will bump the wait to be longer (kernel or user) but for
-other cases all should be fine either way.
-
-The other issues like priority and paging caused delays can generally be
-dealt with by having the relevant service code running mlockall and real
-time priority.
-
-
-
-
-
-
-
+http://david.woodhou.se/why-not-spf.html

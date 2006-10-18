@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422628AbWJRQGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWJRQJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422628AbWJRQGk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422632AbWJRQGk
+	id S1161225AbWJRQJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWJRQJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:06:40 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35512 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422628AbWJRQGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:06:39 -0400
-Date: Wed, 18 Oct 2006 09:06:31 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Will Schmidt <will_schmidt@vnet.ibm.com>, akpm@osdl.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610180858440.27799@schroedinger.engr.sgi.com>
-References: <1160764895.11239.14.camel@farscape>
- <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com>
- <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
- <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
- <1161026409.31903.15.camel@farscape> <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	Wed, 18 Oct 2006 12:09:28 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:3241 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1161225AbWJRQJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:09:28 -0400
+Date: Wed, 18 Oct 2006 10:09:26 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Brian King <brking@us.ibm.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Adam Belay <abelay@MIT.EDU>
+Subject: Re: [linux-pm] [PATCH] Block on access to temporarily unavailable pci device
+Message-ID: <20061018160926.GS22289@parisc-linux.org>
+References: <Pine.LNX.4.44L0.0610181151450.6766-100000@iolanthe.rowland.org> <1161187503.9363.75.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161187503.9363.75.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006, Paul Mackerras wrote:
+On Wed, Oct 18, 2006 at 05:05:02PM +0100, Alan Cox wrote:
+> If the user specified O_NDELAY then -EWOULDBLOCK not wait
 
-> Linus' tree is currently broken for us.  Any suggestions for how to
-> fix it, since I am not very familiar with the NUMA code?
-
-I am not very familiar with the powerpc code and what I got here is 
-conjecture from various messages. It would help to get some clarification 
-on what is going on with node 0 memory. Is there really no memory 
-available from node 0 on bootup? Why is this? 
-
-If this is the case then you already have had issues for long time with 
-per node memory lists being contaminated on bootup.
-
-Why would you attempt to boot linux on a memory node without 
-memory?
+sysfs doesn't give us the struct file, so we can't tell.

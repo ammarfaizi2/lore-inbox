@@ -1,191 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWJRMmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWJRMma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWJRMmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 08:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWJRMmP
+	id S1030204AbWJRMma (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 08:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWJRMma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 08:42:15 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:64331 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1030253AbWJRMmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 08:42:14 -0400
-Date: Wed, 18 Oct 2006 14:42:53 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Phetteplace, Thad (GE Healthcare, consultant)" 
-	<Thad.Phetteplace@ge.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bandwidth Allocations under CFQ I/O Scheduler
-Message-ID: <20061018124253.GH24452@kernel.dk>
-References: <CAEAF2308EEED149B26C2C164DFB20F4E7EAFE@ALPMLVEM06.e2k.ad.ge.com> <1161048269.3245.26.camel@laptopd505.fenrus.org> <20061017132312.GD7854@kernel.dk> <20061018080030.GU23492@unthought.net> <1161164456.3128.81.camel@laptopd505.fenrus.org> <20061018113001.GV23492@unthought.net> <20061018114913.GG24452@kernel.dk> <20061018122323.GW23492@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018122323.GW23492@unthought.net>
+	Wed, 18 Oct 2006 08:42:30 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:8871 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030204AbWJRMm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 08:42:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fLpX2lJu5gE3g3y0FwdU2FTeOUsDXn7ohyLjoQ322BAp2iDXEPrPIYVuAkeaMOGu8OQ7yaR+4ZGw46k7qW2X3w7EndGLAmU7JIwgb95rWCXo8vzaO1estYV+7sLq9H+5FI4Gz8HLObQorNl5ffhG+2pNNoLy+cjFALsZ5xPUPwg=  ;
+Message-ID: <45362130.6020804@yahoo.com.au>
+Date: Wed, 18 Oct 2006 22:42:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Bligh <mbligh@google.com>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Nick Piggin <npiggin@suse.de>
+Subject: Re: [RFC] Remove temp_priority
+References: <45351423.70804@google.com> <4535160E.2010908@yahoo.com.au> <45351877.9030107@google.com>
+In-Reply-To: <45351877.9030107@google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18 2006, Jakob Oestergaard wrote:
-> On Wed, Oct 18, 2006 at 01:49:14PM +0200, Jens Axboe wrote:
-> > On Wed, Oct 18 2006, Jakob Oestergaard wrote:
-> ...
-> > > I have no idea how much bandwidth my database needs... But I have a
-> > > rough idea about how many I/O operations it does for a given operation.
-> > > And if I don't, strace can tell me pretty quick :)
-> > 
-> > That's crazy. So you want a user of this to strace and write a script
-> > parsing strace output to tell you possibly how many iops/sec you need?
+Martin Bligh wrote:
+> Nick Piggin wrote:
+
+>> For that matter (going off the topic a bit), I wonder if
+>> try_to_free_pages should have a watermark check there too? This
+>> might help reduce the latency issue you brought up where one process
+>> has reclaimed a lot of pages, but another isn't making any progress
+>> and has to go through the full priority range? Maybe that's
+>> statistically pretty unlikely?
 > 
-> Come up with something better then, genious  :)
 > 
-> strace for iops is doable albeit complicated.
-
-The concept was already described, bandwidth.
-
-> Determining MiB/sec requirement for sufficient db performance is
-> impossible.
-
-But you can say you want to give the db 90% of the disk bandwidth, and
-at least 50%. The iops/sec metric doesn't help you.
-
-It's an entirely diffent thing from the mp3 player. With the player app,
-you want to have the bitrate available at the right latency. For a db, I
-guess you typically want to contain it somehow - make sure it gets at
-least foo amount of the disk, but don't let it suck everything.
-
-> > > So, what I'm arguing is; you will not want to specify a fixed sequential
-> > > bandwidth for your mp3 player.
-> > >
-> > > What you want to do is this: Allocate 5 iops/sec for your mp3 player
-> > > because either a quick calculation - or - experience has shown that this
-> > > is enough for it to keep its buffer from depleting at all times.
-> > 
-> > But that is the only number that makes sense. To give some sort of soft
-> > QOS for bandwidth, you need the file given so the kernel can bring in
-> > the meta data (to avoid those seeks) and see how the file is laid out.
+> I've been mulling over how to kill prev_priority (and make everyone
+> happy, including akpm). My original thought was to keep a different
+> min_priority for each of GFP_IO, GFP_IO|GFP_FS, and the no IO ones.
+> But we still have the problem of how to accurately set the min back
+> up when we are sucessful.
 > 
-> Ok I see where you're going. I think it sounds very complicated - for
-> the user and for the kernel.
-> 
-> Would you want to limit bandwidth on a per-file or per-process basis?
-> You're talking files, above, I was thinking about processes (consumers
-> if you like) the whole time.
+> Perhaps we should be a little more radical, and treat everyone apart
+> from kswapd as independant. Keep a kswapd_priority in the zone
+> structure, and all the direct reclaimers have their own local priority.
+> Then we set distress from min(kswap_priority, priority). All that does
+> is kick the direct reclaimers up a bit faster - kswapd has the easiest
+> time reclaiming pages, so that should never be too low.
 
-You need to define your workload for the kernel to know what to do. So
-for the bandwidth case, you need to tell the kernel against what file
-you want to allocate that bandwidth. If you go the percentage route, you
-don't need that. The percentage route doesn't care about sequential or
-random io, it just gets you foo % of the disk time. If the slice given
-is large enough, with 10% of the disk time you may have 90% of the total
-bandwidth if the remaining 90% of the time is spent doing random io. But
-you still have 10% of the time allocated.
+I think that could *work*, but I still think it is a heuristics change
+rather than a bug fix.
 
-> Have you thought about how this would work in the long run, with many
-> files coming into use? The kernel can't have the meta-data cached for
-> all files - so the reading-in of metadata would affect the remaining
-> available disk performance... 
+Do we want everyone to make some progress, even if that means having
+some do some swapping and others not; or have the zone pressure (and
+tendancy to swap) depend on how well progress is going, globally?
 
-Just like any other system activity affects the disk bandwidth. That's
-exactly one of the reasons why you want to operate in terms of time, not
-requests.
+The latter is what we have now, and I don't think it is terrible (not
+saying your idea can't work better, but it would need careful
+consideration).
 
-> > For the mp3 case, you should not even need to ask the user anything. The
-> > player app knows exactly how much bandwidth it needs and what kind of
-> > latency, if can tell from the bitrate of the media.
-> 
-> Agreed. And this holds true for both base metrics, bandwidth or iops/sec.
+Coming from another angle, I am thinking about doing away with direct
+reclaim completely. That means we don't need any GFP_IO or GFP_FS, and
+solves the problem of large numbers of processes stuck in reclaim and
+skewing aging and depleting the memory reserve.
 
-Right, because they are sides of the same story. The difference is not
-in the metric, but the meaning it gives to the user.
-
-> > What you are arguing
-> > for is doing trial and error
-> 
-> Sort-of correct.
-
-How would you otherwise do it?
-
-> > with a magic iops/sec metric that is both
-> > hard to understand and impossible to quantify.
-> 
-> iops/sec is what you get from your disks. In real world scenarios. It's
-> no more magic than the real world, and no harder to understand than real
-> world disks. Although I admit real-world disks can be a bitch at times ;)
-
-Again, iops/sec doesn't make sense unless you say how big the iops is
-and what your stream of iops look like. That's why I say it's a
-benchmark metric.
-
-> My argument is that it is simpler to understand than bandwidth.
-
-And mine is that that is nonsense :-)
-
-> Sure, for the streaming file example bandwidth sounds simple. But how
-> many real-world applications are like that?  What about databases? What
-> about web servers?  What about mail servers?  What about 99% of the
-> real-world applications out there that are not streaming audio or video
-> players?
-
-Reserving bandwidth at x kib/sec for an mp3 player and containing a
-different type of app are two separate things. A decent io scheduler
-should make sure in general that nobody is totally starved. If you have
-5 services running on your machine and you want to make sure that eg the
-web server gets 50% of the bandwidth, you will want to inform the kernel
-of that fact. Since you don't know what the throughput of the disk is at
-any given time (be it Mib/sec or iops/sec, doesn't matter), you can only
-say 50% at that time.
-
-I really don't see how this pertains to bandwidth vs iops/sec.
-
-> > > Limiting on iops/sec rather than bandwidth, is simply accepting that
-> > > bandwidth does not make sense (because you cannot know how much of it
-> > > you have and therefore you cannot slice up your total capacity), and,
-> > > realizing that bandwidth in the scenarios where limiting is interesting
-> > > is in reality bound by seeks rather than sequential on-disk throughput.
-> > 
-> > I don't understand your arguments, to be honest. If you can tell the
-> > iops/sec rate for a given workload, you can certainly see the bandwidth
-> > as well.
-> 
-> My thesis is, that for most applications it is not the bandwidth you
-> care about.
-> 
-> If I am not right in this, sure, you have a point then. But hey, how
-> many of the applications out there are mp3 players?  (in other words;
-> please oh please, prove me wrong, I like it :)
-
-We are talking about two seperate things here. The mp3 player vs some
-other app argument is totally separate from iops/sec vs MiB/sec.
-
-> > Both iops/sec and bandwidth will vary wildly depending on the
-> > workload(s) on the disk.
-> 
-> The total iops/sec "available" from a given disk will not vary a lot,
-> compared to how the total bandwidth available from a given disk will
-> vary.
-
-That's only true if you scale your iops. And how are you going to give
-that number? You need to define what an iop is for it to be meaningfull.
-
-> > > I can only see a problem with specifying iops/sec in the one scenario
-> > > where you have multiple sequential readers or writers, and you want to
-> > > distribute bandwidth between them.
-> > 
-> > If you only have one app doing io, you don't need QOS.
-> 
-> Precisely!
-> 
-> In the *one* case where it is actually possible to implement a QOS
-> system based on bandwidth, you don't need QOS.
-> 
-> With more than 1 client, you get seeks, and then bandwidth is no longer
-> a sensible measure.
-
-And neither is iops/sec. But things don't deteriorate that quickly, if
-you can tolerate higher latency, it's quite possible to have most of the
-potential bandwidth available for > 1 client workloads.
+But that's tricky because we don't have enough kswapds to get maximum
+reclaim throughput on many configurations (only single core opterons
+and UP systems, really).
 
 -- 
-Jens Axboe
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

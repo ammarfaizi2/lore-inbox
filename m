@@ -1,160 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422780AbWJRTna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422789AbWJRToW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422780AbWJRTna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWJRTna
+	id S1422789AbWJRToW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422790AbWJRToW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:43:30 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:55229 "EHLO
-	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S1422780AbWJRTn3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:43:29 -0400
-Date: Wed, 18 Oct 2006 21:43:16 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-Subject: 3.2GHz cpus with cpufreq become 2.8GHz
-Message-ID: <Pine.LNX.4.64.0610182133130.29935@bizon.gios.gov.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1139018627-1161200596=:29935"
+	Wed, 18 Oct 2006 15:44:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16287 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422789AbWJRToV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 15:44:21 -0400
+Date: Wed, 18 Oct 2006 12:44:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Cal Peake <cp@absolutedigital.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ebiederm@xmission.com
+Subject: Re: sysctl
+Message-Id: <20061018124415.e45ece22.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 18 Oct 2006 14:52:21 -0400 (EDT)
+Cal Peake <cp@absolutedigital.net> wrote:
 
----187430788-1139018627-1161200596=:29935
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+> On Wed, 18 Oct 2006, Linus Torvalds wrote:
+> 
+> > There's apparently some library functions that has used it in the past, 
+> > and I've seen a few effects of that:
+> > 
+> > 	warning: process `wish' used the removed sysctl system call
+> > 
+> > but the users all had fallback positions, so I don't think anything 
+> > actually broke.
+> 
+> Agreed, nothing seems to have broken by removing it but the warnings sure 
+> are ugly. Is there any reason to have them? If a program relies on sysctl 
+> and the call fails the program should properly handle the error. That 
+> should be all the warning that's needed (i.e. report the broken program 
+> and get it fixed).
 
-Hello,
+We should have added the sysctl numbers to that warning.
 
-I have just noticed that enabling cpufreq on my Dell PowerEdge 1425SC=20
-changes my secondary cpu clock to 2.8GHz.
+Lots of things do sysctl(KERN_VERSION), including FC5's date(1).  Andi's
+proposal to put some hard-wired KERN_VERSION emulator in there sounds
+reasonable to me, depending upon how many other things we'll need to
+emulate (which we don't know yet).
 
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 3
-cpu MHz         : 3200.000
-cache size      : 2048 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm consta=
-nt_tsc pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 6403.72
+> > (The situation may be different with older libraries, which is why it's 
+> > still an option to compile in sysctl. None of the machines I had access 
+> > to cared at all, though).
+> 
+> So leave it as is for now, default to off with option to compile in if 
+> EMBEDDED and then remove it completely in a few months?
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 3
-cpu MHz         : 3200.000
-cache size      : 2048 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm consta=
-nt_tsc pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 6400.24
+It should always be an objective to remove code if we can feasibly find a
+way to do so.  For us to give up now and to leave all that goop in there
+forever would be sad.
 
-processor       : 2
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 3
-cpu MHz         : 2800.000
-cache size      : 2048 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm consta=
-nt_tsc pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 6400.30
-
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 3
-cpu MHz         : 2800.000
-cache size      : 2048 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm consta=
-nt_tsc pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 6400.29
-
-According to cpuinfo the primary CPU (two HT logical CPUs) works with=20
-3.2GHz clock but the secondary works with 2.8GHz.
-
-What is also strange, this 3.2GHz freq is not listed on=20
-scaling_available_frequencies for both CPUs:
-
-# cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver
-p4-clockmod
-
-# cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-350000 700000 1050000 1400000 1750000 2100000 2450000 2800000
-
-# cat /sys/devices/system/cpu/cpu2/cpufreq/scaling_driver
-p4-clockmod
-# cat /sys/devices/system/cpu/cpu2/cpufreq/scaling_available_frequencies
-350000 700000 1050000 1400000 1750000 2100000 2450000 2800000
-
-I can confirm that this problem exists on 2.6.16/2.6.17/2.6.18 (just=20
-tested). Is it a problem with BIOS or p4-clockmod cpufreq driver?
-
-Best regards,
-
-
- =09=09=09=09Krzysztof Ol=EAdzki
----187430788-1139018627-1161200596=:29935--
+A patch which enhances that printk would be appreciated...

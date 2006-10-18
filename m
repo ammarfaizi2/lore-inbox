@@ -1,72 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWJRR52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWJRR6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWJRR52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJRR52
+	id S1422719AbWJRR6h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWJRR6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:57:28 -0400
-Received: from pat.uio.no ([129.240.10.4]:27356 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1422716AbWJRR51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:57:27 -0400
-Subject: Re: NFS inconsistent behaviour
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: Mohit Katiyar <katiyar.mohit@gmail.com>, linux-kernel@vger.kernel.org,
-       Linux NFS mailing list <nfs@lists.sourceforge.net>
-In-Reply-To: <20061018063945.GA5917@janus>
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
-	 <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com>
-	 <20061016084656.GA13292@janus>
-	 <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com>
-	 <20061016093904.GA13866@janus>
-	 <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
-	 <20061018063945.GA5917@janus>
+	Wed, 18 Oct 2006 13:58:37 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:50091 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422719AbWJRR6g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:58:36 -0400
+Subject: Re: 2.6.19-rc2-mm1
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <45366515.4050308@yahoo.com.au>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
+	 <45364CE9.7050002@yahoo.com.au>
+	 <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
+	 <45366515.4050308@yahoo.com.au>
 Content-Type: text/plain
-Date: Wed, 18 Oct 2006 13:57:09 -0400
-Message-Id: <1161194229.6095.81.camel@lade.trondhjem.org>
+Date: Wed, 18 Oct 2006 10:58:23 -0700
+Message-Id: <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.687, required 12,
-	autolearn=disabled, AWL 1.31, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 08:39 +0200, Frank van Maarseveen wrote:
-> On Wed, Oct 18, 2006 at 10:22:44AM +0900, Mohit Katiyar wrote:
-> > I checked it today and when i issued the netstat -t ,I could see a lot
-> > of tcp connections in TIME_WAIT state.
-> > Is this a normal behaviour?
+On Thu, 2006-10-19 at 03:32 +1000, Nick Piggin wrote:
+> Badari Pulavarty wrote:
+> > On Thu, 2006-10-19 at 01:48 +1000, Nick Piggin wrote:
+> > 
+> >>Badari Pulavarty wrote:
+> >>
+> >>>On Mon, 2006-10-16 at 23:06 -0700, Andrew Morton wrote:
+> >>>
+> >>>
+> >>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
+> >>>>
+> >>>>
+> >>>>- Added the hwmon and i2c trees to the -mm lineup.  These are quilt-style
+> >>>> trees, maintained by Jean Delvare.
+> >>>
+> >>>
+> >>>
+> >>>LTP writev tests seems to lockup the machine. reiserfs issue ?
+> >>
+...
+> > 
+> > No. seems to be generic issue .. (happens with ext3 also) :(
 > 
-> yes... but see below
+> I think I may have missed a fix for ext3 ordered and journalled too
+> (I've just sent a patch to Andrew privately).
 > 
-> > So we cannot mount and umount infinitely
-> > with tcp option? Why there are so many connections in waiting state?
+> Sorry. Can you try with ext2? Alternatively, try with ext3 or reiserfs
+> and change the line in mm/filemap.c:generic_file_buffered_write from
 > 
-> I think it's called the 2MSL wait: there may be TCP segments on the
-> wire which (in theory) could disrupt new connections which reuse local
-> and remote port so the ports stay in use for a few minutes. This is
-> standard TCP behavior but only occurs when connections are improperly
-> shutdown. Apparently this happens when umounting a tcp NFS mount but
-> also for a lot of other tcp based RPC (showmount, rpcinfo).  I'm not
-> sure who's to blame but it might be the rpc functions inside glibc.
+> 		status = a_ops->commit_write(file, page, offset, offset+copied);
+> to
+> 		status = a_ops->commit_write(file, page, offset, offset+bytes);
 > 
-> I'd switch to NFS over udp if this is problem.
+> and see if that solves your problem (that will result in rubbish being
+> temporarily visible, but there is a similar problem upstream anyway, so it
+> shouldn't cause other failures in your test).
 
-Just out of interest. Why does anyone actually _want_ to keep
-mount/umounting to the point where they run out of ports? That is going
-to kill performance in all sorts of unhealthy ways, not least by
-completely screwing over any caching.
+No. Above change didn't help either :(
 
-Note also that you _can_ change the range of ports used by the NFS
-client itself at least. Just edit /proc/sys/sunrpc/{min,max}_resvport.
-On the server side, you can use the 'insecure' option in order to allow
-mounts that originate from non-privileged ports (i.e. port > 1024).
-If you are using strong authentication (for instance RPCSEC_GSS/krb5)
-then that actually makes a lot of sense, since the only reason for the
-privileged port requirement was to disallow unprivileged NFS clients.
+Thanks,
+Badari
 
-Cheers,
-  Trond
+BUG: soft lockup detected on CPU#1!
+
+Call Trace:
+ <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
+ [<ffffffff8022e10f>] __do_softirq+0x5f/0xd0
+ [<ffffffff80232067>] update_process_times+0x57/0x90
+ [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
+ [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
+ [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
+ <EOI>  [<ffffffff802d9210>] ext3_journal_dirty_data+0x0/0x50
+ [<ffffffff802ea27f>] journal_dirty_data+0x2f/0x200
+ [<ffffffff8048012d>] error_exit+0x0/0x84
+ [<ffffffff802d922d>] ext3_journal_dirty_data+0x1d/0x50
+ [<ffffffff802d84b8>] walk_page_buffers+0x68/0xb0
+ [<ffffffff802d9210>] ext3_journal_dirty_data+0x0/0x50
+ [<ffffffff802db488>] ext3_ordered_commit_write+0x58/0xd0
+ [<ffffffff8024eb29>] generic_file_buffered_write+0x409/0x610
+ [<ffffffff8022d84b>] current_fs_time+0x3b/0x40
+ [<ffffffff8022023c>] task_rq_lock+0x4c/0x90
+ [<ffffffff8024f157>] __generic_file_aio_write_nolock+0x427/0x4b0
+ [<ffffffff8022192c>] try_to_wake_up+0x39c/0x3c0
+ [<ffffffff8021fad4>] __wake_up_common+0x44/0x80
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff8024f247>] generic_file_aio_write+0x67/0xd0
+ [<ffffffff802d7153>] ext3_file_write+0x23/0xc0
+ [<ffffffff802d7130>] ext3_file_write+0x0/0xc0
+ [<ffffffff80271f53>] do_sync_readv_writev+0xc3/0x110
+ [<ffffffff8023d910>] autoremove_wake_function+0x0/0x30
+ [<ffffffff8035c18d>] tty_default_put_char+0x1d/0x30
+ [<ffffffff803618c4>] write_chan+0x374/0x3a0
+ [<ffffffff80271daa>] rw_copy_check_uvector+0x8a/0x130
+ [<ffffffff802726ef>] do_readv_writev+0xef/0x200
+ [<ffffffff8047ee5f>] __mutex_lock_slowpath+0x1df/0x1f0
+ [<ffffffff80272d43>] sys_writev+0x53/0xc0
+ [<ffffffff80209c1e>] system_call+0x7e/0x83
+
 

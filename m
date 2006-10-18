@@ -1,69 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbWJROvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWJROvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161085AbWJROvh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbWJROvh
+	id S1161079AbWJROvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWJROvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:51:37 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:23205 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161085AbWJROvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:51:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=D92Y0pGUU9iBMPE2Kj2lcgn5NJXgcopU+/kXx15nJXYxQKlh/ImaY04HCF84mR++gzDgnGSnh6L4BR23LewMWrkLcdXa7W9HrW9/6slwCpqQBLKP3avi8OIWugW+FRruPuEVf5AcxkFLfSeimXkS9wOZCJTe40wzFMBCx0Hk0DU=  ;
-Message-ID: <45363F74.4090500@yahoo.com.au>
-Date: Thu, 19 Oct 2006 00:51:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 18 Oct 2006 10:51:08 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:20908 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1161079AbWJROvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:51:05 -0400
+Date: Wed, 18 Oct 2006 08:51:04 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Brian King <brking@us.ibm.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
+Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
+Message-ID: <20061018145104.GN22289@parisc-linux.org>
+References: <20061017145146.GJ22289@parisc-linux.org> <45354A59.3010109@us.ibm.com>
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Paul Jackson <pj@sgi.com>, Robin Holt <holt@sgi.com>, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
-Subject: Re: exclusive cpusets broken with cpu hotplug
-References: <20061017192547.B19901@unix-os.sc.intel.com> <20061018001424.0c22a64b.pj@sgi.com> <20061018095621.GB15877@lnx-holt.americas.sgi.com> <20061018031021.9920552e.pj@sgi.com> <45361B32.8040604@yahoo.com.au> <20061018071447.A25760@unix-os.sc.intel.com>
-In-Reply-To: <20061018071447.A25760@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45354A59.3010109@us.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Wed, Oct 18, 2006 at 10:16:50PM +1000, Nick Piggin wrote:
-> 
->>Paul Jackson wrote:
->>
->>> 1) I don't know how to tell what sched domains/groups a system has, nor
-> 
-> 
-> Paul, atleast for debugging one can know that by defining SCHED_DOMAIN_DEBUG
 
-Yep. This is meant to be useful precisely for things like making cpusets
-partition the domains properly or ensuring a system's topology is built
-correctly.
+The existing implementation of pci_block_user_cfg_access() was recently
+criticised for providing out of date information and for returning errors
+on write, which applications won't be expecting.
 
->>>    how to tell my customers how to see what sched domains they have, and
->>
->>I don't know if you want customers do know what domains they have. I think
-> 
-> 
-> At the first glance, I have to agree with Nick. All the customer wants is a
-> mechanism to specify group these cpus together for scheduling...
-> 
-> But looking at how cpusets interact with sched-domains and especially for
-> large systems, it will probably be useful if we export the topology through /sys
+This reimplementation uses a global wait queue and a bit per device.
+I've open-coded prepare_to_wait() / finish_wait() as I could optimise
+it significantly by knowing that the pci_lock protected us at all points.
 
-I'll concede that point. It would probably be useful for a sysadmin to be
-able to look at how they can better make cpuset placements such that they
-get the best partitioning.
+It looked a bit funny to be doing a spin_unlock_irqsave(); schedule(),
+so I used spin_lock_irq() for the _user versions of pci_read_config and
+pci_write_config.  Not carrying a flags pointer around made the code
+much less nasty.
 
-I would still prefer not to say "use an exclusive domain for this cpuset".
-cpusets should be able to do the optimal thing with the data it has, so
-this is one less complication to deal with.
+I also addressed the potential issue with nested attempts to block.
+Now pci_block_user_cfg_access() can return -EBUSY if it's already blocked,
+and pci_unblock_user_cfg_access() will WARN if you try to unblock an
+already unblocked device.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+
+diff --git a/drivers/pci/access.c b/drivers/pci/access.c
+index ea16805..a27a6c0 100644
+--- a/drivers/pci/access.c
++++ b/drivers/pci/access.c
+@@ -1,6 +1,7 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/ioport.h>
++#include <linux/wait.h>
+ 
+ #include "pci.h"
+ 
+@@ -63,30 +64,42 @@ EXPORT_SYMBOL(pci_bus_write_config_byte)
+ EXPORT_SYMBOL(pci_bus_write_config_word);
+ EXPORT_SYMBOL(pci_bus_write_config_dword);
+ 
+-static u32 pci_user_cached_config(struct pci_dev *dev, int pos)
+-{
+-	u32 data;
++/*
++ * The following routines are to prevent the user from accessing PCI config
++ * space when it's unsafe to do so.  Some devices require this during BIST and
++ * we're required to prevent it during D-state transitions.
++ *
++ * We have a bit per device to indicate it's blocked and a global wait queue
++ * for callers to sleep on until devices are unblocked.
++ */
++static DECLARE_WAIT_QUEUE_HEAD(pci_ucfg_wait);
+ 
+-	data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])];
+-	data >>= (pos % sizeof(dev->saved_config_space[0])) * 8;
+-	return data;
++static noinline void pci_wait_ucfg(struct pci_dev *dev)
++{
++	DECLARE_WAITQUEUE(wait, current);
++
++	__add_wait_queue(&pci_ucfg_wait, &wait);
++	do {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		spin_unlock_irq(&pci_lock);
++		schedule();
++		spin_lock_irq(&pci_lock);
++	} while (dev->block_ucfg_access);
++	__remove_wait_queue(&pci_ucfg_wait, &wait);
+ }
+ 
+ #define PCI_USER_READ_CONFIG(size,type)					\
+ int pci_user_read_config_##size						\
+ 	(struct pci_dev *dev, int pos, type *val)			\
+ {									\
+-	unsigned long flags;						\
+ 	int ret = 0;							\
+ 	u32 data = -1;							\
+ 	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
+-	spin_lock_irqsave(&pci_lock, flags);				\
+-	if (likely(!dev->block_ucfg_access))				\
+-		ret = dev->bus->ops->read(dev->bus, dev->devfn,		\
++	spin_lock_irq(&pci_lock);					\
++	if (unlikely(dev->block_ucfg_access)) pci_wait_ucfg(dev);	\
++	ret = dev->bus->ops->read(dev->bus, dev->devfn,			\
+ 					pos, sizeof(type), &data);	\
+-	else if (pos < sizeof(dev->saved_config_space))			\
+-		data = pci_user_cached_config(dev, pos); 		\
+-	spin_unlock_irqrestore(&pci_lock, flags);			\
++	spin_unlock_irq(&pci_lock);					\
+ 	*val = (type)data;						\
+ 	return ret;							\
+ }
+@@ -95,14 +108,13 @@ #define PCI_USER_WRITE_CONFIG(size,type)
+ int pci_user_write_config_##size					\
+ 	(struct pci_dev *dev, int pos, type val)			\
+ {									\
+-	unsigned long flags;						\
+ 	int ret = -EIO;							\
+ 	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
+-	spin_lock_irqsave(&pci_lock, flags);				\
+-	if (likely(!dev->block_ucfg_access))				\
+-		ret = dev->bus->ops->write(dev->bus, dev->devfn,	\
++	spin_lock_irq(&pci_lock);					\
++	if (unlikely(dev->block_ucfg_access)) pci_wait_ucfg(dev);	\
++	ret = dev->bus->ops->write(dev->bus, dev->devfn,		\
+ 					pos, sizeof(type), val);	\
+-	spin_unlock_irqrestore(&pci_lock, flags);			\
++	spin_unlock_irq(&pci_lock);					\
+ 	return ret;							\
+ }
+ 
+@@ -117,21 +129,21 @@ PCI_USER_WRITE_CONFIG(dword, u32)
+  * pci_block_user_cfg_access - Block userspace PCI config reads/writes
+  * @dev:	pci device struct
+  *
+- * This function blocks any userspace PCI config accesses from occurring.
+- * When blocked, any writes will be bit bucketed and reads will return the
+- * data saved using pci_save_state for the first 64 bytes of config
+- * space and return 0xff for all other config reads.
+- **/
+-void pci_block_user_cfg_access(struct pci_dev *dev)
++ * When user access is blocked, any reads or writes to config space will
++ * sleep until access is unblocked again.  We don't allow nesting of
++ * block/unblock calls.
++ */
++int pci_block_user_cfg_access(struct pci_dev *dev)
+ {
+ 	unsigned long flags;
++	int result;
+ 
+-	pci_save_state(dev);
+-
+-	/* spinlock to synchronize with anyone reading config space now */
+ 	spin_lock_irqsave(&pci_lock, flags);
++	result = dev->block_ucfg_access ? -EBUSY : 0;
+ 	dev->block_ucfg_access = 1;
+ 	spin_unlock_irqrestore(&pci_lock, flags);
++
++	return result;
+ }
+ EXPORT_SYMBOL_GPL(pci_block_user_cfg_access);
+ 
+@@ -140,14 +152,19 @@ EXPORT_SYMBOL_GPL(pci_block_user_cfg_acc
+  * @dev:	pci device struct
+  *
+  * This function allows userspace PCI config accesses to resume.
+- **/
++ */
+ void pci_unblock_user_cfg_access(struct pci_dev *dev)
+ {
+ 	unsigned long flags;
+ 
+-	/* spinlock to synchronize with anyone reading saved config space */
+ 	spin_lock_irqsave(&pci_lock, flags);
++
++	/* A second unblock implies a failure to notice an attempt to nested
++	 * block, which we don't support. */
++	WARN_ON(!dev->block_ucfg_access);
++
+ 	dev->block_ucfg_access = 0;
++	wake_up_all(&pci_ucfg_wait);
+ 	spin_unlock_irqrestore(&pci_lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(pci_unblock_user_cfg_access);
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 2dde821..5d06837 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -6174,6 +6174,7 @@ static int ipr_reset_start_bist(struct i
+ 	int rc;
+ 
+ 	ENTER;
++	pci_save_state(ioa_cfg->pdev);
+ 	pci_block_user_cfg_access(ioa_cfg->pdev);
+ 	rc = pci_write_config_byte(ioa_cfg->pdev, PCI_BIST, PCI_BIST_START);
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 3632282..8725d1f 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -634,7 +634,7 @@ int  ht_create_irq(struct pci_dev *dev, 
+ void ht_destroy_irq(unsigned int irq);
+ #endif /* CONFIG_HT_IRQ */
+ 
+-extern void pci_block_user_cfg_access(struct pci_dev *dev);
++extern int __must_check pci_block_user_cfg_access(struct pci_dev *dev);
+ extern void pci_unblock_user_cfg_access(struct pci_dev *dev);
+ 
+ /*

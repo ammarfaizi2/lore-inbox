@@ -1,97 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422740AbWJRRcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWJRRdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422740AbWJRRcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWJRRcI
+	id S1161147AbWJRRdO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161231AbWJRRdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:32:08 -0400
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:65377 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422740AbWJRRcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:32:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uyLySyUHrGaw0zj4RzAKMyPS7wso/cJplWHPA9Jlf5a4cgzJu0GroG681lRnb5in8MzUXPqQkiMJOqmAp+8Mn1OOqsIi6tEmYBMG94TU2lkA6lB1XBEo0VRxqfR8EZqvXYFqTZtLMIr7Dnb4qbjypWG3sA6LR+rkn0GGkoPfXVo=  ;
-Message-ID: <45366515.4050308@yahoo.com.au>
-Date: Thu, 19 Oct 2006 03:32:05 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 18 Oct 2006 13:33:14 -0400
+Received: from sccrmhc13.comcast.net ([204.127.200.83]:15512 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1161147AbWJRRdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:33:13 -0400
+Message-ID: <45366556.7010907@comcast.net>
+Date: Wed, 18 Oct 2006 13:33:10 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc2-mm1
-References: <20061016230645.fed53c5b.akpm@osdl.org>	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>	 <45364CE9.7050002@yahoo.com.au> <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org, ubuntu-devel <ubuntu-devel@lists.ubuntu.com>
+Subject: nobody cared about via irq
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> On Thu, 2006-10-19 at 01:48 +1000, Nick Piggin wrote:
-> 
->>Badari Pulavarty wrote:
->>
->>>On Mon, 2006-10-16 at 23:06 -0700, Andrew Morton wrote:
->>>
->>>
->>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm1/
->>>>
->>>>
->>>>- Added the hwmon and i2c trees to the -mm lineup.  These are quilt-style
->>>> trees, maintained by Jean Delvare.
->>>
->>>
->>>
->>>LTP writev tests seems to lockup the machine. reiserfs issue ?
->>
->>...
->>
->>
->>>BUG: soft lockup detected on CPU#2!
->>>
->>>Call Trace:
->>> <IRQ>  [<ffffffff8024a4ba>] softlockup_tick+0xfa/0x120
->>> [<ffffffff8022e10f>] __do_softirq+0x5f/0xd0
->>> [<ffffffff80232067>] update_process_times+0x57/0x90
->>> [<ffffffff80217e84>] smp_local_timer_interrupt+0x34/0x60
->>> [<ffffffff802185db>] smp_apic_timer_interrupt+0x4b/0x80
->>> [<ffffffff80326ce0>] __copy_user_nocache+0x20/0x150
->>> [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
->>> <EOI>  [<ffffffff802b8de0>] reiserfs_get_block+0x0/0x10c0
->>> [<ffffffff80295198>] __block_prepare_write+0x158/0x470
->>> [<ffffffff802b8de0>] reiserfs_get_block+0x0/0x10c0
->>> [<ffffffff802954ca>] block_prepare_write+0x1a/0x30
->>> [<ffffffff802b7cea>] reiserfs_prepare_write+0xca/0x140
->>> [<ffffffff8024e9d2>] generic_file_buffered_write+0x2b2/0x610
->>
->>This is likely to be a reiserfs interaction with the pagecache write
->>deadlock fixes. Chris Mason just now identified a couple of issues
->>and is going to work on a fix.
->>
-> 
-> 
-> No. seems to be generic issue .. (happens with ext3 also) :(
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think I may have missed a fix for ext3 ordered and journalled too
-(I've just sent a patch to Andrew privately).
+I'm not sure if anyone here cares either but... Ubuntu Edgy.  I think I
+reported this problem to Ubuntu a while back, then it went away, now
+it's back; not sure though.  CC'd them too.
 
-Sorry. Can you try with ext2? Alternatively, try with ext3 or reiserfs
-and change the line in mm/filemap.c:generic_file_buffered_write from
+Linux icebox 2.6.17-10-generic #2 SMP Fri Oct 6 00:36:14 UTC 2006 i686
+GNU/Linux
 
-		status = a_ops->commit_write(file, page, offset, offset+copied);
-to
-		status = a_ops->commit_write(file, page, offset, offset+bytes);
 
-and see if that solves your problem (that will result in rubbish being
-temporarily visible, but there is a similar problem upstream anyway, so it
-shouldn't cause other failures in your test).
 
-Thanks,
-Nick
+[18142714.092000] agpgart: Found an AGP 3.0 compliant device at
+0000:00:00.0.
+[18142714.092000] agpgart: Xorg tried to set rate=x12. Setting to AGP3
+x8 mode.
+[18142714.092000] agpgart: Putting AGP V3 device at 0000:00:00.0 into 8x
+mode
+[18142714.092000] agpgart: Putting AGP V3 device at 0000:01:00.0 into 8x
+mode
+[18142714.652000] irq 201: nobody cared (try booting with the "irqpoll"
+option)
+[18142714.652000]  <c01499b4> __report_bad_irq+0x24/0x80  <c0149aad>
+note_interr
+upt+0x9d/0x270
+[18142714.652000]  <c0149333> handle_IRQ_event+0x33/0x60  <c0149458>
+__do_IRQ+0x
+f8/0x110
+[18142714.652000]  <c0105c89> do_IRQ+0x19/0x30  <c010408a>
+common_interrupt+0x1a
+/0x20
+[18142714.652000]  <c0102080> default_idle+0x0/0x60  <c01020aa>
+default_idle+0x2
+a/0x60
+[18142714.652000]  <c0102122> cpu_idle+0x42/0xb0  <c03f07a1>
+start_kernel+0x321/
+0x3a0
+[18142714.652000]  <c03f0210> unknown_bootoption+0x0/0x270
+[18142714.652000] handlers:
+[18142714.652000] [<f8e31490>] (via_driver_irq_handler+0x0/0x1d0 [via])
+[18142714.652000] Disabling IRQ #201
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRTZlUAs1xW0HCTEFAQJi1g//ZXy+qMzGR+dPI57ggIMOAm3YcJgwnQb3
+nrZLNfJyUqzQ0Bfn5ruL3S1zG9BxNyzbPDmlHK2ngS8DZjqse6Sk7tYeDsD100UT
+H204bgtCpZ+/h53p7uTW5KKzhe8hBnlrwEjXCoCnY0sgFf0t02u71eeplObXcVY5
+Y5lKcyctipr9BLQrQHtrHQSdJznWTkcUyrc5R6t0Xps9pcVoRQPi5/3HHyhmYsbf
+Ws2+jjTAzt25zBV0d6iAh/ZP7pNwUkGa1TEIOaGftH5zAA4zbWjmYThc5c1WmGVG
+q85QlpwutujoBHbXrEPx8KH60lbaNskoiRRae/6LjxTVKP/rC8g5MnpvwlIWjEOA
+dw8BuEFy7j/BZgq+yEnadhlx53yhAyxPgk5Fu8yYoCiBa2ykZmwiP0yUNVtSKPGw
+Arvl/AuOkBXkkhWUpYC8qA8tH27I71AI3h67A9GGKW/Xe9oCjYaneJdgW7TczWUL
+5GdqibjSty8tQJDLZyeyxLXvMrVv7NI2cqCzj1Wegu1HhGV8gxjG/xt3XoVRWBNg
+dJjDerSQQ+EiLq58gKvEwzFomP2B/QAC2ySwjUPZuWHugZ1eqKfRpdyXv05pN8nB
+z6b9jsqzpzaCvNPplskHuFd/ozMKAYMumTT8I/hQx/MeFeiutfoU3tz9LOs9l5/p
+GGLVJkOUJsk=
+=Em8x
+-----END PGP SIGNATURE-----

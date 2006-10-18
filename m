@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWJRRMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWJRRNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWJRRMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWJRRMd
+	id S1422672AbWJRRNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWJRRNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:12:33 -0400
-Received: from mta9.adelphia.net ([68.168.78.199]:58340 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP id S1751071AbWJRRMc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:12:32 -0400
-Message-ID: <4536606F.80606@Adelphia.net>
-Date: Wed, 18 Oct 2006 13:12:15 -0400
-From: Dyson <Linux@Adelphia.net>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Still broken sata (VIA) on Asus A8V (kernel 2.6.14+) with irqbalance
-References: <4534F41A.1030504@Adelphia.net> <200610181526.05336.sergio@sergiomb.no-ip.org>
-In-Reply-To: <200610181526.05336.sergio@sergiomb.no-ip.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 13:13:25 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:19239 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1161231AbWJRRNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:13:24 -0400
+Date: Wed, 18 Oct 2006 13:13:23 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: [PATCH] another fallout from the pt_regs removal
+X-X-Sender: nico@xanadu.home
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0610181310440.1971@xanadu.home>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-Sergio Monteiro Basto wrote:
-> On Tuesday 17 October 2006 16:17, Dyson wrote:
->   
->> I put in the patch mentioned below to get rid of the VIA IRQ fixup for a
->> VIA K8T800 SMP machine and the computer hasn't froze yet after 19 hours
->>     
->
-> Ok many thanks for your positive report :) 
-> Now the latest patch is http://lkml.org/lkml/diff/2006/9/7/235/1 from 
-> http://lkml.org/lkml/2006/9/7/235
-> which is in -mm kernels,
-> and I also need the patch to have more stability , but don't resolve all 
-> problems 
->
-> best regards, 
->   
+---
 
-Yes, I spoke a little too soon.
-
-I did more testing with a USB drive and it blew up after a few minutes. 
-It was fine until I used USB.
-
-I edited the original 2.6.16 quirks.c to not fixup the IDE bus and still
-fixup the USB IRQs.
-
-So far it's testing OK with dd copy loading to IDE, sata and USB 
-simultaneously.
-
--
-
-I will test the latest patch and give you results.
-
-Thanks,
-
-Dyson
+diff --git a/arch/arm/mach-pxa/lubbock.c b/arch/arm/mach-pxa/lubbock.c
+index ee80d62..142c33c 100644
+--- a/arch/arm/mach-pxa/lubbock.c
++++ b/arch/arm/mach-pxa/lubbock.c
+@@ -397,7 +397,7 @@ static void lubbock_mmc_poll(unsigned lo
+ 	if (LUB_IRQ_SET_CLR & (1 << 0))
+ 		mod_timer(&mmc_timer, jiffies + MMC_POLL_RATE);
+ 	else {
+-		(void) mmc_detect_int(LUBBOCK_SD_IRQ, (void *)data, NULL);
++		(void) mmc_detect_int(LUBBOCK_SD_IRQ, (void *)data);
+ 		enable_irq(LUBBOCK_SD_IRQ);
+ 	}
+ }

@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422813AbWJRUZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422872AbWJRU0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422813AbWJRUZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422872AbWJRUZL
+	id S1422872AbWJRU0x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422889AbWJRU0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:25:11 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:63942 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1422813AbWJRUZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:25:09 -0400
-Date: Wed, 18 Oct 2006 13:26:23 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH] fs/Kconfig: move GENERIC_ACL, fix acl() call errors
-Message-Id: <20061018132623.79c4b42f.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Oct 2006 16:26:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:19852 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422904AbWJRU0v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 16:26:51 -0400
+Message-ID: <45368E0A.1030503@fr.ibm.com>
+Date: Wed, 18 Oct 2006 22:26:50 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, Gabriel C <nix.or.die@googlemail.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc2-mm1
+References: <20061016230645.fed53c5b.akpm@osdl.org> <45367210.4040507@googlemail.com> <200610182118.31371.rjw@sisk.pl> <4536818E.3060505@fr.ibm.com> <453683A6.9090106@yahoo.com.au>
+In-Reply-To: <453683A6.9090106@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
 
-GENERIC_ACL shouldn't be under Network File Systems (which made it
-depend on NET) as far as I can tell.  Having it there and having
-many (FS) config symbols disabled gives this (which the patch fixes):
+> This fix will work. You should really call the non atomic version
+> though, just so it is clear (and maybe some architectures care).
 
-mm/built-in.o: In function `shmem_check_acl':
-shmem_acl.c:(.text.shmem_check_acl+0x33): undefined reference to `posix_acl_permission'
-fs/built-in.o: In function `generic_acl_get':
-(.text.generic_acl_get+0x30): undefined reference to `posix_acl_to_xattr'
-fs/built-in.o: In function `generic_acl_set':
-(.text.generic_acl_set+0x75): undefined reference to `posix_acl_from_xattr'
-fs/built-in.o: In function `generic_acl_set':
-(.text.generic_acl_set+0x94): undefined reference to `posix_acl_valid'
-fs/built-in.o: In function `generic_acl_set':
-(.text.generic_acl_set+0xc1): undefined reference to `posix_acl_equiv_mode'
-fs/built-in.o: In function `generic_acl_init':
-(.text.generic_acl_init+0x7a): undefined reference to `posix_acl_clone'
-fs/built-in.o: In function `generic_acl_init':
-(.text.generic_acl_init+0xb4): undefined reference to `posix_acl_clone'
-fs/built-in.o: In function `generic_acl_init':
-(.text.generic_acl_init+0xc8): undefined reference to `posix_acl_create_masq'
-fs/built-in.o: In function `generic_acl_chmod':
-(.text.generic_acl_chmod+0x49): undefined reference to `posix_acl_clone'
-fs/built-in.o: In function `generic_acl_chmod':
-(.text.generic_acl_chmod+0x76): undefined reference to `posix_acl_chmod_masq'
+ok. I've updated the patch.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> Because we must service a fault if it happens here. The
+> fault_in_pages_readable and comments are wrong AFAIKS.
+
+hmm. It says :
+
+		/*
+		 * Bring in the user page that we will copy from _first_.
+		 * Otherwise there's a nasty deadlock on copying from the
+		 * same page as we're writing to, without it being marked
+		 * up-to-date.
+		 */
+
+How can we improve it ? 
+
+thanks,
+
+
+C.
+
+
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>
 ---
- fs/Kconfig |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ mm/filemap_xip.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2619-rc2g2.orig/fs/Kconfig
-+++ linux-2619-rc2g2/fs/Kconfig
-@@ -634,6 +634,10 @@ config FUSE_FS
- 	  If you want to develop a userspace FS, or if you want to use
- 	  a filesystem based on FUSE, answer Y or M.
- 
-+config GENERIC_ACL
-+	bool
-+	select FS_POSIX_ACL
-+
- if BLOCK
- menu "CD-ROM/DVD Filesystems"
- 
-@@ -2080,10 +2084,6 @@ config 9P_FS
- 
- 	  If unsure, say N.
- 
--config GENERIC_ACL
--	bool
--	select FS_POSIX_ACL
--
- endmenu
- 
- if BLOCK
+Index: 2.6.19-rc2-mm1/mm/filemap_xip.c
+===================================================================
+--- 2.6.19-rc2-mm1.orig/mm/filemap_xip.c
++++ 2.6.19-rc2-mm1/mm/filemap_xip.c
+@@ -317,7 +317,7 @@ __xip_file_write(struct file *filp, cons
+                        break;
+                }
 
+-               copied = filemap_copy_from_user(page, offset, buf, bytes);
++               copied = filemap_copy_from_user_nonatomic(page, offset, buf, bytes);
+                flush_dcache_page(page);
+                if (likely(copied > 0)) {
+                        status = copied;
 
----

@@ -1,108 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWJROxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWJROwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbWJROxl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWJROxk
+	id S1161092AbWJROwa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbWJROwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:53:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:24973 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161095AbWJROxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:53:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=WRhDIzgSbAs8/gju6qnCGCTY94P9ZhJ6sv7y7NfiKDNstcEkJK2+wlAaHO7fhPszBCD6STgABH1Fxmjw/GiV5jIpK3vJb//FIQxvQ8p/JiyiD8NmcD1xwlknUv23LEFPLnxaYMS4wMN60r3bragBT86u1M82zIg73wbrOSrqGq0=
-Date: Wed, 18 Oct 2006 18:53:05 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] OOM killer meets userspace headers
-Message-ID: <20061018145305.GA5345@martell.zuzino.mipt.ru>
+	Wed, 18 Oct 2006 10:52:30 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:65198 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161092AbWJROw3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:52:29 -0400
+Date: Wed, 18 Oct 2006 07:53:21 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.18-rt6
+Message-ID: <20061018145321.GD1902@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20061018083921.GA10993@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061018083921.GA10993@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Despite mm.h is not being exported header, it does contain one thing
-which is part of userspace ABI -- value disabling OOM killer. So,
-a) export mm.h to userspace
-b) got OOM_DISABLE disable define out of __KERNEL__ prison.
-c) turn bound values suitable for /proc/$PID/oom_adj into defines and export
-   them too.
-d) put some headers into __KERNEL__ prison. It'd bizarre to include mm.h and
-   get capability stuff.
+On Wed, Oct 18, 2006 at 10:39:21AM +0200, Ingo Molnar wrote:
+> 
+> i've released the 2.6.18-rt6 tree, which can be downloaded from the 
+> usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is a fixes-mostly release. Changes since -rt4:
+> 
+>  - fix for module loading / symbol table crash (John Stultz)
+>  - scheduler fix (Mike Galbraith)
+>  - fix x86_64 NMI watchdog & preempt-rcu interaction
+>  - fix time-warp false positives
+>  - jiffies_to_timespec export fix (Steven Rostedt)
+>  - ll_rw_block.c warning fix (Mike Galbraith)
+>  - PPC updates (Daniel Walker)
+>  - MIPS updates (Manish Lachwani)
+>  - ARM oprofile fix (Kevin Hilman)
+>  - traditional futexes queued via plists (Séstien Duguése)
+>  - (various other smaller fixes)
+> 
+> to build a 2.6.18-rt6 tree, the following patches should be applied:
+> 
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.18.tar.bz2
+>   http://redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt6
+> 
+> as usual, bugreports, fixes and suggestions are welcome,
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+A nit from IPv6, since I happened by chance to run this on an IPv6
+machine -- there are a couple of smp_processor_id() calls that need
+to be raw_smp_processor_id() to suppress warnings.  I believe that this
+is the correct change, as it seems to me that the locking protects
+things so that preemption is not a problem.  That said, I cannot claim
+to be an IPv6 expert.  Tested on x86.
+
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
 ---
 
- fs/proc/base.c       |    3 ++-
- include/linux/Kbuild |    2 ++
- include/linux/mm.h   |   13 +++++++------
- 3 files changed, 11 insertions(+), 7 deletions(-)
+ ip6_tables.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -689,7 +689,8 @@ static ssize_t oom_adjust_write(struct f
- 	if (copy_from_user(buffer, buf, count))
- 		return -EFAULT;
- 	oom_adjust = simple_strtol(buffer, &end, 0);
--	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
-+	if ((oom_adjust < OOM_ADJUST_MIN || oom_adjust > OOM_ADJUST_MAX) &&
-+	     oom_adjust != OOM_DISABLE)
- 		return -EINVAL;
- 	if (*end == '\n')
- 		end++;
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -110,6 +110,7 @@ header-y += major.h
- header-y += matroxfb.h
- header-y += meye.h
- header-y += minix_fs.h
-+header-y += mm.h
- header-y += mmtimer.h
- header-y += mqueue.h
- header-y += mtio.h
-@@ -257,6 +258,7 @@ unifdef-y += loop.h
- unifdef-y += lp.h
- unifdef-y += mempolicy.h
- unifdef-y += mii.h
-+unifdef-y += mm.h
- unifdef-y += mman.h
- unifdef-y += mroute.h
- unifdef-y += msdos_fs.h
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1,12 +1,16 @@
- #ifndef _LINUX_MM_H
- #define _LINUX_MM_H
+diff -urpNa -X dontdiff linux-2.6.18-rt3/net/ipv6/netfilter/ip6_tables.c linux-2.6.18-rt3-ip6t_do_table/net/ipv6/netfilter/ip6_tables.c
+--- linux-2.6.18-rt3/net/ipv6/netfilter/ip6_tables.c	2006-09-19 20:42:06.000000000 -0700
++++ linux-2.6.18-rt3-ip6t_do_table/net/ipv6/netfilter/ip6_tables.c	2006-10-17 17:44:55.000000000 -0700
+@@ -285,7 +285,7 @@ ip6t_do_table(struct sk_buff **pskb,
+ 	read_lock_bh(&table->lock);
+ 	private = table->private;
+ 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
+-	table_base = (void *)private->entries[smp_processor_id()];
++	table_base = (void *)private->entries[raw_smp_processor_id()];
+ 	e = get_entry(table_base, private->hook_entry[hook]);
  
-+/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
-+#define OOM_DISABLE (-17)
-+/* inclusive */
-+#define OOM_ADJUST_MIN (-16)
-+#define OOM_ADJUST_MAX 15
-+
-+#ifdef __KERNEL__
- #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/capability.h>
--
--#ifdef __KERNEL__
--
- #include <linux/gfp.h>
- #include <linux/list.h>
- #include <linux/mmzone.h>
-@@ -1115,9 +1119,6 @@ int in_gate_area_no_task(unsigned long a
- #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
- #endif	/* __HAVE_ARCH_GATE_AREA */
+ 	/* For return from builtin chain */
+@@ -1110,7 +1110,7 @@ do_add_counters(void __user *user, unsig
  
--/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
--#define OOM_DISABLE -17
--
- int drop_caches_sysctl_handler(struct ctl_table *, int, struct file *,
- 					void __user *, size_t *, loff_t *);
- unsigned long shrink_slab(unsigned long scanned, gfp_t gfp_mask,
-
+ 	i = 0;
+ 	/* Choose the copy that is on our node */
+-	loc_cpu_entry = private->entries[smp_processor_id()];
++	loc_cpu_entry = private->entries[raw_smp_processor_id()];
+ 	IP6T_ENTRY_ITERATE(loc_cpu_entry,
+ 			  private->size,
+ 			  add_counter_to_entry,

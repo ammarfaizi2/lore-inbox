@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWJRHIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWJRHOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWJRHIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 03:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWJRHIo
+	id S1750716AbWJRHOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 03:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWJRHOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 03:08:44 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:35903 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1750884AbWJRHIo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 03:08:44 -0400
-Date: Wed, 18 Oct 2006 09:09:22 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
-Message-ID: <20061018070922.GB24452@kernel.dk>
-References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr> <200610171857.k9HIvq1M009488@turing-police.cc.vt.edu> <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr> <20061017193645.GM7854@kernel.dk> <Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr>
+	Wed, 18 Oct 2006 03:14:39 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23976 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750716AbWJRHOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 03:14:38 -0400
+Date: Wed, 18 Oct 2006 00:14:24 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: dino@in.ibm.com, menage@google.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, rohitseth@google.com,
+       dipankar@in.ibm.com, nickpiggin@yahoo.com.au
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-Id: <20061018001424.0c22a64b.pj@sgi.com>
+In-Reply-To: <20061017192547.B19901@unix-os.sc.intel.com>
+References: <20061017192547.B19901@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 17 2006, Jan Engelhardt wrote:
-> >> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
-> >> of being wrapped into if BLOCK. Not really consistent but whatever.
-> >
-> >Feel free to send in patches that make things more consistent.
-> 
-> How would you like things? if BLOCK or depends on BLOCK?
+> Anyone would like to fix it up?
 
-Well, if you can hide an entire block with if BLOCK, then that would be
-preferred. Otherwise depends on BLOCK.
+Hotplug is not high on my priority list.
 
-> Does menuconfig/oldconfig/etc. parse the whole config structure faster 
-> it it done either way?
+I do what I can in my spare time to avoid having cpusets or hotplug
+break each other.
 
-I'd be surprised if if BLOCK wasn't faster over, say, 10 depends on
-BLOCK.
+Besides, I'm not sure I'd be able.  I've gotten to the point where I am
+confident I can make simple changes at the edges, such as mimicing the
+sched domain side affects of the cpu_exclusive flag with my new
+sched_domain flag.  But that's near the current limit of my sched domain
+writing skills.
 
 -- 
-Jens Axboe
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

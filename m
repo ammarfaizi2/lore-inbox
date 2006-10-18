@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161102AbWJRO4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbWJRO5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161102AbWJRO4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbWJRO4W
+	id S1161109AbWJRO5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbWJRO5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:56:22 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:8876 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161102AbWJRO4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:56:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=K+osH6Zftm9hJ7WE+ehvJRAAMisWmSZ84C3Vcum1WxAmOiaxvlPHw7GUniKErwe5qUt3/DKoy7x0cdw/KiV/w/q5mxXwDeQlnjiZCjl7ApzWhC6u8eVKyGdbX+B6zFWg5UK1i5VLDe0sgy3PKu1LxABSlxtj28IZoGhy2Z30QNc=  ;
-Message-ID: <45364092.3030206@yahoo.com.au>
-Date: Thu, 19 Oct 2006 00:56:18 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 18 Oct 2006 10:57:24 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:38331 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1161084AbWJRO5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:57:23 -0400
+Date: Wed, 18 Oct 2006 08:57:22 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Brian King <brking@us.ibm.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
+Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
+Message-ID: <20061018145722.GP22289@parisc-linux.org>
+References: <20061017145146.GJ22289@parisc-linux.org> <45354A59.3010109@us.ibm.com> <20061018145104.GN22289@parisc-linux.org>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [RFC] Remove temp_priority
-References: <45351423.70804@google.com> <4535160E.2010908@yahoo.com.au> <45351877.9030107@google.com> <45362130.6020804@yahoo.com.au> <45363E66.8010201@google.com>
-In-Reply-To: <45363E66.8010201@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061018145104.GN22289@parisc-linux.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->> Coming from another angle, I am thinking about doing away with direct
->> reclaim completely. That means we don't need any GFP_IO or GFP_FS, and
->> solves the problem of large numbers of processes stuck in reclaim and
->> skewing aging and depleting the memory reserve.
-> 
-> 
-> Last time I proposed that, the objection was how to throttle the heavy
-> dirtiers so they don't fill up RAM with dirty pages?
+On Wed, Oct 18, 2006 at 08:51:04AM -0600, Matthew Wilcox wrote:
+> This reimplementation uses a global wait queue and a bit per device.
+> I've open-coded prepare_to_wait() / finish_wait() as I could optimise
+> it significantly by knowing that the pci_lock protected us at all points.
 
-Now that we have the dirty mmap accounting, page dirtiers should be
-throttled pretty well via page writeback throttling.
+I forgot to report how I've tested it.  Using the 'test' patch from
+yesterday, I have two processes running lspci in an infinite loop.  When
+I write a 1 to /sys/bus/pci/devices/0000\:00\:01.0/block, they both
+halt.  When I write a 0, they both resume.
 
-> Also, how do you do atomic allocations? Create a huge memory pool and
-> pray really hard?
+Then I tried doing echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block a
+second time, and I got the WARNing I expected.
 
-Well, yes. Atomic allocations as of *today* cannot do any reclaim, and
-thus they rely on kswapd to free their memory, and we keep a (not huge)
-memory pool for them. They also have to be able to handle failures, and
-by and large they do OK.
+animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
+animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
+animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
 
->> But that's tricky because we don't have enough kswapds to get maximum
->> reclaim throughput on many configurations (only single core opterons
->> and UP systems, really).
-> 
-> 
-> It's not a question of enough kswapds. It's that we can dirty pages
-> faster than they can possibly be written to disk.
-> 
-> dd if=/dev/zero of=/tmp/foo
+They both resumed (as expected; we don't support nesting).
 
-You can't catch that at the allocation side anyway because clean pagecache
-may already exist for /tmp/foo.
+animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
+animal:~# echo 1 >/sys/bus/pci/devices/0000\:00\:01.1/block                     
+animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.0/block                     
+animal:~# echo 0 >/sys/bus/pci/devices/0000\:00\:01.1/block                     
 
-We've always done pretty well (in 2.6) with correctly throttling and
-limiting write(2) writes into pagecache, haven't we?
+Both resumed only after the second echo 0 (as lspci reads all devices
+before printing anything).
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+It's not exactly rigorous testing, but I couldn't think of any other
+cases to try.

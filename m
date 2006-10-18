@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423113AbWJRWqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423121AbWJRWtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423113AbWJRWqu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423110AbWJRWqu
+	id S1423121AbWJRWtH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423123AbWJRWtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:46:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3293 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423113AbWJRWqt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:46:49 -0400
-Date: Wed, 18 Oct 2006 15:46:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-mm1
-Message-Id: <20061018154636.2317059a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	<453675A6.9080001@googlemail.com>
-	<Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
-	<20061018152947.bb404481.akpm@osdl.org>
-	<Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 18:49:07 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:51455 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1423121AbWJRWtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 18:49:05 -0400
+Date: Thu, 19 Oct 2006 00:45:21 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
+cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       kronos.it@gmail.com, ismail@pardus.org.tr, 7eggert@gmx.de
+Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
+In-Reply-To: <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
+Message-ID: <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
+References: <771eN-VK-9@gated-at.bofh.it> <771yn-1XU-65@gated-at.bofh.it>
+ <E1GZy4L-00015O-AV@be1.lrz> <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 00:41:40 +0200 (CEST)
-Jiri Kosina <jikos@jikos.cz> wrote:
+On Wed, 18 Oct 2006, Joerg Schilling wrote:
+> Bodo Eggert <7eggert@elstempel.de> wrote:
 
-> On Wed, 18 Oct 2006, Andrew Morton wrote:
-> 
-> > > The inode->i_mutex should be held every time when calling 
-> > > i_size_write(), and the function contains WARN_ON() for that 
-> > > condition. page_symlink(), however, does not lock i_mutex. It is 
-> > > perfectly OK, as the i_mutex for the directory is held at the time 
-> > > page_symlink() is running, so noone is able to change i_size during 
-> > > race condition. However, i_size_write() spits out the warning without 
-> > > this patch.
-> > I suspect it isn't necessary because the symlink's inode hasn't been wired
-> > up into the directory tree yet and no other thread can find it and do
-> > things to it.
-> 
-> I completely agree (see my comments to the patch in previous mail). 
-> However, the warning emitted by i_size_write() should really go away. I 
-> can see the following possibilities:
-> 
-> - lock the i_mutex, even though it's for sure not necessary. Not nice.
-> - remove the warning from i_size_write(). Not nice either, we want to be 
-> warned about other calls that are not correct
-> - make the warning in i_size_write() conditional on inode->i_dentry not 
-> being NULL (?)
-> 
+> > BTW2, Just to be cautionous: what will happen if somebody forces the same
+> > inode number on two different entries?
 
-I simply dropped the debugging patch.  Which is pretty sad, because it _is_ a
-really nasty and subtle-to-show bug.  So I'd be OK with adding sufficient
-patches to -mm to make the false positives go away so we can re-add the
-check.
+[...]
+> This is something you cannot check.
 
+Exactly that's why I'd ignore the on-disk "inode number" and instead use
+the generated one untill someone comes along with a clever idea to fix
+the issue or can show that it's mostly hermless.
+
+-- 
+Artificial Intelligence usually beats real stupidity. 

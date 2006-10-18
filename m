@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWJRGjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWJRGkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWJRGjs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 02:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWJRGjs
+	id S1751451AbWJRGkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 02:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWJRGkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 02:39:48 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:59844 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1751448AbWJRGjr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 02:39:47 -0400
-Date: Wed, 18 Oct 2006 08:39:45 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Mohit Katiyar <katiyar.mohit@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-       Linux NFS mailing list <nfs@lists.sourceforge.net>
-Subject: Re: NFS inconsistent behaviour
-Message-ID: <20061018063945.GA5917@janus>
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com> <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com> <20061016084656.GA13292@janus> <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com> <20061016093904.GA13866@janus> <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
+	Wed, 18 Oct 2006 02:40:10 -0400
+Received: from main.gmane.org ([80.91.229.2]:42931 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751451AbWJRGkI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 02:40:08 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sven Hoexter <shoexter@gmx.de>
+Subject: Re: [REGRESSION] nfs client: Read-only file system (2.6.19-rc1,2)
+Date: Wed, 18 Oct 2006 08:27:55 +0200
+Message-ID: <eh4hhb$sp7$1@sea.gmane.org>
+References: <4534F59D.4040505@gmail.com> <1161104051.5559.5.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-BotBait: val@frankvm.com, kuil@frankvm.com
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: xdsl-87-78-10-107.netcologne.de
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 10:22:44AM +0900, Mohit Katiyar wrote:
-> I checked it today and when i issued the netstat -t ,I could see a lot
-> of tcp connections in TIME_WAIT state.
-> Is this a normal behaviour?
+Trond Myklebust wrote:
+> On Tue, 2006-10-17 at 17:24 +0200, Jiri Slaby wrote:
 
-yes... but see below
+Hi,
 
-> So we cannot mount and umount infinitely
-> with tcp option? Why there are so many connections in waiting state?
+>> I can't write on mounted nfs filesystem since 2.6.19-rc1 (nfs client):
+>> touch: cannot touch `aaa': Read-only file system
+>> 
+>> strace says:
+>> open("aaa", O_WRONLY|O_NONBLOCK|O_CREAT|O_NOCTTY|O_LARGEFILE, 0666) = -1
+>> EROFS (Read-only file system)
+>> 
+>> 2.6.18 behaves correctly. Settings are the same, does anybody have any
+>> clue?
+>
+> What does "cat /proc/mounts" say?
+Ok I'm not the OP but I can confirm the problem.
 
-I think it's called the 2MSL wait: there may be TCP segments on the
-wire which (in theory) could disrupt new connections which reuse local
-and remote port so the ports stay in use for a few minutes. This is
-standard TCP behavior but only occurs when connections are improperly
-shutdown. Apparently this happens when umounting a tcp NFS mount but
-also for a lot of other tcp based RPC (showmount, rpcinfo).  I'm not
-sure who's to blame but it might be the rpc functions inside glibc.
+>From /proc/mounts:
+arthur:/mnt/disk2/mp3 /mnt/mp3 nfs ro,nosuid,nodev,noexec,vers=3,rsize=8192,wsize=8192,hard,proto=tcp,timeo=600,retrans=2,sec=sys,addr=arthur 0 0
 
-I'd switch to NFS over udp if this is problem.
+Reports ro here while mount still reports rw:
+arthur:/mnt/disk2/mp3 on /mnt/mp3 type nfs (rw,noexec,nosuid,nodev,addr=192.168.88.80)
 
-(cc'ed to nfs mailing list)
+Sven
 
--- 
-Frank

@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWJRBnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWJRBsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWJRBnp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 21:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWJRBnp
+	id S1750837AbWJRBsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 21:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWJRBsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 21:43:45 -0400
-Received: from smtpout.mac.com ([17.250.248.182]:15047 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751317AbWJRBnp (ORCPT
+	Tue, 17 Oct 2006 21:48:11 -0400
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:25520 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1750837AbWJRBsJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 21:43:45 -0400
-In-Reply-To: <28bb77d30610171634l5db9d909v2c4cd12972e9d5@mail.gmail.com>
-References: <28bb77d30610171634l5db9d909v2c4cd12972e9d5@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <90DB029B-222B-4D0C-8642-913CD81D5C9B@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Machine Check Exception on dual core Xeon
-Date: Tue, 17 Oct 2006 21:43:20 -0400
-To: Steven Truong <midair77@gmail.com>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+	Tue, 17 Oct 2006 21:48:09 -0400
+Message-ID: <453586E7.7030404@cn.ibm.com>
+Date: Wed, 18 Oct 2006 09:44:07 +0800
+From: Yi CDL Yang <yyangcdl@cn.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Alan Modra <amodra@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, binutils@sourceware.org,
+       bug-binutils@gnu.org
+Subject: Re: 2.6.19-rc2 has ld error for ppc64
+References: <4534BA77.6040400@cn.ibm.com> <20061017132936.GF20843@bubble.grove.modra.org>
+In-Reply-To: <20061017132936.GF20843@bubble.grove.modra.org>
+X-MIMETrack: Itemize by SMTP Server on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 10/18/2006 09:51:17,
+	Serialize by Router on D23M0037/23/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 10/18/2006 09:51:19
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 17, 2006, at 19:34:59, Steven Truong wrote:
-> Hi, all.  I have this node of dual core Xeon 3.2 GHz, 4 Gig of RAM and
-> kernel 2.16.18 on CentOS 4.3.  I got kernel panic and after setting up
-> kdump/kexec I was able to capture the kdump core.
-> I found out this message with crash to analyze the core dump:
->
-> HARDWARE ERROR
-> CPU 0: Machine Check Exception:                4 Bank 3:  
-> 0000000000000000
-> TSC 0
-> This is not a software problem!
-> Run through mcelog --ascii to decode and contact your hardware vendor
+Alan Modra 写道:
+> On Tue, Oct 17, 2006 at 07:11:51PM +0800, Yi CDL Yang wrote:
+>> On building 2.6.19-rc2 on ppc64, ld always reports such an error:
+>>
+>> ".text exceeds stub group size"
+> 
+> This is not an error.  It is just a warning that might help explain a
+> later error.  If the linker doesn't give any errors then the warning
+> may safely be ignored.
+> 
+Many warnings aren't a good thing, we should have a clean build, this 
+patch should be good.
 
-You missed the blatantly obvious error message:
-"This is not a software problem!"
-
-Immediately followed by:
-"contact your hardware vendor"
-
-Please follow that advice
-
-Cheers,
-Kyle Moffett

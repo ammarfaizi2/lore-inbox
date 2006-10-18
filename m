@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWJRXRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWJRXXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWJRXRs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWJRXRs
+	id S1751137AbWJRXXN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWJRXXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:17:48 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:64434 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751537AbWJRXRr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:17:47 -0400
-Subject: Re: 2.6.18 w/ GPS time source: worse performance
-From: john stultz <johnstul@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Valdis.Kletnieks@vt.edu, Udo van den Heuvel <udovdh@xs4all.nl>,
-       linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <1161207996.15860.134.camel@mindpipe>
-References: <4534F5F7.8020003@xs4all.nl> <1161103616.2919.70.camel@mindpipe>
-	 <45364631.9070805@xs4all.nl> <1161189384.15860.85.camel@mindpipe>
-	 <45365A0B.5030306@xs4all.nl>
-	 <200610181957.k9IJvw4m013149@turing-police.cc.vt.edu>
-	 <1161207996.15860.134.camel@mindpipe>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 16:17:39 -0700
-Message-Id: <1161213459.5875.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 19:23:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28341 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751137AbWJRXXN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 19:23:13 -0400
+Date: Wed, 18 Oct 2006 16:09:39 -0700
+From: Greg KH <greg@kroah.com>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Greg.Chandler@wellsfargo.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel oops with extended serial stuff turned on...
+Message-ID: <20061018230939.GA7713@kroah.com>
+References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 17:46 -0400, Lee Revell wrote:
-> [added John Stultz to cc]
+On Wed, Oct 18, 2006 at 05:35:17PM -0500, Kilau, Scott wrote:
+> Hi Greg,
 > 
-> On Wed, 2006-10-18 at 15:57 -0400, Valdis.Kletnieks@vt.edu wrote:
-> > On Wed, 18 Oct 2006 18:44:59 +0200, Udo van den Heuvel said:
-> > > 
-> > > It is stuff that is visible by watching ntpq -pn output, by letting mrtg
-> > > graph stuff, etc. Watch the offset and jitter collumns.
-> > > Check /usr/sbin/ntpdc -c kerninfo output. Graph that stuff.
 > > 
-> > So... you've presumably done that while identifying there is an issue.
-> > Please share the results.  Have you tried booting back into a 2.6.17
-> > or so and seen offset/jitter improve?  etc etc etc.
+> > I don't understand, what problem is occuring here?  Who is trying to
+> > register with sysfs twice?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> The original warning/error he gets is:
+> 
+> > kobject_add failed for ttyM0 with -EEXIST, don't try to register
+> things
+> > with the same name in the same directory.
+> 
+> Presumably this means that "ttyM0" was already registered with
+> sysfs/udev already...
 
-Udo: 
-	Are you running the linuxpps patches, or is this vanilla 2.6.18 without
-any additional patches? Mind sending your dmesg and some "ntpdc -c
-kerninfo" output? Any of those graphs you mention above would be great
-as well.
+Yes (sysfs, not udev, there is no kernel portion of udev, sorry).
 
-thanks
--john
+> In my out-of-tree driver's case, I used to use "TTY_DRIVER_NO_DEVFS" as
+> a flag.
+> 
+> When that flag went away, I did not put in "TTY_DRIVER_DYNAMIC_DEV" by
+> mistake,
+> and I got the same error as Greg C.
+> I had to push in "TTY_DRIVER_DYNAMIC_DEV" to fix my problem...
 
+What other driver is using the ttyM0 name?
 
+> I don't know much (anything) about the isicom.c driver, so maybe I am
+> reading
+> something into that error that shouldn't be read into it...
+
+Any pointer to your driver's code so I can see if you are doing
+something odd here?  Any reason it's just not in the main kernel tree so
+I would have fixed it up at the time I did the other fixes?
+
+thanks,
+
+greg k-h

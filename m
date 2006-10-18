@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945894AbWJRWaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945895AbWJRWfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945894AbWJRWaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJRWaB
+	id S1945895AbWJRWfU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945898AbWJRWfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:30:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17112 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423100AbWJRW35 (ORCPT
+	Wed, 18 Oct 2006 18:35:20 -0400
+Received: from mail29.messagelabs.com ([216.82.249.147]:21681 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S1945895AbWJRWfT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:29:57 -0400
-Date: Wed, 18 Oct 2006 15:29:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-mm1
-Message-Id: <20061018152947.bb404481.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	<453675A6.9080001@googlemail.com>
-	<Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 18:35:19 -0400
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-13.tower-29.messagelabs.com!1161210918!32464014!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: kernel oops with extended serial stuff turned on...
+Date: Wed, 18 Oct 2006 17:35:17 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel oops with extended serial stuff turned on...
+Thread-Index: AcbzBOZ3Sp7s95zkTIiU47Rel4wjwAAAA9Yg
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <Greg.Chandler@wellsfargo.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Oct 2006 22:35:18.0351 (UTC) FILETIME=[B03865F0:01C6F305]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 23:44:03 +0200 (CEST)
-Jiri Kosina <jikos@jikos.cz> wrote:
+Hi Greg,
 
-> [PATCH] VFS: fix i_mutex locking in page_symlink()
 > 
-> The inode->i_mutex should be held every time when calling i_size_write(), 
-> and the function contains WARN_ON() for that condition. 
-> page_symlink(), however, does not lock i_mutex. It is perfectly OK, as the 
-> i_mutex for the directory is held at the time page_symlink() is running, 
-> so noone is able to change i_size during race condition. However, 
-> i_size_write() spits out the warning without this patch.
+> I don't understand, what problem is occuring here?  Who is trying to
+> register with sysfs twice?
+> 
+> thanks,
+> 
+> greg k-h
 > 
 
-I suspect it isn't necessary because the symlink's inode hasn't been wired
-up into the directory tree yet and no other thread can find it and do
-things to it.
+The original warning/error he gets is:
 
+> kobject_add failed for ttyM0 with -EEXIST, don't try to register
+things
+> with the same name in the same directory.
+
+Presumably this means that "ttyM0" was already registered with
+sysfs/udev already...
+
+In my out-of-tree driver's case, I used to use "TTY_DRIVER_NO_DEVFS" as
+a flag.
+
+When that flag went away, I did not put in "TTY_DRIVER_DYNAMIC_DEV" by
+mistake,
+and I got the same error as Greg C.
+I had to push in "TTY_DRIVER_DYNAMIC_DEV" to fix my problem...
+
+I don't know much (anything) about the isicom.c driver, so maybe I am
+reading
+something into that error that shouldn't be read into it...
+
+Scott

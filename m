@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWJRUGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWJRUHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWJRUGq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWJRUGp
+	id S1422802AbWJRUHF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422799AbWJRUGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:06:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6117 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932111AbWJRUGo (ORCPT
+	Wed, 18 Oct 2006 16:06:51 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6885 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932194AbWJRUGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:06:44 -0400
-Date: Wed, 18 Oct 2006 12:58:33 -0700
+	Wed, 18 Oct 2006 16:06:45 -0400
+Date: Wed, 18 Oct 2006 13:06:22 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] Driver Core fixes for 2.6.19-rc2
-Message-ID: <20061018195833.GA21808@kroah.com>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PATCH] HWMon fixes for 2.6.19-rc2
+Message-ID: <20061018200622.GA10122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,69 +23,54 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some driver core and sysfs fixes for 2.6.19-rc2.
+Here are some hwmon fixes for 2.6.19-rc2.
 
-All of these patches have been in the -mm tree for a quite a while.
+They have all been in the -mm tree for a while.
 
 Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/hwmon-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/hwmon-2.6.git/
+if it isn't synced up yet.
 
-Patches will be sent as a follow-on to this message to lkml for people
-to see.
+The full patch series will sent to the sensors mailing list, if anyone
+wants to see them.
 
 thanks,
 
 greg k-h
 
-
- Documentation/HOWTO                        |   20 +++++
- Documentation/feature-removal-schedule.txt |    2 -
- drivers/base/bus.c                         |  108 +++++++++++++++++-----------
- drivers/base/class.c                       |    5 +
- drivers/base/core.c                        |   26 +++++--
- drivers/base/dd.c                          |    4 +
- drivers/base/dmapool.c                     |   13 +++
- drivers/base/topology.c                    |    3 -
- fs/sysfs/file.c                            |    7 --
- 9 files changed, 123 insertions(+), 65 deletions(-)
+ Documentation/hwmon/adm9240   |    2 -
+ Documentation/hwmon/f71805f   |    2 -
+ Documentation/hwmon/k8temp    |   13 ++++--
+ Documentation/hwmon/smsc47m1  |    4 +-
+ Documentation/hwmon/w83627ehf |    6 +--
+ MAINTAINERS                   |    6 +++
+ drivers/hwmon/Kconfig         |   10 +++--
+ drivers/hwmon/adm9240.c       |    4 +-
+ drivers/hwmon/lm78.c          |   12 +++---
+ drivers/hwmon/smsc47m1.c      |   11 +++--
+ drivers/hwmon/w83627ehf.c     |   11 ++++-
+ drivers/hwmon/w83781d.c       |   30 ++++++++------
+ drivers/hwmon/w83791d.c       |   85 +++++++++++++++++++++++++++--------------
+ drivers/i2c/busses/i2c-isa.c  |    2 -
+ 14 files changed, 124 insertions(+), 74 deletions(-)
 
 ---------------
 
-Akinobu Mita:
-      driver core: kmalloc() failure check in driver_probe_device
+Grant Coady:
+      adm9240: Update Grant Coady's email address
 
-Alan Stern:
-      Driver core: Don't ignore error returns from probing
+Jean Delvare:
+      hwmon: Fix documentation typos
+      smsc47m1: List the SMSC LPC47M112 as supported
+      hwmon: Let w83781d and lm78 load again
+      hwmon: Fix debug messages in w83781d
 
-Cornelia Huck:
-      driver core fixes: sysfs_create_link() retval check in class.c
-      driver core fixes: bus_add_attrs() retval check
-      driver core fixes: bus_add_device() cleanup on error
-      driver core fixes: device_add() cleanup on error
-      driver core fixes: device_create_file() retval check in dmapool.c
-      driver core fixes: sysfs_create_group() retval in topology.c
+Jim Cromie:
+      w83791d: Fix unchecked return status
 
-Diego Calleja:
-      HOWTO: bug report addition
-
-Dominik Brodowski:
-      Documentation: feature-removal-schedule typo
-
-Duncan Sands:
-      Driver core: plug device probe memory leak
-
-Hidetoshi Seto:
-      sysfs: remove duplicated dput in sysfs_update_file
-      sysfs: update obsolete comment in sysfs_update_file
-
-Jeff Garzik:
-      Driver core: bus: remove indentation level
-
-Jesper Juhl:
-      Driver core: Don't leak 'old_class_name' in drivers/base/core.c::device_rename()
-
-Matthew Wilcox:
-      Fix dev_printk() is now GPL-only
+Rudolf Marek:
+      k8temp: Documentation update
+      w83627ehf: Fix the detection of fan5
 

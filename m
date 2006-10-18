@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945900AbWJRWlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423102AbWJRWoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945900AbWJRWlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945901AbWJRWlt
+	id S1423102AbWJRWoS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423104AbWJRWoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:41:49 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:54476 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1945900AbWJRWls (ORCPT
+	Wed, 18 Oct 2006 18:44:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32732 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423102AbWJRWoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:41:48 -0400
-Date: Thu, 19 Oct 2006 00:41:40 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Andrew Morton <akpm@osdl.org>
-cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+	Wed, 18 Oct 2006 18:44:17 -0400
+Date: Wed, 18 Oct 2006 15:44:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.19-rc2-mm1
-In-Reply-To: <20061018152947.bb404481.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz>
-References: <20061016230645.fed53c5b.akpm@osdl.org> <453675A6.9080001@googlemail.com>
- <Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz> <20061018152947.bb404481.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20061018154402.ef49874a.akpm@osdl.org>
+In-Reply-To: <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
+	<45364CE9.7050002@yahoo.com.au>
+	<1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
+	<45366515.4050308@yahoo.com.au>
+	<1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006, Andrew Morton wrote:
+On Wed, 18 Oct 2006 10:58:23 -0700
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-> > The inode->i_mutex should be held every time when calling 
-> > i_size_write(), and the function contains WARN_ON() for that 
-> > condition. page_symlink(), however, does not lock i_mutex. It is 
-> > perfectly OK, as the i_mutex for the directory is held at the time 
-> > page_symlink() is running, so noone is able to change i_size during 
-> > race condition. However, i_size_write() spits out the warning without 
-> > this patch.
-> I suspect it isn't necessary because the symlink's inode hasn't been wired
-> up into the directory tree yet and no other thread can find it and do
-> things to it.
+> > > No. seems to be generic issue .. (happens with ext3 also) :(
+> > 
+> > I think I may have missed a fix for ext3 ordered and journalled too
+> > (I've just sent a patch to Andrew privately).
+> > 
+> > Sorry. Can you try with ext2? Alternatively, try with ext3 or reiserfs
+> > and change the line in mm/filemap.c:generic_file_buffered_write from
+> > 
+> > 		status = a_ops->commit_write(file, page, offset, offset+copied);
+> > to
+> > 		status = a_ops->commit_write(file, page, offset, offset+bytes);
+> > 
+> > and see if that solves your problem (that will result in rubbish being
+> > temporarily visible, but there is a similar problem upstream anyway, so it
+> > shouldn't cause other failures in your test).
+> 
+> No. Above change didn't help either :(
+> 
+> Thanks,
+> Badari
+> 
+> BUG: soft lockup detected on CPU#1!
 
-I completely agree (see my comments to the patch in previous mail). 
-However, the warning emitted by i_size_write() should really go away. I 
-can see the following possibilities:
+We should have got an all-CPU backtrace via the fancy new trigger_all_cpu_backtrace()
+thing.
 
-- lock the i_mutex, even though it's for sure not necessary. Not nice.
-- remove the warning from i_size_write(). Not nice either, we want to be 
-warned about other calls that are not correct
-- make the warning in i_size_write() conditional on inode->i_dentry not 
-being NULL (?)
-
-Thanks,
-
--- 
-Jiri Kosina
+Is the NMI watchdog ticking over?

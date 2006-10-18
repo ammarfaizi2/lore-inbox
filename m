@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWJRJ1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWJRJ2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWJRJ1j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 05:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWJRJ1j
+	id S1751449AbWJRJ2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 05:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWJRJ2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 05:27:39 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:10187 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1750882AbWJRJ1j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 05:27:39 -0400
-Date: Wed, 18 Oct 2006 02:27:23 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] i386 add Intel Core related PMU MSRs
-Message-ID: <20061018092723.GB19522@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Wed, 18 Oct 2006 05:28:17 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:29107 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751454AbWJRJ2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 05:28:16 -0400
+Date: Wed, 18 Oct 2006 02:27:47 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: akpm@osdl.org, jsipek@fsl.cs.sunysb.edu, linux-kernel@vger.kernel.org,
+       hch@infradead.org, mhalcrow@us.ibm.com, penberg@cs.helsinki.fi,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: fsstack: struct path
+Message-Id: <20061018022747.d1d9ee5c.pj@sgi.com>
+In-Reply-To: <20061018092241.GL29920@ftp.linux.org.uk>
+References: <20061018042323.GA8537@filer.fsl.cs.sunysb.edu>
+	<20061018013103.4ad6311a.akpm@osdl.org>
+	<20061018013551.3745e1d5.akpm@osdl.org>
+	<20061018090623.GK29920@ftp.linux.org.uk>
+	<20061018021222.2c4d907c.akpm@osdl.org>
+	<20061018092241.GL29920@ftp.linux.org.uk>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> struct path_node
 
-The following patch adds to the i386 tree a bunch of MSRs related to performance
-monitoring for the processors based on Intel Core microarchitecture. It also adds
-some architectural MSRs for PEBS. A similar patch was posted for x86-64.
+or just struct pathnode ?
 
-changelog:
-        - add Intel Precise-Event Based sampling (PEBS) related MSR
-        - add Intel Data Save (DS) Area related MSR
-        - add Intel Core microarchitecure performance counter MSRs
-
-signed-off-by: stephane eranian <eranian@hpl.hp.com>
-
-
-diff --git a/include/asm-i386/msr.h b/include/asm-i386/msr.h
-index 62b76cd..59becf2 100644
---- a/include/asm-i386/msr.h
-+++ b/include/asm-i386/msr.h
-@@ -141,6 +141,10 @@ #define MSR_IA32_MC0_STATUS		0x401
- #define MSR_IA32_MC0_ADDR		0x402
- #define MSR_IA32_MC0_MISC		0x403
- 
-+#define MSR_IA32_PEBS_ENABLE		0x3f1
-+#define MSR_IA32_DS_AREA		0x600
-+#define MSR_IA32_PERF_CAPABILITIES	0x345
-+
- /* Pentium IV performance counter MSRs */
- #define MSR_P4_BPU_PERFCTR0 		0x300
- #define MSR_P4_BPU_PERFCTR1 		0x301
-@@ -284,4 +288,13 @@ #define MSR_TMTA_LONGRUN_FLAGS		0x808680
- #define MSR_TMTA_LRTI_READOUT		0x80868018
- #define MSR_TMTA_LRTI_VOLT_MHZ		0x8086801a
- 
-+/* Intel Core-based CPU performance counters */
-+#define MSR_CORE_PERF_FIXED_CTR0	0x309
-+#define MSR_CORE_PERF_FIXED_CTR1	0x30a
-+#define MSR_CORE_PERF_FIXED_CTR2	0x30b
-+#define MSR_CORE_PERF_FIXED_CTR_CTRL	0x30d
-+#define MSR_CORE_PERF_GLOBAL_STATUS	0x38e
-+#define MSR_CORE_PERF_GLOBAL_CTRL	0x38f
-+#define MSR_CORE_PERF_GLOBAL_OVF_CTRL	0x390
-+
- #endif /* __ASM_MSR_H */
 -- 
-
--Stephane
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

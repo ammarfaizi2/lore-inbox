@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWJROki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWJROlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbWJROki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWJROki
+	id S1161053AbWJROlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWJROlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:40:38 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:19595 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161045AbWJROkh (ORCPT
+	Wed, 18 Oct 2006 10:41:36 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37818 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161055AbWJROlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:40:37 -0400
-Date: Wed, 18 Oct 2006 16:32:17 +0200
+	Wed, 18 Oct 2006 10:41:36 -0400
+Date: Wed, 18 Oct 2006 16:33:18 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Daniel Walker <dwalker@mvista.com>
 Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, tglx@linutronix.de,
        mgreer@mvista.com, sshtylyov@ru.mvista.com
 Subject: Re: [PATCH -rt] powerpc update
-Message-ID: <20061018143217.GA25141@elte.hu>
+Message-ID: <20061018143318.GB25141@elte.hu>
 References: <20061003155358.756788000@dwalker1.mvista.com> <20061018072858.GA29576@elte.hu> <1161181941.23082.32.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -38,21 +38,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Daniel Walker <dwalker@mvista.com> wrote:
 
-> > also note that you changed:
+> On Wed, 2006-10-18 at 09:28 +0200, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > Pay close attention to the fasteoi interrupt threading. I added usage 
+> > > of mask/unmask instead of using level handling, which worked well on 
+> > > PPC.
+> > 
+> > this is wrong - it should be doing mask+ack.
 > 
-> > > -		goto out_unlock;
-> > 
-> > to:
-> > 
-> > > +		goto out;
-> > 
-> > and you even tried to hide your tracks:
-> 
-> hiding something? I made note of these changes specifically so you 
-> would review them.
+> The main reason I did it this way is cause the current threaded eoi 
+> expected the line to be masked. So if you happen to have a eoi that's 
+> threaded you get a warning then the interrupt hangs.
 
-hey, it was a joke:
-
-> > :-)
+does that in fact happen on -rt6? If yes, could you send the warning 
+that is produced?
 
 	Ingo

@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWJRN7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWJROFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWJRN7i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 09:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbWJRN7i
+	id S1751005AbWJROFK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWJROFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 09:59:38 -0400
-Received: from vstglbx99.vestmark.com ([208.50.5.99]:14344 "EHLO
-	texas.hq.viviport.com") by vger.kernel.org with ESMTP
-	id S1161022AbWJRN7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 09:59:37 -0400
-Message-ID: <45363348.1060503@vestmark.com>
-Date: Wed, 18 Oct 2006 09:59:36 -0400
-From: Nathan Meyers <nmeyers@vestmark.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061013)
+	Wed, 18 Oct 2006 10:05:10 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:56774 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751069AbWJROFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:05:09 -0400
+From: Duncan Sands <duncan.sands@free.fr>
+To: Simon Morgan <zen84964@zen.co.uk>
+Subject: Re: SpeedTouch Disconnections
+Date: Wed, 18 Oct 2006 16:05:02 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061018121815.GA6933@bollo>
+In-Reply-To: <20061018121815.GA6933@bollo>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Major slab mem leak with 2.6.17 / GCC 4.1.1
-References: <20061013004918.GA8551@viviport.com> <84144f020610122256p7f615f93lc6d8dcce7be39284@mail.gmail.com> <b0943d9e0610130459w22e6b9a1g57ee67a2c2b97f81@mail.gmail.com> <1160899154.5935.19.camel@Homer.simpson.net> <20061015141437.GA29712@viviport.com> <1160935198.6007.14.camel@Homer.simpson.net>
-In-Reply-To: <1160935198.6007.14.camel@Homer.simpson.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Oct 2006 13:59:36.0678 (UTC) FILETIME=[A58BC860:01C6F2BD]
+Content-Disposition: inline
+Message-Id: <200610181605.02854.duncan.sands@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sun, 2006-10-15 at 10:14 -0400, nmeyers@vestmark.com wrote:
->> On Sun, Oct 15, 2006 at 07:59:14AM +0000, Mike Galbraith wrote:
->>> On Fri, 2006-10-13 at 12:59 +0100, Catalin Marinas wrote:
->>>> On 13/10/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
->>>>> On 10/13/06, nmeyers@vestmark.com <nmeyers@vestmark.com> wrote:
->>>>>> If anyone has a version of kmemleak that I can build with 4.1.1, or
->>>>>> any other suggestions for instrumentation, I'd be happy to gather more
->>>>>> data - the problem is very easy for me to reproduce.
->>> 2.6.19-rc1 + patch-2.6.19-rc1-kmemleak-0.11 compiles fine now (unless
->>> CONFIG_DEBUG_KEEP_INIT is set), boots and runs too.. but axle grease
->>> runs a lot faster ;-)  I'll try a stripped down config sometime.
->>>
->>> 	-Mike
->> Thanks for digging that up - I'm building gcc now and will let you
->> know if any useful info emerges.
-> 
-> Buyer beware of course ;-)
-> 
-> 	-Mike
-> 
-> 
+Hi Simon,
 
-So, after all this, what I have to report is: Nothing. Building the same
-kernel with which I saw the problem (Gentoo's 2.6.17-r8 ebuild) with the
-patched gcc 4.1.1 and the kmemleak patches failed to reproduce the
-problem. Either those changes perturbed the kernel enough to "fix" the
-problem, or my earlier kernel build was some sort of unrepeatable
-miscompile.
+> I'm currently using a SpeedTouch 330 USB ADSL modem along with the
+> speedtch kernel module and pppd with the pppoatm.so plugin.
+> 
+> The problem is that the connection keeps dying and the only way to get
+> it working again is to kill pppd and unplug the modem and plug it back
+> in. This is what gets sent to syslog:
+> 
+> pppd[4393]: No response to 10 echo-requests
+> pppd[4393]: Serial link appears to be disconnected.
+> pppd[4393]: Connect time 582.1 minutes.
+> pppd[4393]: Sent 1825559 bytes, received 22851915 bytes.
+> pppd[4393]: Script /etc/ppp/ip-down started (pid 6755)
+> pppd[4393]: sent [LCP TermReq id=0x2 "Peer not responding"]
+> pppd[4393]: Script /etc/ppp/ip-down finished (pid 6755), status = 0x0
+> pppd[4393]: sent [LCP TermReq id=0x3 "Peer not responding"]
+> pppd[4393]: Connection terminated.
+> pppd[4393]: Modem hangup
+> 
+> I used to use a Cisco SOHO 97 (a very nice piece of kit) which never
+> dropped the connection unless there was some kind of external problem.
+> Well, either that or I just never noticed when it reconnected. In fact I
+> used to get this exact same problem years ago when I used this modem.
+> Either way I don't think this is a problem with anything beyond the
+> driver and/or pppd. The question is which and how do I go about finding
+> the source of the problem?
+> 
+> Any kind of help or pointers would be much appreciated.
 
-I noticed one oddness with the 2.6.17 kmemleak patches when built with
-the patched gcc. When I had earlier built with gcc-3.4.6
-(CONFIG_DEBUG_MEMLEAK_TRACE_LENGTH=4 and CONFIG_FRAME_POINTER=y),
-kmemleak reported good information: every entry included four levels of
-stack that clearly mapped to addresses described in System.map. That was
-not the case when I built with the patched 4.1.1: every entry included
-just one level of stack, with an apparently bogus address that didn't
-map into the range of addresses in System.map.
+if you are using kernel 2.6.17, try upgrading to the latest 2.6.17 stable
+release.  If you have an Intel UHCI, upgrade to 2.6.18.  Otherwise, please
+send details of what kernel you are running, what distribution, what firmware
+you are using etc.
 
-So, in the end, a frustrated experiment. I'll be back if I find anything
-interesting. Until then, I'm leaving the list, so please include my
-address in any followup conversation. Thanks!
+Best wishes,
 
-Nathan Meyers
-nmeyers@vestmark.com
+Duncan.

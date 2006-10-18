@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbWJROtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWJROwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbWJROtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbWJROtG
+	id S964776AbWJROwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWJROwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:49:06 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:45349 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1161081AbWJROtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:49:04 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:mime-version:to:cc:
-	subject:references:in-reply-to:content-type:content-transfer-encoding;
-	b=dlVtmgFVbc+7ltVVk+WyMhYyMEphACyqaW6a3eY3f2upgWgCZLJpFNvayrClbbH6y
-	ucj+2euGpzPxrTyUF6+Ow==
-Message-ID: <45363E66.8010201@google.com>
-Date: Wed, 18 Oct 2006 07:47:02 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: [RFC] Remove temp_priority
-References: <45351423.70804@google.com> <4535160E.2010908@yahoo.com.au> <45351877.9030107@google.com> <45362130.6020804@yahoo.com.au>
-In-Reply-To: <45362130.6020804@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 18 Oct 2006 10:52:12 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:22777 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S964776AbWJROwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:52:10 -0400
+Subject: Re: [PATCH -rt] powerpc update
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, tglx@linutronix.de,
+       mgreer@mvista.com, sshtylyov@ru.mvista.com
+In-Reply-To: <20061018143318.GB25141@elte.hu>
+References: <20061003155358.756788000@dwalker1.mvista.com>
+	 <20061018072858.GA29576@elte.hu>
+	 <1161181941.23082.32.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061018143318.GB25141@elte.hu>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 07:52:08 -0700
+Message-Id: <1161183128.23082.43.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Coming from another angle, I am thinking about doing away with direct
-> reclaim completely. That means we don't need any GFP_IO or GFP_FS, and
-> solves the problem of large numbers of processes stuck in reclaim and
-> skewing aging and depleting the memory reserve.
+On Wed, 2006-10-18 at 16:33 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > On Wed, 2006-10-18 at 09:28 +0200, Ingo Molnar wrote:
+> > > * Daniel Walker <dwalker@mvista.com> wrote:
+> > > 
+> > > > Pay close attention to the fasteoi interrupt threading. I added usage 
+> > > > of mask/unmask instead of using level handling, which worked well on 
+> > > > PPC.
+> > > 
+> > > this is wrong - it should be doing mask+ack.
+> > 
+> > The main reason I did it this way is cause the current threaded eoi 
+> > expected the line to be masked. So if you happen to have a eoi that's 
+> > threaded you get a warning then the interrupt hangs.
+> 
+> does that in fact happen on -rt6? If yes, could you send the warning 
+> that is produced?
+> 
+> 	Ingo
 
-Last time I proposed that, the objection was how to throttle the heavy
-dirtiers so they don't fill up RAM with dirty pages?
+The warning was the WARN_ON_ONCE from the section below (which is gone
+is -rt6)
 
-Also, how do you do atomic allocations? Create a huge memory pool and
-pray really hard?
+        if (redirect_hardirq(desc)) {
+-               WARN_ON_ONCE(1);
++               mask_ack_irq(desc, irq);
+                goto out_unlock;
+        }
++
 
-> But that's tricky because we don't have enough kswapds to get maximum
-> reclaim throughput on many configurations (only single core opterons
-> and UP systems, really).
+I haven't tried it, but I'd think it will work. That's assuming you have
+an "ack" which I hear some PowerPC don't (Benjamin Herrenschmidt talked
+about having no "ack" when discussing fasteoi a few month back).
 
-It's not a question of enough kswapds. It's that we can dirty pages
-faster than they can possibly be written to disk.
-
-dd if=/dev/zero of=/tmp/foo
-
-M.
-
+Daniel
 

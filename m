@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWJRDnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWJRDnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWJRDnI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 23:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWJRDnI
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 23:43:08 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7338 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751266AbWJRDnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751250AbWJRDnD (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 17 Oct 2006 23:43:03 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Cal Peake <cp@absolutedigital.net>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Undeprecate the sysctl system call
-References: <453519EE.76E4.0078.0@novell.com>
-	<20061017091901.7193312a.rdunlap@xenotime.net>
-	<Pine.LNX.4.64.0610171401130.10587@lancer.cnet.absolutedigital.net>
-	<1161123096.5014.0.camel@localhost.localdomain>
-	<20061017150016.8dbad3c5.akpm@osdl.org>
-	<Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-Date: Tue, 17 Oct 2006 21:41:19 -0600
-In-Reply-To: <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-	(Cal Peake's message of "Tue, 17 Oct 2006 19:09:02 -0400 (EDT)")
-Message-ID: <m1wt6y70kg.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWJRDnC
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 17 Oct 2006 23:43:02 -0400
+Received: from smtpout.mac.com ([17.250.248.177]:38102 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751250AbWJRDnA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 23:43:00 -0400
+In-Reply-To: <Pine.LNX.4.64.0610172125560.1846@constellation.wizardsworks.org>
+References: <Pine.LNX.4.64.0610171743530.952@constellation.wizardsworks.org> <Pine.LNX.4.64.0610172125560.1846@constellation.wizardsworks.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6A14BCE4-1A0B-44AD-B420-2D644FFB0659@mac.com>
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org,
+       linux-input@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Touchscreen hardware hacking/driver hacking.
+Date: Tue, 17 Oct 2006 23:42:34 -0400
+To: Greg Chandler <chandleg@constellation.wizardsworks.org>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake <cp@absolutedigital.net> writes:
+On Oct 17, 2006, at 22:30:57, Greg Chandler wrote:
 
-> On Tue, 17 Oct 2006, Andrew Morton wrote:
 >
->> yes, it appears that we screwed that up, but I haven't got around to thinking
-> about
->> it yet.
+> I added the following to drivers/input/mouse/lifebook.c
+>        {
+>                .ident = "FLORA-ie 55mi",
+>                .matches = {
+>                        DMI_MATCH(DMI_PRODUCT_NAME, "FLORA-ie 55mi"),
+>                },
+>        },
 >
-> Well, here's a patch that hopefully solves the mess :)
+> It scrolled oopses for a little while then booted normally.
+> gpmd using /dev/mouse is taking input from the touchscreen. kind  
+> of....
 >
-> From: Cal Peake <cp@absolutedigital.net>
+> If I move up or down on the screen it moves the cursor like a mouse  
+> would, but it acts like the button is always pressed.
 >
-> Undeprecate the sysctl system call and default to always include it with 
-> the option for embedded folks to exclude it. Also, remove it's entry from 
-> the feature removal file.
+> I'm happy that it accepts data at all but concerned about the oops  
+> scroll...  There is so much that it is pushed out of the dmesg log,  
+> and the kernel scrollback log.  I have no way of recording it {I  
+> can't soldier down a pin header for serial}
 >
-> Signed-off-by: Cal Peake <cp@absolutedigital.net>
+> Any ideas?
 
-NAK on the grounds that it does not fix the related wording in sysctl.h
+Pass "log_buf_len=4M" on the kernel command line (or pick any other  
+power of 2).  Without a suffix specifies size in bytes, "k" means 1  
+kiB or 2^10 bytes, "M" means 1 MiB or 2^20 bytes.
 
-As for the rest of this I disagree with this direction as it is not
-fixing the status quo, just attempting to maintain it.
+Cheers,
+Kyle Moffett
 
-The status quo is that there is one ridiculous user in glibc that
-doesn't break when sys_sysctl is not compiled in.
-
-The status quo is that we don't properly maintain sysctl.h and we arbitrarily
-change the numbers.
-
-The status quo is that sys_sysctl has been deprecated for longer than
-feature-removal.txt
-
-If we choose to maintain this and step up to maintaining the binary
-ABI which no one uses then I am happy.
-
-If we agree to remove the useless thing I am also happy.
-
-It is wrong to maintain the status quo.  Who is volunteering to step
-up to the plate and maintain this thing?
-
-I have just about enough time and energy to finish killing sys_sysctl.
-
-
-Contrary to Alan's assertion all of those binary numbers in sysctl.h
-are not trivial to maintain or we would not have broken the ABI
-several times in the 2.6 series.  Although I do agree it should be
-simple (not trivial) to maintain if we decide it is important.
-
-Eric

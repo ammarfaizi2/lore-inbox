@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWJRK74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWJRK7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWJRK74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 06:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWJRK7z
+	id S1030194AbWJRK7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 06:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWJRK7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 06:59:55 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2783 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030197AbWJRK7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 06:59:54 -0400
-Subject: Re: [PATCH] Undeprecate the sysctl system call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Cal Peake <cp@absolutedigital.net>, Andrew Morton <akpm@osdl.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1wt6y70kg.fsf@ebiederm.dsl.xmission.com>
-References: <453519EE.76E4.0078.0@novell.com>
-	 <20061017091901.7193312a.rdunlap@xenotime.net>
-	 <Pine.LNX.4.64.0610171401130.10587@lancer.cnet.absolutedigital.net>
-	 <1161123096.5014.0.camel@localhost.localdomain>
-	 <20061017150016.8dbad3c5.akpm@osdl.org>
-	 <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-	 <m1wt6y70kg.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
+	Wed, 18 Oct 2006 06:59:36 -0400
+Received: from cantor.suse.de ([195.135.220.2]:17073 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751056AbWJRK7T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 06:59:19 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [PATCH] Re: UNWIND_INFO slowdown in -mm1
+Date: Wed, 18 Oct 2006 12:50:41 +0200
+User-Agent: KMail/1.9.3
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+References: <20060928192048.GA17436@elte.hu> <45351782.76E4.0078.0@novell.com>
+In-Reply-To: <45351782.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 12:02:10 +0100
-Message-Id: <1161169330.9363.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610181250.41423.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-17 am 21:41 -0600, ysgrifennodd Eric W. Biederman:
-> > Signed-off-by: Cal Peake <cp@absolutedigital.net>
+On Tuesday 17 October 2006 17:48, Jan Beulich wrote:
+> >in 2.6.18-mm1 we are seeing _really_ long delays in the unwind code. 
+> >(full trace attached) On an Athlon64 3800+ CPU:
 > 
-> NAK on the grounds that it does not fix the related wording in sysctl.h
+> Below patch should help, can you try it out? Short of the linker
+> supporting building a binary lookup table at build time, it creates
+> one as soon as the bootmem allocator is usable (so you'll continue
+> using the linear lookup for the first [hopefully] few calls).
+> The code should be ready to utilize a build-time created table once
+> a fixed linker becomes available.
 
-Just post a patch to fix the wording
+I added the patch now, thanks.
 
-> As for the rest of this I disagree with this direction as it is not
-> fixing the status quo, just attempting to maintain it.
+Not sure this is still .19 material though or better delayed for .20. 
+What do you think?
 
-Good. That is how you manage system call interfaces.
-
-> The status quo is that we don't properly maintain sysctl.h and we arbitrarily
-> change the numbers.
-
-Not the core basic ones that are those people care about
-
-> It is wrong to maintain the status quo.  Who is volunteering to step
-> up to the plate and maintain this thing?
-
-For the existing values as is that matter anyone can do it, because it
-just means not making a change.
-
-Its very simple: sysctl was a neat BSD syscall that turned out to be
-less ideal than using the fs for it. We added it, we supported it, we
-get to keep it. We just stick notes in the docs saying "please use /proc
-instead".
-
-Alan
-
+-Andi

@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWJRPF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWJRPH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbWJRPF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbWJRPF4
+	id S1161123AbWJRPH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWJRPH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:05:56 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:21875 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161120AbWJRPFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:05:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=E0OjIDdKrI2+6zO3S/pKo5hS1weJEhrOLJN3nioLRW1Hz4+s/Sdjj9SQdv7Oj7/rpcBgjn7CL4I8NnzmorSYOcbwltXZHqPohDMxqqAXe5DR0cVg06Fu0jf/4fHl0R+cjZaGWwJ7vRbnIIITCBTZ24tUlWIGZNTN7kPDwzKv5RI=  ;
-Message-ID: <453642D1.1010302@yahoo.com.au>
-Date: Thu, 19 Oct 2006 01:05:53 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 18 Oct 2006 11:07:29 -0400
+Received: from smtp1.enomia.com ([64.128.160.11]:35638 "EHLO smtp1.enomia.com")
+	by vger.kernel.org with ESMTP id S1161123AbWJRPH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:07:28 -0400
+Message-ID: <45364317.7020908@uplogix.com>
+Date: Wed, 18 Oct 2006 10:07:03 -0500
+From: Paul B Schroeder <pschroeder@uplogix.com>
+Reply-To: pschroeder@uplogix.com
+Organization: Uplogix, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] OOM killer meets userspace headers
-References: <20061018145305.GA5345@martell.zuzino.mipt.ru>
-In-Reply-To: <20061018145305.GA5345@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Exar quad port serial
+References: <1160068402.29393.7.camel@rupert> <20061005173628.GB30993@csclub.uwaterloo.ca> <45357CA1.80706@uplogix.com> <20061018133430.GU30991@csclub.uwaterloo.ca>
+In-Reply-To: <20061018133430.GU30991@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-CTCH-ID: _16B2DEF3-E0AE-415C-85D2-641185C139C9_
+X-CTCH-RefID: str=0001.0A090209.453642AF.0094,ss=1,fgs=0
+X-CTCH-Action: Ignore
+X-OriginalArrivalTime: 18 Oct 2006 15:07:06.0027 (UTC) FILETIME=[132567B0:01C6F2C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> Despite mm.h is not being exported header, it does contain one thing
-> which is part of userspace ABI -- value disabling OOM killer. So,
-> a) export mm.h to userspace
-> b) got OOM_DISABLE disable define out of __KERNEL__ prison.
-> c) turn bound values suitable for /proc/$PID/oom_adj into defines and export
->    them too.
-> d) put some headers into __KERNEL__ prison. It'd bizarre to include mm.h and
->    get capability stuff.
+
+
+Lennart Sorensen wrote:
+> On Tue, Oct 17, 2006 at 08:00:17PM -0500, Paul B Schroeder wrote:
+>> Sorry for the late response..  Here is a fuller explanation.  Maybe 
+>> somebody out there has a better solution:
+>>
+>> This is on our "Envoy" boxes which we have, according to the documentation, 
+>> an "Exar ST16C554/554D Quad UART with 16-byte Fifo's".  The box also has 
+>> two other "on-board" serial ports and a modem chip.
+>>
+>> The two on-board serial UARTs were being detected along with the first two 
+>> Exar UARTs.  The last two Exar UARTs were not showing up and neither was 
+>> the modem.
+>>
+>> This patch was the only way I could the kernel to see beyond the standard 
+>> four serial ports and get all four of the Exar UARTs to show up.
+>>
+>> I hope this explains it well enough..
 > 
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
+> I suspect all you have to do might be to change how many ports it looks
+> for.  The default max ports is 4 I believe on many kernel versions.
+> 
+> Look for CONFIG_SERIAL_8250_NR_UARTS and
+> CONFIG_SERIAL_8250_RUNTIME_UARTS in the kernel config.
+> 
+Yea..  I tried that..  It had no effect..
 
-Seems fine. Silly question:
+> If that doesn't work and you do need a special driver, at least label it
+> with more detail like 'for exar st16c554 quad uart' or 'for envoy board'
+> or whatever makes it clear which hardware it is for.  I use exar pci
+> uarts (exar XR17d15[248] chips) which work fine already with the 8250
+> driver, or optionally with the jsm driver with a small change to the
+> list if pci identifiers.  THey of course would not work with your driver
+> since they are completely different exar chips (even though one is also
+> a quad uart, although 64byte fifo).
+In that case, I will redo the patch with better labeling..
 
-> +/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
-> +#define OOM_DISABLE (-17)
-> +/* inclusive */
-> +#define OOM_ADJUST_MIN (-16)
-> +#define OOM_ADJUST_MAX 15
+Thanks...Paul...
 
-Why do you need the () for the -ves?
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+---
+
+Paul B Schroeder <pschroeder "at" uplogix "dot" com>
+Senior Software Engineer
+Uplogix, Inc. (http://www.uplogix.com/)
+

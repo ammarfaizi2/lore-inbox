@@ -1,43 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWJRCpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWJRDSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWJRCpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Oct 2006 22:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWJRCpj
+	id S1750907AbWJRDSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Oct 2006 23:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWJRDSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Oct 2006 22:45:39 -0400
-Received: from mga06.intel.com ([134.134.136.21]:2568 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751152AbWJRCpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Oct 2006 22:45:38 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,322,1157353200"; 
-   d="scan'208"; a="146665971:sNHT24153626"
-Date: Tue, 17 Oct 2006 19:25:48 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: pj@sgi.com, dino@in.ibm.com, menage@google.com
-Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
-       rohitseth@google.com, dipankar@in.ibm.com, nickpiggin@yahoo.com.au
-Subject: exclusive cpusets broken with cpu hotplug
-Message-ID: <20061017192547.B19901@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 17 Oct 2006 23:18:42 -0400
+Received: from wizardsworks.org ([71.216.230.3]:36488 "EHLO
+	constellation.wizardsworks.org") by vger.kernel.org with ESMTP
+	id S1750907AbWJRDSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Oct 2006 23:18:41 -0400
+Date: Tue, 17 Oct 2006 21:30:57 -0500 (CDT)
+From: Greg Chandler <chandleg@constellation.wizardsworks.org>
+To: dmitry.torokhov@gmail.com
+cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: RE: Touchscreen hardware hacking/driver hacking.
+In-Reply-To: <Pine.LNX.4.64.0610171743530.952@constellation.wizardsworks.org>
+Message-ID: <Pine.LNX.4.64.0610172125560.1846@constellation.wizardsworks.org>
+References: <Pine.LNX.4.64.0610171743530.952@constellation.wizardsworks.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When ever a cpu hotplug happens, current kernel calls build_sched_domains()
-with cpu_online_map. That will destroy all the domain partitions(done by
-partition_sched_domains()) setup so far by exclusive cpusets.
 
-And its not just cpu hotplug, this happens even if someone changes multi core
-sched power savings policy.
+I added the following to drivers/input/mouse/lifebook.c
+        {
+                .ident = "FLORA-ie 55mi",
+                .matches = {
+                        DMI_MATCH(DMI_PRODUCT_NAME, "FLORA-ie 55mi"),
+                },
+        },
 
-Anyone would like to fix it up? In the presence of cpusets, we basically
-need to traverse all the exclusive sets and setup the sched domains
-accordingly.
+It scrolled oopses for a little while then booted normally.
+gpmd using /dev/mouse is taking input from the touchscreen. kind of....
 
-If no one does :( then I will do that when I get some time...
+If I move up or down on the screen it moves the cursor like a mouse would, 
+but it acts like the button is always pressed.
 
-thanks,
-suresh
+
+I'm happy that it accepts data at all but concerned about the oops 
+scroll...  There is so much that it is pushed out of the dmesg log, and 
+the kernel scrollback log.  I have no way of recording it {I can't soldier 
+down a pin header for serial}
+
+Any ideas?
+
+
+On Tue, 17 Oct 2006, Greg Chandler wrote:
+
+>
+> I'm not sure this will help all too much, but at least I have the strings...
+>
+>
+> Here is what dmidecode spat out:
+>
+> # dmidecode 2.8
+> SMBIOS 2.3 present.
+> 23 structures occupying 646 bytes.
+> Table at 0x000DC010.
+>
+> Handle 0x0000, DMI type 0, 20 bytes
+> BIOS Information
+> 	Vendor: Phoenix Technologies Ltd.
+> 	Version: 1.06VB
+> 	Release Date: 03/13/2003
+> 	Address: 0xE7A00
+> 	Runtime Size: 99840 bytes
+> 	ROM Size: 512 kB
+> 	Characteristics:
+> 		ISA is supported
+> 		PCI is supported
+> 		PC Card (PCMCIA) is supported
+> 		PNP is supported
+> 		APM is supported
+> 		BIOS is upgradeable
+> 		BIOS shadowing is allowed
+> 		Selectable boot is supported
+> 		EDD is supported
+> 		Print screen service is supported (int 5h)
+> 		8042 keyboard services are supported (int 9h)
+> 		Serial services are supported (int 14h)
+> 		Printer services are supported (int 17h)
+> 		CGA/mono video services are supported (int 10h)
+> 		ACPI is supported
+> 		USB legacy is supported
+> 		Smart battery is supported
+> 		BIOS boot specification is supported
+>
+> Handle 0x0001, DMI type 1, 25 bytes
+> System Information
+> 	Manufacturer: HITACHI
+> 	Product Name: FLORA-ie 55mi
+> 	Version: crusoe/ALi1535
+> 	Serial Number: 0
+> 	UUID: 00000000-0000-0000-0000-FFFFFFFFFFFF
+> 	Wake-up Type: Power Switch
+>
+> Handle 0x0002, DMI type 3, 17 bytes
+> Chassis Information
+> 	Manufacturer: HITACHI
+> 	Type: Portable
+> 	Lock: Not Present
+> 	Version: crusoe/ALi1535
+> 	Serial Number: XXXXXXXXXXXXXXXX
+> 	Asset Tag: 0
+> 	Boot-up State: Safe
+> 	Power Supply State: Safe
+> 	Thermal State: Safe
+> 	Security Status: None
+> 	OEM Information: 0x00001234
+>
+> Handle 0x0003, DMI type 4, 32 bytes
+> Processor Information
+> 	Socket Designation: CPU
+> 	Type: Central Processor
+> 	Family: K6-3
+> 	Manufacturer: Transmeta
+> 	ID: 43 05 00 00 3F 89 84 00
+> 	Signature: Family 5, Model 4, Stepping 3
+> 	Flags:
+> 		FPU (Floating-point unit on-chip)
+> 		VME (Virtual mode extension)
+> 		DE (Debugging extension)
+> 		PSE (Page size extension)
+> 		TSC (Time stamp counter)
+> 		MSR (Model specific registers)
+> 		CX8 (CMPXCHG8 instruction supported)
+> 		SEP (Fast system call)
+> 		CMOV (Conditional move instruction supported)
+> 		PSN (Processor serial number present and enabled)
+> 		MMX (MMX technology supported)
+> 	Version: Crusoe(tm)
+> 	Voltage: 1.6 V
+> 	External Clock: 66 MHz
+> 	Max Speed: 400 MHz
+> 	Current Speed: 400 MHz
+> 	Status: Populated, Enabled
+> 	Upgrade: None
+> 	L1 Cache Handle: 0x0004
+> 	L2 Cache Handle: 0x0005
+> 	L3 Cache Handle: Not Provided
+>
+> Handle 0x0004, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: Cache1
+> 	Configuration: Enabled, Not Socketed, Level 1
+> 	Operational Mode: Write Back
+> 	Location: Internal
+> 	Installed Size: 128 KB
+> 	Maximum Size: 128 KB
+> 	Supported SRAM Types:
+> 		Pipeline Burst
+> 	Installed SRAM Type: Pipeline Burst
+> 	Speed: Unknown
+> 	Error Correction Type: None
+> 	System Type: Unknown
+> 	Associativity: Unknown
+>
+> Handle 0x0005, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: Cache2
+> 	Configuration: Enabled, Not Socketed, Level 2
+> 	Operational Mode: Write Back
+> 	Location: Internal
+> 	Installed Size: 256 KB
+> 	Maximum Size: 256 KB
+> 	Supported SRAM Types:
+> 		Pipeline Burst
+> 	Installed SRAM Type: None
+> 	Speed: Unknown
+> 	Error Correction Type: None
+> 	System Type: Unknown
+> 	Associativity: Unknown
+>
+> Handle 0x0006, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: Not Specified
+> 	Internal Connector Type: None
+> 	External Reference Designator: SERIAL
+> 	External Connector Type: None
+> 	Port Type: Serial Port 16550A Compatible
+>
+> Handle 0x0007, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: Not Specified
+> 	Internal Connector Type: None
+> 	External Reference Designator: USB1
+> 	External Connector Type: Access Bus (USB)
+> 	Port Type: USB
+>
+> Handle 0x0008, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: Not Specified
+> 	Internal Connector Type: None
+> 	External Reference Designator: USB2
+> 	External Connector Type: Access Bus (USB)
+> 	Port Type: USB
+>
+> Handle 0x0009, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: Not Specified
+> 	Internal Connector Type: None
+> 	External Reference Designator: MICROPHONE MINI JACK
+> 	External Connector Type: Other
+> 	Port Type: Other
+>
+> Handle 0x000A, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: Not Specified
+> 	Internal Connector Type: None
+> 	External Reference Designator: AUDIO OUT MINI JACK
+> 	External Connector Type: Mini Jack (headphones)
+> 	Port Type: Audio Port
+>
+> Handle 0x000D, DMI type 9, 13 bytes
+> System Slot Information
+> 	Designation: PCCARD SLOT1
+> 	Type: 16-bit PC Card (PCMCIA)
+> 	Current Usage: Unknown
+> 	Length: Other
+> 	ID: Adapter 0, Socket 1
+> 	Characteristics:
+> 		5.0 V is provided
+> 		3.3 V is provided
+> 		PC Card-16 is supported
+> 		Modem ring resume is supported
+>
+> Handle 0x000E, DMI type 16, 15 bytes
+> Physical Memory Array
+> 	Location: System Board Or Motherboard
+> 	Use: System Memory
+> 	Error Correction Type: None
+> 	Maximum Capacity: 128 MB
+> 	Error Information Handle: Not Provided
+> 	Number Of Devices: 1
+>
+> Handle 0x000F, DMI type 17, 23 bytes
+> Memory Device
+> 	Array Handle: 0x000E
+> 	Error Information Handle: Not Provided
+> 	Total Width: 64 bits
+> 	Data Width: 64 bits
+> 	Size: 128 MB
+> 	Form Factor: DIMM
+> 	Set: 1
+> 	Locator: Socket
+> 	Bank Locator: Bank0
+> 	Type: SDRAM
+> 	Type Detail: Synchronous
+> 	Speed: 100 MHz (10.0 ns)
+>
+> Handle 0x0010, DMI type 17, 23 bytes
+> Memory Device
+> 	Array Handle: 0x000E
+> 	Error Information Handle: Not Provided
+> 	Total Width: 64 bits
+> 	Data Width: 64 bits
+> 	Size: 112 MB
+> 	Form Factor: DIMM
+> 	Set: 2
+> 	Locator: Base
+> 	Bank Locator: Bank1
+> 	Type: SDRAM
+> 	Type Detail: Synchronous
+> 	Speed: 100 MHz (10.0 ns)
+>
+> Handle 0x0011, DMI type 19, 15 bytes
+> Memory Array Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x0000EFFFFFF
+> 	Range Size: 240 MB
+> 	Physical Array Handle: 0x000E
+> 	Partition Width: 0
+>
+> Handle 0x0012, DMI type 20, 19 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x00007FFFFFF
+> 	Range Size: 128 MB
+> 	Physical Device Handle: 0x000F
+> 	Memory Array Mapped Address Handle: 0x0011
+> 	Partition Row Position: Unknown
+>
+> Handle 0x0013, DMI type 20, 19 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00008000000
+> 	Ending Address: 0x0000EFFFFFF
+> 	Range Size: 112 MB
+> 	Physical Device Handle: 0x0010
+> 	Memory Array Mapped Address Handle: 0x0011
+> 	Partition Row Position: Unknown
+>
+> Handle 0x0014, DMI type 21, 7 bytes
+> Built-in Pointing Device
+> 	Type: Track Ball
+> 	Interface: PS/2
+> 	Buttons: 0
+>
+> Handle 0x0015, DMI type 32, 20 bytes
+> System Boot Information
+> 	Status: <OUT OF SPEC>
+>
+> Handle 0x0016, DMI type 127, 4 bytes
+> End Of Table
+>
+> Wrong DMI structures count: 23 announced, only 21 decoded.
+>

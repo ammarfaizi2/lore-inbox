@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423096AbWJRW3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945894AbWJRWaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423096AbWJRW3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423099AbWJRW3z
+	id S1945894AbWJRWaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423102AbWJRWaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:29:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18341 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1423096AbWJRW3x (ORCPT
+	Wed, 18 Oct 2006 18:30:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17112 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423100AbWJRW35 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:29:53 -0400
-Date: Wed, 18 Oct 2006 14:21:46 -0700
-From: Greg KH <greg@kroah.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: Greg.Chandler@wellsfargo.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel oops with extended serial stuff turned on...
-Message-ID: <20061018212146.GA5206@kroah.com>
-References: <335DD0B75189FB428E5C32680089FB9F803FDE@mtk-sms-mail01.digi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <335DD0B75189FB428E5C32680089FB9F803FDE@mtk-sms-mail01.digi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 18 Oct 2006 18:29:57 -0400
+Date: Wed, 18 Oct 2006 15:29:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061018152947.bb404481.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<453675A6.9080001@googlemail.com>
+	<Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 04:16:54PM -0500, Kilau, Scott wrote:
-> Hi Greg C,
-> 
-> > -----Original Message-----
-> > From: Greg.Chandler@wellsfargo.com 
-> > [mailto:Greg.Chandler@wellsfargo.com] 
-> > Sent: Wednesday, October 18, 2006 4:07 PM
-> > To: Kilau, Scott
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: RE: kernel oops with extended serial stuff turned on...
-> > 
-> > 
-> > Should that be made a permanent patch then? 
-> 
-> In my out-of-tree drivers, yes, it was the correct way to fix
-> the problem.
-> 
-> I am probably not the best one to ask about the
-> other serial drivers however...
-> 
-> The "DEVFS" stuff was removed by Greg KH, I believe, so
-> he  probably is the best to decide upon the correct way of
-> "fixing" it.
-> 
-> Ie, I am not sure whether his intentions were to slide in a
-> new patch on it later on to fix the problem with trying to
-> register with sysfs/udev twice...
+On Wed, 18 Oct 2006 23:44:03 +0200 (CEST)
+Jiri Kosina <jikos@jikos.cz> wrote:
 
-I don't understand, what problem is occuring here?  Who is trying to
-register with sysfs twice?
+> [PATCH] VFS: fix i_mutex locking in page_symlink()
+> 
+> The inode->i_mutex should be held every time when calling i_size_write(), 
+> and the function contains WARN_ON() for that condition. 
+> page_symlink(), however, does not lock i_mutex. It is perfectly OK, as the 
+> i_mutex for the directory is held at the time page_symlink() is running, 
+> so noone is able to change i_size during race condition. However, 
+> i_size_write() spits out the warning without this patch.
+> 
 
-thanks,
+I suspect it isn't necessary because the symlink's inode hasn't been wired
+up into the directory tree yet and no other thread can find it and do
+things to it.
 
-greg k-h

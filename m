@@ -1,162 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422948AbWJRUr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWJRUuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422948AbWJRUr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422949AbWJRUr2
+	id S1751466AbWJRUuU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWJRUuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:47:28 -0400
-Received: from 80-218-222-94.dclient.hispeed.ch ([80.218.222.94]:34765 "EHLO
-	steudten.com") by vger.kernel.org with ESMTP id S1422948AbWJRUr1
+	Wed, 18 Oct 2006 16:50:20 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:45275 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1751466AbWJRUuR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:47:27 -0400
-Message-ID: <453692C8.50907@steudten.org>
-Date: Wed, 18 Oct 2006 22:47:04 +0200
-From: "alpha @ steudten Engineering" <alpha@steudten.com>
-Organization: Steudten Engineering
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, luca.risolia@studio.unibo.it
-Subject: Problem with sn9c102 webcam locks ..
-X-Priority: 4 (Low)
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mailer
-X-Check: ef8ab44eb1fd1a09a805bb080e67f318 on steudten.com
+	Wed, 18 Oct 2006 16:50:17 -0400
+Date: Wed, 18 Oct 2006 13:49:48 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Stephane Eranian <eranian@hpl.hp.com>
+Subject: Re: [PATCH] x86-64 add Intel Core related PMU MSRs
+Message-ID: <20061018204948.GA20590@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061018092536.GA19522@frankl.hpl.hp.com> <200610181246.05886.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610181246.05886.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list
+Andi,
 
-unplugging the webcam, the kernel 2.6.18 gives this output..
+On Wed, Oct 18, 2006 at 12:46:05PM +0200, Andi Kleen wrote:
+> On Wednesday 18 October 2006 11:25, Stephane Eranian wrote:
+> > Hello,
+> > 
+> > The following patch adds to the x86-64 tree a bunch of MSRs related to performance
+> > monitoring for the processors based on Intel Core microarchitecture. It also adds
+> > some architectural MSRs for PEBS. A similar patch for i386 will follow.
+> > 
+> > changelog:
+> > 	- add Intel Precise-Event Based sampling (PEBS) related MSR
+> > 	- add Intel Data Save (DS) Area related MSR
+> > 	- add Intel Core microarchitecure performance counter MSRs
+> 
 
-description:    V4L2 driver for SN9C10x PC Camera Controllers
-version:        1:1.27
-license:        GPL
-vermagic:       2.6.18-1.2200self mod_unload PENTIUMM REGPARM gcc-4.1
-depends:        videodev,v4l2-common
+I realized there was a typo for one of the MSR (MSR_CORE_PERF_FIXED_CTR_CTRL).
+Here is a resubmit of the same patch. The i386 also has the typo. Sorry about that.
 
+changelog:
+ 	- add Intel Precise-Event Based sampling (PEBS) related MSR
+	- add Intel Data Save (DS) Area related MSR
+	- add Intel Core microarchitecure performance counter MSRs
 
-usb 2-2: new full speed USB device using uhci_hcd and address 2
-PM: Adding info for usb:2-2
-PM: Adding info for No Bus:usbdev2.2_ep00
-usb 2-2: configuration #1 chosen from 1 choice
-PM: Adding info for usb:2-2:1.0
-PM: Adding info for No Bus:usbdev2.2_ep81
-PM: Adding info for No Bus:usbdev2.2_ep82
-PM: Adding info for No Bus:usbdev2.2_ep83
-Linux video capture interface: v2.00
-sn9c102: V4L2 driver for SN9C10x PC Camera Controllers v1:1.27
-usb 2-2: SN9C10[12] PC Camera Controller detected (vid/pid 0x0C45/0x6029)
-usb 2-2: PAS106B image sensor detected
-usb 2-2: Initialization succeeded
-usb 2-2: V4L2 device registered as /dev/video0
-usbcore: registered new driver sn9c102
+signed-off-by: stephane eranian <eranian@hpl.hp.com>
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
-2.6.18-1.2200self #1
--------------------------------------------------------
-sn-webcam/3184 is trying to acquire lock:
- (&cam->dev_mutex){--..}, at: [<c03261e6>] mutex_lock_interruptible+0x21/0x24
-
-but task is already holding lock:
- (videodev_lock){--..}, at: [<c0326512>] mutex_lock+0x21/0x24
-
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (videodev_lock){--..}:
-       [<c012da43>] __lock_acquire+0x82c/0x904
-       [<c012e083>] lock_acquire+0x4b/0x6c
-       [<c03263a4>] __mutex_lock_slowpath+0xb3/0x200
-       [<c0326512>] mutex_lock+0x21/0x24
-       [<f93f91a2>] video_register_device+0x9e/0x217 [videodev]
-       [<f9c76f42>] sn9c102_usb_probe+0x36e/0x4f2 [sn9c102]
-       [<c02a0bbc>] usb_probe_interface+0x5b/0x8b
-       [<c0267866>] driver_probe_device+0x45/0x92
-       [<c026798f>] __driver_attach+0x66/0x8f
-       [<c02672e5>] bus_for_each_dev+0x36/0x5b
-       [<c02677c1>] driver_attach+0x14/0x17
-       [<c0266fc5>] bus_add_driver+0x68/0x106
-       [<c0267c2f>] driver_register+0x78/0x7d
-       [<c02a09dd>] usb_register_driver+0x65/0xc6
-       [<f9396028>] 0xf9396028
-       [<c01341a1>] sys_init_module+0x1340/0x148b
-       [<c0102e17>] syscall_call+0x7/0xb
-       [<ffffffff>] 0xffffffff
-
--> #0 (&cam->dev_mutex){--..}:
-       [<c012d977>] __lock_acquire+0x760/0x904
-       [<c012e083>] lock_acquire+0x4b/0x6c
-       [<c0326024>] __mutex_lock_interruptible_slowpath+0xb3/0x254
-       [<c03261e6>] mutex_lock_interruptible+0x21/0x24
-       [<f9c766d9>] sn9c102_open+0x43/0x53e [sn9c102]
-       [<f93fb2e2>] video_open+0xba/0x135 [videodev]
-       [<c0167125>] chrdev_open+0xf3/0x123
-       [<c015e2ae>] __dentry_open+0xb9/0x187
-       [<c015e3ea>] nameidata_to_filp+0x1c/0x2e
-       [<c015e42a>] do_filp_open+0x2e/0x35
-       [<c015e471>] do_sys_open+0x40/0xb5
-       [<c015e512>] sys_open+0x16/0x18
-       [<c0102e17>] syscall_call+0x7/0xb
-       [<ffffffff>] 0xffffffff
-
-other info that might help us debug this:
-
-2 locks held by sn-webcam/3184:
- #0:  (videodev_lock){--..}, at: [<c0326512>] mutex_lock+0x21/0x24
- #1:  (sn9c102_disconnect){..--}, at: [<f9c766b1>] sn9c102_open+0x1b/0x53e [sn9c102]
-
-stack backtrace:
- [<c0103c87>] show_trace_log_lvl+0x12/0x25
- [<c0103d6a>] show_trace+0xd/0x10
- [<c0104532>] dump_stack+0x19/0x1b
- [<c012d20c>] print_circular_bug_tail+0x59/0x64
- [<c012d977>] __lock_acquire+0x760/0x904
- [<c012e083>] lock_acquire+0x4b/0x6c
- [<c0326024>] __mutex_lock_interruptible_slowpath+0xb3/0x254
- [<c03261e6>] mutex_lock_interruptible+0x21/0x24
- [<f9c766d9>] sn9c102_open+0x43/0x53e [sn9c102]
- [<f93fb2e2>] video_open+0xba/0x135 [videodev]
- [<c0167125>] chrdev_open+0xf3/0x123
- [<c015e2ae>] __dentry_open+0xb9/0x187
- [<c015e3ea>] nameidata_to_filp+0x1c/0x2e
- [<c015e42a>] do_filp_open+0x2e/0x35
- [<c015e471>] do_sys_open+0x40/0xb5
- [<c015e512>] sys_open+0x16/0x18
- [<c0102e17>] syscall_call+0x7/0xb
- =======================
-usb 2-2: USB disconnect, address 2
-PM: Removing info for No Bus:usbdev2.2_ep81
-PM: Removing info for No Bus:usbdev2.2_ep82
-PM: Removing info for No Bus:usbdev2.2_ep83
-usb 2-2: Disconnecting SN9C10x PC Camera...
-usb 2-2: V4L2 device /dev/video0 deregistered
-PM: Removing info for usb:2-2:1.0
-PM: Removing info for No Bus:usbdev2.2_ep00
-PM: Removing info for usb:2-2
-Slab corruption: (Not tainted) start=e6fd417c, len=1024
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<c029a4c2>](usb_release_dev+0x40/0x43)
- [<c0103c87>] show_trace_log_lvl+0x12/0x25
- [<c0103d6a>] show_trace+0xd/0x10
- [<c0104532>] dump_stack+0x19/0x1b
- [<c015b3a1>] check_poison_obj+0x6f/0x171
- [<c015b4c8>] cache_alloc_debugcheck_after+0x25/0x135
- [<c015c682>] kmem_cache_alloc+0x94/0xa0
- [<c013f051>] audit_alloc+0x65/0xc4
- [<c01161e2>] copy_process+0x56e/0x11a6
- [<c0116e5c>] do_fork+0x42/0x112
- [<c0101200>] sys_clone+0x25/0x2a
- [<c0102e17>] syscall_call+0x7/0xb
- =======================
-170: 6b 6b 6b 6b 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Probably bad RAM.
-Run memtest86+ or a similar memory test tool.
-Next obj: start=e6fd4588, len=1024
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<c02cea08>](skb_release_data+0x80/0x84)
-000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-
+diff --git a/include/asm-x86_64/msr.h b/include/asm-x86_64/msr.h
+index 37e1941..a745c50 100644
+--- a/include/asm-x86_64/msr.h
++++ b/include/asm-x86_64/msr.h
+@@ -210,6 +210,10 @@ #define MSR_IA32_LASTBRANCHTOIP        0
+ #define MSR_IA32_LASTINTFROMIP     0x1dd
+ #define MSR_IA32_LASTINTTOIP       0x1de
+ 
++#define MSR_IA32_PEBS_ENABLE		0x3f1
++#define MSR_IA32_DS_AREA		0x600
++#define MSR_IA32_PERF_CAPABILITIES	0x345
++
+ #define MSR_MTRRfix64K_00000	0x250
+ #define MSR_MTRRfix16K_80000	0x258
+ #define MSR_MTRRfix16K_A0000	0x259
+@@ -407,4 +411,13 @@ #define MSR_P4_TC_ESCR1 		0x3c5
+ #define MSR_P4_U2L_ESCR0 		0x3b0
+ #define MSR_P4_U2L_ESCR1 		0x3b1
+ 
++/* Intel Core-based CPU performance counters */
++#define MSR_CORE_PERF_FIXED_CTR0	0x309
++#define MSR_CORE_PERF_FIXED_CTR1	0x30a
++#define MSR_CORE_PERF_FIXED_CTR2	0x30b
++#define MSR_CORE_PERF_FIXED_CTR_CTRL	0x38d
++#define MSR_CORE_PERF_GLOBAL_STATUS	0x38e
++#define MSR_CORE_PERF_GLOBAL_CTRL	0x38f
++#define MSR_CORE_PERF_GLOBAL_OVF_CTRL	0x390
++
+ #endif

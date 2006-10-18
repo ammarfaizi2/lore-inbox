@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422836AbWJRUOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422835AbWJRUMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422836AbWJRUOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422837AbWJRUJt
+	id S1422835AbWJRUMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422868AbWJRUMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:09:49 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34794 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422840AbWJRUJd (ORCPT
+	Wed, 18 Oct 2006 16:12:17 -0400
+Received: from ns1.suse.de ([195.135.220.2]:27058 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422832AbWJRUJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:09:33 -0400
+	Wed, 18 Oct 2006 16:09:55 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 9/16] driver core fixes: bus_add_device() cleanup on error
-Date: Wed, 18 Oct 2006 13:09:00 -0700
-Message-Id: <11612021733101-git-send-email-greg@kroah.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 15/15] aoe: fix sysfs_create_file warnings
+Date: Wed, 18 Oct 2006 13:09:06 -0700
+Message-Id: <11612021961246-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.4
-In-Reply-To: <11612021701905-git-send-email-greg@kroah.com>
-References: <20061018195833.GA21808@kroah.com> <1161202147758-git-send-email-greg@kroah.com> <11612021503109-git-send-email-greg@kroah.com> <1161202153578-git-send-email-greg@kroah.com> <11612021563449-git-send-email-greg@kroah.com> <11612021603361-git-send-email-greg@kroah.com> <1161202163247-git-send-email-greg@kroah.com> <1161202166551-git-send-email-greg@kroah.com> <11612021701905-git-send-email-greg@kroah.com>
+In-Reply-To: <11612021913873-git-send-email-greg@kroah.com>
+References: <20061018200433.GA10079@kroah.com> <11612021463993-git-send-email-greg@kroah.com> <11612021491255-git-send-email-greg@kroah.com> <1161202152750-git-send-email-greg@kroah.com> <11612021563910-git-send-email-greg@kroah.com> <11612021601016-git-send-email-greg@kroah.com> <11612021641240-git-send-email-greg@kroah.com> <11612021682148-git-send-email-greg@kroah.com> <1161202171977-git-send-email-greg@kroah.com> <11612021753859-git-send-email-greg@kroah.com> <1161202179462-git-send-email-greg@kroah.com> <11612021821994-git-send-email-greg@kroah.com> <1161202185862-git-send-email-greg@kroah.com> <11612021882386-git-send-email-greg@kroah.com> <11612021913873-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Correct cleanup in the error path of bus_add_device().
+Moved the attributes into a group, making the compiler be quiet about
+ignoring the return value of the file create calls.  This also also
+fixed a bug when removing the files, which were not symlinks.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: "Ed L. Cashin" <ecashin@coraid.com>
+Cc: Alan Cox <alan@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/bus.c |   19 +++++++++++++++----
- 1 files changed, 15 insertions(+), 4 deletions(-)
+ drivers/block/aoe/aoeblk.c |   23 ++++++++++++++---------
+ 1 files changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index b90f6e6..d516f7d 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -372,19 +372,30 @@ int bus_add_device(struct device * dev)
- 		pr_debug("bus %s: add device %s\n", bus->name, dev->bus_id);
- 		error = device_add_attrs(bus, dev);
- 		if (error)
--			goto out;
-+			goto out_put;
- 		error = sysfs_create_link(&bus->devices.kobj,
- 						&dev->kobj, dev->bus_id);
- 		if (error)
--			goto out;
-+			goto out_id;
- 		error = sysfs_create_link(&dev->kobj,
- 				&dev->bus->subsys.kset.kobj, "subsystem");
- 		if (error)
--			goto out;
-+			goto out_subsys;
- 		error = sysfs_create_link(&dev->kobj,
- 				&dev->bus->subsys.kset.kobj, "bus");
-+		if (error)
-+			goto out_deprecated;
- 	}
--out:
-+	return 0;
+diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+index 4259b52..d433f27 100644
+--- a/drivers/block/aoe/aoeblk.c
++++ b/drivers/block/aoe/aoeblk.c
+@@ -63,21 +63,26 @@ static struct disk_attribute disk_attr_f
+ 	.show = aoedisk_show_fwver
+ };
+ 
+-static void
++static struct attribute *aoe_attrs[] = {
++	&disk_attr_state.attr,
++	&disk_attr_mac.attr,
++	&disk_attr_netif.attr,
++	&disk_attr_fwver.attr,
++};
 +
-+out_deprecated:
-+	sysfs_remove_link(&dev->kobj, "subsystem");
-+out_subsys:
-+	sysfs_remove_link(&bus->devices.kobj, dev->bus_id);
-+out_id:
-+	device_remove_attrs(bus, dev);
-+out_put:
-+	put_bus(dev->bus);
- 	return error;
++static const struct attribute_group attr_group = {
++	.attrs = aoe_attrs,
++};
++
++static int
+ aoedisk_add_sysfs(struct aoedev *d)
+ {
+-	sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
+-	sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
+-	sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
+-	sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
++	return sysfs_create_group(&d->gd->kobj, &attr_group);
+ }
+ void
+ aoedisk_rm_sysfs(struct aoedev *d)
+ {
+-	sysfs_remove_link(&d->gd->kobj, "state");
+-	sysfs_remove_link(&d->gd->kobj, "mac");
+-	sysfs_remove_link(&d->gd->kobj, "netif");
+-	sysfs_remove_link(&d->gd->kobj, "firmware-version");
++	sysfs_remove_group(&d->gd->kobj, &attr_group);
  }
  
+ static int
 -- 
 1.4.2.4
 

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWJRNjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWJRNvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbWJRNjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 09:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWJRNjc
+	id S1161018AbWJRNvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 09:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWJRNvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 09:39:32 -0400
-Received: from unthought.net ([212.97.129.88]:19975 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S932148AbWJRNjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 09:39:32 -0400
-Date: Wed, 18 Oct 2006 15:39:33 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
+	Wed, 18 Oct 2006 09:51:09 -0400
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:20616 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1030260AbWJRNvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 09:51:08 -0400
+Message-ID: <45363149.9050607@grupopie.com>
+Date: Wed, 18 Oct 2006 14:51:05 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
 To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jakob Oestergaard <jakob@unthought.net>,
        Arjan van de Ven <arjan@infradead.org>,
        "Phetteplace, Thad (GE Healthcare, consultant)" 
 	<Thad.Phetteplace@ge.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: Bandwidth Allocations under CFQ I/O Scheduler
-Message-ID: <20061018133933.GA23492@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jens Axboe <jens.axboe@oracle.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arjan van de Ven <arjan@infradead.org>,
-	"Phetteplace, Thad (GE Healthcare, consultant)" <Thad.Phetteplace@ge.com>,
-	linux-kernel@vger.kernel.org
-References: <20061017132312.GD7854@kernel.dk> <20061018080030.GU23492@unthought.net> <1161164456.3128.81.camel@laptopd505.fenrus.org> <20061018113001.GV23492@unthought.net> <20061018114913.GG24452@kernel.dk> <20061018122323.GW23492@unthought.net> <1161175344.9363.30.camel@localhost.localdomain> <20061018124420.GI24452@kernel.dk> <4536245B.8070906@yahoo.com.au> <20061018130456.GJ24452@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <1161048269.3245.26.camel@laptopd505.fenrus.org> <20061017132312.GD7854@kernel.dk> <20061018080030.GU23492@unthought.net> <1161164456.3128.81.camel@laptopd505.fenrus.org> <20061018113001.GV23492@unthought.net> <20061018114913.GG24452@kernel.dk> <20061018122323.GW23492@unthought.net> <1161175344.9363.30.camel@localhost.localdomain> <20061018124420.GI24452@kernel.dk> <4536245B.8070906@yahoo.com.au> <20061018130456.GJ24452@kernel.dk>
 In-Reply-To: <20061018130456.GJ24452@kernel.dk>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 03:04:57PM +0200, Jens Axboe wrote:
-...
-> > So you could say you want your database to consume no more than 50%
-> > of disk and have your mp3 player get a minimum of 10%. Of course,
-> > that doesn't say anything about what the time slices are, or what
-> > latencies you can expect (1s out of every 10, or 100ms out of every
-> > 1000?).
-> 
-> As I wrote previously, both a percentage and bandwidth  along with
-> desired latency make sense.
+Jens Axboe wrote:
+>[...]
+> Precisely, hence CFQ is now based on the time metric. Given larger
+> slices, you can mostly eliminate the impact of other applications in the
+> system.
 
-The fundamental problem I see, is, that while you can easily measure and
-limit the bandwidth, you cannot really make bandwidth guarantees.
+Just one thought: we can't predict reliably how much time a request will
+take to be serviced, but we can account the time it _took_ to service a
+request.
 
-All the rest sounds great in my ears :)
+If we account the time it took to service requests for each process, and
+we have several processes with requests pending, we can use the same 
+algorithm we would use for a large time slice algorithm to select the 
+process to service.
+
+This should make it as fair over time as a large time slice algorithm 
+and doesn't need large time slices, so latencies can be kept as low as 
+required.
+
+However, having a small time slice will probably help the hardware 
+coalesce several request from the same process that are more likely to 
+be to nearby sectors, and thus improve performance.
+
+I'm leaving out the details, like we should find a way to make the 
+"fairness" work over a time window and not over the entire process 
+lifespan, maybe by using a sliding window over the last N seconds of 
+serviced requests to do the accounting or something.
 
 -- 
+Paulo Marques - www.grupopie.com
 
- / jakob
+"The face of a child can say it all, especially the
+mouth part of the face."
 

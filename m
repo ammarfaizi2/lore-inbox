@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423121AbWJRWtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423106AbWJRWue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423121AbWJRWtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 18:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423123AbWJRWtH
+	id S1423106AbWJRWue (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 18:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423132AbWJRWue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 18:49:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:51455 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1423121AbWJRWtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 18:49:05 -0400
-Date: Thu, 19 Oct 2006 00:45:21 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       kronos.it@gmail.com, ismail@pardus.org.tr, 7eggert@gmx.de
-Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
-In-Reply-To: <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
-Message-ID: <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
-References: <771eN-VK-9@gated-at.bofh.it> <771yn-1XU-65@gated-at.bofh.it>
- <E1GZy4L-00015O-AV@be1.lrz> <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+	Wed, 18 Oct 2006 18:50:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65179 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1423106AbWJRWud (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 18:50:33 -0400
+Date: Wed, 18 Oct 2006 18:50:24 -0400
+From: Dave Jones <davej@redhat.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org, ubuntu-devel <ubuntu-devel@lists.ubuntu.com>
+Subject: Re: nobody cared about via irq
+Message-ID: <20061018225024.GC4770@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	John Richard Moser <nigelenki@comcast.net>,
+	linux-kernel@vger.kernel.org,
+	ubuntu-devel <ubuntu-devel@lists.ubuntu.com>
+References: <45366556.7010907@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45366556.7010907@comcast.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006, Joerg Schilling wrote:
-> Bodo Eggert <7eggert@elstempel.de> wrote:
+On Wed, Oct 18, 2006 at 01:33:10PM -0400, John Richard Moser wrote:
+ > -----BEGIN PGP SIGNED MESSAGE-----
+ > Hash: SHA1
+ > 
+ > I'm not sure if anyone here cares either but... Ubuntu Edgy.  I think I
+ > reported this problem to Ubuntu a while back, then it went away, now
+ > it's back; not sure though.  CC'd them too.
+ > 
+ > Linux icebox 2.6.17-10-generic #2 SMP Fri Oct 6 00:36:14 UTC 2006 i686
+ > GNU/Linux
+ > 
+ > 
+ > 
+ > [18142714.092000] agpgart: Found an AGP 3.0 compliant device at
+ > 0000:00:00.0.
+ > [18142714.092000] agpgart: Xorg tried to set rate=x12. Setting to AGP3
+ > x8 mode.
 
-> > BTW2, Just to be cautionous: what will happen if somebody forces the same
-> > inode number on two different entries?
+This was fixed in 2.6.18
 
-[...]
-> This is something you cannot check.
-
-Exactly that's why I'd ignore the on-disk "inode number" and instead use
-the generated one untill someone comes along with a clever idea to fix
-the issue or can show that it's mostly hermless.
+	Dave
 
 -- 
-Artificial Intelligence usually beats real stupidity. 
+http://www.codemonkey.org.uk

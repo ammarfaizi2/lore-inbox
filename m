@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWJRSrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422772AbWJRSsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422771AbWJRSrE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 14:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422772AbWJRSrD
+	id S1422772AbWJRSsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422777AbWJRSsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 14:47:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:40389 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422771AbWJRSrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 14:47:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=tzP1wPRZLg5lrlAGlTfd2+Eyh3h+IL9Tiw+hUX6r37h7NW/mkiuzgJbI5rVTc+OqdDES+mohnCGWaa5z0HkFCkAypjORTN5QbFkwF/JusODZkk/GdJqN8XnXy9HIi0udy1c+8bCIGuOuJESC5+9iCyVTYigsrxl17nv7V0qkM5U=
-Date: Wed, 18 Oct 2006 22:46:55 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
+	Wed, 18 Oct 2006 14:48:22 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:12438 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1422772AbWJRSsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:48:21 -0400
+Date: Wed, 18 Oct 2006 11:48:01 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: Re: [PATCH] OOM killer meets userspace headers
-Message-ID: <20061018184655.GC5345@martell.zuzino.mipt.ru>
-References: <20061018145305.GA5345@martell.zuzino.mipt.ru> <453642D1.1010302@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453642D1.1010302@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sched_tick with interrupts enabled
+In-Reply-To: <45366DF0.6040702@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0610181145250.29163@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com>
+ <4536629C.4050807@yahoo.com.au> <Pine.LNX.4.64.0610181059570.28750@schroedinger.engr.sgi.com>
+ <45366DF0.6040702@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 01:05:53AM +1000, Nick Piggin wrote:
-> >+#define OOM_ADJUST_MIN (-16)
-> >+#define OOM_ADJUST_MAX 15
->
-> Why do you need the () for the -ves?
+On Thu, 19 Oct 2006, Nick Piggin wrote:
 
--16 is two tokens. Not that someone is going to do huge arithmetic with
-OOM adjustments and screwup himself, but still...
-15 is one token, so it's safe.
+> wake_priority_sleeper should not be called from rebalance_tick. That
+> code was OK where it was before, I think.
 
-And if someone from kernel-janitors would go through tree and (without
-fanatism) add additional parenthesis to where they belong, it would be
-nice.
+wake_priority_sleeper() is necessary to establish the idle state.
+
+> And you need to now turn off interrupts when doing the locking in
+> load_balance.
+
+Hmmm.. yes requires to review all the locks. sigh.
 

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWJRJxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWJRJ5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWJRJxh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 05:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWJRJxg
+	id S932138AbWJRJ5s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 05:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWJRJ5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 05:53:36 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:42909 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S932161AbWJRJxg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 05:53:36 -0400
-Date: Wed, 18 Oct 2006 18:53:28 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc2 : Is something missing in Documentation/dontdiff ?
-Message-ID: <20061018095328.GA21977@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Amol Lad <amol@verismonetworks.com>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <1161163537.20400.128.camel@amol.verismonetworks.com>
-MIME-Version: 1.0
+	Wed, 18 Oct 2006 05:57:48 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10166 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932138AbWJRJ5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 05:57:47 -0400
+Date: Wed, 18 Oct 2006 04:56:21 -0500
+From: Robin Holt <holt@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, dino@in.ibm.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com,
+       nickpiggin@yahoo.com.au
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-ID: <20061018095621.GB15877@lnx-holt.americas.sgi.com>
+References: <20061017192547.B19901@unix-os.sc.intel.com> <20061018001424.0c22a64b.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161163537.20400.128.camel@amol.verismonetworks.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061018001424.0c22a64b.pj@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 02:55:37PM +0530, Amol Lad wrote:
-> 1. To start with linux-2.6.19-rc2-orig and linux-2.6.19-rc2 are
-> identical
-> 2. cd linux-2.6.19-rc2; make allmodconfig; make
-> 3. diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff
-> linux-2.6.19-rc2-orig linux-2.6.19-rc2 > /tmp/patch
+On Wed, Oct 18, 2006 at 12:14:24AM -0700, Paul Jackson wrote:
+> > Anyone would like to fix it up?
 > 
-> The above generates 2MB patch file. What is wrong ?
+> Hotplug is not high on my priority list.
 > 
-> It seems a new folder is created: linux-2.6.19-rc2/usr/include
+> I do what I can in my spare time to avoid having cpusets or hotplug
+> break each other.
 > 
-This should also be excluded..
+> Besides, I'm not sure I'd be able.  I've gotten to the point where I am
+> confident I can make simple changes at the edges, such as mimicing the
+> sched domain side affects of the cpu_exclusive flag with my new
+> sched_domain flag.  But that's near the current limit of my sched domain
+> writing skills.
+
+Paul and Suresh,
+
+Could this be as simple as a CPU_UP_PREPARE or CPU_DOWN_PREPARE
+removing all the cpu_exclusive cpusets and a CPU_UP_CANCELLED,
+CPU_DOWN_CANCELLED, CPU_ONLINE, CPU_DEAD going through and
+partitioning all the cpu_exclusive cpusets.
+
+Thanks,
+Robin

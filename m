@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWJRJPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWJRJUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWJRJPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 05:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWJRJPJ
+	id S932156AbWJRJUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 05:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWJRJUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 05:15:09 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21378 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932146AbWJRJPH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 05:15:07 -0400
-Subject: Re: 2.6.18-rt6
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net,
-       Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <20061018083921.GA10993@elte.hu>
-References: <20061018083921.GA10993@elte.hu>
-Date: Wed, 18 Oct 2006 11:14:55 +0200
-Message-Id: <1161162895.3888.1.camel@frecb000686>
+	Wed, 18 Oct 2006 05:20:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:33098 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932161AbWJRJUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 05:20:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=hkYaYXjpXGD3Rv8vM1f957PpSpGu4AxkWE9mwUpYYojIaq6eg8erXcMomfvlOku5Gn4BFrdJjg+ACRxzG//A1TQz4/cMLx7S+NT8VkP8OQWrt0vnsjurbDwBQ2t293nfNOUmioJdWmPqw3/4pc5yYyg0CFKC85kc/YGng4eXTYw=
+Date: Wed, 18 Oct 2006 13:19:44 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: dealing with excessive includes
+Message-ID: <20061018091944.GA5343@martell.zuzino.mipt.ru>
+References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/10/2006 11:21:19,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 18/10/2006 11:21:22,
-	Serialize complete at 18/10/2006 11:21:22
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061018044054.GH29920@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi Ingo, 
+> module.h is trickier.  First of all, we want extern for wake_up_process().
 
-  nice work,
+When I came up with this to l-k, Nick and Christoph told me that duplicate
+proto sucks. So module.h/sched.h is
+a) uninline module_put()
+b) remove #include <linux/sched.h>
 
-On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
-> i've released the 2.6.18-rt6 tree, which can be downloaded from the 
-> usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> this is a fixes-mostly release. Changes since -rt4:
-> 
->  - fix for module loading / symbol table crash (John Stultz)
->  - scheduler fix (Mike Galbraith)
->  - fix x86_64 NMI watchdog & preempt-rcu interaction
->  - fix time-warp false positives
->  - jiffies_to_timespec export fix (Steven Rostedt)
->  - ll_rw_block.c warning fix (Mike Galbraith)
->  - PPC updates (Daniel Walker)
->  - MIPS updates (Manish Lachwani)
->  - ARM oprofile fix (Kevin Hilman)
->  - traditional futexes queued via plists (Séstien Duguése)
+> And unlike the first severed include, we *do* have files that need something
+> from sched.h and rely on pulling it implicitly via module.h.  Fortunately,
+> there are few of those.  For amd64 allmodconfig we only need to touch includes
+> in
+>  arch/i386/kernel/cpu/mcheck/therm_throt.c
+>  drivers/hwmon/abituguru.c
+>  drivers/leds/ledtrig-ide-disk.c
+>  drivers/leds/ledtrig-timer.c
+>  drivers/scsi/scsi_transport_sas.c
+>  drivers/w1/slaves/w1_therm.c
+>  include/linux/phy.h
+>  kernel/latency.c
+> and in almost all cases we are actually missing jiffies.h, not sched.h.
+> However, at that point we really need to look at other targets; they
+> do add several extra places, but again not much.  Below is what I've got
+> from my usual mix of cross-builds; for resulting dependeny counts (again,
+> amd64 allmodconfig) see ftp://ftp.linux.org.uk/pub/people/viro/counts-after.
 
-  Thanks for including this in your tree.
- BTW, my name is Sébastien Dugué.
-
->  - (various other smaller fixes)
-> 
-> to build a 2.6.18-rt6 tree, the following patches should be applied:
-> 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.18.tar.bz2
->   http://redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt6
-> 
-> as usual, bugreports, fixes and suggestions are welcome,
-> 
-> 	Ingo
-
-  Sébastien.
+> --- a/include/linux/module.h
+> +++ b/include/linux/module.h
+> @@ -6,7 +6,6 @@ #define _LINUX_MODULE_H
+>   * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
+>   * Rewritten again by Rusty Russell, 2002
+>   */
+> -#include <linux/sched.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/list.h>
+>  #include <linux/stat.h>
+> @@ -410,6 +409,8 @@ static inline int try_module_get(struct
+>  	return ret;
+>  }
+>
+> +extern int FASTCALL(wake_up_process(struct task_struct * tsk));
+> +
+>  static inline void module_put(struct module *module)
+>  {
+>  	if (module) {
 

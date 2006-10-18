@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161202AbWJRPtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWJRPwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161202AbWJRPtL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWJRPtK
+	id S1161188AbWJRPwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161205AbWJRPwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:49:10 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61105 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161199AbWJRPtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:49:05 -0400
-Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Brian King <brking@us.ibm.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
-In-Reply-To: <20061018145104.GN22289@parisc-linux.org>
-References: <20061017145146.GJ22289@parisc-linux.org>
-	 <45354A59.3010109@us.ibm.com>  <20061018145104.GN22289@parisc-linux.org>
-Content-Type: text/plain
+	Wed, 18 Oct 2006 11:52:13 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:36804 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1161188AbWJRPwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:52:10 -0400
+Message-ID: <45364D9D.2060003@biallas.net>
+Date: Wed, 18 Oct 2006 17:51:57 +0200
+From: Sebastian Biallas <sb@biallas.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.7) Gecko/20061011 SeaMonkey/1.0.5
+MIME-Version: 1.0
+To: Prakash Punnoor <prakash@punnoor.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI-DMA: Disabling IOMMU
+References: <45364248.2020901@biallas.net> <200610181741.03428.prakash@punnoor.de>
+In-Reply-To: <200610181741.03428.prakash@punnoor.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 16:50:51 +0100
-Message-Id: <1161186652.9363.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:a5328446fa42c458b1f4bc094ef9555a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-10-18 am 08:51 -0600, ysgrifennodd Matthew Wilcox:
-> The existing implementation of pci_block_user_cfg_access() was recently
-> criticised for providing out of date information and for returning errors
-> on write, which applications won't be expecting.
+Prakash Punnoor wrote:
+> Am Mittwoch 18 Oktober 2006 17:03 schrieben Sie:
+>> Linux ouputs some strange "PCI-DMA: Disabling IOMMU" on booting. It's a
+>> ALiveNF4G motherboard with an Athlon64 X2 running vanilla Linux 2.6.18.1
+>> (which supports all hardware out of the box, pretty cool).
+>>
+>> Should I worry about this IOMMU-disabling? All other Linux/IOMMU stuff I
+>> found had AGP or BIOS messages nearby, but I only get this single
+>> "PCI-DMA: Disabling IOMMU" line, without any hint.
+> 
+> Unless you have >=4GB of RAM using IOMMU makes no sense, thus it gets 
+> disabled.
 
-It was also favoured by some of us as well. In addition this whole issue
-was extensively debated in the past to select the current approach. That
-said I do like the approach of a short wait *specifically* on power
-transitions, its bounded in time, its neat and it makes sense. 
+Thanks for the answer (I thought that IOMMU is also used by VMMs like
+XEN, for direct hardware access of the guest. But I might have
+misunderstood this).
 
-We must be very very sure its never triggered in the real world any
-other way (eg your >block testing must be impossible)
+So maybe this message should read:
+PCI-DMA: Not more than 4GiB RAM: Disabling IOMMU
+so that people like me don't have to worry.
 
-So unless you distinguish between "back in a moment", "back someday" and
-"not coming back" it isn't useful. Thus your patch is incomplete as it
-does not provide the cache that is also needed. At least I don't think X
-hanging forever mid mode switch is terribly useful...
-
-> I also addressed the potential issue with nested attempts to block.
-> Now pci_block_user_cfg_access() can return -EBUSY if it's already blocked,
-> and pci_unblock_user_cfg_access() will WARN if you try to unblock an
-> already unblocked device.
-
-Gak that is IMHO a mistake. Just keep a counter. You've just added
-another "what the hell do I do if this returns -EBUSY" problem for all
-the driver authors.
-
-> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-
-NAK for all the above reasons. This is a cure looking for a disease, and
-its a cure which is worse than the theoretical disease it wants to fix.
-
+Regards,
+Sebastian
 

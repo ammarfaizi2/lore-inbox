@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWJRO0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWJRO2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160995AbWJRO0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWJRO0V
+	id S1161030AbWJRO2h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWJRO2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:26:21 -0400
-Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:53141 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S1160995AbWJRO0U convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:26:20 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Dyson <Linux@adelphia.net>
-Subject: Re: Still broken sata (VIA) on Asus A8V (kernel 2.6.14+) with irqbalance
-Date: Wed, 18 Oct 2006 15:26:03 +0100
-User-Agent: KMail/1.9.4
+	Wed, 18 Oct 2006 10:28:37 -0400
+Received: from qb-out-0506.google.com ([72.14.204.227]:31171 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161030AbWJRO2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:28:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=G7ESg0KFC8bhS2Z9tkKiJ5IwGD0juUwA9UBdx3cZW7tlidxbc9s35dNpeKFWfBhcVDAXDlPwsVPWVyjP/QD1D9fT9QoExpGOOWURTwo7ZSywOZX7SCaujEsfBaQUkXpw4Dm0Pocie0cDYgH5hj64T9qB2UBNOIzFE/SZCWSLdXE=
+From: Christopoulos Panagiwtis <pxrist@gmail.com>
+Organization: xxx
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Most stable kernel for mpich2 cluster?
+Date: Wed, 18 Oct 2006 17:28:25 +0300
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-References: <4534F41A.1030504@Adelphia.net>
-In-Reply-To: <4534F41A.1030504@Adelphia.net>
+References: <200610171430.01032.pxrist@gmail.com> <1161092423.24237.171.camel@localhost.localdomain>
+In-Reply-To: <1161092423.24237.171.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610181526.05336.sergio@sergiomb.no-ip.org>
+Message-Id: <200610181728.26372.pxrist@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 16:17, Dyson wrote:
-> I put in the patch mentioned below to get rid of the VIA IRQ fixup for a
-> VIA K8T800 SMP machine and the computer hasn't froze yet after 19 hours
+On Tuesday 17 October 2006 16:40, Alan Cox wrote:
+> The older kernels shipped by vendors are not "vanilla source" because
+> that would lack all the bug and security fixing done.
+>
+> Alan
 
-Ok many thanks for your positive report :) 
-Now the latest patch is http://lkml.org/lkml/diff/2006/9/7/235/1 from 
-http://lkml.org/lkml/2006/9/7/235
-which is in -mm kernels,
-and I also need the patch to have more stability , but don't resolve all 
-problems 
+You are right, I understand this now, I knew the meaning of "vanilla source" 
+but didn't come in my mind that 	debian 2.6.8 for example is not vanilla 
+source but a tree based on vanilla including patches from debian developers, 
+sorry. I will follow Jacob's advice and I will ask in beowulf mailing list 
+about what kernel I should use. I am two days in linux kernel lists and I can 
+see that you work really hard here, so I won't annoy you again with such 
+questions.
 
-best regards, 
--- 
-Sérgio M. B.
+keep up the good work, all of you,
+
+Panos 
+
+(Alan, we have a poster of you in my university:p)

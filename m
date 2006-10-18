@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423142AbWJRXEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751534AbWJRXM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423142AbWJRXEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 19:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423144AbWJRXEv
+	id S1751534AbWJRXM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 19:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWJRXM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 19:04:51 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:18128 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1423142AbWJRXEu (ORCPT
+	Wed, 18 Oct 2006 19:12:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4837 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751534AbWJRXMz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 19:04:50 -0400
-Date: Thu, 19 Oct 2006 01:04:42 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Andrew Morton <akpm@osdl.org>
-cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
+	Wed, 18 Oct 2006 19:12:55 -0400
+Date: Wed, 18 Oct 2006 16:12:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.19-rc2-mm1
-In-Reply-To: <Pine.LNX.4.64.0610190055440.29022@twin.jikos.cz>
-Message-ID: <Pine.LNX.4.64.0610190103190.29022@twin.jikos.cz>
-References: <20061016230645.fed53c5b.akpm@osdl.org> <453675A6.9080001@googlemail.com>
- <Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz> <20061018152947.bb404481.akpm@osdl.org>
- <Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz> <20061018154636.2317059a.akpm@osdl.org>
- <Pine.LNX.4.64.0610190055440.29022@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20061018161232.876c13b0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610190103190.29022@twin.jikos.cz>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<453675A6.9080001@googlemail.com>
+	<Pine.LNX.4.64.0610182330340.29022@twin.jikos.cz>
+	<20061018152947.bb404481.akpm@osdl.org>
+	<Pine.LNX.4.64.0610190031260.29022@twin.jikos.cz>
+	<20061018154636.2317059a.akpm@osdl.org>
+	<Pine.LNX.4.64.0610190055440.29022@twin.jikos.cz>
+	<Pine.LNX.4.64.0610190103190.29022@twin.jikos.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006, Jiri Kosina wrote:
+On Thu, 19 Oct 2006 01:04:42 +0200 (CEST)
+Jiri Kosina <jikos@jikos.cz> wrote:
 
->  void i_size_write(struct inode *inode, loff_t i_size)
->  {
-> -	WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
-> +	/* calling us without i_mutex is OK when not connected to dentry yet */
-> +	if (list_empty(&inode->i_dentry))
-> +		WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
->  #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
->  	write_seqcount_begin(&inode->i_size_seqcount);
->  	inode->i_size = i_size;
-> diff --git a/fs/namei.c b/fs/namei.c
+> This if of course bogus, the one below should be better, sorry
+> 
+> [PATCH] Fix spurious warning in i_size_write
 
-This if of course bogus, the one below should be better, sorry
-
-[PATCH] Fix spurious warning in i_size_write
-
-i_size_write() can be legitimately called without inode->i_mutex locked.
-This is OK in cases when the inode has not been yet linked into
-the parent dentry, so no race condition on i_size can occur.
-
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-
---- 
-
- fs/inode.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/fs/inode.c b/fs/inode.c
-index bb88835..11d8794 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1386,7 +1386,9 @@ void __init inode_init(unsigned long mem
- 
- void i_size_write(struct inode *inode, loff_t i_size)
- {
--	WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
-+	/* calling us without i_mutex is OK when not connected to dentry yet */
-+	if (!list_empty(&inode->i_dentry))
-+		WARN_ON_ONCE(!mutex_is_locked(&inode->i_mutex));
- #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
- 	write_seqcount_begin(&inode->i_size_seqcount);
- 	inode->i_size = i_size;
-
--- 
-Jiri Kosina
+OK, thanks - let's give that a try, see how it goes.

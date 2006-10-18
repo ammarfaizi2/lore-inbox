@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWJRT6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWJRUGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWJRT6A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWJRT6A
+	id S932111AbWJRUGq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWJRUGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:58:00 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60847 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030277AbWJRT6A (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:58:00 -0400
-Message-Id: <200610181957.k9IJvw4m013149@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Udo van den Heuvel <udovdh@xs4all.nl>
+	Wed, 18 Oct 2006 16:06:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6117 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932111AbWJRUGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 16:06:44 -0400
+Date: Wed, 18 Oct 2006 12:58:33 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 w/ GPS time source: worse performance
-In-Reply-To: Your message of "Wed, 18 Oct 2006 18:44:59 +0200."
-             <45365A0B.5030306@xs4all.nl>
-From: Valdis.Kletnieks@vt.edu
-References: <4534F5F7.8020003@xs4all.nl> <1161103616.2919.70.camel@mindpipe> <45364631.9070805@xs4all.nl> <1161189384.15860.85.camel@mindpipe>
-            <45365A0B.5030306@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1161201478_4027P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Oct 2006 15:57:58 -0400
+Subject: [GIT PATCH] Driver Core fixes for 2.6.19-rc2
+Message-ID: <20061018195833.GA21808@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1161201478_4027P
-Content-Type: text/plain; charset=us-ascii
+Here are some driver core and sysfs fixes for 2.6.19-rc2.
 
-On Wed, 18 Oct 2006 18:44:59 +0200, Udo van den Heuvel said:
-> 
-> It is stuff that is visible by watching ntpq -pn output, by letting mrtg
-> graph stuff, etc. Watch the offset and jitter collumns.
-> Check /usr/sbin/ntpdc -c kerninfo output. Graph that stuff.
+All of these patches have been in the -mm tree for a quite a while.
 
-So... you've presumably done that while identifying there is an issue.
-Please share the results.  Have you tried booting back into a 2.6.17
-or so and seen offset/jitter improve?  etc etc etc.
+Please pull from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
---==_Exmh_1161201478_4027P
-Content-Type: application/pgp-signature
+Patches will be sent as a follow-on to this message to lkml for people
+to see.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+thanks,
 
-iD8DBQFFNodGcC3lWbTT17ARAuIbAJ9FlbACZzYp/bpHwlrcAbcXXS210ACgoK9y
-MremA5C7bStrY+C/fFXOrEI=
-=bhEE
------END PGP SIGNATURE-----
+greg k-h
 
---==_Exmh_1161201478_4027P--
+
+ Documentation/HOWTO                        |   20 +++++
+ Documentation/feature-removal-schedule.txt |    2 -
+ drivers/base/bus.c                         |  108 +++++++++++++++++-----------
+ drivers/base/class.c                       |    5 +
+ drivers/base/core.c                        |   26 +++++--
+ drivers/base/dd.c                          |    4 +
+ drivers/base/dmapool.c                     |   13 +++
+ drivers/base/topology.c                    |    3 -
+ fs/sysfs/file.c                            |    7 --
+ 9 files changed, 123 insertions(+), 65 deletions(-)
+
+---------------
+
+Akinobu Mita:
+      driver core: kmalloc() failure check in driver_probe_device
+
+Alan Stern:
+      Driver core: Don't ignore error returns from probing
+
+Cornelia Huck:
+      driver core fixes: sysfs_create_link() retval check in class.c
+      driver core fixes: bus_add_attrs() retval check
+      driver core fixes: bus_add_device() cleanup on error
+      driver core fixes: device_add() cleanup on error
+      driver core fixes: device_create_file() retval check in dmapool.c
+      driver core fixes: sysfs_create_group() retval in topology.c
+
+Diego Calleja:
+      HOWTO: bug report addition
+
+Dominik Brodowski:
+      Documentation: feature-removal-schedule typo
+
+Duncan Sands:
+      Driver core: plug device probe memory leak
+
+Hidetoshi Seto:
+      sysfs: remove duplicated dput in sysfs_update_file
+      sysfs: update obsolete comment in sysfs_update_file
+
+Jeff Garzik:
+      Driver core: bus: remove indentation level
+
+Jesper Juhl:
+      Driver core: Don't leak 'old_class_name' in drivers/base/core.c::device_rename()
+
+Matthew Wilcox:
+      Fix dev_printk() is now GPL-only
+

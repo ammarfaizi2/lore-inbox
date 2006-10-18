@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422916AbWJRUbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422924AbWJRUcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422916AbWJRUbl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422923AbWJRUbk
+	id S1422924AbWJRUcm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422923AbWJRUcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:31:40 -0400
-Received: from www.osadl.org ([213.239.205.134]:31121 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1422916AbWJRUbj (ORCPT
+	Wed, 18 Oct 2006 16:32:42 -0400
+Received: from mail29.messagelabs.com ([216.82.249.147]:64668 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S1422924AbWJRUck convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:31:39 -0400
-Subject: Re: +
-	dynticks-extend-next_timer_interrupt-to-use-a-reference-jiffie-remove-incorrect-warning-in-kernel-timerc.patch
-	added to -mm tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: akpm@osdl.org
-Cc: cotte@de.ibm.com, mingo@elte.hu, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610182026.k9IKQIl0016830@shell0.pdx.osdl.net>
-References: <200610182026.k9IKQIl0016830@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 22:32:19 +0200
-Message-Id: <1161203540.5274.232.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 16:32:40 -0400
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-4.tower-29.messagelabs.com!1161203559!32836497!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: kernel oops with extended serial stuff turned on...
+Date: Wed, 18 Oct 2006 15:32:38 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9F803FDB@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RE: kernel oops with extended serial stuff turned on...
+Thread-Index: Acby9I1hWM0wMGB7S2+2ZuFFKwTmIg==
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: <Greg.Chandler@wellsfargo.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Oct 2006 20:32:38.0938 (UTC) FILETIME=[8DAB17A0:01C6F2F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 13:26 -0700, akpm@osdl.org wrote:
-> Problem is, that the warning assumes that there are always pending timer
-> events on a system when a CPU is going idle.  But this is not true in
-> general, the system may be waiting for an I/O interruption, or the CPU may
-> wait for an interprocessor signal.  The patch below removes the warning,
-> please apply.
+Hi Greg,
 
-Makes sense.
+> kobject_add failed for ttyM0 with -EEXIST, don't try to register
+things
+> with the same name in the same directory.
+> [<c01f4fe2>] kobject_add+0xd2/0xe0
+> [<c02a4e8f>] class_device_add+0x9f/0x2a0
+> [<c02a5117>] class_device_create+0x77/0x90
+> [<c02423ff>] tty_register_device+0x5f/0x70
+> [<c02a5c9c>] kobj_map+0xec/0x100
+> [<c015493d>] cdev_add+0x1d/0x30
+> [<c02426ea>] tty_register_driver+0x19a/0x1b0
+> [<c0272e4c>] isicom_register_tty_driver+0xac/0xd0
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
+I saw this same warning/problem in my out-of-tree drivers when the
+"TTY_DRIVER_NO_DEVFS" flag went away somewhere between 2.6.17 and
+2.6.18.
+
+You need to change this line:
+
+isicom_normal->flags                    = TTY_DRIVER_REAL_RAW;
+
+To:
+
+isicom_normal->flags                    = TTY_DRIVER_REAL_RAW |
+TTY_DRIVER_DYNAMIC_DEV;
+
+In the "drivers/char/isicom.c" file.
+
+Scott
 
 

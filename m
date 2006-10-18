@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWJRGFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWJRGL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWJRGFI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 02:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWJRGFH
+	id S1751141AbWJRGL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 02:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWJRGL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 02:05:07 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:49096 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964777AbWJRGFE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 02:05:04 -0400
-Date: Wed, 18 Oct 2006 07:05:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [RFC] typechecking for get_unaligned/put_unaligned
-Message-ID: <20061018060500.GI29920@ftp.linux.org.uk>
-References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk> <20061018054242.GA21266@redhat.com>
-Mime-Version: 1.0
+	Wed, 18 Oct 2006 02:11:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:52629 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751141AbWJRGL4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 02:11:56 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018054242.GA21266@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+Date: Wed, 18 Oct 2006 16:11:48 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Will Schmidt <will_schmidt@vnet.ibm.com>, akpm@osdl.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+References: <1160764895.11239.14.camel@farscape>
+	<Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com>
+	<1160769226.11239.22.camel@farscape>
+	<1160773040.11239.28.camel@farscape>
+	<Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
+	<1161026409.31903.15.camel@farscape>
+	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+	<1161031821.31903.28.camel@farscape>
+	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 01:42:42AM -0400, Dave Jones wrote:
-> On Tue, Oct 17, 2006 at 05:37:26AM +0100, Al Viro wrote:
-> 
->  > There are several #includes with very high impact; the worst happens
->  > to be module.h -> sched.h
-> 
-> I gave up fighting to get that fixed a year and a half ago..
-> http://lkml.org/lkml/2005/1/26/11
-> 
-> rediffing trees with lots of include file juggling gets boring real fast.
+Christoph,
 
-I don't see a lot of files touched by that one...
- arch/i386/kernel/alternative.c            |    1 +
- arch/i386/kernel/cpu/mcheck/therm_throt.c |    1 +
- drivers/base/cpu.c                        |    1 +
- drivers/hwmon/abituguru.c                 |    1 +
- drivers/leds/ledtrig-ide-disk.c           |    1 +
- drivers/leds/ledtrig-timer.c              |    1 +
- drivers/scsi/scsi_transport_sas.c         |    1 +
- drivers/w1/slaves/w1_therm.c              |    1 +
- include/asm-x86_64/elf.h                  |    1 -
- include/linux/acct.h                      |    1 +
- include/linux/module.h                    |    3 ++-
- include/linux/phy.h                       |    2 ++
- include/scsi/libiscsi.h                   |    2 ++
- kernel/latency.c                          |    1 +
- kernel/module.c                           |    2 +-
-is hardly a lot.
+I also am hitting this BUG on a POWER5 partition.  The relevant boot
+messages are:
 
-That's the point, actually - apparently we have several high-impact includes
-that are easy to sever and that are really worth being severed.  The part
-that was not aproiri obvious:
-	* there are clusters of headers around certain dependency
-counts.
-	* such clusters tend to have leaders - header that pulls the
-rest and even though other headers are apparently independently included,
-all such includes end up being hidden by includes of the leader.
-	* gaps between the clusters are pretty large.
-	* dependency graph *on* *clusters* is worth being studied; includes
-of cluster leader from cluster around slightly smaller dependency count
-are prime targets for severing.
+Zone PFN ranges:
+  DMA             0 ->   524288
+  Normal     524288 ->   524288
+early_node_map[3] active PFN ranges
+    1:        0 ->    32768
+    0:    32768 ->   278528
+    1:   278528 ->   524288
+[boot]0015 Setup Done
+Built 2 zonelists.  Total pages: 513760
+Kernel command line: root=/dev/sdc3
+[snip]
+freeing bootmem node 0
+freeing bootmem node 1
+Memory: 2046852k/2097152k available (5512k kernel code, 65056k reserved, 2204k data, 554k bss, 256k init)
+kernel BUG in __cache_alloc_node at /home/paulus/kernel/powerpc/mm/slab.c:3177!
 
-That is the new part here.  Not just "dependency graph is a mess and ought
-to be cleaned up" - _that_ is neither new nor particulary useful...
+Since this is a virtualized system there is every possibility that the
+memory we get won't be divided into nodes in the nice neat manner you
+seem to be expecting.  It just depends on what memory the hypervisor
+has free, and on what nodes, when the partition is booted.
+
+In other words, the assumption that node pfn ranges won't overlap is
+completely untenable for us.
+
+Linus' tree is currently broken for us.  Any suggestions for how to
+fix it, since I am not very familiar with the NUMA code?
+
+Paul.

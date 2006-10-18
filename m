@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWJRTPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161276AbWJRTRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbWJRTPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWJRTPD
+	id S1161276AbWJRTRY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWJRTRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:15:03 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:17341 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161103AbWJRTPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:15:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=a0oGTr0SpCMhtrJN5HDvBwgRaIa8qRPTdmmZBic/zeOJPYJMV+ItFVP6jq7XRbP+tmCPiMoh7KZRB6WGQfmpA5uFc1hghZnsfEgKPpcUHKHvICAgrl0CJP9J31wSnIMdOdwWMXCj6erRn/FcxvjuVeefJrse8bF/2zYadBPWXlI=  ;
-Message-ID: <45367D32.6090301@yahoo.com.au>
-Date: Thu, 19 Oct 2006 05:14:58 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 18 Oct 2006 15:17:24 -0400
+Received: from av1.karneval.cz ([81.27.192.123]:2064 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161276AbWJRTRW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 15:17:22 -0400
+Message-ID: <453679D0.8060101@gmail.com>
+Date: Wed, 18 Oct 2006 21:00:32 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sched_tick with interrupts enabled
-References: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com> <4536629C.4050807@yahoo.com.au> <Pine.LNX.4.64.0610181059570.28750@schroedinger.engr.sgi.com> <45366DF0.6040702@yahoo.com.au> <Pine.LNX.4.64.0610181145250.29163@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0610181145250.29163@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+CC: linux-acpi@vger.kernel.org
+Subject: speedstep-centrino: ENODEV
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 19 Oct 2006, Nick Piggin wrote:
-> 
-> 
->>wake_priority_sleeper should not be called from rebalance_tick. That
->>code was OK where it was before, I think.
-> 
-> 
-> wake_priority_sleeper() is necessary to establish the idle state.
+Hi!
 
-No it isn't. It's just that if it returns nonzero, we know we are not
-idle so we needn't test for that again.
+How is it possible to find out whether or not speedstep-centrino is supported. I 
+have
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 13
+model name      : Intel(R) Pentium(R) M processor 1.60GHz
+stepping        : 6
+cpu MHz         : 1600.149
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr pge mca cmov pat 
+clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
+bogomips        : 3201.52
 
+processor, but speedstep-centrino returns ENODEV because of lack of _PCT et al 
+entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). It is possible to 
+hard-code that values to speedstep-centrino as for banias cpus or use corrected 
+DSDT that will contain _PCT, _PSS and _PPC, but where may I obtain these values?
+
+This is Asus M6R notebook, some DSDT parts of this piece of HW are really ugly 
+(problems with acpi some time ago).
+
+I may use p4-clockmod (and it points me to speedstep-centrino module), but if I 
+am correct, it doesn't save battery life?
+
+thanks,
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

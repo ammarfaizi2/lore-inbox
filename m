@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWJRRVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422712AbWJRRVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422713AbWJRRVf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422715AbWJRRVf
+	id S1422712AbWJRRVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 13:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbWJRRVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:21:35 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:8575 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422713AbWJRRVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:21:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=lb30E4Taf/KtAGxet2iHIWd2zHhKV6h5mIo2d/EiufPII68iBXL7fReG05+U/ZKKpBEStqXMg63hLAKvh9mHAiDsbr4ECv81PK5xHCOwPhxwzhgDrF8ES5LvRFIRcnh9wN84w6ZYRW1Urm9oI1KGcGvGlTiUkSLmgftF+WNbQow=  ;
-Message-ID: <4536629C.4050807@yahoo.com.au>
-Date: Thu, 19 Oct 2006 03:21:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sched_tick with interrupts enabled
-References: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 13:21:12 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:45476 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1422712AbWJRRVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 13:21:10 -0400
+Date: Wed, 18 Oct 2006 21:21:03 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Prarit Bhargava <prarit@redhat.com>
+Subject: Re: [RFC][PATCH] ->signal->tty locking
+Message-ID: <20061018172103.GB2062@oleg>
+References: <1160992420.22727.14.camel@taijtu> <20061017081018.GA115@oleg> <1161080221.3036.38.camel@taijtu> <20061017123307.GA209@oleg> <1161091781.24237.161.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161091781.24237.161.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> scheduler_tick() has the potential of running for some time if f.e.
-> sched_domains for a system with 1024 processors have to be balanced.
-> We currently do all of that with interrupts disabled. So we may be unable
-> to service interrupts for some time.
+On 10/17, Alan Cox wrote:
+>
+> Ar Maw, 2006-10-17 am 16:33 +0400, ysgrifennodd Oleg Nesterov:
+> > I sent a patch,
+> > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=114268787415193
+> > 
+> > but it was ignored. Probably I should re-send it.
 > 
-> I wonder if it would be possible to put the sched_tick() into a tasklet and
-> allow interrupts to be enabled? Preemption is still disabled and so we
-> are stuck on a cpu.
+> Definitely - we still see reports of tty slab scribbles
 
-I don't think so because it also does accounting which probably wants to
-be precisely on a tick.
+This patch can't fix anything, sorry for the confusion.
 
-Also the timeslice accounting takes the rq lock without disabling interrupt,
-and task wakeups can easily happen from interrupt / softirq.
+Yes, the 'if (new_sigh) {}' code in sys_unshare() is broken, but it is
+never executed, because unshare_sighand() never populates new_sighp.
 
-Taking rebalance_tick out of scheduler_tick, and not calling rebalance_tick
-from sched_fork is probably a good idea.
+Probably it is better to just remove this code.
 
-After that, it might be acceptable to call rebalance_tick from a tasklet,
-although it would be uneeded overhead on small systems. It might be better
-to have a special case for your large systems which does the full balance
-and runs less frequently in a tasklet (and make your regular rebalance_tick
-skip the top level balancing).
+> > > Right, use tty_mutex when using the tty, use ->sighand when changing
+> > > signal->tty.
+> > 
+> > I think that things like do_task_stat()/do_acct_process() do not need
+> > global tty_mutex, they can use ->siglock.
+> 
+> Please keep the tty_mutex as it will protect against other stuff later.
+> Once tty is a bit saner then someone brave can refcount it properly and
+> that'll make it much prettier.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Oh, but it is silly to take the global tty_mutex in do_task_stat().
+Why do we need it if ->siglock protects ->signal->tty ? We are only
+reading the tty_struct, tty->driver can't go away ...
+
+Oleg.
+

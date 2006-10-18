@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWJRIOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWJRIOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWJRIOq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 04:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWJRIOq
+	id S932096AbWJRIOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 04:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWJRIOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 04:14:46 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26265 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932095AbWJRIOp (ORCPT
+	Wed, 18 Oct 2006 04:14:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27801 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932096AbWJRIOu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 04:14:45 -0400
+	Wed, 18 Oct 2006 04:14:50 -0400
 From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org
-Cc: neilb@suse.de, nfs@lists.sourceforge.net, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, gnb@melbourne.sgi.com
-Date: Wed, 18 Oct 2006 01:13:36 -0700
-Message-Id: <20061018081336.18477.55297.sendpatchset@sam.engr.sgi.com>
-Subject: [PATCH] lib cpumask.c should include nodemask.h
+To: Dinakar Guniguntala <dino@in.ibm.com>
+Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Date: Wed, 18 Oct 2006 01:14:41 -0700
+Message-Id: <20061018081441.18477.43390.sendpatchset@sam.engr.sgi.com>
+Subject: [PATCH] Cpuset: remove useless sched domain line
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paul Jackson <pj@sgi.com>
 
-With the addition of some nodemask related code to lib/cpumask.c, we
-should now include nodemask.h in this file for the for_each_node_mask()
-and node_possible_map definitions.
+Remove a useless line from the sched domain setup code in cpusets.
+
+When I removed the 'is_removed()' flag test from the sched domain
+setup code in cpusets, as part of my July 23, 2006 patch:
+
+    Cpuset: fix ABBA deadlock with cpu hotplug lock
+
+I failed to notice that this opened the door to a little bit of code
+simplification.  A line of code that had to cover for the possibility
+that a cpuset marked cpu_exclusive was marked for removal could
+be eliminated.  In the code section visible in this patch, it is
+now the case that cur->cpus_allowed is always a subset of pspan,
+so it is always a no-op to cpus_or() cur->cpus_allowed into pspan.
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
 ---
 
- lib/cpumask.c |    1 +
- 1 files changed, 1 insertion(+)
+ kernel/cpuset.c |    1 -
+ 1 files changed, 1 deletion(-)
 
---- 2.6.19-rc2-mm1.orig/lib/cpumask.c	2006-10-17 17:36:23.000000000 -0700
-+++ 2.6.19-rc2-mm1/lib/cpumask.c	2006-10-17 17:37:23.000000000 -0700
-@@ -1,6 +1,7 @@
- #include <linux/kernel.h>
- #include <linux/bitops.h>
- #include <linux/cpumask.h>
-+#include <linux/nodemask.h>
- #include <linux/module.h>
- 
- int __first_cpu(const cpumask_t *srcp)
+--- 2.6.19-rc1-mm1.orig/kernel/cpuset.c	2006-10-13 21:31:16.000000000 -0700
++++ 2.6.19-rc1-mm1/kernel/cpuset.c	2006-10-13 21:32:20.000000000 -0700
+@@ -783,7 +783,6 @@ static void update_cpu_domains(struct cp
+ 			cpus_andnot(pspan, pspan, c->cpus_allowed);
+ 	}
+ 	if (!is_cpu_exclusive(cur)) {
+-		cpus_or(pspan, pspan, cur->cpus_allowed);
+ 		if (cpus_equal(pspan, cur->cpus_allowed))
+ 			return;
+ 		cspan = CPU_MASK_NONE;
 
 -- 
                   I won't rest till it's the best ...

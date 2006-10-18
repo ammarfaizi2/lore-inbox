@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161165AbWJRPjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWJRPku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161165AbWJRPjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWJRPjj
+	id S1161169AbWJRPku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWJRPku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:39:39 -0400
-Received: from xenotime.net ([66.160.160.81]:52947 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1161169AbWJRPji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:39:38 -0400
-Date: Wed, 18 Oct 2006 08:41:05 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Jarek Poplawski <jarkao2@o2.pl>
+	Wed, 18 Oct 2006 11:40:50 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:31905 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1161169AbWJRPkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:40:49 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Sebastian Biallas <sb@biallas.net>
+Subject: Re: PCI-DMA: Disabling IOMMU
+Date: Wed, 18 Oct 2006 17:41:03 +0200
+User-Agent: KMail/1.9.5
+References: <45364248.2020901@biallas.net>
+In-Reply-To: <45364248.2020901@biallas.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions?
-Message-Id: <20061018084105.56d61e04.rdunlap@xenotime.net>
-In-Reply-To: <20061018114240.GA3202@ff.dom.local>
-References: <20061018114240.GA3202@ff.dom.local>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1886508.S28QdfIql7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200610181741.03428.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 13:42:40 +0200 Jarek Poplawski wrote:
+--nextPart1886508.S28QdfIql7
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Is it really so superfluous to have a possibility of 
-> reading all docs from Documentation on a lean box
-> (e.g. server) without all those xml, flex etc.
-> printers' toys installed?
+Am Mittwoch 18 Oktober 2006 17:03 schrieben Sie:
+> Hi,
+>
+> Linux ouputs some strange "PCI-DMA: Disabling IOMMU" on booting. It's a
+> ALiveNF4G motherboard with an Athlon64 X2 running vanilla Linux 2.6.18.1
+> (which supports all hardware out of the box, pretty cool).
+>
+> Should I worry about this IOMMU-disabling? All other Linux/IOMMU stuff I
+> found had AGP or BIOS messages nearby, but I only get this single
+> "PCI-DMA: Disabling IOMMU" line, without any hint.
 
-make help ==>
+Unless you have >=3D4GB of RAM using IOMMU makes no sense, thus it gets=20
+disabled.
 
-Documentation targets:
-  Linux kernel internal documentation in different formats:
-  xmldocs (XML DocBook), psdocs (Postscript), pdfdocs (PDF)
-  htmldocs (HTML), mandocs (man pages, use installmandocs to install)
-                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-and 'man 9 yield'
-works for me.
+--nextPart1886508.S28QdfIql7
+Content-Type: application/pgp-signature
 
-or are you saying that you want large *.txt book-like generated files
-instead of larger *.html etc?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
----
-~Randy
+iD8DBQBFNksPxU2n/+9+t5gRAgznAKCkz3KCZ5z/7PQp3U3PcTqM8hQ1cwCg1j8T
+Uke/5HJpwt6bH5SvnDd+Gg4=
+=h+ta
+-----END PGP SIGNATURE-----
+
+--nextPart1886508.S28QdfIql7--

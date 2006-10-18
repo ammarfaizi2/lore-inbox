@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWJRSMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWJRSOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422751AbWJRSMn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 14:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422750AbWJRSMn
+	id S1422736AbWJRSOh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422750AbWJRSOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 14:12:43 -0400
-Received: from av2.karneval.cz ([81.27.192.122]:12860 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S1422751AbWJRSMm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 14:12:42 -0400
-Message-ID: <45366D12.3070200@gmail.com>
-Date: Wed, 18 Oct 2006 20:06:10 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Wed, 18 Oct 2006 14:14:37 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:6750 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422736AbWJRSOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:14:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AUIgbq5Ao9HWSnL7RL8r1jw+tZyKbXGDo3giiyuH86YaJyOYFUzdLlt2gqKWYcuODxAQN3e7k0rt+94bFIgA3T49KfHzl0AHBj4fEquaGE12SqflerMRXk5ptllpuPTZ/PY/5t3i141kz6FZ9cXZBOqofqRSrNFBsO49zQaPzyQ=  ;
+Message-ID: <45366F08.6050903@yahoo.com.au>
+Date: Thu, 19 Oct 2006 04:14:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Sven Hoexter <shoexter@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [REGRESSION] nfs client: Read-only file system (2.6.19-rc1,2)
-References: <4534F59D.4040505@gmail.com> <1161104051.5559.5.camel@lade.trondhjem.org> <eh4hhb$sp7$1@sea.gmane.org> <4535EB4F.4070406@gmail.com> <45364C51.2000004@gmail.com> <1161192121.6095.58.camel@lade.trondhjem.org> <453667F1.4040504@gmail.com> <20061018180233.GF5374@fieldses.org>
-In-Reply-To: <20061018180233.GF5374@fieldses.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Mason <chris.mason@oracle.com>
+Subject: Re: 2.6.19-rc2-mm1
+References: <20061016230645.fed53c5b.akpm@osdl.org>	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>	 <45364CE9.7050002@yahoo.com.au>	 <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>	 <45366515.4050308@yahoo.com.au> <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J. Bruce Fields wrote:
-> On Wed, Oct 18, 2006 at 07:44:17PM +0200, Jiri Slaby wrote:
->> Trond Myklebust wrote:
->>> I'll bet that you have always had a subdirectory of the exact same
->>> filesystem mounted somewhere else ro, right?
->> Yup, exactly: /usr -ro and /home -rw on the same (hda3) partition.
+Badari Pulavarty wrote:
+> On Thu, 2006-10-19 at 03:32 +1000, Nick Piggin wrote:
+
+>>Sorry. Can you try with ext2? Alternatively, try with ext3 or reiserfs
+>>and change the line in mm/filemap.c:generic_file_buffered_write from
+>>
+>>		status = a_ops->commit_write(file, page, offset, offset+copied);
+>>to
+>>		status = a_ops->commit_write(file, page, offset, offset+bytes);
+>>
+>>and see if that solves your problem (that will result in rubbish being
+>>temporarily visible, but there is a similar problem upstream anyway, so it
+>>shouldn't cause other failures in your test).
 > 
-> Just out of curiosity--why are you doing that?
+> 
+> No. Above change didn't help either :(
 
-Not me :). I do not admin that machine.
+OK, so it isn't due to passing in a short / zero length to commit_write.
 
-> On the linux server, at least, that doesn't really prevent writing to
-> /usr unless you've also turned on subtree checking.  And subtree
-> checking causes other problems.
+It is more likely to be a subtle bug when retrying the write after having
+faulted on the first page. Hmm, you wouldn't be deadlocking on i_mutex,
+due to faulting in fault_in_pages_readable (that is against the documented
+lock ordering, but thank god it looks like the documentation is incorrect
+as msync doesn't hold mmap_sem over do_fsync).
 
-thanks,
+I can't see anything yet, but I'll keep looking (and try to reproduce
+if I can get TLP working).
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

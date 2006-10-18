@@ -1,76 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWJRJUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWJRJWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWJRJUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 05:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWJRJUF
+	id S1750983AbWJRJWS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 05:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWJRJWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 05:20:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:33098 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932161AbWJRJUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 05:20:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=hkYaYXjpXGD3Rv8vM1f957PpSpGu4AxkWE9mwUpYYojIaq6eg8erXcMomfvlOku5Gn4BFrdJjg+ACRxzG//A1TQz4/cMLx7S+NT8VkP8OQWrt0vnsjurbDwBQ2t293nfNOUmioJdWmPqw3/4pc5yYyg0CFKC85kc/YGng4eXTYw=
-Date: Wed, 18 Oct 2006 13:19:44 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-Message-ID: <20061018091944.GA5343@martell.zuzino.mipt.ru>
-References: <20061017005025.GF29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk>
+	Wed, 18 Oct 2006 05:22:18 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:24009 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1750983AbWJRJWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 05:22:17 -0400
+Subject: 2.6.19-rc2 : Is something missing in Documentation/dontdiff ?
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 14:55:37 +0530
+Message-Id: <1161163537.20400.128.camel@amol.verismonetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018044054.GH29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> module.h is trickier.  First of all, we want extern for wake_up_process().
 
-When I came up with this to l-k, Nick and Christoph told me that duplicate
-proto sucks. So module.h/sched.h is
-a) uninline module_put()
-b) remove #include <linux/sched.h>
+I did following:
 
-> And unlike the first severed include, we *do* have files that need something
-> from sched.h and rely on pulling it implicitly via module.h.  Fortunately,
-> there are few of those.  For amd64 allmodconfig we only need to touch includes
-> in
->  arch/i386/kernel/cpu/mcheck/therm_throt.c
->  drivers/hwmon/abituguru.c
->  drivers/leds/ledtrig-ide-disk.c
->  drivers/leds/ledtrig-timer.c
->  drivers/scsi/scsi_transport_sas.c
->  drivers/w1/slaves/w1_therm.c
->  include/linux/phy.h
->  kernel/latency.c
-> and in almost all cases we are actually missing jiffies.h, not sched.h.
-> However, at that point we really need to look at other targets; they
-> do add several extra places, but again not much.  Below is what I've got
-> from my usual mix of cross-builds; for resulting dependeny counts (again,
-> amd64 allmodconfig) see ftp://ftp.linux.org.uk/pub/people/viro/counts-after.
+1. To start with linux-2.6.19-rc2-orig and linux-2.6.19-rc2 are
+identical
+2. cd linux-2.6.19-rc2; make allmodconfig; make
+3. diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff
+linux-2.6.19-rc2-orig linux-2.6.19-rc2 > /tmp/patch
 
-> --- a/include/linux/module.h
-> +++ b/include/linux/module.h
-> @@ -6,7 +6,6 @@ #define _LINUX_MODULE_H
->   * Rewritten by Richard Henderson <rth@tamu.edu> Dec 1996
->   * Rewritten again by Rusty Russell, 2002
->   */
-> -#include <linux/sched.h>
->  #include <linux/spinlock.h>
->  #include <linux/list.h>
->  #include <linux/stat.h>
-> @@ -410,6 +409,8 @@ static inline int try_module_get(struct
->  	return ret;
->  }
->
-> +extern int FASTCALL(wake_up_process(struct task_struct * tsk));
-> +
->  static inline void module_put(struct module *module)
->  {
->  	if (module) {
+The above generates 2MB patch file. What is wrong ?
+
+It seems a new folder is created: linux-2.6.19-rc2/usr/include
+
+diff -uprN -X linux-2.6.19-rc2-orig/Documentation/dontdiff linux-2.6.19-rc2-orig/usr/include/asm-generic/atomic.h linux-2.6.19-rc2/usr/include/asm-generic/atomic.h
+--- linux-2.6.19-rc2-orig/usr/include/asm-generic/atomic.h	1970-01-01 05:30:00.000000000 +0530
++++ linux-2.6.19-rc2/usr/include/asm-generic/atomic.h	2006-10-18 14:18:47.000000000 +0530
+@@ -0,0 +1,117 @@
++#ifndef _ASM_GENERIC_ATOMIC_H
++#define _ASM_GENERIC_ATOMIC_H
++/*
++ * Copyright (C) 2005 Silicon Graphics, Inc.
++ *	Christoph Lameter <clameter@sgi.com>
++ *
++ * Allows to provide arch independent atomic definitions without the need to
++ * edit all arch specific atomic.h files.
++ */
++
++#include <asm/types.h>
++
++/*
++ * Suppport for atomic_long_t
++ *
++ * Casts for parameters are avoided for existing atomic functions in order to
++ * avoid issues with cast-as-lval under gcc 4.x and other limitations that the
++ * macros of a platform may have.
++ */
++
++#if BITS_PER_LONG == 64
++
++typedef atomic64_t atomic_long_t;
++
++#define ATOMIC_LONG_INIT(i)	ATOMIC64_INIT(i)
++
++static __inline__ long atomic_long_read(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	return (long)atomic64_read(v);
++}
++
++static __inline__ void atomic_long_set(atomic_long_t *l, long i)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	atomic64_set(v, i);
++}
++
++static __inline__ void atomic_long_inc(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	atomic64_inc(v);
++}
++
++static __inline__ void atomic_long_dec(atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	atomic64_dec(v);
++}
++
++static __inline__ void atomic_long_add(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	atomic64_add(i, v);
++}
++
++static __inline__ void atomic_long_sub(long i, atomic_long_t *l)
++{
++	atomic64_t *v = (atomic64_t *)l;
++
++	atomic64_sub(i, v);
++}
++
++#else
++
++typedef atomic_t atomic_long_t;
++
++#define ATOMIC_LONG_INIT(i)	ATOMIC_INIT(i)
++static __inline__ long atomic_long_read(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	return (long)atomic_read(v);
++}
++
++static __inline__ void atomic_long_set(atomic_long_t *l, long i)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	atomic_set(v, i);
++}
++
++static __inline__ void atomic_long_inc(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	atomic_inc(v);
++}
++
++static __inline__ void atomic_long_dec(atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	atomic_dec(v);
++}
++
++static __inline__ void atomic_long_add(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	atomic_add(i, v);
++}
++
++static __inline__ void atomic_long_sub(long i, atomic_long_t *l)
++{
++	atomic_t *v = (atomic_t *)l;
++
++	atomic_sub(i, v);
++}
++
++#endif
++#endif
+
+..........
+..........
 

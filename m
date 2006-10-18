@@ -1,160 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWJRTF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbWJRTGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWJRTF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 15:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbWJRTF2
+	id S1161116AbWJRTGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 15:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbWJRTGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 15:05:28 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:45841 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161042AbWJRTF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 15:05:27 -0400
-Date: Wed, 18 Oct 2006 15:05:26 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-In-Reply-To: <20061017225838.GK2062@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0610181041420.6766-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Oct 2006 15:06:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52367 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161116AbWJRTGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 15:06:08 -0400
+Date: Wed, 18 Oct 2006 12:05:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: michael@ellerman.id.au
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061018120525.5cd9e6f1.akpm@osdl.org>
+In-Reply-To: <1161165948.7906.33.camel@localhost.localdomain>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<4535310C.40708@goop.org>
+	<20061017132245.12499c1d.akpm@osdl.org>
+	<1161165948.7906.33.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Oct 2006, Paul E. McKenney wrote:
+On Wed, 18 Oct 2006 20:05:48 +1000
+Michael Ellerman <michael@ellerman.id.au> wrote:
 
-> > It was taking the effect of memory barriers into account.  In the program
-> > "load(A); store(B)" the load doesn't sequentially precede the store.  But
-> > in the program "load(A); smp_mb(); store(B)" it does.  Similarly, in the
-> > program "if (A) B = 2;" the load(A) sequentially precedes the store(B) --
-> > thanks to the dependency or (if you prefer) the absence of speculative
-> > stores.
+> On Tue, 2006-10-17 at 13:22 -0700, Andrew Morton wrote:
+> > On Tue, 17 Oct 2006 12:37:48 -0700
+> > Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 > > 
-> > Basically "sequentially precedes" means that any other CPU using the
-> > appropriate memory barriers will observe the accesses apparently occurring
-> > in this order.
+> > > Andrew Morton wrote:
+> > > > -generic-implementatation-of-bug.patch
+> > > > -generic-implementatation-of-bug-fix.patch
+> > > > +generic-bug-implementation.patch
+> > > >  generic-bug-for-i386.patch
+> > > >  generic-bug-for-x86-64.patch
+> > > >  uml-add-generic-bug-support.patch
+> > > >  use-generic-bug-for-ppc.patch
+> > > >  bug-test-1.patch
+> > > >
+> > > >  Updated generic-BUG-handling patches
+> > > >   
+> > > I thought the powerpc patch had been given a clean bill of health?  Or 
+> > > was there still a problem with it?
+> > 
+> > No, last time I tested it the machine still froze after "returning from
+> > prom_init".  ie: before it had done any WARNs or BUGs.  It's rather
+> > mysterious.
 > 
-> Your first example in the previous paragraph fits the description.
-> The second does not, as illustrated by the following scenario:
+> Works for me:
 > 
-> 	CPU 0			CPU 1			CPU 2
+> Diego5:~# uname -a
+> Linux Diego5 2.6.19-rc2-mm1-git #9 SMP Wed Oct 18 19:30:38 EST 2006 ppc64 GNU/Linux
+
+Yeah, weird.  I'll test it a third time.
+
+> Diego5:~# echo 4 > /proc/sys/vm/drop_caches
+> Badness in drop_caches_sysctl_handler at /home/michael/src/auto/git/fs/drop_caches.c:67
+> Call Trace:
+> [C0000000431F7760] [C00000000000F8E4] .show_stack+0x6c/0x1a0 (unreliable)
+> [C0000000431F7800] [C000000000447B8C] .program_check_exception+0x19c/0x5cc
+> [C0000000431F78A0] [C00000000000446C] program_check_common+0xec/0x100
+> --- Exception: 700 at .drop_caches_sysctl_handler+0x5c/0x88
+>     LR = .drop_caches_sysctl_handler+0x20/0x88
+> [C0000000431F7C20] [C00000000005725C] .do_rw_proc+0x168/0x230
+> [C0000000431F7CF0] [C0000000000BC76C] .vfs_write+0xd0/0x1b4
+> [C0000000431F7D90] [C0000000000BD134] .sys_write+0x4c/0x8c
+> [C0000000431F7E30] [C00000000000861C] syscall_exit+0x0/0x40
+> Diego5:~# echo 8 > /proc/sys/vm/drop_caches
+> kernel BUG in drop_caches_sysctl_handler at /home/michael/src/auto/git/fs/drop_caches.c:69!
+> cpu 0xd: Vector: 700 (Program Check) at [c0000000431f7910]
+>     pc: c0000000000e3a5c: .drop_caches_sysctl_handler+0x68/0x88
+>     lr: c0000000000e3a14: .drop_caches_sysctl_handler+0x20/0x88
+>     sp: c0000000431f7b90
+>    msr: 8000000000029032
+>   current = 0xc00000000fc8c810
+>   paca    = 0xc000000000564e00
+>     pid   = 1465, comm = bash
+> kernel BUG in drop_caches_sysctl_handler at /home/michael/src/auto/git/fs/drop_caches.c:69!
+> enter ? for help
+> [c0000000431f7c20] c00000000005725c .do_rw_proc+0x168/0x230
+> [c0000000431f7cf0] c0000000000bc76c .vfs_write+0xd0/0x1b4
+> [c0000000431f7d90] c0000000000bd134 .sys_write+0x4c/0x8c
+> [c0000000431f7e30] c00000000000861c syscall_exit+0x0/0x40
+> --- Exception: c01 (System Call) at 000000000fec9aac
+> SP (ff8416f0) is in userspace
+> d:mon> 
 > 
-> 	A=1			while (B==0);		while (C==0);
-> 	smp_mb()		C=1			smp_mb()
-> 	B=1						assert(A==1) <fails>
+> There's some NUMA badness going around that you might be hitting.
 
-In what way is this inconsistent with my second example?  Using "<" for 
-"sequentially precedes" we have:
-
-	st_0(A=1) < st_0(B=1) <v ld_1(B) < st_1(C=1) <v ld_2(C) < ld_2(A)
-
-You cannot derive st_0(A=1) <v ld_2(A) from this.  The rules are:
-
-	1:st(X) < 2:st(Y) <v 3:ac(Y) < 4:ac(X)  implies
-		1:st(X) <v 4:ac(X)
-
-and
-
-	1:ld(X) < 2:st(Y) <v 3:ac(Y) < 4:st(X)  implies
-		4:st(X) !<v 1:ld(X).
-
-> Please note that the "<fails>" is not a theoretical assertion -- I have
-> seen this happen in real life.  So, yes, the C=1 might not speculate ahead
-> of the load of B that produced a non-zero result, but CPU 2's assertion
-> can still fail, even though both CPU 2 and CPU 0 are using memory barriers.
-
-Your example would be no less fallacious if CPU 1 executed smp_mb() before
-C = 1.  The assertion could still fail because CPU 1's write to C could
-become visible to CPU 2 before CPU 0's writes to A and B.
-
-
-> > Yes, I realize that.  But if several CPUs store values to the same
-> > variable at about the same time, it's not at all clear which stores are
-> > "<v" others.  Deciding this is tantamount to ordering all the stores to
-> > that variable.
-> 
-> Yep.  Consider the following case:
-> 
-> 	CPU 0			CPU 1			CPU 2
-> 
-> 	A=1			B=1			X=C
-> 	smb_mb()		smp_mb()		smp_mb()
-> 	C=1			C=2			if (X==1) ???
-> 
-> In the then-clause of the "if", CPU 2 can only be sure that it will
-> see A==1.  It might or might not see B==1.  We simply don't know the
-> order of stores to C, even at runtime.
-
-It's one thing to say you don't know the order of stores.  It's another 
-thing to say that there _is_ no order -- especially if you're going to use 
-the "<v" notation to implicitly impose such an order!
-
-So maybe what you're claiming is that the stores to a single variable _do_ 
-have a global order at runtime, even though we might not know what it is, 
-and the view each CPU has is always a suborder of that global order.  (And 
-of course there is no fixed relation on how the global orders of stores to 
-two separate variables inter-relate, unless it is enforced by memory 
-barriers.)
-
-Does this claim always make sense, even in a hierarchical cache system?
-
-> Now consider the following:
-> 
-> 	CPU 0		CPU 1		CPU 2
-> 
-> 	A=1		B=1		X=C
-> 	smb_mb()	smp_mb()	smp_mb()
-> 	atomic_inc(&C)	atomic_inc(&C)	assert(C!=2 || (A==1 && B==1))
-> 
-> This assertion is guaranteed to succeed (using my semantics of the
-> transitivity of ">v"/"<v" -- using yours, CPU 2 would instead need to
-> use an atomic operation to fetch the value of C).  We still don't know
-> which atomic_inc() happened first (we would need atomic_inc_return()
-> to figure that out), but we can nevertheless determine if both have
-> happened and act accordingly.
-
-Yes.  What is your point?  And how is it related to the existence of a 
-global ordering for all stores to a single variable?
-
-
-> An alternative would be to use something like "sees" to describe "<v":
-> 
-> 	ld_1(A) <v st_0(A=1)
-> 
-> might be called "CPU 1's load of A sees CPU 0's store of 1 into A".
-
-You wrote this backwards; it should say:  st_0(A=1) <v ld_1(A).
-
-> Then "<v" would be "is seen by".  In my regime:
-> 
-> 	ld_2(A) <v ++_1(A=2) <v st_0(A=1) -> ld_2(A) <v st_0(A=1)
-
-Backwards again.  You mean:
-
-   st_0(A=1) <v ++_1(A=2) <v ld_2(A)  implies  st_0(A=1) <v ld_2(A)
-
-> In yours, this would not hold unless the ld_2() was replaced by an atomic
-> operation (if I understand your regime correctly).
-
-Basically yes, although I'm not sure how a load manages to be atomic.  
-Maybe if it's part of an atomic exchange or something like that.
-
-> Does this "sees"/"is seen by" nomenclature seem more reasonable?
-> Or perhaps "visibility includes"/"visible to"?  Or keep "sees"/"seen by"
-> and use "<s"/">s" to adjust the mneumonic?
-
-I'm not keen on either one.  Does it make sense to say one store is
-visible to (or is seen by) another store?  Maybe...  But "comes before"  
-seems more natural.  Especially if you're assuming the existence of a
-global ordering on these stores.
-
-Incidentally, although you haven't mentioned this, it's important never to
-state that a load is visible to (or is seen by or comes before) another
-access.  In other words, the global ordering of stores for a single
-variable doesn't extend to a global ordering of _all_ accesses for that
-variable.
-
-Alan
-
+I don't set CONFIG_NUMA on the g5.

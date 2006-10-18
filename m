@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWJRLEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWJRLJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWJRLEG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 07:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWJRLEF
+	id S1030200AbWJRLJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 07:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWJRLJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 07:04:05 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:19633 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1030198AbWJRLEC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 07:04:02 -0400
-Message-ID: <45360952.5020307@aitel.hist.no>
-Date: Wed, 18 Oct 2006 13:00:34 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Jens Axboe <jens.axboe@oracle.com>
-CC: Jakob Oestergaard <jakob@unthought.net>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Phetteplace, Thad (GE Healthcare, consultant)" 
-	<Thad.Phetteplace@ge.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bandwidth Allocations under CFQ I/O Scheduler
-References: <CAEAF2308EEED149B26C2C164DFB20F4E7EAFE@ALPMLVEM06.e2k.ad.ge.com> <1161048269.3245.26.camel@laptopd505.fenrus.org> <20061017132312.GD7854@kernel.dk> <20061018080030.GU23492@unthought.net> <20061018095125.GE24452@kernel.dk>
-In-Reply-To: <20061018095125.GE24452@kernel.dk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 07:09:18 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49801 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030200AbWJRLJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 07:09:17 -0400
+Date: Wed, 18 Oct 2006 13:01:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: UNWIND_INFO slowdown in -mm1
+Message-ID: <20061018110120.GA32153@elte.hu>
+References: <20060928192048.GA17436@elte.hu> <45351782.76E4.0078.0@novell.com> <200610181250.41423.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610181250.41423.ak@suse.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> While that may make some sense internally, the exported interface would
-> never be workable like that. It needs to be simple, "give me foo kb/sec
-> with max latency bar for this file", with an access pattern or assumed
-> sequential io.
->
-> Nobody speaks of iops/sec except some silly benchmark programs. I know
-> that you are describing pseudo-iops, but it still doesn't make it more
-> clear.
-> Things aren't as simple
->   
-How about "give me 10% of total io capacity?"  People understand
-this, and the io scheduler can then guarantee this by ensuring
-that the process gets 1 out of 10 io requests as long as it
-keeps submitting enough.
 
-The admin can then set a reasonable percentage depending on
-the machine's capacity.
+* Andi Kleen <ak@suse.de> wrote:
 
-Helge Hafting
+> > Below patch should help, can you try it out? Short of the linker 
+> > supporting building a binary lookup table at build time, it creates 
+> > one as soon as the bootmem allocator is usable (so you'll continue 
+> > using the linear lookup for the first [hopefully] few calls). The 
+> > code should be ready to utilize a build-time created table once a 
+> > fixed linker becomes available.
+> 
+> I added the patch now, thanks.
+> 
+> Not sure this is still .19 material though or better delayed for .20. 
+> What do you think?
+
+it's a performance regression that results in 3x boot time slowdown.
+
+	Ingo

@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWJRO2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWJRObM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbWJRO2h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 10:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWJRO2h
+	id S1160999AbWJRObM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 10:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWJRObM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 10:28:37 -0400
-Received: from qb-out-0506.google.com ([72.14.204.227]:31171 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161030AbWJRO2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 10:28:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=G7ESg0KFC8bhS2Z9tkKiJ5IwGD0juUwA9UBdx3cZW7tlidxbc9s35dNpeKFWfBhcVDAXDlPwsVPWVyjP/QD1D9fT9QoExpGOOWURTwo7ZSywOZX7SCaujEsfBaQUkXpw4Dm0Pocie0cDYgH5hj64T9qB2UBNOIzFE/SZCWSLdXE=
-From: Christopoulos Panagiwtis <pxrist@gmail.com>
-Organization: xxx
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Most stable kernel for mpich2 cluster?
-Date: Wed, 18 Oct 2006 17:28:25 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200610171430.01032.pxrist@gmail.com> <1161092423.24237.171.camel@localhost.localdomain>
-In-Reply-To: <1161092423.24237.171.camel@localhost.localdomain>
+	Wed, 18 Oct 2006 10:31:12 -0400
+Received: from mx0.karneval.cz ([81.27.192.122]:38157 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1160999AbWJRObL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 10:31:11 -0400
+Message-ID: <45363AA1.1070604@stud.feec.vutbr.cz>
+Date: Wed, 18 Oct 2006 16:30:57 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: IceDove 1.5.0.7 (X11/20061014)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+To: Kay Tiong Khoo <kaytiong@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: stopping a process during a timer interrupt
+References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com> <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
+In-Reply-To: <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610181728.26372.pxrist@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 October 2006 16:40, Alan Cox wrote:
-> The older kernels shipped by vendors are not "vanilla source" because
-> that would lack all the bug and security fixing done.
->
-> Alan
+Kay Tiong Khoo skrev:
+> On a timer interrupt, I tried to stop the current process by changing
+> it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
+> However, this results in a system hang.
+> 
+> I can't find a way to stop the current process during an interrupt
+> context. Does such code exist in the kernel? If not, how does one go
+> about implementing it from within a kernel module.
 
-You are right, I understand this now, I knew the meaning of "vanilla source" 
-but didn't come in my mind that 	debian 2.6.8 for example is not vanilla 
-source but a tree based on vanilla including patches from debian developers, 
-sorry. I will follow Jacob's advice and I will ask in beowulf mailing list 
-about what kernel I should use. I am two days in linux kernel lists and I can 
-see that you work really hard here, so I won't annoy you again with such 
-questions.
+In interrupt context there's no "current process" by definition.
 
-keep up the good work, all of you,
-
-Panos 
-
-(Alan, we have a poster of you in my university:p)
+Michal

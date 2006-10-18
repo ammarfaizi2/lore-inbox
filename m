@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422924AbWJRUcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422943AbWJRUox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422924AbWJRUcm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 16:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422923AbWJRUcm
+	id S1422943AbWJRUox (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 16:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422945AbWJRUox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 16:32:42 -0400
-Received: from mail29.messagelabs.com ([216.82.249.147]:64668 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S1422924AbWJRUck convert rfc822-to-8bit (ORCPT
+	Wed, 18 Oct 2006 16:44:53 -0400
+Received: from pat.uio.no ([129.240.10.4]:7639 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1422943AbWJRUow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 16:32:40 -0400
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-4.tower-29.messagelabs.com!1161203559!32836497!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: kernel oops with extended serial stuff turned on...
-Date: Wed, 18 Oct 2006 15:32:38 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F803FDB@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RE: kernel oops with extended serial stuff turned on...
-Thread-Index: Acby9I1hWM0wMGB7S2+2ZuFFKwTmIg==
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: <Greg.Chandler@wellsfargo.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Oct 2006 20:32:38.0938 (UTC) FILETIME=[8DAB17A0:01C6F2F4]
+	Wed, 18 Oct 2006 16:44:52 -0400
+Subject: Re: [NFS] NFS inconsistent behaviour
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Chuck Lever <chucklever@gmail.com>
+Cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       Mohit Katiyar <katiyar.mohit@gmail.com>,
+       Linux NFS mailing list <nfs@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <76bd70e30610181317w3e8315e5m75056305904a1bce@mail.gmail.com>
+References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
+	 <20061016084656.GA13292@janus>
+	 <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com>
+	 <20061016093904.GA13866@janus>
+	 <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
+	 <20061018063945.GA5917@janus> <1161194229.6095.81.camel@lade.trondhjem.org>
+	 <20061018183807.GA12018@janus>
+	 <1161199580.6095.112.camel@lade.trondhjem.org>
+	 <20061018200936.GA14733@janus>
+	 <76bd70e30610181317w3e8315e5m75056305904a1bce@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 18 Oct 2006 16:44:35 -0400
+Message-Id: <1161204275.6095.143.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.796, required 12,
+	autolearn=disabled, AWL 1.20, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Wed, 2006-10-18 at 16:17 -0400, Chuck Lever wrote:
+> Both client implementations (kernel and glibc) should re-use port
+> numbers or connections aggressively.  To that end, the kernel RPC
+> client is already doing this.  I know Red Hat has suggested using a
+> connection manager for user-level RPC applications to share.  In
+> addition the kernel NFS client is sharing connections to a server
+> between all mount points going to that server.
 
-> kobject_add failed for ttyM0 with -EEXIST, don't try to register
-things
-> with the same name in the same directory.
-> [<c01f4fe2>] kobject_add+0xd2/0xe0
-> [<c02a4e8f>] class_device_add+0x9f/0x2a0
-> [<c02a5117>] class_device_create+0x77/0x90
-> [<c02423ff>] tty_register_device+0x5f/0x70
-> [<c02a5c9c>] kobj_map+0xec/0x100
-> [<c015493d>] cdev_add+0x1d/0x30
-> [<c02426ea>] tty_register_driver+0x19a/0x1b0
-> [<c0272e4c>] isicom_register_tty_driver+0xac/0xd0
+IIRC, Mike Waychison did some work a couple of years ago on a userspace
+daemon that managed RPC connections.
 
-
-I saw this same warning/problem in my out-of-tree drivers when the
-"TTY_DRIVER_NO_DEVFS" flag went away somewhere between 2.6.17 and
-2.6.18.
-
-You need to change this line:
-
-isicom_normal->flags                    = TTY_DRIVER_REAL_RAW;
-
-To:
-
-isicom_normal->flags                    = TTY_DRIVER_REAL_RAW |
-TTY_DRIVER_DYNAMIC_DEV;
-
-In the "drivers/char/isicom.c" file.
-
-Scott
-
+Cheers,
+  Trond
 

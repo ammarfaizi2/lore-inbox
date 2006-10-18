@@ -1,109 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWJRQVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWJRQUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWJRQVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWJRQVL
+	id S1751404AbWJRQUq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWJRQUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:21:11 -0400
-Received: from livid.absolutedigital.net ([66.92.46.173]:3335 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S1751280AbWJRQVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:21:09 -0400
-Date: Wed, 18 Oct 2006 12:20:57 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: Andi Kleen <ak@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCHv2] Undeprecate the sysctl system call
-In-Reply-To: <200610181508.54237.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0610181214060.7303@lancer.cnet.absolutedigital.net>
-References: <453519EE.76E4.0078.0@novell.com> <200610181441.51748.ak@suse.de>
- <1161176382.9363.35.camel@localhost.localdomain> <200610181508.54237.ak@suse.de>
+	Wed, 18 Oct 2006 12:20:45 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:935 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1751404AbWJRQUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:20:44 -0400
+Date: Wed, 18 Oct 2006 10:20:42 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Brian King <brking@us.ibm.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
+Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
+Message-ID: <20061018162042.GT22289@parisc-linux.org>
+References: <20061017145146.GJ22289@parisc-linux.org> <45354A59.3010109@us.ibm.com> <20061018145104.GN22289@parisc-linux.org> <1161186652.9363.68.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161186652.9363.68.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Until something better comes along this'll get us back to the status quo.
+On Wed, Oct 18, 2006 at 04:50:51PM +0100, Alan Cox wrote:
+> Ar Mer, 2006-10-18 am 08:51 -0600, ysgrifennodd Matthew Wilcox:
+> > The existing implementation of pci_block_user_cfg_access() was recently
+> > criticised for providing out of date information and for returning errors
+> > on write, which applications won't be expecting.
+> 
+> It was also favoured by some of us as well. In addition this whole issue
+> was extensively debated in the past to select the current approach. That
+> said I do like the approach of a short wait *specifically* on power
+> transitions, its bounded in time, its neat and it makes sense. 
+> 
+> We must be very very sure its never triggered in the real world any
+> other way (eg your >block testing must be impossible)
 
-@Andrew, this patch is a replacement for the one from yesterday.
+Oh yes, absolutely.  That's why I posted it with a Nacked-by.
 
-From: Cal Peake <cp@absolutedigital.net>
+> So unless you distinguish between "back in a moment", "back someday" and
+> "not coming back" it isn't useful. Thus your patch is incomplete as it
+> does not provide the cache that is also needed. At least I don't think X
+> hanging forever mid mode switch is terribly useful...
 
-Undeprecate the sysctl system call and default to always include it with
-the option for embedded folks to exclude it.  Also, remove it's entry from
-the feature removal file and fixup the comment in it's header file.
+I don't see how that's possible.  If the driver forgets to call
+pci_unblock_user_cfg_access(), that's a bug in the kernel driver.
+The current user is limited to a two-second delay and the one I'm
+proposing introducing is a delay measued in milli- or microseconds.
+An extra two-second delay while you BIST your IPR device and change
+modes in X at the same time (does X really scan all devices when it's
+changing mode settings?  That's odd) doesn't strike me as a huge failure.
 
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
+> > I also addressed the potential issue with nested attempts to block.
+> > Now pci_block_user_cfg_access() can return -EBUSY if it's already blocked,
+> > and pci_unblock_user_cfg_access() will WARN if you try to unblock an
+> > already unblocked device.
+> 
+> Gak that is IMHO a mistake. Just keep a counter. You've just added
+> another "what the hell do I do if this returns -EBUSY" problem for all
+> the driver authors.
 
---- ./include/linux/sysctl.h~orig	2006-10-18 11:55:23.000000000 -0400
-+++ ./include/linux/sysctl.h	2006-10-18 12:10:12.000000000 -0400
-@@ -6,10 +6,9 @@
-  ****************************************************************
-  ****************************************************************
-  **
-- **  The values in this file are exported to user space via 
-+ **  The values in this file are exported to user space via
-  **  the sysctl() binary interface.  However this interface
-- **  is unstable and deprecated and will be removed in the future. 
-- **  For a stable interface use /proc/sys.
-+ **  is obsolete; instead use /proc/sys.
-  **
-  ****************************************************************
-  ****************************************************************
---- ./init/Kconfig~orig	2006-10-17 17:54:09.000000000 -0400
-+++ ./init/Kconfig	2006-10-17 18:49:36.000000000 -0400
-@@ -303,20 +303,20 @@ config UID16
- 
- config SYSCTL_SYSCALL
- 	bool "Sysctl syscall support" if EMBEDDED
--	default n
-+	default y
- 	select SYSCTL
- 	---help---
--	  Enable the deprecated sysctl system call.  sys_sysctl uses
--	  binary paths that have been found to be a major pain to maintain
--	  and use.  The interface in /proc/sys is now the primary and what
--	  everyone uses.
--
--	  Nothing has been using the binary sysctl interface for some
--	  time now so nothing should break if you disable sysctl syscall
--	  support, and your kernel will get marginally smaller.
-+	  This option allows you to specify whether or not to build into
-+	  your kernel support for the sysctl system call.  You can disable
-+	  this if you are building a kernel for a system with limited
-+	  resources (e.g. an embedded device) and your kernel image will
-+	  shrink by a few kilobytes.
-+
-+	  NOTE: Disabling this option will cause a warning to be printed
-+	        if a program attempts to use this system call.
- 
--	  Unless you have an application that uses the sys_sysctl interface
-- 	  you should probably say N here.
-+	  If you are sure your userspace enviroment has no need for this
-+	  system call you can say N here.
- 
- config KALLSYMS
- 	 bool "Load all symbols for debugging/kksymoops" if EMBEDDED
---- ./Documentation/feature-removal-schedule.txt~orig	2006-10-17 17:54:04.000000000 -0400
-+++ ./Documentation/feature-removal-schedule.txt	2006-10-17 18:10:35.000000000 -0400
-@@ -53,18 +53,6 @@ Who:	Mauro Carvalho Chehab <mchehab@brtu
- 
- ---------------------------
- 
--What:	sys_sysctl
--When:	January 2007
--Why:	The same information is available through /proc/sys and that is the
--	interface user space prefers to use. And there do not appear to be
--	any existing user in user space of sys_sysctl.  The additional
--	maintenance overhead of keeping a set of binary names gets
--	in the way of doing a good job of maintaining this interface.
--
--Who:	Eric Biederman <ebiederm@xmission.com>
--
-----------------------------
--
- What:	PCMCIA control ioctl (needed for pcmcia-cs [cardmgr, cardctl])
- When:	November 2005
- Files:	drivers/pcmcia/: pcmcia_ioctl.c
+You fail the operation if it returns busy.  Or you loop.  It's really up
+to you, the driver author.  You know what operation you're trying to do,
+you know what makes more sense.
+
+> NAK for all the above reasons. This is a cure looking for a disease, and
+> its a cure which is worse than the theoretical disease it wants to fix.
+
+Absolutely not.  It's an attempt to solve a tricky problem.  Devfs, now
+there was a cure looking for a disease.
+
+It seemed to me there was consensus that blocking was a better approach
+than returning a cached value or returning an error.  If we're
+decided that returning a cached value is the better approach, then
+the patch to fix it is trivial; move the pci_set_state() call from the
+pci_block_user_cfg_access() function to the IPR driver.  Done and dusted.

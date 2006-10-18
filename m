@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbWJRR74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422744AbWJRSCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161237AbWJRR74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 13:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWJRR74
+	id S1422744AbWJRSCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 14:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWJRSCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 13:59:56 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:63647 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1161237AbWJRR7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 13:59:55 -0400
-Date: Wed, 18 Oct 2006 11:01:18 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>
-Subject: [PATCH] cad_pid sysctl with PROC_FS=n
-Message-Id: <20061018110118.82cd12b1.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 18 Oct 2006 14:02:42 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:30132 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1422744AbWJRSCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 14:02:41 -0400
+Date: Wed, 18 Oct 2006 14:02:33 -0400
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Sven Hoexter <shoexter@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [REGRESSION] nfs client: Read-only file system (2.6.19-rc1,2)
+Message-ID: <20061018180233.GF5374@fieldses.org>
+References: <4534F59D.4040505@gmail.com> <1161104051.5559.5.camel@lade.trondhjem.org> <eh4hhb$sp7$1@sea.gmane.org> <4535EB4F.4070406@gmail.com> <45364C51.2000004@gmail.com> <1161192121.6095.58.camel@lade.trondhjem.org> <453667F1.4040504@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453667F1.4040504@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Wed, Oct 18, 2006 at 07:44:17PM +0200, Jiri Slaby wrote:
+> Trond Myklebust wrote:
+> >I'll bet that you have always had a subdirectory of the exact same
+> >filesystem mounted somewhere else ro, right?
+> 
+> Yup, exactly: /usr -ro and /home -rw on the same (hda3) partition.
 
-mainline and -mm have this error if CONFIG_PROC_FS=n:
+Just out of curiosity--why are you doing that?
 
-kernel/sysctl.c:148: warning: 'proc_do_cad_pid' used but never defined
-kernel/built-in.o:(.data+0x1228): undefined reference to `proc_do_cad_pid'
-make: *** [.tmp_vmlinux1] Error 1
+On the linux server, at least, that doesn't really prevent writing to
+/usr unless you've also turned on subtree checking.  And subtree
+checking causes other problems.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- kernel/sysctl.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
---- linux-2619-rc2-mm1.orig/kernel/sysctl.c
-+++ linux-2619-rc2-mm1/kernel/sysctl.c
-@@ -144,8 +144,10 @@ static int parse_table(int __user *, int
- static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
- 		  void __user *buffer, size_t *lenp, loff_t *ppos);
- 
-+#ifdef CONFIG_PROC_SYSCTL
- static int proc_do_cad_pid(ctl_table *table, int write, struct file *filp,
- 		  void __user *buffer, size_t *lenp, loff_t *ppos);
-+#endif
- 
- static ctl_table root_table[];
- static struct ctl_table_header root_table_header =
-@@ -558,6 +560,7 @@ static ctl_table kern_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#ifdef CONFIG_PROC_SYSCTL
- 	{
- 		.ctl_name	= KERN_CADPID,
- 		.procname	= "cad_pid",
-@@ -566,6 +569,7 @@ static ctl_table kern_table[] = {
- 		.mode		= 0600,
- 		.proc_handler	= &proc_do_cad_pid,
- 	},
-+#endif
- 	{
- 		.ctl_name	= KERN_MAX_THREADS,
- 		.procname	= "threads-max",
-
-
----
+--b.

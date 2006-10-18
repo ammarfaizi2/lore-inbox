@@ -1,98 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161238AbWJRQsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWJRQxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161238AbWJRQsj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 12:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWJRQsj
+	id S1422683AbWJRQxs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 12:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422684AbWJRQxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 12:48:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:26920 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161239AbWJRQsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 12:48:37 -0400
+	Wed, 18 Oct 2006 12:53:48 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:43901 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1422683AbWJRQxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 12:53:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=cKfVFykxohiRvb5X8eVtj3K9gU6Ywa+e7WqK2g3ox5gki9dRbT/FbSwpdTTWimoBuy/WaUCKLCQhG+s5MNSKib5+Z1lhZd/lQONzjHqzI+fhnj7vOY61gHimcac0C9SvSNOOjxIXO8JHVJ8KrZEwaF0Xoj+UdF1uWghAn3D5rfw=
-Date: Thu, 19 Oct 2006 01:49:05 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Chas Williams <linux-atm-general@lists.sourceforge.net>,
-       Giuliano Procida at Madge Networks <gprocida@madge.com>
-Subject: [PATCH 6/6] atm/ambassador: use bitrev8
-Message-ID: <20061018164905.GF21820@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Chas Williams <linux-atm-general@lists.sourceforge.net>,
-	Giuliano Procida at Madge Networks <gprocida@madge.com>
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=I16xBg7xc2zdQ8Intzaan7y3s7aibCoRYyPn5UzGPanDlGHDDhPBhOEkrFTimASlwXlpG/Tg4rmRGE9LwPN4pgtmszHVdkpcfuiouyERv5QFwvZBXUi88Jz+EBeZ90pGUPNXFfedtL1KYaTGB1fgtGFWpSuncmKkVWLCBLSU4ZU=
+Reply-To: andrew.j.wade@gmail.com
+To: Edward Shishkin <edward@namesys.com>
+Subject: Re: [2.6.19-rc2-mm1] error: too few arguments to function =?utf-8?q?=E2=80=98crypto=5Falloc=5Fhash=E2=80=99?=
+Date: Wed, 18 Oct 2006 12:53:39 -0400
+User-Agent: KMail/1.9.1
+Cc: andrew.j.wade@gmail.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+References: <20061016230645.fed53c5b.akpm@osdl.org> <200610171603.38253.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <453548DD.3000701@namesys.com>
+In-Reply-To: <453548DD.3000701@namesys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200610181253.39872.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use bitrev8 for ambassador driver.
+On Tuesday 17 October 2006 17:19, Edward Shishkin wrote:
+> The fix is attached.
+> Andrew, please apply.
 
-Cc: Chas Williams <linux-atm-general@lists.sourceforge.net>
-Cc: Giuliano Procida at Madge Networks <gprocida@madge.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+The kernel compiles and boots; I don't know how to test that code
+specifically. Thanks.
 
- drivers/atm/Kconfig      |    1 +
- drivers/atm/ambassador.c |   17 +++--------------
- 2 files changed, 4 insertions(+), 14 deletions(-)
-
-Index: work-fault-inject/drivers/atm/ambassador.c
-===================================================================
---- work-fault-inject.orig/drivers/atm/ambassador.c
-+++ work-fault-inject/drivers/atm/ambassador.c
-@@ -32,6 +32,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/poison.h>
-+#include <linux/bitrev.h>
- 
- #include <asm/atomic.h>
- #include <asm/io.h>
-@@ -2068,18 +2069,6 @@ static void __devinit amb_ucode_version 
-   PRINTK (KERN_INFO, "microcode version is %u.%u", major, minor);
- }
-   
--// swap bits within byte to get Ethernet ordering
--static u8 bit_swap (u8 byte)
--{
--    const u8 swap[] = {
--      0x0, 0x8, 0x4, 0xc,
--      0x2, 0xa, 0x6, 0xe,
--      0x1, 0x9, 0x5, 0xd,
--      0x3, 0xb, 0x7, 0xf
--    };
--    return ((swap[byte & 0xf]<<4) | swap[byte>>4]);
--}
--
- // get end station address
- static void __devinit amb_esi (amb_dev * dev, u8 * esi) {
-   u32 lower4;
-@@ -2101,9 +2090,9 @@ static void __devinit amb_esi (amb_dev *
-     PRINTDB (DBG_INIT, "ESI:");
-     for (i = 0; i < ESI_LEN; ++i) {
-       if (i < 4)
--	  esi[i] = bit_swap (lower4>>(8*i));
-+	  esi[i] = bitrev8(lower4>>(8*i));
-       else
--	  esi[i] = bit_swap (upper2>>(8*(i-4)));
-+	  esi[i] = bitrev8(upper2>>(8*(i-4)));
-       PRINTDM (DBG_INIT, " %02x", esi[i]);
-     }
-     
-Index: work-fault-inject/drivers/atm/Kconfig
-===================================================================
---- work-fault-inject.orig/drivers/atm/Kconfig
-+++ work-fault-inject/drivers/atm/Kconfig
-@@ -242,6 +242,7 @@ config ATM_IDT77252_USE_SUNI
- config ATM_AMBASSADOR
- 	tristate "Madge Ambassador (Collage PCI 155 Server)"
- 	depends on PCI && ATM
-+	select BITREVERSE
- 	help
- 	  This is a driver for ATMizer based ATM card produced by Madge
- 	  Networks Ltd. Say Y (or M to compile as a module named ambassador)
+Andrew Wade

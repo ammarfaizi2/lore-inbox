@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbWJRPAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWJRPEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161111AbWJRPAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 11:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWJRPAY
+	id S1161124AbWJRPEi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 11:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWJRPEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 11:00:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45445 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161111AbWJRPAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 11:00:23 -0400
-Message-ID: <453641DD.1040602@torque.net>
-Date: Wed, 18 Oct 2006 11:01:49 -0400
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 18 Oct 2006 11:04:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41370 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161121AbWJRPEg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 11:04:36 -0400
+Date: Wed, 18 Oct 2006 08:04:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: dealing with excessive includes
+In-Reply-To: <20061018093126.GM29920@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>
+References: <20061017005025.GF29920@ftp.linux.org.uk>
+ <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk>
+ <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk>
+ <20061018091944.GA5343@martell.zuzino.mipt.ru> <20061018093126.GM29920@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, emschwar@debian.org, robbat2@gentoo.org
-Subject: [Announce] sg3_utils-1.22 available
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sg3_utils is a package of command line utilities for sending
-SCSI (and some ATA) commands to devices. This package targets
-the linux kernel (lk) 2.6 and lk 2.4 series. In the lk 2.6
-series these utilities (except sgp_dd) can be used with any
-devices that support the SG_IO ioctl.
 
-This version adds the sg_sat_identify utility. This sends
-an ATA IDENTIFY (PACKET) DEVICE command through a SAT layer
-and can format its response suitable for hdparm ('--Istdin')
-to decode. See the CHANGELOG for more information.
 
-A tarball, rpm and deb can be found at (see table 2):
-http://www.torque.net/sg
-For an overview of sg3_utils see this page:
-http://www.torque.net/sg/sg3_utils.html
-The sg_dd utility has its own page at:
-http://www.torque.net/sg/sg_dd.html
-The SG_IO ioctl is discussed at:
-http://www.torque.net/sg/sg_io.html
-A changelog can be found at:
-http://www.torque.net/sg/p/sg3_utils.CHANGELOG
+On Wed, 18 Oct 2006, Al Viro wrote:
+>
+> +#define lock_super(x) do {		\
+> +	struct super_block *sb = x;	\
+> +	get_fs_excl();			\
+> +	mutex_lock(&sb->s_lock);	\
+> +} while(0)
 
-A release announcement has been sent to freshmeat.net .
+Don't do this. The "x" passed in may be "sb", and then you end up with 
+bogus code.
 
-Doug Gilbert
+I think the solution to these kinds of things is either
+ - just bite the bullet, and make it out-of-line. A function call isn't 
+   that expensive, and is sometimes actually cheaper due to I$ issues.
+ - have a separate trivial header file, and only include it for people who 
+   actually need these things (very few files, actually - it's usually 
+   just one file per filesystem)
+
+In this case, since it's _so_ simple, and since it's _so_ specialized, I 
+think #2 is the right one. Normally, uninlining would be.
+
+		Linus

@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422990AbWJRV1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423002AbWJRVdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422990AbWJRV1A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 17:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422992AbWJRV07
+	id S1423002AbWJRVdf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 17:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423004AbWJRVdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 17:26:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:11448 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422990AbWJRV06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 17:26:58 -0400
-Date: Wed, 18 Oct 2006 14:26:50 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Will Schmidt <will_schmidt@vnet.ibm.com>, akpm@osdl.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610181421160.30438@schroedinger.engr.sgi.com>
-References: <1160764895.11239.14.camel@farscape>
- <Pine.LNX.4.64.0610131158270.26311@schroedinger.engr.sgi.com>
- <1160769226.11239.22.camel@farscape> <1160773040.11239.28.camel@farscape>
- <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
- <1161026409.31903.15.camel@farscape> <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
- <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+	Wed, 18 Oct 2006 17:33:35 -0400
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:37019 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1423002AbWJRVde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 17:33:34 -0400
+Message-ID: <45369DAB.5080000@comcast.net>
+Date: Wed, 18 Oct 2006 17:33:31 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+CC: linux-kernel@vger.kernel.org, ubuntu-devel <ubuntu-devel@lists.ubuntu.com>
+Subject: Re: nobody cared about via irq
+References: <45366556.7010907@comcast.net> <1161195903.21484.16.camel@localhost.localdomain>
+In-Reply-To: <1161195903.21484.16.camel@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006, Paul Mackerras wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Have memory available for slab boot strap on node 0? Or modify the boot 
-> > code in such a way that it runs on node 1 or any other node that has 
-> > memory available.
+
+
+Sergio Monteiro Basto wrote:
+> Maybe the best is report on bugzilla and attach dmesg, lspci and
+> cat /proc/interrupts 
 > 
-> OK, then I don't understand.  There is about 1GB of memory on node 0,
-> which is about half of the partition's memory, and it is even in a
-> contiguous chunk, but it doesn't start at pfn 0:
+> see if 
+> http://bugzilla.kernel.org/show_bug.cgi?id=6419
+> match :)
 
-And the memory is available? In some messages it showed that all of node 0 
-memory was allocated on bootup! We end up in fallback_alloc which means 
-that an allocation attempt failed to obtain memory. Could you figure out 
-what exactly we are trying to allocate? Add some printk's? Why do we 
-fallback?
+Oh yes, that looks exactly like it.  :)  Apparently I didn't file an
+Ubuntu bug before (was sure I had long ago...), so I've done one and
+linked it to kernel bug #6419.
 
-> So it's not that node 0 doesn't have any pages.  Any other clues?
+> Let me know if you do a bugzilla report 
+> --
+> Sérgio M. B. 
+> 
 
-We are falling back. So something is going wrong. Either we request memory 
-from an overallocated node or the page allocator for some other reason is 
-not giving us the requested memory. If we figure out why then the fix is 
-probably very simple.
 
-I have no way of investigating the issue except by conjecture and code 
-review since I have no ppc hardware.
+- --
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iQIVAwUBRTadqgs1xW0HCTEFAQJ5txAAgEFsNEIjyGIgk6Gvi2lfeMa5YSV7wgxP
+WuDuYyAJh5SL9DjVcz3pI2tzCkce6oIrwT97RWC97kXifiUCA3RZWJmobrouznRS
+quIRcqmiTF/nEKcM6n7k33IhNICSzEnS+kS00v/aeqM+AGSdXAbtrqyAkBIVeMdA
+CgO0o/F8ONBpXdxnFVl/RYJPaXBgDiP9rYQtof4BERnDJJBSqt1u6EXAOtjcPjqP
+lbUXO/SSJfKZAgnfhWYS1GlRZ1qlCuRr1q/1L9aQt2Mzq62NDGjHj6w9FM2M9wth
+eAjtfAhX6lsvGRCf8//1oCg5i3MU2F9YsTTih/but+Znca/o86gtRbsSZ8Eg+CLA
+XYsT0QaomZPtM1qHRkf369SkAJFobob4kxCzN6v3xBFoPfSLuh+0ZfRYIic2mfPN
+xiB/3gfHMA/ReFE8pAPhQ9WMk/2gRg3aL7YBd3MTH/4eUVsv8ImtYfJrlUsYSdjh
+mhkpTzmLCkXOIV1HzbnazKro7jufNsXVPtKLuZwmCatnplDDueTb5dLeWhFd+dRg
+I6XHrKl9pfMCJEEtoEz2UOp7bOB3AmI8N/EX+gSrohL9GwFPuv8jTO0ZwmSBfzuK
+GKrTmd8ya7ysUm9x7SqikTPyirkU4mt33euqv9w8jztLW999AwcXA703lknu6PWZ
+XHm3mP8TrF0=
+=VvjZ
+-----END PGP SIGNATURE-----

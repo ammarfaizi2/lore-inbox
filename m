@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWJSD1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423008AbWJSDiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030293AbWJSD1O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 23:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWJSD1O
+	id S1423008AbWJSDiM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 23:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423237AbWJSDiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 23:27:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:30479 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030293AbWJSD1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 23:27:13 -0400
+	Wed, 18 Oct 2006 23:38:12 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:56691 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1423008AbWJSDiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 23:38:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=CxU0lsEL8FNqxRRG1OyunjNyemR4YABRio7cJJpONR7ztHHHTMbyCP1Td7ZDKMWysfxMxsPpYrPhIFBvcWPlV2IPiL7JtwAbm8HOe9KnlIQ4ANyTSQ9e+mJwNTyl85H1qNB/M7xhzshRw5REOu5FUcgqiYB8UZMAePGJN0MCW/s=
-Date: Thu, 19 Oct 2006 12:28:01 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] i2c: Fix return value check
-Message-ID: <20061019032801.GB20695@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@suse.de>
-References: <20061017062449.GA13100@localhost> <20061018165450.35e0c5d4.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018165450.35e0c5d4.khali@linux-fr.org>
-User-Agent: Mutt/1.5.11
+        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
+        b=Ddm90Mxbw5ceTmJxs/Me+shQ9cvX/Z7E8cyghrkE0PYG6cvYe63UUu8fXdb3yeCMmz+l+Zkq6Gu9Ox+LkVQmy/sII9pdMJ4Z0U4yNwwKA657cLwbXyV6Jg9holiNoCxw1YrcDKD3wBHH2yPML4Dmn/RYyV6yt3DTseuYRH0mUEw=
+In-Reply-To: <20061017225603.GA15846@c3po.0xdef.net>
+References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com> <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com> <20061017225603.GA15846@c3po.0xdef.net>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8AC92F9D-9E69-4332-9165-7B98C16D5050@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kay Tiong Khoo <kaytiong@gmail.com>
+Subject: Re: stopping a process during a timer interrupt
+Date: Thu, 19 Oct 2006 11:38:00 +0800
+To: Hagen Paul Pfeifer <hagen@jauu.net>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 04:54:50PM +0200, Jean Delvare wrote:
+Thanks!
 
-> > Signed-off-by: Akinbou Mita <akinobu.mita@gmail.com>
-> 
-> Typo ;)
+For the record, I was trying to sleep kernel threads as well as user  
+threads. That didn't work out too well.
 
-Thank you. My template was broken.
+All worked fine when I only attempted to sleep user threads.
 
-> Patch looks correct, however class devices are going away soon, and
-> this patch will conflict with Greg's work:
-> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver-class/i2c-dev-device.patch
-> 
-> So your patch should apply on top of Greg's, if still needed after his
-> changes. It might even be later folded into Greg's patch to make things
-> easier to handle.
+Kay Tiong
 
-I made the patch on top of i2c-dev-device.patch
+On Oct 18, 2006, at 6:56 AM, Hagen Paul Pfeifer wrote:
 
-Subject: i2c: Fix return value check
+> * Kay Tiong Khoo | 2006-10-17 18:18:25 [+0800]:
+>
+>> On a timer interrupt, I tried to stop the current process by changing
+>> it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
+>> However, this results in a system hang.
+>>
+>> I can't find a way to stop the current process during an interrupt
+>> context. Does such code exist in the kernel? If not, how does one go
+>> about implementing it from within a kernel module.
+>
+> Take a look at some driver implementations!
+> There you will find some ways how to put a process into a sleep state.
+>
+> Grep for "*->state*TASK_UNINTERRUPTIBLE" and take also a look at the
+> interaction with schedule() and spinlocks.
+>
+>> Thanks.
+>> Kay Tiong
+>
+> Best regards
+>
+> -- 
+> Hagen Pfeifer
 
-device_create() returns error code as pointer on failures.
-This patch checks the return value of device_create() by using IS_ERR().
-
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-
- drivers/i2c/i2c-dev.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: work-fault-inject/drivers/i2c/i2c-dev.c
-===================================================================
---- work-fault-inject.orig/drivers/i2c/i2c-dev.c
-+++ work-fault-inject/drivers/i2c/i2c-dev.c
-@@ -417,8 +417,8 @@ static int i2cdev_attach_adapter(struct 
- 	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
- 				     MKDEV(I2C_MAJOR, adap->nr),
- 				     "i2c-%d", adap->nr);
--	if (!i2c_dev->dev) {
--		res = -ENODEV;
-+	if (IS_ERR(i2c_dev->dev)) {
-+		res = PTR_ERR(i2c_dev->dev);
- 		goto error;
- 	}
- 	res = device_create_file(i2c_dev->dev, &dev_attr_name);

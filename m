@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946231AbWJSRDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946246AbWJSRGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946231AbWJSRDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946232AbWJSRDP
+	id S1946246AbWJSRGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946244AbWJSRGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:03:15 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49580 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946231AbWJSRDO (ORCPT
+	Thu, 19 Oct 2006 13:06:09 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:6061 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1946238AbWJSRGH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:03:14 -0400
-Date: Thu, 19 Oct 2006 10:03:04 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <20061019163044.GB5819@krispykreme>
-Message-ID: <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
-References: <1161026409.31903.15.camel@farscape>
- <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
- <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
- <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
- <20061019163044.GB5819@krispykreme>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Oct 2006 13:06:07 -0400
+X-IronPort-AV: i="4.09,330,1157353200"; 
+   d="scan'208"; a="419607066:sNHT15526384"
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+Date: Thu, 19 Oct 2006 13:04:32 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Message-Id: <20061019170432.8171.446.stgit@lade.trondhjem.org>
+In-Reply-To: <20061019170432.8171.75076.stgit@lade.trondhjem.org>
+References: <20061019170432.8171.75076.stgit@lade.trondhjem.org>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
+Subject: [PATCH 03/11] NFS: Fix error handling in nfs_direct_write_result()
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+X-OriginalArrivalTime: 19 Oct 2006 17:06:23.0817 (UTC) FILETIME=[E7EF3B90:01C6F3A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would expect this patch to fix your issues. This will allow fallback 
-allocations to occur in the page allocator during slab bootstrap. This 
-means your per node queues will be contaminated as they were before. After 
-the slab allocator is fully booted then the per node queues will become 
-gradually become node clean.
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
 
-I think it would be better if the PPC arch would fix this issue 
-by either making memory  available on node 0 or setting up node 1 as 
-the boot node.
+If the RPC call tanked, we should not be checking the return value
+of data->res.verf->committed, since it is unlikely to even be
+initialised.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
 
-Index: linux-2.6.19-rc2-mm1/mm/slab.c
-===================================================================
---- linux-2.6.19-rc2-mm1.orig/mm/slab.c	2006-10-19 11:54:24.000000000 -0500
-+++ linux-2.6.19-rc2-mm1/mm/slab.c	2006-10-19 11:59:24.208194796 -0500
-@@ -1589,7 +1589,10 @@ static void *kmem_getpages(struct kmem_c
- 	 * the needed fallback ourselves since we want to serve from our
- 	 * per node object lists first for other nodes.
- 	 */
--	flags |= cachep->gfpflags | GFP_THISNODE;
-+	if (g_cpucache_up != FULL)
-+		flags |= cachep->gfpflags;
-+	else
-+		flags |= cachep->gfpflags | GFP_THISNODE;
+ fs/nfs/direct.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 9f7f8b9..1e873fc 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -532,10 +532,12 @@ static void nfs_direct_write_result(stru
  
- 	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
- 	if (!page)
+ 	spin_lock(&dreq->lock);
+ 
+-	if (likely(status >= 0))
+-		dreq->count += data->res.count;
+-	else
+-		dreq->error = task->tk_status;
++	if (unlikely(status < 0)) {
++		dreq->error = status;
++		goto out_unlock;
++	}
++
++	dreq->count += data->res.count;
+ 
+ 	if (data->res.verf->committed != NFS_FILE_SYNC) {
+ 		switch (dreq->flags) {
+@@ -550,7 +552,7 @@ static void nfs_direct_write_result(stru
+ 				}
+ 		}
+ 	}
+-
++out_unlock:
+ 	spin_unlock(&dreq->lock);
+ }
+ 

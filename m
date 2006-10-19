@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946410AbWJSTzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946407AbWJST4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946410AbWJSTzw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946407AbWJSTzw
+	id S1946407AbWJST4M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946413AbWJST4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 15:55:52 -0400
-Received: from livid.absolutedigital.net ([66.92.46.173]:48141 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S1946410AbWJSTzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:55:51 -0400
-Date: Thu, 19 Oct 2006 15:55:49 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] Improve the remove sysctl warnings.
-In-Reply-To: <20061019195040.GA5392@martell.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.64.0610191553090.967@lancer.cnet.absolutedigital.net>
-References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
- <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
- <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
- <20061018124415.e45ece22.akpm@osdl.org> <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
- <20061019195040.GA5392@martell.zuzino.mipt.ru>
+	Thu, 19 Oct 2006 15:56:11 -0400
+Received: from smtp2.cc.ksu.edu ([129.130.7.16]:470 "EHLO smtp2.cc.ksu.edu")
+	by vger.kernel.org with ESMTP id S1946411AbWJST4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 15:56:09 -0400
+Message-ID: <4537D5E1.50705@eth.net>
+Date: Thu, 19 Oct 2006 14:45:37 -0500
+From: Amit Gud <gud@eth.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       R.E.Wolff@BitWizard.nl, Greg Kroah-Hartman <gregkh@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/1 try #2] Char: correct pci_get_device changes
+References: <1966866new061818079@muni.cz>
+In-Reply-To: <1966866new061818079@muni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006, Alexey Dobriyan wrote:
-
-> On Thu, Oct 19, 2006 at 12:25:20PM -0400, Cal Peake wrote:
-> > On Wed, 18 Oct 2006, Eric W. Biederman wrote:
-> >
-> > >  	if (msg_count < 5) {
-> > >  		msg_count++;
-> > >  		printk(KERN_INFO
-> > >  			"warning: process `%s' used the removed sysctl "
-> > > -			"system call\n", current->comm);
-> > > +			"system call with ", current->comm);
-> > > +		for (i = 0; i < tmp.nlen; i++)
-> > > +			printk("%d.", name[i]);
-> > > +		printk("\n");
-> > >  	}
-> >
-> > We should prolly kill the counter now.
+Jiri Slaby wrote:
+> correct pci_get_device changes
 > 
-> sysctl(2) callable by everyone including local lusers willing to fill logs.
+> Commits 881a8c120acf7ec09c90289e2996b7c70f51e996 and
+> efe1ec27837d6639eae82e1f5876910ba6433c3f corrects pci device matching in
+> only one way; it no longer oopses/crashes, despite hotplug is not solved in
+> these changes.
+> 
+> Whenever pci_find_device -> pci_get_device change is performed, also
+> pci_dev_get and pci_dev_put should be in most cases called to properly
+> handle hotplug. This patch does exactly this thing -- increase refcount to
+> let kernel know, that we are using this piece of HW just now.
+> 
+> It affects moxa and rio char drivers.
+> 
+> Cc: <R.E.Wolff@BitWizard.nl>
+> Cc: Amit Gud <gud@eth.net>
+> Cc: Greg Kroah-Hartman <gregkh@suse.de>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Users don't even need to write a program to do this, see logger(1). If we 
-keep the counter then after 5 calls we lose potential debugging info.
+Acked-by: Amit Gud <gud@ksu.edu>
 
-  - C.
 
+AG
 -- 
-"There is nothing wrong with your television set. Do not attempt
-    to adjust the picture. We are controlling transmission."
-                    -- The Outer Limits
+May the source be with you.
+http://www.cis.ksu.edu/~gud
 

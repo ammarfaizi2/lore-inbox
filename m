@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946285AbWJSSCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946294AbWJSSHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946285AbWJSSCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946284AbWJSSCs
+	id S1946294AbWJSSHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946295AbWJSSHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:02:48 -0400
-Received: from mga01.intel.com ([192.55.52.88]:4141 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1946281AbWJSSCs (ORCPT
+	Thu, 19 Oct 2006 14:07:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15794 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1946294AbWJSSHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:02:48 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,330,1157353200"; 
-   d="scan'208"; a="149085364:sNHT2149224742"
-From: Jesse Barnes <jesse.barnes@intel.com>
-To: eiichiro.oiwa.nm@hitachi.com
-Subject: Re: pci_fixup_video change blows up on sparc64
-Date: Thu, 19 Oct 2006 11:03:11 -0700
-User-Agent: KMail/1.9.4
-Cc: "David Miller" <davem@davemloft.net>, alan@redhat.com, greg@kroah.com,
+	Thu, 19 Oct 2006 14:07:19 -0400
+Date: Thu, 19 Oct 2006 11:07:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
        linux-kernel@vger.kernel.org
-References: <20061018.233102.74754142.davem@davemloft.net> <20061019.013732.30184567.davem@davemloft.net> <XNM1$9$0$4$$3$3$7$A$9002706U45374cd7@hitachi.com>
-In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002706U45374cd7@hitachi.com>
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0610191057040.8873@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+ <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+ <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+ <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+ <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+ <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+ <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610191103.16689.jesse.barnes@intel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 19, 2006 3:01 am, eiichiro.oiwa.nm@hitachi.com 
-wrote:
-> >> If an expansion ROM exists on ATI Radeon or ATY128 card,
-> >> pci_map_rom returns the expansion ROM base address instead of
-> >> 0xC0000 because fixup_video checks the VGA Enable bit in the
-> >> Bridge Control register.
-> >
-> >It is not valid to expect the bridge control register to return
-> >anything meaningful on PCI "host bridge".  The Radeon card here sits
-> >on the root, just under the PCI Host Controller.  The code in
-> >fixup_video appears to assume that every bus up to the root from
-> >the VGA device is a PCI-PCI bridge, which is not a valid assumption.
-> >There can be a PCI host bridge at the root.
->
-> Have you ever read the PCI-to-PCI Bridge Architecture Specification?
-> The default of VGA Enable bit is 0. This mean video ROM doesn't
-> forward system RAM at 0xC0000.
->
-> There is your VGA card under 0001:00:00.0 Host bridge. The VGA Enable
-> bit in this host bridge will return 0 and IORESOURCE_ROM_SHADOW won't
-> set.
+On Thu, 19 Oct 2006, Christoph Lameter wrote:
 
-I don't think that applies to host->pci bridges though, all bets are off 
-as to how their bits are defined.  One check that might make this 
-feature a bit more robust is to look for a real PCI ROM on the device.  
-If present, we probably don't need to bother with the system copy 
-(which probably won't be there anyway).
+> I would expect this patch to fix your issues. This will allow fallback 
+> allocations to occur in the page allocator during slab bootstrap. This 
+> means your per node queues will be contaminated as they were before. After 
+> the slab allocator is fully booted then the per node queues will become 
+> gradually become node clean.
 
-We should probably also check whether the parent bridge of the device to 
-be fixed up is a real pci->pci bridge (if possible).  That would remove 
-some ambiguity that's likely to cause problems with other platforms 
-too.
+Forgot to mention the results of this contamination: The bootstrap process 
+exercises fine control over data structures to place them in such a way 
+that the slab allocator can perform optimally. F.e. data structures are 
+placed in such a way on nodes that a kmalloc does not need a single off 
+node reference.
 
-Jesse
+The contamination will disrupt this placement. The slab believes that 
+memory is from a different node than were it actually came from. As a 
+result key data structures (such as cpucache descriptors) are placed 
+on the wrong node. kmalloc and other slab operations may require
+off node allocations for every call. Depending on the NUMA factor this may 
+have a significant influence on overall system performance (We have 
+measured this effect to cause a drop of 20% in AIM7 performance!).
+
+In addition to this stuff, I am right now dealing with huge page 
+fault serialization (introduced to safely support DB2) and sparsemem 
+continually causing nested table lookups in fundamental vm operations. All 
+work of IBM people. Not interested in performance at all?

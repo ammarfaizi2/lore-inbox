@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423313AbWJSLwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423317AbWJSL53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423313AbWJSLwL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 07:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423317AbWJSLwL
+	id S1423317AbWJSL53 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 07:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423318AbWJSL53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 07:52:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:46722 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423313AbWJSLwK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 07:52:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: Re: PCI-DMA: Disabling IOMMU
-Date: Thu, 19 Oct 2006 13:52:34 +0200
-User-Agent: KMail/1.9.1
-Cc: Sebastian Biallas <sb@biallas.net>, linux-kernel@vger.kernel.org
-References: <45364248.2020901@biallas.net> <200610182348.44968.ak@suse.de> <20061019051528.GE4582@rhun.haifa.ibm.com>
-In-Reply-To: <20061019051528.GE4582@rhun.haifa.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 19 Oct 2006 07:57:29 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59520 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1423317AbWJSL52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 07:57:28 -0400
+Subject: RE: kernel oops with extended serial stuff turned on...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Greg KH <greg@kroah.com>, Greg.Chandler@wellsfargo.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com>
+References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com>
+	 <20061018230939.GA7713@kroah.com>
+	 <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610191352.35177.ak@suse.de>
+Date: Thu, 19 Oct 2006 13:00:04 +0100
+Message-Id: <1161259204.17335.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Mer, 2006-10-18 am 19:20 -0500, ysgrifennodd Kilau, Scott:
+> Turns out that the driver/char/isicom.c driver claimed his board, and then
+> tried to register the ttyM0 name, which apparently someone else
+> in the kernel did already...
 
-> The original message is misleading - there may certainly be more than
-> one IOMMU and then we will end up "disabling IOMMU" and then
-> "reenabling IOMMU" later when we detect another one. Can we at least
-> make it "disabling GART IOMMU"?
+ISIcom is the official owner of /dev/ttyM* so the real question as you
+say is who else tried to claim it. Fortunately Greg is also Mr Udev 8)
 
-Ok, although the printk is already guarded by a test for another IOMMU
-
--Andi

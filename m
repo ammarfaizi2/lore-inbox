@@ -1,86 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWJSN3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWJSNcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751613AbWJSN3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 09:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWJSN3b
+	id S1030270AbWJSNcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 09:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWJSNcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 09:29:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60823 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751613AbWJSN3a (ORCPT
+	Thu, 19 Oct 2006 09:32:11 -0400
+Received: from mx7.mail.ru ([194.67.23.27]:51780 "EHLO mx7.mail.ru")
+	by vger.kernel.org with ESMTP id S1030270AbWJSNcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 09:29:30 -0400
-Subject: Re: [2.6 patch] fs/gfs2/dir.c:gfs2_dir_write_data(): don't use an
-	uninitialized variable
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20061019132003.GN3502@stusta.de>
-References: <20061019132003.GN3502@stusta.de>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Thu, 19 Oct 2006 14:36:21 +0100
-Message-Id: <1161264981.27980.142.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 09:32:09 -0400
+Date: Thu, 19 Oct 2006 17:33:07 +0400
+From: Anton Vorontsov <cbou@mail.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernel-discuss@handhelds.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] genhd fix or ide workaround -- choose one
+Message-ID: <20061019133307.GA9518@localhost>
+Reply-To: cbou@mail.ru
+References: <20061018221506.GA4187@localhost> <1161259553.17335.30.camel@localhost.localdomain> <20061019122516.GA9040@localhost> <1161263312.17335.40.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1161263312.17335.40.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 19, 2006 at 02:08:32PM +0100, Alan Cox wrote:
+> Ar Iau, 2006-10-19 am 16:25 +0400, ysgrifennodd Anton Vorontsov:
+> > It just happens every time on HP iPaq hx4700. hx4700 have internal CF
+> > slot, which is working via pxa2xx pcmcia driver.
+> 
+> I can't duplicate this with the ide_cs driver and a laptop.
+> 
+> > Have you read comments inside -fix patch? Imho it's obvious that nobody
+> > putting driverfs_device second time, but got it twice.
+> 
+> Its also obvious that it currently works on millions of PC systems and
+> that also needs explaining before any change is made.
 
-All three patches are now in the GFS2 git tree. Thanks,
+You're right, it needs explanation. Unfortunately I don't have any other
+PCMCIAable devices to find it out. :-/ Though, I'll try to find answers
+in the code.
 
-Steve.
-
-On Thu, 2006-10-19 at 15:20 +0200, Adrian Bunk wrote:
-> In the "if (extlen)" case, "new" might be used uninitialized.
-> 
-> Looking at the code, it should be initialized to 0.
-> 
-> Spotted by the Coverity checker.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6/fs/gfs2/dir.c.old	2006-10-19 01:08:00.000000000 +0200
-> +++ linux-2.6/fs/gfs2/dir.c	2006-10-19 01:08:18.000000000 +0200
-> @@ -169,37 +169,37 @@ static int gfs2_dir_write_data(struct gf
->  		return gfs2_dir_write_stuffed(ip, buf, (unsigned int)offset,
->  					      size);
->  
->  	if (gfs2_assert_warn(sdp, gfs2_is_jdata(ip)))
->  		return -EINVAL;
->  
->  	if (gfs2_is_stuffed(ip)) {
->  		error = gfs2_unstuff_dinode(ip, NULL);
->  		if (error)
->  			return error;
->  	}
->  
->  	lblock = offset;
->  	o = do_div(lblock, sdp->sd_jbsize) + sizeof(struct gfs2_meta_header);
->  
->  	while (copied < size) {
->  		unsigned int amount;
->  		struct buffer_head *bh;
-> -		int new;
-> +		int new = 0;
->  
->  		amount = size - copied;
->  		if (amount > sdp->sd_sb.sb_bsize - o)
->  			amount = sdp->sd_sb.sb_bsize - o;
->  
->  		if (!extlen) {
->  			new = 1;
->  			error = gfs2_extent_map(&ip->i_inode, lblock, &new,
->  						&dblock, &extlen);
->  			if (error)
->  				goto fail;
->  			error = -EIO;
->  			if (gfs2_assert_withdraw(sdp, dblock))
->  				goto fail;
->  		}
->  
->  		if (amount == sdp->sd_jbsize || new)
->  			error = gfs2_dir_get_new_buffer(ip, dblock, &bh);
-> 
-
+-- Anton (irc: bd2)

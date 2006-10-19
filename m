@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946401AbWJSThV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946405AbWJSTup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946401AbWJSThV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWJSThV
+	id S1946405AbWJSTup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946407AbWJSTup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 15:37:21 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:15554 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1423247AbWJSThU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:37:20 -0400
-Message-ID: <4537D337.3020706@gmail.com>
-Date: Thu, 19 Oct 2006 21:34:15 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: =?UTF-8?B?U3VuZSBNw7hsZ2FhcmQ=?= <sune@molgaard.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: speedstep-centrino: ENODEV
-References: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 15:50:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:29025 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946405AbWJSTuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 15:50:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ehRKcVLavSnrerukRmPiyn6m8vn+FXRx6DHIDZT4Z1BStPnuo0SjJA+NAxeFqn0udyB6Qyl5SphWsWJKnQjJiy1sD4SnvpBqLOpCoqAj9e6j/rHGvgBAmgYNhRHJb/T4YwfU5ZQi4AbEQGnFFWGvgdIQWfV4EMwacsOLAyhnc6A=
+Date: Thu, 19 Oct 2006 23:50:40 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Cal Peake <cp@absolutedigital.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Improve the remove sysctl warnings.
+Message-ID: <20061019195040.GA5392@martell.zuzino.mipt.ru>
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com> <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org> <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net> <20061018124415.e45ece22.akpm@osdl.org> <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->>> Also, can both of you send the complete acpidump output from 
->> your system. You can find acpidump in latest version of 
->> pmtools package here: 
->> http://www.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
->>
->> May be obtained over there:
->>
->> [...]
->>
->>>>>> processor, but speedstep-centrino returns ENODEV because of 
->>>>>> lack of _PCT et al 
->>>>>> entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). 
->> ----------------------^^^^
->>
-> 
-> Looking at the acpidump, looks like BIOS doesn't have this feature enabled. Can you also make sure you have latest BIOS for the platform and also, check in BIOS whether there are any options to enable this feature.
+On Thu, Oct 19, 2006 at 12:25:20PM -0400, Cal Peake wrote:
+> On Wed, 18 Oct 2006, Eric W. Biederman wrote:
+>
+> >  	if (msg_count < 5) {
+> >  		msg_count++;
+> >  		printk(KERN_INFO
+> >  			"warning: process `%s' used the removed sysctl "
+> > -			"system call\n", current->comm);
+> > +			"system call with ", current->comm);
+> > +		for (i = 0; i < tmp.nlen; i++)
+> > +			printk("%d.", name[i]);
+> > +		printk("\n");
+> >  	}
+>
+> We should prolly kill the counter now.
 
-Oh my god, I am a chump! Sorry; I had disabled this in BIOS. After enabling it,
-acpidump contains _PCT et al and speedstep-centrino works.
-
-thanks,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+sysctl(2) callable by everyone including local lusers willing to fill logs.
 

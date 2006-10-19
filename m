@@ -1,150 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbWJSFqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161311AbWJSF4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161088AbWJSFqK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 01:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWJSFqK
+	id S1161311AbWJSF4l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 01:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161175AbWJSF4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 01:46:10 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:31104 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1030303AbWJSFqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 01:46:07 -0400
-Date: Thu, 19 Oct 2006 07:51:12 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions?
-Message-ID: <20061019055112.GA1872@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-References: <20061018114240.GA3202@ff.dom.local> <20061018084105.56d61e04.rdunlap@xenotime.net>
+	Thu, 19 Oct 2006 01:56:41 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8881 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161311AbWJSF4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 01:56:40 -0400
+Date: Wed, 18 Oct 2006 22:56:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com,
+       nickpiggin@yahoo.com.au
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-Id: <20061018225626.16a0469f.pj@sgi.com>
+In-Reply-To: <20061018140738.a0c1c845.pj@sgi.com>
+References: <20061017192547.B19901@unix-os.sc.intel.com>
+	<20061018001424.0c22a64b.pj@sgi.com>
+	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
+	<20061018031021.9920552e.pj@sgi.com>
+	<20061018105307.GA17027@lnx-holt.americas.sgi.com>
+	<20061018140738.a0c1c845.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018084105.56d61e04.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 08:41:05AM -0700, Randy Dunlap wrote:
-> On Wed, 18 Oct 2006 13:42:40 +0200 Jarek Poplawski wrote:
+Earlier today I wrote:
+> I've half a mind to prepare a patch to just rip out the sched domain
+> defining code from kernel/cpuset.c, completely uncoupling the
+> cpu_exclusive flag, and any other cpuset flags, from sched domains.
 > 
-> > Is it really so superfluous to have a possibility of 
-> > reading all docs from Documentation on a lean box
-> > (e.g. server) without all those xml, flex etc.
-> > printers' toys installed?
+> Example:
 > 
-> make help ==>
+>     As best as I can tell (which is not very far ;), if some hapless
+>     user does the following:
 > 
-> Documentation targets:
->   Linux kernel internal documentation in different formats:
->   xmldocs (XML DocBook), psdocs (Postscript), pdfdocs (PDF)
->   htmldocs (HTML), mandocs (man pages, use installmandocs to install)
->                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 	    /dev/cpuset		cpu_exclusive == 1; cpus == 0-7
+> 	    /dev/cpuset/a	cpu_exclusive == 1; cpus == 0-3
+> 	    /dev/cpsuet/b	cpu_exclusive == 1; cpus == 4-7
 > 
-> and 'man 9 yield'
-> works for me.
+>     and then runs a big job in the top cpuset (/dev/cpuset), then that
+>     big job will not load balance correctly, with whatever threads
+>     in the big job that got stuck on cpus 0-3 isolated from whatever
+>     threads got stuck on cpus 4-7.
 > 
-> or are you saying that you want large *.txt book-like generated files
-> instead of larger *.html etc?
+> Is this correct?
+> 
+> If so, there no practical way that I can see on a production system for
+> the system admin to realize they have messed up their system this way.
+> 
+> If we can't make this work properly automatically, then we either need
+> to provide users the visibility and control to make it work by explicit
+> manual control (meaning my 'sched_domain' flag patch, plus some way of
+> exporting the sched domain topology in /sys), or we need to stop doing
+> this.
 
-I'm saying that I coudn't do it even on knoppix dvd version
-(a year ago) and there are gazillions of desktop software
-which I don't use.
 
-I only need to read this in any readable form like
-the rest of Documentation.
+I am now more certain - the above gives an example of serious breakage
+with the current mechanism of connecting cpusets to sched domains via
+the cpuset flag.
 
-Regards,
-Jarek P.
+We should either fix it (perhaps with my patch to add sched_domain
+flags to cpusets, plus a yet to be written patch to make sched domains
+visible via /sys or some such place), or we should nuke it,
 
--------------
-Slackware_lean_box$ make mandocs
+I am now 90% certain we should nuke the entire mechanism connecting
+cpusets to sched domains via the cpu_exclusive flag.
 
-*** You need to install xmlto ***
-make[1]: *** [Documentation/DocBook/wanbook.9] Error 1
-make: *** [mandocs] Error 2
+The only useful thing to be done, which is much simpler, is to provide
+someway to manipulate the cpu_isolated_map at runtime.
 
--------------
-http://rpmfind.net//linux/RPM/fedora/4/i386/xmlto-0.0.18-6.i386.html
-Provides
+I have a pair of patches ready to ship out that do this.
 
-    * xmlto 
+Coming soon to a mailing list near you ...
 
-Requires
-
-    * /bin/bash
-    * docbook-dtds
-    * docbook-xsl
-    * libc.so.6
-    * libxslt >= 0.9.0
-    * passivetex 
-
-http://rpmfind.net//linux/RPM/fedora/4/i386/passivetex-1.25-5.noarch.html
-Provides
-
-    * passivetex 
-
-Requires
-
-    * /bin/sh
-    * /bin/sh
-    * /bin/sh
-    * tetex >= 3.0
-    * xmltex >= 20000118-4 
-
-http://rpmfind.net//linux/RPM/fedora/4/i386/libxslt-1.1.14-2.i386.html
-Provides
-
-    * libxslt
-    * libexslt.so.0
-    * libxslt.so.1 
-
-Requires
-
-    * /bin/sh
-    * /bin/sh
-    * libc.so.6
-    * libexslt.so.0
-    * libgcrypt.so.11
-    * libgpg-error.so.0
-    * libm.so.6
-    * libpthread.so.0
-    * libxml2 >= 2.3.8
-    * libxml2.so.2
-    * libxslt.so.1
-    * libz.so.1 
-
-http://rpmfind.net//linux/RPM/fedora/4/i386/docbook-dtds-1.0-26.noarch.html
-Provides
-
-    * docbook-dtds
-    * docbook-dtd-sgml
-    * docbook-dtd-xml
-    * docbook-dtd30-sgml
-    * docbook-dtd31-sgml
-    * docbook-dtd40-sgml
-    * docbook-dtd41-sgml
-    * docbook-dtd412-xml
-    * docbook-dtd42-sgml
-    * docbook-dtd42-xml
-    * docbook-dtd43-sgml
-    * docbook-dtd43-xml
-    * docbook-dtd44-sgml
-    * docbook-dtd44-xml 
-
-Requires
-
-    * /bin/sh
-    * /bin/sh
-    * fileutils
-    * grep
-    * libxml2 >= 2.3.8
-    * openjade = 1.3.2
-    * perl >= 0:5.002
-    * sgml-common >= 0.6.3-4
-    * textutils
-    * xml-common
-    * xml-common 
-
-etc, etc, etc...
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

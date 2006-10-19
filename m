@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946577AbWJSWU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946579AbWJSWX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946577AbWJSWU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946583AbWJSWU0
+	id S1946579AbWJSWX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946585AbWJSWX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:20:26 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:18447 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1946577AbWJSWUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:20:23 -0400
-Date: Thu, 19 Oct 2006 23:20:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David KOENIG <karhudever@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_[g|s]et_drvdata() versus ->driver_data
-Message-ID: <20061019222014.GB10922@flint.arm.linux.org.uk>
-Mail-Followup-To: David KOENIG <karhudever@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <4537C4CC.7020902@gmail.com>
-Mime-Version: 1.0
+	Thu, 19 Oct 2006 18:23:59 -0400
+Received: from ozlabs.org ([203.10.76.45]:64435 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1946579AbWJSWX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 18:23:58 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4537C4CC.7020902@gmail.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
+Date: Fri, 20 Oct 2006 08:23:50 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+	<1161031821.31903.28.camel@farscape>
+	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+	<17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+	<17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+	<17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+	<20061019163044.GB5819@krispykreme>
+	<Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 11:32:44AM -0700, David KOENIG wrote:
-> Is there any reason for some drivers that I should leave references as
-> foo->driver_data instead of pci_get_drvdata(foo)?
+Christoph Lameter writes:
 
-When "foo" is not a struct pci_dev ?
+> Could you confirm that there is indeed no memory on node 0? 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+There is about a gigabyte of memory on node 0.
+
+> The expectation to have memory available on the node that you 
+> bootstrap on is not unrealistic.
+
+What exactly does "available" mean in this context?  The console log I
+posted earlier showed node 0 as having an active PFN range of 32768 -
+278528 (245760 pages, or 960MB), and then showed a "freeing bootmem
+node 0" message, *before* we hit the BUG.
+
+If "available" doesn't mean "there are active pages which have been
+given to the VM system via free_all_bootmem_node()", what does it
+mean?
+
+Paul.

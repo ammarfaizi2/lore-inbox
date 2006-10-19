@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161335AbWJSGfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945973AbWJSGfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161335AbWJSGfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 02:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWJSGfX
+	id S1945973AbWJSGfr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 02:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161339AbWJSGfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 02:35:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16107 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161335AbWJSGfW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 02:35:22 -0400
-Date: Wed, 18 Oct 2006 23:33:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitriy Monakhov <dmonakhov@openvz.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH] mm:D-cache aliasing issue in cow_user_page
-Message-Id: <20061018233302.a067d1e7.akpm@osdl.org>
-In-Reply-To: <8764ejqp52.fsf@sw.ru>
-References: <8764ejqp52.fsf@sw.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 02:35:47 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:27760 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161337AbWJSGfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 02:35:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Lo/5NljvQ8I9sfgOXNfONMYpmFbbKHNCjY+GmxAhTtKj2Mu3qMdj9odiVDj/Rj2On4sHWmVdzyKKhBhRq3hoHlrlD/75eJcaIo3WZ/2Ys2l3GiYYzbaaoWcoiYTVQ2fTwVxLUCShYkODurXs6g60t1Jjnhs8zSCbhiufxowSitM=  ;
+Message-ID: <45371CBB.2030409@yahoo.com.au>
+Date: Thu, 19 Oct 2006 16:35:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: exclusive cpusets broken with cpu hotplug
+References: <20061017192547.B19901@unix-os.sc.intel.com>	<20061018001424.0c22a64b.pj@sgi.com>	<20061018095621.GB15877@lnx-holt.americas.sgi.com>	<20061018031021.9920552e.pj@sgi.com>	<45361B32.8040604@yahoo.com.au> <20061018231559.8d3ede8f.pj@sgi.com>
+In-Reply-To: <20061018231559.8d3ede8f.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Oct 2006 13:15:37 +0400
-Dmitriy Monakhov <dmonakhov@openvz.org> wrote:
-
->  from mm/memory.c:
->   1434  static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va)
->   1435  {
->   1436          /*
->   1437           * If the source page was a PFN mapping, we don't have
->   1438           * a "struct page" for it. We do a best-effort copy by
->   1439           * just copying from the original user address. If that
->   1440           * fails, we just zero-fill it. Live with it.
->   1441           */
->   1442          if (unlikely(!src)) {
->   1443                  void *kaddr = kmap_atomic(dst, KM_USER0);
->   1444                  void __user *uaddr = (void __user *)(va & PAGE_MASK);
->   1445  
->   1446                  /*
->   1447                   * This really shouldn't fail, because the page is there
->   1448                   * in the page tables. But it might just be unreadable,
->   1449                   * in which case we just give up and fill the result with
->   1450                   * zeroes.
->   1451                   */
->   1452                  if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
->   1453                          memset(kaddr, 0, PAGE_SIZE);
->   1454                  kunmap_atomic(kaddr, KM_USER0);
->   #### D-cache have to be flushed here.
->   #### It seems it is just forgotten.
+Paul Jackson wrote:
+>>I don't know if you want customers do know what domains they have. I think
+>>you should avoid having explicit control over sched-domains in your cpusets
+>>completely, and just have the cpusets create partitioned domains whenever
+>>it can.
 > 
->   1455                  return;
->   1456                  
->   1457          }
->   1458          copy_user_highpage(dst, src, va);
->   #### Ok here. flush_dcache_page() called from this func if arch need it 
->   1459  }
+> 
+> We have a choice to make.  I am increasingly convinced that the
+> current mechanism linking cpusets with sched domains is busted,
+> allowing people to easily and unspectingly set up broken sched domain
+> configs, without even being able to see what they are doing.
+> Certainly that linkage has been confusing to some of us who are
+> not kernel/sched.c experts.  Certainly users on production systems
+> cannot see what sched domains they have ended up with.
+> 
+> We should either make this linkage explicit and understandable, giving
+> users direct means to construct sched domains and probe what they have
+> done, or we should remove this linkage.
+> 
+> My patch to add sched_domain flags to cpusets was an attempt to
+> make this control explicit.
+> 
+> I am now 90% convinced that this is the wrong direction, and that
+> the entire chunk of code linking cpu_exclusive cpusets to sched
+> domains should be nuked.
+> 
+> The one thing I found so far today that people actually needed from
+> this was that my real time people needed to be able to something like
+> marking a cpu isolated.  So I think we should have runtime support for
+> manipulating the cpu_isolated_map.
+> 
+> I will be sending in a pair of patches shortly to:
+>  1) nuke the cpu_exclusive - sched_domain linkage, and
+>  2) support runtime marking of isolated cpus.
+> 
+> Does that sound better to you?
 > 
 
-This page has just been allocated and is private to the caller - there can
-be no userspace mappings of it.
+I don't understand why you think the "implicit" (as in, not directly user
+controlled?) linkage is wrong. If it is allowing people to set up busted
+domains, then the cpusets code is asking for the wrong partitions.
+
+Having them explicitly control it is wrong because it is really an
+implementation detail that could change in the future.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

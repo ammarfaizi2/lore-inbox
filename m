@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946591AbWJSWb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946597AbWJSWc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946591AbWJSWb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946596AbWJSWb0
+	id S1946597AbWJSWc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946598AbWJSWc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:31:26 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13251 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946591AbWJSWbZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:31:25 -0400
-Date: Thu, 19 Oct 2006 15:31:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+	Thu, 19 Oct 2006 18:32:29 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:3983
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1946597AbWJSWc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 18:32:28 -0400
+Date: Thu, 19 Oct 2006 15:32:28 -0700 (PDT)
+Message-Id: <20061019.153228.39159105.davem@davemloft.net>
+To: eiichiro.oiwa.nm@hitachi.com
+Cc: alan@redhat.com, jesse.barnes@intel.com, greg@kroah.com,
        linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com>
-References: <1161026409.31903.15.camel@farscape>
- <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
- <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
- <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
- <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
- <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: pci_fixup_video change blows up on sparc64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com>
+References: <20061019092256.GC5980@devserv.devel.redhat.com>
+	<20061019.022541.85409562.davem@davemloft.net>
+	<XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006, Paul Mackerras wrote:
+From: <eiichiro.oiwa.nm@hitachi.com>
+Date: Thu, 19 Oct 2006 19:49:26 +0900
 
-> What exactly does "available" mean in this context?  The console log I
-> posted earlier showed node 0 as having an active PFN range of 32768 -
-> 278528 (245760 pages, or 960MB), and then showed a "freeing bootmem
-> node 0" message, *before* we hit the BUG.
+> The "0xc0000" is a physical address. The BAR (PCI base address) is also
+> a physcail address. There are no difference.
 
-Available in the sense that the page allocator can allocate from them. 
-Will's console output shows that all memory of node 0 is allocated and not 
-available.
+Your assertion that the BAR is a physical address is very platform
+specific.  It may be a "physical address in PCI bus space", but
+that has no relation to the first argument passed to ioremap()
+which is defined in a completely different way.
 
-> If "available" doesn't mean "there are active pages which have been
-> given to the VM system via free_all_bootmem_node()", what does it
-> mean?
+On many platforms, the BAR of PCI devices are translated into an
+appropriate "ioremap() cookie" in the struct pci_dev resource[] array
+entries, so that they can be used properly as the first argument to
+ioremap().  Only address cookies properly setup by the platform may be
+legally passed into ioremap() as the first argument.  No such setups
+are being made on this raw 0xc0000 address.
 
-The page allocator must be running and able to serve pages from the boot 
-node. This fails for some reason and the slab cannot bootstrap. The memory 
-not available is the first guess. Could you trace the allocation in the 
-page allocator (__alloc_pages) when the slab attempts to bootstrap and 
-figure out why exactly the allocation fails?
+So, as you can see, I/O port and I/O memory space work differently on
+different platforms and this abstraction of the first argument to
+ioremap() is how we provide support for such differences.
 
+If you try to access 0xc0000 via ioremap() on sparc64, it is going to
+try and access that area non-cacheable which, since 0xc0000 is
+physical RAM, will result in a BUS ERROR and a crash.
 
+This physical location might be the area for the video ROM on x86,
+x86_64, and perhaps even IA64, but it certainly is not used this way
+on sparc64 systems.
+
+I really would like to see this regression fixed, or at the very
+least this code protected by X86, X86_64, IA64 conditionals.

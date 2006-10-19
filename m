@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945965AbWJSBxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423223AbWJSCjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945965AbWJSBxp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 21:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945968AbWJSBxp
+	id S1423223AbWJSCjE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 22:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423211AbWJSCjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 21:53:45 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:41545 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1945965AbWJSBxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 21:53:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lX2A6PEIEXD+wp3yADyky2wUQ0bPHSDXvm2b2B+oBK0H57/dzHoub6sWfI8miLQuyhVEj0ourrpH2zoRDZ2rYeiOiM81ObnG24/G674sl9OLZmucOilunA+X/cJIktfbCCRO58lX9eRsQkfxU81f9KMgVH2+9qwCIJNHhLzW2TM=
-Message-ID: <46465bb30610181853t38428501ha363e6d04b76f993@mail.gmail.com>
-Date: Thu, 19 Oct 2006 10:53:42 +0900
-From: "Mohit Katiyar" <katiyar.mohit@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: NFS inconsistent behaviour
-Cc: "Frank van Maarseveen" <frankvm@frankvm.com>, linux-kernel@vger.kernel.org,
-       "Linux NFS mailing list" <nfs@lists.sourceforge.net>
-In-Reply-To: <1161194229.6095.81.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 22:39:03 -0400
+Received: from mga05.intel.com ([192.55.52.89]:3853 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1423223AbWJSCjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 22:39:01 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,326,1157353200"; 
+   d="scan'208"; a="5397351:sNHT18314145"
+Date: Wed, 18 Oct 2006 19:19:00 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sched_tick with interrupts enabled
+Message-ID: <20061018191900.D26521@unix-os.sc.intel.com>
+References: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com> <4536629C.4050807@yahoo.com.au> <Pine.LNX.4.64.0610181059570.28750@schroedinger.engr.sgi.com> <45366DF0.6040702@yahoo.com.au> <Pine.LNX.4.64.0610181145250.29163@schroedinger.engr.sgi.com> <45367D32.6090301@yahoo.com.au> <Pine.LNX.4.64.0610181457130.30795@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <A93BD15112CD05479B1CD204F7F1D4730513DB@exch-04.noida.hcltech.com>
-	 <46465bb30610160013v47524589g39c61465b5955f65@mail.gmail.com>
-	 <20061016084656.GA13292@janus>
-	 <46465bb30610160235m211910b6g2eb074aa23060aa9@mail.gmail.com>
-	 <20061016093904.GA13866@janus>
-	 <46465bb30610171822h3f747069ge9a170f1759af645@mail.gmail.com>
-	 <20061018063945.GA5917@janus>
-	 <1161194229.6095.81.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.64.0610181457130.30795@schroedinger.engr.sgi.com>; from clameter@sgi.com on Wed, Oct 18, 2006 at 02:59:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I do not want to mount unmount infinitely but was just checking
-out of curiosity but mounting/unmounting infinitely works comepletely
-fine on SLES 9 which uses 2.6.5 kernel. I was just wondering what has
-been changed that it does not work now?
+On Wed, Oct 18, 2006 at 02:59:07PM -0700, Christoph Lameter wrote:
+> load_balancing has the potential of running for some time if f.e.
+> sched_domains for a system with 1024 processors have to be balanced.
+> We currently do all of that with interrupts disabled. So we may be unable
+> to service interrupts for some time. Most of that time is potentially
+> spend in rebalance_tick.
 
-On 10/19/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> On Wed, 2006-10-18 at 08:39 +0200, Frank van Maarseveen wrote:
-> > On Wed, Oct 18, 2006 at 10:22:44AM +0900, Mohit Katiyar wrote:
-> > > I checked it today and when i issued the netstat -t ,I could see a lot
-> > > of tcp connections in TIME_WAIT state.
-> > > Is this a normal behaviour?
-> >
-> > yes... but see below
-> >
-> > > So we cannot mount and umount infinitely
-> > > with tcp option? Why there are so many connections in waiting state?
-> >
-> > I think it's called the 2MSL wait: there may be TCP segments on the
-> > wire which (in theory) could disrupt new connections which reuse local
-> > and remote port so the ports stay in use for a few minutes. This is
-> > standard TCP behavior but only occurs when connections are improperly
-> > shutdown. Apparently this happens when umounting a tcp NFS mount but
-> > also for a lot of other tcp based RPC (showmount, rpcinfo).  I'm not
-> > sure who's to blame but it might be the rpc functions inside glibc.
-> >
-> > I'd switch to NFS over udp if this is problem.
->
-> Just out of interest. Why does anyone actually _want_ to keep
-> mount/umounting to the point where they run out of ports? That is going
-> to kill performance in all sorts of unhealthy ways, not least by
-> completely screwing over any caching.
->
-> Note also that you _can_ change the range of ports used by the NFS
-> client itself at least. Just edit /proc/sys/sunrpc/{min,max}_resvport.
-> On the server side, you can use the 'insecure' option in order to allow
-> mounts that originate from non-privileged ports (i.e. port > 1024).
-> If you are using strong authentication (for instance RPCSEC_GSS/krb5)
-> then that actually makes a lot of sense, since the only reason for the
-> privileged port requirement was to disallow unprivileged NFS clients.
->
-> Cheers,
->  Trond
->
->
+Did you see an issue because of this or just theoretical?
+
+> +static void rebalance_tick(unsigned long dummy)
+>  {
+> +	int this_cpu = smp_processor_id();
+> +	struct rq *this_rq = cpu_rq(this_cpu);
+> +	enum idle_type idle;
+>  	unsigned long this_load, interval, j = cpu_offset(this_cpu);
+>  	struct sched_domain *sd;
+>  	int i, scale;
+>  
+> +	idle = (current == this_rq->idle) ? SCHED_IDLE : NOT_IDLE;
+
+We need to add nr_running check too, to determine if we want to do
+idle/not-idle balancing. This is in the context of wake_priority_sleeper()
+
+thanks,
+suresh

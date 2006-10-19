@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946092AbWJSOgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161433AbWJSOna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946092AbWJSOgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946089AbWJSOgN
+	id S1161433AbWJSOna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161435AbWJSOna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:36:13 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:31382 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1946096AbWJSOgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:36:11 -0400
-Message-ID: <45378D59.4060200@s5r6.in-berlin.de>
-Date: Thu, 19 Oct 2006 16:36:09 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
+	Thu, 19 Oct 2006 10:43:30 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:6036 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1161433AbWJSOna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:43:30 -0400
+Message-ID: <45378F08.5090204@qumranet.com>
+Date: Thu, 19 Oct 2006 16:43:20 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Daniel Drake <ddrake@brontes3d.com>, linux1394-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Unnecessary BKL contention in video1394
-References: <1161203487.28713.8.camel@systems03.lan.brontes3d.com>	<45369E69.30007@s5r6.in-berlin.de>	<1161263978.2845.6.camel@systems03.lan.brontes3d.com> <200610191527.42802.ak@suse.de>
-In-Reply-To: <200610191527.42802.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
+To: John Stoffel <john@stoffel.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+References: <4537818D.4060204@qumranet.com>	<453781F9.3050703@qumranet.com> <17719.35854.477605.398170@smtp.charter.net>
+In-Reply-To: <17719.35854.477605.398170@smtp.charter.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Oct 2006 14:43:27.0738 (UTC) FILETIME=[F0316DA0:01C6F38C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-[Daniel Drake wrote:]
->> Adding Andi Kleen to CC, who added the BKL around __video1394_ioctl a
->> long while back (when converting video1394 to compat_ioctl).
->> 
->> I don't feel that any replacement protection is needed, since the
->> critical sections (where structures are used both in interrupts and in
->> file_operations) are already protected by spinlocks.
-> 
-> Fine by me. I just did it to preserve old semantics because I didn't want
-> to audit the 1394 locking.  But if you think it's not needed feel free to remove
-> them.
+John Stoffel wrote:
+> Avi> This patch defines a bunch of ioctl()s on /dev/kvm.  The ioctl()s
+> Avi> allow adding memory to a virtual machine, adding a virtual cpu to
+> Avi> a virtual machine (at most one at this time), transferring
+> Avi> control to the virtual cpu, and querying about guest pages
+> Avi> changed by the virtual machine.
+>
+> Yuck.  ioclts are deprecated, you should be using /sysfs instead for
+> stuff like this, or configfs.  
+>   
 
-Thanks for the info. Daniel, do you want to resend a signed-off patch?
-And __video1394_ioctl and its wrapper video1394_ioctl can certainly be
-merged then.
+I need to pass small amounts of data back and forth very efficiently.  
+sysfs and configfs are more for one-time admin stuff, not for continuous 
+device control.
+
+
 -- 
-Stefan Richter
--=====-=-==- =-=- =--==
-http://arcgraph.de/sr/
+error compiling committee.c: too many arguments to function
+

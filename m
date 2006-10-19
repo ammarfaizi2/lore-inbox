@@ -1,97 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945975AbWJSOUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945966AbWJSOWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945975AbWJSOUr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945971AbWJSOUr
+	id S1945966AbWJSOWw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945967AbWJSOWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:20:47 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:27068 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1945964AbWJSOUq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:20:46 -0400
-Message-ID: <453789B2.5040809@gmail.com>
-Date: Thu, 19 Oct 2006 16:20:34 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 19 Oct 2006 10:22:52 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:23965 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1945966AbWJSOWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:22:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=H8h370sjuTPwImt16FZdn0VlpQ3xTLr1Nzx/PdwMv87RX58b6YTy/USlvvFqbfVlRZbesP+bP3NvkH5Tx5NNee/usEFJcaD9UTca6YVTDFksMhPZ6I212q8rstYd2PIfjixGEfi2wbtFSw+JDRgclu6XQi/8Z5OO2+umhwXhpHw=  ;
+Message-ID: <45378A35.5020101@yahoo.com.au>
+Date: Fri, 20 Oct 2006 00:22:45 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: speedstep-centrino: ENODEV
-References: <EB12A50964762B4D8111D55B764A8454C1A223@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A223@scsmsx413.amr.corp.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Daniel Walker <dwalker@mvista.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, johnstul@us.ibm.com,
+       mingo@elte.hu, tglx@linutronix.de
+Subject: Re: + i386-time-avoid-pit-smp-lockups.patch added to -mm tree
+References: <200610112126.k9BLQqKG002529@shell0.pdx.osdl.net>	 <1161265475.11264.7.camel@c-67-180-230-165.hsd1.ca.comcast.net>	 <200610191547.09640.ak@suse.de> <1161266225.11264.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+In-Reply-To: <1161266225.11264.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.51.189
-X-Muni-Envelope-From: jirislaby@gmail.com
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
-> How about acpi-cpufreq? Does it work?
-
-How did you mean this, speedstep-centrino (which can also control voltage) is 
-one of acpi-cpufreq drivers, isn't it?
-
+Daniel Walker wrote:
+> On Thu, 2006-10-19 at 15:47 +0200, Andi Kleen wrote:
 > 
-> Thanks,
-> Venki 
+>>On Thursday 19 October 2006 15:44, Daniel Walker wrote:
+>>
+>>>On Wed, 2006-10-11 at 14:26 -0700, akpm@osdl.org wrote:
+>>>
+>>>
+>>>>diff -puN arch/i386/kernel/i8253.c~i386-time-avoid-pit-smp-lockups arch/i386/kernel/i8253.c
+>>>>--- a/arch/i386/kernel/i8253.c~i386-time-avoid-pit-smp-lockups
+>>>>+++ a/arch/i386/kernel/i8253.c
+>>>>@@ -109,7 +109,7 @@ static struct clocksource clocksource_pi
+>>>> 
+>>>> static int __init init_pit_clocksource(void)
+>>>> {
+>>>>-	if (num_possible_cpus() > 4) /* PIT does not scale! */
+>>>>+	if (num_possible_cpus() > 1) /* PIT does not scale! */
+>>>> 		return 0;
+>>>> 
+>>>
+>>>Can we ifdef some code here on CONFIG_SMP . It bugs me that there just
+>>>dead code laying around on smp systems.
+>>
+>>The optimizer should optimize it all out since num_possible_cpus() is a 0
+>>constant on UP.
 > 
->> -----Original Message-----
->> From: linux-kernel-owner@vger.kernel.org 
->> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jiri Slaby
->> Sent: Wednesday, October 18, 2006 12:01 PM
->> To: Linux kernel mailing list
->> Cc: linux-acpi@vger.kernel.org
->> Subject: speedstep-centrino: ENODEV
->>
->> Hi!
->>
->> How is it possible to find out whether or not 
->> speedstep-centrino is supported. I 
->> have
->> processor       : 0
->> vendor_id       : GenuineIntel
->> cpu family      : 6
->> model           : 13
->> model name      : Intel(R) Pentium(R) M processor 1.60GHz
->> stepping        : 6
->> cpu MHz         : 1600.149
->> cache size      : 2048 KB
->> fdiv_bug        : no
->> hlt_bug         : no
->> f00f_bug        : no
->> coma_bug        : no
->> fpu             : yes
->> fpu_exception   : yes
->> cpuid level     : 2
->> wp              : yes
->> flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr 
->> pge mca cmov pat 
->> clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
->> bogomips        : 3201.52
->>
->> processor, but speedstep-centrino returns ENODEV because of 
->> lack of _PCT et al 
->> entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). 
->> It is possible to 
->> hard-code that values to speedstep-centrino as for banias cpus 
->> or use corrected 
->> DSDT that will contain _PCT, _PSS and _PPC, but where may I 
->> obtain these values?
->>
->> This is Asus M6R notebook, some DSDT parts of this piece of HW 
->> are really ugly 
->> (problems with acpi some time ago).
->>
->> I may use p4-clockmod (and it points me to speedstep-centrino 
->> module), but if I 
->> am correct, it doesn't save battery life?
+> 
+> You just mean the if statement above though? I was talking more about
+> the structure above this called "clocksource_pit" which isn't used on
+> SMP systems due to this code addition. AFAIK init_pit_clocksource()
+> could disappear along with the clocksource structure ..
 
-regards,
+An SMP kernel can boot on UP hardware, in which case I think
+num_possible_cpus() will be 1, won't it?
+
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

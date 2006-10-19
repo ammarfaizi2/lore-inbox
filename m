@@ -1,61 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945937AbWJSOPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945975AbWJSOUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945937AbWJSOPH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945962AbWJSOPH
+	id S1945975AbWJSOUr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945971AbWJSOUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:15:07 -0400
-Received: from mx3.mail.ru ([194.67.23.149]:4989 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S1945937AbWJSOPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:15:05 -0400
-Date: Thu, 19 Oct 2006 18:16:06 +0400
-From: Anton Vorontsov <cbou@mail.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: kernel-discuss@handhelds.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] genhd fix or ide workaround -- choose one
-Message-ID: <20061019141606.GA10095@localhost>
-Reply-To: cbou@mail.ru
-References: <20061018221506.GA4187@localhost> <1161259553.17335.30.camel@localhost.localdomain> <20061019122516.GA9040@localhost> <1161263312.17335.40.camel@localhost.localdomain> <20061019133307.GA9518@localhost>
+	Thu, 19 Oct 2006 10:20:47 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:27068 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1945964AbWJSOUq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:20:46 -0400
+Message-ID: <453789B2.5040809@gmail.com>
+Date: Thu, 19 Oct 2006 16:20:34 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061019133307.GA9518@localhost>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: speedstep-centrino: ENODEV
+References: <EB12A50964762B4D8111D55B764A8454C1A223@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A223@scsmsx413.amr.corp.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.51.189
+X-Muni-Envelope-From: jirislaby@gmail.com
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 05:33:07PM +0400, Anton Vorontsov wrote:
-> On Thu, Oct 19, 2006 at 02:08:32PM +0100, Alan Cox wrote:
-> > Ar Iau, 2006-10-19 am 16:25 +0400, ysgrifennodd Anton Vorontsov:
-> > > It just happens every time on HP iPaq hx4700. hx4700 have internal CF
-> > > slot, which is working via pxa2xx pcmcia driver.
-> > 
-> > I can't duplicate this with the ide_cs driver and a laptop.
-> > 
-> > > Have you read comments inside -fix patch? Imho it's obvious that nobody
-> > > putting driverfs_device second time, but got it twice.
-> > 
-> > Its also obvious that it currently works on millions of PC systems and
-> > that also needs explaining before any change is made.
+Pallipadi, Venkatesh wrote:
+> How about acpi-cpufreq? Does it work?
+
+How did you mean this, speedstep-centrino (which can also control voltage) is 
+one of acpi-cpufreq drivers, isn't it?
+
 > 
-> You're right, it needs explanation. Unfortunately I don't have any other
-> PCMCIAable devices to find it out. :-/ Though, I'll try to find answers
-> in the code.
+> Thanks,
+> Venki 
+> 
+>> -----Original Message-----
+>> From: linux-kernel-owner@vger.kernel.org 
+>> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jiri Slaby
+>> Sent: Wednesday, October 18, 2006 12:01 PM
+>> To: Linux kernel mailing list
+>> Cc: linux-acpi@vger.kernel.org
+>> Subject: speedstep-centrino: ENODEV
+>>
+>> Hi!
+>>
+>> How is it possible to find out whether or not 
+>> speedstep-centrino is supported. I 
+>> have
+>> processor       : 0
+>> vendor_id       : GenuineIntel
+>> cpu family      : 6
+>> model           : 13
+>> model name      : Intel(R) Pentium(R) M processor 1.60GHz
+>> stepping        : 6
+>> cpu MHz         : 1600.149
+>> cache size      : 2048 KB
+>> fdiv_bug        : no
+>> hlt_bug         : no
+>> f00f_bug        : no
+>> coma_bug        : no
+>> fpu             : yes
+>> fpu_exception   : yes
+>> cpuid level     : 2
+>> wp              : yes
+>> flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr 
+>> pge mca cmov pat 
+>> clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
+>> bogomips        : 3201.52
+>>
+>> processor, but speedstep-centrino returns ENODEV because of 
+>> lack of _PCT et al 
+>> entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). 
+>> It is possible to 
+>> hard-code that values to speedstep-centrino as for banias cpus 
+>> or use corrected 
+>> DSDT that will contain _PCT, _PSS and _PPC, but where may I 
+>> obtain these values?
+>>
+>> This is Asus M6R notebook, some DSDT parts of this piece of HW 
+>> are really ugly 
+>> (problems with acpi some time ago).
+>>
+>> I may use p4-clockmod (and it points me to speedstep-centrino 
+>> module), but if I 
+>> am correct, it doesn't save battery life?
 
-Okay. Wild guess: you're using 32 bit CardBus (yenta socket?), but hx4700
-is using 16 bit PCMCIA (drivers/pcmcia/ds.c). And indeed ds.c calling
-device_unregister() which triggers that sequece:
-ide_cs.c:ide_detach()
-ide_cs.c:ide_release()
-ide.c:ide_unregister() <- hang here
-
-I've grep'ed drivers/pcmcia/ for the device_unregister and seems nobody
-calling it except drivers/pcmcia/ds.c.
-
--- Anton (irc: bd2)
-
-p.s. drivers/pcmcia/cardbus.c states:
- * cardbus.c -- 16-bit PCMCIA core support
-
-typo?
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

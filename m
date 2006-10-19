@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWJSJV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWJSJXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbWJSJV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWJSJV6
+	id S1161028AbWJSJXK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbWJSJXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:21:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39306 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030359AbWJSJV5 (ORCPT
+	Thu, 19 Oct 2006 05:23:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13713 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030363AbWJSJXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:21:57 -0400
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Bligh <mbligh@google.com>, Paul Menage <menage@google.com>,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       Dinakar Guniguntala <dino@in.ibm.com>,
-       Rohit Seth <rohitseth@google.com>, Robin Holt <holt@sgi.com>,
-       dipankar@in.ibm.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Jackson <pj@sgi.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Date: Thu, 19 Oct 2006 02:21:50 -0700
-Message-Id: <20061019092150.17547.50354.sendpatchset@sam.engr.sgi.com>
-Subject: [PATCH] cpuset: minor code refinements
+	Thu, 19 Oct 2006 05:23:08 -0400
+Date: Thu, 19 Oct 2006 05:22:56 -0400
+From: Alan Cox <alan@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: eiichiro.oiwa.nm@hitachi.com, alan@redhat.com, jesse.barnes@intel.com,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: pci_fixup_video change blows up on sparc64
+Message-ID: <20061019092256.GC5980@devserv.devel.redhat.com>
+References: <20061018.233102.74754142.davem@davemloft.net> <XNM1$9$0$4$$3$3$7$A$9002705U45372f1d@hitachi.com> <20061019.013732.30184567.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061019.013732.30184567.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
+On Thu, Oct 19, 2006 at 01:37:32AM -0700, David Miller wrote:
+> defined to do this kind of thing, for example with the
+> pcibios_bus_to_resource() interface, used by routines such as
+> drivers/pci/quirks.c:quirk_io_region().
 
-A couple of minor code simplifications to the
-kernel/cpuset.c code.  No functional change.
-Just a little less code and a little more readable.
+pci_iomap() ?
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Alan
 
----
- kernel/cpuset.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
-
---- 2.6.19-rc1-mm1.orig/kernel/cpuset.c	2006-10-19 01:06:29.000000000 -0700
-+++ 2.6.19-rc1-mm1/kernel/cpuset.c	2006-10-19 01:06:49.000000000 -0700
-@@ -729,9 +729,11 @@ static int validate_change(const struct 
- 	}
- 
- 	/* Remaining checks don't apply to root cpuset */
--	if ((par = cur->parent) == NULL)
-+	if (cur == &top_cpuset)
- 		return 0;
- 
-+	par = cur->parent;
-+
- 	/* We must be a subset of our parent cpuset */
- 	if (!is_cpuset_subset(trial, par))
- 		return -EACCES;
-@@ -1060,10 +1062,7 @@ static int update_flag(cpuset_flagbits_t
- 	cpu_exclusive_changed =
- 		(is_cpu_exclusive(cs) != is_cpu_exclusive(&trialcs));
- 	mutex_lock(&callback_mutex);
--	if (turning_on)
--		set_bit(bit, &cs->flags);
--	else
--		clear_bit(bit, &cs->flags);
-+	cs->flags = trialcs.flags;
- 	mutex_unlock(&callback_mutex);
- 
- 	if (cpu_exclusive_changed)
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

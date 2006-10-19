@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161390AbWJSKys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423270AbWJSK62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161390AbWJSKys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 06:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWJSKyr
+	id S1423270AbWJSK62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 06:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423268AbWJSK62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 06:54:47 -0400
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:57208 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161389AbWJSKyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 06:54:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=fu3nXt0RiO7OqP8148mK1NesGjtY/VeSEjLTGKIfSi6zABLCvaIH7mPvKGOqMZliXak1fspdbiYcSQhqxricl7Ee+tK/O1mAYgU/ApG33UuXqMOkhzviUwzZq02xfUKGOOi9XIiOxfR7s9wZ3WwhQs9GtviE16q3w2Jz3urf/k0=  ;
-Message-ID: <45375971.8080707@yahoo.com.au>
-Date: Thu, 19 Oct 2006 20:54:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 19 Oct 2006 06:58:28 -0400
+Received: from mail29.messagelabs.com ([216.82.249.147]:12946 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S1423266AbWJSK61 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 06:58:27 -0400
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-17.tower-29.messagelabs.com!1161255506!29228091!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Nick Piggin <npiggin@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH 1/4] mm: arch do_page_fault() vs in_atomic()
-References: <20061019101722.805147000@chello.nl> <20061019102309.179968000@chello.nl>
-In-Reply-To: <20061019102309.179968000@chello.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: kernel oops with extended serial stuff turned on...
+Date: Thu, 19 Oct 2006 05:58:25 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9FA473ED@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel oops with extended serial stuff turned on...
+Thread-Index: AcbzYtlU3m8gEqPMRPefBWenPw/TAwACXT+9
+References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com> <20061018230939.GA7713@kroah.com> <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com> <45373F2F.90906@gmail.com> <45374868.5050109@gmail.com>
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>
+Cc: "Greg KH" <greg@kroah.com>, <Greg.Chandler@wellsfargo.com>,
+       <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 19 Oct 2006 10:58:26.0534 (UTC) FILETIME=[80D93060:01C6F36D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
-This patchset looks pretty nice to me.
+Hi Jiri,
+ 
+Well, what I did in my drivers was the following:
+ 
+1) Went to TTY_DRIVER_DYNAMIC_DEV.
+2) Changed the "name" I use for my ttys from something generic like ttya0, ttyb0, etc,
+to a more specific name of "drivername_tty0", "drivername_tty1", etc, etc.
+(ie, in this case, isicom_tty0, isicom_tty1, etc)
+3) Added the "tty_register_device()" to my driver to register those "extended" names.
+4)Created special UDEV rules to look for <drivername>_tty*, and rename them
+to something more common, ie, ttya0, ttya1, etc, etc.
+ 
+This still doesn't *truly* fix the problem, because UDEV could still run into conflicts on
+the renaming, but at least the problem moves from kernel space to user space...
+ 
+Presumably we could "script" around the duplicate id problem in a UDEV script.
+(ie, Maybe if "ttyM0" is already out there, move to "ttyN0" instead.)
+ 
+Forgive me if this email looks a little choppy, I am coming down with the flu,
+and don't really feel too well today...
+ 
+Scott
+ 
+________________________________
 
-Acked-by: Nick Piggin <npiggin@suse.de>
+From: Jiri Slaby [mailto:jirislaby@gmail.com]
+Sent: Thu 10/19/2006 4:42 AM
+To: Jiri Slaby
+Cc: Kilau, Scott; Greg KH; Greg.Chandler@wellsfargo.com; linux-kernel@vger.kernel.org; Alan Cox; Andrew Morton
+Subject: Re: kernel oops with extended serial stuff turned on...
 
-One minor nit:
 
-Peter Zijlstra wrote:
-> In light of the recent pagefault and filemap_copy_from_user work I've
-> gone through all the arch pagefault handlers to make sure the 
-> inc_preempt_count() 'feature' works as expected.
-> 
-> Several sections of code (including the new filemap_copy_from_user) rely
-> on the fact that faults do not take locks under increased preempt count.
-> 
-> arch/x86_64 - good
-> arch/powerpc - good
-> arch/cris - fixed
-> arch/i386 - good
-> arch/parisc - fixed
-> arch/sh - good
-> arch/sparc - good
-> arch/s390 - good
-> arch/m68k - fixed
-> arch/ppc - good
-> arch/alpha - fixed
-> arch/mips - good
-> arch/sparc64 - good
-> arch/ia64 - good
-> arch/arm - fixed
-> arch/um - NA
 
-um does have a fault handler (in kernel/trap.c), but it gets the
-in_atomic check correct.
+Jiri Slaby wrote:
+> We have a few options:
+> - rewrite them to use TTY_DRIVER_DYNAMIC_DEV (I'm going to do this in
+> isicom anyway)
 
-Thanks for doing this.
+(But this won't solve anything if somebody has both "conflicting" cards.)
 
-Nick
+regards,
+--
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946271AbWJSRr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946133AbWJSRqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946271AbWJSRr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946272AbWJSRr5
+	id S1946133AbWJSRqo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946269AbWJSRqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:47:57 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:743 "EHLO gundega.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1946271AbWJSRr4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:47:56 -0400
-Date: Thu, 19 Oct 2006 10:47:28 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: 2.6.19-rc2-mm1 // errors in verify_redzone_free()
-Message-ID: <20061019174728.GA9435@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061016230645.fed53c5b.akpm@osdl.org> <200610191645.40308.m.kozlowski@tuxland.pl> <20061019100342.4e4895fb.akpm@osdl.org> <20061019171727.GA9350@bougret.hpl.hp.com> <20061019102529.dea90fec.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061019102529.dea90fec.akpm@osdl.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+	Thu, 19 Oct 2006 13:46:43 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:24754 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1946133AbWJSRqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:46:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=NQMxKlrf+k1iS1cl0ztCBHbgmZQEkmdjYGo9ezw9kcUYHa7LV+ozo4p+cU8qSniPURdAl/Ne1avcA45YksD6UnC2mo64yUTozChlfxnOJ4FkAwXJQRx2vOxsvi7YvdajKYXey8dhif9RDrJ2kbK0+6mRYSMPooDR5+1A/dlZLEQ=  ;
+Message-ID: <4537B9FB.7050303@yahoo.com.au>
+Date: Fri, 20 Oct 2006 03:46:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+References: <1161275748231-git-send-email-ralf@linux-mips.org>
+In-Reply-To: <1161275748231-git-send-email-ralf@linux-mips.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 10:25:29AM -0700, Andrew Morton wrote:
-> > 
-> > 	Do you know which driver the user is using ? Is it an
-> > in-kernel driver, or an out-of-kernel driver ?
-> > 	Thanks !
-> > 
+Ralf Baechle wrote:
+> From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 > 
-> Modules Loaded         orinoco_cs orinoco hermes pcmcia firmware_class 
-> yenta_socket rsrc_nonstatic pcmcia_core
+> Problem:
 > 
-> The full dmesg is on the mailing list - I'll forward it to you.
+> 1. There is a process containing two thread (T1 and T2).  The
+>    thread T1 calls fork().  Then dup_mmap() function called on T1 context.
+> 
+> static inline int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
+> 	...
+> 	flush_cache_mm(current->mm);
+> 	...	/* A */
+> 	(write-protect all Copy-On-Write pages)
+> 	...	/* B */
+> 	flush_tlb_mm(current->mm);
+> 	...
+> 
+> 2. When preemption happens between A and B (or on SMP kernel), the
+>    thread T2 can run and modify data on COW pages without page fault
+>    (modified data will stay in cache).
+> 
+> 3. Some time after fork() completed, the thread T2 may cause a page
+>    fault by write-protect on a COW page.
+> 
+> 4. Then data of the COW page will be copied to newly allocated
+>    physical page (copy_cow_page()).  It reads data via kernel mapping.
+>    The kernel mapping can have different 'color' with user space
+>    mapping of the thread T2 (dcache aliasing).  Therefore
+>    copy_cow_page() will copy stale data.  Then the modified data in
+>    cache will be lost.
 
-	It's the same bug as before.
-	The user is *not* using 2.6.19-rc2-mm1, but 2.6.19-rc2 :
----------------------------------------------------
-Linux version 2.6.19-rc2 (root@orion) (gcc version 4.1.1 (Gentoo 4.1.1)) #3 PREEMPT Thu Oct 19 16:04:17 CEST 2006
----------------------------------------------------
-	The Orinoco fix is in 2.6.19-rc2-mm1, but it is *not* in
-2.6.19-rc2.
+What about if you just flush the caches after write protecting all
+COW pages? Would that work? Simpler? Better performance? (I don't know)
 
-	John : the current code is 2.6.19-rc2 is definitely not
-releasable. Either we back out WE-21, or we fix it, but doing nothing
-at this point is a receipe for disaster.
-
-	I submitted to you 3 patches to fix WE-21 in 2.6.19-rc2 :
-		o Orinoco SLAB fix
-		o Other driver slab fix
-		o WE-20 ESSID backward compatibility
-	Those patches were fixing real problems and tested on my side.
-	If those patches are not planned to go in 2.6.19-rc2, I ask
-again that WE-21 be removed from 2.6.19.
-
-	Thanks in advance...
-
-	Jean
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

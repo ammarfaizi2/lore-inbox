@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946513AbWJSVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946518AbWJSV3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946513AbWJSVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 17:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946510AbWJSVUY
+	id S1946518AbWJSV3H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 17:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946521AbWJSV3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 17:20:24 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:51966 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1946513AbWJSVUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 17:20:23 -0400
-Date: Thu, 19 Oct 2006 23:16:30 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
-cc: 7eggert@gmx.de, schilling@fokus.fraunhofer.de,
-       linux-kernel@vger.kernel.org, kronos.it@gmail.com, ismail@pardus.org.tr
-Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
-In-Reply-To: <4536b8dc.nfxUMeg8jVJ9WF95%Joerg.Schilling@fokus.fraunhofer.de>
-Message-ID: <Pine.LNX.4.58.0610192256460.2316@be1.lrz>
-References: <771eN-VK-9@gated-at.bofh.it> <771yn-1XU-65@gated-at.bofh.it>
- <E1GZy4L-00015O-AV@be1.lrz> <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
- <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
- <4536b8dc.nfxUMeg8jVJ9WF95%Joerg.Schilling@fokus.fraunhofer.de>
+	Thu, 19 Oct 2006 17:29:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27071 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1946518AbWJSV3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 17:29:04 -0400
+Date: Thu, 19 Oct 2006 14:28:56 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Will Schmidt <will_schmidt@vnet.ibm.com>
+cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <1161290229.8946.51.camel@farscape>
+Message-ID: <Pine.LNX.4.64.0610191427270.10316@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape> 
+ <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com> 
+ <1161031821.31903.28.camel@farscape>  <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+  <17717.50596.248553.816155@cargo.ozlabs.ibm.com> 
+ <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com> 
+ <17718.39522.456361.987639@cargo.ozlabs.ibm.com> 
+ <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com> 
+ <17719.1849.245776.4501@cargo.ozlabs.ibm.com> 
+ <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com> 
+ <20061019163044.GB5819@krispykreme>  <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
+ <1161290229.8946.51.camel@farscape>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006, Joerg Schilling wrote:
-> Bodo Eggert <7eggert@gmx.de> wrote:
-> > On Wed, 18 Oct 2006, Joerg Schilling wrote:
-> > > Bodo Eggert <7eggert@elstempel.de> wrote:
+On Thu, 19 Oct 2006, Will Schmidt wrote:
 
-> > > > BTW2, Just to be cautionous: what will happen if somebody forces the same
-> > > > inode number on two different entries?
-> >
-> > [...]
-> > > This is something you cannot check.
-> >
-> > Exactly that's why I'd ignore the on-disk "inode number" and instead use
-> > the generated one untill someone comes along with a clever idea to fix
-> > the issue or can show that it's mostly hermless.
-> 
-> I could understand you in case that Linux would do some basic consistency checks
-> in the iso-9660 code already.....
+> This didnt fix the problem on my box.  I tried this both against mm and
+> linux-2.6.git 
 
-ISO9660-over-NFS is no big usecase, linked files on CD aren't common and 
-the current code just won't benefit from hardlinks. Therefore I don't see 
-a compelling reason to use this feature without first thinking about 
-possible attacks.
-
-Even if there are more holes to be plugged, punching even more holes 
-doesn't help. Instead, we should hope that someone finds the time to
-plug these holes and praise him when he comes.
-
-> Show me another program besides mkisofs that implements inode numbers _and_ does
-> it wrong.
-
-My hacked mkisofs, which I'll use to r00t you all and gain world domination.
--- 
-"Don't draw fire; it irritates the people around you."
--Your Buddies
+Same failure condition? Would you also apply the printk patch and send 
+me the output?

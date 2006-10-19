@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945919AbWJSAUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945921AbWJSAVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945919AbWJSAUw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 20:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945921AbWJSAUw
+	id S1945921AbWJSAVo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 20:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945922AbWJSAVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 20:20:52 -0400
-Received: from mail29.messagelabs.com ([216.82.249.147]:65253 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S1945919AbWJSAUv convert rfc822-to-8bit (ORCPT
+	Wed, 18 Oct 2006 20:21:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30860 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1945921AbWJSAVn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 20:20:51 -0400
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-21.tower-29.messagelabs.com!1161217250!31352083!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Wed, 18 Oct 2006 20:21:43 -0400
+Date: Wed, 18 Oct 2006 17:21:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc2-mm1
+Message-Id: <20061018172139.3a77a927.akpm@osdl.org>
+In-Reply-To: <1161216479.18117.45.camel@dyn9047017100.beaverton.ibm.com>
+References: <20061016230645.fed53c5b.akpm@osdl.org>
+	<1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
+	<45364CE9.7050002@yahoo.com.au>
+	<1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
+	<45366515.4050308@yahoo.com.au>
+	<1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
+	<20061018154402.ef49874a.akpm@osdl.org>
+	<1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
+	<20061018162507.efa7b91a.akpm@osdl.org>
+	<1161216479.18117.45.camel@dyn9047017100.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: kernel oops with extended serial stuff turned on...
-Date: Wed, 18 Oct 2006 19:20:49 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel oops with extended serial stuff turned on...
-Thread-Index: AcbzDFL8lqebBufGT3WMKIbGJkKp8QABv6tp
-References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com> <20061018230939.GA7713@kroah.com>
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <Greg.Chandler@wellsfargo.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Oct 2006 00:20:50.0232 (UTC) FILETIME=[6E50C380:01C6F314]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
- 
-> What other driver is using the ttyM0 name?
-> Any pointer to your driver's code so I can see if you are doing
-> something odd here?  Any reason it's just not in the main kernel tree so
-> I would have fixed it up at the time I did the other fixes?
+On Wed, 18 Oct 2006 17:07:59 -0700
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 
-Sorry,
-I probably shouldn't have brought my driver up,
-its just confusing things. =)
- 
-Greg C is not running any of my out-of-tree drivers,
-or even using one of our (Digi) boards.
- 
-I just saw his warning/error, and noticed it was the same as what I saw
-back when 2.6.18 was released, so I figured I would hop in and
-explain what I did to fix the problem in my driver...
- 
-(BTW, the error turns up a few times in a google of...
-"don't try to register things with the same name in the same directory."
-I wonder if all the "tty" ones are all related...)
- 
-In Greg C's case, he turned on *all* the serial options in "make config",
-because he wasn't sure which serial card he had...
- 
-Turns out that the driver/char/isicom.c driver claimed his board, and then
-tried to register the ttyM0 name, which apparently someone else
-in the kernel did already...
- 
-You have a good point tho, we probably should actually look at /dev/ttyM0
-on his system, and see who is actually claiming it already...
- 
-Scott
- 
+> > What does it say in /proc/interrupts?
+> > 
+> > The x86_64 nmi watchdog handling looks rather complex.
+> > 
+> > <checks a couple of x86-64 machines>
+> > 
+> > The /proc/interrutps NMI count seems to be going up by about
+> > one-per-minute.  How odd.   Maybe you just need to wait longer.
+> 
+> 
+> While the soft lock up messages are getting printed..
+> (waited for 5 min for these messages)..
+> 
+> # while :; do grep NMI /proc/interrupts; sleep 30; done
+> NMI:        265         73         41         47
+> NMI:        265         81         62         47
+> NMI:        265         81         71         69
+> NMI:        265         81         93         77
+> NMI:        265         81        101         99
+> NMI:        288         82        101        107
+> NMI:        296         82        131        129
+> NMI:        296         82        153        137
+> NMI:        296         82        161        160
+> NMI:        296        105        161        167
+> NMI:        296        112        184        167
+> 
+> Looking at the messages, I don't think trace all cpus
+> is working ..
+
+nfi what's going on there.  On my Conroe machine each CPU's NMI count goes
+up by what apepars to be one-per-second when the CPUs are flat out busy,
+but the count increases by random small amounts (like yours) when the
+machine is idle.
+
+Did you try setting nmi_watchdog=?

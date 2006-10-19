@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946399AbWJSTbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946401AbWJSThV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946399AbWJSTbj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423247AbWJSTbj
+	id S1946401AbWJSThV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423254AbWJSThV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 15:31:39 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:19604 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1423230AbWJSTbi (ORCPT
+	Thu, 19 Oct 2006 15:37:21 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:15554 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1423247AbWJSThU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:31:38 -0400
-Message-ID: <4537D298.6010105@us.ibm.com>
-Date: Thu, 19 Oct 2006 14:31:36 -0500
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Thu, 19 Oct 2006 15:37:20 -0400
+Message-ID: <4537D337.3020706@gmail.com>
+Date: Thu, 19 Oct 2006 21:34:15 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Avi Kivity <avi@qumranet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/7] KVM: userspace interface
-References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com> <4537C807.4@us.ibm.com> <4537CC24.2070708@qumranet.com> <4537CD54.8020006@us.ibm.com> <4537D174.8090204@qumranet.com>
-In-Reply-To: <4537D174.8090204@qumranet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: =?UTF-8?B?U3VuZSBNw7hsZ2FhcmQ=?= <sune@molgaard.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: speedstep-centrino: ENODEV
+References: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Anthony Liguori wrote:
->>>
->>> We started using VT only for 64 bit, then added 32 bit, then 16-bit 
->>> protected, then vm86 and real mode.  We'd transfer the x86 state on 
->>> each mode change, but it was (a) fragile (b) considered unclean.
->>>
->>> You're right that "big real" mode is not supported, but so far that 
->>> hasn't been a problem.  Do you know of an OS that needs big real mode?
+Pallipadi, Venkatesh wrote:
+>>> Also, can both of you send the complete acpidump output from 
+>> your system. You can find acpidump in latest version of 
+>> pmtools package here: 
+>> http://www.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
 >>
->> AFAIK the SLES boot splash patches to grub use it.  It's definitely a 
->> requirement.  Currently, there is an effort in Xen to use QEMU for 
->> partial emulation.  Hopefully, it will be there for the next release.
+>> May be obtained over there:
 >>
->
-> Ouch.  Boot splash patches.
->
-> Well, we had real mode in qemu once, we can put it there again.
->
->> Allowing QEMU to do emulation also will help with IO performance.  
->> Instead of having to take many trips to userspace for MMIO 
->> especially, you can allow QEMU to execute a certain number of basic 
->> blocks and then return.  Minimizing trips between userspace and the 
->> kernel is going to be critical performance wise.
+>> [...]
 >>
->
-> My plan was to allow userspace to register certain mmio addresses for 
-> cacheing, so that if the guest code had a code sequence like
->
->  writel(dst_x_reg, x);
->  writel(dst_y_reg, y)
->  writel(width_reg, w);
->  writel(height_reg, h);
->  writel(blt_cmd_reg, fill);
->
-> then kvm would cache the first four in a mmap()able memory area and 
-> only exit to userspace on the fifth.  Userspace would then read the 
-> cached registers from memory and emulate the command.
-
-Letting QEMU do a certain amount of emulation after every transition 
-would the problem in a more elegant and generic way.
-
-> This saves userspace transitions but not guest/host switches.  I'm 
-> counting on Intel and AMD to reduce the cost of these, but it will 
-> probably never be cheap.
->
-> Paravirtualized drivers are also an option; we may try to keep 
-> compatibility with Xen's.
-
-Please no!  With proper device emulation, paravirtualized drivers 
-shouldn't be necessary.
-
->
+>>>>>> processor, but speedstep-centrino returns ENODEV because of 
+>>>>>> lack of _PCT et al 
+>>>>>> entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). 
+>> ----------------------^^^^
 >>
->> I've been tossing around the idea of doing partial IO emulation in 
->> the kernel.  If you could sync the device states between userspace 
->> and kernel, it should be possible.  Given that the you're already in 
->> the kernel at VMEXIT time, if you could feed something right to the 
->> block driver or network driver, you ought to be able to get pretty 
->> darn good performance.
->>
->
-> Do you mean putting the device model into the kernel?
+> 
+> Looking at the acpidump, looks like BIOS doesn't have this feature enabled. Can you also make sure you have latest BIOS for the platform and also, check in BIOS whether there are any options to enable this feature.
 
-Perhaps part of it.  Still an idea at this point.
+Oh my god, I am a chump! Sorry; I had disabled this in BIOS. After enabling it,
+acpidump contains _PCT et al and speedstep-centrino works.
 
-Regards,
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
 
-Anthony Liguori

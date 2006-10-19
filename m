@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946579AbWJSWX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946583AbWJSWZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946579AbWJSWX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946585AbWJSWX7
+	id S1946583AbWJSWZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946585AbWJSWZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:23:59 -0400
-Received: from ozlabs.org ([203.10.76.45]:64435 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946579AbWJSWX6 (ORCPT
+	Thu, 19 Oct 2006 18:25:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63160 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946583AbWJSWZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:23:58 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Oct 2006 18:25:14 -0400
+Date: Thu, 19 Oct 2006 15:25:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Git training wheels for the pimple faced maintainer
+Message-Id: <20061019152503.217a82aa.akpm@osdl.org>
+In-Reply-To: <4537EB67.8030208@drzeus.cx>
+References: <4537EB67.8030208@drzeus.cx>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
-Date: Fri, 20 Oct 2006 08:23:50 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
-References: <1161026409.31903.15.camel@farscape>
-	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
-	<1161031821.31903.28.camel@farscape>
-	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
-	<17717.50596.248553.816155@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
-	<17718.39522.456361.987639@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
-	<17719.1849.245776.4501@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
-	<20061019163044.GB5819@krispykreme>
-	<Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter writes:
+On Thu, 19 Oct 2006 23:17:27 +0200
+Pierre Ossman <drzeus-list@drzeus.cx> wrote:
 
-> Could you confirm that there is indeed no memory on node 0? 
+> Hi guys,
+> 
+> In an effort to change my work flow into a manner that is more suitable
+> for upstream merging and publishing my trees, I though I could ask for
+> some input from the more experienced.
+> 
+> 
+> My intended work flow is to work on stuff on temporary topic branches,
+> and cherry-pick or diff|patch them into other trees when they are mature
+> enough.
+> 
+> Stuff that need a bit more testing will be put in a public "for-andrew"
+> branch. From what I gather, Andrew does a pull and a diff of these kinds
+> of branches before putting together a -mm set. So this should be
+> sufficient for your needs? Do you also prefer getting "[GIT PULL]"
+> requests, or do you do the pull periodically anyway?
 
-There is about a gigabyte of memory on node 0.
+Just send me the url&branch-name for a tree which you want included in -mm.
+I typically pull all the trees once per day.  I usually won't even look at
+the contents of what I pulled from you unless it breaks.
 
-> The expectation to have memory available on the node that you 
-> bootstrap on is not unrealistic.
+IOW, -mm is like a tree to which 70-odd people have commit permissions,
+except it's 70 separate trees and I independently jam them all into one
+tree daily.
 
-What exactly does "available" mean in this context?  The console log I
-posted earlier showed node 0 as having an active PFN range of 32768 -
-278528 (245760 pages, or 960MB), and then showed a "freeing bootmem
-node 0" message, *before* we hit the BUG.
+> Patches that are considered stable, either directly or by virtue of
+> being in -mm for a while, will be moved into a "for-linus" tree and a
+> "[GIT PULL]" sent to herr Torvalds.
 
-If "available" doesn't mean "there are active pages which have been
-given to the VM system via free_all_bootmem_node()", what does it
-mean?
+yup.
 
-Paul.
+> Now, the patch in "for-linus" will be a duplicate of one or several
+> commits in "for-andrew". Will I get any problems from git once I do a
+> new pull from Linus' tree into "for-andrew"?
+
+git will sort that out.
+
+> Another concern is all the merges. As I have modifications in my tree,
+> every merge should generate at least one commit and one tree object. Is
+> this kind of noise in the git history something that needs concern?
+
+I'll leave that question to a gittier responder.  But yes, you'll get
+shouted at if Linus's final commit contains irrelevant commit and merge
+stuff.
+

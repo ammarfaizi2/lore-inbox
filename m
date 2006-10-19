@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWJSIot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWJSIq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWJSIot (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 04:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWJSIot
+	id S1030315AbWJSIq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 04:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWJSIq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 04:44:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13468 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030326AbWJSIos (ORCPT
+	Thu, 19 Oct 2006 04:46:58 -0400
+Received: from gw.goop.org ([64.81.55.164]:50368 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030315AbWJSIq5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 04:44:48 -0400
-Date: Thu, 19 Oct 2006 01:44:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: CIJOML <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 185] Sometimes kernel freezes sometime lists OOPS -
- hostap_cs
-Message-Id: <20061019014446.36410c81.akpm@osdl.org>
-In-Reply-To: <200610191012.49544.cijoml@volny.cz>
-References: <200610171747.34177.cijoml@volny.cz>
-	<20061018235604.47886be9.akpm@osdl.org>
-	<200610191012.49544.cijoml@volny.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 04:46:57 -0400
+Message-ID: <45373C1D.9080808@goop.org>
+Date: Thu, 19 Oct 2006 01:49:33 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Zachary Amsden <zach@vmware.com>
+CC: caglar@pardus.org.tr, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix potential interrupts during alternative patching
+ [was	Re: [RFC] Avoid PIT SMP lockups]
+References: <1160170736.6140.31.camel@localhost.localdomain>	<453404F6.5040202@vmware.com>	<200610170121.51492.caglar@pardus.org.tr>	<200610171505.53576.caglar@pardus.org.tr> <453730B7.3040906@vmware.com>
+In-Reply-To: <453730B7.3040906@vmware.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 10:12:49 +0200
-CIJOML <cijoml@volny.cz> wrote:
+Zachary Amsden wrote:
+> So this patch is an obvious bugfix - please apply, and to stable as 
+> well. I'm not sure when this broke, but taking interrupts in the 
+> middle of self modifying code is not a pretty sight.
 
-> it is nsc-ircc:
-> 
-> nsc-ircc, chip->init
-> nsc-ircc, Found chip at base=0x02e
-> nsc-ircc, driver loaded (Dag Brattli)
-> nsc-ircc, Using dongle: HP HSDL-2300, HP HSDL-3600/HSDL-3610
+I had actually seen this when I built the Xen paravirt kernel with SMP 
+on, but I assumed it was something in the pv_ops tree rather than 
+mainline...
 
-Well you could try this I suppose...
-
---- a/drivers/net/irda/nsc-ircc.c~a
-+++ a/drivers/net/irda/nsc-ircc.c
-@@ -2160,7 +2160,8 @@ static int nsc_ircc_net_open(struct net_
- 	
- 	iobase = self->io.fir_base;
- 	
--	if (request_irq(self->io.irq, nsc_ircc_interrupt, 0, dev->name, dev)) {
-+	if (request_irq(self->io.irq, nsc_ircc_interrupt, IRQF_SHARED,
-+			dev->name, dev)) {
- 		IRDA_WARNING("%s, unable to allocate irq=%d\n",
- 			     driver_name, self->io.irq);
- 		return -EAGAIN;
-@@ -2354,7 +2355,7 @@ static int nsc_ircc_resume(struct platfo
- 	nsc_ircc_init_dongle_interface(self->io.fir_base, self->io.dongle_id);
- 
- 	if (netif_running(self->netdev)) {
--		if (request_irq(self->io.irq, nsc_ircc_interrupt, 0,
-+		if (request_irq(self->io.irq, nsc_ircc_interrupt, IRQF_SHARED,
- 				self->netdev->name, self->netdev)) {
-  		    	IRDA_WARNING("%s, unable to allocate irq=%d\n",
- 				     driver_name, self->io.irq);
-_
-
-
-Did this all work under any previous kernel?  If so, which version?
-
-It'd be useful to see the full `dmesg -s 1000000' output for both good and
-bad kernels, and /proc/interrupts for the good kernel.
-
+    J

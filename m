@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422884AbWJSDmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423243AbWJSDqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422884AbWJSDmn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 23:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423240AbWJSDmn
+	id S1423243AbWJSDqM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 23:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWJSDqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 23:42:43 -0400
-Received: from wx-out-0506.google.com ([66.249.82.227]:39289 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1422884AbWJSDmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 23:42:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
-        b=oXzmCmKXbaKXtobmgV7Elo6iASbcIuGn9DxRF/dmh8g4gLQgo4lpUfxhcD4B85YdwrKn53QhwKqhqjKjtohp0PCDeQbJz2YBHGJqc2nb9YRcW9a5y4/7W7MlNvpljKKiqkWV2ekdQURsE3JzseoOiAmfRmtjaBU9Dr+fBCJVaTE=
-In-Reply-To: <45363AA1.1070604@stud.feec.vutbr.cz>
-References: <d0bd1c10610170311s3ef77226n1d645f3f1e178753@mail.gmail.com> <d0bd1c10610170318x5dac0620l8842c43430ac33b@mail.gmail.com> <45363AA1.1070604@stud.feec.vutbr.cz>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <08F249B5-AED0-42EF-8B61-1B3AFAF1747C@gmail.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 18 Oct 2006 23:46:12 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:8188 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1423243AbWJSDqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 23:46:11 -0400
+Date: Wed, 18 Oct 2006 20:47:36 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Doug Warzecha <Douglas_Warzecha@dell.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] firmware/dcdbas: add size check in smi_data_write
+Message-Id: <20061018204736.72755856.randy.dunlap@oracle.com>
+In-Reply-To: <20061019005441.GA8850@sysman-doug.us.dell.com>
+References: <20061019005441.GA8850@sysman-doug.us.dell.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kay Tiong Khoo <kaytiong@gmail.com>
-Subject: Re: stopping a process during a timer interrupt
-Date: Thu, 19 Oct 2006 11:42:31 +0800
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's true. But if you are writing a profiler, the current process  
-is the process of interest in the interrupt context.
+On Wed, 18 Oct 2006 19:54:42 -0500 Doug Warzecha wrote:
 
-Kay Tiong
+> 
+> This patch adds a size check in smi_data_write to prevent possible wrapping problems with large pos values when calling smi_data_buf_realloc on 32-bit.
 
-On Oct 18, 2006, at 10:30 PM, Michal Schmidt wrote:
+I think that 'man 2 write' suggests EFBIG instead of EINVAL?
 
-> Kay Tiong Khoo skrev:
->> On a timer interrupt, I tried to stop the current process by changing
->> it's run state to TASK_STOPPED via set_current_state(TASK_STOPPED).
->> However, this results in a system hang.
->> I can't find a way to stop the current process during an interrupt
->> context. Does such code exist in the kernel? If not, how does one go
->> about implementing it from within a kernel module.
->
-> In interrupt context there's no "current process" by definition.
->
-> Michal
 
+> ---
+> 
+> --- linux-2.6.19-rc2/drivers/firmware/dcdbas.c.orig	2006-10-18 18:52:43.000000000 -0500
+> +++ linux-2.6.19-rc2/drivers/firmware/dcdbas.c	2006-10-18 18:55:08.000000000 -0500
+> @@ -8,7 +8,7 @@
+>   *
+>   *  See Documentation/dcdbas.txt for more information.
+>   *
+> - *  Copyright (C) 1995-2005 Dell Inc.
+> + *  Copyright (C) 1995-2006 Dell Inc.
+>   *
+>   *  This program is free software; you can redistribute it and/or modify
+>   *  it under the terms of the GNU General Public License v2.0 as published by
+> @@ -40,7 +40,7 @@
+>  #include "dcdbas.h"
+>  
+>  #define DRIVER_NAME		"dcdbas"
+> -#define DRIVER_VERSION		"5.6.0-2"
+> +#define DRIVER_VERSION		"5.6.0-3.2"
+>  #define DRIVER_DESCRIPTION	"Dell Systems Management Base Driver"
+>  
+>  static struct platform_device *dcdbas_pdev;
+> @@ -175,6 +175,9 @@ static ssize_t smi_data_write(struct kob
+>  {
+>  	ssize_t ret;
+>  
+> +	if ((pos + count) > MAX_SMI_DATA_BUF_SIZE)
+> +		return -EINVAL;
+> +
+>  	mutex_lock(&smi_data_lock);
+>  
+>  	ret = smi_data_buf_realloc(pos + count);
+> -
+
+
+---
+~Randy

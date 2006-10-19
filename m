@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946370AbWJSTEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946372AbWJSTEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946370AbWJSTEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946384AbWJSTEJ
+	id S1946372AbWJSTEL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946382AbWJSTEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 19 Oct 2006 15:04:11 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:58339 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1946372AbWJSTEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 19 Oct 2006 15:04:09 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:62834 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1946370AbWJSTEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:04:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=5bFBLBOfXAP66yfV5hzmXmDY0w0JNodmDQqibCLH3NoQFTjSMbuWINEPyYSRisBqq03quUPqYfQNmXSpW4X3NOn8wl6CayXGgCuCdSwOM7hio6JgWZxb5MJGTatTcoX3ztdR7ltelynRsAKkIbRHPw9T6cQq6Z7ePPeFqEGYPiI=  ;
-Message-ID: <4537CC1E.60204@yahoo.com.au>
-Date: Fri, 20 Oct 2006 05:03:58 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+Message-ID: <4537CC24.2070708@qumranet.com>
+Date: Thu, 19 Oct 2006 21:04:04 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>	<453750AA.1050803@yahoo.com.au>	<20061019105515.080675fb.pj@sgi.com>	<4537BEDA.8030005@yahoo.com.au> <20061019115652.562054ca.pj@sgi.com>
-In-Reply-To: <20061019115652.562054ca.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Anthony Liguori <aliguori@us.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com> <4537C807.4@us.ibm.com>
+In-Reply-To: <4537C807.4@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Oct 2006 19:04:08.0713 (UTC) FILETIME=[5AF0CF90:01C6F3B1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
->>>So ... where should it be done?
->>
->>sched.c I suppose.
-> 
-> 
-> Are we discussing where the implementing code should go,
-> or where the isolated cpu map special file should be
-> exposed to user space?
+Anthony Liguori wrote:
+> Sorry if I missed this, but can you provide a link to the QEMU changes?
+>
 
-Both?
+I'll do that once I get my sourceforge page and post it here.  Watch 
+this space.
 
-> And you didn't answer my other questions, such as:
->  1) If your other patch to manipulate sched domains
->     has code that belongs in kernel/cpuset.c, and
->     special files that belong in /dev/cpuset, why
->     shouldn't this one naturally go in the same places?
 
-Because they are cpuset specific. This is not.
+> It's hard to tell what's going on without seeing the userspace 
+> portions of this.
+>
+> My initial impression is that you've taken the Xen approach of trying 
+> to use QEMU only for IO emulation.  If this is the case, it won't work 
+> long term.  While you can use vm86 mode for 16 bit virtualization for 
+> most cases, it cannot handle big real mode.  You need the ability to 
+> transfer down to QEMU and allow it to do emulation.
+>
 
->  2) Why ... why?  What would be better about sched.c
->     and what's wrong with where it is (the code and
->     the exposed file)?
+We started using VT only for 64 bit, then added 32 bit, then 16-bit 
+protected, then vm86 and real mode.  We'd transfer the x86 state on each 
+mode change, but it was (a) fragile (b) considered unclean.
 
-Because it is not specific to CONFIG_CPUSETS. People who
-don't configure CONFIG_CPUSETS may still want to change
-isolcpus at runtime.
+You're right that "big real" mode is not supported, but so far that 
+hasn't been a problem.  Do you know of an OS that needs big real mode?
+
+> Ideally, instead of having as large of an x86 emulator in kernel 
+> space, you would just drop down to QEMU to do emulation as needed 
+> (doing only a single basic block and returning).  This would let you 
+> have a much reduced partial emulator in kernel space that only did the 
+> most common (and performance critical) instructions.
+>
+
+Over time that emulator would grow as OSes and compilers evolve... and 
+we'd really like to keep basic things like the apic in the kernel (as 
+does Xen).
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

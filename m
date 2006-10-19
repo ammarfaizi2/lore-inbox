@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161384AbWJSK2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161391AbWJSKb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161384AbWJSK2k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 06:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161394AbWJSK2k
+	id S1161391AbWJSKb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 06:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161400AbWJSKb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 06:28:40 -0400
-Received: from grunt15.ihug.co.nz ([203.109.254.62]:44496 "EHLO
-	grunt15.ihug.co.nz") by vger.kernel.org with ESMTP id S1161384AbWJSK2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 06:28:39 -0400
-From: Glenn Enright <elinar@ihug.co.nz>
-To: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions?
-Date: Thu, 19 Oct 2006 23:29:07 +1300
-User-Agent: KMail/1.9.1
-References: <20061018114240.GA3202@ff.dom.local> <200610192214.23618.elinar@ihug.co.nz> <20061019100932.GC3296@ff.dom.local>
-In-Reply-To: <20061019100932.GC3296@ff.dom.local>
+	Thu, 19 Oct 2006 06:31:56 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:21589 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1161391AbWJSKbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 06:31:55 -0400
+Message-ID: <453755B6.7060507@sw.ru>
+Date: Thu, 19 Oct 2006 14:38:46 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Paul Ingram <paul.ingram@ig.co.uk>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: KORG OpenVZ...
+References: <200610191014.k9JAEgQj016625@wolf.ig.co.uk>
+In-Reply-To: <200610191014.k9JAEgQj016625@wolf.ig.co.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610192329.07361.elinar@ihug.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 October 2006 23:09, Jarek Poplawski wrote:
-> I'm sorry if I implied... It is not a problem of limited resources.
-> If I can choose I allways tend to install only necessary software.
-I suppose that certainly helps when chasing bugs. Did you have an 
-alternative way of building the docs in mind that could be lighter? I 
-admit the tree you described does seem a large pull just so you can 
-read some text for one source package... even if it is the kernel.
+> I am requesting that OpenVZ makes it into the main kernel branch.
+> 
+> It gives me what I need to satisfy my customers requirements (and my own).
+> 
+> ATM, the only fly in the ointment is installation - with the current stable OpenVZ
+> branch being an ancient 2.6.9 kernel, use of my customers shiny new Megaraid
+> SATA controller meant I had to use the 2.6.16 OpenVZ dev branch - which is
+> *still* an old kernel. There would be no problem if OpenVZ was part of the main
+> branch.
+OpenVZ 2.6.9 kernel is based on RHEL4 one. it is not ancient.
+And BTW, it has the latest megaraid driver. So if you had problems you should have reported
+to OpenVZ ML directly. Not here.
 
-> Thanks for your 2c (they are rarity here!),
-You're welcome 
+Thanks,
+Kirill
 
--- 
-Please don't CC messages to me from mailing lists.

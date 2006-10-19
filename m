@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422858AbWJSJjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161371AbWJSJmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422858AbWJSJjP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422941AbWJSJjP
+	id S1161371AbWJSJmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWJSJmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:39:15 -0400
-Received: from poczta.o2.pl ([193.17.41.142]:11421 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1422858AbWJSJjO (ORCPT
+	Thu, 19 Oct 2006 05:42:09 -0400
+Received: from mx0.karneval.cz ([81.27.192.122]:12385 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1161371AbWJSJmF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:39:14 -0400
-Date: Thu, 19 Oct 2006 11:44:19 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: Steve Rottinger <steve@pentek.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 Hard lockup advice needed: do_IRQ: stack overflow 508
-Message-ID: <20061019094419.GB3296@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	Steve Rottinger <steve@pentek.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45364D3C.3070204@pentek.com>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 19 Oct 2006 05:42:05 -0400
+Message-ID: <45374868.5050109@gmail.com>
+Date: Thu, 19 Oct 2006 11:42:00 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: "Kilau, Scott" <Scott_Kilau@digi.com>, Greg KH <greg@kroah.com>,
+       Greg.Chandler@wellsfargo.com, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel oops with extended serial stuff turned on...
+References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com> <20061018230939.GA7713@kroah.com> <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com> <45373F2F.90906@gmail.com>
+In-Reply-To: <45373F2F.90906@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18-10-2006 17:50, Steve Rottinger wrote:
-> Hi,
-> 
-> I have a small Pentium 4 file server set up using version 2.6.18 of the 
-> Kernel.  The system contains a SiI 3124 based SATA controller, and I 
-> have a software RAID set up, with LVM enabled.   During normal daily 
-> operation, the system is stable.    However, when I perform nightly 
-> backups, and there is a lot of disk and network activity, as the data is 
-> transferred to a backup server, the system eventually locks up.   
-> Unfortunately, there is no indication of a failure in the system logs.   
-> I also enabled the NMI_Watchdog without any additional visibility.    By 
-> disabling the screen blanking on the console windows,  I do get a single 
-> message reported before the lockup:
-> 
-> do_IRQ: stack overflow 508
-> do_IRQ+0x69/0xbc 0xc0104ce4
-> 
-> If I downgrade to 2.6.17 of the Kernel, I see the same problem, but it 
-> takes longer for it to occur.
+Jiri Slaby wrote:
+> We have a few options:
+> - rewrite them to use TTY_DRIVER_DYNAMIC_DEV (I'm going to do this in 
+> isicom anyway)
 
-You can try to change "Use 4Kb for kernel stacks instead of 8Kb" 
-setting under "Kernel hacking" and if no result enable more
-debugging options.
+(But this won't solve anything if somebody has both "conflicting" cards.)
 
-Jarek P.
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

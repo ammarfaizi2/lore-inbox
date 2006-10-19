@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946294AbWJSSHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946295AbWJSSHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946294AbWJSSHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946295AbWJSSHV
+	id S1946295AbWJSSHa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946296AbWJSSHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:07:21 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15794 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946294AbWJSSHT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:07:19 -0400
-Date: Thu, 19 Oct 2006 11:07:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0610191057040.8873@schroedinger.engr.sgi.com>
-References: <1161026409.31903.15.camel@farscape>
- <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
- <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
- <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
- <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
+	Thu, 19 Oct 2006 14:07:30 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:9560 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1946295AbWJSSH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:07:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AjlZAAObzW7mbHtq7bwcBzOvqNyJ76V3Rvago96YVPSNd3Iehs3N4eRjyLiVikleRSTm3sUIpQt7zTs6WhA1S6+UAETMW7AoQk3wjObjzQs8OfbVrQ+LFXp9uNmfNFYnb2e+6V+DtJyHSYKPcPoemx0GyN3EjO55MN8TuJYIkp8=  ;
+Message-ID: <4537BEDA.8030005@yahoo.com.au>
+Date: Fri, 20 Oct 2006 04:07:22 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
+       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>	<453750AA.1050803@yahoo.com.au> <20061019105515.080675fb.pj@sgi.com>
+In-Reply-To: <20061019105515.080675fb.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006, Christoph Lameter wrote:
+Paul Jackson wrote:
+> Nick wrote:
+> 
+>>This should be done outside cpusets.
+> 
+> 
+> So ... where should it be done?
 
-> I would expect this patch to fix your issues. This will allow fallback 
-> allocations to occur in the page allocator during slab bootstrap. This 
-> means your per node queues will be contaminated as they were before. After 
-> the slab allocator is fully booted then the per node queues will become 
-> gradually become node clean.
+sched.c I suppose.
 
-Forgot to mention the results of this contamination: The bootstrap process 
-exercises fine control over data structures to place them in such a way 
-that the slab allocator can perform optimally. F.e. data structures are 
-placed in such a way on nodes that a kmalloc does not need a single off 
-node reference.
+> 
+> And what would be better about that other place?
 
-The contamination will disrupt this placement. The slab believes that 
-memory is from a different node than were it actually came from. As a 
-result key data structures (such as cpucache descriptors) are placed 
-on the wrong node. kmalloc and other slab operations may require
-off node allocations for every call. Depending on the NUMA factor this may 
-have a significant influence on overall system performance (We have 
-measured this effect to cause a drop of 20% in AIM7 performance!).
+Because it is not a cpuset specific feature.
 
-In addition to this stuff, I am right now dealing with huge page 
-fault serialization (introduced to safely support DB2) and sparsemem 
-continually causing nested table lookups in fundamental vm operations. All 
-work of IBM people. Not interested in performance at all?
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

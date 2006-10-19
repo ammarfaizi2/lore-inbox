@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946117AbWJSPcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946099AbWJSPjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946117AbWJSPcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 11:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946120AbWJSPcl
+	id S1946099AbWJSPjs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 11:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946122AbWJSPjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 11:32:41 -0400
-Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:3524 "EHLO
-	smtp151.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1946117AbWJSPck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 11:32:40 -0400
-Subject: Re: Unnecessary BKL contention in video1394
-From: Daniel Drake <ddrake@brontes3d.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Andi Kleen <ak@suse.de>, linux1394-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <45378D59.4060200@s5r6.in-berlin.de>
-References: <1161203487.28713.8.camel@systems03.lan.brontes3d.com>
-	 <45369E69.30007@s5r6.in-berlin.de>
-	 <1161263978.2845.6.camel@systems03.lan.brontes3d.com>
-	 <200610191527.42802.ak@suse.de>  <45378D59.4060200@s5r6.in-berlin.de>
-Content-Type: text/plain
-Date: Thu, 19 Oct 2006 11:31:01 -0400
-Message-Id: <1161271861.2845.12.camel@systems03.lan.brontes3d.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+	Thu, 19 Oct 2006 11:39:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:14555 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946099AbWJSPjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 11:39:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oFNfKNRSRr1jr7UmGFyvfCEz5sNGw2O29v1fVgAiDzH3AjMGVjxXG5zmLE28IcbwolzTjRLf/jzHepMmAhyA93UM4zky/ZjVFahzgh6YhodSK2MKl/uzlHa5sE/HVdzVpfVHlU9upPAjmEfrPp3MtMzDYaVNH8nTVCZ+l6eKRQI=
+Message-ID: <aa4c40ff0610190839l64c56966w39b0d8df920215f@mail.gmail.com>
+Date: Thu, 19 Oct 2006 08:39:46 -0700
+From: "James Lamanna" <jlamanna@gmail.com>
+To: "Joerg Schilling" <Joerg.Schilling@fokus.fraunhofer.de>
+Subject: Re: [PATCH] Support ISO-9660 RockRidge v. 1.12 V2
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       ismail@pardus.org.tr
+In-Reply-To: <453749e8.ANSGHhMt8ZPpaILR%Joerg.Schilling@fokus.fraunhofer.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <45365825.05759a90.7d7c.ffffe441@mx.google.com>
+	 <453749e8.ANSGHhMt8ZPpaILR%Joerg.Schilling@fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-19 at 16:36 +0200, Stefan Richter wrote:
-> Thanks for the info. Daniel, do you want to resend a signed-off patch?
-> And __video1394_ioctl and its wrapper video1394_ioctl can certainly be
-> merged then.
+On 10/19/06, Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de> wrote:
+> James Lamanna <jlamanna@gmail.com> wrote:
+>
+> >
+> > Joerg Schilling pointed out that RockRidge v. 1.12 extends the PX entry.
+> > This patch stores the inode number that is now included.
+> > He has also mentioned 'implementing support for new inode features' wrt to a
+> > mkisofs fingerprint. Perhaps that will come at a later date.
+> > Regardless, that can be built on this patch since now the inode number gets
+> > stored.
+> >
+> > This patch has been tested against mounting an ISO-9660 image in
+> > loopback that supports RockRidge v. 1.12 (thank you to Joerg for a beta
+> > of mkisofs that does this).
+> > This should apply against the latest git.
+>
+> Let me add some more notes:
+>
+> The linux NFS server interface is unnecessarily complex and will make it
+> a lot harder than a "single line change" to make the filesystem correct in case
+> Linux likes to benefit from the inode numbers in RRip 1.12 to support correct
+> hardlinks.
+>
+> If you believe that you understand the NFS server issues, you should fix the
+> code so that NFS exports will work correctly after the change. If you don't know
+> what's going on there, you may need to spend a few days with testing and
+> debugging.
+>
+> Note that you need to be able to "re-open" any file from a NFS file handle only...
+> There are many constraints that need to be redeemed and the new algorithm needs
+> to work correctly with old and with new media.
 
-Yep, I had already made that change locally. I will run it overnight on
-several cameras just to be sure, and will send a patch tomorrow.
+Hopefully I will have some time to test this box as a NFS server soon.
+Unfortunately, hacking on Linux is not exactly my full-time job at the
+moment.
+Anyways, the patch should probably be put on hold until these
+potential issues are addressed. Everything should still function fine
+without any RR 1.12 patch.
 
-I also did some more investigation and straightened out my knowledge of
-file_operations: release() can never be called while inside a read() or
-ioctl(): This would imply that separate threads are in use, and the
-driver's release() function is not called until *all* threads have
-closed the fd.  In other words I'm now much more confident that this
-patch is not removing any necessary locking.
-
-Daniel
-
-
+-- James

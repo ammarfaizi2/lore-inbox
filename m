@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945960AbWJSRA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946231AbWJSRDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945960AbWJSRA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946223AbWJSRA0
+	id S1946231AbWJSRDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946232AbWJSRDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:00:26 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28427 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1945960AbWJSRAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:00:25 -0400
-Date: Thu, 19 Oct 2006 19:00:21 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6.19 patch] one more ARM IRQ fix
-Message-ID: <20061019170021.GU3502@stusta.de>
+	Thu, 19 Oct 2006 13:03:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49580 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1946231AbWJSRDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:03:14 -0400
+Date: Thu, 19 Oct 2006 10:03:04 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <20061019163044.GB5819@krispykreme>
+Message-ID: <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+ <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+ <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+ <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+ <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+ <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+ <20061019163044.GB5819@krispykreme>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes one more compile breakage caused by the post -rc1 IRQ 
-changes.
+I would expect this patch to fix your issues. This will allow fallback 
+allocations to occur in the page allocator during slab bootstrap. This 
+means your per node queues will be contaminated as they were before. After 
+the slab allocator is fully booted then the per node queues will become 
+gradually become node clean.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I think it would be better if the PPC arch would fix this issue 
+by either making memory  available on node 0 or setting up node 1 as 
+the boot node.
 
---- linux-2.6/arch/arm/mach-lh7a40x/common.h.old	2006-10-19 17:32:38.000000000 +0200
-+++ linux-2.6/arch/arm/mach-lh7a40x/common.h	2006-10-19 17:32:51.000000000 +0200
-@@ -15,4 +15,4 @@
- extern void lh7a40x_clcd_init (void);
- extern void lh7a40x_init_board_irq (void);
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.19-rc2-mm1/mm/slab.c
+===================================================================
+--- linux-2.6.19-rc2-mm1.orig/mm/slab.c	2006-10-19 11:54:24.000000000 -0500
++++ linux-2.6.19-rc2-mm1/mm/slab.c	2006-10-19 11:59:24.208194796 -0500
+@@ -1589,7 +1589,10 @@ static void *kmem_getpages(struct kmem_c
+ 	 * the needed fallback ourselves since we want to serve from our
+ 	 * per node object lists first for other nodes.
+ 	 */
+-	flags |= cachep->gfpflags | GFP_THISNODE;
++	if (g_cpucache_up != FULL)
++		flags |= cachep->gfpflags;
++	else
++		flags |= cachep->gfpflags | GFP_THISNODE;
  
--#define IRQ_DISPATCH(irq) desc_handle_irq((irq),(irq_desc + irq), regs)
-+#define IRQ_DISPATCH(irq) desc_handle_irq((irq),(irq_desc + irq))
-
+ 	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
+ 	if (!page)

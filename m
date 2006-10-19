@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946299AbWJSSOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946306AbWJSSRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946299AbWJSSOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946304AbWJSSOc
+	id S1946306AbWJSSRA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946307AbWJSSRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:14:32 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:46602 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1946299AbWJSSOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:14:31 -0400
-Message-ID: <4537C081.7060109@qumranet.com>
-Date: Thu, 19 Oct 2006 20:14:25 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>
-CC: Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com>	<20061019173151.GD4957@rhun.haifa.ibm.com>	<4537BD27.7050509@qumranet.com> <20061019111214.b063f531.randy.dunlap@oracle.com>
-In-Reply-To: <20061019111214.b063f531.randy.dunlap@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2006 18:14:30.0140 (UTC) FILETIME=[6B92A3C0:01C6F3AA]
+	Thu, 19 Oct 2006 14:17:00 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:3722 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946306AbWJSSQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:16:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=bKF43Q3D2KIWSl+3tsDoF/CwYzpurmy22Rj5a+Cspjrf7yQ1CjFl99vndkKUnh2ZapwEpDuTvUDvqjpuywwrBrZ5alYLj56Wfoqp06OYZqunoixE4/rpSf8OVBhfUuFRInC503LQV8wgSW57hw/nHQws48NAHcu4L3vJFGC1zn0=
+Date: Thu, 19 Oct 2006 22:16:49 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/nsproxy.c: use kmemdup()
+Message-ID: <20061019181649.GB5346@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
->> Probably too big.  It's also the ugliest.  I'll split it and resend (not 
->> through thunderbird though... ate all my tabs!).
->>     
->
-> This works for me (when I have to use it), without using attachments:
->   http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
->   
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-That may be fine for a single patch, but too much work for a patchset.  
-Since I'm using quilt, I'll try to use its mail feature (though it gave 
-me some nasty errors when I took a peek).
+ kernel/nsproxy.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+--- a/kernel/nsproxy.c
++++ b/kernel/nsproxy.c
+@@ -44,11 +44,9 @@ static inline struct nsproxy *clone_name
+ {
+ 	struct nsproxy *ns;
+ 
+-	ns = kmalloc(sizeof(struct nsproxy), GFP_KERNEL);
+-	if (ns) {
+-		memcpy(ns, orig, sizeof(struct nsproxy));
++	ns = kmemdup(orig, sizeof(struct nsproxy), GFP_KERNEL);
++	if (ns)
+ 		atomic_set(&ns->count, 1);
+-	}
+ 	return ns;
+ }
+ 
 

@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161326AbWJSGQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161331AbWJSG0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161326AbWJSGQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 02:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161329AbWJSGQW
+	id S1161331AbWJSG0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 02:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161333AbWJSG0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 02:16:22 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16310 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161326AbWJSGQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 02:16:21 -0400
-Date: Wed, 18 Oct 2006 23:15:59 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
-Subject: Re: exclusive cpusets broken with cpu hotplug
-Message-Id: <20061018231559.8d3ede8f.pj@sgi.com>
-In-Reply-To: <45361B32.8040604@yahoo.com.au>
-References: <20061017192547.B19901@unix-os.sc.intel.com>
-	<20061018001424.0c22a64b.pj@sgi.com>
-	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
-	<20061018031021.9920552e.pj@sgi.com>
-	<45361B32.8040604@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 19 Oct 2006 02:26:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59369 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161331AbWJSG0Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 02:26:16 -0400
+Date: Wed, 18 Oct 2006 23:26:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Lorenz <martin@lorenz.eu.org>
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: un/shared IRQ problem (was: Re: 2.6.18 - another DWARF2)
+Message-Id: <20061018232603.585d14c3.akpm@osdl.org>
+In-Reply-To: <20061018063431.GE20238@gimli>
+References: <20061017063710.GA27139@gimli>
+	<4807377b0610171152tfea31c1v3f907dcaf0a58509@mail.gmail.com>
+	<20061018063431.GE20238@gimli>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't know if you want customers do know what domains they have. I think
-> you should avoid having explicit control over sched-domains in your cpusets
-> completely, and just have the cpusets create partitioned domains whenever
-> it can.
+On Wed, 18 Oct 2006 08:34:31 +0200
+Martin Lorenz <martin@lorenz.eu.org> wrote:
 
-We have a choice to make.  I am increasingly convinced that the
-current mechanism linking cpusets with sched domains is busted,
-allowing people to easily and unspectingly set up broken sched domain
-configs, without even being able to see what they are doing.
-Certainly that linkage has been confusing to some of us who are
-not kernel/sched.c experts.  Certainly users on production systems
-cannot see what sched domains they have ended up with.
+> On Tue, Oct 17, 2006 at 11:52:16AM -0700, Jesse Brandeburg wrote:
+> > On 10/16/06, Martin Lorenz <martin@lorenz.eu.org> wrote:
+> > >just got the following on resume:
+> > >
+> > >[87026.706000]  [<c0251745>] e1000_open+0xcd/0x1a4
+> > >[87026.714000] DWARF2 unwinder stuck at syscall_call+0x7/0xb
+> > >[87026.715000] Leftover inexact backtrace:
+> > >[87026.715000] e1000: eth0: e1000_request_irq: Unable to allocate interrupt
+> > >Error: -16
+> > 
+> > I'm pretty sure this isn't an e1000 problem.  you need to talk to
+> > whoever is maintaining the IRQ subsystem for x86.  E1000 is attempting
+> > to register a shared interrupt and someone has already registered that
+> > interrupt unshared.
+> 
+> interestingly though it always involves e1000 when I see dumps like this.
+> I already reported more of those :-)
+> this one dosen't seem to do any harm to system stability. it occurs on every
+> suspend/resume and I can circumvent it by disabling msi
+> 
+> > 
+> > looks like several devices are sharing IRQ 201 (aka GSI 16) and ahci
+> > or usb uhci_hcd is likely the problem, or the (acpi) power management
+> > subsystem.
+> > 
+> > Hope this helps get the right people involved.
+> 
+> thank you
 
-We should either make this linkage explicit and understandable, giving
-users direct means to construct sched domains and probe what they have
-done, or we should remove this linkage.
-
-My patch to add sched_domain flags to cpusets was an attempt to
-make this control explicit.
-
-I am now 90% convinced that this is the wrong direction, and that
-the entire chunk of code linking cpu_exclusive cpusets to sched
-domains should be nuked.
-
-The one thing I found so far today that people actually needed from
-this was that my real time people needed to be able to something like
-marking a cpu isolated.  So I think we should have runtime support for
-manipulating the cpu_isolated_map.
-
-I will be sending in a pair of patches shortly to:
- 1) nuke the cpu_exclusive - sched_domain linkage, and
- 2) support runtime marking of isolated cpus.
-
-Does that sound better to you?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Could we see the /proc/interrupts please, so we can find out where the
+clash is happening?

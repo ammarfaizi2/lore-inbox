@@ -1,80 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161340AbWJSHAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945979AbWJSHB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161340AbWJSHAq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 03:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161328AbWJSHAp
+	id S1945979AbWJSHB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 03:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161338AbWJSHB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 03:00:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24201
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1945979AbWJSHAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 03:00:45 -0400
-Date: Thu, 19 Oct 2006 00:00:27 -0700 (PDT)
-Message-Id: <20061019.000027.41635681.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: dmonakhov@openvz.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] mm:D-cache aliasing issue in cow_user_page
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061018233302.a067d1e7.akpm@osdl.org>
-References: <8764ejqp52.fsf@sw.ru>
-	<20061018233302.a067d1e7.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 19 Oct 2006 03:01:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38530 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161328AbWJSHB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 03:01:28 -0400
+Date: Thu, 19 Oct 2006 00:01:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Lorenz <martin@lorenz.eu.org>
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: un/shared IRQ problem (was: Re: 2.6.18 - another DWARF2)
+Message-Id: <20061019000109.626170f7.akpm@osdl.org>
+In-Reply-To: <20061019063921.GJ6189@gimli>
+References: <20061017063710.GA27139@gimli>
+	<4807377b0610171152tfea31c1v3f907dcaf0a58509@mail.gmail.com>
+	<20061018063431.GE20238@gimli>
+	<20061018232603.585d14c3.akpm@osdl.org>
+	<20061019063921.GJ6189@gimli>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 18 Oct 2006 23:33:02 -0700
+On Thu, 19 Oct 2006 08:39:21 +0200
+Martin Lorenz <martin@lorenz.eu.org> wrote:
 
-> On Tue, 17 Oct 2006 13:15:37 +0400
-> Dmitriy Monakhov <dmonakhov@openvz.org> wrote:
-> 
-> >  from mm/memory.c:
-> >   1434  static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va)
-> >   1435  {
-> >   1436          /*
-> >   1437           * If the source page was a PFN mapping, we don't have
-> >   1438           * a "struct page" for it. We do a best-effort copy by
-> >   1439           * just copying from the original user address. If that
-> >   1440           * fails, we just zero-fill it. Live with it.
-> >   1441           */
-> >   1442          if (unlikely(!src)) {
-> >   1443                  void *kaddr = kmap_atomic(dst, KM_USER0);
-> >   1444                  void __user *uaddr = (void __user *)(va & PAGE_MASK);
-> >   1445  
-> >   1446                  /*
-> >   1447                   * This really shouldn't fail, because the page is there
-> >   1448                   * in the page tables. But it might just be unreadable,
-> >   1449                   * in which case we just give up and fill the result with
-> >   1450                   * zeroes.
-> >   1451                   */
-> >   1452                  if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
-> >   1453                          memset(kaddr, 0, PAGE_SIZE);
-> >   1454                  kunmap_atomic(kaddr, KM_USER0);
-> >   #### D-cache have to be flushed here.
-> >   #### It seems it is just forgotten.
+> On Wed, Oct 18, 2006 at 11:26:03PM -0700, Andrew Morton wrote:
+> > On Wed, 18 Oct 2006 08:34:31 +0200
+> > Martin Lorenz <martin@lorenz.eu.org> wrote:
 > > 
-> >   1455                  return;
-> >   1456                  
-> >   1457          }
-> >   1458          copy_user_highpage(dst, src, va);
-> >   #### Ok here. flush_dcache_page() called from this func if arch need it 
-> >   1459  }
+> > > On Tue, Oct 17, 2006 at 11:52:16AM -0700, Jesse Brandeburg wrote:
+> > > > On 10/16/06, Martin Lorenz <martin@lorenz.eu.org> wrote:
+> > > > >just got the following on resume:
+> > > > >
+> > > > >[87026.706000]  [<c0251745>] e1000_open+0xcd/0x1a4
+> > > > >[87026.714000] DWARF2 unwinder stuck at syscall_call+0x7/0xb
+> > > > >[87026.715000] Leftover inexact backtrace:
+> > > > >[87026.715000] e1000: eth0: e1000_request_irq: Unable to allocate interrupt
+> > > > >Error: -16
+> > > > 
+> > > > I'm pretty sure this isn't an e1000 problem.  you need to talk to
+> > > > whoever is maintaining the IRQ subsystem for x86.  E1000 is attempting
+> > > > to register a shared interrupt and someone has already registered that
+> > > > interrupt unshared.
+> > > 
+> > > interestingly though it always involves e1000 when I see dumps like this.
+> > > I already reported more of those :-)
+> > > this one dosen't seem to do any harm to system stability. it occurs on every
+> > > suspend/resume and I can circumvent it by disabling msi
+> > > 
+> > > > 
+> > > > looks like several devices are sharing IRQ 201 (aka GSI 16) and ahci
+> > > > or usb uhci_hcd is likely the problem, or the (acpi) power management
+> > > > subsystem.
+> > > > 
+> > > > Hope this helps get the right people involved.
+> > > 
+> > > thank you
 > > 
+> > Could we see the /proc/interrupts please, so we can find out where the
+> > clash is happening?
 > 
-> This page has just been allocated and is private to the caller - there can
-> be no userspace mappings of it.
+> 
+> here you are
+> 
+> ~# cat /proc/interrupts
+>            CPU0       CPU1
+>   0:   76521957    2009390    IO-APIC-edge  timer
+>   1:      39599          0    IO-APIC-edge  i8042
+>   8:        128          0    IO-APIC-edge  rtc
+>   9:     415044          0   IO-APIC-level  acpi
+>  12:     862451          0    IO-APIC-edge  i8042
+>  58:      68014     326850         PCI-MSI  libata
+>  66:     508910      17187   IO-APIC-level  sdhci:slot0, uhci_hcd:usb3
+>  74:    3156375          0   IO-APIC-level  uhci_hcd:usb2, ohci1394, HDA Intel
+>  82:     134828          0   IO-APIC-level  uhci_hcd:usb4, ehci_hcd:usb5
+>  90:      46548          0         PCI-MSI  eth0
+> 201:     100133          0   IO-APIC-level  uhci_hcd:usb1, yenta, i915@pci:0000:00:02.0
+> NMI:          0          0
+> LOC:   78530935   78520308
+> ERR:          0
+> MIS:          0
+> 
 
-Unfortunately, the kernel has just touched the page and thus there are
-active cache lines for the kernel side mapping.  When we map this into
-user space, userspace might see stale cachelines instead of the
-memset() stores.
+There are already three interrupt sources on 201, so they are all happy to
+share.
 
-Architectures typically take care of this in copy_user_page() and
-clear_user_page().  The absolutely depend upon those two routines
-being used for anonymous pages, and handle the D-cache issues there.
-But this code is going outside of that scope, and therefore needs
-an explicit D-cache flush.
+It's e1000.  Jesse, you fibbed ;)
+
+static int e1000_request_irq(struct e1000_adapter *adapter)
+{
+	...
+	if (adapter->have_msi)
+		flags &= ~IRQF_SHARED;
+
+
 

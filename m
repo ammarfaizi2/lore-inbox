@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWJSImf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWJSIot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbWJSImf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 04:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWJSImf
+	id S1030326AbWJSIot (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 04:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWJSIot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 04:42:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51667 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030323AbWJSIme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 04:42:34 -0400
-Date: Thu, 19 Oct 2006 01:42:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
-Subject: Re: exclusive cpusets broken with cpu hotplug
-Message-Id: <20061019014225.fdff9917.pj@sgi.com>
-In-Reply-To: <453735D8.5040100@yahoo.com.au>
-References: <20061017192547.B19901@unix-os.sc.intel.com>
-	<20061018001424.0c22a64b.pj@sgi.com>
-	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
-	<20061018031021.9920552e.pj@sgi.com>
-	<45361B32.8040604@yahoo.com.au>
-	<20061018231559.8d3ede8f.pj@sgi.com>
-	<45371CBB.2030409@yahoo.com.au>
-	<20061018235746.95343e77.pj@sgi.com>
-	<4537238A.7060106@yahoo.com.au>
-	<20061019003405.15a4dd8c.pj@sgi.com>
-	<45373241.5060203@yahoo.com.au>
-	<20061019011152.752f9657.pj@sgi.com>
-	<453735D8.5040100@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 19 Oct 2006 04:44:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030326AbWJSIos (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 04:44:48 -0400
+Date: Thu, 19 Oct 2006 01:44:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: CIJOML <cijoml@volny.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug 185] Sometimes kernel freezes sometime lists OOPS -
+ hostap_cs
+Message-Id: <20061019014446.36410c81.akpm@osdl.org>
+In-Reply-To: <200610191012.49544.cijoml@volny.cz>
+References: <200610171747.34177.cijoml@volny.cz>
+	<20061018235604.47886be9.akpm@osdl.org>
+	<200610191012.49544.cijoml@volny.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> It is this non overlapping property that we can take advantage of, and
-> partition the scheduler.
+On Thu, 19 Oct 2006 10:12:49 +0200
+CIJOML <cijoml@volny.cz> wrote:
 
-You want non-overlapping versus all other CPUs on the system.
+> it is nsc-ircc:
+> 
+> nsc-ircc, chip->init
+> nsc-ircc, Found chip at base=0x02e
+> nsc-ircc, driver loaded (Dag Brattli)
+> nsc-ircc, Using dongle: HP HSDL-2300, HP HSDL-3600/HSDL-3610
 
-You want to partition the systems CPUs, in the mathematical sense of
-the word 'partition', a non-overlapping cover.  Fine.  That's an
-honorable goal.
+Well you could try this I suppose...
 
-But cpu_exclusive gives you non-overlapping versus sibling cpusets.
+--- a/drivers/net/irda/nsc-ircc.c~a
++++ a/drivers/net/irda/nsc-ircc.c
+@@ -2160,7 +2160,8 @@ static int nsc_ircc_net_open(struct net_
+ 	
+ 	iobase = self->io.fir_base;
+ 	
+-	if (request_irq(self->io.irq, nsc_ircc_interrupt, 0, dev->name, dev)) {
++	if (request_irq(self->io.irq, nsc_ircc_interrupt, IRQF_SHARED,
++			dev->name, dev)) {
+ 		IRDA_WARNING("%s, unable to allocate irq=%d\n",
+ 			     driver_name, self->io.irq);
+ 		return -EAGAIN;
+@@ -2354,7 +2355,7 @@ static int nsc_ircc_resume(struct platfo
+ 	nsc_ircc_init_dongle_interface(self->io.fir_base, self->io.dongle_id);
+ 
+ 	if (netif_running(self->netdev)) {
+-		if (request_irq(self->io.irq, nsc_ircc_interrupt, 0,
++		if (request_irq(self->io.irq, nsc_ircc_interrupt, IRQF_SHARED,
+ 				self->netdev->name, self->netdev)) {
+  		    	IRDA_WARNING("%s, unable to allocate irq=%d\n",
+ 				     driver_name, self->io.irq);
+_
 
-Wrong tool for the job.  Close - sounded right - has that nice long
-word 'exclusive' in there somewhere.  Wrong one however.  It made
-good sense to anyone that came at this from the kernel/sched.c side,
-as it was obvious to them what was needed.  To myself and my cpuset
-users, it made no bleeping sense whatsoever.
 
-What actual needs do we have here?  Lets figure that out, then if that
-leads to adding mechanism of the right shape to fit the needs, fine.
+Did this all work under any previous kernel?  If so, which version?
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+It'd be useful to see the full `dmesg -s 1000000' output for both good and
+bad kernels, and /proc/interrupts for the good kernel.
+

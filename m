@@ -1,76 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423243AbWJSDqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWJSEnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423243AbWJSDqM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 23:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423245AbWJSDqM
+	id S1030280AbWJSEnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 00:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWJSEnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 23:46:12 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:8188 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423243AbWJSDqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 23:46:11 -0400
-Date: Wed, 18 Oct 2006 20:47:36 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Doug Warzecha <Douglas_Warzecha@dell.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] firmware/dcdbas: add size check in smi_data_write
-Message-Id: <20061018204736.72755856.randy.dunlap@oracle.com>
-In-Reply-To: <20061019005441.GA8850@sysman-doug.us.dell.com>
-References: <20061019005441.GA8850@sysman-doug.us.dell.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 19 Oct 2006 00:43:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41645 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030280AbWJSEnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 00:43:12 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Cal Peake <cp@absolutedigital.net>, Linus Torvalds <torvalds@osdl.org>,
+       Albert Cahalan <acahalan@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ebiederm@xmission.com
+Subject: [RFC] [PATCH] Improve the remove sysctl warnings.
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+Date: Wed, 18 Oct 2006 22:41:29 -0600
+In-Reply-To: <20061018124415.e45ece22.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 18 Oct 2006 12:44:15 -0700")
+Message-ID: <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 19:54:42 -0500 Doug Warzecha wrote:
 
-> 
-> This patch adds a size check in smi_data_write to prevent possible wrapping problems with large pos values when calling smi_data_buf_realloc on 32-bit.
+Andrew how does this look?
 
-I think that 'man 2 write' suggests EFBIG instead of EINVAL?
+Don't warn about libpthread's access to kernel.version.
+When it receives -ENOSYS it will read /proc/sys/kernel/version.
 
+If anything else shows up print the sysctl number string.
 
-> ---
-> 
-> --- linux-2.6.19-rc2/drivers/firmware/dcdbas.c.orig	2006-10-18 18:52:43.000000000 -0500
-> +++ linux-2.6.19-rc2/drivers/firmware/dcdbas.c	2006-10-18 18:55:08.000000000 -0500
-> @@ -8,7 +8,7 @@
->   *
->   *  See Documentation/dcdbas.txt for more information.
->   *
-> - *  Copyright (C) 1995-2005 Dell Inc.
-> + *  Copyright (C) 1995-2006 Dell Inc.
->   *
->   *  This program is free software; you can redistribute it and/or modify
->   *  it under the terms of the GNU General Public License v2.0 as published by
-> @@ -40,7 +40,7 @@
->  #include "dcdbas.h"
->  
->  #define DRIVER_NAME		"dcdbas"
-> -#define DRIVER_VERSION		"5.6.0-2"
-> +#define DRIVER_VERSION		"5.6.0-3.2"
->  #define DRIVER_DESCRIPTION	"Dell Systems Management Base Driver"
->  
->  static struct platform_device *dcdbas_pdev;
-> @@ -175,6 +175,9 @@ static ssize_t smi_data_write(struct kob
->  {
->  	ssize_t ret;
->  
-> +	if ((pos + count) > MAX_SMI_DATA_BUF_SIZE)
-> +		return -EINVAL;
-> +
->  	mutex_lock(&smi_data_lock);
->  
->  	ret = smi_data_buf_realloc(pos + count);
-> -
-
-
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
-~Randy
+ kernel/sysctl.c |   22 +++++++++++++++++++++-
+ 1 files changed, 21 insertions(+), 1 deletions(-)
+
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 8020fb2..19124ee 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2676,13 +2676,33 @@ #else /* CONFIG_SYSCTL_SYSCALL */
+ asmlinkage long sys_sysctl(struct __sysctl_args __user *args)
+ {
+ 	static int msg_count;
++	struct __sysctl_args tmp;
++	int name[CTL_MAXNAME];
++	int i;
++
++	/* Read in the sysctl name for better debug message logging */
++	if (copy_from_user(&tmp, args, sizeof(tmp)))
++		return -EFAULT;
++	if (tmp.nlen <= 0 || tmp.nlen >= CTL_MAXNAME)
++		return -ENOTDIR;
++	for (i = 0; i < tmp.nlen; i++)
++		if (get_user(name[i], tmp.name + i))
++			return -EFAULT;
+ 
++	/* Ignore accesses to kernel.version */
++	if ((tmp.nlen == 2) && (name[0] == CTL_KERN) && (name[1] == KERN_VERSION))
++		goto out;
++	
+ 	if (msg_count < 5) {
+ 		msg_count++;
+ 		printk(KERN_INFO
+ 			"warning: process `%s' used the removed sysctl "
+-			"system call\n", current->comm);
++			"system call with ", current->comm);
++		for (i = 0; i < tmp.nlen; i++)
++			printk("%d.", name[i]);
++		printk("\n");
+ 	}
++out:
+ 	return -ENOSYS;
+ }
+ 
+-- 
+1.4.2.rc3.g7e18e-dirty
+

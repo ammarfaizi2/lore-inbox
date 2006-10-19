@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422864AbWJSKMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161379AbWJSKOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422864AbWJSKMt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 06:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423267AbWJSKMt
+	id S1161379AbWJSKOs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 06:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161381AbWJSKOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 06:12:49 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:7084 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1422864AbWJSKMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 06:12:48 -0400
-Date: Thu, 19 Oct 2006 19:16:23 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: clameter@sgi.com, nickpiggin@yahoo.com.au, suresh.b.siddha@intel.com,
-       mingo@elte.hu, pwil3058@bigpond.net.au, linux-kernel@vger.kernel.org,
-       "kaneshige.kenji@soft.fujitsu.com" <kaneshige.kenji@soft.fujitsu.com>
-Subject: Re: [RFC] sched_tick with interrupts enabled
-Message-Id: <20061019191623.5279bc77.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061018191900.D26521@unix-os.sc.intel.com>
-References: <Pine.LNX.4.64.0610181001480.28582@schroedinger.engr.sgi.com>
-	<4536629C.4050807@yahoo.com.au>
-	<Pine.LNX.4.64.0610181059570.28750@schroedinger.engr.sgi.com>
-	<45366DF0.6040702@yahoo.com.au>
-	<Pine.LNX.4.64.0610181145250.29163@schroedinger.engr.sgi.com>
-	<45367D32.6090301@yahoo.com.au>
-	<Pine.LNX.4.64.0610181457130.30795@schroedinger.engr.sgi.com>
-	<20061018191900.D26521@unix-os.sc.intel.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 06:14:47 -0400
+Received: from host81-137-19-57.in-addr.btopenworld.com ([81.137.19.57]:17121
+	"EHLO wolf.ig.co.uk") by vger.kernel.org with ESMTP
+	id S1161379AbWJSKOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 06:14:47 -0400
+Message-Id: <200610191014.k9JAEgQj016625@wolf.ig.co.uk>
+From: "Paul Ingram" <paul.ingram@ig.co.uk>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 19 Oct 2006 11:14:19 +0100
+X-Mailer: PMMail 2000 Standard (2.20.2661) For Windows 2000 (5.1.2600;2)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Subject: KORG OpenVZ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Oct 2006 19:19:00 -0700
-"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+Hello All,
 
-> On Wed, Oct 18, 2006 at 02:59:07PM -0700, Christoph Lameter wrote:
-> > load_balancing has the potential of running for some time if f.e.
-> > sched_domains for a system with 1024 processors have to be balanced.
-> > We currently do all of that with interrupts disabled. So we may be unable
-> > to service interrupts for some time. Most of that time is potentially
-> > spend in rebalance_tick.
-> 
-> Did you see an issue because of this or just theoretical?
-> 
+I am requesting that OpenVZ makes it into the main kernel branch.
 
-IIRC, Fujitsu's 64-cpu ia64/SMP system sufferred from this issue *in older kernel*. 
-Now, we avoid it by creating NUMA nodes and dividing scheduler domains.
+It gives me what I need to satisfy my customers requirements (and my own).
 
-Situation was...:
-5 runnable processes which were pinned to a cpu in a 64cpu system.
-the system was always rebalanced and seems to be hanged.
+ATM, the only fly in the ointment is installation - with the current stable OpenVZ
+branch being an ancient 2.6.9 kernel, use of my customers shiny new Megaraid
+SATA controller meant I had to use the 2.6.16 OpenVZ dev branch - which is
+*still* an old kernel. There would be no problem if OpenVZ was part of the main
+branch.
 
--Kame
+Please, please please consider putting OpenVZ into the main kernel branch ASAP.
+
+Thanks for reading this.
+
+Best Regards, Paul.
+
 

@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946130AbWJSRjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946271AbWJSRr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946130AbWJSRjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946133AbWJSRjN
+	id S1946271AbWJSRr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946272AbWJSRr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:39:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:43761 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1946130AbWJSRjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:39:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k5YfZn1pYZC/DCjcKFKkZscorUEHIsZORP8G51UZSyri7EVqTOwbYGC4B0j+hLcduFN3IVdd6B5eiLR2SCRtq4Mz7BzHlUZRTkPgncm3mrrn2pfXitg+YD608oqYTOi/tguk/sbYeYDSNtvM/jdRiWQzN4HoUquASJGOdlbax8w=
-Message-ID: <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com>
-Date: Thu, 19 Oct 2006 19:39:10 +0200
-From: wixor <wixorpeek@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VCD not readable under 2.6.18
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1161276178.17335.100.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 13:47:57 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:743 "EHLO gundega.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S1946271AbWJSRr4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:47:56 -0400
+Date: Thu, 19 Oct 2006 10:47:28 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org,
+       "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: 2.6.19-rc2-mm1 // errors in verify_redzone_free()
+Message-ID: <20061019174728.GA9435@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061016230645.fed53c5b.akpm@osdl.org> <200610191645.40308.m.kozlowski@tuxland.pl> <20061019100342.4e4895fb.akpm@osdl.org> <20061019171727.GA9350@bougret.hpl.hp.com> <20061019102529.dea90fec.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
-	 <1161040345.24237.135.camel@localhost.localdomain>
-	 <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
-	 <1161124732.5014.20.camel@localhost.localdomain>
-	 <c43b2e150610190935tefd11eev510c7dee36c15a51@mail.gmail.com>
-	 <1161276178.17335.100.camel@localhost.localdomain>
+In-Reply-To: <20061019102529.dea90fec.akpm@osdl.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/19/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> It isn't hidden it should be in the first session
-So tell me then, where is it if windows can see it, but linux can't?
+On Thu, Oct 19, 2006 at 10:25:29AM -0700, Andrew Morton wrote:
+> > 
+> > 	Do you know which driver the user is using ? Is it an
+> > in-kernel driver, or an out-of-kernel driver ?
+> > 	Thanks !
+> > 
+> 
+> Modules Loaded         orinoco_cs orinoco hermes pcmcia firmware_class 
+> yenta_socket rsrc_nonstatic pcmcia_core
+> 
+> The full dmesg is on the mailing list - I'll forward it to you.
 
-> The kernel provides the infrastructure for arbitary CD handling, but
-> provides only the file system support in kernel. It can't (and doesn't
-> appear to need to) handle VCD in kernel it provides the tools to Xine
-> and friends instead.
-Well, no doubt it is only m$ who can have vcd player in the kernel -
-the point is the CD does NOT get read, neither by xine nor by any
-other known to me tool. I asked here because the kernel is the only
-source of any messages addressing the unplayability of the CD - all
-the others just hang - so it looks like a kernel issue, doesn't it?
-And as far as I understand you, you are trying to tell me it is
-everything OK with the kernel, and the problem lays somewhere else,
-yes?
+	It's the same bug as before.
+	The user is *not* using 2.6.19-rc2-mm1, but 2.6.19-rc2 :
+---------------------------------------------------
+Linux version 2.6.19-rc2 (root@orion) (gcc version 4.1.1 (Gentoo 4.1.1)) #3 PREEMPT Thu Oct 19 16:04:17 CEST 2006
+---------------------------------------------------
+	The Orinoco fix is in 2.6.19-rc2-mm1, but it is *not* in
+2.6.19-rc2.
 
-wixor
+	John : the current code is 2.6.19-rc2 is definitely not
+releasable. Either we back out WE-21, or we fix it, but doing nothing
+at this point is a receipe for disaster.
+
+	I submitted to you 3 patches to fix WE-21 in 2.6.19-rc2 :
+		o Orinoco SLAB fix
+		o Other driver slab fix
+		o WE-20 ESSID backward compatibility
+	Those patches were fixing real problems and tested on my side.
+	If those patches are not planned to go in 2.6.19-rc2, I ask
+again that WE-21 be removed from 2.6.19.
+
+	Thanks in advance...
+
+	Jean

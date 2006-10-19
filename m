@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946136AbWJSPwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946137AbWJSPyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946136AbWJSPwY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 11:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946137AbWJSPwY
+	id S1946137AbWJSPyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 11:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946138AbWJSPyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 11:52:24 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:12058 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1946136AbWJSPwX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 11:52:23 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ASUS M2NPV-VM APIC/ACPI Bug (patched)
-Date: Thu, 19 Oct 2006 08:52:11 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0195D13E6@hqemmail02.nvidia.com>
-In-Reply-To: <4536C9DA.4060704@shaw.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ASUS M2NPV-VM APIC/ACPI Bug (patched)
-Thread-Index: AcbzF8sLSjII8eB8SGGqsaf3H+QCJAAfP5wg
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Robert Hancock" <hancockr@shaw.ca>, "Len Brown" <lenb@kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Daniel Mierswa" <impulze@impulze.org>, "Andi Kleen" <ak@suse.de>,
-       "Andy Currid" <ACurrid@nvidia.com>
-X-OriginalArrivalTime: 19 Oct 2006 15:51:56.0099 (UTC) FILETIME=[80F79130:01C6F396]
+	Thu, 19 Oct 2006 11:54:33 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:59090 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1946137AbWJSPyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 11:54:32 -0400
+Date: Thu, 19 Oct 2006 08:55:28 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+Subject: Re: [PATCH] Add device addition/removal notifier
+Message-Id: <20061019085528.45a5771e.randy.dunlap@oracle.com>
+In-Reply-To: <1161244591.10524.45.camel@localhost.localdomain>
+References: <1161244591.10524.45.camel@localhost.localdomain>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I recall quite clearly that Nvidia told us that that 
-> > acpi_skip_timer_override was necessary in NFORCE2 days.  I don't 
-> > remember the HPET qualification to that statement -- I 
-> guess that came later.
-> > Unfortunately, my NFORCE2 board is dead, so I can't really 
-> test this out directly.
-> > 
-> > Perhaps checking for PCI_VENDOR_ID_NVIDIA is too broad and the 
-> > workaround is counter-productive on their newer NVIDIA chip-sets?
-> > 
-> > -Len
-> > 
-> > ps.
-> > One (other) problem with this code is that it checks for an HPET 
-> > table, but doesn't check that the kernel has HPET support enabled.
-> 
-> I think the intent of the HPET check was that the quirk 
-> wasn't needed on chipsets new enough to have an HPET. 
-> Unfortunately, even if the chipset has an HPET it isn't 
-> always enabled by the BIOS.
-> 
-> Clearly this quirk is too broad, it should likely be only 
-> triggering on known chipset revisions with the bad timer 
-> overrides and not on all NVIDIA chipsets. What I am wondering 
-> is how these boards manage to work fine in Windows, 
-> (presumably) without any such chipset-specific tweaks..
+On Thu, 19 Oct 2006 17:56:31 +1000 Benjamin Herrenschmidt wrote:
 
-The problem is this workaround doesn't fix a chipset issue, it fixes
-incorrect entries in the BIOS ACPI tables.  This bug existed in the
-NVIDIA reference BIOS for nForce2 and got copied to all customer BIOSes
-for nForce2.  Even though our reference BIOSes and documentation for all
-chipsets since then have the correct interrupt overrides in the ACPI
-tables we still see customer BIOSes that get shipped with incorrect
-entries that were probably copied from their nForce2 BIOS code.
+> Index: linux-cell/include/linux/device.h
+> ===================================================================
+> --- linux-cell.orig/include/linux/device.h	2006-10-19 17:43:58.000000000 +1000
+> +++ linux-cell/include/linux/device.h	2006-10-19 17:44:24.000000000 +1000
+> @@ -427,6 +427,22 @@ extern int (*platform_notify)(struct dev
+>  
+>  extern int (*platform_notify_remove)(struct device * dev);
+>  
+> +/**
+> + * Device notifiers. Get notified of addition/removal of devices
+> + * and possibly other events in the future. Replacement for the
+> + * platform "fixup" functions. This is a low level hook provided
+> + * for the platform to initialize private parts of struct device,
+> + * like firmware related links. Add is called before the device is
+> + * added to a bus (and thus the driver probed) and Remove is called
+> + * afterward.
+> + */
 
-I believe the HPET check was because the workaround was causing problems
-when enabling HPET on systems that support it.  Andy probably has more
-details on that.
+That's not kernel-doc, so please don't begin it with "/**".
 
--Allen
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+---
+~Randy

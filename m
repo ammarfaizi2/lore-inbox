@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946604AbWJSWjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946601AbWJSWiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946604AbWJSWjU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946602AbWJSWjU
+	id S1946601AbWJSWiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946602AbWJSWiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:39:20 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31932 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1946604AbWJSWjS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:39:18 -0400
-Subject: 2.6.19-rc2-mm1 warning in invalidate_inode_pages2_range()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Zach Brown <zach.brown@oracle.com>, ext4 <linux-ext4@vger.kernel.org>,
-       akpm@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 19 Oct 2006 15:39:06 -0700
-Message-Id: <1161297546.26843.33.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 19 Oct 2006 18:38:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:163
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1946601AbWJSWiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 18:38:13 -0400
+Date: Thu, 19 Oct 2006 15:38:14 -0700 (PDT)
+Message-Id: <20061019.153814.59655968.davem@davemloft.net>
+To: jesse.barnes@intel.com
+Cc: eiichiro.oiwa.nm@hitachi.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: pci_fixup_video change blows up on sparc64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200610190952.22285.jesse.barnes@intel.com>
+References: <XNM1$9$0$4$$3$3$7$A$9002705U45372f1d@hitachi.com>
+	<20061019.013732.30184567.davem@davemloft.net>
+	<200610190952.22285.jesse.barnes@intel.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Zach,
+From: Jesse Barnes <jesse.barnes@intel.com>
+Date: Thu, 19 Oct 2006 09:52:21 -0700
 
-While running IO tests I get following messages on 2.6.19-rc2-mm1
+> On Thursday, October 19, 2006 1:37 am, David Miller wrote:
+> > Also, and more importantly, you cannot use the 0xc0000 address in a
+> > raw way like this.  There are multiple PCI domains possible in a
+> > given system, and the 0xc0000 address you wish to use must be
+> > relative to that PCI domain.
+> >
+> > Therefore, in the presence of multiple PCI domains:
+> >
+> > 	x = ioremap(0xc0000, ...);
+> >
+> > doesn't make any sense, is extremely non-portable, and will crash
+> > on many non-x86 systems.
+> 
+> Right, I guess we should have been a bit more careful in making this 
+> code generic.  At least ia64, i386 and x86_64 systems often have video 
+> BIOSes in system memory at 0xc0000 (note that this isn't in PCI space).  
 
-BUG: warning at mm/truncate.c:400/invalidate_inode_pages2_range()
+Even if it is in system memory there, accessing physical RAM using
+ioremap() and asm/io.h accessors is not exactly legal.  On sparc64,
+for example, accessing physical RAM as if it were I/O memory will
+result in a BUS ERROR and in fact that's how the bootup crashes
+on sparc64 due to this changeset.
 
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff80257f17>] invalidate_inode_pages2_range+0x297/0x2e0
- [<ffffffff8024fcb5>] generic_file_direct_IO+0xf5/0x130
- [<ffffffff8024fd64>] generic_file_direct_write+0x74/0x140
- [<ffffffff802507cc>] __generic_file_aio_write_nolock+0x36c/0x4b0
- [<ffffffff80250977>] generic_file_aio_write+0x67/0xd0
- [<ffffffff8808f6d3>] :ext4dev:ext4_file_write+0x23/0xc0
-DWARF2 unwinder stuck at ext4_file_write+0x23/0xc0 [ext4dev]
-Leftover inexact backtrace:
- [<ffffffff8027379f>] do_sync_write+0xcf/0x120
- [<ffffffff802772b7>] cp_new_stat+0xe7/0x100
- [<ffffffff8023db90>] autoremove_wake_function+0x0/0x30
- [<ffffffff804805bf>] __mutex_lock_slowpath+0x1df/0x1f0
- [<ffffffff8027408d>] vfs_write+0xbd/0x180
- [<ffffffff802747b3>] sys_write+0x53/0x90
- [<ffffffff80209c1e>] system_call+0x7e/0x83
+Sparc64 systems do not reserve this area of physical ram for video
+ROM, and in fact it is very common and possible to have a system
+which there is not even physical RAM located at that physical address.
 
+The amount of platforms-specific assumptions made by this code is
+impressive, in fact :-)
 
-FYI.
+> It sounds like on your system the regular sysfs ROM mapping code should 
+> be able to see the ROM, and this 0xc0000 mapping/copying shouldn't be 
+> necessary.
 
-Thaks
-Badari
+I'm pretty sure it should use the PCI ROM bar area, just like it
+always has until this change was installed.
 
+> Maybe we should conditionalize it, making it only available on ia64, 
+> i386 and x86_64?  Then again, I think there are some embedded platforms 
+> that could use this code too?
+
+This is what should happen, at the very least.

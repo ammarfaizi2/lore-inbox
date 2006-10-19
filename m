@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946367AbWJSS5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946380AbWJSTCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946367AbWJSS5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946373AbWJSS5Q
+	id S1946380AbWJSTCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946381AbWJSTCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:57:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44213 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946367AbWJSS5O (ORCPT
+	Thu, 19 Oct 2006 15:02:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:19636 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1946380AbWJSTCM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:57:14 -0400
-Date: Thu, 19 Oct 2006 11:56:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061019115652.562054ca.pj@sgi.com>
-In-Reply-To: <4537BEDA.8030005@yahoo.com.au>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<453750AA.1050803@yahoo.com.au>
-	<20061019105515.080675fb.pj@sgi.com>
-	<4537BEDA.8030005@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 15:02:12 -0400
+Message-ID: <4537CBB2.2080701@us.ibm.com>
+Date: Thu, 19 Oct 2006 14:02:10 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <p73lkncb8b4.fsf@verdi.suse.de> <4537A343.1050008@qumranet.com>
+In-Reply-To: <4537A343.1050008@qumranet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So ... where should it be done?
-> 
-> sched.c I suppose.
+Avi Kivity wrote:
+> Andi Kleen wrote:
+>> Avi Kivity <avi@qumranet.com> writes:
+>>
+>>  
+>>> The following patchset adds a driver for Intel's hardware 
+>>> virtualization
+>>> extensions to the x86 architecture.  The driver adds a character device
+>>> (/dev/kvm) that exposes the virtualization capabilities to 
+>>> userspace.  Using
+>>> this driver, a process can run a virtual machine (a "guest") in a fully
+>>> virtualized PC containing its own virtual hard disks, network 
+>>> adapters, and
+>>> display.
+>>>
+>>> Using this driver, one can start multiple virtual machines on a 
+>>> host.  Each
+>>> virtual machine is a process on the host; a virtual cpu is a thread 
+>>> in that
+>>> process.  kill(1), nice(1), top(1) work as expected.
+>>>     
+>>
+>> Where is the user space for this? Is it free?   
+>
+> I have to go through the motions of creating a sourceforge project for 
+> this and uploading it.  And yes, it is free.
 
-Are we discussing where the implementing code should go,
-or where the isolated cpu map special file should be
-exposed to user space?
+Don't even bother creating a project.  Just submit the patches back to 
+QEMU.  There's been a lot of discussion about this functionality within 
+QEMU.  There's no reason to fork QEMU yet again (Xen has given up and is 
+now maintaining a patch queue).  In this case, there's no reason why you 
+would even need a patch queue.
 
-And you didn't answer my other questions, such as:
- 1) If your other patch to manipulate sched domains
-    has code that belongs in kernel/cpuset.c, and
-    special files that belong in /dev/cpuset, why
-    shouldn't this one naturally go in the same places?
- 2) Why ... why?  What would be better about sched.c
-    and what's wrong with where it is (the code and
-    the exposed file)?
+Regards,
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Anthony Liguori
+
+>> I suppose you need a device model. Do you use qemu's?
+>>   
+>
+> Yes.  I can't imagine anyone doing that work from scratch (Xen also 
+> uses qemu).
+>
+

@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946585AbWJSW0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946588AbWJSW0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946585AbWJSW0A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946587AbWJSW0A
+	id S1946588AbWJSW0c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946594AbWJSW0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:26:00 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:45956 "EHLO
-	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S1946585AbWJSWZ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:25:59 -0400
-Date: Fri, 20 Oct 2006 00:25:48 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Wes Felter <wesley@felter.org>
-cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-Subject: Re: 3.2GHz cpus with cpufreq become 2.8GHz
-In-Reply-To: <4537A582.4020406@felter.org>
-Message-ID: <Pine.LNX.4.64.0610200022320.30089@bizon.gios.gov.pl>
-References: <Pine.LNX.4.64.0610182133130.29935@bizon.gios.gov.pl>
- <4537A582.4020406@felter.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1520145228-1161296748=:30089"
+	Thu, 19 Oct 2006 18:26:32 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:26 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S1946590AbWJSW0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 18:26:31 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=tLBxlPXtw/oX0MaTIf4x5+KZqDLaRMFl1WLDApqQyaSto2ErjlZWwprQ3O0NTvXRXtl0wwKZxfUN3AGR11zfvYBCm5P+r2g3kOYe5axcfd/65EjdZJLDRcYqKSRa2qw6;
+X-IronPort-AV: i="4.09,330,1157346000"; 
+   d="scan'208"; a="100402088:sNHT15506262"
+Date: Thu, 19 Oct 2006 17:26:33 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Joshua Schmidlkofer <joshua@imrlive.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recurring MegaRAID SCSI Errors
+Message-ID: <20061019222633.GC7410@lists.us.dell.com>
+References: <4537F7AA.4060709@imr-net.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4537F7AA.4060709@imr-net.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Thu, Oct 19, 2006 at 03:09:46PM -0700, Joshua Schmidlkofer wrote:
+> We are getting errors from a MegaRAID device.  We have been able to 
+> semi-consistently reproduce this by copying large files to the network.  
+> This is a Dell PowerEdge 1800.
+> 
+> We have replaced everything in the system. 
+> - 2 New RAID Cards.
+> - New Memory
+> - New Motherboard
+> - New case.
+> 
+> We are currently running 2.6.17.7 - we have been upgrading slowly.  
+> First due to problems with the RAID that were fixed in 15 or 16, second, 
+> the numerous special XFS fixes that have been needed.
+> 
+> I have no idea why this is happening, and could really use some guidance.
+> 
+> Dell is fast running out of suggestions.  No errors except what the 
+> kernel reports are being found.
 
----187430788-1520145228-1161296748=:30089
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Most likely you need this patch:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=115992186113515&w=2
 
+Thanks,
+Matt
 
-
-On Thu, 19 Oct 2006, Wes Felter wrote:
-
-> Krzysztof Oledzki wrote:
->> Hello,
->>=20
->> I have just noticed that enabling cpufreq on my Dell PowerEdge 1425SC=20
->> changes my secondary cpu clock to 2.8GHz.
->
-> [snip]
->
->> # cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver
->> p4-clockmod
->
-> You shouldn't be using this driver. Use speedstep-centrino or
-
-Hm... speedstep-centrino on Xeon? AFAIK speedstep-centrino requires "est"=
-=20
-and /proc/cpuinfo does not mention this flag:
-  fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 c=
-lflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm constant_tsc pni monit=
-or ds_cpl cid cx16 xtpr
-
-> acpi-cpufrreq.
-
-I will check this, thank you. BTW: what wrong is with p4-clockmod? I was=20
-not able to find any information that it is broken and should not be=20
-used?
-
-Best regards,
-
-
- =09=09=09=09Krzysztof Ol=EAdzki
----187430788-1520145228-1161296748=:30089--
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

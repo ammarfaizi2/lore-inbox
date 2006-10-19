@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946454AbWJSU1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946464AbWJSU2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946454AbWJSU1U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 16:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946460AbWJSU0v
+	id S1946464AbWJSU2i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 16:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946459AbWJSU16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 16:26:51 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:31388 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1946456AbWJSU0r (ORCPT
+	Thu, 19 Oct 2006 16:27:58 -0400
+Received: from mga01.intel.com ([192.55.52.88]:44183 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1946452AbWJSU1o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 16:26:47 -0400
-Message-id: <1124097211503417126@wsc.cz>
-Subject: [PATCH 5/7] Char: isicom, move to tty_register_device
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Thu, 19 Oct 2006 22:26:59 +0200 (CEST)
+	Thu, 19 Oct 2006 16:27:44 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,330,1157353200"; 
+   d="scan'208"; a="5720219:sNHT20196243"
+Date: Thu, 19 Oct 2006 13:27:39 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, jeff@garzik.org
+Subject: [patch] libata: use correct map_db values for ICH8
+Message-Id: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isicom, move to tty_register_device
 
-Instead of registering all devices in register_tty_driver, register devices in
-probe function and register only port_count devices.
+Use valid values for ICH8 map_db.  With the old values, when the 
+controller was in Native mode, and SCC was 1 (drives configured for
+IDE), any drive plugged into a slave port was not recognized.  For
+Combined Mode (and SCC is still 1), 2 is a value value for MAP.map_value,
+and needs to be recognized.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-
+Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 ---
-commit 780d1e45bab78cb6cc6c79037bfe0986bc999332
-tree db4ce54aba8eff0bfbed4afe41bbffbbe33204a8
-parent a2d2f722e0d805a57d7835e715c520ca7a7580a7
-author Jiri Slaby <jirislaby@gmail.com> Thu, 19 Oct 2006 19:39:23 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Thu, 19 Oct 2006 19:39:23 +0200
+ drivers/ata/ata_piix.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- drivers/char/isicom.c |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 1b9ef44..f07226a 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -195,6 +195,7 @@ struct	isi_board {
- 	signed char		count;
- 	spinlock_t		card_lock; /* Card wide lock 11/5/00 -sameer */
- 	unsigned long		flags;
-+	unsigned int		index;
+--- 2.6-git.orig/drivers/ata/ata_piix.c
++++ 2.6-git/drivers/ata/ata_piix.c
+@@ -432,9 +432,9 @@ static const struct piix_map_db ich8_map
+ 	.present_shift = 8,
+ 	.map = {
+ 		/* PM   PS   SM   SS       MAP */
+-		{  P0,  NA,  P1,  NA }, /* 00b (hardwired) */
++		{  P0,  P2,  P1,  P3 }, /* 00b (hardwired when in AHCI) */
+ 		{  RV,  RV,  RV,  RV },
+-		{  RV,  RV,  RV,  RV }, /* 10b (never) */
++		{  IDE,  IDE,  NA,  NA }, /* 10b (IDE mode) */
+ 		{  RV,  RV,  RV,  RV },
+ 	},
  };
- 
- struct	isi_port {
-@@ -1780,6 +1781,7 @@ static int __devinit isicom_probe(struct
- 			break;
- 		}
- 
-+	board->index = index;
- 	board->base = ioaddr;
- 	board->irq = pciirq;
- 	card++;
-@@ -1810,6 +1812,10 @@ static int __devinit isicom_probe(struct
- 	if (retval < 0)
- 		goto errunri;
- 
-+	for (index = 0; index < board->port_count; index++)
-+		tty_register_device(isicom_normal, board->index * 16 + index,
-+				&pdev->dev);
-+
- 	return 0;
- 
- errunri:
-@@ -1824,6 +1830,10 @@ err:
- static void __devexit isicom_remove(struct pci_dev *pdev)
- {
- 	struct isi_board *board = pci_get_drvdata(pdev);
-+	unsigned int i;
-+
-+	for (i = 0; i < board->port_count; i++)
-+		tty_unregister_device(isicom_normal, board->index * 16 + i);
- 
- 	free_irq(board->irq, board);
- 	release_region(board->base, 16);
-@@ -1873,7 +1883,8 @@ static int __init isicom_init(void)
- 	isicom_normal->init_termios		= tty_std_termios;
- 	isicom_normal->init_termios.c_cflag	= B9600 | CS8 | CREAD | HUPCL |
- 		CLOCAL;
--	isicom_normal->flags			= TTY_DRIVER_REAL_RAW;
-+	isicom_normal->flags			= TTY_DRIVER_REAL_RAW |
-+		TTY_DRIVER_DYNAMIC_DEV;
- 	tty_set_operations(isicom_normal, &isicom_ops);
- 
- 	retval = tty_register_driver(isicom_normal);

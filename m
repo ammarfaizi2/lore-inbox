@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422906AbWJSLF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423268AbWJSLKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422906AbWJSLF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 07:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423080AbWJSLF1
+	id S1423268AbWJSLKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 07:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423274AbWJSLKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 07:05:27 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:27613 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1422906AbWJSLF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 07:05:26 -0400
-Subject: Re: [PATCH] lockdep: fix ide/proc interaction
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Jarek Poplawski <jarkao2@o2.pl>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20061019084051.GB1872@ff.dom.local>
-References: <20061019084051.GB1872@ff.dom.local>
-Content-Type: text/plain
-Date: Thu, 19 Oct 2006 13:05:56 +0200
-Message-Id: <1161255956.3036.84.camel@taijtu>
+	Thu, 19 Oct 2006 07:10:38 -0400
+Received: from [195.171.73.133] ([195.171.73.133]:38326 "EHLO
+	pelagius.h-e-r-e-s-y.com") by vger.kernel.org with ESMTP
+	id S1423268AbWJSLKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 07:10:38 -0400
+Date: Thu, 19 Oct 2006 11:10:37 +0000
+From: andrew@walrond.org
+To: linux-kernel@vger.kernel.org, David <dwmw2@infradead.org>
+Subject: Re: make headers_install headers problem on sparc64
+Message-ID: <20061019111037.GD17882@pelagius.h-e-r-e-s-y.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, David <dwmw2@infradead.org>
+References: <20061018223713.GD9350@pelagius.h-e-r-e-s-y.com> <20061019105441.GC17882@pelagius.h-e-r-e-s-y.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061019105441.GC17882@pelagius.h-e-r-e-s-y.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-19 at 10:40 +0200, Jarek Poplawski wrote:
-> On 18-10-2006 20:49, Peter Zijlstra wrote:
-
-> > Index: linux-2.6/drivers/ide/ide.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/ide/ide.c
-> > +++ linux-2.6/drivers/ide/ide.c
-> > @@ -973,8 +973,8 @@ ide_settings_t *ide_find_setting_by_name
-> >   *	@drive: drive
-> >   *
-> >   *	Automatically remove all the driver specific settings for this
-> > - *	drive. This function may sleep and must not be called from IRQ
-> > - *	context. The caller must hold ide_setting_sem.
-> > + *	drive. This function may not be called from IRQ context. The
-> > + *	caller must hold ide_setting_sem.
-> >   */
-> >   
-> >  static void auto_remove_settings (ide_drive_t *drive)
-> > @@ -1874,11 +1874,22 @@ void ide_unregister_subdriver(ide_drive_
-> >  {
-> >  	unsigned long flags;
-> >  	
-> > -	down(&ide_setting_sem);
-> > -	spin_lock_irqsave(&ide_lock, flags);
-> >  #ifdef CONFIG_PROC_FS
-> >  	ide_remove_proc_entries(drive->proc, driver->proc);
+On Thu, Oct 19, 2006 at 10:54:41AM +0000, andrew@walrond.org wrote:
 > 
-> But now:
-> >  (proc_subdir_lock){--..}, at: [<c04a33b0>] remove_proc_entry+0x40/0x191
+> Another problem; when compiling reiserfsprogs 3.6.19 there is a header
+> missing:
 > 
-> is taken here with irqs and bhs enabled (btw. this: {--..} looks
-> as if it wasn't called from here with spin_lock_irqsave?) 
-> IMHO it is hard to believe this lock isn't anywhere used in
-> hard or soft irq context so probably local_irq_disable/enable
-> or local_bh_disable/enable is needed around this.
-
-it really isnt, check fs/proc/{generic,proc_devtree}.c
-
-> >  #endif
-> > +	down(&ide_setting_sem);
-> > +	spin_lock_irqsave(&ide_lock, flags);
-> > +	/*
-> > +	 * ide_setting_sem protects the settings list
-> > +	 * ide_lock protects the use of settings
-> > +	 *
-> > +	 * so we need to hold both, ide_settings_sem because we want to
-> > +	 * modify the settings list, and ide_lock because we cannot take
-> > +	 * a setting out that is being used.
-> > +	 *
-> > +	 * OTOH both ide_{read,write}_setting are only ever used under
-> > +	 * ide_setting_sem.
-> > +	 */
-> >  	auto_remove_settings(drive);
+> ../include/reiserfs_fs.h:41:27: error: asm/unaligned.h: No such file
+> or directory
 > 
-> But why auto_remove_settings and __ide_remove_setting comments
-> don't mention this ide_lock?
+> 
+> I see this file exists in the kernel sources, but not in the exported
+> headers.
+> 
 
-Because comments suck ;-) and it might not be needed, see the OTOH.
-Feel free to send a patch updating the comments.
+Simply copying asm-generic/unaligned.h into the sanitised header tree
+under asm/ solves the problem, so should headers_install just include
+unaligned.h ?
 
-Peter
+> Andrew
 
+PS Great job BTW; I have encountered amazingly few problems using the
+sanitised headers created with headers_install.

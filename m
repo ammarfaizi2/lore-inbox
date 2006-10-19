@@ -1,355 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945918AbWJSAIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945919AbWJSAUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945918AbWJSAIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 20:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945914AbWJSAIN
+	id S1945919AbWJSAUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 20:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945921AbWJSAUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 20:08:13 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:32170 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1945918AbWJSAIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 20:08:12 -0400
-Subject: Re: 2.6.19-rc2-mm1
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061018162507.efa7b91a.akpm@osdl.org>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	 <1161185599.18117.1.camel@dyn9047017100.beaverton.ibm.com>
-	 <45364CE9.7050002@yahoo.com.au>
-	 <1161191747.18117.9.camel@dyn9047017100.beaverton.ibm.com>
-	 <45366515.4050308@yahoo.com.au>
-	 <1161194303.18117.17.camel@dyn9047017100.beaverton.ibm.com>
-	 <20061018154402.ef49874a.akpm@osdl.org>
-	 <1161212465.18117.35.camel@dyn9047017100.beaverton.ibm.com>
-	 <20061018162507.efa7b91a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 18 Oct 2006 17:07:59 -0700
-Message-Id: <1161216479.18117.45.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Oct 2006 20:20:52 -0400
+Received: from mail29.messagelabs.com ([216.82.249.147]:65253 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S1945919AbWJSAUv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 20:20:51 -0400
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-21.tower-29.messagelabs.com!1161217250!31352083!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: kernel oops with extended serial stuff turned on...
+Date: Wed, 18 Oct 2006 19:20:49 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9FA473E9@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel oops with extended serial stuff turned on...
+Thread-Index: AcbzDFL8lqebBufGT3WMKIbGJkKp8QABv6tp
+References: <335DD0B75189FB428E5C32680089FB9F803FE8@mtk-sms-mail01.digi.com> <20061018230939.GA7713@kroah.com>
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <Greg.Chandler@wellsfargo.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Oct 2006 00:20:50.0232 (UTC) FILETIME=[6E50C380:01C6F314]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-10-18 at 16:25 -0700, Andrew Morton wrote:
-> On Wed, 18 Oct 2006 16:01:05 -0700
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> 
-> > > Is the NMI watchdog ticking over?
-> > 
-> > I think so.
-> > 
-> > # dmesg | grep NMI
-> > ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x02] high edge lint[0x1])
-> > ACPI: LAPIC_NMI (acpi_id[0x03] high edge lint[0x1])
-> > testing NMI watchdog ... OK.
-> 
-> 
-> What does it say in /proc/interrupts?
-> 
-> The x86_64 nmi watchdog handling looks rather complex.
-> 
-> <checks a couple of x86-64 machines>
-> 
-> The /proc/interrutps NMI count seems to be going up by about
-> one-per-minute.  How odd.   Maybe you just need to wait longer.
+Hi Greg,
+ 
+> What other driver is using the ttyM0 name?
+> Any pointer to your driver's code so I can see if you are doing
+> something odd here?  Any reason it's just not in the main kernel tree so
+> I would have fixed it up at the time I did the other fixes?
 
-
-While the soft lock up messages are getting printed..
-(waited for 5 min for these messages)..
-
-# while :; do grep NMI /proc/interrupts; sleep 30; done
-NMI:        265         73         41         47
-NMI:        265         81         62         47
-NMI:        265         81         71         69
-NMI:        265         81         93         77
-NMI:        265         81        101         99
-NMI:        288         82        101        107
-NMI:        296         82        131        129
-NMI:        296         82        153        137
-NMI:        296         82        161        160
-NMI:        296        105        161        167
-NMI:        296        112        184        167
-
-Looking at the messages, I don't think trace all cpus
-is working ..
-
-
-BUG: soft lockup detected on CPU#1!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-
-BUG: soft lockup detected on CPU#0!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#0!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-
-BUG: soft lockup detected on CPU#0!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#2!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#1!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-BUG: soft lockup detected on CPU#1!
-
-Call Trace:
- [<ffffffff8020b481>] show_trace+0x41/0x70
- [<ffffffff8020b4c2>] dump_stack+0x12/0x20
- [<ffffffff8024bbca>] softlockup_tick+0xfa/0x120
- [<ffffffff802322e7>] update_process_times+0x57/0x90
- [<ffffffff80218104>] smp_local_timer_interrupt+0x34/0x60
- [<ffffffff8021885b>] smp_apic_timer_interrupt+0x4b/0x80
- [<ffffffff8020a7e6>] apic_timer_interrupt+0x66/0x70
- [<0000000000000010>]
-
-
-
-
-
-Thanks,
-Badari
-
-
-
+Sorry,
+I probably shouldn't have brought my driver up,
+its just confusing things. =)
+ 
+Greg C is not running any of my out-of-tree drivers,
+or even using one of our (Digi) boards.
+ 
+I just saw his warning/error, and noticed it was the same as what I saw
+back when 2.6.18 was released, so I figured I would hop in and
+explain what I did to fix the problem in my driver...
+ 
+(BTW, the error turns up a few times in a google of...
+"don't try to register things with the same name in the same directory."
+I wonder if all the "tty" ones are all related...)
+ 
+In Greg C's case, he turned on *all* the serial options in "make config",
+because he wasn't sure which serial card he had...
+ 
+Turns out that the driver/char/isicom.c driver claimed his board, and then
+tried to register the ttyM0 name, which apparently someone else
+in the kernel did already...
+ 
+You have a good point tho, we probably should actually look at /dev/ttyM0
+on his system, and see who is actually claiming it already...
+ 
+Scott
+ 

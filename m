@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWJSJN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWJSJR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030330AbWJSJN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWJSJN5
+	id S1030361AbWJSJR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWJSJR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:13:57 -0400
-Received: from grunt3.ihug.co.nz ([203.109.254.43]:56709 "EHLO
-	grunt3.ihug.co.nz") by vger.kernel.org with ESMTP id S1030330AbWJSJN4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:13:56 -0400
-From: Glenn Enright <elinar@ihug.co.nz>
-To: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions?
-Date: Thu, 19 Oct 2006 22:14:23 +1300
-User-Agent: KMail/1.9.1
-References: <20061018114240.GA3202@ff.dom.local> <200610192129.46103.elinar@ihug.co.nz> <20061019085850.GA3296@ff.dom.local>
-In-Reply-To: <20061019085850.GA3296@ff.dom.local>
+	Thu, 19 Oct 2006 05:17:56 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:22523 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1030361AbWJSJRz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 05:17:55 -0400
+Message-ID: <453742B7.5080200@atmel.com>
+Date: Thu, 19 Oct 2006 11:17:43 +0200
+From: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Organization: Atmel
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610192214.23618.elinar@ihug.co.nz>
+To: dbrownell@users.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.6.18] Correct bus_num and buffer bug in spi core
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090500030701000108050309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 October 2006 21:58, Jarek Poplawski wrote:
-> On Thu, Oct 19, 2006 at 09:29:45PM +1300, Glenn Enright wrote:
-> > Doesnt slackware supply a prebuilt package of the kernel docs in
-> > various formats for just this purpose? From what I can recall,
-> > redhat and ubuntu both do this.
->
-> Maybe does. But do you believe there is anybody reading
-> this list who uses only distro's prebuilt kernel versions?
->
-> Jarek P.
+This is a multi-part message in MIME format.
+--------------090500030701000108050309
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-You implied that you were trying to build on a limited resource machine, 
-and I offered this as an alternative. If you really needed the *very 
-latest* docs then it would probably be a newish testing platform and 
-not your main machine, so you could get them of that instead? Anyway 
-just my 2c.
+Hello,
+
+Included is a patch which corrects the following in driver/spi/spi.c in
+function spi_busnum_to_master:
+ * must allow bus_num 0, the if is really not needed.
+ * correct the name buffer which is too small for bus_num >= 10000. It
+should be 9 bytes big, not 8.
+
+Sorry if I should have split the patch in two.
+
+I am not on the linux-kernel list.
+
+Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+
+-- 
+With kind regards,
+
+Hans-Christian Egtvedt
+Applications Engineer - AVR Applications Lab
+
+--------------090500030701000108050309
+Content-Type: text/x-patch;
+ name="spi-fix-spi-busnum-to-master-buffer-and-bus_num-0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="spi-fix-spi-busnum-to-master-buffer-and-bus_num-0.patch"
+
+--- a/drivers/spi/spi.c	2006-10-19 10:37:26.000000000 +0200
++++ b/drivers/spi/spi.c	2006-10-19 10:38:59.000000000 +0200
+@@ -465,15 +465,13 @@ EXPORT_SYMBOL_GPL(spi_unregister_master)
+  */
+ struct spi_master *spi_busnum_to_master(u16 bus_num)
+ {
+-	if (bus_num) {
+-		char			name[8];
+-		struct kobject		*bus;
+-
+-		snprintf(name, sizeof name, "spi%u", bus_num);
+-		bus = kset_find_obj(&spi_master_class.subsys.kset, name);
+-		if (bus)
+-			return container_of(bus, struct spi_master, cdev.kobj);
+-	}
++	char			name[9];
++	struct kobject		*bus;
++
++	snprintf(name, sizeof name, "spi%u", bus_num);
++	bus = kset_find_obj(&spi_master_class.subsys.kset, name);
++	if (bus)
++		return container_of(bus, struct spi_master, cdev.kobj);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(spi_busnum_to_master);
+
+--------------090500030701000108050309--

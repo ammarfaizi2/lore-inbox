@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946583AbWJSWZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946585AbWJSW0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946583AbWJSWZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 18:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946585AbWJSWZQ
+	id S1946585AbWJSW0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 18:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946587AbWJSW0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 18:25:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63160 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946583AbWJSWZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 18:25:14 -0400
-Date: Thu, 19 Oct 2006 15:25:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-Message-Id: <20061019152503.217a82aa.akpm@osdl.org>
-In-Reply-To: <4537EB67.8030208@drzeus.cx>
-References: <4537EB67.8030208@drzeus.cx>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 18:26:00 -0400
+Received: from bizon.gios.gov.pl ([212.244.124.8]:45956 "EHLO
+	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S1946585AbWJSWZ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 18:25:59 -0400
+Date: Fri, 20 Oct 2006 00:25:48 +0200 (CEST)
+From: Krzysztof Oledzki <olel@ans.pl>
+X-X-Sender: olel@bizon.gios.gov.pl
+To: Wes Felter <wesley@felter.org>
+cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: 3.2GHz cpus with cpufreq become 2.8GHz
+In-Reply-To: <4537A582.4020406@felter.org>
+Message-ID: <Pine.LNX.4.64.0610200022320.30089@bizon.gios.gov.pl>
+References: <Pine.LNX.4.64.0610182133130.29935@bizon.gios.gov.pl>
+ <4537A582.4020406@felter.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1520145228-1161296748=:30089"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 23:17:27 +0200
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> Hi guys,
-> 
-> In an effort to change my work flow into a manner that is more suitable
-> for upstream merging and publishing my trees, I though I could ask for
-> some input from the more experienced.
-> 
-> 
-> My intended work flow is to work on stuff on temporary topic branches,
-> and cherry-pick or diff|patch them into other trees when they are mature
-> enough.
-> 
-> Stuff that need a bit more testing will be put in a public "for-andrew"
-> branch. From what I gather, Andrew does a pull and a diff of these kinds
-> of branches before putting together a -mm set. So this should be
-> sufficient for your needs? Do you also prefer getting "[GIT PULL]"
-> requests, or do you do the pull periodically anyway?
+---187430788-1520145228-1161296748=:30089
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Just send me the url&branch-name for a tree which you want included in -mm.
-I typically pull all the trees once per day.  I usually won't even look at
-the contents of what I pulled from you unless it breaks.
 
-IOW, -mm is like a tree to which 70-odd people have commit permissions,
-except it's 70 separate trees and I independently jam them all into one
-tree daily.
 
-> Patches that are considered stable, either directly or by virtue of
-> being in -mm for a while, will be moved into a "for-linus" tree and a
-> "[GIT PULL]" sent to herr Torvalds.
+On Thu, 19 Oct 2006, Wes Felter wrote:
 
-yup.
+> Krzysztof Oledzki wrote:
+>> Hello,
+>>=20
+>> I have just noticed that enabling cpufreq on my Dell PowerEdge 1425SC=20
+>> changes my secondary cpu clock to 2.8GHz.
+>
+> [snip]
+>
+>> # cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver
+>> p4-clockmod
+>
+> You shouldn't be using this driver. Use speedstep-centrino or
 
-> Now, the patch in "for-linus" will be a duplicate of one or several
-> commits in "for-andrew". Will I get any problems from git once I do a
-> new pull from Linus' tree into "for-andrew"?
+Hm... speedstep-centrino on Xeon? AFAIK speedstep-centrino requires "est"=
+=20
+and /proc/cpuinfo does not mention this flag:
+  fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 c=
+lflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx lm constant_tsc pni monit=
+or ds_cpl cid cx16 xtpr
 
-git will sort that out.
+> acpi-cpufrreq.
 
-> Another concern is all the merges. As I have modifications in my tree,
-> every merge should generate at least one commit and one tree object. Is
-> this kind of noise in the git history something that needs concern?
+I will check this, thank you. BTW: what wrong is with p4-clockmod? I was=20
+not able to find any information that it is broken and should not be=20
+used?
 
-I'll leave that question to a gittier responder.  But yes, you'll get
-shouted at if Linus's final commit contains irrelevant commit and merge
-stuff.
+Best regards,
 
+
+ =09=09=09=09Krzysztof Ol=EAdzki
+---187430788-1520145228-1161296748=:30089--

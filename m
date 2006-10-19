@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946171AbWJSQMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946176AbWJSQNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946171AbWJSQMd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 12:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946173AbWJSQMd
+	id S1946176AbWJSQNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 12:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946178AbWJSQNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 12:12:33 -0400
-Received: from ns2.suse.de ([195.135.220.15]:30893 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1946171AbWJSQMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 12:12:32 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Allen Martin" <AMartin@nvidia.com>
-Subject: Re: ASUS M2NPV-VM APIC/ACPI Bug (patched)
-Date: Thu, 19 Oct 2006 18:11:49 +0200
-User-Agent: KMail/1.9.3
-Cc: "Robert Hancock" <hancockr@shaw.ca>, "Len Brown" <lenb@kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Daniel Mierswa" <impulze@impulze.org>,
-       "Andy Currid" <ACurrid@nvidia.com>
-References: <DBFABB80F7FD3143A911F9E6CFD477B0195D13E6@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B0195D13E6@hqemmail02.nvidia.com>
+	Thu, 19 Oct 2006 12:13:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49162 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1946176AbWJSQNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 12:13:41 -0400
+Date: Thu, 19 Oct 2006 18:13:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Alan Cox <alan@redhat.com>, Patrick Jefferson <henj@hp.com>,
+       Kenny Graunke <kenny@whitecape.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [2.6.19 patch] drivers/ide/pci/generic.c: re-add the __setup("all-generic-ide",...)
+Message-ID: <20061019161338.GT3502@stusta.de>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061017155934.GC3502@stusta.de> <4534C7A7.7000607@hp.com> <20061018221520.GK3502@stusta.de> <20061018231844.GA16857@devserv.devel.redhat.com> <20061019152651.GR3502@stusta.de> <20061019090741.853ea100.randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610191811.49243.ak@suse.de>
+In-Reply-To: <20061019090741.853ea100.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 19, 2006 at 09:07:41AM -0700, Randy Dunlap wrote:
+> On Thu, 19 Oct 2006 17:26:51 +0200 Adrian Bunk wrote:
+>...
+> > --- linux-2.6/drivers/ide/pci/generic.c.old	2006-10-19 16:35:15.000000000 +0200
+> > +++ linux-2.6/drivers/ide/pci/generic.c	2006-10-19 16:46:21.000000000 +0200
+> > @@ -40,6 +40,19 @@
+> >  
+> >  static int ide_generic_all;		/* Set to claim all devices */
+> >  
+> > +/*
+> > + * the module_param_named() was added for the modular case
+> > + * the __setup() is left as compatibility for existing setups
+> > + */
+> > +#ifndef MODULE
+> > +static int __init ide_generic_all_on(char *unused)
+> > +{
+> > +	ide_generic_all = 1;
+> > +	printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.");
+> > +	return 1;
+> > +}
+> > +__setup("all-generic-ide", ide_generic_all_on);
+> > +#endif
+> >  module_param_named(all_generic_ide, ide_generic_all, bool, 0444);
+> >  MODULE_PARM_DESC(all_generic_ide, "IDE generic will claim all unknown PCI IDE storage controllers.");
+> 
+> Missing update to Documentation/kernel-parameters.txt ?
+> (maybe it's been missing forever?)
 
-> The problem is this workaround doesn't fix a chipset issue, it fixes
-> incorrect entries in the BIOS ACPI tables.  This bug existed in the
-> NVIDIA reference BIOS for nForce2 and got copied to all customer BIOSes
-> for nForce2.  Even though our reference BIOSes and documentation for all
-> chipsets since then have the correct interrupt overrides in the ACPI
-> tables we still see customer BIOSes that get shipped with incorrect
-> entries that were probably copied from their nForce2 BIOS code.
+It's been missing forever.
 
-Ah my understanding was that it applied to NF3 and possible NF4 too. Does it 
-not?
- 
-> I believe the HPET check was because the workaround was causing problems
-> when enabling HPET on systems that support it.  Andy probably has more
-> details on that.
+I'm not sure whether documenting it now where it's deprecated and nearly 
+dead makes sense..
 
-Yes it was because NF5 needed it to be disabled. Anyways if I can 
-get a list of PCI-IDs of chipsets where the reference BIOS had this
-issue it can be narrowed to those.
+> ~Randy
 
--Andi
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

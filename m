@@ -1,53 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946464AbWJSU2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946453AbWJSU15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946464AbWJSU2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 16:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946459AbWJSU16
+	id S1946453AbWJSU15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 16:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946459AbWJSU1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 16:27:58 -0400
-Received: from mga01.intel.com ([192.55.52.88]:44183 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1946452AbWJSU1o (ORCPT
+	Thu, 19 Oct 2006 16:27:21 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:29852 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1946453AbWJSU0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 16:27:44 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,330,1157353200"; 
-   d="scan'208"; a="5720219:sNHT20196243"
-Date: Thu, 19 Oct 2006 13:27:39 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, jeff@garzik.org
-Subject: [patch] libata: use correct map_db values for ICH8
-Message-Id: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 16:26:49 -0400
+Message-id: <1422020236643313128@wsc.cz>
+Subject: [PATCH 3/7] Char: isicom, remove isa code
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Thu, 19 Oct 2006 22:26:57 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+isicom, remove isa code
 
-Use valid values for ICH8 map_db.  With the old values, when the 
-controller was in Native mode, and SCC was 1 (drives configured for
-IDE), any drive plugged into a slave port was not recognized.  For
-Combined Mode (and SCC is still 1), 2 is a value value for MAP.map_value,
-and needs to be recognized.
+ISA is not supported by this driver, remove parts, that take care of this.
 
-Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+
 ---
- drivers/ata/ata_piix.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+commit a11b72a2838aa7dfee930168faeebf25a23c70d4
+tree 8c453c2b57552458aacdb9d745537f4e1bc704bf
+parent e6fff2d2ab2153655ef957b6dc1e02baa9921b47
+author Jiri Slaby <jirislaby@gmail.com> Thu, 19 Oct 2006 19:26:58 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Thu, 19 Oct 2006 19:26:58 +0200
 
---- 2.6-git.orig/drivers/ata/ata_piix.c
-+++ 2.6-git/drivers/ata/ata_piix.c
-@@ -432,9 +432,9 @@ static const struct piix_map_db ich8_map
- 	.present_shift = 8,
- 	.map = {
- 		/* PM   PS   SM   SS       MAP */
--		{  P0,  NA,  P1,  NA }, /* 00b (hardwired) */
-+		{  P0,  P2,  P1,  P3 }, /* 00b (hardwired when in AHCI) */
- 		{  RV,  RV,  RV,  RV },
--		{  RV,  RV,  RV,  RV }, /* 10b (never) */
-+		{  IDE,  IDE,  NA,  NA }, /* 10b (IDE mode) */
- 		{  RV,  RV,  RV,  RV },
- 	},
+ drivers/char/isicom.c |   91 +++++++++++--------------------------------------
+ 1 files changed, 21 insertions(+), 70 deletions(-)
+
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index 66fb11f..8cd6cc2 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -193,7 +193,6 @@ struct	isi_board {
+ 	unsigned short		shift_count;
+ 	struct isi_port		* ports;
+ 	signed char		count;
+-	unsigned char		isa;
+ 	spinlock_t		card_lock; /* Card wide lock 11/5/00 -sameer */
+ 	unsigned long		flags;
  };
+@@ -562,14 +561,12 @@ static irqreturn_t isicom_interrupt(int 
+ 	base = card->base;
+ 	spin_lock(&card->card_lock);
+ 
+-	if (card->isa == NO) {
+-		/*
+-		 * disable any interrupts from the PCI card and lower the
+-		 * interrupt line
+-		 */
+-		outw(0x8000, base+0x04);
+-		ClearInterrupt(base);
+-	}
++	/*
++	 * disable any interrupts from the PCI card and lower the
++	 * interrupt line
++	 */
++	outw(0x8000, base+0x04);
++	ClearInterrupt(base);
+ 
+ 	inw(base);		/* get the dummy word out */
+ 	header = inw(base);
+@@ -579,19 +576,13 @@ static irqreturn_t isicom_interrupt(int 
+ 	if (channel + 1 > card->port_count) {
+ 		printk(KERN_WARNING "ISICOM: isicom_interrupt(0x%lx): "
+ 			"%d(channel) > port_count.\n", base, channel+1);
+-		if (card->isa)
+-			ClearInterrupt(base);
+-		else
+-			outw(0x0000, base+0x04); /* enable interrupts */
++		outw(0x0000, base+0x04); /* enable interrupts */
+ 		spin_unlock(&card->card_lock);
+ 		return IRQ_HANDLED;
+ 	}
+ 	port = card->ports + channel;
+ 	if (!(port->flags & ASYNC_INITIALIZED)) {
+-		if (card->isa)
+-			ClearInterrupt(base);
+-		else
+-			outw(0x0000, base+0x04); /* enable interrupts */
++		outw(0x0000, base+0x04); /* enable interrupts */
+ 		return IRQ_HANDLED;
+ 	}
+ 
+@@ -604,10 +595,7 @@ static irqreturn_t isicom_interrupt(int 
+ 		}
+ 		if (byte_count & 0x01)
+ 			inw(base);
+-		if (card->isa == YES)
+-			ClearInterrupt(base);
+-		else
+-			outw(0x0000, base+0x04); /* enable interrupts */
++		outw(0x0000, base+0x04); /* enable interrupts */
+ 		spin_unlock(&card->card_lock);
+ 		return IRQ_HANDLED;
+ 	}
+@@ -708,10 +696,7 @@ static irqreturn_t isicom_interrupt(int 
+ 		}
+ 		tty_flip_buffer_push(tty);
+ 	}
+-	if (card->isa == YES)
+-		ClearInterrupt(base);
+-	else
+-		outw(0x0000, base+0x04); /* enable interrupts */
++	outw(0x0000, base+0x04); /* enable interrupts */
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -1560,36 +1545,23 @@ static int __devinit reset_card(struct p
+ 
+ 	*signature = inw(base + 0x4) & 0xff;
+ 
+-	if (board->isa == YES) {
+-		if (!(inw(base + 0xe) & 0x1) || (inw(base + 0x2))) {
+-			dev_dbg(&pdev->dev, "base+0x2=0x%lx, base+0xe=0x%lx\n",
+-				inw(base + 0x2), inw(base + 0xe));
+-			dev_err(&pdev->dev, "ISILoad:ISA Card%d reset failure "
+-				"(Possible bad I/O Port Address 0x%lx).\n",
+-				card + 1, base);
+-			retval = -EIO;
+-			goto end;
+-		}
+-	} else {
+-		portcount = inw(base + 0x2);
+-		if (!(inw(base + 0xe) & 0x1) || ((portcount != 0) &&
+-				(portcount != 4) && (portcount != 8))) {
+-			dev_dbg(&pdev->dev, "base+0x2=0x%lx, base+0xe=0x%lx\n",
+-				inw(base + 0x2), inw(base + 0xe));
+-			dev_err(&pdev->dev, "ISILoad:PCI Card%d reset failure "
+-				"(Possible bad I/O Port Address 0x%lx).\n",
+-				card + 1, base);
+-			retval = -EIO;
+-			goto end;
+-		}
++	portcount = inw(base + 0x2);
++	if (!(inw(base + 0xe) & 0x1) || ((portcount != 0) &&
++			(portcount != 4) && (portcount != 8))) {
++		dev_dbg(&pdev->dev, "base+0x2=0x%lx, base+0xe=0x%lx\n",
++			inw(base + 0x2), inw(base + 0xe));
++		dev_err(&pdev->dev, "ISILoad:PCI Card%d reset failure "
++			"(Possible bad I/O Port Address 0x%lx).\n",
++			card + 1, base);
++		retval = -EIO;
++		goto end;
+ 	}
+ 
+ 	switch (*signature) {
+ 	case 0xa5:
+ 	case 0xbb:
+ 	case 0xdd:
+-		board->port_count = (board->isa == NO && portcount == 4) ? 4 :
+-			8;
++		board->port_count = (portcount == 4) ? 4 : 8;
+ 		board->shift_count = 12;
+ 		break;
+ 	case 0xcc:
+@@ -1783,8 +1755,6 @@ end:
+ /*
+  *	Insmod can set static symbols so keep these static
+  */
+-static int io[4];
+-static int irq[4];
+ static int card;
+ 
+ static int __devinit isicom_probe(struct pci_dev *pdev,
+@@ -1812,7 +1782,6 @@ static int __devinit isicom_probe(struct
+ 
+ 	board->base = ioaddr;
+ 	board->irq = pciirq;
+-	board->isa = NO;
+ 	card++;
+ 
+ 	pci_set_drvdata(pdev, board);
+@@ -1887,20 +1856,6 @@ static int __init isicom_init(void)
+  		}
+ 		isi_card[idx].base = 0;
+ 		isi_card[idx].irq = 0;
+-
+-		if (!io[idx])
+-			continue;
+-
+-		if (irq[idx] == 2 || irq[idx] == 3 || irq[idx] == 4	||
+-				irq[idx] == 5	|| irq[idx] == 7	||
+-				irq[idx] == 10	|| irq[idx] == 11	||
+-				irq[idx] == 12	|| irq[idx] == 15) {
+-			printk(KERN_ERR "ISICOM: ISA not supported yet.\n");
+-			retval = -EINVAL;
+-			goto error;
+-		} else
+-			printk(KERN_ERR "ISICOM: Irq %d unsupported. "
+-				"Disabling Card%d...\n", irq[idx], idx + 1);
+ 	}
+ 
+ 	/* tty driver structure initialization */
+@@ -1970,7 +1925,3 @@ module_exit(isicom_exit);
+ MODULE_AUTHOR("MultiTech");
+ MODULE_DESCRIPTION("Driver for the ISI series of cards by MultiTech");
+ MODULE_LICENSE("GPL");
+-module_param_array(io, int, NULL, 0);
+-MODULE_PARM_DESC(io, "I/O ports for the cards");
+-module_param_array(irq, int, NULL, 0);
+-MODULE_PARM_DESC(irq, "Interrupts for the cards");

@@ -1,356 +1,601 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423264AbWJSKZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161393AbWJSKZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423264AbWJSKZK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 06:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161380AbWJSKZK
+	id S1161393AbWJSKZz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 06:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161389AbWJSKZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 06:25:10 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:46940 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161384AbWJSKZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 06:25:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=ymlLrvyNGTwJagzfmEDvLkF1f9bGWvS+tnvMeHwymyUJERB5w9/Z+4FHm+D6QTT70tkrTV1P4AN/gZ7zjWqOg+Z/KDep2kR+HFOS63a01R3vpbbAZA4gOgLlKbpLdkKc0ysZhKXrndNtxjFU0alb/vgjiq8MRTVVjnfydZkGa6E=  ;
-Message-ID: <4537527B.5050401@yahoo.com.au>
-Date: Thu, 19 Oct 2006 20:24:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       Paul Menage <menage@google.com>, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, Dinakar Guniguntala <dino@in.ibm.com>,
-       Rohit Seth <rohitseth@google.com>, Robin Holt <holt@sgi.com>,
-       dipankar@in.ibm.com, "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
-In-Reply-To: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
-Content-Type: multipart/mixed;
- boundary="------------000800040204020706000403"
+	Thu, 19 Oct 2006 06:25:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6085 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161386AbWJSKZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 06:25:36 -0400
+Message-Id: <20061019102309.235362000@chello.nl>
+References: <20061019101722.805147000@chello.nl>
+User-Agent: quilt/0.45-1
+Date: Thu, 19 Oct 2006 12:17:24 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: [RFC][PATCH 2/4] mm: pagefault_{disable,enable}()
+Content-Disposition: inline; filename=pagefault_disable.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000800040204020706000403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Introduce pagefault_{disable,enable}() and use these where previously
+we did manual preempt increments/decrements to make the pagefault handler
+do the atomic thing.
 
-Paul Jackson wrote:
-> From: Paul Jackson <pj@sgi.com>
-> 
-> Remove the cpuset hooks that defined sched domains depending on the
-> setting of the 'cpu_exclusive' flag.
+Currently they still rely on the increased preempt count, but do not rely
+on the disabled preemption, this might go away in the future.
 
-Before we chuck the baby out...
+(NOTE: the extra barrier() in pagefault_disable might fix some holes on
+       machines which have too many registers for their own good)
 
-> The cpu_exclusive flag can only be set on a child if it is set on
-> the parent.
-> 
-> This made that flag painfully unsuitable for use as a flag defining
-> a partitioning of a system.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ arch/frv/kernel/futex.c     |    4 ++--
+ arch/i386/mm/highmem.c      |   10 ++++------
+ arch/mips/mm/highmem.c      |   10 ++++------
+ arch/s390/lib/uaccess_std.c |    4 ++--
+ arch/sparc/mm/highmem.c     |    8 +++-----
+ include/asm-frv/highmem.h   |    5 ++---
+ include/asm-generic/futex.h |    4 ++--
+ include/asm-i386/futex.h    |    4 ++--
+ include/asm-ia64/futex.h    |    4 ++--
+ include/asm-mips/futex.h    |    4 ++--
+ include/asm-parisc/futex.h  |    4 ++--
+ include/asm-powerpc/futex.h |    4 ++--
+ include/asm-ppc/highmem.h   |    8 +++-----
+ include/asm-sparc64/futex.h |    4 ++--
+ include/asm-x86_64/futex.h  |    4 ++--
+ include/linux/uaccess.h     |   39 +++++++++++++++++++++++++++++++++++++--
+ kernel/futex.c              |   28 ++++++++++++++--------------
+ 17 files changed, 87 insertions(+), 61 deletions(-)
 
-Sigh, it isn't. That's simply how cpusets tried to use it.
-
-> It was entirely unobvious to a cpuset user what partitioning of sched
-> domains they would be causing when they set that one cpu_exclusive bit
-> on one cpuset, because it depended on what CPUs were in the remainder
-> of that cpusets siblings and child cpusets, after subtracting out
-> other cpu_exclusive cpusets.
-
-As far as a user is concerned, the cpusets is the interface. domain
-partitioning is an implementation detail that just happens to make
-it work better in some cases.
-
-> Furthermore, there was no way on production systems to query the
-> result.
-
-You shouldn't need to, assuming cpusets doesn't mess it up.
-
-Here is an untested patch. Apparently takes care of CPU hotplug too.
-
--- 
-SUSE Labs, Novell Inc.
-
---------------000800040204020706000403
-Content-Type: text/plain;
- name="sched-domains-cpusets-fixes.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-domains-cpusets-fixes.patch"
-
-Fix sched-domains partitioning by cpusets. Walk the whole cpusets tree after
-something interesting changes, and recreate all partitions.
-
-Index: linux-2.6/kernel/cpuset.c
+Index: linux-2.6/arch/frv/kernel/futex.c
 ===================================================================
---- linux-2.6.orig/kernel/cpuset.c	2006-10-19 19:26:54.000000000 +1000
-+++ linux-2.6/kernel/cpuset.c	2006-10-19 20:21:29.000000000 +1000
-@@ -751,6 +751,24 @@ static int validate_change(const struct 
- 	return 0;
- }
+--- linux-2.6.orig/arch/frv/kernel/futex.c
++++ linux-2.6/arch/frv/kernel/futex.c
+@@ -200,7 +200,7 @@ int futex_atomic_op_inuser(int encoded_o
+ 	if (!access_ok(VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
  
-+static void update_cpu_domains_children(struct cpuset *par,
-+					cpumask_t *non_partitioned)
-+{
-+	struct cpuset *c;
-+
-+	list_for_each_entry(c, &par->children, sibling) {
-+		if (cpus_empty(c->cpus_allowed))
-+			continue;
-+		if (is_cpu_exclusive(c)) {
-+			if (!partition_sched_domains(&c->cpus_allowed)) {
-+				cpus_andnot(*non_partitioned,
-+					*non_partitioned, c->cpus_allowed);
-+			}
-+		} else
-+			update_cpu_domains_children(c, non_partitioned);
-+	}
-+}
-+
- /*
-  * For a given cpuset cur, partition the system as follows
-  * a. All cpus in the parent cpuset's cpus_allowed that are not part of any
-@@ -760,53 +778,38 @@ static int validate_change(const struct 
-  * Build these two partitions by calling partition_sched_domains
-  *
-  * Call with manage_mutex held.  May nest a call to the
-- * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
-- * Must not be called holding callback_mutex, because we must
-- * not call lock_cpu_hotplug() while holding callback_mutex.
-+ * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.  Must not be called holding
-+ * callback_mutex, because we must not call lock_cpu_hotplug() while holding
-+ * callback_mutex.
-  */
+-	inc_preempt_count();
++	pagefault_disable();
  
--static void update_cpu_domains(struct cpuset *cur)
-+static void update_cpu_domains(void)
- {
--	struct cpuset *c, *par = cur->parent;
--	cpumask_t pspan, cspan;
-+	cpumask_t non_partitioned;
- 
--	if (par == NULL || cpus_empty(cur->cpus_allowed))
--		return;
--
--	/*
--	 * Get all cpus from parent's cpus_allowed not part of exclusive
--	 * children
--	 */
--	pspan = par->cpus_allowed;
--	list_for_each_entry(c, &par->children, sibling) {
--		if (is_cpu_exclusive(c))
--			cpus_andnot(pspan, pspan, c->cpus_allowed);
--	}
--	if (!is_cpu_exclusive(cur)) {
--		cpus_or(pspan, pspan, cur->cpus_allowed);
--		if (cpus_equal(pspan, cur->cpus_allowed))
--			return;
--		cspan = CPU_MASK_NONE;
--	} else {
--		if (cpus_empty(pspan))
--			return;
--		cspan = cur->cpus_allowed;
--		/*
--		 * Get all cpus from current cpuset's cpus_allowed not part
--		 * of exclusive children
--		 */
--		list_for_each_entry(c, &cur->children, sibling) {
--			if (is_cpu_exclusive(c))
--				cpus_andnot(cspan, cspan, c->cpus_allowed);
--		}
--	}
-+	BUG_ON(!mutex_is_locked(&manage_mutex));
- 
- 	lock_cpu_hotplug();
--	partition_sched_domains(&pspan, &cspan);
-+	non_partitioned = top_cpuset.cpus_allowed;
-+	update_cpu_domains_children(&top_cpuset, &non_partitioned);
-+	partition_sched_domains(&non_partitioned);
- 	unlock_cpu_hotplug();
- }
- 
- /*
-+ * Same as above except called with lock_cpu_hotplug and without manage_mutex.
-+ */
-+
-+int cpuset_hotplug_update_sched_domains(void)
-+{
-+	cpumask_t non_partitioned;
-+
-+	non_partitioned = top_cpuset.cpus_allowed;
-+	update_cpu_domains_children(&top_cpuset, &non_partitioned);
-+	return partition_sched_domains(&non_partitioned);
-+}
-+
-+/*
-  * Call with manage_mutex held.  May take callback_mutex during call.
-  */
- 
-@@ -833,8 +836,8 @@ static int update_cpumask(struct cpuset 
- 	mutex_lock(&callback_mutex);
- 	cs->cpus_allowed = trialcs.cpus_allowed;
- 	mutex_unlock(&callback_mutex);
--	if (is_cpu_exclusive(cs) && !cpus_unchanged)
--		update_cpu_domains(cs);
-+	if (!cpus_unchanged)
-+		update_cpu_domains();
- 	return 0;
- }
- 
-@@ -1067,7 +1070,7 @@ static int update_flag(cpuset_flagbits_t
- 	mutex_unlock(&callback_mutex);
- 
- 	if (cpu_exclusive_changed)
--                update_cpu_domains(cs);
-+                update_cpu_domains();
- 	return 0;
- }
- 
-@@ -1931,19 +1934,9 @@ static int cpuset_mkdir(struct inode *di
- 	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
- }
- 
--/*
-- * Locking note on the strange update_flag() call below:
-- *
-- * If the cpuset being removed is marked cpu_exclusive, then simulate
-- * turning cpu_exclusive off, which will call update_cpu_domains().
-- * The lock_cpu_hotplug() call in update_cpu_domains() must not be
-- * made while holding callback_mutex.  Elsewhere the kernel nests
-- * callback_mutex inside lock_cpu_hotplug() calls.  So the reverse
-- * nesting would risk an ABBA deadlock.
-- */
--
- static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
- {
-+	int is_exclusive;
- 	struct cpuset *cs = dentry->d_fsdata;
- 	struct dentry *d;
- 	struct cpuset *parent;
-@@ -1961,13 +1954,8 @@ static int cpuset_rmdir(struct inode *un
- 		mutex_unlock(&manage_mutex);
- 		return -EBUSY;
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -223,7 +223,7 @@ int futex_atomic_op_inuser(int encoded_o
+ 		break;
  	}
--	if (is_cpu_exclusive(cs)) {
--		int retval = update_flag(CS_CPU_EXCLUSIVE, cs, "0");
--		if (retval < 0) {
--			mutex_unlock(&manage_mutex);
--			return retval;
--		}
--	}
-+	is_exclusive = is_cpu_exclusive(cs);
-+
- 	parent = cs->parent;
- 	mutex_lock(&callback_mutex);
- 	set_bit(CS_REMOVED, &cs->flags);
-@@ -1982,8 +1970,13 @@ static int cpuset_rmdir(struct inode *un
- 	mutex_unlock(&callback_mutex);
- 	if (list_empty(&parent->children))
- 		check_for_release(parent, &pathbuf);
-+
-+	if (is_exclusive)
-+		update_cpu_domains();
-+
- 	mutex_unlock(&manage_mutex);
- 	cpuset_release_agent(pathbuf);
-+
- 	return 0;
- }
  
-Index: linux-2.6/kernel/sched.c
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/arch/i386/mm/highmem.c
 ===================================================================
---- linux-2.6.orig/kernel/sched.c	2006-10-19 19:24:48.000000000 +1000
-+++ linux-2.6/kernel/sched.c	2006-10-19 20:21:50.000000000 +1000
-@@ -6586,6 +6586,9 @@ error:
-  */
- static int arch_init_sched_domains(const cpumask_t *cpu_map)
- {
-+#ifdef CONFIG_CPUSETS
-+	return cpuset_hotplug_update_sched_domains();
-+#else
- 	cpumask_t cpu_default_map;
- 	int err;
+--- linux-2.6.orig/arch/i386/mm/highmem.c
++++ linux-2.6/arch/i386/mm/highmem.c
+@@ -32,7 +32,7 @@ void *kmap_atomic(struct page *page, enu
+ 	unsigned long vaddr;
  
-@@ -6599,6 +6602,7 @@ static int arch_init_sched_domains(const
- 	err = build_sched_domains(&cpu_default_map);
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
  
- 	return err;
-+#endif
+@@ -52,8 +52,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 
+ #ifdef CONFIG_DEBUG_HIGHMEM
+ 	if (vaddr >= PAGE_OFFSET && vaddr < (unsigned long)high_memory) {
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -68,8 +67,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	 */
+ 	kpte_clear_flush(kmap_pte-idx, vaddr);
+ 
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
  }
  
- static void arch_destroy_sched_domains(const cpumask_t *cpu_map)
-@@ -6622,29 +6626,26 @@ static void detach_destroy_domains(const
+ /* This is the same as kmap_atomic() but can map memory that doesn't
+@@ -80,7 +78,7 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ 	enum fixed_addresses idx;
+ 	unsigned long vaddr;
  
- /*
-  * Partition sched domains as specified by the cpumasks below.
-- * This attaches all cpus from the cpumasks to the NULL domain,
-+ * This attaches all cpus from the partition to the NULL domain,
-  * waits for a RCU quiescent period, recalculates sched
-- * domain information and then attaches them back to the
-- * correct sched domains
-- * Call with hotplug lock held
-+ * domain information and then attaches them back to their own
-+ * isolated partition.
-+ *
-+ * Called with hotplug lock held
-+ *
-+ * Returns 0 on success.
-  */
--int partition_sched_domains(cpumask_t *partition1, cpumask_t *partition2)
-+int partition_sched_domains(cpumask_t *partition)
- {
-+	cpumask_t non_isolated_cpus;
- 	cpumask_t change_map;
--	int err = 0;
+-	inc_preempt_count();
++	pagefault_disable();
  
--	cpus_and(*partition1, *partition1, cpu_online_map);
--	cpus_and(*partition2, *partition2, cpu_online_map);
--	cpus_or(change_map, *partition1, *partition2);
-+	cpus_andnot(non_isolated_cpus, cpu_online_map, cpu_isolated_map);
-+	cpus_and(change_map, *partition, non_isolated_cpus);
- 
- 	/* Detach sched domains from all of the affected cpus */
- 	detach_destroy_domains(&change_map);
--	if (!cpus_empty(*partition1))
--		err = build_sched_domains(partition1);
--	if (!err && !cpus_empty(*partition2))
--		err = build_sched_domains(partition2);
--
--	return err;
-+	return build_sched_domains(&change_map);
- }
- 
- #if defined(CONFIG_SCHED_MC) || defined(CONFIG_SCHED_SMT)
-Index: linux-2.6/include/linux/sched.h
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+Index: linux-2.6/arch/mips/mm/highmem.c
 ===================================================================
---- linux-2.6.orig/include/linux/sched.h	2006-10-19 20:02:24.000000000 +1000
-+++ linux-2.6/include/linux/sched.h	2006-10-19 20:02:30.000000000 +1000
-@@ -707,8 +707,7 @@ struct sched_domain {
+--- linux-2.6.orig/arch/mips/mm/highmem.c
++++ linux-2.6/arch/mips/mm/highmem.c
+@@ -39,7 +39,7 @@ void *__kmap_atomic(struct page *page, e
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -62,8 +62,7 @@ void __kunmap_atomic(void *kvaddr, enum 
+ 	enum fixed_addresses idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < FIXADDR_START) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -78,8 +77,7 @@ void __kunmap_atomic(void *kvaddr, enum 
+ 	local_flush_tlb_one(vaddr);
  #endif
- };
  
--extern int partition_sched_domains(cpumask_t *partition1,
--				    cpumask_t *partition2);
-+extern int partition_sched_domains(cpumask_t *partition);
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
  
- /*
-  * Maximum cache size the migration-costs auto-tuning code will
-Index: linux-2.6/include/linux/cpuset.h
+ #ifndef CONFIG_LIMITED_DMA
+@@ -92,7 +90,7 @@ void *kmap_atomic_pfn(unsigned long pfn,
+ 	enum fixed_addresses idx;
+ 	unsigned long vaddr;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+Index: linux-2.6/arch/s390/lib/uaccess_std.c
 ===================================================================
---- linux-2.6.orig/include/linux/cpuset.h	2006-10-19 20:07:24.000000000 +1000
-+++ linux-2.6/include/linux/cpuset.h	2006-10-19 20:21:08.000000000 +1000
-@@ -14,6 +14,8 @@
+--- linux-2.6.orig/arch/s390/lib/uaccess_std.c
++++ linux-2.6/arch/s390/lib/uaccess_std.c
+@@ -295,7 +295,7 @@ int futex_atomic_op(int op, int __user *
+ {
+ 	int oldval = 0, newval, ret;
  
- #ifdef CONFIG_CPUSETS
+-	inc_preempt_count();
++	pagefault_disable();
  
-+extern int cpuset_hotplug_update_sched_domains(void);
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -321,7 +321,7 @@ int futex_atomic_op(int op, int __user *
+ 	default:
+ 		ret = -ENOSYS;
+ 	}
+-	dec_preempt_count();
++	pagefault_enable();
+ 	*old = oldval;
+ 	return ret;
+ }
+Index: linux-2.6/arch/sparc/mm/highmem.c
+===================================================================
+--- linux-2.6.orig/arch/sparc/mm/highmem.c
++++ linux-2.6/arch/sparc/mm/highmem.c
+@@ -35,7 +35,7 @@ void *kmap_atomic(struct page *page, enu
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -70,8 +70,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	unsigned long idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < FIXADDR_START) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -97,8 +96,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ #endif
+ #endif
+ 
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ /* We may be fed a pagetable here by ptep_to_xxx and others. */
+Index: linux-2.6/include/asm-frv/highmem.h
+===================================================================
+--- linux-2.6.orig/include/asm-frv/highmem.h
++++ linux-2.6/include/asm-frv/highmem.h
+@@ -115,7 +115,7 @@ static inline void *kmap_atomic(struct p
+ {
+ 	unsigned long paddr;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	paddr = page_to_phys(page);
+ 
+ 	switch (type) {
+@@ -170,8 +170,7 @@ static inline void kunmap_atomic(void *k
+ 	default:
+ 		BUG();
+ 	}
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+Index: linux-2.6/include/asm-generic/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-generic/futex.h
++++ linux-2.6/include/asm-generic/futex.h
+@@ -21,7 +21,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -33,7 +33,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-i386/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/futex.h
++++ linux-2.6/include/asm-i386/futex.h
+@@ -56,7 +56,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	if (op == FUTEX_OP_SET)
+ 		__futex_atomic_op1("xchgl %0, %2", ret, oldval, uaddr, oparg);
+@@ -88,7 +88,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		}
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-ia64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/futex.h
++++ linux-2.6/include/asm-ia64/futex.h
+@@ -59,7 +59,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -83,7 +83,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-mips/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-mips/futex.h
++++ linux-2.6/include/asm-mips/futex.h
+@@ -86,7 +86,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -113,7 +113,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-parisc/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-parisc/futex.h
++++ linux-2.6/include/asm-parisc/futex.h
+@@ -21,7 +21,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -33,7 +33,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-powerpc/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-powerpc/futex.h
++++ linux-2.6/include/asm-powerpc/futex.h
+@@ -43,7 +43,7 @@ static inline int futex_atomic_op_inuser
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -65,7 +65,7 @@ static inline int futex_atomic_op_inuser
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-ppc/highmem.h
+===================================================================
+--- linux-2.6.orig/include/asm-ppc/highmem.h
++++ linux-2.6/include/asm-ppc/highmem.h
+@@ -79,7 +79,7 @@ static inline void *kmap_atomic(struct p
+ 	unsigned long vaddr;
+ 
+ 	/* even !CONFIG_PREEMPT needs this, for in_atomic in do_page_fault */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	if (!PageHighMem(page))
+ 		return page_address(page);
+ 
+@@ -101,8 +101,7 @@ static inline void kunmap_atomic(void *k
+ 	unsigned int idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+ 	if (vaddr < KMAP_FIX_BEGIN) { // FIXME
+-		dec_preempt_count();
+-		preempt_check_resched();
++		pagefault_enable();
+ 		return;
+ 	}
+ 
+@@ -115,8 +114,7 @@ static inline void kunmap_atomic(void *k
+ 	pte_clear(&init_mm, vaddr, kmap_pte+idx);
+ 	flush_tlb_page(NULL, vaddr);
+ #endif
+-	dec_preempt_count();
+-	preempt_check_resched();
++	pagefault_enable();
+ }
+ 
+ static inline struct page *kmap_atomic_to_page(void *ptr)
+Index: linux-2.6/include/asm-sparc64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc64/futex.h
++++ linux-2.6/include/asm-sparc64/futex.h
+@@ -45,7 +45,7 @@ static inline int futex_atomic_op_inuser
+ 	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
+ 		oparg = 1 << oparg;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -67,7 +67,7 @@ static inline int futex_atomic_op_inuser
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/asm-x86_64/futex.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/futex.h
++++ linux-2.6/include/asm-x86_64/futex.h
+@@ -55,7 +55,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 
+ 	switch (op) {
+ 	case FUTEX_OP_SET:
+@@ -78,7 +78,7 @@ futex_atomic_op_inuser (int encoded_op, 
+ 		ret = -ENOSYS;
+ 	}
+ 
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (!ret) {
+ 		switch (cmp) {
+Index: linux-2.6/include/linux/uaccess.h
+===================================================================
+--- linux-2.6.orig/include/linux/uaccess.h
++++ linux-2.6/include/linux/uaccess.h
+@@ -1,8 +1,43 @@
+ #ifndef __LINUX_UACCESS_H__
+ #define __LINUX_UACCESS_H__
+ 
++#include <linux/preempt.h>
+ #include <asm/uaccess.h>
+ 
++/*
++ * These routines enable/disable the pagefault handler in that
++ * it will not take any locks and go straight to the fixup table.
++ *
++ * They have great resemblance to the preempt_disable/enable calls
++ * and in fact they are identical; this is because currently there is
++ * no other way to make the pagefault handlers do this. So we do
++ * disable preemption but we don't necessarily care about that.
++ */
++static inline void pagefault_disable(void)
++{
++	inc_preempt_count();
++	/*
++	 * make sure to have issued the store before a pagefault
++	 * can hit.
++	 */
++	barrier();
++}
 +
- extern int number_of_cpusets;	/* How many cpusets are defined in system? */
++static inline void pagefault_enable(void)
++{
++	/*
++	 * make sure to issue those last loads/stores before enabling
++	 * the pagefault handler again.
++	 */
++	barrier();
++	dec_preempt_count();
++	/*
++	 * make sure we do..
++	 */
++	barrier();
++	preempt_check_resched();
++}
++
+ #ifndef ARCH_HAS_NOCACHE_UACCESS
  
- extern int cpuset_init_early(void);
+ static inline unsigned long __copy_from_user_inatomic_nocache(void *to,
+@@ -35,9 +70,9 @@ static inline unsigned long __copy_from_
+ 	({						\
+ 		long ret;				\
+ 							\
+-		inc_preempt_count();			\
++	 	pagefault_disable();			\
+ 		ret = __get_user(retval, addr);		\
+-		dec_preempt_count();			\
++		pagefault_enable();			\
+ 		ret;					\
+ 	})
+ 
+Index: linux-2.6/kernel/futex.c
+===================================================================
+--- linux-2.6.orig/kernel/futex.c
++++ linux-2.6/kernel/futex.c
+@@ -282,9 +282,9 @@ static inline int get_futex_value_locked
+ {
+ 	int ret;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	ret = __copy_from_user_inatomic(dest, from, sizeof(u32));
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	return ret ? -EFAULT : 0;
+ }
+@@ -585,9 +585,9 @@ static int wake_futex_pi(u32 __user *uad
+ 	if (!(uval & FUTEX_OWNER_DIED)) {
+ 		newval = FUTEX_WAITERS | new_owner->pid;
+ 
+-		inc_preempt_count();
++		pagefault_disable();
+ 		curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
+-		dec_preempt_count();
++		pagefault_enable();
+ 		if (curval == -EFAULT)
+ 			return -EFAULT;
+ 		if (curval != uval)
+@@ -618,9 +618,9 @@ static int unlock_futex_pi(u32 __user *u
+ 	 * There is no waiter, so we unlock the futex. The owner died
+ 	 * bit has not to be preserved here. We are the owner:
+ 	 */
+-	inc_preempt_count();
++	pagefault_disable();
+ 	oldval = futex_atomic_cmpxchg_inatomic(uaddr, uval, 0);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (oldval == -EFAULT)
+ 		return oldval;
+@@ -1158,9 +1158,9 @@ static int futex_lock_pi(u32 __user *uad
+ 	 */
+ 	newval = current->pid;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	curval = futex_atomic_cmpxchg_inatomic(uaddr, 0, newval);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (unlikely(curval == -EFAULT))
+ 		goto uaddr_faulted;
+@@ -1183,9 +1183,9 @@ static int futex_lock_pi(u32 __user *uad
+ 	uval = curval;
+ 	newval = uval | FUTEX_WAITERS;
+ 
+-	inc_preempt_count();
++	pagefault_disable();
+ 	curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
+-	dec_preempt_count();
++	pagefault_enable();
+ 
+ 	if (unlikely(curval == -EFAULT))
+ 		goto uaddr_faulted;
+@@ -1215,10 +1215,10 @@ static int futex_lock_pi(u32 __user *uad
+ 			newval = current->pid |
+ 				FUTEX_OWNER_DIED | FUTEX_WAITERS;
+ 
+-			inc_preempt_count();
++			pagefault_disable();
+ 			curval = futex_atomic_cmpxchg_inatomic(uaddr,
+ 							       uval, newval);
+-			dec_preempt_count();
++			pagefault_enable();
+ 
+ 			if (unlikely(curval == -EFAULT))
+ 				goto uaddr_faulted;
+@@ -1390,9 +1390,9 @@ retry_locked:
+ 	 * anyone else up:
+ 	 */
+ 	if (!(uval & FUTEX_OWNER_DIED)) {
+-		inc_preempt_count();
++		pagefault_disable();
+ 		uval = futex_atomic_cmpxchg_inatomic(uaddr, current->pid, 0);
+-		dec_preempt_count();
++		pagefault_enable();
+ 	}
+ 
+ 	if (unlikely(uval == -EFAULT))
 
---------------000800040204020706000403--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+

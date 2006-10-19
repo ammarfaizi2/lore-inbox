@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946652AbWJSXJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946653AbWJSXKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946652AbWJSXJV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 19:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946654AbWJSXJV
+	id S1946653AbWJSXKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 19:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946654AbWJSXKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 19:09:21 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:62618 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1946652AbWJSXJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 19:09:20 -0400
-Date: Thu, 19 Oct 2006 16:09:00 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Nick Piggin <npiggin@suse.de>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, akpm@osdl.org
-Subject: Re: + fs-prepare_write-fixes.patch added to -mm tree
-Message-ID: <20061019230900.GE10128@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <200610182150.k9ILoLNk019702@shell0.pdx.osdl.net> <20061019014209.GA10128@ca-server1.us.oracle.com> <20061019052537.GA15687@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061019052537.GA15687@wotan.suse.de>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Thu, 19 Oct 2006 19:10:34 -0400
+Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:12252 "EHLO
+	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
+	id S1946653AbWJSXKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 19:10:34 -0400
+Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
+	[version 3]
+From: Adam Belay <abelay@MIT.EDU>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20061019154128.GD2602@parisc-linux.org>
+References: <20061017145146.GJ22289@parisc-linux.org>
+	 <20061019154128.GD2602@parisc-linux.org>
+Content-Type: text/plain
+Date: Thu, 19 Oct 2006 19:13:56 -0400
+Message-Id: <1161299636.16080.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.217
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 07:25:37AM +0200, Nick Piggin wrote:
-> I sent an RFC to linux-fsdevel, did you get that?
-Yeah, I don't think I thought of my concerns at the time.
+On Thu, 2006-10-19 at 09:41 -0600, Matthew Wilcox wrote:
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+
+Acked-by: Adam Belay <abelay@novell.com>
+
+It would be nice if we had sysfs expose struct file at some point... :)
+
+Thanks,
+Adam
 
 
-> I was planning to cc some maintainers, including you, for those
-> filesystems that are non-trivial. I just hadn't had a chance to
-> test it properly last night.
-Cool, I appreciate that.
-
-
-> OK thanks for looking at that. If the length of the commit is greater
-> than 0 (but still short), then the page is uptodate so it should be
-> fine to commit what we have written, I think?
-That seems to make sense to me.
-
- 
-> If the length is zero, then we probably want to roll back entirely.
-The thing is, rollback might be hard (or expensive) for some file systems
-with more complicated tree implementations, etc.
-
-Do we have the option in this case of just zeroing the newly allocated
-portions and writing them out? Userspace would then just be seeing
-that like any other hole.
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com

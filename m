@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945927AbWJSOO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945962AbWJSOP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945927AbWJSOO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945934AbWJSOO0
+	id S1945962AbWJSOP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945960AbWJSOP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:14:26 -0400
-Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:48145 "EHLO
-	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1945927AbWJSOOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:14:25 -0400
-Message-ID: <4537883F.4000305@xs4all.nl>
-Date: Thu, 19 Oct 2006 16:14:23 +0200
-From: Udo van den Heuvel <udovdh@xs4all.nl>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Thu, 19 Oct 2006 10:15:27 -0400
+Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:63161 "EHLO
+	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S1945934AbWJSOPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:15:24 -0400
+Message-ID: <45378879.1030600@cc.kuleuven.be>
+Date: Thu, 19 Oct 2006 16:15:21 +0200
+From: Rik Bobbaers <Rik.Bobbaers@cc.kuleuven.be>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 w/ GPS time source: worse performance
-References: <4534F5F7.8020003@xs4all.nl> <1161103616.2919.70.camel@mindpipe> <45364631.9070805@xs4all.nl> <1161189384.15860.85.camel@mindpipe>            <45365A0B.5030306@xs4all.nl> <200610181957.k9IJvw4m013149@turing-police.cc.vt.edu>
-In-Reply-To: <200610181957.k9IJvw4m013149@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=8300CC02
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: acpi pci hotplug bug
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 18 Oct 2006 18:44:59 +0200, Udo van den Heuvel said:
->> It is stuff that is visible by watching ntpq -pn output, by letting mrtg
->> graph stuff, etc. Watch the offset and jitter collumns.
->> Check /usr/sbin/ntpdc -c kerninfo output. Graph that stuff.
-> 
-> So... you've presumably done that while identifying there is an issue.
-> Please share the results.  Have you tried booting back into a 2.6.17
-> or so and seen offset/jitter improve?  etc etc etc.
+hey all,
 
-Did not yet try 2.6.17 again since I only shortly have been looking into
-this issue.
-Other people also see worse performance with 2.6.18 so the need to do
-the 2.6.17 thing is a bit less.
+i have a problem when booting the 2.6.18.1 kernel.
+
+namely: http://www.kuleuven.be/harry/kern.log
+
+on http://www.kuleuven.be/harry/index.html you find all the info i think 
+might be useful for further analysing the problem. i checked on 
+#kernelnewbies , and they pointed me here...
+
+can you please answer to my address too, since i'm not subscribed to 
+lkml. (i don't know if i really need pci hotplug, but if it's a bug (and 
+i think it is), it needs to be fixed, right? ;)
+
+thanks!
+
+-- 
+harry
+aka Rik Bobbaers
+
+K.U.Leuven - LUDIT          -=- Tel: +32 485 52 71 50
+Rik.Bobbaers@cc.kuleuven.be -=- http://harry.ulyssis.org
+
+thinking always leads to conclusions... and those can be extremely dangerous
+-- me ;)
+
+Disclaimer: http://www.kuleuven.be/cwis/email_disclaimer.htm
+

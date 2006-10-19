@@ -1,55 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422963AbWJSN6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422978AbWJSOAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422963AbWJSN6W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 09:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422981AbWJSN6W
+	id S1422978AbWJSOAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422992AbWJSOAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 09:58:22 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:6586 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1422963AbWJSN6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 09:58:21 -0400
-Message-ID: <45378476.4020403@qumranet.com>
-Date: Thu, 19 Oct 2006 15:58:14 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 19 Oct 2006 10:00:15 -0400
+Received: from mga01.intel.com ([192.55.52.88]:9272 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1422978AbWJSOAM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:00:12 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,330,1157353200"; 
+   d="scan'208"; a="148959418:sNHT1624185521"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com>
-In-Reply-To: <4537818D.4060204@qumranet.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2006 13:58:17.0748 (UTC) FILETIME=[A0E9C540:01C6F386]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: speedstep-centrino: ENODEV
+Date: Thu, 19 Oct 2006 07:00:07 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A8454C1A223@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: speedstep-centrino: ENODEV
+Thread-Index: Acby6q9Mc0GIE1lDRieZtRgqqXZU/AAnBroQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>,
+       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>
+Cc: <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 19 Oct 2006 14:00:09.0009 (UTC) FILETIME=[E33ADA10:01C6F386]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote, but forgot to attach the diffstat:
-> The following patchset adds a driver for Intel's hardware virtualization
-> extensions to the x86 architecture.  The driver adds a character device
-> (/dev/kvm) that exposes the virtualization capabilities to userspace.  Using
-> this driver, a process can run a virtual machine (a "guest") in a fully
-> virtualized PC containing its own virtual hard disks, network adapters, and
-> display.
+
+How about acpi-cpufreq? Does it work?
+
+Thanks,
+Venki 
+
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jiri Slaby
+>Sent: Wednesday, October 18, 2006 12:01 PM
+>To: Linux kernel mailing list
+>Cc: linux-acpi@vger.kernel.org
+>Subject: speedstep-centrino: ENODEV
 >
->   
-[...]
-
- drivers/Kconfig           |    2
- drivers/Makefile          |    1
- drivers/kvm/Kconfig       |   22
- drivers/kvm/Makefile      |    6
- drivers/kvm/kvm.h         |  387 +++++
- drivers/kvm/kvm_main.c    | 3405
-++++++++++++++++++++++++++++++++++++++++++++++
- drivers/kvm/mmu.c         |  718 +++++++++
- drivers/kvm/paging_tmpl.h |  378 +++++
- drivers/kvm/vmx.h         |  287 +++
- drivers/kvm/x86_emulate.c | 1370 ++++++++++++++++++
- drivers/kvm/x86_emulate.h |  185 ++
- include/linux/kvm.h       |  202 ++
- 12 files changed, 6963 insertions(+)
-
--- 
-error compiling committee.c: too many arguments to function
-
+>Hi!
+>
+>How is it possible to find out whether or not 
+>speedstep-centrino is supported. I 
+>have
+>processor       : 0
+>vendor_id       : GenuineIntel
+>cpu family      : 6
+>model           : 13
+>model name      : Intel(R) Pentium(R) M processor 1.60GHz
+>stepping        : 6
+>cpu MHz         : 1600.149
+>cache size      : 2048 KB
+>fdiv_bug        : no
+>hlt_bug         : no
+>f00f_bug        : no
+>coma_bug        : no
+>fpu             : yes
+>fpu_exception   : yes
+>cpuid level     : 2
+>wp              : yes
+>flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr 
+>pge mca cmov pat 
+>clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
+>bogomips        : 3201.52
+>
+>processor, but speedstep-centrino returns ENODEV because of 
+>lack of _PCT et al 
+>entries in DSDT (http://www.fi.muni.cz/~xslaby/sklad/adump). 
+>It is possible to 
+>hard-code that values to speedstep-centrino as for banias cpus 
+>or use corrected 
+>DSDT that will contain _PCT, _PSS and _PPC, but where may I 
+>obtain these values?
+>
+>This is Asus M6R notebook, some DSDT parts of this piece of HW 
+>are really ugly 
+>(problems with acpi some time ago).
+>
+>I may use p4-clockmod (and it points me to speedstep-centrino 
+>module), but if I 
+>am correct, it doesn't save battery life?
+>
+>thanks,
+>-- 
+>http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+>faculty of informatics, masaryk university, brno, cz
+>e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+>B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

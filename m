@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423009AbWJSRSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946262AbWJSRTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423009AbWJSRSL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423016AbWJSRSL
+	id S1946262AbWJSRTs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946269AbWJSRTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:18:11 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:18915 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1423009AbWJSRSI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:18:08 -0400
-Date: Thu, 19 Oct 2006 10:17:27 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: 2.6.19-rc2-mm1 // errors in verify_redzone_free()
-Message-ID: <20061019171727.GA9350@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061016230645.fed53c5b.akpm@osdl.org> <200610191645.40308.m.kozlowski@tuxland.pl> <20061019100342.4e4895fb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061019100342.4e4895fb.akpm@osdl.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+	Thu, 19 Oct 2006 13:19:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61894 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946258AbWJSRT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:19:26 -0400
+Message-Id: <20061019171814.026676621@osdl.org>
+References: <20061019171541.062261760@osdl.org>
+User-Agent: quilt/0.45-1
+Date: Thu, 19 Oct 2006 10:15:42 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] netpoll: initialize skb for UDP
+Content-Disposition: inline; filename=netpoll-protofix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 10:03:42AM -0700, Andrew Morton wrote:
-> On Thu, 19 Oct 2006 16:45:39 +0200
-> Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
-> 
-> > Hello,
-> > 
-> > 	Multiple of verif were found with 2.6.19-rc2-mm1 kernel:
-> > 
-> > slab error in verify_redzone_free(): cache `size-32': memory outside object 
-> > was overwritten
-> >  [<c0103765>] dump_trace+0x1c1/0x1f1
-> >  [<c01037af>] show_trace_log_lvl+0x1a/0x30
-> >  [<c0103ed8>] show_trace+0x12/0x14
-> >  [<c0103f7b>] dump_stack+0x19/0x1b
-> >  [<c0158357>] __slab_error+0x26/0x28
-> >  [<c0158496>] cache_free_debugcheck+0x13d/0x1d8
-> >  [<c0158bb0>] kfree+0x54/0xa5
-> >  [<c037fba4>] ioctl_standard_call+0x187/0x2a1
-> >  [<c037ffe6>] wireless_process_ioctl+0x328/0x3c7
-> >  [<c03763d4>] dev_ioctl+0x1fd/0x372
-> >  [<c036b080>] sock_ioctl+0x34/0x1e8
-> >  [<c0167a92>] do_ioctl+0x22/0x71
-> >  [<c0167b36>] vfs_ioctl+0x55/0x29b
-> >  [<c0167daf>] sys_ioctl+0x33/0x50
-> >  [<c0102ff5>] sysenter_past_esp+0x56/0x79
-> >  [<b7f4e410>] 0xb7f4e410
-> >  =======================
-> > dd20cb64: redzone 1:0x170fc2a5, redzone 2:0x170fc200.
-> > slab error in verify_redzone_free(): cache `size-32': memory outside object 
-> > was overwritten
-> >  [<c0103765>] dump_trace+0x1c1/0x1f1
-> >  [<c01037af>] show_trace_log_lvl+0x1a/0x30
-> >  [<c0103ed8>] show_trace+0x12/0x14
-> >  [<c0103f7b>] dump_stack+0x19/0x1b
-> >  [<c0158357>] __slab_error+0x26/0x28
-> >  [<c0158496>] cache_free_debugcheck+0x13d/0x1d8
-> >  [<c0158bb0>] kfree+0x54/0xa5
-> >  [<c037fba4>] ioctl_standard_call+0x187/0x2a1
-> >  [<c037ffe6>] wireless_process_ioctl+0x328/0x3c7
-> >  [<c03763d4>] dev_ioctl+0x1fd/0x372
-> >  [<c036b080>] sock_ioctl+0x34/0x1e8
-> >  [<c0167a92>] do_ioctl+0x22/0x71
-> >  [<c0167b36>] vfs_ioctl+0x55/0x29b
-> >  [<c0167daf>] sys_ioctl+0x33/0x50 
-> >  [<c0102ff5>] sysenter_past_esp+0x56/0x79
-> >  [<b7f4e410>] 0xb7f4e410
-> 
-> The wireless ioctls are still blowing up?  I thought we'd fixed that,
-> or is this something new?
+Need to fully initialize skb to keep lower layers and queueing happy.
 
-	Do you know which driver the user is using ? Is it an
-in-kernel driver, or an out-of-kernel driver ?
-	Thanks !
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-	Jean
+--- linux-2.6.orig/net/core/netpoll.c	2006-10-18 15:26:36.000000000 -0700
++++ linux-2.6/net/core/netpoll.c	2006-10-19 08:28:04.000000000 -0700
+@@ -331,13 +331,13 @@
+ 	memcpy(skb->data, msg, len);
+ 	skb->len += len;
+ 
+-	udph = (struct udphdr *) skb_push(skb, sizeof(*udph));
++	skb->h.uh = udph = (struct udphdr *) skb_push(skb, sizeof(*udph));
+ 	udph->source = htons(np->local_port);
+ 	udph->dest = htons(np->remote_port);
+ 	udph->len = htons(udp_len);
+ 	udph->check = 0;
+ 
+-	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
++	skb->nh.iph = iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
+ 
+ 	/* iph->version = 4; iph->ihl = 5; */
+ 	put_unaligned(0x45, (unsigned char *)iph);
+@@ -353,8 +353,8 @@
+ 	iph->check    = ip_fast_csum((unsigned char *)iph, iph->ihl);
+ 
+ 	eth = (struct ethhdr *) skb_push(skb, ETH_HLEN);
+-
+-	eth->h_proto = htons(ETH_P_IP);
++	skb->mac.raw = skb->data;
++	skb->protocol = eth->h_proto = htons(ETH_P_IP);
+ 	memcpy(eth->h_source, np->local_mac, 6);
+ 	memcpy(eth->h_dest, np->remote_mac, 6);
+ 
+
+--
+

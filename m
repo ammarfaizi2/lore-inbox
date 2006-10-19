@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946168AbWJSQfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946194AbWJSQgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946168AbWJSQfd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 12:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946194AbWJSQfd
+	id S1946194AbWJSQgE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 12:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946210AbWJSQgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 12:35:33 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:14048 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1946168AbWJSQfb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 12:35:31 -0400
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 1/3] Fix COW D-cache aliasing on fork
-Date: Thu, 19 Oct 2006 17:35:46 +0100
-Message-Id: <1161275748231-git-send-email-ralf@linux-mips.org>
-X-Mailer: git-send-email 1.4.2.4
+	Thu, 19 Oct 2006 12:36:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:36885 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946209AbWJSQf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 12:35:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bWmChnUSW3k8IW4zJoLCaPQ/Y2BbpWoGZvZYM2WXj+chwaD+vZfFAMa+WMdyYX2Y3lO0Vo6cXMSKQf8rro4jW4x2Tz+5HB0QeUZ4wCFRtT5MoW88SSy+fGzXnw2+BAxXuhvW/HVc+Nvkh66uKh3wKRzTO1iE6iVRLeq72lZovVo=
+Message-ID: <c43b2e150610190935tefd11eev510c7dee36c15a51@mail.gmail.com>
+Date: Thu, 19 Oct 2006 18:35:56 +0200
+From: wixor <wixorpeek@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VCD not readable under 2.6.18
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1161124732.5014.20.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
+	 <1161040345.24237.135.camel@localhost.localdomain>
+	 <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
+	 <1161124732.5014.20.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+On 10/18/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Now where it all gets weirder is that some forms of VCD (especially the
+> ones for philips short lived interactive stuff) have an ISO file system
+> on them but where sector numbers in the file system for video blocks
+> point to blocks that are not 2K data blocks but mpeg blocks that the
+> file system layer can't handle, so a VCD disk can appear mountable and
+> the like.
+OK, but this is still mountable only from windows....... Is this ISO
+filesystem hidden somewhere, or what? And that still does not explain
+errors from xine, and the 8 megs that i actually can read using dd.
+All after all - even if this disc would contain totally unsupported
+tracks, with absolutly weird data, kernel should recognize it and
+report something like:
+cdrom: there are no tracks on hda i can recognize
+(or something like that). If the errors do happen, it means kernel
+thinks he can read the data, and he actually can't, yes? Is here
+anything I can do to improve support of this disc under linux, or is
+this just another hell-knows-what thing, the kernel implementation is
+ok, and this is only some m$-dontated extension that prevents us from
+accessing this disc? Even if it is, shouldn't it be implemented if it
+is possible?
 
-Problem:
-
-1. There is a process containing two thread (T1 and T2).  The
-   thread T1 calls fork().  Then dup_mmap() function called on T1 context.
-
-static inline int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
-	...
-	flush_cache_mm(current->mm);
-	...	/* A */
-	(write-protect all Copy-On-Write pages)
-	...	/* B */
-	flush_tlb_mm(current->mm);
-	...
-
-2. When preemption happens between A and B (or on SMP kernel), the
-   thread T2 can run and modify data on COW pages without page fault
-   (modified data will stay in cache).
-
-3. Some time after fork() completed, the thread T2 may cause a page
-   fault by write-protect on a COW page.
-
-4. Then data of the COW page will be copied to newly allocated
-   physical page (copy_cow_page()).  It reads data via kernel mapping.
-   The kernel mapping can have different 'color' with user space
-   mapping of the thread T2 (dcache aliasing).  Therefore
-   copy_cow_page() will copy stale data.  Then the modified data in
-   cache will be lost.
-
-In order to allow architecture code to deal with this problem allow
-architecture code to override copy_user_highpage() by defining
-__HAVE_ARCH_COPY_USER_HIGHPAGE in <asm/page.h>.
-
-The main part of this patch was originally written by Ralf Baechle;
-Atushi Nemoto did the the debugging.
-
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-
- include/linux/highmem.h |    4 ++++
- 1 file changed, 4 insertions(+)
-
-Index: upstream-linus/include/linux/highmem.h
-===================================================================
---- upstream-linus.orig/include/linux/highmem.h	2006-10-17 00:14:43.000000000 +0100
-+++ upstream-linus/include/linux/highmem.h	2006-10-17 00:15:21.000000000 +0100
-@@ -94,6 +94,8 @@ static inline void memclear_highpage_flu
- 	kunmap_atomic(kaddr, KM_USER0);
- }
- 
-+#ifndef __HAVE_ARCH_COPY_USER_HIGHPAGE
-+
- static inline void copy_user_highpage(struct page *to, struct page *from, unsigned long vaddr)
- {
- 	char *vfrom, *vto;
-@@ -107,6 +109,8 @@ static inline void copy_user_highpage(st
- 	smp_wmb();
- }
- 
-+#endif
-+
- static inline void copy_highpage(struct page *to, struct page *from)
- {
- 	char *vfrom, *vto;
+Thanks
+--
+wixor

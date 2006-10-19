@@ -1,34 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbWJSIME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWJSIP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751571AbWJSIME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 04:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWJSIME
+	id S1751578AbWJSIP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 04:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWJSIP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 04:12:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50310 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751571AbWJSIMA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 04:12:00 -0400
-Date: Thu, 19 Oct 2006 01:11:52 -0700
+	Thu, 19 Oct 2006 04:15:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8143 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751578AbWJSIP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 04:15:58 -0400
+Date: Thu, 19 Oct 2006 01:15:46 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
-Subject: Re: exclusive cpusets broken with cpu hotplug
-Message-Id: <20061019011152.752f9657.pj@sgi.com>
-In-Reply-To: <45373241.5060203@yahoo.com.au>
-References: <20061017192547.B19901@unix-os.sc.intel.com>
-	<20061018001424.0c22a64b.pj@sgi.com>
-	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
-	<20061018031021.9920552e.pj@sgi.com>
-	<45361B32.8040604@yahoo.com.au>
-	<20061018231559.8d3ede8f.pj@sgi.com>
-	<45371CBB.2030409@yahoo.com.au>
-	<20061018235746.95343e77.pj@sgi.com>
-	<4537238A.7060106@yahoo.com.au>
-	<20061019003405.15a4dd8c.pj@sgi.com>
-	<45373241.5060203@yahoo.com.au>
+Cc: suresh.b.siddha@intel.com, dino@in.ibm.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
+       rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
+Message-Id: <20061019011546.39c7a8df.pj@sgi.com>
+In-Reply-To: <453732CF.7050801@yahoo.com.au>
+References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com>
+	<20061017114306.A19690@unix-os.sc.intel.com>
+	<20061017121823.e6f695aa.pj@sgi.com>
+	<20061017190144.A19901@unix-os.sc.intel.com>
+	<20061018000512.1d13aabd.pj@sgi.com>
+	<45371D96.8060003@yahoo.com.au>
+	<20061019000303.f9d883e4.pj@sgi.com>
+	<453732CF.7050801@yahoo.com.au>
 Organization: SGI
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -37,26 +34,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Paul Jackson wrote:
-> > Nick wrote:
-> > 
-> >>(we simply shouldn't allow
-> >>situations where we put a partition in the middle of a cpuset).
-> > 
-> > 
-> > Could you explain to me what you mean by "put a partition in the
-> > middle of a cpuset?"
-> > 
-> 
-> Your example, if a partition is created for each of the sub cpusets.
+> But please don't let *users* try to deal with it.
 
-The thing "we simply shouldn't allow", then, is the bread and
-butter of cpusets.
+Agreed - that's why I am about to send a patch that removes
+the sched domain side affects of the cpu_exclusive flag.
 
-I am convinced that we are trying to pound nails with toothpicks.
-
-The cpu_exclusive flag was the wrong flag to overload to define
-sched domains.
+Well, not entirely agreed.  User space code does need
+to be able to specify some cpus as isolated from scheduler
+balancing.  I will send a second patch to support that.
 
 -- 
                   I won't rest till it's the best ...

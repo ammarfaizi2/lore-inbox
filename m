@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946388AbWJSTEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946384AbWJSTJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946388AbWJSTEf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946382AbWJSTEN
+	id S1946384AbWJSTJM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946386AbWJSTJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 15:04:13 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10166 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946386AbWJSTEJ (ORCPT
+	Thu, 19 Oct 2006 15:09:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:38314 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1946384AbWJSTJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:04:09 -0400
-Date: Thu, 19 Oct 2006 12:03:58 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Message-Id: <20061019120358.6d302ae9.pj@sgi.com>
-In-Reply-To: <4537527B.5050401@yahoo.com.au>
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
-	<4537527B.5050401@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 15:09:10 -0400
+Message-ID: <4537CD54.8020006@us.ibm.com>
+Date: Thu, 19 Oct 2006 14:09:08 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com> <4537C807.4@us.ibm.com> <4537CC24.2070708@qumranet.com>
+In-Reply-To: <4537CC24.2070708@qumranet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> You shouldn't need to, assuming cpusets doesn't mess it up.
+Avi Kivity wrote:
+> Anthony Liguori wrote:
+>> Sorry if I missed this, but can you provide a link to the QEMU changes?
+>>
+>
+> I'll do that once I get my sourceforge page and post it here.  Watch 
+> this space.
+>
+>
+>> It's hard to tell what's going on without seeing the userspace 
+>> portions of this.
+>>
+>> My initial impression is that you've taken the Xen approach of trying 
+>> to use QEMU only for IO emulation.  If this is the case, it won't 
+>> work long term.  While you can use vm86 mode for 16 bit 
+>> virtualization for most cases, it cannot handle big real mode.  You 
+>> need the ability to transfer down to QEMU and allow it to do emulation.
+>>
+>
+> We started using VT only for 64 bit, then added 32 bit, then 16-bit 
+> protected, then vm86 and real mode.  We'd transfer the x86 state on 
+> each mode change, but it was (a) fragile (b) considered unclean.
+>
+> You're right that "big real" mode is not supported, but so far that 
+> hasn't been a problem.  Do you know of an OS that needs big real mode?
 
-I'm guessing we're agreeing that the routines update_cpu_domains()
-and related code in kernel/cpuset.c are messing things up.
+AFAIK the SLES boot splash patches to grub use it.  It's definitely a 
+requirement.  Currently, there is an effort in Xen to use QEMU for 
+partial emulation.  Hopefully, it will be there for the next release.
 
-I view that code as a failed intrustion of some sched domain code into
-cpusets, and apparently you view that code as a failed attempt to
-manage sched domains coming from cpusets.
+Allowing QEMU to do emulation also will help with IO performance.  
+Instead of having to take many trips to userspace for MMIO especially, 
+you can allow QEMU to execute a certain number of basic blocks and then 
+return.  Minimizing trips between userspace and the kernel is going to 
+be critical performance wise.
 
-Oh well ... finger pointing is such fun ;).
+>> Ideally, instead of having as large of an x86 emulator in kernel 
+>> space, you would just drop down to QEMU to do emulation as needed 
+>> (doing only a single basic block and returning).  This would let you 
+>> have a much reduced partial emulator in kernel space that only did 
+>> the most common (and performance critical) instructions.
+>>
+>
+> Over time that emulator would grow as OSes and compilers evolve... and 
+> we'd really like to keep basic things like the apic in the kernel (as 
+> does Xen).
 
-(Fortunately I've forgotten who wrote these routines ... best
-I don't know.  Whoever you are, don't take it personally.  It
-was nice clean code, caught between the rock and the flood.)
+I've been tossing around the idea of doing partial IO emulation in the 
+kernel.  If you could sync the device states between userspace and 
+kernel, it should be possible.  Given that the you're already in the 
+kernel at VMEXIT time, if you could feed something right to the block 
+driver or network driver, you ought to be able to get pretty darn good 
+performance.
 
+However, I do agree that it's better to start simple.  I actually think 
+you could simplify more by using QEMU for more instruction emulation and 
+focus only on the hand full of instructions in the critical path for the 
+kernel.
 
-> +	non_partitioned = top_cpuset.cpus_allowed;
-> +	update_cpu_domains_children(&top_cpuset, &non_partitioned);
-> +	partition_sched_domains(&non_partitioned);
+Regards,
 
-So ... instead of throwing the baby out, you want to replace it
-with a puppy.  If one attempt to overload cpu_exclusive didn't
-work, try another.
+Anthony Liguori
 
-I have two problems with this.
-
-1) I haven't found any need for this, past the need to mark some
-   CPUs as isolated from the scheduler balancing code, which we
-   seem to be agreeing on, more or less, on another patch.
-
-   Please explain why we need this or any such mechanism for user
-   space to affect sched domain partitioning.
-
-2) I've had better luck with the cpuset API by adding new flags
-   when I needed some additional semantics, rather than overloading
-   existing flags.  So once we figure out what's needed and why,
-   then odds are I will suggest a new flag, specific to that purpose.
-
-   This new flag might well logically depend on the cpu_exclusive
-   setting, if that's useful.  But it would probably be a separate
-   flag or setting.
-
-   I dislike providing explicit mechanisms via implicit side affects.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

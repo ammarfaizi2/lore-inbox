@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423020AbWJSQ51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946227AbWJSQ6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423020AbWJSQ51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 12:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423021AbWJSQ51
+	id S1946227AbWJSQ6m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 12:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946223AbWJSQ6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 12:57:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:5813 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423020AbWJSQ51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 12:57:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm1
-Date: Thu, 19 Oct 2006 18:57:19 +0200
-User-Agent: KMail/1.9.3
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-References: <20061016230645.fed53c5b.akpm@osdl.org> <p73r6x4bi5w.fsf@verdi.suse.de> <20061019091816.e04ae8e7.akpm@osdl.org>
-In-Reply-To: <20061019091816.e04ae8e7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 12:58:42 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:14542 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1423036AbWJSQ6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 12:58:41 -0400
+Date: Thu, 19 Oct 2006 17:58:34 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [RFC] typechecking for get_unaligned/put_unaligned
+Message-ID: <20061019165834.GU29920@ftp.linux.org.uk>
+References: <20061017005025.GF29920@ftp.linux.org.uk> <20061018054242.GA21266@redhat.com> <20061018060500.GI29920@ftp.linux.org.uk> <200610191852.50967.vda.linux@googlemail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610191857.19150.ak@suse.de>
+In-Reply-To: <200610191852.50967.vda.linux@googlemail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Thu, Oct 19, 2006 at 06:52:50PM +0200, Denis Vlasenko wrote:
+> Well, logically for any given .config a set of all kernel header files
+> define a set of typedefs, structs, functions and so on.
+> If only we can read and parse them just once, and then reuse
+> already parsed information when we compile each .c file -
+> that will give you the biggest time savings.
 > 
-> What is the reason for not using an apic/lapic NMI source for the watchdog?
+> gcc has some facility for that ("precompiled headers")
+> http://gcc.gnu.org/onlinedocs/gcc/Precompiled-Headers.html
+> 
+> I don't know how hard it will be to adapt build system to using that
+> and there is a danger that using this thing will increase
+> recompile times when you change just a few CONFIG_XXXs.
 
-That is nmi_watchdog=2. But then the watchdog would run at full HZ frequency and 
-use a lot of CPU time unnecessarily
-
--Andi
+Or when you touch a single header.  A brialliant idea, that.

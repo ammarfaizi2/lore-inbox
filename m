@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946097AbWJSOtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946101AbWJSOvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946097AbWJSOtD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946098AbWJSOtB
+	id S1946101AbWJSOvb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161442AbWJSOvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:49:01 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:5980 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1946097AbWJSOtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:49:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=YqZr0UJLMCIpuqPRfANA0aWr0p5uJYMU2zo/X9ngyHvwCzmnh32/PrMoaxnNQ9pZ9HGgHmUh1tOL7N+6Udvyi4a99TYxNh21M+zn+7Fay1bn9PHU3AxSSzVCbBFhkKI+PcRv5aNnV58RGxbhssxini0Ro3EweSq/YatWMeGRbFs=  ;
-Message-ID: <45379031.601@yahoo.com.au>
-Date: Fri, 20 Oct 2006 00:48:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 19 Oct 2006 10:51:31 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:16566 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1161437AbWJSOv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 10:51:29 -0400
+Message-ID: <453790EC.8080008@qumranet.com>
+Date: Thu, 19 Oct 2006 16:51:24 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, mingo@elte.hu, tglx@linutronix.de
-Subject: Re: + i386-time-avoid-pit-smp-lockups.patch added to -mm tree
-References: <200610112126.k9BLQqKG002529@shell0.pdx.osdl.net> <1161266225.11264.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <45378A35.5020101@yahoo.com.au> <200610191626.10662.ak@suse.de>
-In-Reply-To: <200610191626.10662.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: John Stoffel <john@stoffel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com>	 <17719.35854.477605.398170@smtp.charter.net> <1161269405.17335.80.camel@localhost.localdomain>
+In-Reply-To: <1161269405.17335.80.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Oct 2006 14:51:29.0013 (UTC) FILETIME=[0F0E2A50:01C6F38E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>An SMP kernel can boot on UP hardware, in which case I think
->>num_possible_cpus() will be 1, won't it?
-> 
-> 
-> 0 was a typo, i meant 1 for UP of course. 0 would be nonsensical.
+Alan Cox wrote:
+> Ar Iau, 2006-10-19 am 10:30 -0400, ysgrifennodd John Stoffel:
+>   
+>> Yuck.  ioclts are deprecated, you should be using /sysfs instead for
+>> stuff like this, or configfs.  
+>>     
+>
+>
+> Making sure the ioctl sizes are the same in 32/64bit and aligned the
+> same way is the more important issue.
+>   
 
-Sure, I realised that. For a UP kernel, the test will compile away.
-
-But Daniel seems to say there is dead code that could be compiled
-out for SMP kernels. I just don't think that is possible because the
-SMP kernel can boot a UP system where num_possible_cpus() is 1.
+Yes, pointers are padded and all other types are explicitly sized.  
+Alignment is always natural.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+error compiling committee.c: too many arguments to function
+

@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423255AbWJSGae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945896AbWJSGcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423255AbWJSGae (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 02:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161335AbWJSGae
+	id S1945896AbWJSGcP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 02:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161335AbWJSGcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 02:30:34 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:848 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161334AbWJSGad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 02:30:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=NyDZ4ZCXVEPOFup5CTakPTQEZ/B4c5AOTzGEJQMIQlFeUVEg+J8RA96s4JgSZD3PLdP0lZ2DUJ1x31Sdd9uv3yS1nkcgE5lCcbTujUImAMsWSM5lC3AmUKUUOyNpH4cl3A9Ue/E3RxXGLURZmXWKd3EAdAlcB01uMjSxrsgsTT0=  ;
-Message-ID: <45371B80.7060007@yahoo.com.au>
-Date: Thu, 19 Oct 2006 16:30:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 19 Oct 2006 02:32:14 -0400
+Received: from ns2.suse.de ([195.135.220.15]:65480 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161337AbWJSGcN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 02:32:13 -0400
+From: Neil Brown <neilb@suse.de>
+To: Grant Coady <gcoady.lk@gmail.com>
+Date: Thu, 19 Oct 2006 16:32:02 +1000
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "alpha @ steudten Engineering" <alpha@steudten.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: INFO: possible circular locking dependency detected
-References: <453391A4.5090100@steudten.org>	<4533980C.10403@yahoo.com.au> <20061018230243.6b40e8e8.akpm@osdl.org>
-In-Reply-To: <20061018230243.6b40e8e8.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17719.7138.688743.259430@cse.unsw.edu.au>
+Cc: Al Viro <viro@ftp.linux.org.uk>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] nfs endianness annotations
+In-Reply-To: message from Grant Coady on Thursday October 19
+References: <E1GX7zV-00047C-PO@ZenIV.linux.org.uk>
+	<1161206763.6095.172.camel@lade.trondhjem.org>
+	<17718.51050.186385.512984@cse.unsw.edu.au>
+	<20061019012600.GR29920@ftp.linux.org.uk>
+	<du2ej21g7pkccoe4cigs8r9gsq1ir6nc9p@4ax.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 17 Oct 2006 00:32:44 +1000
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Thursday October 19, grant_lkml@dodo.com.au wrote:
+> On Thu, 19 Oct 2006 02:26:00 +0100, Al Viro <viro@ftp.linux.org.uk> wrote:
 > 
+> >Folks, seriously, please run sparse after changes; it's a simple matter of
+> >make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/; nothing tricky and it saves a lot
+> >of potential PITA...
 > 
->>alpha @ steudten Engineering wrote:
->>
->>>=======================================================
->>>[ INFO: possible circular locking dependency detected ]
->>>2.6.18-1.2189self #1
->>>-------------------------------------------------------
->>>kswapd0/186 is trying to acquire lock:
->>> (&inode->i_mutex){--..}, at: [<c0326e32>] mutex_lock+0x21/0x24
->>>
->>>but task is already holding lock:
->>> (iprune_mutex){--..}, at: [<c0326e32>] mutex_lock+0x21/0x24
->>>
->>>which lock already depends on the new lock.
->>
->>Thanks. __grab_cache_page wants to clear __GFP_FS, because it is
->>holding the i_mutex so we don't want to reenter the filesystem in
->>page reclaim.
+> grant@sempro:~/linux/linux-2.6.19-rc2a$ make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/;
+>   CHK     include/linux/version.h
+>   CHK     include/linux/utsrelease.h
+>   CHECK   scripts/mod/empty.c
+> /bin/sh: sparse: command not found
+> make[2]: *** [scripts/mod/empty.o] Error 127
+> make[1]: *** [scripts/mod] Error 2
+> make: *** [scripts] Error 2
 > 
+> What sparse?  Pointer please?  Hell of a keyword to search for :(
 > 
-> We want to be able to enter page reclaim while holding i_mutex.  Think what
-> the effect of not doing this would be upon write() (!)
-> 
-> This warning is more fallout from ntfs's insistence on taking i_mutex in
-> its clear_inode().  See lengthy and unproductive discussion at
-> http://lkml.org/lkml/2006/7/26/185 .
+> Thanks,
+> Grant.
 
-Yeah you're right. It will be a hot allocation + reclaim path for high
-bandwidth writes.
+git clone  git://git.kernel.org/pub/scm/devel/sparse/sparse.git
+cd sparse
+make
+make install
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+Of course you need git first ... not "GNU Interactive Tools", but
+Linus' SCM.  Most distros have it.
+
+NeilBrown
+
+

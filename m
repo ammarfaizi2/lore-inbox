@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946238AbWJSRJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946254AbWJSRIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946238AbWJSRJc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946252AbWJSRI6
+	id S1946254AbWJSRIw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946259AbWJSRIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:08:58 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:1709 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1946238AbWJSRGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:06:10 -0400
-X-IronPort-AV: i="4.09,330,1157353200"; 
-   d="scan'208"; a="419607096:sNHT18874460"
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-Date: Thu, 19 Oct 2006 13:04:32 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Message-Id: <20061019170432.8171.75076.stgit@lade.trondhjem.org>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
-Subject: [PATCH 01/11] NFSv4: Fix thinko in fs/nfs/super.c
+	Thu, 19 Oct 2006 13:08:51 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:51111 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1946256AbWJSRIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:08:38 -0400
+Message-Id: <200610191707.k9JH7H3P005584@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sysrq-t broke and no one noticed
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-X-OriginalArrivalTime: 19 Oct 2006 17:06:27.0957 (UTC) FILETIME=[EA66F250:01C6F3A0]
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 19 Oct 2006 13:07:17 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
+The meaning of state_filter == 0 got messed up somehow.
 
-Duh. addr.sin_port should be in network byte order.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/nfs/super.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 28659a9..28108c8 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -834,7 +834,7 @@ static int nfs4_get_sb(struct file_syste
- 	}
- 	/* RFC3530: The default port for NFS is 2049 */
- 	if (addr.sin_port == 0)
--		addr.sin_port = NFS_PORT;
-+		addr.sin_port = htons(NFS_PORT);
+Index: linux-2.6.17/kernel/sched.c
+===================================================================
+--- linux-2.6.17.orig/kernel/sched.c
++++ linux-2.6.17/kernel/sched.c
+@@ -4825,7 +4825,7 @@ void show_state_filter(unsigned long sta
+ 		 * console might take alot of time:
+ 		 */
+ 		touch_nmi_watchdog();
+-		if (state_filter && (p->state & state_filter))
++		if (!state_filter || (p->state & state_filter))
+ 			show_task(p);
+ 	} while_each_thread(g, p);
  
- 	/* Grab the authentication type */
- 	authflavour = RPC_AUTH_UNIX;
+

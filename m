@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161391AbWJSKb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161377AbWJSKtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161391AbWJSKb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 06:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161400AbWJSKb4
+	id S1161377AbWJSKtg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 06:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161413AbWJSKtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 06:31:56 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:21589 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161391AbWJSKbz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 06:31:55 -0400
-Message-ID: <453755B6.7060507@sw.ru>
-Date: Thu, 19 Oct 2006 14:38:46 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Thu, 19 Oct 2006 06:49:36 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:21380 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1161377AbWJSKtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 06:49:35 -0400
+Message-Type: Multiple Part
 MIME-Version: 1.0
-To: Paul Ingram <paul.ingram@ig.co.uk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: KORG OpenVZ...
-References: <200610191014.k9JAEgQj016625@wolf.ig.co.uk>
-In-Reply-To: <200610191014.k9JAEgQj016625@wolf.ig.co.uk>
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com>
+Content-Type: text/plain; charset="us-ascii"
+To: "David Miller" <davem@davemloft.net>
+From: <eiichiro.oiwa.nm@hitachi.com>
+Cc: <alan@redhat.com>, <jesse.barnes@intel.com>, <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>
+Date: Thu, 19 Oct 2006 19:49:26 +0900
+References: <XNM1$9$0$4$$3$3$7$A$9002705U45372f1d@hitachi.com> 
+    <20061019.013732.30184567.davem@davemloft.net> 
+    <20061019092256.GC5980@devserv.devel.redhat.com> 
+    <20061019.022541.85409562.davem@davemloft.net>
+Importance: normal
+Subject: Re: pci_fixup_video change blows up on sparc64
+X400-Content-Identifier: X4537582F00000M
+X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml160610191949195WL]
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am requesting that OpenVZ makes it into the main kernel branch.
-> 
-> It gives me what I need to satisfy my customers requirements (and my own).
-> 
-> ATM, the only fly in the ointment is installation - with the current stable OpenVZ
-> branch being an ancient 2.6.9 kernel, use of my customers shiny new Megaraid
-> SATA controller meant I had to use the 2.6.16 OpenVZ dev branch - which is
-> *still* an old kernel. There would be no problem if OpenVZ was part of the main
-> branch.
-OpenVZ 2.6.9 kernel is based on RHEL4 one. it is not ancient.
-And BTW, it has the latest megaraid driver. So if you had problems you should have reported
-to OpenVZ ML directly. Not here.
+David Miller wrote:
+>From: Alan Cox <alan@redhat.com>
+>Date: Thu, 19 Oct 2006 05:22:56 -0400
+>
+>> On Thu, Oct 19, 2006 at 01:37:32AM -0700, David Miller wrote:
+>> > defined to do this kind of thing, for example with the
+>> > pcibios_bus_to_resource() interface, used by routines such as
+>> > drivers/pci/quirks.c:quirk_io_region().
+>> 
+>> pci_iomap() ?
+>
+>Yep, but that interface needs a BAR.
+>
+>The "0xc0000" usage here for the VGA rom stuff, and some of the quirk
+>examples, want something a little bit different.
+>
+>I suppose we could create something that cooked up a fake PCI
+>device and a BAR, but that is a bit too much for what we're
+>trying to do here I'm afraid.
 
-Thanks,
-Kirill
-
+The "0xc0000" is a physical address. The BAR (PCI base address) is also
+a physcail address. There are no difference.

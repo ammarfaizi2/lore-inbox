@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945971AbWJSOcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946088AbWJSOft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945971AbWJSOcK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 10:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945920AbWJSOcK
+	id S1946088AbWJSOft (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 10:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946089AbWJSOft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 10:32:10 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26011 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161433AbWJSOcI (ORCPT
+	Thu, 19 Oct 2006 10:35:49 -0400
+Received: from ns1.suse.de ([195.135.220.2]:7566 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1946088AbWJSOfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 10:32:08 -0400
-From: Andi Kleen <ak@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: + i386-time-avoid-pit-smp-lockups.patch added to -mm tree
-Date: Thu, 19 Oct 2006 16:26:10 +0200
-User-Agent: KMail/1.9.3
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, mingo@elte.hu, tglx@linutronix.de
-References: <200610112126.k9BLQqKG002529@shell0.pdx.osdl.net> <1161266225.11264.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <45378A35.5020101@yahoo.com.au>
-In-Reply-To: <45378A35.5020101@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 10:35:48 -0400
+Date: Thu, 19 Oct 2006 16:35:47 +0200
+From: Marcus Meissner <meissner@suse.de>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] binfmt_elf: randomize PIE binaries
+Message-ID: <20061019143547.GA8586@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610191626.10662.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> An SMP kernel can boot on UP hardware, in which case I think
-> num_possible_cpus() will be 1, won't it?
+Randomizes -pie compiled binaries over the whole address
+range from 0 up to ELF_ET_DYN_BASE.
 
-0 was a typo, i meant 1 for UP of course. 0 would be nonsensical.
+Signed-off-by: Marcus Meissner <meissner@suse.de>
 
--Andi
+----
+ binfmt_elf.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+
+--- linux-2.6.18/fs/binfmt_elf.c.xx	2006-10-19 11:21:49.000000000 +0200
++++ linux-2.6.18/fs/binfmt_elf.c	2006-10-19 11:24:58.000000000 +0200
+@@ -856,7 +856,12 @@ static int load_elf_binary(struct linux_
+ 			 * default mmap base, as well as whatever program they
+ 			 * might try to exec.  This is because the brk will
+ 			 * follow the loader, and is not movable.  */
+-			load_bias = ELF_PAGESTART(ELF_ET_DYN_BASE - vaddr);
++			if (current->flags & PF_RANDOMIZE)
++				load_bias = randomize_range(0, ELF_ET_DYN_BASE,
++							    vaddr);
++			else
++				load_bias = ELF_ET_DYN_BASE - vaddr;
++			load_bias = ELF_PAGESTART(load_bias);
+ 		}
+ 
+ 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt,

@@ -1,63 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423175AbWJSFbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbWJSFqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423175AbWJSFbU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 01:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161311AbWJSFbU
+	id S1161088AbWJSFqK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 01:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWJSFqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 01:31:20 -0400
-Received: from hera.kernel.org ([140.211.167.34]:28577 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1161019AbWJSFbS (ORCPT
+	Thu, 19 Oct 2006 01:46:10 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:31104 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1030303AbWJSFqH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 01:31:18 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Dave Jones <davej@redhat.com>
-Subject: Re: SMP broken on pre-ACPI machine.
-Date: Thu, 19 Oct 2006 01:33:40 -0400
-User-Agent: KMail/1.8.2
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org
-References: <20061018222433.GA4770@redhat.com>
-In-Reply-To: <20061018222433.GA4770@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 01:46:07 -0400
+Date: Thu, 19 Oct 2006 07:51:12 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] DocBook with .txt or .html versions?
+Message-ID: <20061019055112.GA1872@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+References: <20061018114240.GA3202@ff.dom.local> <20061018084105.56d61e04.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610190133.40581.len.brown@intel.com>
+In-Reply-To: <20061018084105.56d61e04.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 October 2006 18:24, Dave Jones wrote:
-> I've been chasing a bug that got filed against the Fedora kernel
-> a while back:  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199052
-> This is a dual pentium pro from an era before we had ACPI, and
-> it seems to be falling foul of this test in smpboot.c  ..
+On Wed, Oct 18, 2006 at 08:41:05AM -0700, Randy Dunlap wrote:
+> On Wed, 18 Oct 2006 13:42:40 +0200 Jarek Poplawski wrote:
 > 
->     if (!smp_found_config && !acpi_lapic) {
->         printk(KERN_NOTICE "SMP motherboard not detected.\n");
->         smpboot_clear_io_apic_irqs();
->         phys_cpu_present_map = physid_mask_of_physid(0);
->         if (APIC_init_uniprocessor())
->             printk(KERN_NOTICE "Local APIC not detected."
->                        " Using dummy APIC emulation.\n");
->         map_cpu_to_logical_apicid();
->         cpu_set(0, cpu_sibling_map[0]);
->         cpu_set(0, cpu_core_map[0]);
->         return;
->     }
+> > Is it really so superfluous to have a possibility of 
+> > reading all docs from Documentation on a lean box
+> > (e.g. server) without all those xml, flex etc.
+> > printers' toys installed?
 > 
+> make help ==>
 > 
-> My initial reaction is that the !acpi_lapic test should be conditional
-> on some variable that gets set if the ACPI parsing actually succeeded.
+> Documentation targets:
+>   Linux kernel internal documentation in different formats:
+>   xmldocs (XML DocBook), psdocs (Postscript), pdfdocs (PDF)
+>   htmldocs (HTML), mandocs (man pages, use installmandocs to install)
+>                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> and 'man 9 yield'
+> works for me.
+> 
+> or are you saying that you want large *.txt book-like generated files
+> instead of larger *.html etc?
 
-acpi_lapic isn't related to the problem at hand -- that  smp_found_config is not set.
+I'm saying that I coudn't do it even on knoppix dvd version
+(a year ago) and there are gazillions of desktop software
+which I don't use.
 
-That said, allowing acpi_lapic=1 to bail out of this check has the sole
-function of allowing SMP/PIC configurations.  (smp_found_config
-in ACPI mode is set if acpi_lapic and acpi_ioapic are set)
-SMP/PIC configurations are not very interesting, except for debugging.
-Indeed, MPS prohibits them by mandating an IOAPIC be present for SMP --
-but ACPI has no such rule.
+I only need to read this in any readable form like
+the rest of Documentation.
 
--Len
+Regards,
+Jarek P.
+
+-------------
+Slackware_lean_box$ make mandocs
+
+*** You need to install xmlto ***
+make[1]: *** [Documentation/DocBook/wanbook.9] Error 1
+make: *** [mandocs] Error 2
+
+-------------
+http://rpmfind.net//linux/RPM/fedora/4/i386/xmlto-0.0.18-6.i386.html
+Provides
+
+    * xmlto 
+
+Requires
+
+    * /bin/bash
+    * docbook-dtds
+    * docbook-xsl
+    * libc.so.6
+    * libxslt >= 0.9.0
+    * passivetex 
+
+http://rpmfind.net//linux/RPM/fedora/4/i386/passivetex-1.25-5.noarch.html
+Provides
+
+    * passivetex 
+
+Requires
+
+    * /bin/sh
+    * /bin/sh
+    * /bin/sh
+    * tetex >= 3.0
+    * xmltex >= 20000118-4 
+
+http://rpmfind.net//linux/RPM/fedora/4/i386/libxslt-1.1.14-2.i386.html
+Provides
+
+    * libxslt
+    * libexslt.so.0
+    * libxslt.so.1 
+
+Requires
+
+    * /bin/sh
+    * /bin/sh
+    * libc.so.6
+    * libexslt.so.0
+    * libgcrypt.so.11
+    * libgpg-error.so.0
+    * libm.so.6
+    * libpthread.so.0
+    * libxml2 >= 2.3.8
+    * libxml2.so.2
+    * libxslt.so.1
+    * libz.so.1 
+
+http://rpmfind.net//linux/RPM/fedora/4/i386/docbook-dtds-1.0-26.noarch.html
+Provides
+
+    * docbook-dtds
+    * docbook-dtd-sgml
+    * docbook-dtd-xml
+    * docbook-dtd30-sgml
+    * docbook-dtd31-sgml
+    * docbook-dtd40-sgml
+    * docbook-dtd41-sgml
+    * docbook-dtd412-xml
+    * docbook-dtd42-sgml
+    * docbook-dtd42-xml
+    * docbook-dtd43-sgml
+    * docbook-dtd43-xml
+    * docbook-dtd44-sgml
+    * docbook-dtd44-xml 
+
+Requires
+
+    * /bin/sh
+    * /bin/sh
+    * fileutils
+    * grep
+    * libxml2 >= 2.3.8
+    * openjade = 1.3.2
+    * perl >= 0:5.002
+    * sgml-common >= 0.6.3-4
+    * textutils
+    * xml-common
+    * xml-common 
+
+etc, etc, etc...

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423163AbWJSS3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423153AbWJSS3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423163AbWJSS3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423153AbWJSS3R
+	id S1423153AbWJSS3V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423172AbWJSS3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:29:17 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:39613 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423163AbWJSS3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:29:16 -0400
-Message-ID: <4537C44C.4040208@oracle.com>
-Date: Thu, 19 Oct 2006 11:30:36 -0700
-From: "Randy.Dunlap" <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Avi Kivity <avi@qumranet.com>
-CC: Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com>	<20061019173151.GD4957@rhun.haifa.ibm.com>	<4537BD27.7050509@qumranet.com> <20061019111214.b063f531.randy.dunlap@oracle.com> <4537C081.7060109@qumranet.com>
-In-Reply-To: <4537C081.7060109@qumranet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 Oct 2006 14:29:21 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:65436 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1423153AbWJSS3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:29:20 -0400
+Subject: Re: + i386-time-avoid-pit-smp-lockups.patch added to -mm tree
+From: john stultz <johnstul@us.ibm.com>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, mingo@elte.hu,
+       tglx@linutronix.de
+In-Reply-To: <1161265475.11264.7.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+References: <200610112126.k9BLQqKG002529@shell0.pdx.osdl.net>
+	 <1161265475.11264.7.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Thu, 19 Oct 2006 11:27:34 -0700
+Message-Id: <1161282454.6961.126.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Randy Dunlap wrote:
->>> Probably too big.  It's also the ugliest.  I'll split it and resend 
->>> (not through thunderbird though... ate all my tabs!).
->>>     
->>
->> This works for me (when I have to use it), without using attachments:
->>   http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
->>   
+On Thu, 2006-10-19 at 06:44 -0700, Daniel Walker wrote:
+> On Wed, 2006-10-11 at 14:26 -0700, akpm@osdl.org wrote:
 > 
-> That may be fine for a single patch, but too much work for a patchset.  
-> Since I'm using quilt, I'll try to use its mail feature (though it gave 
-> me some nasty errors when I took a peek).
+> > diff -puN arch/i386/kernel/i8253.c~i386-time-avoid-pit-smp-lockups arch/i386/kernel/i8253.c
+> > --- a/arch/i386/kernel/i8253.c~i386-time-avoid-pit-smp-lockups
+> > +++ a/arch/i386/kernel/i8253.c
+> > @@ -109,7 +109,7 @@ static struct clocksource clocksource_pi
+> >  
+> >  static int __init init_pit_clocksource(void)
+> >  {
+> > -	if (num_possible_cpus() > 4) /* PIT does not scale! */
+> > +	if (num_possible_cpus() > 1) /* PIT does not scale! */
+> >  		return 0;
+> >  
+> 
+> Can we ifdef some code here on CONFIG_SMP . It bugs me that there just
+> dead code laying around on smp systems.
 
-Agreed.  quilt or Paul Jackson's sendpatchset script.
+I still want the pit to be available on SMP kernels that boot on UP
+systems, so I don't think an ifdef will do it. Maybe it would be
+possible to do some smp alternatives-like code removal on SMP systems?
 
--- 
-~Randy
+thanks
+-john
+
+

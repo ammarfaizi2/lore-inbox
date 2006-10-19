@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161337AbWJSGhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161339AbWJSGjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161337AbWJSGhf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 02:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161338AbWJSGhf
+	id S1161339AbWJSGjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 02:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161341AbWJSGjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 02:37:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55681 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161337AbWJSGhe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 02:37:34 -0400
-Date: Wed, 18 Oct 2006 23:37:19 -0700
-From: Paul Jackson <pj@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, mm-commits@vger.kernel.org, clameter@engr.sgi.com,
-       mingo@elte.hu, nickpiggin@yahoo.com.au, rientjes@cs.washington.edu,
-       rohitseth@google.com
-Subject: Re: + cpuset-explicit-dynamic-sched-domain-control-flags.patch
- added to -mm tree
-Message-Id: <20061018233719.46905fd0.pj@sgi.com>
-In-Reply-To: <200610182023.k9IKNL8v016661@shell0.pdx.osdl.net>
-References: <200610182023.k9IKNL8v016661@shell0.pdx.osdl.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 02:39:25 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:33431 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161339AbWJSGjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 02:39:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AgKCxdzCipC+juE6pXyZuPPmPEqG3G2R6tuDlt4fpcqGJhueNai7rvsbYs7bBBfm24oACZjGq1hTXV632BCMdZctZ5uaeg8vJcmxzVz3lvSKvSirU6QZrDkfT7VTzJ1BVwZUi+LVay/S5Q/aDZ+KrWAqAXwf7OtT/vPzWbMiKyk=  ;
+Message-ID: <45371D96.8060003@yahoo.com.au>
+Date: Thu, 19 Oct 2006 16:39:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, dino@in.ibm.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
+References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com>	<20061017114306.A19690@unix-os.sc.intel.com>	<20061017121823.e6f695aa.pj@sgi.com>	<20061017190144.A19901@unix-os.sc.intel.com> <20061018000512.1d13aabd.pj@sgi.com>
+In-Reply-To: <20061018000512.1d13aabd.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Paul Jackson wrote:
+> Suresh wrote:
 
-Please nuke this patch too.
+>>Once the sched domains are partitioned, there is no interaction/scheduling
+>>happening between those partitions.
+> 
+> 
+> Ok ...
+> 
+> Is there anyway to determine, on a running system, what sched domains
+> and groups are present?
 
-I about to reverse field and throw a bunch of code out,
-instead of making it fancier.
+You don't have to worry about the details of the hierarchy. You just need
+to know where the partitions are, and that's easy because you were the one
+who set them up in the first place (with the exception of isolcpus, which
+at least needs a couple of lines on the sched.c side to make it workable).
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

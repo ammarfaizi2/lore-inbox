@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423323AbWJSMUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423326AbWJSMVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423323AbWJSMUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 08:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423325AbWJSMUP
+	id S1423326AbWJSMVT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 08:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423329AbWJSMVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 08:20:15 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:15189 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S1423323AbWJSMUO (ORCPT
+	Thu, 19 Oct 2006 08:21:19 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:17749 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1423326AbWJSMVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 08:20:14 -0400
-Date: Thu, 19 Oct 2006 14:20:57 +0200
+	Thu, 19 Oct 2006 08:21:18 -0400
+Date: Thu, 19 Oct 2006 14:22:01 +0200
 From: Jens Axboe <jens.axboe@oracle.com>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK
-Message-ID: <20061019122056.GI30700@kernel.dk>
-References: <Pine.LNX.4.61.0610172041190.30104@yvahk01.tjqt.qr> <200610171857.k9HIvq1M009488@turing-police.cc.vt.edu> <Pine.LNX.4.61.0610172119420.928@yvahk01.tjqt.qr> <20061017193645.GM7854@kernel.dk> <Pine.LNX.4.61.0610172146450.928@yvahk01.tjqt.qr> <20061018070922.GB24452@kernel.dk> <20061018105634.2f8cb629.randy.dunlap@oracle.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jakob Oestergaard <jakob@unthought.net>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Phetteplace, Thad (GE Healthcare, consultant)" 
+	<Thad.Phetteplace@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bandwidth Allocations under CFQ I/O Scheduler
+Message-ID: <20061019122201.GJ30700@kernel.dk>
+References: <20061018080030.GU23492@unthought.net> <1161164456.3128.81.camel@laptopd505.fenrus.org> <20061018113001.GV23492@unthought.net> <20061018114913.GG24452@kernel.dk> <20061018122323.GW23492@unthought.net> <1161175344.9363.30.camel@localhost.localdomain> <20061018124420.GI24452@kernel.dk> <4536245B.8070906@yahoo.com.au> <20061018130456.GJ24452@kernel.dk> <45363149.9050607@grupopie.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061018105634.2f8cb629.randy.dunlap@oracle.com>
+In-Reply-To: <45363149.9050607@grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18 2006, Randy Dunlap wrote:
-> On Wed, 18 Oct 2006 09:09:22 +0200 Jens Axboe wrote:
+On Wed, Oct 18 2006, Paulo Marques wrote:
+> Jens Axboe wrote:
+> >[...]
+> >Precisely, hence CFQ is now based on the time metric. Given larger
+> >slices, you can mostly eliminate the impact of other applications in the
+> >system.
 > 
-> > On Tue, Oct 17 2006, Jan Engelhardt wrote:
-> > > >> Never mind, I see that some filesystems have 'depends on BLOCK' instead 
-> > > >> of being wrapped into if BLOCK. Not really consistent but whatever.
-> > > >
-> > > >Feel free to send in patches that make things more consistent.
-> > > 
-> > > How would you like things? if BLOCK or depends on BLOCK?
-> > 
-> > Well, if you can hide an entire block with if BLOCK, then that would be
-> > preferred. Otherwise depends on BLOCK.
-> > 
-> > > Does menuconfig/oldconfig/etc. parse the whole config structure faster 
-> > > it it done either way?
-> > 
-> > I'd be surprised if if BLOCK wasn't faster over, say, 10 depends on
-> > BLOCK.
+> Just one thought: we can't predict reliably how much time a request will
+> take to be serviced, but we can account the time it _took_ to service a
+> request.
 > 
-> Jens,
-> Has anyone looked at what BLOCK=n does to mm/page-writeback.c ?
-> It calls blk_congestion_end(), which isn't there.
+> If we account the time it took to service requests for each process, and
+> we have several processes with requests pending, we can use the same 
+> algorithm we would use for a large time slice algorithm to select the 
+> process to service.
 > 
-> mm/built-in.o: In function `writeback_congestion_end':
-> (.text.writeback_congestion_end+0xc): undefined reference to `blk_congestion_end'
-> make: *** [.tmp_vmlinux1] Error 1
-> Command exited with non-zero status 2
+> This should make it as fair over time as a large time slice algorithm 
+> and doesn't need large time slices, so latencies can be kept as low as 
+> required.
 
-Yeah currently known, with Andrew's latest we should be getting closer.
+Two problems:
+
+- You can't chop things down to single request times. A cost of a
+  request greatly varies depending on what preceeded it, hence you need
+  to account batches of requests from a process - this is what the time
+  slice currently accomplishes.
+
+- Whether a process has requests pending or not varies a lot. The
+  typical bandwidth problem is due to processes doing sync or dependent
+  io where you only get io in pieces over time.
+
+A request based approach only works over processes that always (or
+almost always) have work left to do. You absolutely need the time slice
+or some other waiting mechanism to help those that don't.
+
+> However, having a small time slice will probably help the hardware 
+> coalesce several request from the same process that are more likely to 
+> be to nearby sectors, and thus improve performance.
+
+Either the process is submittinger larger amounts of io and you'll get
+the merging anyways, or it isn't. There's a large difference in time
+scales here.
 
 -- 
 Jens Axboe

@@ -1,428 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423338AbWJSM3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422970AbWJSMbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423338AbWJSM3L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 08:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423341AbWJSM3L
+	id S1422970AbWJSMbT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 08:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422655AbWJSMbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 08:29:11 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:13499 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1423338AbWJSM3J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 08:29:09 -0400
-Message-ID: <45376EC4.3080807@aitel.hist.no>
-Date: Thu, 19 Oct 2006 14:25:40 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Paolo Ornati <ornati@fastwebnet.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
- from card reader
-References: <Pine.LNX.4.44L0.0610181211050.7542-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0610181211050.7542-100000@iolanthe.rowland.org>
-Content-Type: multipart/mixed;
- boundary="------------010602080505080405000208"
+	Thu, 19 Oct 2006 08:31:19 -0400
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:33511 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S1422970AbWJSMbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 08:31:18 -0400
+Date: Thu, 19 Oct 2006 16:32:07 +0400
+Message-Id: <200610191232.k9JCW7CF015486@vass.7ka.mipt.ru>
+From: Vasily Tarasov <vtaras@openvz.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+CC: Jan Kara <jack@suse.cz>
+CC: Dmitry Mishin <dim@openvz.org>
+CC: Vasily Averin <vvs@sw.ru>
+CC: Kirill Korotaev <dev@openvz.org>
+CC: OpenVZ Developers List <devel@openvz.org>
+Subject: [PATCH] diskquota: 32bit quota tools on 64bit architectures
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Thu, 19 Oct 2006 16:30:36 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010602080505080405000208
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+OpenVZ Linux kernel team has discovered the problem 
+with 32bit quota tools working on 64bit architectures.
+In 2.6.10 kernel sys32_quotactl() function was replaced by sys_quotactl() with
+the comment "sys_quotactl seems to be 32/64bit clean, enable it for 32bit"
+However this isn't right. Look at if_dqblk structure:
 
-Alan Stern wrote:
-> On Wed, 18 Oct 2006, Helge Hafting wrote:
->   
-[...]
-> That's why I asked for the USB debugging logs (which you forgot to include
-> here).
->   
-Attached dmesg.gz with lots of usb messages.
+struct if_dqblk {
+        __u64 dqb_bhardlimit;
+        __u64 dqb_bsoftlimit;
+        __u64 dqb_curspace;
+        __u64 dqb_ihardlimit;
+        __u64 dqb_isoftlimit;
+        __u64 dqb_curinodes;
+        __u64 dqb_btime;
+        __u64 dqb_itime;
+        __u32 dqb_valid;
+};
 
->> To bring it down:
->>
->> dd if=/dev/sdc of=sdc.dump bs=1M
->>     
-This time, it seems to have crashed on the first megabyte.
-I mounted the filesystem synchronously, and still I had 0 bytes
-in the dumpfile.  The crash also came with no delay after
-pressing enter.
+For 32 bit quota tools sizeof(if_dqblk) == 0x44.
+But for 64 bit kernel its size is 0x48, 'cause of alignment!
+Thus we got a problem.
+Attached patch reintroduce sys32_quotactl() function,
+that handles the situation.
 
-> It's possible that both of these are caused by something unrelated 
-> overwriting kernel memory.
->   
-something like a function pointer mistaken for a data pointer?
-> By the way, what happens if you add a "skip=" argument to dd so that the 
-> copy begins near the end of the device?  Does the oops then occur that 
-> much sooner?
->   
-No, it is random. May happen immediately, may happen after a while.
-I even had "cfdisk /dev/sdc" crash on me fresh after a reboot.
-> Oh, and the next time this happens, could you copy down all of the code
-> bytes from the oops message?  And also provide the section from "objdump
-> -d drivers/usb/host/ehci-hcd.o" for the start_unlink_async routine?
->   
-objdump for start_unlink_async attached.
+Signed-off-by: Vasily Tarasov <vtaras@openvz.org>
+Acked-by: Dmitry Mishin <dim@openvz.org>
 
- From the BUG:
+---
 
-Stack (All I got before it rebooted after 300s)
-00000010 c0664dc8 dff84000 dffdbc00 dffdb600 00000296
-df9244c0 c03248de c0664dc8
+In OpenVZ technology 32 bit Virtual Environments over 
+64 bit OS are common, hence we have customers, that complains on this bad quota
+behaviour: 
 
-EIP: [<c031f823>] start_unlink_async+0x16/0xf2
-SS:ESP:0068:c0664d58
+# /usr/bin/quota
+quota: error while getting quota from /dev/sda1 for 0: Success
 
+The reason is caused above.
 
-
-Code (Complete) 5d e9 8e 31 ff ff f6 43 28 01 75 b8 c7 43 24 00 00 00 00 
-eb af
-57 56 53 83 ec 10 89 c6 89 d3 8b 48 04 8b 39 8b 40 14 85 c0 74
-6f <0f> 0b 39 5e 10 74 78 c6 43 68 02 8d 43 60 e8 9f 3c f1 ff 89 5e
-
-I found this in the start_unlink_async dump - here it is with the
-same line breaking as well as the differences:
-{Before start_unlink_async}
-5d
-e9 8e 31 ff ff        ; objdump has "e9 fc ff ff ff" here, it is a jump
-f6 43 28 01
-75 b8
-c7 43 24 00 00 00 00
-eb af
-start_unlink_async
-57
-56
-53
-83 ec 10
-89 c6
-89 d3
-8b 48 04
-8b 39
-8b 40 14
-85 c0
-74 6f
-0f 0b
-39 5e 10
-74 78
-c6 43 68 02
-8d 43 60
-e8 9f 3c f1 ff ; objdump has "e8 fc ff ff ff" here, a call
-89 5e
-
-Calls and jumps are different, but I guess that is just linking effects?
-
-Hope this is useful,
-Helge Hafting
-
---------------010602080505080405000208
-Content-Type: application/gzip;
- name="dmesg.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="dmesg.gz"
-
-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
-IFXULLgeO7/5WWETL5jaEz8GoP8BoM2jY6c3AQA=
---------------010602080505080405000208
-Content-Type: text/plain;
- name="objdump.start_unlink_async"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="objdump.start_unlink_async"
-
-MDAwMDBmZWQgPHN0YXJ0X3VubGlua19hc3luYz46CiAgICAgZmVkOiAgICAgICA1NyAgICAg
-ICAgICAgICAgICAgICAgICBwdXNoICAgJWVkaQogICAgIGZlZTogICAgICAgNTYgICAgICAg
-ICAgICAgICAgICAgICAgcHVzaCAgICVlc2kKICAgICBmZWY6ICAgICAgIDUzICAgICAgICAg
-ICAgICAgICAgICAgIHB1c2ggICAlZWJ4CiAgICAgZmYwOiAgICAgICA4MyBlYyAxMCAgICAg
-ICAgICAgICAgICBzdWIgICAgJDB4MTAsJWVzcAogICAgIGZmMzogICAgICAgODkgYzYgICAg
-ICAgICAgICAgICAgICAgbW92ICAgICVlYXgsJWVzaQogICAgIGZmNTogICAgICAgODkgZDMg
-ICAgICAgICAgICAgICAgICAgbW92ICAgICVlZHgsJWVieAogICAgIGZmNzogICAgICAgOGIg
-NDggMDQgICAgICAgICAgICAgICAgbW92ICAgIDB4NCglZWF4KSwlZWN4CiAgICAgZmZhOiAg
-ICAgICA4YiAzOSAgICAgICAgICAgICAgICAgICBtb3YgICAgKCVlY3gpLCVlZGkKICAgICBm
-ZmM6ICAgICAgIDhiIDQwIDE0ICAgICAgICAgICAgICAgIG1vdiAgICAweDE0KCVlYXgpLCVl
-YXgKICAgICBmZmY6ICAgICAgIDg1IGMwICAgICAgICAgICAgICAgICAgIHRlc3QgICAlZWF4
-LCVlYXgKICAgIDEwMDE6ICAgICAgIDc0IDZmICAgICAgICAgICAgICAgICAgIGplICAgICAx
-MDcyIDxzdGFydF91bmxpbmtfYXN5bmMrMHg4NT4KICAgIDEwMDM6ICAgICAgIDBmIDBiICAg
-ICAgICAgICAgICAgICAgIHVkMmEgICAKICAgIDEwMDU6ICAgICAgIDM5IDVlIDEwICAgICAg
-ICAgICAgICAgIGNtcCAgICAlZWJ4LDB4MTAoJWVzaSkKICAgIDEwMDg6ICAgICAgIDc0IDc4
-ICAgICAgICAgICAgICAgICAgIGplICAgICAxMDgyIDxzdGFydF91bmxpbmtfYXN5bmMrMHg5
-NT4KICAgIDEwMGE6ICAgICAgIGM2IDQzIDY4IDAyICAgICAgICAgICAgIG1vdmIgICAkMHgy
-LDB4NjgoJWVieCkKICAgIDEwMGU6ICAgICAgIDhkIDQzIDYwICAgICAgICAgICAgICAgIGxl
-YSAgICAweDYwKCVlYngpLCVlYXgKICAgIDEwMTE6ICAgICAgIGU4IGZjIGZmIGZmIGZmICAg
-ICAgICAgIGNhbGwgICAxMDEyIDxzdGFydF91bmxpbmtfYXN5bmMrMHgyNT4KICAgIDEwMTY6
-ICAgICAgIDg5IDVlIDE0ICAgICAgICAgICAgICAgIG1vdiAgICAlZWJ4LDB4MTQoJWVzaSkK
-ICAgIDEwMTk6ICAgICAgIDhiIDRlIDEwICAgICAgICAgICAgICAgIG1vdiAgICAweDEwKCVl
-c2kpLCVlY3gKICAgIDEwMWM6ICAgICAgIDhiIDQxIDQ4ICAgICAgICAgICAgICAgIG1vdiAg
-ICAweDQ4KCVlY3gpLCVlYXgKICAgIDEwMWY6ICAgICAgIDM5IGMzICAgICAgICAgICAgICAg
-ICAgIGNtcCAgICAlZWF4LCVlYngKICAgIDEwMjE6ICAgICAgIDc0IDA5ICAgICAgICAgICAg
-ICAgICAgIGplICAgICAxMDJjIDxzdGFydF91bmxpbmtfYXN5bmMrMHgzZj4KICAgIDEwMjM6
-ICAgICAgIDg5IGMxICAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWF4LCVlY3gKICAgIDEw
-MjU6ICAgICAgIDhiIDQwIDQ4ICAgICAgICAgICAgICAgIG1vdiAgICAweDQ4KCVlYXgpLCVl
-YXgKICAgIDEwMjg6ICAgICAgIDM5IGMzICAgICAgICAgICAgICAgICAgIGNtcCAgICAlZWF4
-LCVlYngKICAgIDEwMmE6ICAgICAgIDc1IGY3ICAgICAgICAgICAgICAgICAgIGpuZSAgICAx
-MDIzIDxzdGFydF91bmxpbmtfYXN5bmMrMHgzNj4KICAgIDEwMmM6ICAgICAgIDhiIDAzICAg
-ICAgICAgICAgICAgICAgIG1vdiAgICAoJWVieCksJWVheAogICAgMTAyZTogICAgICAgODkg
-MDEgICAgICAgICAgICAgICAgICAgbW92ICAgICVlYXgsKCVlY3gpCiAgICAxMDMwOiAgICAg
-ICA4YiA0MyA0OCAgICAgICAgICAgICAgICBtb3YgICAgMHg0OCglZWJ4KSwlZWF4CiAgICAx
-MDMzOiAgICAgICA4OSA0MSA0OCAgICAgICAgICAgICAgICBtb3YgICAgJWVheCwweDQ4KCVl
-Y3gpCiAgICAxMDM2OiAgICAgICA4YiA0NiBmYyAgICAgICAgICAgICAgICBtb3YgICAgMHhm
-ZmZmZmZmYyglZXNpKSwlZWF4CiAgICAxMDM5OiAgICAgICA4NSBjMCAgICAgICAgICAgICAg
-ICAgICB0ZXN0ICAgJWVheCwlZWF4CiAgICAxMDNiOiAgICAgICAwZiA4NCA4MyAwMCAwMCAw
-MCAgICAgICBqZSAgICAgMTBjNCA8c3RhcnRfdW5saW5rX2FzeW5jKzB4ZDc+CiAgICAxMDQx
-OiAgICAgICA4YiA0NiAwNCAgICAgICAgICAgICAgICBtb3YgICAgMHg0KCVlc2kpLCVlYXgK
-ICAgIDEwNDQ6ICAgICAgIDgzIGNmIDQwICAgICAgICAgICAgICAgIG9yICAgICAkMHg0MCwl
-ZWRpCiAgICAxMDQ3OiAgICAgICA4OSAzOCAgICAgICAgICAgICAgICAgICBtb3YgICAgJWVk
-aSwoJWVheCkKICAgIDEwNDk6ICAgICAgIDhiIDQ2IDA0ICAgICAgICAgICAgICAgIG1vdiAg
-ICAweDQoJWVzaSksJWVheAogICAgMTA0YzogICAgICAgOGIgMDAgICAgICAgICAgICAgICAg
-ICAgbW92ICAgICglZWF4KSwlZWF4CiAgICAxMDRlOiAgICAgICA4YiA4NiA4NCAwMCAwMCAw
-MCAgICAgICBtb3YgICAgMHg4NCglZXNpKSwlZWF4CiAgICAxMDU0OiAgICAgICA4NSBjMCAg
-ICAgICAgICAgICAgICAgICB0ZXN0ICAgJWVheCwlZWF4CiAgICAxMDU2OiAgICAgICA3NSA0
-MSAgICAgICAgICAgICAgICAgICBqbmUgICAgMTA5OSA8c3RhcnRfdW5saW5rX2FzeW5jKzB4
-YWM+CiAgICAxMDU4OiAgICAgICA4YiAxNSAwMCAwMCAwMCAwMCAgICAgICBtb3YgICAgMHgw
-LCVlZHgKICAgIDEwNWU6ICAgICAgIDhkIDg2IDg0IDAwIDAwIDAwICAgICAgIGxlYSAgICAw
-eDg0KCVlc2kpLCVlYXgKICAgIDEwNjQ6ICAgICAgIDgzIGMyIDBhICAgICAgICAgICAgICAg
-IGFkZCAgICAkMHhhLCVlZHgKICAgIDEwNjc6ICAgICAgIDgzIGM0IDEwICAgICAgICAgICAg
-ICAgIGFkZCAgICAkMHgxMCwlZXNwCiAgICAxMDZhOiAgICAgICA1YiAgICAgICAgICAgICAg
-ICAgICAgICBwb3AgICAgJWVieAogICAgMTA2YjogICAgICAgNWUgICAgICAgICAgICAgICAg
-ICAgICAgcG9wICAgICVlc2kKICAgIDEwNmM6ICAgICAgIDVmICAgICAgICAgICAgICAgICAg
-ICAgIHBvcCAgICAlZWRpCiAgICAxMDZkOiAgICAgICBlOSBmYyBmZiBmZiBmZiAgICAgICAg
-ICBqbXAgICAgMTA2ZSA8c3RhcnRfdW5saW5rX2FzeW5jKzB4ODE+CiAgICAxMDcyOiAgICAg
-ICAwZiBiNiA1MiA2OCAgICAgICAgICAgICBtb3Z6YmwgMHg2OCglZWR4KSwlZWR4CiAgICAx
-MDc2OiAgICAgICA4MCBmYSAwMSAgICAgICAgICAgICAgICBjbXAgICAgJDB4MSwlZGwKICAg
-IDEwNzk6ICAgICAgIDc0IDhhICAgICAgICAgICAgICAgICAgIGplICAgICAxMDA1IDxzdGFy
-dF91bmxpbmtfYXN5bmMrMHgxOD4KICAgIDEwN2I6ICAgICAgIDgwIGZhIDA0ICAgICAgICAg
-ICAgICAgIGNtcCAgICAkMHg0LCVkbAogICAgMTA3ZTogICAgICAgNzUgODMgICAgICAgICAg
-ICAgICAgICAgam5lICAgIDEwMDMgPHN0YXJ0X3VubGlua19hc3luYysweDE2PgogICAgMTA4
-MDogICAgICAgZWIgODMgICAgICAgICAgICAgICAgICAgam1wICAgIDEwMDUgPHN0YXJ0X3Vu
-bGlua19hc3luYysweDE4PgogICAgMTA4MjogICAgICAgOGIgNTYgZmMgICAgICAgICAgICAg
-ICAgbW92ICAgIDB4ZmZmZmZmZmMoJWVzaSksJWVkeAogICAgMTA4NTogICAgICAgODUgZDIg
-ICAgICAgICAgICAgICAgICAgdGVzdCAgICVlZHgsJWVkeAogICAgMTA4NzogICAgICAgNzQg
-MDkgICAgICAgICAgICAgICAgICAgamUgICAgIDEwOTIgPHN0YXJ0X3VubGlua19hc3luYysw
-eGE1PgogICAgMTA4OTogICAgICAgODUgYzAgICAgICAgICAgICAgICAgICAgdGVzdCAgICVl
-YXgsJWVheAogICAgMTA4YjogICAgICAgOTAgICAgICAgICAgICAgICAgICAgICAgbm9wICAg
-IAogICAgMTA4YzogICAgICAgOGQgNzQgMjYgMDAgICAgICAgICAgICAgbGVhICAgIDB4MCgl
-ZXNpKSwlZXNpCiAgICAxMDkwOiAgICAgICA3NCAzZSAgICAgICAgICAgICAgICAgICBqZSAg
-ICAgMTBkMCA8c3RhcnRfdW5saW5rX2FzeW5jKzB4ZTM+CiAgICAxMDkyOiAgICAgICA4MyBj
-NCAxMCAgICAgICAgICAgICAgICBhZGQgICAgJDB4MTAsJWVzcAogICAgMTA5NTogICAgICAg
-NWIgICAgICAgICAgICAgICAgICAgICAgcG9wICAgICVlYngKICAgIDEwOTY6ICAgICAgIDVl
-ICAgICAgICAgICAgICAgICAgICAgIHBvcCAgICAlZXNpCiAgICAxMDk3OiAgICAgICA1ZiAg
-ICAgICAgICAgICAgICAgICAgICBwb3AgICAgJWVkaQogICAgMTA5ODogICAgICAgYzMgICAg
-ICAgICAgICAgICAgICAgICAgcmV0ICAgIAogICAgMTA5OTogICAgICAgYzcgNDQgMjQgMGMg
-NjUgMDAgMDAgICAgbW92bCAgICQweDY1LDB4YyglZXNwKQogICAgMTBhMDogICAgICAgMDAg
-CiAgICAxMGExOiAgICAgICBjNyA0NCAyNCAwOCA3OCAwMCAwMCAgICBtb3ZsICAgJDB4Nzgs
-MHg4KCVlc3ApCiAgICAxMGE4OiAgICAgICAwMCAKICAgIDEwYTk6ICAgICAgIGM3IDQ0IDI0
-IDA0IDAwIDAwIDAwICAgIG1vdmwgICAkMHgwLDB4NCglZXNwKQogICAgMTBiMDogICAgICAg
-MDAgCiAgICAxMGIxOiAgICAgICBjNyAwNCAyNCAxOCAwMCAwMCAwMCAgICBtb3ZsICAgJDB4
-MTgsKCVlc3ApCiAgICAxMGI4OiAgICAgICBlOCBmYyBmZiBmZiBmZiAgICAgICAgICBjYWxs
-ICAgMTBiOSA8c3RhcnRfdW5saW5rX2FzeW5jKzB4Y2M+CiAgICAxMGJkOiAgICAgICBlOCBm
-YyBmZiBmZiBmZiAgICAgICAgICBjYWxsICAgMTBiZSA8c3RhcnRfdW5saW5rX2FzeW5jKzB4
-ZDE+CiAgICAxMGMyOiAgICAgICBlYiA5NCAgICAgICAgICAgICAgICAgICBqbXAgICAgMTA1
-OCA8c3RhcnRfdW5saW5rX2FzeW5jKzB4NmI+CiAgICAxMGM0OiAgICAgICAzMSBkMiAgICAg
-ICAgICAgICAgICAgICB4b3IgICAgJWVkeCwlZWR4CiAgICAxMGM2OiAgICAgICA4OSBmMCAg
-ICAgICAgICAgICAgICAgICBtb3YgICAgJWVzaSwlZWF4CiAgICAxMGM4OiAgICAgICA4MyBj
-NCAxMCAgICAgICAgICAgICAgICBhZGQgICAgJDB4MTAsJWVzcAogICAgMTBjYjogICAgICAg
-NWIgICAgICAgICAgICAgICAgICAgICAgcG9wICAgICVlYngKICAgIDEwY2M6ICAgICAgIDVl
-ICAgICAgICAgICAgICAgICAgICAgIHBvcCAgICAlZXNpCiAgICAxMGNkOiAgICAgICA1ZiAg
-ICAgICAgICAgICAgICAgICAgICBwb3AgICAgJWVkaQogICAgMTBjZTogICAgICAgZWIgMGYg
-ICAgICAgICAgICAgICAgICAgam1wICAgIDEwZGYgPGVuZF91bmxpbmtfYXN5bmM+CiAgICAx
-MGQwOiAgICAgICA4MyBlNyBkZiAgICAgICAgICAgICAgICBhbmQgICAgJDB4ZmZmZmZmZGYs
-JWVkaQogICAgMTBkMzogICAgICAgODkgMzkgICAgICAgICAgICAgICAgICAgbW92ICAgICVl
-ZGksKCVlY3gpCiAgICAxMGQ1OiAgICAgICAwZiBiYSBiNiBiNCAwMCAwMCAwMCAgICBidHJs
-ICAgJDB4MiwweGI0KCVlc2kpCiAgICAxMGRjOiAgICAgICAwMiAKICAgIDEwZGQ6ICAgICAg
-IGViIGIzICAgICAgICAgICAgICAgICAgIGptcCAgICAxMDkyIDxzdGFydF91bmxpbmtfYXN5
-bmMrMHhhNT4K
---------------010602080505080405000208--
+--- linux-2.6.18/arch/ia64/ia32/sys_ia32.c.quot32	2006-09-20 07:42:06.000000000 +0400
++++ linux-2.6.18/arch/ia64/ia32/sys_ia32.c	2006-10-19 11:17:50.000000000 +0400
+@@ -2545,6 +2545,54 @@ long sys32_fadvise64_64(int fd, __u32 of
+ 			       advice); 
+ } 
+ 
++asmlinkage long sys32_quotactl(unsigned int cmd, const char __user *special,
++						qid_t id, void __user *addr)
++{
++	long ret;
++	unsigned int cmds;
++	mm_segment_t old_fs;
++	struct if_dqblk dqblk;
++	struct if32_dqblk {
++		__u32 dqb_bhardlimit[2];
++		__u32 dqb_bsoftlimit[2];
++		__u32 dqb_curspace[2];
++		__u32 dqb_ihardlimit[2];
++		__u32 dqb_isoftlimit[2];
++		__u32 dqb_curinodes[2];
++		__u32 dqb_btime[2];
++		__u32 dqb_itime[2];
++		__u32 dqb_valid;
++	} dqblk32;
++
++	cmds = cmd >> SUBCMDSHIFT;
++
++	switch (cmds) {
++		case Q_GETQUOTA:
++			old_fs = get_fs();
++			set_fs(KERNEL_DS);
++			ret = sys_quotactl(cmd, special, id, &dqblk);
++			set_fs(old_fs);
++			memcpy(&dqblk32, &dqblk, sizeof(dqblk32));
++			dqblk32.dqb_valid = dqblk.dqb_valid;
++			if (copy_to_user(addr, &dqblk32, sizeof(dqblk32)))
++				return -EFAULT;
++			break;
++		case Q_SETQUOTA:
++			if (copy_from_user(&dqblk32, addr, sizeof(dqblk32)))
++				return -EFAULT;
++			memcpy(&dqblk, &dqblk32, sizeof(dqblk32));
++			dqblk.dqb_valid = dqblk32.dqb_valid;
++			old_fs = get_fs();
++			set_fs(KERNEL_DS);
++			ret = sys_quotactl(cmd, special, id, &dqblk);
++			set_fs(old_fs);
++			break;
++		default:
++			return sys_quotactl(cmd, special, id, addr);
++	}
++	return ret;
++}
++
+ #ifdef	NOTYET  /* UNTESTED FOR IA64 FROM HERE DOWN */
+ 
+ asmlinkage long sys32_setreuid(compat_uid_t ruid, compat_uid_t euid)
+--- linux-2.6.18/arch/ia64/ia32/ia32_entry.S.quot32	2006-09-20 07:42:06.000000000 +0400
++++ linux-2.6.18/arch/ia64/ia32/ia32_entry.S	2006-10-19 11:15:52.000000000 +0400
+@@ -341,7 +341,7 @@ ia32_syscall_table:
+ 	data8 sys_ni_syscall	/* init_module */
+ 	data8 sys_ni_syscall	/* delete_module */
+ 	data8 sys_ni_syscall	/* get_kernel_syms */  /* 130 */
+-	data8 sys_quotactl
++	data8 sys32_quotactl
+ 	data8 sys_getpgid
+ 	data8 sys_fchdir
+ 	data8 sys_ni_syscall	/* sys_bdflush */
+--- linux-2.6.18/arch/x86_64/ia32/ia32entry.S.quot32	2006-09-20 07:42:06.000000000 +0400
++++ linux-2.6.18/arch/x86_64/ia32/ia32entry.S	2006-10-18 10:05:53.000000000 +0400
+@@ -526,7 +526,7 @@ ia32_sys_call_table:
+ 	.quad sys_init_module
+ 	.quad sys_delete_module
+ 	.quad quiet_ni_syscall		/* 130  get_kernel_syms */
+-	.quad sys_quotactl
++	.quad sys32_quotactl
+ 	.quad sys_getpgid
+ 	.quad sys_fchdir
+ 	.quad quiet_ni_syscall	/* bdflush */
+--- linux-2.6.18/arch/x86_64/ia32/sys_ia32.c.quot32	2006-09-20 07:42:06.000000000 +0400
++++ linux-2.6.18/arch/x86_64/ia32/sys_ia32.c	2006-10-19 11:00:18.000000000 +0400
+@@ -915,3 +915,50 @@ long sys32_lookup_dcookie(u32 addr_low, 
+ 	return sys_lookup_dcookie(((u64)addr_high << 32) | addr_low, buf, len);
+ }
+ 
++asmlinkage long sys32_quotactl(unsigned int cmd, const char __user *special,
++						qid_t id, void __user *addr)
++{
++	long ret;
++	unsigned int cmds;
++	mm_segment_t old_fs;
++	struct if_dqblk dqblk;
++	struct if32_dqblk {
++		__u32 dqb_bhardlimit[2];
++		__u32 dqb_bsoftlimit[2];
++		__u32 dqb_curspace[2];
++		__u32 dqb_ihardlimit[2];
++		__u32 dqb_isoftlimit[2];
++		__u32 dqb_curinodes[2];
++		__u32 dqb_btime[2];
++		__u32 dqb_itime[2];
++		__u32 dqb_valid;
++	} dqblk32;
++
++	cmds = cmd >> SUBCMDSHIFT;
++
++	switch (cmds) {
++		case Q_GETQUOTA:
++			old_fs = get_fs();
++			set_fs(KERNEL_DS);
++			ret = sys_quotactl(cmd, special, id, &dqblk);
++			set_fs(old_fs);
++			memcpy(&dqblk32, &dqblk, sizeof(dqblk32));
++			dqblk32.dqb_valid = dqblk.dqb_valid;
++			if (copy_to_user(addr, &dqblk32, sizeof(dqblk32)))
++				return -EFAULT;
++			break;
++		case Q_SETQUOTA:
++			if (copy_from_user(&dqblk32, addr, sizeof(dqblk32)))
++				return -EFAULT;
++			memcpy(&dqblk, &dqblk32, sizeof(dqblk32));
++			dqblk.dqb_valid = dqblk32.dqb_valid;
++			old_fs = get_fs();
++			set_fs(KERNEL_DS);
++			ret = sys_quotactl(cmd, special, id, &dqblk);
++			set_fs(old_fs);
++			break;
++		default:
++			return sys_quotactl(cmd, special, id, addr);
++	}
++	return ret;
++}

@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946277AbWJSSAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946285AbWJSSCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946277AbWJSSAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946282AbWJSSAQ
+	id S1946285AbWJSSCt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946284AbWJSSCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:00:16 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:178 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1946277AbWJSSAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:00:15 -0400
-Message-ID: <4537BD27.7050509@qumranet.com>
-Date: Thu, 19 Oct 2006 20:00:07 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Thu, 19 Oct 2006 14:02:48 -0400
+Received: from mga01.intel.com ([192.55.52.88]:4141 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1946281AbWJSSCs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:02:48 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,330,1157353200"; 
+   d="scan'208"; a="149085364:sNHT2149224742"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: eiichiro.oiwa.nm@hitachi.com
+Subject: Re: pci_fixup_video change blows up on sparc64
+Date: Thu, 19 Oct 2006 11:03:11 -0700
+User-Agent: KMail/1.9.4
+Cc: "David Miller" <davem@davemloft.net>, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+References: <20061018.233102.74754142.davem@davemloft.net> <20061019.013732.30184567.davem@davemloft.net> <XNM1$9$0$4$$3$3$7$A$9002706U45374cd7@hitachi.com>
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002706U45374cd7@hitachi.com>
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <20061019173151.GD4957@rhun.haifa.ibm.com>
-In-Reply-To: <20061019173151.GD4957@rhun.haifa.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2006 18:00:14.0624 (UTC) FILETIME=[6DA54200:01C6F3A8]
+Content-Disposition: inline
+Message-Id: <200610191103.16689.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
-> Hi,
+On Thursday, October 19, 2006 3:01 am, eiichiro.oiwa.nm@hitachi.com 
+wrote:
+> >> If an expansion ROM exists on ATI Radeon or ATY128 card,
+> >> pci_map_rom returns the expansion ROM base address instead of
+> >> 0xC0000 because fixup_video checks the VGA Enable bit in the
+> >> Bridge Control register.
+> >
+> >It is not valid to expect the bridge control register to return
+> >anything meaningful on PCI "host bridge".  The Radeon card here sits
+> >on the root, just under the PCI Host Controller.  The code in
+> >fixup_video appears to assume that every bus up to the root from
+> >the VGA device is a PCI-PCI bridge, which is not a valid assumption.
+> >There can be a PCI host bridge at the root.
 >
-> Looks pretty interesting! some comments:
+> Have you ever read the PCI-to-PCI Bridge Architecture Specification?
+> The default of VGA Enable bit is 0. This mean video ROM doesn't
+> forward system RAM at 0xC0000.
 >
-> - patch 4/7 hasn't made it to the list?
->   
+> There is your VGA card under 0001:00:00.0 Host bridge. The VGA Enable
+> bit in this host bridge will return 0 and IORESOURCE_ROM_SHADOW won't
+> set.
 
-Probably too big.  It's also the ugliest.  I'll split it and resend (not 
-through thunderbird though... ate all my tabs!).
+I don't think that applies to host->pci bridges though, all bets are off 
+as to how their bits are defined.  One check that might make this 
+feature a bit more robust is to look for a real PCI ROM on the device.  
+If present, we probably don't need to bother with the system copy 
+(which probably won't be there anyway).
 
+We should probably also check whether the parent bridge of the device to 
+be fixed up is a real pci->pci bridge (if possible).  That would remove 
+some ambiguity that's likely to cause problems with other platforms 
+too.
 
-> - it would be useful for reviewing this if you could post example code
->   making use of the /dev/kvm interfaces - they seem fairly complex.
->   
-
-Working code is fairly hairy, since it's emulating a PC.  That'll be on 
-sourceforge once they approve my new project.
-
-In general one does
-
-  open("/dev/kvm")
-  ioctl(KVM_SET_MEMORY_REGION) for main memory
-  ioctl(KVM_SET_MEMORY_REGION) for the framebuffer
-  ioctl(KVM_CREATE_VCPU) for the obvious reason
-  if (debugger)
-    ioctl(KVM_DEBUG_GUEST) to singlestep or breakpoint the guest
-  while (1) {
-     ioctl(KVM_RUN)
-     switch (exit reason) {
-         handle mmio, I/O etc. might call
-            ioctl(KVM_INTERRUPT) to queue an external interrupt
-            ioctl(KVM_{GET,SET}_{REGS,SREGS}) to query/modify registers
-            ioctl(KVM_GET_DIRTY_LOG) to see which guest memory pages 
-have changed
-     }
-
-I have some simple test code, I'll clean it up and post it.
-
-> - why do it this way rather than through a virtual machine monitor
->   such as Xen? what do you gain from having the virtual machines
->   encapsulated as Linux processes?
->   
-
-- architectural simplicity: instead of splitting memory management and 
-scheduling between Xen and domain 0, use just the Linux memory 
-management and scheduler
-- use standard tools (top(1), kill(1)) and security model (permissions 
-on /dev/kvm)
-- much smaller codebase (although paravirtualization is not included (yet))
-- no changes to core code
-- easy to upgrade an existing system
-- easier for drive-by virtualization (modprobe kvm; do-your-stuff; 
-ctrl-C; rmmod kvm)
-- longer term, better performance since there's no need to switch to 
-domain 0 for I/O (instead just switch to user mode of the VM's process)
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Jesse

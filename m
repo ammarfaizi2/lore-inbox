@@ -1,93 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWJSI1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWJSIbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWJSI1O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 04:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWJSI1O
+	id S1030316AbWJSIbq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 04:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbWJSIbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 04:27:14 -0400
-Received: from max.feld.cvut.cz ([147.32.192.36]:9350 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1030314AbWJSI1N convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 04:27:13 -0400
-From: CIJOML <cijoml@volny.cz>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [Bug 185] Sometimes kernel freezes sometime lists OOPS - hostap_cs
-Date: Thu, 19 Oct 2006 10:12:49 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <200610171747.34177.cijoml@volny.cz> <20061018235604.47886be9.akpm@osdl.org>
-In-Reply-To: <20061018235604.47886be9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610191012.49544.cijoml@volny.cz>
+	Thu, 19 Oct 2006 04:31:46 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:57041 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030316AbWJSIbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 04:31:44 -0400
+Date: Thu, 19 Oct 2006 01:31:30 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: holt@sgi.com, suresh.b.siddha@intel.com, dino@in.ibm.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       mbligh@google.com, rohitseth@google.com, dipankar@in.ibm.com
+Subject: Re: exclusive cpusets broken with cpu hotplug
+Message-Id: <20061019013130.d374b7ba.pj@sgi.com>
+In-Reply-To: <45373478.1030004@yahoo.com.au>
+References: <20061017192547.B19901@unix-os.sc.intel.com>
+	<20061018001424.0c22a64b.pj@sgi.com>
+	<20061018095621.GB15877@lnx-holt.americas.sgi.com>
+	<20061018031021.9920552e.pj@sgi.com>
+	<45361B32.8040604@yahoo.com.au>
+	<20061018231559.8d3ede8f.pj@sgi.com>
+	<45371CBB.2030409@yahoo.com.au>
+	<20061018235746.95343e77.pj@sgi.com>
+	<4537238A.7060106@yahoo.com.au>
+	<20061019003316.f6a77b34.pj@sgi.com>
+	<45373478.1030004@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> So make the new rule "cpu_exclusive && direct-child-of-root-cpuset".
+> Your problems go away, and they haven't been pushed to userspace.
 
-it is nsc-ircc:
+I don't know of anyone that has need for this feature.
 
-nsc-ircc, chip->init
-nsc-ircc, Found chip at base=0x02e
-nsc-ircc, driver loaded (Dag Brattli)
-nsc-ircc, Using dongle: HP HSDL-2300, HP HSDL-3600/HSDL-3610
+Do you?  If you do - good - lets consider them anew.
 
-I tried udev also and problem is almost the same:
+If such needs arise, I doubt I would recommend meeting them with the
+cpu_exclusive flag, in any way shape or form.  That would probably not
+be a particularly clear and intuitive interface for whatever it was we
+needed.
 
-cijoml@notas:~$ dpkg -l|grep udev
-ii  udev                            0.100-2                     /dev/ and
-hotplug management daemon
+> If a user wants to, for some crazy reason, have a set of cpu_exclusive
+> sets deep in the cpuset hierarchy, such that no load balancing happens
+> between them... just tell them they can't; they should just make those
+> cpusets children of the root.
 
-dmesg:
+I have no problem telling users what the limits are on mechanisms.
 
-pccard: PCMCIA card inserted into slot 1
-pcmcia: registering new device pcmcia1.0
-1.0: RequestIO: Resource in use
-1.0: GetNextTuple: No more items
-hostap_cs: probe of 1.0 failed with error 1
-1.0: RequestIO: Resource in use
-1.0: GetNextTuple: No more items
-hostap_cs: probe of 1.0 failed with error 1
+I have serious problems trying to push mechanisms on them that I
+couldn't understand until after repeated attempts over many months,
+that are counter intuitive and dangerous (at least unless such odd
+rules are imposed) to use, and that provide no useful feedback to the
+user as to what they are doing.
 
-And after calling iwconfig I getts:
-notas:/home/cijoml/# iwconfig
-lo        no wireless extensions.
+It doesn't increase my sympathy for this code that it has been my
+biggest source of customer maintenance costs due to a couple of
+serious bugs, in all of the cpuset code.
 
-eth0      no wireless extensions.
-
-wifi0     IEEE 802.11-DS  ESSID:"test"
-          Mode:Master
-          Encryption key:off
-
-irda0     no wireless extensions.
-
-ppp0      no wireless extensions.
-
-which I have never seen before :(
-
-
-Best regards
-Michal
-
-Dne ètvrtek 19 øíjen 2006 08:56 Andrew Morton napsal(a):
-> On Tue, 17 Oct 2006 17:47:34 +0200
->
-> CIJOML <cijoml@volny.cz> wrote:
-> > can anybody take a look at this bug?
-> >
-> > http://hostap.epitest.fi/bugz/show_bug.cgi?id=185
-> >
-> > pccard: PCMCIA card inserted into slot 1
-> > pcmcia: registering new device pcmcia1.0
-> > ieee80211_crypt: registered algorithm 'NULL'
-> > hostap_cs: 0.4.4-kernel (Jouni Malinen <jkmaline@cc.hut.fi>)
-> > hostap_cs: Registered netdevice wifi0
-> > IRQ handler type mismatch for IRQ 3
->
-> Looks like whatever driver is driving irda0 is refusing to share
-> interrupts.
->
-> Which driver is that?
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423312AbWJSLtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423313AbWJSLwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423312AbWJSLtE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 07:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423313AbWJSLtE
+	id S1423313AbWJSLwL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 07:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423317AbWJSLwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 07:49:04 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:54687 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1423312AbWJSLtC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 07:49:02 -0400
-Date: Thu, 19 Oct 2006 12:49:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: Neil Brown <neilb@suse.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] nfs endianness annotations
-Message-ID: <20061019114900.GS29920@ftp.linux.org.uk>
-References: <E1GX7zV-00047C-PO@ZenIV.linux.org.uk> <1161206763.6095.172.camel@lade.trondhjem.org> <17718.51050.186385.512984@cse.unsw.edu.au> <20061019012600.GR29920@ftp.linux.org.uk> <du2ej21g7pkccoe4cigs8r9gsq1ir6nc9p@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Oct 2006 07:52:11 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:46722 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423313AbWJSLwK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 07:52:10 -0400
+From: Andi Kleen <ak@suse.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: PCI-DMA: Disabling IOMMU
+Date: Thu, 19 Oct 2006 13:52:34 +0200
+User-Agent: KMail/1.9.1
+Cc: Sebastian Biallas <sb@biallas.net>, linux-kernel@vger.kernel.org
+References: <45364248.2020901@biallas.net> <200610182348.44968.ak@suse.de> <20061019051528.GE4582@rhun.haifa.ibm.com>
+In-Reply-To: <20061019051528.GE4582@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <du2ej21g7pkccoe4cigs8r9gsq1ir6nc9p@4ax.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610191352.35177.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 03:30:25PM +1000, Grant Coady wrote:
-> On Thu, 19 Oct 2006 02:26:00 +0100, Al Viro <viro@ftp.linux.org.uk> wrote:
-> 
-> >Folks, seriously, please run sparse after changes; it's a simple matter of
-> >make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/; nothing tricky and it saves a lot
-> >of potential PITA...
-> 
-> grant@sempro:~/linux/linux-2.6.19-rc2a$ make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/;
->   CHK     include/linux/version.h
->   CHK     include/linux/utsrelease.h
->   CHECK   scripts/mod/empty.c
-> /bin/sh: sparse: command not found
-> make[2]: *** [scripts/mod/empty.o] Error 127
-> make[1]: *** [scripts/mod] Error 2
-> make: *** [scripts] Error 2
-> 
-> What sparse?  Pointer please?  Hell of a keyword to search for :(
 
-$ grep -l sparse Documentation/*
-Documentation/CodingStyle
-Documentation/README.DAC960
-Documentation/SubmitChecklist
-Documentation/sparse.txt
-$
+> The original message is misleading - there may certainly be more than
+> one IOMMU and then we will end up "disabling IOMMU" and then
+> "reenabling IOMMU" later when we detect another one. Can we at least
+> make it "disabling GART IOMMU"?
+
+Ok, although the printk is already guarded by a test for another IOMMU
+
+-Andi

@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946312AbWJSSXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423163AbWJSS3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946312AbWJSSXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946305AbWJSSXN
+	id S1423163AbWJSS3R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423153AbWJSS3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:23:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:24513 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423153AbWJSSXL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:23:11 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Linux
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: dealing with excessive includes
-Date: Thu, 19 Oct 2006 20:24:03 +0200
-User-Agent: KMail/1.9.5
-Cc: Al Viro <viro@ftp.linux.org.uk>, Alexey Dobriyan <adobriyan@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061017005025.GF29920@ftp.linux.org.uk> <20061018160609.GO29920@ftp.linux.org.uk> <Pine.LNX.4.64.0610180926380.3962@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610180926380.3962@g5.osdl.org>
+	Thu, 19 Oct 2006 14:29:17 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:39613 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1423163AbWJSS3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:29:16 -0400
+Message-ID: <4537C44C.4040208@oracle.com>
+Date: Thu, 19 Oct 2006 11:30:36 -0700
+From: "Randy.Dunlap" <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Avi Kivity <avi@qumranet.com>
+CC: Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com>	<20061019173151.GD4957@rhun.haifa.ibm.com>	<4537BD27.7050509@qumranet.com> <20061019111214.b063f531.randy.dunlap@oracle.com> <4537C081.7060109@qumranet.com>
+In-Reply-To: <4537C081.7060109@qumranet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610192024.03511.agruen@suse.de>
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 October 2006 18:32, Linus Torvalds wrote:
-> I think ext2 was already fixed to use its own spinlocks for bitmap
-> accesses, although it looks like somebody re-introduced "lock_super()"
-> there for xattr handling.
+Avi Kivity wrote:
+> Randy Dunlap wrote:
+>>> Probably too big.  It's also the ugliest.  I'll split it and resend 
+>>> (not through thunderbird though... ate all my tabs!).
+>>>     
+>>
+>> This works for me (when I have to use it), without using attachments:
+>>   http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+>>   
+> 
+> That may be fine for a single patch, but too much work for a patchset.  
+> Since I'm using quilt, I'll try to use its mail feature (though it gave 
+> me some nasty errors when I took a peek).
 
-I'll send a cleanup patch for that.
+Agreed.  quilt or Paul Jackson's sendpatchset script.
 
-Thanks,
-Andreas
+-- 
+~Randy

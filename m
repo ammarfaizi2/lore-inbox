@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423011AbWJSRcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946130AbWJSRjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423011AbWJSRcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423072AbWJSRcS
+	id S1946130AbWJSRjN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946133AbWJSRjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:32:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17099 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423011AbWJSRcQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:32:16 -0400
-Date: Thu, 19 Oct 2006 10:25:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jt@hpl.hp.com
-Cc: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: 2.6.19-rc2-mm1 // errors in verify_redzone_free()
-Message-Id: <20061019102529.dea90fec.akpm@osdl.org>
-In-Reply-To: <20061019171727.GA9350@bougret.hpl.hp.com>
-References: <20061016230645.fed53c5b.akpm@osdl.org>
-	<200610191645.40308.m.kozlowski@tuxland.pl>
-	<20061019100342.4e4895fb.akpm@osdl.org>
-	<20061019171727.GA9350@bougret.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Oct 2006 13:39:13 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:43761 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946130AbWJSRjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:39:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k5YfZn1pYZC/DCjcKFKkZscorUEHIsZORP8G51UZSyri7EVqTOwbYGC4B0j+hLcduFN3IVdd6B5eiLR2SCRtq4Mz7BzHlUZRTkPgncm3mrrn2pfXitg+YD608oqYTOi/tguk/sbYeYDSNtvM/jdRiWQzN4HoUquASJGOdlbax8w=
+Message-ID: <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com>
+Date: Thu, 19 Oct 2006 19:39:10 +0200
+From: wixor <wixorpeek@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: VCD not readable under 2.6.18
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1161276178.17335.100.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
+	 <1161040345.24237.135.camel@localhost.localdomain>
+	 <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
+	 <1161124732.5014.20.camel@localhost.localdomain>
+	 <c43b2e150610190935tefd11eev510c7dee36c15a51@mail.gmail.com>
+	 <1161276178.17335.100.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 10:17:27 -0700
-Jean Tourrilhes <jt@hpl.hp.com> wrote:
+On 10/19/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> It isn't hidden it should be in the first session
+So tell me then, where is it if windows can see it, but linux can't?
 
-> On Thu, Oct 19, 2006 at 10:03:42AM -0700, Andrew Morton wrote:
-> > On Thu, 19 Oct 2006 16:45:39 +0200
-> > Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
-> > 
-> > > Hello,
-> > > 
-> > > 	Multiple of verif were found with 2.6.19-rc2-mm1 kernel:
-> > > 
-> > > slab error in verify_redzone_free(): cache `size-32': memory outside object 
-> > > was overwritten
-> > >  [<c0103765>] dump_trace+0x1c1/0x1f1
-> > >  [<c01037af>] show_trace_log_lvl+0x1a/0x30
-> > >  [<c0103ed8>] show_trace+0x12/0x14
-> > >  [<c0103f7b>] dump_stack+0x19/0x1b
-> > >  [<c0158357>] __slab_error+0x26/0x28
-> > >  [<c0158496>] cache_free_debugcheck+0x13d/0x1d8
-> > >  [<c0158bb0>] kfree+0x54/0xa5
-> > >  [<c037fba4>] ioctl_standard_call+0x187/0x2a1
-> > >  [<c037ffe6>] wireless_process_ioctl+0x328/0x3c7
-> > >  [<c03763d4>] dev_ioctl+0x1fd/0x372
-> > >  [<c036b080>] sock_ioctl+0x34/0x1e8
-> > >  [<c0167a92>] do_ioctl+0x22/0x71
-> > >  [<c0167b36>] vfs_ioctl+0x55/0x29b
-> > >  [<c0167daf>] sys_ioctl+0x33/0x50
-> > >  [<c0102ff5>] sysenter_past_esp+0x56/0x79
-> > >  [<b7f4e410>] 0xb7f4e410
-> > >  =======================
-> > > dd20cb64: redzone 1:0x170fc2a5, redzone 2:0x170fc200.
-> > > slab error in verify_redzone_free(): cache `size-32': memory outside object 
-> > > was overwritten
-> > >  [<c0103765>] dump_trace+0x1c1/0x1f1
-> > >  [<c01037af>] show_trace_log_lvl+0x1a/0x30
-> > >  [<c0103ed8>] show_trace+0x12/0x14
-> > >  [<c0103f7b>] dump_stack+0x19/0x1b
-> > >  [<c0158357>] __slab_error+0x26/0x28
-> > >  [<c0158496>] cache_free_debugcheck+0x13d/0x1d8
-> > >  [<c0158bb0>] kfree+0x54/0xa5
-> > >  [<c037fba4>] ioctl_standard_call+0x187/0x2a1
-> > >  [<c037ffe6>] wireless_process_ioctl+0x328/0x3c7
-> > >  [<c03763d4>] dev_ioctl+0x1fd/0x372
-> > >  [<c036b080>] sock_ioctl+0x34/0x1e8
-> > >  [<c0167a92>] do_ioctl+0x22/0x71
-> > >  [<c0167b36>] vfs_ioctl+0x55/0x29b
-> > >  [<c0167daf>] sys_ioctl+0x33/0x50 
-> > >  [<c0102ff5>] sysenter_past_esp+0x56/0x79
-> > >  [<b7f4e410>] 0xb7f4e410
-> > 
-> > The wireless ioctls are still blowing up?  I thought we'd fixed that,
-> > or is this something new?
-> 
-> 	Do you know which driver the user is using ? Is it an
-> in-kernel driver, or an out-of-kernel driver ?
-> 	Thanks !
-> 
+> The kernel provides the infrastructure for arbitary CD handling, but
+> provides only the file system support in kernel. It can't (and doesn't
+> appear to need to) handle VCD in kernel it provides the tools to Xine
+> and friends instead.
+Well, no doubt it is only m$ who can have vcd player in the kernel -
+the point is the CD does NOT get read, neither by xine nor by any
+other known to me tool. I asked here because the kernel is the only
+source of any messages addressing the unplayability of the CD - all
+the others just hang - so it looks like a kernel issue, doesn't it?
+And as far as I understand you, you are trying to tell me it is
+everything OK with the kernel, and the problem lays somewhere else,
+yes?
 
-Modules Loaded         orinoco_cs orinoco hermes pcmcia firmware_class 
-yenta_socket rsrc_nonstatic pcmcia_core
-
-The full dmesg is on the mailing list - I'll forward it to you.
+wixor

@@ -1,25 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWJSG2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWJSGau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161019AbWJSG2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 02:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWJSG2R
+	id S1161334AbWJSGau (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 02:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161336AbWJSGat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 02:28:17 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17079 "EHLO
+	Thu, 19 Oct 2006 02:30:49 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17336 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161019AbWJSG2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 02:28:16 -0400
-Date: Wed, 18 Oct 2006 23:28:06 -0700
+	id S1161335AbWJSGas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 02:30:48 -0400
+Date: Wed, 18 Oct 2006 23:30:37 -0700
 From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: suresh.b.siddha@intel.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, mbligh@google.com, rohitseth@google.com,
-       dipankar@in.ibm.com
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: suresh.b.siddha@intel.com, dino@in.ibm.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, mbligh@google.com,
+       rohitseth@google.com, dipankar@in.ibm.com, nickpiggin@yahoo.com.au
 Subject: Re: [RFC] Cpuset: explicit dynamic sched domain control flags
-Message-Id: <20061018232806.a6145f0f.pj@sgi.com>
-In-Reply-To: <20061018174925.GB7885@in.ibm.com>
+Message-Id: <20061018233037.046ebb05.pj@sgi.com>
+In-Reply-To: <20061018105035.B26521@unix-os.sc.intel.com>
 References: <20061016230351.19049.29855.sendpatchset@jackhammer.engr.sgi.com>
-	<20061018174925.GB7885@in.ibm.com>
+	<20061017114306.A19690@unix-os.sc.intel.com>
+	<20061017121823.e6f695aa.pj@sgi.com>
+	<20061017190144.A19901@unix-os.sc.intel.com>
+	<20061018000512.1d13aabd.pj@sgi.com>
+	<20061018105035.B26521@unix-os.sc.intel.com>
 Organization: SGI
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -28,22 +32,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar wrote:
-> IMO this change is counter intuitive and pointless
+Suresh, responding to pj:
+> > It was to show that even the existing cpu_exclusive
+> > flag lets one create sched domains configurations that might not be
+> > what one wanted.
+> 
+> I agree with your point. Lets take this out of discussion for now.
 
-If we intend to make the cpuset to sched_domain interaction
-functional, something like this was needed.
+Excellent.
 
-However I am now leaning toward thinking that the entire
-effort to manipulate sched_domain definitions by cpusets
-(the cpu_exclusive flag) has been counter intuitive, and
-is borked.
+Rather than taking this point out of discussion, lets extend this
+agreement, to remove the existing cpu_exclusive flag's side affect of
+creating sched domain configurations.
 
-So I will be sending out patches to remove it, and replace
-with a trivial mechanism to allow for runtime manipulation
-of the cpu_isolated_map.
-
-Coming soon ...
+Patches coming shortly.
 
 -- 
                   I won't rest till it's the best ...

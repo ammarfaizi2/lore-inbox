@@ -1,336 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161419AbWJSNsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161422AbWJSNuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161419AbWJSNsv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 09:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161417AbWJSNsv
+	id S1161422AbWJSNuB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 09:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161429AbWJSNuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 09:48:51 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:19096 "EHLO
+	Thu, 19 Oct 2006 09:50:01 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:2460 "EHLO
 	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1161419AbWJSNsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 09:48:50 -0400
-Message-ID: <4537823C.6030700@qumranet.com>
-Date: Thu, 19 Oct 2006 15:48:44 +0200
+	id S1161426AbWJSNt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 09:49:59 -0400
+Message-ID: <45378281.2050505@qumranet.com>
+Date: Thu, 19 Oct 2006 15:49:53 +0200
 From: Avi Kivity <avi@qumranet.com>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/7] KVM: Intel virtual mode extensions definitions
+Subject: [PATCH 3/7] KVM: kvm data structures
 References: <4537818D.4060204@qumranet.com>
 In-Reply-To: <4537818D.4060204@qumranet.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2006 13:48:49.0222 (UTC) FILETIME=[4E0B9660:01C6F385]
+X-OriginalArrivalTime: 19 Oct 2006 13:49:58.0473 (UTC) FILETIME=[77527390:01C6F385]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add some constants for the various bits defined by Intel's VT extensions.
-
-Most of this file was lifted from the Xen hypervisor.
+Define data structures and some constants for a virtual machine.
 
 Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/vmx.h
+Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
 --- /dev/null
-+++ linux-2.6/drivers/kvm/vmx.h
-@@ -0,0 +1,287 @@
-+#ifndef VMX_H
-+#define VMX_H
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -0,0 +1,206 @@
++#ifndef __KVM_H
++#define __KVM_H
++
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/mutex.h>
++#include <linux/spinlock.h>
++#include <linux/mm.h>
++
++#define INVALID_PAGE (~(hpa_t)0)
++#define UNMAPPED_GVA (~(gpa_t)0)
++
++#define KVM_MAX_VCPUS 1
++#define KVM_MEMORY_SLOTS 4
++#define KVM_NUM_MMU_PAGES 256
++
++#define FX_IMAGE_SIZE 512
++#define FX_IMAGE_ALIGN 16
++#define FX_BUF_SIZE (2 * FX_IMAGE_SIZE + FX_IMAGE_ALIGN)
 +
 +/*
-+ * vmx.h: VMX Architecture related definitions
-+ * Copyright (c) 2004, Intel Corporation.
++ * Address types:
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-along with
-+ * this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple
-+ * Place - Suite 330, Boston, MA 02111-1307 USA.
-+ *
-+ * A few random additions are:
-+ * Copyright (C) 2006 Qumranet
-+ *    Avi Kivity <avi@qumranet.com>
-+ *    Yaniv Kamay <yaniv@qumranet.com>
-+ *
++ *  gva - guest virtual address
++ *  gpa - guest physical address
++ *  gfn - guest frame number
++ *  hva - host virtual address
++ *  hpa - host physical address
++ *  hfn - host frame number
 + */
 +
-+#define CPU_BASED_VIRTUAL_INTR_PENDING  0x00000004
-+#define CPU_BASED_USE_TSC_OFFSETING     0x00000008
-+#define CPU_BASED_HLT_EXITING           0x00000080
-+#define CPU_BASED_INVDPG_EXITING        0x00000200
-+#define CPU_BASED_MWAIT_EXITING         0x00000400
-+#define CPU_BASED_RDPMC_EXITING         0x00000800
-+#define CPU_BASED_RDTSC_EXITING         0x00001000
-+#define CPU_BASED_CR8_LOAD_EXITING      0x00080000
-+#define CPU_BASED_CR8_STORE_EXITING     0x00100000
-+#define CPU_BASED_TPR_SHADOW            0x00200000
-+#define CPU_BASED_MOV_DR_EXITING        0x00800000
-+#define CPU_BASED_UNCOND_IO_EXITING     0x01000000
-+#define CPU_BASED_ACTIVATE_IO_BITMAP    0x02000000
-+#define CPU_BASED_MSR_BITMAPS           0x10000000
-+#define CPU_BASED_MONITOR_EXITING       0x20000000
-+#define CPU_BASED_PAUSE_EXITING         0x40000000
++typedef unsigned long  gva_t;
++typedef u64            gpa_t;
++typedef unsigned long  gfn_t;
 +
-+#define PIN_BASED_EXT_INTR_MASK 0x1
-+#define PIN_BASED_NMI_EXITING   0x8
++typedef unsigned long  hva_t;
++typedef u64            hpa_t;
++typedef unsigned long  hfn_t;
 +
-+#define VM_EXIT_ACK_INTR_ON_EXIT        0x00008000
-+#define VM_EXIT_HOST_ADD_SPACE_SIZE     0x00000200
-+
-+
-+/* VMCS Encordings */
-+enum vmcs_field {
-+    GUEST_ES_SELECTOR               = 0x00000800,
-+    GUEST_CS_SELECTOR               = 0x00000802,
-+    GUEST_SS_SELECTOR               = 0x00000804,
-+    GUEST_DS_SELECTOR               = 0x00000806,
-+    GUEST_FS_SELECTOR               = 0x00000808,
-+    GUEST_GS_SELECTOR               = 0x0000080a,
-+    GUEST_LDTR_SELECTOR             = 0x0000080c,
-+    GUEST_TR_SELECTOR               = 0x0000080e,
-+    HOST_ES_SELECTOR                = 0x00000c00,
-+    HOST_CS_SELECTOR                = 0x00000c02,
-+    HOST_SS_SELECTOR                = 0x00000c04,
-+    HOST_DS_SELECTOR                = 0x00000c06,
-+    HOST_FS_SELECTOR                = 0x00000c08,
-+    HOST_GS_SELECTOR                = 0x00000c0a,
-+    HOST_TR_SELECTOR                = 0x00000c0c,
-+    IO_BITMAP_A                     = 0x00002000,
-+    IO_BITMAP_A_HIGH                = 0x00002001,
-+    IO_BITMAP_B                     = 0x00002002,
-+    IO_BITMAP_B_HIGH                = 0x00002003,
-+    MSR_BITMAP                      = 0x00002004,
-+    MSR_BITMAP_HIGH                 = 0x00002005,
-+    VM_EXIT_MSR_STORE_ADDR          = 0x00002006,
-+    VM_EXIT_MSR_STORE_ADDR_HIGH     = 0x00002007,
-+    VM_EXIT_MSR_LOAD_ADDR           = 0x00002008,
-+    VM_EXIT_MSR_LOAD_ADDR_HIGH      = 0x00002009,
-+    VM_ENTRY_MSR_LOAD_ADDR          = 0x0000200a,
-+    VM_ENTRY_MSR_LOAD_ADDR_HIGH     = 0x0000200b,
-+    TSC_OFFSET                      = 0x00002010,
-+    TSC_OFFSET_HIGH                 = 0x00002011,
-+    VIRTUAL_APIC_PAGE_ADDR          = 0x00002012,
-+    VIRTUAL_APIC_PAGE_ADDR_HIGH     = 0x00002013,
-+    VMCS_LINK_POINTER               = 0x00002800,
-+    VMCS_LINK_POINTER_HIGH          = 0x00002801,
-+    GUEST_IA32_DEBUGCTL             = 0x00002802,
-+    GUEST_IA32_DEBUGCTL_HIGH        = 0x00002803,
-+    PIN_BASED_VM_EXEC_CONTROL       = 0x00004000,
-+    CPU_BASED_VM_EXEC_CONTROL       = 0x00004002,
-+    EXCEPTION_BITMAP                = 0x00004004,
-+    PAGE_FAULT_ERROR_CODE_MASK      = 0x00004006,
-+    PAGE_FAULT_ERROR_CODE_MATCH     = 0x00004008,
-+    CR3_TARGET_COUNT                = 0x0000400a,
-+    VM_EXIT_CONTROLS                = 0x0000400c,
-+    VM_EXIT_MSR_STORE_COUNT         = 0x0000400e,
-+    VM_EXIT_MSR_LOAD_COUNT          = 0x00004010,
-+    VM_ENTRY_CONTROLS               = 0x00004012,
-+    VM_ENTRY_MSR_LOAD_COUNT         = 0x00004014,
-+    VM_ENTRY_INTR_INFO_FIELD        = 0x00004016,
-+    VM_ENTRY_EXCEPTION_ERROR_CODE   = 0x00004018,
-+    VM_ENTRY_INSTRUCTION_LEN        = 0x0000401a,
-+    TPR_THRESHOLD                   = 0x0000401c,
-+    SECONDARY_VM_EXEC_CONTROL       = 0x0000401e,
-+    VM_INSTRUCTION_ERROR            = 0x00004400,
-+    VM_EXIT_REASON                  = 0x00004402,
-+    VM_EXIT_INTR_INFO               = 0x00004404,
-+    VM_EXIT_INTR_ERROR_CODE         = 0x00004406,
-+    IDT_VECTORING_INFO_FIELD        = 0x00004408,
-+    IDT_VECTORING_ERROR_CODE        = 0x0000440a,
-+    VM_EXIT_INSTRUCTION_LEN         = 0x0000440c,
-+    VMX_INSTRUCTION_INFO            = 0x0000440e,
-+    GUEST_ES_LIMIT                  = 0x00004800,
-+    GUEST_CS_LIMIT                  = 0x00004802,
-+    GUEST_SS_LIMIT                  = 0x00004804,
-+    GUEST_DS_LIMIT                  = 0x00004806,
-+    GUEST_FS_LIMIT                  = 0x00004808,
-+    GUEST_GS_LIMIT                  = 0x0000480a,
-+    GUEST_LDTR_LIMIT                = 0x0000480c,
-+    GUEST_TR_LIMIT                  = 0x0000480e,
-+    GUEST_GDTR_LIMIT                = 0x00004810,
-+    GUEST_IDTR_LIMIT                = 0x00004812,
-+    GUEST_ES_AR_BYTES               = 0x00004814,
-+    GUEST_CS_AR_BYTES               = 0x00004816,
-+    GUEST_SS_AR_BYTES               = 0x00004818,
-+    GUEST_DS_AR_BYTES               = 0x0000481a,
-+    GUEST_FS_AR_BYTES               = 0x0000481c,
-+    GUEST_GS_AR_BYTES               = 0x0000481e,
-+    GUEST_LDTR_AR_BYTES             = 0x00004820,
-+    GUEST_TR_AR_BYTES               = 0x00004822,
-+    GUEST_INTERRUPTIBILITY_INFO     = 0x00004824,
-+    GUEST_ACTIVITY_STATE            = 0X00004826,
-+    GUEST_SYSENTER_CS               = 0x0000482A,
-+    HOST_IA32_SYSENTER_CS           = 0x00004c00,
-+    CR0_GUEST_HOST_MASK             = 0x00006000,
-+    CR4_GUEST_HOST_MASK             = 0x00006002,
-+    CR0_READ_SHADOW                 = 0x00006004,
-+    CR4_READ_SHADOW                 = 0x00006006,
-+    CR3_TARGET_VALUE0               = 0x00006008,
-+    CR3_TARGET_VALUE1               = 0x0000600a,
-+    CR3_TARGET_VALUE2               = 0x0000600c,
-+    CR3_TARGET_VALUE3               = 0x0000600e,
-+    EXIT_QUALIFICATION              = 0x00006400,
-+    GUEST_LINEAR_ADDRESS            = 0x0000640a,
-+    GUEST_CR0                       = 0x00006800,
-+    GUEST_CR3                       = 0x00006802,
-+    GUEST_CR4                       = 0x00006804,
-+    GUEST_ES_BASE                   = 0x00006806,
-+    GUEST_CS_BASE                   = 0x00006808,
-+    GUEST_SS_BASE                   = 0x0000680a,
-+    GUEST_DS_BASE                   = 0x0000680c,
-+    GUEST_FS_BASE                   = 0x0000680e,
-+    GUEST_GS_BASE                   = 0x00006810,
-+    GUEST_LDTR_BASE                 = 0x00006812,
-+    GUEST_TR_BASE                   = 0x00006814,
-+    GUEST_GDTR_BASE                 = 0x00006816,
-+    GUEST_IDTR_BASE                 = 0x00006818,
-+    GUEST_DR7                       = 0x0000681a,
-+    GUEST_RSP                       = 0x0000681c,
-+    GUEST_RIP                       = 0x0000681e,
-+    GUEST_RFLAGS                    = 0x00006820,
-+    GUEST_PENDING_DBG_EXCEPTIONS    = 0x00006822,
-+    GUEST_SYSENTER_ESP              = 0x00006824,
-+    GUEST_SYSENTER_EIP              = 0x00006826,
-+    HOST_CR0                        = 0x00006c00,
-+    HOST_CR3                        = 0x00006c02,
-+    HOST_CR4                        = 0x00006c04,
-+    HOST_FS_BASE                    = 0x00006c06,
-+    HOST_GS_BASE                    = 0x00006c08,
-+    HOST_TR_BASE                    = 0x00006c0a,
-+    HOST_GDTR_BASE                  = 0x00006c0c,
-+    HOST_IDTR_BASE                  = 0x00006c0e,
-+    HOST_IA32_SYSENTER_ESP          = 0x00006c10,
-+    HOST_IA32_SYSENTER_EIP          = 0x00006c12,
-+    HOST_RSP                        = 0x00006c14,
-+    HOST_RIP                        = 0x00006c16,
++struct kvm_mmu_page {
++    struct list_head link;
++    hpa_t page_hpa;
++    unsigned long slot_bitmap; /* One bit set per slot which has memory
++                    * in this shadow page.
++                    */
++    int global;              /* Set if all ptes in this page are global */
++    u64 *parent_pte;
 +};
 +
-+#define VMX_EXIT_REASONS_FAILED_VMENTRY         0x80000000
++struct vmcs {
++    u32 revision_id;
++    u32 abort;
++    char data[0];
++};
 +
-+#define EXIT_REASON_EXCEPTION_NMI       0
-+#define EXIT_REASON_EXTERNAL_INTERRUPT  1
++struct vmx_msr_entry {
++    u32 index;
++    u32 reserved;
++    u64 data;
++};
 +
-+#define EXIT_REASON_PENDING_INTERRUPT   7
-+
-+#define EXIT_REASON_TASK_SWITCH         9
-+#define EXIT_REASON_CPUID               10
-+#define EXIT_REASON_HLT                 12
-+#define EXIT_REASON_INVLPG              14
-+#define EXIT_REASON_RDPMC               15
-+#define EXIT_REASON_RDTSC               16
-+#define EXIT_REASON_VMCALL              18
-+#define EXIT_REASON_VMCLEAR             19
-+#define EXIT_REASON_VMLAUNCH            20
-+#define EXIT_REASON_VMPTRLD             21
-+#define EXIT_REASON_VMPTRST             22
-+#define EXIT_REASON_VMREAD              23
-+#define EXIT_REASON_VMRESUME            24
-+#define EXIT_REASON_VMWRITE             25
-+#define EXIT_REASON_VMOFF               26
-+#define EXIT_REASON_VMON                27
-+#define EXIT_REASON_CR_ACCESS           28
-+#define EXIT_REASON_DR_ACCESS           29
-+#define EXIT_REASON_IO_INSTRUCTION      30
-+#define EXIT_REASON_MSR_READ            31
-+#define EXIT_REASON_MSR_WRITE           32
-+#define EXIT_REASON_MWAIT_INSTRUCTION   36
++struct kvm_vcpu;
 +
 +/*
-+ * Interruption-information format
++ * x86 supports 3 paging modes (4-level 64-bit, 3-level 64-bit, and 2-level
++ * 32-bit).  The kvm_mmu structure abstracts the details of the current mmu
++ * mode.
 + */
-+#define INTR_INFO_VECTOR_MASK           0xff            /* 7:0 */
-+#define INTR_INFO_INTR_TYPE_MASK        0x700           /* 10:8 */
-+#define INTR_INFO_DELIEVER_CODE_MASK    0x800           /* 11 */
-+#define INTR_INFO_VALID_MASK            0x80000000      /* 31 */
++struct kvm_mmu {
++    void (*new_cr3)(struct kvm_vcpu *vcpu);
++    int (*page_fault)(struct kvm_vcpu *vcpu, gva_t gva, u32 err);
++    void (*inval_page)(struct kvm_vcpu *vcpu, gva_t gva);
++    void (*free)(struct kvm_vcpu *vcpu);
++    gpa_t (*gva_to_gpa)(struct kvm_vcpu *vcpu, gva_t gva);
++    hpa_t root_hpa;
++    int root_level;
++    int shadow_root_level;
++};
 +
-+#define VECTORING_INFO_VECTOR_MASK               INTR_INFO_VECTOR_MASK
-+#define VECTORING_INFO_TYPE_MASK            INTR_INFO_INTR_TYPE_MASK
-+#define VECTORING_INFO_DELIEVER_CODE_MASK       
-INTR_INFO_DELIEVER_CODE_MASK
-+#define VECTORING_INFO_VALID_MASK           INTR_INFO_VALID_MASK
++struct kvm_guest_debug {
++    int enabled;
++    unsigned long bp[4];
++    int singlestep;
++};
 +
-+#define INTR_TYPE_EXT_INTR              (0 << 8) /* external interrupt */
-+#define INTR_TYPE_EXCEPTION             (3 << 8) /* processor exception */
++enum {
++    VCPU_REGS_RAX = 0,
++    VCPU_REGS_RCX = 1,
++    VCPU_REGS_RDX = 2,
++    VCPU_REGS_RBX = 3,
++    VCPU_REGS_RSP = 4,
++    VCPU_REGS_RBP = 5,
++    VCPU_REGS_RSI = 6,
++    VCPU_REGS_RDI = 7,
++#ifdef __x86_64__
++    VCPU_REGS_R8 = 8,
++    VCPU_REGS_R9 = 9,
++    VCPU_REGS_R10 = 10,
++    VCPU_REGS_R11 = 11,
++    VCPU_REGS_R12 = 12,
++    VCPU_REGS_R13 = 13,
++    VCPU_REGS_R14 = 14,
++    VCPU_REGS_R15 = 15,
++#endif
++    NR_VCPU_REGS
++};
 +
-+/*
-+ * Exit Qualifications for MOV for Control Register Access
-+ */
-+#define CONTROL_REG_ACCESS_NUM          0x7     /* 2:0, number of
-control register */
-+#define CONTROL_REG_ACCESS_TYPE         0x30    /* 5:4, access type */
-+#define CONTROL_REG_ACCESS_REG          0xf00   /* 10:8, general
-purpose register */
-+#define LMSW_SOURCE_DATA_SHIFT 16
-+#define LMSW_SOURCE_DATA  (0xFFFF << LMSW_SOURCE_DATA_SHIFT) /* 16:31
-lmsw source */
-+#define REG_EAX                         (0 << 8)
-+#define REG_ECX                         (1 << 8)
-+#define REG_EDX                         (2 << 8)
-+#define REG_EBX                         (3 << 8)
-+#define REG_ESP                         (4 << 8)
-+#define REG_EBP                         (5 << 8)
-+#define REG_ESI                         (6 << 8)
-+#define REG_EDI                         (7 << 8)
-+#define REG_R8                         (8 << 8)
-+#define REG_R9                         (9 << 8)
-+#define REG_R10                        (10 << 8)
-+#define REG_R11                        (11 << 8)
-+#define REG_R12                        (12 << 8)
-+#define REG_R13                        (13 << 8)
-+#define REG_R14                        (14 << 8)
-+#define REG_R15                        (15 << 8)
++struct kvm_vcpu {
++    struct kvm *kvm;
++    struct vmcs *vmcs;
++    struct mutex mutex;
++    int   cpu;
++    int   launched;
++    unsigned long irq_summary; /* bit vector: 1 per word in irq_pending */
++#define NR_IRQ_WORDS (256 / BITS_PER_LONG)
++    unsigned long irq_pending[NR_IRQ_WORDS];
++    unsigned long regs[NR_VCPU_REGS]; /* for rsp: vcpu_load_rsp_rip() */
++    unsigned long rip;      /* needs vcpu_load_rsp_rip() */
 +
-+/*
-+ * Exit Qualifications for MOV for Debug Register Access
-+ */
-+#define DEBUG_REG_ACCESS_NUM            0x7     /* 2:0, number of debug
-register */
-+#define DEBUG_REG_ACCESS_TYPE           0x10    /* 4, direction of
-access */
-+#define TYPE_MOV_TO_DR                  (0 << 4)
-+#define TYPE_MOV_FROM_DR                (1 << 4)
-+#define DEBUG_REG_ACCESS_REG            0xf00   /* 11:8, general
-purpose register */
++    unsigned long cr2;
++    unsigned long cr3;
++    unsigned long cr8;
++    u64 shadow_efer;
++    u64 apic_base;
++    struct vmx_msr_entry *guest_msrs;
++    struct vmx_msr_entry *host_msrs;
 +
++    struct list_head free_pages;
++    struct kvm_mmu_page page_header_buf[KVM_NUM_MMU_PAGES];
++    struct kvm_mmu mmu;
 +
-+/* segment AR */
-+#define SEGMENT_AR_L_MASK (1 << 13)
++    struct kvm_guest_debug guest_debug;
 +
-+/* entry controls */
-+#define VM_ENTRY_CONTROLS_IA32E_MASK (1 << 9)
++    char fx_buf[FX_BUF_SIZE];
++    char *host_fx_image;
++    char *guest_fx_image;
 +
-+#define AR_TYPE_ACCESSES_MASK 1
-+#define AR_TYPE_READABLE_MASK (1 << 1)
-+#define AR_TYPE_WRITEABLE_MASK (1 << 2)
-+#define AR_TYPE_CODE_MASK (1 << 3)
-+#define AR_TYPE_MASK 0x0f
-+#define AR_TYPE_BUSY_64_TSS 11
-+#define AR_TYPE_BUSY_32_TSS 11
-+#define AR_TYPE_BUSY_16_TSS 3
-+#define AR_TYPE_LDT 2
++    int mmio_needed;
++    int mmio_read_completed;
++    int mmio_is_write;
++    int mmio_size;
++    unsigned char mmio_data[8];
++    gpa_t mmio_phys_addr;
 +
-+#define AR_UNUSABLE_MASK (1 << 16)
-+#define AR_S_MASK (1 << 4)
-+#define AR_P_MASK (1 << 7)
-+#define AR_L_MASK (1 << 13)
-+#define AR_DB_MASK (1 << 14)
-+#define AR_G_MASK (1 << 15)
-+#define AR_DPL_SHIFT 5
-+#define AR_DPL(ar) (((ar) >> AR_DPL_SHIFT) & 3)
++    struct{
++        int active;
++        u8 save_iopl;
++        struct {
++            unsigned long base;
++            u32 limit;
++            u32 ar;
++        } tr;
++    } rmode;
++};
 +
-+#define AR_RESERVD_MASK 0xfffe0f00
++struct kvm_memory_slot {
++    gfn_t base_gfn;
++    unsigned long npages;
++    unsigned long flags;
++    struct page **phys_mem;
++    unsigned long *dirty_bitmap;
++};
++
++struct kvm {
++    spinlock_t lock; /* protects everything except vcpus */
++    int nmemslots;
++    struct kvm_memory_slot memslots[KVM_MEMORY_SLOTS];
++    struct list_head active_mmu_pages;
++    struct kvm_vcpu vcpus[KVM_MAX_VCPUS];
++    int memory_config_version;
++    int busy;
++};
++
++struct kvm_stat {
++    u32 pf_fixed;
++    u32 pf_guest;
++    u32 tlb_flush;
++    u32 invlpg;
++
++    u32 exits;
++    u32 io_exits;
++    u32 mmio_exits;
++    u32 signal_exits;
++    u32 irq_exits;
++};
++
++extern struct kvm_stat kvm_stat;
++
++#define kvm_printf(kvm, fmt ...) printk(KERN_DEBUG fmt)
++#define vcpu_printf(vcpu, fmt...) kvm_printf(vcpu->kvm, fmt)
++
++void kvm_mmu_destroy(struct kvm_vcpu *vcpu);
++int kvm_mmu_init(struct kvm_vcpu *vcpu);
++
++int kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
++void kvm_mmu_slot_remove_write_access(struct kvm *kvm, int slot);
++
++hpa_t gpa_to_hpa(struct kvm_vcpu *vcpu, gpa_t gpa);
++#define HPA_MSB ((sizeof(hpa_t) * 8) - 1)
++#define HPA_ERR_MASK ((hpa_t)1 << HPA_MSB)
++static inline int is_error_hpa(hpa_t hpa) { return hpa >> HPA_MSB; }
++hpa_t gva_to_hpa(struct kvm_vcpu *vcpu, gva_t gva);
++
++extern hpa_t bad_page_address;
 +
 +#endif
 

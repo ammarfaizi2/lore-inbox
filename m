@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946659AbWJSXUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946668AbWJSXVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946659AbWJSXUa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 19:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946660AbWJSXUa
+	id S1946668AbWJSXVd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 19:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946667AbWJSXVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 19:20:30 -0400
-Received: from xenotime.net ([66.160.160.81]:29376 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1946659AbWJSXU3 (ORCPT
+	Thu, 19 Oct 2006 19:21:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16324 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946664AbWJSXVb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 19:20:29 -0400
-Date: Thu, 19 Oct 2006 16:22:02 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Neil Brown <neilb@suse.de>
-Cc: Grant Coady <gcoady.lk@gmail.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] nfs endianness annotations
-Message-Id: <20061019162202.1ebc7fc1.rdunlap@xenotime.net>
-In-Reply-To: <17719.7138.688743.259430@cse.unsw.edu.au>
-References: <E1GX7zV-00047C-PO@ZenIV.linux.org.uk>
-	<1161206763.6095.172.camel@lade.trondhjem.org>
-	<17718.51050.186385.512984@cse.unsw.edu.au>
-	<20061019012600.GR29920@ftp.linux.org.uk>
-	<du2ej21g7pkccoe4cigs8r9gsq1ir6nc9p@4ax.com>
-	<17719.7138.688743.259430@cse.unsw.edu.au>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 19 Oct 2006 19:21:31 -0400
+Date: Thu, 19 Oct 2006 19:20:59 -0400
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Len Brown <lenb@kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: SMP broken on pre-ACPI machine.
+Message-ID: <20061019232059.GA2409@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <lenb@kernel.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-acpi@vger.kernel.org
+References: <20061018222433.GA4770@redhat.com> <200610190133.40581.len.brown@intel.com> <20061019191644.GE26530@redhat.com> <20061019201116.GG26530@redhat.com> <1161296239.17335.151.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161296239.17335.151.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 16:32:02 +1000 Neil Brown wrote:
+On Thu, Oct 19, 2006 at 11:17:19PM +0100, Alan Cox wrote:
+ > Ar Iau, 2006-10-19 am 16:11 -0400, ysgrifennodd Dave Jones:
+ > > On Thu, Oct 19, 2006 at 03:16:44PM -0400, Dave Jones wrote:
+ > > 
+ > >  > Why smp_found_config isn't set in that guys configuration is a mystery to me,
+ > >  > as his MPS tables look sane..
+ > >  > 
+ > >  > MP Table:
+ > >  > #	APIC ID	Version	State		Family	Model	Step	Flags
+ > >  > #	 0	 0x10	 BSP, usable	 6	 2	 1	 0x0381
+ > 
+ > Isn't that an "overdrive" ? if so it isn't supposed to be SMP capable
 
-> On Thursday October 19, grant_lkml@dodo.com.au wrote:
-> > On Thu, 19 Oct 2006 02:26:00 +0100, Al Viro <viro@ftp.linux.org.uk> wrote:
-> > 
-> > >Folks, seriously, please run sparse after changes; it's a simple matter of
-> > >make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/; nothing tricky and it saves a lot
-> > >of potential PITA...
-> > 
-> > grant@sempro:~/linux/linux-2.6.19-rc2a$ make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/;
-> >   CHK     include/linux/version.h
-> >   CHK     include/linux/utsrelease.h
-> >   CHECK   scripts/mod/empty.c
-> > /bin/sh: sparse: command not found
-> > make[2]: *** [scripts/mod/empty.o] Error 127
-> > make[1]: *** [scripts/mod] Error 2
-> > make: *** [scripts] Error 2
-> > 
-> > What sparse?  Pointer please?  Hell of a keyword to search for :(
-> > 
-> > Thanks,
-> > Grant.
-> 
-> git clone  git://git.kernel.org/pub/scm/devel/sparse/sparse.git
-> cd sparse
-> make
-> make install
-> 
-> 
-> Of course you need git first ... not "GNU Interactive Tools", but
-> Linus' SCM.  Most distros have it.
+I don't think so. The only overdrive that fitted in a socket 8 board
+was a PPro->PentiumII thing, which would be model 3 stepping 2 as far
+as I can figure out from a lengthy archeology trip through developer.intel.com.
 
-another easy way to get sparse is to grab the latest tarball
-snapshot from http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
-then
-make; make install  # installs into ~/bin, no root required
+There were also some Socket8->Socket370 convertors, but afaik they just passed
+through the family/model/stepping of whatever was plugged into them.
 
+	Dave
 
----
-~Randy
+-- 
+http://www.codemonkey.org.uk

@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946207AbWJSQdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946213AbWJSQfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946207AbWJSQdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 12:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946208AbWJSQdo
+	id S1946213AbWJSQfz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 12:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946194AbWJSQfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 12:33:44 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7830 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1946207AbWJSQdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 12:33:43 -0400
-Subject: Re: [PATCH] Undeprecate the sysctl system call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Cal Peake <cp@absolutedigital.net>, Andrew Morton <akpm@osdl.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1irig5oli.fsf@ebiederm.dsl.xmission.com>
-References: <453519EE.76E4.0078.0@novell.com>
-	 <20061017091901.7193312a.rdunlap@xenotime.net>
-	 <Pine.LNX.4.64.0610171401130.10587@lancer.cnet.absolutedigital.net>
-	 <1161123096.5014.0.camel@localhost.localdomain>
-	 <20061017150016.8dbad3c5.akpm@osdl.org>
-	 <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
-	 <m1wt6y70kg.fsf@ebiederm.dsl.xmission.com>
-	 <1161169330.9363.11.camel@localhost.localdomain>
-	 <m1irig5oli.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Oct 2006 17:35:15 +0100
-Message-Id: <1161275715.17335.92.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Thu, 19 Oct 2006 12:35:36 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:14048 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1946209AbWJSQfd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 12:35:33 -0400
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 2/3] Pass vma argument to copy_user_highpage().
+Date: Thu, 19 Oct 2006 17:35:47 +0100
+Message-Id: <11612757501251-git-send-email-ralf@linux-mips.org>
+X-Mailer: git-send-email 1.4.2.4
+In-Reply-To: <1161275748231-git-send-email-ralf@linux-mips.org>
+References: <1161275748231-git-send-email-ralf@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-10-19 am 09:09 -0600, ysgrifennodd Eric W. Biederman:
-> > Not the core basic ones that are those people care about
-> 
-> I agree.  It just appears that the core basic ones that people
-> care about is the empty set.
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-You should read linux-kernel or the other lists and look at the
-complaints the deprecation caused, its not an empty set. It isn't a
-large set apparently either however.
+To allow a more effective copy_user_highpage() on certain architectures,
+a vma argument is added to the function and cow_user_page() allowing
+the implementation of these functions to check for the VM_EXEC bit.
 
-> >  **  the sysctl() binary interface.  However this interface
-> >  **  is unstable and deprecated and will be removed in the future. 
-> >  **  For a stable interface use /proc/sys.
+The main part of this patch was originally written by Ralf Baechle;
+Atushi Nemoto did the the debugging.
 
-This is a bit self-referential and self-inflicted. I wish to deprecate
-it wrongly because there is a comment that it is deprecated wrongly.
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
+ include/linux/highmem.h |    3 ++-
+ mm/memory.c             |   10 +++++-----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
+Index: upstream-linus/mm/memory.c
+===================================================================
+--- upstream-linus.orig/mm/memory.c	2006-10-17 00:14:41.000000000 +0100
++++ upstream-linus/mm/memory.c	2006-10-17 00:15:40.000000000 +0100
+@@ -1431,7 +1431,7 @@ static inline pte_t maybe_mkwrite(pte_t 
+ 	return pte;
+ }
+ 
+-static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va)
++static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va, struct vm_area_struct *vma)
+ {
+ 	/*
+ 	 * If the source page was a PFN mapping, we don't have
+@@ -1453,9 +1453,9 @@ static inline void cow_user_page(struct 
+ 			memset(kaddr, 0, PAGE_SIZE);
+ 		kunmap_atomic(kaddr, KM_USER0);
+ 		return;
+-		
++
+ 	}
+-	copy_user_highpage(dst, src, va);
++	copy_user_highpage(dst, src, va, vma);
+ }
+ 
+ /*
+@@ -1566,7 +1566,7 @@ gotten:
+ 		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
+ 		if (!new_page)
+ 			goto oom;
+-		cow_user_page(new_page, old_page, address);
++		cow_user_page(new_page, old_page, address, vma);
+ 	}
+ 
+ 	/*
+@@ -2190,7 +2190,7 @@ retry:
+ 			page = alloc_page_vma(GFP_HIGHUSER, vma, address);
+ 			if (!page)
+ 				goto oom;
+-			copy_user_highpage(page, new_page, address);
++			copy_user_highpage(page, new_page, address, vma);
+ 			page_cache_release(new_page);
+ 			new_page = page;
+ 			anon = 1;
+Index: upstream-linus/include/linux/highmem.h
+===================================================================
+--- upstream-linus.orig/include/linux/highmem.h	2006-10-17 00:15:21.000000000 +0100
++++ upstream-linus/include/linux/highmem.h	2006-10-17 00:17:23.000000000 +0100
+@@ -96,7 +96,8 @@ static inline void memclear_highpage_flu
+ 
+ #ifndef __HAVE_ARCH_COPY_USER_HIGHPAGE
+ 
+-static inline void copy_user_highpage(struct page *to, struct page *from, unsigned long vaddr)
++static inline void copy_user_highpage(struct page *to, struct page *from,
++	unsigned long vaddr, struct vm_area_struct *vma)
+ {
+ 	char *vfrom, *vto;
+ 

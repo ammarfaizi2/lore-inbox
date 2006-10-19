@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWJSJJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWJSJN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbWJSJJv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbWJSJJv
+	id S1030330AbWJSJN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWJSJN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:09:51 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:34312 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030352AbWJSJJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:09:51 -0400
-Date: Thu, 19 Oct 2006 09:17:54 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [0/3] 2.6.19-rc2: known regressions
-Message-ID: <20061019081753.GA29883@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk> <20061015124210.GX30596@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Oct 2006 05:13:57 -0400
+Received: from grunt3.ihug.co.nz ([203.109.254.43]:56709 "EHLO
+	grunt3.ihug.co.nz") by vger.kernel.org with ESMTP id S1030330AbWJSJN4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 05:13:56 -0400
+From: Glenn Enright <elinar@ihug.co.nz>
+To: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] DocBook with .txt or .html versions?
+Date: Thu, 19 Oct 2006 22:14:23 +1300
+User-Agent: KMail/1.9.1
+References: <20061018114240.GA3202@ff.dom.local> <200610192129.46103.elinar@ihug.co.nz> <20061019085850.GA3296@ff.dom.local>
+In-Reply-To: <20061019085850.GA3296@ff.dom.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061015124210.GX30596@stusta.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610192214.23618.elinar@ihug.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 15, 2006 at 02:42:10PM +0200, Adrian Bunk wrote:
-> On Sun, Oct 15, 2006 at 01:24:54PM +0100, Russell King wrote:
-> > On Sat, Oct 14, 2006 at 01:14:58PM +0200, Adrian Bunk wrote:
-> > > As usual, we are swamped with bug reports for regressions after -rc1.
-> > > 
-> > > For an easier reading (and hoping linux-kernel might not eat the emails), 
-> > > I've splitted the list of known regressions in three emails:
-> > >   [1/3] known unfixed regressions
-> > >   [2/3] knwon regressions with workarounds
-> > >   [3/3] known regressions with patches
-> > 
-> > There's a raft of ARM regressions as well (see
-> > http://armlinux.simtec.co.uk/kautobuild/2.6.19-rc2/index.html), mostly
-> > related to the IRQ changes, as well as this error:
-> 
-> Thanks, I'll look at them before preparing the next version of my 
-> regressions list.
-> 
-> > sysctl_net.c:(.text+0x64a8c): undefined reference to `highest_possible_node_id'
-> 
-> This problem already got an entry a few hours ago:
-> 
-> Subject    : undefined reference to highest_possible_node_id
-> References : http://lkml.org/lkml/2006/9/4/233
->              http://lkml.org/lkml/2006/10/15/11
-> Submitter  : Olaf Hering <olaf@aepfle.de>
-> Caused-By  : Greg Banks <gnb@melbourne.sgi.com>
->              commit 0f532f3861d2c4e5aa7dcd33fb18e9975eb28457
-> Status     : unknown
+On Thursday 19 October 2006 21:58, Jarek Poplawski wrote:
+> On Thu, Oct 19, 2006 at 09:29:45PM +1300, Glenn Enright wrote:
+> > Doesnt slackware supply a prebuilt package of the kernel docs in
+> > various formats for just this purpose? From what I can recall,
+> > redhat and ubuntu both do this.
+>
+> Maybe does. But do you believe there is anybody reading
+> this list who uses only distro's prebuilt kernel versions?
+>
+> Jarek P.
 
-Looking at this commit and the mails, it was known on the 4th September
-that this patch caused build errors while this change was in -mm, yet it
-still found its way into mainline on 2nd October.
-
-Is anyone going to look at fixing this problem, or should we be asking
-for the commit to be reverted?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+You implied that you were trying to build on a limited resource machine, 
+and I offered this as an alternative. If you really needed the *very 
+latest* docs then it would probably be a newish testing platform and 
+not your main machine, so you could get them of that instead? Anyway 
+just my 2c.

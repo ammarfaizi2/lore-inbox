@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945972AbWJSBsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945974AbWJSBs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945972AbWJSBsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Oct 2006 21:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945971AbWJSBsg
+	id S1945974AbWJSBs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Oct 2006 21:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945971AbWJSBsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Oct 2006 21:48:36 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:16105 "EHLO
+	Wed, 18 Oct 2006 21:48:39 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:16873 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1945967AbWJSBsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Oct 2006 21:48:31 -0400
+	id S1945965AbWJSBse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Oct 2006 21:48:34 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 4 of 4] struct path: make eCryptfs a user of struct path
-Message-Id: <df6379bb85af6916b4af.1161219431@thor.fsl.cs.sunysb.edu>
-In-Reply-To: <patchbomb.1161219427@thor.fsl.cs.sunysb.edu>
-Date: Wed, 18 Oct 2006 20:57:11 -0400
+Subject: [PATCH 0 of 4] fsstack: struct path
+Message-Id: <patchbomb.1161219427@thor.fsl.cs.sunysb.edu>
+Date: Wed, 18 Oct 2006 20:57:07 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
@@ -25,69 +24,24 @@ Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+The following patches attempt to fix up the problems with 'struct path' as
+discussed in the 'fsstack: struct path' thread on linux-kernel. The net
+effect is moving struct path from fs/namei.c to include/linux/namei.h, as it
+is quite useful (and it will discourage the (ab)use of struct nameidata.)
 
-Convert eCryptfs dentry-vfsmount pairs in dentry private data to struct
-path.
+The fsstack code benefits from it as the stackable fs dentries have to keep
+track of the lower dentry as well as the lower vfsmount.
+
+The first two patches rename Reiserfs's 'struct path' to 'struct treepath',
+and Device Mapper's 'struct path' to 'struct dm_path', respectively.
+
+The third patch moves struct path from fs/namei.c to include/linux/namei.h,
+making it accessible to any part of the VFS as well as other parts of the
+kernel - stackable filesystem like eCryptfs and Unionfs come to mind.
+
+The fourth patch converts eCryptfs's dentry-vfsmount pairs in the dentry
+private data to struct path.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-
----
-
-1 file changed, 6 insertions(+), 6 deletions(-)
-fs/ecryptfs/ecryptfs_kernel.h |   12 ++++++------
-
-diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
---- a/fs/ecryptfs/ecryptfs_kernel.h
-+++ b/fs/ecryptfs/ecryptfs_kernel.h
-@@ -28,6 +28,7 @@
- 
- #include <keys/user-type.h>
- #include <linux/fs.h>
-+#include <linux/namei.h>
- #include <linux/scatterlist.h>
- 
- /* Version verification for shared data structures w/ userspace */
-@@ -226,8 +227,7 @@ struct ecryptfs_inode_info {
- /* dentry private data. Each dentry must keep track of a lower
-  * vfsmount too. */
- struct ecryptfs_dentry_info {
--	struct dentry *wdi_dentry;
--	struct vfsmount *lower_mnt;
-+	struct path lower_path;
- 	struct ecryptfs_crypt_stat *crypt_stat;
- };
- 
-@@ -354,26 +354,26 @@ static inline struct dentry *
- static inline struct dentry *
- ecryptfs_dentry_to_lower(struct dentry *dentry)
- {
--	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry;
-+	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.dentry;
- }
- 
- static inline void
- ecryptfs_set_dentry_lower(struct dentry *dentry, struct dentry *lower_dentry)
- {
--	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry =
-+	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.dentry =
- 		lower_dentry;
- }
- 
- static inline struct vfsmount *
- ecryptfs_dentry_to_lower_mnt(struct dentry *dentry)
- {
--	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_mnt;
-+	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.mnt;
- }
- 
- static inline void
- ecryptfs_set_dentry_lower_mnt(struct dentry *dentry, struct vfsmount *lower_mnt)
- {
--	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_mnt =
-+	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.mnt =
- 		lower_mnt;
- }
- 
 
 

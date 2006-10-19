@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946322AbWJSSdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946323AbWJSSdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946322AbWJSSdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 14:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946320AbWJSSdK
+	id S1946323AbWJSSdd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 14:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946321AbWJSSdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 14:33:10 -0400
-Received: from cicero1.cybercity.dk ([212.242.40.4]:22209 "EHLO
-	cicero1.cybercity.dk") by vger.kernel.org with ESMTP
-	id S1946317AbWJSSdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 14:33:08 -0400
-Message-ID: <4537C4E2.2030000@molgaard.org>
-Date: Thu, 19 Oct 2006 20:33:06 +0200
-From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060717 Debian/1.7.13-0.2ubuntu1
-X-Accept-Language: en
+	Thu, 19 Oct 2006 14:33:33 -0400
+Received: from ns2.suse.de ([195.135.220.15]:45506 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1946323AbWJSSdc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 14:33:32 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Linux
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Remove superfluous lock_super() in ext2 and ext3 xattr code
+Date: Thu, 19 Oct 2006 20:34:24 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-CC: Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: speedstep-centrino: ENODEV
-References: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A4AF@scsmsx413.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610192034.24129.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >
- > Looking at the acpidump, looks like BIOS doesn't have this feature 
-enabled. Can you also make sure you have latest BIOS for the platform 
-and also, check in BIOS whether there are any options to enable this 
-feature.
- >
- > Thanks,
- > Venki
- >
+lock_super() is unnecessary for setting super-block feature flags.
+Use the provided *_SET_COMPAT_FEATURE() macros as well.
 
-I flashed to bios to latest yesterday, but to no avail. There are no
-options remotely connected to this in the setup menu :-(
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-Now, I don't mean to sound rude but I would like to know what changed,
-as speedstep was working well in kernel 2.6.15, so my initial thoughts
-contain the word regression. I still thank you for your interest though.
-
-My best regards,
-
-Sune Mølgaard
-
+Index: linux-2.6.19-rc2/fs/ext2/xattr.c
+===================================================================
+--- linux-2.6.19-rc2.orig/fs/ext2/xattr.c
++++ linux-2.6.19-rc2/fs/ext2/xattr.c
+@@ -342,12 +342,9 @@ static void ext2_xattr_update_super_bloc
+ 	if (EXT2_HAS_COMPAT_FEATURE(sb, EXT2_FEATURE_COMPAT_EXT_ATTR))
+ 		return;
+ 
+-	lock_super(sb);
+-	EXT2_SB(sb)->s_es->s_feature_compat |=
+-		cpu_to_le32(EXT2_FEATURE_COMPAT_EXT_ATTR);
++	EXT2_SET_COMPAT_FEATURE(sb, EXT2_FEATURE_COMPAT_EXT_ATTR);
+ 	sb->s_dirt = 1;
+ 	mark_buffer_dirty(EXT2_SB(sb)->s_sbh);
+-	unlock_super(sb);
+ }
+ 
+ /*
+Index: linux-2.6.19-rc2/fs/ext3/xattr.c
+===================================================================
+--- linux-2.6.19-rc2.orig/fs/ext3/xattr.c
++++ linux-2.6.19-rc2/fs/ext3/xattr.c
+@@ -459,14 +459,11 @@ static void ext3_xattr_update_super_bloc
+ 	if (EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_EXT_ATTR))
+ 		return;
+ 
+-	lock_super(sb);
+ 	if (ext3_journal_get_write_access(handle, EXT3_SB(sb)->s_sbh) == 0) {
+-		EXT3_SB(sb)->s_es->s_feature_compat |=
+-			cpu_to_le32(EXT3_FEATURE_COMPAT_EXT_ATTR);
++		EXT3_SET_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_EXT_ATTR);
+ 		sb->s_dirt = 1;
+ 		ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
+ 	}
+-	unlock_super(sb);
+ }
+ 
+ /*

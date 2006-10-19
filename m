@@ -1,150 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946263AbWJSRTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946105AbWJSR04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946263AbWJSRTy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 13:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946265AbWJSRTo
+	id S1946105AbWJSR04 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 13:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423083AbWJSR04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 13:19:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62150 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946262AbWJSRT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 13:19:26 -0400
-Message-Id: <20061019171814.497048492@osdl.org>
-References: <20061019171541.062261760@osdl.org>
-User-Agent: quilt/0.45-1
-Date: Thu, 19 Oct 2006 10:15:44 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] netpoll: use skb_buff_head for skb cache
-Content-Disposition: inline; filename=netpoll-freelist.patch
+	Thu, 19 Oct 2006 13:26:56 -0400
+Received: from mga01.intel.com ([192.55.52.88]:51529 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1423081AbWJSR04 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 13:26:56 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,330,1157353200"; 
+   d="scan'208"; a="149065825:sNHT24424806"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Inspiron 6000 and CPU power saving
+Date: Thu, 19 Oct 2006 10:26:54 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A8454C1A3F3@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Inspiron 6000 and CPU power saving
+Thread-Index: AcbwyYksoiLhaho2RSOiXU388We4GwC2fF8Q
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Michael \(Micksa\) Slade" <micksa@knobbits.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Oct 2006 17:26:55.0129 (UTC) FILETIME=[C5DA8890:01C6F3A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The private skb cache should be managed with normal skb_buff_head rather
-than a DIY queue. If pool is exhausted, don't print anything that just
-makes the problem worse. After a number of attempts, punt and drop
-the message (callers handle it already).
+ 
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Michael (Micksa) Slade
+>Sent: Sunday, October 15, 2006 7:18 PM
+>To: linux-kernel@vger.kernel.org
+>Subject: Inspiron 6000 and CPU power saving
+>
+>I recently discovered that my Inspiron 6000 uses about 50% more power 
+>idling in linux than in windows XP.  This means its battery life is 
+>about 2/3 of what it could/should be.
+>
+>I guessed it might be the CPU, and did some tests.  The 
+>results strongly 
+>suggest as much.  These are the results I got for power consumption in 
+>various situations.
+>
+>linux idle at 800MHz: 27W        
+>linux idle at 1600MHz: 36W        
+>linux raytracing at 800: 30W
+>linux raytracing at 1600: 42W 
+>
+>windows idle (presumably 800MHz): 16W
+>windows raytracing (presumably 1600MHz): 36W
+>
+>I've tried ubuntu dapper and ubuntu edgy, and RIP 10 (rescue disk) and 
+>BBC 2.1 (rescue disk), and they all appear to have the same 
+>issue.  The 
+>machine's BIOS has no APM so I can't try it for comparison.
+>
+>I've tried noapic and "echo n > 
+>/sys/module/processor/parameters/max_cstate", where n is 1 thru 4.  
+>Neither appear to have any affect.
+>
+>I need help digging deeper.  I guess /proc/acpi/processor/CPU0/power 
+>could give some insight but I'm not sure how to read the 
+>numbers.  That 
+>and "learn about ACPI" is all I can figure out so far.
+>
+>So where to from here?  I am prepared to spend a significant amount of 
+>time researching and resolving the issue, so feel free to suggest 
+>reading the ACPI spec or whatever if that's what it's going to take.
+>
+>Mick.
+>
 
----
- net/core/netpoll.c |   55 +++++++++++++++++++++--------------------------------
- 1 file changed, 22 insertions(+), 33 deletions(-)
+Output of 
+#cat /proc/acpi/processor/CPU0/power/*
+And
+#cat /sys/devices/system/cpu/cpu0/cpufreq/*
+Will be a good starting point.
 
---- linux-2.6.orig/net/core/netpoll.c	2006-10-19 09:49:03.000000000 -0700
-+++ linux-2.6/net/core/netpoll.c	2006-10-19 10:06:39.000000000 -0700
-@@ -36,9 +36,7 @@
- #define MAX_QUEUE_DEPTH (MAX_SKBS / 2)
- #define MAX_RETRIES 20000
- 
--static DEFINE_SPINLOCK(skb_list_lock);
--static int nr_skbs;
--static struct sk_buff *skbs;
-+static struct sk_buff_head skb_list;
- 
- static atomic_t trapped;
- 
-@@ -51,6 +49,7 @@
- 
- static void zap_completion_queue(void);
- static void arp_reply(struct sk_buff *skb);
-+static void refill_skbs(void);
- 
- static void netpoll_run(unsigned long arg)
- {
-@@ -79,6 +78,7 @@
- 			break;
- 		}
- 	}
-+	refill_skbs();
- }
- 
- static int checksum_udp(struct sk_buff *skb, struct udphdr *uh,
-@@ -169,19 +169,14 @@
- static void refill_skbs(void)
- {
- 	struct sk_buff *skb;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&skb_list_lock, flags);
--	while (nr_skbs < MAX_SKBS) {
-+	while (skb_queue_len(&skb_list) < MAX_SKBS) {
- 		skb = alloc_skb(MAX_SKB_SIZE, GFP_ATOMIC);
- 		if (!skb)
- 			break;
- 
--		skb->next = skbs;
--		skbs = skb;
--		nr_skbs++;
-+		skb_queue_tail(&skb_list, skb);
- 	}
--	spin_unlock_irqrestore(&skb_list_lock, flags);
- }
- 
- static void zap_completion_queue(void)
-@@ -210,37 +205,24 @@
- 	put_cpu_var(softnet_data);
- }
- 
--static struct sk_buff * find_skb(struct netpoll *np, int len, int reserve)
-+static struct sk_buff *find_skb(struct netpoll *np, int len, int reserve)
- {
--	int once = 1, count = 0;
--	unsigned long flags;
--	struct sk_buff *skb = NULL;
-+	struct sk_buff *skb;
-+	int tries = 0;
- 
- 	zap_completion_queue();
--repeat:
--	if (nr_skbs < MAX_SKBS)
--		refill_skbs();
- 
-+repeat:
- 	skb = alloc_skb(len, GFP_ATOMIC);
--
--	if (!skb) {
--		spin_lock_irqsave(&skb_list_lock, flags);
--		skb = skbs;
--		if (skb) {
--			skbs = skb->next;
--			skb->next = NULL;
--			nr_skbs--;
--		}
--		spin_unlock_irqrestore(&skb_list_lock, flags);
--	}
-+	if (!skb)
-+		skb = skb_dequeue(&skb_list);
- 
- 	if(!skb) {
--		count++;
--		if (once && (count == 1000000)) {
--			printk("out of netpoll skbs!\n");
--			once = 0;
--		}
-+		if (++tries > MAX_RETRIES)
-+			return NULL;
-+
- 		netpoll_poll(np);
-+		tasklet_schedule(&np->dev->npinfo->tx_task);
- 		goto repeat;
- 	}
- 
-@@ -589,6 +571,13 @@
- 	return -1;
- }
- 
-+static __init int netpoll_init(void)
-+{
-+	skb_queue_head_init(&skb_list);
-+	return 0;
-+}
-+core_initcall(netpoll_init);
-+
- int netpoll_setup(struct netpoll *np)
- {
- 	struct net_device *ndev = NULL;
+Also, open a issue at bugme.osdl.org. It makes tracking the issues
+easier that way.
 
---
-
+Thanks,
+Venki

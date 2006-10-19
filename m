@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWJSJR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWJSJRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbWJSJR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWJSJR4
+	id S1030358AbWJSJRf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWJSJRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:17:56 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:22523 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1030361AbWJSJRz (ORCPT
+	Thu, 19 Oct 2006 05:17:35 -0400
+Received: from av2.karneval.cz ([81.27.192.122]:26953 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1030358AbWJSJRe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:17:55 -0400
-Message-ID: <453742B7.5080200@atmel.com>
-Date: Thu, 19 Oct 2006 11:17:43 +0200
-From: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
-Organization: Atmel
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Thu, 19 Oct 2006 05:17:34 -0400
+Message-ID: <453742AE.3010201@gmail.com>
+Date: Thu, 19 Oct 2006 11:17:34 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: dbrownell@users.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.6.18] Correct bus_num and buffer bug in spi core
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/mixed;
- boundary="------------090500030701000108050309"
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+CC: ipw2100-admin@linux.intel.com
+Subject: ipw2200: "ieee80211: Info elem: parse failed"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090500030701000108050309
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Hello,
+since 2.6.19-rc1 I'm getting these messages from ipw2200 driver:
+ieee80211: Info elem: parse failed: info_element->len + 2 > left : 
+info_element->len+2=8 left=2, id=128.
 
-Included is a patch which corrects the following in driver/spi/spi.c in
-function spi_busnum_to_master:
- * must allow bus_num 0, the if is really not needed.
- * correct the name buffer which is too small for bus_num >= 10000. It
-should be 9 bytes big, not 8.
+The driver says:
+ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.4km
+ipw2200: Copyright(c) 2003-2006 Intel Corporation
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 3
+PCI: setting IRQ 3 as level-triggered
+ACPI: PCI Interrupt 0000:02:07.0[A] -> Link [LNKC] -> GSI 3 (level, low) -> IRQ 3
+ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
+ACPI: PCI Interrupt 0000:00:13.2[A] -> Link [LNKD] -> GSI 10 (level, low) -> IRQ 10
 
-Sorry if I should have split the patch in two.
+and works, but the message is annoying, since the driver prints it again and 
+again. What could be wrong?
 
-I am not on the linux-kernel list.
-
-Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
-
+regards,
 -- 
-With kind regards,
-
-Hans-Christian Egtvedt
-Applications Engineer - AVR Applications Lab
-
---------------090500030701000108050309
-Content-Type: text/x-patch;
- name="spi-fix-spi-busnum-to-master-buffer-and-bus_num-0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename*0="spi-fix-spi-busnum-to-master-buffer-and-bus_num-0.patch"
-
---- a/drivers/spi/spi.c	2006-10-19 10:37:26.000000000 +0200
-+++ b/drivers/spi/spi.c	2006-10-19 10:38:59.000000000 +0200
-@@ -465,15 +465,13 @@ EXPORT_SYMBOL_GPL(spi_unregister_master)
-  */
- struct spi_master *spi_busnum_to_master(u16 bus_num)
- {
--	if (bus_num) {
--		char			name[8];
--		struct kobject		*bus;
--
--		snprintf(name, sizeof name, "spi%u", bus_num);
--		bus = kset_find_obj(&spi_master_class.subsys.kset, name);
--		if (bus)
--			return container_of(bus, struct spi_master, cdev.kobj);
--	}
-+	char			name[9];
-+	struct kobject		*bus;
-+
-+	snprintf(name, sizeof name, "spi%u", bus_num);
-+	bus = kset_find_obj(&spi_master_class.subsys.kset, name);
-+	if (bus)
-+		return container_of(bus, struct spi_master, cdev.kobj);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(spi_busnum_to_master);
-
---------------090500030701000108050309--
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

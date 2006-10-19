@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWJSFaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423175AbWJSFbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbWJSFaK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 01:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161019AbWJSFaK
+	id S1423175AbWJSFbU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 01:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161311AbWJSFbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 01:30:10 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:53700 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1161020AbWJSFaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 01:30:08 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Neil Brown <neilb@suse.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] nfs endianness annotations
-Date: Thu, 19 Oct 2006 15:30:25 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <du2ej21g7pkccoe4cigs8r9gsq1ir6nc9p@4ax.com>
-References: <E1GX7zV-00047C-PO@ZenIV.linux.org.uk> <1161206763.6095.172.camel@lade.trondhjem.org> <17718.51050.186385.512984@cse.unsw.edu.au> <20061019012600.GR29920@ftp.linux.org.uk>
-In-Reply-To: <20061019012600.GR29920@ftp.linux.org.uk>
-X-Mailer: Forte Agent 2.0/32.652
+	Thu, 19 Oct 2006 01:31:20 -0400
+Received: from hera.kernel.org ([140.211.167.34]:28577 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1161019AbWJSFbS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 01:31:18 -0400
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Dave Jones <davej@redhat.com>
+Subject: Re: SMP broken on pre-ACPI machine.
+Date: Thu, 19 Oct 2006 01:33:40 -0400
+User-Agent: KMail/1.8.2
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org
+References: <20061018222433.GA4770@redhat.com>
+In-Reply-To: <20061018222433.GA4770@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610190133.40581.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 02:26:00 +0100, Al Viro <viro@ftp.linux.org.uk> wrote:
+On Wednesday 18 October 2006 18:24, Dave Jones wrote:
+> I've been chasing a bug that got filed against the Fedora kernel
+> a while back:  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199052
+> This is a dual pentium pro from an era before we had ACPI, and
+> it seems to be falling foul of this test in smpboot.c  ..
+> 
+>     if (!smp_found_config && !acpi_lapic) {
+>         printk(KERN_NOTICE "SMP motherboard not detected.\n");
+>         smpboot_clear_io_apic_irqs();
+>         phys_cpu_present_map = physid_mask_of_physid(0);
+>         if (APIC_init_uniprocessor())
+>             printk(KERN_NOTICE "Local APIC not detected."
+>                        " Using dummy APIC emulation.\n");
+>         map_cpu_to_logical_apicid();
+>         cpu_set(0, cpu_sibling_map[0]);
+>         cpu_set(0, cpu_core_map[0]);
+>         return;
+>     }
+> 
+> 
+> My initial reaction is that the !acpi_lapic test should be conditional
+> on some variable that gets set if the ACPI parsing actually succeeded.
 
->Folks, seriously, please run sparse after changes; it's a simple matter of
->make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/; nothing tricky and it saves a lot
->of potential PITA...
+acpi_lapic isn't related to the problem at hand -- that  smp_found_config is not set.
 
-grant@sempro:~/linux/linux-2.6.19-rc2a$ make C=2 CF=-D__CHECK_ENDIAN__ fs/nfs*/;
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CHECK   scripts/mod/empty.c
-/bin/sh: sparse: command not found
-make[2]: *** [scripts/mod/empty.o] Error 127
-make[1]: *** [scripts/mod] Error 2
-make: *** [scripts] Error 2
+That said, allowing acpi_lapic=1 to bail out of this check has the sole
+function of allowing SMP/PIC configurations.  (smp_found_config
+in ACPI mode is set if acpi_lapic and acpi_ioapic are set)
+SMP/PIC configurations are not very interesting, except for debugging.
+Indeed, MPS prohibits them by mandating an IOAPIC be present for SMP --
+but ACPI has no such rule.
 
-What sparse?  Pointer please?  Hell of a keyword to search for :(
-
-Thanks,
-Grant.
+-Len

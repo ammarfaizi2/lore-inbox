@@ -1,84 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946531AbWJSVmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946536AbWJSVnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946531AbWJSVmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 17:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946535AbWJSVmi
+	id S1946536AbWJSVnc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 17:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946539AbWJSVnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 17:42:38 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:26064 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1946531AbWJSVmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 17:42:37 -0400
-Date: Thu, 19 Oct 2006 23:39:31 +0200
-From: Joerg.Schilling@fokus.fraunhofer.de (Joerg Schilling)
-To: 7eggert@gmx.de
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       kronos.it@gmail.com, ismail@pardus.org.tr, 7eggert@gmx.de
-Subject: Re: Linux ISO-9660 Rock Ridge bug needs fix
-Message-ID: <4537f093.TLaIyXNS8h2a3uF9%Joerg.Schilling@fokus.fraunhofer.de>
-References: <771eN-VK-9@gated-at.bofh.it>
- <771yn-1XU-65@gated-at.bofh.it> <E1GZy4L-00015O-AV@be1.lrz>
- <453644f3.0BzwxliMKAw+rSMj%Joerg.Schilling@fokus.fraunhofer.de>
- <Pine.LNX.4.58.0610182023100.2145@be1.lrz>
- <4536b8dc.nfxUMeg8jVJ9WF95%Joerg.Schilling@fokus.fraunhofer.de>
- <Pine.LNX.4.58.0610192256460.2316@be1.lrz>
-In-Reply-To: <Pine.LNX.4.58.0610192256460.2316@be1.lrz>
-User-Agent: nail 11.22 3/20/05
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 19 Oct 2006 17:43:32 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:16025 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1946536AbWJSVnb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 17:43:31 -0400
+Subject: Re: kernel BUG in __cache_alloc_node at
+	linux-2.6.git/mm/slab.c:3177!
+From: Will Schmidt <will_schmidt@vnet.ibm.com>
+Reply-To: will_schmidt@vnet.ibm.com
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0610191427270.10316@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+	 <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+	 <1161031821.31903.28.camel@farscape>
+	 <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+	 <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+	 <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+	 <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+	 <20061019163044.GB5819@krispykreme>
+	 <Pine.LNX.4.64.0610190959560.8433@schroedinger.engr.sgi.com>
+	 <1161290229.8946.51.camel@farscape>
+	 <Pine.LNX.4.64.0610191427270.10316@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 19 Oct 2006 16:43:16 -0500
+Message-Id: <1161294197.8946.56.camel@farscape>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <7eggert@gmx.de> wrote:
+On Thu, 2006-19-10 at 14:28 -0700, Christoph Lameter wrote:
+> On Thu, 19 Oct 2006, Will Schmidt wrote:
+> 
+> > This didnt fix the problem on my box.  I tried this both against mm and
+> > linux-2.6.git 
+> 
+> Same failure condition? Would you also apply the printk patch and send 
+> me the output?
 
-> > > Exactly that's why I'd ignore the on-disk "inode number" and instead use
-> > > the generated one untill someone comes along with a clever idea to fix
-> > > the issue or can show that it's mostly hermless.
-> > 
-> > I could understand you in case that Linux would do some basic consistency checks
-> > in the iso-9660 code already.....
->
-> ISO9660-over-NFS is no big usecase, linked files on CD aren't common and 
-> the current code just won't benefit from hardlinks. Therefore I don't see 
-> a compelling reason to use this feature without first thinking about 
-> possible attacks.
+Yup, here it is:
 
-It looks like you did never really think about the problem or that you just 
-don't know what you are talking about :-(
+-----------------------------------------------------
+ppc64_pft_size                = 0x18
+physicalMemorySize            = 0x22000000
+ppc64_caches.dcache_line_size = 0x80
+ppc64_caches.icache_line_size = 0x80
+htab_address                  = 0x0000000000000000
+htab_hash_mask                = 0x1ffff
+-----------------------------------------------------
+Linux version 2.6.19-rc2-mm1 (willschm@airbag2) (gcc version 4.1.0 (SUSE
+Linux)) #2 SMP Thu Oct 19 16:37:26 CDT 2006
+[boot]0012 Setup Arch
+NUMA associativity depth for CPU/Memory: 3
+adding cpu 0 to node 0
+node 0
+NODE_DATA() = c000000015ffed80
+start_paddr = 8000000
+end_paddr = 16000000
+bootmap_paddr = 15ffc000
+reserve_bootmem ffc0000 40000
+reserve_bootmem 15ffc000 2000
+reserve_bootmem 15ffed80 1280
+node 1
+NODE_DATA() = c000000021ff7b80
+start_paddr = 0
+end_paddr = 22000000
+bootmap_paddr = 21ff2000
+reserve_bootmem 0 851000
+reserve_bootmem 2655000 9000
+reserve_bootmem 77b2000 84e000
+reserve_bootmem 21ff2000 5000
+reserve_bootmem 21ff7b80 1280
+reserve_bootmem 21ff8e58 71a4
+No ramdisk, default root is /dev/sda2
+EEH: No capable adapters found
+PPC64 nvram contains 7168 bytes
+Zone PFN ranges:
+  DMA             0 ->   139264
+  Normal     139264 ->   139264
+early_node_map[3] active PFN ranges
+    1:        0 ->    32768
+    0:    32768 ->    90112
+    1:    90112 ->   139264
+[boot]0015 Setup Done
+Built 2 zonelists.  Total pages: 136576
+Kernel command line: root=/dev/sda3  xmon=on numa=debug
+[boot]0020 XICS Init
+[boot]0021 XICS Done
+PID hash table entries: 4096 (order: 12, 32768 bytes)
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
+freeing bootmem node 0
+freeing bootmem node 1
+Memory: 530216k/557056k available (5544k kernel code, 30508k reserved,
+2232k data, 548k bss, 248k init)
+Get cache descritor
+__cache_alloc
+__cache_alloc_node 0
+fallback_alloc
+__cache_alloc_node 0
+__cache_alloc_node 1
+kernel BUG in __cache_alloc_node
+at /development/kernels/2.6-mm/mm/slab.c:3193!
+cpu 0x0: Vector: 700 (Program Check) at [c00000000079b8d0]
+    pc: c0000000000b70f8: .__cache_alloc_node+0x5c/0x208
+    lr: c0000000000b70e0: .__cache_alloc_node+0x44/0x208
+    sp: c00000000079bb50
+   msr: 8000000000021032
+  current = 0xc00000000058ca90
+  paca    = 0xc00000000058d380
+    pid   = 0, comm = swapper
+kernel BUG in __cache_alloc_node
+at /development/kernels/2.6-mm/mm/slab.c:3193!
+enter ? for help
+[c00000000079bc00] c0000000000b735c .fallback_alloc+0xb8/0xfc
+[c00000000079bca0] c0000000000b7930 .kmem_cache_zalloc+0xd4/0x128
+[c00000000079bd40] c0000000000b9af4 .kmem_cache_create+0x1f4/0x604
+[c00000000079be30] c000000000546d98 .kmem_cache_init+0x1d8/0x4b0
+[c00000000079bef0] c00000000052c748 .start_kernel+0x244/0x328
+[c00000000079bf90] c0000000000084f8 .start_here_common+0x54/0x5c
+0:mon>  
 
-A typical UNIX standard installation has more than 3000 hard linked file name
-entries in the root filesystem. There are many people who like to backup their 
-root filesystem via mkisofs and all life CDs and install CDs depend on hard 
-linked files.
-
-But this seems to be a frequent way of dealing with implementation deficits:
-define the problem to be not existant....
-
-
-> Even if there are more holes to be plugged, punching even more holes 
-> doesn't help. Instead, we should hope that someone finds the time to
-> plug these holes and praise him when he comes.
-
-It seems that you did not think about the problem...
-
-Wrong inode numbes do not open holes, they just create a garbage in garbage out
-behavior, but they will not cause the OS to panic. 
-
-The unfixed bugs in the Linux iso-9660 implementation on the other side allow 
-me to create a CD that causes Linux to panic without taking me a long time.
-
-> > Show me another program besides mkisofs that implements inode numbers _and_ does
-> > it wrong.
->
-> My hacked mkisofs, which I'll use to r00t you all and gain world domination.
-
-This is just a junk statement, describe what you believe than can be done...
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

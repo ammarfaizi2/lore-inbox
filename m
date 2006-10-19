@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946406AbWJSTu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946410AbWJSTzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946406AbWJSTu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 15:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946407AbWJSTu0
+	id S1946410AbWJSTzw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 15:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946407AbWJSTzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 15:50:26 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:37841 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1946406AbWJSTuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 15:50:25 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=df4Gw0ZLBoEO4rKZhSFhg2qInxza4LbzSL4tFV0Jq8DaYZR83mFM8AuqyoeYR0adj
-	gn6UVW+AFUhrG2QyAoGIw==
-Message-ID: <4537D6E8.8020501@google.com>
-Date: Thu, 19 Oct 2006 12:50:00 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 19 Oct 2006 15:55:52 -0400
+Received: from livid.absolutedigital.net ([66.92.46.173]:48141 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S1946410AbWJSTzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 15:55:51 -0400
+Date: Thu, 19 Oct 2006 15:55:49 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Improve the remove sysctl warnings.
+In-Reply-To: <20061019195040.GA5392@martell.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0610191553090.967@lancer.cnet.absolutedigital.net>
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+ <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+ <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+ <20061018124415.e45ece22.akpm@osdl.org> <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+ <20061019195040.GA5392@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, menage@google.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, dino@in.ibm.com,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>	<4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au>
-In-Reply-To: <4537D056.9080108@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Oct 2006, Alexey Dobriyan wrote:
 
-> I don't know of anyone else using cpusets, but I'd be interested to know.
+> On Thu, Oct 19, 2006 at 12:25:20PM -0400, Cal Peake wrote:
+> > On Wed, 18 Oct 2006, Eric W. Biederman wrote:
+> >
+> > >  	if (msg_count < 5) {
+> > >  		msg_count++;
+> > >  		printk(KERN_INFO
+> > >  			"warning: process `%s' used the removed sysctl "
+> > > -			"system call\n", current->comm);
+> > > +			"system call with ", current->comm);
+> > > +		for (i = 0; i < tmp.nlen; i++)
+> > > +			printk("%d.", name[i]);
+> > > +		printk("\n");
+> > >  	}
+> >
+> > We should prolly kill the counter now.
+> 
+> sysctl(2) callable by everyone including local lusers willing to fill logs.
 
-We (Google) are planning to use it to do some partitioning, albeit on
-much smaller machines. I'd really like to NOT use cpus_allowed from
-previous experience - if we can get it to to partition using separated
-sched domains, that would be much better.
+Users don't even need to write a program to do this, see logger(1). If we 
+keep the counter then after 5 calls we lose potential debugging info.
 
- From my dim recollections of previous discussions when cpusets was
-added in the first place, we asked for exactly the same thing then.
-I think some of the problem came from the fact that "exclusive"
-to cpusets doesn't actually mean exclusive at all, and they're
-shared in some fashion. Perhaps that issue is cleared up now?
-/me crosses all fingers and toes and prays really hard.
+  - C.
 
-M.
+-- 
+"There is nothing wrong with your television set. Do not attempt
+    to adjust the picture. We are controlling transmission."
+                    -- The Outer Limits
+

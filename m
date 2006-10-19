@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946205AbWJSQdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946207AbWJSQdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946205AbWJSQdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 12:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946207AbWJSQdJ
+	id S1946207AbWJSQdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 12:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946208AbWJSQdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 12:33:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:7139 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946205AbWJSQdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 12:33:08 -0400
-Date: Fri, 20 Oct 2006 02:30:44 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-Message-ID: <20061019163044.GB5819@krispykreme>
-References: <1161026409.31903.15.camel@farscape> <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com> <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com> <17717.50596.248553.816155@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com> <17718.39522.456361.987639@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com> <17719.1849.245776.4501@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 19 Oct 2006 12:33:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7830 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1946207AbWJSQdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 12:33:43 -0400
+Subject: Re: [PATCH] Undeprecate the sysctl system call
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Cal Peake <cp@absolutedigital.net>, Andrew Morton <akpm@osdl.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Jan Beulich <jbeulich@novell.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1irig5oli.fsf@ebiederm.dsl.xmission.com>
+References: <453519EE.76E4.0078.0@novell.com>
+	 <20061017091901.7193312a.rdunlap@xenotime.net>
+	 <Pine.LNX.4.64.0610171401130.10587@lancer.cnet.absolutedigital.net>
+	 <1161123096.5014.0.camel@localhost.localdomain>
+	 <20061017150016.8dbad3c5.akpm@osdl.org>
+	 <Pine.LNX.4.64.0610171853160.25484@lancer.cnet.absolutedigital.net>
+	 <m1wt6y70kg.fsf@ebiederm.dsl.xmission.com>
+	 <1161169330.9363.11.camel@localhost.localdomain>
+	 <m1irig5oli.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 19 Oct 2006 17:35:15 +0100
+Message-Id: <1161275715.17335.92.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Iau, 2006-10-19 am 09:09 -0600, ysgrifennodd Eric W. Biederman:
+> > Not the core basic ones that are those people care about
+> 
+> I agree.  It just appears that the core basic ones that people
+> care about is the empty set.
 
-Hi,
+You should read linux-kernel or the other lists and look at the
+complaints the deprecation caused, its not an empty set. It isn't a
+large set apparently either however.
 
-> Would you please make memory available on the node that you bootstrap 
-> the slab allocator on? numa_node_id() must point to a node that has memory 
-> available.
+> >  **  the sysctl() binary interface.  However this interface
+> >  **  is unstable and deprecated and will be removed in the future. 
+> >  **  For a stable interface use /proc/sys.
 
-So we've gone from something that worked around sub optimal memory
-layouts to something that panics. Sounds like a step backwards to me.
+This is a bit self-referential and self-inflicted. I wish to deprecate
+it wrongly because there is a comment that it is deprecated wrongly.
 
-Anton
+

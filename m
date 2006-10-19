@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWJSJDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWJSJJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWJSJDO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 05:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWJSJDO
+	id S1030352AbWJSJJv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 05:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbWJSJJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 05:03:14 -0400
-Received: from [195.171.73.133] ([195.171.73.133]:12947 "EHLO
-	pelagius.h-e-r-e-s-y.com") by vger.kernel.org with ESMTP
-	id S1030351AbWJSJDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 05:03:12 -0400
-Date: Thu, 19 Oct 2006 09:03:11 +0000
-From: andrew@walrond.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: make headers_install headers problem on sparc64
-Message-ID: <20061019090311.GA17882@pelagius.h-e-r-e-s-y.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061018223713.GD9350@pelagius.h-e-r-e-s-y.com> <1161244222.3376.470.camel@pmac.infradead.org>
+	Thu, 19 Oct 2006 05:09:51 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:34312 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030352AbWJSJJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 05:09:51 -0400
+Date: Thu, 19 Oct 2006 09:17:54 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [0/3] 2.6.19-rc2: known regressions
+Message-ID: <20061019081753.GA29883@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk> <20061015124210.GX30596@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1161244222.3376.470.camel@pmac.infradead.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061015124210.GX30596@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 08:50:22AM +0100, David Woodhouse wrote:
+On Sun, Oct 15, 2006 at 02:42:10PM +0200, Adrian Bunk wrote:
+> On Sun, Oct 15, 2006 at 01:24:54PM +0100, Russell King wrote:
+> > On Sat, Oct 14, 2006 at 01:14:58PM +0200, Adrian Bunk wrote:
+> > > As usual, we are swamped with bug reports for regressions after -rc1.
+> > > 
+> > > For an easier reading (and hoping linux-kernel might not eat the emails), 
+> > > I've splitted the list of known regressions in three emails:
+> > >   [1/3] known unfixed regressions
+> > >   [2/3] knwon regressions with workarounds
+> > >   [3/3] known regressions with patches
+> > 
+> > There's a raft of ARM regressions as well (see
+> > http://armlinux.simtec.co.uk/kautobuild/2.6.19-rc2/index.html), mostly
+> > related to the IRQ changes, as well as this error:
 > 
-> Hm, yes. There's still a lot of crap being exposed there that we really
-> don't need to be showing. Try this entirely untested patch...
+> Thanks, I'll look at them before preparing the next version of my 
+> regressions list.
 > 
-> The sparc64 version could do with something similar, too.
+> > sysctl_net.c:(.text+0x64a8c): undefined reference to `highest_possible_node_id'
 > 
+> This problem already got an entry a few hours ago:
+> 
+> Subject    : undefined reference to highest_possible_node_id
+> References : http://lkml.org/lkml/2006/9/4/233
+>              http://lkml.org/lkml/2006/10/15/11
+> Submitter  : Olaf Hering <olaf@aepfle.de>
+> Caused-By  : Greg Banks <gnb@melbourne.sgi.com>
+>              commit 0f532f3861d2c4e5aa7dcd33fb18e9975eb28457
+> Status     : unknown
 
-I'm on sparc64 (pure 64bit) so I can't test your patch. For reference,
-I used this (not as smart as yours) patch:
+Looking at this commit and the mails, it was known on the 4th September
+that this patch caused build errors while this change was in -mm, yet it
+still found its way into mainline on 2nd October.
 
-diff -Naur linux-2.6.18.1/include/asm-sparc64/elf.h linux-2.6.18.1-fix/include/asm-sparc64/elf.h
---- linux-2.6.18.1/include/asm-sparc64/elf.h    2006-09-20 03:42:06.000000000 +0000
-+++ linux-2.6.18.1-fix/include/asm-sparc64/elf.h        2006-10-19 08:57:11.000000000 +0000
-@@ -142,6 +142,7 @@
- #define ELF_ET_DYN_BASE         0x0000010000000000UL
- #endif
+Is anyone going to look at fixing this problem, or should we be asking
+for the commit to be reverted?
 
-+#ifdef __KERNEL__
-
- /* This yields a mask that user programs can use to figure out what
-    instruction set this cpu supports.  */
-@@ -163,6 +164,8 @@
-
- #define ELF_HWCAP      sparc64_elf_hwcap();
-
-+#endif
-+
- /* This yields a string that ld.so will use to load implementation
-    specific libraries for optimization.  This is more specific in
-    intent than poking at uname or /proc/cpuinfo.  */
-
-
-
-Andrew Walrond
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

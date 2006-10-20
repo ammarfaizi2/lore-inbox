@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946378AbWJTL5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946408AbWJTL7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946378AbWJTL5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 07:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946408AbWJTL5s
+	id S1946408AbWJTL7g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 07:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946390AbWJTL7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 07:57:48 -0400
-Received: from mga03.intel.com ([143.182.124.21]:61526 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1946378AbWJTL5r convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 07:57:47 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,333,1157353200"; 
-   d="scan'208"; a="133660437:sNHT22186269"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 20 Oct 2006 07:59:36 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:42524 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946408AbWJTL7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 07:59:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=iQVryfAw25VkIox4krj60Y8JrRNN1/SVXdFntrMUthE1knGt71tRMXcXoXf0JHUH8+U7VSi4Gcj43yuWg4Q0phG+4S0RG3XLlevvj4c47cpk1PDWA5FHlfPLDkNVqji2LKSvz2Z1L7zXoyTnlZEEgVv6kUriGPBCLnUnCtBVvGc=
+Message-ID: <4538BA2E.9040808@googlemail.com>
+Date: Fri, 20 Oct 2006 13:59:42 +0200
+From: Gabriel C <nix.or.die@googlemail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: speedstep-centrino: ENODEV
-Date: Fri, 20 Oct 2006 04:56:06 -0700
-Message-ID: <EB12A50964762B4D8111D55B764A8454C1A971@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: speedstep-centrino: ENODEV
-Thread-Index: Acb0GivbdIVcp2x4Qey1VkAdxT+LbQAJCYrw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: =?iso-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-Cc: "Jiri Slaby" <jirislaby@gmail.com>,
-       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 20 Oct 2006 11:57:46.0082 (UTC) FILETIME=[F4EADC20:01C6F43E]
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm2
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+In-Reply-To: <20061020015641.b4ed72e5.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
->-----Original Message-----
->From: Sune Mølgaard [mailto:sune@molgaard.org] 
->Sent: Friday, October 20, 2006 12:34 AM
->To: Pallipadi, Venkatesh
->Cc: Jiri Slaby; Linux kernel mailing list; linux-acpi@vger.kernel.org
->Subject: Re: speedstep-centrino: ENODEV
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
 >
->Pallipadi, Venkatesh wrote:
->> Make sure you have properly configured speedstep-centrino 
->(You should select X86_SPEEDSTEP_CENTRINO_ACPI along with 
->X86_SPEEDSTEP_CENTRINO).
->
->I have enabled all options in the make menuconfig menu under cpufreq 
->(except the one marked deprecated). Still no go :-(
->
+>   
+Hello,
 
-Hmm... You must have CPU_FREQ_DENUG enabled in CONFIG already. Can you pass cpufreq.debug=3 in boot option and send me the output of dmesg after that.
+I got this on ' make silentoldconfig '
 
-Thanks,
-Venki
+drivers/media/dvb/dvb-usb/Kconfig:72:warning: 'select' used by config
+symbol 'DVB_USB_DIB0700' refer to undefined symbol 'DVB_DIB7000M'
+
+Regards
+
+Gabriel

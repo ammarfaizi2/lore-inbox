@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWJTS06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWJTS3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWJTS06 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 14:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWJTS06
+	id S1030199AbWJTS3h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 14:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWJTS3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 14:26:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20917 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964805AbWJTS05 (ORCPT
+	Fri, 20 Oct 2006 14:29:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29392 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030199AbWJTS3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 14:26:57 -0400
-Date: Fri, 20 Oct 2006 11:26:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: various laptop nagles - any suggestions?   (note:
- 2.6.19-rc2-mm1 but applies to multiple kernels)
-Message-Id: <20061020112627.04a4035a.akpm@osdl.org>
-In-Reply-To: <1161368034.5274.278.camel@localhost.localdomain>
-References: <4537A25D.6070205@wintersgift.com>
-	<20061019194157.1ed094b9.akpm@osdl.org>
-	<4538F9AD.8000806@wintersgift.com>
-	<20061020110746.0db17489.akpm@osdl.org>
-	<1161368034.5274.278.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Oct 2006 14:29:36 -0400
+Message-ID: <4539158C.2090801@redhat.com>
+Date: Fri, 20 Oct 2006 13:29:32 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: time warp on 2.6.18-rt6 (2nd try)
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 20:13:54 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Also, NO_HZ breaks my laptop (and presumably quite a few others) quite
-> > horridly, which means nobody can ship the feature.  Some runtime
-> > turn-it-off work needs to be done there.
-> 
-> We can make a commandline switch as for highres. Is that sufficient ?
+Ingo,
 
-I doubt it.
+I sent this yesterday morning and haven't seen it show up. I wonder if
+my attached configs/logs were too large? Now referenced as URLs...
 
-I don't know how many machines will be affected by this, but I'd expect
-it's quite a few - the Vaio has a less-than-one-year-old Intel CPU in it.
+I'm still seeing the time warp ("It's just a jump to the left!" :))*
+being triggered on both my Athlon64x2 (32-bit kernel) and my Athlon64 up
+box (64-bit kernel). A boot log that shows the failure and the config
+files for both systems can be found at:
 
-I'd expect that if a distro were to enable NO_HZ, they'd have a large
-number of unhappy users whose machines run like crap, some of whom would
-find out that they need to add some funny dont-run-like-crap option and
-some of whom would, after wasting considerable amounts of time, just give
-up and use windows or RH5.2 or something.
+http://people.redhat.com/williams/rt
 
-IOW, it would be vastly better to make it simply work out-of-the-box.
+To trigger this, I was running pi_stress test from:
+
+http://people.redhat.com/williams/tests/pi_tests-1.3.tar.gz
+
+I was running it like this:
+
+$ sudo pi_stress --verbose
+
+Note: Be aware that I still haven't got pi_stress to stop reliably.
+It will catch SIGINT sometimes and sometimes it just blithely ignores it
+and sails on. Since in the default run there are ten groups of three
+threads all running SCHED_FIFO and performing a priority inversion
+scenario, this will mean a uniprocessor box will be almost unusable for
+other tasks. On my SMP box I can ssh into the box and kill the test with
+"kill <pid>".
+
+Let me know if you need me to reconfigure and try something else.
+
+Clark
+
+* lame "Rocky Horror Picture Show" reference
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFORWMHyuj/+TTEp0RAq8QAJ9t30GOTjRmKD0Tkif94wQVyOyRTQCfbmX7
+Qm3mAzmnnH8KDqpP2hoDwSE=
+=kkAj
+-----END PGP SIGNATURE-----

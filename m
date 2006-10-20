@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946387AbWJTLza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946378AbWJTL5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946387AbWJTLza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 07:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946390AbWJTLza
+	id S1946378AbWJTL5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 07:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946408AbWJTL5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 07:55:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:17874 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1946387AbWJTLz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 07:55:29 -0400
-Date: Fri, 20 Oct 2006 13:55:27 +0200
-From: Marcus Meissner <meissner@suse.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       arjan@linux.intel.com
-Subject: [PATCH] binfmt_elf: randomize PIE binaries (2nd try)
-Message-ID: <20061020115527.GB14448@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 20 Oct 2006 07:57:48 -0400
+Received: from mga03.intel.com ([143.182.124.21]:61526 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1946378AbWJTL5r convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 07:57:47 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,333,1157353200"; 
+   d="scan'208"; a="133660437:sNHT22186269"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: speedstep-centrino: ENODEV
+Date: Fri, 20 Oct 2006 04:56:06 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A8454C1A971@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: speedstep-centrino: ENODEV
+Thread-Index: Acb0GivbdIVcp2x4Qey1VkAdxT+LbQAJCYrw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: =?iso-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
+Cc: "Jiri Slaby" <jirislaby@gmail.com>,
+       "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 20 Oct 2006 11:57:46.0082 (UTC) FILETIME=[F4EADC20:01C6F43E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randomizes -pie compiled binaries from PAGE_SIZE up to
-ELF_ET_DYN_BASE.
-
-0 -> PAGE_SIZE is excluded to allow NULL ptr accesses
-to fail.
-
-Signed-off-by: Marcus Meissner <meissner@suse.de>
-
-----
- binfmt_elf.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
---- linux-2.6.18/fs/binfmt_elf.c.xx	2006-10-20 10:42:03.000000000 +0200
-+++ linux-2.6.18/fs/binfmt_elf.c	2006-10-20 10:51:27.000000000 +0200
-@@ -856,7 +856,13 @@
- 			 * default mmap base, as well as whatever program they
- 			 * might try to exec.  This is because the brk will
- 			 * follow the loader, and is not movable.  */
--			load_bias = ELF_PAGESTART(ELF_ET_DYN_BASE - vaddr);
-+			if (current->flags & PF_RANDOMIZE)
-+				load_bias = randomize_range(PAGE_SIZE,
-+							    ELF_ET_DYN_BASE,
-+							    0);
-+			else
-+				load_bias = ELF_ET_DYN_BASE;
-+			load_bias = ELF_PAGESTART(load_bias - vaddr);
- 		}
  
- 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt,
+
+>-----Original Message-----
+>From: Sune Mølgaard [mailto:sune@molgaard.org] 
+>Sent: Friday, October 20, 2006 12:34 AM
+>To: Pallipadi, Venkatesh
+>Cc: Jiri Slaby; Linux kernel mailing list; linux-acpi@vger.kernel.org
+>Subject: Re: speedstep-centrino: ENODEV
+>
+>Pallipadi, Venkatesh wrote:
+>> Make sure you have properly configured speedstep-centrino 
+>(You should select X86_SPEEDSTEP_CENTRINO_ACPI along with 
+>X86_SPEEDSTEP_CENTRINO).
+>
+>I have enabled all options in the make menuconfig menu under cpufreq 
+>(except the one marked deprecated). Still no go :-(
+>
+
+Hmm... You must have CPU_FREQ_DENUG enabled in CONFIG already. Can you pass cpufreq.debug=3 in boot option and send me the output of dmesg after that.
+
+Thanks,
+Venki

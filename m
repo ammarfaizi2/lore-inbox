@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992625AbWJTQWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWJTQYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992625AbWJTQWO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 12:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWJTQWO
+	id S932269AbWJTQYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWJTQYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 12:22:14 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:61757 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932268AbWJTQWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 12:22:13 -0400
-Message-ID: <4538F7B3.4020207@mvista.com>
-Date: Fri, 20 Oct 2006 09:22:11 -0700
-From: Kevin Hilman <khilman@mvista.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 20 Oct 2006 12:24:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61906 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932269AbWJTQYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:24:04 -0400
+Message-ID: <4538F81A.2070007@redhat.com>
+Date: Fri, 20 Oct 2006 11:23:54 -0500
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab debug and ARCH_SLAB_MINALIGN don't get along
-References: <11612878321443-git-send-email-khilman@mvista.com> <84144f020610200156t1745b3d6xee0b0a24e6a1bba5@mail.gmail.com>
-In-Reply-To: <84144f020610200156t1745b3d6xee0b0a24e6a1bba5@mail.gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] more helpful WARN_ON and BUG_ON messages
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
+After a few bugs I encountered in FC6 in buffer.c, with output like:
 
-> On 10/19/06, Kevin Hilman <khilman@mvista.com> wrote:
->> When CONFIG_SLAB_DEBUG is used in combination with ARCH_SLAB_MINALIGN,
->> some debug flags should be disabled which depend on BYTES_PER_WORD
->> alignment.
->>
->> The disabling of these debug flags is not properly handled when
->> BYTES_PER_WORD < ARCH_SLAB_MEMALIGN < cache_line_size()
->>
->> This patch fixes that and also adds an alignment check to
->> cache_alloc_debugcheck_after() when ARCH_SLAB_MINALIGN is used.
-> 
-> You forgot to mention which case you are fixing in the patch
-> description (that is, SLAB_HWCACHE_ALIGN, when cache_line_size() >
-> BYTES_PER_WORD) which made the patch bit hard to decipher. Anyway,
-> looks good, thanks!
+Kernel BUG at fs/buffer.c: 2791
 
-Hi Pekka,
+where buffer.c contains:
 
-I found this on an ARM platform where ARCH_SLAB_MINALIGN=8, and the
-default SLAB_HWCACHE_ALIGN is set also.
+...
+        BUG_ON(!buffer_locked(bh));
+        BUG_ON(!buffer_mapped(bh));
+        BUG_ON(!bh->b_end_io);
+...
 
-The ARM EABI requires 8-byte alignment to take full advantage of 8-byte
-loads/stores for ARM arch >= v5.
+around line 2790, it's awfully tedious to go get the exact failing kernel tree
+just to see -which- BUG_ON was encountered.
 
-Kevin
+Printing out the failing condition as a string would make this more helpful IMHO.
+
+This is mostly just compile-tested... comments?
+
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+
+Index: linux-2.6.18/include/asm-generic/bug.h
+===================================================================
+--- linux-2.6.18.orig/include/asm-generic/bug.h
++++ linux-2.6.18/include/asm-generic/bug.h
+@@ -12,13 +12,19 @@
+ #endif
+ 
+ #ifndef HAVE_ARCH_BUG_ON
+-#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++#define BUG_ON(condition) do { \
++	if (unlikely((condition)!=0)) { \
++		printk("BUGging on (%s)\n", #condition); \
++		BUG(); \
++	} \
++} while(0)
+ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
+ #define WARN_ON(condition) do { \
+ 	if (unlikely((condition)!=0)) { \
+-		printk("BUG: warning at %s:%d/%s()\n", __FILE__, __LINE__, __FUNCTION__); \
++		printk("BUG: warning: (%s) at %s:%d/%s()\n", \
++			#condition, __FILE__, __LINE__, __FUNCTION__); \
+ 		dump_stack(); \
+ 	} \
+ } while (0)
+
+

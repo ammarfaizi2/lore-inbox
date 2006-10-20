@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946451AbWJTPqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWJTPrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946451AbWJTPqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946457AbWJTPqD
+	id S932219AbWJTPrU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWJTPrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:46:03 -0400
-Received: from thunk.org ([69.25.196.29]:60842 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1946451AbWJTPqB (ORCPT
+	Fri, 20 Oct 2006 11:47:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6577 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932219AbWJTPrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:46:01 -0400
-To: linux-kernel@vger.kernel.org
-Subject: ANNOUNCEMENT: Real-time Linux users list created
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1GawZH-0002l3-FG@candygram.thunk.org>
-Date: Fri, 20 Oct 2006 11:45:55 -0400
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Fri, 20 Oct 2006 11:47:18 -0400
+Date: Fri, 20 Oct 2006 11:46:28 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       Cal Peake <cp@absolutedigital.net>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [CFT] Grep to find users of sys_sysctl.
+Message-ID: <20061020154628.GA2734@nostromo.devel.redhat.com>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Albert Cahalan <acahalan@gmail.com>,
+	Cal Peake <cp@absolutedigital.net>, Andi Kleen <ak@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com> <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org> <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net> <20061018124415.e45ece22.akpm@osdl.org> <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net> <m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com> <20061020075234.GA18645@flint.arm.linux.org.uk> <m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman (ebiederm@xmission.com) said: 
+> - module_upgrade seems to be setting the printk verbosity?
 
-	We have created a list for users of CONFIG_PREEMPT_RT,
-linux-rt-users@vger.kernel.org.   It is archived on gmane.org (and of
-course people who want to read it via gmane's NNTP or RSS feeds can do
-so as well): 
+Reading the current verbosity; setting it is done with sys_syslog.
+Could be ported to read it out of /proc/sys/kernel/printk; that's
+just more lines of code. (All this code is dying anyway, so... eh,
+whatever.)
 
-	http://gmane.org/info.php?group=gmane.linux.rt.user
-
-Development discussions will continue on LKML, but this will allow
-people interested in using CONFIG_PREEMPT_RT to have a forum to talk
-about usage issues, tricks and tips, without needing to deal with the
-huge volume of the LKML list.  And, of course, there is also the
-real-time wiki, available at:
-
-	http://rt.wiki.kernel.org/
-
-which will be focused at users as well as developers.
-
-Regards,
-
-						- Ted
+Bill

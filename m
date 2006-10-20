@@ -1,98 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946825AbWJTC1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946835AbWJTCa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946825AbWJTC1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 22:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946834AbWJTC1S
+	id S1946835AbWJTCa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946838AbWJTCa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 22:27:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45982 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946825AbWJTC1R (ORCPT
+	Thu, 19 Oct 2006 22:30:56 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:54304 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1946835AbWJTCa4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 22:27:17 -0400
-Date: Thu, 19 Oct 2006 19:23:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com, Zhu Yi <yi.zhu@intel.com>,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: ipw2200: "ieee80211: Info elem: parse failed"
-Message-Id: <20061019192350.13209920.akpm@osdl.org>
-In-Reply-To: <453742AE.3010201@gmail.com>
-References: <453742AE.3010201@gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 22:30:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=JPS4iI8rY2E9dXgamr+lA8yZx1N9DITBi+LwHiJfeP14+JuimMoWf+kkSs011G3+FnfoURJSmRzzWqRgprf8Tf27xA1V4RMWR1glVGgv5sdYjuDoDnCrYKAERCteVmrgeQ7OvhNkdjw0UgTZc/0vdxmmHZe8Jxdyz0VDhmo9d40=
+To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fixed iSeries code to use time_after instead of jiffy
+Date: Thu, 19 Oct 2006 19:30:26 -0700
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610191930.27092.karhudever@gmial.com>
+From: David KOENIG <karhudever@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 11:17:34 +0200
-Jiri Slaby <jirislaby@gmail.com> wrote:
+>From 3bfab05309e8f5420e7897da214ad165f5566055 Mon Sep 17 00:00:00 2001
+From: David KOENIG <karhudever@gmail.com>
+Date: Thu, 19 Oct 2006 19:28:18 -0700
+Subject: [PATCH] Fixed iSeries code to use time_after instead of jiffy 
+comparisons
+---
+ arch/powerpc/platforms/iseries/pci.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
 
-> Hi,
-> 
-> since 2.6.19-rc1 I'm getting these messages from ipw2200 driver:
-> ieee80211: Info elem: parse failed: info_element->len + 2 > left : 
-> info_element->len+2=8 left=2, id=128.
-> 
-> The driver says:
-> ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.4km
-> ipw2200: Copyright(c) 2003-2006 Intel Corporation
-> ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 3
-> PCI: setting IRQ 3 as level-triggered
-> ACPI: PCI Interrupt 0000:02:07.0[A] -> Link [LNKC] -> GSI 3 (level, low) -> IRQ 3
-> ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
-> ACPI: PCI Interrupt 0000:00:13.2[A] -> Link [LNKD] -> GSI 10 (level, low) -> IRQ 10
-> 
-> and works, but the message is annoying, since the driver prints it again and 
-> again. What could be wrong?
-> 
-
-I suspect it was always failing.  But the failure message has been changed
-so that it actually comes out.
-
-
-
-commit f09fc44d8c25f22c4d985bb93857338ed02feac6
-Author: Zhu Yi <yi.zhu@intel.com>
-Date:   Mon Aug 21 11:34:19 2006 +0800
-
-    [PATCH] ieee80211: Workaround malformed 802.11 frames from AP
-    
-    Stop processing further but return success when we receive a malformed
-    packet from the AP. We need this patch to workaround some AP bugs. For
-    example, the beacon frames from the Orinoco AP1000 contains an IE (value
-    = 128) with length equals to 8 but the actual frame length is only 7.
-    
-    Signed-off-by: Zhu Yi <yi.zhu@intel.com>
-    Signed-off-by: John W. Linville <linville@tuxdriver.com>
-
-diff --git a/net/ieee80211/ieee80211_rx.c b/net/ieee80211/ieee80211_rx.c
-index d60358d..7707041 100644
---- a/net/ieee80211/ieee80211_rx.c
-+++ b/net/ieee80211/ieee80211_rx.c
-@@ -1078,13 +1078,16 @@ #endif
+diff --git a/arch/powerpc/platforms/iseries/pci.c 
+b/arch/powerpc/platforms/iseries/pci.c
+index 4aa165e..b17fd12 100644
+--- a/arch/powerpc/platforms/iseries/pci.c
++++ b/arch/powerpc/platforms/iseries/pci.c
+@@ -19,6 +19,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+  */
++#include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/string.h>
+@@ -457,7 +458,7 @@ static u8 iSeries_Read_Byte(const volati
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
  
- 	while (length >= sizeof(*info_element)) {
- 		if (sizeof(*info_element) + info_element->len > length) {
--			IEEE80211_DEBUG_MGMT("Info elem: parse failed: "
--					     "info_element->len + 2 > left : "
--					     "info_element->len+2=%zd left=%d, id=%d.\n",
--					     info_element->len +
--					     sizeof(*info_element),
--					     length, info_element->id);
--			return 1;
-+			IEEE80211_ERROR("Info elem: parse failed: "
-+					"info_element->len + 2 > left : "
-+					"info_element->len+2=%zd left=%d, id=%d.\n",
-+					info_element->len +
-+					sizeof(*info_element),
-+					length, info_element->id);
-+			/* We stop processing but don't return an error here
-+			 * because some misbehaviour APs break this rule. ie.
-+			 * Orinoco AP1000. */
-+			break;
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
  		}
+@@ -485,7 +486,7 @@ static u16 iSeries_Read_Word(const volat
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
  
- 		switch (info_element->id) {
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
+ 		}
+@@ -514,7 +515,7 @@ static u32 iSeries_Read_Long(const volat
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
+ 
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
+ 		}
+@@ -550,7 +551,7 @@ static void iSeries_Write_Byte(u8 data, 
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
+ 
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
+ 		}
+@@ -576,7 +577,7 @@ static void iSeries_Write_Word(u16 data,
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
+ 
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
+ 		}
+@@ -602,7 +603,7 @@ static void iSeries_Write_Long(u32 data,
+ 		static unsigned long last_jiffies;
+ 		static int num_printed;
+ 
+-		if ((jiffies - last_jiffies) > 60 * HZ) {
++		if (time_after(jiffies, last_jiffies + 60 * HZ)) {
+ 			last_jiffies = jiffies;
+ 			num_printed = 0;
+ 		}
+-- 
+1.4.1
 
+
+-- 
+<>< karhudever@gmail.com

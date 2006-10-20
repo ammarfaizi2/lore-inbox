@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422784AbWJTWPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992886AbWJTWWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422784AbWJTWPr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 18:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423235AbWJTWPq
+	id S2992886AbWJTWWr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 18:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992884AbWJTWWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 18:15:46 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:22975 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1422784AbWJTWPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 18:15:46 -0400
-Date: Sat, 21 Oct 2006 00:14:34 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Bryce Harrington <bryce@osdl.org>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Martin Peschke <mp3@de.ibm.com>
-Subject: Re: 2.6.19-rc2-mm2 not building on ia64
-In-Reply-To: <20061020205742.GU10386@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610210007020.29022@twin.jikos.cz>
-References: <20061020205742.GU10386@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Oct 2006 18:22:47 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42664
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S2992738AbWJTWWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 18:22:46 -0400
+Date: Fri, 20 Oct 2006 15:22:47 -0700 (PDT)
+Message-Id: <20061020.152247.111203913.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org>
+	<20061020214916.GA27810@linux-mips.org>
+	<Pine.LNX.4.64.0610201500040.3962@g5.osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006, Bryce Harrington wrote:
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 20 Oct 2006 15:02:39 -0700 (PDT)
 
-> We're seeing the following error building the 2.6.19-rc2-mm2 kernel on
-> ia64 (it builds ok on x86_64).  2.6.19-rc2-git4 builds ok.
->   CC [M]  drivers/acpi/processor_throttling.o
-> arch/ia64/sn/kernel/setup.c: In function `sn_setup':
-> arch/ia64/sn/kernel/setup.c:470: error: `ia64_timestamp_clock' undeclared (first use in this function)
-> arch/ia64/sn/kernel/setup.c:470: error: (Each undeclared identifier is reported only once
-> arch/ia64/sn/kernel/setup.c:470: error: for each function it appears in.)
->   CC      fs/ext2/namei.o
-> make[2]: *** [arch/ia64/sn/kernel/setup.o] Error 1
-> make[1]: *** [arch/ia64/sn/kernel] Error 2
-> make: *** [arch/ia64/sn] Error 2
-> make: *** Waiting for unfinished jobs....
+> On Fri, 20 Oct 2006, Ralf Baechle wrote:
+> > When I delete the call (not part of my patchset) it means 12% faster 
+> > fork.  But I'm not proposing this for 2.6.19.
+> 
+> I just suspect it means a _buggy_ fork.
+> 
+> It so happens (I think), that fork is big enough that it probably flushes 
+> the L1 cache _anyway_. 
 
-(added relevant CCs)
+My understanding is that this works because in Ralf's original patch
+(which is the context in which he is removing the flush_cache_mm()
+call), he uses kmap()/kunmap() to map the page(s) being accessed at a
+kernel virtual address which will fall into the same cache color as
+the user virtual address --> no alias problems.
 
-This is caused by 
-statistics-infrastructure-make-printk_clock-a-generic-kernel-wide-nsec-resolution.patch
-
-I wonder how this could ever compile :) 
-
-Andrew, could you please apply this trivial on top of the original one?
-
-[PATCH] IA64: Fix compile problem in arch/ia64/sn/setup.c
-
-Rename forgotten occurence of ia64_printk_clock to ia64_timestamp_clock
-
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-
----
-
- arch/ia64/sn/kernel/setup.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/arch/ia64/sn/kernel/setup.c b/arch/ia64/sn/kernel/setup.c
-index 911000a..d3cf595 100644
---- a/arch/ia64/sn/kernel/setup.c
-+++ b/arch/ia64/sn/kernel/setup.c
-@@ -65,7 +65,7 @@ extern void sn_timer_init(void);
- extern unsigned long last_time_offset;
- extern void (*ia64_mark_idle) (int);
- extern void snidle(int);
--extern unsigned long long (*ia64_printk_clock)(void);
-+extern unsigned long long (*ia64_timestamp_clock)(void);
- 
- unsigned long sn_rtc_cycles_per_second;
- EXPORT_SYMBOL(sn_rtc_cycles_per_second);
-
--- 
-Jiri Kosina
+Since he does this for every page touched on the kernel side during
+dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
+fact become redundant.

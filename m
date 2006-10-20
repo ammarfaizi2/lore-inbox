@@ -1,153 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992425AbWJTCmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992437AbWJTCrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992425AbWJTCmz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 22:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992424AbWJTCmz
+	id S2992437AbWJTCrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992436AbWJTCrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 22:42:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:23622 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S2992425AbWJTCmx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 22:42:53 -0400
+	Thu, 19 Oct 2006 22:47:51 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:44138 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S2992434AbWJTCru (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 22:47:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=ID92R5wHOh4R6VkHd+FLr2jzKc8oaTIZ9y78P3eNDrhmcNidXz6YuMjQCWDOdXJJAQDYWugJaWjB/15BYL1pb8kc8RcPO1iT5xzacOlorqcnNwS+bxGYk0KyMg9qzqoisFQUyahZe/1/6bAGb5Pf5UclD0FH/vwynsCX4WW+O/I=
-To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: [PATCH] Converted jiffy comparisons to time_after calls (TAKE 3)
-Date: Thu, 19 Oct 2006 19:42:26 -0700
-User-Agent: KMail/1.9.5
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LL0NY7GHiRLbMx91PXRpxKGf5pgtb5S6E1BrTbyAE5eq6vMJ4rfsKtefSPbmTDZ4qb4G+KWezy0RjKB2ZbFEexouAIKgBymDAy7KE2MVmYDWhcWVW2vH89Q6CnBgtFgrlpKSWWV9hwya5pXVIt6XIjsfdCwPH/8tiQt3SIAasi4=
+Message-ID: <4df04b840610191947r2b48c2ddo45f0cd94d94a614b@mail.gmail.com>
+Date: Fri, 20 Oct 2006 10:47:49 +0800
+From: "yunfeng zhang" <zyf.zeroos@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: about flush TLB during unmapping a page in memory subsystem
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610191942.26865.karhudever@gmial.com>
-From: David KOENIG <karhudever@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 9180d29946eced4c71845c9bbe847e98e01d1c31 Mon Sep 17 00:00:00 2001
-From: David KOENIG <david@karhu.(none)>
-Date: Thu, 19 Oct 2006 18:57:17 -0700
-Subject: [PATCH] Converted jiffy comparisons to time_after calls
----
- drivers/net/tokenring/3c359.c |   21 +++++++++++----------
- 1 files changed, 11 insertions(+), 10 deletions(-)
+In rmap.c::try_to_unmap_one of 2.6.16.29, there are some code snippets
 
-diff --git a/drivers/net/tokenring/3c359.c b/drivers/net/tokenring/3c359.c
-index 7580bde..8a2e0c1 100644
---- a/drivers/net/tokenring/3c359.c
-+++ b/drivers/net/tokenring/3c359.c
-@@ -48,6 +48,7 @@ #include <linux/errno.h>
- #include <linux/timer.h>
- #include <linux/in.h>
- #include <linux/ioport.h>
-+#include <linux/jiffies.h>
- #include <linux/string.h>
- #include <linux/proc_fs.h>
- #include <linux/ptrace.h>
-@@ -409,7 +410,7 @@ static int xl_hw_reset(struct net_device
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 40*HZ) {
-+		if (time_after(jiffies, t + 40 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL  card not responding to global 
-reset.\n", dev->name);
- 			return -ENODEV;
- 		}
-@@ -520,7 +521,7 @@ #endif
- 	t=jiffies;
- 	while ( !(readw(xl_mmio + MMIO_INTSTATUS_AUTO) & INTSTAT_SRB) ) { 
- 		schedule();		
--		if(jiffies-t > 15*HZ) {
-+		if (time_after(jiffies, t + 15 * HZ)) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			return -ENODEV; 
- 		}
-@@ -796,7 +797,7 @@ static int xl_open_hw(struct net_device 
- 	t=jiffies;
- 	while (! (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
- 		schedule();		
--		if(jiffies-t > 40*HZ) {
-+		if (time_after(jiffies, t + 40 * HZ)) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			break ; 
- 		}
-@@ -1011,7 +1012,7 @@ static void xl_reset(struct net_device *
- 
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
--		if(jiffies-t > 40*HZ) {
-+		if (time_after(jiffies, t + 40 * HZ)) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			break ; 
- 		}
-@@ -1283,7 +1284,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if (time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNSTALL not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1292,7 +1293,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if (time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNDISABLE not responding.\n", 
-dev->name);
- 			break ;
- 		}
-@@ -1301,7 +1302,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if (time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPSTALL not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1318,7 +1319,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (!(readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
- 		schedule();		
--		if (jiffies-t > 10*HZ) {
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-CLOSENIC not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1347,7 +1348,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if (time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPRESET not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1356,7 +1357,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if (time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNRESET not responding.\n", 
-dev->name);
- 			break ; 
- 		}
--- 
-1.4.1
+.....
+/* Nuke the page table entry. */
+flush_cache_page(vma, address, page_to_pfn(page));
+pteval = ptep_clear_flush(vma, address, pte);
+// >>> The above line is expanded as below
+// >>> pte_t __pte;
+// >>> __pte = ptep_get_and_clear((__vma)->vm_mm, __address, __ptep);
+// >>> flush_tlb_page(__vma, __address);
+// >>> __pte;
+
+/* Move the dirty bit to the physical page now the pte is gone. */
+if (pte_dirty(pteval))
+        set_page_dirty(page);
+.....
 
 
--- 
-<>< karhudever@gmail.com
+It seems that they only can work on UP system.
+
+On SMP, let's suppose the pte was clean, after A CPU executed
+ptep_get_and_clear,
+B CPU makes the pte dirty, which will make a fatal error to A CPU since it gets
+a stale pte, isn't right?

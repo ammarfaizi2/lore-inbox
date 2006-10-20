@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946424AbWJTPfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946379AbWJTPfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946424AbWJTPfp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946423AbWJTPfo
+	id S1946379AbWJTPfc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992594AbWJTPfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:35:44 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:8410 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1946420AbWJTPfn (ORCPT
+	Fri, 20 Oct 2006 11:35:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16107 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946379AbWJTPfb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:35:43 -0400
-Message-ID: <4538ECCD.4020005@us.ibm.com>
-Date: Fri, 20 Oct 2006 10:35:41 -0500
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Fri, 20 Oct 2006 11:35:31 -0400
+Date: Fri, 20 Oct 2006 08:35:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Git training wheels for the pimple faced maintainer
+In-Reply-To: <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0610200827210.3962@g5.osdl.org>
+References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
+ <45386E0E.7030404@drzeus.cx> <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
 MIME-Version: 1.0
-To: Avi Kivity <avi@qumranet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/7] KVM: userspace interface
-References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com> <4537C807.4@us.ibm.com> <4537CC24.2070708@qumranet.com> <4537CD54.8020006@us.ibm.com> <4537D174.8090204@qumranet.com> <4537D298.6010105@us.ibm.com> <45387DEF.9060903@qumranet.com>
-In-Reply-To: <45387DEF.9060903@qumranet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Anthony Liguori wrote:
->>>
->>>  writel(dst_x_reg, x);
->>>  writel(dst_y_reg, y)
->>>  writel(width_reg, w);
->>>  writel(height_reg, h);
->>>  writel(blt_cmd_reg, fill);
->>>
->>> then kvm would cache the first four in a mmap()able memory area and 
->>> only exit to userspace on the fifth.  Userspace would then read the 
->>> cached registers from memory and emulate the command.
->>
->> Letting QEMU do a certain amount of emulation after every transition 
->> would the problem in a more elegant and generic way.
->>
->
-> But what amount?  A basic block, or several?
->
-> Emulation has its costs.  You need to marshal the registers to and 
-> fro.  You need to reset qemu's cached translations.  You need to throw 
-> away shadow page tables and qemu's softmmu.  You increase the time 
-> spent in single threaded code.
 
-Admittedly still a research topic.  If you're interested in what we're 
-doing in Xen, check out:
 
-http://xenbits.xensource.com/ext/xen-unstable-hvm.hg (sorry, xenbits is 
-down right now but hopefully it will be fixed quickly).
+On Fri, 20 Oct 2006, Linus Torvalds wrote:
+> 
+> Use "git diff -M --stat master..for-linus" instead.
 
-Regards,
+Actually, use "git diff -M --stat --summary master..for-linus".
 
-Anthony Liguori
+The "--summary" thing generates an additional summary at the end of the 
+diffstat that lists deleted/created/moved/copied files, which is nice to 
+see. There's a difference between a
 
+   drivers/char/myserial.c  | 50 ++++++++
+   1 file changed, 50 insertions(+), 0 deletions(-)
+
+and
+
+   drivers/char/myserial.c  | 50 ++++++++
+   1 file changed, 50 insertions(+), 0 deletions(-)
+   create mode 100644 drivers/char/myserial.c
+
+because the latter tells that the new lines are actually in a new file, 
+while the previous says that you just added lines to an old one.
+
+(Without "--summary", you can't tell the difference between these two 
+cases)
+
+And the "-M" flag obviously means the difference between:
+
+ drivers/pci/hotplug/pci_hotplug.h          |  236 ----------------------
+ include/linux/pci_hotplug.h                |  236 ++++++++++++++++++++++
+ 2 files changed, 236 insertions(+), 236 deletions(-)
+ delete mode 100644 drivers/pci/hotplug/pci_hotplug.h
+ create mode 100644 include/linux/pci_hotplug.h
+
+and
+
+ .../pci/hotplug => include/linux}/pci_hotplug.h    |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+ rename drivers/pci/hotplug/pci_hotplug.h => include/linux/pci_hotplug.h (99%)
+
+where the latter version clearly tells you a whole lot more about the 
+patch than the non-renaming one.
+
+The reason rename detection isn't on by default is that non-git tools 
+don't understand the rename diffs. But if anybody sends me patches, please 
+feel free to use "git diff -M" to make them smaller and more readable in 
+the face of renames.
+
+		Linus

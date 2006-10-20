@@ -1,76 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992749AbWJTVlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423246AbWJTVmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992749AbWJTVlN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992751AbWJTVlN
+	id S1423246AbWJTVmS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423239AbWJTVmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:41:13 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:41348 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S2992746AbWJTVlL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:41:11 -0400
-Date: Fri, 20 Oct 2006 22:41:22 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-Message-ID: <20061020214122.GA29237@linux-mips.org>
-References: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org> <20061020.123635.95058911.davem@davemloft.net> <Pine.LNX.4.64.0610201251440.3962@g5.osdl.org> <20061020.125851.115909797.davem@davemloft.net> <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020205929.GE8894@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
+	Fri, 20 Oct 2006 17:42:17 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18101 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1423235AbWJTVmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:42:14 -0400
+Date: Fri, 20 Oct 2006 14:41:53 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: nickpiggin@yahoo.com.au, mbligh@google.com, akpm@osdl.org,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com, clameter@sgi.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+Message-Id: <20061020144153.b40b2cc9.pj@sgi.com>
+In-Reply-To: <20061020203016.GA26421@in.ibm.com>
+References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
+	<4537527B.5050401@yahoo.com.au>
+	<20061019120358.6d302ae9.pj@sgi.com>
+	<4537D056.9080108@yahoo.com.au>
+	<4537D6E8.8020501@google.com>
+	<4538F34A.7070703@yahoo.com.au>
+	<20061020120005.61239317.pj@sgi.com>
+	<20061020203016.GA26421@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 02:12:11PM -0700, Linus Torvalds wrote:
+> One point I would argue against is to completely decouple cpusets and
+> sched domains. We do need a way to partition sched domains and doing
+> it along the lines of cpusets seems to be the most logical. This is
+> also much simpler in terms of additional lines of code needed to support
+> this feature. (as compared to adding a whole new API just to do this)
 
-> > Well, looking at do_wp_page() I'm now quite concerned about ARM and COW.
-> > I can't see how this code could _possibly_ work with a virtually indexed
-> > cache as it stands.  Yet, the kernel does appear to work.
-> 
-> It really shouldn't need any extra code, exactly because by the time it 
-> hits any page-fault, the caches had better be in sync with the physical 
-> page contents _anyway_ (yes, being virtual, the caches will _duplicate_ 
-> the contents, but since the pages are read-only, that aliasing should be 
-> perfectly fine).
+The "simpler" (fewer code lines) point I can certainly agree with.
 
-Until yesterday I also thought multiple read-only copies wouldn't do any
-harm.  Well, until I learned about the wonderful behaviour of the PA8800
-caches.  PA8800 has VIPT primary caches, PIPT secondary caches.  And the
-sinister part - caches are exclusive, that is a cacheline is either in
-L1 or L2 but never in both and can migrate between L1 and L2.  Now
-onsider the following scenario:
+The "most logical" point I go back and forth on.
 
- o physical address P is mapped to two aliasing addresses V1 and V2
- o a load from V1 results in a clean line in L1 caching P at index V1.
- o a store to V2 results in a clean line in L1 caching P at index V2.
- o the line at V2 is getting written back to memory.
- o a victim replacement of the line at V1 results in the _clean_ line
-   migrating back from L1 to L2.
+The flat partitions, forming a complete, non-overlapping cover, needed
+by sched domains can be mapped to selected cpusets in their nested
+hierarchy, if we impose the probably reasonable constraint that for
+any cpuset across which we require to load balance, we would want that
+cpusets cpus to be entirely contained within a single sched domain
+partition.
 
--> another read from V2 will return stale data.
+Earlier, such as last week and before, I had been operating under the
+assumption that sched domain partitions were hierarchical too, so that
+just because a partition boundary ran right down the middle of my most
+active cpuset didn't stop load balancing across that boundary, but just
+perhaps slowed load balancing down a bit, as it would only occur at some
+higher level in the partition hierarchy, which presumably balanced less
+frequently.  Apparently this sched domain partition hierarchy was a
+figment of my over active imagination, along with the tooth fairy and
+Santa Claus.
 
-As consequence flush_cache_mm() on PA (or at least PA8800) currently blows
-away the entire cache, as Kyle McMartin just told me.  The whole 1.5MB L1
-and 32MB of L2 making fork an ultraheavy operation.
+Anyhow, if we consider that constraint (don't split or cut an active
+cpuset across partitions) not only reasonable, but desirable to impose,
+then integrating the sched domain partitioning with cpusets, as you
+describe, would indeed seem "most logical."
 
-> It's just that we weren't quite careful enough at that time (and even 
-> then, that would only matter for some really really unlikely and strange 
-> situations that only happen when you fork() from a _threaded_ environment, 
-> so it shouldn't be anything you'd notice under normal load).
-> 
-> I think.
+> 2. The main change is that we dont allow tasks to be added to a cpuset
+>    if it has child cpusets that also have the sched_domain flag turned on
+>    (Maybe return a EINVAL if the user tries to do that)
 
-The flush is there since a very long time.  I have it in my tree since
-~ 2.1.36 and I get the feeling anybody every has been seriously revisited
-the issue since.
+This I would not like.  It's ok to have tasks in cpusets that are
+cut by sched domain partitions (which is what I think you were getting
+at), just so long as one doesn't mind that they don't load balance
+across the partition boundaries.
 
-  Ralf
+For example, we -always- have several tasks per-cpu in the top cpuset.
+These are the per-cpu kernel threads.  They have zero interest in
+load balancing, because they are pinned on a cpu, for their life.
+
+Or, for a slightly more interesting example, one might have a sleeping
+job (batch scheduler sent SIGPAUSE to all its threads) that is in a
+cpuset cut by the current sched domain partitioning.  Since that job is
+not running, we don't care whether it gets good load balancing services
+or not.
+
+I still suspect we will just have to let the admin partition their
+system as they will, and if they screw up their load balancing,
+the best we can do is to make all this as transparent and simple
+and obvious as we can, and wish them well.
+
+One thing I'm sure of.  The current (ab)use of the 'cpu_exclusive' flag
+to define sched domain partitions is flunking the "transparent, simple
+and obvious" test ;).
+
+> I think the main issue here is that most of the users dont have to
+> do more than one level of partitioning (having to partitioning a system
+> with not more than 16 - 32 cpus, mostly less)
+
+Could you (or some sched domain wizard) explain to me why we would even
+want sched domain partitions on such 'small' systems?  I've been operating
+under the (mis?)conception that these sched domain partitions were just
+a performance band-aid for the humongous systems, where load balancing
+across say 1024 CPUs was difficult to do efficiently.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

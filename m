@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992555AbWJTHap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992558AbWJTHcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992555AbWJTHap (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 03:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992556AbWJTHap
+	id S2992558AbWJTHcq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 03:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992560AbWJTHcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 03:30:45 -0400
-Received: from smtpout.mac.com ([17.250.248.175]:41707 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S2992555AbWJTHao (ORCPT
+	Fri, 20 Oct 2006 03:32:46 -0400
+Received: from poczta.o2.pl ([193.17.41.142]:56240 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S2992558AbWJTHcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 03:30:44 -0400
-In-Reply-To: <45386E0E.7030404@drzeus.cx>
-References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> <45386E0E.7030404@drzeus.cx>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <5D90D82F-662F-4DF4-891A-90A4FA69A84E@mac.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Git training wheels for the pimple faced maintainer
-Date: Fri, 20 Oct 2006 03:30:23 -0400
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+	Fri, 20 Oct 2006 03:32:45 -0400
+Date: Fri, 20 Oct 2006 09:37:52 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: 3.2GHz cpus with cpufreq become 2.8GHz
+Message-ID: <20061020073752.GC1898@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Krzysztof Oledzki <olel@ans.pl>, linux-kernel@vger.kernel.org,
+	cpufreq@lists.linux.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610200022320.30089@bizon.gios.gov.pl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 20, 2006, at 02:34:54, Pierre Ossman wrote:
-> Linus Torvalds wrote:
->> That all sounds fine. Please just check the format for the "[GIT  
->> PULL]"  message: Andrew pulls peoples trees on his own and largely  
->> automatically, so he doesn't much care _what_ is in the tree, but  
->> I care deeply. So I want the diffstat and shortlog listings, and  
->> preferably a few sentences at the top of the email describing  
->> what's going on and why things are happening.
->
-> I'm still learning the more fancy parts of git, but I think that  
-> would be:
->
-> git diff master..for-linus | diffstat
-> git log master..for-list | git shortlog
+On 20-10-2006 00:25, Krzysztof Oledzki wrote:
+...
+> I will check this, thank you. BTW: what wrong is with p4-clockmod? I was 
+> not able to find any information that it is broken and should not be used?
 
-Not quite.  diffstat doesn't understand renames and such, you want to  
-use something more like this:
+At least it is very suspected:
 
-git diff -M --stat --summary master..for-linus
-git log --pretty=short master..for-linus | git shortlog
+"Subject: Hardware bug or kernel bug?
+On Mon, Oct 16, 2006 at 03:32:38PM +0100, David Johnson wrote:
+..
+> I've found the culprit - CPU Frequency Scaling.
+> With it enabled I get the reboots, with it disabled I don't. That's the same
+> with every kernel version I've tried (2.6.19-rc1+rc2, 2.6.17.13 & Centos'
+> 2.6.9) The system was using the p4-clockmod driver and the ondemand governor.
 
-As an example, if you rename foo/bar/baz.c to foo/bar/quux.c and  
-change a few lines, you'll get something like this:
-
-foo/bar/{baz.c => quux.c}  | 8 +--
-
-It similarly makes renames between directories look nice.
-
->> So there's simply no point in merging from me, unless you know  
->> that there are clashes due to other development, and you actually  
->> want to fix them up. You will just cause unnecessary criss-cross  
->> merges if you pull from my tree after you've started development,  
->> and the history gets really really messy.
->
-> And in order to test for conflicts, I assume I should have a "test  
-> tree" that I merge all my local stuff in, together with your  
-> current HEAD?
-
-Yes
-
->> If you actually want your development tree to "track" my tree, I'd  
->> suggest you have your "for-linus" branch that you put the work you  
->> want to track into, and then a plain "linus" branch which tracks  
->> _my_ tree. Then you can just fetch my tree (to keep your "linus"  
->> branch up-to-date), and if you want your development branch to  
->> track those changes, you can just do a "git rebase linus" in your  
->> "for-linus" branch.
->
-> If I've understood git correctly, a rebase is a big no-no once I've  
-> published those changes as it reverts some history. Right?
-
-Well, sorta.  If it's a pseudo-published development and you actually  
-_don't_ _care_ what the old history was (because it was broken or  
-incorrect or one of the patches got corrupted during import) then go  
-ahead and wipe it out.  On the other hand if you have random people  
-pulling from your published tree then you can't safely git-rebase or  
-cg-admin-rewrite-hist or similar.  Luckily GIT will just complain  
-about a discontinuous history as opposed to losing data.
+> I'm still not sure exactly what the problem is - the reboots only happen in
+> the circumstances I've mentioned and are not triggered by changes in clock
+> speed alone - but disabling cpufreq seems to make it go away... "
 
 Cheers,
-Kyle Moffett
 
-
+Jarek P.

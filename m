@@ -1,156 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946731AbWJTAIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946739AbWJTAKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946731AbWJTAIe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 20:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946732AbWJTAId
+	id S1946739AbWJTAKc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 20:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946734AbWJTAJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 20:08:33 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:54689 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1946731AbWJTAId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 20:08:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=PSdmt/Lvb6RChqN3nffAqXTiL7MbBpzp6tIbCS7tEBU1VeEROfPFsIsMA2h6lTujHVrkiiOUnJuZ4Ceedc/3ik9WRFFE7fqjXwB57RfkRa3iT86BK56+K7RGEf8oHhrDjALB7Nprek4aNiCtXAcupm7i5+RvyeVtxGJ7s+xdcWQ=
-To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Use time_after instead of comparisons for jiffies
-Date: Thu, 19 Oct 2006 17:07:54 -0700
-User-Agent: KMail/1.9.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610191707.54729.karhudever@gmial.com>
-From: David KOENIG <karhudever@gmail.com>
+	Thu, 19 Oct 2006 20:09:28 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:32189 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1946736AbWJTAJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 20:09:24 -0400
+Date: Thu, 19 Oct 2006 17:09:22 -0700
+Message-Id: <200610200009.k9K09M1g027570@zach-dev.vmware.com>
+Subject: [PATCH 3/5] Fix missing pte update.patch
+From: Zachary Amsden <zach@vmware.com>
+To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zachary Amsden <zach@vmware.com>
+X-OriginalArrivalTime: 20 Oct 2006 00:09:22.0069 (UTC) FILETIME=[FE8D2C50:01C6F3DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----
- drivers/net/tokenring/3c359.c |   29 +++++++++++++++--------------
- 1 files changed, 15 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/net/tokenring/3c359.c b/drivers/net/tokenring/3c359.c
-index 7580bde..8ebcef1 100644
---- a/drivers/net/tokenring/3c359.c
-+++ b/drivers/net/tokenring/3c359.c
-@@ -48,6 +48,7 @@ #include <linux/errno.h>
- #include <linux/timer.h>
- #include <linux/in.h>
- #include <linux/ioport.h>
-+#include <linux/jiffies.h>
- #include <linux/string.h>
- #include <linux/proc_fs.h>
- #include <linux/ptrace.h>
-@@ -409,7 +410,7 @@ static int xl_hw_reset(struct net_device
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 40*HZ) {
-+		if(time_after(jiffies, t + HZ * 2)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL  card not responding to global 
-reset.\n", dev->name);
- 			return -ENODEV;
- 		}
-@@ -520,7 +521,7 @@ #endif
- 	t=jiffies;
- 	while ( !(readw(xl_mmio + MMIO_INTSTATUS_AUTO) & INTSTAT_SRB) ) { 
- 		schedule();		
--		if(jiffies-t > 15*HZ) {
-+		if(time_after(jiffies, t + 15 * HZ)) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			return -ENODEV; 
- 		}
-@@ -795,8 +796,8 @@ static int xl_open_hw(struct net_device 
+diff -r f1dd818c2f06 include/asm-i386/pgtable-2level.h
+--- a/include/asm-i386/pgtable-2level.h	Thu Oct 19 03:03:09 2006 -0700
++++ b/include/asm-i386/pgtable-2level.h	Thu Oct 19 03:03:18 2006 -0700
+@@ -22,8 +22,7 @@
+ #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
+ #define pmd_clear(xp)	do { set_pmd(xp, __pmd(0)); } while (0)
  
- 	t=jiffies;
- 	while (! (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
--		schedule();		
--		if(jiffies-t > 40*HZ) {
-+		schedule();
-+		if(time_after(jiffies, t + 40 * HZ) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			break ; 
- 		}
-@@ -1010,8 +1011,8 @@ static void xl_reset(struct net_device *
- 	 */
+-#define __HAVE_ARCH_PTEP_GET_AND_CLEAR
+-#define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte_low, 0))
++#define raw_ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
  
- 	t=jiffies;
--	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
--		if(jiffies-t > 40*HZ) {
-+	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) {
-+		if(time_after(jiffies, t + 40 * HZ)) {
- 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
- 			break ; 
- 		}
-@@ -1282,8 +1283,8 @@ static int xl_close(struct net_device *d
-     	writew(DNSTALL, xl_mmio + MMIO_COMMAND) ; 
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
--		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		schedule();
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNSTALL not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1291,8 +1292,8 @@ static int xl_close(struct net_device *d
-     	writew(DNDISABLE, xl_mmio + MMIO_COMMAND) ; 
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
--		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		schedule();
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNDISABLE not responding.\n", 
-dev->name);
- 			break ;
- 		}
-@@ -1301,7 +1302,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPSTALL not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1318,7 +1319,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (!(readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-CLOSENIC not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1347,7 +1348,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPRESET not responding.\n", 
-dev->name);
- 			break ; 
- 		}
-@@ -1356,7 +1357,7 @@ static int xl_close(struct net_device *d
- 	t=jiffies;
- 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
- 		schedule();		
--		if(jiffies-t > 10*HZ) {
-+		if(time_after(jiffies, t + 10 * HZ)) {
- 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNRESET not responding.\n", 
-dev->name);
- 			break ; 
- 		}
--- 
-1.4.1
-
-
--- 
-<>< karhudever@gmail.com
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_none(x)		(!(x).pte_low)
+diff -r f1dd818c2f06 include/asm-i386/pgtable-3level.h
+--- a/include/asm-i386/pgtable-3level.h	Thu Oct 19 03:03:09 2006 -0700
++++ b/include/asm-i386/pgtable-3level.h	Thu Oct 19 03:03:18 2006 -0700
+@@ -119,8 +119,7 @@ static inline void pmd_clear(pmd_t *pmd)
+ 	*(tmp + 1) = 0;
+ }
+ 
+-#define __HAVE_ARCH_PTEP_GET_AND_CLEAR
+-static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
++static inline pte_t raw_ptep_get_and_clear(pte_t *ptep)
+ {
+ 	pte_t res;
+ 
+diff -r f1dd818c2f06 include/asm-i386/pgtable.h
+--- a/include/asm-i386/pgtable.h	Thu Oct 19 03:03:09 2006 -0700
++++ b/include/asm-i386/pgtable.h	Thu Oct 19 03:03:18 2006 -0700
+@@ -324,6 +324,14 @@ do {									\
+ 	__young;							\
+ })
+ 
++#define __HAVE_ARCH_PTEP_GET_AND_CLEAR
++static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
++{
++	pte_t pte = raw_ptep_get_and_clear(ptep);
++	pte_update(mm, addr, ptep);
++	return pte;
++}
++
+ #define __HAVE_ARCH_PTEP_GET_AND_CLEAR_FULL
+ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm, unsigned long addr, pte_t *ptep, int full)
+ {

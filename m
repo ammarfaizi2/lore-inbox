@@ -1,153 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946791AbWJTB4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946825AbWJTC1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946791AbWJTB4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 21:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946804AbWJTB4G
+	id S1946825AbWJTC1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946834AbWJTC1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 21:56:06 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15038 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1946791AbWJTB4E (ORCPT
+	Thu, 19 Oct 2006 22:27:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45982 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946825AbWJTC1R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 21:56:04 -0400
-Subject: [PATCH] Add device addition/removal notifier
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 11:55:50 +1000
-Message-Id: <1161309350.10524.119.camel@localhost.localdomain>
+	Thu, 19 Oct 2006 22:27:17 -0400
+Date: Thu, 19 Oct 2006 19:23:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ipw2100-admin@linux.intel.com, Zhu Yi <yi.zhu@intel.com>,
+       "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: ipw2200: "ieee80211: Info elem: parse failed"
+Message-Id: <20061019192350.13209920.akpm@osdl.org>
+In-Reply-To: <453742AE.3010201@gmail.com>
+References: <453742AE.3010201@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a notifier exposed by the device core to be used by
-platform code to be notified of the addition and removal of devices
-in the system.
+On Thu, 19 Oct 2006 11:17:34 +0200
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
-It's intended as a replacement for the current platform_notify callbacks
-which I'll remove as soon as we have converted the couple of users to
-the new notifier.
+> Hi,
+> 
+> since 2.6.19-rc1 I'm getting these messages from ipw2200 driver:
+> ieee80211: Info elem: parse failed: info_element->len + 2 > left : 
+> info_element->len+2=8 left=2, id=128.
+> 
+> The driver says:
+> ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, 1.1.4km
+> ipw2200: Copyright(c) 2003-2006 Intel Corporation
+> ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 3
+> PCI: setting IRQ 3 as level-triggered
+> ACPI: PCI Interrupt 0000:02:07.0[A] -> Link [LNKC] -> GSI 3 (level, low) -> IRQ 3
+> ipw2200: Detected Intel PRO/Wireless 2200BG Network Connection
+> ACPI: PCI Interrupt 0000:00:13.2[A] -> Link [LNKD] -> GSI 10 (level, low) -> IRQ 10
+> 
+> and works, but the message is annoying, since the driver prints it again and 
+> again. What could be wrong?
+> 
 
-In addition, that patch moves the remove callback & notification to after
-bus_remove_device() where it belongs. The new notifier is also called
-with a remove event in cases device addition fails after the platform
-was notified of the addition to avoid leaks since I intend to use that
-call to allocate auxilliary data structures.
-
-The notifier approach is more interesting that just a pair of global
-function pointers. For example, on powerpc, some of the new code I'm
-working on involved separate subsystems requesting that to keep track
-of various auxilliary informations attached to devices. PCI wants to
-maintain some auxilliary data structure and this is the only good
-place to actually dispose of it when a device is removed, and I have
-at least one other case where the platform code wants to update the
-dma operations for some types of platform devices. In addition, in
-the future, I might use that to add firmware links to some other
-generic bus types like USB etc... 
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+I suspect it was always failing.  But the failure message has been changed
+so that it actually comes out.
 
 
-Index: linux-cell/drivers/base/core.c
-===================================================================
---- linux-cell.orig/drivers/base/core.c	2006-10-20 11:27:44.000000000 +1000
-+++ linux-cell/drivers/base/core.c	2006-10-20 11:49:15.000000000 +1000
-@@ -17,6 +17,7 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/kdev_t.h>
-+#include <linux/notifier.h>
- 
- #include <asm/semaphore.h>
- 
-@@ -25,6 +26,7 @@
- 
- int (*platform_notify)(struct device * dev) = NULL;
- int (*platform_notify_remove)(struct device * dev) = NULL;
-+static BLOCKING_NOTIFIER_HEAD(device_notifier);
- 
- /*
-  * sysfs bindings for devices.
-@@ -427,6 +429,9 @@ int device_add(struct device *dev)
- 	/* notify platform of device entry */
- 	if (platform_notify)
- 		platform_notify(dev);
-+	/* notify clients of device entry (new way) */
-+	blocking_notifier_call_chain(&device_notifier, DEVICE_NOTIFY_ADD_DEV,
-+				     dev);
- 
- 	dev->uevent_attr.attr.name = "uevent";
- 	dev->uevent_attr.attr.mode = S_IWUSR;
-@@ -499,6 +504,8 @@ int device_add(struct device *dev)
-  BusError:
- 	device_pm_remove(dev);
-  PMError:
-+	blocking_notifier_call_chain(&device_notifier, DEVICE_NOTIFY_DEL_DEV,
-+				     dev);
- 	device_remove_groups(dev);
-  GroupError:
-  	device_remove_attrs(dev);
-@@ -608,12 +615,14 @@ void device_del(struct device * dev)
- 	device_remove_groups(dev);
- 	device_remove_attrs(dev);
- 
-+	bus_remove_device(dev);
- 	/* Notify the platform of the removal, in case they
- 	 * need to do anything...
- 	 */
- 	if (platform_notify_remove)
- 		platform_notify_remove(dev);
--	bus_remove_device(dev);
-+	blocking_notifier_call_chain(&device_notifier, DEVICE_NOTIFY_DEL_DEV,
-+				     dev);
- 	device_pm_remove(dev);
- 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
-@@ -836,3 +845,15 @@ int device_rename(struct device *dev, ch
- 
- 	return error;
- }
-+
-+int register_device_notifier(struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_register(&device_notifier, nb);
-+}
-+EXPORT_SYMBOL(register_device_notifier);
-+
-+int unregister_device_notifier(struct notifier_block *nb)
-+{
-+	return blocking_notifier_chain_unregister(&device_notifier, nb);
-+}
-+EXPORT_SYMBOL(unregister_device_notifier);
-Index: linux-cell/include/linux/device.h
-===================================================================
---- linux-cell.orig/include/linux/device.h	2006-10-20 11:27:44.000000000 +1000
-+++ linux-cell/include/linux/device.h	2006-10-20 11:49:33.000000000 +1000
-@@ -427,6 +427,21 @@ extern int (*platform_notify)(struct dev
- 
- extern int (*platform_notify_remove)(struct device * dev);
- 
-+/*  Device notifiers. Get notified of addition/removal of devices
-+ * and possibly other events in the future. Replacement for the
-+ * platform "fixup" functions. This is a low level hook provided
-+ * for the platform to initialize private parts of struct device,
-+ * like firmware related links. Add is called before the device is
-+ * added to a bus (and thus the driver probed) and Remove is called
-+ * afterward.
-+ */
-+struct notifier_block;
-+
-+extern int register_device_notifier(struct notifier_block *nb);
-+extern int unregister_device_notifier(struct notifier_block *nb);
-+
-+#define DEVICE_NOTIFY_ADD_DEV	0x00000001	/* device added */
-+#define DEVICE_NOTIFY_DEL_DEV	0x00000002	/* device removed */
- 
- /**
-  * get_device - atomically increment the reference count for the device.
 
+commit f09fc44d8c25f22c4d985bb93857338ed02feac6
+Author: Zhu Yi <yi.zhu@intel.com>
+Date:   Mon Aug 21 11:34:19 2006 +0800
+
+    [PATCH] ieee80211: Workaround malformed 802.11 frames from AP
+    
+    Stop processing further but return success when we receive a malformed
+    packet from the AP. We need this patch to workaround some AP bugs. For
+    example, the beacon frames from the Orinoco AP1000 contains an IE (value
+    = 128) with length equals to 8 but the actual frame length is only 7.
+    
+    Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+    Signed-off-by: John W. Linville <linville@tuxdriver.com>
+
+diff --git a/net/ieee80211/ieee80211_rx.c b/net/ieee80211/ieee80211_rx.c
+index d60358d..7707041 100644
+--- a/net/ieee80211/ieee80211_rx.c
++++ b/net/ieee80211/ieee80211_rx.c
+@@ -1078,13 +1078,16 @@ #endif
+ 
+ 	while (length >= sizeof(*info_element)) {
+ 		if (sizeof(*info_element) + info_element->len > length) {
+-			IEEE80211_DEBUG_MGMT("Info elem: parse failed: "
+-					     "info_element->len + 2 > left : "
+-					     "info_element->len+2=%zd left=%d, id=%d.\n",
+-					     info_element->len +
+-					     sizeof(*info_element),
+-					     length, info_element->id);
+-			return 1;
++			IEEE80211_ERROR("Info elem: parse failed: "
++					"info_element->len + 2 > left : "
++					"info_element->len+2=%zd left=%d, id=%d.\n",
++					info_element->len +
++					sizeof(*info_element),
++					length, info_element->id);
++			/* We stop processing but don't return an error here
++			 * because some misbehaviour APs break this rule. ie.
++			 * Orinoco AP1000. */
++			break;
+ 		}
+ 
+ 		switch (info_element->id) {
 

@@ -1,94 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946220AbWJTE2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946304AbWJTE2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946220AbWJTE2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 00:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946304AbWJTE2S
+	id S1946304AbWJTE2o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 00:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946317AbWJTE2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 00:28:18 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:49075 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1946220AbWJTE2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 00:28:17 -0400
-Message-Type: Multiple Part
-MIME-Version: 1.0
-Message-ID: <XNM1$9$0$4$$3$3$7$A$9002712U4538504b@hitachi.com>
-Content-Type: text/plain; charset="us-ascii"
-To: "Greg KH" <greg@kroah.com>
-From: <eiichiro.oiwa.nm@hitachi.com>
-Cc: "David Miller" <davem@davemloft.net>, <alan@redhat.com>,
-       <jesse.barnes@intel.com>, <linux-kernel@vger.kernel.org>
-Date: Fri, 20 Oct 2006 13:28:01 +0900
-References: <20061019092256.GC5980@devserv.devel.redhat.com> 
-    <20061019.022541.85409562.davem@davemloft.net> 
-    <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com> 
-    <20061019.153228.39159105.davem@davemloft.net> 
-    <20061020024157.GA6722@kroah.com> 
-    <XNM1$9$0$4$$3$3$7$A$9002710U453840ab@hitachi.com> 
-    <20061020040324.GA8014@kroah.com>
-Importance: normal
-Subject: Re: pci_fixup_video change blows up on sparc64
-X400-Content-Identifier: X4538504B00000M
-X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml16061020132755G6J]
+	Fri, 20 Oct 2006 00:28:44 -0400
+Received: from smtpout.mac.com ([17.250.248.177]:21744 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1946316AbWJTE2m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 00:28:42 -0400
+In-Reply-To: <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
+References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <64E321FD-FD09-4962-9BF3-86104B92A74A@mac.com>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Git training wheels for the pimple faced maintainer
+Date: Fri, 20 Oct 2006 00:28:20 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
->On Fri, Oct 20, 2006 at 12:21:24PM +0900, eiichiro.oiwa.nm@hitachi.com wrote:
->> From: Greg KH <greg@kroah.com>
->> >On Thu, Oct 19, 2006 at 03:32:28PM -0700, David Miller wrote:
->> >> From: <eiichiro.oiwa.nm@hitachi.com>
->> >> Date: Thu, 19 Oct 2006 19:49:26 +0900
->> >> 
->> >> > The "0xc0000" is a physical address. The BAR (PCI base address) is also
->> >> > a physcail address. There are no difference.
->> >> 
->> >> Your assertion that the BAR is a physical address is very platform
->> >> specific.  It may be a "physical address in PCI bus space", but
->> >> that has no relation to the first argument passed to ioremap()
->> >> which is defined in a completely different way.
->> >> 
->> >> On many platforms, the BAR of PCI devices are translated into an
->> >> appropriate "ioremap() cookie" in the struct pci_dev resource[] array
->> >> entries, so that they can be used properly as the first argument to
->> >> ioremap().  Only address cookies properly setup by the platform may be
->> >> legally passed into ioremap() as the first argument.  No such setups
->> >> are being made on this raw 0xc0000 address.
->> >> 
->> >> So, as you can see, I/O port and I/O memory space work differently on
->> >> different platforms and this abstraction of the first argument to
->> >> ioremap() is how we provide support for such differences.
->> >> 
->> >> If you try to access 0xc0000 via ioremap() on sparc64, it is going to
->> >> try and access that area non-cacheable which, since 0xc0000 is
->> >> physical RAM, will result in a BUS ERROR and a crash.
->> >> 
->> >> This physical location might be the area for the video ROM on x86,
->> >> x86_64, and perhaps even IA64, but it certainly is not used this way
->> >> on sparc64 systems.
->> >> 
->> >> I really would like to see this regression fixed, or at the very
->> >> least this code protected by X86, X86_64, IA64 conditionals.
->> >
->> >I agree.  Eiichiro, care to send me an patch to fix this somehow?  Or do
->> >you want me to just revert it?
->> >
->> >thanks,
->> >
->> >greg k-h
->> >
->> 
->> Ok, I sent an patch to fix on only x86, x86_64 and IA64 for 2.6.18.
->> Do you need an patch aganist 2.6.19-git?
->
->I can't apply a patch against an old kernel, especially when the problem
->is with the new release :)
->
->Please make it against Linus's latest tree, which is where the problem
->is.  Also, please address David's latest comments about the patch.
->
->thanks,
->
->greg k-h
-Ok, I understood. Thank you a lot.
+On Oct 19, 2006, at 19:44:41, Linus Torvalds wrote:
+>  - If you actually want your development tree to "track" my tree,  
+> I'd suggest you have your "for-linus" branch that you put the work  
+> you want to track into, and then a plain "linus" branch which  
+> tracks _my_ tree. Then you can just fetch my tree (to keep your  
+> "linus" branch up-to-date), and if you want your development branch  
+> to track those changes, you can just do a "git rebase linus" in  
+> your "for-linus" branch.
+
+I'm no official maintainer, but I have several random local GIT trees  
+I use for local development and patches which don't make a lot of  
+sense outside my personal systems.  Because of this it's important  
+for me to be able to migrate my changes over to newer versions  
+easily, but I don't care all that much about maintaining old history,  
+I just want my separate patches to work on latest Linus.
+
+It also matters a lot to me to be able to wipe out a devel tree with  
+a quick rm and create it from scratch.
+
+As a result, I have an "upstream" tree with various "linus", "libata- 
+dev", etc upstream branches that I pull from for various reasons.  I  
+then have a "linux-template" tree which has no objects of its own but  
+references the "upstream" tree's object directory and "pulls" from  
+some branch in the upstream tree.  To create a new devel tree I just  
+copy the "upsteram" tree which is the size of a single checkout, and  
+start patching.  To update all my patchsets to latest linus:
+
+### This gets the upstream tree to the latest state
+$ cd ~/git/linux/upstream
+$ cg-fetch linus
+$ cg-fetch libata-dev
+$ cg-fetch $OTHER_UPSTREAM_SRC
+
+## Optionally repack the single copy of the upstream objects for  
+better speed
+$ git-repack -a -d -l -f
+
+### Now fast-forward the patches in $MY_TREE to be based on the  
+latest version of the random upstream tree
+$ cd ~/git/linux/$MY_TREE
+$ cg-fetch upstream
+$ git-rebase upstream
+### Now I resolve rebase-conflicts
+
+When I want to export a GIT tree for somebody else to look at I just  
+pull into the HTTP-accessible GIT directories from my various  
+development trees, optionally merging if necessary.
+
+This isn't "The Best Solution(TM)" for everyone, but it works really  
+well for me and has the advantage of only storing one easily-repacked  
+copy of the upstream sources; the rest of my dev trees have only the  
+overhead of my local changesets and a single copy of the kernel  
+sources.  In the event I have to wipe out a dev tree it's a very fast  
+"rm -rf $OLD_TREE", and creating one is also a fast "cp -a linux- 
+template $NEW_TREE"
+
+Cheers,
+Kyle Moffett
 

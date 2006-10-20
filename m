@@ -1,110 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992632AbWJTOxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992636AbWJTO5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992632AbWJTOxv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 10:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992631AbWJTOxv
+	id S2992636AbWJTO5M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 10:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992637AbWJTO5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 10:53:51 -0400
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:40599 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S2992629AbWJTOxt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 10:53:49 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 20 Oct 2006 10:57:12 -0400
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:8456 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S2992636AbWJTO5L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 10:57:11 -0400
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: cbou@mail.ru
+Subject: Re: 2.6.19-rc2-mm2
+Date: Fri, 20 Oct 2006 16:57:59 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061020015641.b4ed72e5.akpm@osdl.org> <200610201339.49190.m.kozlowski@tuxland.pl> <20061020133204.GA25204@localhost>
+In-Reply-To: <20061020133204.GA25204@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] cciss: Fix warnings (and bug on 1TB discs)
-Date: Fri, 20 Oct 2006 09:53:42 -0500
-Message-ID: <E717642AF17E744CA95C070CA815AE55AE2CF8@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <20061020032755.GQ2602@parisc-linux.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] cciss: Fix warnings (and bug on 1TB discs)
-Thread-Index: Acbz98Mi1+RphFq9Q9KBK+k9RbS/7AAX52Qw
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Matthew Wilcox" <matthew@wil.cx>, "Andrew Morton" <akpm@osdl.org>,
-       "Jens Axboe" <jens.axboe@oracle.com>
-Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Oct 2006 14:53:47.0072 (UTC) FILETIME=[8BC20C00:01C6F457]
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610201657.59168.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
-> 
-> On Thu, Oct 19, 2006 at 09:23:36PM -0600, Matthew Wilcox wrote:
-> > CCISS was producing warnings about shifts being greater 
-> than the size 
-> > of the type and pointers being of incompatible type.  Turns 
-> out this 
-> > is because it's calling do_div on a 32-bit quantity.  Upon further 
-> > investigation, the sector_t total_size is being assigned to an int, 
-> > and then we're calling do_div on that int.  Obviously, 
-> sector_div is 
-> > called for here, and I took the chance to refactor the code 
-> a little.
-> 
-> Oops, forgot:
-> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> > 	I installed 2.6.19-rc2-mm2 without kernel debugging options enabled
+> > first. The output below is what I saw when the kernel started. Then I
+> > enabled debugging and system hangs with oops with no trace in the logs.
+> > It is not easily repeatable though. It happens from time to time.
+>
+> Is that patch helps?
 
-Acked-by: Mike Miller <mike.miller@hp.com>
+Sorry but it did not help. Both errors (pcmcia ioctl and drm) are still there. 
+It is hard to trigger these errors when debugging is enabled. I did something 
+like 10 or more reboots with no error seen. When I recompiled the kernel 
+without debugging support almost every reboot triggers error. The good thing 
+is that beside these errors system is usable and wifi works just fine.
 
-> 
-> > diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c index 
-> > dcccaf2..bc66026 100644
-> > --- a/drivers/block/cciss.c
-> > +++ b/drivers/block/cciss.c
-> > @@ -1923,7 +1923,6 @@ static void cciss_geometry_inquiry(int c  {
-> >  	int return_code;
-> >  	unsigned long t;
-> > -	unsigned long rem;
-> >  
-> >  	memset(inq_buff, 0, sizeof(InquiryData_struct));
-> >  	if (withirq)
-> > @@ -1939,26 +1938,23 @@ static void cciss_geometry_inquiry(int c
-> >  			printk(KERN_WARNING
-> >  			       "cciss: reading geometry failed, volume "
-> >  			       "does not support reading geometry\n");
-> > -			drv->block_size = block_size;
-> > -			drv->nr_blocks = total_size;
-> >  			drv->heads = 255;
-> >  			drv->sectors = 32;	// Sectors per track
-> > -			t = drv->heads * drv->sectors;
-> > -			drv->cylinders = total_size;
-> > -			rem = do_div(drv->cylinders, t);
-> >  		} else {
-> > -			drv->block_size = block_size;
-> > -			drv->nr_blocks = total_size;
-> >  			drv->heads = inq_buff->data_byte[6];
-> >  			drv->sectors = inq_buff->data_byte[7];
-> >  			drv->cylinders = 
-> (inq_buff->data_byte[4] & 0xff) << 8;
-> >  			drv->cylinders += inq_buff->data_byte[5];
-> >  			drv->raid_level = inq_buff->data_byte[8];
-> > -			t = drv->heads * drv->sectors;
-> > -			if (t > 1) {
-> > -				drv->cylinders = total_size;
-> > -				rem = do_div(drv->cylinders, t);
-> > -			}
-> > +		}
-> > +		drv->block_size = block_size;
-> > +		drv->nr_blocks = total_size;
-> > +		t = drv->heads * drv->sectors;
-> > +		if (t > 1) {
-> > +			unsigned rem = sector_div(total_size, t);
-> > +			if (rem)
-> > +				total_size++;
-> > +			drv->cylinders = total_size;
-> >  		}
-> >  	} else {		/* Get geometry failed */
-> >  		printk(KERN_WARNING "cciss: reading geometry failed\n");
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-scsi" 
-> > in the body of a message to majordomo@vger.kernel.org More 
-> majordomo 
-> > info at  http://vger.kernel.org/majordomo-info.html
-> 
+Regards,
+
+	Mariusz Kozlowski

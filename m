@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992638AbWJTO7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992640AbWJTPAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992638AbWJTO7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 10:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWJTO7E
+	id S2992640AbWJTPAb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992642AbWJTPAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 10:59:04 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:18573 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932260AbWJTO7B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 10:59:01 -0400
-Date: Fri, 20 Oct 2006 07:59:45 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       Anton Blanchard <anton@samba.org>, akpm@osdl.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Mel Gorman <mel@csn.ul.ie>
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-Message-ID: <20061020145945.GA5085@monkey.ibm.com>
-References: <17718.39522.456361.987639@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com> <17719.1849.245776.4501@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com> <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com> <17719.64246.555371.701194@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com> <17720.30804.180390.197567@cargo.ozlabs.ibm.com> <4538DACC.5050605@shadowen.org>
+	Fri, 20 Oct 2006 11:00:31 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:22436 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S2992640AbWJTPAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 11:00:30 -0400
+Subject: Re: 2.6.18-rt6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net
+In-Reply-To: <20061018083921.GA10993@elte.hu>
+References: <20061018083921.GA10993@elte.hu>
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 11:00:43 -0400
+Message-Id: <1161356444.15860.327.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4538DACC.5050605@shadowen.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 03:18:52PM +0100, Andy Whitcroft wrote:
-> I remember that we used to have code to cope with this in the ppc64
-> architecture, indeed I remember reviewing it all that time ago.  Looking
-> at the current state of the tree it was removed in the two patches below
-> in mainline:
-> 	"[PATCH] Remove SPAN_OTHER_NODES config definition"
-> 	"[PATCH] mm: remove arch independent NODES_SPAN_OTHER_NODES"
+On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
+> i've released the 2.6.18-rt6 tree, which can be downloaded from the 
+> usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
 
-That was me.  Seem to remember some discussion that these were only
-needed for DISCONTIGMEM, so I removed them when the DISCONTIGMEM option
-for power went away.  But, that is clearly NOT the case.  Appears that
-SPARSEMEM and the old slab code covered up the issue.  Sorry about that.
+This does not work here.  It boots but then wants to fsck my disks, and
+dies with a sig 11 in fsck.ext3.  This is 100% reproducible and booting
+2.6.18-rt5 works and does not want to fsck the disks. 
 
-Thanks!
--- 
-Mike
+Sorry I don't have more information, the box is headless and in
+production so I have limited debugging bandwidth.
+
+Do you need my .config?
+
+Lee
+

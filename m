@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992712AbWJTTQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992717AbWJTTRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992712AbWJTTQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992714AbWJTTQQ
+	id S2992717AbWJTTRU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992721AbWJTTRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:16:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56772 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992712AbWJTTQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:16:15 -0400
-Date: Fri, 20 Oct 2006 12:15:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: various laptop nagles - any suggestions?   (note:
- 2.6.19-rc2-mm1 but applies to multiple kernels)
-Message-Id: <20061020121537.dea13469.akpm@osdl.org>
-In-Reply-To: <1161370015.5274.282.camel@localhost.localdomain>
-References: <4537A25D.6070205@wintersgift.com>
-	<20061019194157.1ed094b9.akpm@osdl.org>
-	<4538F9AD.8000806@wintersgift.com>
-	<20061020110746.0db17489.akpm@osdl.org>
-	<1161368034.5274.278.camel@localhost.localdomain>
-	<20061020112627.04a4035a.akpm@osdl.org>
-	<1161370015.5274.282.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 20 Oct 2006 15:17:20 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27918 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S2992717AbWJTTRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 15:17:19 -0400
+Date: Fri, 20 Oct 2006 20:17:11 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arm: switch to new pci_get_bus_and_slot API
+Message-ID: <20061020191711.GD8894@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <1161013790.24237.97.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161013790.24237.97.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 20:46:55 +0200
-Thomas Gleixner <tglx@linutronix.de> wrote:
+On Mon, Oct 16, 2006 at 04:49:50PM +0100, Alan Cox wrote:
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-> On Fri, 2006-10-20 at 11:26 -0700, Andrew Morton wrote:
-> > On Fri, 20 Oct 2006 20:13:54 +0200
-> > Thomas Gleixner <tglx@linutronix.de> wrote:
-> > 
-> > > > Also, NO_HZ breaks my laptop (and presumably quite a few others) quite
-> > > > horridly, which means nobody can ship the feature.  Some runtime
-> > > > turn-it-off work needs to be done there.
-> > > 
-> > > We can make a commandline switch as for highres. Is that sufficient ?
-> > 
-> > I doubt it.
-> > 
-> > I don't know how many machines will be affected by this, but I'd expect
-> > it's quite a few - the Vaio has a less-than-one-year-old Intel CPU in it.
-> 
-> Is this still the broken lapic issue ?
+Applied a while back, but just discovered these in the ARM kautobuild
+logs...
 
-yup.  iirc the standard FC5 SMP kernel runs dog-slowly on that machine too.
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c
+> --- linux.vanilla-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c	2006-10-13 15:06:14.000000000 +0100
+> +++ linux-2.6.19-rc1-mm1/arch/arm/mach-ixp2000/ixdp2400.c	2006-10-13 17:14:23.000000000 +0100
+> @@ -133,11 +133,13 @@
+>  	struct pci_dev *dev;
+>  
+>  	if (ixdp2x00_master_npu()) {
+> -		dev = pci_find_slot(1, IXDP2400_SLAVE_ENET_DEVFN);
+> +		dev = pci_get_bus_and_slot(1, IXDP2400_SLAVE_ENET_DEVFN);
+>  		pci_remove_bus_device(dev);
+> +		pci_dev_put(dev)
 
-> I think about a detection
-> mechanism for that one.
+Missing ;
 
-Thanks.
+>  	} else {
+> -		dev = pci_find_slot(1, IXDP2400_MASTER_ENET_DEVFN);
+> +		dev = pci_get_bus_and_slot(1, IXDP2400_MASTER_ENET_DEVFN);
+>  		pci_remove_bus_device(dev);
+> +		pci_dev_put(dev)
+
+Missing ;
+
+Now fixed in my tree.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

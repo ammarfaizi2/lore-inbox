@@ -1,99 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992436AbWJTRiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992528AbWJTRsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992436AbWJTRiO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992464AbWJTRiO
+	id S2992528AbWJTRsB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992530AbWJTRsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:38:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50577 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S2992436AbWJTRiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:38:12 -0400
-Date: Fri, 20 Oct 2006 10:37:57 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Martin Bligh <mbligh@mbligh.org>, Badari Pulavarty <pbadari@us.ibm.com>,
-       jgarzik@pobox.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sukadev@us.ibm.com
-Subject: Re: Panic in pci_call_probe from 2.6.18-mm2 and 2.6.18-mm3
-Message-ID: <20061020173757.GA21427@suse.de>
-References: <4528A26F.9000804@mbligh.org> <1160414389.17103.7.camel@dyn9047017100.beaverton.ibm.com> <452A85D8.70806@mbligh.org> <4539025B.301@shadowen.org>
+	Fri, 20 Oct 2006 13:48:01 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:15775 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S2992528AbWJTRsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:48:00 -0400
+Date: Fri, 20 Oct 2006 10:46:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
+       Anton Blanchard <anton@samba.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
+       Mike Kravetz <kravetz@us.ibm.com>, will_schmidt@vnet.ibm.com,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <20061020100904.ed1fa0af.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0610201044570.16161@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+ <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+ <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+ <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+ <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+ <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+ <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
+ <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com>
+ <17720.30804.180390.197567@cargo.ozlabs.ibm.com> <4538DACC.5050605@shadowen.org>
+ <4538F2A2.5040305@shadowen.org> <20061020100904.ed1fa0af.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4539025B.301@shadowen.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 06:07:39PM +0100, Andy Whitcroft wrote:
-> Martin Bligh wrote:
-> > Badari Pulavarty wrote:
-> >> On Sun, 2006-10-08 at 00:02 -0700, Martin J. Bligh wrote:
-> >>
-> >>> Not sure if you've seen this already ... catching up on test results.
-> >>>
-> >>> This was on NUMA-Q, on both -mm2 and -mm3. -mm1 didn't suffer from this
-> >>> problem.
-> >>>
-> >>> Full logs:
-> >>>
-> >>> mm2 - http://test.kernel.org/abat/50727/debug/console.log
-> >>> mm3 - http://test.kernel.org/abat/51442/debug/console.log
-> >>>
-> >>> config - http://test.kernel.org/abat/51442/build/dotconfig
-> >>>
-> >>> I'm guessing from the 00000004 that the pcibus_to_node(dev->bus)
-> >>> is failing because bus->sysdata is NULL. The disassembly and
-> >>> structure offsets seem to line up for that.
-> >>>
-> >>> #define pcibus_to_node(bus) (
-> >>>     (struct pci_sysdata *)((bus)->sysdata))->node
-> >>>
-> >>> struct pci_sysdata {
-> >>>         int             domain;         /* PCI domain */
-> >>>         int             node;           /* NUMA node */
-> >>> };
-> >>>
-> >>
-> >>
-> >> Martin,
-> >>
-> >> Jeff moved "node" to a proper field in sysdata, instead
-> >> of overloading sysdata itself. I think this is causing the
-> >> problem. I guess we could end up with sysdata = NULL in some
-> >> cases ? Since you are the NUMA-Q expert, where does sysdata gets set
-> >> for NUMA-Q ? :)
-> >>
-> >> -mm2 changed:
-> >>
-> >> #define pcibus_to_node(bus) ((long) (bus)->sysdata)
-> >>
-> >> to
-> >> #define pcibus_to_node(bus) ((struct pci_sysdata *)((bus)->sysdata))-
-> >>
-> >>> node
-> > 
-> > Buggered if I know, that's some strange pci thing ;-)
-> > 
-> > But can we revert whatever patch that was until it gets fixed, please?
-> 
-> Unless I am going very very mad, this has came up once before some
-> months ago.  We went through lots of pain finding the cause of this for
-> NUMA-Q and fixing it.  Something about not having a sysdata and needing
-> to initialise it.
-> 
-> Thought so, this was all discussed back in December 2005.
-> 
->   http://lkml.org/lkml/2005/12/20/226
-> 
-> I'll go see if I can forward port the patch and address the remaining
-> issues with it.
+Here is the patch:
 
-Yes, and I explicitly asked if this issue had been addressed again in
-these patches.  That is why I rejected them oh so long ago...
+Slab: Do not fallback to nodes that have not been bootstrapped yet
 
-bleah.
+The zonelist may contain zones of nodes that have not been bootstrapped 
+and we will oops if we try to allocate from those zones. So check if the 
+node information for the slab and the node have been setup before 
+attempting an allocation. If it has not been setup then skip that zone.
 
-greg k-h
+Usually we will not encounter this situation since the slab bootstrap
+code avoids falling back before we have setup the respective nodes but we 
+seem to have a special needs for pppc.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.19-rc2-mm1/mm/slab.c
+===================================================================
+--- linux-2.6.19-rc2-mm1.orig/mm/slab.c	2006-10-20 12:39:02.000000000 -0500
++++ linux-2.6.19-rc2-mm1/mm/slab.c	2006-10-20 12:41:04.137684581 -0500
+@@ -3160,12 +3160,15 @@ void *fallback_alloc(struct kmem_cache *
+ 	struct zone **z;
+ 	void *obj = NULL;
+ 
+-	for (z = zonelist->zones; *z && !obj; z++)
++	for (z = zonelist->zones; *z && !obj; z++) {
++		int nid = zone_to_nid(*z);
++
+ 		if (zone_idx(*z) <= ZONE_NORMAL &&
+-				cpuset_zone_allowed(*z, flags))
++				cpuset_zone_allowed(*z, flags) &&
++				cache->nodelists[nid])
+ 			obj = __cache_alloc_node(cache,
+-					flags | __GFP_THISNODE,
+-					zone_to_nid(*z));
++					flags | __GFP_THISNODE, nid);
++	}
+ 	return obj;
+ }
+ 
+

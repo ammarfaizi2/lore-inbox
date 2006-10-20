@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422881AbWJTMxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945893AbWJTMxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422881AbWJTMxh (ORCPT <rfc822;willy@w.ods.org>);
+	id S1945893AbWJTMxh (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 20 Oct 2006 08:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWJTMxh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWJTMxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 08:53:37 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:53419 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1030241AbWJTMxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 20 Oct 2006 08:53:36 -0400
-Subject: [PATCH] 2.6.19.-rc2-mm2 compile fix for sclp_tty
-From: Martin Peschke <mp3@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 14:53:32 +0200
-Message-Id: <1161348812.3135.8.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Received: from ns2.suse.de ([195.135.220.15]:63194 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030229AbWJTMxg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 08:53:36 -0400
+From: Andi Kleen <ak@suse.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: Re: [PATCH] [x86-64] Calgary: increase PHB1 split transaction timeout
+Date: Fri, 20 Oct 2006 14:53:25 +0200
+User-Agent: KMail/1.9.3
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jon Mason <jdmason@gmail.com>
+References: <39faf4c673f99e4ee2ed.1161250303@rhun.haifa.ibm.com>
+In-Reply-To: <39faf4c673f99e4ee2ed.1161250303@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610201453.25131.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extern declaration of tty_std_termios in sclp_tty was a hack
-which is obsolete.
+On Thursday 19 October 2006 11:35, Muli Ben-Yehuda wrote:
+> This patch increases the timeout for PCI split transactions on PHB1 on
+> the first Calgary to work around an issue with the aic94xx
+> adapter. Fixes kernel.org bugzilla #7180
+> (http://bugzilla.kernel.org/show_bug.cgi?id=7180)
 
-  CC      drivers/s390/char/sclp_tty.o
-drivers/s390/char/sclp_tty.c:63: error: conflicting types for 'tty_std_termios'
-include/linux/tty.h:261: error: previous declaration of 'tty_std_termios' was here
-drivers/s390/char/sclp_tty.c: In function 'sclp_tty_init':
-drivers/s390/char/sclp_tty.c:790: error: incompatible types in assignment
-make[2]: *** [drivers/s390/char/sclp_tty.o] Error 1
-make[1]: *** [drivers/s390/char] Error 2
-make: *** [drivers/s390] Error 2
-Kernel compilation...FAILED
+Needed for .19 i guess?
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com> 
-Acked-by: Peter Oberparleiter <oberpar@de.ibm.com>
----
-
- sclp_tty.c |    2 --
- 1 files changed, 2 deletions(-)
-
---- a/drivers/s390/char/sclp_tty.c	2006-10-19 23:10:31.000000000 +0200
-+++ b/drivers/s390/char/sclp_tty.c	2006-10-19 23:10:32.000000000 +0200
-@@ -60,8 +60,6 @@ static unsigned short int sclp_tty_chars
- 
- struct tty_driver *sclp_tty_driver;
- 
--extern struct termios  tty_std_termios;
--
- static struct sclp_ioctls sclp_ioctls;
- static struct sclp_ioctls sclp_ioctls_init =
- {
-
-
+-Andi

@@ -1,65 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWJTQD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWJTQFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWJTQD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 12:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJTQD3
+	id S932272AbWJTQFW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWJTQFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 12:03:29 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:38044 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932264AbWJTQD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 12:03:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=tPpY6W5FPjQ78BfuBCEUeBry2R67XEfZj5JXMafy417LIiLZQupDMX+FB+dMCtYmwhAYpGaLT3PkHyGbJwk4tDvWIvIDIjNG2ICFTmuur2kkNn3QxyvKQhFbZUeH+qnRc4CWhD8+Jz8lcm1/Kmw9af1dzvEMyhYLqmSXLvc9ug4=  ;
-Message-ID: <4538F34A.7070703@yahoo.com.au>
-Date: Sat, 21 Oct 2006 02:03:22 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, menage@google.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, dino@in.ibm.com,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>	<4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com>
-In-Reply-To: <4537D6E8.8020501@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Oct 2006 12:05:22 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:26507 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932268AbWJTQFV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:05:21 -0400
+Date: Fri, 20 Oct 2006 17:05:38 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: David Miller <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+Message-ID: <20061020160538.GB18649@linux-mips.org>
+References: <1161275748231-git-send-email-ralf@linux-mips.org> <4537B9FB.7050303@yahoo.com.au> <20061019181346.GA5421@linux-mips.org> <20061019.155939.48528489.davem@davemloft.net> <4538DFAC.1090206@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4538DFAC.1090206@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> 
->> I don't know of anyone else using cpusets, but I'd be interested to know.
-> 
-> 
-> We (Google) are planning to use it to do some partitioning, albeit on
-> much smaller machines. I'd really like to NOT use cpus_allowed from
-> previous experience - if we can get it to to partition using separated
-> sched domains, that would be much better.
-> 
->  From my dim recollections of previous discussions when cpusets was
-> added in the first place, we asked for exactly the same thing then.
-> I think some of the problem came from the fact that "exclusive"
-> to cpusets doesn't actually mean exclusive at all, and they're
-> shared in some fashion. Perhaps that issue is cleared up now?
-> /me crosses all fingers and toes and prays really hard.
+On Sat, Oct 21, 2006 at 12:39:40AM +1000, Nick Piggin wrote:
 
-The I believe, is that an exclusive cpuset can have an exclusive parent
-and exclusive children, which obviously all overlap one another, and
-thus you have to do the partition only at the top-most exclusive cpuset.
+> >>That would require changing the order of cache flush and tlb flush.
+> >>To keep certain architectures that require a valid translation in
+> >>the TLB the cacheflush has to be done first.  Not sure if those
+> >>architectures need a writeable mapping for dirty cachelines - I
+> >>think hypersparc was one of them.
+> >
+> >
+> >There just has to be "a mapping" in the TLB so that the L2 cache can
+> >translate the virtual address to a physical one for the writeback to
+> >main memory.
+> 
+> So moving the flush_cache_mm below the copy_page_range, to just
+> before the flush_tlb_mm, would work then? This would make the
+> race much smaller than with this patchset.
 
-Currently, cpusets is creating partitions in cpus_exclusive children as
-well, which breaks balancing for the parent.
+90% of this changeset are MIPS-specific code.  Of that in turn much is
+just infrastructure which is already being used anyway.
 
-The patch I posted previously should (modulo bugs) only do partitioning
-in the top-most cpuset. I still need clarification from Paul as to why
-this is unacceptable, though.
+> But doesn't that still leave a race?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Both calls would have to be done  under the mmap_sem to close any races.
+
+> What if another thread writes to cache after we have flushed it
+> but before flushing the TLBs? Although we've marked the the ptes
+> readonly, the CPU won't trap if the TLB is valid? There must be
+> some special way for the arch to handle this, but I can't see it.
+
+There isn't really.  Reordering with a patch like:
+
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 29ebb30..28e51e0 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -202,7 +202,6 @@ static inline int dup_mmap(struct mm_str
+ 	struct mempolicy *pol;
+ 
+ 	down_write(&oldmm->mmap_sem);
+-	flush_cache_mm(oldmm);
+ 	/*
+ 	 * Not linked in yet - no deadlock potential:
+ 	 */
+@@ -287,8 +286,9 @@ static inline int dup_mmap(struct mm_str
+ 	}
+ 	retval = 0;
+ out:
+-	up_write(&mm->mmap_sem);
+ 	flush_tlb_mm(oldmm);
++	flush_cache_mm(oldmm);
++	up_write(&mm->mmap_sem);
+ 	up_write(&oldmm->mmap_sem);
+ 	return retval;
+ fail_nomem_policy:
+
+should close the hole for all effected architectures.  I say should
+because this patch would need another round of linux-arch reviewing and I
+haven't tested it this patch yet myself.
+
+But even so that doesn't change that I would really like to make
+copy_user_highpage() an arch interface replacing copy_to_user_page.
+
+The current way of doing things enforces a cacheflush on MIPS which itself
+is pricy - 1,000 cycles when it's cheap but could be several times as
+expensive.  And as a side effect of the cacheflush the process breaking
+a COW page will start with a cold page.
+
+Or if an architecture wants to be clever about aliasing and uses the
+vto argument of copy_user_page to create a non-conflicting mapping it
+means the mapping setup by copy_user_highpage will be unused ...
+
+  Ralf

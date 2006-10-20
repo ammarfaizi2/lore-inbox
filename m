@@ -1,83 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422823AbWJTT4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422781AbWJTT6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422823AbWJTT4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422831AbWJTT4V
+	id S1422781AbWJTT6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422820AbWJTT6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:56:21 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:30403 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S1422823AbWJTT4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:56:20 -0400
-Date: Fri, 20 Oct 2006 14:56:18 -0500
-From: "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net>
-To: Andrew Morton <akpm@osdl.org>, jens.axboe@oracle.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 2/2] cciss: disable dma prefetch for P600
-Message-ID: <20061020195618.GA13181@beardog.cca.cpqcorp.net>
-References: <20061017211303.GB17874@beardog.cca.cpqcorp.net> <20061017171021.baea3c3f.akpm@osdl.org> <20061018165453.GA14255@beardog.cca.cpqcorp.net> <20061018143723.48510ea7.akpm@osdl.org>
+	Fri, 20 Oct 2006 15:58:52 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2021
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1422781AbWJTT6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 15:58:51 -0400
+Date: Fri, 20 Oct 2006 12:58:51 -0700 (PDT)
+Message-Id: <20061020.125851.115909797.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: nickpiggin@yahoo.com.au, ralf@linux-mips.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0610201251440.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org>
+	<20061020.123635.95058911.davem@davemloft.net>
+	<Pine.LNX.4.64.0610201251440.3962@g5.osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061018143723.48510ea7.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, 2006 at 02:37:23PM -0700, Andrew Morton wrote:
-> 
-> argh, you removed the mailing list from cc.
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 20 Oct 2006 12:54:17 -0700 (PDT)
 
-Sorry, I'm still lacking proper etiquette.
+> Well, sparc always was crud. I can see the missing tlb entry, but if it's 
+> been turned read-only, the write-back should still work (it clearly _was_ 
+> writable when the write that dirtied the cacheline happened).
 
-> 
-> On Wed, 18 Oct 2006 11:54:53 -0500
-> "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
-> 
-> > On Tue, Oct 17, 2006 at 05:10:21PM -0700, Andrew Morton wrote:
-> > > On Tue, 17 Oct 2006 16:13:03 -0500
-> > > "Mike Miller (OS Dev)" <mikem@beardog.cca.cpqcorp.net> wrote:
-> > > 
-> > > > PATCH 2/2
-> > > > Turned off DMA prefetch for the P600 on systems which may present
-> > > > discontiguous memory.
-> > > > 
-> > > 
-> > > What do you mean by "discontiguous memory"?  CONFIG_DISCONTIGMEM?
-> > 
-> > The IPF memory map can have holes between the different regions. I've
-> > been told by our HW guys that AMD may also have holes.
-> 
-> Pretty much all platforms/architectures have holes in their physical memory
-> map.
-> 
-> 
-> > > 
-> > > What is the actual problem which is being fixed here?
-> > 
-> > Sorry, I should have been clearer. There is a bug in the DMA engine that
-> > that may result in prefetching data from beyond the end of memory or
-> > falling off into one the holes on IPF and AMD. It causes a machine check
-> > when that happens.
-> > It doesn't happen on Proliant because the last 4kB (or so) of memory is
-> > mapped out by the BIOS and Pentium guarantees contiguous memory.
-> 
-> I think that this:
-> 
-> > > #if defined(CONFIG_IA64) || defined(CONFIG_X86_64)
-> 
-> is nowhere near strong enough and is probably inappropriate.
-> 
-> It _could_ be that CONFIG_DISCONTIGMEM|CONFIG_SPARSEMEM will be closer, but
-> even CONFIG_FLATMEM systems can have holes.
+I did some more digging, here's what I think the hardware actually
+does:
 
-I'm poking around on some IPF platforms. It looks like CONFIG_DISCONTIGMEM is
-set on them, but not the others you mention. Would that be sufficient?
+1) On L2 cacheline load, the "user" and "writable" protection
+   bits are propagated from the TLB entry into the L2 cache
+   line.  Access checks are done on L2 cache hit using this
+   cached copy of the two protection bits.
 
-> 
-> On what machines can/does this card exist?  Things like powerpc?
+2) On L2 dirty cacheline writeback, the physical address is
+   obtained from the TLB
 
-This problem was found on Itanium. We don't try to support powerpc.
-
-Thanks,
-mikem
+So what you guys are suggesting should probably work fine.

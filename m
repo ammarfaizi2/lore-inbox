@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992624AbWJTQx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992677AbWJTQyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992624AbWJTQx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 12:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992676AbWJTQx5
+	id S2992677AbWJTQyR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992676AbWJTQyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 12:53:57 -0400
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:20751 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S2992624AbWJTQx4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 12:53:56 -0400
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm2
-Date: Fri, 20 Oct 2006 18:54:43 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20061020015641.b4ed72e5.akpm@osdl.org> <200610201339.49190.m.kozlowski@tuxland.pl> <20061020091901.71a473e9.akpm@osdl.org>
-In-Reply-To: <20061020091901.71a473e9.akpm@osdl.org>
+	Fri, 20 Oct 2006 12:54:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37506 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S2992677AbWJTQyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:54:15 -0400
+Message-ID: <4538FF32.8050604@sandeen.net>
+Date: Fri, 20 Oct 2006 11:54:10 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610201854.43893.m.kozlowski@tuxland.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (update) more helpful WARN_ON and BUG_ON messages
+References: <4538F81A.2070007@redhat.com>
+In-Reply-To: <4538F81A.2070007@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+Eric Sandeen wrote:
 
-> Don't know.   Nothing has changed in the git-pcmcia tree since July.
+> After a few bugs I encountered in FC6 in buffer.c, with output like:
 >
-> Are you able to bisect it, as per
-> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt ?
+> Kernel BUG at fs/buffer.c: 2791
 >
-> > When running without debug options enabled also these were seen amongst
-> > dmesg lines:
-> >
-> > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> > [drm:drm_unlock] *ERROR* Process 5131 using kernel context 0
+> where buffer.c contains:
 >
-> <googles>
+> ...
+>         BUG_ON(!buffer_locked(bh));
+>         BUG_ON(!buffer_mapped(bh));
+>         BUG_ON(!bh->b_end_io);
+> ...
 >
-> This? http://lkml.org/lkml/2005/9/10/78
+> around line 2790, it's awfully tedious to go get the exact failing kernel tree
+> just to see -which- BUG_ON was encountered.
+>
+> Printing out the failing condition as a string would make this more helpful IMHO.
+>
+> This is mostly just compile-tested... comments?
+Whoops, missed WARN_ON_ONCE... thanks Peter.
 
-I think I found the culprit. It's CONFIG_PCI_MULTITHREAD_PROBE option. It is 
-actually marked as EXPERIMENTAL and there is even a proper warning included 
-on the help page. Disabling it makes the kernel behave the right way. So 
-should what I reported be considered a real error or not? Then the next 
-question is should I report errors caused by options marked as EXPERIMENTAL 
-or just leave it the way it is until the option is not EXPERIMENTAL anymore?
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
 
->> This time it _is_ -mm ;-)
->> 
->Well... that's what it's for ;)  Thanks for testing.
+Index: linux-2.6.18/include/asm-generic/bug.h
+===================================================================
+--- linux-2.6.18.orig/include/asm-generic/bug.h
++++ linux-2.6.18/include/asm-generic/bug.h
+@@ -12,13 +12,19 @@
+ #endif
+ 
+ #ifndef HAVE_ARCH_BUG_ON
+-#define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
++#define BUG_ON(condition) do { \
++	if (unlikely((condition)!=0)) { \
++		printk("BUGging on (%s)\n", #condition); \
++		BUG(); \
++	} \
++} while(0)
+ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
+ #define WARN_ON(condition) do { \
+ 	if (unlikely((condition)!=0)) { \
+-		printk("BUG: warning at %s:%d/%s()\n", __FILE__, __LINE__, __FUNCTION__); \
++		printk("BUG: warning: (%s) at %s:%d/%s()\n", \
++			#condition, __FILE__, __LINE__, __FUNCTION__); \
+ 		dump_stack(); \
+ 	} \
+ } while (0)
+@@ -45,7 +51,7 @@
+ 							\
+ 	if (unlikely((condition) && __warn_once)) {	\
+ 		__warn_once = 0;			\
+-		WARN_ON(1);				\
++		WARN_ON(condition);			\
+ 		__ret = 1;				\
+ 	}						\
+ 	__ret;						\
 
-No problem. Thanks for Linux.
 
-Regards,
-
-	Mariusz Kozlowski

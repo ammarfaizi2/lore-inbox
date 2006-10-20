@@ -1,104 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946467AbWJTUaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946522AbWJTUib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946467AbWJTUaR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 16:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946479AbWJTUaR
+	id S1946522AbWJTUib (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 16:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946523AbWJTUia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 16:30:17 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:59839 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1946467AbWJTUaP (ORCPT
+	Fri, 20 Oct 2006 16:38:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29919 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1946522AbWJTUi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 16:30:15 -0400
-Date: Sat, 21 Oct 2006 02:00:16 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, mbligh@google.com, akpm@osdl.org,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com, clameter@sgi.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Message-ID: <20061020203016.GA26421@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com> <4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com> <4538F34A.7070703@yahoo.com.au> <20061020120005.61239317.pj@sgi.com>
+	Fri, 20 Oct 2006 16:38:27 -0400
+Date: Fri, 20 Oct 2006 22:37:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, teunis <teunis@wintersgift.com>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: various laptop nagles - any suggestions?   (note: 2.6.19-rc2-mm1 but applies to multiple kernels)
+Message-ID: <20061020203731.GA22407@elte.hu>
+References: <4537A25D.6070205@wintersgift.com> <20061019194157.1ed094b9.akpm@osdl.org> <4538F9AD.8000806@wintersgift.com> <20061020110746.0db17489.akpm@osdl.org> <1161368034.5274.278.camel@localhost.localdomain> <20061020112627.04a4035a.akpm@osdl.org> <1161370015.5274.282.camel@localhost.localdomain> <20061020121537.dea13469.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061020120005.61239317.pj@sgi.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061020121537.dea13469.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
 
-This mail seems to be as good as any to reply to, so here goes
+* Andrew Morton <akpm@osdl.org> wrote:
 
-On Fri, Oct 20, 2006 at 12:00:05PM -0700, Paul Jackson wrote:
-> > The patch I posted previously should (modulo bugs) only do partitioning
-> > in the top-most cpuset. I still need clarification from Paul as to why
-> > this is unacceptable, though.
+> > > I don't know how many machines will be affected by this, but I'd 
+> > > expect it's quite a few - the Vaio has a less-than-one-year-old 
+> > > Intel CPU in it.
+> > 
+> > Is this still the broken lapic issue ?
 > 
-> That patch partitioned on the children of the top cpuset, not the
-> top cpuset itself.
-> 
-> There is only one top cpuset - and that covers the entire system.
-> 
-> Consider the following example:
-> 
-> 	/dev/cpuset		cpu_exclusive=1, cpus=0-7, task A
-> 	/dev/cpuset/a		cpu_exclusive=1, cpus=0-3, task B
-> 	/dev/cpuset/b		cpu_exclusive=1, cpus=4-7, task C
-> 
-> We have three cpusets - the top cpuset and two children, 'a' and 'b'.
-> 
-> We have three tasks, A, B and C.  Task A is running in the top cpuset,
-> with access to all 8 cpus on the system.  Tasks B and C are each in
-> a child cpuset, with access to just 4 cpus.
-> 
-> By your patch, the cpu_exclusive cpusets 'a' and 'b' partition the
-> sched domains in two halves, each covering 4 of the systems 8 cpus.
-> (That, or I'm still a sched domain idiot - quite possible.)
-> 
-> As a result, task A is screwed.  If it happens to be on any of cpus
-> 0-3 when the above is set up and the sched domains become partitioned,
-> it will never be considered for load balancing on any of cpus 4-7.
-> Or vice versa, if it is on any of cpus 4-7, it has no chance of
-> subsequently running on cpus 0-3.
+> yup.  iirc the standard FC5 SMP kernel runs dog-slowly on that machine 
+> too.
 
-ok I see the issue here, although the above has been the case all along.
-I think the main issue here is that most of the users dont have to
-do more than one level of partitioning (having to partitioning a system
-with not more than 16 - 32 cpus, mostly less) and it is fairly easy to keep
-track of exclusive cpusets and task placements and this is not such
-a big problem at all. However I can see that with 1024 cpus this is not
-trivial anymore to remember all of the partitioning especially if the
-partioning is more than 2 levels deep and that its gets unwieldy
+hm. This is how lapic timer calibration works.
 
-So I propose the following changes to cpusets
+the lapic timer is really simple - it counts down from a value and 
+generates an irq if that counter reaches 0. Then it starts counting down 
+again.
 
-1. Have a new flag that takes care of sched domains. (say sched_domain)
-   Although I still think that we can still tag sched domains at the
-   back of exclusive cpusets, I think it best to separate the two
-   and maybe even add a separate CONFIG option for this. This way we
-   can keep any complexity arising out of this, such as hotplug/sched
-   domains all under the config.
-2. The main change is that we dont allow tasks to be added to a cpuset
-   if it has child cpusets that also have the sched_domain flag turned on
-   (Maybe return a EINVAL if the user tries to do that)
+the 'count down from' value is programmed via __setup_APIC_LVTT().
 
-Clearly one issue remains, tasks that are already running at the top cpuset.
-Unless these are manually moved down to the correct cpuset heirarchy they
-will continue to have the problem as before. I still dont have a simple
-enough solution for this at the moment other than to document this at the
-moment. But I still think on smaller systems this should be fairly easy task
-for the administrator if they really know what they are doing. And the
-fact that we have a separate flag to indicate the sched domain partitioning
-should make it harder for them to shoot themselves in the foot.
-Maybe there are other better ways to resolve this ?
+we first write a 'really large' number into it (1 billion):
 
-One point I would argue against is to completely decouple cpusets and
-sched domains. We do need a way to partition sched domains and doing
-it along the lines of cpusets seems to be the most logical. This is
-also much simpler in terms of additional lines of code needed to support
-this feature. (as compared to adding a whole new API just to do this)
+        __setup_APIC_LVTT(1000000000);
 
-	-Dinakar
+the unit of counting is '16 system bus cycles'.
+
+i.e. if your system has a system bus of 333 MHz, then a value of 1 
+billion takes 48 seconds to count down. (so the calibration ought to be 
+pretty robust in this regard.)
+
+then we use the wait_timer_tick() function, which waits until the PIT 
+counter reaches 0 (which is attached to the PIT whose frequency we know 
+and thus the PIT is already programmed correctly). Hence by calling 
+wait_timer_tick() we can generate a delay of one jiffy - and we can read 
+out the current lapic timer count and determine the calibration factor.
+
+then we calculate the result as:
+
+        result = (tt1-tt2)*APIC_DIVISOR/LOOPS;
+
+where tt1 is the counter before we start calibration, tt2 is the lapic 
+timer counter after we did calibration. (APIC_DIVISOR is 16)
+
+i dont see where the error is - but there must be some calibration 
+problem as your system shows a systematic 1:60 difference between 
+expected and real lapic timer frequency.
+
+	Ingo

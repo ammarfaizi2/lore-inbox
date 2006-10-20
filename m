@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992608AbWJTSNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWJTSTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992608AbWJTSNF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 14:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992561AbWJTSNF
+	id S964832AbWJTSTs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 14:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWJTSTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 14:13:05 -0400
-Received: from www.osadl.org ([213.239.205.134]:5555 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030305AbWJTSND (ORCPT
+	Fri, 20 Oct 2006 14:19:48 -0400
+Received: from mga01.intel.com ([192.55.52.88]:2124 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S964832AbWJTSTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 14:13:03 -0400
-Subject: Re: various laptop nagles - any suggestions?   (note:
-	2.6.19-rc2-mm1 but applies to multiple kernels)
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061020110746.0db17489.akpm@osdl.org>
-References: <4537A25D.6070205@wintersgift.com>
-	 <20061019194157.1ed094b9.akpm@osdl.org> <4538F9AD.8000806@wintersgift.com>
-	 <20061020110746.0db17489.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 20:13:54 +0200
-Message-Id: <1161368034.5274.278.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 20 Oct 2006 14:19:47 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,336,1157353200"; 
+   d="scan'208"; a="149611200:sNHT19695571"
+Message-ID: <453912C9.1040902@intel.com>
+Date: Fri, 20 Oct 2006 11:17:45 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+CC: Aleksey Gorelov <dared1st@yahoo.com>,
+       Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Machine restart doesn't work - Intel 965G, 2.6.19-rc2
+References: <20061017180003.GB24789@tau.solarneutrino.net> <20061017205316.25914.qmail@web83109.mail.mud.yahoo.com> <20061017222727.GB24891@tau.solarneutrino.net> <45390E09.7050508@intel.com> <20061020180759.GC29810@tau.solarneutrino.net>
+In-Reply-To: <20061020180759.GC29810@tau.solarneutrino.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2006 18:19:46.0675 (UTC) FILETIME=[52A7CC30:01C6F474]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-20 at 11:07 -0700, Andrew Morton wrote:
-> > > So you're saying that CONFIG_NO_HZ breaks the touchpad?
-> > 
-> > yes.  At least for Acer Travelmate 8000 and HP nx6310 and HP nx7400.
-> > Other than the touchpad - there is not a lot of common hardware between
-> > these units.   The readout becomes highly unreliable.   (in X it starts
-> > jumping around - it SORT OF resembles the output)
-> > 
-> > My suspicion is a timing problem in the synaptic USB driver
+Ryan Richter wrote:
+> On Fri, Oct 20, 2006 at 10:57:29AM -0700, Auke Kok wrote:
+>> To all that are seeing this problem:
+>>
+>> can you send me (off-list is OK) the motherboard number+name, the BIOS 
+>> versions (+ where you downloaded them from) that you have tried and for 
+>> each version, whether it worked without this workaround or not?
 > 
-> OK, that's going to be hard to fix and it'd be awkward (and unpopular) to
-> make inclusion of the dynamic-ticks feature dependent on fixing this. 
-> (Then again, it'd get Ingo into device drivers ;))
+> I've got an Intel DG965RY with BIOS version 1250.  That's the only BIOS
+> I've tried (I flashed it first thing when I got the machine), and the
+> workaround works.
 
-Maybe Ingo is the lesser evil than me when it comes down to device
-drivers :)
+OK, thanks.
 
-> However I would suggest that NO_HZ (at least) be dependent upon
-> CONFIG_EXPERIMENTAL, no?
+Lukas Hejtmanek wrote:
+ > Three days ago, Intel released a new BIOS version that claims to fix this issue.
+ >
+ > I've tested it with 2.6.18 kernel which was unable to restart, it works now so
+ > it seems that fix was successful.
 
-Fair enough.
+this is incomplete information. Which version did you have before? what is your 
+motherboard number/name? etc. Please be complete.
 
-> Also, NO_HZ breaks my laptop (and presumably quite a few others) quite
-> horridly, which means nobody can ship the feature.  Some runtime
-> turn-it-off work needs to be done there.
+Please provide what I asked for, if you can. I really need to know _everything_
 
-We can make a commandline switch as for highres. Is that sufficient ?
-
-	tglx
-
-
+Auke

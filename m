@@ -1,101 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161466AbWJTFQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992432AbWJTFQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161466AbWJTFQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161467AbWJTFQa
+	id S2992432AbWJTFQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992442AbWJTFQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:16:30 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18836 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161465AbWJTFQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:16:29 -0400
-Date: Thu, 19 Oct 2006 21:44:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-Subject: Re: [PATCH] Add device addition/removal notifier
-Message-ID: <20061020044454.GA8627@kroah.com>
-References: <1161309350.10524.119.camel@localhost.localdomain> <20061020032624.GA7620@kroah.com> <1161318564.10524.131.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161318564.10524.131.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 20 Oct 2006 01:16:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:48016 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S2992432AbWJTFQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:16:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=V/Nqu6BMndqwiv5EdFhSMZnYpe8NbV3hgfQWEvssalKKyDqc6MNj0yUrjpI+ApJCr71AJ1G6XOlVCVbLPeUwO3y5kaN3Ky+m6sHaSBs+Jki3cp1z9eEpGiKBtwiW4Mrev1n9J3agqE8wZgy9RWJUFNuSKnXI7ptiU9bF+ihaNNQ=
+Date: Thu, 19 Oct 2006 22:16:42 -0700
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.19-rc2] [REVISED 2] drivers/media/video/se401.c: check
+ kmalloc() return value.
+Message-Id: <20061019221642.d10bae34.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 02:29:24PM +1000, Benjamin Herrenschmidt wrote:
-> On Thu, 2006-10-19 at 20:26 -0700, Greg KH wrote:
-> > On Fri, Oct 20, 2006 at 11:55:50AM +1000, Benjamin Herrenschmidt wrote:
-> > > @@ -608,12 +615,14 @@ void device_del(struct device * dev)
-> > >  	device_remove_groups(dev);
-> > >  	device_remove_attrs(dev);
-> > >  
-> > > +	bus_remove_device(dev);
-> > >  	/* Notify the platform of the removal, in case they
-> > >  	 * need to do anything...
-> > >  	 */
-> > >  	if (platform_notify_remove)
-> > >  		platform_notify_remove(dev);
-> > > -	bus_remove_device(dev);
-> > > +	blocking_notifier_call_chain(&device_notifier, DEVICE_NOTIFY_DEL_DEV,
-> > > +				     dev);
-> > 
-> > Why did you move the call to bus_remove_device() to be before the
-> > platform_notify_remove() and notifier is called?
-> 
-> I sent a mail about that a couple of days ago. The current behaviour is
-> bogus imho. (mail subjet was [PATCH/RFC] Call platform_notify_remove
-> later, and Len Brown who uses that hook in ACPI agreed).
-> 
-> Basically, we notify the platform of insertion before we bind devices to
-> busses & drivers (so the platform can do fixups, allocate auxilliary
-> data structures, whatever else...) and thus we should notify the
-> platform of removal -after- we unbind from the bus and driver where it
-> will then destroy those data structures). 
-> 
-> In my case, I need to hookup the DMA ops pointers. It would be very
-> bogus to destroy those before the driver remove() has been called.
+Description: Check the return value of kmalloc() in function se401_start_stream(), in file drivers/media/video/se401.c.
 
-Ok, as long as you all agree that this does change the behavior, it's
-fine with me :)
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
-> > And I don't think this is really going to work well.  You have created a
-> > notifier for all devices in the system, right?  How do you know what
-> > type of struct device is being passed to your notifier callback?  At
-> > least with the platform callback, you knew it was a platform device :)
-> 
-> No I didn't. The platform_notify callback was called for any device as
-> is my notifier :)
-> 
-> All I did was to add a notifier chain in addition to the old function
-> pointer with the intend of deprecating the function pointer :)
-> 
-> You can know what type of device you are called for by comparing the
-> device->bus to the address of the bus type data structure. That's the
-> only way to do so but it works pretty fine. (There are actually some
-> severe issues with the device model and with PCI around that area that
-> I'm hitting trying to clean up some of the powerpc mess but let's handle
-> one problem at a time).
-> 
-> On PowerPC, for example, I'll use that notifier in at least 2 different
-> places: For PCI, I need to use the "delete" callback to destroy the
-> auxilliary data structure containing the DMA ops (it's currently created
-> by some PCI fixup code, but I might also migrate that to the "add"
-> callback. The other place is for platforms like Cell that are now
-> growing DMA capable non-PCI devices, that I'm catching in the cell
-> specific iommu code via that notifier, to hook them up to the right DMA
-> ops.
-
-Ok, then perhaps you just want a bus specific callback for the devices
-on that bus?  That would be much simpler and keep you from having to do
-that mess with the different tests of bus type.
-
-Actually, that's the only thing that really makes sense here, now that I
-think about it, the platform_notify doesn't really make any sense...
-
-thanks,
-
-greg k-h
+diff --git a/drivers/media/video/se401.c b/drivers/media/video/se401.c
+index 7aeec57..006c818 100644
+--- a/drivers/media/video/se401.c
++++ b/drivers/media/video/se401.c
+@@ -450,6 +450,13 @@ static int se401_start_stream(struct usb
+ 	}
+ 	for (i=0; i<SE401_NUMSBUF; i++) {
+ 		se401->sbuf[i].data=kmalloc(SE401_PACKETSIZE, GFP_KERNEL);
++		if (!se401->sbuf[i].data) {
++			for(i = i - 1; i >= 0; i--) {
++				kfree(se401->sbuf[i].data);
++				se401->sbuf[i].data = NULL;
++			}
++			return -ENOMEM;
++		}
+ 	}
+ 
+ 	se401->bayeroffset=0;
+@@ -458,13 +465,26 @@ static int se401_start_stream(struct usb
+ 	se401->scratch_overflow=0;
+ 	for (i=0; i<SE401_NUMSCRATCH; i++) {
+ 		se401->scratch[i].data=kmalloc(SE401_PACKETSIZE, GFP_KERNEL);
++		if (!se401->scratch[i].data) {
++			for(i = i - 1; i >= 0; i--) {
++				kfree(se401->scratch[i].data);
++				se401->scratch[i].data = NULL;
++			}
++			goto nomem_sbuf;
++		}
+ 		se401->scratch[i].state=BUFFER_UNUSED;
+ 	}
+ 
+ 	for (i=0; i<SE401_NUMSBUF; i++) {
+ 		urb=usb_alloc_urb(0, GFP_KERNEL);
+-		if(!urb)
+-			return -ENOMEM;
++		if(!urb) {
++			for(i = i - 1; i >= 0; i--) {
++				usb_kill_urb(se401->urb[i]);
++				usb_free_urb(se401->urb[i]);
++				se401->urb[i] = NULL;
++			}
++			goto nomem_scratch;
++		}
+ 
+ 		usb_fill_bulk_urb(urb, se401->dev,
+ 			usb_rcvbulkpipe(se401->dev, SE401_VIDEO_ENDPOINT),
+@@ -482,6 +502,18 @@ static int se401_start_stream(struct usb
+ 	se401->framecount=0;
+ 
+ 	return 0;
++
++ nomem_scratch:
++	for (i=0; i<SE401_NUMSCRATCH; i++) {
++		kfree(se401->scratch[i].data);
++		se401->scratch[i].data = NULL;
++	}
++ nomem_sbuf:
++	for (i=0; i<SE401_NUMSBUF; i++) {
++		kfree(se401->sbuf[i].data);
++		se401->sbuf[i].data = NULL;
++	}
++	return -ENOMEM;
+ }
+ 
+ static int se401_stop_stream(struct usb_se401 *se401)

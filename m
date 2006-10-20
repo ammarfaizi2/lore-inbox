@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992678AbWJTVFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWJTVGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992678AbWJTVFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946512AbWJTVFh
+	id S1030357AbWJTVGU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946517AbWJTVGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:05:37 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3592 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1946514AbWJTVFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:05:36 -0400
-Date: Fri, 20 Oct 2006 23:05:33 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Alan Cox <alan@redhat.com>,
-       Patrick Jefferson <henj@hp.com>, Kenny Graunke <kenny@whitecape.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [2.6.19 patch] drivers/ide/pci/generic.c: re-add the __setup("all-generic-ide",...)
-Message-ID: <20061020210533.GW3502@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061017155934.GC3502@stusta.de> <4534C7A7.7000607@hp.com> <20061018221520.GK3502@stusta.de> <20061018231844.GA16857@devserv.devel.redhat.com> <20061019152651.GR3502@stusta.de> <20061019090741.853ea100.randy.dunlap@oracle.com> <20061019161338.GT3502@stusta.de> <1161275398.17335.87.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161275398.17335.87.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 20 Oct 2006 17:06:20 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6337
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030357AbWJTVGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:06:19 -0400
+Date: Fri, 20 Oct 2006 14:06:19 -0700 (PDT)
+Message-Id: <20061020.140619.11628819.davem@davemloft.net>
+To: rmk+lkml@arm.linux.org.uk
+Cc: torvalds@osdl.org, nickpiggin@yahoo.com.au, ralf@linux-mips.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061020205929.GE8894@flint.arm.linux.org.uk>
+References: <20061020.125851.115909797.davem@davemloft.net>
+	<Pine.LNX.4.64.0610201302090.3962@g5.osdl.org>
+	<20061020205929.GE8894@flint.arm.linux.org.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 05:29:58PM +0100, Alan Cox wrote:
-> Ar Iau, 2006-10-19 am 18:13 +0200, ysgrifennodd Adrian Bunk:
-> > > Missing update to Documentation/kernel-parameters.txt ?
-> > > (maybe it's been missing forever?)
-> > 
-> > It's been missing forever.
-> > 
-> > I'm not sure whether documenting it now where it's deprecated and nearly 
-> > dead makes sense..
-> 
-> Its not dead, its so useful that drivers/ata also supports it
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Date: Fri, 20 Oct 2006 21:59:29 +0100
 
-But in the drivers/ata case it's a module parameter, not a __setup 
-kernel parameter.
+> However, when I look at this code now, I see _no where_ where we synchronise
+> the cache between the userspace mapping and the kernel space mapping before
+> copying a COW page.
 
-And I don't think it makes sense to manually add module parameters to 
-kernel-parameters.txt
+When the user obtains write access to the page, we'll flush.
 
-If a documentation of all module parameters is considered useful, 
-someone should write a script to automatically generate such a list.
+Since there are many locations at which write access can be
+obtained, there are many locations where the synchronization
+is obtained.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+One popular way to obtain the synchronization is to implement
+flush_dcache_page() to flush, and implement clear_page() and
+copy_user_page() to clear and copy pages in kernel space at
+special temporrary mappings whose virtual address will alias
+up properly with userspace's mapping.  That's why we pass a
+virtual address to these two arch functions.

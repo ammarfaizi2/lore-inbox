@@ -1,52 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992523AbWJTGhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992521AbWJTGpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992523AbWJTGhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 02:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992521AbWJTGhS
+	id S2992521AbWJTGpc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 02:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946310AbWJTGpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 02:37:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:984 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992523AbWJTGhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 02:37:16 -0400
-Date: Thu, 19 Oct 2006 23:37:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+	Fri, 20 Oct 2006 02:45:32 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:32913 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1946307AbWJTGpb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 02:45:31 -0400
+Message-ID: <45387090.7020509@drzeus.cx>
+Date: Fri, 20 Oct 2006 08:45:36 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061004)
+MIME-Version: 1.0
+To: Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Git training wheels for the pimple faced maintainer
-Message-Id: <20061019233708.3b1f4811.akpm@osdl.org>
-In-Reply-To: <45386C29.7050501@drzeus.cx>
-References: <4537EB67.8030208@drzeus.cx>
-	<20061019152503.217a82aa.akpm@osdl.org>
-	<45386C29.7050501@drzeus.cx>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> <20061020010715.GF10128@ca-server1.us.oracle.com>
+In-Reply-To: <20061020010715.GF10128@ca-server1.us.oracle.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 08:26:49 +0200
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+Mark Fasheh wrote:
+> On Thu, Oct 19, 2006 at 04:44:41PM -0700, Linus Torvalds wrote:
+>   
+>> I think people have seen the messages that other people send out (eg at 
+>> least Greg KH tends to Cc: those messages to linux-kernel, so others can 
+>> see what's going on too - although not all other maintainers do that).
+>>     
+> I noticed also that people started sending out "What's in XX.git" type
+> messages at the beginning of a merge window to describe what might shortly
+> get sent upstream.
+>
+>   
 
-> Andrew Morton wrote:
-> > Just send me the url&branch-name for a tree which you want included in -mm.
-> > I typically pull all the trees once per day.  I usually won't even look at
-> > the contents of what I pulled from you unless it breaks.
-> >
-> > IOW, -mm is like a tree to which 70-odd people have commit permissions,
-> > except it's 70 separate trees and I independently jam them all into one
-> > tree daily.
-> >   
-> 
-> So, in other words, you have no issues with a lot of merges in the
-> branch you're pulling from? Do you do a fresh pull each time or do you
-> update an existing copy? If you do the latter, then I assume it is
-> critical that my "for-andrew" branch has a continous history? (Which it
-> won't naturally have as the changes will be replaced by identical
-> changes coming from Linus' tree)
-> 
+Yes, I've found those to be quite nice. I'll try to remember to send my own.
 
-I don't care what the history is.  I fetch the whole thing then generate
-(you - linus) as a single unified diff then whack it into the patch pile.
+>   
+>> Other git maintainers may have other hints about how they work. Anybody?
+>>     
+> I think I have a slightly different workflow than what Pierre describes. I
+> find that it works well for me and it keeps things very organized in
+> ocfs2.git. It's also probably a little more work than other methods for
+> managing a git tree that people employ. Hopefully a description of my
+> process will be useful to someone.
+>
+> Basically I have two trees, ocfs2.git which is the main ocfs2 repository and
+> my own personal linux-2.6.git which I actually hack in.
+>   
+
+Hmm.. What is the gain of having two tree instead of just more branches?
+
+> Once I'm ready to send an upstream pull request, I'll update the master
+> branch of ocfs2.git. I then make a for-linus branch based off of it, and
+> git-cherry-pick each individual patch into that branch and send my request.
+>   
+
+This should be equivalent of just keeping the "for-linus" branch around
+as it will just fast-forward along with Linus' tree when it doesn't
+contain any local changes. Or am I missing something?
+
+> Once Linus pulls, I'll re-make the ALL branch for Andrew by re-pulling all
+> the patchsets which weren't a part of that pull request.
+>   
+
+In other words, you destroy all the old history of your ALL branch and
+create a new one? So you couldn't continuously pull from that branch?
+
+> Btw, I cannot over state how important and useful it is to have patches go
+> to -mm first.
+>   
+
+My intention was always to send him everything but the most trivial patches.
+
+On questions related to that though. Previously, I've always sent plain
+patches to Andrew. After they have simmered a bit in -mm, he usually
+pushes them on to Linus, even though they do not qualify as being just
+bug fixes. As I will now be the one moving stuff from "from-andrew" to
+"for-linus", will the decision of what to move now fall on me? I would
+probably be more inclined to wait for the next merge window than Andrew is.
+
+Thanks
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 

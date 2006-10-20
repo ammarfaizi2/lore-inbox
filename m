@@ -1,52 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992886AbWJTWWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992884AbWJTW3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992886AbWJTWWr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 18:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992884AbWJTWWr
+	id S2992884AbWJTW3G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 18:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992887AbWJTW3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 18:22:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42664
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S2992738AbWJTWWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 18:22:46 -0400
-Date: Fri, 20 Oct 2006 15:22:47 -0700 (PDT)
-Message-Id: <20061020.152247.111203913.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org>
-References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org>
-	<20061020214916.GA27810@linux-mips.org>
-	<Pine.LNX.4.64.0610201500040.3962@g5.osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 20 Oct 2006 18:29:06 -0400
+Received: from webserve.ca ([69.90.47.180]:15048 "EHLO computersmith.org")
+	by vger.kernel.org with ESMTP id S2992884AbWJTW3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 18:29:05 -0400
+Message-ID: <45394D10.3000503@wintersgift.com>
+Date: Fri, 20 Oct 2006 15:26:24 -0700
+From: teunis <teunis@wintersgift.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: various laptop nagles - any suggestions? (note: 2.6.19-rc2-mm1
+ but applies to multiple kernels)
+References: <4537A25D.6070205@wintersgift.com>	 <20061019194157.1ed094b9.akpm@osdl.org>	 <4538F9AD.8000806@wintersgift.com>	 <20061020110746.0db17489.akpm@osdl.org> <d120d5000610201213v3ee2144cp4642f1812dfe7884@mail.gmail.com>
+In-Reply-To: <d120d5000610201213v3ee2144cp4642f1812dfe7884@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Fri, 20 Oct 2006 15:02:39 -0700 (PDT)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Fri, 20 Oct 2006, Ralf Baechle wrote:
-> > When I delete the call (not part of my patchset) it means 12% faster 
-> > fork.  But I'm not proposing this for 2.6.19.
+Dmitry Torokhov wrote:
+> On 10/20/06, Andrew Morton <akpm@osdl.org> wrote:
+>> On Fri, 20 Oct 2006 09:30:37 -0700
+>> teunis <teunis@wintersgift.com> wrote:
+>>
+>> >
+>>
+>> Please don't play with the Cc:s!  Just do reply-to-all, thanks.
+>>
+>> > Andrew Morton wrote:
+>> > > On Thu, 19 Oct 2006 09:05:49 -0700
+>> > > teunis <teunis@wintersgift.com> wrote:
+>> > >
+>> > >> -----BEGIN PGP SIGNED MESSAGE-----
+>> > >> Hash: SHA1
+>> > >>
+>> > >> Setting the internal clock to 100 Hz stablizes the laptop - and the
+>> > >> synaptics touchpad stops "crashing"  (when "crashed" the pad
+>> reads out
+>> > >> all kinds of seemingly random values).   I would suspect the driver
+>> > >> needs adjusting for the variable clock.   Also - it's definitely
+>> nicer
+>> > >> on the laptop power use as far as I can tell - should this be in the
+>> > >> documentation?
+>> > >
+>> > > So you're saying that CONFIG_NO_HZ breaks the touchpad?
+>> >
+>> > yes.  At least for Acer Travelmate 8000 and HP nx6310 and HP nx7400.
+>> > Other than the touchpad - there is not a lot of common hardware between
+>> > these units.   The readout becomes highly unreliable.   (in X it starts
+>> > jumping around - it SORT OF resembles the output)
+>> >
+>> > My suspicion is a timing problem in the synaptic USB driver
+>>
+>> OK, that's going to be hard to fix and it'd be awkward (and unpopular) to
+>> make inclusion of the dynamic-ticks feature dependent on fixing this.
+>> (Then again, it'd get Ingo into device drivers ;))
+>>
 > 
-> I just suspect it means a _buggy_ fork.
+> I wonder if the problem is with the in-kernel synaptics driver or with
+> X (itself or synaptics driver in it). Does the touchpad misbehaves
+> when you using GPM on text console? What about when you using legacy
+> mouse driver (as opposed to synaptics) in X?
 > 
-> It so happens (I think), that fork is big enough that it probably flushes 
-> the L1 cache _anyway_. 
 
-My understanding is that this works because in Ralf's original patch
-(which is the context in which he is removing the flush_cache_mm()
-call), he uses kmap()/kunmap() to map the page(s) being accessed at a
-kernel virtual address which will fall into the same cache color as
-the user virtual address --> no alias problems.
+Not sure - but testing now.
 
-Since he does this for every page touched on the kernel side during
-dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
-fact become redundant.
+on the flip side it seems that ACPI C3 (???) - restore after suspend to
+RAM anyways - halts high resolution timer and NO_HZ on one of the laptops.
+At that point the synaptics freezes solid.
+
+I've had CONFIG_NO_HZ disabled already but am now testing with high
+resolution timer turned off.  (I'm too used to desktops)
+
+with that test I can be -almost- certain it's a kernel problem.
+
+now off to figure why ndiswrapper now doesn't load....  (it's a GPL
+module and the kernel claims it isn't... something changed but I'm not
+sure what yet as it works with rc1-git6)
+
+- - Teunis
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFOU0GbFT/SAfwLKMRAiufAJ4nds4qf7e29GWHTwabrrqV/kjt+wCdE+h4
+OFnqetyHrxg5O8GyNErgA2U=
+=oc4d
+-----END PGP SIGNATURE-----

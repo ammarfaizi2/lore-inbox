@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992482AbWJTFog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992498AbWJTFtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992482AbWJTFog (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992508AbWJTFog
+	id S2992498AbWJTFtw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992506AbWJTFtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:44:36 -0400
-Received: from grunt15.ihug.co.nz ([203.109.254.62]:40885 "EHLO
-	grunt15.ihug.co.nz") by vger.kernel.org with ESMTP id S2992482AbWJTFof
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:44:35 -0400
-From: Glenn Enright <elinar@ihug.co.nz>
-To: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions? [KORG]
-Date: Fri, 20 Oct 2006 18:45:17 +1300
-User-Agent: KMail/1.9.1
-References: <20061018114240.GA3202@ff.dom.local> <20061019111620.GD3296@ff.dom.local> <20061020053047.GA1617@ff.dom.local>
-In-Reply-To: <20061020053047.GA1617@ff.dom.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 20 Oct 2006 01:49:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56013 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992498AbWJTFtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:49:51 -0400
+Date: Thu, 19 Oct 2006 22:49:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor fixes to generic do_div
+Message-Id: <20061019224949.37a12fda.akpm@osdl.org>
+In-Reply-To: <20061020053638.GS2602@parisc-linux.org>
+References: <20061020033359.GR2602@parisc-linux.org>
+	<20061019215954.1be82a57.akpm@osdl.org>
+	<20061020053638.GS2602@parisc-linux.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610201845.18285.elinar@ihug.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 October 2006 18:30, Jarek Poplawski wrote:
-> By the way, I wonder why current versions of
-> Documentation/DocBook in html are not accessible
-> from www.kernel.org?
+On Thu, 19 Oct 2006 23:36:38 -0600
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-Indeed many other project do this don't they, although from what Ive 
-seen kernel docs tend to be a bit... untidy?/difficult to navigate?... 
-for this sort of thing.
+> On Thu, Oct 19, 2006 at 09:59:54PM -0700, Andrew Morton wrote:
+> > Can we use typecheck(), from include/linux/kernel.h?
+> 
+> I don't know.
+> 
+> It's copied and pasted from down below, so possibly this was
+> intentionally not used.  or possibly the author didn't know about
+> typecheck().
+
+or typecheck() was added afterwards.
+
+One could create a typecheck.h.  Or a handy-macros.h whose mandate is
+"macros which don't depend on any other headers".
+
+Or just include kernel.h in div64.h.

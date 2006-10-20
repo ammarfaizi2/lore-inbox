@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWJTTw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWJTTyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbWJTTw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWJTTw0
+	id S932243AbWJTTyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWJTTyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:52:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2715
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750934AbWJTTwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:52:25 -0400
-Date: Fri, 20 Oct 2006 12:52:26 -0700 (PDT)
-Message-Id: <20061020.125226.59656580.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061020122527.56292b56@dxpl.pdx.osdl.net>
-References: <20061020081857.743b5eb7@localhost.localdomain>
-	<20061020.122427.55507415.davem@davemloft.net>
-	<20061020122527.56292b56@dxpl.pdx.osdl.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Oct 2006 15:54:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932243AbWJTTyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 15:54:38 -0400
+Date: Fri, 20 Oct 2006 12:54:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Miller <davem@davemloft.net>
+cc: nickpiggin@yahoo.com.au, ralf@linux-mips.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+In-Reply-To: <20061020.123635.95058911.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0610201251440.3962@g5.osdl.org>
+References: <20061019.155939.48528489.davem@davemloft.net> <4538DFAC.1090206@yahoo.com.au>
+ <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org> <20061020.123635.95058911.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Fri, 20 Oct 2006 12:25:27 -0700
 
-> Sorry, but why should we treat out-of-tree vendor code any
-> differently than out-of-tree other code.
 
-I think what netdump was trying to do, provide a way to
-requeue instead of fully drop the SKB, is quite reasonable.
-Don't you think?
+On Fri, 20 Oct 2006, David Miller wrote:
+> 
+> You get an asynchronous fault from the L2 cache, and that's also what
+> happens when the TLB entry is missing during L2 writeback too.  You
+> get a level 15 non-maskable IRQ when these asynchronous errors happen.
+
+Well, sparc always was crud. I can see the missing tlb entry, but if it's 
+been turned read-only, the write-back should still work (it clearly _was_ 
+writable when the write that dirtied the cacheline happened).
+
+Anyway, if you cannot flush a read-only mapping, then the "flush at COW 
+fault time" won't work _either_, since the original mapping is still 
+read-only.
+
+So regardless, the COW-time flush cannot work. But the "flush before the 
+TLB flush, and then flush after in case we had a race" approach should 
+work as well as it can in practice, no?
+
+			Linus

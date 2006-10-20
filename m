@@ -1,118 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWJTP0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946374AbWJTPdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWJTP0X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWJTP0X
+	id S1946374AbWJTPdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946379AbWJTPdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:26:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751495AbWJTP0W (ORCPT
+	Fri, 20 Oct 2006 11:33:35 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39066 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1946374AbWJTPdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:26:22 -0400
-Date: Fri, 20 Oct 2006 08:26:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-In-Reply-To: <45386E0E.7030404@drzeus.cx>
-Message-ID: <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
-References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
- <45386E0E.7030404@drzeus.cx>
+	Fri, 20 Oct 2006 11:33:33 -0400
+Message-ID: <4538EC4A.1000600@us.ibm.com>
+Date: Fri, 20 Oct 2006 10:33:30 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Avi Kivity <avi@qumranet.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Stoffel <john@stoffel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+References: <4537818D.4060204@qumranet.com> <453781F9.3050703@qumranet.com>	 <17719.35854.477605.398170@smtp.charter.net> <1161269405.17335.80.camel@localhost.localdomain> <4537C8B3.5050501@us.ibm.com> <4537CD94.2070706@qumranet.com> <4537CF3E.7060105@us.ibm.com> <45387C77.4050106@qumranet.com>
+In-Reply-To: <45387C77.4050106@qumranet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Avi Kivity wrote:
+> Anthony Liguori wrote:
+>> Avi Kivity wrote:
+>>> Anthony Liguori wrote:
+>>>>
+>>>> ioctls are probably wrong here though.  Ideally, you would want to 
+>>>> be able to support an SMP guest.  This means you need to have two 
+>>>> virtual processors executing in kernel space.  If you use ioctls, 
+>>>> it forces you to have two separate threads in userspace.  This 
+>>>> would be hard for something like QEMU which is currently single 
+>>>> threaded (and not at all thread safe).
+>>>>
+>>>
+>>> Since we're using the Linux scheduler, we need a task per virtual 
+>>> cpu anyway, so a thread per vcpu is not a problem.
+>>>
+>>
+>> You miss my point I think.  Using ioctls *requires* a thread per-vcpu 
+>> in userspace.  This is unnecessary since you could simply provide a 
+>> char-device based read/write interface.  You could then multiplex 
+>> events and poll.
+>>
+>
+> Yes, ioctl()s require userspace threads, but that's okay, because 
+> they're free for us, since we need a kernel thread for each vcpu.
+>
+> On the other hand, a single device model thread polling the vcpus is 
+> guaranteed to be on the wrong physical cpu for half of the time 
+> (assuming 2 cpus and 2 vcpus), requiring IPIs and suspending a vcpu in 
+> order to run.
 
+And your previously proposed solution of having one big lock would do 
+the same thing except require additional round trips to the kernel :-)
 
-On Fri, 20 Oct 2006, Pierre Ossman wrote:
-> 
-> I'm still learning the more fancy parts of git, but I think that would be:
-> 
-> git diff master..for-linus | diffstat
+Moreover, you could get clever and use mmap() to expose a ring queue if 
+you're really concerned about SMP.
 
-Use "git diff -M --stat master..for-linus" instead.
+Really though, it comes down to one simple thing: blocking ioctl()s are 
+a real ugly interface.
 
-The "-M" enables rename detection, and the "--stat" does the diffstat for 
-you (and better than plain diffstat, since it knows about renames, copies 
-and deletes).
+>> If for nothing else, you have to be able to run timers in userspace 
+>> and interrupt the kernel execution (to signal DMA completion for 
+>> instance).  Even in the UP case, this gets ugly quickly.
+>>
+>
+> The timers aren't pretty (we use signals), yes.  But avoiding the 
+> extra thread is critical for performance IMO.
 
-HOWEVER! The above obviously only really works correctly if "master" is a 
-strict subset of "for-linus".
+We've had a lot of problems in QEMU with timers and kqemu.  Forcing the 
+guest to return to userspace to allow periodic timers to run (which may 
+simply be the VGA refresh which the guest doesn't care about) is at best 
+a hack.  Being able to poll an FD would make this so much nicer...
 
-> git log master..for-linus | git shortlog
+I've posted some patches on qemu-devel attempting to deal with these 
+issues (look for threads on optimizing char device performance).  None 
+of them are very pretty.
 
-Yes.
+Regards,
 
-> And in order to test for conflicts, I assume I should have a "test tree"
-> that I merge all my local stuff in, together with your current HEAD?
+Anthony Liguori
 
-Exactly. It can be either just a random temporary branch (it's cheap), or 
-it can just be your "work tree" that you can keep as messy as you want, 
-and then the "for-linus" branch is the cleaned-up version. 
+>> read/write is really just a much cleaner interface for anything that 
+>> has blocking semantics.
+>>
+>
+> Ah, but scheduling a vcpu doesn't just block, it consumes the physical 
+> cpu.
+>
+> All other uses of read() yield the cpu apart from setup and copying of 
+> the data.
+>
+>
 
-And quite frankly, most of the time you don't even really need one. It 
-depends on what you work on, but a _lot_ of the kernel is so independent 
-of anything else, that you know that the only thing that will ever really 
-conflict is trivial things, and hey, one of the things I do is to fix up 
-those conflicts.
-
-In fact, quite often the _right_ thing to do for most developers is to 
-just entirely ignore what everybody else is doing, because if there are 
-trivial conflicts, I'll take care of them, and if there are more serious 
-conflicts, I'll just let you know myself - and you may not even be in a 
-position to _know_ about it, because the conflicts could come from 
-somebody elses git tree that I just happened to pull before.
-
-So don't worry too much about it. As already mentioned, the _worst_ thing 
-you can do is probably to continually pull from my tree to "stay on the 
-edge". The way we keep the kernel maintainable is not by having everybody 
-try to keep up with everybody else, but by trying to keep things so 
-independent that people don't _need_ to keep up with everybody else.
-
-A lot of people seem to just synchronize up at major releases, and then 
-rebase their work (which they may even have kept in quilt or something 
-else: you don't even have to use "git" for this) on that, and ask me to 
-merge the result.
-
-So don't worry too much. 
-
-Also - different people work in different ways, and it's _ok_. 
-
-> If I've understood git correctly, a rebase is a big no-no once I've
-> published those changes as it reverts some history. Right?
-
-That is mostly correct. It's a big no-no if somebody has already pulled 
-from you, and you want them to pull again. Because at that point, you're 
-essentially asking them to pull two totally different versions of the same 
-thing - git will do the right thing (since all the duplicates will usually 
-merge perfectly), but it will look like two different histories, and 
-you'll see every commit twice. That's just ugly.
-
-On the other hand, things like the -mm tree are "throw-away" anyway: 
-Andrew re-creates the tree every time he pulls. So you can rebase the 
-branch you send to Andrew as much as you want. So it's not _entirely_ 
-about whether something is "published" or not, it's literally more about 
-how something is actively _used_.
-
-But yes - in general, the rule of thumb should be: rebase as much as you 
-want in your own _private_ sandbox to make things look nice, but once 
-you've exposed it to anybody else, it's set in stone.
-
-> Big thanks for all the pointers. I have my account at kernel.org, so it
-> won't be long until my first [GIT PULL]. Be gentle.
-
-Now, I may not be "gentle", because if there is something wrong with the 
-end result I'll tell you so and I'm not exactly known for always being 
-excessively polite ;)
-
-But don't worry, it can be fixed up. At worst, you'll just get an email 
-back saying "I'm not going to pull this one, because you've been a 
-complete clutz, and did something really stupid wrt XYZ", and I'll ask you 
-to fix it up. Or I might say "I'll pull it this time, but I don't want to 
-see XYZ again in the future".
-
-Or I might not say anythign at all, and you'll just notice that I've 
-pulled from you.
-
-			Linus

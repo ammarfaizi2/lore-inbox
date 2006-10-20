@@ -1,27 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946466AbWJTUOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423231AbWJTUZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946466AbWJTUOS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 16:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422980AbWJTUOS
+	id S1423231AbWJTUZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 16:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423141AbWJTUZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 16:14:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6871 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422887AbWJTUOR (ORCPT
+	Fri, 20 Oct 2006 16:25:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63960 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422820AbWJTUZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 16:14:17 -0400
-Date: Fri, 20 Oct 2006 13:14:09 -0700
+	Fri, 20 Oct 2006 16:25:36 -0400
+Date: Fri, 20 Oct 2006 13:25:32 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
-Message-ID: <20061020131409.0a336a56@freekitty>
+Message-ID: <20061020132532.65a3e655@dxpl.pdx.osdl.net>
 In-Reply-To: <20061020.125226.59656580.davem@davemloft.net>
 References: <20061020081857.743b5eb7@localhost.localdomain>
 	<20061020.122427.55507415.davem@davemloft.net>
 	<20061020122527.56292b56@dxpl.pdx.osdl.net>
 	<20061020.125226.59656580.davem@davemloft.net>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+X-Mailer: Sylpheed-Claws 2.5.3 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -41,18 +42,6 @@ David Miller <davem@davemloft.net> wrote:
 > requeue instead of fully drop the SKB, is quite reasonable.
 > Don't you think?
 
-Yes, but the queued vs non-queued stuff showed up out of order.
-The queued messages go through the wrong Tx path. ie. they end up
-going into to NIT etc, since the deferred send uses a work queue
-it wouldn't work for last-gasp messages or netdump since getting
-a work queue to run requires going back to scheduler and processes
-running... and it should use skb_buff_head instead
-of roll your own queueing.
 
-The other alternative would be to make the send logic non-blocking
-and fully push retry to the caller.
-
-I'll make a fix to netdump, if I can find it.
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Netdump doesn't even exist in the current Fedora source rpm.
+I think Dave dropped it.

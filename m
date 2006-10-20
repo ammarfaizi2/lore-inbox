@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992732AbWJTWvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992751AbWJTWyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992732AbWJTWvE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 18:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423324AbWJTWvD
+	id S2992751AbWJTWyi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 18:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992752AbWJTWyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 18:51:03 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:17845 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1422831AbWJTWvA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 18:51:00 -0400
-Date: Fri, 20 Oct 2006 23:51:18 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: David Miller <davem@davemloft.net>
-Cc: torvalds@osdl.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-Message-ID: <20061020225118.GA30965@linux-mips.org>
-References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020214916.GA27810@linux-mips.org> <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org> <20061020.152247.111203913.davem@davemloft.net>
-Mime-Version: 1.0
+	Fri, 20 Oct 2006 18:54:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:44238 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S2992751AbWJTWyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 18:54:37 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061020.152247.111203913.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17721.21412.931764.263941@cargo.ozlabs.ibm.com>
+Date: Sat, 21 Oct 2006 08:54:28 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+In-Reply-To: <Pine.LNX.4.64.0610201029190.16161@schroedinger.engr.sgi.com>
+References: <1161026409.31903.15.camel@farscape>
+	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+	<1161031821.31903.28.camel@farscape>
+	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+	<17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+	<17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+	<17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+	<20061019163044.GB5819@krispykreme>
+	<Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
+	<17719.64246.555371.701194@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com>
+	<17720.30804.180390.197567@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0610201029190.16161@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 03:22:47PM -0700, David Miller wrote:
+Christoph Lameter writes:
 
-> > On Fri, 20 Oct 2006, Ralf Baechle wrote:
-> > > When I delete the call (not part of my patchset) it means 12% faster 
-> > > fork.  But I'm not proposing this for 2.6.19.
-> > 
-> > I just suspect it means a _buggy_ fork.
-> > 
-> > It so happens (I think), that fork is big enough that it probably flushes 
-> > the L1 cache _anyway_. 
+> I do not get it. You first mark all pages on node 0 then we run the bootup 
+> code and later we shift those pages into node 0? So the slab bootstrap is 
+> running when all pages are marked as being part of node 1 then later we 
+> switch those pages under it to node 0?
 
-I doubt it; I've tested this on 64K I-cache VIPT, 64K D-cache VIPT.
+No, the bootmem code correctly marks all the pages in node 0 as being
+in node 0.  Then it goes through and marks *all* pages as being in
+node 1, because it marks all pages between the first and last pages in
+the node as being in the node.  The first page in node 1 is before all
+the pages in node 0, and the last page in node 1 is after all the
+pages in node 0.
 
-> My understanding is that this works because in Ralf's original patch
-> (which is the context in which he is removing the flush_cache_mm()
-> call), he uses kmap()/kunmap() to map the page(s) being accessed at a
-> kernel virtual address which will fall into the same cache color as
-> the user virtual address --> no alias problems.
->
-> Since he does this for every page touched on the kernel side during
-> dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
-> fact become redundant.
+So we end up with the system thinking all the memory is in node 1,
+although in fact half the memory is in node 0.
 
-Correct.
+Anyway, it looks like this problem wasn't introduced by your patches,
+and is solved by the patch Andy Whitcroft posted, so thanks for your
+assistance with this.
 
-It means no cache flush operation to deal with aliases at all left in
-fork and COW code.
-
-Another advantage of this strategy is that we will never have to handle
-less virtual coherency exceptions.  A virtual coherency exception is raised
-on some MIPS processors when they detect the creation of a cache alias.
-This allows the software to cleanup caches.  Neat as an alarm system for
-alias debugging but rather expensive to service if large numbers are
-raised, not available on all processors and also detects the creation of
-harmless aliases of clean lines, thus a slight annoyance.
-
-  Ralf
+Paul.

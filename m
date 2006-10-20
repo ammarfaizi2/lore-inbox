@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992604AbWJTMUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992609AbWJTMWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992604AbWJTMUe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 08:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992611AbWJTMUe
+	id S2992609AbWJTMWB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 08:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992611AbWJTMWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 08:20:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:4168 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S2992604AbWJTMUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 08:20:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ptf/NJConIyrwYkrJXozhQXLSkqDotXIK9nQIRV2iHdgsWEtVTmXvhJbU4UkyIe5I1WcG1+SxSjHSUW+L27Noa+8YuoAuNzEHj2YIMa/bCQIyl6wGEfXs6ELagB4gfsFNdsEAb4hvAaknap0T7ND4HFB//pApKok1hjVokK3x1s=
-Message-ID: <9a8748490610200520j6d708a52p2f90effd4b8893d9@mail.gmail.com>
-Date: Fri, 20 Oct 2006 14:20:31 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Marcus Meissner" <meissner@suse.de>
-Subject: Re: [PATCH] binfmt_elf: randomize PIE binaries (2nd try)
-Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, arjan@linux.intel.com
-In-Reply-To: <20061020115527.GB14448@suse.de>
+	Fri, 20 Oct 2006 08:22:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:13014 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S2992609AbWJTMWA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 08:22:00 -0400
+From: Andi Kleen <ak@suse.de>
+To: Vasily Tarasov <vtaras@openvz.org>
+Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
+Date: Fri, 20 Oct 2006 14:21:43 +0200
+User-Agent: KMail/1.9.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
+       Dmitry Mishin <dim@openvz.org>, Vasily Averin <vvs@sw.ru>,
+       Kirill Korotaev <dev@openvz.org>,
+       OpenVZ Developers List <devel@openvz.org>
+References: <200610191232.k9JCW7CF015486@vass.7ka.mipt.ru> <p73hcy0b83k.fsf@verdi.suse.de> <200610200630.k9K6U4RU031798@vass.7ka.mipt.ru>
+In-Reply-To: <200610200630.k9K6U4RU031798@vass.7ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061020115527.GB14448@suse.de>
+Message-Id: <200610201421.43611.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20/10/06, Marcus Meissner <meissner@suse.de> wrote:
-> Randomizes -pie compiled binaries from PAGE_SIZE up to
-> ELF_ET_DYN_BASE.
->
-> 0 -> PAGE_SIZE is excluded to allow NULL ptr accesses
-> to fail.
->
-> Signed-off-by: Marcus Meissner <meissner@suse.de>
->
-> ----
->  binfmt_elf.c |    8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
->
-> --- linux-2.6.18/fs/binfmt_elf.c.xx     2006-10-20 10:42:03.000000000 +0200
-> +++ linux-2.6.18/fs/binfmt_elf.c        2006-10-20 10:51:27.000000000 +0200
-> @@ -856,7 +856,13 @@
->                          * default mmap base, as well as whatever program they
->                          * might try to exec.  This is because the brk will
->                          * follow the loader, and is not movable.  */
-> -                       load_bias = ELF_PAGESTART(ELF_ET_DYN_BASE - vaddr);
-> +                       if (current->flags & PF_RANDOMIZE)
-> +                               load_bias = randomize_range(PAGE_SIZE,
-> +                                                           ELF_ET_DYN_BASE,
-> +                                                           0);
+On Friday 20 October 2006 08:30, Vasily Tarasov wrote:
+> Andi Kleen wrote:
+> 
+> <snip>
+> > Thanks. But the code should be probably common somewhere in fs/*, not
+> > duplicated.
+> <snip>
+> 
+> Thank you for the comment!
+> I'm not sure we should do it. If we move the code in fs/quota.c for example,
+> than this code will be compiled for _all_ arhitectures, not only for x86_64 and ia64.
+> Of course, we can surround this code by #ifdefs <ARCH>, but I thought this is 
+> a bad style... Moreover looking through current kernel code, I found out that
+> usually code is duplicated in such cases.
 
-How about putting the two lines above on one line?  ^^^^^
+Well it doesn't hurt them even if not strictly needed and it's better to have common code for 
+this. BTW you have to convert over to compat_alloc_* for this as Christoph stated
+because set_fs doesn't work on all architectures. Best you use the compat_* types too.
 
-> +                                                           ELF_ET_DYN_BASE, 0);
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-Andi

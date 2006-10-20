@@ -1,50 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992615AbWJTUnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946482AbWJTUsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992615AbWJTUnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 16:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992692AbWJTUnp
+	id S1946482AbWJTUsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 16:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946481AbWJTUsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 16:43:45 -0400
-Received: from www.osadl.org ([213.239.205.134]:12981 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S2992615AbWJTUno (ORCPT
+	Fri, 20 Oct 2006 16:48:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32480 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1946457AbWJTUsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 16:43:44 -0400
-Subject: Re: 2.6.19-rc1-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061010145235.b86c7bad.akpm@osdl.org>
-References: <20061010000928.9d2d519a.akpm@osdl.org>
-	 <6bffcb0e0610100909t3a33d4ecwdae27a27b15d60e3@mail.gmail.com>
-	 <20061010120441.3cd3f8ff.akpm@osdl.org>
-	 <6bffcb0e0610101444y5cf127c5y8a9e4c64640e0b8c@mail.gmail.com>
-	 <20061010145235.b86c7bad.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 22:44:35 +0200
-Message-Id: <1161377075.5274.298.camel@localhost.localdomain>
+	Fri, 20 Oct 2006 16:48:30 -0400
+Date: Fri, 20 Oct 2006 13:48:26 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
+Message-ID: <20061020134826.75dd1cba@freekitty>
+In-Reply-To: <20061020.134209.85688168.davem@davemloft.net>
+References: <20061019171814.281988608@osdl.org>
+	<20061020.001530.35664340.davem@davemloft.net>
+	<20061020084015.5c559326@localhost.localdomain>
+	<20061020.134209.85688168.davem@davemloft.net>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-10 at 14:52 -0700, Andrew Morton wrote:
-> On Tue, 10 Oct 2006 23:44:04 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+On Fri, 20 Oct 2006 13:42:09 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
+
+> From: Stephen Hemminger <shemminger@osdl.org>
+> Date: Fri, 20 Oct 2006 08:40:15 -0700
 > 
-> > BTW. Kernel hangs while running Cyclictest
-> > (http://rt.wiki.kernel.org/index.php/Cyclictest)
-> > cyclictest -t 10 -l 100000
-> > (or "bin/autotest tests/cyclictest/control" in autotest). I don't see
-> > nothing special on tty (currently my sysklogd is broken, FC6
-> > problem..)
+> > -static void queue_process(void *p)
+> > +static void netpoll_run(unsigned long arg)
+> >  {
+>  ...
+> > -		spin_unlock_irqrestore(&queue_lock, flags);
+> > +		netif_tx_lock(dev);
+> > +		if (netif_queue_stopped(dev) ||
+> > +		    dev->hard_start_xmit(skb, dev) != NETDEV_TX_OK) {
+> > +			skb_queue_head(&npinfo->tx_q, skb);
+> > +			netif_tx_unlock(dev);
+> > +			tasklet_schedule(&npinfo->tx_task);
+> > +			return;
+> > +		}
+> 
+> We really can't handle TX stopped this way from the netpoll_send_skb()
+> path.  All that old retry logic in netpoll_send_skb() is really
+> necessary.
+> 
+> If we are in deep IRQ context, took an OOPS, and are trying to get a
+> netpoll packet out for the kernel log message, we have to try as hard
+> as possible to get the packet out then and there, even if that means
+> waiting some amount of time for netif_queue_stopped() to become false.
+> 
 
-Michal,
+But, it also violates the assumptions of the network devices.
+It calls NAPI poll back with IRQ's disabled and potentially doesn't
+obey the semantics about only running on the same CPU as the
+received packet.
 
-is this on a SMP box ?
+> That is what the existing code is trying to do.
+> 
+> If you defer to a tasklet, the kernel state from the OOPS can be so
+> corrupted that the tasklet will never run and we'll never get the
+> netconsole message needed to debug the problem.
 
-	tglx
+So we can try once and if that fails we have to defer to tasklet.
+We can't call NAPI, we can't try and cleanup the device will need
+an IRQ to get unblocked.  
+
+Or add another device callback that just to handle that case.
+
+> Also, if we tasklet schedule from the tasklet, we'll just keep looping
+> in the tasklet and never leave softirq context, which is also bad
+> behavior.  Even in the tasklet, we should spin and poll when possible
+> like the current netpoll_send_skb() code does.
+> 
+> So we really can't apply this patch.
 
 
+-- 
+Stephen Hemminger <shemminger@osdl.org>

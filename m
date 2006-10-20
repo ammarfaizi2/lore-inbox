@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946524AbWJTVUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946525AbWJTV0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946524AbWJTVUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946527AbWJTVUJ
+	id S1946525AbWJTV0f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423236AbWJTV0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:20:09 -0400
-Received: from mga09.intel.com ([134.134.136.24]:42086 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1030370AbWJTVUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:20:03 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,336,1157353200"; 
-   d="scan'208"; a="148273891:sNHT21618359"
-Date: Fri, 20 Oct 2006 13:59:44 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, mbligh@google.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
-       dipankar@in.ibm.com, suresh.b.siddha@intel.com, clameter@sgi.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-ID: <20061020135944.B8481@unix-os.sc.intel.com>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com> <453750AA.1050803@yahoo.com.au> <20061019105515.080675fb.pj@sgi.com> <4537BEDA.8030005@yahoo.com.au> <20061019115652.562054ca.pj@sgi.com> <4537CC1E.60204@yahoo.com.au> <20061019203744.09b8c800.pj@sgi.com> <453882AC.3070500@yahoo.com.au> <20061020130141.b5e986dd.pj@sgi.com>
+	Fri, 20 Oct 2006 17:26:35 -0400
+Received: from homer.mvista.com ([63.81.120.158]:32890 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1422954AbWJTV0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:26:34 -0400
+Subject: 2.6.18-rt6: scheduling while irqs disabled
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 14:27:06 -0700
+Message-Id: <1161379626.7468.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061020130141.b5e986dd.pj@sgi.com>; from pj@sgi.com on Fri, Oct 20, 2006 at 01:01:41PM -0700
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 01:01:41PM -0700, Paul Jackson wrote:
-> Nick wrote:
-> > Or, another question, how does my patch hijack cpus_allowed? In
-> > what way does it change the semantics of cpus_allowed?
-> 
-> It limits load balancing for tasks in cpusets containing
-> a superset of that cpusets cpus.
-> 
-> There are always such cpusets - the top cpuset if no other.
 
-Its just a corner case issue that Nick didn't consider while doing a quick
-patch. Nick meant to partition the sched domain at the top
-exclusive cpuset and he probably missed the case where root cpuset is marked
-as exclusive.
+Got this while rebooting.
 
-thanks,
-suresh
+BUG: scheduling with irqs disabled: md0_raid1/0x00000000/1125
+caller is rt_spin_lock_slowlock+0x89/0x180
+ [<c0104f2b>] show_trace+0x1b/0x20
+ [<c0104f54>] dump_stack+0x24/0x30
+ [<c0413b7e>] schedule+0x10e/0x120
+ [<c0414b79>] rt_spin_lock_slowlock+0x89/0x180
+ [<c0415112>] rt_spin_lock+0x22/0x30
+ [<c02914b1>] serial8250_console_write+0x141/0x160
+ [<c011fd3d>] __call_console_drivers+0x6d/0x80
+ [<c011fd93>] _call_console_drivers+0x43/0x90
+ [<c012046a>] release_console_sem+0xda/0x250
+ [<c01208d2>] vprintk+0x2d2/0x3b0
+ [<c012021b>] printk+0x1b/0x20
+ [<c0348664>] md_check_recovery+0x4f4/0x530
+ [<c033ee3b>] raid1d+0x2b/0x1120
+ [<c0342f13>] md_thread+0x43/0x130
+ [<c013523d>] kthread+0xfd/0x110
+ [<c0100f25>] kernel_thread_helper+0x5/0x10
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
+
+

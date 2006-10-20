@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946452AbWJTPtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWJTPxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946452AbWJTPtz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946390AbWJTPtz
+	id S932263AbWJTPxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWJTPxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:49:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4994 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932253AbWJTPtx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:49:53 -0400
-Date: Fri, 20 Oct 2006 08:49:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: David Miller <davem@davemloft.net>, ralf@linux-mips.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-In-Reply-To: <4538DFAC.1090206@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org>
-References: <1161275748231-git-send-email-ralf@linux-mips.org>
- <4537B9FB.7050303@yahoo.com.au> <20061019181346.GA5421@linux-mips.org>
- <20061019.155939.48528489.davem@davemloft.net> <4538DFAC.1090206@yahoo.com.au>
+	Fri, 20 Oct 2006 11:53:13 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:55110 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932263AbWJTPxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 11:53:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J2MkJPwp3tBkAbOTgMvuITEZiZ6jcGj7ZzkxOXyFJcsfrwYQhbBDhBplPsn8bOZLO66/S7QgIaPV0cs/e6jOv0Qf/txdPCdDo98UWVIhFWl443KIbLyKsFKHJ1uxlJPBpJskhTPKqZ0wVzrbnTtTigupL4S4BK/hywye94VzEgI=
+Message-ID: <5bdc1c8b0610200853y2767784jf8ca154a6cfeed5d@mail.gmail.com>
+Date: Fri, 20 Oct 2006 08:53:10 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Subject: Re: 2.6.18-rt6
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "John Stultz" <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Dipankar Sarma" <dipankar@in.ibm.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Mike Galbraith" <efault@gmx.de>, "Daniel Walker" <dwalker@mvista.com>,
+       "Manish Lachwani" <mlachwani@mvista.com>, bastien.dugue@bull.net
+In-Reply-To: <1161356444.15860.327.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061018083921.GA10993@elte.hu>
+	 <1161356444.15860.327.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
+> > i've released the 2.6.18-rt6 tree, which can be downloaded from the
+> > usual place:
+> >
+> >   http://redhat.com/~mingo/realtime-preempt/
+>
+> This does not work here.  It boots but then wants to fsck my disks, and
+> dies with a sig 11 in fsck.ext3.  This is 100% reproducible and booting
+> 2.6.18-rt5 works and does not want to fsck the disks.
+>
+> Sorry I don't have more information, the box is headless and in
+> production so I have limited debugging bandwidth.
+>
+> Do you need my .config?
+>
+> Lee
+>
+
+I've been running 2.6.18-rt6 for a couple of days now. No problems so far.
+
+mark@lightning ~ $ uname -a
+Linux lightning 2.6.18-rt6 #2 PREEMPT Wed Oct 18 10:18:51 PDT 2006
+x86_64 AMD Athlon(tm) 64 Processor 3000+ GNU/Linux
+mark@lightning ~ $ uptime
+ 08:52:52 up 21:32,  2 users,  load average: 0.93, 0.73, 0.47
+mark@lightning ~ $
 
 
-On Sat, 21 Oct 2006, Nick Piggin wrote:
-> 
-> So moving the flush_cache_mm below the copy_page_range, to just
-> before the flush_tlb_mm, would work then? This would make the
-> race much smaller than with this patchset.
-> 
-> But doesn't that still leave a race?
-> 
-> What if another thread writes to cache after we have flushed it
-> but before flushing the TLBs? Although we've marked the the ptes
-> readonly, the CPU won't trap if the TLB is valid? There must be
-> some special way for the arch to handle this, but I can't see it.
+I am single processor. HRT is turned on. I am not using the DynTicks
+thing as I don't know what it's supposed to do.
 
-Why not do the cache flush _after_ the TLB flush? There's still a mapping, 
-and never mind that it's read-only: the _mapping_ still exists, and I 
-doubt any CPU will not do the writeback (the readonly bit had better 
-affect the _frontend_ of the memory pipeline, but affectign the back end 
-would be insane and very hard, since you can't raise a fault any more).
+Anyway, 2.6.18-rt5 wouldn't boot reliably for me so it seems we are
+out of phase with each other. Maybe compare .config's?
 
-Hmm?
-
-		Linus
+- Mark

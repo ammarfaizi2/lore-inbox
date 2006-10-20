@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWJTPzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992605AbWJTP4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWJTPzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJTPzq
+	id S2992605AbWJTP4K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992591AbWJTP4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:55:46 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:16 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932261AbWJTPzq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:55:46 -0400
-Date: Fri, 20 Oct 2006 11:55:44 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-cc: Christopher Monty Montgomery <xiphmont@gmail.com>,
-       Paolo Ornati <ornati@fastwebnet.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
- from card reader
-In-Reply-To: <4538B689.2020909@aitel.hist.no>
-Message-ID: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
+	Fri, 20 Oct 2006 11:56:10 -0400
+Received: from dvhart.com ([64.146.134.43]:63124 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S2992553AbWJTP4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 11:56:08 -0400
+Message-ID: <4538F12B.10609@mbligh.org>
+Date: Fri, 20 Oct 2006 08:54:19 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: 2.6.19-rc2-mm2
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+In-Reply-To: <20061020015641.b4ed72e5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006, Helge Hafting wrote:
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+> 
+> - Added the IOAT tree as git-ioat.patch (Chris Leech)
+> 
+> - I worked out the git magic to make the wireless tree work
+>   (git-wireless.patch).  Hopefully it will be in -mm more often now.
 
-> Alan Stern wrote:
-> [...]
-> > After looking at the debugging output, no.  That "invalid opcode" is a red 
-> > herring.  What you encountered this time was a BUG() in the source code of 
-> > start_unlink_async() in drivers/usb/host/ehci-q.c:
-> >
-> > #ifdef DEBUG
-> > 	assert_spin_locked(&ehci->lock);
-> > 	if (ehci->reclaim
-> > 			|| (qh->qh_state != QH_STATE_LINKED
-> > 				&& qh->qh_state != QH_STATE_UNLINK_WAIT)
-> > 			)
-> > 		BUG ();
-> > #endif
-> >
-> > You could try putting a printk() just before the BUG() to display the 
-> > values of ehci->reclaim and qh->qh_state.  Maybe also change the BUG() to 
-> >   
-> ehci->reclaim=0
-> qh->qh_state=5
+I think the IO & fsx problems have got better, but this one is still
+broken, at least.
 
-5 is QH_STATE_COMPLETING.  That explains why the BUG() fires.
+See end of fsx runlog here:
 
-At this point it's beyond me.  Monty will have to take it from here.
+http://test.kernel.org/abat/57486/debug/test.log.1
 
+which looks like this:
 
-> During boot I get lots of those "Hardware error, end-of-data detected"
-> messages, but I've never seen it crash during bootup.
-
-Those messages are from the card reader.  It doesn't seem to be working 
-right.  It returns the "end-of-data" error in response to a PREVENT MEDIUM 
-REMOVAL command and it returns a phase error in response to a READ 
-command.  In spite of the fact that it claims to have a 256 MB card 
-present.
-
-Alan Stern
+Total Test PASSED: 79
+Total Test FAILED: 3
+   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 2048 
+-Z -R -W test/junkfile
+   139 ./fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W test/junkfile
+   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 1024 
+-Z -R -W test/junkfile
+Failed rc=1
+10/20/06-02:41:55 command complete: (1) rc=1 (TEST FAIL)
 

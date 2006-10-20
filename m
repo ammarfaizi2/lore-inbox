@@ -1,82 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423254AbWJTLnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946366AbWJTLrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423254AbWJTLnv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 07:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423272AbWJTLnv
+	id S1946366AbWJTLrh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 07:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946374AbWJTLrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 07:43:51 -0400
-Received: from smtp107.plus.mail.re2.yahoo.com ([206.190.53.32]:19900 "HELO
-	smtp107.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1423254AbWJTLnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 07:43:49 -0400
-Message-ID: <4538B670.2030105@tungstengraphics.com>
-Date: Fri, 20 Oct 2006 12:43:44 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 20 Oct 2006 07:47:37 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:2242 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1946366AbWJTLrh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 07:47:37 -0400
+Message-ID: <4538B689.2020909@aitel.hist.no>
+Date: Fri, 20 Oct 2006 13:44:09 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-CC: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-References: <20061013194516.GB19283@tau.solarneutrino.net>	<1160849723.3943.41.camel@neko.keithp.com>	<20061017174020.GA24789@tau.solarneutrino.net>	<1161124062.25439.8.camel@neko.keithp.com>	<4535CFB1.2010403@tungstengraphics.com> <20061019173108.GA28700@tau.solarneutrino.net>
-In-Reply-To: <20061019173108.GA28700@tau.solarneutrino.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Christopher Monty Montgomery <xiphmont@gmail.com>,
+       Paolo Ornati <ornati@fastwebnet.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
+ from card reader
+References: <Pine.LNX.4.44L0.0610191416470.8183-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610191416470.8183-100000@iolanthe.rowland.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Richter wrote:
-> On Wed, Oct 18, 2006 at 07:54:41AM +0100, Keith Whitwell wrote:
->> This is all a little confusing as the driver doesn't really use that 
->> path in normal operation except for a single command - MI_FLUSH, which 
->> is shared between the architectures.  In normal operation the hardware 
->> does the validation for us for the bulk of the command stream.  If there 
->>  were missing functionality in that ioctl, it would be failing 
->> everywhere, not just in this one case.
->>
->> I guess the questions I'd have are
->> 	- did the driver work before the kernel upgrade?
->> 	- what path in userspace is seeing you end up in this ioctl?
->> 	- and like Keith, what commands are you seeing?
->>
->> The final question is interesting not because we want to extend the 
->> ioctl to cover those, but because it will give a clue how you ended up 
->> there in the first place.
-> 
-> Here's a list of all the failing commands I've seen so far:
-> 
-> 3a440003
-> d70003
-> 2d010003
-> e5b90003
-> 2e730003
-> 8d8c0003
-> c10003
-> d90003
-> be0003
-> 1e3f0003
+Alan Stern wrote:
+[...]
+> After looking at the debugging output, no.  That "invalid opcode" is a red 
+> herring.  What you encountered this time was a BUG() in the source code of 
+> start_unlink_async() in drivers/usb/host/ehci-q.c:
+>
+> #ifdef DEBUG
+> 	assert_spin_locked(&ehci->lock);
+> 	if (ehci->reclaim
+> 			|| (qh->qh_state != QH_STATE_LINKED
+> 				&& qh->qh_state != QH_STATE_UNLINK_WAIT)
+> 			)
+> 		BUG ();
+> #endif
+>
+> You could try putting a printk() just before the BUG() to display the 
+> values of ehci->reclaim and qh->qh_state.  Maybe also change the BUG() to 
+>   
+ehci->reclaim=0
+qh->qh_state=5
+> WARN(), which might help prevent your system from crashing so badly.
+>   
+WARN didn't help much. I then got the warning twice, followed by
+another BUG:
+process klogd
+ehci_irq
+usb_hcd_irq
+handle_IRQ_event
+handle_fasteio_irq
+do_IRQ
 
-Ryan,
+So I set it back to BUG. Crashing hard isn't so bad when I
+know what is coming - I simply remount everything synchronously
+before trying.
 
-Those don't look like any commands I can recognize.  I'm still confused 
-how you got onto this ioctl in the first place - it seems like something 
-pretty fundamental is going wrong somewhere.  What would be useful to me 
-is if you can use GDB on your application and get a stacktrace for how 
-you end up in this ioctl in the cases where it is failing?
+I hope these printk's help. I can add more of them too, if needed.
+Big transfers seems to bring out the worst - I always get the
+crash on the first megabyte now. 
 
-Additionally, if you're comfortable doing this, it would be helpful to 
-see all the arguments that userspace thinks its sending to the ioctl, 
-compared to what the kernel ends up thinking it has to validate.  There 
-shouldn't ever be more than two dwords being validated at a time, and 
-they should look more or less exactly like {0x02000003, 0}, and be 
-emitted from bmSetFence().
+During boot I get lots of those "Hardware error, end-of-data detected"
+messages, but I've never seen it crash during bootup.
 
-All of your other wierd problems, like the assert failures, etc, make me 
-wonder if there just hasn't been some sort of build problem that can 
-only be resolved by clearing it out and restarting.
-
-It wouldn't hurt to just nuke your current Mesa and libdrm builds and 
-start from scratch - you'll probably have to do that to get debug 
-symbols for gdb anyway.
-
-Keith
+Helge Hafting

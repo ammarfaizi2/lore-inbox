@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWJTR6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWJTR7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWJTR6u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWJTR6u
+	id S1030310AbWJTR7f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWJTR7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:58:50 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:59115 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S964829AbWJTR6t (ORCPT
+	Fri, 20 Oct 2006 13:59:34 -0400
+Received: from mga01.intel.com ([192.55.52.88]:9135 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030310AbWJTR7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:58:49 -0400
-Subject: Re: [PATCH 3/7] SLIM main patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: akpm@osdl.org, Serge Hallyn <sergeh@us.ibm.com>,
-       Mimi Zohar <zohar@us.ibm.com>, Dave Safford <safford@us.ibm.com>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1161290893.5182.106.camel@localhost.localdomain>
-References: <1158083865.18137.13.camel@localhost.localdomain>
-	 <1159296281.25493.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1161290893.5182.106.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 20 Oct 2006 13:58:42 -0400
-Message-Id: <1161367122.29755.209.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Fri, 20 Oct 2006 13:59:33 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,336,1157353200"; 
+   d="scan'208"; a="149600490:sNHT19955257"
+Message-ID: <45390E09.7050508@intel.com>
+Date: Fri, 20 Oct 2006 10:57:29 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+CC: Aleksey Gorelov <dared1st@yahoo.com>,
+       Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org,
+       auke-jan.h.kok@intel.com
+Subject: Re: Machine restart doesn't work - Intel 965G, 2.6.19-rc2
+References: <20061017180003.GB24789@tau.solarneutrino.net> <20061017205316.25914.qmail@web83109.mail.mud.yahoo.com> <20061017222727.GB24891@tau.solarneutrino.net>
+In-Reply-To: <20061017222727.GB24891@tau.solarneutrino.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2006 17:59:32.0562 (UTC) FILETIME=[7EFCDB20:01C6F471]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-19 at 13:48 -0700, Kylene Jo Hall wrote:
-> --- linux-2.6.19-rc2/security/slim/slm_main.c	2006-10-19 12:05:58.000000000 -0700
-> +++ linux-2.6.19-rc2/security/slim/slm_main.c	2006-10-19 12:11:37.000000000 -0700
-> @@ -1130,6 +1103,34 @@ static int slm_socket_post_create(struct
->  	return 0;
->  }
->  
-> +static int slm_file_receive(struct file *file)
-> +{
-> +	struct slm_isec_data *isec = file->f_dentry->d_inode->i_security;
-> +	struct slm_tsec_data *tsec = current->security;
-> +	struct slm_file_xattr level;
-> +	int rc = 0;
-> +
-> +	spin_lock(&isec->lock);
-> +	memcpy(&level, &isec->level, sizeof(struct slm_file_xattr));
-> +	spin_unlock(&isec->lock);
-> +
-> +	spin_lock(&tsec->lock);
-> +	if (file->f_mode & FMODE_READ) { /* IRAC(process) <= IAC(object) */
-> +		if (!is_iac_less_than_or_exempt(&level, tsec->iac_r))
-> +			rc = -EPERM;
-> +	}
-> +	if (file->f_mode & FMODE_WRITE) { /* IWXAC(process) >= IAC(object) */
-> +		if (!is_iac_greater_than_or_exempt(&level, tsec->iac_wx))
-> +			rc = -EPERM;
-> +	}
-> +	if (file->f_mode & FMODE_EXEC) { /* IWXAC(process) <= IAC(object) */
-> +		if (!is_iac_less_than_or_exempt(&level, tsec->iac_wx))
-> +			rc = -EPERM;
-> +	}
-> +	spin_unlock(&tsec->lock);
-> +	return rc;
-> +}
+Ryan Richter wrote:
+> On Tue, Oct 17, 2006 at 01:53:15PM -0700, Aleksey Gorelov wrote:
+>>
+>> --- Ryan Richter <ryan@tau.solarneutrino.net> wrote:
+>>> 2.6.19-rc1-git9 doesn't work any better for me.  I haven't tried
+>>> unloading the e1000 module yet.  Since I run the machine off an nfsroot,
+>>> it will require some creativity to test that.
+>>>
+>>> -ryan
+>> You may try the following patch instead if it's easier for you. It'll
+>> likely break suspend stuff,
+>> but you won't need to play around with modules.
+>>
+>> Aleks.
+>>
+>> --- linux-2.6.19-rc2/drivers/net/e1000/e1000_main.c.orig	2006-10-17 13:36:06.000000000 -0700
+>> +++ linux-2.6.19-rc2/drivers/net/e1000/e1000_main.c	2006-10-17 13:36:50.000000000 -0700
+>> @@ -4847,6 +4847,7 @@
+>>  static void e1000_shutdown(struct pci_dev *pdev)
+>>  {
+>>  	e1000_suspend(pdev, PMSG_SUSPEND);
+>> +	pci_set_power_state(pdev, PCI_D0);
+>>  }
+>>  
+>>  #ifdef CONFIG_NET_POLL_CONTROLLER
+> 
+> 
+> This patch allows the machine to reboot normally.
 
-Also, given your security model, why do you always have this hook deny
-access rather than attempting to demote the task?
+To all that are seeing this problem:
 
--- 
-Stephen Smalley
-National Security Agency
+can you send me (off-list is OK) the motherboard number+name, the BIOS versions (+ where 
+you downloaded them from) that you have tried and for each version, whether it worked 
+without this workaround or not?
+
+Thanks,
+
+Auke
 

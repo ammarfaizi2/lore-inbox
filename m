@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWJTRQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWJTRZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWJTRQn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWJTRQn
+	id S964813AbWJTRZn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWJTRZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:16:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63134 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964800AbWJTRQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:16:42 -0400
-Date: Fri, 20 Oct 2006 10:16:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: David Miller <davem@davemloft.net>, ralf@linux-mips.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-In-Reply-To: <4538FDBC.6070301@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610201004520.3962@g5.osdl.org>
-References: <1161275748231-git-send-email-ralf@linux-mips.org>
- <4537B9FB.7050303@yahoo.com.au> <20061019181346.GA5421@linux-mips.org>
- <20061019.155939.48528489.davem@davemloft.net> <4538DFAC.1090206@yahoo.com.au>
- <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org> <4538F1EC.1020806@yahoo.com.au>
- <Pine.LNX.4.64.0610200935290.3962@g5.osdl.org> <4538FDBC.6070301@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Oct 2006 13:25:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932237AbWJTRZn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:25:43 -0400
+Date: Fri, 20 Oct 2006 10:25:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc2-mm2
+Message-Id: <20061020102520.67b8c2ab.akpm@osdl.org>
+In-Reply-To: <200610201854.43893.m.kozlowski@tuxland.pl>
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+	<200610201339.49190.m.kozlowski@tuxland.pl>
+	<20061020091901.71a473e9.akpm@osdl.org>
+	<200610201854.43893.m.kozlowski@tuxland.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Oct 2006 18:54:43 +0200
+Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
 
-
-On Sat, 21 Oct 2006, Nick Piggin wrote:
-> > So maybe the COW D$ aliasing patch-series is just the right thing to do. Not
-> > worry about D$ at _all_ when doing the actual fork, and only worry about it
-> > on an actual COW event. Hmm?
+> Hello, 
 > 
-> Well if we have the calls in there, we should at least make them work
-> right for the architectures there now. At the moment the flush_cache_mm
-> before the copy_page_range wouldn't seem to do anything if you can still
-> have threads dirty the cache again through existing TLB entries.
->
-> I don't think that flushing on COW is exactly right though, because dirty
-> data can remain invisible if you're only doing reads (no write, no flush).
+> > Don't know.   Nothing has changed in the git-pcmcia tree since July.
+> >
+> > Are you able to bisect it, as per
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt ?
+> >
+> > > When running without debug options enabled also these were seen amongst
+> > > dmesg lines:
+> > >
+> > > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> > > [drm:drm_unlock] *ERROR* Process 5131 using kernel context 0
+> >
+> > <googles>
+> >
+> > This? http://lkml.org/lkml/2005/9/10/78
+> 
+> I think I found the culprit. It's CONFIG_PCI_MULTITHREAD_PROBE option. It is 
+> actually marked as EXPERIMENTAL and there is even a proper warning included 
+> on the help page. Disabling it makes the kernel behave the right way. So 
+> should what I reported be considered a real error or not? Then the next 
+> question is should I report errors caused by options marked as EXPERIMENTAL 
+> or just leave it the way it is until the option is not EXPERIMENTAL anymore?
 
-You're right. A virtually indexed cache needs the flush _before_ we return 
-from the fork into a new process (since otherwise the dirty data won't be 
-visible in the new virtual address space).
+Ow.  Multithreaded probing was probably a bt ambitious, given the current
+status of kernel startup..
 
-So you've convinced me. Flushing at COW time _cannot_ be right, because it 
-by definition means that there has been a time when the new process didn't 
-see the dirty data in the case of a virtual index. And in the case of a 
-physical index it cannot matter.
+Greg, does it actually speed anything up or anything else good?
 
-So I think the right thing to do is to forget about the COW D$ series 
-(which probably _hides_ most of the problems in practice, so it "works" 
-that way) and instead go with Ralf's last patch that just moves the 
-flush_cache_mm() to after the TLB flush.
+As for what to do about it: tell David ;) I'm not sure that he'll be
+super-motivated about it though.
 
-We do need to have all the architecture people (especially S390, which has 
-been very strange in this regard in the past) check that it's ok. The 
-_mappings_ are still valid, so S390 should be able to do the write-back, 
-but there may be architectures that would want to do the flush _both_ 
-before and after (for performance reasons - if writing out dirty data 
-requires a TLB lookup, doing most fo the writeback before is probably a 
-better thing, and then we can do a _second_ writeback after the flush to 
-close the race with some other thread dirtying the pages before the TLB 
-was marked read-only).
-
-I added linux-arch and Martin Schwidefsky (s390) to the Cc:.
-
-Guys, in case you missed the earlier discussion: there's a suggested patch 
-by Ralf Baechle on linux-kernel (but it does just the "flush after" 
-version, not the "perhaps we need it both before and after" thing I 
-theorise about above). Message-ID: 20061020160538.GB18649@linux-mips.org.
-
-		Linus

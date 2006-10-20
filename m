@@ -1,35 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992529AbWJTHNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992534AbWJTHP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992529AbWJTHNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 03:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992534AbWJTHNQ
+	id S2992534AbWJTHP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 03:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992536AbWJTHP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 03:13:16 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:7933 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S2992529AbWJTHNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 03:13:15 -0400
-Date: Fri, 20 Oct 2006 09:12:41 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [GIT PATCH] PCI and PCI hotplug fixes for 2.6.19-rc2
-Message-ID: <20061020071241.GA4210@aepfle.de>
-References: <20061018200238.GA29443@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20061018200238.GA29443@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 20 Oct 2006 03:15:29 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58582
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S2992534AbWJTHP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 03:15:28 -0400
+Date: Fri, 20 Oct 2006 00:15:30 -0700 (PDT)
+Message-Id: <20061020.001530.35664340.davem@davemloft.net>
+To: shemminger@osdl.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061019171814.281988608@osdl.org>
+References: <20061019171541.062261760@osdl.org>
+	<20061019171814.281988608@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 18, Greg KH wrote:
+From: Stephen Hemminger <shemminger@osdl.org>
+Date: Thu, 19 Oct 2006 10:15:43 -0700
 
->  .../pci/hotplug => include/linux}/pci_hotplug.h    |    2 
+> The original skb management for netpoll was a mess, it had two queue paths
+> and a callback. This changes it to have a per-instance transmit queue
+> and use a tasklet rather than a work queue for the congested case.
+> 
+> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-/home/olaf/kernel/mainline/linux-2.6/drivers/pci/hotplug/rpaphp.h:31:25:
-error: pci_hotplug.h: No such file or directory
+I think you mis-diffed this one:
 
+- 	WARN_ON(skb->protocol == 0);
+
+That line doesn't exist in my copy of net/core/netpoll.c
+even with your first patch applied.
+
+Also, you forgot to remove the ->drop callback pointer
+from struct netpoll, which you should do if it really
+isn't used any more.
+
+I think you might run into problems there, as I believe the netdump
+stuff does make non-trivial use of the ->drop callback.  Indeed, it
+uses the ->dump callback for invoking a special
+netpoll_start_netdump() function.  I'm pretty sure ->dump was created
+specifically to accomodate netdump.
+
+So this is something else which will need to be worked out before we
+can apply this patch.

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992690AbWJTSi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992701AbWJTSqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992690AbWJTSi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 14:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992693AbWJTSi7
+	id S2992701AbWJTSqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 14:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992629AbWJTSqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 14:38:59 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:9630 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S2992690AbWJTSi7 (ORCPT
+	Fri, 20 Oct 2006 14:46:06 -0400
+Received: from www.osadl.org ([213.239.205.134]:42931 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S2992701AbWJTSqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 14:38:59 -0400
-Message-ID: <453917C2.8010201@candelatech.com>
-Date: Fri, 20 Oct 2006 11:38:58 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: futex hang with rpm in 2.6.17.1-2174_FC5
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Oct 2006 14:46:04 -0400
+Subject: Re: various laptop nagles - any suggestions?   (note:
+	2.6.19-rc2-mm1 but applies to multiple kernels)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: teunis <teunis@wintersgift.com>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20061020112627.04a4035a.akpm@osdl.org>
+References: <4537A25D.6070205@wintersgift.com>
+	 <20061019194157.1ed094b9.akpm@osdl.org> <4538F9AD.8000806@wintersgift.com>
+	 <20061020110746.0db17489.akpm@osdl.org>
+	 <1161368034.5274.278.camel@localhost.localdomain>
+	 <20061020112627.04a4035a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 20:46:55 +0200
+Message-Id: <1161370015.5274.282.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a dead nfs server that was causing some programs to pause,
-in particular 'yum install foo' was paused.  I kill -9'd the
-yum related processes.
+On Fri, 2006-10-20 at 11:26 -0700, Andrew Morton wrote:
+> On Fri, 20 Oct 2006 20:13:54 +0200
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> 
+> > > Also, NO_HZ breaks my laptop (and presumably quite a few others) quite
+> > > horridly, which means nobody can ship the feature.  Some runtime
+> > > turn-it-off work needs to be done there.
+> > 
+> > We can make a commandline switch as for highres. Is that sufficient ?
+> 
+> I doubt it.
+> 
+> I don't know how many machines will be affected by this, but I'd expect
+> it's quite a few - the Vaio has a less-than-one-year-old Intel CPU in it.
 
-I fixed up the nfs server and was able to un-mount the file system.
-I subsequently killed many backed up updatedb and similar processes.
+Is this still the broken lapic issue ? I think about a detection
+mechanism for that one.
 
-Now, there are no rpm processes, but if I try 'rpm [anything]' it
-hangs trying to open a futex:
+	tglx
 
-open("/var/lib/rpm/Packages", O_RDONLY|O_LARGEFILE) = 4
-fcntl64(4, F_SETFD, FD_CLOEXEC)         = 0
-fstat64(4, {st_mode=S_IFREG|0644, st_size=41390080, ...}) = 0
-futex(0xb7ba178c, FUTEX_WAIT, 1, NULL <unfinished ...>
-
-Is there any way to figure out what is causing this futex-wait?
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
 

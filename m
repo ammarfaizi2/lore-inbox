@@ -1,145 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992592AbWJTSHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992685AbWJTSJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992592AbWJTSHc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 14:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992608AbWJTSHc
+	id S2992685AbWJTSJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 14:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992687AbWJTSJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 14:07:32 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:59403 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S2992592AbWJTSHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 14:07:30 -0400
-Date: Fri, 20 Oct 2006 19:07:22 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [0/3] 2.6.19-rc2: known regressions
-Message-ID: <20061020180722.GA8894@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk> <20061015124210.GX30596@stusta.de> <20061019081753.GA29883@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061019081753.GA29883@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 Oct 2006 14:09:14 -0400
+Received: from smtp105.plus.mail.re2.yahoo.com ([206.190.53.30]:4203 "HELO
+	smtp105.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S2992685AbWJTSJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 14:09:13 -0400
+Message-ID: <453910C6.4000102@tungstengraphics.com>
+Date: Fri, 20 Oct 2006 19:09:10 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+CC: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
+References: <20061013194516.GB19283@tau.solarneutrino.net> <1160849723.3943.41.camel@neko.keithp.com> <20061017174020.GA24789@tau.solarneutrino.net> <1161124062.25439.8.camel@neko.keithp.com> <4535CFB1.2010403@tungstengraphics.com> <20061019173108.GA28700@tau.solarneutrino.net> <4538B670.2030105@tungstengraphics.com> <20061020164008.GA29810@tau.solarneutrino.net> <45390C85.3070604@tungstengraphics.com> <20061020180354.GB29810@tau.solarneutrino.net>
+In-Reply-To: <20061020180354.GB29810@tau.solarneutrino.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 09:17:54AM +0100, Russell King wrote:
-> On Sun, Oct 15, 2006 at 02:42:10PM +0200, Adrian Bunk wrote:
-> > On Sun, Oct 15, 2006 at 01:24:54PM +0100, Russell King wrote:
-> > > On Sat, Oct 14, 2006 at 01:14:58PM +0200, Adrian Bunk wrote:
-> > > > As usual, we are swamped with bug reports for regressions after -rc1.
-> > > > 
-> > > > For an easier reading (and hoping linux-kernel might not eat the emails), 
-> > > > I've splitted the list of known regressions in three emails:
-> > > >   [1/3] known unfixed regressions
-> > > >   [2/3] knwon regressions with workarounds
-> > > >   [3/3] known regressions with patches
-> > > 
-> > > There's a raft of ARM regressions as well (see
-> > > http://armlinux.simtec.co.uk/kautobuild/2.6.19-rc2/index.html), mostly
-> > > related to the IRQ changes, as well as this error:
-> > 
-> > Thanks, I'll look at them before preparing the next version of my 
-> > regressions list.
-> > 
-> > > sysctl_net.c:(.text+0x64a8c): undefined reference to `highest_possible_node_id'
-> > 
-> > This problem already got an entry a few hours ago:
-> > 
-> > Subject    : undefined reference to highest_possible_node_id
-> > References : http://lkml.org/lkml/2006/9/4/233
-> >              http://lkml.org/lkml/2006/10/15/11
-> > Submitter  : Olaf Hering <olaf@aepfle.de>
-> > Caused-By  : Greg Banks <gnb@melbourne.sgi.com>
-> >              commit 0f532f3861d2c4e5aa7dcd33fb18e9975eb28457
-> > Status     : unknown
+Ryan Richter wrote:
+> On Fri, Oct 20, 2006 at 06:51:01PM +0100, Keith Whitwell wrote:
+>> Ryan Richter wrote:
+>>> On Fri, Oct 20, 2006 at 12:43:44PM +0100, Keith Whitwell wrote:
+>>>> Ryan Richter wrote:
+>>>>> On Wed, Oct 18, 2006 at 07:54:41AM +0100, Keith Whitwell wrote:
+>>>> All of your other wierd problems, like the assert failures, etc, make me 
+>>>> wonder if there just hasn't been some sort of build problem that can 
+>>>> only be resolved by clearing it out and restarting.
+>>>>
+>>>> It wouldn't hurt to just nuke your current Mesa and libdrm builds and 
+>>>> start from scratch - you'll probably have to do that to get debug 
+>>>> symbols for gdb anyway.
+>>> I had heard something previously about i965_dri.so maybe getting
+>>> miscompiled, but I hadn't followed up on it until now.  I rebuilt it
+>>> with an older gcc, and now it's all working great!  Sorry for the wild
+>>> goose chase.
+>> Out of interest, can you try again with the original GCC and see if the 
+>> problem comes back?  Which versions of GCC are you using?
 > 
-> Looking at this commit and the mails, it was known on the 4th September
-> that this patch caused build errors while this change was in -mm, yet it
-> still found its way into mainline on 2nd October.
+> The two gcc versions are the 4.1 (miscompiles) and 3.4 (OK) from Debian
+> unstable.  I had originally compiled it myself with gcc-4.1 because the
+> Debian libgl1-mesa-dri package didn't build i965_dri.so until I
+> submitted a build patch to them to have it built.  They released a new
+> package a few days ago with i965_dri.so included, presumably built with
+> the same gcc-4.1, the default cc on Debian unstable.
 > 
-> Is anyone going to look at fixing this problem, or should we be asking
-> for the commit to be reverted?
+> I had exactly the same problems with my own version and theirs.  I
+> rebuilt it again today with CC=gcc-3.4 and now everything works great.
+> I saved a copy of the old i965_dri.so, so I can verify in the next few
+> days that replacing it breaks things again.  Let me know if you want
+> copies of these files to examine.
 
-Since everyone seems intent at ignoring this issue, here's a patch to
-try to solve it.
+Sure, email me the 4.1 version offline.  I'll also see about installing 
+4.1 here.
 
-Probably will suffer from occasionally not being included in the kernel,
-and therefore the function not exported for modules, but at least it's
-a _lot_ better than the current utterly broken situation.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-diff --git a/lib/Makefile b/lib/Makefile
-index cf98fab..8845514 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -5,7 +5,7 @@ #
- lib-y := ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
--	 sha1.o irq_regs.o
-+	 sha1.o irq_regs.o nodemask.o
- 
- lib-$(CONFIG_MMU) += ioremap.o
- lib-$(CONFIG_SMP) += cpumask.o
-diff --git a/lib/cpumask.c b/lib/cpumask.c
-index 7a2a73f..3a67dc5 100644
---- a/lib/cpumask.c
-+++ b/lib/cpumask.c
-@@ -43,19 +43,3 @@ int __any_online_cpu(const cpumask_t *ma
- 	return cpu;
- }
- EXPORT_SYMBOL(__any_online_cpu);
--
--#if MAX_NUMNODES > 1
--/*
-- * Find the highest possible node id.
-- */
--int highest_possible_node_id(void)
--{
--	unsigned int node;
--	unsigned int highest = 0;
--
--	for_each_node_mask(node, node_possible_map)
--		highest = node;
--	return highest;
--}
--EXPORT_SYMBOL(highest_possible_node_id);
--#endif
-diff --git a/lib/nodemask.c b/lib/nodemask.c
-new file mode 100644
-index 0000000..6c49eb5
---- /dev/null
-+++ b/lib/nodemask.c
-@@ -0,0 +1,19 @@
-+#include <linux/kernel.h>
-+#include <linux/cpumask.h>
-+#include <linux/module.h>
-+
-+#if MAX_NUMNODES > 1
-+/*
-+ * Find the highest possible node id.
-+ */
-+int highest_possible_node_id(void)
-+{
-+	unsigned int node;
-+	unsigned int highest = 0;
-+
-+	for_each_node_mask(node, node_possible_map)
-+		highest = node;
-+	return highest;
-+}
-+EXPORT_SYMBOL(highest_possible_node_id);
-+#endif
-
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Keith

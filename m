@@ -1,110 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992622AbWJTQBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWJTQD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992622AbWJTQBb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 12:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992624AbWJTQBb
+	id S932264AbWJTQD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJTQD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 12:01:31 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:54790 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S2992622AbWJTQBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 12:01:30 -0400
-Message-ID: <4538F2A2.5040305@shadowen.org>
-Date: Fri, 20 Oct 2006 17:00:34 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Fri, 20 Oct 2006 12:03:29 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:38044 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932264AbWJTQD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:03:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=tPpY6W5FPjQ78BfuBCEUeBry2R67XEfZj5JXMafy417LIiLZQupDMX+FB+dMCtYmwhAYpGaLT3PkHyGbJwk4tDvWIvIDIjNG2ICFTmuur2kkNn3QxyvKQhFbZUeH+qnRc4CWhD8+Jz8lcm1/Kmw9af1dzvEMyhYLqmSXLvc9ug4=  ;
+Message-ID: <4538F34A.7070703@yahoo.com.au>
+Date: Sat, 21 Oct 2006 02:03:22 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: Andy Whitcroft <apw@shadowen.org>, Christoph Lameter <clameter@sgi.com>,
-       Anton Blanchard <anton@samba.org>, akpm@osdl.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Mel Gorman <mel@csn.ul.ie>, Mike Kravetz <kravetz@us.ibm.com>,
-       will_schmidt@vnet.ibm.com
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-References: <1161026409.31903.15.camel@farscape>	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>	<1161031821.31903.28.camel@farscape>	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>	<17717.50596.248553.816155@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>	<17718.39522.456361.987639@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>	<17719.1849.245776.4501@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>	<20061019163044.GB5819@krispykreme>	<Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>	<17719.64246.555371.701194@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com> <17720.30804.180390.197567@cargo.ozlabs.ibm.com> <4538DACC.5050605@shadowen.org>
-In-Reply-To: <4538DACC.5050605@shadowen.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Martin Bligh <mbligh@google.com>
+CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, dino@in.ibm.com,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>	<4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com>
+In-Reply-To: <4537D6E8.8020501@google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft wrote:
-> Paul Mackerras wrote:
->> Christoph Lameter writes:
->>
->>> The page allocator must be running and able to serve pages from the boot 
->>> node. This fails for some reason and the slab cannot bootstrap. The memory 
->>> not available is the first guess. Could you trace the allocation in the 
->>> page allocator (__alloc_pages) when the slab attempts to bootstrap and 
->>> figure out why exactly the allocation fails?
->> What is happening is that all pages are getting their zone id field in
->> their page->flags set to point to zone for node 1 by memmap_init_zone
->> calling set_page_links (which does set_page_zone).  Thus, when those
->> pages get freed by free_all_bootmem_node, they all end up in the zone
->> for node 1.
->>
->> memmap_init_zone is called (as memmap_init, since we don't have
->> __HAVE_ARCH_MEMMAP_INIT defined) from init_currently_empty_zone, which
->> is called from free_area_init_core.  Now the thing is that memmap_init
->> and init_currently_empty_zone are called with the node's start PFN and
->> size in pages, *including* holes.  On the partition I'm using we have
->> these PFN ranges for the nodes:
->>
->>     1:        0 ->    32768
->>     0:    32768 ->   278528
->>     1:   278528 ->   524288
->>
->> So node 0's start PFN is 32768 and its size is 245760 pages, and so we
->> correctly set pages 32786 to 278527 to be in the zone for node 0.
->> Then for node 1, we have the start PFN is 0 and the size is 524288, so
->> we then go through and set *all* pages of memory to be in the zone for
->> node 1, including the pages which are actually on node 0.
->>
->> That's why we can't allocate any pages on node 0, and the kmem cache
->> bootstrapping blows up.
->>
->> I don't know this code well enough to know what the correct fix is.
->> Clearly memmap_init_zone should only be touching the pages that are
->> actually present in the zone, but I don't know exactly what data
->> structures it should be using to know what those pages are.
+Martin Bligh wrote:
 > 
-> Mel Gorman and I have been poking at this from different ends.  Mel from
-> the context of this thread and myself trying to fix a machine which was
-> exhibiting on 32MB of ram in node 0 and the rest in node 1.
+>> I don't know of anyone else using cpusets, but I'd be interested to know.
 > 
-> I remember that we used to have code to cope with this in the ppc64
-> architecture, indeed I remember reviewing it all that time ago.  Looking
-> at the current state of the tree it was removed in the two patches below
-> in mainline:
-> 	"[PATCH] Remove SPAN_OTHER_NODES config definition"
-> 	"[PATCH] mm: remove arch independent NODES_SPAN_OTHER_NODES"
 > 
-> These commits:
-> 	f62859bb6871c5e4a8e591c60befc8caaf54db8c
-> 	a94b3ab7eab4edcc9b2cb474b188f774c331adf7
+> We (Google) are planning to use it to do some partitioning, albeit on
+> much smaller machines. I'd really like to NOT use cpus_allowed from
+> previous experience - if we can get it to to partition using separated
+> sched domains, that would be much better.
 > 
-> I'll follow up to this email with the reversion patch we used in
-> testing.  It seems to sort this problem out at least, though now its
-> blam'ing in ibmveth, so am retesting with yet another patch.  This patch
-> reverts the two patches above and updates the commentry on the Kconfig
-> entry.
+>  From my dim recollections of previous discussions when cpusets was
+> added in the first place, we asked for exactly the same thing then.
+> I think some of the problem came from the fact that "exclusive"
+> to cpusets doesn't actually mean exclusive at all, and they're
+> shared in some fashion. Perhaps that issue is cleared up now?
+> /me crosses all fingers and toes and prays really hard.
 
-Ok, I've just gotten a successful boot on this box for the first time in
-like 15 git releases.  I needed the three patches below:
+The I believe, is that an exclusive cpuset can have an exclusive parent
+and exclusive children, which obviously all overlap one another, and
+thus you have to do the partition only at the top-most exclusive cpuset.
 
-clameter-fallback_alloc_fix2 -- from earlier in this thread, under the
-message ID below:
-    <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
+Currently, cpusets is creating partitions in cpus_exclusive children as
+well, which breaks balancing for the parent.
 
-Reintroduce-NODES_SPAN_OTHER_NODES-for-powerpc -- the patch I just
-submitted, under the message ID below:
-    <8a76dfd735e544016c5f04c98617b87d@pinky>
+The patch I posted previously should (modulo bugs) only do partitioning
+in the top-most cpuset. I still need clarification from Paul as to why
+this is unacceptable, though.
 
-ibmveth-fix-index-increment-calculation -- this patch is already in -mm.
-
-Feel free to take this as an ACK for the patches other than mine.
-
-Acked-by: Andy Whitcroft <apw@shadowen.org>
-
--apw
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

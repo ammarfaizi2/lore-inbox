@@ -1,133 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992547AbWJTHY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992555AbWJTHap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992547AbWJTHY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 03:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992549AbWJTHY7
+	id S2992555AbWJTHap (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 03:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992556AbWJTHap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 03:24:59 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:12228 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S2992547AbWJTHY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 03:24:58 -0400
-Message-ID: <453879C5.3030905@qumranet.com>
-Date: Fri, 20 Oct 2006 09:24:53 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5/7] KVM: mmu virtualization
-References: <4537818D.4060204@qumranet.com> <45378377.9080604@qumranet.com> <Pine.LNX.4.61.0610192220510.8142@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610192220510.8142@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Oct 2006 03:30:45 -0400
+Received: from smtpout.mac.com ([17.250.248.175]:41707 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S2992555AbWJTHao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 03:30:44 -0400
+In-Reply-To: <45386E0E.7030404@drzeus.cx>
+References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> <45386E0E.7030404@drzeus.cx>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5D90D82F-662F-4DF4-891A-90A4FA69A84E@mac.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Oct 2006 07:24:57.0432 (UTC) FILETIME=[D8711580:01C6F418]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Git training wheels for the pimple faced maintainer
+Date: Fri, 20 Oct 2006 03:30:23 -0400
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+X-Mailer: Apple Mail (2.752.2)
+X-Brightmail-Tracker: AAAAAA==
+X-Brightmail-scanned: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> +static int is_write_protection(void)
->> +{
->> +    return guest_cr0() & CR0_WP_MASK;
->> +}
->> +
->> +static int is_cpuid_PSE36(void)
->> +{
->> +    return 1;
->> +}
->> +
->> +static int is_present_pte(unsigned long pte)
->> +{
->> +    return pte & PT_PRESENT_MASK;
->> +}
->> +
->> +static int is_writeble_pte(unsigned long pte)
->> +{
->> +    return pte & PT_WRITABLE_MASK;
->> +}
->> +
->> +static int is_io_pte(unsigned long pte)
->> +{
->> +    return pte & PT_SHADOW_IO_MARK;
->> +}
->>     
+On Oct 20, 2006, at 02:34:54, Pierre Ossman wrote:
+> Linus Torvalds wrote:
+>> That all sounds fine. Please just check the format for the "[GIT  
+>> PULL]"  message: Andrew pulls peoples trees on his own and largely  
+>> automatically, so he doesn't much care _what_ is in the tree, but  
+>> I care deeply. So I want the diffstat and shortlog listings, and  
+>> preferably a few sentences at the top of the email describing  
+>> what's going on and why things are happening.
 >
-> Unless the above will grow in size by later patches, or is taken address of,
-> mark them static inline.
+> I'm still learning the more fancy parts of git, but I think that  
+> would be:
 >
->   
+> git diff master..for-linus | diffstat
+> git log master..for-list | git shortlog
 
-gcc inlines them well enough based on size.  That means I don't have to 
-keep adding/removing inline declarations.
+Not quite.  diffstat doesn't understand renames and such, you want to  
+use something more like this:
 
->> +static void nonpaging_new_cr3(struct kvm_vcpu *vcpu)
->> +{
->> +}
->>     
+git diff -M --stat --summary master..for-linus
+git log --pretty=short master..for-linus | git shortlog
+
+As an example, if you rename foo/bar/baz.c to foo/bar/quux.c and  
+change a few lines, you'll get something like this:
+
+foo/bar/{baz.c => quux.c}  | 8 +--
+
+It similarly makes renames between directories look nice.
+
+>> So there's simply no point in merging from me, unless you know  
+>> that there are clashes due to other development, and you actually  
+>> want to fix them up. You will just cause unnecessary criss-cross  
+>> merges if you pull from my tree after you've started development,  
+>> and the history gets really really messy.
 >
-> Remove it unless needed shortly afterwards.
+> And in order to test for conflicts, I assume I should have a "test  
+> tree" that I merge all my local stuff in, together with your  
+> current HEAD?
+
+Yes
+
+>> If you actually want your development tree to "track" my tree, I'd  
+>> suggest you have your "for-linus" branch that you put the work you  
+>> want to track into, and then a plain "linus" branch which tracks  
+>> _my_ tree. Then you can just fetch my tree (to keep your "linus"  
+>> branch up-to-date), and if you want your development branch to  
+>> track those changes, you can just do a "git rebase linus" in your  
+>> "for-linus" branch.
 >
->   
+> If I've understood git correctly, a rebase is a big no-no once I've  
+> published those changes as it reverts some history. Right?
 
-That's a (*callback)().
+Well, sorta.  If it's a pseudo-published development and you actually  
+_don't_ _care_ what the old history was (because it was broken or  
+incorrect or one of the patches got corrupted during import) then go  
+ahead and wipe it out.  On the other hand if you have random people  
+pulling from your published tree then you can't safely git-rebase or  
+cg-admin-rewrite-hist or similar.  Luckily GIT will just complain  
+about a discontinuous history as opposed to losing data.
 
->> +static gpa_t nonpaging_gva_to_gpa(struct kvm_vcpu *vcpu, gva_t vaddr)
->> +{
->> +    return vaddr;
->> +}
->>     
->
-> Candidate for inline too.
->
->   
+Cheers,
+Kyle Moffett
 
-Ditto.
-
-
->> +static void nonpaging_inval_page(struct kvm_vcpu *vcpu, gva_t addr)
->> +{
->> +}
->>     
->
-> Removal candidate
->
->   
-
-Ditto.
-
->> +int kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
->> +{
->> +    destroy_kvm_mmu(vcpu);
->> +    return init_kvm_mmu(vcpu);
->> +}
->>     
->
-> Inline candidate.
->
->   
-
-It's used in another file. gcc will probably inline its callees.
-
->> Index: linux-2.6/drivers/kvm/paging_tmpl.h
->> ===================================================================
->> +    #define PT_DIR_BASE_ADDR_MASK PT32_DIR_BASE_ADDR_MASK
->> +    #define PT_INDEX(addr, level) PT32_INDEX(addr, level)
->> +    #define SHADOW_PT_INDEX(addr, level) PT64_INDEX(addr, level)
->> +    #define PT_LEVEL_MASK(level) PT32_LEVEL_MASK(level)
->> +    #define PT_PTE_COPY_MASK PT32_PTE_COPY_MASK
->> +    #define PT_NON_PTE_COPY_MASK PT32_NON_PTE_COPY_MASK
->> +#else
->> +    error
->> +#endif
->>     
->
-> 	#error Free Ad Space Here
-> it is.
->
->   
-
-Will fix.  Thanks for the review.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946525AbWJTV0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992719AbWJTV2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946525AbWJTV0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423236AbWJTV0f
+	id S2992719AbWJTV2T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992725AbWJTV2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:26:35 -0400
-Received: from homer.mvista.com ([63.81.120.158]:32890 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1422954AbWJTV0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:26:34 -0400
-Subject: 2.6.18-rt6: scheduling while irqs disabled
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 14:27:06 -0700
-Message-Id: <1161379626.7468.9.camel@localhost.localdomain>
+	Fri, 20 Oct 2006 17:28:19 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:49934 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S2992719AbWJTV2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:28:18 -0400
+Date: Fri, 20 Oct 2006 22:28:05 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       ralf@linux-mips.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+Message-ID: <20061020212805.GG8894@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+	ralf@linux-mips.org, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org> <20061020.123635.95058911.davem@davemloft.net> <Pine.LNX.4.64.0610201251440.3962@g5.osdl.org> <20061020.125851.115909797.davem@davemloft.net> <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020205929.GE8894@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 20, 2006 at 02:12:11PM -0700, Linus Torvalds wrote:
+> On Fri, 20 Oct 2006, Russell King wrote:
+> > Well, looking at do_wp_page() I'm now quite concerned about ARM and COW.
+> > I can't see how this code could _possibly_ work with a virtually indexed
+> > cache as it stands.  Yet, the kernel does appear to work.
+> 
+> It really shouldn't need any extra code, exactly because by the time it 
+> hits any page-fault, the caches had better be in sync with the physical 
+> page contents _anyway_ (yes, being virtual, the caches will _duplicate_ 
+> the contents, but since the pages are read-only, that aliasing should be 
+> perfectly fine).
 
-Got this while rebooting.
+Oh, of course!  That explains why it actually works as expected!  Thanks
+for filling back in that bit of swapped-out-years-ago-and-lost information.
 
-BUG: scheduling with irqs disabled: md0_raid1/0x00000000/1125
-caller is rt_spin_lock_slowlock+0x89/0x180
- [<c0104f2b>] show_trace+0x1b/0x20
- [<c0104f54>] dump_stack+0x24/0x30
- [<c0413b7e>] schedule+0x10e/0x120
- [<c0414b79>] rt_spin_lock_slowlock+0x89/0x180
- [<c0415112>] rt_spin_lock+0x22/0x30
- [<c02914b1>] serial8250_console_write+0x141/0x160
- [<c011fd3d>] __call_console_drivers+0x6d/0x80
- [<c011fd93>] _call_console_drivers+0x43/0x90
- [<c012046a>] release_console_sem+0xda/0x250
- [<c01208d2>] vprintk+0x2d2/0x3b0
- [<c012021b>] printk+0x1b/0x20
- [<c0348664>] md_check_recovery+0x4f4/0x530
- [<c033ee3b>] raid1d+0x2b/0x1120
- [<c0342f13>] md_thread+0x43/0x130
- [<c013523d>] kthread+0xfd/0x110
- [<c0100f25>] kernel_thread_helper+0x5/0x10
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

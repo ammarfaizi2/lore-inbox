@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992728AbWJTVMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992734AbWJTVOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992728AbWJTVMq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992725AbWJTVMq
+	id S2992734AbWJTVOA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992725AbWJTVN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:12:46 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:63689 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S2992720AbWJTVMp (ORCPT
+	Fri, 20 Oct 2006 17:13:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030332AbWJTVN6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:12:45 -0400
-Message-ID: <45393BC4.5020903@garzik.org>
-Date: Fri, 20 Oct 2006 17:12:36 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Kevin Radloff <radsaq@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+	Fri, 20 Oct 2006 17:13:58 -0400
+Date: Fri, 20 Oct 2006 14:12:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       ralf@linux-mips.org, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Linux 2.6.19-rc2
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>	 <3b0ffc1f0610201130i8f15e49oec2cdc68abb8dbd@mail.gmail.com> <1161377586.26440.61.camel@localhost.localdomain>
-In-Reply-To: <1161377586.26440.61.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+In-Reply-To: <20061020205929.GE8894@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org>
+ <20061020.123635.95058911.davem@davemloft.net> <Pine.LNX.4.64.0610201251440.3962@g5.osdl.org>
+ <20061020.125851.115909797.davem@davemloft.net> <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org>
+ <20061020205929.GE8894@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Gwe, 2006-10-20 am 14:30 -0400, ysgrifennodd Kevin Radloff:
->> On 10/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
->>> Ok, it's a week since -rc1, so -rc2 is out there.
->> A bit behind, but booting still takes ages on my laptop as
->> libata/ata_piix tries to probe a device that isn't there (I reported
->> this previously against -rc1, but got no response):
+
+
+On Fri, 20 Oct 2006, Russell King wrote:
 > 
-> Probing is somewhat broken in 2.6.18 - something in the core code
-> changed as its upset quite a few drivers at once. One case causes
-> repeated errors and finally detection of an ATAPI device, the other
-> causes repeated errors and then failure when no device is present but
-> takes a few minutes and keeps IRQs locked off for long periods. Both
-> appear to be fallouts from the new EH code.
+> Well, looking at do_wp_page() I'm now quite concerned about ARM and COW.
+> I can't see how this code could _possibly_ work with a virtually indexed
+> cache as it stands.  Yet, the kernel does appear to work.
 
-There are definitely warts related to the new EH stuff, but specifically 
-for SATA + ata_piix, it has been a long hard road of trying various 
-probing mechanisms.  Tejun has some patches that revert all the PCS work 
-and rewinds back to original SATA ata_piix probing, in -mm for testing.
+It really shouldn't need any extra code, exactly because by the time it 
+hits any page-fault, the caches had better be in sync with the physical 
+page contents _anyway_ (yes, being virtual, the caches will _duplicate_ 
+the contents, but since the pages are read-only, that aliasing should be 
+perfectly fine).
 
-If testing feedback proves positive, let's go ahead and fast-track that 
-up the line.
+> I'm afraid I'm utterly confused with the Linux MM in this day and age, so
+> I don't think I can even consider commenting on this change.
 
-With ata_piix, I would worry more about PCS register follies than core 
-libata.  Users can try the module option force_pcs=[0|1|2] to experiment 
-and see if any of the three possibilities improves their boot.
+Well, we'd need somebody to verify that it still works, but quite frankly, 
+the likelihood of it breaking anything seems basically nil.
 
-	Jeff
+> However, when I look at this code now, I see _no where_ where we synchronise
+> the cache between the userspace mapping and the kernel space mapping before
+> copying a COW page.
 
+At the COW, it should be synchronized already, exactly because we did the 
+cache_flush_mm() when we _created_ the COW mapping in the first place.
 
+It's just that we weren't quite careful enough at that time (and even 
+then, that would only matter for some really really unlikely and strange 
+situations that only happen when you fork() from a _threaded_ environment, 
+so it shouldn't be anything you'd notice under normal load).
+
+I think.
+
+> So I'm afraid I'm going to have to hold up my hand and say "I don't
+> understand the Linux MM anymore".
+
+There are few enough people who understand it even though they're supposed 
+to. I certainly have to always go back and look and read the code when 
+there is anything subtle going on, and even then I want to be backed up by 
+one of the _competent_ people ;)
+
+			Linus

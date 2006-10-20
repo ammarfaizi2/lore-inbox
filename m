@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWJTMa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWJTMbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWJTMa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 08:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWJTMa2
+	id S964807AbWJTMbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 08:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWJTMbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 08:30:28 -0400
-Received: from cicero1.cybercity.dk ([212.242.40.4]:21502 "EHLO
-	cicero1.cybercity.dk") by vger.kernel.org with ESMTP
-	id S964796AbWJTMa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 08:30:26 -0400
-Message-ID: <4538C156.3060502@molgaard.org>
-Date: Fri, 20 Oct 2006 14:30:14 +0200
-From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060717 Debian/1.7.13-0.2ubuntu1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-CC: Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: speedstep-centrino: ENODEV
-References: <EB12A50964762B4D8111D55B764A8454C1A976@scsmsx413.amr.corp.intel.com>
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A976@scsmsx413.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Oct 2006 08:31:32 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:23265 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750726AbWJTMbb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 08:31:31 -0400
+Message-Id: <200610201231.k9KCVQjf008998@laptop13.inf.utfsm.cl>
+To: Junio C Hamano <junkio@cox.net>
+cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.4.3 
+In-Reply-To: Message from Junio C Hamano <junkio@cox.net> 
+   of "Wed, 18 Oct 2006 16:53:22 PDT." <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Fri, 20 Oct 2006 09:31:26 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 20 Oct 2006 09:31:26 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->  
-> 
-> Puzzling.. 
-> Just to make sure, do you have CPU_FREQ_DEBUG enabled in your config and boot parameter? There are a bunch of dprintk debug messages in speedstep_centrino that should get printed in this case..
-> Do you have est flag displayed in your /proc/cpuinfo under flags?
-> 
+Junio C Hamano <junkio@cox.net> wrote:
+> The latest feature release GIT 1.4.3 is available at the usual
+> places:
 
-Well, how about that. No est :-$ I assume ss is regular speedstep? So 
-what do I use instead? Is there some way to get acpi-speedstep working 
-again?
+[...]
 
-Best regards,
+>  rename builtin-cat-file.c => builtin-cat-file.c (0%)
 
-/sunem
-
-sune@tommelise:~$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Celeron(R) M processor         1.40GHz
-stepping        : 8
-cpu MHz         : 1396.494
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
-mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tm pbe nx up
-bogomips        : 2795.99
+Huh?!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

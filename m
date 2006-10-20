@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992565AbWJTHfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992557AbWJTHfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992565AbWJTHfY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 03:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992566AbWJTHfY
+	id S2992557AbWJTHfv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 03:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992566AbWJTHfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 03:35:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:63170 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S2992565AbWJTHfX (ORCPT
+	Fri, 20 Oct 2006 03:35:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992557AbWJTHfu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 03:35:23 -0400
-Subject: Re: [PATCH] Add device addition/removal notifier
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <20061020061618.GA9432@kroah.com>
-References: <1161309350.10524.119.camel@localhost.localdomain>
-	 <20061020032624.GA7620@kroah.com>
-	 <1161318564.10524.131.camel@localhost.localdomain>
-	 <20061020044454.GA8627@kroah.com>
-	 <1161322979.10524.143.camel@localhost.localdomain>
-	 <20061020061618.GA9432@kroah.com>
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 17:35:06 +1000
-Message-Id: <1161329707.10524.184.camel@localhost.localdomain>
+	Fri, 20 Oct 2006 03:35:50 -0400
+Date: Fri, 20 Oct 2006 00:35:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       Cal Peake <cp@absolutedigital.net>
+Subject: Re: [CFT] Grep to find users of sys_sysctl.
+Message-Id: <20061020003540.10d367d9.akpm@osdl.org>
+In-Reply-To: <m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Oct 2006 01:05:18 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-> Ick, I'd like to say that this is a pretty bad thing to do.  If you need
-> that, then just statically link the bus into your code, or make your
-> code a module and it will depend on the usb core.  I don't know...
 > 
-> Remember, we didn't add a type identifier to the struct device for a
-> reason, comparing the string of the bus type is not a good idea (for
-> USB, it will get you in trouble, because two different types of devices
-> can be on that bus, who's to say other busses will not also have that
-> issue?)
+> Anyone who is interested in knowing if they have an application on
+> their system that actually uses sys_sysctl please run the following grep.
 > 
-> I think you need to re-evaluate exactly what you are needing to do
-> here...
+> find / -type f  -perm /111 -exec fgrep 'sysctl@@GLIBC' '{}' ';' 
+> 
+> The -perm /111 is an optimization to only look at executable files,
+> and may be omitted if you are patient.
+> 
+> Currently I don't expect anyone to find a match anywhere except in libpthreads,
+> if you find any others please let me know.
+> 
 
-BTW. You basic saying that one should not test the bus type of a generic
-struct device* makes it basically impossible to implement dma_map_* on
-platforms that have various bus types with different DMA operations :)
+http://www.google.com/codesearch
 
-Note that what I'm working on at the moment might make all of that
-easier anyway, by having (on powerpc only for now but some of that could
-be made generic once I'm finished) dma_ops having off the struct device
-(or rather an extension of it).
-
-Oh, also, right now, I re-use the firmware_data pointer there to point
-to my struct device_ext, but I'd like to be better typed and avoid too
-many pointer dereferences. I'm thus thinking instead of defining an
-asm-*/device.h where archs can define their own struct device_ext and
-have that flat in struct device (default being an empty struct). We
-could even get rid of firmware_data on archs that don't use it by
-putting it there :) (Among others).
-
-Ben.
-
-
+there are a few hits...

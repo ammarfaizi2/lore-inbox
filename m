@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992859AbWJTVvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992516AbWJTV5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992859AbWJTVvB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992863AbWJTVvA
+	id S2992516AbWJTV5p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992779AbWJTV5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:51:00 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:32133 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S2992804AbWJTVu7 (ORCPT
+	Fri, 20 Oct 2006 17:57:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8617 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S2992516AbWJTV5o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:50:59 -0400
-Message-ID: <453944BC.7090409@us.ibm.com>
-Date: Fri, 20 Oct 2006 16:50:52 -0500
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Fri, 20 Oct 2006 17:57:44 -0400
+Message-ID: <45394615.5050406@redhat.com>
+Date: Fri, 20 Oct 2006 16:56:37 -0500
+From: Eric Sandeen <sandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Adam Belay <abelay@MIT.EDU>
-Subject: Re: [PATCH] Block on access to temporarily unavailable pci device
- [version 3]
-References: <20061017145146.GJ22289@parisc-linux.org> <20061019154128.GD2602@parisc-linux.org>
-In-Reply-To: <20061019154128.GD2602@parisc-linux.org>
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] more helpful WARN_ON and BUG_ON messages
+References: <4538F81A.2070007@redhat.com> <20061020214101.GX3502@stusta.de>
+In-Reply-To: <20061020214101.GX3502@stusta.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Adrian Bunk wrote:
 
-Acked-by: Brian King <brking@us.ibm.com>
+> Who really needs this considering it implies a size increase of the 
+> kernel image?
+> 
+> Using a kernel tree so unusual that you can't locate the source anymore 
+> sounds like an extremely rare and unintelligent situation, not something 
+> that must be handled.
 
-I tried this out on my machine with an ipr adapter, where
-I forced the adapter through BIST using ipr's reset_host
-sysfs attribute, all the while continually reading pci
-config space through sysfs in a loop. Everything looked
-good.
+Most debugging code makes the kernel bigger, slower... and easier to
+debug, no?
 
-Brian
+It's not a question of not being -able- to locate sources; it's a
+question of being able to look at a bug report and triage it quickly
+without digging around to find the kernel du jour that produced it.  *shrug*
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+-Eric

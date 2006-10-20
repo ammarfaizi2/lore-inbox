@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992502AbWJTFjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992504AbWJTFnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992502AbWJTFjX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992503AbWJTFjX
+	id S2992504AbWJTFnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992508AbWJTFnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:39:23 -0400
-Received: from natklopstock.rzone.de ([81.169.145.174]:48261 "EHLO
-	natklopstock.rzone.de") by vger.kernel.org with ESMTP
-	id S2992502AbWJTFjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:39:22 -0400
-Date: Fri, 20 Oct 2006 07:38:56 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
-Subject: Re: revert mv643xx change from ubuntu tree
-Message-ID: <20061020053856.GA3277@aepfle.de>
-References: <20061019121836.GA26319@aepfle.de> <1161318901.31915.21.camel@gullible>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1161318901.31915.21.camel@gullible>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 20 Oct 2006 01:43:16 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2241 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S2992504AbWJTFnP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:43:15 -0400
+Subject: Re: [PATCH] Add device addition/removal notifier
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+In-Reply-To: <20061020044454.GA8627@kroah.com>
+References: <1161309350.10524.119.camel@localhost.localdomain>
+	 <20061020032624.GA7620@kroah.com>
+	 <1161318564.10524.131.camel@localhost.localdomain>
+	 <20061020044454.GA8627@kroah.com>
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 15:42:59 +1000
+Message-Id: <1161322979.10524.143.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, Ben Collins wrote:
 
-> On Thu, 2006-10-19 at 14:18 +0200, Olaf Hering wrote:
-> > Somehow the Ubuntu guys managed to sneak this compile error into the
-> > tree:
-> > 
-> > commit ce9e3d9953c8cb67001719b5516da2928e956be4
-> > 
-> >       [mv643xx] Add pci device table for auto module loading.
-> > 
-> > drivers/net/mv643xx_eth.c:1560: error: array type has incomplete element type
-> > drivers/net/mv643xx_eth.c:1561: warning: implicit declaration of function ‘PCI_DEVICE’
-> > drivers/net/mv643xx_eth.c:1561: error: ‘PCI_VENDOR_ID_MARVELL’ undeclared here (not in a function)
-> > drivers/net/mv643xx_eth.c:1561: error: ‘PCI_DEVICE_ID_MARVELL_MV64360’ undeclared here (not in a function)
-> 
-> Correct, I missed the include for linux/pci.h.
-> 
-> This patch has been trailing our tree since 2.6.12. Could you help me to
-> understand what in this driver will cause it to be autoloaded by udev
-> when compiled as a module?
+> Ok, as long as you all agree that this does change the behavior, it's
+> fine with me :)
 
-See commit ce9e3d9953c8cb67001719b5516da2928e956be4, platform devices
-have now a modalias entry in sysfs. The network card is not a PCI
-device.
+I should probably split the patch in two: One that does that behaviour
+change (I already have an Acked-by: Len Brown for that one even :) and
+one adding that notifier.
+
+> Ok, then perhaps you just want a bus specific callback for the devices
+> on that bus?  That would be much simpler and keep you from having to do
+> that mess with the different tests of bus type.
+>
+> Actually, that's the only thing that really makes sense here, now that I
+> think about it, the platform_notify doesn't really make any sense...
+
+Well... people already use it and go check the bus types :)
+
+Having a notifier queue per bus type is a bit harder though because bus
+types are generally allocated statically and thus we would need to find
+them all in the kernel to add a proper static initialisation for the
+notifier queue... bus_register() is not a good spot to do it because
+platform code might want to register for bus types before those bus
+types have been registered (it's not always easy to find a place to
+"hook" between a bus is registered and things get added to it).
+
+In fact, the whole bus type thing is a mess :) We can't easily register
+for bus types that are in modules. 
+
+For example, if I want to use the notifier to catch USB devices in order
+to, for example, link them to firmware nodes, I'm lost if the USB
+subsystem is modular ... unless I use a global notifier and strcmp the
+bus type name in there.
+
+So at this point, I'd rather stay on a global notifier.
+
+Ben.
+
+
+

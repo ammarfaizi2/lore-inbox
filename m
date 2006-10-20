@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992461AbWJTDCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWJTDQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992461AbWJTDCL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 23:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992464AbWJTDCL
+	id S1751618AbWJTDQK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 23:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWJTDQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 23:02:11 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5064
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S2992461AbWJTDCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 23:02:09 -0400
-Date: Thu, 19 Oct 2006 20:02:11 -0700 (PDT)
-Message-Id: <20061019.200211.88476455.davem@davemloft.net>
-To: zyf.zeroos@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: about flush TLB during unmapping a page in memory
- subsystem
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4df04b840610191947r2b48c2ddo45f0cd94d94a614b@mail.gmail.com>
-References: <4df04b840610191947r2b48c2ddo45f0cd94d94a614b@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 23:16:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:10963 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751618AbWJTDQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 23:16:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=VfBh9dJzUlhh18gNdYCBtS4335Or9PafWlKtckj10/tWVW/IQWXEfU0AQsLkXESsj/2z0wa7Aij62Vd1EjjyRRSOHvBLa/BBqaYrSZSwQJxYtmqbLv+TRGAg+vGDwnGt2tD9gm5FGg/mZLBRFHj4f4PmHOXk4ziQuEr47zAqpok=
+Message-ID: <45383F6F.6090102@gmail.com>
+Date: Fri, 20 Oct 2006 12:15:59 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
+MIME-Version: 1.0
+To: "Berck E. Nash" <flyboy@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm2 AHCI lengthy pause on detection
+References: <453663DB.5060908@gmail.com>
+In-Reply-To: <453663DB.5060908@gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------050009050003050106060003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "yunfeng zhang" <zyf.zeroos@gmail.com>
-Date: Fri, 20 Oct 2006 10:47:49 +0800
+This is a multi-part message in MIME format.
+--------------050009050003050106060003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> In rmap.c::try_to_unmap_one of 2.6.16.29, there are some code snippets
-> 
-> .....
-> /* Nuke the page table entry. */
-> flush_cache_page(vma, address, page_to_pfn(page));
-> pteval = ptep_clear_flush(vma, address, pte);
-> // >>> The above line is expanded as below
-> // >>> pte_t __pte;
-> // >>> __pte = ptep_get_and_clear((__vma)->vm_mm, __address, __ptep);
-> // >>> flush_tlb_page(__vma, __address);
-> // >>> __pte;
-> 
-> /* Move the dirty bit to the physical page now the pte is gone. */
-> if (pte_dirty(pteval))
->         set_page_dirty(page);
-> .....
-> 
-> 
-> It seems that they only can work on UP system.
-> 
-> On SMP, let's suppose the pte was clean, after A CPU executed
-> ptep_get_and_clear,
-> B CPU makes the pte dirty, which will make a fatal error to A CPU since it gets
-> a stale pte, isn't right?
+Berck E. Nash wrote:
+> AHCI pauses heartily on during detection boot, but eventually proceeds. 
+>  This problem currently exists with 2.6.19-rc2-mm1, but did not exist in 
+> 2.6.17.3.  I realize that's a huge gap, and if you'd like me to narrow 
+> it down, I'll be glad to try.
 
-B can't make it dirty because it's been cleared to zero
-and flush_tlb_page() has removed the TLB cached copy of
-the PTE.  B can therefore only see the new cleared PTE.
+Can you try the attached patch?  And please post the result of hdparm -I 
+/dev/sdX.
+
+-- 
+tejun
+
+--------------050009050003050106060003
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 2592912..8215139 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -278,8 +278,7 @@ static const struct ata_port_info ahci_p
+ 	{
+ 		.sht		= &ahci_sht,
+ 		.flags		= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
+-				  ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA |
+-				  ATA_FLAG_SKIP_D2H_BSY,
++				  ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA,
+ 		.pio_mask	= 0x1f, /* pio0-4 */
+ 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
+ 		.port_ops	= &ahci_ops,
+
+--------------050009050003050106060003--

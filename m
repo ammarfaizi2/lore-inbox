@@ -1,62 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751725AbWJTOjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWJTOkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751725AbWJTOjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 10:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWJTOjw
+	id S932251AbWJTOkF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 10:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWJTOkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 10:39:52 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:64594 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751724AbWJTOjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 10:39:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=IEtKEp6DhwizbgQ4ZF/TrEGipfLu9i+wSWt5fOKjV4M3hvy+7QCrfmySRS2Nrt9pYoZeY6ip4Xddl3ZawNXWFrtbrI4oMSqNK0B0ebL/1gJlGrdBdmt56v0eU8Dy0NZlXMYNr8Rm0eNadjY/jTIGi3LIp+q3U6RW3W0hXZ7mFZM=  ;
-Message-ID: <4538DFAC.1090206@yahoo.com.au>
-Date: Sat, 21 Oct 2006 00:39:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 20 Oct 2006 10:40:05 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46030 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932251AbWJTOkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 10:40:00 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Albert Cahalan <acahalan@gmail.com>, Cal Peake <cp@absolutedigital.net>,
+       Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [CFT] Grep to find users of sys_sysctl.
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+	<20061020075234.GA18645@flint.arm.linux.org.uk>
+Date: Fri, 20 Oct 2006 08:38:07 -0600
+In-Reply-To: <20061020075234.GA18645@flint.arm.linux.org.uk> (Russell King's
+	message of "Fri, 20 Oct 2006 08:52:34 +0100")
+Message-ID: <m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: ralf@linux-mips.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-References: <1161275748231-git-send-email-ralf@linux-mips.org>	<4537B9FB.7050303@yahoo.com.au>	<20061019181346.GA5421@linux-mips.org> <20061019.155939.48528489.davem@davemloft.net>
-In-Reply-To: <20061019.155939.48528489.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> From: Ralf Baechle <ralf@linux-mips.org>
-> Date: Thu, 19 Oct 2006 19:13:46 +0100
-> 
-> 
->>That would require changing the order of cache flush and tlb flush.
->>To keep certain architectures that require a valid translation in
->>the TLB the cacheflush has to be done first.  Not sure if those
->>architectures need a writeable mapping for dirty cachelines - I
->>think hypersparc was one of them.
-> 
-> 
-> There just has to be "a mapping" in the TLB so that the L2 cache can
-> translate the virtual address to a physical one for the writeback to
-> main memory.
+Jakub Jelinek <jakub@redhat.com> writes:
 
-So moving the flush_cache_mm below the copy_page_range, to just
-before the flush_tlb_mm, would work then? This would make the
-race much smaller than with this patchset.
+> This assumes the binaries and/or libraries are not stripped, and they
+> usually are stripped.  So, it is better to run something like:
+> find / -type f -perm /111 | while read f; do readelf -Ws $f 2>/dev/null | fgrep
+> -q sysctl@GLIBC && echo $f; done
 
-But doesn't that still leave a race?
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
+> glibc on ARM _requires_ sys_sysctl for userspace ioperm, inb, outb etc
+> emulation.
 
-What if another thread writes to cache after we have flushed it
-but before flushing the TLBs? Although we've marked the the ptes
-readonly, the CPU won't trap if the TLB is valid? There must be
-some special way for the arch to handle this, but I can't see it.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+It looks like we have a small but interesting set of sysctl users.
+
+The list of files below is a composite from a number of systems I have
+access to, and the reply I have gotten so far.  I'm still hoping to hear
+from other people so I can add some other users of sysctl to my list.
+
+I'm still investigating to see how all of these pieces are using
+sysctl, and how much they care:
+- radvd seems to be an upstanding user.
+- libsensors seems to be using sysctls so we have no responsibility to
+  maintain the ABI there.
+- libpthread uses sysctl but it doesn't much care.
+- module_upgrade seems to be setting the printk verbosity?
+
+The nvidia-installer sounds like a scary piece of code.
+
+I'm puzzled why the majority of the users seem to be concentrated
+in system configuration software and installers. 
+
+These 
+
+
+Compiling the results I have so far (Some of these are from older distros):
+/sbin/kmodule
+/sbin/sndconfig
+/usr/X11R6/bin/Xconfigurator
+/usr/bin/tiny-nvidia-installer
+/usr/bin/nvidia-installer
+/usr/sbin/glidelink
+/usr/sbin/kudzu
+/usr/sbin/module_upgrade
+/usr/sbin/mouseconfig
+/usr/sbin/radvd
+/usr/sbin/updfstab
+
+/usr/lib/libsensors.so.1.2.1
+/usr/lib/libsensors.so.3.1.0
+/usr/lib/libsensors.so.3.0.9
+/usr/lib64/libsensors.so.2.0.0
+/usr/lib64/libsensors.so.3.0.9
+
+/usr/lib/python1.5/site-packages/_kudzumodule.so
+/usr/lib/python2.2/site-packages/_kudzumodule.so
+/usr/lib/python2.3/site-packages/_kudzumodule.so
+/usr/lib64/python2.4/site-packages/_kudzumodule.so
+
+/lib/i686/libpthread-0.10.so
+/lib/i686/libpthread.so.0
+/lib/i686/nosegneg/libpthread-2.4.so
+/lib/libpthread-0.10.so
+/lib/libpthread-0.9.so
+/lib/libpthread.so.0
+/lib/tls/libpthread-2.3.3.so
+/lib/tls/libpthread-2.3.5.so
+/lib/tls/libpthread-2.3.6.so
+/lib/tls/libpthread.so.0
+/lib/libpthread-2.4.so
+/lib64/libpthread.so.0
+/lib64/tls/libpthread.so.0
+/lib64/libpthread-2.4.so
+/usr/i386-glibc22-linux/lib/libpthread-0.9.so
+/usr/i386-glibc22-linux/lib/libpthread.so.0
+
+
+Eric

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992476AbWJTFas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992493AbWJTFgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992476AbWJTFas (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992478AbWJTFas
+	id S2992493AbWJTFgl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992494AbWJTFgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:30:48 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:42418 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S2992476AbWJTFas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:30:48 -0400
-Date: Fri, 20 Oct 2006 01:30:44 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: 2.6.19-rc1, timebomb?
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <200610200130.44820.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Fri, 20 Oct 2006 01:36:40 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:44160 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S2992493AbWJTFgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:36:40 -0400
+Date: Thu, 19 Oct 2006 23:36:38 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor fixes to generic do_div
+Message-ID: <20061020053638.GS2602@parisc-linux.org>
+References: <20061020033359.GR2602@parisc-linux.org> <20061019215954.1be82a57.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061019215954.1be82a57.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Thu, Oct 19, 2006 at 09:59:54PM -0700, Andrew Morton wrote:
+> Can we use typecheck(), from include/linux/kernel.h?
 
-I just arrived home a few hours ago, and my wife said the outside lights 
-hadn't worked for the last 2 days.
+I don't know.
 
-I come in to check, the this machine, which runs some heyu scripts to do 
-this, was powered down.  So I powered it back up and it had to e2fsk 
-everything.  I have a ups with a fresh battery which passes the tests just 
-fine.
+It's copied and pasted from down below, so possibly this was
+intentionally not used.  or possibly the author didn't know about
+typecheck().
 
-The only thing in the logs is a single line about eth0 being down:
-Oct 17 05:31:11 coyote kernel: eth0: link down.
-Oct 19 20:37:49 coyote syslogd 1.4.1: restart.
+If we do use it, we either have to include linux/kernel.h in
+asm-generic/div64.h, which drags in a slew of includes of its own, or be
+sure that all users already include kernel.h.  i bet they do.
 
-Uptime when this occurred was about 9 days.  Was this a known problem?
+My allmodconfig build is currently testing out the
+remove-sched.h-from-asm-parisc-uaccess.h patch based on viro's x86-64
+patch seen earlier today, so I won't be testing the second hypothesis
+tonight.  Anyone want to try plugging in typecheck() and seeing if
+anything breaks?  NB: you'll want to be sure your arch is using
+asm-generic/div64, or add the typecheck() to your arch's
+asm-foo/div64.h.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+We should probably do that anyway, at least for i386.  And then someone
+else would maybe wonder what the xtensa port is up to.

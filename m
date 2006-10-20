@@ -1,65 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992610AbWJTP5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992622AbWJTQBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992610AbWJTP5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992591AbWJTP5i
+	id S2992622AbWJTQBb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992624AbWJTQBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:57:38 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:23476 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932265AbWJTP5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:57:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=SPDEXaoB32MqdJD8JWiU2RgHhpHRdl2oqjoOzvDXMRNQrXedzs9RKl9IHW8ddgMb8f29FL+QoqNvoKASCR/ykYA1F1pMECbr9cK22klEGzgsGXyhPQZ9kQZSQlgDHEUMt5ZDqH+91j+fdXuyX1H0f1N0+oq3x7oaMSGZB7tvcp0=  ;
-Message-ID: <4538F1EC.1020806@yahoo.com.au>
-Date: Sat, 21 Oct 2006 01:57:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 20 Oct 2006 12:01:31 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:54790 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S2992622AbWJTQBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:01:30 -0400
+Message-ID: <4538F2A2.5040305@shadowen.org>
+Date: Fri, 20 Oct 2006 17:00:34 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: David Miller <davem@davemloft.net>, ralf@linux-mips.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-References: <1161275748231-git-send-email-ralf@linux-mips.org> <4537B9FB.7050303@yahoo.com.au> <20061019181346.GA5421@linux-mips.org> <20061019.155939.48528489.davem@davemloft.net> <4538DFAC.1090206@yahoo.com.au> <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610200846260.3962@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Paul Mackerras <paulus@samba.org>
+CC: Andy Whitcroft <apw@shadowen.org>, Christoph Lameter <clameter@sgi.com>,
+       Anton Blanchard <anton@samba.org>, akpm@osdl.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Mel Gorman <mel@csn.ul.ie>, Mike Kravetz <kravetz@us.ibm.com>,
+       will_schmidt@vnet.ibm.com
+Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
+References: <1161026409.31903.15.camel@farscape>	<Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>	<1161031821.31903.28.camel@farscape>	<Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>	<17717.50596.248553.816155@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>	<17718.39522.456361.987639@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>	<17719.1849.245776.4501@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>	<20061019163044.GB5819@krispykreme>	<Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>	<17719.64246.555371.701194@cargo.ozlabs.ibm.com>	<Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com> <17720.30804.180390.197567@cargo.ozlabs.ibm.com> <4538DACC.5050605@shadowen.org>
+In-Reply-To: <4538DACC.5050605@shadowen.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sat, 21 Oct 2006, Nick Piggin wrote:
-> 
->>So moving the flush_cache_mm below the copy_page_range, to just
->>before the flush_tlb_mm, would work then? This would make the
->>race much smaller than with this patchset.
+Andy Whitcroft wrote:
+> Paul Mackerras wrote:
+>> Christoph Lameter writes:
 >>
->>But doesn't that still leave a race?
+>>> The page allocator must be running and able to serve pages from the boot 
+>>> node. This fails for some reason and the slab cannot bootstrap. The memory 
+>>> not available is the first guess. Could you trace the allocation in the 
+>>> page allocator (__alloc_pages) when the slab attempts to bootstrap and 
+>>> figure out why exactly the allocation fails?
+>> What is happening is that all pages are getting their zone id field in
+>> their page->flags set to point to zone for node 1 by memmap_init_zone
+>> calling set_page_links (which does set_page_zone).  Thus, when those
+>> pages get freed by free_all_bootmem_node, they all end up in the zone
+>> for node 1.
 >>
->>What if another thread writes to cache after we have flushed it
->>but before flushing the TLBs? Although we've marked the the ptes
->>readonly, the CPU won't trap if the TLB is valid? There must be
->>some special way for the arch to handle this, but I can't see it.
+>> memmap_init_zone is called (as memmap_init, since we don't have
+>> __HAVE_ARCH_MEMMAP_INIT defined) from init_currently_empty_zone, which
+>> is called from free_area_init_core.  Now the thing is that memmap_init
+>> and init_currently_empty_zone are called with the node's start PFN and
+>> size in pages, *including* holes.  On the partition I'm using we have
+>> these PFN ranges for the nodes:
+>>
+>>     1:        0 ->    32768
+>>     0:    32768 ->   278528
+>>     1:   278528 ->   524288
+>>
+>> So node 0's start PFN is 32768 and its size is 245760 pages, and so we
+>> correctly set pages 32786 to 278527 to be in the zone for node 0.
+>> Then for node 1, we have the start PFN is 0 and the size is 524288, so
+>> we then go through and set *all* pages of memory to be in the zone for
+>> node 1, including the pages which are actually on node 0.
+>>
+>> That's why we can't allocate any pages on node 0, and the kmem cache
+>> bootstrapping blows up.
+>>
+>> I don't know this code well enough to know what the correct fix is.
+>> Clearly memmap_init_zone should only be touching the pages that are
+>> actually present in the zone, but I don't know exactly what data
+>> structures it should be using to know what those pages are.
 > 
+> Mel Gorman and I have been poking at this from different ends.  Mel from
+> the context of this thread and myself trying to fix a machine which was
+> exhibiting on 32MB of ram in node 0 and the rest in node 1.
 > 
-> Why not do the cache flush _after_ the TLB flush? There's still a mapping, 
-> and never mind that it's read-only: the _mapping_ still exists, and I 
-> doubt any CPU will not do the writeback (the readonly bit had better 
-> affect the _frontend_ of the memory pipeline, but affectign the back end 
-> would be insane and very hard, since you can't raise a fault any more).
+> I remember that we used to have code to cope with this in the ppc64
+> architecture, indeed I remember reviewing it all that time ago.  Looking
+> at the current state of the tree it was removed in the two patches below
+> in mainline:
+> 	"[PATCH] Remove SPAN_OTHER_NODES config definition"
+> 	"[PATCH] mm: remove arch independent NODES_SPAN_OTHER_NODES"
+> 
+> These commits:
+> 	f62859bb6871c5e4a8e591c60befc8caaf54db8c
+> 	a94b3ab7eab4edcc9b2cb474b188f774c331adf7
+> 
+> I'll follow up to this email with the reversion patch we used in
+> testing.  It seems to sort this problem out at least, though now its
+> blam'ing in ibmveth, so am retesting with yet another patch.  This patch
+> reverts the two patches above and updates the commentry on the Kconfig
+> entry.
 
-I didn't think that would work if there is no TLB. But if the writeback
-can cause a TLB reload, and then bypass the readonly protection, then
-yes would close all races.
+Ok, I've just gotten a successful boot on this box for the first time in
+like 15 git releases.  I needed the three patches below:
 
-Of course, you may also want to do the racy cache flush before the
-TLB flush as well, so you don't immediately take a load of TLB misses
-to write it out.
+clameter-fallback_alloc_fix2 -- from earlier in this thread, under the
+message ID below:
+    <Pine.LNX.4.64.0610131515200.28279@schroedinger.engr.sgi.com>
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Reintroduce-NODES_SPAN_OTHER_NODES-for-powerpc -- the patch I just
+submitted, under the message ID below:
+    <8a76dfd735e544016c5f04c98617b87d@pinky>
+
+ibmveth-fix-index-increment-calculation -- this patch is already in -mm.
+
+Feel free to take this as an ACK for the patches other than mine.
+
+Acked-by: Andy Whitcroft <apw@shadowen.org>
+
+-apw

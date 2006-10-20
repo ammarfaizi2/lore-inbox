@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992435AbWJTCrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992439AbWJTCt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992435AbWJTCrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 22:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992436AbWJTCrg
+	id S2992439AbWJTCt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992441AbWJTCt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 22:47:36 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:15962 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S2992435AbWJTCrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 22:47:35 -0400
+	Thu, 19 Oct 2006 22:49:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:39075 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S2992436AbWJTCtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 22:49:55 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=TDPMl3t37P6ObJRr0ytoQ65SPdiG77U8m+ueAOpIH0bQrgKpCrB0LNCZmxYded5JWd8I3nYVfLRZ77tR65/du8QjCw38opriSWuUBYaoFgc7yx7FgmJeH1IKuE2qicXsPXl+cntr2kza5i8LmMiO8ucambDmoI6iCdFAWmhSeSU=
-Date: Fri, 20 Oct 2006 11:48:27 +0900
+        b=uA3jp1nPj7Q4o8Ak28I+yFTSslr/mAn24szhVDc69N6lXtP1fhQpxOxVFBhQ3ekS+6QaADelaQscAO2xLQdqRXS/ZCBC4YuUuJ0rJkC09zLVUXGopG2curneskAF5E72mRCy2wGKTU4847NIhMSi91Bwj9x0zIWB7A43iQggXt0=
+Date: Fri, 20 Oct 2006 11:50:45 +0900
 From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org, Antonino Daplas <adaplas@pol.net>
-Subject: Re: [PATCH 3/6] video: use bitrev8
-Message-ID: <20061020024827.GA6344@localhost>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
+       Mirko Lindner <mlindner@syskonnect.de>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH 4/6] net: use bitrev8
+Message-ID: <20061020025045.GB6344@localhost>
 Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
-	Antonino Daplas <adaplas@pol.net>
-References: <20061018164420.GC21820@localhost> <4537458D.4050107@tls.msk.ru>
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+	Paul Mackerras <paulus@samba.org>,
+	Mirko Lindner <mlindner@syskonnect.de>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+References: <20061018164647.GD21820@localhost> <20061019133951.1d463173.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4537458D.4050107@tls.msk.ru>
+In-Reply-To: <20061019133951.1d463173.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 01:29:49PM +0400, Michael Tokarev wrote:
-> >  static inline void reverse_order(u32 *l)
-> >  {
-> >  	u8 *a = (u8 *)l;
-> > -	*a = byte_rev[*a], a++;
-> > -	*a = byte_rev[*a], a++;
-> > -	*a = byte_rev[*a], a++;
-> > -	*a = byte_rev[*a];
-> > +	a[0] = bitrev8(a[0]);
-> > +	a[1] = bitrev8(a[1]);
-> > +	a[2] = bitrev8(a[2]);
-> > +	a[3] = bitrev8(a[3]);
-> >  }
-> 
-> This looks like a good candidate for a common helper function, too.
+On Thu, Oct 19, 2006 at 01:39:51PM -0700, Andrew Morton wrote:
 
-I thought that and we already have static function bytereverse()
-in lib/crc32. But I could not find where I could replace except here.
-So I didn't put bytereverse() into bitrev.h
+> A bunch of drivers.
+> 
+> > ===================================================================
+> > --- work-fault-inject.orig/drivers/net/Kconfig
+> > +++ work-fault-inject/drivers/net/Kconfig
+> > @@ -2500,6 +2500,7 @@ config DEFXX
+> >  config SKFP
+> >  	tristate "SysKonnect FDDI PCI support"
+> >  	depends on FDDI && PCI
+> > +	select BITREVERSE
+> >  	---help---
+> >  	  Say Y here if you have a SysKonnect FDDI PCI adapter.
+> >  	  The following adapters are supported by this driver:
+> 
+> But only one of them selects the library.
+
+Other drivers already select CRC32 and CRC32 selects BITREVERSE.
+
+> But select is problematic and I do wonder whether it'd be simpler to just
+> link the thing into vmlinux.
+
+OK. I'll try.
 

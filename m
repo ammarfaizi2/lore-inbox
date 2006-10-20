@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWJTPS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWJTPTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWJTPS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWJTPS7
+	id S932206AbWJTPTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWJTPTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:18:59 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:52093 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750726AbWJTPS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:18:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dQqQTvuarNi1DY6h3B1Py/tH/kq09+Ose6zb2LiGefQb2dAQ5h1AhekvmoDpEqvtaHwkFVG8Wp0knTV2wFeS2XhBTzWeLcPaOkyZPmQNsH0ECct7wFmeNuhOKX8ZDRJir4qUu6ULcC967BCMCSto2hQKzk3TqU1X9URoAy5i7/A=
-Message-ID: <787b0d920610200818t1950d17y10a41957fd747c63@mail.gmail.com>
-Date: Fri, 20 Oct 2006 11:18:56 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [CFT] Grep to find users of sys_sysctl.
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Cal Peake" <cp@absolutedigital.net>, "Andi Kleen" <ak@suse.de>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Oct 2006 11:19:35 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:30184 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932206AbWJTPTe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 11:19:34 -0400
+Subject: Re: kernel BUG in __cache_alloc_node at
+	linux-2.6.git/mm/slab.c:3177!
+From: Will Schmidt <will_schmidt@vnet.ibm.com>
+Reply-To: will_schmidt@vnet.ibm.com
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Christoph Lameter <clameter@sgi.com>, Anton Blanchard <anton@samba.org>,
+       akpm@osdl.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Mel Gorman <mel@csn.ul.ie>, Mike Kravetz <kravetz@us.ibm.com>
+In-Reply-To: <4538DACC.5050605@shadowen.org>
+References: <1161026409.31903.15.camel@farscape>
+	 <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
+	 <1161031821.31903.28.camel@farscape>
+	 <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
+	 <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
+	 <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
+	 <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
+	 <20061019163044.GB5819@krispykreme>
+	 <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
+	 <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com>
+	 <17720.30804.180390.197567@cargo.ozlabs.ibm.com>
+	 <4538DACC.5050605@shadowen.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 20 Oct 2006 10:19:25 -0500
+Message-Id: <1161357566.8946.62.camel@farscape>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
-	 <Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
-	 <Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
-	 <20061018124415.e45ece22.akpm@osdl.org>
-	 <m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
-	 <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
-	 <m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
-	 <20061020075234.GA18645@flint.arm.linux.org.uk>
-	 <m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/20/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Jakub Jelinek <jakub@redhat.com> writes:
->
-> > This assumes the binaries and/or libraries are not stripped, and they
-> > usually are stripped.  So, it is better to run something like:
-> > find / -type f -perm /111 | while read f; do readelf -Ws $f 2>/dev/null | fgrep
-> > -q sysctl@GLIBC && echo $f; done
->
-> Russell King <rmk+lkml@arm.linux.org.uk> writes:
-> > glibc on ARM _requires_ sys_sysctl for userspace ioperm, inb, outb etc
-> > emulation.
->
->
-> It looks like we have a small but interesting set of sysctl users.
->
-> The list of files below is a composite from a number of systems I have
-> access to, and the reply I have gotten so far.  I'm still hoping to hear
-> from other people so I can add some other users of sysctl to my list.
+On Fri, 2006-20-10 at 15:18 +0100, Andy Whitcroft wrote:
+> Paul Mackerras wrote:
+> > Christoph Lameter writes:
+> > 
 
-So does Linux now only support GLIBC apps? That's what your
-grep seems to imply. At least one of the free Pascal compilers
-does not use GLIBC. You won't find a GLIBC sysctl symbol in
-any of the alternate C libraries (there are many) or even in libc5.
+I got dropped off the CC list somewhere..  :-(     
 
-Running your grep on developer machines is highly biased
-against legacy business apps.
+if something is bouncing, let me know,.. otherwise please dont do
+that.. 
 
-Despite the desires of some fanatics, Linux does support an ABI
-which is used by closed-source apps. Sometimes people even
-lose their source code, perhaps via corporate reorganization.
-I don't expect you plan to help anybody whose business depends
-on some crufty old software...?
 
-We have lots worse cruft if you want to go on a cleaning rampage.
-We have old syscalls that can't handle modern data types.
+> Mel Gorman and I have been poking at this from different ends.  Mel from
+> the context of this thread and myself trying to fix a machine which was
+> exhibiting on 32MB of ram in node 0 and the rest in node 1.
+> 
+> I remember that we used to have code to cope with this in the ppc64
+> architecture, indeed I remember reviewing it all that time ago.  Looking
+> at the current state of the tree it was removed in the two patches below
+> in mainline:
+> 	"[PATCH] Remove SPAN_OTHER_NODES config definition"
+> 	"[PATCH] mm: remove arch independent NODES_SPAN_OTHER_NODES"
+> 
+> These commits:
+> 	f62859bb6871c5e4a8e591c60befc8caaf54db8c
+> 	a94b3ab7eab4edcc9b2cb474b188f774c331adf7
+> 
+> I'll follow up to this email with the reversion patch we used in
+> testing.  It seems to sort this problem out at least, though now its
+> blam'ing in ibmveth, so am retesting with yet another patch.  This patch
+> reverts the two patches above and updates the commentry on the Kconfig
+> entry.
+
+I've got a couple LPARs that exhibit the problem, so can verify your
+patch once I see it.. 
+
+-Will
+
+
+> 
+> -apw
+

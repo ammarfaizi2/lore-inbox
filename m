@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWJTPxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWJTPzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWJTPxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 11:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWJTPxN
+	id S932261AbWJTPzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 11:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJTPzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 11:53:13 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:55110 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932263AbWJTPxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 11:53:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J2MkJPwp3tBkAbOTgMvuITEZiZ6jcGj7ZzkxOXyFJcsfrwYQhbBDhBplPsn8bOZLO66/S7QgIaPV0cs/e6jOv0Qf/txdPCdDo98UWVIhFWl443KIbLyKsFKHJ1uxlJPBpJskhTPKqZ0wVzrbnTtTigupL4S4BK/hywye94VzEgI=
-Message-ID: <5bdc1c8b0610200853y2767784jf8ca154a6cfeed5d@mail.gmail.com>
-Date: Fri, 20 Oct 2006 08:53:10 -0700
-From: "Mark Knecht" <markknecht@gmail.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: 2.6.18-rt6
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "John Stultz" <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       "Dipankar Sarma" <dipankar@in.ibm.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Mike Galbraith" <efault@gmx.de>, "Daniel Walker" <dwalker@mvista.com>,
-       "Manish Lachwani" <mlachwani@mvista.com>, bastien.dugue@bull.net
-In-Reply-To: <1161356444.15860.327.camel@mindpipe>
+	Fri, 20 Oct 2006 11:55:46 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:16 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932261AbWJTPzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 11:55:46 -0400
+Date: Fri, 20 Oct 2006 11:55:44 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+cc: Christopher Monty Montgomery <xiphmont@gmail.com>,
+       Paolo Ornati <ornati@fastwebnet.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
+ from card reader
+In-Reply-To: <4538B689.2020909@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061018083921.GA10993@elte.hu>
-	 <1161356444.15860.327.camel@mindpipe>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
-> > i've released the 2.6.18-rt6 tree, which can be downloaded from the
-> > usual place:
+On Fri, 20 Oct 2006, Helge Hafting wrote:
+
+> Alan Stern wrote:
+> [...]
+> > After looking at the debugging output, no.  That "invalid opcode" is a red 
+> > herring.  What you encountered this time was a BUG() in the source code of 
+> > start_unlink_async() in drivers/usb/host/ehci-q.c:
 > >
-> >   http://redhat.com/~mingo/realtime-preempt/
->
-> This does not work here.  It boots but then wants to fsck my disks, and
-> dies with a sig 11 in fsck.ext3.  This is 100% reproducible and booting
-> 2.6.18-rt5 works and does not want to fsck the disks.
->
-> Sorry I don't have more information, the box is headless and in
-> production so I have limited debugging bandwidth.
->
-> Do you need my .config?
->
-> Lee
->
+> > #ifdef DEBUG
+> > 	assert_spin_locked(&ehci->lock);
+> > 	if (ehci->reclaim
+> > 			|| (qh->qh_state != QH_STATE_LINKED
+> > 				&& qh->qh_state != QH_STATE_UNLINK_WAIT)
+> > 			)
+> > 		BUG ();
+> > #endif
+> >
+> > You could try putting a printk() just before the BUG() to display the 
+> > values of ehci->reclaim and qh->qh_state.  Maybe also change the BUG() to 
+> >   
+> ehci->reclaim=0
+> qh->qh_state=5
 
-I've been running 2.6.18-rt6 for a couple of days now. No problems so far.
+5 is QH_STATE_COMPLETING.  That explains why the BUG() fires.
 
-mark@lightning ~ $ uname -a
-Linux lightning 2.6.18-rt6 #2 PREEMPT Wed Oct 18 10:18:51 PDT 2006
-x86_64 AMD Athlon(tm) 64 Processor 3000+ GNU/Linux
-mark@lightning ~ $ uptime
- 08:52:52 up 21:32,  2 users,  load average: 0.93, 0.73, 0.47
-mark@lightning ~ $
+At this point it's beyond me.  Monty will have to take it from here.
 
 
-I am single processor. HRT is turned on. I am not using the DynTicks
-thing as I don't know what it's supposed to do.
+> During boot I get lots of those "Hardware error, end-of-data detected"
+> messages, but I've never seen it crash during bootup.
 
-Anyway, 2.6.18-rt5 wouldn't boot reliably for me so it seems we are
-out of phase with each other. Maybe compare .config's?
+Those messages are from the card reader.  It doesn't seem to be working 
+right.  It returns the "end-of-data" error in response to a PREVENT MEDIUM 
+REMOVAL command and it returns a phase error in response to a READ 
+command.  In spite of the fact that it claims to have a 256 MB card 
+present.
 
-- Mark
+Alan Stern
+

@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWJTRZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWJTRb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWJTRZn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWJTRZn
+	id S964817AbWJTRb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWJTRb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:25:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14754 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932237AbWJTRZn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:25:43 -0400
-Date: Fri, 20 Oct 2006 10:25:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
-       Greg KH <greg@kroah.com>
+	Fri, 20 Oct 2006 13:31:58 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:19975 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S964817AbWJTRb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:31:58 -0400
+Message-ID: <453907D5.8070501@shadowen.org>
+Date: Fri, 20 Oct 2006 18:31:01 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.19-rc2-mm2
-Message-Id: <20061020102520.67b8c2ab.akpm@osdl.org>
-In-Reply-To: <200610201854.43893.m.kozlowski@tuxland.pl>
-References: <20061020015641.b4ed72e5.akpm@osdl.org>
-	<200610201339.49190.m.kozlowski@tuxland.pl>
-	<20061020091901.71a473e9.akpm@osdl.org>
-	<200610201854.43893.m.kozlowski@tuxland.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+References: <20061020015641.b4ed72e5.akpm@osdl.org> <4538F12B.10609@mbligh.org> <4538F993.8020605@us.ibm.com>
+In-Reply-To: <4538F993.8020605@us.ibm.com>
+X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 18:54:43 +0200
-Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
-
-> Hello, 
+Badari Pulavarty wrote:
+> Martin J. Bligh wrote:
+>> Andrew Morton wrote:
+>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+>>>
+>>>
+>>> - Added the IOAT tree as git-ioat.patch (Chris Leech)
+>>>
+>>> - I worked out the git magic to make the wireless tree work
+>>>   (git-wireless.patch).  Hopefully it will be in -mm more often now.
+>>
+>> I think the IO & fsx problems have got better, but this one is still
+>> broken, at least.
+>>
+>> See end of fsx runlog here:
+>>
+>> http://test.kernel.org/abat/57486/debug/test.log.1
+>>
+>> which looks like this:
+>>
+>> Total Test PASSED: 79
+>> Total Test FAILED: 3
+>>   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w
+>> 2048 -Z -R -W test/junkfile
+>>   139 ./fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W
+>> test/junkfile
+>>   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w
+>> 1024 -Z -R -W test/junkfile
+>> Failed rc=1
+>> 10/20/06-02:41:55 command complete: (1) rc=1 (TEST FAIL)
+>>
+> I see following message in the log which makes me think the reiserfs
+> tail handling with DIO problem...
+> Is this reiserfs ? Chris Mason told me that we need to use -onotail
+> mount option for this to pass.
+> Not sure why we haven't see this before...
 > 
-> > Don't know.   Nothing has changed in the git-pcmcia tree since July.
-> >
-> > Are you able to bisect it, as per
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt ?
-> >
-> > > When running without debug options enabled also these were seen amongst
-> > > dmesg lines:
-> > >
-> > > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> > > [drm:drm_unlock] *ERROR* Process 5131 using kernel context 0
-> >
-> > <googles>
-> >
-> > This? http://lkml.org/lkml/2005/9/10/78
-> 
-> I think I found the culprit. It's CONFIG_PCI_MULTITHREAD_PROBE option. It is 
-> actually marked as EXPERIMENTAL and there is even a proper warning included 
-> on the help page. Disabling it makes the kernel behave the right way. So 
-> should what I reported be considered a real error or not? Then the next 
-> question is should I report errors caused by options marked as EXPERIMENTAL 
-> or just leave it the way it is until the option is not EXPERIMENTAL anymore?
+> doread: read: Invalid argument
 
-Ow.  Multithreaded probing was probably a bt ambitious, given the current
-status of kernel startup..
+/dev/sda1 / reiserfs rw 0 0
 
-Greg, does it actually speed anything up or anything else good?
+Yes, this is a reiserfs filesystem we are testing on.  This is a new
+machine and probabally the only one reporting to TKO with reiserfs as
+its root filesystem.
 
-As for what to do about it: tell David ;) I'm not sure that he'll be
-super-motivated about it though.
+Can you explain what difference this option makes, and why it is
+changing the visible semantics of the filesystem?  Is this valid?
 
+-apw

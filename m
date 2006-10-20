@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992722AbWJTVQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946512AbWJTVQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992722AbWJTVQM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992613AbWJTVQM
+	id S1946512AbWJTVQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946523AbWJTVQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:16:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:38366 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S2992708AbWJTVQK (ORCPT
+	Fri, 20 Oct 2006 17:16:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946512AbWJTVQ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:16:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
-Date: Fri, 20 Oct 2006 23:16:03 +0200
-User-Agent: KMail/1.9.3
-Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20061020.134209.85688168.davem@davemloft.net> <200610202301.29859.ak@suse.de> <20061020.140859.95896187.davem@davemloft.net>
-In-Reply-To: <20061020.140859.95896187.davem@davemloft.net>
+	Fri, 20 Oct 2006 17:16:28 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Peschke <mp3@de.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] statistics: fix buffer overflow in histogram with linear scale
+References: <1161352724.3135.18.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	<20061020115242.ff4acce2.akpm@osdl.org>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 20 Oct 2006 17:15:20 -0400
+In-Reply-To: <20061020115242.ff4acce2.akpm@osdl.org>
+Message-ID: <y0mpscmvgd3.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610202316.03940.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 October 2006 23:08, David Miller wrote:
-> From: Andi Kleen <ak@suse.de>
-> Date: Fri, 20 Oct 2006 23:01:29 +0200
-> 
-> > netpoll always played a little fast'n'lose with various locking rules.
-> 
-> The current code is fine, it never reenters ->poll, because it
-> maintains a "->poll_owner" which it checks in netpoll_send_skb()
-> before trying to call back into ->poll.
+Andrew Morton <akpm@osdl.org> writes:
 
-I was more thinking of reentry of the interrupt handler in 
-the driver etc. A lot of them also do printk, but that is fortunately
-caught higher level.
+> So...  what are we going to do with the statistics stuff?  It needs users
+> to prove its desirability/suitability.  I think there was some work done in
+> the SCSI area - did that come to anything?
 
--Andi
+There may be an opportunity here for combining this and the
+markers-based lttng work.  Statistics gathering would be just one of
+several possible back-end for events corresponding to scsi quantity
+changes: tracing or more elaborate probing would also be enabled.
+
+- FChE

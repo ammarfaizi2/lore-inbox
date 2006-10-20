@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWJTI4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWJTJHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWJTI4L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 04:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWJTI4L
+	id S932230AbWJTJHF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 05:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWJTJHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 04:56:11 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:6035 "EHLO
+	Fri, 20 Oct 2006 05:07:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:6089 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932211AbWJTI4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 04:56:10 -0400
+	id S932230AbWJTJHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 05:07:02 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=OVDS9nz679AGj5WDWatwrOXsLHTHKnbbbnwUki1KS0wB7LiNgBfkvzrFLMQ76irflyIMKlZcJJ5187F6o6m1aSrnjxwpuQdZpPT+FGwl2OsaD9YElgbDM0Pl4lmvEmw3zKOlUUKiJaINYXqyQ48NLO5UxhdwL8eW95GTseEuN7o=
-Message-ID: <84144f020610200156t1745b3d6xee0b0a24e6a1bba5@mail.gmail.com>
-Date: Fri, 20 Oct 2006 11:56:08 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Kevin Hilman" <khilman@mvista.com>
-Subject: Re: [PATCH] slab debug and ARCH_SLAB_MINALIGN don't get along
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11612878321443-git-send-email-khilman@mvista.com>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=OAXLrrSmC/NcYCO2JzcY10Inlt2vl2IAi1qDPAV1G8x0FWTUuUIhf8B80MY1epCswA/lTqznWo2ZONIGGR6HCByl/f5lBJQVM+UXntQEXIDCpSzIyZAcFvXwgkimYpuG2k79eAc453xMHS+Kd26mMFESaD9DPrBiJQO7d0S79Oc=
+Message-ID: <453891AD.70704@gmail.com>
+Date: Fri, 20 Oct 2006 18:06:53 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
 MIME-Version: 1.0
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jeff@garzik.org
+Subject: Re: [patch] libata: use correct map_db values for ICH8
+References: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
+In-Reply-To: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <11612878321443-git-send-email-khilman@mvista.com>
-X-Google-Sender-Auth: 1390098e7ac90b17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kevin,
+Hello, Kristen.
 
-On 10/19/06, Kevin Hilman <khilman@mvista.com> wrote:
-> When CONFIG_SLAB_DEBUG is used in combination with ARCH_SLAB_MINALIGN,
-> some debug flags should be disabled which depend on BYTES_PER_WORD
-> alignment.
->
-> The disabling of these debug flags is not properly handled when
-> BYTES_PER_WORD < ARCH_SLAB_MEMALIGN < cache_line_size()
->
-> This patch fixes that and also adds an alignment check to
-> cache_alloc_debugcheck_after() when ARCH_SLAB_MINALIGN is used.
+Kristen Carlson Accardi wrote:
+> Use valid values for ICH8 map_db.  With the old values, when the 
+> controller was in Native mode, and SCC was 1 (drives configured for
+> IDE), any drive plugged into a slave port was not recognized.  For
+> Combined Mode (and SCC is still 1), 2 is a value value for MAP.map_value,
+> and needs to be recognized.
+> 
+> Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-You forgot to mention which case you are fixing in the patch
-description (that is, SLAB_HWCACHE_ALIGN, when cache_line_size() >
-BYTES_PER_WORD) which made the patch bit hard to decipher. Anyway,
-looks good, thanks!
+Do you guys have doc update related to this?  The doc and spec update 
+still indicate that MAP value is reserved to 00b.  Anyways, if you say 
+that's right...
 
-                                              Pekka
+Acked-by: Tejun Heo <htejun@gmail.com>
+
+-- 
+tejun

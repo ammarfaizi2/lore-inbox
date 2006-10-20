@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946230AbWJTFGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946228AbWJTFMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946230AbWJTFGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161449AbWJTFGS
+	id S1946228AbWJTFMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161449AbWJTFMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:06:18 -0400
-Received: from smtp-msa-out01.orange.fr ([193.252.23.120]:3989 "EHLO
-	smtp-msa-out01.orange.fr") by vger.kernel.org with ESMTP
-	id S1161444AbWJTFGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:06:17 -0400
-X-ME-UUID: 20061020050614108.1A6B47000083@mwinf0114.orange.fr
-X-ME-User-Auth: sven.luther
-Date: Fri, 20 Oct 2006 07:02:47 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nicolas DET <nd@bplan-gmbh.de>, linuxppc-dev@ozlabs.org,
-       Olaf Hering <olaf@aepfle.de>, linux-kernel@vger.kernel.org
-Subject: Re: Badness in irq_create_mapping at arch/powerpc/kernel/irq.c:527
-Message-ID: <20061020050247.GA11168@powerlinux.fr>
-References: <20061019122802.GA26637@aepfle.de> <45377ED3.9030001@bplan-gmbh.de> <1161308221.10524.92.camel@localhost.localdomain>
+	Fri, 20 Oct 2006 01:12:09 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:27841 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1161444AbWJTFMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:12:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TI4MRK6qjORM5voY5jMfkfPrqWd47pO67t4uu7lnXQTfke8qU0QsyAl1BybJJUaSDJqnvC5lNvaRDJA6YDTIJ+PhDG9T2xN63igiZBuphaiEkYedvmMu7xioZZHpb5eQKPg+7Furucp8IEx8ZpR+Y/CKUyCicykKXFC/Ogvx1Yg=
+Message-ID: <4df04b840610192210x3d7de930k7be7dbf9e38819bd@mail.gmail.com>
+Date: Fri, 20 Oct 2006 13:10:45 +0800
+From: "yunfeng zhang" <zyf.zeroos@gmail.com>
+To: "David Miller" <davem@davemloft.net>
+Subject: Re: BUG: about flush TLB during unmapping a page in memory subsystem
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061019.200211.88476455.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1161308221.10524.92.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Sven Luther <sven.luther@wanadoo.fr>
+References: <4df04b840610191947r2b48c2ddo45f0cd94d94a614b@mail.gmail.com>
+	 <20061019.200211.88476455.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 11:37:01AM +1000, Benjamin Herrenschmidt wrote:
-> On CHRP with only a 8259, make sure it's set as the default host.
+Maybe, the solution is below
 
-Hi Ben,
+...
+// >>> ptep_clear((__vma)->vm_mm, __address, __ptep);
+// >>> flush_tlb_page(__vma, __address);
+// >>> __ptep;
+...
 
-Where you able to investigate the interupt tree or at least look over the
-lsprop output we sent you ? 
+And even so, we also get a pte with present = 0 AND its dirty = 1, an odd pte.
 
-Friendly,
-
-Sven Luther
-
+Remember B dirtied the pte before A executes flush_tlb_page.

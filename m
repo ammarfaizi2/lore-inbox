@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWJTM5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945987AbWJTM6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWJTM5V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 08:57:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWJTM5V
+	id S1945987AbWJTM6m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 08:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423125AbWJTM6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 08:57:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:17385 "EHLO
+	Fri, 20 Oct 2006 08:58:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:59885 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1423125AbWJTM5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 08:57:19 -0400
+	id S1423226AbWJTM6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 08:58:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=PWfAemRPXj7/zJqo5cLEe6kVi/AC2cveq6LhHUJzO+XeYMjXYzDnPK+1n75TxFhV0694VWA1NpMKShDAV2U6JgsBdu+P9g++akhhPbTzdQHZ8frQvLEuQkTAu3VusC2N8lfN0v6bxwbbrEHkrZk7o+xAxIdZ6EWQxkfdrx9qboo=
-Date: Fri, 20 Oct 2006 16:57:22 +0400
+        b=YjF1NgNFwCHJBUnBj9fOGGWVEi5HEKfjMoDt+QZXHWsEafdI6WuEM12E2BvhLJesPPCXxQDsY4DdV2uYKrmRpVilYg5E22DvcpLlaJZNVZlSxgnoXMpIFUkzvZ2u5kn1Ao3H1ySl4Q2i0sHLgpT1J7U3IHN5qtQ+hKajZMyNDlc=
+Date: Fri, 20 Oct 2006 16:58:42 +0400
 From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
-Subject: [PATCH 1/3] parisc: use "unsigned long flags" in semaphore code
-Message-ID: <20061020125722.GA17199@martell.zuzino.mipt.ru>
+Cc: linux-kernel@vger.kernel.org,
+       Markus Lidel <markus.lidel@shadowconnect.com>
+Subject: [PATCH 2/3] i2o/exec-osm.c: use "unsigned long flags;"
+Message-ID: <20061020125842.GB17199@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,28 +32,18 @@ Just like everyone else.
 Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- include/asm-parisc/semaphore.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/message/i2o/exec-osm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/asm-parisc/semaphore.h
-+++ b/include/asm-parisc/semaphore.h
-@@ -115,7 +115,8 @@ extern __inline__ int down_interruptible
-  */
- extern __inline__ int down_trylock(struct semaphore * sem)
- {
--	int flags, count;
+--- a/drivers/message/i2o/exec-osm.c
++++ b/drivers/message/i2o/exec-osm.c
+@@ -127,7 +127,7 @@ int i2o_msg_post_wait_mem(struct i2o_con
+ 	DECLARE_WAIT_QUEUE_HEAD(wq);
+ 	struct i2o_exec_wait *wait;
+ 	static u32 tcntxt = 0x80000000;
+-	long flags;
 +	unsigned long flags;
-+	int count;
+ 	int rc = 0;
  
- 	spin_lock_irqsave(&sem->sentry, flags);
- 	count = sem->count - 1;
-@@ -131,7 +132,7 @@ extern __inline__ int down_trylock(struc
-  */
- extern __inline__ void up(struct semaphore * sem)
- {
--	int flags;
-+	unsigned long flags;
- 	spin_lock_irqsave(&sem->sentry, flags);
- 	if (sem->count < 0) {
- 		__up(sem);
+ 	wait = i2o_exec_wait_alloc();
 

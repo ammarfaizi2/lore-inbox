@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946178AbWJTXoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423250AbWJTXuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946178AbWJTXoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 19:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423250AbWJTXoQ
+	id S1423250AbWJTXuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 19:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423239AbWJTXuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 19:44:16 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:51443 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1423239AbWJTXoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 19:44:16 -0400
+	Fri, 20 Oct 2006 19:50:22 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:46129 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S2992743AbWJTXuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 19:50:20 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BfkUn6SagCUm64V3O0RwVCp7OGJBvCQCefslYrbLbzFrb/lZKqe+ti/0p4+Szebc4PyIlNVzCB9U8cHujIdKQpvdgQgJK3fyhxG3pBXhkI7sC82RFuqOQWk0+ODjaxzPtX5yyTzGL8REV/XN/e1r2PFf8E5u8ngy0QR4zMsWkow=
-Message-ID: <f8912af80610201644x1a2b8c51l7eaabdd6a17828e5@mail.gmail.com>
-Date: Sat, 21 Oct 2006 07:44:15 +0800
-From: "Michael Ruan" <beceo.tw@gmail.com>
-To: yh@bizmail.com.au
-Subject: Re: kernel internal built in module loading order
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <f8912af80610201639u2949bc5fw2bad77311ffaf9d5@mail.gmail.com>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Yx+CyAIO/8mUs1r5nM4S8K7cYpj3SC5v4VBIHlVBuF9ng/23Ju13AyNKd1k7JZkng4sSRGD3iYtkPSIh8gJEktjsF2k0zN84+V+SO2Fl/2+18y4txtQ6Z6WsYJ9Xbcl18tmhio+r92QcdUyJj5fB2pWja1NMrAU7fWfxMmg4CQg=
+Message-ID: <453960B3.6040006@gmail.com>
+Date: Sat, 21 Oct 2006 08:50:11 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
 MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?Lars_Christian_Nyg=E5?= =?ISO-8859-1?Q?rd?= 
+	<lars@snart.com>
+Subject: Re: Debugging I/O errors?
+References: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
+In-Reply-To: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <453953EC.3000407@bizmail.com.au>
-	 <f8912af80610201639u2949bc5fw2bad77311ffaf9d5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->Does the kernel load internal built in modules (obj-y) in a certain
->order, or in a random order? Does the kernel internal module loading
->based on a configuration file?
->I am running an ARM system, is there a way to delay the Ethernet module
->loading until some other internal modules are loaded?
->Thank you.
+Roy Sigurd Karlsbakk wrote:
+> Hi all
+> 
+> Stresstesting a SATA drive+controller, I get the error below after a 
+> while. How can I find if this error is due to a controller failure, a 
+> bad driver, or a drive failure?
 
-Yes, it follows some rules.
+Is there any libata/SCSI error messages in your log?
 
-Please refer to the "3.2 Built-in object goals - obj-y" section of your
-kernel_source_root/Documentation/kbuild/makefiles.txt
-
-Michael
+-- 
+tejun

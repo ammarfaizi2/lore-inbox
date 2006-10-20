@@ -1,85 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992639AbWJTQj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992659AbWJTQkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992639AbWJTQj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 12:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992630AbWJTQj2
+	id S2992659AbWJTQkU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 12:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992662AbWJTQkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 12:39:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26772 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992660AbWJTQj1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 12:39:27 -0400
-Date: Fri, 20 Oct 2006 09:39:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
-       Cal Peake <cp@absolutedigital.net>
-Subject: Re: [CFT] Grep to find users of sys_sysctl.
-Message-Id: <20061020093915.58961ba3.akpm@osdl.org>
-In-Reply-To: <m1bqo7406k.fsf@ebiederm.dsl.xmission.com>
-References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
-	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
-	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
-	<20061018124415.e45ece22.akpm@osdl.org>
-	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
-	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
-	<20061020003540.10d367d9.akpm@osdl.org>
-	<m1bqo7406k.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 20 Oct 2006 12:40:20 -0400
+Received: from solarneutrino.net ([66.199.224.43]:25103 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S2992659AbWJTQkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 12:40:18 -0400
+Date: Fri, 20 Oct 2006 12:40:08 -0400
+To: Keith Whitwell <keith@tungstengraphics.com>
+Cc: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
+Message-ID: <20061020164008.GA29810@tau.solarneutrino.net>
+References: <20061013194516.GB19283@tau.solarneutrino.net> <1160849723.3943.41.camel@neko.keithp.com> <20061017174020.GA24789@tau.solarneutrino.net> <1161124062.25439.8.camel@neko.keithp.com> <4535CFB1.2010403@tungstengraphics.com> <20061019173108.GA28700@tau.solarneutrino.net> <4538B670.2030105@tungstengraphics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <4538B670.2030105@tungstengraphics.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 06:54:43 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
-
-> > On Fri, 20 Oct 2006 01:05:18 -0600
-> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Fri, Oct 20, 2006 at 12:43:44PM +0100, Keith Whitwell wrote:
+> Ryan Richter wrote:
+> >On Wed, Oct 18, 2006 at 07:54:41AM +0100, Keith Whitwell wrote:
+> >>This is all a little confusing as the driver doesn't really use that 
+> >>path in normal operation except for a single command - MI_FLUSH, which 
+> >>is shared between the architectures.  In normal operation the hardware 
+> >>does the validation for us for the bulk of the command stream.  If there 
+> >> were missing functionality in that ioctl, it would be failing 
+> >>everywhere, not just in this one case.
+> >>
+> >>I guess the questions I'd have are
+> >>	- did the driver work before the kernel upgrade?
+> >>	- what path in userspace is seeing you end up in this ioctl?
+> >>	- and like Keith, what commands are you seeing?
+> >>
+> >>The final question is interesting not because we want to extend the 
+> >>ioctl to cover those, but because it will give a clue how you ended up 
+> >>there in the first place.
 > >
-> >> 
-> >> Anyone who is interested in knowing if they have an application on
-> >> their system that actually uses sys_sysctl please run the following grep.
-> >> 
-> >> find / -type f  -perm /111 -exec fgrep 'sysctl@@GLIBC' '{}' ';' 
-> >> 
-> >> The -perm /111 is an optimization to only look at executable files,
-> >> and may be omitted if you are patient.
-> >> 
-> >> Currently I don't expect anyone to find a match anywhere except in
-> > libpthreads,
-> >> if you find any others please let me know.
-> >> 
+> >Here's a list of all the failing commands I've seen so far:
 > >
-> > http://www.google.com/codesearch
-> >
-> > there are a few hits...
+> >3a440003
+> >d70003
+> >2d010003
+> >e5b90003
+> >2e730003
+> >8d8c0003
+> >c10003
+> >d90003
+> >be0003
+> >1e3f0003
 > 
-> What were you using for search criteria?
+> Ryan,
 > 
-> A challenge is to weed out code that runs on BSDs where people do use sysctl.
+> Those don't look like any commands I can recognize.  I'm still confused 
+> how you got onto this ioctl in the first place - it seems like something 
+> pretty fundamental is going wrong somewhere.  What would be useful to me 
+> is if you can use GDB on your application and get a stacktrace for how 
+> you end up in this ioctl in the cases where it is failing?
+> 
+> Additionally, if you're comfortable doing this, it would be helpful to 
+> see all the arguments that userspace thinks its sending to the ioctl, 
+> compared to what the kernel ends up thinking it has to validate.  There 
+> shouldn't ever be more than two dwords being validated at a time, and 
+> they should look more or less exactly like {0x02000003, 0}, and be 
+> emitted from bmSetFence().
+> 
+> All of your other wierd problems, like the assert failures, etc, make me 
+> wonder if there just hasn't been some sort of build problem that can 
+> only be resolved by clearing it out and restarting.
+> 
+> It wouldn't hurt to just nuke your current Mesa and libdrm builds and 
+> start from scratch - you'll probably have to do that to get debug 
+> symbols for gdb anyway.
 
-I just used "sysctl" and clicked a lot.
+I had heard something previously about i965_dri.so maybe getting
+miscompiled, but I hadn't followed up on it until now.  I rebuilt it
+with an older gcc, and now it's all working great!  Sorry for the wild
+goose chase.
 
->From a quick scan:
-
-http://www.google.com/codesearch?q=+sysctl+linux+-glibc+show:ezM3VpAIwOY:VqU4ELp0K4A:GC7QFUptQys&sa=N&cd=51&ct=rc&cs_p=http://www.xorp.org/releases/0.2/xorp-0.2.tar.gz&cs_f=xorp-0.2/ospfd/linux/system.C#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:dPzMrf8geLs:EbNoGzoYDAc:I-_8YloL1fY&sa=N&cd=11&ct=rc&cs_p=http://www.openwall.com/scanlogd/lib/libnet-1.1.3-RC-01.tar.gz&cs_f=libnet/src/libnet_link_bpf.c#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:QQ2BcrelppE:zZeMmMrGko0:BFmHNHvdqyA&sa=N&cd=17&ct=rc&cs_p=http://www.cpan.org/authors/id/B/BR/BRYCE/Test-Parser-1.4.tar.gz&cs_f=Test-Parser-1.4/lib/Test/Parser/Sysctl.pm#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:yqt7gBTAktI:350f8_WXUz8:J6r1Ge4gTiw&sa=N&cd=23&ct=rc&cs_p=http://darwinsource.opendarwin.org/tarballs/apsl/top-9.tar.gz&cs_f=top-9/libtop.c#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:-9-E1kR2zW0:HD_LhbY9gNM:Wt7DONTBSR4&sa=N&cd=65&ct=rc&cs_p=http://sparemint.atariforge.net/sparemint/mint/kernel/1.15.12/freemint-1.15.12-src.tar.gz&cs_f=freemint-1.15.12/tools/sysctl/sysctl.c#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:A8hxeTvi8Lc:rlNCNnWdQuo:lUO9tYzCStY&sa=N&cd=102&ct=rc&cs_p=http://www.opensource.apple.com/darwinsource/tarballs/other/OpenLDAP-69.0.2.tar.gz&cs_f=OpenLDAP-69.0.2/OpenLDAP/libraries/liblutil/uuid.c#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:8eVH0Ss2hrY:Yg_zU6fz4U8:akq5ZzLPf34&sa=N&cd=107&ct=rc&cs_p=ftp://ftp.stacken.kth.se/pub/arla/arla-0.42.tar.gz&cs_f=arla-0.42/lib/roken/getdtablesize.c#a0
-
-http://www.google.com/codesearch?q=+sysctl+-glibc+show:NXzHfAnEMjg:ZIWovlf1IWU:WZdEzr-Zs0o&sa=N&cd=112&ct=rc&cs_p=http://gentoo.osuosl.org/distfiles/bind-9.3.2-P1.tar.gz&cs_f=bind-9.3.2-P1/lib/isc/unix/ifiter_sysctl.c#a0
-
-Quite a lot of networking-related utilities.  Including bind and openldap.
+Thanks,
+-ryan

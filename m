@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992721AbWJTTXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992731AbWJTTY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992721AbWJTTXM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992722AbWJTTXM
+	id S2992731AbWJTTY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992730AbWJTTY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:23:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57752
+	Fri, 20 Oct 2006 15:24:29 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62872
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S2992721AbWJTTXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:23:11 -0400
-Date: Fri, 20 Oct 2006 12:23:11 -0700 (PDT)
-Message-Id: <20061020.122311.30184576.davem@davemloft.net>
-To: nickpiggin@yahoo.com.au
-Cc: ralf@linux-mips.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+	id S2992724AbWJTTY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 15:24:27 -0400
+Date: Fri, 20 Oct 2006 12:24:27 -0700 (PDT)
+Message-Id: <20061020.122427.55507415.davem@davemloft.net>
+To: shemminger@osdl.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <4538DFAC.1090206@yahoo.com.au>
-References: <20061019181346.GA5421@linux-mips.org>
-	<20061019.155939.48528489.davem@davemloft.net>
-	<4538DFAC.1090206@yahoo.com.au>
+In-Reply-To: <20061020081857.743b5eb7@localhost.localdomain>
+References: <20061019171814.281988608@osdl.org>
+	<20061020.001530.35664340.davem@davemloft.net>
+	<20061020081857.743b5eb7@localhost.localdomain>
 X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -27,25 +26,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-Date: Sat, 21 Oct 2006 00:39:40 +1000
+From: Stephen Hemminger <shemminger@osdl.org>
+Date: Fri, 20 Oct 2006 08:18:57 -0700
 
-> So moving the flush_cache_mm below the copy_page_range, to just
-> before the flush_tlb_mm, would work then? This would make the
-> race much smaller than with this patchset.
-> 
-> But doesn't that still leave a race?
-> 
-> What if another thread writes to cache after we have flushed it
-> but before flushing the TLBs? Although we've marked the the ptes
-> readonly, the CPU won't trap if the TLB is valid? There must be
-> some special way for the arch to handle this, but I can't see it.
+> Netdump is not in the tree, so I can't fix it. Also netdump is pretty
+> much superseded by kdump.
 
-Also, it is actually the case that doing page-by-page cache flushes
-can be cheaper than flush_mm_cache() on certain cpus.  Very few cpus
-that need this cache flushing provide a "context" based cache flush.
+Unless kdump is %100 ready you can be sure vendors will ship netdump
+for a little while longer.  I think gratuitously breaking netdump is
+not the best idea.
 
-On cpus like the mentioned hypersparc, there is no way to do a
-"context" flush of the cache, so we flush the entire multi-megabyte L2
-cache.  Actually, it allows to flush only "user" cache lines which
-keeps the kernel cache lines in there, but still it's very expensive.
+It's not like netdump is some binary blob you can't get the source
+to easily. :-)
+

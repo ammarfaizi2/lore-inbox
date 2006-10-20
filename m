@@ -1,70 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751618AbWJTDQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbWJTDVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751618AbWJTDQK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 23:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWJTDQJ
+	id S1751624AbWJTDVR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 23:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWJTDVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 23:16:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:10963 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751618AbWJTDQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 23:16:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=VfBh9dJzUlhh18gNdYCBtS4335Or9PafWlKtckj10/tWVW/IQWXEfU0AQsLkXESsj/2z0wa7Aij62Vd1EjjyRRSOHvBLa/BBqaYrSZSwQJxYtmqbLv+TRGAg+vGDwnGt2tD9gm5FGg/mZLBRFHj4f4PmHOXk4ziQuEr47zAqpok=
-Message-ID: <45383F6F.6090102@gmail.com>
-Date: Fri, 20 Oct 2006 12:15:59 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
-MIME-Version: 1.0
-To: "Berck E. Nash" <flyboy@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-mm2 AHCI lengthy pause on detection
-References: <453663DB.5060908@gmail.com>
-In-Reply-To: <453663DB.5060908@gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------050009050003050106060003"
+	Thu, 19 Oct 2006 23:21:16 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26793
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751623AbWJTDVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 23:21:16 -0400
+Date: Thu, 19 Oct 2006 20:21:17 -0700 (PDT)
+Message-Id: <20061019.202117.123674883.davem@davemloft.net>
+To: eiichiro.oiwa.nm@hitachi.com
+Cc: jesse.barnes@intel.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: pci_fixup_video change blows up on sparc64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002709U45383afc@hitachi.com>
+References: <200610191103.16689.jesse.barnes@intel.com>
+	<20061019.155844.18310932.davem@davemloft.net>
+	<XNM1$9$0$4$$3$3$7$A$9002709U45383afc@hitachi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050009050003050106060003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: <eiichiro.oiwa.nm@hitachi.com>
+Date: Fri, 20 Oct 2006 11:57:06 +0900
 
-Berck E. Nash wrote:
-> AHCI pauses heartily on during detection boot, but eventually proceeds. 
->  This problem currently exists with 2.6.19-rc2-mm1, but did not exist in 
-> 2.6.17.3.  I realize that's a huge gap, and if you'd like me to narrow 
-> it down, I'll be glad to try.
+> I am sorry. I assumed ROM base address will be 0xc0000 if VGA Enable
+> bit in Bridge Control Register set. This assuming is incorrect.
 
-Can you try the attached patch?  And please post the result of hdparm -I 
-/dev/sdX.
+Please also notice another point we are trying to explain in this
+thread, in fact several times.
 
--- 
-tejun
+This "bridge control register" is only valid for "PCI to PCI" bridges.
 
---------------050009050003050106060003
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+I repeat:
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 2592912..8215139 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -278,8 +278,7 @@ static const struct ata_port_info ahci_p
- 	{
- 		.sht		= &ahci_sht,
- 		.flags		= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
--				  ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA |
--				  ATA_FLAG_SKIP_D2H_BSY,
-+				  ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA,
- 		.pio_mask	= 0x1f, /* pio0-4 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
- 		.port_ops	= &ahci_ops,
+	This "bridge control register" is only valid for "PCI to PCI"
+	bridges.
 
---------------050009050003050106060003--
+It is not valid for "host to PCI" bridges, yet the pci_fixup_video()
+code is testing the bridge control register, blindly, in every bus
+device it sees as it walks up the device tree to the root.
+
+The bridge control register is valid for PCI header type BRIDGE, or
+CARDBUS.  Host to PCI controllers use PCI header type NORMAL.  For
+example, here is the lspci dump for my host bridge:
+
+0000:00:00.0 Host bridge: Sun Microsystems Computer Corp. Tomatillo PCI Bus Module
+00: 8e 10 01 a8 46 01 a0 22 00 00 00 06 00 40 00 00
+
+and here is a dump for a PCI->PCI bridge in the same machine:
+
+0000:00:02.0 PCI bridge: Texas Instruments PCI2250 PCI-to-PCI Bridge (rev 02)
+00: 4c 10 23 ac 07 00 10 02 02 00 04 06 10 40 01 00
+
+Clearly, the host bridge has PCI header type 0x00 (NORMAL) at offset
+0x0e, and the PCI-PCI bridge has header type 0x01 (BRIDGE).
+
+Back to the code, look at the loop:
+
+	bus = pdev->bus;
+	while (bus) {
+		bridge = bus->self;
+		if (bridge) {
+			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL,
+						&config);
+			if (!(config & PCI_BRIDGE_CTL_VGA))
+				return;
+		}
+		bus = bus->parent;
+	}
+
+Where is it making sure that this is a PCI to PCI bus and not a
+host to PCI bus?  It's not, and that's a serious bug.  There should
+be a PCI header type check here, or similar.  The PCI device probing
+layer correctly checks the PCI header type before trying to access
+the bridge control register of any PCI device.
+
+And also, it is also true that the ioremap() calls done by
+pci_map_rom() for the "0xc0000" case are totally invalid.  For several
+reasons:
+
+1) That is going to be RAM, not I/O memory space, therefore accessing
+   it with ioremap() and asm/io.h accessors such as readl() and
+   memcpy_fromio() will result in bus errors and other faults.
+
+2) It is illegal to pass raw physical addresses to ioremap() as the
+   first argument.  The first argument to ioremap() is an architecture
+   defined opaque "address cookie" which by definition must be setup
+   by platform specific code.
+
+Just copying the x86 code over to IA64 to 'fix the problem' doesn't
+fix any of these bugs (illegal access to bridge control register on
+devices with PCI header type NORMAL) or portability problems (invalid
+first argument to ioremap()).

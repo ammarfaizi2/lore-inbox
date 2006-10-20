@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946422AbWJTNkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946259AbWJTNnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946422AbWJTNkV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 09:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946423AbWJTNkV
+	id S1946259AbWJTNnq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 09:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946261AbWJTNnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 09:40:21 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:45077 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1946422AbWJTNkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 09:40:19 -0400
-Message-ID: <4538D1C1.1080106@de.ibm.com>
-Date: Fri, 20 Oct 2006 15:40:17 +0200
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Fri, 20 Oct 2006 09:43:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37782 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1946259AbWJTNnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 09:43:46 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       Cal Peake <cp@absolutedigital.net>
+Subject: Re: [CFT] Grep to find users of sys_sysctl.
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+	<20061020080216.GH1785@devserv.devel.redhat.com>
+Date: Fri, 20 Oct 2006 07:41:51 -0600
+In-Reply-To: <20061020080216.GH1785@devserv.devel.redhat.com> (Jakub Jelinek's
+	message of "Fri, 20 Oct 2006 04:02:16 -0400")
+Message-ID: <m17iyv3y00.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <npiggin@suse.de>
-Subject: Re: 2.6.19-rc2-mm1
-References: <20061016230645.fed53c5b.akpm@osdl.org>	<4534FA99.2080009@fr.ibm.com> <20061017112931.80ce9ca4.akpm@osdl.org>
-In-Reply-To: <20061017112931.80ce9ca4.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Jakub Jelinek <jakub@redhat.com> writes:
 
-> On Tue, 17 Oct 2006 17:45:29 +0200
-> Cedric Le Goater <clg@fr.ibm.com> wrote:
+> On Fri, Oct 20, 2006 at 01:05:18AM -0600, Eric W. Biederman wrote:
+>> 
+>> Anyone who is interested in knowing if they have an application on
+>> their system that actually uses sys_sysctl please run the following grep.
+>> 
+>> find / -type f  -perm /111 -exec fgrep 'sysctl@@GLIBC' '{}' ';' 
 >
->   
->>> +mm-fix-pagecache-write-deadlocks.patch
->>>       
-> <looks>
->
-> I think it might actually be that simple.  I expected a lot more fuss than
-> that.
->
->   
-This actually makes it compile&run again. Therefore I vote for inclusion.
-I will look into Nick's suggestion of replacing it by a non-atomic 
-variant later on, after fixing a page refcounting issue with xip and cow 
-that was introduced by Nicks changes.
-Acked-by: Carsten Otte <cotte@de.ibm.com>
+> This assumes the binaries and/or libraries are not stripped, and they
+> usually are stripped.  So, it is better to run something like:
+> find / -type f -perm /111 | while read f; do readelf -Ws $f 2>/dev/null | fgrep
+> -q sysctl@GLIBC && echo $f; done
 
+Thanks the better grep helps.
+
+Eric

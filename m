@@ -1,63 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946844AbWJTCmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992425AbWJTCmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946844AbWJTCmR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 22:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946847AbWJTCmR
+	id S2992425AbWJTCmz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992424AbWJTCmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 22:42:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19619 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946844AbWJTCmQ (ORCPT
+	Thu, 19 Oct 2006 22:42:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:23622 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S2992425AbWJTCmx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 22:42:16 -0400
-Date: Thu, 19 Oct 2006 19:41:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: teunis <teunis@wintersgift.com>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: various laptop nagles - any suggestions?   (note:
- 2.6.19-rc2-mm1 but applies to multiple kernels)
-Message-Id: <20061019194157.1ed094b9.akpm@osdl.org>
-In-Reply-To: <4537A25D.6070205@wintersgift.com>
-References: <4537A25D.6070205@wintersgift.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 22:42:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=ID92R5wHOh4R6VkHd+FLr2jzKc8oaTIZ9y78P3eNDrhmcNidXz6YuMjQCWDOdXJJAQDYWugJaWjB/15BYL1pb8kc8RcPO1iT5xzacOlorqcnNwS+bxGYk0KyMg9qzqoisFQUyahZe/1/6bAGb5Pf5UclD0FH/vwynsCX4WW+O/I=
+To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+Subject: [PATCH] Converted jiffy comparisons to time_after calls (TAKE 3)
+Date: Thu, 19 Oct 2006 19:42:26 -0700
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610191942.26865.karhudever@gmial.com>
+From: David KOENIG <karhudever@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Oct 2006 09:05:49 -0700
-teunis <teunis@wintersgift.com> wrote:
+>From 9180d29946eced4c71845c9bbe847e98e01d1c31 Mon Sep 17 00:00:00 2001
+From: David KOENIG <david@karhu.(none)>
+Date: Thu, 19 Oct 2006 18:57:17 -0700
+Subject: [PATCH] Converted jiffy comparisons to time_after calls
+---
+ drivers/net/tokenring/3c359.c |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Setting the internal clock to 100 Hz stablizes the laptop - and the
-> synaptics touchpad stops "crashing"  (when "crashed" the pad reads out
-> all kinds of seemingly random values).   I would suspect the driver
-> needs adjusting for the variable clock.   Also - it's definitely nicer
-> on the laptop power use as far as I can tell - should this be in the
-> documentation?
+diff --git a/drivers/net/tokenring/3c359.c b/drivers/net/tokenring/3c359.c
+index 7580bde..8a2e0c1 100644
+--- a/drivers/net/tokenring/3c359.c
++++ b/drivers/net/tokenring/3c359.c
+@@ -48,6 +48,7 @@ #include <linux/errno.h>
+ #include <linux/timer.h>
+ #include <linux/in.h>
+ #include <linux/ioport.h>
++#include <linux/jiffies.h>
+ #include <linux/string.h>
+ #include <linux/proc_fs.h>
+ #include <linux/ptrace.h>
+@@ -409,7 +410,7 @@ static int xl_hw_reset(struct net_device
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 40*HZ) {
++		if (time_after(jiffies, t + 40 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL  card not responding to global 
+reset.\n", dev->name);
+ 			return -ENODEV;
+ 		}
+@@ -520,7 +521,7 @@ #endif
+ 	t=jiffies;
+ 	while ( !(readw(xl_mmio + MMIO_INTSTATUS_AUTO) & INTSTAT_SRB) ) { 
+ 		schedule();		
+-		if(jiffies-t > 15*HZ) {
++		if (time_after(jiffies, t + 15 * HZ)) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			return -ENODEV; 
+ 		}
+@@ -796,7 +797,7 @@ static int xl_open_hw(struct net_device 
+ 	t=jiffies;
+ 	while (! (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
+ 		schedule();		
+-		if(jiffies-t > 40*HZ) {
++		if (time_after(jiffies, t + 40 * HZ)) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			break ; 
+ 		}
+@@ -1011,7 +1012,7 @@ static void xl_reset(struct net_device *
+ 
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+-		if(jiffies-t > 40*HZ) {
++		if (time_after(jiffies, t + 40 * HZ)) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			break ; 
+ 		}
+@@ -1283,7 +1284,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if (time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNSTALL not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1292,7 +1293,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if (time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNDISABLE not responding.\n", 
+dev->name);
+ 			break ;
+ 		}
+@@ -1301,7 +1302,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if (time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPSTALL not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1318,7 +1319,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (!(readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
+ 		schedule();		
+-		if (jiffies-t > 10*HZ) {
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-CLOSENIC not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1347,7 +1348,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if (time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPRESET not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1356,7 +1357,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if (time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNRESET not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+-- 
+1.4.1
 
-So you're saying that CONFIG_NO_HZ breaks the touchpad?
 
-> I'm very grateful that compact flash-based booting on a SATA system
-> works well.   It hasn't been so reliable in 2.6.19-rc2-mm1 for IDE/CF
-> adaptors but I haven't yet solved why.   (tested with various laptops)
-
-hm.  What goes wrong?
-
-> resume from "suspend to ram" (ACPI S3 mode) - the keyboard and mouse do
-> not recover on 945G chipset.   Note that otherwise the chipset works
-> well in 2.6.19-rc2-mm1 - and this is the first kernel that does work well).
-
-So this might not be a new bug?
-
-> LVM2 - when adding and removing physical volumes (again, on Compact
-> Flash cards via USB and Firewire adaptors) - it doesn't always remove
-> the volume properly (pvremove /dev/sda or equiv) from the device-mapper.
->  This leaves me unable to plug in another.   I suspect this to be an
-> LVM2 problem (no hotplug?) rather than a compact flash or SCSI problem.
-
-Can you identify an earlier kernel in which this worked OK?
-
+-- 
+<>< karhudever@gmail.com

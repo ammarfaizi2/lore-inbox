@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992609AbWJTMWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWJTMXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992609AbWJTMWB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 08:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992611AbWJTMWA
+	id S964795AbWJTMXO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 08:23:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWJTMXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 08:22:00 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13014 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S2992609AbWJTMWA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 08:22:00 -0400
-From: Andi Kleen <ak@suse.de>
-To: Vasily Tarasov <vtaras@openvz.org>
-Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
-Date: Fri, 20 Oct 2006 14:21:43 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
-       Dmitry Mishin <dim@openvz.org>, Vasily Averin <vvs@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>,
-       OpenVZ Developers List <devel@openvz.org>
-References: <200610191232.k9JCW7CF015486@vass.7ka.mipt.ru> <p73hcy0b83k.fsf@verdi.suse.de> <200610200630.k9K6U4RU031798@vass.7ka.mipt.ru>
-In-Reply-To: <200610200630.k9K6U4RU031798@vass.7ka.mipt.ru>
+	Fri, 20 Oct 2006 08:23:14 -0400
+Received: from europa.telenet-ops.be ([195.130.137.75]:5332 "EHLO
+	europa.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S964795AbWJTMXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 08:23:13 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: Olof Johansson <olof@lixom.net>
+Cc: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Xilinx uartlite serial driver
+References: <87ac9o3ak3.fsf@sleipner.barco.com>
+	<878xlgercm.fsf@slug.be.48ers.dk>
+	<20060912093301.77f75bfb@localhost.localdomain>
+	<87ejugxqbw.fsf@slug.be.48ers.dk> <871wqfyjgi.fsf@slug.be.48ers.dk>
+	<20061019180659.200d7763@pb15>
+Date: Fri, 20 Oct 2006 14:22:58 +0200
+In-Reply-To: <20061019180659.200d7763@pb15> (Olof Johansson's message of "Thu,
+	19 Oct 2006 18:06:59 -0500")
+Message-ID: <87ac3ryy59.fsf@slug.be.48ers.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610201421.43611.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 October 2006 08:30, Vasily Tarasov wrote:
-> Andi Kleen wrote:
-> 
-> <snip>
-> > Thanks. But the code should be probably common somewhere in fs/*, not
-> > duplicated.
-> <snip>
-> 
-> Thank you for the comment!
-> I'm not sure we should do it. If we move the code in fs/quota.c for example,
-> than this code will be compiled for _all_ arhitectures, not only for x86_64 and ia64.
-> Of course, we can surround this code by #ifdefs <ARCH>, but I thought this is 
-> a bad style... Moreover looking through current kernel code, I found out that
-> usually code is duplicated in such cases.
+>>>>> "Olof" == Olof Johansson <olof@lixom.net> writes:
 
-Well it doesn't hurt them even if not strictly needed and it's better to have common code for 
-this. BTW you have to convert over to compat_alloc_* for this as Christoph stated
-because set_fs doesn't work on all architectures. Best you use the compat_* types too.
+ >> +static int __devinit ulite_probe(struct platform_device *pdev)
 
--Andi
+ Olof> You never fill in the 'line' member here, so probing of a second
+ Olof> uartlite port will fail.
+
+Ah yes, sorry about that. I'll send a patch to Andrew.
+
+-- 
+Bye, Peter Korsgaard

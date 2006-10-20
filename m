@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWJTNC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWJTNFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWJTNC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 09:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWJTNC7
+	id S1030268AbWJTNFG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 09:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWJTNFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 09:02:59 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:31979 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1030247AbWJTNC6 (ORCPT
+	Fri, 20 Oct 2006 09:05:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9869 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030269AbWJTNFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 09:02:58 -0400
-Subject: Re: VCD not readable under 2.6.18
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: wixor <wixorpeek@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com>
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
-	 <1161040345.24237.135.camel@localhost.localdomain>
-	 <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
-	 <1161124732.5014.20.camel@localhost.localdomain>
-	 <c43b2e150610190935tefd11eev510c7dee36c15a51@mail.gmail.com>
-	 <1161276178.17335.100.camel@localhost.localdomain>
-	 <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com>
-Content-Type: text/plain
+	Fri, 20 Oct 2006 09:05:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Allen Martin" <AMartin@nvidia.com>
+Subject: Re: ASUS M2NPV-VM APIC/ACPI Bug (patched)
+Date: Fri, 20 Oct 2006 15:04:51 +0200
+User-Agent: KMail/1.9.3
+Cc: "Robert Hancock" <hancockr@shaw.ca>, "Len Brown" <lenb@kernel.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Daniel Mierswa" <impulze@impulze.org>,
+       "Andy Currid" <ACurrid@nvidia.com>
+References: <DBFABB80F7FD3143A911F9E6CFD477B00E48D31D@hqemmail02.nvidia.com>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B00E48D31D@hqemmail02.nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 20 Oct 2006 14:05:45 +0100
-Message-Id: <1161349545.26440.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610201504.51657.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-10-19 am 19:39 +0200, ysgrifennodd wixor:
-> the point is the CD does NOT get read, neither by xine nor by any
-> other known to me tool. I asked here because the kernel is the only
-> source of any messages addressing the unplayability of the CD - all
-> the others just hang - so it looks like a kernel issue, doesn't it?
 
-No. It looks to me like an application problem from what has been posted
-so far. Its hard to be sure however. Can you try 2.6.18.1 which fixed
-one or two problems with CD handling that might be enough to have
-confused Xine.
+> Well that's the problem.  The issue only existed in the nForce2
+> reference BIOS (and maybe early in nForce3) but we still occasionally
 
+Definitely some NF3 too, i've seen it on 64bit boxes.
+
+> see shipping customer BIOSes to this day that have this same bug for
+> nForce5 (like M2NPV referenced in this thread).
+> 
+> Probably what ASUS is doing in the M2NPV BIOS is copying the ACPI tables
+> from an earlier nForce2 product.
+
+But the timer override is correct or still broken?
+
+> Probably what needs to happen is to make the HPET check more robust and
+> only return 1 if HPET is present and enabled.
+
+I think the problem is that those Asus boards also don't have a HPET
+table. So even though NF5 has HPET the kernel doesn't know about it
+and the heuristic "if HPET then NF5 and timer override ok" breaks.
+
+I still suspect doing a 
+"if (PCI ID from NF2 or NF3) ignore timer override" 
+is probably the best solution right now. But I don't have a full
+list of PCI-IDs for NF2/NF3. Do you have one?
+
+Ok that might still break the NF4. I assume it never needs any
+timer overrides so it might be safe to include it in the PCI-IDs
+too.
+
+Or do you have a better proposal?
+
+-Andi

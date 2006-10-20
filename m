@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992710AbWJTSzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992750AbWJTS7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992710AbWJTSzl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 14:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992709AbWJTSzl
+	id S2992750AbWJTS7x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 14:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992771AbWJTS7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 14:55:41 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:2259 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S2992706AbWJTSzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 14:55:39 -0400
-Date: Fri, 20 Oct 2006 11:55:22 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: + fs-prepare_write-fixes.patch added to -mm tree
-Message-ID: <20061020185522.GG10128@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <200610182150.k9ILoLNk019702@shell0.pdx.osdl.net> <20061019014209.GA10128@ca-server1.us.oracle.com> <20061019052537.GA15687@wotan.suse.de> <20061019230900.GE10128@ca-server1.us.oracle.com> <453809C6.20708@yahoo.com.au>
-MIME-Version: 1.0
+	Fri, 20 Oct 2006 14:59:52 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:47377 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S2992766AbWJTS7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 14:59:50 -0400
+Date: Fri, 20 Oct 2006 19:59:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [0/3] 2.6.19-rc2: known regressions
+Message-ID: <20061020185944.GC8894@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk> <20061015124210.GX30596@stusta.de> <20061019081753.GA29883@flint.arm.linux.org.uk> <20061020180722.GA8894@flint.arm.linux.org.uk> <20061020111900.30d3cb03.akpm@osdl.org> <20061020183159.GB8894@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610201149340.3962@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <453809C6.20708@yahoo.com.au>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+In-Reply-To: <Pine.LNX.4.64.0610201149340.3962@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 09:27:02AM +1000, Nick Piggin wrote:
-> >Cool, I appreciate that.
+On Fri, Oct 20, 2006 at 11:50:53AM -0700, Linus Torvalds wrote:
+> On Fri, 20 Oct 2006, Russell King wrote:
+> > Ah, okay.  Must not have poped out of the other side of Linus by 6am GMT
+> > then. 
 > 
-> OK, I will be posting that mail tomorrow or next day... I'll summarise
-> your concerns you've posted in this thread too.
-Thanks.
+> Yeah, I applied Andrew's patch-bomb just an hour or two ago.
 
+That explains why I hadn't seen it, and probably explains why there
+hadn't been any git snapshots since Thursday morning (my time) - so
+nothings actually broken.  Ignore me! 8)
 
-> zeroing out the hole and marking it uptodate in case of a 0 length
-> ->commit_write does sound like the right way to go. I probably haven't
-> handled that correctly if it needs to be done in ext? or generic fs/
-> routines...
-I *think* we want to handle this in generic_file_buffered_write(). Between
-->prepare_write() and ->commit_write(). Here's what I'm thinking:
+> > (We also seem to have non-working git snapshots again, so when I
+> > looked at the ARM kautobuild it showed the same old errors.)
+> 
+> Gaah. Remind me where the autobuild is again..
 
-generic_file_buffered_write() notices that it got a short copy from
-copy_from_user_inatomic(). It can then call a helper which walks the buffer
-heads attached to the page looking for BH_New regions which haven't been
-written to yet. It can then zero those out. We pass the normal from/to
-arguments over to ->commit_write() and those callbacks don't have to change
-- they just continue as usual. The newly allocated regions get written out,
-filling the holes with valid data and we avoid returning garbage from disk
-on subsequent reads.
+The main status page is at:
+  http://armlinux.simtec.co.uk/kautobuild/
 
-Ideas? "Holes" in the design? :)
-	--Mark
+You could argue that it should be able to run off the git tree itself -
+I'll probably even agree with you, but kautobuild isn't my system.
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

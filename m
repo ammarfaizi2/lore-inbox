@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423232AbWJTVK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992709AbWJTVKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423232AbWJTVK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423239AbWJTVK2
+	id S2992709AbWJTVKW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992713AbWJTVKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:10:28 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:62903 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1423232AbWJTVK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:10:26 -0400
-Subject: Re: [PATCH] (update) more helpful WARN_ON and BUG_ON messages
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Eric Sandeen <sandeen@sandeen.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4538FF32.8050604@sandeen.net>
-References: <4538F81A.2070007@redhat.com>  <4538FF32.8050604@sandeen.net>
-Content-Type: text/plain
-Date: Fri, 20 Oct 2006 19:02:26 +0200
-Message-Id: <1161363746.5230.55.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Oct 2006 17:10:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27880 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992709AbWJTVKS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:10:18 -0400
+Date: Fri, 20 Oct 2006 14:06:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [0/3] 2.6.19-rc2: known regressions
+In-Reply-To: <20061020185944.GC8894@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0610201402180.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+ <20061014111458.GI30596@stusta.de> <20061015122453.GA12549@flint.arm.linux.org.uk>
+ <20061015124210.GX30596@stusta.de> <20061019081753.GA29883@flint.arm.linux.org.uk>
+ <20061020180722.GA8894@flint.arm.linux.org.uk> <20061020111900.30d3cb03.akpm@osdl.org>
+ <20061020183159.GB8894@flint.arm.linux.org.uk> <Pine.LNX.4.64.0610201149340.3962@g5.osdl.org>
+ <20061020185944.GC8894@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-20 at 11:54 -0500, Eric Sandeen wrote:
-> Eric Sandeen wrote:
+
+
+On Fri, 20 Oct 2006, Russell King wrote:
+> > 
+> > Gaah. Remind me where the autobuild is again..
 > 
-> > After a few bugs I encountered in FC6 in buffer.c, with output like:
-> >
-> > Kernel BUG at fs/buffer.c: 2791
-> >
-> > where buffer.c contains:
-> >
-> > ...
-> >         BUG_ON(!buffer_locked(bh));
-> >         BUG_ON(!buffer_mapped(bh));
-> >         BUG_ON(!bh->b_end_io);
-> > ...
-> >
-> > around line 2790, it's awfully tedious to go get the exact failing kernel tree
-> > just to see -which- BUG_ON was encountered.
-> >
-> > Printing out the failing condition as a string would make this more helpful IMHO.
-> >
-> > This is mostly just compile-tested... comments?
-> Whoops, missed WARN_ON_ONCE... thanks Peter.
-> 
-> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> The main status page is at:
+>   http://armlinux.simtec.co.uk/kautobuild/
 
-I like this, as you pointed out, its not always obvious which condition
-is the offending one, this makes it more clear.
+Ahh. At least _most_ builds seem ok. I only looked at the first failing 
+one, and it _seems_ to be due to "drivers/usb/gadget/pxa2xx_udc.c" which 
+still includes <asm/irq.h> rather than <linux/irq.h>.
 
+Maybe. I could do the trivial fix myself, but there have been people who 
+have ARM build environments, so maybe somebody who can actually verify 
+whether that one-liner fixes things (or whether there is something else 
+hiding) can do that and send me the patch.
 
+[ Although I've gotten so much email lately that maybe I already missed 
+  that patch. Ahh, the joys of SCM discussions ;) ]
+
+			Linus

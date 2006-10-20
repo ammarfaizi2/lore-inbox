@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992493AbWJTFgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992502AbWJTFjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992493AbWJTFgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 01:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992494AbWJTFgk
+	id S2992502AbWJTFjX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 01:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992503AbWJTFjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 01:36:40 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:44160 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S2992493AbWJTFgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 01:36:40 -0400
-Date: Thu, 19 Oct 2006 23:36:38 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor fixes to generic do_div
-Message-ID: <20061020053638.GS2602@parisc-linux.org>
-References: <20061020033359.GR2602@parisc-linux.org> <20061019215954.1be82a57.akpm@osdl.org>
+	Fri, 20 Oct 2006 01:39:23 -0400
+Received: from natklopstock.rzone.de ([81.169.145.174]:48261 "EHLO
+	natklopstock.rzone.de") by vger.kernel.org with ESMTP
+	id S2992502AbWJTFjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 01:39:22 -0400
+Date: Fri, 20 Oct 2006 07:38:56 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: revert mv643xx change from ubuntu tree
+Message-ID: <20061020053856.GA3277@aepfle.de>
+References: <20061019121836.GA26319@aepfle.de> <1161318901.31915.21.camel@gullible>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20061019215954.1be82a57.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1161318901.31915.21.camel@gullible>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 19, 2006 at 09:59:54PM -0700, Andrew Morton wrote:
-> Can we use typecheck(), from include/linux/kernel.h?
+On Fri, Oct 20, Ben Collins wrote:
 
-I don't know.
+> On Thu, 2006-10-19 at 14:18 +0200, Olaf Hering wrote:
+> > Somehow the Ubuntu guys managed to sneak this compile error into the
+> > tree:
+> > 
+> > commit ce9e3d9953c8cb67001719b5516da2928e956be4
+> > 
+> >       [mv643xx] Add pci device table for auto module loading.
+> > 
+> > drivers/net/mv643xx_eth.c:1560: error: array type has incomplete element type
+> > drivers/net/mv643xx_eth.c:1561: warning: implicit declaration of function ‘PCI_DEVICE’
+> > drivers/net/mv643xx_eth.c:1561: error: ‘PCI_VENDOR_ID_MARVELL’ undeclared here (not in a function)
+> > drivers/net/mv643xx_eth.c:1561: error: ‘PCI_DEVICE_ID_MARVELL_MV64360’ undeclared here (not in a function)
+> 
+> Correct, I missed the include for linux/pci.h.
+> 
+> This patch has been trailing our tree since 2.6.12. Could you help me to
+> understand what in this driver will cause it to be autoloaded by udev
+> when compiled as a module?
 
-It's copied and pasted from down below, so possibly this was
-intentionally not used.  or possibly the author didn't know about
-typecheck().
-
-If we do use it, we either have to include linux/kernel.h in
-asm-generic/div64.h, which drags in a slew of includes of its own, or be
-sure that all users already include kernel.h.  i bet they do.
-
-My allmodconfig build is currently testing out the
-remove-sched.h-from-asm-parisc-uaccess.h patch based on viro's x86-64
-patch seen earlier today, so I won't be testing the second hypothesis
-tonight.  Anyone want to try plugging in typecheck() and seeing if
-anything breaks?  NB: you'll want to be sure your arch is using
-asm-generic/div64, or add the typecheck() to your arch's
-asm-foo/div64.h.
-
-We should probably do that anyway, at least for i386.  And then someone
-else would maybe wonder what the xtensa port is up to.
+See commit ce9e3d9953c8cb67001719b5516da2928e956be4, platform devices
+have now a modalias entry in sysfs. The network card is not a PCI
+device.

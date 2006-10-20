@@ -1,108 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946738AbWJTAJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946731AbWJTAIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946738AbWJTAJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 20:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946735AbWJTAJY
+	id S1946731AbWJTAIe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 20:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946732AbWJTAId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 20:09:24 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:27581 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1946733AbWJTAJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 20:09:24 -0400
-Date: Thu, 19 Oct 2006 17:09:22 -0700
-Message-Id: <200610200009.k9K09MrS027558@zach-dev.vmware.com>
-Subject: [PATCH 1/5] Skip timer works.patch
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andi Kleen <ak@muc.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 20 Oct 2006 00:09:21.0851 (UTC) FILETIME=[FE6BE8B0:01C6F3DB]
+	Thu, 19 Oct 2006 20:08:33 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:54689 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1946731AbWJTAId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 20:08:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=PSdmt/Lvb6RChqN3nffAqXTiL7MbBpzp6tIbCS7tEBU1VeEROfPFsIsMA2h6lTujHVrkiiOUnJuZ4Ceedc/3ik9WRFFE7fqjXwB57RfkRa3iT86BK56+K7RGEf8oHhrDjALB7Nprek4aNiCtXAcupm7i5+RvyeVtxGJ7s+xdcWQ=
+To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Use time_after instead of comparisons for jiffies
+Date: Thu, 19 Oct 2006 17:07:54 -0700
+User-Agent: KMail/1.9.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610191707.54729.karhudever@gmial.com>
+From: David KOENIG <karhudever@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a way to disable the timer IRQ routing check via a boot option.  The
-VMI timer code uses this to avoid triggering the pester Mingo code, which
-probes for some very unusual and broken motherboard routings.  It fires
-100% of the time when using a paravirtual delay mechanism instead of
-using a realtime delay, since there is no elapsed real time, and the 4 timer
-IRQs have not yet been delivered.
+---
+ drivers/net/tokenring/3c359.c |   29 +++++++++++++++--------------
+ 1 files changed, 15 insertions(+), 14 deletions(-)
 
-In addition, it is entirely possible, though improbable, that this bug
-could surface on real hardware which picks a particularly bad time to enter
-SMM mode, causing a long latency during one of the timer IRQs.
+diff --git a/drivers/net/tokenring/3c359.c b/drivers/net/tokenring/3c359.c
+index 7580bde..8ebcef1 100644
+--- a/drivers/net/tokenring/3c359.c
++++ b/drivers/net/tokenring/3c359.c
+@@ -48,6 +48,7 @@ #include <linux/errno.h>
+ #include <linux/timer.h>
+ #include <linux/in.h>
+ #include <linux/ioport.h>
++#include <linux/jiffies.h>
+ #include <linux/string.h>
+ #include <linux/proc_fs.h>
+ #include <linux/ptrace.h>
+@@ -409,7 +410,7 @@ static int xl_hw_reset(struct net_device
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 40*HZ) {
++		if(time_after(jiffies, t + HZ * 2)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL  card not responding to global 
+reset.\n", dev->name);
+ 			return -ENODEV;
+ 		}
+@@ -520,7 +521,7 @@ #endif
+ 	t=jiffies;
+ 	while ( !(readw(xl_mmio + MMIO_INTSTATUS_AUTO) & INTSTAT_SRB) ) { 
+ 		schedule();		
+-		if(jiffies-t > 15*HZ) {
++		if(time_after(jiffies, t + 15 * HZ)) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			return -ENODEV; 
+ 		}
+@@ -795,8 +796,8 @@ static int xl_open_hw(struct net_device 
+ 
+ 	t=jiffies;
+ 	while (! (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
+-		schedule();		
+-		if(jiffies-t > 40*HZ) {
++		schedule();
++		if(time_after(jiffies, t + 40 * HZ) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			break ; 
+ 		}
+@@ -1010,8 +1011,8 @@ static void xl_reset(struct net_device *
+ 	 */
+ 
+ 	t=jiffies;
+-	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+-		if(jiffies-t > 40*HZ) {
++	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) {
++		if(time_after(jiffies, t + 40 * HZ)) {
+ 			printk(KERN_ERR "3COM 3C359 Velocity XL  card not responding.\n");
+ 			break ; 
+ 		}
+@@ -1282,8 +1283,8 @@ static int xl_close(struct net_device *d
+     	writew(DNSTALL, xl_mmio + MMIO_COMMAND) ; 
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+-		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		schedule();
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNSTALL not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1291,8 +1292,8 @@ static int xl_close(struct net_device *d
+     	writew(DNDISABLE, xl_mmio + MMIO_COMMAND) ; 
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+-		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		schedule();
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNDISABLE not responding.\n", 
+dev->name);
+ 			break ;
+ 		}
+@@ -1301,7 +1302,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPSTALL not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1318,7 +1319,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (!(readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_SRB)) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-CLOSENIC not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1347,7 +1348,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-UPRESET not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+@@ -1356,7 +1357,7 @@ static int xl_close(struct net_device *d
+ 	t=jiffies;
+ 	while (readw(xl_mmio + MMIO_INTSTATUS) & INTSTAT_CMD_IN_PROGRESS) { 
+ 		schedule();		
+-		if(jiffies-t > 10*HZ) {
++		if(time_after(jiffies, t + 10 * HZ)) {
+ 			printk(KERN_ERR "%s: 3COM 3C359 Velocity XL-DNRESET not responding.\n", 
+dev->name);
+ 			break ; 
+ 		}
+-- 
+1.4.1
 
-While here, make check_timer be __init.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-
-===================================================================
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -603,8 +603,6 @@ and is between 256 and 4096 characters. 
- 
- 	hugepages=	[HW,IA-32,IA-64] Maximal number of HugeTLB pages.
- 
--	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
--
- 	i8042.direct	[HW] Put keyboard port into non-translated mode
- 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
- 			     keyboard and cannot control its state
-@@ -1060,8 +1058,13 @@ and is between 256 and 4096 characters. 
- 			in certain environments such as networked servers or
- 			real-time systems.
- 
-+	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
-+
- 	noirqdebug	[IA-32] Disables the code which attempts to detect and
- 			disable unhandled interrupt sources.
-+
-+	noirqtest	[IA-32,APIC] Disables the code which tests for broken
-+			timer IRQ sources.
- 
- 	noisapnp	[ISAPNP] Disables ISA PnP code.
- 
-===================================================================
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -1864,6 +1864,15 @@ static void __init setup_ioapic_ids_from
- static void __init setup_ioapic_ids_from_mpc(void) { }
- #endif
- 
-+int timer_irq_really_works __initdata;
-+int __init irqtest_disable(char *str)
-+{
-+	timer_irq_really_works = 1;
-+	return 1;
-+}
-+
-+__setup("noirqtest", irqtest_disable);
-+
- /*
-  * There is a nasty bug in some older SMP boards, their mptable lies
-  * about the timer IRQ. We do the following to work around the situation:
-@@ -1872,9 +1881,12 @@ static void __init setup_ioapic_ids_from
-  *	- if this function detects that timer IRQs are defunct, then we fall
-  *	  back to ISA timer IRQs
-  */
--static int __init timer_irq_works(void)
-+int __init timer_irq_works(void)
- {
- 	unsigned long t1 = jiffies;
-+
-+	if (timer_irq_really_works)
-+		return 1;
- 
- 	local_irq_enable();
- 	/* Let ten ticks pass... */
-@@ -2146,7 +2158,7 @@ int timer_uses_ioapic_pin_0;
-  * is so screwy.  Thanks to Brian Perkins for testing/hacking this beast
-  * fanatically on his truly buggy board.
-  */
--static inline void check_timer(void)
-+static inline void __init check_timer(void)
- {
- 	int apic1, pin1, apic2, pin2;
- 	int vector;
+-- 
+<>< karhudever@gmail.com

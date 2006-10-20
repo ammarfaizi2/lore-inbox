@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWJTUD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946450AbWJTUGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWJTUD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 16:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946390AbWJTUD6
+	id S1946450AbWJTUGo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 16:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422820AbWJTUGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 16:03:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48558 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030298AbWJTUD5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 16:03:57 -0400
-Date: Fri, 20 Oct 2006 13:03:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com,
-       clameter@sgi.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061020130339.15e2506a.pj@sgi.com>
-In-Reply-To: <4538E2C2.8060307@yahoo.com.au>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<453750AA.1050803@yahoo.com.au>
-	<20061019105515.080675fb.pj@sgi.com>
-	<4537BEDA.8030005@yahoo.com.au>
-	<20061019115652.562054ca.pj@sgi.com>
-	<4537CC1E.60204@yahoo.com.au>
-	<20061019203744.09b8c800.pj@sgi.com>
-	<453882AC.3070500@yahoo.com.au>
-	<4538E2C2.8060307@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Fri, 20 Oct 2006 16:06:44 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:20925 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1422784AbWJTUGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 16:06:43 -0400
+Message-Id: <200610202005.k9KK54s1006910@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, Cedric Le Goater <clg@fr.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] add-process_session-...-fix-warnings.patch fix
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 20 Oct 2006 16:05:03 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> IOW, how could a user possibly notice or care that partitions are
-> being used to implement a given policy? (apart from the fact that
-> the balancing will work better).
+add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
+in -mm causes UML to hang at shutdown - init is sitting in a select on the 
+initctl socket.
 
-Tasks in higher up cpusets (e.g., the top cpuset) wouldn't load balance
-across these partitions.
+This patch fixes it for me.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: linux-2.6.17/fs/proc/array.c
+===================================================================
+--- linux-2.6.17.orig/fs/proc/array.c	2006-10-20 16:01:05.000000000 -0400
++++ linux-2.6.17/fs/proc/array.c	2006-10-20 16:02:13.000000000 -0400
+@@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
+ 			stime = cputime_add(stime, sig->stime);
+ 		}
+ 
+-		signal_session(sig);
++		sid = signal_session(sig);
+ 		pgid = process_group(task);
+ 		ppid = rcu_dereference(task->real_parent)->tgid;
+

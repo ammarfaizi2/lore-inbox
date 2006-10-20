@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992531AbWJTHHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992524AbWJTHHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992531AbWJTHHd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 03:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992530AbWJTHHc
+	id S2992524AbWJTHHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 03:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992527AbWJTHHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 03:07:32 -0400
-Received: from mx.go2.pl ([193.17.41.41]:13956 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S2992529AbWJTHH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 03:07:26 -0400
-Date: Fri, 20 Oct 2006 09:12:33 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: linux-kernel@vger.kernel.org, webmaster@kernel.org
-Subject: Re: [RFC] DocBook with .txt or .html versions? [KORG]
-Message-ID: <20061020071233.GB1898@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	linux-kernel@vger.kernel.org, webmaster@kernel.org
-References: <20061018114240.GA3202@ff.dom.local> <20061019111620.GD3296@ff.dom.local> <20061020053047.GA1617@ff.dom.local> <200610201845.18285.elinar@ihug.co.nz>
-Mime-Version: 1.0
+	Fri, 20 Oct 2006 03:07:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64480 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S2992524AbWJTHHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 03:07:01 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Albert Cahalan <acahalan@gmail.com>, Cal Peake <cp@absolutedigital.net>
+Subject: [CFT] Grep to find users of sys_sysctl.
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+Date: Fri, 20 Oct 2006 01:05:18 -0600
+In-Reply-To: <Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+	(Cal Peake's message of "Thu, 19 Oct 2006 12:25:20 -0400 (EDT)")
+Message-ID: <m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610201845.18285.elinar@ihug.co.nz>
-User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 06:45:17PM +1300, Glenn Enright wrote:
-> On Friday 20 October 2006 18:30, Jarek Poplawski wrote:
-> > By the way, I wonder why current versions of
-> > Documentation/DocBook in html are not accessible
-> > from www.kernel.org?
-> 
-> Indeed many other project do this don't they, although from what Ive 
-> seen kernel docs tend to be a bit... untidy?/difficult to navigate?... 
-> for this sort of thing.
- 
-I hope if they were easy accessible more people would
-read them and send fixes or supplements.
 
-Jarek P. 
+Anyone who is interested in knowing if they have an application on
+their system that actually uses sys_sysctl please run the following grep.
+
+find / -type f  -perm /111 -exec fgrep 'sysctl@@GLIBC' '{}' ';' 
+
+The -perm /111 is an optimization to only look at executable files,
+and may be omitted if you are patient.
+
+Currently I don't expect anyone to find a match anywhere except in libpthreads,
+if you find any others please let me know.
+
+Eric

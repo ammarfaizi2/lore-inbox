@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423240AbWJTVL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992728AbWJTVMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423240AbWJTVL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992720AbWJTVLZ
+	id S2992728AbWJTVMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992725AbWJTVMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:11:25 -0400
-Received: from mga01.intel.com ([192.55.52.88]:9373 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1423236AbWJTVLX (ORCPT
+	Fri, 20 Oct 2006 17:12:46 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:63689 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S2992720AbWJTVMp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:11:23 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,336,1157353200"; 
-   d="scan'208"; a="149688837:sNHT21422919"
-Message-ID: <45393B0B.8090301@intel.com>
-Date: Fri, 20 Oct 2006 14:09:31 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Fri, 20 Oct 2006 17:12:45 -0400
+Message-ID: <45393BC4.5020903@garzik.org>
+Date: Fri, 20 Oct 2006 17:12:36 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Auke Kok <auke-jan.h.kok@intel.com>
-CC: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: [PATCH] e100_shutdown: netif_poll_disable hang
-References: <20061020182820.978932000@mvista.com> <453936E0.1010204@intel.com>
-In-Reply-To: <453936E0.1010204@intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Kevin Radloff <radsaq@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Linux 2.6.19-rc2
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>	 <3b0ffc1f0610201130i8f15e49oec2cdc68abb8dbd@mail.gmail.com> <1161377586.26440.61.camel@localhost.localdomain>
+In-Reply-To: <1161377586.26440.61.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Oct 2006 21:11:22.0988 (UTC) FILETIME=[4BBC7AC0:01C6F48C]
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Auke Kok wrote:
-> Daniel Walker wrote:
->> My machine annoyingly hangs while rebooting. I tracked it down
->> to e100-fix-reboot-f-with-netconsole-enabled.patch in 2.6.18-rc2-mm2
->>
->> I review the changes and it seemed to be calling netif_poll_disable
->> one too many time. Once in e100_down(), and again in e100_shutdown().
->>
->> The second one in e100_shutdown() caused the hang. So this patch
->> removes it.
+Alan Cox wrote:
+> Ar Gwe, 2006-10-20 am 14:30 -0400, ysgrifennodd Kevin Radloff:
+>> On 10/13/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>>> Ok, it's a week since -rc1, so -rc2 is out there.
+>> A bit behind, but booting still takes ages on my laptop as
+>> libata/ata_piix tries to probe a device that isn't there (I reported
+>> this previously against -rc1, but got no response):
+> 
+> Probing is somewhat broken in 2.6.18 - something in the core code
+> changed as its upset quite a few drivers at once. One case causes
+> repeated errors and finally detection of an ATAPI device, the other
+> causes repeated errors and then failure when no device is present but
+> takes a few minutes and keeps IRQs locked off for long periods. Both
+> appear to be fallouts from the new EH code.
 
-it doesn't even do harm to netif_poll_disable() twice as far as I can see, as it merely 
-calls test_and_set_bit(), which will instantly succeed on the first attempt if the bit 
-was already set.
+There are definitely warts related to the new EH stuff, but specifically 
+for SATA + ata_piix, it has been a long hard road of trying various 
+probing mechanisms.  Tejun has some patches that revert all the PCS work 
+and rewinds back to original SATA ata_piix probing, in -mm for testing.
 
-did this change actually fix it for you? I'm wondering if the netif_carrier_off might 
-not be the culprit here...
+If testing feedback proves positive, let's go ahead and fast-track that 
+up the line.
 
-Auke
+With ata_piix, I would worry more about PCS register follies than core 
+libata.  Users can try the module option force_pcs=[0|1|2] to experiment 
+and see if any of the three possibilities improves their boot.
+
+	Jeff
+
+

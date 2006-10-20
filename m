@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992736AbWJTTbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992726AbWJTTbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992736AbWJTTbn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992739AbWJTTbn
+	id S2992726AbWJTTbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992736AbWJTTbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:31:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48329 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992738AbWJTTbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:31:41 -0400
-Date: Fri, 20 Oct 2006 12:31:37 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
-Message-ID: <20061020123137.3cd765af@freekitty>
-In-Reply-To: <20061020.122753.45515833.davem@davemloft.net>
-References: <20061019171814.281988608@osdl.org>
-	<20061020.001530.35664340.davem@davemloft.net>
-	<20061020084015.5c559326@localhost.localdomain>
-	<20061020.122753.45515833.davem@davemloft.net>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Fri, 20 Oct 2006 15:31:40 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44487
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S2992726AbWJTTbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 15:31:39 -0400
+Date: Fri, 20 Oct 2006 12:31:40 -0700 (PDT)
+Message-Id: <20061020.123140.48805752.davem@davemloft.net>
+To: eiichiro.oiwa.nm@hitachi.com
+Cc: greg@kroah.com, alan@redhat.com, jesse.barnes@intel.com,
+       linux-kernel@vger.kernel.org, steven.c.cook@intel.com,
+       bjorn.helgaas@hp.com, tony.luck@intel.com
+Subject: Re: pci_fixup_video change blows up on sparc64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002717U4538db22@hitachi.com>
+References: <XNM1$9$0$4$$3$3$7$A$9002710U453840ab@hitachi.com>
+	<20061020040324.GA8014@kroah.com>
+	<XNM1$9$0$4$$3$3$7$A$9002717U4538db22@hitachi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 12:27:53 -0700 (PDT)
-David Miller <davem@davemloft.net> wrote:
+From: <eiichiro.oiwa.nm@hitachi.com>
+Date: Fri, 20 Oct 2006 23:20:21 +0900
 
-> From: Stephen Hemminger <shemminger@osdl.org>
-> Date: Fri, 20 Oct 2006 08:40:15 -0700
-> 
-> > The only user of the drop hook was netconsole, and I fixed that path.
-> > This probably breaks netdump, but that is out of tree, so it needs
-> > to fix itself.
-> 
-> I believe that netdump needs to requeue things because dropping the
-> packet is simply not allowed, and the ->drop callback gives the
-> netdump code a way to handle things without actually dropping the
-> packet.  If that's true, you can't just free the SKB on it.
-> 
-> Are you sure your new TX strategy can avoid such drops properly?
+> +			/*
+> +			 * From information provided by 
+> +			 * "David Miller" <davem@davemloft.net>
+> +			 * The bridge control register is valid for PCI header
+> +			 * type BRIDGE, or CARDBUS. Host to PCI controllers use
+> +			 * PCI header type NORMAL.
+> +			 */
+> +			pci_read_config_byte(bridge, PCI_HEADER_TYPE,
+> +						&config_header);
 
-Yes, it has a queue. if it can't send it waits and retries.
-
-> 
-> Please take a quick peek at the netdump code, it's available, and make
-> some reasonable effort to determine whether it can still work with
-> your new code.
-
-Where, I'm not digging in side some RHEL rpm patch pile to find it.
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
+Use the software copy in "bridge->hdr_type", it's already been read
+for you by the PCI device probing layer.

@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992528AbWJTRsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992540AbWJTRuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992528AbWJTRsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992530AbWJTRsB
+	id S2992540AbWJTRuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992550AbWJTRuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:48:01 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15775 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S2992528AbWJTRsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:48:00 -0400
-Date: Fri, 20 Oct 2006 10:46:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>,
-       Mike Kravetz <kravetz@us.ibm.com>, will_schmidt@vnet.ibm.com,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: kernel BUG in __cache_alloc_node at linux-2.6.git/mm/slab.c:3177!
-In-Reply-To: <20061020100904.ed1fa0af.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0610201044570.16161@schroedinger.engr.sgi.com>
-References: <1161026409.31903.15.camel@farscape>
- <Pine.LNX.4.64.0610161221300.6908@schroedinger.engr.sgi.com>
- <1161031821.31903.28.camel@farscape> <Pine.LNX.4.64.0610161630430.8341@schroedinger.engr.sgi.com>
- <17717.50596.248553.816155@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610180811040.27096@schroedinger.engr.sgi.com>
- <17718.39522.456361.987639@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610181448250.30710@schroedinger.engr.sgi.com>
- <17719.1849.245776.4501@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610190906490.7852@schroedinger.engr.sgi.com>
- <20061019163044.GB5819@krispykreme> <Pine.LNX.4.64.0610190947110.8310@schroedinger.engr.sgi.com>
- <17719.64246.555371.701194@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.64.0610191527040.10880@schroedinger.engr.sgi.com>
- <17720.30804.180390.197567@cargo.ozlabs.ibm.com> <4538DACC.5050605@shadowen.org>
- <4538F2A2.5040305@shadowen.org> <20061020100904.ed1fa0af.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Oct 2006 13:50:09 -0400
+Received: from mga05.intel.com ([192.55.52.89]:4682 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S2992540AbWJTRuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:50:07 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,336,1157353200"; 
+   d="scan'208"; a="149595374:sNHT2229258906"
+Date: Fri, 20 Oct 2006 10:29:46 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Martin Bligh <mbligh@google.com>, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
+       dipankar@in.ibm.com, suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+Message-ID: <20061020102946.A8481@unix-os.sc.intel.com>
+References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com> <4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com> <4538F34A.7070703@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4538F34A.7070703@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Oct 21, 2006 at 02:03:22AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the patch:
+On Sat, Oct 21, 2006 at 02:03:22AM +1000, Nick Piggin wrote:
+> Martin Bligh wrote:
+> > We (Google) are planning to use it to do some partitioning, albeit on
+> > much smaller machines. I'd really like to NOT use cpus_allowed from
+> > previous experience - if we can get it to to partition using separated
+> > sched domains, that would be much better.
+> > 
+> >  From my dim recollections of previous discussions when cpusets was
+> > added in the first place, we asked for exactly the same thing then.
+> > I think some of the problem came from the fact that "exclusive"
+> > to cpusets doesn't actually mean exclusive at all, and they're
+> > shared in some fashion. Perhaps that issue is cleared up now?
+> > /me crosses all fingers and toes and prays really hard.
+> 
+> The I believe, is that an exclusive cpuset can have an exclusive parent
+> and exclusive children, which obviously all overlap one another, and
+> thus you have to do the partition only at the top-most exclusive cpuset.
+> 
+> Currently, cpusets is creating partitions in cpus_exclusive children as
+> well, which breaks balancing for the parent.
+> 
+> The patch I posted previously should (modulo bugs) only do partitioning
+> in the top-most cpuset. I still need clarification from Paul as to why
+> this is unacceptable, though.
 
-Slab: Do not fallback to nodes that have not been bootstrapped yet
+I like the direction of Nick's patch which do domain partitioning at the
+top-most exclusive cpuset.
 
-The zonelist may contain zones of nodes that have not been bootstrapped 
-and we will oops if we try to allocate from those zones. So check if the 
-node information for the slab and the node have been setup before 
-attempting an allocation. If it has not been setup then skip that zone.
-
-Usually we will not encounter this situation since the slab bootstrap
-code avoids falling back before we have setup the respective nodes but we 
-seem to have a special needs for pppc.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.19-rc2-mm1/mm/slab.c
-===================================================================
---- linux-2.6.19-rc2-mm1.orig/mm/slab.c	2006-10-20 12:39:02.000000000 -0500
-+++ linux-2.6.19-rc2-mm1/mm/slab.c	2006-10-20 12:41:04.137684581 -0500
-@@ -3160,12 +3160,15 @@ void *fallback_alloc(struct kmem_cache *
- 	struct zone **z;
- 	void *obj = NULL;
- 
--	for (z = zonelist->zones; *z && !obj; z++)
-+	for (z = zonelist->zones; *z && !obj; z++) {
-+		int nid = zone_to_nid(*z);
-+
- 		if (zone_idx(*z) <= ZONE_NORMAL &&
--				cpuset_zone_allowed(*z, flags))
-+				cpuset_zone_allowed(*z, flags) &&
-+				cache->nodelists[nid])
- 			obj = __cache_alloc_node(cache,
--					flags | __GFP_THISNODE,
--					zone_to_nid(*z));
-+					flags | __GFP_THISNODE, nid);
-+	}
- 	return obj;
- }
- 
-
+thanks,
+suresh

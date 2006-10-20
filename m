@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992540AbWJTRuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992550AbWJTRvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992540AbWJTRuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992550AbWJTRuJ
+	id S2992550AbWJTRvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWJTRvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:50:09 -0400
-Received: from mga05.intel.com ([192.55.52.89]:4682 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S2992540AbWJTRuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:50:07 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,336,1157353200"; 
-   d="scan'208"; a="149595374:sNHT2229258906"
-Date: Fri, 20 Oct 2006 10:29:46 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Martin Bligh <mbligh@google.com>, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
-       dipankar@in.ibm.com, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Message-ID: <20061020102946.A8481@unix-os.sc.intel.com>
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com> <4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com> <4538F34A.7070703@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4538F34A.7070703@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Oct 21, 2006 at 02:03:22AM +1000
+	Fri, 20 Oct 2006 13:51:10 -0400
+Received: from smtp101.plus.mail.re2.yahoo.com ([206.190.53.26]:21082 "HELO
+	smtp101.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964826AbWJTRvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:51:08 -0400
+Message-ID: <45390C85.3070604@tungstengraphics.com>
+Date: Fri, 20 Oct 2006 18:51:01 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+CC: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
+References: <20061013194516.GB19283@tau.solarneutrino.net>	<1160849723.3943.41.camel@neko.keithp.com>	<20061017174020.GA24789@tau.solarneutrino.net>	<1161124062.25439.8.camel@neko.keithp.com>	<4535CFB1.2010403@tungstengraphics.com>	<20061019173108.GA28700@tau.solarneutrino.net>	<4538B670.2030105@tungstengraphics.com> <20061020164008.GA29810@tau.solarneutrino.net>
+In-Reply-To: <20061020164008.GA29810@tau.solarneutrino.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 02:03:22AM +1000, Nick Piggin wrote:
-> Martin Bligh wrote:
-> > We (Google) are planning to use it to do some partitioning, albeit on
-> > much smaller machines. I'd really like to NOT use cpus_allowed from
-> > previous experience - if we can get it to to partition using separated
-> > sched domains, that would be much better.
-> > 
-> >  From my dim recollections of previous discussions when cpusets was
-> > added in the first place, we asked for exactly the same thing then.
-> > I think some of the problem came from the fact that "exclusive"
-> > to cpusets doesn't actually mean exclusive at all, and they're
-> > shared in some fashion. Perhaps that issue is cleared up now?
-> > /me crosses all fingers and toes and prays really hard.
+Ryan Richter wrote:
+> On Fri, Oct 20, 2006 at 12:43:44PM +0100, Keith Whitwell wrote:
+>> Ryan Richter wrote:
+>>> On Wed, Oct 18, 2006 at 07:54:41AM +0100, Keith Whitwell wrote:
+>>>> This is all a little confusing as the driver doesn't really use that 
+>>>> path in normal operation except for a single command - MI_FLUSH, which 
+>>>> is shared between the architectures.  In normal operation the hardware 
+>>>> does the validation for us for the bulk of the command stream.  If there 
+>>>> were missing functionality in that ioctl, it would be failing 
+>>>> everywhere, not just in this one case.
+>>>>
+>>>> I guess the questions I'd have are
+>>>> 	- did the driver work before the kernel upgrade?
+>>>> 	- what path in userspace is seeing you end up in this ioctl?
+>>>> 	- and like Keith, what commands are you seeing?
+>>>>
+>>>> The final question is interesting not because we want to extend the 
+>>>> ioctl to cover those, but because it will give a clue how you ended up 
+>>>> there in the first place.
+>>> Here's a list of all the failing commands I've seen so far:
+>>>
+>>> 3a440003
+>>> d70003
+>>> 2d010003
+>>> e5b90003
+>>> 2e730003
+>>> 8d8c0003
+>>> c10003
+>>> d90003
+>>> be0003
+>>> 1e3f0003
+>> Ryan,
+>>
+>> Those don't look like any commands I can recognize.  I'm still confused 
+>> how you got onto this ioctl in the first place - it seems like something 
+>> pretty fundamental is going wrong somewhere.  What would be useful to me 
+>> is if you can use GDB on your application and get a stacktrace for how 
+>> you end up in this ioctl in the cases where it is failing?
+>>
+>> Additionally, if you're comfortable doing this, it would be helpful to 
+>> see all the arguments that userspace thinks its sending to the ioctl, 
+>> compared to what the kernel ends up thinking it has to validate.  There 
+>> shouldn't ever be more than two dwords being validated at a time, and 
+>> they should look more or less exactly like {0x02000003, 0}, and be 
+>> emitted from bmSetFence().
+>>
+>> All of your other wierd problems, like the assert failures, etc, make me 
+>> wonder if there just hasn't been some sort of build problem that can 
+>> only be resolved by clearing it out and restarting.
+>>
+>> It wouldn't hurt to just nuke your current Mesa and libdrm builds and 
+>> start from scratch - you'll probably have to do that to get debug 
+>> symbols for gdb anyway.
 > 
-> The I believe, is that an exclusive cpuset can have an exclusive parent
-> and exclusive children, which obviously all overlap one another, and
-> thus you have to do the partition only at the top-most exclusive cpuset.
-> 
-> Currently, cpusets is creating partitions in cpus_exclusive children as
-> well, which breaks balancing for the parent.
-> 
-> The patch I posted previously should (modulo bugs) only do partitioning
-> in the top-most cpuset. I still need clarification from Paul as to why
-> this is unacceptable, though.
+> I had heard something previously about i965_dri.so maybe getting
+> miscompiled, but I hadn't followed up on it until now.  I rebuilt it
+> with an older gcc, and now it's all working great!  Sorry for the wild
+> goose chase.
 
-I like the direction of Nick's patch which do domain partitioning at the
-top-most exclusive cpuset.
+Out of interest, can you try again with the original GCC and see if the 
+problem comes back?  Which versions of GCC are you using?
 
-thanks,
-suresh
+Keith

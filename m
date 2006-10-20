@@ -1,99 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992714AbWJTTRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992716AbWJTTTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992714AbWJTTRM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 15:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992717AbWJTTRM
+	id S2992716AbWJTTTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 15:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992718AbWJTTTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 15:17:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1422 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S2992714AbWJTTRK (ORCPT
+	Fri, 20 Oct 2006 15:19:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2476 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S2992716AbWJTTTa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 15:17:10 -0400
-Message-ID: <453920B1.1030602@redhat.com>
-Date: Fri, 20 Oct 2006 14:17:05 -0500
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: ext4 development <linux-ext4@vger.kernel.org>
-Subject: [PATCH] handle ext3 directory corruption better
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 20 Oct 2006 15:19:30 -0400
+Date: Fri, 20 Oct 2006 12:19:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: nickpiggin@yahoo.com.au, mbligh@google.com, akpm@osdl.org,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
+       dipankar@in.ibm.com, suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+Message-Id: <20061020121912.9a391f87.pj@sgi.com>
+In-Reply-To: <20061020102946.A8481@unix-os.sc.intel.com>
+References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
+	<4537527B.5050401@yahoo.com.au>
+	<20061019120358.6d302ae9.pj@sgi.com>
+	<4537D056.9080108@yahoo.com.au>
+	<4537D6E8.8020501@google.com>
+	<4538F34A.7070703@yahoo.com.au>
+	<20061020102946.A8481@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(as previously discussed on the ext4 list)
+Suresh wrote:
+> I like the direction of Nick's patch which do domain partitioning
+> at the top-most exclusive cpuset.
 
-I've been using Steve Grubb's purely evil "fsfuzzer" tool, at
-http://people.redhat.com/sgrubb/files/fsfuzzer-0.4.tar.gz
+See the reply I just posted to Nick on this.
 
-basically it makes a filesystem, splats some random bits over it,
-then tries to mount it and do some simple filesystem actions.
+His patch didn't partition at the top cpuset, but at its children.
+It could not have done any better than that.
 
-At best, the filesystem catches the corruption gracefully.
-At worst, things spin out of control.
+The top cpuset covers all online cpus on the system, which is the
+same as the default sched domain partition.  Partitioning there
+would be a no-op, producing the same one big partition we have now.
 
-As you might guess, we found a couple places in ext3 where things 
-spin out of control :)
+Partitioning at any lower level, even just the immediate children
+of the root cpuset as Nick's patch does, breaks load balancing for
+any tasks in the top cpuset.
 
-First, we had a corrupted directory that was never checked
-for consistency... it was corrupt, and pointed to another bad "entry"
-of length 0.  The for() loop looped forever, since the length
-of ext3_next_entry(de) was 0, and we kept looking at the same
-pointer over and over and over and over... I modeled this check
-and subsequent action on what is done for other directory types
-in ext3_readdir...
+And even if for some strange reason that weren't a problem, still
+partitioning at the level of the immediate children of the root cpuset
+doesn't help much on a decent proportion of big systems.  Many of my
+big systems run with just two cpusets right under the top cpuset, a
+tiny cpuset (say 4 cpus) for classic Unix daemons, cron jobs and init,
+and a huge (say 1020 out of 1024 cpus) cpuset for the batch scheduler
+to slice and dice, to sub-divide into smaller cpusets for the various
+jobs and other needs it has.
 
-(adding this check adds some computational expense; I am testing 
-a followup patch to reduce the number of times we check and re-check
-these directory entries, in all cases.  Thanks for the idea, Andreas).
+These systems would still suffer from any performance problems we had
+balancing a huge sched domain.  Presumably the pain of balancing a
+1020 cpu partition is not much less than it is for a 1024 cpu partition.
 
-Next we had a root directory inode which had a corrupted size, claimed
-to be > 200M on a 4M filesystem.  There was only really 1 block in the 
-directory, but because the size was so large, readdir kept coming back 
-for more, spewing thousands of printk's along the way.
+So, regrettably, Nick's patch is both broken and useless ;).
 
-Per Andreas' suggestion, if we're in this read error condition and we're
-trying to read an offset which is greater than i_blocks worth of bytes,
-stop trying, and break out of the loop.
+Only a finer grain sched domain partitioning, that accurately reflects
+the placement of active jobs and tasks needing load balancing, is of
+much use here.
 
-With these two changes fsfuzz test survives quite well on ext3.
-
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-
-Index: linux-2.6.18/fs/ext3/namei.c
-===================================================================
---- linux-2.6.18.orig/fs/ext3/namei.c
-+++ linux-2.6.18/fs/ext3/namei.c
-@@ -551,6 +551,15 @@ static int htree_dirblock_to_tree(struct
- 					   dir->i_sb->s_blocksize -
- 					   EXT3_DIR_REC_LEN(0));
- 	for (; de < top; de = ext3_next_entry(de)) {
-+		if (!ext3_check_dir_entry("htree_dirblock_to_tree", dir, de, bh,
-+					(block<<EXT3_BLOCK_SIZE_BITS(dir->i_sb))
-+						+((char *)de - bh->b_data))) {
-+			/* On error, skip the f_pos to the next block. */
-+			dir_file->f_pos = (dir_file->f_pos |
-+					(dir->i_sb->s_blocksize - 1)) + 1;
-+			brelse (bh);
-+			return count;
-+		}
- 		ext3fs_dirhash(de->name, de->name_len, hinfo);
- 		if ((hinfo->hash < start_hash) ||
- 		    ((hinfo->hash == start_hash) &&
-Index: linux-2.6.18/fs/ext3/dir.c
-===================================================================
---- linux-2.6.18.orig/fs/ext3/dir.c
-+++ linux-2.6.18/fs/ext3/dir.c
-@@ -151,6 +151,9 @@ static int ext3_readdir(struct file * fi
- 			ext3_error (sb, "ext3_readdir",
- 				"directory #%lu contains a hole at offset %lu",
- 				inode->i_ino, (unsigned long)filp->f_pos);
-+			/* corrupt size?  Maybe no more blocks to read */
-+			if (filp->f_pos > inode->i_blocks << 9)
-+				break;
- 			filp->f_pos += sb->s_blocksize - offset;
- 			continue;
- 		}
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWJTJHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWJTJJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWJTJHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 05:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWJTJHE
+	id S932210AbWJTJJx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 05:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWJTJJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 05:07:04 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:6089 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932230AbWJTJHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 05:07:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=OAXLrrSmC/NcYCO2JzcY10Inlt2vl2IAi1qDPAV1G8x0FWTUuUIhf8B80MY1epCswA/lTqznWo2ZONIGGR6HCByl/f5lBJQVM+UXntQEXIDCpSzIyZAcFvXwgkimYpuG2k79eAc453xMHS+Kd26mMFESaD9DPrBiJQO7d0S79Oc=
-Message-ID: <453891AD.70704@gmail.com>
-Date: Fri, 20 Oct 2006 18:06:53 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
-MIME-Version: 1.0
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jeff@garzik.org
-Subject: Re: [patch] libata: use correct map_db values for ICH8
-References: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
-In-Reply-To: <20061019132739.10e504ef.kristen.c.accardi@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Oct 2006 05:09:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:909 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751687AbWJTJJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 05:09:52 -0400
+Subject: [PATCH 1/8] [DLM] fix iovec length in recvmsg
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
+Cc: Patrick Caulfield <pcaulfie@redhat.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 20 Oct 2006 10:18:04 +0100
+Message-Id: <1161335884.27980.183.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Kristen.
+>From 42fb00838a644d03f9a2a5fbbe0b668a5ff5df4d Mon Sep 17 00:00:00 2001
+From: Patrick Caulfield <pcaulfie@redhat.com>
+Date: Fri, 13 Oct 2006 17:12:05 +0100
+Subject: [DLM] fix iovec length in recvmsg
 
-Kristen Carlson Accardi wrote:
-> Use valid values for ICH8 map_db.  With the old values, when the 
-> controller was in Native mode, and SCC was 1 (drives configured for
-> IDE), any drive plugged into a slave port was not recognized.  For
-> Combined Mode (and SCC is still 1), 2 is a value value for MAP.map_value,
-> and needs to be recognized.
-> 
-> Signed-off-by:  Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+I didn't spot that the msg_iovlen was set to 2 if there
+were two elements in the iovec but left at zero if not :(
 
-Do you guys have doc update related to this?  The doc and spec update 
-still indicate that MAP value is reserved to 00b.  Anyways, if you say 
-that's right...
+I think this might be why bob was still seeing trouble.
 
-Acked-by: Tejun Heo <htejun@gmail.com>
+Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+---
+ fs/dlm/lowcomms.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
+index 867f93d..6da6b14 100644
+--- a/fs/dlm/lowcomms.c
++++ b/fs/dlm/lowcomms.c
+@@ -519,6 +519,7 @@ static int receive_from_sock(void)
+ 	msg.msg_flags = 0;
+ 	msg.msg_control = incmsg;
+ 	msg.msg_controllen = sizeof(incmsg);
++	msg.msg_iovlen = 1;
+ 
+ 	/* I don't see why this circular buffer stuff is necessary for SCTP
+ 	 * which is a packet-based protocol, but the whole thing breaks under
 -- 
-tejun
+1.4.1
+
+
+

@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992613AbWJTWgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423295AbWJTWne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992613AbWJTWgs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 18:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992708AbWJTWgs
+	id S1423295AbWJTWne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 18:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423297AbWJTWnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 18:36:48 -0400
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:32869 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S2992613AbWJTWgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 18:36:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=sbcglobal.net;
-  h=Received:Message-ID:Date:From:Reply-To:User-Agent:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=fxJpqOlbtrYL/hSVvAkMUEzC0akK9vyk2GMisHyT6rl1xrCPgF1UlvPoGZ2SKkZiND6sia7zjqwWQSmDVbgu0vJ4vp0LfeVwgF/jKH2RkoJL3YteDrXt847+rHFWWB9zqUwyB2Rxk2F1ojZ6Ddppw7JNFTLcQkCCXuPUE6k4G+4=  ;
-Message-ID: <45394F97.9010401@sbcglobal.net>
-Date: Fri, 20 Oct 2006 17:37:11 -0500
-From: Matthew Frost <artusemrys@sbcglobal.net>
-Reply-To: artusemrys@sbcglobal.net
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org,
-       Dave Airlie <airlied@linux.ie>, Greg KH <greg@kroah.com>
+	Fri, 20 Oct 2006 18:43:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3476 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423295AbWJTWnd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 18:43:33 -0400
+Date: Fri, 20 Oct 2006 15:43:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Gabriel C <nix.or.die@googlemail.com>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.19-rc2-mm2
-References: <20061020015641.b4ed72e5.akpm@osdl.org>	<200610201339.49190.m.kozlowski@tuxland.pl>	<20061020091901.71a473e9.akpm@osdl.org>	<200610201854.43893.m.kozlowski@tuxland.pl> <20061020102520.67b8c2ab.akpm@osdl.org>
-In-Reply-To: <20061020102520.67b8c2ab.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20061020154325.78c38ead.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610201403090.29022@twin.jikos.cz>
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+	<4538BA2E.9040808@googlemail.com>
+	<Pine.LNX.4.64.0610201403090.29022@twin.jikos.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, 20 Oct 2006 14:04:09 +0200 (CEST)
+Jiri Kosina <jikos@jikos.cz> wrote:
 
-> Ow.  Multithreaded probing was probably a bt ambitious, given the current
-> status of kernel startup..
+> On Fri, 20 Oct 2006, Gabriel C wrote:
 > 
-> Greg, does it actually speed anything up or anything else good?
+> > I got this on ' make silentoldconfig '
+> > drivers/media/dvb/dvb-usb/Kconfig:72:warning: 'select' used by config
+> > symbol 'DVB_USB_DIB0700' refer to undefined symbol 'DVB_DIB7000M'
 > 
+> This is not a new warning, and should already be fixed for some two weeks 
+> or so in the v4l-dvb tree.
 
-I'm on a x86 (P4) hi-mem machine, plenty of onboard PCI (audio, LAN, bonus IDE
-controller, etc.), and it has sped up my boot process.  Between the USB and PCI
-multithread probing, my dmesg is a bit out of order from its ordinary sequence,
-but the only things that stall it now are my MD-RAID partitions getting set up.
+The -mm tree includes the dvb/v4l tree.  We've all been patiently waiting
+for that warning to go away for a few weeks now.
 
-As far as my mileage, it does speed up performance, but I'm bog-standard and
-boring as far as x86 hardware goes.  Obviously, not for everybody.
-
-Thanks!
-Matt Frost

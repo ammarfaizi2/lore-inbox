@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992550AbWJTRvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWJTRv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992550AbWJTRvK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 13:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWJTRvK
+	id S1030260AbWJTRv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 13:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWJTRv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 13:51:10 -0400
-Received: from smtp101.plus.mail.re2.yahoo.com ([206.190.53.26]:21082 "HELO
-	smtp101.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964826AbWJTRvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 13:51:08 -0400
-Message-ID: <45390C85.3070604@tungstengraphics.com>
-Date: Fri, 20 Oct 2006 18:51:01 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Fri, 20 Oct 2006 13:51:56 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:63398 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030260AbWJTRvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 13:51:54 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45390CAC.7090409@s5r6.in-berlin.de>
+Date: Fri, 20 Oct 2006 19:51:40 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-CC: Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-References: <20061013194516.GB19283@tau.solarneutrino.net>	<1160849723.3943.41.camel@neko.keithp.com>	<20061017174020.GA24789@tau.solarneutrino.net>	<1161124062.25439.8.camel@neko.keithp.com>	<4535CFB1.2010403@tungstengraphics.com>	<20061019173108.GA28700@tau.solarneutrino.net>	<4538B670.2030105@tungstengraphics.com> <20061020164008.GA29810@tau.solarneutrino.net>
-In-Reply-To: <20061020164008.GA29810@tau.solarneutrino.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Randy Dunlap <rdunlap@xenotime.net>
+CC: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: dealing with excessive includes
+References: <20061017005025.GF29920@ftp.linux.org.uk>	<Pine.LNX.4.64.0610161847210.3962@g5.osdl.org>	<20061017043726.GG29920@ftp.linux.org.uk>	<Pine.LNX.4.64.0610170821580.3962@g5.osdl.org>	<20061018044054.GH29920@ftp.linux.org.uk>	<20061018091944.GA5343@martell.zuzino.mipt.ru>	<20061018093126.GM29920@ftp.linux.org.uk>	<Pine.LNX.4.64.0610180759070.3962@g5.osdl.org>	<20061018160609.GO29920@ftp.linux.org.uk>	<Pine.LNX.4.64.0610180926380.3962@g5.osdl.org>	<20061020005337.GV29920@ftp.linux.org.uk>	<20061019213545.bf5a51c1.rdunlap@xenotime.net>	<45389662.6010604@s5r6.in-berlin.de> <20061020091302.a2a85fb1.rdunlap@xenotime.net>
+In-Reply-To: <20061020091302.a2a85fb1.rdunlap@xenotime.net>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Richter wrote:
-> On Fri, Oct 20, 2006 at 12:43:44PM +0100, Keith Whitwell wrote:
->> Ryan Richter wrote:
->>> On Wed, Oct 18, 2006 at 07:54:41AM +0100, Keith Whitwell wrote:
->>>> This is all a little confusing as the driver doesn't really use that 
->>>> path in normal operation except for a single command - MI_FLUSH, which 
->>>> is shared between the architectures.  In normal operation the hardware 
->>>> does the validation for us for the bulk of the command stream.  If there 
->>>> were missing functionality in that ioctl, it would be failing 
->>>> everywhere, not just in this one case.
->>>>
->>>> I guess the questions I'd have are
->>>> 	- did the driver work before the kernel upgrade?
->>>> 	- what path in userspace is seeing you end up in this ioctl?
->>>> 	- and like Keith, what commands are you seeing?
->>>>
->>>> The final question is interesting not because we want to extend the 
->>>> ioctl to cover those, but because it will give a clue how you ended up 
->>>> there in the first place.
->>> Here's a list of all the failing commands I've seen so far:
->>>
->>> 3a440003
->>> d70003
->>> 2d010003
->>> e5b90003
->>> 2e730003
->>> 8d8c0003
->>> c10003
->>> d90003
->>> be0003
->>> 1e3f0003
->> Ryan,
->>
->> Those don't look like any commands I can recognize.  I'm still confused 
->> how you got onto this ioctl in the first place - it seems like something 
->> pretty fundamental is going wrong somewhere.  What would be useful to me 
->> is if you can use GDB on your application and get a stacktrace for how 
->> you end up in this ioctl in the cases where it is failing?
->>
->> Additionally, if you're comfortable doing this, it would be helpful to 
->> see all the arguments that userspace thinks its sending to the ioctl, 
->> compared to what the kernel ends up thinking it has to validate.  There 
->> shouldn't ever be more than two dwords being validated at a time, and 
->> they should look more or less exactly like {0x02000003, 0}, and be 
->> emitted from bmSetFence().
->>
->> All of your other wierd problems, like the assert failures, etc, make me 
->> wonder if there just hasn't been some sort of build problem that can 
->> only be resolved by clearing it out and restarting.
->>
->> It wouldn't hurt to just nuke your current Mesa and libdrm builds and 
->> start from scratch - you'll probably have to do that to get debug 
->> symbols for gdb anyway.
+Randy Dunlap wrote:
+> On Fri, 20 Oct 2006 11:26:58 +0200 Stefan Richter wrote:
+>> I am afraid in many of these cases a proper cleanup would _replace_ the
+>> include by the correct one, not just delete it. For example,
+>> drivers/ieee1394/raw1394.c should include linux/spinlock.h. AFAICS it
+>> does so at the moment only indirectly via another header.
 > 
-> I had heard something previously about i965_dri.so maybe getting
-> miscompiled, but I hadn't followed up on it until now.  I rebuilt it
-> with an older gcc, and now it's all working great!  Sorry for the wild
-> goose chase.
+> I don't think that we can fix it all at once.  This is just one step.
+> AFAICT for raw1394.c, it's not incorrect as is, but more is needed,
+> sure.
 
-Out of interest, can you try again with the original GCC and see if the 
-problem comes back?  Which versions of GCC are you using?
+Yes, it's probably still correct after your patch. I just referred to
+the sensible rule that necessary headers should be directly included
+where they are used, not indirectly via other headers.
 
-Keith
+> Yes, we have lots of header include indirection going on.
+> I don't know of a good tool to detect/fix it.
+
+Me neither. I manually cleansed the ieee1394 core's and sbp2's includes
+recently; this is a mind-numbing janitorial job.
+
+> What Al is doing is good stuff, but I'd still prefer to see an even
+> better tool, like gcc-preprocessor or sparse based (I guess).
+
+On the surface, tools like LXR and cscope "know" where function are
+declared or macros and types are defined. But oftentimes, other headers
+than these tools turn up are to be included by API users. Cf. the
+definition of atomic_t. (IOW the "necessary" header is not always the
+one which has the actual definition.)
+-- 
+Stefan Richter
+-=====-=-==- =-=- =-=--
+http://arcgraph.de/sr/

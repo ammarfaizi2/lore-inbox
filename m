@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946843AbWJTCkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992423AbWJTCmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946843AbWJTCkw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 22:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946844AbWJTCkw
+	id S2992423AbWJTCmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 22:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992424AbWJTCmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 22:40:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:32123 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1946843AbWJTCkw convert rfc822-to-8bit (ORCPT
+	Thu, 19 Oct 2006 22:42:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16604 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S2992423AbWJTCmi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 22:40:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=p2DtmM3U2ZOYC1QRij5DE/iawNHs0IVTwOljpa4MzQne2EP3Yt2Y949etUyvVrbNeOFSjijgIPV7d5UA9g0RTtDKJzTHa0t5RJc4duml4q2rthFEhBotlWbLkq44Wam2DTHzee5dtHv/tOf5u5W7ppuyhne0edLEQthTnjyOHM8=
-To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: [PATCH] Fixed stv0299 driver to use time_after instead of comparisons
-Date: Thu, 19 Oct 2006 19:40:21 -0700
-User-Agent: KMail/1.9.5
+	Thu, 19 Oct 2006 22:42:38 -0400
+Date: Thu, 19 Oct 2006 19:41:57 -0700
+From: Greg KH <greg@kroah.com>
+To: David Miller <davem@davemloft.net>
+Cc: eiichiro.oiwa.nm@hitachi.com, alan@redhat.com, jesse.barnes@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: pci_fixup_video change blows up on sparc64
+Message-ID: <20061020024157.GA6722@kroah.com>
+References: <20061019092256.GC5980@devserv.devel.redhat.com> <20061019.022541.85409562.davem@davemloft.net> <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com> <20061019.153228.39159105.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610191940.21559.karhudever@gmial.com>
-From: David KOENIG <karhudever@gmail.com>
+In-Reply-To: <20061019.153228.39159105.davem@davemloft.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 914ba26e82ade62ca88ffa986fc06b4c0fb7a215 Mon Sep 17 00:00:00 2001
-From: David KOENIG <karhudever@gmail.com>
-Date: Thu, 19 Oct 2006 19:38:26 -0700
-Subject: [PATCH] Fixed stv0299 driver to use time_after instead of comparisons
----
- drivers/media/dvb/frontends/stv0299.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+On Thu, Oct 19, 2006 at 03:32:28PM -0700, David Miller wrote:
+> From: <eiichiro.oiwa.nm@hitachi.com>
+> Date: Thu, 19 Oct 2006 19:49:26 +0900
+> 
+> > The "0xc0000" is a physical address. The BAR (PCI base address) is also
+> > a physcail address. There are no difference.
+> 
+> Your assertion that the BAR is a physical address is very platform
+> specific.  It may be a "physical address in PCI bus space", but
+> that has no relation to the first argument passed to ioremap()
+> which is defined in a completely different way.
+> 
+> On many platforms, the BAR of PCI devices are translated into an
+> appropriate "ioremap() cookie" in the struct pci_dev resource[] array
+> entries, so that they can be used properly as the first argument to
+> ioremap().  Only address cookies properly setup by the platform may be
+> legally passed into ioremap() as the first argument.  No such setups
+> are being made on this raw 0xc0000 address.
+> 
+> So, as you can see, I/O port and I/O memory space work differently on
+> different platforms and this abstraction of the first argument to
+> ioremap() is how we provide support for such differences.
+> 
+> If you try to access 0xc0000 via ioremap() on sparc64, it is going to
+> try and access that area non-cacheable which, since 0xc0000 is
+> physical RAM, will result in a BUS ERROR and a crash.
+> 
+> This physical location might be the area for the video ROM on x86,
+> x86_64, and perhaps even IA64, but it certainly is not used this way
+> on sparc64 systems.
+> 
+> I really would like to see this regression fixed, or at the very
+> least this code protected by X86, X86_64, IA64 conditionals.
 
-diff --git a/drivers/media/dvb/frontends/stv0299.c 
-b/drivers/media/dvb/frontends/stv0299.c
-index 9348376..ff4da5a 100644
---- a/drivers/media/dvb/frontends/stv0299.c
-+++ b/drivers/media/dvb/frontends/stv0299.c
-@@ -43,6 +43,7 @@
- */
- 
- #include <linux/init.h>
-+#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-@@ -193,7 +194,7 @@ static int stv0299_wait_diseqc_fifo (str
- 	dprintk ("%s\n", __FUNCTION__);
- 
- 	while (stv0299_readreg(state, 0x0a) & 1) {
--		if (jiffies - start > timeout) {
-+		if (time_after(jiffies, start + timeout)) {
- 			dprintk ("%s: timeout!!\n", __FUNCTION__);
- 			return -ETIMEDOUT;
- 		}
-@@ -210,7 +211,7 @@ static int stv0299_wait_diseqc_idle (str
- 	dprintk ("%s\n", __FUNCTION__);
- 
- 	while ((stv0299_readreg(state, 0x0a) & 3) != 2 ) {
--		if (jiffies - start > timeout) {
-+		if (time_after(jiffies, start + timeout)) {
- 			dprintk ("%s: timeout!!\n", __FUNCTION__);
- 			return -ETIMEDOUT;
- 		}
--- 
-1.4.1
+I agree.  Eiichiro, care to send me an patch to fix this somehow?  Or do
+you want me to just revert it?
 
+thanks,
 
--- 
-<>< karhudever@gmail.com
+greg k-h

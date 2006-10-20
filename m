@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946508AbWJTVBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946510AbWJTVBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946508AbWJTVBu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 17:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946511AbWJTVBu
+	id S1946510AbWJTVBl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 17:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946504AbWJTVBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 17:01:50 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9603
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1946504AbWJTVBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 17:01:49 -0400
-Date: Fri, 20 Oct 2006 14:01:49 -0700 (PDT)
-Message-Id: <20061020.140149.125893169.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+	Fri, 20 Oct 2006 17:01:41 -0400
+Received: from ns2.suse.de ([195.135.220.15]:59564 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1946488AbWJTVBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 17:01:40 -0400
+From: Andi Kleen <ak@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
 Subject: Re: [PATCH 2/3] netpoll: rework skb transmit queue
-From: David Miller <davem@davemloft.net>
+Date: Fri, 20 Oct 2006 23:01:29 +0200
+User-Agent: KMail/1.9.3
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20061019171814.281988608@osdl.org> <20061020.134209.85688168.davem@davemloft.net> <20061020134826.75dd1cba@freekitty>
 In-Reply-To: <20061020134826.75dd1cba@freekitty>
-References: <20061020084015.5c559326@localhost.localdomain>
-	<20061020.134209.85688168.davem@davemloft.net>
-	<20061020134826.75dd1cba@freekitty>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610202301.29859.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Fri, 20 Oct 2006 13:48:26 -0700
 
-> On Fri, 20 Oct 2006 13:42:09 -0700 (PDT)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > We really can't handle TX stopped this way from the netpoll_send_skb()
-> > path.  All that old retry logic in netpoll_send_skb() is really
-> > necessary.
-> > 
-> > If we are in deep IRQ context, took an OOPS, and are trying to get a
-> > netpoll packet out for the kernel log message, we have to try as hard
-> > as possible to get the packet out then and there, even if that means
-> > waiting some amount of time for netif_queue_stopped() to become false.
-> 
 > But, it also violates the assumptions of the network devices.
 > It calls NAPI poll back with IRQ's disabled and potentially doesn't
 > obey the semantics about only running on the same CPU as the
 > received packet.
 
-Actually, all the locking here is fine, that's why it checks
-poll_owner for current smp_processor_id().
+netpoll always played a little fast'n'lose with various locking rules.
+Also often inside the drivers are a little sloppy in the poll path.
 
-Otherwise it is safe to sit and spin waiting for link up/down or
-TX full conditions to pass.
+That's fine for getting an oops out, but risky for normal kernel
+messages when the driver must be still working afterwards.
 
-> So we can try once and if that fails we have to defer to tasklet.
+The standard console code makes this conditional on oops_in_progress -
+it breaks locks when true and otherwise it follows the safe
+approach.
 
-Not true, we should spin and retry for some reasonable amount of time.
-That "reasonable amount of time" should be the maximum of the time
-it takes to free up space from a TX full condition and the time it
-takes to bring the link up.
+Perhaps it would be better to use different paths in netconsole too 
+depending  on whether oops_in_progress is true or not.  
 
-That is what the current code is trying to do, and you've erroneously
-deleted all of that logic.
+e.g. if !oops_in_progress (use the standard output path)
+else use current path.
+
+That would avoid breaking the driver during normal operation
+and also have the advantage that the normal netconsole messages
+would go through the queueing disciplines etc.
+
+-Andi

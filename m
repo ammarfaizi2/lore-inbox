@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946413AbWJTNfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946421AbWJTNhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946413AbWJTNfS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 09:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946415AbWJTNfR
+	id S1946421AbWJTNhk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 09:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946422AbWJTNhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 09:35:17 -0400
-Received: from main.gmane.org ([80.91.229.2]:2518 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1946413AbWJTNfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 09:35:16 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Peter Eriksen <s022018@student.dtu.dk>
-Subject: Re: [ANNOUNCE] GIT 1.4.3
-Followup-To: gmane.comp.version-control.git
-Date: 20 Oct 2006 15:26:04 +0200
-Message-ID: <m3zmbrt8yb.fsf@localhost.localdomain>
-References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net>
+	Fri, 20 Oct 2006 09:37:39 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:19979 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1946421AbWJTNhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 09:37:39 -0400
+Subject: [Patch] 2.6.19-rc2-mm2 warning fix for tty3270
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 20 Oct 2006 15:37:33 +0200
+Message-Id: <1161351453.3135.11.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe.atm2-0-1071147.0x3ef2a7ea.boanxx10.customer.tele.dk
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-Cc: git@vger.kernel.org
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio C Hamano <junkio@cox.net> writes:
+Changing the type of the termios parameter to conform with struct
+tty_operations. This is trivial as tty3270_set_termios doesn't use it.
 
-> The latest feature release GIT 1.4.3 is available at the usual
-> places:
-...
-> ----------------------------------------------------------------
-> 
->  .gitignore                                         |   10 +-
->  Documentation/Makefile                             |    4 +-
->  Documentation/asciidoc.conf                        |    1 +
->  Documentation/config.txt                           |   34 +
-...
->  rename contrib/gitview/{gitview.txt => gitview.txt} (74%)
+  CC      drivers/s390/char/tty3270.o
+drivers/s390/char/tty3270.c:1755: warning: initialization from incompatible pointer type
 
-How does it come to the result, that this is a rename?
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+---
 
-Peter
+ tty3270.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/s390/char/tty3270.c	2006-10-19 23:30:53.000000000 +0200
++++ b/drivers/s390/char/tty3270.c	2006-10-19 23:28:38.000000000 +0200
+@@ -1659,7 +1659,7 @@ tty3270_flush_buffer(struct tty_struct *
+  * Check for visible/invisible input switches
+  */
+ static void
+-tty3270_set_termios(struct tty_struct *tty, struct termios *old)
++tty3270_set_termios(struct tty_struct *tty, struct ktermios *old)
+ {
+ 	struct tty3270 *tp;
+ 	int new;
+
 

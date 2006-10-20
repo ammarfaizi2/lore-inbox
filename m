@@ -1,224 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423305AbWJTWre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992732AbWJTWvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423305AbWJTWre (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 18:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423306AbWJTWre
+	id S2992732AbWJTWvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 18:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423324AbWJTWvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 18:47:34 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:60777 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1423305AbWJTWrd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 18:47:33 -0400
-Date: Fri, 20 Oct 2006 15:47:21 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, ocfs2-devel@oss.oracle.com,
-       linux-kernel@vger.kernel.org, joel.becker@oracle.com
-Subject: [git patches] ocfs2 and configfs fixes
-Message-ID: <20061020224721.GI10128@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-MIME-Version: 1.0
+	Fri, 20 Oct 2006 18:51:03 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:17845 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1422831AbWJTWvA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 18:51:00 -0400
+Date: Fri, 20 Oct 2006 23:51:18 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: David Miller <davem@davemloft.net>
+Cc: torvalds@osdl.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+Message-ID: <20061020225118.GA30965@linux-mips.org>
+References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020214916.GA27810@linux-mips.org> <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org> <20061020.152247.111203913.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+In-Reply-To: <20061020.152247.111203913.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a small set of fixes this time.
+On Fri, Oct 20, 2006 at 03:22:47PM -0700, David Miller wrote:
 
-Please pull from 'upstream-linus' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git upstream-linus
+> > On Fri, 20 Oct 2006, Ralf Baechle wrote:
+> > > When I delete the call (not part of my patchset) it means 12% faster 
+> > > fork.  But I'm not proposing this for 2.6.19.
+> > 
+> > I just suspect it means a _buggy_ fork.
+> > 
+> > It so happens (I think), that fork is big enough that it probably flushes 
+> > the L1 cache _anyway_. 
 
-to receive the following updates:
+I doubt it; I've tested this on 64K I-cache VIPT, 64K D-cache VIPT.
 
- fs/configfs/file.c             |   14 ++++++-----
- fs/ocfs2/cluster/nodemanager.c |   10 ++++----
- fs/ocfs2/file.c                |   51 ++++++++++++++++++++++++-----------------
- fs/ocfs2/namei.c               |    8 ------
- 4 files changed, 45 insertions(+), 38 deletions(-)
+> My understanding is that this works because in Ralf's original patch
+> (which is the context in which he is removing the flush_cache_mm()
+> call), he uses kmap()/kunmap() to map the page(s) being accessed at a
+> kernel virtual address which will fall into the same cache color as
+> the user virtual address --> no alias problems.
+>
+> Since he does this for every page touched on the kernel side during
+> dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
+> fact become redundant.
 
-Akinobu Mita:
-      ocfs2: delete redundant memcmp()
+Correct.
 
-Chandra Seetharaman:
-      configfs: handle kzalloc() failure in check_perm()
+It means no cache flush operation to deal with aliases at all left in
+fork and COW code.
 
-Mark Fasheh:
-      ocfs2: fix page zeroing during simple extends
-      ocfs2: cond_resched() in ocfs2_zero_extend()
+Another advantage of this strategy is that we will never have to handle
+less virtual coherency exceptions.  A virtual coherency exception is raised
+on some MIPS processors when they detect the creation of a cache alias.
+This allows the software to cleanup caches.  Neat as an alarm system for
+alias debugging but rather expensive to service if large numbers are
+raised, not available on all processors and also detects the creation of
+harmless aliases of clean lines, thus a slight annoyance.
 
-Sunil Mushran:
-      ocfs2: remove spurious d_count check in ocfs2_rename()
-
-diff --git a/fs/configfs/file.c b/fs/configfs/file.c
-index e6d5754..cf33fac 100644
---- a/fs/configfs/file.c
-+++ b/fs/configfs/file.c
-@@ -275,13 +275,14 @@ static int check_perm(struct inode * ino
- 	 * it in file->private_data for easy access.
- 	 */
- 	buffer = kzalloc(sizeof(struct configfs_buffer),GFP_KERNEL);
--	if (buffer) {
--		init_MUTEX(&buffer->sem);
--		buffer->needs_read_fill = 1;
--		buffer->ops = ops;
--		file->private_data = buffer;
--	} else
-+	if (!buffer) {
- 		error = -ENOMEM;
-+		goto Enomem;
-+	}
-+	init_MUTEX(&buffer->sem);
-+	buffer->needs_read_fill = 1;
-+	buffer->ops = ops;
-+	file->private_data = buffer;
- 	goto Done;
- 
-  Einval:
-@@ -289,6 +290,7 @@ static int check_perm(struct inode * ino
- 	goto Done;
-  Eaccess:
- 	error = -EACCES;
-+ Enomem:
- 	module_put(attr->ca_owner);
-  Done:
- 	if (error && item)
-diff --git a/fs/ocfs2/cluster/nodemanager.c b/fs/ocfs2/cluster/nodemanager.c
-index e1fceb8..d11753c 100644
---- a/fs/ocfs2/cluster/nodemanager.c
-+++ b/fs/ocfs2/cluster/nodemanager.c
-@@ -152,14 +152,16 @@ static struct o2nm_node *o2nm_node_ip_tr
- 	struct o2nm_node *node, *ret = NULL;
- 
- 	while (*p) {
-+		int cmp;
-+
- 		parent = *p;
- 		node = rb_entry(parent, struct o2nm_node, nd_ip_node);
- 
--		if (memcmp(&ip_needle, &node->nd_ipv4_address,
--		           sizeof(ip_needle)) < 0)
-+		cmp = memcmp(&ip_needle, &node->nd_ipv4_address,
-+				sizeof(ip_needle));
-+		if (cmp < 0)
- 			p = &(*p)->rb_left;
--		else if (memcmp(&ip_needle, &node->nd_ipv4_address,
--			        sizeof(ip_needle)) > 0)
-+		else if (cmp > 0)
- 			p = &(*p)->rb_right;
- 		else {
- 			ret = node;
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index d9ba0a9..1be74c4 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -30,6 +30,7 @@ #include <linux/slab.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
- #include <linux/uio.h>
-+#include <linux/sched.h>
- 
- #define MLOG_MASK_PREFIX ML_INODE
- #include <cluster/masklog.h>
-@@ -691,6 +692,12 @@ static int ocfs2_zero_extend(struct inod
- 		}
- 
- 		start_off += sb->s_blocksize;
-+
-+		/*
-+		 * Very large extends have the potential to lock up
-+		 * the cpu for extended periods of time.
-+		 */
-+		cond_resched();
- 	}
- 
- out:
-@@ -728,31 +735,36 @@ static int ocfs2_extend_file(struct inod
- 	clusters_to_add = ocfs2_clusters_for_bytes(inode->i_sb, new_i_size) - 
- 		OCFS2_I(inode)->ip_clusters;
- 
--	if (clusters_to_add) {
--		/* 
--		 * protect the pages that ocfs2_zero_extend is going to
--		 * be pulling into the page cache.. we do this before the
--		 * metadata extend so that we don't get into the situation
--		 * where we've extended the metadata but can't get the data
--		 * lock to zero.
--		 */
--		ret = ocfs2_data_lock(inode, 1);
--		if (ret < 0) {
--			mlog_errno(ret);
--			goto out;
--		}
-+	/* 
-+	 * protect the pages that ocfs2_zero_extend is going to be
-+	 * pulling into the page cache.. we do this before the
-+	 * metadata extend so that we don't get into the situation
-+	 * where we've extended the metadata but can't get the data
-+	 * lock to zero.
-+	 */
-+	ret = ocfs2_data_lock(inode, 1);
-+	if (ret < 0) {
-+		mlog_errno(ret);
-+		goto out;
-+	}
- 
-+	if (clusters_to_add) {
- 		ret = ocfs2_extend_allocation(inode, clusters_to_add);
- 		if (ret < 0) {
- 			mlog_errno(ret);
- 			goto out_unlock;
- 		}
-+	}
- 
--		ret = ocfs2_zero_extend(inode, (u64)new_i_size - tail_to_skip);
--		if (ret < 0) {
--			mlog_errno(ret);
--			goto out_unlock;
--		}
-+	/*
-+	 * Call this even if we don't add any clusters to the tree. We
-+	 * still need to zero the area between the old i_size and the
-+	 * new i_size.
-+	 */
-+	ret = ocfs2_zero_extend(inode, (u64)new_i_size - tail_to_skip);
-+	if (ret < 0) {
-+		mlog_errno(ret);
-+		goto out_unlock;
- 	}
- 
- 	if (!tail_to_skip) {
-@@ -764,8 +776,7 @@ static int ocfs2_extend_file(struct inod
- 	}
- 
- out_unlock:
--	if (clusters_to_add) /* this is the only case in which we lock */
--		ocfs2_data_unlock(inode, 1);
-+	ocfs2_data_unlock(inode, 1);
- 
- out:
- 	return ret;
-diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
-index 259155f..a57b751 100644
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -1085,14 +1085,6 @@ static int ocfs2_rename(struct inode *ol
- 			BUG();
- 	}
- 
--	if (atomic_read(&old_dentry->d_count) > 2) {
--		shrink_dcache_parent(old_dentry);
--		if (atomic_read(&old_dentry->d_count) > 2) {
--			status = -EBUSY;
--			goto bail;
--		}
--	}
--
- 	/* Assume a directory heirarchy thusly:
- 	 * a/b/c
- 	 * a/d
+  Ralf

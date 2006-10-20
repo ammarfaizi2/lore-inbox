@@ -1,82 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWJTDVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWJTDZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751628AbWJTDVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 23:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWJTDVv
+	id S1751650AbWJTDZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 23:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946149AbWJTDZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 23:21:51 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:19665 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1751629AbWJTDVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 23:21:50 -0400
-Message-Type: Multiple Part
-MIME-Version: 1.0
-Message-ID: <XNM1$9$0$4$$3$3$7$A$9002710U453840ab@hitachi.com>
-Content-Type: text/plain; charset="us-ascii"
-To: "Greg KH" <greg@kroah.com>
-From: <eiichiro.oiwa.nm@hitachi.com>
-Cc: "David Miller" <davem@davemloft.net>, <alan@redhat.com>,
-       <jesse.barnes@intel.com>, <linux-kernel@vger.kernel.org>
-Date: Fri, 20 Oct 2006 12:21:24 +0900
-References: <20061019092256.GC5980@devserv.devel.redhat.com> 
-    <20061019.022541.85409562.davem@davemloft.net> 
-    <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com> 
-    <20061019.153228.39159105.davem@davemloft.net> 
-    <20061020024157.GA6722@kroah.com>
-Importance: normal
-Subject: Re: pci_fixup_video change blows up on sparc64
-X400-Content-Identifier: X453840AB00000M
-X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml16061020122115AW4]
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Oct 2006 23:25:58 -0400
+Received: from ns.suse.de ([195.135.220.2]:61858 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751650AbWJTDZl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 23:25:41 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 20 Oct 2006 13:25:35 +1000
+Message-Id: <1061020032535.1682@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 002 of 4] md: Add another COMPAT_IOCTL for md.
+References: <20061020120612.29297.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
->On Thu, Oct 19, 2006 at 03:32:28PM -0700, David Miller wrote:
->> From: <eiichiro.oiwa.nm@hitachi.com>
->> Date: Thu, 19 Oct 2006 19:49:26 +0900
->> 
->> > The "0xc0000" is a physical address. The BAR (PCI base address) is also
->> > a physcail address. There are no difference.
->> 
->> Your assertion that the BAR is a physical address is very platform
->> specific.  It may be a "physical address in PCI bus space", but
->> that has no relation to the first argument passed to ioremap()
->> which is defined in a completely different way.
->> 
->> On many platforms, the BAR of PCI devices are translated into an
->> appropriate "ioremap() cookie" in the struct pci_dev resource[] array
->> entries, so that they can be used properly as the first argument to
->> ioremap().  Only address cookies properly setup by the platform may be
->> legally passed into ioremap() as the first argument.  No such setups
->> are being made on this raw 0xc0000 address.
->> 
->> So, as you can see, I/O port and I/O memory space work differently on
->> different platforms and this abstraction of the first argument to
->> ioremap() is how we provide support for such differences.
->> 
->> If you try to access 0xc0000 via ioremap() on sparc64, it is going to
->> try and access that area non-cacheable which, since 0xc0000 is
->> physical RAM, will result in a BUS ERROR and a crash.
->> 
->> This physical location might be the area for the video ROM on x86,
->> x86_64, and perhaps even IA64, but it certainly is not used this way
->> on sparc64 systems.
->> 
->> I really would like to see this regression fixed, or at the very
->> least this code protected by X86, X86_64, IA64 conditionals.
->
->I agree.  Eiichiro, care to send me an patch to fix this somehow?  Or do
->you want me to just revert it?
->
->thanks,
->
->greg k-h
->
 
-Ok, I sent an patch to fix on only x86, x86_64 and IA64 for 2.6.18.
-Do you need an patch aganist 2.6.19-git?
+.. so that you can use bitmaps with 32bit userspace on a 
+64 bit kernel.
 
-thanks,
-Eiichiro
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./include/linux/compat_ioctl.h |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff .prev/include/linux/compat_ioctl.h ./include/linux/compat_ioctl.h
+--- .prev/include/linux/compat_ioctl.h	2006-10-20 11:49:14.000000000 +1000
++++ ./include/linux/compat_ioctl.h	2006-10-20 12:00:56.000000000 +1000
+@@ -131,6 +131,7 @@ COMPATIBLE_IOCTL(RUN_ARRAY)
+ COMPATIBLE_IOCTL(STOP_ARRAY)
+ COMPATIBLE_IOCTL(STOP_ARRAY_RO)
+ COMPATIBLE_IOCTL(RESTART_ARRAY_RW)
++COMPATIBLE_IOCTL(GET_BITMAP_FILE)
+ ULONG_IOCTL(SET_BITMAP_FILE)
+ /* DM */
+ COMPATIBLE_IOCTL(DM_VERSION_32)

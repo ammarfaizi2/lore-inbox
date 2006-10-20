@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWJTBsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946782AbWJTBw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWJTBsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 21:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWJTBsJ
+	id S1946782AbWJTBw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 21:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946784AbWJTBw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 21:48:09 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:45000 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S932202AbWJTBsG (ORCPT
+	Thu, 19 Oct 2006 21:52:58 -0400
+Received: from ns2.suse.de ([195.135.220.15]:10638 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1946782AbWJTBw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 21:48:06 -0400
-Date: Fri, 20 Oct 2006 11:47:49 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nicolas DET <nd@bplan-gmbh.de>, linuxppc-dev@ozlabs.org,
-       Olaf Hering <olaf@aepfle.de>, linux-kernel@vger.kernel.org
-Subject: Re: Badness in irq_create_mapping at arch/powerpc/kernel/irq.c:527
-Message-Id: <20061020114749.fe7b71d6.sfr@canb.auug.org.au>
-In-Reply-To: <1161308221.10524.92.camel@localhost.localdomain>
-References: <20061019122802.GA26637@aepfle.de>
-	<45377ED3.9030001@bplan-gmbh.de>
-	<1161308221.10524.92.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.3.0beta2 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__20_Oct_2006_11_47_49_+1000_hcS5D6F+KX79LmRP"
+	Thu, 19 Oct 2006 21:52:57 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 20 Oct 2006 11:52:44 +1000
+Message-Id: <1061020015244.26756@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: stable@kernel.org, Adrian Bunk <bunk@stusta.de>
+Subject: [PATCH] knfsd: Fix race that can disable NFS server.
+References: <20061020114959.26698.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_Oct_2006_11_47_49_+1000_hcS5D6F+KX79LmRP
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+This patch is suitable for just about any 2.6 kernel.
+It should go in 2.6.19 and 2.6.18.2 and possible even the .17 and .16
+stable series.
 
-Hi Ben,
+### Comments for Changeset
 
-On Fri, 20 Oct 2006 11:37:01 +1000 Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> Index: linux-cell/arch/powerpc/sysdev/i8259.c
-> ===================================================================
-> --- linux-cell.orig/arch/powerpc/sysdev/i8259.c	2006-10-09 12:03:33.000000000 +1000
-> +++ linux-cell/arch/powerpc/sysdev/i8259.c	2006-10-20 11:32:07.000000000 +1000
-> @@ -13,6 +13,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/kernel.h>
->  #include <linux/delay.h>
-> +#include <linux/module.h>
->  #include <asm/io.h>
->  #include <asm/i8259.h>
->  #include <asm/prom.h>
-> @@ -224,6 +225,12 @@ static struct irq_host_ops i8259_host_op
->  	.xlate = i8259_host_xlate,
->  };
->
-> +struct irq_host *i8259_get_host(void)
-> +{
-> +	return i8259_host;
-> +}
-> +EXPORT_SYMBOL(i8259_get_host);
+This is a long standing bug that seems to have only recently become
+apparent, presumably due to increasing use of NFS over TCP - many
+distros seem to be making it the default.
 
-Surely it doesn't need exporting is its only caller is in
-arch/powerpc/platforms/chrp/setup.c?
+The SK_CONN bit gets set when a listening socket may be ready
+for an accept, just as SK_DATA is set when data may be available.
 
---
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+It is entirely possible for svc_tcp_accept to be called with neither
+of these set.  It doesn't happen often but there is a small race in
+svc_sock_enqueue as SK_CONN and SK_DATA are tested outside the
+spin_lock.  They could be cleared immediately after the test and
+before the lock is gained.
 
---Signature=_Fri__20_Oct_2006_11_47_49_+1000_hcS5D6F+KX79LmRP
-Content-Type: application/pgp-signature
+This normally shouldn't be a problem.  The sockets are non-blocking so
+trying to read() or accept() when ther is nothing to do is not a problem.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+However: svc_tcp_recvfrom makes the decision "Should I accept() or
+should I read()" based on whether SK_CONN is set or not.  This usually
+works but is not safe.  The decision should be based on whether it is
+a TCP_LISTEN socket or a TCP_CONNECTED socket.
 
-iD8DBQFFOCrFFdBgD/zoJvwRAj96AKCf28+zNMiddHmPCL7SLjNAIRyaNACgiM+y
-gdzKlzwxoqLEnGcqz3gOgUg=
-=dMvI
------END PGP SIGNATURE-----
 
---Signature=_Fri__20_Oct_2006_11_47_49_+1000_hcS5D6F+KX79LmRP--
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./net/sunrpc/svcsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-10-20 11:49:18.000000000 +1000
++++ ./net/sunrpc/svcsock.c	2006-10-20 11:49:47.000000000 +1000
+@@ -1002,7 +1002,7 @@ svc_tcp_recvfrom(struct svc_rqst *rqstp)
+ 		return 0;
+ 	}
+ 
+-	if (test_bit(SK_CONN, &svsk->sk_flags)) {
++	if (svsk->sk_sk->sk_state == TCP_LISTEN) {
+ 		svc_tcp_accept(svsk);
+ 		svc_sock_received(svsk);
+ 		return 0;

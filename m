@@ -1,101 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbWJTDVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWJTDVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751624AbWJTDVR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Oct 2006 23:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWJTDVQ
+	id S1751628AbWJTDVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Oct 2006 23:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWJTDVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Oct 2006 23:21:16 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26793
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751623AbWJTDVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Oct 2006 23:21:16 -0400
-Date: Thu, 19 Oct 2006 20:21:17 -0700 (PDT)
-Message-Id: <20061019.202117.123674883.davem@davemloft.net>
-To: eiichiro.oiwa.nm@hitachi.com
-Cc: jesse.barnes@intel.com, alan@redhat.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org
+	Thu, 19 Oct 2006 23:21:51 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:19665 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1751629AbWJTDVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Oct 2006 23:21:50 -0400
+Message-Type: Multiple Part
+MIME-Version: 1.0
+Message-ID: <XNM1$9$0$4$$3$3$7$A$9002710U453840ab@hitachi.com>
+Content-Type: text/plain; charset="us-ascii"
+To: "Greg KH" <greg@kroah.com>
+From: <eiichiro.oiwa.nm@hitachi.com>
+Cc: "David Miller" <davem@davemloft.net>, <alan@redhat.com>,
+       <jesse.barnes@intel.com>, <linux-kernel@vger.kernel.org>
+Date: Fri, 20 Oct 2006 12:21:24 +0900
+References: <20061019092256.GC5980@devserv.devel.redhat.com> 
+    <20061019.022541.85409562.davem@davemloft.net> 
+    <XNM1$9$0$4$$3$3$7$A$9002707U4537582f@hitachi.com> 
+    <20061019.153228.39159105.davem@davemloft.net> 
+    <20061020024157.GA6722@kroah.com>
+Importance: normal
 Subject: Re: pci_fixup_video change blows up on sparc64
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002709U45383afc@hitachi.com>
-References: <200610191103.16689.jesse.barnes@intel.com>
-	<20061019.155844.18310932.davem@davemloft.net>
-	<XNM1$9$0$4$$3$3$7$A$9002709U45383afc@hitachi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X400-Content-Identifier: X453840AB00000M
+X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml16061020122115AW4]
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: <eiichiro.oiwa.nm@hitachi.com>
-Date: Fri, 20 Oct 2006 11:57:06 +0900
+From: Greg KH <greg@kroah.com>
+>On Thu, Oct 19, 2006 at 03:32:28PM -0700, David Miller wrote:
+>> From: <eiichiro.oiwa.nm@hitachi.com>
+>> Date: Thu, 19 Oct 2006 19:49:26 +0900
+>> 
+>> > The "0xc0000" is a physical address. The BAR (PCI base address) is also
+>> > a physcail address. There are no difference.
+>> 
+>> Your assertion that the BAR is a physical address is very platform
+>> specific.  It may be a "physical address in PCI bus space", but
+>> that has no relation to the first argument passed to ioremap()
+>> which is defined in a completely different way.
+>> 
+>> On many platforms, the BAR of PCI devices are translated into an
+>> appropriate "ioremap() cookie" in the struct pci_dev resource[] array
+>> entries, so that they can be used properly as the first argument to
+>> ioremap().  Only address cookies properly setup by the platform may be
+>> legally passed into ioremap() as the first argument.  No such setups
+>> are being made on this raw 0xc0000 address.
+>> 
+>> So, as you can see, I/O port and I/O memory space work differently on
+>> different platforms and this abstraction of the first argument to
+>> ioremap() is how we provide support for such differences.
+>> 
+>> If you try to access 0xc0000 via ioremap() on sparc64, it is going to
+>> try and access that area non-cacheable which, since 0xc0000 is
+>> physical RAM, will result in a BUS ERROR and a crash.
+>> 
+>> This physical location might be the area for the video ROM on x86,
+>> x86_64, and perhaps even IA64, but it certainly is not used this way
+>> on sparc64 systems.
+>> 
+>> I really would like to see this regression fixed, or at the very
+>> least this code protected by X86, X86_64, IA64 conditionals.
+>
+>I agree.  Eiichiro, care to send me an patch to fix this somehow?  Or do
+>you want me to just revert it?
+>
+>thanks,
+>
+>greg k-h
+>
 
-> I am sorry. I assumed ROM base address will be 0xc0000 if VGA Enable
-> bit in Bridge Control Register set. This assuming is incorrect.
+Ok, I sent an patch to fix on only x86, x86_64 and IA64 for 2.6.18.
+Do you need an patch aganist 2.6.19-git?
 
-Please also notice another point we are trying to explain in this
-thread, in fact several times.
+thanks,
+Eiichiro
 
-This "bridge control register" is only valid for "PCI to PCI" bridges.
-
-I repeat:
-
-	This "bridge control register" is only valid for "PCI to PCI"
-	bridges.
-
-It is not valid for "host to PCI" bridges, yet the pci_fixup_video()
-code is testing the bridge control register, blindly, in every bus
-device it sees as it walks up the device tree to the root.
-
-The bridge control register is valid for PCI header type BRIDGE, or
-CARDBUS.  Host to PCI controllers use PCI header type NORMAL.  For
-example, here is the lspci dump for my host bridge:
-
-0000:00:00.0 Host bridge: Sun Microsystems Computer Corp. Tomatillo PCI Bus Module
-00: 8e 10 01 a8 46 01 a0 22 00 00 00 06 00 40 00 00
-
-and here is a dump for a PCI->PCI bridge in the same machine:
-
-0000:00:02.0 PCI bridge: Texas Instruments PCI2250 PCI-to-PCI Bridge (rev 02)
-00: 4c 10 23 ac 07 00 10 02 02 00 04 06 10 40 01 00
-
-Clearly, the host bridge has PCI header type 0x00 (NORMAL) at offset
-0x0e, and the PCI-PCI bridge has header type 0x01 (BRIDGE).
-
-Back to the code, look at the loop:
-
-	bus = pdev->bus;
-	while (bus) {
-		bridge = bus->self;
-		if (bridge) {
-			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL,
-						&config);
-			if (!(config & PCI_BRIDGE_CTL_VGA))
-				return;
-		}
-		bus = bus->parent;
-	}
-
-Where is it making sure that this is a PCI to PCI bus and not a
-host to PCI bus?  It's not, and that's a serious bug.  There should
-be a PCI header type check here, or similar.  The PCI device probing
-layer correctly checks the PCI header type before trying to access
-the bridge control register of any PCI device.
-
-And also, it is also true that the ioremap() calls done by
-pci_map_rom() for the "0xc0000" case are totally invalid.  For several
-reasons:
-
-1) That is going to be RAM, not I/O memory space, therefore accessing
-   it with ioremap() and asm/io.h accessors such as readl() and
-   memcpy_fromio() will result in bus errors and other faults.
-
-2) It is illegal to pass raw physical addresses to ioremap() as the
-   first argument.  The first argument to ioremap() is an architecture
-   defined opaque "address cookie" which by definition must be setup
-   by platform specific code.
-
-Just copying the x86 code over to IA64 to 'fix the problem' doesn't
-fix any of these bugs (illegal access to bridge control register on
-devices with PCI header type NORMAL) or portability problems (invalid
-first argument to ioremap()).

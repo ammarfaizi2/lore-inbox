@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766643AbWJUSXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993120AbWJUS1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1766643AbWJUSXU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766650AbWJUSXU
+	id S2993120AbWJUS1K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 14:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993139AbWJUS1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:23:20 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:43993 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1766644AbWJUSXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:23:19 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=T+kbiZh23cIKifoMls8FqRjJip3O+MNIYduQz+hy2IsfyKzvDQxk5KS4vdWWhmPS2
-	BWEO0TeJvh5tKWkQNzmww==
-Message-ID: <6599ad830610211123i35d2e132y8ef1e0f612b94877@mail.gmail.com>
-Date: Sat, 21 Oct 2006 11:23:06 -0700
-From: "Paul Menage" <menage@google.com>
-To: "Martin Bligh" <mbligh@google.com>
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Paul Jackson" <pj@sgi.com>,
-       akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
-       dipankar@in.ibm.com, suresh.b.siddha@intel.com
-In-Reply-To: <4537D6E8.8020501@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Oct 2006 14:27:10 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:48308 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S2993120AbWJUS1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 14:27:06 -0400
+Date: Sat, 21 Oct 2006 14:26:48 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Robert Peterson <rpeterso@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org, viro@ftp.linux.org.uk, hch@infradead.org,
+       sct@redhat.com, adilger@clusterfs.com
+Subject: Re: [PATCH 05 of 23] ext3: change uses of f_{dentry, vfsmnt} to use f_path
+Message-ID: <20061021182648.GC28179@filer.fsl.cs.sunysb.edu>
+References: <b75a8d7cedacd1de45bc.1161411450@thor.fsl.cs.sunysb.edu> <453A17E0.7080301@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
-	 <4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com>
-	 <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com>
+In-Reply-To: <453A17E0.7080301@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/19/06, Martin Bligh <mbligh@google.com> wrote:
->
-> > I don't know of anyone else using cpusets, but I'd be interested to know.
->
-> We (Google) are planning to use it to do some partitioning, albeit on
-> much smaller machines. I'd really like to NOT use cpus_allowed from
-> previous experience - if we can get it to to partition using separated
-> sched domains, that would be much better.
+On Sat, Oct 21, 2006 at 07:51:44AM -0500, Robert Peterson wrote:
+> Josef Jeff Sipek wrote:
+> >From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> >
+> >This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
+> >in the ext3 filesystem.
+> >  
+> Hey Jeff,
+> 
+> Don't forget about GFS2:  fs/gfs2/ops_file.c.
 
-Actually, what we'd really like is to be able to set cpus_allowed in
-arbitrary ways (we're already doing this via sched_setaffinity() -
-doing it via cpusets would just be an optimization when changing cpu
-masks) and have the scheduler automatically do balancing efficiently.
-In some cases sched domains might be appropriate, but in most of the
-cases we have today, we have a job that's running with a CPU reserved
-for itself but also has access to a "public" CPU, and some CPUs are
-not public, but shared amongst a set of jobs. I'm not very familiar
-with the sched domains code but I guess it doesn't handle overlapping
-cpu masks very well?
+I'm aware. There are still about 500 instances of f_{dentry,vfsmnt}, but I
+just wanted to see whether or not this would go anywhere. If it does, the
+remaining instances will get fixed up too.
 
-Paul
+Josef "Jeff" Sipek.
+
+-- 
+Evolution, n.:
+  A hypothetical process whereby infinitely improbable events occur with
+  alarming frequency, order arises from chaos, and no one is given credit.

@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423250AbWJTXuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992743AbWJUAGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423250AbWJTXuW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 19:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423239AbWJTXuW
+	id S2992743AbWJUAGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 20:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992527AbWJUAGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 19:50:22 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:46129 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S2992743AbWJTXuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 19:50:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Yx+CyAIO/8mUs1r5nM4S8K7cYpj3SC5v4VBIHlVBuF9ng/23Ju13AyNKd1k7JZkng4sSRGD3iYtkPSIh8gJEktjsF2k0zN84+V+SO2Fl/2+18y4txtQ6Z6WsYJ9Xbcl18tmhio+r92QcdUyJj5fB2pWja1NMrAU7fWfxMmg4CQg=
-Message-ID: <453960B3.6040006@gmail.com>
-Date: Sat, 21 Oct 2006 08:50:11 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060928)
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: linux-kernel@vger.kernel.org,
-       =?ISO-8859-1?Q?Lars_Christian_Nyg=E5?= =?ISO-8859-1?Q?rd?= 
-	<lars@snart.com>
-Subject: Re: Debugging I/O errors?
-References: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
-In-Reply-To: <C5C787DB-6791-462E-9907-F3A0438E6B9C@karlsbakk.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Oct 2006 20:06:09 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:34764 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1030355AbWJUAGF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 20:06:05 -0400
+Date: Sat, 21 Oct 2006 01:06:09 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+Message-ID: <20061021000609.GA32701@linux-mips.org>
+References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020214916.GA27810@linux-mips.org> <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org> <20061020.152247.111203913.davem@davemloft.net> <20061020225118.GA30965@linux-mips.org> <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> Hi all
+On Fri, Oct 20, 2006 at 04:28:37PM -0700, Linus Torvalds wrote:
+
+> > > My understanding is that this works because in Ralf's original patch
+> > > (which is the context in which he is removing the flush_cache_mm()
+> > > call), he uses kmap()/kunmap() to map the page(s) being accessed at a
+> > > kernel virtual address which will fall into the same cache color as
+> > > the user virtual address --> no alias problems.
+> > >
+> > > Since he does this for every page touched on the kernel side during
+> > > dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
+> > > fact become redundant.
+> > 
+> > Correct.
+> > 
+> > It means no cache flush operation to deal with aliases at all left in
+> > fork and COW code.
 > 
-> Stresstesting a SATA drive+controller, I get the error below after a 
-> while. How can I find if this error is due to a controller failure, a 
-> bad driver, or a drive failure?
+> Umm. That would seem to only happen to work for a direct-mapped virtually 
+> indexed cache where the index is taken purely from the virtual address, 
+> and there are no "process context" bits in the virtually indexed D$.
 
-Is there any libata/SCSI error messages in your log?
+No MIPS processor has something like that.  See below.
 
--- 
-tejun
+> The moment there are process context bits involved, afaik you absolutely 
+> _need_ to flush, because otherwise the other process will never pick up 
+> the dirty state (which it would need to reload from memory).
+
+Correct.
+
+> That said, maybe nobody does that. Virtual caches are a total braindamage 
+> in the first place, so hopefully they have limited use.
+
+On MIPS we never had pure virtual caches.  The major variants in existence
+are:
+
+ o D-cache PIPT, I-cache PIPT
+ o PIVT (no typo!)
+   Only the R6000 has this and it's not supported by Linux.
+ o D-cache VIPT, I-cache VIPT
+   This is by far the most common on any MIPS designed since '91.
+   A variant of these caches has hardware logic to detect cache aliases and
+   fix them automatically and therefore is equivalent to PIPT even though
+   they are not implemented as PIPT.  And obviously the alias replay of the
+   pipe will cost a few cycles.  The R10000 family of SGI belongs into this
+   class and the 24K/34K family of synthesizable cores by MIPS Technologies
+   have this as a synthesis option.
+   Another variant throws virtual coherency exceptions as I've explained in
+   another thread.
+ o D-cache PIPT, I-cache VIVT with additional address space tags.
+ o Cacheless.  Not usually running Linux but heck, it's working anyway.
+
+Be sure I'm sending a CPU designers a strong message about aliases.  And I
+think they're slowly getting the message that kernel hackers like to poke
+needles into voodoo dolls for aliases ;-)
+
+  Ralf

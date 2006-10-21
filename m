@@ -1,196 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992871AbWJUHQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992877AbWJUHQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992871AbWJUHQr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992875AbWJUHOw
+	id S2992877AbWJUHQq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 03:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992871AbWJUHOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:14:52 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:30855 "EHLO
+	Sat, 21 Oct 2006 03:14:54 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:28551 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S2992871AbWJUHOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:14:41 -0400
+	id S2992865AbWJUHOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 03:14:39 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 02 of 23] sysfs: change uses of f_{dentry,
-	vfsmnt} to use f_path
-Message-Id: <6ecdf36e14de08c8fa3e.1161411447@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 15 of 23] mm: change uses of f_{dentry,vfsmnt} to use f_path
+Message-Id: <bf54fa27ee54d7c87316.1161411460@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu>
-Date: Sat, 21 Oct 2006 02:17:27 -0400
+Date: Sat, 21 Oct 2006 02:17:40 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@infradead.org, gregkh@suse.de
+       viro@ftp.linux.org.uk, hch@infradead.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
-in the sysfs filesystem code.
+in linux/mm/.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 ---
 
-3 files changed, 20 insertions(+), 20 deletions(-)
-fs/sysfs/bin.c  |   14 +++++++-------
-fs/sysfs/dir.c  |   10 +++++-----
-fs/sysfs/file.c |   16 ++++++++--------
+6 files changed, 21 insertions(+), 21 deletions(-)
+mm/fadvise.c     |    2 +-
+mm/filemap.c     |    2 +-
+mm/filemap_xip.c |    2 +-
+mm/mmap.c        |   10 +++++-----
+mm/shmem.c       |   20 ++++++++++----------
+mm/swapfile.c    |    6 +++---
 
-diff --git a/fs/sysfs/bin.c b/fs/sysfs/bin.c
---- a/fs/sysfs/bin.c
-+++ b/fs/sysfs/bin.c
-@@ -35,7 +35,7 @@ read(struct file * file, char __user * u
- read(struct file * file, char __user * userbuf, size_t count, loff_t * off)
- {
- 	char *buffer = file->private_data;
--	struct dentry *dentry = file->f_dentry;
-+	struct dentry *dentry = file->f_path.dentry;
- 	int size = dentry->d_inode->i_size;
- 	loff_t offs = *off;
- 	int ret;
-@@ -81,7 +81,7 @@ static ssize_t write(struct file * file,
- 		     size_t count, loff_t * off)
- {
- 	char *buffer = file->private_data;
--	struct dentry *dentry = file->f_dentry;
-+	struct dentry *dentry = file->f_path.dentry;
- 	int size = dentry->d_inode->i_size;
- 	loff_t offs = *off;
+diff --git a/mm/fadvise.c b/mm/fadvise.c
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -38,7 +38,7 @@ asmlinkage long sys_fadvise64_64(int fd,
+ 	if (!file)
+ 		return -EBADF;
  
-@@ -105,7 +105,7 @@ static ssize_t write(struct file * file,
- 
- static int mmap(struct file *file, struct vm_area_struct *vma)
- {
--	struct dentry *dentry = file->f_dentry;
-+	struct dentry *dentry = file->f_path.dentry;
- 	struct bin_attribute *attr = to_bin_attr(dentry);
- 	struct kobject *kobj = to_kobj(dentry->d_parent);
- 
-@@ -117,8 +117,8 @@ static int mmap(struct file *file, struc
- 
- static int open(struct inode * inode, struct file * file)
- {
--	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
--	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
-+	struct kobject *kobj = sysfs_get_kobject(file->f_path.dentry->d_parent);
-+	struct bin_attribute * attr = to_bin_attr(file->f_path.dentry);
- 	int error = -EINVAL;
- 
- 	if (!kobj || !attr)
-@@ -153,8 +153,8 @@ static int open(struct inode * inode, st
- 
- static int release(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = to_kobj(file->f_dentry->d_parent);
--	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
-+	struct kobject * kobj = to_kobj(file->f_path.dentry->d_parent);
-+	struct bin_attribute * attr = to_bin_attr(file->f_path.dentry);
- 	u8 * buffer = file->private_data;
- 
- 	if (kobj) 
-diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c
-+++ b/fs/sysfs/dir.c
-@@ -374,7 +374,7 @@ int sysfs_rename_dir(struct kobject * ko
- 
- static int sysfs_dir_open(struct inode *inode, struct file *file)
- {
--	struct dentry * dentry = file->f_dentry;
-+	struct dentry * dentry = file->f_path.dentry;
- 	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
- 
- 	mutex_lock(&dentry->d_inode->i_mutex);
-@@ -387,7 +387,7 @@ static int sysfs_dir_open(struct inode *
- 
- static int sysfs_dir_close(struct inode *inode, struct file *file)
- {
--	struct dentry * dentry = file->f_dentry;
-+	struct dentry * dentry = file->f_path.dentry;
- 	struct sysfs_dirent * cursor = file->private_data;
- 
- 	mutex_lock(&dentry->d_inode->i_mutex);
-@@ -407,7 +407,7 @@ static inline unsigned char dt_type(stru
- 
- static int sysfs_readdir(struct file * filp, void * dirent, filldir_t filldir)
- {
--	struct dentry *dentry = filp->f_dentry;
-+	struct dentry *dentry = filp->f_path.dentry;
- 	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
- 	struct sysfs_dirent *cursor = filp->private_data;
- 	struct list_head *p, *q = &cursor->s_sibling;
-@@ -464,7 +464,7 @@ static int sysfs_readdir(struct file * f
- 
- static loff_t sysfs_dir_lseek(struct file * file, loff_t offset, int origin)
- {
--	struct dentry * dentry = file->f_dentry;
-+	struct dentry * dentry = file->f_path.dentry;
- 
- 	mutex_lock(&dentry->d_inode->i_mutex);
- 	switch (origin) {
-@@ -474,7 +474,7 @@ static loff_t sysfs_dir_lseek(struct fil
- 			if (offset >= 0)
- 				break;
- 		default:
--			mutex_unlock(&file->f_dentry->d_inode->i_mutex);
-+			mutex_unlock(&file->f_path.dentry->d_inode->i_mutex);
- 			return -EINVAL;
+-	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
++	if (S_ISFIFO(file->f_path.dentry->d_inode->i_mode)) {
+ 		ret = -ESPIPE;
+ 		goto out;
  	}
- 	if (offset != file->f_pos) {
-diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -154,7 +154,7 @@ sysfs_read_file(struct file *file, char 
+diff --git a/mm/filemap.c b/mm/filemap.c
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2267,7 +2267,7 @@ __generic_file_aio_write_nolock(struct k
+ 	if (count == 0)
+ 		goto out;
  
- 	down(&buffer->sem);
- 	if (buffer->needs_read_fill) {
--		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
-+		if ((retval = fill_read_buffer(file->f_path.dentry,buffer)))
- 			goto out;
+-	err = remove_suid(file->f_dentry);
++	err = remove_suid(file->f_path.dentry);
+ 	if (err)
+ 		goto out;
+ 
+diff --git a/mm/filemap_xip.c b/mm/filemap_xip.c
+--- a/mm/filemap_xip.c
++++ b/mm/filemap_xip.c
+@@ -379,7 +379,7 @@ xip_file_write(struct file *filp, const 
+ 	if (count == 0)
+ 		goto out_backing;
+ 
+-	ret = remove_suid(filp->f_dentry);
++	ret = remove_suid(filp->f_path.dentry);
+ 	if (ret)
+ 		goto out_backing;
+ 
+diff --git a/mm/mmap.c b/mm/mmap.c
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -188,7 +188,7 @@ static void __remove_shared_vm_struct(st
+ 		struct file *file, struct address_space *mapping)
+ {
+ 	if (vma->vm_flags & VM_DENYWRITE)
+-		atomic_inc(&file->f_dentry->d_inode->i_writecount);
++		atomic_inc(&file->f_path.dentry->d_inode->i_writecount);
+ 	if (vma->vm_flags & VM_SHARED)
+ 		mapping->i_mmap_writable--;
+ 
+@@ -399,7 +399,7 @@ static inline void __vma_link_file(struc
+ 		struct address_space *mapping = file->f_mapping;
+ 
+ 		if (vma->vm_flags & VM_DENYWRITE)
+-			atomic_dec(&file->f_dentry->d_inode->i_writecount);
++			atomic_dec(&file->f_path.dentry->d_inode->i_writecount);
+ 		if (vma->vm_flags & VM_SHARED)
+ 			mapping->i_mmap_writable++;
+ 
+@@ -907,7 +907,7 @@ unsigned long do_mmap_pgoff(struct file 
+ 	 *  mounted, in which case we dont add PROT_EXEC.)
+ 	 */
+ 	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
+-		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
++		if (!(file && (file->f_path.mnt->mnt_flags & MNT_NOEXEC)))
+ 			prot |= PROT_EXEC;
+ 
+ 	if (!len)
+@@ -960,7 +960,7 @@ unsigned long do_mmap_pgoff(struct file 
+ 			return -EAGAIN;
  	}
- 	pr_debug("%s: count = %zd, ppos = %lld, buf = %s\n",
-@@ -242,7 +242,7 @@ sysfs_write_file(struct file *file, cons
- 	down(&buffer->sem);
- 	len = fill_write_buffer(buffer, buf, count);
- 	if (len > 0)
--		len = flush_write_buffer(file->f_dentry, buffer, len);
-+		len = flush_write_buffer(file->f_path.dentry, buffer, len);
- 	if (len > 0)
- 		*ppos += len;
- 	up(&buffer->sem);
-@@ -251,8 +251,8 @@ sysfs_write_file(struct file *file, cons
  
- static int check_perm(struct inode * inode, struct file * file)
+-	inode = file ? file->f_dentry->d_inode : NULL;
++	inode = file ? file->f_path.dentry->d_inode : NULL;
+ 
+ 	if (file) {
+ 		switch (flags & MAP_TYPE) {
+@@ -989,7 +989,7 @@ unsigned long do_mmap_pgoff(struct file 
+ 		case MAP_PRIVATE:
+ 			if (!(file->f_mode & FMODE_READ))
+ 				return -EACCES;
+-			if (file->f_vfsmnt->mnt_flags & MNT_NOEXEC) {
++			if (file->f_path.mnt->mnt_flags & MNT_NOEXEC) {
+ 				if (vm_flags & VM_EXEC)
+ 					return -EPERM;
+ 				vm_flags &= ~VM_MAYEXEC;
+diff --git a/mm/shmem.c b/mm/shmem.c
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -1225,7 +1225,7 @@ failed:
+ 
+ struct page *shmem_nopage(struct vm_area_struct *vma, unsigned long address, int *type)
  {
--	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
--	struct attribute * attr = to_attr(file->f_dentry);
-+	struct kobject *kobj = sysfs_get_kobject(file->f_path.dentry->d_parent);
-+	struct attribute * attr = to_attr(file->f_path.dentry);
- 	struct sysfs_buffer * buffer;
- 	struct sysfs_ops * ops = NULL;
- 	int error = 0;
-@@ -334,8 +334,8 @@ static int sysfs_open_file(struct inode 
- 
- static int sysfs_release(struct inode * inode, struct file * filp)
+-	struct inode *inode = vma->vm_file->f_dentry->d_inode;
++	struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+ 	struct page *page = NULL;
+ 	unsigned long idx;
+ 	int error;
+@@ -1248,7 +1248,7 @@ static int shmem_populate(struct vm_area
+ 	unsigned long addr, unsigned long len,
+ 	pgprot_t prot, unsigned long pgoff, int nonblock)
  {
--	struct kobject * kobj = to_kobj(filp->f_dentry->d_parent);
--	struct attribute * attr = to_attr(filp->f_dentry);
-+	struct kobject * kobj = to_kobj(filp->f_path.dentry->d_parent);
-+	struct attribute * attr = to_attr(filp->f_path.dentry);
- 	struct module * owner = attr->owner;
- 	struct sysfs_buffer * buffer = filp->private_data;
- 
-@@ -369,8 +369,8 @@ static unsigned int sysfs_poll(struct fi
- static unsigned int sysfs_poll(struct file *filp, poll_table *wait)
+-	struct inode *inode = vma->vm_file->f_dentry->d_inode;
++	struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	enum sgp_type sgp = nonblock? SGP_QUICK: SGP_CACHE;
+ 	unsigned long size;
+@@ -1293,14 +1293,14 @@ static int shmem_populate(struct vm_area
+ #ifdef CONFIG_NUMA
+ int shmem_set_policy(struct vm_area_struct *vma, struct mempolicy *new)
  {
- 	struct sysfs_buffer * buffer = filp->private_data;
--	struct kobject * kobj = to_kobj(filp->f_dentry->d_parent);
--	struct sysfs_dirent * sd = filp->f_dentry->d_fsdata;
-+	struct kobject * kobj = to_kobj(filp->f_path.dentry->d_parent);
-+	struct sysfs_dirent * sd = filp->f_path.dentry->d_fsdata;
- 	int res = 0;
+-	struct inode *i = vma->vm_file->f_dentry->d_inode;
++	struct inode *i = vma->vm_file->f_path.dentry->d_inode;
+ 	return mpol_set_shared_policy(&SHMEM_I(i)->policy, vma, new);
+ }
  
- 	poll_wait(filp, &kobj->poll, wait);
+ struct mempolicy *
+ shmem_get_policy(struct vm_area_struct *vma, unsigned long addr)
+ {
+-	struct inode *i = vma->vm_file->f_dentry->d_inode;
++	struct inode *i = vma->vm_file->f_path.dentry->d_inode;
+ 	unsigned long idx;
+ 
+ 	idx = ((addr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+@@ -1310,7 +1310,7 @@ shmem_get_policy(struct vm_area_struct *
+ 
+ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ {
+-	struct inode *inode = file->f_dentry->d_inode;
++	struct inode *inode = file->f_path.dentry->d_inode;
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	int retval = -ENOMEM;
+ 
+@@ -1422,7 +1422,7 @@ static ssize_t
+ static ssize_t
+ shmem_file_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+ {
+-	struct inode	*inode = file->f_dentry->d_inode;
++	struct inode	*inode = file->f_path.dentry->d_inode;
+ 	loff_t		pos;
+ 	unsigned long	written;
+ 	ssize_t		err;
+@@ -1442,7 +1442,7 @@ shmem_file_write(struct file *file, cons
+ 	if (err || !count)
+ 		goto out;
+ 
+-	err = remove_suid(file->f_dentry);
++	err = remove_suid(file->f_path.dentry);
+ 	if (err)
+ 		goto out;
+ 
+@@ -1524,7 +1524,7 @@ out:
+ 
+ static void do_shmem_file_read(struct file *filp, loff_t *ppos, read_descriptor_t *desc, read_actor_t actor)
+ {
+-	struct inode *inode = filp->f_dentry->d_inode;
++	struct inode *inode = filp->f_path.dentry->d_inode;
+ 	struct address_space *mapping = inode->i_mapping;
+ 	unsigned long index, offset;
+ 
+@@ -2493,8 +2493,8 @@ struct file *shmem_file_setup(char *name
+ 	d_instantiate(dentry, inode);
+ 	inode->i_size = size;
+ 	inode->i_nlink = 0;	/* It is unlinked */
+-	file->f_vfsmnt = mntget(shm_mnt);
+-	file->f_dentry = dentry;
++	file->f_path.mnt = mntget(shm_mnt);
++	file->f_path.dentry = dentry;
+ 	file->f_mapping = inode->i_mapping;
+ 	file->f_op = &shmem_file_operations;
+ 	file->f_mode = FMODE_WRITE | FMODE_READ;
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -447,7 +447,7 @@ int swap_type_of(dev_t device)
+ 			spin_unlock(&swap_lock);
+ 			return i;
+ 		}
+-		inode = swap_info[i].swap_file->f_dentry->d_inode;
++		inode = swap_info[i].swap_file->f_path.dentry->d_inode;
+ 		if (S_ISBLK(inode->i_mode) &&
+ 		    device == MKDEV(imajor(inode), iminor(inode))) {
+ 			spin_unlock(&swap_lock);
+@@ -1314,10 +1314,10 @@ static int swap_show(struct seq_file *sw
+ 		seq_puts(swap, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
+ 
+ 	file = ptr->swap_file;
+-	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
++	len = seq_path(swap, file->f_path.mnt, file->f_path.dentry, " \t\n\\");
+ 	seq_printf(swap, "%*s%s\t%u\t%u\t%d\n",
+ 		       len < 40 ? 40 - len : 1, " ",
+-		       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
++		       S_ISBLK(file->f_path.dentry->d_inode->i_mode) ?
+ 				"partition" : "file\t",
+ 		       ptr->pages << (PAGE_SHIFT - 10),
+ 		       ptr->inuse_pages << (PAGE_SHIFT - 10),
 
 

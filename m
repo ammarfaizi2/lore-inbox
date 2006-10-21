@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993129AbWJURlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423370AbWJURnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993129AbWJURlS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 13:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993125AbWJURlS
+	id S1423370AbWJURnw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 13:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423369AbWJURnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 13:41:18 -0400
-Received: from pm-mx5.mgn.net ([195.46.220.209]:41915 "EHLO pm-mx5.mgn.net")
-	by vger.kernel.org with ESMTP id S2993124AbWJURlR (ORCPT
+	Sat, 21 Oct 2006 13:43:52 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:48846 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1423367AbWJURnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 13:41:17 -0400
-From: Damien Wyart <damien.wyart@free.fr>
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: [PATCH] e100_shutdown: netif_poll_disable hang
-References: <20061020182820.978932000@mvista.com> <453936E0.1010204@intel.com>
-	<45393B0B.8090301@intel.com>
-Date: Sat, 21 Oct 2006 19:41:15 +0200
-In-Reply-To: <45393B0B.8090301@intel.com> (Auke Kok's message of "Fri\, 20 Oct
-	2006 14\:09\:31 -0700")
-Message-ID: <87slhh1s90.fsf@brouette.noos.fr>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50
+	Sat, 21 Oct 2006 13:43:51 -0400
+Message-ID: <453A5C9E.1070303@candelatech.com>
+Date: Sat, 21 Oct 2006 10:45:02 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: futex hang with rpm in 2.6.17.1-2174_FC5
+References: <453917C2.8010201@candelatech.com> <20061021052423.GF21948@redhat.com>
+In-Reply-To: <20061021052423.GF21948@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > My machine annoyingly hangs while rebooting. I tracked it down to
-> > > e100-fix-reboot-f-with-netconsole-enabled.patch in 2.6.18-rc2-mm2
-> > > I review the changes and it seemed to be calling
-> > > netif_poll_disable one too many time. Once in e100_down(), and
-> > > again in e100_shutdown().
-> > > The second one in e100_shutdown() caused the hang. So this patch
-> > > removes it.
+Dave Jones wrote:
+> On Fri, Oct 20, 2006 at 11:38:58AM -0700, Ben Greear wrote:
+>  > I had a dead nfs server that was causing some programs to pause,
+>  > in particular 'yum install foo' was paused.  I kill -9'd the
+>  > yum related processes.
+>  > 
+>  > I fixed up the nfs server and was able to un-mount the file system.
+>  > I subsequently killed many backed up updatedb and similar processes.
+>  > 
+>  > Now, there are no rpm processes, but if I try 'rpm [anything]' it
+>  > hangs trying to open a futex:
+>  > 
+>  > open("/var/lib/rpm/Packages", O_RDONLY|O_LARGEFILE) = 4
+>  > fcntl64(4, F_SETFD, FD_CLOEXEC)         = 0
+>  > fstat64(4, {st_mode=S_IFREG|0644, st_size=41390080, ...}) = 0
+>  > futex(0xb7ba178c, FUTEX_WAIT, 1, NULL <unfinished ...>
+>  > 
+>  > Is there any way to figure out what is causing this futex-wait?
+>
+> The dead rpm you killed left behind locks in its databases.
+> rm -f /var/lib/rpm/__db* and it should work again.
+>   
+I'll give that a try, but shouldn't these locks clean themselves up when the
+process is killed or shouldn't rpm notice the previous process is dead and
+clean it up itself?
 
-* Auke Kok <auke-jan.h.kok@intel.com> [061020 23:09]:
-> it doesn't even do harm to netif_poll_disable() twice as far as I can
-> see, as it merely calls test_and_set_bit(), which will instantly
-> succeed on the first attempt if the bit was already set.
+Thanks,
+Ben
 
-> did this change actually fix it for you? I'm wondering if the
-> netif_carrier_off might not be the culprit here...
+> 	Dave
+>
+>   
 
-I can confirm the proposed original change of D. Walker fixed the
-problem for me. I did not test the change you proposed as a followup.
 
 -- 
-Damien Wyart
+Ben Greear <greearb@candelatech.com> 
+Candela Technologies Inc  http://www.candelatech.com
+
+

@@ -1,65 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992855AbWJUIoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992892AbWJUJOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992855AbWJUIoF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 04:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992863AbWJUIoF
+	id S2992892AbWJUJOE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 05:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992879AbWJUJOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 04:44:05 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:18319 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S2992855AbWJUIoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 04:44:01 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4539DDC5.80207@s5r6.in-berlin.de>
-Date: Sat, 21 Oct 2006 10:43:49 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+	Sat, 21 Oct 2006 05:14:03 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:35254 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S2992887AbWJUJOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 05:14:01 -0400
+Message-ID: <4539E513.4090101@nachtwindheim.de>
+Date: Sat, 21 Oct 2006 11:14:59 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Greg KH <gregkh@suse.de>
-Subject: NULL pointer dereference in sysfs_readdir
-X-Enigmail-Version: 0.94.1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi: t128 scsi_cmnd convertion
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a report about lockups and/or(?) oopses while HALD is obviously
-traversing sysfs files of FireWire devices, seen under Fedora Core
-kernels 2.6.{16,17,18} on an SMP setup:
+Changes the obsolete Scsi_Cmnd to struct scsi_cmnd and remove the trailing
+whitespaces.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=188140
+---
 
-> May 17 11:49:42 malbec kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000020
-> May 17 11:49:42 malbec kernel:  printing eip:
-> May 17 11:49:42 malbec kernel: c019797d
-> May 17 11:49:42 malbec kernel: *pde = 14924001
-> May 17 11:49:42 malbec kernel: Oops: 0000 [#1]
-> May 17 11:49:42 malbec kernel: SMP 
-> May 17 11:49:42 malbec kernel: last sysfs file: /class/net/eth0/address
-> May 17 11:49:42 malbec kernel: Modules linked in: sunrpc xt_limit xt_state ip_conntrack nfnetlink xt_tcpudp iptable_filter ip_tables ip6table_filter ip6_tables x_tables ipv6 dm_multipath lp parport_pc parport floppy nvram ohci1394 ieee1394 uhci_hcd sg ohci_hcd ehci_hcd snd_emu10k1_synth snd_emux_synth snd_seq_virmidi snd_seq_midi_emul snd_emu10k1 snd_ac97_codec snd_ac97_bus snd_usb_audio snd_usb_lib snd_rawmidi snd_seq_dummy snd_seq_oss snd_seq_midi_event i2c_piix4 snd_seq i2c_core snd_pcm_oss snd_mixer_oss snd_pcm snd_seq_device snd_timer snd_page_alloc snd_util_mem emu10k1_gp snd_hwdep gameport snd soundcore e100 mii dm_snapshot dm_zero dm_mirror dm_mod ext3 jbd aic7xxx scsi_transport_spi sd_mod scsi_mod
-> May 17 11:49:42 malbec kernel: CPU:    1
-> May 17 11:49:42 malbec kernel: EIP:    0060:[<c019797d>]    Not tainted VLI
-> May 17 11:49:42 malbec kernel: EFLAGS: 00010282   (2.6.16-1.2111_FC5smp #1) 
-> May 17 11:49:42 malbec kernel: EIP is at sysfs_readdir+0x153/0x202
-> May 17 11:49:42 malbec kernel: eax: 00000000   ebx: d56cd5a0   ecx: 0000000a   edx: 00000002
-> May 17 11:49:42 malbec kernel: esi: e3a2e6fc   edi: e3a2e707   ebp: e2c08b14   esp: d55a7f50
-> May 17 11:49:42 malbec kernel: ds: 007b   es: 007b   ss: 0068
-> May 17 11:49:42 malbec kernel: Process hald (pid: 2512, threadinfo=d55a7000 task=d8bc7930)
-> May 17 11:49:42 malbec kernel: Stack: <0>c0171894 d55a7f98 d4c73e60 e3b28a4c e2c08b18 0000000a c0362f80 d4c73e60 
-> May 17 11:49:42 malbec kernel:        e3b2655c e3b265dc c0171a53 d55a7f98 c0171894 fffffff7 09e4f5d4 00000000 
-> May 17 11:49:42 malbec kernel:        d4c73e60 c0171ae0 09e4f754 09e4f73c 00000e80 ffffffea 0000000d 09e4f5d4 
-> May 17 11:49:42 malbec kernel: Call Trace:
-> May 17 11:49:42 malbec kernel:  [<c0171894>] filldir64+0x0/0xc3     [<c0171a53>] vfs_readdir+0x66/0x90
-> May 17 11:49:42 malbec kernel:  [<c0171894>] filldir64+0x0/0xc3     [<c0171ae0>] sys_getdents64+0x63/0xa5
-> May 17 11:49:42 malbec kernel:  [<c0103db9>] syscall_call+0x7/0xb    <0>Code: 14 00 0f 84 ad 00 00 00 89 e8 e8 b3 e8 ff ff 89 c6 31 c0 83 c9 ff 89 f7 f2 ae f7 d1 49 89 4c 24 14 8b 45 20 85 c0 74 08 8b 40 18 <8b> 50 20 eb 11 ba 02 00 00 00 a1 20 24 48 c0 e8 2e 06 fe ff 89 
+diff --git a/drivers/scsi/t128.h b/drivers/scsi/t128.h
+index 646e840..76a069b 100644
+--- a/drivers/scsi/t128.h
++++ b/drivers/scsi/t128.h
+@@ -8,20 +8,20 @@
+  *	drew@colorado.edu
+  *      +1 (303) 440-4894
+  *
+- * DISTRIBUTION RELEASE 3. 
++ * DISTRIBUTION RELEASE 3.
+  *
+- * For more information, please consult 
++ * For more information, please consult
+  *
+  * Trantor Systems, Ltd.
+  * T128/T128F/T228 SCSI Host Adapter
+  * Hardware Specifications
+- * 
+- * Trantor Systems, Ltd. 
++ *
++ * Trantor Systems, Ltd.
+  * 5415 Randall Place
+  * Fremont, CA 94538
+  * 1+ (415) 770-1400, FAX 1+ (415) 770-9910
+- * 
+- * and 
++ *
++ * and
+  *
+  * NCR 5380 Family
+  * SCSI Protocol Controller
+@@ -48,15 +48,15 @@ #define TDEBUG_INIT	0x1
+ #define TDEBUG_TRANSFER 0x2
+ 
+ /*
+- * The trantor boards are memory mapped. They use an NCR5380 or 
++ * The trantor boards are memory mapped. They use an NCR5380 or
+  * equivalent (my sample board had part second sourced from ZILOG).
+- * NCR's recommended "Pseudo-DMA" architecture is used, where 
++ * NCR's recommended "Pseudo-DMA" architecture is used, where
+  * a PAL drives the DMA signals on the 5380 allowing fast, blind
+- * transfers with proper handshaking. 
++ * transfers with proper handshaking.
+  */
+ 
+ /*
+- * Note : a boot switch is provided for the purpose of informing the 
++ * Note : a boot switch is provided for the purpose of informing the
+  * firmware to boot or not boot from attached SCSI devices.  So, I imagine
+  * there are fewer people who've yanked the ROM like they do on the Seagate
+  * to make bootup faster, and I'll probably use this for autodetection.
+@@ -92,19 +92,20 @@ #define T_5380_OFFSET		0x1d00	/* 8 regis
+ #define T_DATA_REG_OFFSET	0x1e00	/* rw 512 bytes long */
+ 
+ #ifndef ASM
+-static int t128_abort(Scsi_Cmnd *);
++static int t128_abort(struct scsi_cmnd *);
+ static int t128_biosparam(struct scsi_device *, struct block_device *,
+ 			  sector_t, int*);
+ static int t128_detect(struct scsi_host_template *);
+-static int t128_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
+-static int t128_bus_reset(Scsi_Cmnd *);
++static int t128_queue_command(struct scsi_cmnd *,
++			      void (*done)(struct scsi_cmnd *));
++static int t128_bus_reset(struct scsi_cmnd *);
+ 
+ #ifndef CMD_PER_LUN
+ #define CMD_PER_LUN 2
+ #endif
+ 
+ #ifndef CAN_QUEUE
+-#define CAN_QUEUE 32 
++#define CAN_QUEUE 32
+ #endif
+ 
+ #ifndef HOSTS_C
+@@ -120,7 +121,7 @@ #define NCR5380_setup(instance) \
+ 
+ #define T128_address(reg) (base + T_5380_OFFSET + ((reg) * 0x20))
+ 
+-#if !(TDEBUG & TDEBUG_TRANSFER) 
++#if !(TDEBUG & TDEBUG_TRANSFER)
+ #define NCR5380_read(reg) readb(T128_address(reg))
+ #define NCR5380_write(reg, value) writeb((value),(T128_address(reg)))
+ #else
+@@ -129,7 +130,7 @@ #define NCR5380_read(reg)						\
+     , instance->hostno, (reg), T128_address(reg))), readb(T128_address(reg)))
+ 
+ #define NCR5380_write(reg, value) {					\
+-    printk("scsi%d : write %02x to register %d at address %08x\n", 	\
++    printk("scsi%d : write %02x to register %d at address %08x\n",	\
+ 	    instance->hostno, (value), (reg), T128_address(reg));	\
+     writeb((value), (T128_address(reg)));				\
+ }
+@@ -142,10 +143,10 @@ #define NCR5380_abort t128_abort
+ #define NCR5380_bus_reset t128_bus_reset
+ #define NCR5380_proc_info t128_proc_info
+ 
+-/* 15 14 12 10 7 5 3 
++/* 15 14 12 10 7 5 3
+    1101 0100 1010 1000 */
+-   
+-#define T128_IRQS 0xc4a8 
++
++#define T128_IRQS 0xc4a8
+ 
+ #endif /* else def HOSTS_C */
+ #endif /* ndef ASM */
 
-A quick look at linux-2.6.19-rc2/fs/sysfs/dir.c::sysfs_readdir shows a
-list_move, a traversal through a list, and some accesses to data with no
-apparent protection by mutexes.
 
-Is there reason to be worried...?
--- 
-Stefan Richter
--=====-=-==- =-=- =-=-=
-http://arcgraph.de/sr/

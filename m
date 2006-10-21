@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161480AbWJUMw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992997AbWJUM5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161480AbWJUMw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 08:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161479AbWJUMw4
+	id S2992997AbWJUM5a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 08:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993000AbWJUM5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 08:52:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51599 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161477AbWJUMwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 08:52:54 -0400
-Message-ID: <453A17E0.7080301@redhat.com>
-Date: Sat, 21 Oct 2006 07:51:44 -0500
-From: Robert Peterson <rpeterso@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "Josef \"Jeff\" Sipek" <jsipek@cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org, viro@ftp.linux.org.uk, hch@infradead.org,
-       sct@redhat.com, adilger@clusterfs.com
-Subject: Re: [PATCH 05 of 23] ext3: change uses of f_{dentry, vfsmnt} to use
- f_path
-References: <b75a8d7cedacd1de45bc.1161411450@thor.fsl.cs.sunysb.edu>
-In-Reply-To: <b75a8d7cedacd1de45bc.1161411450@thor.fsl.cs.sunysb.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 21 Oct 2006 08:57:30 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:40628 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S2992997AbWJUM53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 08:57:29 -0400
+Subject: [Patch 1/5] I/O statistics through request queues: timeval_to_us()
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 21 Oct 2006 14:57:25 +0200
+Message-Id: <1161435445.3054.112.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef Jeff Sipek wrote:
-> From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
->
-> This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
-> in the ext3 filesystem.
->   
-Hey Jeff,
+The next patch requires a timeval-to-microseconds conversion.
+Introducing a helper function (and fixing a comment).
 
-Don't forget about GFS2:  fs/gfs2/ops_file.c.
+Signed-off-by: Martin Peschke <mp3@de.ibm.com>
+---
 
-Regards,
+ time.h |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletion(-)
 
-Bob Peterson
-Red Hat Cluster Suite
+diff -urp a/include/linux/time.h b/include/linux/time.h
+--- a/include/linux/time.h	2006-10-03 16:25:53.000000000 +0200
++++ b/include/linux/time.h	2006-10-06 21:36:08.000000000 +0200
+@@ -133,8 +133,20 @@ static inline s64 timespec_to_ns(const s
+ }
+ 
+ /**
++ * timeval_to_us - Convert timeval to microseconds
++ * @tv:		pointer to the timeval variable to be converted
++ *
++ * Returns the scalar nanosecond representation of the timeval
++ * parameter.
++ */
++static inline s64 timeval_to_us(const struct timeval *tv)
++{
++	return ((s64) tv->tv_sec * USEC_PER_SEC) + tv->tv_usec;
++}
++
++/**
+  * timeval_to_ns - Convert timeval to nanoseconds
+- * @ts:		pointer to the timeval variable to be converted
++ * @tv:		pointer to the timeval variable to be converted
+  *
+  * Returns the scalar nanosecond representation of the timeval
+  * parameter.
+
 

@@ -1,68 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161197AbWJUKQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992919AbWJUKZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161197AbWJUKQt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 06:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbWJUKQt
+	id S2992919AbWJUKZo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 06:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992920AbWJUKZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 06:16:49 -0400
-Received: from 1wt.eu ([62.212.114.60]:2564 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1161197AbWJUKQt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 06:16:49 -0400
-Date: Sat, 21 Oct 2006 12:16:23 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Bastian Blank <bastian@waldi.eu.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.18 - check for chroot, broken root and cwd values in procfs
-Message-ID: <20061021101623.GB1709@1wt.eu>
-References: <20061012140224.GA7632@wavehammer.waldi.eu.org> <20061013230617.GA15489@wavehammer.waldi.eu.org> <m1pscvfvl1.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
+	Sat, 21 Oct 2006 06:25:44 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56196 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S2992919AbWJUKZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 06:25:43 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Albert Cahalan <acahalan@gmail.com>,
+       Cal Peake <cp@absolutedigital.net>
+Subject: Re: [CFT] Grep to find users of sys_sysctl.
+References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
+	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
+	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
+	<20061018124415.e45ece22.akpm@osdl.org>
+	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
+	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
+	<20061020003540.10d367d9.akpm@osdl.org>
+	<m1bqo7406k.fsf@ebiederm.dsl.xmission.com>
+	<20061020093915.58961ba3.akpm@osdl.org>
+Date: Sat, 21 Oct 2006 04:23:46 -0600
+In-Reply-To: <20061020093915.58961ba3.akpm@osdl.org> (Andrew Morton's message
+	of "Fri, 20 Oct 2006 09:39:15 -0700")
+Message-ID: <m1irie2ci5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1pscvfvl1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2006 at 09:02:50PM -0600, Eric W. Biederman wrote:
-> Bastian Blank <bastian@waldi.eu.org> writes:
-> 
-> > On Thu, Oct 12, 2006 at 04:02:24PM +0200, Bastian Blank wrote:
-> >> The commit 778c1144771f0064b6f51bee865cceb0d996f2f9 replaced the old
-> >> root-based security checks in procfs with processed based ones.
-> >
-> > The new behaviour even allows a user to escape from the chroot by using
-> > chdir to /proc/$pid/cwd or /proc/$pid/root of a process he owns and
-> > lives outside of the chroot.
-> 
-> Yep.  It makes it obvious that you can do that.
-> 
-> If you were in a chroot you could always ptrace a process you own
-> that was outside of the chroot, and cause it to do things, such as
-> open a unix domain socket and pass you it's current root directory.
+Andrew Morton <akpm@osdl.org> writes:
 
-yes, but it's a bit trickier than remotely telling a script to basically
-do chdir("/proc/1/cwd").
+>> What were you using for search criteria?
+>> 
+>> A challenge is to weed out code that runs on BSDs where people do use sysctl.
+>
+> I just used "sysctl" and clicked a lot.
 
-> chroot by itself has never been much of a jail.
+Ok, no secrets from hanging out at google :)
 
-OK, but that's not a reason for breaking trivial protection against
-trivial escape methods.
+>>From a quick scan:
+>
+> http://www.google.com/codesearch?q=+sysctl+linux+-glibc+show:ezM3VpAIwOY:VqU4ELp0K4A:GC7QFUptQys&sa=N&cd=51&ct=rc&cs_p=http://www.xorp.org/releases/0.2/xorp-0.2.tar.gz&cs_f=xorp-0.2/ospfd/linux/system.C#a0
 
-Also, people sometimes compose build environments using chroot, which
-at least protect them from accidental escape and corruption of the root
-FS. It is a bit scary to know that a poorly designed install script
-could break out of the chroot by abusing /proc or simply doing dirty
-things such as "find / -follow" for any valid purpose under such an
-environment.
+Definitely linux.
 
-Chroot is a useful tool for build and test environments, it's dangerous
-to break it that way.
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:dPzMrf8geLs:EbNoGzoYDAc:I-_8YloL1fY&sa=N&cd=11&ct=rc&cs_p=http://www.openwall.com/scanlogd/lib/libnet-1.1.3-RC-01.tar.gz&cs_f=libnet/src/libnet_link_bpf.c#a0
 
-I'd clearly prefer that tasks outside the chroot show broken links
-for cwd, root and exe under /proc.
+I believe this is a false positive, I can't see how this code compiles on linux.
 
-Regards,
-willy
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:QQ2BcrelppE:zZeMmMrGko0:BFmHNHvdqyA&sa=N&cd=17&ct=rc&cs_p=http://www.cpan.org/authors/id/B/BR/BRYCE/Test-Parser-1.4.tar.gz&cs_f=Test-Parser-1.4/lib/Test/Parser/Sysctl.pm#a0
+
+Pass through infrastructure so to see a real user would need something at a higher level.
+
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:yqt7gBTAktI:350f8_WXUz8:J6r1Ge4gTiw&sa=N&cd=23&ct=rc&cs_p=http://darwinsource.opendarwin.org/tarballs/apsl/top-9.tar.gz&cs_f=top-9/libtop.c#a0
+>
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:-9-E1kR2zW0:HD_LhbY9gNM:Wt7DONTBSR4&sa=N&cd=65&ct=rc&cs_p=http://sparemint.atariforge.net/sparemint/mint/kernel/1.15.12/freemint-1.15.12-src.tar.gz&cs_f=freemint-1.15.12/tools/sysctl/sysctl.c#a0
+>
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:A8hxeTvi8Lc:rlNCNnWdQuo:lUO9tYzCStY&sa=N&cd=102&ct=rc&cs_p=http://www.opensource.apple.com/darwinsource/tarballs/other/OpenLDAP-69.0.2.tar.gz&cs_f=OpenLDAP-69.0.2/OpenLDAP/libraries/liblutil/uuid.c#a0
+
+No offense to apple but in I since they are BSDs they have a usable sysctl so
+I have been ignoring code from there site as a likely source of false positives.
+
+>
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:8eVH0Ss2hrY:Yg_zU6fz4U8:akq5ZzLPf34&sa=N&cd=107&ct=rc&cs_p=ftp://ftp.stacken.kth.se/pub/arla/arla-0.42.tar.gz&cs_f=arla-0.42/lib/roken/getdtablesize.c#a0
+>
+> http://www.google.com/codesearch?q=+sysctl+-glibc+show:NXzHfAnEMjg:ZIWovlf1IWU:WZdEzr-Zs0o&sa=N&cd=112&ct=rc&cs_p=http://gentoo.osuosl.org/distfiles/bind-9.3.2-P1.tar.gz&cs_f=bind-9.3.2-P1/lib/isc/unix/ifiter_sysctl.c#a0
+>
+> Quite a lot of networking-related utilities.  Including bind and openldap.
+
+It is hard to tell on portable application like that.  By looking at the compiled
+version bind definitely does not call sysctl.  At least not the copy I have.
+
+This is not meant to argue that the approach is worthless, but rather to show
+the pain of weeding out false positives and why I started greping through
+the imported symbols of binaries, on linux.  At least there everything
+that is found is 100% a user.
+
+Eric
 

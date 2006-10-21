@@ -1,108 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161487AbWJUQ0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423354AbWJUQ2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161487AbWJUQ0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 12:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161486AbWJUQ0U
+	id S1423354AbWJUQ2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 12:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423355AbWJUQ2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 12:26:20 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:52452 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S1161005AbWJUQ0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 12:26:19 -0400
-Date: Sun, 22 Oct 2006 01:28:39 +0900 (JST)
-Message-Id: <20061022.012839.108306870.anemo@mba.ocn.ne.jp>
-To: ralf@linux-mips.org
-Cc: torvalds@osdl.org, rmk+lkml@arm.linux.org.uk, davem@davemloft.net,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20061020214122.GA29237@linux-mips.org>
-References: <20061020205929.GE8894@flint.arm.linux.org.uk>
-	<Pine.LNX.4.64.0610201408070.3962@g5.osdl.org>
-	<20061020214122.GA29237@linux-mips.org>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 21 Oct 2006 12:28:53 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:8155 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1423354AbWJUQ2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 12:28:52 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Vasily Tarasov <vtaras@openvz.org>
+Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
+Date: Sat, 21 Oct 2006 18:28:32 +0200
+User-Agent: KMail/1.9.4
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
+       Dmitry Mishin <dim@openvz.org>, Vasily Averin <vvs@sw.ru>,
+       Kirill Korotaev <dev@openvz.org>,
+       OpenVZ Developers List <devel@openvz.org>
+References: <200610191232.k9JCW7CF015486@vass.7ka.mipt.ru> <20061019172948.GA30975@infradead.org> <200610200610.k9K6AXgP031789@vass.7ka.mipt.ru>
+In-Reply-To: <200610200610.k9K6AXgP031789@vass.7ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610211828.33230.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 22:41:22 +0100, Ralf Baechle <ralf@linux-mips.org> wrote:
-> > It's just that we weren't quite careful enough at that time (and even 
-> > then, that would only matter for some really really unlikely and strange 
-> > situations that only happen when you fork() from a _threaded_ environment, 
-> > so it shouldn't be anything you'd notice under normal load).
-> > 
-> > I think.
-> 
-> The flush is there since a very long time.  I have it in my tree since
-> ~ 2.1.36 and I get the feeling anybody every has been seriously revisited
-> the issue since.
+On Friday 20 October 2006 08:10, Vasily Tarasov wrote:
+> Christoph Hellwig wrote:
+>
+> <snip>
+>
+> > Please allocate the structure using compat_alloc_userspace and copy
+> > with copy_in_user instead of the set_fs trick.
+>
+> <snip>
+>
+> Good idea, thank you for your tip, I'll do it.
 
-I think calling fork() (or system() or popen() or so) in threaded
-program is neither very unlikely or strange.  But this breakage happens
-very rarely indeed, especially non-preemptive kernel.
+I think it would be even better to integrate this into fs/quota.c
+and get rid of the extra copy entirely. The only thing you need
+to do differently in case of 32 bit Q_GETQUOTA is the size
+of the copy_{from,to}_user.
 
-During debugging this issue, I had used this test program and slightly
-modified kernel --- inserting yield() at middle of dup_mmap().
+On a related topic, I just noticed 
 
-With the modified kernel on 32KB VIPT D$, running this test program
-some times could reproduce the breakage ("BAD!" messages).  I heard
-PARISC people had successed to reproduce it too.
+typedef struct fs_qfilestat {
+	__u64		qfs_ino;	/* inode number */
+	__u64		qfs_nblks;	/* number of BBs 512-byte-blks */
+	__u32		qfs_nextents;	/* number of extents */
+} fs_qfilestat_t;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+typedef struct fs_quota_stat {
+	__s8		qs_version;	/* version number for future changes */
+	__u16		qs_flags;	/* XFS_QUOTA_{U,P,G}DQ_{ACCT,ENFD} */
+	__s8		qs_pad;		/* unused */
+	fs_qfilestat_t	qs_uquota;	/* user quota storage information */
+	fs_qfilestat_t	qs_gquota;	/* group quota storage information */
+	__u32		qs_incoredqs;	/* number of dquots incore */
+	__s32		qs_btimelimit;  /* limit for blks timer */	
+	__s32		qs_itimelimit;  /* limit for inodes timer */	
+	__s32		qs_rtbtimelimit;/* limit for rt blks timer */	
+	__u16		qs_bwarnlimit;	/* limit for num warnings */
+	__u16		qs_iwarnlimit;	/* limit for num warnings */
+} fs_quota_stat_t;
 
-static void *thread_func(void *arg)
-{
-	unsigned char buf[2048], j;
-	int i;
-	for (j = 0; ; j++) {
-		/* fill buf[] with j */
-		memset(buf, j, sizeof(buf)/2);
-		sched_yield();
-		memset(buf + sizeof(buf)/2, j, sizeof(buf)/2);
-		sched_yield();
-		/* check buf[] contents */
-		for (i = 0; i < sizeof(buf); i++) {
-			if (buf[i] != j) {
-				printf("BAD! %p (%d != %d)\n",
-				       buf + i, buf[i], j);
-				exit(1);
-			}
-		}
-	}
-}
+This one seems to have a more severe problem in x86_64 compat
+mode. I haven't tried it, but isn't everything down from
+gs_gquota aligned differently on i386?
 
-int main(int argc, char *argv[])
-{
-	int i;
-	pid_t pid;
-	pthread_t tid;
-	for (i = 0; i < 4; i++)
-		pthread_create(&tid, NULL, thread_func, NULL);
-	for (i = 0; i < 100; i++) {
-		pid = fork();
-		if (pid == -1) {
-			perror("fork");
-			exit(1);
-		}
-		if (pid)
-			waitpid(pid, NULL, 0);
-		else
-			exit(0);
-	}
-	return 0;
-}
-
----
-Atsushi Nemoto
+	Arnd <><

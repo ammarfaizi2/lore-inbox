@@ -1,149 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992770AbWJUQKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWJUQQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992770AbWJUQKP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 12:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992785AbWJUQKP
+	id S1422639AbWJUQQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 12:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423350AbWJUQQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 12:10:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992770AbWJUQKN (ORCPT
+	Sat, 21 Oct 2006 12:16:38 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:64961 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1422639AbWJUQQh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 12:10:13 -0400
-Date: Sat, 21 Oct 2006 09:10:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-In-Reply-To: <4539EBF3.8050607@drzeus.cx>
-Message-ID: <Pine.LNX.4.64.0610210844560.3962@g5.osdl.org>
-References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
- <45386E0E.7030404@drzeus.cx> <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
- <4539EBF3.8050607@drzeus.cx>
+	Sat, 21 Oct 2006 12:16:37 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+Date: Sat, 21 Oct 2006 18:16:27 +0200
+User-Agent: KMail/1.9.4
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <4537818D.4060204@qumranet.com> <20061019173151.GD4957@rhun.haifa.ibm.com> <4537BD27.7050509@qumranet.com>
+In-Reply-To: <4537BD27.7050509@qumranet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610211816.27964.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 19 October 2006 20:00, Avi Kivity wrote:
+> Working code is fairly hairy, since it's emulating a PC.  That'll be on
+> sourceforge once they approve my new project.
+>
+> In general one does
+>
+>   open("/dev/kvm")
+>   ioctl(KVM_SET_MEMORY_REGION) for main memory
+>   ioctl(KVM_SET_MEMORY_REGION) for the framebuffer
+>   ioctl(KVM_CREATE_VCPU) for the obvious reason
+>   if (debugger)
+>     ioctl(KVM_DEBUG_GUEST) to singlestep or breakpoint the guest
+>   while (1) {
+>      ioctl(KVM_RUN)
+>      switch (exit reason) {
+>          handle mmio, I/O etc. might call
+>             ioctl(KVM_INTERRUPT) to queue an external interrupt
+>             ioctl(KVM_{GET,SET}_{REGS,SREGS}) to query/modify registers
+>             ioctl(KVM_GET_DIRTY_LOG) to see which guest memory pages
+> have changed
+>      }
+>
+> I have some simple test code, I'll clean it up and post it.
 
+This looks _a_lot_ like what we're doing for the SPUs in the cell processor,
+except that we're using different calls into the kernel. Have you looked
+into what we have implemented there? The code is in
+arch/powerpc/platforms/cell/spufs. I think it would be a good abstraction
+to use for you as well, maybe we could even move to a common infrastructure,
+as I have heard from a few other projects that want to do similar things.
 
-On Sat, 21 Oct 2006, Pierre Ossman wrote:
-> >
-> > HOWEVER! The above obviously only really works correctly if "master" is a 
-> > strict subset of "for-linus".
-> 
-> Ah, that's a bit of a gotcha. Any nice tricks to keep track of where you
-> where in sync with upstream last? Create a dummy branch/tag perhaps?
+The main differences to your interface are:
 
-You don't need to. Git keeps track of the fork-point, and you can always 
-get it with
+- A file system is used instead of a character device
+- Directories, not open file descriptors represent contexts
+- Two new syscalls were introduced (spu_create/spu_run)
+- instead of ioctls, files represent different bits of information,
+  you can read/write, poll or mmap them.
 
-	git merge-base a b
+Your example above could translate to something like:
 
-where "a" and "b" are the two branches.
+   int kvm_fd = kvm_create("/kvm/my_vcpu")
+   int mem_fd = openat(kvm_fd, "mem", O_RDWR);
+   void *mem = mmap(mem_fd, ...); // main memory
+   void *fbmem = mmap(mem_fd, ...); // frame buffer memory
+   int regs_fd = openat(kvm_fd, "regs", O_RDWR);
+   int irq_fd = openat(kvm_fd, "regs", O_WRONLY);
 
-HOWEVER. If you have _merged_ since (ie your branch contains merges _from_ 
-the branch that you are tracking), this will give you the last 
-merge-point (since that's the last common base), and as such a "diff" from 
-that point will _ignore_ your changes from before the merge. See?
+   if (debugger) {
+     int fd = openat(fvm_fd, "debug", O_WRONLY);
+     write(fd, "1", 1);
+     close(fd);
+   }
+   while (1) {
+      int exit_reason = kvm_run(kvm_fd, &kvm_descriptor);
+      switch (exit reason) {
+          handle mmio, I/O etc. might call
+             write(irq_fd, &interrupt_packet, sizeof (interrupt_packet));
+             pread(regs_fd, &rax, sizeof rax, KVM_REG_RAX);
+   }
 
-But holding a tag to the "original fork point" is equally useless in that 
-case, since if you have merged from my tree since that tag, and you do a 
-"git diff tag..for-linus", then the diff will contain all the new stuff 
-that came from _me_ through your merge as well. See?
-
-In other words: in both cases you really really shouldn't merge from me 
-after you started developing. And the reason in both cases is really 
-fundamnetlly the same: because merging from me obviously brings in commits 
-_from_me_, so any single diff thus obviously turns pointless: it will 
-_not_ talk about all your new work.
-
-Anyway, notice the "single diff" caveat above. Git obviously does actually 
-keep track of individual commits, so the individual commits that are 
-unique to your repository are _still_ unique to your repository even after 
-you've merged with me - since I haven't merged with you. So you _can_ get 
-the information, but now you have to do something fundamentally 
-different..
-
-So if you've done merges with me since you started development, you cannot 
-now just say "what's the difference between <this> point and <that> point 
-in the development tree", because clearly there is no _single_ line of 
-development that shows just _your_ changes. But that doesn't mean that 
-your development isn't separatable, and you can do one of two things:
-
- (a) work on a "individual commit" level:
-
-	git log -p linus..for-linus
-
-     will show each commit that is in your "for-linus" branch but is _not_ 
-     in your "linus" tracker branch. This does the right thing even in the 
-     presense of merges: it will show the merge commit you did (since that 
-     individual commit is _yours_), but it will not show the commits 
-     merged (since those came from _my_ line of development)
-
-     So now a
-
-	git log -p linux..for-linus | diffstat
-
-     will give something that _approximates_ the diffstat I will see when 
-     merging. I say _approximates_, because it only really gives the right 
-     answer if all the commits are entirely independent, and you never 
-     have one commit that changes a line one way, and then a subsequent 
-     commit that changes the same lines another way.
-
-     If you have commits that are inter-dependent, the diffstat above will 
-     show the "sum" of the diffs, which is not what I will see when I 
-     actually merge. I will see just the end result, which is more like 
-     the "union" of the diffs. And the two are the same only for 
-     independent diffs, of course.
-
-So the above is simple, and gives _almost_ the right answer. The other 
-alternative is slightly smarter, and more involved, and gives the exact 
-right answer:
-
- (b) create a temporary new merge, and see what the difference of the 
-     merge is, as seen by me (eg as seen from "linus"). So this is 
-     basically:
-
-	git checkout -b test-branch for-linus
-	git pull . linus
-	git diff -M --stat --summary linus..
-
-     will create a new branch ("checkout -b") based on your current 
-     "for-linus" state, and within that branch, do a merge of the "linus" 
-     branch (or you could have done it the other way around and made the 
-     merge as if you were me: check out the state of "linus" and then 
-     pull the "for-linus" branch instead).
-
-     And then, the final step is to just diff the result of the merge 
-     against the "linus" branch. This obviously gives the same diffstat 
-     as the one _I_ should see when I merge, because you basically 
-     "pre-tested" my merge for me.
-
-See? git does give you the tools, but if you merge from me and don't have 
-a branch that is a nice clear superset of what you started off with, but 
-have mixed in changes from _my_ tree since you started developing, you end 
-up having to do some extra work to separate out all the new changes.
-
-So that's why I suggest not doing a lot of criss-crossing merges. It 
-generates an uglier history that is much harder to follow visually in 
-"gitk", but it also generates some extra work for you. Not a lot, but 
-considering that there are seldom any real upsides, this hopefully 
-explains why I suggest against it.
-
-And again, as a final note: none of this is "set in stone". These are all 
-_suggestions_. Notice the "seldom any real upsides". I say "seldom" on 
-purpose, because quite frankly, sometimes it's just easier for you to 
-merge (especially if you know there are likely to be clashes), so that you 
-can fix up any issues that the merge brings.
-
-Anyway, I hope this clarified the issue. I don't think we've actually had 
-a lot of problems with these things in practice. None of this is really 
-"hard", and a lot of it is just getting used to the model. Once you are 
-comfortable with how git works (and using "gitk" to show history tends to 
-be a very visual way to see what is going on in the presense of merges), 
-and get used to working with me, you'll do all of this without even 
-thinking about it.
-
-It really just _sounds_ more complicated than it really is. 
-
-		Linus
+	Arnd <><

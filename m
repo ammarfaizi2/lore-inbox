@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423365AbWJURiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993129AbWJURlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423365AbWJURiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 13:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423366AbWJURiw
+	id S2993129AbWJURlS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 13:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993125AbWJURlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 13:38:52 -0400
-Received: from pm-mx5.mgn.net ([195.46.220.209]:14521 "EHLO pm-mx5.mgn.net")
-	by vger.kernel.org with ESMTP id S1423365AbWJURiv (ORCPT
+	Sat, 21 Oct 2006 13:41:18 -0400
+Received: from pm-mx5.mgn.net ([195.46.220.209]:41915 "EHLO pm-mx5.mgn.net")
+	by vger.kernel.org with ESMTP id S2993124AbWJURlR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 13:38:51 -0400
-Date: Sat, 21 Oct 2006 19:38:49 +0200
+	Sat, 21 Oct 2006 13:41:17 -0400
 From: Damien Wyart <damien.wyart@free.fr>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm2 : empty files on vfat file system
-Message-ID: <20061021173849.GA1999@localhost.localdomain>
-References: <20061021104454.GA1996@localhost.localdomain> <87lkn9x0ly.fsf@duaron.myhome.or.jp>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: [PATCH] e100_shutdown: netif_poll_disable hang
+References: <20061020182820.978932000@mvista.com> <453936E0.1010204@intel.com>
+	<45393B0B.8090301@intel.com>
+Date: Sat, 21 Oct 2006 19:41:15 +0200
+In-Reply-To: <45393B0B.8090301@intel.com> (Auke Kok's message of "Fri\, 20 Oct
+	2006 14\:09\:31 -0700")
+Message-ID: <87slhh1s90.fsf@brouette.noos.fr>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lkn9x0ly.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have noticed something strange (and bad :) since using
-> > 2.6.19-rc2-mm2 (the problem is NOT present on 2.6.19-rc2-mm1 ; do
-> > not know for mainline, I have not been able to test yet, but I think
-> > there have not been recent changes in this area) : writing a file to
-> > a vfat fs (fat 32) writes it, but with size 0 and no content.
+> > > My machine annoyingly hangs while rebooting. I tracked it down to
+> > > e100-fix-reboot-f-with-netconsole-enabled.patch in 2.6.18-rc2-mm2
+> > > I review the changes and it seemed to be calling
+> > > netif_poll_disable one too many time. Once in e100_down(), and
+> > > again in e100_shutdown().
+> > > The second one in e100_shutdown() caused the hang. So this patch
+> > > removes it.
 
-* OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> [2006-10-21 22:24]:
-> diff -puN fs/fat/inode.c~fs-prepare_write-fixes fs/fat/inode.c
-> --- a/fs/fat/inode.c~fs-prepare_write-fixes
-> +++ a/fs/fat/inode.c
-> @@ -150,7 +150,11 @@ static int fat_commit_write(struct file 
->  			    unsigned from, unsigned to)
->  {
->  	struct inode *inode = page->mapping->host;
-> -	int err = generic_commit_write(file, page, from, to);
-> +	int err;
-> +	if (to - from > 0)
-> +		return 0;
-> +
-> +	err = generic_commit_write(file, page, from, to);
->  	if (!err && !(MSDOS_I(inode)->i_attrs & ATTR_ARCH)) {
->  		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
->  		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
+* Auke Kok <auke-jan.h.kok@intel.com> [061020 23:09]:
+> it doesn't even do harm to netif_poll_disable() twice as far as I can
+> see, as it merely calls test_and_set_bit(), which will instantly
+> succeed on the first attempt if the bit was already set.
 
-> This change does't update ->i_size. Could you just delete, and test
-> it? Anyway, this seems wrong even if it's "if ((to - from) == 0)".
+> did this change actually fix it for you? I'm wondering if the
+> netif_carrier_off might not be the culprit here...
 
-Reverting the change makes the problem go away. But I do not know if
-this is safe wrt the fs-prepare_write-fixes patch.
+I can confirm the proposed original change of D. Walker fixed the
+problem for me. I did not test the change you proposed as a followup.
 
 -- 
 Damien Wyart

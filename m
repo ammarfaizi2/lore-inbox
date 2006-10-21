@@ -1,91 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992848AbWJUHNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992841AbWJUHOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992848AbWJUHNy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992842AbWJUHNu
+	id S2992841AbWJUHOY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 03:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992852AbWJUHOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:13:50 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:17287 "EHLO
+	Sat, 21 Oct 2006 03:14:00 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:23687 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S2992837AbWJUHNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:13:33 -0400
+	id S2992847AbWJUHNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 03:13:50 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 12 of 23] i386: change uses of f_{dentry, vfsmnt} to use f_path
-Message-Id: <80b5ca3e42d1fb3ea5bb.1161411457@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 19 of 23] autofs4: change uses of f_{dentry,
+	vfsmnt} to use f_path
+Message-Id: <98ffd30267ae73cec161.1161411464@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu>
-Date: Sat, 21 Oct 2006 02:17:37 -0400
+Date: Sat, 21 Oct 2006 02:17:44 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@infradead.org
+       viro@ftp.linux.org.uk, hch@infradead.org, raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
-in the i386 arch code.
+in the autofs4 filesystem.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 ---
 
-2 files changed, 5 insertions(+), 5 deletions(-)
-arch/i386/kernel/cpuid.c |    4 ++--
-arch/i386/kernel/msr.c   |    6 +++---
+2 files changed, 10 insertions(+), 9 deletions(-)
+fs/autofs4/autofs_i.h |    3 ++-
+fs/autofs4/root.c     |   16 ++++++++--------
 
-diff --git a/arch/i386/kernel/cpuid.c b/arch/i386/kernel/cpuid.c
---- a/arch/i386/kernel/cpuid.c
-+++ b/arch/i386/kernel/cpuid.c
-@@ -117,7 +117,7 @@ static ssize_t cpuid_read(struct file *f
- 	char __user *tmp = buf;
- 	u32 data[4];
- 	u32 reg = *ppos;
--	int cpu = iminor(file->f_dentry->d_inode);
-+	int cpu = iminor(file->f_path.dentry->d_inode);
+diff --git a/fs/autofs4/autofs_i.h b/fs/autofs4/autofs_i.h
+--- a/fs/autofs4/autofs_i.h
++++ b/fs/autofs4/autofs_i.h
+@@ -150,7 +150,8 @@ static inline int autofs4_ispending(stru
  
- 	if (count % 16)
- 		return -EINVAL;	/* Invalid chunk size */
-@@ -135,7 +135,7 @@ static ssize_t cpuid_read(struct file *f
- 
- static int cpuid_open(struct inode *inode, struct file *file)
+ static inline void autofs4_copy_atime(struct file *src, struct file *dst)
  {
--	unsigned int cpu = iminor(file->f_dentry->d_inode);
-+	unsigned int cpu = iminor(file->f_path.dentry->d_inode);
- 	struct cpuinfo_x86 *c = &(cpu_data)[cpu];
+-	dst->f_dentry->d_inode->i_atime = src->f_dentry->d_inode->i_atime;
++	dst->f_path.dentry->d_inode->i_atime =
++		src->f_path.dentry->d_inode->i_atime;
+ 	return;
+ }
  
- 	if (cpu >= NR_CPUS || !cpu_online(cpu))
-diff --git a/arch/i386/kernel/msr.c b/arch/i386/kernel/msr.c
---- a/arch/i386/kernel/msr.c
-+++ b/arch/i386/kernel/msr.c
-@@ -172,7 +172,7 @@ static ssize_t msr_read(struct file *fil
- 	u32 __user *tmp = (u32 __user *) buf;
- 	u32 data[2];
- 	u32 reg = *ppos;
--	int cpu = iminor(file->f_dentry->d_inode);
-+	int cpu = iminor(file->f_path.dentry->d_inode);
- 	int err;
- 
- 	if (count % 8)
-@@ -197,7 +197,7 @@ static ssize_t msr_write(struct file *fi
- 	u32 data[2];
- 	size_t rv;
- 	u32 reg = *ppos;
--	int cpu = iminor(file->f_dentry->d_inode);
-+	int cpu = iminor(file->f_path.dentry->d_inode);
- 	int err;
- 
- 	if (count % 8)
-@@ -217,7 +217,7 @@ static ssize_t msr_write(struct file *fi
- 
- static int msr_open(struct inode *inode, struct file *file)
+diff --git a/fs/autofs4/root.c b/fs/autofs4/root.c
+--- a/fs/autofs4/root.c
++++ b/fs/autofs4/root.c
+@@ -74,7 +74,7 @@ static int autofs4_root_readdir(struct f
+ static int autofs4_root_readdir(struct file *file, void *dirent,
+ 				filldir_t filldir)
  {
--	unsigned int cpu = iminor(file->f_dentry->d_inode);
-+	unsigned int cpu = iminor(file->f_path.dentry->d_inode);
- 	struct cpuinfo_x86 *c = &(cpu_data)[cpu];
+-	struct autofs_sb_info *sbi = autofs4_sbi(file->f_dentry->d_sb);
++	struct autofs_sb_info *sbi = autofs4_sbi(file->f_path.dentry->d_sb);
+ 	int oz_mode = autofs4_oz_mode(sbi);
  
- 	if (cpu >= NR_CPUS || !cpu_online(cpu))
+ 	DPRINTK("called, filp->f_pos = %lld", file->f_pos);
+@@ -95,8 +95,8 @@ static int autofs4_root_readdir(struct f
+ 
+ static int autofs4_dir_open(struct inode *inode, struct file *file)
+ {
+-	struct dentry *dentry = file->f_dentry;
+-	struct vfsmount *mnt = file->f_vfsmnt;
++	struct dentry *dentry = file->f_path.dentry;
++	struct vfsmount *mnt = file->f_path.mnt;
+ 	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
+ 	struct dentry *cursor;
+ 	int status;
+@@ -172,7 +172,7 @@ out:
+ 
+ static int autofs4_dir_close(struct inode *inode, struct file *file)
+ {
+-	struct dentry *dentry = file->f_dentry;
++	struct dentry *dentry = file->f_path.dentry;
+ 	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
+ 	struct dentry *cursor = file->private_data;
+ 	int status = 0;
+@@ -204,7 +204,7 @@ out:
+ 
+ static int autofs4_dir_readdir(struct file *file, void *dirent, filldir_t filldir)
+ {
+-	struct dentry *dentry = file->f_dentry;
++	struct dentry *dentry = file->f_path.dentry;
+ 	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
+ 	struct dentry *cursor = file->private_data;
+ 	int status;
+@@ -858,14 +858,14 @@ static int autofs4_root_ioctl(struct ino
+ 		return autofs4_ask_reghost(sbi, p);
+ 
+ 	case AUTOFS_IOC_ASKUMOUNT:
+-		return autofs4_ask_umount(filp->f_vfsmnt, p);
++		return autofs4_ask_umount(filp->f_path.mnt, p);
+ 
+ 	/* return a single thing to expire */
+ 	case AUTOFS_IOC_EXPIRE:
+-		return autofs4_expire_run(inode->i_sb,filp->f_vfsmnt,sbi, p);
++		return autofs4_expire_run(inode->i_sb,filp->f_path.mnt,sbi, p);
+ 	/* same as above, but can send multiple expires through pipe */
+ 	case AUTOFS_IOC_EXPIRE_MULTI:
+-		return autofs4_expire_multi(inode->i_sb,filp->f_vfsmnt,sbi, p);
++		return autofs4_expire_multi(inode->i_sb,filp->f_path.mnt,sbi, p);
+ 
+ 	default:
+ 		return -ENOSYS;
 
 

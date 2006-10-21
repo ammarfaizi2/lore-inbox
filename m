@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWJUWuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161150AbWJUWtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422657AbWJUWuz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 18:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422838AbWJUWuy
+	id S1161150AbWJUWtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 18:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161490AbWJUWtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 18:50:54 -0400
-Received: from ns.suse.de ([195.135.220.2]:3028 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422657AbWJUWuy (ORCPT
+	Sat, 21 Oct 2006 18:49:04 -0400
+Received: from ns2.suse.de ([195.135.220.15]:9954 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161150AbWJUWtB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 18:50:54 -0400
+	Sat, 21 Oct 2006 18:49:01 -0400
 From: Andi Kleen <ak@suse.de>
-References: <200610221250.493223000@suse.de>
-In-Reply-To: <200610221250.493223000@suse.de>
-To: patches@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [1/2] x86_64: Fix C3 timer test
-Message-Id: <20061021225052.9395013B62@wotan.suse.de>
-Date: Sun, 22 Oct 2006 00:50:52 +0200 (CEST)
+To: torvalds@osdl.org
+Subject: Please pull two more bug fixes for x86-64
+Date: Sun, 22 Oct 2006 00:48:54 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610220048.54641.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There was a typo in the C3 latency test to decide of the TSC
-should be used or not. It used the C2 latency threshold, not the
-C3 one. Fix that.
+Linus, two more bug fixes for x86-64
 
-This should fix the time on various dual core laptops.
+Please pull from
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+  git://one.firstfloor.org/home/andi/git/linux-2.6 for-linus
 
----
- arch/x86_64/kernel/time.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Muli Ben-Yehuda:
+      x86-64: increase PHB1 split transaction timeout
 
-Index: linux/arch/x86_64/kernel/time.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/time.c
-+++ linux/arch/x86_64/kernel/time.c
-@@ -948,7 +948,7 @@ __cpuinit int unsynchronized_tsc(void)
-  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
- #ifdef CONFIG_ACPI
- 		/* But TSC doesn't tick in C3 so don't use it there */
--		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 100)
-+		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 1000)
- 			return 1;
- #endif
-  		return 0;
+Andi Kleen:
+      x86-64: Fix C3 timer test	
+
+ arch/x86_64/kernel/pci-calgary.c |   44 +++++++++++++++++++++++++++++++++++++-
+ arch/x86_64/kernel/time.c        |    2 +-
+

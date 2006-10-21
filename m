@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWJUEaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWJUEh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWJUEaT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 00:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWJUEaT
+	id S1751705AbWJUEh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 00:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751710AbWJUEh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 00:30:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10199 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751695AbWJUEaR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 00:30:17 -0400
-Date: Fri, 20 Oct 2006 21:29:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-Subject: Re: 2.6.19-rc2 ipw2200 breakage with wpa_supplicant
-Message-Id: <20061020212958.8156fa86.akpm@osdl.org>
-In-Reply-To: <45399521.30502@shaw.ca>
-References: <45399093.6090306@shaw.ca>
-	<45399521.30502@shaw.ca>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Oct 2006 00:37:58 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:35245 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751698AbWJUEh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 00:37:58 -0400
+Date: Sat, 21 Oct 2006 00:37:56 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.19-rc1, timebomb?
+In-reply-to: <20061020212244.56f9f02b@localhost>
+To: linux-kernel@vger.kernel.org
+Cc: Chris Largret <largret@gmail.com>
+Message-id: <200610210037.57871.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200610200130.44820.gene.heskett@verizon.net>
+ <20061020212244.56f9f02b@localhost>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 21:33:53 -0600
-Robert Hancock <hancockr@shaw.ca> wrote:
+On Saturday 21 October 2006 00:22, Chris Largret wrote:
+>On Fri, 20 Oct 2006 01:30:44 -0400
+>
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Greetings;
+>>
+>> I just arrived home a few hours ago, and my wife said the outside
+>> lights hadn't worked for the last 2 days.
+>>
+>> I come in to check, the this machine, which runs some heyu scripts to
+>> do this, was powered down.  So I powered it back up and it had to e2fsk
+>> everything.  I have a ups with a fresh battery which passes the tests
+>> just fine.
+>>
+>> The only thing in the logs is a single line about eth0 being down:
+>> Oct 17 05:31:11 coyote kernel: eth0: link down.
+>> Oct 19 20:37:49 coyote syslogd 1.4.1: restart.
+>>
+>> Uptime when this occurred was about 9 days.  Was this a known problem?
+>
+>Out of curiosity, did you check the UPS logs? The low- (and mid- ?)
+>range ones I've played with have logs as well as the ability to tell
+>the computer when there is a power problem. I'd check those logs and
+>also look in the system BIOS for a way to power the computer back on
+>when power returns. If it was powered off, I don't believe it would be
+>kernel-related.
+>
+yes, they were clean.  Its a 1500kva Belkin, not exactly a small ups.
 
-> Robert Hancock wrote:
-> > Something changed between 2.6.18-mm1 and 2.6.19-rc2 to cause my laptop's 
-> > ipw2200 to be unable to associate with the access point using 
-> > NetworkManager and wpa_supplicant. I keep seeing this kind of thing over 
-> > and over in the wpa_supplicant output:
-> 
-> It looks like the bad patch is this one. Reverting it makes it work 
-> again. Either there's a bug in here or it's a change breaking working 
-> userspace, either way, no good:
-> 
-> [PATCH] WE-21 for ipw2200
+>I could always be wrong, but from my own experiences kernel problems
+>result in a system that is on but not operational.
 
-Please try 2.6.19-rc2-mm2, or git-wireless.patch therefrom.
+ISTR that was the second time an un-logged powerdown has been done since 
+that kernel became the default.  For all practical purposes, it the equ of 
+tapping the hard reset button and before it can start to reboot, the 4 
+second powerdown expires and things get real quiet.
+
+I guess I'm 'waiting for the other shoe to drop'  Until that time, 
+everything seems normal.  But I did just note that 'fam' is using up to 
+99.3% of the cpu, which is unusual considering that amanda is also 
+running, and its usually gtar thats the hog.  This is according to htop.
+
+That doesn't seem to be what I'd expect to see, thats for sure.  Even 
+wierder, I just used htop to send it a SIGHUP and its now gone.  WTF??  Me 
+wanders off for some sleep while the real brains ponder that one.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

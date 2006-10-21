@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993143AbWJURzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766611AbWJUR5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993143AbWJURzU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 13:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423375AbWJURzT
+	id S1766611AbWJUR5q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 13:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766628AbWJUR5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 13:55:19 -0400
-Received: from mga09.intel.com ([134.134.136.24]:56244 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S2993143AbWJURzS (ORCPT
+	Sat, 21 Oct 2006 13:57:46 -0400
+Received: from mga09.intel.com ([134.134.136.24]:28216 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1766611AbWJUR5p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 13:55:18 -0400
+	Sat, 21 Oct 2006 13:57:45 -0400
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,338,1157353200"; 
-   d="scan'208"; a="148608848:sNHT20486382"
-Message-ID: <453A5EBA.5050701@intel.com>
-Date: Sat, 21 Oct 2006 10:54:02 -0700
+   d="scan'208"; a="148609454:sNHT48437039"
+Message-ID: <453A5F51.9080803@intel.com>
+Date: Sat, 21 Oct 2006 10:56:33 -0700
 From: Auke Kok <auke-jan.h.kok@intel.com>
 User-Agent: Mail/News 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-To: Damien Wyart <damien.wyart@free.fr>
-CC: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: [PATCH] e100_shutdown: netif_poll_disable hang
-References: <20061020182820.978932000@mvista.com> <453936E0.1010204@intel.com>	<45393B0B.8090301@intel.com> <87slhh1s90.fsf@brouette.noos.fr>
-In-Reply-To: <87slhh1s90.fsf@brouette.noos.fr>
+To: Ryan Richter <ryan@tau.solarneutrino.net>,
+       "Allan, Bruce W" <bruce.w.allan@intel.com>
+CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
+       Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Machine restart doesn't work - Intel 965G, 2.6.19-rc2
+References: <20061017180003.GB24789@tau.solarneutrino.net> <20061017205316.25914.qmail@web83109.mail.mud.yahoo.com> <20061017222727.GB24891@tau.solarneutrino.net> <45390E09.7050508@intel.com> <20061020180610.GA17675@mail.muni.cz> <20061021173402.GA30750@tau.solarneutrino.net>
+In-Reply-To: <20061021173402.GA30750@tau.solarneutrino.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damien Wyart wrote:
->>>> My machine annoyingly hangs while rebooting. I tracked it down to
->>>> e100-fix-reboot-f-with-netconsole-enabled.patch in 2.6.18-rc2-mm2
->>>> I review the changes and it seemed to be calling
->>>> netif_poll_disable one too many time. Once in e100_down(), and
->>>> again in e100_shutdown().
->>>> The second one in e100_shutdown() caused the hang. So this patch
->>>> removes it.
+Ryan Richter wrote:
+> On Fri, Oct 20, 2006 at 08:06:10PM +0200, Lukas Hejtmanek wrote:
+>> On Fri, Oct 20, 2006 at 10:57:29AM -0700, Auke Kok wrote:
+>>> To all that are seeing this problem:
+>>>
+>>> can you send me (off-list is OK) the motherboard number+name, the BIOS 
+>>> versions (+ where you downloaded them from) that you have tried and for 
+>>> each version, whether it worked without this workaround or not?
+ >>
+>> Three days ago, Intel released a new BIOS version that claims to fix
+>> this issue.
+>>
+>> I've tested it with 2.6.18 kernel which was unable to restart, it
+>> works now so it seems that fix was successful.
 > 
-> * Auke Kok <auke-jan.h.kok@intel.com> [061020 23:09]:
->> it doesn't even do harm to netif_poll_disable() twice as far as I can
->> see, as it merely calls test_and_set_bit(), which will instantly
->> succeed on the first attempt if the bit was already set.
-> 
->> did this change actually fix it for you? I'm wondering if the
->> netif_carrier_off might not be the culprit here...
-> 
-> I can confirm the proposed original change of D. Walker fixed the
-> problem for me. I did not test the change you proposed as a followup.
+> I just tried the 1458 BIOS without the workaround and it's working fine.
 
-his change breaks something else (a reboot with netconsole, possibly suspend). Please 
-give the latest version I sent a try. Daniel confirmed me that it works, but it's always 
-nice to hear it from more people.
+okay, looks like the latest BIOS fixes it (hang on reboot/restart) for everyone. Thanks 
+for reporting back in, I'll make sure my colleagues write this down for everyone.
 
-Thanks
+Cheers,
 
 Auke

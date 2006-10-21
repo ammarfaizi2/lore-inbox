@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992907AbWJUJoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWJUJsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992907AbWJUJoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 05:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWJUJoZ
+	id S1030386AbWJUJsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 05:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWJUJsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 05:44:25 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39569 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030385AbWJUJoY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 05:44:24 -0400
-Message-ID: <4539EBF3.8050607@drzeus.cx>
-Date: Sat, 21 Oct 2006 11:44:19 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> <45386E0E.7030404@drzeus.cx> <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 21 Oct 2006 05:48:16 -0400
+Received: from www.osadl.org ([213.239.205.134]:49085 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030386AbWJUJsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 05:48:15 -0400
+Subject: Re: various laptop nagles - any suggestions?   (note:
+	2.6.19-rc2-mm1 but applies to multiple kernels)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, teunis <teunis@wintersgift.com>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       john stultz <johnstul@us.ibm.com>
+In-Reply-To: <20061020182527.a07666a4.akpm@osdl.org>
+References: <4537A25D.6070205@wintersgift.com>
+	 <20061019194157.1ed094b9.akpm@osdl.org> <4538F9AD.8000806@wintersgift.com>
+	 <20061020110746.0db17489.akpm@osdl.org>
+	 <1161368034.5274.278.camel@localhost.localdomain>
+	 <20061020112627.04a4035a.akpm@osdl.org>
+	 <1161370015.5274.282.camel@localhost.localdomain>
+	 <20061020121537.dea13469.akpm@osdl.org> <20061020203731.GA22407@elte.hu>
+	 <20061020135450.6794a2bb.akpm@osdl.org> <20061020205651.GA26801@elte.hu>
+	 <20061020182527.a07666a4.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 21 Oct 2006 11:49:07 +0200
+Message-Id: <1161424147.5274.400.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Fri, 20 Oct 2006, Pierre Ossman wrote:
->   
->> I'm still learning the more fancy parts of git, but I think that would be:
->>
->> git diff master..for-linus | diffstat
->>     
->
-> Use "git diff -M --stat master..for-linus" instead.
->
-> The "-M" enables rename detection, and the "--stat" does the diffstat for 
-> you (and better than plain diffstat, since it knows about renames, copies 
-> and deletes).
->
-> HOWEVER! The above obviously only really works correctly if "master" is a 
-> strict subset of "for-linus".
->
->   
+On Fri, 2006-10-20 at 18:25 -0700, Andrew Morton wrote:
+> On Fri, 20 Oct 2006 22:56:51 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > * Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > Oh.  I thought the problem was that the timer stops when the CPU is 
+> > > idle. Maybe I misremembered.  I'll try `idle=poll'.
+> > 
+> > hm, wouldnt in that case the box not boot at all? But yeah, idle=poll 
+> > would be nice.
+> 
+> idle=poll fixes it.  The fan gets a bit noisy though ;)
 
-Ah, that's a bit of a gotcha. Any nice tricks to keep track of where you
-where in sync with upstream last? Create a dummy branch/tag perhaps?
+So this is one of the boxen where C2 is actually C3 and lapic stops in
+C3 mode. Probably BIOS magic.
 
-Rgds
+What's the output of /proc/acpi/processor/CPU0/power ?
 
--- 
-     -- Pierre Ossman
+> Perhaps a suitable test would be to set up a PIT interrupt, do a hlt, see
+> if the APIC timer counter has increased appropriately.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+Yeah, but it has to be done later in the boot process. Looking into this
+right now.
+
+> I got this:
+> 
+> [   43.709238] TSC appears to be running slowly. Marking it as unstable
+> 
+> How come?  It also happens with HIGH_RES_TIMERS=n and NO_HZ=n.  It only
+> seems to happen when idle=poll is given.
+
+Should happen always as the TSC is driven by the CPU clock and you have
+CPUFREQ enabled.
+
+> > could you also boot with apic=verbose and send us the full bootlog?
+>
+> http://userweb.kernel.org/~akpm/apic.txt
+
+[   11.515305] calibrating APIC timer ...
+[   11.618612] ..... tt1-tt2 831283
+[   11.618614] ..... mult: 35701101
+[   11.618616] ..... calibration result: 532021
+[   11.618619] ..... CPU clock speed is 1995.0325 MHz.
+[   11.618622] ..... host bus clock speed is 133.0021 MHz.
+
+That looks reasonable. It really boils down to the lapic not working
+when going idle.
+
+	tglx
+
 

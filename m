@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992782AbWJUB3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422984AbWJUBdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992782AbWJUB3j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 21:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992781AbWJUB3j
+	id S1422984AbWJUBdp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 21:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWJUBdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 21:29:39 -0400
-Received: from ozlabs.org ([203.10.76.45]:33502 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S2992775AbWJUB3i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 21:29:38 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Oct 2006 21:33:45 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:65479 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750934AbWJUBdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 21:33:44 -0400
+Date: Fri, 20 Oct 2006 18:33:24 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com, rohitseth@google.com, holt@sgi.com,
+       dipankar@in.ibm.com, suresh.b.siddha@intel.com, clameter@sgi.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+Message-Id: <20061020183324.b29caa37.pj@sgi.com>
+In-Reply-To: <20061020135944.B8481@unix-os.sc.intel.com>
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
+	<453750AA.1050803@yahoo.com.au>
+	<20061019105515.080675fb.pj@sgi.com>
+	<4537BEDA.8030005@yahoo.com.au>
+	<20061019115652.562054ca.pj@sgi.com>
+	<4537CC1E.60204@yahoo.com.au>
+	<20061019203744.09b8c800.pj@sgi.com>
+	<453882AC.3070500@yahoo.com.au>
+	<20061020130141.b5e986dd.pj@sgi.com>
+	<20061020135944.B8481@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17721.30698.868001.739660@cargo.ozlabs.ibm.com>
-Date: Sat, 21 Oct 2006 11:29:14 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>, David Miller <davem@davemloft.net>,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-In-Reply-To: <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
-References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org>
-	<20061020214916.GA27810@linux-mips.org>
-	<Pine.LNX.4.64.0610201500040.3962@g5.osdl.org>
-	<20061020.152247.111203913.davem@davemloft.net>
-	<20061020225118.GA30965@linux-mips.org>
-	<Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
-	<20061021000609.GA32701@linux-mips.org>
-	<Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Suresh wrote:
+> Its just a corner case issue that Nick didn't consider while doing a quick
+> patch. Nick meant to partition the sched domain at the top
+> exclusive cpuset and he probably missed the case where root cpuset is marked
+> as exclusive.
 
-> I think (but may be mistaken) that ARM _does_ have pure virtual caches 
-> with a process ID, but people have always ended up flushing them at 
-> context switch simply because it just causes too much trouble.
-> 
-> Sparc? VIPT too? Davem?
+This makes no sense.
 
-There is one PowerPC embedded chip family, the PPC440, which has a
-virtual i-cache with a process ID tag.  The d-cache is sane though.
-Of course, the i-cache being readonly means we avoid the nastier
-issues.
+If P is a partition of S, that means that P is a set of subsets of
+S such that the intersection of any two members of P is empty, and
+the union of the members of P equals S.
 
-Paul.
+If P is a partition of S, then adding S itself to P as another member
+makes P no longer a partion, for then every element of S is in two
+elements of P, not one.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbWJUATm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWJUAWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161087AbWJUATm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 20:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWJUATm
+	id S1030205AbWJUAWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 20:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992747AbWJUAWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 20:19:42 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:6881 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030205AbWJUATl (ORCPT
+	Fri, 20 Oct 2006 20:22:54 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:58840 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1030355AbWJUAWx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 20:19:41 -0400
-Date: Sat, 21 Oct 2006 02:17:51 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-cc: Jens Axboe <jens.axboe@oracle.com>, Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: fs/Kconfig question regarding CONFIG_BLOCK 
-In-Reply-To: <200610210014.k9L0E3pr005019@laptop13.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.61.0610210217400.15201@yvahk01.tjqt.qr>
-References: <200610210014.k9L0E3pr005019@laptop13.inf.utfsm.cl>
+	Fri, 20 Oct 2006 20:22:53 -0400
+Date: Sat, 21 Oct 2006 02:22:51 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.4.3
+Message-ID: <20061021002251.GO20017@pasky.or.cz>
+References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> <7v4ptylfvw.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> That said, "LESS=FRS" doesn't really help that much. It still clears the 
+> screen. Using "LESS=FRSX" fixes that, but the alternate display sequence 
+> is actually nice _if_ the pager is used.
 
->> I'd be surprised if if BLOCK wasn't faster over, say, 10 depends on
->> BLOCK.
->
->I'd be /very/ surprised if anybody even noticed...
+Hmm, what terminal emulator do you use? The reasonable ones should
+restore the original screen. At least xterm does, and I *think*
+gnome-terminal does too (although I'm too lazy to boot up my notebook
+and confirm).
 
-I am about to do a poorman's benchmark.
+(I personally consider alternate screen an abomination. It would be so
+nice if the terminal emulators would just make it optional.)
 
-
-	-`J'
 -- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+#!/bin/perl -sp0777i<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<j]dsj
+$/=unpack('H*',$_);$_=`echo 16dio\U$k"SK$/SM$n\EsN0p[lN*1
+lK[d2%Sa2/d0$^Ixp"|dc`;s/\W//g;$_=pack('H*',/((..)*)$/)

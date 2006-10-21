@@ -1,60 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992913AbWJULCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992985AbWJULpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992913AbWJULCA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 07:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992925AbWJULCA
+	id S2992985AbWJULpp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 07:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992986AbWJULpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 07:02:00 -0400
-Received: from host106-7.junet.se ([193.11.106.7]:971 "EHLO smtp.azoff.se")
-	by vger.kernel.org with ESMTP id S2992913AbWJULB7 (ORCPT
+	Sat, 21 Oct 2006 07:45:45 -0400
+Received: from [203.26.40.81] ([203.26.40.81]:15263 "EHLO boo.knobbits.org")
+	by vger.kernel.org with ESMTP id S2992985AbWJULpo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 07:01:59 -0400
-Message-ID: <4539FE18.8090205@azoff.se>
-Date: Sat, 21 Oct 2006 13:01:44 +0200
-From: =?UTF-8?B?VG9yYmrDtnJuIFN2ZW5zc29u?= <lkml@azoff.se>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060920)
+	Sat, 21 Oct 2006 07:45:44 -0400
+Message-ID: <453A0868.307@knobbits.org>
+Date: Sat, 21 Oct 2006 21:45:44 +1000
+From: "Michael (Micksa) Slade" <micksa@knobbits.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-Cc: linux-kernel@vger.kernel.org, grsecurity@grsecurity.net
-Subject: Re: ext3 oops with 2.4.33.3-grsec
-References: <45379EBE.4050906@azoff.se> <20061021071138.GA1709@1wt.eu>
-In-Reply-To: <20061021071138.GA1709@1wt.eu>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Inspiron 6000 and CPU power saving
+References: <EB12A50964762B4D8111D55B764A8454C1A3F3@scsmsx413.amr.corp.intel.com>
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454C1A3F3@scsmsx413.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Pallipadi, Venkatesh wrote:
 
-Hello!
+> 
+>
+>  
+>
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org 
+>>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>>Michael (Micksa) Slade
+>>Sent: Sunday, October 15, 2006 7:18 PM
+>>To: linux-kernel@vger.kernel.org
+>>Subject: Inspiron 6000 and CPU power saving
+>>
+>>I recently discovered that my Inspiron 6000 uses about 50% more power 
+>>idling in linux than in windows XP.  This means its battery life is 
+>>about 2/3 of what it could/should be.
+>>
+>>I guessed it might be the CPU, and did some tests.  The 
+>>results strongly 
+>>suggest as much.  These are the results I got for power consumption in 
+>>various situations.
+>>
+>>linux idle at 800MHz: 27W        
+>>linux idle at 1600MHz: 36W        
+>>linux raytracing at 800: 30W
+>>linux raytracing at 1600: 42W 
+>>
+>>windows idle (presumably 800MHz): 16W
+>>windows raytracing (presumably 1600MHz): 36W
+>>
+>>I've tried ubuntu dapper and ubuntu edgy, and RIP 10 (rescue disk) and 
+>>BBC 2.1 (rescue disk), and they all appear to have the same 
+>>issue.  The 
+>>machine's BIOS has no APM so I can't try it for comparison.
+>>
+>>I've tried noapic and "echo n > 
+>>/sys/module/processor/parameters/max_cstate", where n is 1 thru 4.  
+>>Neither appear to have any affect.
+>>
+>>I need help digging deeper.  I guess /proc/acpi/processor/CPU0/power 
+>>could give some insight but I'm not sure how to read the 
+>>numbers.  That 
+>>and "learn about ACPI" is all I can figure out so far.
+>>
+>>So where to from here?  I am prepared to spend a significant amount of 
+>>time researching and resolving the issue, so feel free to suggest 
+>>reading the ACPI spec or whatever if that's what it's going to take.
+>>
+>>Mick.
+>>
+>>    
+>>
+>
+>Output of 
+>#cat /proc/acpi/processor/CPU0/power/*
+>And
+>#cat /sys/devices/system/cpu/cpu0/cpufreq/*
+>Will be a good starting point.
+>
+>Also, open a issue at bugme.osdl.org. It makes tracking the issues
+>easier that way.
+>
+>Thanks,
+>Venki
+>  
+>
+Done.
 
-Willy Tarreau wrote:
-> I see nothing between 2.4.33 and 2.4.33.3 which affects ext3 in any way.
-> The "ud2a" you see in the decoded oops is a call to 'BUG()'. The only
-> one I find in ext3 is in ext3_write_super() which is not called from
-> any function in your trace. I do not notice any other relevant ones in
-> inline functions included from other files. Could you check if the
-> grsec patch you use changes anything in fs/ext3/super.c ? It will make
-> the debugging easier.
+http://bugzilla.kernel.org/show_bug.cgi?id=7393
 
-No, nothing. I have put the grsec-patch I used on my httpd[0]. Could I
-have got my journal corupted in someway during the random reboots? Could
-it help to recreate a journal and if so, how do I do that?
+As part of this I've also tried vanilla 2.6.19-rc2 and done another 
+small test. See the report.
 
-[0]
-http://www.azoff.se/error/debian/oops/grsecurity-2.1.9-2.4.33.3-200609031224.patch.gz
+Mick.
 
-
-- --
-> Torbjörn Svensson <lkml (at) azoff (dot) se>
-> Please CC me as I am not subscribed to the list!
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFOf4TeY7jmtvbDP0RAuoiAKCbX3uoh37CM5+PYE8pBXcnYA6hUgCfZnB3
-guUbELQofgZwRrawrbrsCKE=
-=WJeZ
------END PGP SIGNATURE-----

@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992772AbWJUCLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWJUCMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992772AbWJUCLe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 22:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992785AbWJUCLe
+	id S1030381AbWJUCMk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 22:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbWJUCMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 22:11:34 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2445
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S2992772AbWJUCLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 22:11:33 -0400
-Date: Fri, 20 Oct 2006 19:11:34 -0700 (PDT)
-Message-Id: <20061020.191134.63996591.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
-References: <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
-	<20061021000609.GA32701@linux-mips.org>
-	<Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 20 Oct 2006 22:12:40 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:61606 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030377AbWJUCMj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 22:12:39 -0400
+Date: Sat, 21 Oct 2006 03:12:35 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.4.3
+Message-ID: <20061021021235.GA29920@ftp.linux.org.uk>
+References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> <7v4ptylfvw.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Fri, 20 Oct 2006 17:38:32 -0700 (PDT)
-
-> I think (but may be mistaken) that ARM _does_ have pure virtual caches 
-> with a process ID, but people have always ended up flushing them at 
-> context switch simply because it just causes too much trouble.
+On Fri, Oct 20, 2006 at 05:14:39PM -0700, Linus Torvalds wrote:
 > 
-> Sparc? VIPT too? Davem?
+> 
+> On Fri, 20 Oct 2006, Junio C Hamano wrote:
+> > 
+> > I am considering the following to address irritation some people
+> > (including me, actually) are experiencing with this change when
+> > viewing a small (or no) diff.  Any objections?
+> 
+> Not from me. I use "git diff" just to check that the tree is empty, and 
+> the fact that it now throws me into an empty pager is irritating.
 
-sun4c is VIVT, but has no SMP variants.
-sun4m has both VIPT and PIPT.
+Speaking of irritations...  There is a major (and AFAICS fixable)
+suckitude in git-cherry.  Basically, what it does is
+	* use git-rev-list to find commits on our branches
+	* do git-diff-tree -p for each commit
+	* do git-patch-id on each delta
+	* compare sets.
+For one thing, there are better ways to do set comparison than creating
+a file for each element in one set and going through another checking
+if corresponding files exist (join(1) and sort(1) or just use perl hashes).
+That one is annoying on journalling filesystems (a lot of files being
+created, read and removed - fsckloads of disk traffic), but it's actually
+not the worst problem.
 
-> But it would be good to have something for the early -rc1 sequence for 
-> 2.6.20, and maybe the MIPS COW D$ patches are it, if it has performance 
-> advantages on MIPS that can also be translated to other virtual cache 
-> users..
+Far more annoying is that we keep recalculating git-diff-tree -p | git-patch-id
+again and again; try to do git cherry on a dozen short branches forked at
+2.6.18 and you'll see the damn thing recalculated a dozen of times for
+each commit from 2.6.18 to current.  It's not cheap, to put it mildly.
 
-I think it could help for sun4m highmem configs.
+git-rev-list ^v2.6.18 HEAD|while read i; do git-diff-tree -p $i; done |git-patch-id >/dev/null
+
+out of hot cache on 2GHz amd64 box (Athlon 64 3400+) takes 3 minutes of
+wall time.  Repeat that for each branch and it's starting to get old very
+fast.
+
+Note that we are calculating a function of commit; it _never_ changes.
+Even if we don't just calculate and memorize it at commit time, a cache
+somewhere under .git would speed the things up a lot...

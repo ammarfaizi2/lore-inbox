@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751936AbWJWMbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751939AbWJWMb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751936AbWJWMbe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 08:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWJWMbe
+	id S1751939AbWJWMb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 08:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWJWMb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 08:31:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13992 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751913AbWJWMbd (ORCPT
+	Mon, 23 Oct 2006 08:31:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15272 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751937AbWJWMbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 08:31:33 -0400
-Date: Mon, 23 Oct 2006 10:17:58 +0200
+	Mon, 23 Oct 2006 08:31:37 -0400
+Date: Sat, 21 Oct 2006 14:42:25 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Constantine Gavrilov <constg@qlusters.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Would SSI clustering extensions be of interest to kernel community?
-Message-ID: <20061023081758.GA11620@elf.ucw.cz>
-References: <45337FE3.8020201@qlusters.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
+       suspend2-devel <suspend2-devel@lists.suspend2.net>
+Subject: Re: [linux-pm] [PATCH] Add include/linux/freezer.h and move definitions from	sched.h
+Message-ID: <20061021124225.GA10892@elf.ucw.cz>
+References: <1161433266.7644.7.camel@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45337FE3.8020201@qlusters.com>
+In-Reply-To: <1161433266.7644.7.camel@nigel.suspend2.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,38 +28,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I have implemented SSI (single system image) clustering extensions to 
-> Linux kernel in the form of a loadable module.
-> 
-> It roughly mimics OpenMosix model of deputy/remote split (migrated 
-> processes leave a stub on the node where they were born and depend on 
-> the "home" node for IO).
-> 
-> The implementation shares no code with Mosix/Open Mosix (was written 
-> from scratch), is much smaller, and is easily portable to multiple 
-> architectures.
-> 
-> We are considering publication of this code and forming an open source 
-> project around it.
-> 
-> I have two questions to the community:
-> 
-> 1) Is community interested in using this code? Do users require SSI 
-> product in the era when everybody is talking about partitioning of 
-> machines and not clustering?
+> Move process freezing functions from include/linux/sched.h to freezer.h,
+> so that modifications to the freezer or the kernel configuration don't
+> require recompiling just about everything.
 
-Yes... Remember that some people run hypervisors to enable process
-migration.
+Well, I'm not sure if freezer changes often enough for this to
+matter. ..
 
-> 2) Are kernel maintainers interested in clustering extensions to Linux 
-> kernel? Do they see any value in them? (Our code does not require kernel 
-> changes, but we are willing to submit it for inclusion if there is 
-> interest.)
+Patch is pretty much okay (provided it does not change any code)
+"is it worth the change" is up-to Andrew.
 
-I'd say so.
-									Pavel
+> --- /dev/null
+> +++ b/include/linux/freezer.h
+> @@ -0,0 +1,84 @@
+> +/* Freezer declarations */
+> +
 
+Needs copyright/GPL at least.
 
+> +#ifdef CONFIG_PM
+> +/*
+> + * Check if a process has been frozen
+> + */
+> +static inline int frozen(struct task_struct *p)
+> +{
+> +	return p->flags & PF_FROZEN;
+> +}
+
+And switch it to kerneldoc while you are at it...
+
+								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

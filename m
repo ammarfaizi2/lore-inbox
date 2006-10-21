@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992761AbWJUBQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992771AbWJUBZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992761AbWJUBQm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 21:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992768AbWJUBQm
+	id S2992771AbWJUBZx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 21:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbWJUBZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 21:16:42 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:30381 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S2992761AbWJUBQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 21:16:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=zZPrrfxoUV7XC+H3QO1TasA+xw7FoGpFqxmuUvK3rL3QTUk6MZG7Z0UqiljepJv2STZzXhb9zvn3oHz5c/dmSKdkpyT2wKMwIaG1icvbpv26vGq7SqN6tvT6Lu7SZ4m3Kmh+h/pmYStvr1SqRouWH9zJi5LVYQto02tJ0S8N9VM=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 04/10] uml: make execvp safe for our usage
-Date: Sat, 21 Oct 2006 03:16:38 +0200
-User-Agent: KMail/1.9.5
-Cc: Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20061017211943.26445.75719.stgit@americanbeauty.home.lan> <20061017212711.26445.79770.stgit@americanbeauty.home.lan> <20061018183707.GB6566@ccure.user-mode-linux.org>
-In-Reply-To: <20061018183707.GB6566@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 20 Oct 2006 21:25:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50614 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030379AbWJUBZw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 21:25:52 -0400
+Date: Fri, 20 Oct 2006 18:25:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: tglx@linutronix.de, teunis <teunis@wintersgift.com>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: various laptop nagles - any suggestions?   (note:
+ 2.6.19-rc2-mm1 but applies to multiple kernels)
+Message-Id: <20061020182527.a07666a4.akpm@osdl.org>
+In-Reply-To: <20061020205651.GA26801@elte.hu>
+References: <4537A25D.6070205@wintersgift.com>
+	<20061019194157.1ed094b9.akpm@osdl.org>
+	<4538F9AD.8000806@wintersgift.com>
+	<20061020110746.0db17489.akpm@osdl.org>
+	<1161368034.5274.278.camel@localhost.localdomain>
+	<20061020112627.04a4035a.akpm@osdl.org>
+	<1161370015.5274.282.camel@localhost.localdomain>
+	<20061020121537.dea13469.akpm@osdl.org>
+	<20061020203731.GA22407@elte.hu>
+	<20061020135450.6794a2bb.akpm@osdl.org>
+	<20061020205651.GA26801@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610210316.38732.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 October 2006 20:37, Jeff Dike wrote:
-> On Tue, Oct 17, 2006 at 11:27:11PM +0200, Paolo 'Blaisorblade' Giarrusso 
-wrote:
-> > Reimplement execvp for our purposes - after we call fork() it is
-> > fundamentally unsafe to use the kernel allocator - current is not valid
-> > there.
->
-> This is horriby ugly.  Can we instead do something different like
-> check out the paths of helpers at early boot, before the kernel is
-> running, save them, and simply execve them later?
->
-> At that point, something like running "which foo" would be fine by me.
+On Fri, 20 Oct 2006 22:56:51 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-I'd add that this can IMHO cause hard-to-diagnose crashes (I've seen strange 
-behaviours in debug mode, and even schedule-while-atomic warnings, maybe 
-because the creator thread had gone in atomic mode), and since this is a 
-working fix, either this or a replacement should go in.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade
-http://www.user-mode-linux.org/~blaisorblade
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Oh.  I thought the problem was that the timer stops when the CPU is 
+> > idle. Maybe I misremembered.  I'll try `idle=poll'.
+> 
+> hm, wouldnt in that case the box not boot at all? But yeah, idle=poll 
+> would be nice.
+
+idle=poll fixes it.  The fan gets a bit noisy though ;)
+
+Perhaps a suitable test would be to set up a PIT interrupt, do a hlt, see
+if the APIC timer counter has increased appropriately.
+
+
+
+
+I got this:
+
+[   43.709238] TSC appears to be running slowly. Marking it as unstable
+
+How come?  It also happens with HIGH_RES_TIMERS=n and NO_HZ=n.  It only
+seems to happen when idle=poll is given.
+
+
+
+> could you also boot with apic=verbose and send us the full bootlog?
+> 
+
+http://userweb.kernel.org/~akpm/apic.txt
+
+I gave up on waiting for it to complete initscripts.
+
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 13
+model name      : Intel(R) Pentium(R) M processor 2.00GHz
+stepping        : 8
+cpu MHz         : 800.000
+cache size      : 2048 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tm pbe nx est tm2
+bogomips        : 3994.15

@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbWJUAbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992757AbWJUAcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161159AbWJUAbb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 20:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbWJUAbb
+	id S2992757AbWJUAcj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 20:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992756AbWJUAci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 20:31:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17836 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161159AbWJUAba (ORCPT
+	Fri, 20 Oct 2006 20:32:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29612 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992753AbWJUAch (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 20:31:30 -0400
-Date: Fri, 20 Oct 2006 17:31:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@suse.cz>
-cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 1.4.3
-In-Reply-To: <20061021002251.GO20017@pasky.or.cz>
-Message-ID: <Pine.LNX.4.64.0610201728031.3962@g5.osdl.org>
-References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> <7v4ptylfvw.fsf@assigned-by-dhcp.cox.net>
- <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org> <20061021002251.GO20017@pasky.or.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Oct 2006 20:32:37 -0400
+Date: Fri, 20 Oct 2006 17:32:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Enforce "unsigned long flags;" when spinlocking
+Message-Id: <20061020173233.ad9fcda8.akpm@osdl.org>
+In-Reply-To: <20061020233803.GA5344@martell.zuzino.mipt.ru>
+References: <20061020131544.GC17199@martell.zuzino.mipt.ru>
+	<20061020114640.9231b18f.akpm@osdl.org>
+	<20061020233803.GA5344@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 21 Oct 2006 03:38:03 +0400
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
 
-
-On Sat, 21 Oct 2006, Petr Baudis wrote:
->
-> > That said, "LESS=FRS" doesn't really help that much. It still clears the 
-> > screen. Using "LESS=FRSX" fixes that, but the alternate display sequence 
-> > is actually nice _if_ the pager is used.
+> > If we're going to do this then a helper macro build_check_irq_flags() would
+> > help clean things up.  It will also allow us to centralise the
+> > warning-vs-error policy decision.
 > 
-> Hmm, what terminal emulator do you use? The reasonable ones should
-> restore the original screen. At least xterm does, and I *think*
-> gnome-terminal does too (although I'm too lazy to boot up my notebook
-> and confirm).
+> I will find a common header. kernel.h probably.
 
-Not xterm, at least.
-
-Not gnome-terminal either, for that matter.
-
-I just tried.
-
-	LESS=FRS git diff
-
-clears the screen and leaves the thing at the end.
-
-	LESS=FRSX git diff
-
-works fine, but for people who _like_ the alternate screens (and I do, 
-once I really use a pager) it also disables the alternate screen.
-
-It might depend on the termcap, of course. I'm running FC5.
-
-		Linus
+irqflags.h sounds more appropriate.

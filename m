@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766644AbWJUScl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422775AbWJUSgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1766644AbWJUScl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766650AbWJUScl
+	id S1422775AbWJUSgP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 14:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422691AbWJUSgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:32:41 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:56057 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1766644AbWJUSck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:32:40 -0400
-Date: Sat, 21 Oct 2006 11:34:06 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] raid: fix printk format warnings
-Message-Id: <20061021113406.535d8243.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sat, 21 Oct 2006 14:36:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:40641 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1422775AbWJUSgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 14:36:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Jellinghaus <aj@ciphirelabs.com>
+Subject: Re: Ordering hotplug scripts vs. udev device node creation
+Date: Sat, 21 Oct 2006 20:36:00 +0200
+Message-ID: <453A6890.5030803@ciphirelabs.com>
+References: <727e50150610211021s7779b787s7bac8f409a3f2518@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ciphirelabs.net
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+In-Reply-To: <727e50150610211021s7779b787s7bac8f409a3f2518@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+not sure, I ran into the same problem with usb device files
+(both in /proc and /dev/bus/usb). and my quick hack was to simply
+add a "sleep 1".
 
-Fix printk format warnings, seen on powerpc64:
-drivers/md/raid1.c:1479: warning: long long unsigned int format, long unsigned int arg (arg 4)
-drivers/md/raid10.c:1475: warning: long long unsigned int format, long unsigned int arg (arg 4)
+but there might be a cleaner solution:
+with udevmonitor you should see what udev does, and it should
+give you the name of the device it creates, so the call to udevinfo
+should not be needed. and when that event with the device name
+comes in - at least I hope - udev has already created it.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
+(at least I think it would be right if it creates a file to fire
+the event associated with doing that after the mknod.)
 
- drivers/md/raid1.c  |    4 ++--
- drivers/md/raid10.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+maybe give it a try. reporting back here (or on the hotplug mailing
+list which might be more appropriate) would be very welcome, as you
+are not the only one running into these kind of problems.
 
-diff -Naurp linux-2619-rc2g4/drivers/md/raid1.c~raid_printk linux-2619-rc2g4/drivers/md/raid1.c
---- linux-2619-rc2g4/drivers/md/raid1.c~raid_printk	2006-10-21 11:16:30.066109000 -0700
-+++ linux-2619-rc2g4/drivers/md/raid1.c	2006-10-21 11:20:57.288004000 -0700
-@@ -1474,8 +1474,8 @@ static void fix_read_error(conf_t *conf,
- 					       "raid1:%s: read error corrected "
- 					       "(%d sectors at %llu on %s)\n",
- 					       mdname(mddev), s,
--					       (unsigned long long)sect +
--					           rdev->data_offset,
-+					       (unsigned long long)(sect +
-+					           rdev->data_offset),
- 					       bdevname(rdev->bdev, b));
- 				}
- 			}
-diff -Naurp linux-2619-rc2g4/drivers/md/raid10.c~raid_printk linux-2619-rc2g4/drivers/md/raid10.c
---- linux-2619-rc2g4/drivers/md/raid10.c~raid_printk	2006-10-20 17:38:02.799707000 -0700
-+++ linux-2619-rc2g4/drivers/md/raid10.c	2006-10-21 11:21:13.430834000 -0700
-@@ -1470,8 +1470,8 @@ static void fix_read_error(conf_t *conf,
- 					       "raid10:%s: read error corrected"
- 					       " (%d sectors at %llu on %s)\n",
- 					       mdname(mddev), s,
--					       (unsigned long long)sect+
--					            rdev->data_offset,
-+					       (unsigned long long)(sect +
-+					            rdev->data_offset),
- 					       bdevname(rdev->bdev, b));
- 
- 				rdev_dec_pending(rdev, mddev);
+good luck!
 
+Andreas
 
----

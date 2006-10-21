@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWJUV1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWJUV0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161026AbWJUV1K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 17:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWJUV1K
+	id S1161074AbWJUV0I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 17:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbWJUV0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 17:27:10 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:26671 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1161026AbWJUV1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 17:27:08 -0400
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-X-Message-Flag: Warning: May contain useful information
-References: <4537EB67.8030208@drzeus.cx>
-	<Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
-	<adabqo5lip8.fsf@cisco.com> <453A63A4.4070506@drzeus.cx>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 21 Oct 2006 14:27:05 -0700
-In-Reply-To: <453A63A4.4070506@drzeus.cx> (Pierre Ossman's message of "Sat, 21 Oct 2006 20:15:00 +0200")
-Message-ID: <ada7iytl5qu.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Sat, 21 Oct 2006 17:26:08 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:49356
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161074AbWJUV0H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 17:26:07 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: NULL pointer dereference in sysfs_readdir
+Date: Sat, 21 Oct 2006 23:25:18 +0200
+User-Agent: KMail/1.9.5
+References: <4539DDC5.80207@s5r6.in-berlin.de> <200610212204.56772.mb@bu3sch.de> <453A8CA7.5070108@s5r6.in-berlin.de>
+In-Reply-To: <453A8CA7.5070108@s5r6.in-berlin.de>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Oct 2006 21:27:07.0089 (UTC) FILETIME=[A8E09C10:01C6F557]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610212325.18976.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I've actually been using StGIT up until now. But I've started to feel a
- > need for sharing my tree, and StGIT isn't really suited for that.
- > 
- > How have you handled collaborative development on stuff that isn't ready
- > for Linus yet? Simply sending patches back and forth?
+On Saturday 21 October 2006 23:09, Stefan Richter wrote:
+> Michael Buesch wrote:
+> > On Saturday 21 October 2006 10:43, Stefan Richter wrote:
+> ...
+> >> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=188140
+> ...
+> > Looking through the code I was not able to locate the exact line
+> > at which it oopses, with the above oops message.
+> > Are you able to track down the exact pointer dereference, which causes
+> > this? By inserting printks, perhaps.
+> 
+> I need the original reporter to do this since I cannot reproduce the
+> bug. Probably because I don't have an SMP machine yet.
+> 
+> > Maybe FC changed some of the structures. I couldn't find
+> > a used structure with an interresting member at offset 00000020, at least.
+> 
+> Could be struct sysfs_dirent.s_dentry if I'm counting correctly in
+> http://www.linux-m32r.org/lxr/http/source/include/linux/sysfs.h?v=2.6.16#L68
+> The trace was from 2.6.16.
 
-I don't use StGIT for collaborative development.  My StGIT branches
-are really just patch queues (as the names for-2.6.19 and for-2.6.20
-imply).  Usually development is just about done before things wind up
-in a maintainer tree, so being able to apply updates to patches
-already in my tree is more important than fully automated merged (as
-native git gives you).
+Yeah, I found that offset, too, but:
+
+There is only one usage of s_dentry
+if (next->s_dentry)
+
+But _before_ that there already comes
+if (!next->s_element)
+
+So, if "next" was NULL, it would already oops there.
+
+-- 
+Greetings Michael.

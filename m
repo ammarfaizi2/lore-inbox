@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766636AbWJUSPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766630AbWJUSPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1766636AbWJUSPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766622AbWJUSPJ
+	id S1766630AbWJUSPn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 14:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766619AbWJUSPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:15:09 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:49809 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S637744AbWJUSPB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:15:01 -0400
-Message-ID: <453A63A4.4070506@drzeus.cx>
-Date: Sat, 21 Oct 2006 20:15:00 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sat, 21 Oct 2006 14:15:12 -0400
+Received: from mx1.suse.de ([195.135.220.2]:23466 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S637743AbWJUSPA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 14:15:00 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Please pull x86 tree
+Date: Sat, 21 Oct 2006 20:14:48 +0200
+User-Agent: KMail/1.9.5
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200610211844.07051.ak@suse.de> <20061021175121.GF5211@rhun.haifa.ibm.com>
+In-Reply-To: <20061021175121.GF5211@rhun.haifa.ibm.com>
 MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-References: <4537EB67.8030208@drzeus.cx>	<Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> <adabqo5lip8.fsf@cisco.com>
-In-Reply-To: <adabqo5lip8.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610212014.48914.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->  > Other git maintainers may have other hints about how they work. Anybody?
->
-> I use StGIT (http://www.procode.org/stgit/) to have sort of a hybrid
-> git/quilt workflow.  My infiniband.git tree has the following main
-> branches (I also keep other topic branches around):
->   
+On Saturday 21 October 2006 19:51, Muli Ben-Yehuda wrote:
+> On Sat, Oct 21, 2006 at 06:44:06PM +0200, Andi Kleen wrote:
+> > 
+> > Linus, please pull from
+> > 
+> >   git://one.firstfloor.org/home/andi/git/linux-2.6 for-linus
+> > 
+> > These are all accumulated bug fixes for x86-64 and i386 and should
+> > be all pretty safe.
+> > 
+> > The only thing that isn't a clear bug fix is the dwarf2 unwinder
+> > speedup -- i'm including that on popular demand because it fixes
+> > a serious performance regression with lockdep.
+> 
+> It would've been good to get the Calgary bug-fix in this
+> series... next one, please?
 
-I've actually been using StGIT up until now. But I've started to feel a
-need for sharing my tree, and StGIT isn't really suited for that.
+You said it wasn't critical and I only sent critical issues
 
-How have you handled collaborative development on stuff that isn't ready
-for Linus yet? Simply sending patches back and forth?
-
-Rgds
-
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-
+-Andi

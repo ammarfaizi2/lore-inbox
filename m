@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993102AbWJUPjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993112AbWJUPuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993102AbWJUPjL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 11:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993107AbWJUPjL
+	id S2993112AbWJUPuK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 11:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993111AbWJUPuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 11:39:11 -0400
-Received: from stinky.trash.net ([213.144.137.162]:13813 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S2993102AbWJUPjK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 11:39:10 -0400
-Message-ID: <453A3F0C.3000406@trash.net>
-Date: Sat, 21 Oct 2006 17:38:52 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sat, 21 Oct 2006 11:50:09 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:63477 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S2993112AbWJUPuI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 11:50:08 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+Date: Sat, 21 Oct 2006 17:50:02 +0200
+User-Agent: KMail/1.9.4
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <4537818D.4060204@qumranet.com> <Pine.LNX.4.61.0610192212590.8142@yvahk01.tjqt.qr> <453877DB.4050704@qumranet.com>
+In-Reply-To: <453877DB.4050704@qumranet.com>
 MIME-Version: 1.0
-To: htejun@gmail.com
-CC: jeff@garzik.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "libata: fix non-uniform ports handling" breaks sata_sis secondary
- port
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610211750.02559.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch "libata: fix non-uniform ports handling" breaks the
-secondary SATA port with the sata_sis driver for me (no link
-detected). The reason seems to be that the SIS_FLAG_CFGSCR flag
-is only set on probe_ent->port_flags in sis_init_one(), but
-ata_port_init() uses ent->pinfo2->flags for initialization of
-the flags in struct ata_port for the secondary port.
+On Friday 20 October 2006 09:16, Avi Kivity wrote:
+> Jan Engelhardt wrote:
+> >> +#ifndef __user
+> >> +#define __user
+> >> +#endif
+> >>    
+> >
+> > SHRUG. You should include <linux/compiler.h> instead of doing that. (And
+> > on top, it may happen that compiler.h is automatically slurped in like
+> > config.h, someone else could answer that)
+> >  
+>
+> This is for userspace.  If there's a better solution I'll happily
+> incorporate it.
 
-lspci entry of the controller below, if more information is needed
-please ask.
+It should just work without this, when you do 'make headers_install'.
+See the top of scripts/Makefile.headersinst.
 
-
-0000:00:05.0 RAID bus controller: Silicon Integrated Systems [SiS] RAID
-bus controller 180 SATA/PATA  [SiS] (rev 01) (prog-if 85)
-        Subsystem: ASUSTeK Computer Inc.: Unknown device 810e
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128
-        Interrupt: pin A routed to IRQ 18
-        Region 0: I/O ports at eff0 [size=8]
-        Region 1: I/O ports at efe4 [size=4]
-        Region 2: I/O ports at efa8 [size=8]
-        Region 3: I/O ports at efe0 [size=4]
-        Region 4: I/O ports at ef90 [size=16]
-        Region 5: I/O ports at <unassigned>
+	Arnd <><

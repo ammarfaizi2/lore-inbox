@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWJUKzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992913AbWJULCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161198AbWJUKzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 06:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWJUKzm
+	id S2992913AbWJULCA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 07:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992925AbWJULCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 06:55:42 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49323 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161198AbWJUKzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 06:55:41 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Albert Cahalan" <acahalan@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Cal Peake" <cp@absolutedigital.net>, "Andi Kleen" <ak@suse.de>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [CFT] Grep to find users of sys_sysctl.
-References: <787b0d920610181123q1848693ajccf7a91567e54227@mail.gmail.com>
-	<Pine.LNX.4.64.0610181129090.3962@g5.osdl.org>
-	<Pine.LNX.4.64.0610181443170.7303@lancer.cnet.absolutedigital.net>
-	<20061018124415.e45ece22.akpm@osdl.org>
-	<m17iyw7w92.fsf_-_@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0610191218020.32647@lancer.cnet.absolutedigital.net>
-	<m1wt6v4gcx.fsf_-_@ebiederm.dsl.xmission.com>
-	<20061020075234.GA18645@flint.arm.linux.org.uk>
-	<m1wt6v2gts.fsf@ebiederm.dsl.xmission.com>
-	<787b0d920610200818t1950d17y10a41957fd747c63@mail.gmail.com>
-Date: Sat, 21 Oct 2006 04:53:47 -0600
-In-Reply-To: <787b0d920610200818t1950d17y10a41957fd747c63@mail.gmail.com>
-	(Albert Cahalan's message of "Fri, 20 Oct 2006 11:18:56 -0400")
-Message-ID: <m1ejt22b44.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 21 Oct 2006 07:02:00 -0400
+Received: from host106-7.junet.se ([193.11.106.7]:971 "EHLO smtp.azoff.se")
+	by vger.kernel.org with ESMTP id S2992913AbWJULB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 07:01:59 -0400
+Message-ID: <4539FE18.8090205@azoff.se>
+Date: Sat, 21 Oct 2006 13:01:44 +0200
+From: =?UTF-8?B?VG9yYmrDtnJuIFN2ZW5zc29u?= <lkml@azoff.se>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060920)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Willy Tarreau <w@1wt.eu>
+Cc: linux-kernel@vger.kernel.org, grsecurity@grsecurity.net
+Subject: Re: ext3 oops with 2.4.33.3-grsec
+References: <45379EBE.4050906@azoff.se> <20061021071138.GA1709@1wt.eu>
+In-Reply-To: <20061021071138.GA1709@1wt.eu>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert Cahalan" <acahalan@gmail.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On 10/20/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Jakub Jelinek <jakub@redhat.com> writes:
->>
->> > This assumes the binaries and/or libraries are not stripped, and they
->> > usually are stripped.  So, it is better to run something like:
->> > find / -type f -perm /111 | while read f; do readelf -Ws $f 2>/dev/null |
-> fgrep
->> > -q sysctl@GLIBC && echo $f; done
->>
->> Russell King <rmk+lkml@arm.linux.org.uk> writes:
->> > glibc on ARM _requires_ sys_sysctl for userspace ioperm, inb, outb etc
->> > emulation.
->>
->>
->> It looks like we have a small but interesting set of sysctl users.
->>
->> The list of files below is a composite from a number of systems I have
->> access to, and the reply I have gotten so far.  I'm still hoping to hear
->> from other people so I can add some other users of sysctl to my list.
->
-> So does Linux now only support GLIBC apps? That's what your
-> grep seems to imply. At least one of the free Pascal compilers
-> does not use GLIBC. You won't find a GLIBC sysctl symbol in
-> any of the alternate C libraries (there are many) or even in libc5.
->
-> Running your grep on developer machines is highly biased
-> against legacy business apps.
+Hello!
 
-Show me a better way to prove that sysctl is used, and to
-find sysctl users.
+Willy Tarreau wrote:
+> I see nothing between 2.4.33 and 2.4.33.3 which affects ext3 in any way.
+> The "ud2a" you see in the decoded oops is a call to 'BUG()'. The only
+> one I find in ext3 is in ext3_write_super() which is not called from
+> any function in your trace. I do not notice any other relevant ones in
+> inline functions included from other files. Could you check if the
+> grsec patch you use changes anything in fs/ext3/super.c ? It will make
+> the debugging easier.
 
-Somehow we got this idea into our heads that sysctl doesn't
-matter, after we got that idea into our heads people have figured
-that breaking the ABI was a don't care case.  That has got to stop.
-Either by deleting the syscall or by deciding to support it.
+No, nothing. I have put the grsec-patch I used on my httpd[0]. Could I
+have got my journal corupted in someway during the random reboots? Could
+it help to recreate a journal and if so, how do I do that?
 
-I am attempting to take that conjecture and find the truth of it.
-At first approximation the conjecture appeared true.  You compile
-out sysctl and nothing obviously breaks.
+[0]
+http://www.azoff.se/error/debian/oops/grsecurity-2.1.9-2.4.33.3-200609031224.patch.gz
 
-Please feel free to find other means to list binaries, that use
-sysctl.  Showing that there is a diversity of users, and showing that
-those users use sysctl in a variety of ways is the best way to get
-all of the developers to understand that sysctl isn't something
-that is unused and doesn't matter.
 
-Arguing about ABIs and user entitlements because of those ABI doesn't
-put the case anywhere near as strongly as empirical evidence does.
-We support and maintain ABI's because we have users, not because it is
-a good in and of itself.  And our ABI currently has a mechanism to
-report sysctl value is not support in this kernel, and system call is
-not supported in this kernel so unless I reuse the syscall number or
-the sysctl entry number I am not breaking the ABI.
+- --
+> Torbjörn Svensson <lkml (at) azoff (dot) se>
+> Please CC me as I am not subscribed to the list!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-I think I have found enough users to show that sysctl has users and
-most likely needs to be kept.  But the list I have is currently very
-small, and would benefit from a larger list of users if we can find
-them.
-
-Eric
+iD8DBQFFOf4TeY7jmtvbDP0RAuoiAKCbX3uoh37CM5+PYE8pBXcnYA6hUgCfZnB3
+guUbELQofgZwRrawrbrsCKE=
+=WJeZ
+-----END PGP SIGNATURE-----

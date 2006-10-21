@@ -1,238 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992877AbWJUHQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992862AbWJUHR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992877AbWJUHQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992871AbWJUHOy
+	id S2992862AbWJUHR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 03:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992874AbWJUHOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:14:54 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:28551 "EHLO
+	Sat, 21 Oct 2006 03:14:47 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:29575 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S2992865AbWJUHOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:14:39 -0400
+	id S2992867AbWJUHOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 03:14:40 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 15 of 23] mm: change uses of f_{dentry,vfsmnt} to use f_path
-Message-Id: <bf54fa27ee54d7c87316.1161411460@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 10 of 23] nfsd: change uses of f_{dentry, vfsmnt} to use f_path
+Message-Id: <9832951bba5604a73a84.1161411455@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu>
-Date: Sat, 21 Oct 2006 02:17:40 -0400
+Date: Sat, 21 Oct 2006 02:17:35 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@infradead.org
+       viro@ftp.linux.org.uk, hch@infradead.org, neilb@cse.unsw.edu.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
-in linux/mm/.
+in the nfs server code.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 ---
 
-6 files changed, 21 insertions(+), 21 deletions(-)
-mm/fadvise.c     |    2 +-
-mm/filemap.c     |    2 +-
-mm/filemap_xip.c |    2 +-
-mm/mmap.c        |   10 +++++-----
-mm/shmem.c       |   20 ++++++++++----------
-mm/swapfile.c    |    6 +++---
+3 files changed, 14 insertions(+), 14 deletions(-)
+fs/nfsd/nfs4state.c |   10 +++++-----
+fs/nfsd/nfsctl.c    |    2 +-
+fs/nfsd/vfs.c       |   16 ++++++++--------
 
-diff --git a/mm/fadvise.c b/mm/fadvise.c
---- a/mm/fadvise.c
-+++ b/mm/fadvise.c
-@@ -38,7 +38,7 @@ asmlinkage long sys_fadvise64_64(int fd,
- 	if (!file)
- 		return -EBADF;
- 
--	if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
-+	if (S_ISFIFO(file->f_path.dentry->d_inode->i_mode)) {
- 		ret = -ESPIPE;
- 		goto out;
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -1310,7 +1310,7 @@ nfs4_file_downgrade(struct file *filp, u
+ nfs4_file_downgrade(struct file *filp, unsigned int share_access)
+ {
+ 	if (share_access & NFS4_SHARE_ACCESS_WRITE) {
+-		put_write_access(filp->f_dentry->d_inode);
++		put_write_access(filp->f_path.dentry->d_inode);
+ 		filp->f_mode = (filp->f_mode | FMODE_READ) & ~FMODE_WRITE;
  	}
-diff --git a/mm/filemap.c b/mm/filemap.c
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2267,7 +2267,7 @@ __generic_file_aio_write_nolock(struct k
- 	if (count == 0)
- 		goto out;
- 
--	err = remove_suid(file->f_dentry);
-+	err = remove_suid(file->f_path.dentry);
- 	if (err)
- 		goto out;
- 
-diff --git a/mm/filemap_xip.c b/mm/filemap_xip.c
---- a/mm/filemap_xip.c
-+++ b/mm/filemap_xip.c
-@@ -379,7 +379,7 @@ xip_file_write(struct file *filp, const 
- 	if (count == 0)
- 		goto out_backing;
- 
--	ret = remove_suid(filp->f_dentry);
-+	ret = remove_suid(filp->f_path.dentry);
- 	if (ret)
- 		goto out_backing;
- 
-diff --git a/mm/mmap.c b/mm/mmap.c
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -188,7 +188,7 @@ static void __remove_shared_vm_struct(st
- 		struct file *file, struct address_space *mapping)
- {
- 	if (vma->vm_flags & VM_DENYWRITE)
--		atomic_inc(&file->f_dentry->d_inode->i_writecount);
-+		atomic_inc(&file->f_path.dentry->d_inode->i_writecount);
- 	if (vma->vm_flags & VM_SHARED)
- 		mapping->i_mmap_writable--;
- 
-@@ -399,7 +399,7 @@ static inline void __vma_link_file(struc
- 		struct address_space *mapping = file->f_mapping;
- 
- 		if (vma->vm_flags & VM_DENYWRITE)
--			atomic_dec(&file->f_dentry->d_inode->i_writecount);
-+			atomic_dec(&file->f_path.dentry->d_inode->i_writecount);
- 		if (vma->vm_flags & VM_SHARED)
- 			mapping->i_mmap_writable++;
- 
-@@ -907,7 +907,7 @@ unsigned long do_mmap_pgoff(struct file 
- 	 *  mounted, in which case we dont add PROT_EXEC.)
- 	 */
- 	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
--		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
-+		if (!(file && (file->f_path.mnt->mnt_flags & MNT_NOEXEC)))
- 			prot |= PROT_EXEC;
- 
- 	if (!len)
-@@ -960,7 +960,7 @@ unsigned long do_mmap_pgoff(struct file 
- 			return -EAGAIN;
- 	}
- 
--	inode = file ? file->f_dentry->d_inode : NULL;
-+	inode = file ? file->f_path.dentry->d_inode : NULL;
- 
- 	if (file) {
- 		switch (flags & MAP_TYPE) {
-@@ -989,7 +989,7 @@ unsigned long do_mmap_pgoff(struct file 
- 		case MAP_PRIVATE:
- 			if (!(file->f_mode & FMODE_READ))
- 				return -EACCES;
--			if (file->f_vfsmnt->mnt_flags & MNT_NOEXEC) {
-+			if (file->f_path.mnt->mnt_flags & MNT_NOEXEC) {
- 				if (vm_flags & VM_EXEC)
- 					return -EPERM;
- 				vm_flags &= ~VM_MAYEXEC;
-diff --git a/mm/shmem.c b/mm/shmem.c
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -1225,7 +1225,7 @@ failed:
- 
- struct page *shmem_nopage(struct vm_area_struct *vma, unsigned long address, int *type)
- {
--	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-+	struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
- 	struct page *page = NULL;
- 	unsigned long idx;
- 	int error;
-@@ -1248,7 +1248,7 @@ static int shmem_populate(struct vm_area
- 	unsigned long addr, unsigned long len,
- 	pgprot_t prot, unsigned long pgoff, int nonblock)
- {
--	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-+	struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
- 	struct mm_struct *mm = vma->vm_mm;
- 	enum sgp_type sgp = nonblock? SGP_QUICK: SGP_CACHE;
- 	unsigned long size;
-@@ -1293,14 +1293,14 @@ static int shmem_populate(struct vm_area
- #ifdef CONFIG_NUMA
- int shmem_set_policy(struct vm_area_struct *vma, struct mempolicy *new)
- {
--	struct inode *i = vma->vm_file->f_dentry->d_inode;
-+	struct inode *i = vma->vm_file->f_path.dentry->d_inode;
- 	return mpol_set_shared_policy(&SHMEM_I(i)->policy, vma, new);
  }
- 
- struct mempolicy *
- shmem_get_policy(struct vm_area_struct *vma, unsigned long addr)
+@@ -1623,7 +1623,7 @@ nfs4_upgrade_open(struct svc_rqst *rqstp
+ nfs4_upgrade_open(struct svc_rqst *rqstp, struct svc_fh *cur_fh, struct nfs4_stateid *stp, struct nfsd4_open *open)
  {
--	struct inode *i = vma->vm_file->f_dentry->d_inode;
-+	struct inode *i = vma->vm_file->f_path.dentry->d_inode;
- 	unsigned long idx;
- 
- 	idx = ((addr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
-@@ -1310,7 +1310,7 @@ shmem_get_policy(struct vm_area_struct *
- 
- int shmem_lock(struct file *file, int lock, struct user_struct *user)
- {
--	struct inode *inode = file->f_dentry->d_inode;
-+	struct inode *inode = file->f_path.dentry->d_inode;
- 	struct shmem_inode_info *info = SHMEM_I(inode);
- 	int retval = -ENOMEM;
- 
-@@ -1422,7 +1422,7 @@ static ssize_t
- static ssize_t
- shmem_file_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
- {
--	struct inode	*inode = file->f_dentry->d_inode;
-+	struct inode	*inode = file->f_path.dentry->d_inode;
- 	loff_t		pos;
- 	unsigned long	written;
- 	ssize_t		err;
-@@ -1442,7 +1442,7 @@ shmem_file_write(struct file *file, cons
- 	if (err || !count)
- 		goto out;
- 
--	err = remove_suid(file->f_dentry);
-+	err = remove_suid(file->f_path.dentry);
- 	if (err)
- 		goto out;
- 
-@@ -1524,7 +1524,7 @@ out:
- 
- static void do_shmem_file_read(struct file *filp, loff_t *ppos, read_descriptor_t *desc, read_actor_t actor)
- {
+ 	struct file *filp = stp->st_vfs_file;
 -	struct inode *inode = filp->f_dentry->d_inode;
 +	struct inode *inode = filp->f_path.dentry->d_inode;
- 	struct address_space *mapping = inode->i_mapping;
- 	unsigned long index, offset;
+ 	unsigned int share_access, new_writer;
+ 	__be32 status;
  
-@@ -2493,8 +2493,8 @@ struct file *shmem_file_setup(char *name
- 	d_instantiate(dentry, inode);
- 	inode->i_size = size;
- 	inode->i_nlink = 0;	/* It is unlinked */
--	file->f_vfsmnt = mntget(shm_mnt);
--	file->f_dentry = dentry;
-+	file->f_path.mnt = mntget(shm_mnt);
-+	file->f_path.dentry = dentry;
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-diff --git a/mm/swapfile.c b/mm/swapfile.c
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -447,7 +447,7 @@ int swap_type_of(dev_t device)
- 			spin_unlock(&swap_lock);
- 			return i;
- 		}
--		inode = swap_info[i].swap_file->f_dentry->d_inode;
-+		inode = swap_info[i].swap_file->f_path.dentry->d_inode;
- 		if (S_ISBLK(inode->i_mode) &&
- 		    device == MKDEV(imajor(inode), iminor(inode))) {
- 			spin_unlock(&swap_lock);
-@@ -1314,10 +1314,10 @@ static int swap_show(struct seq_file *sw
- 		seq_puts(swap, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
+@@ -1966,7 +1966,7 @@ static inline int
+ static inline int
+ nfs4_check_fh(struct svc_fh *fhp, struct nfs4_stateid *stp)
+ {
+-	return fhp->fh_dentry->d_inode != stp->st_vfs_file->f_dentry->d_inode;
++	return fhp->fh_dentry->d_inode != stp->st_vfs_file->f_path.dentry->d_inode;
+ }
  
- 	file = ptr->swap_file;
--	len = seq_path(swap, file->f_vfsmnt, file->f_dentry, " \t\n\\");
-+	len = seq_path(swap, file->f_path.mnt, file->f_path.dentry, " \t\n\\");
- 	seq_printf(swap, "%*s%s\t%u\t%u\t%d\n",
- 		       len < 40 ? 40 - len : 1, " ",
--		       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
-+		       S_ISBLK(file->f_path.dentry->d_inode->i_mode) ?
- 				"partition" : "file\t",
- 		       ptr->pages << (PAGE_SHIFT - 10),
- 		       ptr->inuse_pages << (PAGE_SHIFT - 10),
+ static int
+@@ -2863,7 +2863,7 @@ nfsd4_lockt(struct svc_rqst *rqstp, stru
+ 	 * only the dentry:inode set.
+ 	 */
+ 	memset(&file, 0, sizeof (struct file));
+-	file.f_dentry = current_fh->fh_dentry;
++	file.f_path.dentry = current_fh->fh_dentry;
+ 
+ 	status = nfs_ok;
+ 	if (posix_test_lock(&file, &file_lock, &conflock)) {
+@@ -2953,7 +2953,7 @@ check_for_locks(struct file *filp, struc
+ check_for_locks(struct file *filp, struct nfs4_stateowner *lowner)
+ {
+ 	struct file_lock **flpp;
+-	struct inode *inode = filp->f_dentry->d_inode;
++	struct inode *inode = filp->f_path.dentry->d_inode;
+ 	int status = 0;
+ 
+ 	lock_kernel();
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -111,7 +111,7 @@ static ssize_t (*write_op[])(struct file
+ 
+ static ssize_t nfsctl_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
+ {
+-	ino_t ino =  file->f_dentry->d_inode->i_ino;
++	ino_t ino =  file->f_path.dentry->d_inode->i_ino;
+ 	char *data;
+ 	ssize_t rv;
+ 
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -736,10 +736,10 @@ nfsd_sync(struct file *filp)
+ nfsd_sync(struct file *filp)
+ {
+         int err;
+-	struct inode *inode = filp->f_dentry->d_inode;
+-	dprintk("nfsd: sync file %s\n", filp->f_dentry->d_name.name);
++	struct inode *inode = filp->f_path.dentry->d_inode;
++	dprintk("nfsd: sync file %s\n", filp->f_path.dentry->d_name.name);
+ 	mutex_lock(&inode->i_mutex);
+-	err=nfsd_dosync(filp, filp->f_dentry, filp->f_op);
++	err=nfsd_dosync(filp, filp->f_path.dentry, filp->f_op);
+ 	mutex_unlock(&inode->i_mutex);
+ 
+ 	return err;
+@@ -845,7 +845,7 @@ nfsd_vfs_read(struct svc_rqst *rqstp, st
+ 	int		host_err;
+ 
+ 	err = nfserr_perm;
+-	inode = file->f_dentry->d_inode;
++	inode = file->f_path.dentry->d_inode;
+ #ifdef MSNFS
+ 	if ((fhp->fh_export->ex_flags & NFSEXP_MSNFS) &&
+ 		(!lock_may_read(inode, offset, *count)))
+@@ -883,7 +883,7 @@ nfsd_vfs_read(struct svc_rqst *rqstp, st
+ 		nfsdstats.io_read += host_err;
+ 		*count = host_err;
+ 		err = 0;
+-		fsnotify_access(file->f_dentry);
++		fsnotify_access(file->f_path.dentry);
+ 	} else 
+ 		err = nfserrno(host_err);
+ out:
+@@ -917,11 +917,11 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	err = nfserr_perm;
+ 
+ 	if ((fhp->fh_export->ex_flags & NFSEXP_MSNFS) &&
+-		(!lock_may_write(file->f_dentry->d_inode, offset, cnt)))
++		(!lock_may_write(file->f_path.dentry->d_inode, offset, cnt)))
+ 		goto out;
+ #endif
+ 
+-	dentry = file->f_dentry;
++	dentry = file->f_path.dentry;
+ 	inode = dentry->d_inode;
+ 	exp   = fhp->fh_export;
+ 
+@@ -950,7 +950,7 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	set_fs(oldfs);
+ 	if (host_err >= 0) {
+ 		nfsdstats.io_write += cnt;
+-		fsnotify_modify(file->f_dentry);
++		fsnotify_modify(file->f_path.dentry);
+ 	}
+ 
+ 	/* clear setuid/setgid flag after write */
 
 

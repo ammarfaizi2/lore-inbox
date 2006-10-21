@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993152AbWJUQvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161499AbWJUQwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993152AbWJUQvr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 12:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993151AbWJUQvr
+	id S1161499AbWJUQwm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 12:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993143AbWJUQv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 12:51:47 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:4792 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S2993150AbWJUQvl (ORCPT
+	Sat, 21 Oct 2006 12:51:59 -0400
+Received: from ns2.suse.de ([195.135.220.15]:696 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S2993133AbWJUQvd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 12:51:41 -0400
+	Sat, 21 Oct 2006 12:51:33 -0400
 From: Andi Kleen <ak@suse.de>
 References: <20061021 651.356252000@suse.de>
 In-Reply-To: <20061021 651.356252000@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, patches@x86-64.org,
+To: "Jan Beulich" <jbeulich@novell.com>, patches@x86-64.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] [11/19] i386: Fix fake return address
-Message-Id: <20061021165131.4FDD813C4D@wotan.suse.de>
-Date: Sat, 21 Oct 2006 18:51:31 +0200 (CEST)
+Subject: [PATCH] [12/19] x86_64: Fix ENOSYS in system call tracing
+Message-Id: <20061021165132.5F1B713CB4@wotan.suse.de>
+Date: Sat, 21 Oct 2006 18:51:32 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-The fake return address was being set to __KERNEL_PDA, rather than 0.
-Push it earlier while %eax still equals 0.
+From: "Jan Beulich" <jbeulich@novell.com>
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+This patch:
+
+- out of range system calls failing to return -ENOSYS under
+  system call tracing
+
+[AK: split out from another patch by Jan as separate bugfix]
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 Signed-off-by: Andi Kleen <ak@suse.de>
-Cc: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>
 
 ---
- arch/i386/kernel/head.S |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ arch/x86_64/kernel/entry.S |    2 ++
+ 1 files changed, 2 insertions(+)
 
-Index: linux/arch/i386/kernel/head.S
+Index: linux/arch/x86_64/kernel/entry.S
 ===================================================================
---- linux.orig/arch/i386/kernel/head.S
-+++ linux/arch/i386/kernel/head.S
-@@ -317,7 +317,7 @@ is386:	movl $2,%ecx		# set MP
- 	movl %eax,%gs
- 	lldt %ax
- 	cld			# gcc2 wants the direction flag cleared at all times
--	pushl %eax		# fake return address
-+	pushl $0		# fake return address for unwinder
- #ifdef CONFIG_SMP
- 	movb ready, %cl
- 	movb $1, ready
+--- linux.orig/arch/x86_64/kernel/entry.S
++++ linux/arch/x86_64/kernel/entry.S
+@@ -315,6 +315,8 @@ tracesys:			 
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+ 	cmpq $__NR_syscall_max,%rax
++	movq $-ENOSYS,%rcx
++	cmova %rcx,%rax
+ 	ja  1f
+ 	movq %r10,%rcx	/* fixup for C */
+ 	call *sys_call_table(,%rax,8)

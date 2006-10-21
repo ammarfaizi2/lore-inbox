@@ -1,59 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWJUXl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJUX6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161160AbWJUXl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 19:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161500AbWJUXl7
+	id S1750810AbWJUX6M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 19:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWJUX6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 19:41:59 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:15586 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1161160AbWJUXl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 19:41:58 -0400
-Date: Sun, 22 Oct 2006 01:41:07 +0200
-To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Michael Chan <mchan@broadcom.com>
-Subject: Re: tg3 kernel bug in 2.6.18-mm3 and 2.6.19-rc2-mm2
-Message-ID: <20061021234107.GA12918@gamma.logic.tuwien.ac.at>
-References: <20061021132239.GA29288@gamma.logic.tuwien.ac.at> <20061021.123814.106436476.davem@davemloft.net> <20061021132239.GA29288@gamma.logic.tuwien.ac.at> <20061021100207.fdc240e0.akpm@osdl.org> <200610211918.30616.rjw@sisk.pl> <20061021132239.GA29288@gamma.logic.tuwien.ac.at> <20061021100207.fdc240e0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Sat, 21 Oct 2006 19:58:12 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:62935 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750810AbWJUX6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 19:58:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=lNwTyZHytrtLHpemgdbG+p1fySbd5Sr2Gy7Ro96TCaMdp1Bz38IU75s3BaNSU54KvwWe1Wt1RQ0qDuKZVh8WWCbWTs91TV/odigE28uWnhJyyY8SbR3Y4Dbjx4iVc0FDbpMfFEb1xkNK3wksEgzuA9hbM3UauoAMUU3868phld4=
+Message-ID: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
+Date: Sun, 22 Oct 2006 01:57:36 +0200
+From: "Linux Portal" <linportal@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: First benchmarks of the ext4 file system
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061021.123814.106436476.davem@davemloft.net> <200610211918.30616.rjw@sisk.pl> <20061021100207.fdc240e0.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, hi all!
+ext4 is 20 percent faster writer than ext3 or reiser4, probably thanks
+to extents and delayed allocation. On other tests it is either
+slightly faster or slightly slower. reiser4 comes as a nice surprise,
+winning few benchmarks. Both are very stable, no errors during
+testing.
 
-On Sam, 21 Okt 2006, Andrew Morton wrote:
-> Can you test 2.6.19-rc2 plus the below?
-
-2.6.19-rc2	works
-2.6.19-rc2+patch does not work
-
-So it is this patch.
-
-hw:
-Acer TravelMate 3012WMi
-03:00.0 Ethernet controller: Broadcom Corporation NetLink BCM5789 Gigabit Ethernet PCI Express (rev 11)
-
-If you need dmesg, .config, something else, no problem.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining@logic.at>                    Università di Siena
-Debian Developer <preining@debian.org>                         Debian TeX Group
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-DITHERINGTON (n)
-Sudden access to panic experienced by one who realises that he is
-being drawn inexorably into a clabby (q.v.) conversion, i.e. one he
-has no hope of enjoying, benefiting from or understanding.
-			--- Douglas Adams, The Meaning of Liff
+http://linux.inet.hr/first_benchmarks_of_the_ext4_file_system.html

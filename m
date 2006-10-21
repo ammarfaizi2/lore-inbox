@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992743AbWJUAGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992745AbWJUALg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992743AbWJUAGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 20:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992527AbWJUAGJ
+	id S2992745AbWJUALg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 20:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992747AbWJUALf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 20:06:09 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:34764 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1030355AbWJUAGF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 20:06:05 -0400
-Date: Sat, 21 Oct 2006 01:06:09 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-Message-ID: <20061021000609.GA32701@linux-mips.org>
-References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020214916.GA27810@linux-mips.org> <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org> <20061020.152247.111203913.davem@davemloft.net> <20061020225118.GA30965@linux-mips.org> <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Oct 2006 20:11:35 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:63325 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S2992745AbWJUALf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 20:11:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=LTfx22wuNmTEqt8FW9Wcj1elWZaTzaHHnLfRFFIy5NAvJ4N0Bpqt9YWvUoaYDj+ALy3/FclPqyZFqNy2P/662fFOxij2GNxSWij8YZ1tDsZpJe1PTvJvcqhfbl1fkTh5WkH9q1feiJvIhE6Kr3GMngOqa8OYd+VYSZMqCuz4G9Q=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [PATCH 04/10] uml: make execvp safe for our usage
+Date: Sat, 21 Oct 2006 02:11:28 +0200
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <20061017211943.26445.75719.stgit@americanbeauty.home.lan> <20061017212711.26445.79770.stgit@americanbeauty.home.lan> <20061018183707.GB6566@ccure.user-mode-linux.org>
+In-Reply-To: <20061018183707.GB6566@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200610210211.28502.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 04:28:37PM -0700, Linus Torvalds wrote:
+On Wednesday 18 October 2006 20:37, Jeff Dike wrote:
+> On Tue, Oct 17, 2006 at 11:27:11PM +0200, Paolo 'Blaisorblade' Giarrusso 
+wrote:
+> > Reimplement execvp for our purposes - after we call fork() it is
+> > fundamentally unsafe to use the kernel allocator - current is not valid
+> > there.
+>
+> This is horriby ugly.
 
-> > > My understanding is that this works because in Ralf's original patch
-> > > (which is the context in which he is removing the flush_cache_mm()
-> > > call), he uses kmap()/kunmap() to map the page(s) being accessed at a
-> > > kernel virtual address which will fall into the same cache color as
-> > > the user virtual address --> no alias problems.
-> > >
-> > > Since he does this for every page touched on the kernel side during
-> > > dup_mmap(), the existing flush_cache_mm() call in dup_mmap() does in
-> > > fact become redundant.
-> > 
-> > Correct.
-> > 
-> > It means no cache flush operation to deal with aliases at all left in
-> > fork and COW code.
-> 
-> Umm. That would seem to only happen to work for a direct-mapped virtually 
-> indexed cache where the index is taken purely from the virtual address, 
-> and there are no "process context" bits in the virtually indexed D$.
+Detail why. The code of execvp()? Passing in the buffer?
+I'm not saying it's the brightest code around here, but it's ok for me.
 
-No MIPS processor has something like that.  See below.
+> Can we instead do something different like 
+> check out the paths of helpers at early boot, before the kernel is
+> running, save them, and simply execve them later?
+I initially thought to design a two-steps API with a "which" operation (where 
+memory allocation was used) to call later execvp(); when I saw the glibc 
+implementation (it allocates one single fixed-size buffer) I saw it was 
+simpler this way.
 
-> The moment there are process context bits involved, afaik you absolutely 
-> _need_ to flush, because otherwise the other process will never pick up 
-> the dirty state (which it would need to reload from memory).
+Additionally, error handling cannot be done properly without trying an exec - 
+I think it is also ok to drop this execvp semantic, so that if the first 
+binary found in path is marked executable but has the wrong binary format the 
+whole thing just does not start.
 
-Correct.
+The current implementation already diverges from glibc - it never calls 
+directly the shell passing a script, because IMHO execve() will care for that 
+(and testing confirmed this IIRC).
 
-> That said, maybe nobody does that. Virtual caches are a total braindamage 
-> in the first place, so hopefully they have limited use.
+I'd not do that at boot, but just before the fork()+execve() - it is 
+conceivable that a given user will install a support binary after booting 
+UML.
 
-On MIPS we never had pure virtual caches.  The major variants in existence
-are:
+I must say that I've seen files without the shebang working ok (if having the 
+executable bit set) when executed from the shell, and I've had the doubt 
+execvp() would handle that.
 
- o D-cache PIPT, I-cache PIPT
- o PIVT (no typo!)
-   Only the R6000 has this and it's not supported by Linux.
- o D-cache VIPT, I-cache VIPT
-   This is by far the most common on any MIPS designed since '91.
-   A variant of these caches has hardware logic to detect cache aliases and
-   fix them automatically and therefore is equivalent to PIPT even though
-   they are not implemented as PIPT.  And obviously the alias replay of the
-   pipe will cost a few cycles.  The R10000 family of SGI belongs into this
-   class and the 24K/34K family of synthesizable cores by MIPS Technologies
-   have this as a synthesis option.
-   Another variant throws virtual coherency exceptions as I've explained in
-   another thread.
- o D-cache PIPT, I-cache VIVT with additional address space tags.
- o Cacheless.  Not usually running Linux but heck, it's working anyway.
+> At that point, something like running "which foo" would be fine by me.
 
-Be sure I'm sending a CPU designers a strong message about aliases.  And I
-think they're slowly getting the message that kernel hackers like to poke
-needles into voodoo dolls for aliases ;-)
-
-  Ralf
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

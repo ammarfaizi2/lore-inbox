@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992908AbWJUN3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993011AbWJUNhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992908AbWJUN3y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 09:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992910AbWJUN3y
+	id S2993011AbWJUNhT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 09:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993014AbWJUNhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 09:29:54 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:23556 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S2992908AbWJUN3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 09:29:53 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Damien Wyart <damien.wyart@free.fr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm2 : empty files on vfat file system
-References: <20061021104454.GA1996@localhost.localdomain>
-	<87lkn9x0ly.fsf@duaron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 21 Oct 2006 22:29:48 +0900
-In-Reply-To: <87lkn9x0ly.fsf@duaron.myhome.or.jp> (OGAWA Hirofumi's message of "Sat\, 21 Oct 2006 22\:24\:57 +0900")
-Message-ID: <87hcxxx0dv.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Oct 2006 09:37:19 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:62678 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S2993011AbWJUNhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 09:37:17 -0400
+Subject: Re: [PATCH 1/7] KVM: userspace interface
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <453781F9.3050703@qumranet.com>
+References: <4537818D.4060204@qumranet.com>  <453781F9.3050703@qumranet.com>
+Content-Type: text/plain
+Date: Sat, 21 Oct 2006 09:37:09 -0400
+Message-Id: <1161437829.16868.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+On Thu, 2006-10-19 at 15:47 +0200, Avi Kivity wrote:
+> This patch defines a bunch of ioctl()s on /dev/kvm.  The ioctl()s allow
+> adding
+> memory to a virtual machine, adding a virtual cpu to a virtual machine (at
+> most one at this time), transferring control to the virtual cpu, and
+> querying
+> about guest pages changed by the virtual machine.
+> 
+> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
+> Signed-off-by: Avi Kivity <avi@qumranet.com>
+> 
+> Index: linux-2.6/include/linux/kvm.h
+> ===================================================================
+> --- /dev/null
+> +++ linux-2.6/include/linux/kvm.h
 
-> Damien Wyart <damien.wyart@free.fr> writes:
->
->> I have noticed something strange (and bad :) since using 2.6.19-rc2-mm2
->> (the problem is NOT present on 2.6.19-rc2-mm1 ; do not know for
->> mainline, I have not been able to test yet, but I think there have not
->> been recent changes in this area) : writing a file to a vfat
->> fs (fat 32) writes it, but with size 0 and no content. All this is
->> silent : no error message, nothing in the logs. After several attempts,
->> I checked the fs with fsck.vfat and it reported errors about some of the
->> files and told it was truncating them to size 0 (but their displayed
->> size was already 0, btw).
->
-> diff -puN fs/fat/inode.c~fs-prepare_write-fixes fs/fat/inode.c
-> --- a/fs/fat/inode.c~fs-prepare_write-fixes
-> +++ a/fs/fat/inode.c
-> @@ -150,7 +150,11 @@ static int fat_commit_write(struct file 
->  			    unsigned from, unsigned to)
->  {
->  	struct inode *inode = page->mapping->host;
-> -	int err = generic_commit_write(file, page, from, to);
-> +	int err;
-> +	if (to - from > 0)
-> +		return 0;
+[...]
+
 > +
-> +	err = generic_commit_write(file, page, from, to);
->  	if (!err && !(MSDOS_I(inode)->i_attrs & ATTR_ARCH)) {
->  		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
->  		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
->
-> This change does't update ->i_size. Could you just delete, and test it?
-> Anyway, this seems wrong even if it's "if ((to - from) == 0)".  The zero
-> range is valid for cont_prepare_write()...
+> +/* for KVM_GET_REGS and KVM_SET_REGS */
+> +struct kvm_regs {
+> +    /* in */
+> +    __u32 vcpu;
+> +    __u32 padding;
+> +
+> +    /* out (KVM_GET_REGS) / in (KVM_SET_REGS) */
+> +    __u64 rax, rbx, rcx, rdx;
+> +    __u64 rsi, rdi, rsp, rbp;
+> +    __u64 r8,  r9,  r10, r11;
+> +    __u64 r12, r13, r14, r15;
+> +    __u64 rip, rflags;
+> +};
+> +
 
-s/cont_prepare_write/generic_cont_expand/.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I know this is for userspace too, but still. Shouldn't this be in
+include/asm-x86_64 and not include/linux.
+
+-- Steve
+
+

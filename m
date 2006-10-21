@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993131AbWJUQrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993134AbWJUQv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993131AbWJUQrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 12:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993132AbWJUQrR
+	id S2993134AbWJUQv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 12:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993138AbWJUQv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 12:47:17 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:36999 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S2993131AbWJUQrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 12:47:16 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Git training wheels for the pimple faced maintainer
-X-Message-Flag: Warning: May contain useful information
-References: <4537EB67.8030208@drzeus.cx>
-	<Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 21 Oct 2006 09:47:15 -0700
-In-Reply-To: <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org> (Linus Torvalds's message of "Thu, 19 Oct 2006 16:44:41 -0700 (PDT)")
-Message-ID: <adabqo5lip8.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Oct 2006 16:47:16.0076 (UTC) FILETIME=[90A75AC0:01C6F530]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Sat, 21 Oct 2006 12:51:26 -0400
+Received: from ns.suse.de ([195.135.220.2]:39580 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S2993134AbWJUQvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 12:51:25 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20061021 651.356252000@suse.de>
+In-Reply-To: <20061021 651.356252000@suse.de>
+To: keith mannthey <kmannth@us.ibm.com>, patches@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] [3/19] x86_64: x86_64 hot-add memory srat.c fix
+Message-Id: <20061021165122.C8F9213C4D@wotan.suse.de>
+Date: Sat, 21 Oct 2006 18:51:22 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Other git maintainers may have other hints about how they work. Anybody?
 
-I use StGIT (http://www.procode.org/stgit/) to have sort of a hybrid
-git/quilt workflow.  My infiniband.git tree has the following main
-branches (I also keep other topic branches around):
+From: keith mannthey <kmannth@us.ibm.com>
 
-  for-2.6.19
-  for-2.6.20
-  for-linus
-  for-mm
-  master
+  This patch corrects the logic used in srat.c to figure out what
+parsing what action to take when registering hot-add areas.  Hot-add
+areas should only be added to the node information for the
+MEMORY_HOTPLUG_RESERVE case.  When booting MEMORY_HOTPLUG_SPARSE hot-add
+areas on everything but the last node are getting include in the node
+data and during kernel boot the pages are setup then the kernel dies
+when the pages are used. This patch fixes this issue.  
 
-I use master to track Linus's tree.  for-2.6.19 and for-2.6.20 are
-StGIT branches that have patches queued up for 2.6.19 and 2.6.20
-(duh).  The advantages of StGIT are:
+Signed-off-by: Keith Mannthey <kmannth@us.ibm.com> 
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-  - I can do "stg pull" to do the equivalent of "git rebase" in a
-    slightly cleaner way.
-  - If I queue a patch and then someone later says "oops, that patch
-    needs this fix," I can go back and revise the patch easily.  This
-    means I avoid cluttering the main kernel history with "change X"
-    followed by "fix for change X" followed by "update change X"
-  - StGIT works within git, so when it is time to send the changes to
-    Linus, I can just do "git merge blah for-linus for-2.6.19" and
-    then ask Linus to pull the for-linus branch.
+---
+srat.c |    4 ++--
+ arch/x86_64/mm/srat.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- - R.
+Index: linux/arch/x86_64/mm/srat.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/srat.c
++++ linux/arch/x86_64/mm/srat.c
+@@ -207,7 +207,7 @@ static inline int save_add_info(void)
+ 	return hotadd_percent > 0;
+ }
+ #else
+-int update_end_of_memory(unsigned long end) {return 0;}
++int update_end_of_memory(unsigned long end) {return -1;}
+ static int hotadd_enough_memory(struct bootnode *nd) {return 1;}
+ #ifdef CONFIG_MEMORY_HOTPLUG_SPARSE
+ static inline int save_add_info(void) {return 1;}
+@@ -337,7 +337,7 @@ acpi_numa_memory_affinity_init(struct ac
+ 	push_node_boundaries(node, nd->start >> PAGE_SHIFT,
+ 						nd->end >> PAGE_SHIFT);
+ 
+- 	if (ma->flags.hot_pluggable && !reserve_hotadd(node, start, end) < 0) {
++ 	if (ma->flags.hot_pluggable && (reserve_hotadd(node, start, end) < 0)) {
+ 		/* Ignore hotadd region. Undo damage */
+ 		printk(KERN_NOTICE "SRAT: Hotplug region ignored\n");
+ 		*nd = oldnode;

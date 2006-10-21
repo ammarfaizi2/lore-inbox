@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992911AbWJUJxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbWJUJ6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992911AbWJUJxi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 05:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992910AbWJUJxh
+	id S1030382AbWJUJ6E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 05:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422627AbWJUJ6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 05:53:37 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:23177 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S2992908AbWJUJxg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 05:53:36 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Petr Baudis <pasky@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
-       git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 1.4.3
-References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net>
-	<7v4ptylfvw.fsf@assigned-by-dhcp.cox.net>
-	<Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
-	<20061021002251.GO20017@pasky.or.cz>
-X-Yow: Did you move a lot of KOREAN STEAK KNIVES this trip, Dingy?
-Date: Sat, 21 Oct 2006 11:53:34 +0200
-In-Reply-To: <20061021002251.GO20017@pasky.or.cz> (Petr Baudis's message of
-	"Sat, 21 Oct 2006 02:22:51 +0200")
-Message-ID: <jeu01yvvtt.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Sat, 21 Oct 2006 05:58:04 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:49488 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030385AbWJUJ6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 05:58:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ls09TJXNyKDO7rwBhl1buqe4fKVXQFWGVpBvqzCrnF/Ivu0LCFKWV1W1YC+LZM1tOvXBanwX5SB/QRrgBuWjaiGG4G9dkHwAU77/Gjj1re3q50OHafM1Ax+zaveqCRtJyWh6Q9YKGgyrd+cKiq9pMD/xI4QjQIsde5aFDjLCAgY=
+Message-ID: <e5bfff550610210258x2f69fda2y9aab6167a5f54797@mail.gmail.com>
+Date: Sat, 21 Oct 2006 11:58:01 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: sam@ravnborg.org
+Subject: [PATCH] kconfig: sync main view with search dialog current menu
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Baudis <pasky@suse.cz> writes:
+When changing current menu in search dialog update also main view
 
-> (I personally consider alternate screen an abomination. It would be so
-> nice if the terminal emulators would just make it optional.)
+Signed-off-by: Marco Costalba <mcostalba@gmail.com>
+---
+ scripts/kconfig/qconf.cc |    5 ++++-
+ scripts/kconfig/qconf.h  |    2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-$ xterm -rm "*titeInhibit: true"
+diff --git a/scripts/kconfig/qconf.cc b/scripts/kconfig/qconf.cc
+index 393f374..eec81b0 100644
+--- a/scripts/kconfig/qconf.cc
++++ b/scripts/kconfig/qconf.cc
+@@ -1176,7 +1176,7 @@ void ConfigInfoView::contentsContextMenu
+ 	Parent::contentsContextMenuEvent(e);
+ }
 
-Andreas.
+-ConfigSearchWindow::ConfigSearchWindow(QWidget* parent, const char *name)
++ConfigSearchWindow::ConfigSearchWindow(ConfigMainWindow* parent,
+const char *name)
+ 	: Parent(parent, name), result(NULL)
+ {
+ 	setCaption("Search Config");
+@@ -1200,6 +1200,9 @@ ConfigSearchWindow::ConfigSearchWindow(Q
+ 	info = new ConfigInfoView(split, name);
+ 	connect(list->list, SIGNAL(menuChanged(struct menu *)),
+ 		info, SLOT(setInfo(struct menu *)));
++	connect(list->list, SIGNAL(menuChanged(struct menu *)),
++		parent, SLOT(setMenuLink(struct menu *)));
++
+ 	layout1->addWidget(split);
 
+ 	if (name) {
+diff --git a/scripts/kconfig/qconf.h b/scripts/kconfig/qconf.h
+index 6a9e3b1..8d11f3c 100644
+--- a/scripts/kconfig/qconf.h
++++ b/scripts/kconfig/qconf.h
+@@ -279,7 +279,7 @@ class ConfigSearchWindow : public QDialo
+ 	Q_OBJECT
+ 	typedef class QDialog Parent;
+ public:
+-	ConfigSearchWindow(QWidget* parent, const char *name = 0);
++	ConfigSearchWindow(ConfigMainWindow* parent, const char *name = 0);
+
+ public slots:
+ 	void saveSettings(void);
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+1.4.3.ge193

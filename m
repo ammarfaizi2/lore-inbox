@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993114AbWJUSRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S637741AbWJUSUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993114AbWJUSRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423378AbWJUSRn
+	id S637741AbWJUSUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 14:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S637743AbWJUSUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:17:43 -0400
-Received: from mail.suse.de ([195.135.220.2]:60074 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1423377AbWJUSRm (ORCPT
+	Sat, 21 Oct 2006 14:20:35 -0400
+Received: from mail.suse.de ([195.135.220.2]:24491 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S637741AbWJUSUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:17:42 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, patches@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [11/19] i386: Fix fake return address
-References: <20061021 651.356252000@suse.de>
-	<20061021165131.4FDD813C4D@wotan.suse.de>
-X-Yow: NOW do I get to blow out the CANDLES??
-Date: Sat, 21 Oct 2006 20:17:40 +0200
-In-Reply-To: <20061021165131.4FDD813C4D@wotan.suse.de> (Andi Kleen's message
-	of "Sat, 21 Oct 2006 18:51:31 +0200 (CEST)")
-Message-ID: <je7iytedob.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Sat, 21 Oct 2006 14:20:34 -0400
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] [8/19] x86: Use -maccumulate-outgoing-args
+Date: Sat, 21 Oct 2006 20:20:29 +0200
+User-Agent: KMail/1.9.5
+Cc: jbeulich@novell.com, patches@x86-64.org, linux-kernel@vger.kernel.org
+References: <20061021651.356252000@suse.de> <20061021165128.23A8913C4D@wotan.suse.de> <20061021171848.GC30758@redhat.com>
+In-Reply-To: <20061021171848.GC30758@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610212020.29490.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Saturday 21 October 2006 19:18, Dave Jones wrote:
+> On Sat, Oct 21, 2006 at 06:51:28PM +0200, Andi Kleen wrote:
+>  > 
+>  > This avoids some problems with gcc 4.x and earlier generating
+>  > invalid unwind information. In 4.1 the option is default
+>  > when unwind information is enabled.
+>  > 
+>  > And it seems to generate smaller code too, so it's probably
+>  > a good thing on its own. With gcc 4.0:
+> 
+> That's quite odd. The gcc man page mentions that 
+> "The drawback is a notable increase in code size."
+> for this option.  I wonder if this is just stale documentation,
+> or there's a reason why we're special :)
 
-> From: Jeremy Fitzhardinge <jeremy@goop.org>
-> The fake return address was being set to __KERNEL_PDA, rather than 0.
-> Push it earlier while %eax still equals 0.
+I redid the measurements originally because someone else commented
+on this too, but I still saw the same numbers.
 
-There is a slight discrepancy between the description and what is really
-implemented by the patch.
+If someone else wants to redo them too please do 
+(note on gcc 4.1 you need to disable the stack unwinder or debug info
+first, otherwise it is a nop) 
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+-Andi

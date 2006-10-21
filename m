@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992895AbWJUH2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992844AbWJUIRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992895AbWJUH2W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992898AbWJUH2V
+	id S2992844AbWJUIRq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 04:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992837AbWJUIRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:28:21 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:46728 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S2992895AbWJUH2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:28:19 -0400
-Date: Sat, 21 Oct 2006 03:28:07 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+	Sat, 21 Oct 2006 04:17:46 -0400
+Received: from smtp107.plus.mail.re2.yahoo.com ([206.190.53.32]:19563 "HELO
+	smtp107.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1161191AbWJUIRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 04:17:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:MIME-Version:Content-Type:Content-Disposition:User-Agent;
+  b=C95MwlmwWv7SA0ORSMRJ7ji6Zx9ADqw2Yjy/vvb0A0UmGpu3vWnBcMcWcNGo5lWqhZ8az/7rmK2Cg6/V1TXhMkjRSsIM0H8JflFlIVfBNPGUG7gbq8qnSa4RQ8ZCIVnij9MqlXs4lk97lJ1fFBlGCOtncrS53VeCrH93pozsCyo=  ;
+Date: Sat, 21 Oct 2006 10:17:45 +0200
+From: Borislav Petkov <bbpetkov@yahoo.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       torvalds@osdl.org, viro@ftp.linux.org.uk, hch@infradead.org,
-       jack@suse.cz
-Subject: Re: [PATCH 01 of 23] VFS: change struct file to use struct path
-Message-ID: <20061021072807.GF30620@filer.fsl.cs.sunysb.edu>
-References: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu> <b212ecc85fa3ad0382f6.1161411446@thor.fsl.cs.sunysb.edu> <20061021002200.4731cdeb.akpm@osdl.org>
-Mime-Version: 1.0
+Cc: lkml <linux-kernel@vger.kernel.org>, info-linux@geode.amd.com
+Subject: [PATCH] do not compile AMD Geode's hwcrypto driver as a module per default
+Message-ID: <20061021081745.GA6193@zmei.tnic>
+Reply-To: Borislav Petkov <petkov@math.uni-muenster.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061021002200.4731cdeb.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 12:22:00AM -0700, Andrew Morton wrote:
-> On Sat, 21 Oct 2006 02:17:26 -0400
-> Josef "Jeff" Sipek <jsipek@cs.sunysb.edu> wrote:
-> 
-> > From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> > 
-> > This patch changes struct file to use struct path instead of having
-> > independent pointers to struct dentry and struct vfsmount, and converts all
-> > users of f_{dentry,vfsmnt} in fs/ to use f_path.{dentry,mnt}.
-> > 
-> 
-> why?
+This one should be probably made dependent on some #define saying that the cpu
+is an AMD and has the LX Geode crypto hardware built in. Turn it off for now.
 
-It's little cleaner than having two pointers. In general, there is a number
-of users of dentry-vfsmount pairs in the kernel, and struct path nicely
-wraps it.
+Signed-off-by: <petkov@math.uni-muenster.de>
 
-As to why struct file in particular, and not some other structure, it's
-mostly because Al suggested it... "I can give you a dozen examples of
-possible users right now - starting with struct file" (from the struct path
-thread few days ago.)
 
-Josef "Jeff" Sipek.
+--- current/drivers/crypto/Kconfig.orig	2006-10-21 10:05:08.000000000 +0200
++++ current/drivers/crypto/Kconfig	2006-10-21 10:05:25.000000000 +0200
+@@ -56,7 +56,6 @@ config CRYPTO_DEV_GEODE
+ 	depends on CRYPTO && X86_32
+ 	select CRYPTO_ALGAPI
+ 	select CRYPTO_BLKCIPHER
+-	default m
+ 	help
+ 	  Say 'Y' here to use the AMD Geode LX processor on-board AES
+ 	  engine for the CryptoAPI AES alogrithm.
 
--- 
-Don't drink and derive. Alcohol and algebra don't mix.
+		
+___________________________________________________________ 
+Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de

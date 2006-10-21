@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992789AbWJUKo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992829AbWJUKvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992789AbWJUKo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 06:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992829AbWJUKo4
+	id S2992829AbWJUKvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 06:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbWJUKvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 06:44:56 -0400
-Received: from pm-mx5.mgn.net ([195.46.220.209]:42459 "EHLO pm-mx5.mgn.net")
-	by vger.kernel.org with ESMTP id S2992789AbWJUKoz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 06:44:55 -0400
-Date: Sat, 21 Oct 2006 12:44:54 +0200
-From: Damien Wyart <damien.wyart@free.fr>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc2-mm2 : empty files on vfat file system
-Message-ID: <20061021104454.GA1996@localhost.localdomain>
+	Sat, 21 Oct 2006 06:51:17 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:3665 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161193AbWJUKvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 06:51:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1THLqc1mVUOqujIbJf3WbrXXTfXfEKmukZ+kTh41A1hrmMX5qi8AHRJ+Ux3s6ne7qSAlBvN9dnF8Ry8y4N3KYVmCroOVxIhtHPTmLkdkV4ojmHCg9CF9Y2cNKCAdp/4FbQptHOuEU2fyi+FHOEIfY04atvFo8+tR50aRGiE2iYE=  ;
+Message-ID: <4539FB9C.10204@yahoo.com.au>
+Date: Sat, 21 Oct 2006 20:51:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
+       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com,
+       clameter@sgi.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>	<453750AA.1050803@yahoo.com.au>	<20061019105515.080675fb.pj@sgi.com>	<4537BEDA.8030005@yahoo.com.au>	<20061019115652.562054ca.pj@sgi.com>	<4537CC1E.60204@yahoo.com.au>	<20061019203744.09b8c800.pj@sgi.com>	<453882AC.3070500@yahoo.com.au>	<20061020130141.b5e986dd.pj@sgi.com>	<4539BAB2.3010501@yahoo.com.au> <20061021002400.fb25f327.pj@sgi.com>
+In-Reply-To: <20061021002400.fb25f327.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Paul Jackson wrote:
+>>If you always have other domains overlapping them (regardless
+>>that it is a parent), then what actual use does cpu_exclusive
+>>flag have?
+> 
+> 
+> Good question.  To be a tad too honest, I don't consider it to be
+> all that essential.
+> 
+> It does turn out to be a bit useful, in that you can be confident that
+> if you are administering the batch scheduler and it has a cpu_exclusive
+> cpuset covering a big chunk of your system, then no other cpuset other
+> than the top cpuset right above, which you administer pretty tightly,
+> could have anything overlapping it.  You don't have to actually look
+> at the cpumasks in all the parallel cpusets and cross check each one
+> against the batch schedulers set of cpus for overlap.
+> 
+> But as you can see by grep'ing in kernel/cpuset.c, it is only used
+> to generate a couple of error returns, for things that you can do
+> just fine by turning off the cpu_exclusive flag.
 
-I have noticed something strange (and bad :) since using 2.6.19-rc2-mm2
-(the problem is NOT present on 2.6.19-rc2-mm1 ; do not know for
-mainline, I have not been able to test yet, but I think there have not
-been recent changes in this area) : writing a file to a vfat
-fs (fat 32) writes it, but with size 0 and no content. All this is
-silent : no error message, nothing in the logs. After several attempts,
-I checked the fs with fsck.vfat and it reported errors about some of the
-files and told it was truncating them to size 0 (but their displayed
-size was already 0, btw).
+Well, it was supposed to be used for sched-domains partitioning, and
+its uselessness for anything else I guess is what threw me.
 
-
-I hope this will ring a bell for some of you ? Maybe related to the
-patch about strange bug messages about inodes in mm1 ?
+But even the way cpu_exclusive semantics are defined makes it not
+quite compatible with partitioning anyway, unfortunately.
 
 -- 
-Damien Wyart
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

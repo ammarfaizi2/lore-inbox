@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992843AbWJUHYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992895AbWJUH2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992843AbWJUHYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992895AbWJUHYQ
+	id S2992895AbWJUH2W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 03:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992898AbWJUH2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:24:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21451 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S2992843AbWJUHYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:24:14 -0400
-Date: Sat, 21 Oct 2006 00:24:00 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com,
-       clameter@sgi.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061021002400.fb25f327.pj@sgi.com>
-In-Reply-To: <4539BAB2.3010501@yahoo.com.au>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<453750AA.1050803@yahoo.com.au>
-	<20061019105515.080675fb.pj@sgi.com>
-	<4537BEDA.8030005@yahoo.com.au>
-	<20061019115652.562054ca.pj@sgi.com>
-	<4537CC1E.60204@yahoo.com.au>
-	<20061019203744.09b8c800.pj@sgi.com>
-	<453882AC.3070500@yahoo.com.au>
-	<20061020130141.b5e986dd.pj@sgi.com>
-	<4539BAB2.3010501@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Sat, 21 Oct 2006 03:28:21 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:46728 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S2992895AbWJUH2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 03:28:19 -0400
+Date: Sat, 21 Oct 2006 03:28:07 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       torvalds@osdl.org, viro@ftp.linux.org.uk, hch@infradead.org,
+       jack@suse.cz
+Subject: Re: [PATCH 01 of 23] VFS: change struct file to use struct path
+Message-ID: <20061021072807.GF30620@filer.fsl.cs.sunysb.edu>
+References: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu> <b212ecc85fa3ad0382f6.1161411446@thor.fsl.cs.sunysb.edu> <20061021002200.4731cdeb.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061021002200.4731cdeb.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you always have other domains overlapping them (regardless
-> that it is a parent), then what actual use does cpu_exclusive
-> flag have?
+On Sat, Oct 21, 2006 at 12:22:00AM -0700, Andrew Morton wrote:
+> On Sat, 21 Oct 2006 02:17:26 -0400
+> Josef "Jeff" Sipek <jsipek@cs.sunysb.edu> wrote:
+> 
+> > From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> > 
+> > This patch changes struct file to use struct path instead of having
+> > independent pointers to struct dentry and struct vfsmount, and converts all
+> > users of f_{dentry,vfsmnt} in fs/ to use f_path.{dentry,mnt}.
+> > 
+> 
+> why?
 
-Good question.  To be a tad too honest, I don't consider it to be
-all that essential.
+It's little cleaner than having two pointers. In general, there is a number
+of users of dentry-vfsmount pairs in the kernel, and struct path nicely
+wraps it.
 
-It does turn out to be a bit useful, in that you can be confident that
-if you are administering the batch scheduler and it has a cpu_exclusive
-cpuset covering a big chunk of your system, then no other cpuset other
-than the top cpuset right above, which you administer pretty tightly,
-could have anything overlapping it.  You don't have to actually look
-at the cpumasks in all the parallel cpusets and cross check each one
-against the batch schedulers set of cpus for overlap.
+As to why struct file in particular, and not some other structure, it's
+mostly because Al suggested it... "I can give you a dozen examples of
+possible users right now - starting with struct file" (from the struct path
+thread few days ago.)
 
-But as you can see by grep'ing in kernel/cpuset.c, it is only used
-to generate a couple of error returns, for things that you can do
-just fine by turning off the cpu_exclusive flag.
+Josef "Jeff" Sipek.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Don't drink and derive. Alcohol and algebra don't mix.

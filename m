@@ -1,218 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWJUWv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422851AbWJUWvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbWJUWv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 18:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161490AbWJUWv3
+	id S1422851AbWJUWvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 18:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422838AbWJUWvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 18:51:29 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:11241 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161145AbWJUWv0 (ORCPT
+	Sat, 21 Oct 2006 18:51:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:3284 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422851AbWJUWuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 18:51:26 -0400
-Date: Sat, 21 Oct 2006 15:52:28 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-Message-ID: <20061021225228.GB17088@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20061021005908.GB1751@us.ibm.com> <Pine.LNX.4.44L0.0610211518140.28524-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0610211518140.28524-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 21 Oct 2006 18:50:55 -0400
+From: Andi Kleen <ak@suse.de>
+References: <200610221250.493223000@suse.de>
+In-Reply-To: <200610221250.493223000@suse.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>, patches@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] [2/2] x86_64: increase PHB1 split transaction timeout
+Message-Id: <20061021225053.A213913B62@wotan.suse.de>
+Date: Sun, 22 Oct 2006 00:50:53 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 03:47:31PM -0400, Alan Stern wrote:
-> On Fri, 20 Oct 2006, Paul E. McKenney wrote:
-> 
-> > > > And the number before the colon is the CPU #, right?
-> > > 
-> > > No, it's an instance label (kind of like a line number).  As we've been 
-> > > doing before.  The CPU number is still a subscript.
-> > 
-> > When I started actually doing formulas, the use of ":" conflicted with
-> > the logic-expression operator ("for every x there exists y and z such
-> > that...", which turns into upside-down-A x backwards-E y,z colon ...,
-> > at least if I am remembering all this correctly).
-> > 
-> > So how about having the line number be a second subscript following the
-> > CPU number?
-> 
-> Make it a second subscript following the close paren.  That way either 
-> subscript can be omitted without confusion.
 
-Or just use an unbound variable for the CPU if unspecified.
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+This patch increases the timeout for PCI split transactions on PHB1 on
+the first Calgary to work around an issue with the aic94xx
+adapter. Fixes kernel.org bugzilla #7180
+(http://bugzilla.kernel.org/show_bug.cgi?id=7180)
 
-> > > > > Consider this example:
-> > > > > 
-> > > > > 	CPU 0			CPU 1
-> > > > > 	-----			-----
-> > > > > 	A = 1;			B = 2;
-> > > > > 	mb();			mb();
-> > > > > 	B = 1;			X = A + 1;
-> > > > > 	...
-> > > > > 	assert(!(B==2 && X==1));
-> > > > > 
-> > > > > The assertion cannot fail.  But to prove it in our formalism requires 
-> > > > > writing  st_0(B=1) -> st_1(B=2).  In other words, CPU 1's store to B sees 
-> > > > > (i.e., overwrites) CPU 0's store to B.
-> > > 
-> > > I wrote that the assertion cannot fail, but I'm not so sure any more.  
-> > > Couldn't there be a system where CPU 1's statements run before any of CPU 
-> > > 0's writes become visible to CPU 1, but nevertheless the caching hardware 
-> > > decides that CPU 1's write to B "wins"?  More on this below...
-> > 
-> > The memory barriers require that if the caching hardware decides that
-> > CPU 1's B=2 "wins", then X=A+1 must see CPU 0's A=1.  Now the assertion
-> > could legally see B==2&&X==0, or B==1&&X={0,1,2}, but it cannot legally
-> > see B==2&&X==1 because that would violate the constraints that the
-> > memory barriers are supposed to be enforcing.
-> 
-> I won't say that you're wrong.  But how do you know for sure?  That is, 
-> exactly which constraint does it violate and where is it written in stone 
-> that the memory barriers are supposed to enforce this constraint?  After 
-> all, this doesn't fit the usual st-wmb-st / ld-rmb-ld pattern.
+Based on excellent debugging and a patch by Darrick J. Wong
+<djwong@us.ibm.com>
 
-I don't know for sure...  Yet.  Work in progress.
+Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Acked-by: Darrick J. Wong <djwong@us.ibm.com>
 
-> > > But now I wonder...  This approach might require too much of memory 
-> > > barriers.  If we have
-> > > 
-> > > 	st(A); mb(); st(B);
-> > > 
-> > > does the memory barrier really say anything about CPUs which never see one 
-> > > or both of those stores?  Or does it say only that CPUs which see both 
-> > > stores will see them in the correct order?
-> > 
-> > Only that CPUs that see both stores with appropriate use of memory barriers
-> > will see them in the correct order.
-> 
-> Right -- that's what I meant.
-> 
-> > > The only way to be certain a CPU sees a store is if it does a load which
-> > > returns the value of that store.  In the absence of such a criterion we
-> > > don't know what really happened.  For example:
-> > > 
-> > > 	CPU 0		CPU 1			CPU 2
-> > > 	-----		-----			-----
-> > > 	A = 1;		while (B < 1) ;		while (B < 2) ;
-> > > 	mb();		mb();			mb();
-> > > 	B = 1;		B = 2;			assert(A==1);
-> 
-> > Yep, which it must for locking to work, assuming my approach to transitivity.
-> > If we were using your approach to transitivity, we would have a different
-> > memory-barrier condition that required an atomic operation as the final
-> > link in a chain of changes to a given variable -- and in that case, we
-> > would find that the assertion could fail.
-> > 
-> > > But we know that the assertion may fail on some systems!
-> > 
-> > To be determined -- the fact that we are threading the single variable B
-> > through all three CPUs potentially makes a difference.  Working on the
-> > empirical end.  I know the assert() always would succeed on POWER, and
-> > empirical evidence agrees (fine-grained low-access-overhead synchronized
-> > time-base registers make this easier!).  I believe that the assert would
-> > also success on Alpha.
-> 
-> I overstated the case.  We don't know of any actual architectures where 
-> the assertion could fail, but we have considered a possible architecture 
-> where it might.  What about NUMA machines?
+---
+ arch/x86_64/kernel/pci-calgary.c |   44 ++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 43 insertions(+), 1 deletion(-)
 
-If it fails on a given system, that system would be unable to execute
-some popular textbook algorithms.  So, no, I am not certain, but I am
-reasonably confident.
-
-> > >                                                          The reason being
-> > > that CPU 0's stores might propagate slowly to CPU 2 but the paths from
-> > > CPU 0 to CPU 1 and from CPU 1 to CPU 2 might be quick.  Hence CPU 0's
-> > > write to A might not be visible to CPU 2 when the assertion runs, and
-> > > CPU 0's write to B might never be visible to CPU 2.
-> > 
-> > Agreed -- if the assertion really is guaranteed to work, it is because
-> > the cache-coherence protocol is required to explicitly make it be so.
-> > One reason that I am not too pessimistic is that there are some popular
-> > textbook algorithms that cannot work otherwise (e.g., the various locking
-> > algorithms that don't use atomic instructions, possibly also some of the
-> > NBS algorithms).
-> > 
-> > > This wouldn't violate the guarantee made by CPU 0's mb().  The guarantee 
-> > > wouldn't apply to CPU 2, since CPU 2 never sees the "B = 1".
-> > 
-> > Again, this depends on the form of the memory-barrier guarantee --
-> > the presence of a "==>" vs. a "=>" is quite important!  ;-)
-> 
-> Just so.
-> 
-> > My hope is that the CPUs are guaranteed to act the way that I hope they
-> > do, so that the memory-barrier rule is given by:
-> > 
-> > st(A) -p> wmb -p> st(B) && ld(B) -p> rmb -p> ld(A) && st(B) => ld(B) ->
-> > 	st(A) => ld(A)
-> > 
-> > If so, everything works nicely.  In your scenario, the memory-barrier
-> > rule would instead be something like:
-> > 
-> > st(A) -p> wmb -p> st(B) && ld(B) -p> rmb -p> ld(A) && st(B) ==> ld(B) ->
-> > 	st(A) => ld(A)
-> > st_0(A) -p> wmb -p> st(B) && ld_1(B) -p> rmb -p> ld(A) && st_0(B) => ld_1(B) &&
-> > 	not-exist i: st_0(B) => st_i(B) => ld_1(B) ->
-> > 		st(A) => ld(A)
-> 
-> This is identical to the previous version, since by definition
-> 
-> 	st_i(B) ==> ld_j(B)  is equivalent to  st_i(B) => ld_j(B) &&
-> 		not exist k: st_i(B) => st_k(B) => ld_j(B).
-
-OK -- we were assuming slightly different definitions of "==>".  I as
-assuming that if st==>ld1==>ld2, that it is not the case that "st==>ld2".
-In this circumstance, your definition is certainly more convenient than
-is mine.  In the case of MMIO, the situation might be reversed.
-
-> > st(A) -p> wmb -p> st(B) && ld(B) -p> rmb -p> ld(A) && st(B) => at(B) ->
-> > 	st(A) => ld(A)
-> > 
-> > In other words, either: (1) the st(B) must immediately precede the ld(B), or
-> > (2) there can only be loads between the st(B) and ld(B) (yes, I would have
-> > to add other terms to exclude atomics and so on...), or (3) the access to A
-> > by CPU 1 must be an atomic operation.
-> 
-> (1) Yes; it's the same as saying that ld(B) returns the value of the 
-> st(B) (no intervening stores).
-
-Good.
-
-> (2) doesn't make sense, since loads aren't part of the global ordering of
-> accesses of B -- they are invisible.  (BTW, you don't need to assume as
-> well that stores are blind; it's enough just to have loads be invisible.)  
-> Each load sees an initial sequence of stores ending in the store whose
-> value is returned by the load, but this doesn't mean that the load occurs
-> between that store and the next one.
-
-That is due to our difference in definition.  Perhaps the following
-definition:  "A==>B" means either that B sees the value stored by A
-or that B sees the same value as does A?
-
-Some work will be required to see what is best.
-
-> (3) The assumption should be that both accesses of B are atomic; it 
-> doesn't matter whether the accesses of A are.
-
-Check out the i386 default definition of spin_unlock() -- no atomic
-operations.  So only the final access of B (the one corresponding to
-spin_lock()) would need to be atomic.
-
-> > Does this make sense?
-> 
-> Yes.  Maybe we should include these rules as an alternative set of "very
-> weak" memory ordering assumptions?  For normal uses they shouldn't make
-> any difference.
-
-Let's see what the actual architectures really impose.  I would prefer to
-shave the Mandlebrot set a bit more closely than absolutely needed than
-vice versa.  ;-)
-
-							Thanx, Paul
+Index: linux/arch/x86_64/kernel/pci-calgary.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/pci-calgary.c
++++ linux/arch/x86_64/kernel/pci-calgary.c
+@@ -52,7 +52,8 @@
+ #define ONE_BASED_CHASSIS_NUM   1
+ 
+ /* register offsets inside the host bridge space */
+-#define PHB_CSR_OFFSET		0x0110
++#define CALGARY_CONFIG_REG	0x0108
++#define PHB_CSR_OFFSET		0x0110 /* Channel Status */
+ #define PHB_PLSSR_OFFSET	0x0120
+ #define PHB_CONFIG_RW_OFFSET	0x0160
+ #define PHB_IOBASE_BAR_LOW	0x0170
+@@ -83,6 +84,8 @@
+ #define TAR_VALID		0x0000000000000008UL
+ /* CSR (Channel/DMA Status Register) */
+ #define CSR_AGENT_MASK		0xffe0ffff
++/* CCR (Calgary Configuration Register) */
++#define CCR_2SEC_TIMEOUT        0x000000000000000EUL
+ 
+ #define MAX_NUM_OF_PHBS		8 /* how many PHBs in total? */
+ #define MAX_NUM_CHASSIS		8 /* max number of chassis */
+@@ -732,6 +735,38 @@ static void calgary_watchdog(unsigned lo
+ 	}
+ }
+ 
++static void __init calgary_increase_split_completion_timeout(void __iomem *bbar,
++	unsigned char busnum)
++{
++	u64 val64;
++	void __iomem *target;
++	unsigned long phb_shift = -1;
++	u64 mask;
++
++	switch (busno_to_phbid(busnum)) {
++	case 0: phb_shift = (63 - 19);
++		break;
++	case 1: phb_shift = (63 - 23);
++		break;
++	case 2: phb_shift = (63 - 27);
++		break;
++	case 3: phb_shift = (63 - 35);
++		break;
++	default:
++		BUG_ON(busno_to_phbid(busnum));
++	}
++
++	target = calgary_reg(bbar, CALGARY_CONFIG_REG);
++	val64 = be64_to_cpu(readq(target));
++
++	/* zero out this PHB's timer bits */
++	mask = ~(0xFUL << phb_shift);
++	val64 &= mask;
++	val64 |= (CCR_2SEC_TIMEOUT << phb_shift);
++	writeq(cpu_to_be64(val64), target);
++	readq(target); /* flush */
++}
++
+ static void __init calgary_enable_translation(struct pci_dev *dev)
+ {
+ 	u32 val32;
+@@ -756,6 +791,13 @@ static void __init calgary_enable_transl
+ 	writel(cpu_to_be32(val32), target);
+ 	readl(target); /* flush */
+ 
++	/*
++	 * Give split completion a longer timeout on bus 1 for aic94xx
++	 * http://bugzilla.kernel.org/show_bug.cgi?id=7180
++	 */
++	if (busnum == 1)
++		calgary_increase_split_completion_timeout(bbar, busnum);
++
+ 	init_timer(&tbl->watchdog_timer);
+ 	tbl->watchdog_timer.function = &calgary_watchdog;
+ 	tbl->watchdog_timer.data = (unsigned long)dev;

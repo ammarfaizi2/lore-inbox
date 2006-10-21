@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992798AbWJUCiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWJUCmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992798AbWJUCiu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 22:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992796AbWJUCiu
+	id S1030383AbWJUCmO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 22:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbWJUCmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 22:38:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15042 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S2992795AbWJUCit (ORCPT
+	Fri, 20 Oct 2006 22:42:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8686 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030383AbWJUCmO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 22:38:49 -0400
-Date: Fri, 20 Oct 2006 19:37:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Miller <davem@davemloft.net>
-cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
-       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
-       James.Bottomley@SteelEye.com
-Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
-In-Reply-To: <20061020.191134.63996591.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0610201934170.3962@g5.osdl.org>
-References: <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
- <20061021000609.GA32701@linux-mips.org> <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
- <20061020.191134.63996591.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Oct 2006 22:42:14 -0400
+Date: Fri, 20 Oct 2006 22:41:05 -0400
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] more helpful WARN_ON and BUG_ON messages
+Message-ID: <20061021024105.GA17706@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, Eric Sandeen <sandeen@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4538F81A.2070007@redhat.com> <20061020214101.GX3502@stusta.de> <45394615.5050406@redhat.com> <20061020220717.GY3502@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061020220717.GY3502@stusta.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 21, 2006 at 12:07:17AM +0200, Adrian Bunk wrote:
 
+ > > Most debugging code makes the kernel bigger, slower... and easier to
+ > > debug, no?
+ > > 
+ > > It's not a question of not being -able- to locate sources; it's a
+ > > question of being able to look at a bug report and triage it quickly
+ > > without digging around to find the kernel du jour that produced it.  *shrug*
+ > 
+ > It's not that BUGs were that frequent.
 
-On Fri, 20 Oct 2006, David Miller wrote:
->
-> From: Linus Torvalds <torvalds@osdl.org>
-> Date: Fri, 20 Oct 2006 17:38:32 -0700 (PDT)
-> 
-> > I think (but may be mistaken) that ARM _does_ have pure virtual caches 
-> > with a process ID, but people have always ended up flushing them at 
-> > context switch simply because it just causes too much trouble.
-> > 
-> > Sparc? VIPT too? Davem?
-> 
-> sun4c is VIVT, but has no SMP variants.
+You're not trying hard enough ;) 
 
-You don't need SMP - we have sleeping sections here, so even threads on UP 
-can trigger it. 
+ > And with your suggestion "I suppose this could be put under CONFIG_DEBUG", 
+ > it would anyway be turned off by nearly everyone.
 
-Now, to trigger it you need to have
- - virtual indexing not just by  address, but by some "address space 
-   identifier" thing too
- - (in practice) a big enough cache that switching tasks wouldn't flush it 
-   anyway.
+For better bug reports, 16K is peanuts. We had exactly the same straw-man
+come up when kksymoops was first proposed. And now, most people don't run
+without it.
 
-> sun4m has both VIPT and PIPT.
-> 
-> > But it would be good to have something for the early -rc1 sequence for 
-> > 2.6.20, and maybe the MIPS COW D$ patches are it, if it has performance 
-> > advantages on MIPS that can also be translated to other virtual cache 
-> > users..
-> 
-> I think it could help for sun4m highmem configs.
+I've seen numerous cases where reporters have hand transcribed BUG() reports,
+and got the line numbers wrong because they misremembered a 4 digit number.
+Words are inherently easier to remember, and even if typoed, usually there's
+enough context to figure out what the problem was without another round-trip
+to the bug reporter.
 
-Well, if you can re-create the performance numbers (Ralf - can you send 
-the full series with the final "remove the now unnecessary flush" to 
-Davem?), that will make deciding things easier, I think.
+If this were optional, I don't see how anyone can argue against it,
+and that should be a trivial improvement to Eric's existing patch.
 
-I suspect sparc, mips and arm are the main architectures where virtually 
-indexed caching really matters enough for this to be an issue at all.
+	Dave
 
-		Linus
+-- 
+http://www.codemonkey.org.uk

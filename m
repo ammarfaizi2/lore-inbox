@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423374AbWJUSHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161475AbWJUSMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423374AbWJUSHa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423375AbWJUSHa
+	id S1161475AbWJUSMM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 14:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWJUSMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:07:30 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:50664 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1423374AbWJUSHa (ORCPT
+	Sat, 21 Oct 2006 14:12:12 -0400
+Received: from mail.suse.de ([195.135.220.2]:56745 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S2992784AbWJUSML (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:07:30 -0400
-Message-ID: <453A622C.2020401@candelatech.com>
-Date: Sat, 21 Oct 2006 11:08:44 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Sat, 21 Oct 2006 14:12:11 -0400
+From: Andi Kleen <ak@suse.de>
+To: patches@x86-64.org
+Subject: Re: [patches] Re: [PATCH] [14/19] i386: Disable nmi watchdog on all ThinkPads
+Date: Sat, 21 Oct 2006 20:11:56 +0200
+User-Agent: KMail/1.9.5
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+References: <20061021651.356252000@suse.de> <20061021165134.7ADBB13CB4@wotan.suse.de> <20061021172401.GD30758@redhat.com>
+In-Reply-To: <20061021172401.GD30758@redhat.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: futex hang with rpm in 2.6.17.1-2174_FC5
-References: <453917C2.8010201@candelatech.com> <20061021052423.GF21948@redhat.com> <453A5C9E.1070303@candelatech.com> <20061021180005.GF30758@redhat.com>
-In-Reply-To: <20061021180005.GF30758@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610212011.56215.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Sat, Oct 21, 2006 at 10:45:02AM -0700, Ben Greear wrote:
->  > Dave Jones wrote:
->  > > On Fri, Oct 20, 2006 at 11:38:58AM -0700, Ben Greear wrote:
->  > >  > I had a dead nfs server that was causing some programs to pause,
->  > >  > in particular 'yum install foo' was paused.  I kill -9'd the
->  > >  > yum related processes.
->  > >  > 
->  > > The dead rpm you killed left behind locks in its databases.
->  > > rm -f /var/lib/rpm/__db* and it should work again.
->  > >   
->  > I'll give that a try, but shouldn't these locks clean themselves up when the
->  > process is killed
->
-> If you kill -9'd the processes, what do you expect to do
-> the clean up work ?
->   
 
-Well, you can do tricks with file handles so that they are automatically 
-closed/deleted when
-a process exits, even with kill -9.  Since this lock is evidently 
-something in the kernel (since the kernel
-call is blocking), then it seems like a similar trick could be crafted.
+>  > -	if (nmi_watchdog == NMI_DEFAULT && dmi_get_year(DMI_BIOS_DATE) >= 2004)
+>  > +	   Probably safe on most older systems too, but let's be careful.
+>  > +	   IBM ThinkPads use INT10 inside SMM and that allows early NMI inside SMM
+>  > +	   which hangs the system. Disable watchdog for all thinkpads */
+>  > +	if (nmi_watchdog == NMI_DEFAULT && dmi_get_year(DMI_BIOS_DATE) >= 2004 &&
+>  > +		!dmi_name_in_vendors("ThinkPad"))
+>  >  		nmi_watchdog = NMI_LOCAL_APIC;
+> 
+> This is going to get some people scratching their heads wondering
+> why it isn't working if they ever try nmi_watchdog on one of these.
+> How about adding an explanitory printk ?
 
->  > or shouldn't rpm notice the previous process is dead and
->  > clean it up itself?
->  
-> Sounds sensible to me and you, but in the past sensible ideas and
-> rpm maintainers haven't gone hand in hand.
->   
-Ahhh :)
+When you enable it manually then NMI_DEFAULT won't be set and this code
+is never executed.
 
-Thanks,
-Ben
+BTW their machines will likely not stay up long enough that they can
+see the printk (unless Lenovo fixes that particular bug in the future,
+they are aware of it)
 
-
--- 
-Ben Greear <greearb@candelatech.com> 
-Candela Technologies Inc  http://www.candelatech.com
-
-
+-Andi

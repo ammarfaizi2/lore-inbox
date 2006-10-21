@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992786AbWJUCOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992798AbWJUCiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992786AbWJUCOH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 22:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992790AbWJUCOH
+	id S2992798AbWJUCiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 22:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992796AbWJUCiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 22:14:07 -0400
-Received: from ns.suse.de ([195.135.220.2]:19093 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S2992786AbWJUCOE (ORCPT
+	Fri, 20 Oct 2006 22:38:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15042 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S2992795AbWJUCit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 22:14:04 -0400
-From: Andi Kleen <ak@suse.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.19-rc2-mm2
-Date: Sat, 21 Oct 2006 04:13:40 +0200
-User-Agent: KMail/1.9.3
-Cc: artusemrys@sbcglobal.net, Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
-       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
-       akpm@osdl.org
-References: <20061020015641.b4ed72e5.akpm@osdl.org> <p734ptybk0z.fsf@verdi.suse.de> <20061021005014.GC12131@kroah.com>
-In-Reply-To: <20061021005014.GC12131@kroah.com>
+	Fri, 20 Oct 2006 22:38:49 -0400
+Date: Fri, 20 Oct 2006 19:37:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Miller <davem@davemloft.net>
+cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+In-Reply-To: <20061020.191134.63996591.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0610201934170.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org>
+ <20061021000609.GA32701@linux-mips.org> <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
+ <20061020.191134.63996591.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610210413.40401.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Yeah, real numbers would be good to have.  I have measured 7-8 seconds
-> off the boot on my workstation, and 2 seconds off the boot for my
-> laptop.  All of the time saved seems to be due to slow SATA startup
-> times, and the machine is off initializing other things while that is
-> happening.
 
-So perhaps it would be a safer strategy to just run the SATA probing in the
-background and keep the rest serialized? 
+On Fri, 20 Oct 2006, David Miller wrote:
+>
+> From: Linus Torvalds <torvalds@osdl.org>
+> Date: Fri, 20 Oct 2006 17:38:32 -0700 (PDT)
+> 
+> > I think (but may be mistaken) that ARM _does_ have pure virtual caches 
+> > with a process ID, but people have always ended up flushing them at 
+> > context switch simply because it just causes too much trouble.
+> > 
+> > Sparc? VIPT too? Davem?
+> 
+> sun4c is VIVT, but has no SMP variants.
 
--Andi
+You don't need SMP - we have sleeping sections here, so even threads on UP 
+can trigger it. 
+
+Now, to trigger it you need to have
+ - virtual indexing not just by  address, but by some "address space 
+   identifier" thing too
+ - (in practice) a big enough cache that switching tasks wouldn't flush it 
+   anyway.
+
+> sun4m has both VIPT and PIPT.
+> 
+> > But it would be good to have something for the early -rc1 sequence for 
+> > 2.6.20, and maybe the MIPS COW D$ patches are it, if it has performance 
+> > advantages on MIPS that can also be translated to other virtual cache 
+> > users..
+> 
+> I think it could help for sun4m highmem configs.
+
+Well, if you can re-create the performance numbers (Ralf - can you send 
+the full series with the final "remove the now unnecessary flush" to 
+Davem?), that will make deciding things easier, I think.
+
+I suspect sparc, mips and arm are the main architectures where virtually 
+indexed caching really matters enough for this to be an issue at all.
+
+		Linus

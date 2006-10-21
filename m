@@ -1,121 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1766655AbWJUSij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWJUTHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1766655AbWJUSij (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 14:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1766653AbWJUSij
+	id S964773AbWJUTHy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 15:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWJUTHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 14:38:39 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:15306 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1766641AbWJUSii (ORCPT
+	Sat, 21 Oct 2006 15:07:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3266 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964773AbWJUTHx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 14:38:38 -0400
-Date: Sat, 21 Oct 2006 14:38:34 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: netdev@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] net driver fixes
-Message-ID: <20061021183834.GA27990@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 21 Oct 2006 15:07:53 -0400
+Date: Sat, 21 Oct 2006 12:07:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Git training wheels for the pimple faced maintainer
+In-Reply-To: <453A6179.1060500@drzeus.cx>
+Message-ID: <Pine.LNX.4.64.0610211150040.3962@g5.osdl.org>
+References: <4537EB67.8030208@drzeus.cx> <Pine.LNX.4.64.0610191629250.3962@g5.osdl.org>
+ <45386E0E.7030404@drzeus.cx> <Pine.LNX.4.64.0610200810390.3962@g5.osdl.org>
+ <4539EBF3.8050607@drzeus.cx> <Pine.LNX.4.64.0610210844560.3962@g5.osdl.org>
+ <453A6179.1060500@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[just sent this upstream]
 
-Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
 
-to receive the following updates:
+On Sat, 21 Oct 2006, Pierre Ossman wrote:
+> 
+> If I read your response above and the man page for git-merge-base, it
+> will do the right thing even if "linus" now is further in the future
+> than the point I forked it.
 
- drivers/net/Kconfig                             |    2 
- drivers/net/e1000/e1000_main.c                  |    4 
- drivers/net/ibmveth.c                           |   10 
- drivers/net/ioc3-eth.c                          |    4 
- drivers/net/r8169.c                             |    7 
- drivers/net/sb1250-mac.c                        |    2 
- drivers/net/sky2.c                              |   33 -
- drivers/net/smc91x.h                            |   18 +
- drivers/net/ucc_geth.c                          |  633 ++++++++++++-----------
- drivers/net/ucc_geth.h                          |  248 ++++-----
- drivers/net/ucc_geth_phy.c                      |   26 -
- drivers/net/ucc_geth_phy.h                      |    2 
- drivers/net/wan/pc300_drv.c                     |   24 +
- drivers/net/wireless/airo.c                     |  105 +++-
- drivers/net/wireless/atmel.c                    |    2 
- drivers/net/wireless/bcm43xx/bcm43xx_dma.c      |   28 +
- drivers/net/wireless/bcm43xx/bcm43xx_dma.h      |   17 +
- drivers/net/wireless/bcm43xx/bcm43xx_leds.c     |    2 
- drivers/net/wireless/bcm43xx/bcm43xx_main.c     |   34 -
- drivers/net/wireless/bcm43xx/bcm43xx_wx.c       |    2 
- drivers/net/wireless/orinoco.c                  |   16 -
- drivers/net/wireless/ray_cs.c                   |    1 
- drivers/net/wireless/zd1201.c                   |    6 
- drivers/net/wireless/zd1211rw/zd_mac.c          |    2 
- include/net/ieee80211softmac.h                  |   35 +
- net/core/wireless.c                             |   33 +
- net/ieee80211/softmac/ieee80211softmac_assoc.c  |   56 +-
- net/ieee80211/softmac/ieee80211softmac_io.c     |   11 
- net/ieee80211/softmac/ieee80211softmac_module.c |    1 
- net/ieee80211/softmac/ieee80211softmac_wx.c     |   71 ++-
- 30 files changed, 809 insertions(+), 626 deletions(-)
+Yes. You can continue to track my state in the "linus" branch as much as 
+you want, and "git merge-base" will show where your branch and mine 
+diverged, so you don't need to remember it explicitly.
 
-Andrew Morton:
-      r8169: PCI ID for Corega Gigabit network card
+Only if you start _mixing_ the branches (ie you merge "linus" into your 
+branch) do you end up in the situation where there now is no longer a 
+single-threaded line of development, so you can no longer expect to be 
+able to just use a direct "git diff".
 
-Arnaud Patard:
-      r8169: fix infinite loop during hotplug
+> >  (a) work on a "individual commit" level:
+> >
+> > 	git log -p linus..for-linus
+> >
+> >      will show each commit that is in your "for-linus" branch but is _not_ 
+> >      in your "linus" tracker branch. This does the right thing even in the 
+> >      presense of merges: it will show the merge commit you did (since that 
+> >      individual commit is _yours_), but it will not show the commits 
+> >      merged (since those came from _my_ line of development)
+> 
+> Ah, so "git log" will not show the commits that have popped up on
+> "linus" after "for-linus" branched off? Neat. :)
 
-Dave Jones:
-      Remove useless comment from sb1250
+That is what the git "a..b" syntax means for everything _but_ "diff". 
+Doing a "git diff" really is actually the special case: to create a diff, 
+you need two end-points. For all other git commands, "a..b" really means 
+"all commits that are in 'b' but not in 'a'", ie it's _not_ really about 
+two end-points, it's about a _set_ operation.
 
-Dave Kleikamp:
-      airo: check if need to freeze
+You should think of "a..b" as the "set difference" operation, or "b-a".
 
-David Gibson:
-      ibmveth: Fix index increment calculation
+There's also a "symmetric difference", which is called "a...b" (three 
+dots). That's the "union of the differences both ways", in other words, 
+"a...b" is the set of commits that exist in a _or_ b, but not in both.
 
-Deepak Saxena:
-      Update smc91x driver with ARM Versatile board info
+You can do some even more complex operations, and one that I find 
+reasonably useful at times is for example
 
-Eric Sesterhenn:
-      zd1201: Possible NULL dereference
+	gitk --all --not HEAD
 
-Florin Malita:
-      airo.c: check returned values
+which basically means: "show all commits in all branches, but subtract 
+everything that is reachable from the current HEAD". In other words, it 
+shows what commits exist in all the other branches that have not been 
+merged into the current one.
 
-Jean Tourrilhes:
-      orinoco: fix WE-21 buffer overflow
-      wireless: More WE-21 potential overflows...
+(The "--not HEAD" thing is mostly written as "^HEAD", but I wrote it out 
+in long-hand here because it is perhaps a bit more readable that way.)
 
-Jeff Garzik:
-      WAN/pc300: handle, propagate minor errors
+> One concern I had was how to find stuff to cherry-pick when doing a
+> stable review.
 
-John W. Linville:
-      zd1211rw: fix build-break caused by association race fix
-      wireless: WE-20 compatibility for ESSID and NICKN ioctls
+So looking at the above, what you can do is literally
 
-Larry Finger:
-      bcm43xx-softmac: check returned value from pci_enable_device
-      bcm43xx-softmac: Fix system hang for x86-64 with >1GB RAM
+	gitk --all ^linus
 
-Laurent Riffard:
-      sotftmac: fix a slab corruption in WEP restricted key association
+which shows all your branches _except_ stuff that is already merged into 
+the "linus" branch that tracks what I have merged.
 
-Li Yang:
-      ucc_geth: changes to ucc_geth driver as a result of qe_lib changes and bugfixes
+Git really is very clever.
 
-Linas Vepstas:
-      e1000: Reset all functions after a PCI error
+HOWEVER! A word of warning: especially when you start doing 
+cherry-picking, git will consider a commit that has been cherry-picked to 
+be totally _separate_ from the original one. So when you do things like 
+the above, and you have commits that have "identical patches" as the ones 
+I have already applied, they will show up as "not being in linus' branch". 
 
-Michael Buesch:
-      bcm43xx: fix race condition in periodic work handler
-      softmac: Fix WX and association related races
+That's because the identity of a commit is really not the patch it 
+describes at all: the commit is defined by the exact spot in the history, 
+and by the exact contents of that commit (which include date, time, 
+committer info, parents, exact tree state etc). So when you do a 
+"cherry-pick", you are very much creating a totally new commit - it just 
+happens to generate the same (or similar) _diff_.
 
-Ralf Baechle:
-      Fix timer race
+There are tools to help you filter out cherry-picked commits too, by 
+literally looking at the diff and saying "oh, that same diff already 
+exists upstream", but that's different. If you really care, you can look 
+at what "git cherry" does (and it's not very efficient).
 
-Stephen Hemminger:
-      sky2: 88E803X transmit lockup
+> git has a lot of these hidden features and ways of doing
+> less-than-obvious things, so I'm just trying to broaden my repertoire by
+> consulting those who have been using it on a more daily basis.
 
+You really can do a _lot_ with git. Part of what seems to scare some 
+people is that git really allows for a lot of power and flexibility, and 
+you can do some very fancy stuff. 
+
+At the same time, you can mostly also use it as if it were a lot dumber 
+than it really is. There are ways to limit your usage so that you'll never 
+even need to worry about things like multiple branches or cherry-picking 
+or merging or anything else, and try to just see your work as a linear 
+progression on top of a particular release version.
+
+I'll happily explain all the grotty details, but keep in mind that you 
+don't _need_ to use the features if you don't want to. 
+
+> I am just thankful git has a reset command ;)
+
+You can undo almost any mess you get yourself into (you _can_ really screw 
+that up too, if you do a combination of "reset" and "git prune", but you 
+have to work at it).
+
+The bigger problem may be that if you get yourself into a real mess, you 
+need to understand how you got there: you can always get back to a 
+previous state, sometimes you just need to know what that state _was_, and 
+if you get confused enough, even that can be a problem.
+
+"gitk" really does tend to help clarify what happened.
+
+			Linus

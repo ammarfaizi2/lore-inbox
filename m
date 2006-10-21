@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993011AbWJUNhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993036AbWJUNmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993011AbWJUNhT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 09:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993014AbWJUNhT
+	id S2993036AbWJUNmL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 09:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993041AbWJUNmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 09:37:19 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:62678 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S2993011AbWJUNhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 09:37:17 -0400
-Subject: Re: [PATCH 1/7] KVM: userspace interface
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Avi Kivity <avi@qumranet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <453781F9.3050703@qumranet.com>
-References: <4537818D.4060204@qumranet.com>  <453781F9.3050703@qumranet.com>
-Content-Type: text/plain
-Date: Sat, 21 Oct 2006 09:37:09 -0400
-Message-Id: <1161437829.16868.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Sat, 21 Oct 2006 09:42:11 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:37801 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S2993036AbWJUNmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 09:42:10 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Add include/linux/freezer.h and move definitions from sched.h
+Date: Sat, 21 Oct 2006 15:41:18 +0200
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
+       suspend2-devel <suspend2-devel@lists.suspend2.net>
+References: <1161433266.7644.7.camel@nigel.suspend2.net>
+In-Reply-To: <1161433266.7644.7.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610211541.19050.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-10-19 at 15:47 +0200, Avi Kivity wrote:
-> This patch defines a bunch of ioctl()s on /dev/kvm.  The ioctl()s allow
-> adding
-> memory to a virtual machine, adding a virtual cpu to a virtual machine (at
-> most one at this time), transferring control to the virtual cpu, and
-> querying
-> about guest pages changed by the virtual machine.
-> 
-> Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
-> Signed-off-by: Avi Kivity <avi@qumranet.com>
-> 
-> Index: linux-2.6/include/linux/kvm.h
-> ===================================================================
-> --- /dev/null
-> +++ linux-2.6/include/linux/kvm.h
+On Saturday, 21 October 2006 14:21, Nigel Cunningham wrote:
+> Move process freezing functions from include/linux/sched.h to freezer.h,
 
-[...]
+Hm, I'd rather move them to suspend.h.  Is there any reason for introducing
+yet another header file?
 
-> +
-> +/* for KVM_GET_REGS and KVM_SET_REGS */
-> +struct kvm_regs {
-> +    /* in */
-> +    __u32 vcpu;
-> +    __u32 padding;
-> +
-> +    /* out (KVM_GET_REGS) / in (KVM_SET_REGS) */
-> +    __u64 rax, rbx, rcx, rdx;
-> +    __u64 rsi, rdi, rsp, rbp;
-> +    __u64 r8,  r9,  r10, r11;
-> +    __u64 r12, r13, r14, r15;
-> +    __u64 rip, rflags;
-> +};
-> +
+> so that modifications to the freezer or the kernel configuration don't
+> require recompiling just about everything.
 
-I know this is for userspace too, but still. Shouldn't this be in
-include/asm-x86_64 and not include/linux.
+Yes, that's annoying.
 
--- Steve
-
-
+Greetings,
+Rafael

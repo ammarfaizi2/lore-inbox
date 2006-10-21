@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWJUCmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992802AbWJUCq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030383AbWJUCmO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 22:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbWJUCmO
+	id S2992802AbWJUCq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 22:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992800AbWJUCq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 22:42:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8686 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030383AbWJUCmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 22:42:14 -0400
-Date: Fri, 20 Oct 2006 22:41:05 -0400
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Eric Sandeen <sandeen@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] more helpful WARN_ON and BUG_ON messages
-Message-ID: <20061021024105.GA17706@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, Eric Sandeen <sandeen@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4538F81A.2070007@redhat.com> <20061020214101.GX3502@stusta.de> <45394615.5050406@redhat.com> <20061020220717.GY3502@stusta.de>
+	Fri, 20 Oct 2006 22:46:26 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:43488
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S2992796AbWJUCqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 22:46:25 -0400
+Date: Fri, 20 Oct 2006 19:46:27 -0700 (PDT)
+Message-Id: <20061020.194627.35015734.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: ralf@linux-mips.org, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+       linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0610201934170.3962@g5.osdl.org>
+References: <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
+	<20061020.191134.63996591.davem@davemloft.net>
+	<Pine.LNX.4.64.0610201934170.3962@g5.osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061020220717.GY3502@stusta.de>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 12:07:17AM +0200, Adrian Bunk wrote:
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 20 Oct 2006 19:37:24 -0700 (PDT)
 
- > > Most debugging code makes the kernel bigger, slower... and easier to
- > > debug, no?
- > > 
- > > It's not a question of not being -able- to locate sources; it's a
- > > question of being able to look at a bug report and triage it quickly
- > > without digging around to find the kernel du jour that produced it.  *shrug*
- > 
- > It's not that BUGs were that frequent.
+> On Fri, 20 Oct 2006, David Miller wrote:
+> > I think it could help for sun4m highmem configs.
+> 
+> Well, if you can re-create the performance numbers (Ralf - can you send 
+> the full series with the final "remove the now unnecessary flush" to 
+> Davem?), that will make deciding things easier, I think.
+> 
+> I suspect sparc, mips and arm are the main architectures where virtually 
+> indexed caching really matters enough for this to be an issue at all.
 
-You're not trying hard enough ;) 
-
- > And with your suggestion "I suppose this could be put under CONFIG_DEBUG", 
- > it would anyway be turned off by nearly everyone.
-
-For better bug reports, 16K is peanuts. We had exactly the same straw-man
-come up when kksymoops was first proposed. And now, most people don't run
-without it.
-
-I've seen numerous cases where reporters have hand transcribed BUG() reports,
-and got the line numbers wrong because they misremembered a 4 digit number.
-Words are inherently easier to remember, and even if typoed, usually there's
-enough context to figure out what the problem was without another round-trip
-to the bug reporter.
-
-If this were optional, I don't see how anyone can argue against it,
-and that should be a trivial improvement to Eric's existing patch.
-
-	Dave
-
--- 
-http://www.codemonkey.org.uk
+Unfortunately, I don't have any sparc 32-bit systems any more,
+so I can't really help out here.  I just make sure the build
+keeps working :-)

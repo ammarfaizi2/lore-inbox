@@ -1,83 +1,40 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751395AbWJMQ6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S2992821AbWJUFDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWJMQ6i (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 13 Oct 2006 12:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWJMQ6i
+	id S2992821AbWJUFDo (ORCPT <rfc822;akpm@zip.com.au>);
+	Sat, 21 Oct 2006 01:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992824AbWJUFDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Oct 2006 12:58:38 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:11783 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751395AbWJMQ6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Oct 2006 12:58:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=I2UXg2ah4hQFrar/19OeUb1KfvM7u/UEu1XXxbcA6auR09t0fKzrshJEiccQAimozDIjG7R+M6jTMCj4QijOBkAfjCt4RQ/MvcNBLXqCVh5Mif9sbda9E/Fgs3xJSfut2oKDyh2L6IIu5xVE11zY3WJWrSvuFjTP3gykDrVaMps=
-Date: Fri, 13 Oct 2006 18:58:40 +0200
-From: Luca Tettamanti <kronos.it@gmail.com>
-To: Yan Burman <yan_952@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Remn Yan <yan_952@hotmail.com> ha scritto:
-Message-ID: <20061013165840.GA9517@dreamland.darkstar.lan>
+	Sat, 21 Oct 2006 01:03:44 -0400
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:57772 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S2992821AbWJUFDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 01:03:44 -0400
+Date: Fri, 20 Oct 2006 22:03:41 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Chris Largret <largret@gmail.com>
+Subject: Re: 2.6.19-rc1, timebomb?
+Message-ID: <20061021050341.GA32640@tuatara.stupidest.org>
+References: <200610200130.44820.gene.heskett@verizon.net> <20061020212244.56f9f02b@localhost> <200610210037.57871.gene.heskett@verizon.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BAY20-F24D6EADDDBE9963D7307A4D80A0@phx.gbl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200610210037.57871.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burman Yan <yan_952@hotmail.com> ha scritto:
-> I would like to hear your remarks on this version.
+On Sat, Oct 21, 2006 at 12:37:56AM -0400, Gene Heskett wrote:
 
-A couple of small issues:
+> I guess I'm 'waiting for the other shoe to drop' Until that time,
+> everything seems normal.  But I did just note that 'fam' is using up
+> to 99.3% of the cpu, which is unusual considering that amanda is
+> also running, and its usually gtar thats the hog.  This is according
+> to htop.
 
-> +/* Sysfs stuff */
-> +static ssize_t mdps_position_show(struct device *dev,
-> +                                  struct device_attribute *attr, char *buf)
-> +{
-> +	int x, y;
-> +	mdps_get_xy(mdps.device->handle, &x, &y);
-> +	return sprintf(buf, "(%d, %d)\n", x, y);
-> +}
+I've had a few spontaneous restarts (which actually might have been
+shutdowns, any key press will make the machine up so a power down when
+working would probably look like a restart).
 
-hdaps doesn't have the space between the numbers.
-
-> +static ssize_t mdps_position3d_show(struct device *dev,
-> +                                    struct device_attribute *attr, char *buf)
-> +{
-[...]
-> +	return sprintf(buf, "(%d, %d, %d)\n", x, y, z);
-> +}
-
-I'd also remove the space here for consistency.
-Also sysfs should carry "unformatted" data, I would use:
-
-sprintf(buf, "%d %d %d\n", x, y, z);
-
-Maybe we should take a moment to think about an interface for both hdaps
-and this one.
-
-> +static ssize_t mdps_calibrate_store(struct device *dev,
-> +                   struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	mdps_calibrate_mouse();
-> +	return count;
-> +}
-
-No locking here?
-
-> +static ssize_t mdps_rate_show(struct device *dev,
-> +                              struct device_attribute *attr, char *buf)
-> +{
-[...]
-> +	return sprintf(buf, "sampling rate:\t%dHz\n", rate);
-> +}
-
-Raw value, i.e. sprintf(buf, "%d\n", rate).
-
-
-Luca
--- 
-Colui che sorride quando le cose vanno male ha pensato a qualcuno a cui
-dare la colpa.
+I've assumed these were heat related, mostly because they also
+occurred when the CPU was working hard and the weather has been pretty
+warm lately.

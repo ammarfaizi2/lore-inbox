@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993136AbWJUQy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993153AbWJUQzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993136AbWJUQy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 12:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993143AbWJUQyy
+	id S2993153AbWJUQzq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 12:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2993141AbWJUQva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 12:54:54 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:12766 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S2993136AbWJUQyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 12:54:32 -0400
-Message-ID: <453A52CE.80605@wolfmountaingroup.com>
-Date: Sat, 21 Oct 2006 11:03:10 -0600
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 3Ware delayed device mounting errors with newer 9500 series adapters
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Oct 2006 12:51:30 -0400
+Received: from mx1.suse.de ([195.135.220.2]:41116 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S2993137AbWJUQv0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 12:51:26 -0400
+From: Andi Kleen <ak@suse.de>
+References: <20061021 651.356252000@suse.de>
+In-Reply-To: <20061021 651.356252000@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Jan Beulich <jbeulich@novell.com>, Ingo Molnar <mingo@elte.hu>,
+       patches@x86-64.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [5/19] i386: fix .cfi_signal_frame copy-n-paste error
+Message-Id: <20061021165124.E6E0F13CB4@wotan.suse.de>
+Date: Sat, 21 Oct 2006 18:51:24 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Adam,
+From: Andrew Morton <akpm@osdl.org>
 
-We have been getting 3Ware 9500 series adapters in the past 60 days 
-which exhibit a delayed behavior during mounting of FS from
-/etc/fstab.   The adapters older than this do not exhibit this behavior. 
+This was copied, pasted but not edited.
 
-During bootup, if the driver is compiled as a module rather than in 
-kernel, mount points such as /var in fstab fail to detect the devices
-until the system fully boots, at which point the /dev/sdb etc. devices 
-showup.  It happens on both ATA cabled drives and drives
-cabled with multi-lane controller backplanes.
+Cc: Andi Kleen <ak@muc.de>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-The problem is easy to reproduce.  Install ES4, point the /var directory 
-during install to one of the array devices in disk druid, and after
-the install completes, /var/ will not mount during bootup and all sorts 
-of errors stream off the screen.  I can reproduce the problem
-with several systems in our labs and upon investigating the adapter 
-revisions, I find that adapters ordered in the past 60 days exhibit
-the problem.   Compiling the driver in kernel gets around the problem, 
-indicating its timing related.
+---
 
-Jeff
+ arch/i386/Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/arch/i386/Makefile
+===================================================================
+--- linux.orig/arch/i386/Makefile
++++ linux/arch/i386/Makefile
+@@ -51,8 +51,8 @@ cflags-y += $(call as-instr,.cfi_startpr
+ AFLAGS += $(call as-instr,.cfi_startproc\n.cfi_endproc,-DCONFIG_AS_CFI=1,)
+ 
+ # is .cfi_signal_frame supported too?
+-cflags-y += $(call as-instr,.cfi_startproc\n.cfi_endproc,-DCONFIG_AS_CFI=1,)
+-AFLAGS += $(call as-instr,.cfi_startproc\n.cfi_endproc,-DCONFIG_AS_CFI=1,)
++cflags-y += $(call as-instr,.cfi_startproc\n.cfi_signal_frame\n.cfi_endproc,-DCONFIG_AS_CFI_SIGNAL_FRAME=1,)
++AFLAGS += $(call as-instr,.cfi_startproc\n.cfi_signal_frame\n.cfi_endproc,-DCONFIG_AS_CFI_SIGNAL_FRAME=1,)
+ 
+ CFLAGS += $(cflags-y)
+ 

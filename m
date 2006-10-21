@@ -1,98 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993164AbWJURxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2993143AbWJURzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2993164AbWJURxB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 13:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423378AbWJURxA
+	id S2993143AbWJURzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 13:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423375AbWJURzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 13:53:00 -0400
-Received: from xenotime.net ([66.160.160.81]:55995 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1423375AbWJURw7 (ORCPT
+	Sat, 21 Oct 2006 13:55:19 -0400
+Received: from mga09.intel.com ([134.134.136.24]:56244 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S2993143AbWJURzS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 13:52:59 -0400
-Date: Sat, 21 Oct 2006 10:54:35 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Randy Dunlap <randy.dunlap@oracle.com>, Alan Cox <alan@redhat.com>,
-       Patrick Jefferson <henj@hp.com>, Kenny Graunke <kenny@whitecape.org>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [2.6.19 patch] drivers/ide/pci/generic.c: re-add the
- __setup("all-generic-ide",...)
-Message-Id: <20061021105435.9f07d613.rdunlap@xenotime.net>
-In-Reply-To: <20061020210533.GW3502@stusta.de>
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
-	<20061017155934.GC3502@stusta.de>
-	<4534C7A7.7000607@hp.com>
-	<20061018221520.GK3502@stusta.de>
-	<20061018231844.GA16857@devserv.devel.redhat.com>
-	<20061019152651.GR3502@stusta.de>
-	<20061019090741.853ea100.randy.dunlap@oracle.com>
-	<20061019161338.GT3502@stusta.de>
-	<1161275398.17335.87.camel@localhost.localdomain>
-	<20061020210533.GW3502@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 21 Oct 2006 13:55:18 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,338,1157353200"; 
+   d="scan'208"; a="148608848:sNHT20486382"
+Message-ID: <453A5EBA.5050701@intel.com>
+Date: Sat, 21 Oct 2006 10:54:02 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Damien Wyart <damien.wyart@free.fr>
+CC: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: [PATCH] e100_shutdown: netif_poll_disable hang
+References: <20061020182820.978932000@mvista.com> <453936E0.1010204@intel.com>	<45393B0B.8090301@intel.com> <87slhh1s90.fsf@brouette.noos.fr>
+In-Reply-To: <87slhh1s90.fsf@brouette.noos.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006 23:05:33 +0200 Adrian Bunk wrote:
-
-> On Thu, Oct 19, 2006 at 05:29:58PM +0100, Alan Cox wrote:
-> > Ar Iau, 2006-10-19 am 18:13 +0200, ysgrifennodd Adrian Bunk:
-> > > > Missing update to Documentation/kernel-parameters.txt ?
-> > > > (maybe it's been missing forever?)
-> > > 
-> > > It's been missing forever.
-> > > 
-> > > I'm not sure whether documenting it now where it's deprecated and nearly 
-> > > dead makes sense..
-> > 
-> > Its not dead, its so useful that drivers/ata also supports it
+Damien Wyart wrote:
+>>>> My machine annoyingly hangs while rebooting. I tracked it down to
+>>>> e100-fix-reboot-f-with-netconsole-enabled.patch in 2.6.18-rc2-mm2
+>>>> I review the changes and it seemed to be calling
+>>>> netif_poll_disable one too many time. Once in e100_down(), and
+>>>> again in e100_shutdown().
+>>>> The second one in e100_shutdown() caused the hang. So this patch
+>>>> removes it.
 > 
-> But in the drivers/ata case it's a module parameter, not a __setup 
-> kernel parameter.
+> * Auke Kok <auke-jan.h.kok@intel.com> [061020 23:09]:
+>> it doesn't even do harm to netif_poll_disable() twice as far as I can
+>> see, as it merely calls test_and_set_bit(), which will instantly
+>> succeed on the first attempt if the bit was already set.
+> 
+>> did this change actually fix it for you? I'm wondering if the
+>> netif_carrier_off might not be the culprit here...
+> 
+> I can confirm the proposed original change of D. Walker fixed the
+> problem for me. I did not test the change you proposed as a followup.
 
-That's just an implementation nit/detail.  Users don't care which
-way it's implemented, they just need to see some reasonable
-documentation.
+his change breaks something else (a reboot with netconsole, possibly suspend). Please 
+give the latest version I sent a try. Daniel confirmed me that it works, but it's always 
+nice to hear it from more people.
 
-> And I don't think it makes sense to manually add module parameters to 
-> kernel-parameters.txt
+Thanks
 
-There are module parameters there already...
-so we are being inconsistent.
-
-> If a documentation of all module parameters is considered useful, 
-> someone should write a script to automatically generate such a list.
-
-I think that sounds great -- in theory.  Really, I do.
-I even wrote a (simple) script for it last night.[1]
-(but someone else is free to redo it, and probably not in
-shell script :)
-
-And maybe one "development community" answer is that this is
-a distro problem, let them handle it.  (I don't like that answer,
-but possibly the distros are OK with it.  I don't know.)
-
-Ideally, users would be able to see/read documentation (like kernel
-or module parameters) (a) without reading the source code and
-(b) without building the module binary files.  Maybe that's too
-much to ask of the development community, so the users can just
-build all 1500 or so (and growing) loadable kernel modules
-and run 'modinfo' on them to see what the possible module
-parameters are.  Of course, if they need this information to be
-able to install their (only) Linux system, then they are out of
-luck, or they can use their other (or working) OS to search the
-internet for such documenation.
-
-Anyway, regarding your suggestion:  Yes, I think that it would be
-good to generate such documentation instead of maintaining it
-(and sometimes not doing that).  Maybe someone can & will make
-that happen.
-
----
-~Randy
-[1] http://www.xenotime.net/linux/scripts/module-params
+Auke

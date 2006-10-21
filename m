@@ -1,303 +1,334 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992851AbWJUHOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992869AbWJUHOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S2992851AbWJUHOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 03:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992849AbWJUHN6
+	id S2992869AbWJUHOo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 03:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161177AbWJUHOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 03:13:58 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:21127 "EHLO
+	Sat, 21 Oct 2006 03:14:44 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:28039 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S2992841AbWJUHNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 03:13:44 -0400
+	id S2992863AbWJUHOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 03:14:39 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 09 of 23] nfs: change uses of f_{dentry,vfsmnt} to use f_path
-Message-Id: <589a0f34320fac3a5156.1161411454@thor.fsl.cs.sunysb.edu>
+Subject: [PATCH 03 of 23] proc: change uses of f_{dentry, vfsmnt} to use f_path
+Message-Id: <e3dd4914187376d8a831.1161411448@thor.fsl.cs.sunysb.edu>
 In-Reply-To: <patchbomb.1161411445@thor.fsl.cs.sunysb.edu>
-Date: Sat, 21 Oct 2006 02:17:34 -0400
+Date: Sat, 21 Oct 2006 02:17:28 -0400
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@infradead.org, trond.myklebust@fys.uio.no
+       viro@ftp.linux.org.uk, hch@infradead.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 This patch changes all the uses of f_{dentry,vfsmnt} to f_path.{dentry,mnt}
-in the nfs client code.
+in the proc filesystem code.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
 ---
 
-8 files changed, 29 insertions(+), 29 deletions(-)
-fs/nfs/dir.c      |   18 +++++++++---------
-fs/nfs/direct.c   |   10 +++++-----
-fs/nfs/file.c     |   14 +++++++-------
-fs/nfs/idmap.c    |    2 +-
-fs/nfs/inode.c    |    6 +++---
-fs/nfs/nfs3proc.c |    2 +-
-fs/nfs/proc.c     |    2 +-
-fs/nfs/write.c    |    4 ++--
+5 files changed, 33 insertions(+), 33 deletions(-)
+fs/proc/base.c       |   40 ++++++++++++++++++++--------------------
+fs/proc/generic.c    |   10 +++++-----
+fs/proc/nommu.c      |    4 ++--
+fs/proc/task_mmu.c   |    8 ++++----
+fs/proc/task_nommu.c |    4 ++--
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -172,7 +172,7 @@ int nfs_readdir_filler(nfs_readdir_descr
- int nfs_readdir_filler(nfs_readdir_descriptor_t *desc, struct page *page)
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -471,7 +471,7 @@ static ssize_t proc_info_read(struct fil
+ static ssize_t proc_info_read(struct file * file, char __user * buf,
+ 			  size_t count, loff_t *ppos)
  {
- 	struct file	*file = desc->file;
--	struct inode	*inode = file->f_dentry->d_inode;
-+	struct inode	*inode = file->f_path.dentry->d_inode;
- 	struct rpc_cred	*cred = nfs_file_cred(file);
- 	unsigned long	timestamp;
- 	int		error;
-@@ -183,7 +183,7 @@ int nfs_readdir_filler(nfs_readdir_descr
- 
-  again:
- 	timestamp = jiffies;
--	error = NFS_PROTO(inode)->readdir(file->f_dentry, cred, desc->entry->cookie, page,
-+	error = NFS_PROTO(inode)->readdir(file->f_path.dentry, cred, desc->entry->cookie, page,
- 					  NFS_SERVER(inode)->dtsize, desc->plus);
- 	if (error < 0) {
- 		/* We requested READDIRPLUS, but the server doesn't grok it */
-@@ -308,7 +308,7 @@ static inline
- static inline
- int find_dirent_page(nfs_readdir_descriptor_t *desc)
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	unsigned long page;
+ 	ssize_t length;
+ 	struct task_struct *task = get_proc_task(inode);
+@@ -511,7 +511,7 @@ static ssize_t mem_read(struct file * fi
+ static ssize_t mem_read(struct file * file, char __user * buf,
+ 			size_t count, loff_t *ppos)
  {
--	struct inode	*inode = desc->file->f_dentry->d_inode;
-+	struct inode	*inode = desc->file->f_path.dentry->d_inode;
- 	struct page	*page;
- 	int		status;
- 
-@@ -464,7 +464,7 @@ int uncached_readdir(nfs_readdir_descrip
- 		     filldir_t filldir)
+-	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
++	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+ 	char *page;
+ 	unsigned long src = *ppos;
+ 	int ret = -ESRCH;
+@@ -583,7 +583,7 @@ static ssize_t mem_write(struct file * f
  {
- 	struct file	*file = desc->file;
--	struct inode	*inode = file->f_dentry->d_inode;
-+	struct inode	*inode = file->f_path.dentry->d_inode;
- 	struct rpc_cred	*cred = nfs_file_cred(file);
- 	struct page	*page = NULL;
- 	int		status;
-@@ -477,7 +477,7 @@ int uncached_readdir(nfs_readdir_descrip
- 		status = -ENOMEM;
- 		goto out;
- 	}
--	desc->error = NFS_PROTO(inode)->readdir(file->f_dentry, cred, *desc->dir_cookie,
-+	desc->error = NFS_PROTO(inode)->readdir(file->f_path.dentry, cred, *desc->dir_cookie,
- 						page,
- 						NFS_SERVER(inode)->dtsize,
- 						desc->plus);
-@@ -516,7 +516,7 @@ int uncached_readdir(nfs_readdir_descrip
-  */
- static int nfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
+ 	int copied;
+ 	char *page;
+-	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
++	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+ 	unsigned long dst = *ppos;
+ 
+ 	copied = -ESRCH;
+@@ -653,7 +653,7 @@ static ssize_t oom_adjust_read(struct fi
+ static ssize_t oom_adjust_read(struct file *file, char __user *buf,
+ 				size_t count, loff_t *ppos)
  {
--	struct dentry	*dentry = filp->f_dentry;
-+	struct dentry	*dentry = filp->f_path.dentry;
- 	struct inode	*inode = dentry->d_inode;
- 	nfs_readdir_descriptor_t my_desc,
- 			*desc = &my_desc;
-@@ -599,7 +599,7 @@ static int nfs_readdir(struct file *filp
- 
- loff_t nfs_llseek_dir(struct file *filp, loff_t offset, int origin)
+-	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
++	struct task_struct *task = get_proc_task(file->f_path.dentry->d_inode);
+ 	char buffer[PROC_NUMBUF];
+ 	size_t len;
+ 	int oom_adjust;
+@@ -695,7 +695,7 @@ static ssize_t oom_adjust_write(struct f
+ 		return -EINVAL;
+ 	if (*end == '\n')
+ 		end++;
+-	task = get_proc_task(file->f_dentry->d_inode);
++	task = get_proc_task(file->f_path.dentry->d_inode);
+ 	if (!task)
+ 		return -ESRCH;
+ 	task->oomkilladj = oom_adjust;
+@@ -715,7 +715,7 @@ static ssize_t proc_loginuid_read(struct
+ static ssize_t proc_loginuid_read(struct file * file, char __user * buf,
+ 				  size_t count, loff_t *ppos)
  {
--	mutex_lock(&filp->f_dentry->d_inode->i_mutex);
-+	mutex_lock(&filp->f_path.dentry->d_inode->i_mutex);
- 	switch (origin) {
- 		case 1:
- 			offset += filp->f_pos;
-@@ -615,7 +615,7 @@ loff_t nfs_llseek_dir(struct file *filp,
- 		((struct nfs_open_context *)filp->private_data)->dir_cookie = 0;
- 	}
- out:
--	mutex_unlock(&filp->f_dentry->d_inode->i_mutex);
-+	mutex_unlock(&filp->f_path.dentry->d_inode->i_mutex);
- 	return offset;
- }
- 
-@@ -1093,7 +1093,7 @@ no_open:
- 
- static struct dentry *nfs_readdir_lookup(nfs_readdir_descriptor_t *desc)
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	struct task_struct *task = get_proc_task(inode);
+ 	ssize_t length;
+ 	char tmpbuf[TMPBUFLEN];
+@@ -731,7 +731,7 @@ static ssize_t proc_loginuid_write(struc
+ static ssize_t proc_loginuid_write(struct file * file, const char __user * buf,
+ 				   size_t count, loff_t *ppos)
  {
--	struct dentry *parent = desc->file->f_dentry;
-+	struct dentry *parent = desc->file->f_path.dentry;
- 	struct inode *dir = parent->d_inode;
- 	struct nfs_entry *entry = desc->entry;
- 	struct dentry *dentry, *alias;
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -116,7 +116,7 @@ ssize_t nfs_direct_IO(int rw, struct kio
- ssize_t nfs_direct_IO(int rw, struct kiocb *iocb, const struct iovec *iov, loff_t pos, unsigned long nr_segs)
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	char *page, *tmp;
+ 	ssize_t length;
+ 	uid_t loginuid;
+@@ -782,7 +782,7 @@ static ssize_t seccomp_read(struct file 
+ static ssize_t seccomp_read(struct file *file, char __user *buf,
+ 			    size_t count, loff_t *ppos)
  {
- 	dprintk("NFS: nfs_direct_IO (%s) off/no(%Ld/%lu) EINVAL\n",
--			iocb->ki_filp->f_dentry->d_name.name,
-+			iocb->ki_filp->f_path.dentry->d_name.name,
- 			(long long) pos, nr_segs);
- 
- 	return -EINVAL;
-@@ -740,8 +740,8 @@ ssize_t nfs_file_direct_read(struct kioc
- 	size_t count = iov[0].iov_len;
- 
- 	dprintk("nfs: direct read(%s/%s, %lu@%Ld)\n",
--		file->f_dentry->d_parent->d_name.name,
--		file->f_dentry->d_name.name,
-+		file->f_path.dentry->d_parent->d_name.name,
-+		file->f_path.dentry->d_name.name,
- 		(unsigned long) count, (long long) pos);
- 
- 	if (nr_segs != 1)
-@@ -804,8 +804,8 @@ ssize_t nfs_file_direct_write(struct kio
- 	size_t count = iov[0].iov_len;
- 
- 	dfprintk(VFS, "nfs: direct write(%s/%s, %lu@%Ld)\n",
--		file->f_dentry->d_parent->d_name.name,
--		file->f_dentry->d_name.name,
-+		file->f_path.dentry->d_parent->d_name.name,
-+		file->f_path.dentry->d_name.name,
- 		(unsigned long) count, (long long) pos);
- 
- 	if (nr_segs != 1)
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -176,7 +176,7 @@ nfs_file_flush(struct file *file, fl_own
- nfs_file_flush(struct file *file, fl_owner_t id)
+-	struct task_struct *tsk = get_proc_task(file->f_dentry->d_inode);
++	struct task_struct *tsk = get_proc_task(file->f_path.dentry->d_inode);
+ 	char __buf[20];
+ 	loff_t __ppos = *ppos;
+ 	size_t len;
+@@ -805,7 +805,7 @@ static ssize_t seccomp_write(struct file
+ static ssize_t seccomp_write(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
  {
- 	struct nfs_open_context *ctx = (struct nfs_open_context *)file->private_data;
--	struct inode	*inode = file->f_dentry->d_inode;
-+	struct inode	*inode = file->f_path.dentry->d_inode;
- 	int		status;
- 
- 	dfprintk(VFS, "nfs: flush(%s/%ld)\n", inode->i_sb->s_id, inode->i_ino);
-@@ -201,7 +201,7 @@ nfs_file_read(struct kiocb *iocb, const 
- nfs_file_read(struct kiocb *iocb, const struct iovec *iov,
- 		unsigned long nr_segs, loff_t pos)
- {
--	struct dentry * dentry = iocb->ki_filp->f_dentry;
-+	struct dentry * dentry = iocb->ki_filp->f_path.dentry;
- 	struct inode * inode = dentry->d_inode;
+-	struct task_struct *tsk = get_proc_task(file->f_dentry->d_inode);
++	struct task_struct *tsk = get_proc_task(file->f_path.dentry->d_inode);
+ 	char __buf[20], *end;
+ 	unsigned int seccomp_mode;
  	ssize_t result;
- 	size_t count = iov_length(iov, nr_segs);
-@@ -226,7 +226,7 @@ nfs_file_sendfile(struct file *filp, lof
- nfs_file_sendfile(struct file *filp, loff_t *ppos, size_t count,
- 		read_actor_t actor, void *target)
+@@ -1075,7 +1075,7 @@ static int proc_fill_cache(struct file *
+ 	char *name, int len,
+ 	instantiate_t instantiate, struct task_struct *task, void *ptr)
+ {
+-	struct dentry *child, *dir = filp->f_dentry;
++	struct dentry *child, *dir = filp->f_path.dentry;
+ 	struct inode *inode;
+ 	struct qstr qname;
+ 	ino_t ino = 0;
+@@ -1154,8 +1154,8 @@ static int proc_fd_link(struct inode *in
+ 		spin_lock(&files->file_lock);
+ 		file = fcheck_files(files, fd);
+ 		if (file) {
+-			*mnt = mntget(file->f_vfsmnt);
+-			*dentry = dget(file->f_dentry);
++			*mnt = mntget(file->f_path.mnt);
++			*dentry = dget(file->f_path.dentry);
+ 			spin_unlock(&files->file_lock);
+ 			put_files_struct(files);
+ 			return 0;
+@@ -1290,7 +1290,7 @@ static int proc_fd_fill_cache(struct fil
+ 
+ static int proc_readfd(struct file * filp, void * dirent, filldir_t filldir)
  {
 -	struct dentry *dentry = filp->f_dentry;
 +	struct dentry *dentry = filp->f_path.dentry;
  	struct inode *inode = dentry->d_inode;
- 	ssize_t res;
- 
-@@ -243,7 +243,7 @@ static int
- static int
- nfs_file_mmap(struct file * file, struct vm_area_struct * vma)
+ 	struct task_struct *p = get_proc_task(inode);
+ 	unsigned int fd, tid, ino;
+@@ -1437,7 +1437,7 @@ static int proc_pident_readdir(struct fi
  {
--	struct dentry *dentry = file->f_dentry;
-+	struct dentry *dentry = file->f_path.dentry;
+ 	int i;
+ 	int pid;
+-	struct dentry *dentry = filp->f_dentry;
++	struct dentry *dentry = filp->f_path.dentry;
  	struct inode *inode = dentry->d_inode;
- 	int	status;
+ 	struct task_struct *task = get_proc_task(inode);
+ 	struct pid_entry *p, *last;
+@@ -1493,7 +1493,7 @@ static ssize_t proc_pid_attr_read(struct
+ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
+ 				  size_t count, loff_t *ppos)
+ {
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	unsigned long page;
+ 	ssize_t length;
+ 	struct task_struct *task = get_proc_task(inode);
+@@ -1509,7 +1509,7 @@ static ssize_t proc_pid_attr_read(struct
+ 		goto out;
  
-@@ -343,7 +343,7 @@ static ssize_t nfs_file_write(struct kio
- static ssize_t nfs_file_write(struct kiocb *iocb, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t pos)
+ 	length = security_getprocattr(task,
+-				      (char*)file->f_dentry->d_name.name,
++				      (char*)file->f_path.dentry->d_name.name,
+ 				      (void*)page, count);
+ 	if (length >= 0)
+ 		length = simple_read_from_buffer(buf, count, ppos, (char *)page, length);
+@@ -1523,7 +1523,7 @@ static ssize_t proc_pid_attr_write(struc
+ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+ 				   size_t count, loff_t *ppos)
  {
--	struct dentry * dentry = iocb->ki_filp->f_dentry;
-+	struct dentry * dentry = iocb->ki_filp->f_path.dentry;
- 	struct inode * inode = dentry->d_inode;
- 	ssize_t result;
- 	size_t count = iov_length(iov, nr_segs);
-@@ -529,8 +529,8 @@ static int nfs_flock(struct file *filp, 
- static int nfs_flock(struct file *filp, int cmd, struct file_lock *fl)
- {
- 	dprintk("NFS: nfs_flock(f=%s/%ld, t=%x, fl=%x)\n",
--			filp->f_dentry->d_inode->i_sb->s_id,
--			filp->f_dentry->d_inode->i_ino,
-+			filp->f_path.dentry->d_inode->i_sb->s_id,
-+			filp->f_path.dentry->d_inode->i_ino,
- 			fl->fl_type, fl->fl_flags);
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	char *page;
+ 	ssize_t length;
+ 	struct task_struct *task = get_proc_task(inode);
+@@ -1549,7 +1549,7 @@ static ssize_t proc_pid_attr_write(struc
+ 		goto out_free;
  
- 	/*
-diff --git a/fs/nfs/idmap.c b/fs/nfs/idmap.c
---- a/fs/nfs/idmap.c
-+++ b/fs/nfs/idmap.c
-@@ -377,7 +377,7 @@ static ssize_t
- static ssize_t
- idmap_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	length = security_setprocattr(task,
+-				      (char*)file->f_dentry->d_name.name,
++				      (char*)file->f_path.dentry->d_name.name,
+ 				      (void*)page, count);
+ out_free:
+ 	free_page((unsigned long) page);
+@@ -1990,7 +1990,7 @@ int proc_pid_readdir(struct file * filp,
+ int proc_pid_readdir(struct file * filp, void * dirent, filldir_t filldir)
  {
--        struct rpc_inode *rpci = RPC_I(filp->f_dentry->d_inode);
-+        struct rpc_inode *rpci = RPC_I(filp->f_path.dentry->d_inode);
- 	struct idmap *idmap = (struct idmap *)rpci->private;
- 	struct idmap_msg im_in, *im = &idmap->idmap_im;
- 	struct idmap_hashtable *h;
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -496,7 +496,7 @@ void put_nfs_open_context(struct nfs_ope
-  */
- static void nfs_file_set_open_context(struct file *filp, struct nfs_open_context *ctx)
+ 	unsigned int nr = filp->f_pos - FIRST_PROCESS_ENTRY;
+-	struct task_struct *reaper = get_proc_task(filp->f_dentry->d_inode);
++	struct task_struct *reaper = get_proc_task(filp->f_path.dentry->d_inode);
+ 	struct task_struct *task;
+ 	int tgid;
+ 
+@@ -2231,7 +2231,7 @@ static int proc_task_fill_cache(struct f
+ /* for the /proc/TGID/task/ directories */
+ static int proc_task_readdir(struct file * filp, void * dirent, filldir_t filldir)
  {
+-	struct dentry *dentry = filp->f_dentry;
++	struct dentry *dentry = filp->f_path.dentry;
+ 	struct inode *inode = dentry->d_inode;
+ 	struct task_struct *leader = get_proc_task(inode);
+ 	struct task_struct *task;
+diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+--- a/fs/proc/generic.c
++++ b/fs/proc/generic.c
+@@ -52,7 +52,7 @@ proc_file_read(struct file *file, char _
+ proc_file_read(struct file *file, char __user *buf, size_t nbytes,
+ 	       loff_t *ppos)
+ {
+-	struct inode * inode = file->f_dentry->d_inode;
++	struct inode * inode = file->f_path.dentry->d_inode;
+ 	char 	*page;
+ 	ssize_t	retval=0;
+ 	int	eof=0;
+@@ -203,7 +203,7 @@ proc_file_write(struct file *file, const
+ proc_file_write(struct file *file, const char __user *buffer,
+ 		size_t count, loff_t *ppos)
+ {
+-	struct inode *inode = file->f_dentry->d_inode;
++	struct inode *inode = file->f_path.dentry->d_inode;
+ 	struct proc_dir_entry * dp;
+ 	
+ 	dp = PDE(inode);
+@@ -432,7 +432,7 @@ int proc_readdir(struct file * filp,
+ 	struct proc_dir_entry * de;
+ 	unsigned int ino;
+ 	int i;
 -	struct inode *inode = filp->f_dentry->d_inode;
 +	struct inode *inode = filp->f_path.dentry->d_inode;
- 	struct nfs_inode *nfsi = NFS_I(inode);
+ 	int ret = 0;
  
- 	filp->private_data = get_nfs_open_context(ctx);
-@@ -528,7 +528,7 @@ struct nfs_open_context *nfs_find_open_c
+ 	lock_kernel();
+@@ -453,7 +453,7 @@ int proc_readdir(struct file * filp,
+ 			/* fall through */
+ 		case 1:
+ 			if (filldir(dirent, "..", 2, i,
+-				    parent_ino(filp->f_dentry),
++				    parent_ino(filp->f_path.dentry),
+ 				    DT_DIR) < 0)
+ 				goto out;
+ 			i++;
+@@ -558,7 +558,7 @@ static void proc_kill_inodes(struct proc
+ 	file_list_lock();
+ 	list_for_each(p, &sb->s_files) {
+ 		struct file * filp = list_entry(p, struct file, f_u.fu_list);
+-		struct dentry * dentry = filp->f_dentry;
++		struct dentry * dentry = filp->f_path.dentry;
+ 		struct inode * inode;
+ 		const struct file_operations *fops;
  
- static void nfs_file_clear_open_context(struct file *filp)
- {
--	struct inode *inode = filp->f_dentry->d_inode;
-+	struct inode *inode = filp->f_path.dentry->d_inode;
- 	struct nfs_open_context *ctx = (struct nfs_open_context *)filp->private_data;
+diff --git a/fs/proc/nommu.c b/fs/proc/nommu.c
+--- a/fs/proc/nommu.c
++++ b/fs/proc/nommu.c
+@@ -46,7 +46,7 @@ int nommu_vma_show(struct seq_file *m, s
+ 	file = vma->vm_file;
  
- 	if (ctx) {
-@@ -551,7 +551,7 @@ int nfs_open(struct inode *inode, struct
- 	cred = rpcauth_lookupcred(NFS_CLIENT(inode)->cl_auth, 0);
- 	if (IS_ERR(cred))
- 		return PTR_ERR(cred);
--	ctx = alloc_nfs_open_context(filp->f_vfsmnt, filp->f_dentry, cred);
-+	ctx = alloc_nfs_open_context(filp->f_path.mnt, filp->f_path.dentry, cred);
- 	put_rpccred(cred);
- 	if (ctx == NULL)
- 		return -ENOMEM;
-diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
---- a/fs/nfs/nfs3proc.c
-+++ b/fs/nfs/nfs3proc.c
-@@ -889,7 +889,7 @@ static int
- static int
- nfs3_proc_lock(struct file *filp, int cmd, struct file_lock *fl)
- {
--	return nlmclnt_proc(filp->f_dentry->d_inode, cmd, fl);
-+	return nlmclnt_proc(filp->f_path.dentry->d_inode, cmd, fl);
- }
+ 	if (file) {
+-		struct inode *inode = vma->vm_file->f_dentry->d_inode;
++		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+ 		dev = inode->i_sb->s_dev;
+ 		ino = inode->i_ino;
+ 	}
+@@ -67,7 +67,7 @@ int nommu_vma_show(struct seq_file *m, s
+ 		if (len < 1)
+ 			len = 1;
+ 		seq_printf(m, "%*c", len, ' ');
+-		seq_path(m, file->f_vfsmnt, file->f_dentry, "");
++		seq_path(m, file->f_path.mnt, file->f_path.dentry, "");
+ 	}
  
- const struct nfs_rpc_ops nfs_v3_clientops = {
-diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
---- a/fs/nfs/proc.c
-+++ b/fs/nfs/proc.c
-@@ -680,7 +680,7 @@ static int
- static int
- nfs_proc_lock(struct file *filp, int cmd, struct file_lock *fl)
- {
--	return nlmclnt_proc(filp->f_dentry->d_inode, cmd, fl);
-+	return nlmclnt_proc(filp->f_path.dentry->d_inode, cmd, fl);
- }
+ 	seq_putc(m, '\n');
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -94,8 +94,8 @@ int proc_exe_link(struct inode *inode, s
+ 	}
  
+ 	if (vma) {
+-		*mnt = mntget(vma->vm_file->f_vfsmnt);
+-		*dentry = dget(vma->vm_file->f_dentry);
++		*mnt = mntget(vma->vm_file->f_path.mnt);
++		*dentry = dget(vma->vm_file->f_path.dentry);
+ 		result = 0;
+ 	}
  
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -823,8 +823,8 @@ int nfs_updatepage(struct file *file, st
- 	nfs_inc_stats(inode, NFSIOS_VFSUPDATEPAGE);
+@@ -135,7 +135,7 @@ static int show_map_internal(struct seq_
+ 	int len;
  
- 	dprintk("NFS:      nfs_updatepage(%s/%s %d@%Ld)\n",
--		file->f_dentry->d_parent->d_name.name,
--		file->f_dentry->d_name.name, count,
-+		file->f_path.dentry->d_parent->d_name.name,
-+		file->f_path.dentry->d_name.name, count,
- 		(long long)(page_offset(page) +offset));
+ 	if (file) {
+-		struct inode *inode = vma->vm_file->f_dentry->d_inode;
++		struct inode *inode = vma->vm_file->f_path.dentry->d_inode;
+ 		dev = inode->i_sb->s_dev;
+ 		ino = inode->i_ino;
+ 	}
+@@ -156,7 +156,7 @@ static int show_map_internal(struct seq_
+ 	 */
+ 	if (file) {
+ 		pad_len_spaces(m, len);
+-		seq_path(m, file->f_vfsmnt, file->f_dentry, "\n");
++		seq_path(m, file->f_path.mnt, file->f_path.dentry, "\n");
+ 	} else {
+ 		const char *name = arch_vma_name(vma);
+ 		if (!name) {
+diff --git a/fs/proc/task_nommu.c b/fs/proc/task_nommu.c
+--- a/fs/proc/task_nommu.c
++++ b/fs/proc/task_nommu.c
+@@ -126,8 +126,8 @@ int proc_exe_link(struct inode *inode, s
+ 	}
  
- 	if (IS_SYNC(inode)) {
+ 	if (vma) {
+-		*mnt = mntget(vma->vm_file->f_vfsmnt);
+-		*dentry = dget(vma->vm_file->f_dentry);
++		*mnt = mntget(vma->vm_file->f_path.mnt);
++		*dentry = dget(vma->vm_file->f_path.dentry);
+ 		result = 0;
+ 	}
+ 
 
 

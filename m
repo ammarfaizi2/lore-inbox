@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422845AbWJUTZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423378AbWJUTiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422845AbWJUTZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 15:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422834AbWJUTZ1
+	id S1423378AbWJUTiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 15:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423380AbWJUTiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 15:25:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:640 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1422793AbWJUTZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 15:25:26 -0400
-Message-ID: <453A7423.5080107@garzik.org>
-Date: Sat, 21 Oct 2006 15:25:23 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: misha@fabric7.com
-CC: KERNEL Linux <linux-kernel@vger.kernel.org>,
-       NETDEV Linux <netdev@vger.kernel.org>,
-       Sriram Chidambaram <schidambaram@fabric7.com>
-Subject: Re: [PATCH] VIOC: Ethtool
-References: <200610131056.28563.misha@fabric7.com>
-In-Reply-To: <200610131056.28563.misha@fabric7.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 21 Oct 2006 15:38:12 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53638
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1423378AbWJUTiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 15:38:11 -0400
+Date: Sat, 21 Oct 2006 12:38:14 -0700 (PDT)
+Message-Id: <20061021.123814.106436476.davem@davemloft.net>
+To: preining@logic.at
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: tg3 kernel bug in 2.6.18-mm3 and 2.6.19-rc2-mm2
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061021132239.GA29288@gamma.logic.tuwien.ac.at>
+References: <20061021132239.GA29288@gamma.logic.tuwien.ac.at>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Misha Tomushev wrote:
-> The following is the ethtool patch for  VIOC Device Driver.
-> 
-> Signed-off-by: Misha Tomushev  <misha@fabric7.com>
+From: Norbert Preining <preining@logic.at>
+Date: Sat, 21 Oct 2006 15:22:39 +0200
 
-ACK but does not apply to ethtool.git:
+>  [<c010469d>] dump_stack+0x12/0x14
+>  [<c0141cb3>] softlockup_tick+0xaa/0xc1
+>  [<c0129bad>] update_process_times+0x3b/0x5e
+>  [<c01362a1>] handle_update_profile+0x14/0x1e
+>  [<c0115956>] smp_apic_timer_interrupt+0x49/0x5b
+>  [<c0103998>] apic_timer_interrupt+0x28/0x30
+> DWARF2 unwinder stuck at apic_timer_interrupt+0x28/0x30
+> Leftover inexact backtrace:
+>  [<c01d03af>] delay_tsc+0xb/0x13
+>  [<c01d03e0>] __delay+0x6/0x7
 
-
-Applying 'add VIOC support'
-
-Adds trailing whitespace.
-.dotest/patch:50:#define VIOC_REGS_LINE_SIZE    sizeof(struct regs_line)
-error: patch failed: Makefile.am:7
-error: Makefile.am: patch does not apply
-error: patch failed: ethtool-util.h:48
-error: ethtool-util.h: patch does not apply
-error: patch failed: ethtool.c:945
-error: ethtool.c: patch does not apply
+It's OOPS'ing by softlockup'ing in udelay() and then we get a corrupt
+backtrace.
 

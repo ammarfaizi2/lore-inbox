@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWJUCMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S2992786AbWJUCOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbWJUCMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Oct 2006 22:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbWJUCMk
+	id S2992786AbWJUCOH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Oct 2006 22:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S2992790AbWJUCOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Oct 2006 22:12:40 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:61606 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030377AbWJUCMj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Oct 2006 22:12:39 -0400
-Date: Sat, 21 Oct 2006 03:12:35 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 1.4.3
-Message-ID: <20061021021235.GA29920@ftp.linux.org.uk>
-References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> <7v4ptylfvw.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Oct 2006 22:14:07 -0400
+Received: from ns.suse.de ([195.135.220.2]:19093 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S2992786AbWJUCOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Oct 2006 22:14:04 -0400
+From: Andi Kleen <ak@suse.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc2-mm2
+Date: Sat, 21 Oct 2006 04:13:40 +0200
+User-Agent: KMail/1.9.3
+Cc: artusemrys@sbcglobal.net, Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
+       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>,
+       akpm@osdl.org
+References: <20061020015641.b4ed72e5.akpm@osdl.org> <p734ptybk0z.fsf@verdi.suse.de> <20061021005014.GC12131@kroah.com>
+In-Reply-To: <20061021005014.GC12131@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200610210413.40401.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 05:14:39PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 20 Oct 2006, Junio C Hamano wrote:
-> > 
-> > I am considering the following to address irritation some people
-> > (including me, actually) are experiencing with this change when
-> > viewing a small (or no) diff.  Any objections?
-> 
-> Not from me. I use "git diff" just to check that the tree is empty, and 
-> the fact that it now throws me into an empty pager is irritating.
 
-Speaking of irritations...  There is a major (and AFAICS fixable)
-suckitude in git-cherry.  Basically, what it does is
-	* use git-rev-list to find commits on our branches
-	* do git-diff-tree -p for each commit
-	* do git-patch-id on each delta
-	* compare sets.
-For one thing, there are better ways to do set comparison than creating
-a file for each element in one set and going through another checking
-if corresponding files exist (join(1) and sort(1) or just use perl hashes).
-That one is annoying on journalling filesystems (a lot of files being
-created, read and removed - fsckloads of disk traffic), but it's actually
-not the worst problem.
+> Yeah, real numbers would be good to have.  I have measured 7-8 seconds
+> off the boot on my workstation, and 2 seconds off the boot for my
+> laptop.  All of the time saved seems to be due to slow SATA startup
+> times, and the machine is off initializing other things while that is
+> happening.
 
-Far more annoying is that we keep recalculating git-diff-tree -p | git-patch-id
-again and again; try to do git cherry on a dozen short branches forked at
-2.6.18 and you'll see the damn thing recalculated a dozen of times for
-each commit from 2.6.18 to current.  It's not cheap, to put it mildly.
+So perhaps it would be a safer strategy to just run the SATA probing in the
+background and keep the rest serialized? 
 
-git-rev-list ^v2.6.18 HEAD|while read i; do git-diff-tree -p $i; done |git-patch-id >/dev/null
-
-out of hot cache on 2GHz amd64 box (Athlon 64 3400+) takes 3 minutes of
-wall time.  Repeat that for each branch and it's starting to get old very
-fast.
-
-Note that we are calculating a function of commit; it _never_ changes.
-Even if we don't just calculate and memorize it at commit time, a cache
-somewhere under .git would speed the things up a lot...
+-Andi

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWJVKQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWJVKlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWJVKQP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 06:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWJVKQP
+	id S932167AbWJVKlk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 06:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWJVKlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 06:16:15 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:944 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932326AbWJVKQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 06:16:14 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Sandeep Kumar" <sandeepksinha@gmail.com>
-Subject: Re: PAE and PSE ??
-Date: Sun, 22 Oct 2006 12:15:26 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com>
-In-Reply-To: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com>
+	Sun, 22 Oct 2006 06:41:40 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:49076
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932167AbWJVKlk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 06:41:40 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: NULL pointer dereference in sysfs_readdir
+Date: Sun, 22 Oct 2006 12:40:41 +0200
+User-Agent: KMail/1.9.5
+References: <4539DDC5.80207@s5r6.in-berlin.de> <200610212325.18976.mb@bu3sch.de> <453B352A.5050700@s5r6.in-berlin.de>
+In-Reply-To: <453B352A.5050700@s5r6.in-berlin.de>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610221215.26525.rjw@sisk.pl>
+Message-Id: <200610221240.42061.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 22 October 2006 11:08, Stefan Richter wrote:
+> > Yeah, I found that offset, too, but:
+> > 
+> > There is only one usage of s_dentry
+> > if (next->s_dentry)
+> > 
+> > But _before_ that there already comes
+> > if (!next->s_element)
+> > 
+> > So, if "next" was NULL, it would already oops there.
+> 
+> What if "next" became NULL afterwards?
 
-On Sunday, 22 October 2006 08:29, Sandeep Kumar wrote:
-> Hi all,
-> I have read in UTLK by bovet that the linux kernel does not uses the
-> PSE bit on an x86
-> machine. Then how come we have the hugetlbfs, which provides support
-> for 4MB pages ?
+Hm, yeah. Makes kind of sense.
 
-AFAIK, PSE is only used when PAE is not set and then it enables the 4 MB
-pages.  If PAE is set, the 4 MB pages are impossible because there are only
-512 entries per page table, but 2 MB pages can be used instead (and you don't
-need to set PSE to use them).
+> I know it's unlikely (but so is 
+> the whole bug, given that we have just one reporter despite the bug's
+> age), but is it impossible? IOW does sysfs_readdir have any indirect
+> mutex protection?
 
-Greetings,
-Rafael
-
+I think it's protected by the BKL, but I dunno if that's sufficient here.
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Greetings Michael.

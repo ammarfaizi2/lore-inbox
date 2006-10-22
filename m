@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWJVUpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWJVUyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWJVUpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 16:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWJVUpt
+	id S1751476AbWJVUyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 16:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWJVUyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 16:45:49 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:55999 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1751469AbWJVUpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 16:45:47 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Avi Kivity <avi@qumranet.com>, Arnd Bergmann <arnd@arndb.de>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-X-Message-Flag: Warning: May contain useful information
-References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de>
-	<453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de>
-	<453BA3E9.4050907@qumranet.com> <20061022175609.GA28152@infradead.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 22 Oct 2006 13:45:45 -0700
-In-Reply-To: <20061022175609.GA28152@infradead.org> (Christoph Hellwig's message of "Sun, 22 Oct 2006 18:56:10 +0100")
-Message-ID: <adapsckhyfa.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Sun, 22 Oct 2006 16:54:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28140 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751476AbWJVUyV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 16:54:21 -0400
+Date: Sun, 22 Oct 2006 16:54:13 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Luca Risolia <luca.risolia@studio.unibo.it>
+Subject: Re: sn9c10x list corruption in 2.6.18.1
+Message-ID: <20061022205413.GB3093@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pekka Enberg <penberg@cs.helsinki.fi>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Luca Risolia <luca.risolia@studio.unibo.it>
+References: <20061022031145.GA24855@redhat.com> <84144f020610221337k2137a1a9xeb35a4bce48e152c@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Oct 2006 20:45:46.0325 (UTC) FILETIME=[0CA3D050:01C6F61B]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+In-Reply-To: <84144f020610221337k2137a1a9xeb35a4bce48e152c@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Again, what's the point?  All cpus shipped by Intel and AMD that have
- > hardware virtualization extensions also support the 64bit mode.  Given
- > that I don't see any point for supporting a 32bit host.
+On Sun, Oct 22, 2006 at 11:37:06PM +0300, Pekka Enberg wrote:
+ > On 10/22/06, Dave Jones <davej@redhat.com> wrote:
+ > > What's odd here is that we have a list entry still on a list, with its ->next set to
+ > > LIST_POISON2, which should only ever happen after an entry has been removed from
+ > > a list.  The list manipulation in cache_alloc_refill is all done under l3->list_lock,
+ > > so I'm puzzled how this is possible.
+ > >
+ > > I found one area in the driver where we do list manipulation without any locking,
+ > > but I'm not entirely convinced that this is the source of the bug yet.
+ > 
+ > But I don't see how that could cause a slab list to go bad. An
+ > old-fashioned slab corruption sounds more like it. Does the the kernel
+ > have CONFIG_SLAB_DEBUG enabled?
+ 
+No, but I'll do a test build for the next update with it enabled to see if
+that's any more enlightening.
 
-Actually there are 32-bit only Intel CPUs with hardware virtualization --
-in fact my laptop has one: "Core Duo processor Low Voltage L2400".
+	Dave
 
-http://www.intel.com/products/processor_number/proc_info_table.pdf
-shows quite a few models with virtualization but without EM64T.
-
- - R.
+-- 
+http://www.codemonkey.org.uk

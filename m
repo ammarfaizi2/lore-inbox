@@ -1,83 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWJVQTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWJVQSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWJVQTN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 12:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWJVQTN
+	id S1751145AbWJVQSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 12:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWJVQSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 12:19:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:8165 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751159AbWJVQTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 12:19:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CCb/3pm8vTZSSipxzYLB0wz/qXkC5ish1iJAwOqY6+58dRrpt+Hh5TjH0uYq4INoF1Fh+a0JtnxO5DSlxDY84Ke76213snZIHGDe5Og4wSkIWAFruzHGjywBDGyne3Cm/hwVO6s5CaK05+wFRgYZD4uV6wKIOfRkwXjgW/vu8Ho=
-Message-ID: <86802c440610220919h5e2fb98axb5ba4dd4d073171@mail.gmail.com>
-Date: Sun, 22 Oct 2006 09:19:09 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: "Muli Ben-Yehuda" <muli@il.ibm.com>
-Subject: Re: [PATCH] x86-64: typo in __assign_irq_vector when updating pos for vector and offset
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andi Kleen" <ak@suse.de>
-In-Reply-To: <86802c440610220902q648a7fc8p38fd9a3391f5bc5d@mail.gmail.com>
+	Sun, 22 Oct 2006 12:18:38 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:55686 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1751145AbWJVQSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 12:18:37 -0400
+Message-ID: <453B99D7.1050004@qumranet.com>
+Date: Sun, 22 Oct 2006 18:18:31 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <200610211816.27964.arnd@arndb.de> <453B2DDB.3010303@qumranet.com> <200610221723.48646.arnd@arndb.de>
+In-Reply-To: <200610221723.48646.arnd@arndb.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610212100.k9LL0GtC018787@hera.kernel.org>
-	 <20061022035109.GM5211@rhun.haifa.ibm.com>
-	 <86802c440610220128v2e103912sbfba193484fb6304@mail.gmail.com>
-	 <20061022085036.GP5211@rhun.haifa.ibm.com>
-	 <86802c440610220902q648a7fc8p38fd9a3391f5bc5d@mail.gmail.com>
+X-OriginalArrivalTime: 22 Oct 2006 16:18:36.0859 (UTC) FILETIME=[BA5568B0:01C6F5F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+Arnd Bergmann wrote:
+> On Sunday 22 October 2006 10:37, Avi Kivity wrote:
+>   
+>> I like this.  Since we plan to support multiple vcpus per vm, the fs
+>> structure might look like:
+>>
+>> /kvm/my_vm
+>>     |
+>>     +----memory          # mkdir to create memory slot.
+>>     
+>
+> Note that the way spufs does it, every directory is a reference-counted
+> object. Currently that includes single contexts and groups of
+> contexts that are supposed to be scheduled simultaneously.
+>
+> The trick is that we use the special 'spu_create' syscall to
+> add a new object, while naming it, and return an open file
+> descriptor to it. When that file descriptor gets closed, the
+> object gets garbage-collected automatically.
+>   
 
-the per_cpu only can be used with online cpus?
+Yes.  Well, a single fd and ioctl()s do that as well.
 
-YH
+>
+> We ended up adding a lot more file than we initially planned,
+> but the interface is really handy, especially if you want to
+> create some procps-like tools for it.
+>
+>   
 
-On 10/22/06, yhlu <yhlu.kernel@gmail.com> wrote:
-> You must have NR_CPUS=4.
+I don't really see the need.  The cell dsps are a shared resource, while 
+virtual machines are just another execution mode of an existing resource 
+- the main cpu, which has a sharing mechanism (the scheduler and 
+priorities).
+
+
+>>     |     |              #    how to set size and offset?
+>>     |     |
+>>     |     +---0          # guest physical memory slot
+>>     |         |
+>>     |         +-- dirty_bitmap  # read to get and atomically reset
+>>     |                           # the changed pages log
+>>     
 >
-> Also you genapic is running on flat. (logical)
+> Have you thought about simply defining your guest to be a section
+> of the processes virtual address space? That way you could use
+> an anonymous mapping in the host as your guest address space, or
+> even use a file backed mapping in order to make the state persistant
+> over multiple runs. Or you could map the guest kernel into the
+> guest real address space with a private mapping and share the
+> text segment over multiple guests to save L2 and RAM.
+>   
+
+I've thought of it but it can't work on i386 because guest physical 
+address space is larger than virtual address space on i386.  So we 
+mmap("/dev/kvm") with file offsets corresponding to guest physical 
+addresses.
+
+I still like that idea, since it allows using hugetlbfs and allowing 
+swapping.  Perhaps we'll just accept the limitation that guests on i386 
+are limited.
+
+>   
+>>     |
+>>     |
+>>     +----cpu             # mkdir/rmdir to create/remove vcpu
+>>           |
+>>     
 >
-> Can you try to set NR_CPUS=8 and without this patch?
+> I'd recommend not allowing mkdir or similar operations, although
+> it's not that far off. One option would be to let the user specify
+> the number of CPUs at kvm_create() time, another option might
+> be to allow kvm_create with a special flag or yet another syscall
+> to create the vcpu objects.
+>   
+
+Okay.
+
+>   
+>>           +----0
+>>           |     |
+>>           |     +--- irq     # write to inject an irq
+>>           |     |
+>>           |     +--- regs    # read/write to get/set registers
+>>           |     |
+>>           |     +--- debugger   # write to set breakpoints/singlestep mode
+>>           |
+>>           +----1
+>>                 [...]
+>>
+>> It's certainly a lot more code though, and requires new syscalls.  Since
+>> this is a little esoteric does it warrant new syscalls?
+>>     
 >
-> YH
->
-> On 10/22/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-> > On Sun, Oct 22, 2006 at 01:28:03AM -0700, Yinghai Lu wrote:
-> > > On 10/21/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-> > > >>
-> > > >> typo with cpu instead of new_cpu
-> > > >
-> > > >This patch breaks my x366 machine:
-> > > >
-> > > >aic94xx: device 0000:01:02.0: SAS addr 5005076a0112df00, PCBA SN , 8 phys,
-> > > >8 enabled phys, flash present, BIOS build 1323
-> > > >aic94xx: couldn't get irq 25 for 0000:01:02.0
-> > > >ACPI: PCI interrupt for device 0000:01:02.0 disabled
-> > > >aic94xx: probe of 0000:01:02.0 failed with error -38
-> > > >
-> > > >Reverting it allows it to boot again. Since the patch is "obviously
-> > > >correct", it must be uncovering some other problem with the genirq
-> > > >code.
-> > > >
-> > >
-> > > can you try attached patch? it use cpu_online_map instead of 0xff.
-> >
-> > Works!
-> >
-> > Thanks,
-> > Muli
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+> We've gone through a number of iterations on the spufs design regarding this,
+> and in the end decided that the garbage-collecting property of spu_create
+> was superior to any other option, and adding the spu_run syscall was then
+> the logical step. BTW, one inspiration for spu_run came from sys_vm86, which
+> as you are probably aware of is already doing a lot of what you do, just
+> not for protected mode guests.
+>   
+
+Yes, we're doing a sort of vmx86_64().
+
+Thanks for the ideas, I'm certainly leaning towards a filesystem based 
+approach and I'll also reconsider the mapping (mmap() vi virtual address 
+space subsection).
+
+-- 
+error compiling committee.c: too many arguments to function
+

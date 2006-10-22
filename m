@@ -1,106 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423057AbWJVGtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423118AbWJVGt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423057AbWJVGtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 02:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423107AbWJVGtW
+	id S1423118AbWJVGt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 02:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423108AbWJVGt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 02:49:22 -0400
-Received: from 1wt.eu ([62.212.114.60]:3844 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1423057AbWJVGtW (ORCPT
+	Sun, 22 Oct 2006 02:49:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29126 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423118AbWJVGt1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 02:49:22 -0400
-Date: Sun, 22 Oct 2006 08:49:16 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: sct@redhat.com
+	Sun, 22 Oct 2006 02:49:27 -0400
+Date: Sat, 21 Oct 2006 23:49:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Linux Portal" <linportal@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.4] EXT3: avoid crashing due to divide by zero
-Message-ID: <20061022064916.GA745@1wt.eu>
+Subject: Re: First benchmarks of the ext4 file system
+Message-Id: <20061021234923.defbfb1f.akpm@osdl.org>
+In-Reply-To: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
+References: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+On Sun, 22 Oct 2006 01:57:36 +0200
+"Linux Portal" <linportal@gmail.com> wrote:
 
-I've been having this very old patch in my queue that has been merged
-in 2.6 but not in 2.4. As I've been hit at least once by this problem,
-I'm about to merge it into 2.4 too, as well as its ext2 equivalent
-(equally in 2.6). Do you have any objection ?
+> ext4 is 20 percent faster writer than ext3 or reiser4, probably thanks
+> to extents and delayed allocation. On other tests it is either
+> slightly faster or slightly slower. reiser4 comes as a nice surprise,
+> winning few benchmarks. Both are very stable, no errors during
+> testing.
+> 
+> http://linux.inet.hr/first_benchmarks_of_the_ext4_file_system.html
 
-Thanks in advance,
-Willy
+ext4 doesn't implement delayed allocation (yet).
 
->From 14f44814b9e550272f3bdc8e4abb5a9ead19f40e Mon Sep 17 00:00:00 2001
-From: Willy Tarreau <w@1wt.eu>
-Date: Sun, 22 Oct 2006 08:31:02 +0200
-Subject: [PATCH] EXT3: avoid crashing by not dividing by zero.
+I made some observations regarding comparative benchmarking of filesystems
+when releasing 2.6.19-rc1-mm1.  They seem to have been ignored ;)  See
 
-backport a few checks from 2.6 to avoid dividing by zero on invalid
-superblocks.
----
- fs/ext3/super.c |   25 +++++++++++++++++--------
- 1 files changed, 17 insertions(+), 8 deletions(-)
-
-diff --git a/fs/ext3/super.c b/fs/ext3/super.c
-index 33e2f97..6dae3f3 100644
---- a/fs/ext3/super.c
-+++ b/fs/ext3/super.c
-@@ -979,13 +979,9 @@ #endif
- 	es = (struct ext3_super_block *) (((char *)bh->b_data) + offset);
- 	sbi->s_es = es;
- 	sb->s_magic = le16_to_cpu(es->s_magic);
--	if (sb->s_magic != EXT3_SUPER_MAGIC) {
--		if (!silent)
--			printk(KERN_ERR 
--			       "VFS: Can't find ext3 filesystem on dev %s.\n",
--			       bdevname(dev));
--		goto failed_mount;
--	}
-+	if (sb->s_magic != EXT3_SUPER_MAGIC)
-+		goto cantfind_ext3;
-+
- 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV &&
- 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
- 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
-@@ -1083,8 +1079,13 @@ #endif
- 	sbi->s_blocks_per_group = le32_to_cpu(es->s_blocks_per_group);
- 	sbi->s_frags_per_group = le32_to_cpu(es->s_frags_per_group);
- 	sbi->s_inodes_per_group = le32_to_cpu(es->s_inodes_per_group);
-+	if (EXT3_INODE_SIZE(sb) == 0)
-+		goto cantfind_ext3;
- 	sbi->s_inodes_per_block = blocksize / EXT3_INODE_SIZE(sb);
--	sbi->s_itb_per_group = sbi->s_inodes_per_group /sbi->s_inodes_per_block;
-+	if (sbi->s_inodes_per_block == 0)
-+		goto cantfind_ext3;
-+	sbi->s_itb_per_group = sbi->s_inodes_per_group /
-+					sbi->s_inodes_per_block;
- 	sbi->s_desc_per_block = blocksize / sizeof(struct ext3_group_desc);
- 	sbi->s_sbh = bh;
- 	if (sbi->s_resuid == EXT3_DEF_RESUID)
-@@ -1114,6 +1115,8 @@ #endif
- 		goto failed_mount;
- 	}
- 
-+	if (EXT3_BLOCKS_PER_GROUP(sb) == 0)
-+		goto cantfind_ext3;
- 	sbi->s_groups_count = (le32_to_cpu(es->s_blocks_count) -
- 			       le32_to_cpu(es->s_first_data_block) +
- 			       EXT3_BLOCKS_PER_GROUP(sb) - 1) /
-@@ -1240,6 +1243,12 @@ #endif
- 
- 	return sb;
- 
-+cantfind_ext3:
-+	if (!silent)
-+		printk(KERN_ERR 
-+		       "VFS: Can't find ext3 filesystem on dev %s.\n",
-+		       bdevname(dev));
-+	goto failed_mount;
- failed_mount3:
- 	journal_destroy(sbi->s_journal);
- failed_mount2:
--- 
-1.4.1
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/announce.txt
 

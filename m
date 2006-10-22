@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWJVUXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWJVUYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWJVUXf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 16:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWJVUXf
+	id S1751419AbWJVUYA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 16:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWJVUYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 16:23:35 -0400
-Received: from mail.polish-dvd.com ([69.222.0.225]:56298 "HELO
-	mail.webhostingstar.com") by vger.kernel.org with SMTP
-	id S1751417AbWJVUXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 16:23:34 -0400
-Message-ID: <20061022145210.n736g78k42e8ggkg@69.222.0.225>
-Date: Sun, 22 Oct 2006 14:52:10 -0500
-From: art@usfltd.com
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, rjw@sisk.pl
-Subject: 2.6.19-rc2-git7 shutdown problem
+	Sun, 22 Oct 2006 16:24:00 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:62353 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751419AbWJVUX7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 16:23:59 -0400
+Message-ID: <453BD35F.1030902@drzeus.cx>
+Date: Sun, 22 Oct 2006 22:23:59 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Disposition: inline
+To: Amol Lad <amol@verismonetworks.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+Subject: Re: [PATCH] drivers/mmc/mmc.c: Replacing yield() with a better	alternative
+References: <1160570743.19143.307.camel@amol.verismonetworks.com>
+In-Reply-To: <1160570743.19143.307.camel@amol.verismonetworks.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.19-rc2-git7 shutdown problem
+Amol Lad wrote:
+> In 2.6, the semantics of calling yield() changed from "sleep for a
+> bit" to "I really don't want to run for a while".  This matches POSIX
+> better, but there's a lot of drivers still using yield() when they mean
+> cond_resched(), schedule() or even schedule_timeout().
+> 
+> For this driver cond_resched() seems to be a better
+> alternative
+> 
 
-below are last shutdown messages - system is hunging forever !
-hda was mounted, hdb not
-any clue ?
+A version of this patch has been pushed towards Andrew. Thanks for
+pointing it out.
 
-...
-Unmounting pipe file systems:
-Unmounting file systems:
-Halting system...
-md: stopping all md devices.
-Shutdown: hdb
-Shutdown: hda
+Rgds
+-- 
+     -- Pierre Ossman
 
-xboom
-art@usfltd.com
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWJVPkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWJVPpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWJVPkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 11:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWJVPkA
+	id S1750977AbWJVPpj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 11:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWJVPpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 11:40:00 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:64734 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1750928AbWJVPj7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 11:39:59 -0400
-Message-id: <43123154321532@wsc.cz>
-Subject: [PATCH 1/1] net: correct-Traffic-shaper-Kconfig
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: <netdev@vger.kernel.org>, <jgarzik@pobox.com>
-Date: Sun, 22 Oct 2006 17:40:06 +0200 (CEST)
+	Sun, 22 Oct 2006 11:45:39 -0400
+Received: from viefep15-int.chello.at ([213.46.255.20]:14879 "EHLO
+	viefep14-int.chello.at") by vger.kernel.org with ESMTP
+	id S1750977AbWJVPpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 11:45:38 -0400
+Message-ID: <453B921D.80008@freemail.hu>
+Date: Sun, 22 Oct 2006 17:45:33 +0200
+From: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en, hu, de
+MIME-Version: 1.0
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [patch] input: function call order in serio_exit()
+Content-Type: multipart/mixed;
+ boundary="------------070507060901030101080602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kconfig, correct traffic shaper
+This is a multi-part message in MIME format.
+--------------070507060901030101080602
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-CBQ is no longer experimental and is located in other subtree.
+Hi,
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+the order of the bus registration and the kthread start was changed
+between linux kernel 2.6.17.11 and 2.6.18. The order is now first
+register the bus and then start the kthread. The serio_exit() left
+unchanged.
 
----
-commit 5ee1f6ff7e1f03ed8edb2461612346e9964b745d
-tree debfe70d8c8338adb5ef1d860b07e4a00e760081
-parent a3d771ef92954ce81363af9e0252490e2741fc21
-author Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 17:34:59 +0159
-committer Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 17:34:59 +0159
+I think that the order of the function calls in serio_exit() should also
+be changed: first stop the kthread and then unregister the bus.
 
- drivers/net/Kconfig |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+What do you think?
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 0a999a8..e845df9 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2842,9 +2842,9 @@ config SHAPER
- 	  these virtual devices. See
- 	  <file:Documentation/networking/shaper.txt> for more information.
+	NMarci
+
+
+--------------070507060901030101080602
+Content-Type: text/plain;
+ name="serio-exit.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serio-exit.diff"
+
+--- linux-2.6.19-rc2.orig/drivers/input/serio/serio.c	2006-10-13 18:25:04.000000000 +0200
++++ linux-2.6.19-rc2/drivers/input/serio/serio.c	2006-10-17 08:17:30.000000000 +0200
+@@ -958,8 +958,8 @@ static int __init serio_init(void)
  
--	  An alternative to this traffic shaper is the experimental
--	  Class-Based Queuing (CBQ) scheduling support which you get if you
--	  say Y to "QoS and/or fair queuing" above.
-+	  An alternative to this traffic shaper is the Class-Based Queuing
-+	  (CBQ) scheduling support which you get if you say Y to
-+	  "QoS and/or fair queuing" in "Networking options".
+ static void __exit serio_exit(void)
+ {
+-	bus_unregister(&serio_bus);
+ 	kthread_stop(serio_task);
++	bus_unregister(&serio_bus);
+ }
  
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called shaper.  If unsure, say N.
+ subsys_initcall(serio_init);
+
+--------------070507060901030101080602--

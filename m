@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422960AbWJVEy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWJVFMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422960AbWJVEy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 00:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422971AbWJVEy5
+	id S1422996AbWJVFMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 01:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422997AbWJVFMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 00:54:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2957 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422960AbWJVEy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 00:54:56 -0400
-Date: Sat, 21 Oct 2006 21:54:36 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, dino@in.ibm.com, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com,
-       clameter@sgi.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061021215436.09d03444.pj@sgi.com>
-In-Reply-To: <4539FB9C.10204@yahoo.com.au>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<453750AA.1050803@yahoo.com.au>
-	<20061019105515.080675fb.pj@sgi.com>
-	<4537BEDA.8030005@yahoo.com.au>
-	<20061019115652.562054ca.pj@sgi.com>
-	<4537CC1E.60204@yahoo.com.au>
-	<20061019203744.09b8c800.pj@sgi.com>
-	<453882AC.3070500@yahoo.com.au>
-	<20061020130141.b5e986dd.pj@sgi.com>
-	<4539BAB2.3010501@yahoo.com.au>
-	<20061021002400.fb25f327.pj@sgi.com>
-	<4539FB9C.10204@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Oct 2006 01:12:46 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:48513 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1422996AbWJVFMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 01:12:46 -0400
+Message-ID: <453AFE24.706@oracle.com>
+Date: Sat, 21 Oct 2006 22:14:12 -0700
+From: "Randy.Dunlap" <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] raid: fix printk format warnings
+References: <20061021113406.535d8243.randy.dunlap@oracle.com> <17722.60989.448470.587430@cse.unsw.edu.au>
+In-Reply-To: <17722.60989.448470.587430@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> Well, it was supposed to be used for sched-domains partitioning, and
-> its uselessness for anything else I guess is what threw me.
+Neil Brown wrote:
+> On Saturday October 21, randy.dunlap@oracle.com wrote:
+>> From: Randy Dunlap <randy.dunlap@oracle.com>
+>>
+>> Fix printk format warnings, seen on powerpc64:
+>> drivers/md/raid1.c:1479: warning: long long unsigned int format, long unsigned int arg (arg 4)
+>> drivers/md/raid10.c:1475: warning: long long unsigned int format, long unsigned int arg (arg 4)
+>>
+>> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+>> ---
+>>
+>>  drivers/md/raid1.c  |    4 ++--
+>>  drivers/md/raid10.c |    4 ++--
+>>  2 files changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff -Naurp linux-2619-rc2g4/drivers/md/raid1.c~raid_printk linux-2619-rc2g4/drivers/md/raid1.c
+>> --- linux-2619-rc2g4/drivers/md/raid1.c~raid_printk	2006-10-21 11:16:30.066109000 -0700
+>> +++ linux-2619-rc2g4/drivers/md/raid1.c	2006-10-21 11:20:57.288004000 -0700
+>> @@ -1474,8 +1474,8 @@ static void fix_read_error(conf_t *conf,
+>>  					       "raid1:%s: read error corrected "
+>>  					       "(%d sectors at %llu on %s)\n",
+>>  					       mdname(mddev), s,
+>> -					       (unsigned long long)sect +
+>> -					           rdev->data_offset,
+>> +					       (unsigned long long)(sect +
+>> +					           rdev->data_offset),
+>>  					       bdevname(rdev->bdev,
+>> b));
+> 
+> So you're saying that if you add an 'unsigned long long int' to an
+> 'unsigned long int', the result is an 'unsigned long int'???
+> That is not what I would have expected.
+> I'm happy with the patch, but I'm very surprised that it is needed.
+> Is this behaviour consistent across various versions of gcc (if it is
+> convenient to check)??
 
-The use of cpu_exclusive for sched domain partitioning was added
-later, by a patch from Dinikar, in April or May of 2005.
+I've only seen it on powerpc64.  It could well be a gcc problem AFAICT.
+Feel free to drop it.  Thanks for the discussion.
 
-In hindsight, I think I made a mistake in agreeing to, and probably
-encouraging, this particular overloading of cpu_exclusive.  I had
-difficulty adequately understanding what was going on.
-
-Granted, as we've noted elsewhere on this thread, the cpu_exclusive
-flag is underutilized.  It gives cpusets so marked a certain limited
-exclusivity to its cpus, relative to its siblings, but it doesn't do
-much else, other than this controversial partitioning of sched domains.
-
-There may well be a useful role for the cpu_exclusive flag in managing
-sched domains and partitioning.  The current role is flawed, in my view.
+gfs2 and DLM also produce about 10-12 of these warnings IIRC (still on
+powerpc64).
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+~Randy

@@ -1,157 +1,322 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWJVPqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWJVPsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWJVPqq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 11:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWJVPqq
+	id S1751091AbWJVPsU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 11:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWJVPsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 11:46:46 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:30602 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751019AbWJVPqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 11:46:45 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sun, 22 Oct 2006 17:45:33 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [rfc patch] ieee1394: nodemgr: revise semaphore protection of
- driver core data
-To: linux1394-devel@lists.sourceforge.net
-cc: Ben Collins <bcollins@ubuntu.com>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
-In-Reply-To: <tkrat.2407a13c0fa37837@s5r6.in-berlin.de>
-Message-ID: <tkrat.dc92ad51062d41bb@s5r6.in-berlin.de>
-References: <tkrat.2407a13c0fa37837@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+	Sun, 22 Oct 2006 11:48:20 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:17121 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1751090AbWJVPsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 11:48:19 -0400
+Message-id: <242814652263746404@wsc.cz>
+Subject: [PATCH 1/4] Char: stallion, convert to pci probing
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 22 Oct 2006 17:48:21 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-...
->  - nodemgr_remove_uds() iterated over nodemgr_ud_class.children without
->    proper protection.  This was never observed as a bug since the code
->    is usually only accessed by knodemgrd.  All knodemgrds are currently
->    globally serialized.  But userspace can trigger this code too by
->    writing to /sys/bus/ieee1394/destroy_node.
-...
->  static void nodemgr_remove_uds(struct node_entry *ne)
->  {
-> -	struct class_device *cdev, *next;
-> -	struct unit_directory *ud;
-> +	struct class_device *cdev;
-> +	struct unit_directory *ud, **unreg;
-> +	size_t i, count;
->  
-> -	list_for_each_entry_safe(cdev, next, &nodemgr_ud_class.children, node) {
-> -		ud = container_of(cdev, struct unit_directory, class_dev);
-> +	/*
-> +	 * This is awkward:
-> +	 * Iteration over nodemgr_ud_class.children has to be protected by
-> +	 * nodemgr_ud_class.sem, but class_device_unregister() will eventually
-> +	 * take nodemgr_ud_class.sem too. Therefore store all uds to be
-> +	 * unregistered in a temporary array, release the semaphore, and then
-> +	 * unregister the uds.
-> +	 *
-> +	 * Since nodemgr_remove_uds can also run in other contexts than the
-> +	 * knodemgrds (which are currently globally serialized), protect the
-> +	 * gap after release of the semaphore by nodemgr_serialize_remove_uds.
-> +	 */
-...
+stallion, convert to pci probing
 
-Hmm. This worked with a few devices. I now tried one with a problematic
-firmware and it didn't work so well. (I don't know if this is actually
-related to the firmware. Or maybe it doesn't even have anything to do
-with this patch.)
+Convert stallion driver to pci probing instead of pci_dev_get iteration.
 
-# modprobe -r ohci1394
-Segmentation fault
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Oct 22 17:24:08 shuttle kernel: ieee1394: Node removed: ID:BUS[1-01:1023]  GUID[00301bac00002ba4]
-Oct 22 17:24:08 shuttle kernel: ieee1394: Node removed: ID:BUS[1-00:1023]  GUID[0030e005003b00c8]
-Oct 22 17:24:08 shuttle kernel: BUG: unable to handle kernel NULL pointer dereference at virtual address 0000002c
-Oct 22 17:24:08 shuttle kernel:  printing eip:
-Oct 22 17:24:08 shuttle kernel: c02d72a4
-Oct 22 17:24:08 shuttle kernel: *pde = 00000000
-Oct 22 17:24:08 shuttle kernel: Oops: 0000 [#1]
-Oct 22 17:24:08 shuttle kernel: PREEMPT SMP 
-Oct 22 17:24:08 shuttle kernel: Modules linked in: ohci1394 ieee1394 ext3 jbd sd_mod scsi_mod nvidia(P) nfsd exportfs lockd sunrpc snd_via82xx snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd lp af_packet 8139too mii loop via_agp agpgart uhci_hcd
-Oct 22 17:24:08 shuttle kernel: CPU:    0
-Oct 22 17:24:08 shuttle kernel: EIP:    0060:[klist_del+20/80]    Tainted: P      VLI
-Oct 22 17:24:08 shuttle kernel: EIP:    0060:[<c02d72a4>]    Tainted: P      VLI
-Oct 22 17:24:08 shuttle kernel: EFLAGS: 00210286   (2.6.19-rc2 #4)
-Oct 22 17:24:08 shuttle kernel: EIP is at klist_del+0x14/0x50
-Oct 22 17:24:08 shuttle kernel: eax: f3e88e40   ebx: 00000000   ecx: 00000000   edx: 00000000
-Oct 22 17:24:08 shuttle kernel: esi: f3e88d98   edi: f3e88e40   ebp: ed6e5d54   esp: ed6e5d44
-Oct 22 17:24:08 shuttle kernel: ds: 007b   es: 007b   ss: 0068
-Oct 22 17:24:08 shuttle kernel: Process modprobe (pid: 8585, ti=ed6e4000 task=c3e5d570 task.ti=ed6e4000)
-Oct 22 17:24:08 shuttle kernel: Stack: ed6e5d54 f3e88e80 f3e88d98 f3e88e80 ed6e5d6c c023262b f3e88e40 f3e88d98 
-Oct 22 17:24:08 shuttle kernel:        f3e88d98 f3e88d98 ed6e5d8c c0230e65 f3e88d98 f3e88ef4 f433b4d4 f3e88d98 
-Oct 22 17:24:08 shuttle kernel:        00000001 f433b498 ed6e5d9c c0230ff2 f3e88d98 00000001 ed6e5dbc f9053b77 
-Oct 22 17:24:08 shuttle kernel: Call Trace:
-Oct 22 17:24:08 shuttle kernel:  [show_trace_log_lvl+47/80] show_trace_log_lvl+0x2f/0x50
-Oct 22 17:24:08 shuttle kernel:  [<c010400f>] show_trace_log_lvl+0x2f/0x50
-Oct 22 17:24:08 shuttle kernel:  [show_stack_log_lvl+151/192] show_stack_log_lvl+0x97/0xc0
-Oct 22 17:24:08 shuttle kernel:  [<c01040f7>] show_stack_log_lvl+0x97/0xc0
-Oct 22 17:24:08 shuttle kernel:  [show_registers+450/624] show_registers+0x1c2/0x270
-Oct 22 17:24:08 shuttle kernel:  [<c0104352>] show_registers+0x1c2/0x270
-Oct 22 17:24:08 shuttle kernel:  [die+297/544] die+0x129/0x220
-Oct 22 17:24:08 shuttle kernel:  [<c01045f9>] die+0x129/0x220
-Oct 22 17:24:08 shuttle kernel:  [do_page_fault+970/1616] do_page_fault+0x3ca/0x650
-Oct 22 17:24:08 shuttle kernel:  [<c011495a>] do_page_fault+0x3ca/0x650
-Oct 22 17:24:08 shuttle kernel:  [error_code+57/64] error_code+0x39/0x40
-Oct 22 17:24:08 shuttle kernel:  [<c02da9d1>] error_code+0x39/0x40
-Oct 22 17:24:08 shuttle kernel:  [bus_remove_device+139/176] bus_remove_device+0x8b/0xb0
-Oct 22 17:24:08 shuttle kernel:  [<c023262b>] bus_remove_device+0x8b/0xb0
-Oct 22 17:24:08 shuttle kernel:  [device_del+117/496] device_del+0x75/0x1f0
-Oct 22 17:24:08 shuttle kernel:  [<c0230e65>] device_del+0x75/0x1f0
-Oct 22 17:24:08 shuttle kernel:  [device_unregister+18/32] device_unregister+0x12/0x20
-Oct 22 17:24:08 shuttle kernel:  [<c0230ff2>] device_unregister+0x12/0x20
-Oct 22 17:24:08 shuttle kernel:  [pg0+950553463/1067643904] nodemgr_remove_uds+0x147/0x180 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9053b77>] nodemgr_remove_uds+0x147/0x180 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950553614/1067643904] nodemgr_remove_ne+0x5e/0x90 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9053c0e>] nodemgr_remove_ne+0x5e/0x90 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950553684/1067643904] __nodemgr_remove_host_dev+0x14/0x20 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9053c54>] __nodemgr_remove_host_dev+0x14/0x20 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [device_for_each_child+50/96] device_for_each_child+0x32/0x60
-Oct 22 17:24:08 shuttle kernel:  [<c0231052>] device_for_each_child+0x32/0x60
-Oct 22 17:24:08 shuttle kernel:  [pg0+950553730/1067643904] nodemgr_remove_host_dev+0x22/0x90 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9053c82>] nodemgr_remove_host_dev+0x22/0x90 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950561495/1067643904] nodemgr_remove_host+0x37/0x40 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9055ad7>] nodemgr_remove_host+0x37/0x40 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950538732/1067643904] __unregister_host+0x8c/0xd0 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f90501ec>] __unregister_host+0x8c/0xd0 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950541126/1067643904] highlevel_remove_host+0x36/0x60 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f9050b46>] highlevel_remove_host+0x36/0x60 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+950537299/1067643904] hpsb_remove_host+0x43/0x70 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [<f904fc53>] hpsb_remove_host+0x43/0x70 [ieee1394]
-Oct 22 17:24:08 shuttle kernel:  [pg0+946126376/1067643904] ohci1394_pci_remove+0x68/0x240 [ohci1394]
-Oct 22 17:24:08 shuttle kernel:  [<f8c1ae28>] ohci1394_pci_remove+0x68/0x240 [ohci1394]
-Oct 22 17:24:08 shuttle kernel:  [pci_device_remove+56/64] pci_device_remove+0x38/0x40
-Oct 22 17:24:08 shuttle kernel:  [<c01fe168>] pci_device_remove+0x38/0x40
-Oct 22 17:24:08 shuttle kernel:  [__device_release_driver+163/192] __device_release_driver+0xa3/0xc0
-Oct 22 17:24:08 shuttle kernel:  [<c0233353>] __device_release_driver+0xa3/0xc0
-Oct 22 17:24:08 shuttle kernel:  [driver_detach+280/288] driver_detach+0x118/0x120
-Oct 22 17:24:08 shuttle kernel:  [<c02334e8>] driver_detach+0x118/0x120
-Oct 22 17:24:08 shuttle kernel:  [bus_remove_driver+68/112] bus_remove_driver+0x44/0x70
-Oct 22 17:24:08 shuttle kernel:  [<c0232964>] bus_remove_driver+0x44/0x70
-Oct 22 17:24:08 shuttle kernel:  [driver_unregister+18/32] driver_unregister+0x12/0x20
-Oct 22 17:24:08 shuttle kernel:  [<c02337b2>] driver_unregister+0x12/0x20
-Oct 22 17:24:08 shuttle kernel:  [pci_unregister_driver+21/48] pci_unregister_driver+0x15/0x30
-Oct 22 17:24:08 shuttle kernel:  [<c01fe4c5>] pci_unregister_driver+0x15/0x30
-Oct 22 17:24:08 shuttle kernel:  [pg0+946128034/1067643904] ohci1394_cleanup+0x12/0x14 [ohci1394]
-Oct 22 17:24:08 shuttle kernel:  [<f8c1b4a2>] ohci1394_cleanup+0x12/0x14 [ohci1394]
-Oct 22 17:24:08 shuttle kernel:  [sys_delete_module+342/384] sys_delete_module+0x156/0x180
-Oct 22 17:24:08 shuttle kernel:  [<c0141256>] sys_delete_module+0x156/0x180
-Oct 22 17:24:08 shuttle kernel:  [sysenter_past_esp+86/121] sysenter_past_esp+0x56/0x79
-Oct 22 17:24:08 shuttle kernel:  [<c010324d>] sysenter_past_esp+0x56/0x79
-Oct 22 17:24:08 shuttle kernel:  =======================
-Oct 22 17:24:08 shuttle kernel: Code: c7 44 24 04 30 72 2d c0 83 c0 0c 89 04 24 e8 a4 b8 f1 ff c9 c3 89 f6 55 89 e5 83 ec 10 89 7d fc 8b 7d 08 89 5d f4 89 75 f8 8b 1f <8b> 73 2c 89 d8 e8 c2 2f 00 00 89 3c 24 e8 ba ff ff ff 85 c0 b8 
-Oct 22 17:24:08 shuttle kernel: EIP: [klist_del+20/80] klist_del+0x14/0x50 SS:ESP 0068:ed6e5d44
-Oct 22 17:24:08 shuttle kernel: EIP: [<c02d72a4>] klist_del+0x14/0x50 SS:ESP 0068:ed6e5d44
+---
+commit c4a0f4d15661fe74b8c67b0258d5dfbcff57071b
+tree 5da405798c9d47c7a07b63868e9fec1748908b6b
+parent fcf3d1f86671d8e01a238935d906356442c92749
+author Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 16:40:25 +0159
+committer Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 16:40:25 +0159
 
+ drivers/char/stallion.c |  165 ++++++++++++++++++++++++-----------------------
+ 1 files changed, 83 insertions(+), 82 deletions(-)
 
--- 
-Stefan Richter
--=====-=-==- =-=- =-==-
-http://arcgraph.de/sr/
-
+diff --git a/drivers/char/stallion.c b/drivers/char/stallion.c
+index d2cbdb7..592bd6e 100644
+--- a/drivers/char/stallion.c
++++ b/drivers/char/stallion.c
+@@ -381,8 +381,6 @@ #define	STL_CLOSEDELAY		(5 * HZ / 10)
+ 
+ /*****************************************************************************/
+ 
+-#ifdef CONFIG_PCI
+-
+ /*
+  *	Define the Stallion PCI vendor and device IDs.
+  */
+@@ -402,22 +400,19 @@ #endif
+ /*
+  *	Define structure to hold all Stallion PCI boards.
+  */
+-typedef struct stlpcibrd {
+-	unsigned short		vendid;
+-	unsigned short		devid;
+-	int			brdtype;
+-} stlpcibrd_t;
+-
+-static stlpcibrd_t	stl_pcibrds[] = {
+-	{ PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_ECHPCI864, BRD_ECH64PCI },
+-	{ PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_EIOPCI, BRD_EASYIOPCI },
+-	{ PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_ECHPCI832, BRD_ECHPCI },
+-	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_87410, BRD_ECHPCI },
+-};
+ 
+-static int	stl_nrpcibrds = ARRAY_SIZE(stl_pcibrds);
+-
+-#endif
++static struct pci_device_id stl_pcibrds[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_ECHPCI864),
++		.driver_data = BRD_ECH64PCI },
++	{ PCI_DEVICE(PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_EIOPCI),
++		.driver_data = BRD_EASYIOPCI },
++	{ PCI_DEVICE(PCI_VENDOR_ID_STALLION, PCI_DEVICE_ID_ECHPCI832),
++		.driver_data = BRD_ECHPCI },
++	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_87410),
++		.driver_data = BRD_ECHPCI },
++	{ }
++};
++MODULE_DEVICE_TABLE(pci, stl_pcibrds);
+ 
+ /*****************************************************************************/
+ 
+@@ -2392,24 +2387,52 @@ static int __init stl_getbrdnr(void)
+ 	return(-1);
+ }
+ 
+-/*****************************************************************************/
++static void stl_cleanup_panels(struct stlbrd *brdp)
++{
++	struct stlpanel *panelp;
++	struct stlport *portp;
++	unsigned int j, k;
+ 
+-#ifdef	CONFIG_PCI
++	for (j = 0; j < STL_MAXPANELS; j++) {
++		panelp = brdp->panels[j];
++		if (panelp == NULL)
++			continue;
++		for (k = 0; k < STL_PORTSPERPANEL; k++) {
++			portp = panelp->ports[k];
++			if (portp == NULL)
++				continue;
++			if (portp->tty != NULL)
++				stl_hangup(portp->tty);
++			kfree(portp->tx.buf);
++			kfree(portp);
++		}
++		kfree(panelp);
++	}
++}
+ 
++/*****************************************************************************/
+ /*
+  *	We have a Stallion board. Allocate a board structure and
+  *	initialize it. Read its IO and IRQ resources from PCI
+  *	configuration space.
+  */
+ 
+-static int __init stl_initpcibrd(int brdtype, struct pci_dev *devp)
++static int __devinit stl_pciprobe(struct pci_dev *pdev,
++		const struct pci_device_id *ent)
+ {
+-	struct stlbrd	*brdp;
++	struct stlbrd *brdp;
++	unsigned int brdtype = ent->driver_data;
+ 
+ 	pr_debug("stl_initpcibrd(brdtype=%d,busnr=%x,devnr=%x)\n", brdtype,
+-		devp->bus->number, devp->devfn);
++		pdev->bus->number, pdev->devfn);
++
++	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE)
++		return -ENODEV;
++
++	dev_info(&pdev->dev, "please, report this to LKML: %x/%x/%x\n",
++			pdev->vendor, pdev->device, pdev->class);
+ 
+-	if (pci_enable_device(devp))
++	if (pci_enable_device(pdev))
+ 		return(-EIO);
+ 	if ((brdp = stl_allocbrd()) == NULL)
+ 		return(-ENOMEM);
+@@ -2425,8 +2448,8 @@ static int __init stl_initpcibrd(int brd
+  *	so set up io addresses based on board type.
+  */
+ 	pr_debug("%s(%d): BAR[]=%Lx,%Lx,%Lx,%Lx IRQ=%x\n", __FILE__, __LINE__,
+-		pci_resource_start(devp, 0), pci_resource_start(devp, 1),
+-		pci_resource_start(devp, 2), pci_resource_start(devp, 3), devp->irq);
++		pci_resource_start(pdev, 0), pci_resource_start(pdev, 1),
++		pci_resource_start(pdev, 2), pci_resource_start(pdev, 3), pdev->irq);
+ 
+ /*
+  *	We have all resources from the board, so let's setup the actual
+@@ -2434,63 +2457,52 @@ static int __init stl_initpcibrd(int brd
+  */
+ 	switch (brdtype) {
+ 	case BRD_ECHPCI:
+-		brdp->ioaddr2 = pci_resource_start(devp, 0);
+-		brdp->ioaddr1 = pci_resource_start(devp, 1);
++		brdp->ioaddr2 = pci_resource_start(pdev, 0);
++		brdp->ioaddr1 = pci_resource_start(pdev, 1);
+ 		break;
+ 	case BRD_ECH64PCI:
+-		brdp->ioaddr2 = pci_resource_start(devp, 2);
+-		brdp->ioaddr1 = pci_resource_start(devp, 1);
++		brdp->ioaddr2 = pci_resource_start(pdev, 2);
++		brdp->ioaddr1 = pci_resource_start(pdev, 1);
+ 		break;
+ 	case BRD_EASYIOPCI:
+-		brdp->ioaddr1 = pci_resource_start(devp, 2);
+-		brdp->ioaddr2 = pci_resource_start(devp, 1);
++		brdp->ioaddr1 = pci_resource_start(pdev, 2);
++		brdp->ioaddr2 = pci_resource_start(pdev, 1);
+ 		break;
+ 	default:
+ 		printk("STALLION: unknown PCI board type=%d\n", brdtype);
+ 		break;
+ 	}
+ 
+-	brdp->irq = devp->irq;
++	brdp->irq = pdev->irq;
+ 	stl_brdinit(brdp);
+ 
++	pci_set_drvdata(pdev, brdp);
++
+ 	return(0);
+ }
+ 
+-/*****************************************************************************/
+-
+-/*
+- *	Find all Stallion PCI boards that might be installed. Initialize each
+- *	one as it is found.
+- */
+-
+-
+-static int __init stl_findpcibrds(void)
++static void __devexit stl_pciremove(struct pci_dev *pdev)
+ {
+-	struct pci_dev	*dev = NULL;
+-	int		i, rc;
+-
+-	pr_debug("stl_findpcibrds()\n");
++	struct stlbrd *brdp = pci_get_drvdata(pdev);
+ 
+-	for (i = 0; (i < stl_nrpcibrds); i++)
+-		while ((dev = pci_get_device(stl_pcibrds[i].vendid,
+-		    stl_pcibrds[i].devid, dev))) {
++	free_irq(brdp->irq, brdp);
+ 
+-/*
+- *			Found a device on the PCI bus that has our vendor and
+- *			device ID. Need to check now that it is really us.
+- */
+-			if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE)
+-				continue;
++	stl_cleanup_panels(brdp);
+ 
+-			rc = stl_initpcibrd(stl_pcibrds[i].brdtype, dev);
+-			if (rc)
+-				return(rc);
+-		}
++	release_region(brdp->ioaddr1, brdp->iosize1);
++	if (brdp->iosize2 > 0)
++		release_region(brdp->ioaddr2, brdp->iosize2);
+ 
+-	return(0);
++	stl_brds[brdp->brdnr] = NULL;
++	kfree(brdp);
+ }
+ 
+-#endif
++static struct pci_driver stl_pcidriver = {
++	.name = "stallion",
++	.id_table = stl_pcibrds,
++	.probe = stl_pciprobe,
++	.remove = __devexit_p(stl_pciremove)
++};
+ 
+ /*****************************************************************************/
+ 
+@@ -2537,9 +2549,6 @@ static int __init stl_initbrds(void)
+  *	line options or auto-detected on the PCI bus.
+  */
+ 	stl_argbrds();
+-#ifdef CONFIG_PCI
+-	stl_findpcibrds();
+-#endif
+ 
+ 	return(0);
+ }
+@@ -4778,7 +4787,7 @@ static void stl_sc26198otherisr(struct s
+  */
+ static int __init stallion_module_init(void)
+ {
+-	unsigned int i;
++	unsigned int i, retval;
+ 
+ 	printk(KERN_INFO "%s: version %s\n", stl_drvtitle, stl_drvversion);
+ 
+@@ -4787,6 +4796,10 @@ static int __init stallion_module_init(v
+ 
+ 	stl_initbrds();
+ 
++	retval = pci_register_driver(&stl_pcidriver);
++	if (retval)
++		goto err;
++
+ 	stl_serial = alloc_tty_driver(STL_MAXBRDS * STL_MAXPORTS);
+ 	if (!stl_serial)
+ 		return -1;
+@@ -4822,14 +4835,14 @@ static int __init stallion_module_init(v
+ 	}
+ 
+ 	return 0;
++err:
++	return retval;
+ }
+ 
+ static void __exit stallion_module_exit(void)
+ {
+ 	struct stlbrd	*brdp;
+-	struct stlpanel	*panelp;
+-	struct stlport	*portp;
+-	int		i, j, k;
++	int		i;
+ 
+ 	pr_debug("cleanup_module()\n");
+ 
+@@ -4856,27 +4869,15 @@ static void __exit stallion_module_exit(
+ 			"errno=%d\n", -i);
+ 	class_destroy(stallion_class);
+ 
++	pci_unregister_driver(&stl_pcidriver);
++
+ 	for (i = 0; (i < stl_nrbrds); i++) {
+ 		if ((brdp = stl_brds[i]) == NULL)
+ 			continue;
+ 
+ 		free_irq(brdp->irq, brdp);
+ 
+-		for (j = 0; (j < STL_MAXPANELS); j++) {
+-			panelp = brdp->panels[j];
+-			if (panelp == NULL)
+-				continue;
+-			for (k = 0; (k < STL_PORTSPERPANEL); k++) {
+-				portp = panelp->ports[k];
+-				if (portp == NULL)
+-					continue;
+-				if (portp->tty != NULL)
+-					stl_hangup(portp->tty);
+-				kfree(portp->tx.buf);
+-				kfree(portp);
+-			}
+-			kfree(panelp);
+-		}
++		stl_cleanup_panels(brdp);
+ 
+ 		release_region(brdp->ioaddr1, brdp->iosize1);
+ 		if (brdp->iosize2 > 0)

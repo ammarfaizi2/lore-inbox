@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWJVSt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWJVStn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWJVSt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWJVSt3
+	id S1750892AbWJVStn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWJVStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:49:29 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:42504 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750838AbWJVSt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:49:27 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "Aaron Cohen" <aaron@assonance.org>
-Subject: Re: Ordering hotplug scripts vs. udev device node creation
-Date: Sun, 22 Oct 2006 19:49:29 +0100
+	Sun, 22 Oct 2006 14:49:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:45812 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750819AbWJVStl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 14:49:41 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+Date: Sun, 22 Oct 2006 20:49:36 +0200
 User-Agent: KMail/1.9.5
-Cc: "LKML List" <linux-kernel@vger.kernel.org>
-References: <727e50150610211021s7779b787s7bac8f409a3f2518@mail.gmail.com>
-In-Reply-To: <727e50150610211021s7779b787s7bac8f409a3f2518@mail.gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <4537818D.4060204@qumranet.com> <200610222036.03455.arnd@arndb.de> <453BBB41.4070905@qumranet.com>
+In-Reply-To: <453BBB41.4070905@qumranet.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200610221949.29260.s0348365@sms.ed.ac.uk>
+Message-Id: <200610222049.36338.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 October 2006 18:21, Aaron Cohen wrote:
-> Hope this is a reasonable list to post this to.
+On Sunday 22 October 2006 20:41, Avi Kivity wrote:
+> > Ok, but if you radically change the kernel<->user API, doesn't that mean
+> > you have to upgrade in the same way?
 >
-> I'm trying to modify the gpsd hotplug script to work better with my
-> udev setup.  My USB serial devices are added to /dev/tts/USBx by udev
-> and the default script assumes they are /dev/ttyUSBx.
+> No, why? I'd just upgrade the userspace.  Am I misunderstanding you?
+
+If you change the kernel interface, you also have to change the kernel
+itself, at least if you introduce new syscalls.
+
+> > The 32 bit emulation mode in x86_64
+> > is actually pretty complete, so it probably boils down to a kernel
+> > upgrade for you, without having to touch any of the user space.
+> >  
 >
-> In any event, my hotplug script uses udevinfo to figure out the device
-> file to use.  The problem seems to be though that my hotplug script is
-> getting run before udev has actually created the device node.  Is
-> there some ordering mechanism I'm missing that would help me out here?
+> For me personally, I don't mind.  I don't know about others.
 
-Some distros have gotten rid of hotplug altogether and now use udev entirely 
-for handling plugging events (udevd). It seems like what you could do here 
-was write a simple udev rule to symlink the device when it's created.
+I'd really love to see your code in get into the mainline kernel,
+but I'd consider 32 bit host support an unnecessary burden for
+long-term maintenance. Maybe you could maintain the 32 bit version
+out of tree as long as there is still interest? I would expect that
+at least the point where it works out of the box on x86_64
+distros is when it becomes completely obsolete.
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+	Arnd <><

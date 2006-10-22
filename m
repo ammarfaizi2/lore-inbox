@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWJVXDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWJVXJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWJVXDP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 19:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWJVXDP
+	id S1750716AbWJVXJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 19:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWJVXJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 19:03:15 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:60854 "EHLO mailbox.ines.ro")
-	by vger.kernel.org with ESMTP id S1750766AbWJVXDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 19:03:14 -0400
-Subject: Re: Strange errors from e1000 driver (2.6.18)
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: "Martin J. Bligh" <mbligh@google.com>
-Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-In-Reply-To: <453BD41B.4010007@google.com>
-References: <453BBC9E.4040300@google.com> <453BC0E7.1060308@mbligh.org>
-	 <4807377b0610221321i62455faende025f88142dd087@mail.gmail.com>
-	 <453BD41B.4010007@google.com>
-Content-Type: text/plain
-Organization: iNES Group
-Date: Mon, 23 Oct 2006 02:02:43 +0300
-Message-Id: <1161558163.2720.4.camel@DustPuppy.LNX.RO>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Milter 1.6.2 on MailBox.iNES.RO
+	Sun, 22 Oct 2006 19:09:59 -0400
+Received: from web55615.mail.re4.yahoo.com ([206.190.58.239]:38544 "HELO
+	web55615.mail.re4.yahoo.com") by vger.kernel.org with SMTP
+	id S1750716AbWJVXJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 19:09:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=LPskGQiB7b4ev59yT2s5COSnXY7v7BGjuOKuOLDG39cj8wDvE8SvOH98IxzdKG40QzXF37HqTt7eDYyJ/OQDGMnG/q9x7OVfSlc+kBKTNYoJ8R2CAsLRL+Z//OpbYsBIW52YrhywCwB68MNIhJNe+oWQO4m6uAJEik4tXZXTvXw=  ;
+Message-ID: <20061022230957.78480.qmail@web55615.mail.re4.yahoo.com>
+Date: Sun, 22 Oct 2006 16:09:56 -0700 (PDT)
+From: Amit Choudhary <amit2030@yahoo.com>
+Subject: Re: Hopefully, kmalloc() will always succeed, but if it doesn't then....
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0610222306240.22903@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-22 at 13:27 -0700, Martin J. Bligh wrote:
-> Jesse Brandeburg wrote:
-> > On 10/22/06, Martin J. Bligh <mbligh@mbligh.org> wrote:
-> >> Martin J. Bligh wrote:
-> >> > I'm getting a lot of these type of errors if I run 2.6.18. If
-> >> > I run the standard Ubuntu Dapper kernel, I don't get them.
-> >> > What do they indicate?
-> > 
-> > Hi Martin, they indicate that you're getting transmit hangs.  Means
-> > your hardware is having issues with some of the buffers it is being
-> > handed.  Because the TDH and TDT noted below are not equal, it means
-> > the hardware is hung processing buffers that the driver gave to it.
-> > 
-> > We need the standard bug report particulars,
+
+
+--- Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+
 > 
-> Sure.
+> $ make -C /erk/kernel/linux-2.6.19-rc2 M=$PWD
+>   CC [M]  /dev/shm/test.o
+> /dev/shm/test.c: In function ‘func’:
+> /dev/shm/test.c:4: warning: ‘b’ may be used uninitialized in this 
+> function
 > 
-> Handle 0x0001, DMI type 1, 25 bytes.
-> System Information
-> 	Manufacturer: VIA Technologies, Inc.
-> 	Product Name: KT600-8237
-> 	Version:  
-> 	Serial Number:  
-> 	UUID: Not Present
-> 	Wake-up Type: Power Switch
+
+It would be nice if this warning can be seen in all the cases without doing anything extra. But
+sometimes I do not see it.
+
+I compiled sound/pci/mixart/mixart_hwdep.c - did "make modules".
+
+It has the following code but I did not get any warnings.
+
+static int mixart_enum_connectors(struct mixart_mgr *mgr)
+{
+        u32 k;
+        int err;
+        struct mixart_msg request;
+        struct mixart_enum_connector_resp *connector;
+        struct mixart_audio_info_req  *audio_info_req;
+        struct mixart_audio_info_resp *audio_info;
+
+        connector = kmalloc(sizeof(*connector), GFP_KERNEL);
+        audio_info_req = kmalloc(sizeof(*audio_info_req), GFP_KERNEL);
+        audio_info = kmalloc(sizeof(*audio_info), GFP_KERNEL);
+        if (! connector || ! audio_info_req || ! audio_info) {
+                err = -ENOMEM;
+                goto __error;
+        }
+
+root@zephyr-7 linux-2.6.19-rc1]# make modules
+scripts/kconfig/conf -s arch/i386/Kconfig
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  ...
+  CC [M]  sound/pci/mixart/mixart.o
+  CC [M]  sound/pci/mixart/mixart_core.o
+  CC [M]  sound/pci/mixart/mixart_hwdep.o
+  CC [M]  sound/pci/mixart/mixart_mixer.o
+  LD [M]  sound/pci/mixart/snd-mixart.o
+  Building modules, stage 2.
+  MODPOST 44 modules
+  CC      sound/core/snd-hwdep.mod.o
+  LD [M]  sound/core/snd-hwdep.ko
+  ...
+[root@zephyr-7 linux-2.6.19-rc1]#
+
+Regards,
+Amit
 
 
-If this matters: I've got the same errors with the fc5 kernel sometime
-around january, also on an VIA-based motherboard. I only got around to
-fix it by changing the motherboard... (worked fine with an intel-based
-mb).
 
-
--- 
-Cioby
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

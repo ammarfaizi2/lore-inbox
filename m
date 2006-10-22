@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWJVT7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWJVT7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWJVT7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 15:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJVT7A
+	id S1751179AbWJVT7y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 15:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWJVT7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 15:59:00 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:3793 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751239AbWJVT67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 15:58:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
-        b=J3QxmFA+iFmybVEBo+dMXMucVQzcRIEv4kaLun3hiGBhLplTPf0FGSCUBC/dWrtLha/1urTqIQ/sn5qdzxpqS0h0tu7IGKwzdatGKhm9pAF4d0nv16ysslKuoGz5cnnmSTzS64f5Rbz6UdoytqKFB0Zw1OT02fLFe3qd6OEfh/E=
-Message-ID: <86802c440610221258q29b19839i7290b628424f7dba@mail.gmail.com>
-Date: Sun, 22 Oct 2006 12:58:57 -0700
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] x86-64: using cpu_online_map instead of APIC_ALL_CPUS
-Cc: "Andi Kleen" <ak@muc.de>, "Muli Ben-Yehuda" <muli@il.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1k62sz150.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_151546_29526991.1161547137510"
-References: <86802c440610220942m4fc77edbi7b6d62a2b2b378c5@mail.gmail.com>
-	 <m1k62sz150.fsf@ebiederm.dsl.xmission.com>
-X-Google-Sender-Auth: 3064e46c78597782
+	Sun, 22 Oct 2006 15:59:54 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2176 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751179AbWJVT7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 15:59:53 -0400
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Avi Kivity <avi@qumranet.com>, Arnd Bergmann <arnd@arndb.de>,
+       Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>
+In-Reply-To: <20061022175609.GA28152@infradead.org>
+References: <4537818D.4060204@qumranet.com>
+	 <200610221723.48646.arnd@arndb.de> <453B99D7.1050004@qumranet.com>
+	 <200610221851.06530.arnd@arndb.de> <453BA3E9.4050907@qumranet.com>
+	 <20061022175609.GA28152@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Oct 2006 21:01:23 +0100
+Message-Id: <1161547284.1919.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_151546_29526991.1161547137510
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Ar Sul, 2006-10-22 am 18:56 +0100, ysgrifennodd Christoph Hellwig:
+> Again, what's the point?  All cpus shipped by Intel and AMD that have
+> hardware virtualization extensions also support the 64bit mode.  Given
+> that I don't see any point for supporting a 32bit host.
 
-Muli,
+Really:
 
-Can you test this one?
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx
+constant_tsc pni monitor vmx est tm2 xtpr
+model name      : Genuine Intel(R) CPU           T2300  @ 1.66GHz
 
-YH
-
-On 10/22/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> "Yinghai Lu" <yinghai.lu@amd.com> writes:
->
-> > Using cpu_online_map instead of APIC_ALL_CPUS for flat apic mode, So
-> > __assign_irq_vector can refer correct per_cpu data.
-> >
-> > Cc: Muli Ben-Yehuda <muli@il.ibm.com>
-> > Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
->
-> Nack.  This fixes the symptom not the bug.
-> More comprehensive patches follow.
->
-> Eric
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-------=_Part_151546_29526991.1161547137510
-Content-Type: text/x-patch; name=io_apic.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_etlv4lop
-Content-Disposition: attachment; filename="io_apic.diff"
-
-ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMgYi9hcmNoL3g4Nl82NC9r
-ZXJuZWwvaW9fYXBpYy5jCmluZGV4IGIwMDAwMTcuLjI5Y2FlOTIgMTAwNjQ0Ci0tLSBhL2FyY2gv
-eDg2XzY0L2tlcm5lbC9pb19hcGljLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL2lvX2FwaWMu
-YwpAQCAtNjM0LDcgKzYzNCw3IEBAIHN0YXRpYyBpbnQgX19hc3NpZ25faXJxX3ZlY3RvcihpbnQg
-aXJxLCAKIAkJaW50IGZpcnN0LCBuZXdfY3B1OwogCQlpbnQgdmVjdG9yLCBvZmZzZXQ7CiAKLQkJ
-ZG9tYWluID0gdmVjdG9yX2FsbG9jYXRpb25fZG9tYWluKGNwdSk7CisJCWNwdXNfYW5kKGRvbWFp
-biwgdmVjdG9yX2FsbG9jYXRpb25fZG9tYWluKGNwdSksIG1hc2spOwogCQlmaXJzdCA9IGZpcnN0
-X2NwdShkb21haW4pOwogCiAJCXZlY3RvciA9IHBvc1tmaXJzdF0udmVjdG9yOwo=
-------=_Part_151546_29526991.1161547137510--

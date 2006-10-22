@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWJVR7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWJVSAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751800AbWJVR7M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 13:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWJVR7M
+	id S1751801AbWJVSAY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWJVSAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 13:59:12 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:31650 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751793AbWJVR7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 13:59:11 -0400
-Date: Sun, 22 Oct 2006 19:58:53 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Randy Dunlap <rdunlap@xenotime.net>
-cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-In-Reply-To: <20061020091302.a2a85fb1.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be>
-References: <20061017005025.GF29920@ftp.linux.org.uk>
- <Pine.LNX.4.64.0610161847210.3962@g5.osdl.org> <20061017043726.GG29920@ftp.linux.org.uk>
- <Pine.LNX.4.64.0610170821580.3962@g5.osdl.org> <20061018044054.GH29920@ftp.linux.org.uk>
- <20061018091944.GA5343@martell.zuzino.mipt.ru> <20061018093126.GM29920@ftp.linux.org.uk>
- <Pine.LNX.4.64.0610180759070.3962@g5.osdl.org> <20061018160609.GO29920@ftp.linux.org.uk>
- <Pine.LNX.4.64.0610180926380.3962@g5.osdl.org> <20061020005337.GV29920@ftp.linux.org.uk>
- <20061019213545.bf5a51c1.rdunlap@xenotime.net> <45389662.6010604@s5r6.in-berlin.de>
- <20061020091302.a2a85fb1.rdunlap@xenotime.net>
+	Sun, 22 Oct 2006 14:00:24 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:62801 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1751804AbWJVSAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 14:00:22 -0400
+Message-ID: <453BB1B0.7040500@qumranet.com>
+Date: Sun, 22 Oct 2006 20:00:16 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@infradead.org>, Avi Kivity <avi@qumranet.com>,
+       Arnd Bergmann <arnd@arndb.de>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de> <453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de> <453BA3E9.4050907@qumranet.com> <20061022175609.GA28152@infradead.org>
+In-Reply-To: <20061022175609.GA28152@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2006 18:00:21.0642 (UTC) FILETIME=[F1115EA0:01C6F603]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Oct 2006, Randy Dunlap wrote:
-> Yes, we have lots of header include indirection going on.
-> I don't know of a good tool to detect/fix it.
+Christoph Hellwig wrote:
+> On Sun, Oct 22, 2006 at 07:01:29PM +0200, Avi Kivity wrote:
+>   
+>>> What is the point of 32 bit hosts anyway? Isn't this only available
+>>> on x86_64 type CPUs in the first place?
+>>>  
+>>>       
+>> No, 32-bit hosts are fully supported (except a 32-bit host can't run a 
+>> 32-bit guest).
+>>     
+>
+> Again, what's the point?  All cpus shipped by Intel and AMD that have
+> hardware virtualization extensions also support the 64bit mode.  Given
+> that I don't see any point for supporting a 32bit host.
+>   
 
-BTW, what about making sure all header files are self-contained (i.e. all
-header files include all stuff they need)? This would make it easier for the
-users to know which files to include.
+Existing installations?
 
-Gr{oetje,eeting}s,
+Dropping 32-bit host support would certainly kill a lot of #ifdefs and 
+reduce the amount of testing needed.  It would also force me to upgrade 
+my home machine.
 
-						Geert
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

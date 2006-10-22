@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWJVA46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWJVBe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422891AbWJVA46 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 20:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422897AbWJVA46
+	id S1030395AbWJVBe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 21:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbWJVBe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 20:56:58 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:58782 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1422891AbWJVA4z (ORCPT
+	Sat, 21 Oct 2006 21:34:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59267 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030395AbWJVBe2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 20:56:55 -0400
-Message-id: <2472126109220008551@wsc.cz>
-Subject: [PATCH 3/5] Char: sx, mark functions as devinit
-From: Jiri Slaby <jirislaby@gmail.com>
+	Sat, 21 Oct 2006 21:34:28 -0400
+Date: Sun, 22 Oct 2006 03:34:27 +0200
+From: Nick Piggin <npiggin@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <R.E.Wolff@BitWizard.nl>
-Cc: <support@specialix.co.uk>
-Date: Sun, 22 Oct 2006 02:56:55 +0200 (CEST)
+Cc: Damien Wyart <damien.wyart@free.fr>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc2-mm2 : empty files on vfat file system
+Message-ID: <20061022013427.GA17694@wotan.suse.de>
+References: <20061021104454.GA1996@localhost.localdomain> <87lkn9x0ly.fsf@duaron.myhome.or.jp> <20061021173849.GA1999@localhost.localdomain> <20061021131932.09801b4a.akpm@osdl.org> <20061021132431.0ced0dc6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061021132431.0ced0dc6.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sx, mark functions as devinit
+On Sat, Oct 21, 2006 at 01:24:31PM -0700, Andrew Morton wrote:
+> On Sat, 21 Oct 2006 13:19:32 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Sat, 21 Oct 2006 19:38:49 +0200
+> > Damien Wyart <damien.wyart@free.fr> wrote:
+> > 
+> > > > --- a/fs/fat/inode.c~fs-prepare_write-fixes
+> > > > +++ a/fs/fat/inode.c
+> > > > @@ -150,7 +150,11 @@ static int fat_commit_write(struct file 
+> > > >  			    unsigned from, unsigned to)
+> > > >  {
+> > > >  	struct inode *inode = page->mapping->host;
+> > > > -	int err = generic_commit_write(file, page, from, to);
+> > > > +	int err;
+> > > > +	if (to - from > 0)
+> > > > +		return 0;
+> > > > +
+> > 
+> > That should have been
+> > 
+> > 	if (to - from == 0)
+> > 		return 0;
+> 
+> otoh, it's still wrong that we're not updating i_size.  We happen to know
+> that the caller will retry without dropping i_mutex, but it's a bit
+> incestuous.
 
-Mark as much as possible functions as __devinit to free them after driver
-initialization (if no hotplug).
-
-Cc: <R.E.Wolff@BitWizard.nl>
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-
----
-commit 2203651d857aafeb50b4b16de1a1805d796598bb
-tree 0eb5e4fbe14eefaed70d80c5c3c562107d4ee75b
-parent 52aaf84368d81de72e1c4a69756b10ec744fbeab
-author Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 01:59:22 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 01:59:22 +0200
-
- drivers/char/sx.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/char/sx.c b/drivers/char/sx.c
-index be6fff2..8c845fc 100644
---- a/drivers/char/sx.c
-+++ b/drivers/char/sx.c
-@@ -2034,7 +2034,7 @@ #endif
- }
- 
- 
--static void printheader(void)
-+static void __devinit printheader(void)
- {
- 	static int header_printed;
- 
-@@ -2047,7 +2047,7 @@ static void printheader(void)
- }
- 
- 
--static int probe_sx (struct sx_board *board)
-+static int __devinit probe_sx (struct sx_board *board)
- {
- 	struct vpd_prom vpdp;
- 	char *p;
-@@ -2125,7 +2125,7 @@ static int probe_sx (struct sx_board *bo
-    card. 0xe0000 and 0xf0000 are taken by the BIOS. That only leaves 
-    0xc0000, 0xc8000, 0xd0000 and 0xd8000 . */
- 
--static int probe_si (struct sx_board *board)
-+static int __devinit probe_si (struct sx_board *board)
- {
- 	int i;
- 
-@@ -2364,7 +2364,7 @@ static void __exit sx_release_drivers(vo
-    EEprom.  As the bit is read/write for the CPU, we can fix it here,
-    if we detect that it isn't set correctly. -- REW */
- 
--static void fix_sx_pci (struct pci_dev *pdev, struct sx_board *board)
-+static void __devinit fix_sx_pci(struct pci_dev *pdev, struct sx_board *board)
- {
- 	unsigned int hwbase;
- 	void __iomem *rebase;
+It can possibly fail for example if the source buffer gets unmapped.
+However in the length == 0 case, that signals a failure to write anything
+so we needn't update i_size, I think?

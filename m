@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422909AbWJVBua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422825AbWJVBwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422909AbWJVBua (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 21:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422825AbWJVBua
+	id S1422825AbWJVBwv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 21:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422910AbWJVBwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 21:50:30 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:15237 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1422909AbWJVBua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 21:50:30 -0400
-Date: Sun, 22 Oct 2006 03:50:28 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, Damien Wyart <damien.wyart@free.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc2-mm2 : empty files on vfat file system
-Message-ID: <20061022015028.GB17694@wotan.suse.de>
-References: <20061021104454.GA1996@localhost.localdomain> <87lkn9x0ly.fsf@duaron.myhome.or.jp> <20061021173849.GA1999@localhost.localdomain> <20061021131932.09801b4a.akpm@osdl.org> <873b9htne9.fsf@duaron.myhome.or.jp>
+	Sat, 21 Oct 2006 21:52:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42134 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1422825AbWJVBwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 21:52:50 -0400
+Subject: Re: PAE broken on Thinkpad
+From: Arjan van de Ven <arjan@infradead.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1161472697.5528.6.camel@localhost.localdomain>
+References: <1161472697.5528.6.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 22 Oct 2006 03:52:44 +0200
+Message-Id: <1161481965.3128.129.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873b9htne9.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 22, 2006 at 05:38:38AM +0900, OGAWA Hirofumi wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > On Sat, 21 Oct 2006 19:38:49 +0200
-> > Damien Wyart <damien.wyart@free.fr> wrote:
-> >
-> >> > --- a/fs/fat/inode.c~fs-prepare_write-fixes
-> >> > +++ a/fs/fat/inode.c
-> >> > @@ -150,7 +150,11 @@ static int fat_commit_write(struct file 
-> >> >  			    unsigned from, unsigned to)
-> >> >  {
-> >> >  	struct inode *inode = page->mapping->host;
-> >> > -	int err = generic_commit_write(file, page, from, to);
-> >> > +	int err;
-> >> > +	if (to - from > 0)
-> >> > +		return 0;
-> >> > +
-> >
-> > That should have been
-> >
-> > 	if (to - from == 0)
-> > 		return 0;
-> 
-> As I said in this thread, generic_cont_expand() uses "to == from".
-> Should we fix generic_cont_expand() instead? I don't know the
-> background of this patch.
+On Sat, 2006-10-21 at 16:18 -0700, john stultz wrote:
+> Yea. So I know I probably shouldn't run a PAE kernel on my 1Gig laptop,
+> but in trying to do so I found it won't boot.
 
-OK I have to write an RFC for various fs developers, so I'll be sure
-to include you.
 
-We want to be able to pass in a short (possibly zero) commit_write
-length if the page data can not be fully copied.
+which CPU do you have? Not all laptop processors support PAE at all...
+(for example the pentiumM generations before NX was added)
 
-generic_cont_expand seems to be using that as a shorthand for
-"update the i_size but don't mark anything uptdoate"? If so, I think
-it would be nice to fix it. Why does it even need to go through the
-prepare/commit? Why not make __generic_cont_expand a standalone
-function, and call that from cont_prepare_write? 
+check /proc/cpuinfo the flags line to see if "pae" is there
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

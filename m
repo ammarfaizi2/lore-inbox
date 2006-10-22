@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422910AbWJVBx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422911AbWJVCBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422910AbWJVBx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 21:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422911AbWJVBxZ
+	id S1422911AbWJVCBI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 22:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422927AbWJVCBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 21:53:25 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:62185 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1422910AbWJVBxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 21:53:24 -0400
-Date: Sun, 22 Oct 2006 03:53:19 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: Andi Kleen <ak@suse.de>, patches@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/2] x86_64: increase PHB1 split transaction timeout
-Message-ID: <20061022015319.GH5211@rhun.haifa.ibm.com>
-References: <200610221250.493223000@suse.de> <20061021225053.A213913B62@wotan.suse.de> <Pine.LNX.4.64N.0610211606430.9839@attu3.cs.washington.edu>
-Mime-Version: 1.0
+	Sat, 21 Oct 2006 22:01:08 -0400
+Received: from ns2.suse.de ([195.135.220.15]:43910 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422911AbWJVCBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 22:01:06 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       johnstul@us.ibm.com
+Subject: Re: PAE broken on Thinkpad
+References: <1161472697.5528.6.camel@localhost.localdomain>
+	<1161481965.3128.129.camel@laptopd505.fenrus.org>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Oct 2006 04:00:51 +0200
+In-Reply-To: <1161481965.3128.129.camel@laptopd505.fenrus.org>
+Message-ID: <p73r6x1m7n0.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0610211606430.9839@attu3.cs.washington.edu>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 04:13:28PM -0700, David Rientjes wrote:
+Arjan van de Ven <arjan@infradead.org> writes:
 
-> > +static void __init calgary_increase_split_completion_timeout(void __iomem *bbar,
-> > +	unsigned char busnum)
-> > +{
-> > +	u64 val64;
-> > +	void __iomem *target;
-> > +	unsigned long phb_shift = -1;
+> On Sat, 2006-10-21 at 16:18 -0700, john stultz wrote:
+> > Yea. So I know I probably shouldn't run a PAE kernel on my 1Gig laptop,
+> > but in trying to do so I found it won't boot.
 > 
-> The initialization of this to -1 is unclear to me since we fall through to 
-> BUG_ON() if busno_to_phbid() returns anything under than 0-3.  A shift 
-> value of MAX_ULONG is never appropriate.
+> 
+> which CPU do you have? Not all laptop processors support PAE at all...
+> (for example the pentiumM generations before NX was added)
 
-Without the initialization gcc warns about 'phb_shift' potentially
-being used unitialized. I used '-1' exactly because it is never
-appropriate.
+It shouldn't have crashed in bootmem then, just paniced early.
 
-Cheers,
-Muli
+-Andi

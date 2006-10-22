@@ -1,34 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJUX6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161515AbWJVAMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWJUX6M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 19:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWJUX6M
+	id S1161515AbWJVAMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 20:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161514AbWJVAMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 19:58:12 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:62935 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750810AbWJUX6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 19:58:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lNwTyZHytrtLHpemgdbG+p1fySbd5Sr2Gy7Ro96TCaMdp1Bz38IU75s3BaNSU54KvwWe1Wt1RQ0qDuKZVh8WWCbWTs91TV/odigE28uWnhJyyY8SbR3Y4Dbjx4iVc0FDbpMfFEb1xkNK3wksEgzuA9hbM3UauoAMUU3868phld4=
-Message-ID: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
-Date: Sun, 22 Oct 2006 01:57:36 +0200
-From: "Linux Portal" <linportal@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: First benchmarks of the ext4 file system
+	Sat, 21 Oct 2006 20:12:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42379 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751756AbWJVAL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Oct 2006 20:11:59 -0400
+Date: Sat, 21 Oct 2006 17:11:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Morris <jmorris@namei.org>
+cc: Josef Jeff Sipek <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@ftp.linux.org.uk,
+       hch@infradead.org
+Subject: Re: [PATCH 08 of 23] isofs: change uses of f_{dentry, vfsmnt} to
+ use f_path
+In-Reply-To: <Pine.LNX.4.64.0610211909210.17454@d.namei>
+Message-ID: <Pine.LNX.4.64.0610211702410.3962@g5.osdl.org>
+References: <15a2d7465501c952a2af.1161411453@thor.fsl.cs.sunysb.edu>
+ <Pine.LNX.4.64.0610211909210.17454@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext4 is 20 percent faster writer than ext3 or reiser4, probably thanks
-to extents and delayed allocation. On other tests it is either
-slightly faster or slightly slower. reiser4 comes as a nice surprise,
-winning few benchmarks. Both are very stable, no errors during
-testing.
 
-http://linux.inet.hr/first_benchmarks_of_the_ext4_file_system.html
+
+On Sat, 21 Oct 2006, James Morris wrote:
+>
+> What about something like:
+> 
+> static inline struct inode *fpath_ino(struct file *file)
+> {
+> 	return file->f_path.dentry->d_inode;
+> }
+
+Generally, unless it saves a _lot_ of typing, we've tried to avoid 
+gratuitous hiding of details. And "ino" isn't a good name, it's something 
+we've traditionally used for the inode _number_. So it would be 
+"fpath_inode()" or "file_inode()" or something.
+
+As it is, the difference between
+
+	file->f_dentry->d_inode
+	fpath_inode(file)
+
+is not really enough of a win to merit hiding that it's doing two pointer 
+dereferences. Now, whether the extra five characters ("path.") merit it, I 
+don't know.  I suspect not. If the line turns long, it's often more 
+readable to just add a local variable or two, and do
+
+	struct dentry *dentry = file->f_[path.]dentry;
+	struct inode *inode = dentry->d_inode;
+
+which in some situations allow for other readability improvements too (eg 
+maybe "dentry" or "inode" is used multiple times).
+
+If this was something where we'd expect things to change in the future, 
+maybe it would be worth it for _that_ reason. That doesn't sound very 
+likely, though - these things have been fairly stable, and even this patch 
+is really about syntactic cleanup than any real change.
+
+Adding these kinds of "abstraction layers" is something that people are 
+taught is good, but I personally tend to think that it makes it less 
+obvious at the code level what the "costs" are. Unless you know things 
+intimately, you really have no way of judging whether "fpath_inode()" is 
+something expensive or not. 
+
+I dunno. 
+
+		Linus

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWJVSgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWJVSje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWJVSgK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWJVSgK
+	id S1750747AbWJVSje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWJVSje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:36:10 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:16338 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750755AbWJVSgJ convert rfc822-to-8bit (ORCPT
+	Sun, 22 Oct 2006 14:39:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:60395 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750747AbWJVSjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:36:09 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-Date: Sun, 22 Oct 2006 20:36:03 +0200
-User-Agent: KMail/1.9.5
-Cc: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <4537818D.4060204@qumranet.com> <20061022175609.GA28152@infradead.org> <453BB1B0.7040500@qumranet.com>
-In-Reply-To: <453BB1B0.7040500@qumranet.com>
+	Sun, 22 Oct 2006 14:39:33 -0400
+Date: Sun, 22 Oct 2006 11:39:24 -0700
+From: Greg KH <gregkh@suse.de>
+To: Thomas Maier <balagi@justmail.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] 2.6.19-rc2-mm2 sysfs: sysfs_write_file() writes zero terminated data
+Message-ID: <20061022183924.GA18032@suse.de>
+References: <op.tht1yneaiudtyh@master>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610222036.03455.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <op.tht1yneaiudtyh@master>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 October 2006 20:00, Avi Kivity wrote:
-> Existing installations?
->
-> Dropping 32-bit host support would certainly kill a lot of #ifdefs and
-> reduce the amount of testing needed.  It would also force me to upgrade
-> my home machine.
+On Sun, Oct 22, 2006 at 07:17:47PM +0200, Thomas Maier wrote:
+> Hello,
+> 
+> since most of the files in sysfs are text files,
+> it would be nice, if the "store" function called
+> during sysfs_write_file() gets a zero terminated
+> string / data.
+> The current implementation seems not to ensure this.
+> (But only if it is the first time the zeroed buffer
+> page is allocated.)
 
-Ok, but if you radically change the kernel<->user API, doesn't that mean
-you have to upgrade in the same way? The 32 bit emulation mode in x86_64
-is actually pretty complete, so it probably boils down to a kernel upgrade
-for you, without having to touch any of the user space.
+Have you seen sysfs buffers being passed to the store() function in a
+non-null terminated manner?  How?
 
-	Arnd <><
+Are you seeking backward and then writing again to the file somehow?
+
+thanks,
+
+greg k-h

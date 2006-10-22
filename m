@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWJVQ23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWJVQbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWJVQ23 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 12:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWJVQ23
+	id S1751276AbWJVQbp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 12:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWJVQbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 12:28:29 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:38435 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751132AbWJVQ22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 12:28:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mRudfZTufeEKXsAftAiJ2ghaAwQi4RvqfZapn9Qtux9hg4EA24uWXA6VfsO1JHYYKrgtis7vkcZAreE5JOORfhX/F4Tw5GNK+FbF+KDo2zqb05XpWiWdosRyiE6vFKQ0ZIqlXDBN203nWW0zMLOkBMzpe2mRT3iIPCvzNPTFXBc=
-Message-ID: <86802c440610220928vbbe1023t25be1df0943eb471@mail.gmail.com>
-Date: Sun, 22 Oct 2006 09:28:26 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+	Sun, 22 Oct 2006 12:31:45 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:2550 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751272AbWJVQbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 12:31:44 -0400
+Date: Sun, 22 Oct 2006 18:31:41 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Yinghai Lu <yinghai.lu@amd.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] x86-64: typo in __assign_irq_vector when updating pos for vector and offset
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andi Kleen" <ak@suse.de>
-In-Reply-To: <20061022162013.GE4354@rhun.haifa.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20061022163141.GF4354@rhun.haifa.ibm.com>
+References: <200610212100.k9LL0GtC018787@hera.kernel.org> <20061022035109.GM5211@rhun.haifa.ibm.com> <200610221529.38694.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200610212100.k9LL0GtC018787@hera.kernel.org>
-	 <20061022035109.GM5211@rhun.haifa.ibm.com>
-	 <86802c440610220128v2e103912sbfba193484fb6304@mail.gmail.com>
-	 <20061022085036.GP5211@rhun.haifa.ibm.com>
-	 <86802c440610220902q648a7fc8p38fd9a3391f5bc5d@mail.gmail.com>
-	 <20061022162013.GE4354@rhun.haifa.ibm.com>
+In-Reply-To: <200610221529.38694.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/22/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-> All of the tests I ran were with NR_CPUS=8. Shall I try NR_CPUS=4?
+On Sun, Oct 22, 2006 at 03:29:38PM +0200, Andi Kleen wrote:
+> 
+> > This patch breaks my x366 machine:
+> >  
+> > aic94xx: device 0000:01:02.0: SAS addr 5005076a0112df00, PCBA SN , 8 phys, 8 enabled phys, flash present, BIOS build 1323
+> > aic94xx: couldn't get irq 25 for 0000:01:02.0
+> > ACPI: PCI interrupt for device 0000:01:02.0 disabled
+> > aic94xx: probe of 0000:01:02.0 failed with error -38
+> > 
+> > Reverting it allows it to boot again. Since the patch is "obviously
+> > correct", it must be uncovering some other problem with the genirq
+> > code.
+> 
+> I wonder if the machine works when booted with a 32bit kernel?
 
-So per_cpu only can be used onlined cpus?
+Mostly... I don't have a 32-bit initrd environment for aic94xx, so I
+gave it a spin with aic94xx built in and without firmware. It made it
+as far as trying to mount the root device, and then sat there spitting
+this out continously:
 
-I wonder if you try NR_CPUS without the patch, you will get more strange result.
+atkbd.c: Spurious ACK on isa0060/serio0. Some program might be trying
+access hardware directly
 
-YH
+I can put together a 32-bit initrd and try booting all the way if
+it'll be a useful experiment, let me know.
+
+Cheers,
+Muli

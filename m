@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWJVCSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030178AbWJVCSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWJVCSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 22:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWJVCSn
+	id S1030178AbWJVCSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 22:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWJVCSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 22:18:43 -0400
-Received: from dvhart.com ([64.146.134.43]:54187 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1750722AbWJVCSm (ORCPT
+	Sat, 21 Oct 2006 22:18:41 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:40202 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1750722AbWJVCSk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 22:18:42 -0400
-Message-ID: <453AD48E.2060204@mbligh.org>
-Date: Sat, 21 Oct 2006 19:16:46 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Sat, 21 Oct 2006 22:18:40 -0400
+Date: Sat, 21 Oct 2006 22:18:38 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+In-Reply-To: <20061021225228.GB17088@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0610212201090.29992-100000@netrider.rowland.org>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: 2.6.19-rc2-mm2
-References: <20061020015641.b4ed72e5.akpm@osdl.org> <4538F12B.10609@mbligh.org>
-In-Reply-To: <4538F12B.10609@mbligh.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/ 
->>
->>
->> - Added the IOAT tree as git-ioat.patch (Chris Leech)
->>
->> - I worked out the git magic to make the wireless tree work
->>   (git-wireless.patch).  Hopefully it will be in -mm more often now.
-> 
-> I think the IO & fsx problems have got better, but this one is still
-> broken, at least.
-> 
-> See end of fsx runlog here:
-> 
-> http://test.kernel.org/abat/57486/debug/test.log.1
-> 
-> which looks like this:
-> 
-> Total Test PASSED: 79
-> Total Test FAILED: 3
->   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 2048 
-> -Z -R -W test/junkfile
->   139 ./fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W test/junkfile
->   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 1024 
-> -Z -R -W test/junkfile
-> Failed rc=1
-> 10/20/06-02:41:55 command complete: (1) rc=1 (TEST FAIL)
+On Sat, 21 Oct 2006, Paul E. McKenney wrote:
 
-On further examination ... and rather more worryingly, this started
-between 2.6.18 and 2.6.18.1. I don't see any reiserfs patches in
-there, and possibly it's a machine config change? But rather worrying.
+> > This is identical to the previous version, since by definition
+> > 
+> > 	st_i(B) ==> ld_j(B)  is equivalent to  st_i(B) => ld_j(B) &&
+> > 		not exist k: st_i(B) => st_k(B) => ld_j(B).
+> 
+> OK -- we were assuming slightly different definitions of "==>".  I as
+> assuming that if st==>ld1==>ld2, that it is not the case that "st==>ld2".
+> In this circumstance, your definition is certainly more convenient than
+> is mine.  In the case of MMIO, the situation might be reversed.
 
-Where do the changelogs for the stable release kernels sit again?
+MMIO of course is completely different.  For regular memory accesses I 
+think we should never allow a load on the left side of "=>" or "==>".  
+Keep them invisible!  :-)
+
+Writing ld(A) => st(A) is bad because (1) it suggests that the store
+somehow "sees" the load (which it doesn't; the load is invisible), and (2)  
+it suggests that the store occurs "later" in some sense than the load
+(which might not be true, since a load doesn't necessarily return the
+value of the temporally most recent store).
+
+My viewpoint is that "=>" really provides an ordering of stores only.  
+Its use with loads is something of an artifact; it gives a convenient way
+of expressing the fact that a load "sees" an initial segment of all the
+stores to a variable (and the value it returns is that of the last store
+in the segment).
+
+> > (2) doesn't make sense, since loads aren't part of the global ordering of
+> > accesses of B -- they are invisible.  (BTW, you don't need to assume as
+> > well that stores are blind; it's enough just to have loads be invisible.)  
+> > Each load sees an initial sequence of stores ending in the store whose
+> > value is returned by the load, but this doesn't mean that the load occurs
+> > between that store and the next one.
+> 
+> That is due to our difference in definition.  Perhaps the following
+> definition:  "A==>B" means either that B sees the value stored by A
+> or that B sees the same value as does A?
+> 
+> Some work will be required to see what is best.
+
+How about this instead: "A==>B" means that B sees the value stored by A,
+and "A==B" means that A and B are both loads and they see the value from
+the same store.  That way we avoid putting a load on the left side of
+"==>".
+
+
+> > (3) The assumption should be that both accesses of B are atomic; it 
+> > doesn't matter whether the accesses of A are.
+> 
+> Check out the i386 default definition of spin_unlock() -- no atomic
+> operations.  So only the final access of B (the one corresponding to
+> spin_lock()) would need to be atomic.
+
+You are right.
+
+Alan
 

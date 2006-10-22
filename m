@@ -1,116 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWJVUKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWJVUVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWJVUKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 16:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWJVUKu
+	id S1751397AbWJVUVn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 16:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWJVUVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 16:10:50 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:3990 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751343AbWJVUKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 16:10:49 -0400
-Message-ID: <453BD251.1000703@wolfmountaingroup.com>
-Date: Sun, 22 Oct 2006 14:19:29 -0600
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Sun, 22 Oct 2006 16:21:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:292 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751393AbWJVUVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 16:21:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lRWcpkw63F2iMJM/SU7vzp8H8Fsioo3o6a3iVPW2iSbTF4KQcbTsMH51VANFn/HT+9zanftfs5avpBzh6kKNrLiUUvY3vpYrhKt3zg/6E5UfmlQ8Fj8AU2uBw/nKl8Vx7B14LSXlrKwOX8dk9jS+IRvOsipo5NQOUUYRBKbkNqQ=
+Message-ID: <4807377b0610221321i62455faende025f88142dd087@mail.gmail.com>
+Date: Sun, 22 Oct 2006 13:21:40 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: Strange errors from e1000 driver (2.6.18)
+Cc: "Martin J. Bligh" <mbligh@google.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+In-Reply-To: <453BC0E7.1060308@mbligh.org>
 MIME-Version: 1.0
-To: adam radford <aradford@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linuxraid@amcc.com, linux-scsi@vger.kernel.org
-Subject: Re: 3Ware delayed device mounting errors with newer 9500 series adapters
-References: <453A52CE.80605@wolfmountaingroup.com>	 <20061021233904.c2f40a5f.akpm@osdl.org> <b1bc6a000610221019i47283722g3b8f4a79918c4825@mail.gmail.com>
-In-Reply-To: <b1bc6a000610221019i47283722g3b8f4a79918c4825@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <453BBC9E.4040300@google.com> <453BC0E7.1060308@mbligh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adam radford wrote:
+On 10/22/06, Martin J. Bligh <mbligh@mbligh.org> wrote:
+> Martin J. Bligh wrote:
+> > I'm getting a lot of these type of errors if I run 2.6.18. If
+> > I run the standard Ubuntu Dapper kernel, I don't get them.
+> > What do they indicate?
 
-> Jeff,
+Hi Martin, they indicate that you're getting transmit hangs.  Means
+your hardware is having issues with some of the buffers it is being
+handed.  Because the TDH and TDT noted below are not equal, it means
+the hardware is hung processing buffers that the driver gave to it.
+
+We need the standard bug report particulars, lspci -vv, cat
+/proc/interrupts, dmesg, ethtool -e eth0, and maybe output of
+dmidecode, etc.  I'm pretty sure you know the drill.
+
+> > Oct 21 18:48:28 localhost kernel: buffer_info[next_to_clean]
+> > Oct 21 18:48:28 localhost kernel:   time_stamp           <7b79d33>
+> > Oct 21 18:48:28 localhost kernel:   next_to_watch        <3d>
+> > Oct 21 18:48:28 localhost kernel:   jiffies              <7b7a0c1>
+> > Oct 21 18:48:28 localhost kernel:   next_to_watch.status <0>
+> > Oct 21 18:48:30 localhost kernel:   Tx Queue             <0>
+> > Oct 21 18:48:30 localhost kernel:   TDH                  <3d>
+> > Oct 21 18:48:30 localhost kernel:   TDT                  <44>
+> > Oct 21 18:48:30 localhost kernel:   next_to_use          <44>
+> > Oct 21 18:48:30 localhost kernel:   next_to_clean        <39>
+<snip>
+
+> Actually, maybe this set is more helpful:
 >
-> Can you reproduce with 2.6.18.1?  ES4 contains a custom 3ware driver.
+> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+>    Tx Queue             <0>
+>    TDH                  <6>
+>    TDT                  <1f>
+>    next_to_use          <1f>
+>    next_to_clean        <2>
+> buffer_info[next_to_clean]
+>    time_stamp           <2de8b54>
+>    next_to_watch        <6>
+>    jiffies              <2de8db7>
+>    next_to_watch.status <0>
+<snip>
+> NETDEV WATCHDOG: eth0: transmit timed out
+> e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
 
-We don't use kernels later than 2.6.15 in our shipping releases since 
-they have
-some issues with stability. 
+only a little.  There are so many different pieces of e1000 hardware
+and so few specifics in this report that I'll be able to tell you lots
+more when you get us the info requested.
 
->
-> Also, you have included no error output with this email whatsoever.  Can
-> you go to a virtual console during your ES4 install, run 'dmesg', and 
-> see if
-> the errors are in there, or if they are a part of the ES4 anaconda 
-> installer?
-
-dmesg produces no output since the errors are reflected from init.
-
-Errors are typical of an unmounted volume.  i.e. 
-
-"cannot touch /var/lock/subsys/<service> (dozens of these)
-Starting System logger (hangs for 15 minutes) 
-
-So no logs .....
-
->
-> /dev/sdb, etc. having delayed appearances sounds like it is udev related.
-
-No, I do not believe so.
-
->
-> Are you running the latest firmware?  Do your controllers older than 
-> 60 days
-> have different firmware?
-
-This is the right question.  I will collect the various versions this 
-occurs on and post them here.
-
->
-> I will try to reproduce this.
-
-Pretty easy to do.
-
-Jeff
-
->
-> -Adam
->
-> On 10/21/06, Andrew Morton <akpm@osdl.org> wrote:
->
->> On Sat, 21 Oct 2006 11:03:10 -0600
->> "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com> wrote:
->>
->> >
->> > Adam,
->> >
->> > We have been getting 3Ware 9500 series adapters in the past 60 days
->> > which exhibit a delayed behavior during mounting of FS from
->> > /etc/fstab.   The adapters older than this do not exhibit this 
->> behavior.
->> >
->> > During bootup, if the driver is compiled as a module rather than in
->> > kernel, mount points such as /var in fstab fail to detect the devices
->> > until the system fully boots, at which point the /dev/sdb etc. devices
->> > showup.  It happens on both ATA cabled drives and drives
->> > cabled with multi-lane controller backplanes.
->> >
->> > The problem is easy to reproduce.  Install ES4, point the /var 
->> directory
->> > during install to one of the array devices in disk druid, and after
->> > the install completes, /var/ will not mount during bootup and all 
->> sorts
->> > of errors stream off the screen.  I can reproduce the problem
->> > with several systems in our labs and upon investigating the adapter
->> > revisions, I find that adapters ordered in the past 60 days exhibit
->> > the problem.   Compiling the driver in kernel gets around the problem,
->> > indicating its timing related.
->> >
->>
->> cc's added.
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->
-
+Jesse

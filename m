@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWJVWKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWJVWOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWJVWKn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 18:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJVWKn
+	id S1750732AbWJVWOX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 18:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWJVWOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 18:10:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3756 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750754AbWJVWKm (ORCPT
+	Sun, 22 Oct 2006 18:14:23 -0400
+Received: from xenotime.net ([66.160.160.81]:52707 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750732AbWJVWOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 18:10:42 -0400
-Date: Sun, 22 Oct 2006 18:10:34 -0400
-From: Dave Jones <davej@redhat.com>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: Amit Choudhary <amit2030@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.19-rc2] mm/slab.c: check kmalloc() return value.
-Message-ID: <20061022221034.GE3093@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-	Amit Choudhary <amit2030@gmail.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061022133751.5f1d8281.amit2030@gmail.com> <20061022211605.GA19617@filer.fsl.cs.sunysb.edu>
+	Sun, 22 Oct 2006 18:14:22 -0400
+Date: Sun, 22 Oct 2006 15:16:00 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org
+Subject: Re: make pdfdocs broken in 2.6.19rc2 and needs fixes
+Message-Id: <20061022151600.a21859df.rdunlap@xenotime.net>
+In-Reply-To: <453BEA00.4000601@garzik.org>
+References: <200610222347.42418.ak@suse.de>
+	<453BEA00.4000601@garzik.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061022211605.GA19617@filer.fsl.cs.sunysb.edu>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 22, 2006 at 05:16:05PM -0400, Josef Sipek wrote:
- > On Sun, Oct 22, 2006 at 01:37:51PM -0700, Amit Choudhary wrote:
- > > Description: Check the return value of kmalloc() in function setup_cpu_cache(), in file mm/slab.c.
- > > 
- > > Signed-off-by: Amit Choudhary <amit2030@gmail.com>
- > > 
- > > diff --git a/mm/slab.c b/mm/slab.c
- > > index 84c631f..613ae61 100644
- > > --- a/mm/slab.c
- > > +++ b/mm/slab.c
- > > @@ -2021,6 +2021,7 @@ static int setup_cpu_cache(struct kmem_c
- > >  	} else {
- > >  		cachep->array[smp_processor_id()] =
- > >  			kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
- > > +		BUG_ON(!cachep->array[smp_processor_id()]);
- > >  
- > >  		if (g_cpucache_up == PARTIAL_AC) {
- > >  			set_up_list3s(cachep, SIZE_L3);
- > 
- > Any reason to BUG instead of trying to return as gracefully as possible?
+On Sun, 22 Oct 2006 18:00:32 -0400 Jeff Garzik wrote:
 
-If we fail to allocate memory this early in boot, we're hosed anyway.
+> Andi Kleen wrote:
+> > When you do make pdfdocs  with 2.6.19rc2-git7 you get tons of error 
+> > messages and  then some corrupted PDFs in the end.
+> > 
+> > Fixing that (I suppose it will just need comment fixes and
+> > should not affect the code) should be a relatively easy task for 
+> > a newbie and  would be useful for the 2.6.19 release.
+> 
+> What userland were you using?  Unfortunately with 'make *docs' that matters.
+> 
+> Unquestionably, there is breakage regardless of distro.
 
-	Dave
+I find it easier to just use/check make htmldocs && make mandocs
+to look for errors and to test fixes.  At least as a first pass.
 
--- 
-http://www.codemonkey.org.uk
+---
+~Randy

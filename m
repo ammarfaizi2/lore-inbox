@@ -1,55 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423079AbWJVGjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423057AbWJVGtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423079AbWJVGjd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 02:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423084AbWJVGjd
+	id S1423057AbWJVGtW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 02:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423107AbWJVGtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 02:39:33 -0400
-Received: from smtp104.plus.mail.re2.yahoo.com ([206.190.53.29]:43663 "HELO
-	smtp104.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1423079AbWJVGjb convert rfc822-to-8bit (ORCPT
+	Sun, 22 Oct 2006 02:49:22 -0400
+Received: from 1wt.eu ([62.212.114.60]:3844 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S1423057AbWJVGtW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 02:39:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:MIME-Version:Content-Type:Content-Disposition:User-Agent:Content-Transfer-Encoding;
-  b=MCkCBoSoF4Ry6cwUgQUzzDVM4WdVSOPEkW5m9YdN65TErQCvK8VgxjV5lONvFaJOpEg9b1k3HgDAheURQ3CbJFy+csGIe+ZYMRy28KkYoqIaMcCBzPmXkQpdcn9aisp/F2ynZocuNr0NNVYpHjti5aPaO3K4AJ82oMgc99tWtK4=  ;
-Date: Sun, 22 Oct 2006 08:39:24 +0200
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: [PATCH] do not compile Sony Vaio extras as a module per default
-Message-ID: <20061022063924.GA7177@gollum.tnic>
-Reply-To: petkov@math.uni-muenster.de
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 22 Oct 2006 02:49:22 -0400
+Date: Sun, 22 Oct 2006 08:49:16 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: sct@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH-2.4] EXT3: avoid crashing due to divide by zero
+Message-ID: <20061022064916.GA745@1wt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Stephen,
 
-Signed-off-by: <petkov@math.uni-muenster.de>
+I've been having this very old patch in my queue that has been merged
+in 2.6 but not in 2.4. As I've been hit at least once by this problem,
+I'm about to merge it into 2.4 too, as well as its ext2 equivalent
+(equally in 2.6). Do you have any objection ?
 
---- current/drivers/acpi/Kconfig.orig	2006-10-21 10:02:23.000000000 +0200
-+++ current/drivers/acpi/Kconfig	2006-10-21 10:02:30.000000000 +0200
-@@ -262,7 +262,6 @@ config ACPI_SONY
- 	tristate "Sony Laptop Extras"
- 	depends on X86 && ACPI
- 	select BACKLIGHT_CLASS_DEVICE
--	default m
- 	  ---help---
- 	  This mini-driver drives the ACPI SNC device present in the
- 	  ACPI BIOS of the Sony Vaio laptops.
+Thanks in advance,
+Willy
 
+>From 14f44814b9e550272f3bdc8e4abb5a9ead19f40e Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Sun, 22 Oct 2006 08:31:02 +0200
+Subject: [PATCH] EXT3: avoid crashing by not dividing by zero.
+
+backport a few checks from 2.6 to avoid dividing by zero on invalid
+superblocks.
+---
+ fs/ext3/super.c |   25 +++++++++++++++++--------
+ 1 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/fs/ext3/super.c b/fs/ext3/super.c
+index 33e2f97..6dae3f3 100644
+--- a/fs/ext3/super.c
++++ b/fs/ext3/super.c
+@@ -979,13 +979,9 @@ #endif
+ 	es = (struct ext3_super_block *) (((char *)bh->b_data) + offset);
+ 	sbi->s_es = es;
+ 	sb->s_magic = le16_to_cpu(es->s_magic);
+-	if (sb->s_magic != EXT3_SUPER_MAGIC) {
+-		if (!silent)
+-			printk(KERN_ERR 
+-			       "VFS: Can't find ext3 filesystem on dev %s.\n",
+-			       bdevname(dev));
+-		goto failed_mount;
+-	}
++	if (sb->s_magic != EXT3_SUPER_MAGIC)
++		goto cantfind_ext3;
++
+ 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV &&
+ 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
+ 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
+@@ -1083,8 +1079,13 @@ #endif
+ 	sbi->s_blocks_per_group = le32_to_cpu(es->s_blocks_per_group);
+ 	sbi->s_frags_per_group = le32_to_cpu(es->s_frags_per_group);
+ 	sbi->s_inodes_per_group = le32_to_cpu(es->s_inodes_per_group);
++	if (EXT3_INODE_SIZE(sb) == 0)
++		goto cantfind_ext3;
+ 	sbi->s_inodes_per_block = blocksize / EXT3_INODE_SIZE(sb);
+-	sbi->s_itb_per_group = sbi->s_inodes_per_group /sbi->s_inodes_per_block;
++	if (sbi->s_inodes_per_block == 0)
++		goto cantfind_ext3;
++	sbi->s_itb_per_group = sbi->s_inodes_per_group /
++					sbi->s_inodes_per_block;
+ 	sbi->s_desc_per_block = blocksize / sizeof(struct ext3_group_desc);
+ 	sbi->s_sbh = bh;
+ 	if (sbi->s_resuid == EXT3_DEF_RESUID)
+@@ -1114,6 +1115,8 @@ #endif
+ 		goto failed_mount;
+ 	}
+ 
++	if (EXT3_BLOCKS_PER_GROUP(sb) == 0)
++		goto cantfind_ext3;
+ 	sbi->s_groups_count = (le32_to_cpu(es->s_blocks_count) -
+ 			       le32_to_cpu(es->s_first_data_block) +
+ 			       EXT3_BLOCKS_PER_GROUP(sb) - 1) /
+@@ -1240,6 +1243,12 @@ #endif
+ 
+ 	return sb;
+ 
++cantfind_ext3:
++	if (!silent)
++		printk(KERN_ERR 
++		       "VFS: Can't find ext3 filesystem on dev %s.\n",
++		       bdevname(dev));
++	goto failed_mount;
+ failed_mount3:
+ 	journal_destroy(sbi->s_journal);
+ failed_mount2:
 -- 
-Regards/Gruß,
-    Boris.
+1.4.1
 
-	
-
-	
-		
-___________________________________________________________ 
-Der frühe Vogel fängt den Wurm. Hier gelangen Sie zum neuen Yahoo! Mail: http://mail.yahoo.de

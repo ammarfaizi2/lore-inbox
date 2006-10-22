@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422886AbWJVAyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161521AbWJVAy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422886AbWJVAyu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 20:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422885AbWJVAyu
+	id S1161521AbWJVAy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 20:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161522AbWJVAy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 20:54:50 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:53662 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1422886AbWJVAyt (ORCPT
+	Sat, 21 Oct 2006 20:54:29 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:51614 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1161521AbWJVAy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 20:54:49 -0400
-Message-id: <173491782393713775@wsc.cz>
-Subject: [PATCH 3/3] Char: isicom, remove cvs stuff
+	Sat, 21 Oct 2006 20:54:28 -0400
+Message-id: <935639182341124516@wsc.cz>
+Subject: [PATCH 1/3] Char: isicom, use completion
 From: Jiri Slaby <jirislaby@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Sun, 22 Oct 2006 02:54:49 +0200 (CEST)
+Date: Sun, 22 Oct 2006 02:54:28 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isicom, remove cvs stuff
+isicom, use completion
 
-We don't need RCS_ID & co. Extract them from the code and define only one
-macro -- SX_VERSION.
+use wait_for_completion+complete instead of variables+msleep hack.
 
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
 ---
-commit d8e4a1a052b460b07936030bc99d8d9fe2b4bbf9
-tree 0dd0319eb9b5e9d2380bbd605ed66fc755aa391b
-parent e545b8cddd984bff6abbc1286baa042290b43032
-author Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 00:26:29 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 00:26:29 +0200
+commit 12be27655354f888150bbb720614dfba48cecdaf
+tree a41af90a51a6de23bbae8ee7109a33a7fef23154
+parent e6ef63223d0b6c4a72f815b8a42584d346980c82
+author Jiri Slaby <jirislaby@gmail.com> Sat, 21 Oct 2006 21:50:40 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Sat, 21 Oct 2006 21:50:40 +0200
 
- drivers/char/sx.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+ drivers/char/isicom.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/char/sx.c b/drivers/char/sx.c
-index e9bc147..cf08be7 100644
---- a/drivers/char/sx.c
-+++ b/drivers/char/sx.c
-@@ -32,7 +32,6 @@
-  *      USA.
-  *
-  * Revision history:
-- * $Log: sx.c,v $
-  * Revision 1.33  2000/03/09 10:00:00  pvdl,wolff
-  * - Fixed module and port counting
-  * - Fixed signal handling
-@@ -199,9 +198,7 @@
-  *
-  * */
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index db57da6..a8cfdf5 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -172,6 +172,7 @@ static struct pci_driver isicom_driver =
+ static int prev_card = 3;	/*	start servicing isi_card[0]	*/
+ static struct tty_driver *isicom_normal;
  
--
--#define RCS_ID "$Id: sx.c,v 1.33 2000/03/08 10:01:02 wolff, pvdl Exp $"
--#define RCS_REV "$Revision: 1.33 $"
-+#define SX_VERSION	1.33
++static DECLARE_COMPLETION(isi_timerdone);
+ static struct timer_list tx;
+ static char re_schedule = 1;
  
- #include <linux/module.h>
- #include <linux/kdev_t.h>
-@@ -2052,7 +2049,7 @@ static void printheader(void)
- 	if (!header_printed) {
- 		printk (KERN_INFO "Specialix SX driver "
- 		        "(C) 1998/1999 R.E.Wolff@BitWizard.nl \n");
--		printk (KERN_INFO "sx: version %s\n", RCS_ID);
-+		printk (KERN_INFO "sx: version " __stringify(SX_VERSION) "\n");
- 		header_printed = 1;
+@@ -514,7 +515,7 @@ static void isicom_tx(unsigned long _dat
+ 	/*	schedule another tx for hopefully in about 10ms	*/
+ sched_again:
+ 	if (!re_schedule) {
+-		re_schedule = 2;
++		complete(&isi_timerdone);
+  		return;
  	}
- }
+ 
+@@ -1923,12 +1924,9 @@ error:
+ 
+ static void __exit isicom_exit(void)
+ {
+-	unsigned int index = 0;
+-
+ 	re_schedule = 0;
+ 
+-	while (re_schedule != 2 && index++ < 100)
+-		msleep(10);
++	wait_for_completion_timeout(&isi_timerdone, HZ);
+ 
+ 	pci_unregister_driver(&isicom_driver);
+ 	tty_unregister_driver(isicom_normal);

@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWJVUhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWJVUiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWJVUhK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 16:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWJVUhK
+	id S1751459AbWJVUiG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 16:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWJVUiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 16:37:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:64887 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751251AbWJVUhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 16:37:08 -0400
+	Sun, 22 Oct 2006 16:38:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:62290 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751459AbWJVUiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 16:38:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=lR34gPWEY1ICDH72JK+sedoMADKx2GKoVjzLpZRudeSnhYrvK+x9ZuR8lN9mqBgAO4h+HUka6I7AbYwKu4ZEfydMA4D+MCaS7yv8pHEDiS+s3Bs65DtrcZRS+z6shrze32rb7kgUSVbt2iKH5msKmti53h8haN7rWlgEPiaSKOE=
-Message-ID: <84144f020610221337k2137a1a9xeb35a4bce48e152c@mail.gmail.com>
-Date: Sun, 22 Oct 2006 23:37:06 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Dave Jones" <davej@redhat.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Luca Risolia" <luca.risolia@studio.unibo.it>
-Subject: Re: sn9c10x list corruption in 2.6.18.1
-In-Reply-To: <20061022031145.GA24855@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=nLyibodZIFypLtk2OctCPjeQkv/DzF9Lhxt3E2R+wKaExmZPRjhv8UQDis0uhSVM9OzXTdHBBt6+4KWm5b45OoxCI2KiFRZLd/nDsS2scG8u2IdkBlPmHrRFcgeHzIJho3TbqfGb1l70P1L8BljKNE7FTkund8s73EozdzpJtpQ=
+Date: Sun, 22 Oct 2006 13:37:51 -0700
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.19-rc2] mm/slab.c: check kmalloc() return value.
+Message-Id: <20061022133751.5f1d8281.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061022031145.GA24855@redhat.com>
-X-Google-Sender-Auth: aa612f664c5feeb3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/22/06, Dave Jones <davej@redhat.com> wrote:
-> What's odd here is that we have a list entry still on a list, with its ->next set to
-> LIST_POISON2, which should only ever happen after an entry has been removed from
-> a list.  The list manipulation in cache_alloc_refill is all done under l3->list_lock,
-> so I'm puzzled how this is possible.
->
-> I found one area in the driver where we do list manipulation without any locking,
-> but I'm not entirely convinced that this is the source of the bug yet.
+Description: Check the return value of kmalloc() in function setup_cpu_cache(), in file mm/slab.c.
 
-But I don't see how that could cause a slab list to go bad. An
-old-fashioned slab corruption sounds more like it. Does the the kernel
-have CONFIG_SLAB_DEBUG enabled?
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
-                                    Pekka
+diff --git a/mm/slab.c b/mm/slab.c
+index 84c631f..613ae61 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2021,6 +2021,7 @@ static int setup_cpu_cache(struct kmem_c
+ 	} else {
+ 		cachep->array[smp_processor_id()] =
+ 			kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
++		BUG_ON(!cachep->array[smp_processor_id()]);
+ 
+ 		if (g_cpucache_up == PARTIAL_AC) {
+ 			set_up_list3s(cachep, SIZE_L3);

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWJVSkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWJVSlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWJVSkR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWJVSkR
+	id S1750786AbWJVSlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWJVSlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:40:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42730 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750763AbWJVSkP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:40:15 -0400
-Date: Sun, 22 Oct 2006 11:39:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: Freezer.h updated patch.
-Message-Id: <20061022113928.11bdd17f.akpm@osdl.org>
-In-Reply-To: <200610221429.33656.rjw@sisk.pl>
-References: <1161519286.3512.12.camel@nigel.suspend2.net>
-	<200610221429.33656.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Oct 2006 14:41:12 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:35738 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1750786AbWJVSlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 14:41:11 -0400
+Message-ID: <453BBB41.4070905@qumranet.com>
+Date: Sun, 22 Oct 2006 20:41:05 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <20061022175609.GA28152@infradead.org> <453BB1B0.7040500@qumranet.com> <200610222036.03455.arnd@arndb.de>
+In-Reply-To: <200610222036.03455.arnd@arndb.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2006 18:41:10.0533 (UTC) FILETIME=[A4B87B50:01C6F609]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Oct 2006 14:29:33 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Arnd Bergmann wrote:
+> On Sunday 22 October 2006 20:00, Avi Kivity wrote:
+>   
+>> Existing installations?
+>>
+>> Dropping 32-bit host support would certainly kill a lot of #ifdefs and
+>> reduce the amount of testing needed.  It would also force me to upgrade
+>> my home machine.
+>>     
+>
+> Ok, but if you radically change the kernel<->user API, doesn't that mean
+> you have to upgrade in the same way? 
 
-> Hi,
-> 
-> On Sunday, 22 October 2006 14:14, Nigel Cunningham wrote:
-> > Hi guys.
-> > 
-> > I missed a couple of "#include <freezer.h>"s in yesterdays patch;
-> > funnily enough the ones in kernel/power! Here's an updated version.
-> > 
-> > Rafael, did you still think the freezer.h contents should go into
-> > suspend.h?
-> 
-> Yes.
-> 
+No, why? I'd just upgrade the userspace.  Am I misunderstanding you?
 
-I think freezer.h is OK.  One 84-line file which does one thing is nice. 
-There's little advantage to putting this code into suspend.h along with a
-bunch of somewhat-unrelated stuff.
+> The 32 bit emulation mode in x86_64
+> is actually pretty complete, so it probably boils down to a kernel upgrade
+> for you, without having to touch any of the user space.
+>   
 
-And it expresses the point that the freezer could be used for things other
-than suspend.  
+For me personally, I don't mind.  I don't know about others.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWJVSAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWJVSLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWJVSAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWJVSAY
+	id S1750833AbWJVSLX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWJVSLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:00:24 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:62801 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1751804AbWJVSAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:00:22 -0400
-Message-ID: <453BB1B0.7040500@qumranet.com>
-Date: Sun, 22 Oct 2006 20:00:16 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Avi Kivity <avi@qumranet.com>,
-       Arnd Bergmann <arnd@arndb.de>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de> <453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de> <453BA3E9.4050907@qumranet.com> <20061022175609.GA28152@infradead.org>
-In-Reply-To: <20061022175609.GA28152@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2006 18:00:21.0642 (UTC) FILETIME=[F1115EA0:01C6F603]
+	Sun, 22 Oct 2006 14:11:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55686 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750833AbWJVSLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 14:11:22 -0400
+Date: Sun, 22 Oct 2006 14:11:02 -0400
+From: Dave Jones <davej@redhat.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Michael Buesch <mb@bu3sch.de>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NULL pointer dereference in sysfs_readdir
+Message-ID: <20061022181102.GC27152@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	Michael Buesch <mb@bu3sch.de>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <4539DDC5.80207@s5r6.in-berlin.de> <200610212204.56772.mb@bu3sch.de> <453A8CA7.5070108@s5r6.in-berlin.de> <200610212325.18976.mb@bu3sch.de> <453B352A.5050700@s5r6.in-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <453B352A.5050700@s5r6.in-berlin.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sun, Oct 22, 2006 at 07:01:29PM +0200, Avi Kivity wrote:
->   
->>> What is the point of 32 bit hosts anyway? Isn't this only available
->>> on x86_64 type CPUs in the first place?
->>>  
->>>       
->> No, 32-bit hosts are fully supported (except a 32-bit host can't run a 
->> 32-bit guest).
->>     
->
-> Again, what's the point?  All cpus shipped by Intel and AMD that have
-> hardware virtualization extensions also support the 64bit mode.  Given
-> that I don't see any point for supporting a 32bit host.
->   
+On Sun, Oct 22, 2006 at 11:08:58AM +0200, Stefan Richter wrote:
 
-Existing installations?
+ > What if "next" became NULL afterwards? I know it's unlikely (but so is
+ > the whole bug, given that we have just one reporter despite the bug's
+ > age), but is it impossible? IOW does sysfs_readdir have any indirect
+ > mutex protection?
+ > 
+ > Dave, do you patch sysfs datatypes in FC's kernel, or types they include?
 
-Dropping 32-bit host support would certainly kill a lot of #ifdefs and 
-reduce the amount of testing needed.  It would also force me to upgrade 
-my home machine.
+Not that I recall. <linux/sysfs.h> is untouched in the trees I just
+looked at (only have .18 ones handy right now)
+
+	Dave
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+http://www.codemonkey.org.uk

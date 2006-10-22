@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWJVWvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWJVW7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWJVWvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 18:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWJVWvU
+	id S1750840AbWJVW7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 18:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWJVW7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 18:51:20 -0400
-Received: from web55609.mail.re4.yahoo.com ([206.190.58.233]:37772 "HELO
-	web55609.mail.re4.yahoo.com") by vger.kernel.org with SMTP
-	id S1750827AbWJVWvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 18:51:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Ny7/AWzIgNkUZtYVFE/eFShUAhRU8TFE9Awojkrf2V+FQHIMQzIU+M/185McdUxADrHl4xDPN/fd/iikCrerHfKaWFHmlKJnL5jm7lWhP7nnfnHLafZOFZGqgUCK3QUDkaAqlYKtG2+lUT7s8xB98M2YWh6Cc8EjX25Wjn9Y0aw=  ;
-Message-ID: <20061022225118.6405.qmail@web55609.mail.re4.yahoo.com>
-Date: Sun, 22 Oct 2006 15:51:18 -0700 (PDT)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: Hopefully, kmalloc() will always succeed, but if it doesn't then....
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <84144f020610221322v2683a66bmf837ada1edea72e0@mail.gmail.com>
+	Sun, 22 Oct 2006 18:59:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:54939 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750831AbWJVW7o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 18:59:44 -0400
+From: Andi Kleen <ak@suse.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: dealing with excessive includes
+Date: Mon, 23 Oct 2006 00:59:23 +0200
+User-Agent: KMail/1.9.5
+Cc: Randy Dunlap <rdunlap@xenotime.net>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+References: <20061017005025.GF29920@ftp.linux.org.uk> <20061020091302.a2a85fb1.rdunlap@xenotime.net> <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be>
+In-Reply-To: <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610230059.23806.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-
-> On 10/22/06, Amit Choudhary <amit2030@yahoo.com> wrote:
-> > So, if memory allocation to 'a' fails, it is going to kfree 'b'. But since 'b'
-> > is not initialized, kfree may crash (unless DEBUG is defined).
-> >
-> > I have seen the same case at many places when allocating in a loop.
+On Sunday 22 October 2006 19:58, Geert Uytterhoeven wrote:
+> On Fri, 20 Oct 2006, Randy Dunlap wrote:
+> > Yes, we have lots of header include indirection going on.
+> > I don't know of a good tool to detect/fix it.
 > 
-> So you found a bug. Why not send a patch to fix it?
-> 
+> BTW, what about making sure all header files are self-contained (i.e. all
+> header files include all stuff they need)? This would make it easier for the
+> users to know which files to include.
 
-Yes, I will send it.
+Would be a worthy goal imho. Can it be done with scripts? 
 
-Regards,
-Amit
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-Andi

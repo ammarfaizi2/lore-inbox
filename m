@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWJVJxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWJVKQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWJVJxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 05:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWJVJxh
+	id S932326AbWJVKQP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 06:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWJVKQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 05:53:37 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:7322 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932317AbWJVJxh (ORCPT
+	Sun, 22 Oct 2006 06:16:15 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:944 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932326AbWJVKQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 05:53:37 -0400
-Date: Sun, 22 Oct 2006 11:53:34 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: scsi i/o error message
-Message-ID: <Pine.LNX.4.61.0610221152450.3696@yvahk01.tjqt.qr>
+	Sun, 22 Oct 2006 06:16:14 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Sandeep Kumar" <sandeepksinha@gmail.com>
+Subject: Re: PAE and PSE ??
+Date: Sun, 22 Oct 2006 12:15:26 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com>
+In-Reply-To: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610221215.26525.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+
+On Sunday, 22 October 2006 08:29, Sandeep Kumar wrote:
+> Hi all,
+> I have read in UTLK by bovet that the linux kernel does not uses the
+> PSE bit on an x86
+> machine. Then how come we have the hugetlbfs, which provides support
+> for 4MB pages ?
+
+AFAIK, PSE is only used when PAE is not set and then it enables the 4 MB
+pages.  If PAE is set, the 4 MB pages are impossible because there are only
+512 entries per page table, but 2 MB pages can be used instead (and you don't
+need to set PSE to use them).
+
+Greetings,
+Rafael
 
 
-During some hd tests, I picked this up in dmesg after a test copy 
-operation took longer than usual. Sign of disk failure?
-
-sd 0:0:8:0: SCSI error: return code = 0x100ff
-end_request: I/O error, dev sdb, sector 273328
-sd 0:0:8:0: SCSI error: return code = 0x100ff
-end_request: I/O error, dev sdb, sector 273344
-sd 0:0:8:0: SCSI error: return code = 0x100ff
-end_request: I/O error, dev sdb, sector 273360
-sd 0:0:8:0: SCSI error: return code = 0x100ff
-end_request: I/O error, dev sdb, sector 273376
-sd 0:0:8:0: SCSI error: return code = 0x100ff
-end_request: I/O error, dev sdb, sector 273392
-sd 0:0:8:0: ABORT operation started.
-sym0: SCSI BUS reset detected.
-sd 0:0:8:0: ABORT operation complete.
-sym0: SCSI BUS has been reset.
-sd 0:0:8:0: ABORT operation started.
-sd 0:0:8:0: ABORT operation failed.
-sd 0:0:8:0: DEVICE RESET operation started.
-sd 0:0:8:0: DEVICE RESET operation complete.
- target0:0:8: control msgout: c.
-sym0: TARGET 8 has been reset.
- target0:0:8: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 16)
-
-
-	-`J'
 -- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWJVVPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWJVVQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWJVVPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 17:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWJVVPJ
+	id S1750749AbWJVVQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 17:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWJVVQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 17:15:09 -0400
-Received: from main.gmane.org ([80.91.229.2]:59018 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750751AbWJVVPH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 17:15:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Anders Larsen <al@alarsen.net>
-Subject: Re: [ANNOUNCE] GIT 1.4.3
-Date: Sun, 22 Oct 2006 23:09:32 +0200
-Organization: systems engineer Anders Larsen
-Message-ID: <pan.2006.10.22.21.09.32.177539@alarsen.net>
-References: <7vejt5xjt9.fsf@assigned-by-dhcp.cox.net> <7v4ptylfvw.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.64.0610201709430.3962@g5.osdl.org> <20061021002251.GO20017@pasky.or.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p54ac104d.dip0.t-ipconnect.de
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Cc: git@vger.kernel.org
+	Sun, 22 Oct 2006 17:16:09 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:25769 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1750749AbWJVVQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 17:16:08 -0400
+Date: Sun, 22 Oct 2006 17:16:05 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Amit Choudhary <amit2030@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.19-rc2] mm/slab.c: check kmalloc() return value.
+Message-ID: <20061022211605.GA19617@filer.fsl.cs.sunysb.edu>
+References: <20061022133751.5f1d8281.amit2030@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061022133751.5f1d8281.amit2030@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Oct 2006 02:22:51 +0200, Petr Baudis wrote:
-
->> That said, "LESS=FRS" doesn't really help that much. It still clears the 
->> screen. Using "LESS=FRSX" fixes that, but the alternate display sequence 
->> is actually nice _if_ the pager is used.
+On Sun, Oct 22, 2006 at 01:37:51PM -0700, Amit Choudhary wrote:
+> Description: Check the return value of kmalloc() in function setup_cpu_cache(), in file mm/slab.c.
 > 
-> Hmm, what terminal emulator do you use? The reasonable ones should
-> restore the original screen.
+> Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+> 
+> diff --git a/mm/slab.c b/mm/slab.c
+> index 84c631f..613ae61 100644
+> --- a/mm/slab.c
+> +++ b/mm/slab.c
+> @@ -2021,6 +2021,7 @@ static int setup_cpu_cache(struct kmem_c
+>  	} else {
+>  		cachep->array[smp_processor_id()] =
+>  			kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
+> +		BUG_ON(!cachep->array[smp_processor_id()]);
+>  
+>  		if (g_cpucache_up == PARTIAL_AC) {
+>  			set_up_list3s(cachep, SIZE_L3);
 
-And indeed they do.
-The problem is, when the original screen is restored, the diff output that
-was paged through less -FRS goes poof as well.
+Any reason to BUG instead of trying to return as gracefully as possible?
 
-Cheers
- Anders
+Josef "Jeff" Sipek.
 
-
-
+-- 
+My public GPG key can be found at
+http://www.josefsipek.net/gpg/public-0xC7958FFE.txt

@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422927AbWJVCBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWJVCSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422927AbWJVCBi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Oct 2006 22:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422929AbWJVCBh
+	id S1750722AbWJVCSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Oct 2006 22:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWJVCSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Oct 2006 22:01:37 -0400
-Received: from ns.suse.de ([195.135.220.2]:15594 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422927AbWJVCBh (ORCPT
+	Sat, 21 Oct 2006 22:18:43 -0400
+Received: from dvhart.com ([64.146.134.43]:54187 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750722AbWJVCSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Oct 2006 22:01:37 -0400
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PAE broken on Thinkpad
-References: <1161472697.5528.6.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Oct 2006 04:01:34 +0200
-In-Reply-To: <1161472697.5528.6.camel@localhost.localdomain>
-Message-ID: <p73mz7pm7lt.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 21 Oct 2006 22:18:42 -0400
+Message-ID: <453AD48E.2060204@mbligh.org>
+Date: Sat, 21 Oct 2006 19:16:46 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: 2.6.19-rc2-mm2
+References: <20061020015641.b4ed72e5.akpm@osdl.org> <4538F12B.10609@mbligh.org>
+In-Reply-To: <4538F12B.10609@mbligh.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz <johnstul@us.ibm.com> writes:
-
-> Yea. So I know I probably shouldn't run a PAE kernel on my 1Gig laptop,
-> but in trying to do so I found it won't boot.
-
-You don't say what version?
-
-
-> Int 14: CR2 c1000000  err 00000002  EIP c065d950 CS 00000060 flags 00010006
-> Stack: c08b3000 00038000 00001000 00000020 c068f5c0 ffffffc0 fffffc2e 00000001
+Martin J. Bligh wrote:
+> Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/ 
+>>
+>>
+>> - Added the IOAT tree as git-ioat.patch (Chris Leech)
+>>
+>> - I worked out the git magic to make the wireless tree work
+>>   (git-wireless.patch).  Hopefully it will be in -mm more often now.
 > 
+> I think the IO & fsx problems have got better, but this one is still
+> broken, at least.
 > 
-> >From gdb that EIP looks to be in __alloc_bootmem_core (string.h:372)
+> See end of fsx runlog here:
+> 
+> http://test.kernel.org/abat/57486/debug/test.log.1
+> 
+> which looks like this:
+> 
+> Total Test PASSED: 79
+> Total Test FAILED: 3
+>   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 2048 
+> -Z -R -W test/junkfile
+>   139 ./fsx-linux -N 10000 -o 128000 -r 2048 -w 4096 -Z -R -W test/junkfile
+>   139 ./fsx-linux -N 10000 -o 8192 -A -l 500000 -r 1024 -t 2048 -w 1024 
+> -Z -R -W test/junkfile
+> Failed rc=1
+> 10/20/06-02:41:55 command complete: (1) rc=1 (TEST FAIL)
 
-string.h??
+On further examination ... and rather more worryingly, this started
+between 2.6.18 and 2.6.18.1. I don't see any reiserfs patches in
+there, and possibly it's a machine config change? But rather worrying.
 
--Andi
+Where do the changelogs for the stable release kernels sit again?
+

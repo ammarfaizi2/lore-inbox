@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWJVQXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWJVQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWJVQXG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 12:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWJVQXG
+	id S1751132AbWJVQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 12:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWJVQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 12:23:06 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2255 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1751167AbWJVQXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 12:23:03 -0400
-Date: Sun, 22 Oct 2006 18:22:51 +0200
-To: Michael Chan <mchan@broadcom.com>, Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: tg3 kernel bug in 2.6.18-mm3 and 2.6.19-rc2-mm2
-Message-ID: <20061022162251.GA11663@gamma.logic.tuwien.ac.at>
-References: <20061021132239.GA29288@gamma.logic.tuwien.ac.at> <20061021.123814.106436476.davem@davemloft.net> <20061021233610.f190e0a8.akpm@osdl.org> <20061021234107.GA12918@gamma.logic.tuwien.ac.at> <1551EAE59135BE47B544934E30FC4FC093FC5D@NT-IRVA-0751.brcm.ad.broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Sun, 22 Oct 2006 12:28:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:38435 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751132AbWJVQ22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 12:28:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mRudfZTufeEKXsAftAiJ2ghaAwQi4RvqfZapn9Qtux9hg4EA24uWXA6VfsO1JHYYKrgtis7vkcZAreE5JOORfhX/F4Tw5GNK+FbF+KDo2zqb05XpWiWdosRyiE6vFKQ0ZIqlXDBN203nWW0zMLOkBMzpe2mRT3iIPCvzNPTFXBc=
+Message-ID: <86802c440610220928vbbe1023t25be1df0943eb471@mail.gmail.com>
+Date: Sun, 22 Oct 2006 09:28:26 -0700
+From: yhlu <yhlu.kernel@gmail.com>
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH] x86-64: typo in __assign_irq_vector when updating pos for vector and offset
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andi Kleen" <ak@suse.de>
+In-Reply-To: <20061022162013.GE4354@rhun.haifa.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061021233610.f190e0a8.akpm@osdl.org> <1551EAE59135BE47B544934E30FC4FC093FC5D@NT-IRVA-0751.brcm.ad.broadcom.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+References: <200610212100.k9LL0GtC018787@hera.kernel.org>
+	 <20061022035109.GM5211@rhun.haifa.ibm.com>
+	 <86802c440610220128v2e103912sbfba193484fb6304@mail.gmail.com>
+	 <20061022085036.GP5211@rhun.haifa.ibm.com>
+	 <86802c440610220902q648a7fc8p38fd9a3391f5bc5d@mail.gmail.com>
+	 <20061022162013.GE4354@rhun.haifa.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On 10/22/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+> All of the tests I ran were with NR_CPUS=8. Shall I try NR_CPUS=4?
 
-On Sam, 21 Okt 2006, Michael Chan wrote:
-> > 2.6.19-rc2	works
-> > 2.6.19-rc2+patch does not work
-> > 
-> It doesn't make any sense.  This patch is totally benign and
-> cannot cause the "No firmware running" and lockup that you
-> reported.  Can you please double-check?
+So per_cpu only can be used onlined cpus?
 
-Ok, I cannot reproduce it anymore. No idea why it happened.
+I wonder if you try NR_CPUS without the patch, you will get more strange result.
 
-ANyway, with my current rc2+tg3 patch I have no problems, while with
-rc2-mm2 I have the problems.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining@logic.at>                    Università di Siena
-Debian Developer <preining@debian.org>                         Debian TeX Group
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SHENANDOAH (n.)
-The infinite smugness of one who knows they are entitled to a place in
-a nuclear bunker.
-			--- Douglas Adams, The Meaning of Liff
+YH

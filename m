@@ -1,105 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWJVPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWJVPkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWJVPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 11:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWJVPX5
+	id S1750943AbWJVPkA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 11:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWJVPkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 11:23:57 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:8900 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750860AbWJVPX4 convert rfc822-to-8bit (ORCPT
+	Sun, 22 Oct 2006 11:40:00 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:64734 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1750928AbWJVPj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 11:23:56 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Avi Kivity <avi@qumranet.com>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-Date: Sun, 22 Oct 2006 17:23:48 +0200
-User-Agent: KMail/1.9.5
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <4537818D.4060204@qumranet.com> <200610211816.27964.arnd@arndb.de> <453B2DDB.3010303@qumranet.com>
-In-Reply-To: <453B2DDB.3010303@qumranet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610221723.48646.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	Sun, 22 Oct 2006 11:39:59 -0400
+Message-id: <43123154321532@wsc.cz>
+Subject: [PATCH 1/1] net: correct-Traffic-shaper-Kconfig
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: <netdev@vger.kernel.org>, <jgarzik@pobox.com>
+Date: Sun, 22 Oct 2006 17:40:06 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 October 2006 10:37, Avi Kivity wrote:
-> I like this.  Since we plan to support multiple vcpus per vm, the fs
-> structure might look like:
->
-> /kvm/my_vm
->     |
->     +----memory          # mkdir to create memory slot.
+kconfig, correct traffic shaper
 
-Note that the way spufs does it, every directory is a reference-counted
-object. Currently that includes single contexts and groups of
-contexts that are supposed to be scheduled simultaneously.
+CBQ is no longer experimental and is located in other subtree.
 
-The trick is that we use the special 'spu_create' syscall to
-add a new object, while naming it, and return an open file
-descriptor to it. When that file descriptor gets closed, the
-object gets garbage-collected automatically.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-This way you can simply kill a task, which also cleans up
-all the special objects it allocated.
+---
+commit 5ee1f6ff7e1f03ed8edb2461612346e9964b745d
+tree debfe70d8c8338adb5ef1d860b07e4a00e760081
+parent a3d771ef92954ce81363af9e0252490e2741fc21
+author Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 17:34:59 +0159
+committer Jiri Slaby <ku@bellona.localdomain> Sun, 22 Oct 2006 17:34:59 +0159
 
-We ended up adding a lot more file than we initially planned,
-but the interface is really handy, especially if you want to
-create some procps-like tools for it.
+ drivers/net/Kconfig |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
->     |     |              #    how to set size and offset?
->     |     |
->     |     +---0          # guest physical memory slot
->     |         |
->     |         +-- dirty_bitmap  # read to get and atomically reset
->     |                           # the changed pages log
-
-Have you thought about simply defining your guest to be a section
-of the processes virtual address space? That way you could use
-an anonymous mapping in the host as your guest address space, or
-even use a file backed mapping in order to make the state persistant
-over multiple runs. Or you could map the guest kernel into the
-guest real address space with a private mapping and share the
-text segment over multiple guests to save L2 and RAM.
-
->     |
->     |
->     +----cpu             # mkdir/rmdir to create/remove vcpu
->           |
-
-I'd recommend not allowing mkdir or similar operations, although
-it's not that far off. One option would be to let the user specify
-the number of CPUs at kvm_create() time, another option might
-be to allow kvm_create with a special flag or yet another syscall
-to create the vcpu objects.
-
->           +----0
->           |     |
->           |     +--- irq     # write to inject an irq
->           |     |
->           |     +--- regs    # read/write to get/set registers
->           |     |
->           |     +--- debugger   # write to set breakpoints/singlestep mode
->           |
->           +----1
->                 [...]
->
-> It's certainly a lot more code though, and requires new syscalls.  Since
-> this is a little esoteric does it warrant new syscalls?
-
-We've gone through a number of iterations on the spufs design regarding this,
-and in the end decided that the garbage-collecting property of spu_create
-was superior to any other option, and adding the spu_run syscall was then
-the logical step. BTW, one inspiration for spu_run came from sys_vm86, which
-as you are probably aware of is already doing a lot of what you do, just
-not for protected mode guests.
-
-	Arnd <><
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 0a999a8..e845df9 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -2842,9 +2842,9 @@ config SHAPER
+ 	  these virtual devices. See
+ 	  <file:Documentation/networking/shaper.txt> for more information.
+ 
+-	  An alternative to this traffic shaper is the experimental
+-	  Class-Based Queuing (CBQ) scheduling support which you get if you
+-	  say Y to "QoS and/or fair queuing" above.
++	  An alternative to this traffic shaper is the Class-Based Queuing
++	  (CBQ) scheduling support which you get if you say Y to
++	  "QoS and/or fair queuing" in "Networking options".
+ 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called shaper.  If unsure, say N.

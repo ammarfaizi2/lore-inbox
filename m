@@ -1,261 +1,376 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWJVNty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWJVOQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWJVNty (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 09:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWJVNty
+	id S1750856AbWJVOQx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 10:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWJVOQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 09:49:54 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:15281 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750846AbWJVNtx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 09:49:53 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Linux PM <linux-pm@osdl.org>
-Subject: [RFC][PATCH -mm] Make swsusp work on i386 with PAE
-Date: Sun, 22 Oct 2006 15:48:47 +0200
-User-Agent: KMail/1.9.1
-Cc: Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Pavel Machek <pavel@ucw.cz>
+	Sun, 22 Oct 2006 10:16:53 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:60894 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750856AbWJVOQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 10:16:52 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sun, 22 Oct 2006 16:16:27 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [rfc patch] ieee1394: nodemgr: revise semaphore protection of driver
+ core data
+To: Ben Collins <bcollins@ubuntu.com>, Greg KH <gregkh@suse.de>
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+Message-ID: <tkrat.2407a13c0fa37837@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610221548.48204.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ - The list "struct class.children" is supposed to be protected by
+   class.sem, not by class.subsys.rwsem.
 
-The purpose of the appended patch is to make swsusp work on i386 with PAE,
-but it should also allow i386 systems without PSE to use swsusp.
+ - nodemgr_remove_uds() iterated over nodemgr_ud_class.children without
+   proper protection.  This was never observed as a bug since the code
+   is usually only accessed by knodemgrd.  All knodemgrds are currently
+   globally serialized.  But userspace can trigger this code too by
+   writing to /sys/bus/ieee1394/destroy_node.
 
-The patch creates temporary page tables located in resume-safe page frames
-during the resume and uses them for restoring the suspend image (the same
-approach is used on x86-64).
+ - Clean up access to the FireWire bus type's subsys.rwsem:  Access it
+   uniformly via ieee1394_bus_type.  Shrink rwsem protected regions
+   where possible.  Expand them where necessary.  The latter wasn't a
+   problem so far because knodemgr is globally serialized.
 
-It has been tested on an i386 system with PAE and survived several
-suspend-resume cycles in a row, but I have no systems without PSE, so that
-requires some testing.
+This should harden the interaction of ieee1394 with sysfs and lay ground
+for deserialized operation of multiple knodemgrds and for implementation
+of subthreads for parallelized scanning and probing.
 
-Comments welcome.
-
-Greetings,
-Rafael
-
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
- arch/i386/power/Makefile  |    2 
- arch/i386/power/suspend.c |  153 ++++++++++++++++++++++++++++++++++++++++++++++
- arch/i386/power/swsusp.S  |    9 ++
- kernel/power/Kconfig      |    2 
- 4 files changed, 162 insertions(+), 4 deletions(-)
 
-Index: linux-2.6.19-rc2-mm2/arch/i386/power/swsusp.S
+This may or may not be related to
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=188140
+(System freezes while hald is accessing FireWire sysfs data.)
+
+I wonder if some of nodemgr's fw_show_/ fw_get_/ fw_set_/ functions to
+read and write sysfs attributes need protection by the subsys.rwsem too.
+At least fw_set_destroy_node() did but should be properly protected now.
+But that one is of course never accessed by hald.
+
+
+ drivers/ieee1394/nodemgr.c |  142 +++++++++++++++++++++++--------------
+ 1 files changed, 92 insertions(+), 50 deletions(-)
+
+Patch is on top of latest 1394 stuff plus two unrelated nodemgr patches
+from yesterday.  Dave, do you want me to rebase this on 2.6.18 for
+testby the bug reporter?  This will require some of
+http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.18/patches/
+
+Index: linux-2.6.19-rc2-extra/drivers/ieee1394/nodemgr.c
 ===================================================================
---- linux-2.6.19-rc2-mm2.orig/arch/i386/power/swsusp.S
-+++ linux-2.6.19-rc2-mm2/arch/i386/power/swsusp.S
-@@ -28,8 +28,9 @@ ENTRY(swsusp_arch_suspend)
- 	call swsusp_save
- 	ret
+--- linux-2.6.19-rc2-extra.orig/drivers/ieee1394/nodemgr.c	2006-10-22 10:44:59.000000000 +0200
++++ linux-2.6.19-rc2-extra/drivers/ieee1394/nodemgr.c	2006-10-22 12:38:23.000000000 +0200
+@@ -373,11 +373,11 @@ static ssize_t fw_set_ignore_driver(stru
+ 	int state = simple_strtoul(buf, NULL, 10);
  
--ENTRY(swsusp_arch_resume)
--	movl	$swsusp_pg_dir-__PAGE_OFFSET, %ecx
-+ENTRY(restore_image)
-+	movl	resume_pg_dir, %ecx
-+	subl	$__PAGE_OFFSET, %ecx
- 	movl	%ecx, %cr3
+ 	if (state == 1) {
+-		down_write(&dev->bus->subsys.rwsem);
+-		device_release_driver(dev);
+ 		ud->ignore_driver = 1;
+-		up_write(&dev->bus->subsys.rwsem);
+-	} else if (!state)
++		down_write(&ieee1394_bus_type.subsys.rwsem);
++		device_release_driver(dev);
++		up_write(&ieee1394_bus_type.subsys.rwsem);
++	} else if (state == 0)
+ 		ud->ignore_driver = 0;
  
- 	movl	restore_pblist, %edx
-@@ -51,6 +52,10 @@ copy_loop:
- 	.p2align 4,,7
+ 	return count;
+@@ -435,7 +435,7 @@ static ssize_t fw_set_ignore_drivers(str
  
- done:
-+	/* go back to the original page tables */
-+	movl	$swapper_pg_dir, %ecx
-+	subl	$__PAGE_OFFSET, %ecx
-+	movl	%ecx, %cr3
- 	/* Flush TLB, including "global" things (vmalloc) */
- 	movl	mmu_cr4_features, %eax
- 	movl	%eax, %edx
-Index: linux-2.6.19-rc2-mm2/arch/i386/power/suspend.c
-===================================================================
---- /dev/null
-+++ linux-2.6.19-rc2-mm2/arch/i386/power/suspend.c
-@@ -0,0 +1,153 @@
-+/*
-+ * Suspend support specific for i386 - temporary page tables
-+ *
-+ * Distribute under GPLv2
-+ *
-+ * Copyright (c) 2006 Rafael J. Wysocki <rjw@sisk.pl>
-+ */
+ 	if (state == 1)
+ 		ignore_drivers = 1;
+-	else if (!state)
++	else if (state == 0)
+ 		ignore_drivers = 0;
+ 
+ 	return count;
+@@ -733,20 +733,65 @@ static int nodemgr_bus_match(struct devi
+ }
+ 
+ 
++static DEFINE_MUTEX(nodemgr_serialize_remove_uds);
 +
-+#include <linux/suspend.h>
-+#include <linux/bootmem.h>
+ static void nodemgr_remove_uds(struct node_entry *ne)
+ {
+-	struct class_device *cdev, *next;
+-	struct unit_directory *ud;
++	struct class_device *cdev;
++	struct unit_directory *ud, **unreg;
++	size_t i, count;
+ 
+-	list_for_each_entry_safe(cdev, next, &nodemgr_ud_class.children, node) {
+-		ud = container_of(cdev, struct unit_directory, class_dev);
++	/*
++	 * This is awkward:
++	 * Iteration over nodemgr_ud_class.children has to be protected by
++	 * nodemgr_ud_class.sem, but class_device_unregister() will eventually
++	 * take nodemgr_ud_class.sem too. Therefore store all uds to be
++	 * unregistered in a temporary array, release the semaphore, and then
++	 * unregister the uds.
++	 *
++	 * Since nodemgr_remove_uds can also run in other contexts than the
++	 * knodemgrds (which are currently globally serialized), protect the
++	 * gap after release of the semaphore by nodemgr_serialize_remove_uds.
++	 */
+ 
+-		if (ud->ne != ne)
+-			continue;
++	mutex_lock(&nodemgr_serialize_remove_uds);
 +
-+#include <asm/system.h>
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+
-+/* Defined in arch/i386/power/swsusp.S */
-+extern int restore_image(void);
-+
-+/* Pointer to the temporary resume page tables */
-+pgd_t *resume_pg_dir;
-+
-+/* The following three functions are based on the analogous code in
-+ * arch/i386/mm/init.c
-+ */
-+
-+/*
-+ * Create a middle page table on a resume-safe page and put a pointer to it in
-+ * the given global directory entry.  This only returns the gd entry
-+ * in non-PAE compilation mode, since the middle layer is folded.
-+ */
-+static pmd_t *resume_one_md_table_init(pgd_t *pgd)
-+{
-+	pud_t *pud;
-+	pmd_t *pmd_table;
-+
-+#ifdef CONFIG_X86_PAE
-+	pmd_table = (pmd_t *)get_safe_page(GFP_ATOMIC);
-+	if (!pmd_table)
-+		return pmd_table;
-+
-+	set_pgd(pgd, __pgd(__pa(pmd_table) | _PAGE_PRESENT));
-+	pud = pud_offset(pgd, 0);
-+
-+	BUG_ON(pmd_table != pmd_offset(pud, 0));
-+#else
-+	pud = pud_offset(pgd, 0);
-+	pmd_table = pmd_offset(pud, 0);
-+#endif
-+
-+	return pmd_table;
-+}
-+
-+/*
-+ * Create a page table on a resume-safe page and place a pointer to it in
-+ * a middle page directory entry.
-+ */
-+static pte_t *resume_one_page_table_init(pmd_t *pmd)
-+{
-+	if (pmd_none(*pmd)) {
-+		pte_t *page_table = (pte_t *)get_safe_page(GFP_ATOMIC);
-+		if (!page_table)
-+			return page_table;
-+
-+		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
-+
-+		BUG_ON(page_table != pte_offset_kernel(pmd, 0));
-+
-+		return page_table;
++	down(&nodemgr_ud_class.sem);
++	count = 0;
++	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
++		ud = container_of(cdev, struct unit_directory, class_dev);
++		if (ud->ne == ne)
++			count++;
 +	}
-+
-+	return pte_offset_kernel(pmd, 0);
-+}
-+
-+/*
-+ * This maps the physical memory to kernel virtual address space, a total
-+ * of max_low_pfn pages, by creating page tables starting from address
-+ * PAGE_OFFSET.  The page tables are allocated out of resume-safe pages.
-+ */
-+static int resume_physical_mapping_init(pgd_t *pgd_base)
-+{
-+	unsigned long pfn;
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+	int pgd_idx, pmd_idx;
-+
-+	pgd_idx = pgd_index(PAGE_OFFSET);
-+	pgd = pgd_base + pgd_idx;
-+	pfn = 0;
-+
-+	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
-+		pmd = resume_one_md_table_init(pgd);
-+		if (!pmd)
-+			return -ENOMEM;
-+
-+		if (pfn >= max_low_pfn)
-+			continue;
-+
-+		for (pmd_idx = 0; pmd_idx < PTRS_PER_PMD; pmd++, pmd_idx++) {
-+			if (pfn >= max_low_pfn)
-+				break;
-+
-+			/* Map with big pages if possible, otherwise create
-+			 * normal page tables.
-+			 * NOTE: We can mark everything as executable here
-+			 */
-+			if (cpu_has_pse) {
-+				set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
-+				pfn += PTRS_PER_PTE;
-+			} else {
-+				pte_t *max_pte;
-+
-+				pte = resume_one_page_table_init(pmd);
-+				if (!pte)
-+					return -ENOMEM;
-+
-+				max_pte = pte + PTRS_PER_PTE;
-+				for (; pte < max_pte; pte++, pfn++) {
-+					if (pfn >= max_low_pfn)
-+						break;
-+
-+					set_pte(pte, pfn_pte(pfn, PAGE_KERNEL_EXEC));
-+				}
-+			}
++	if (!count) {
++		up(&nodemgr_ud_class.sem);
++		mutex_unlock(&nodemgr_serialize_remove_uds);
++		return;
++	}
++	unreg = kcalloc(count, sizeof(*unreg), GFP_KERNEL);
++	if (!unreg) {
++		HPSB_ERR("NodeMgr: out of memory in nodemgr_remove_uds");
++		up(&nodemgr_ud_class.sem);
++		mutex_unlock(&nodemgr_serialize_remove_uds);
++		return;
++	}
++	i = 0;
++	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
++		ud = container_of(cdev, struct unit_directory, class_dev);
++		if (ud->ne == ne) {
++			BUG_ON(i >= count);
++			unreg[i++] = ud;
 +		}
 +	}
-+	return 0;
-+}
-+
-+int swsusp_arch_resume(void)
-+{
-+	int error;
-+
-+	resume_pg_dir = (pgd_t *)get_safe_page(GFP_ATOMIC);
-+	if (!resume_pg_dir)
-+		return -ENOMEM;
-+
-+#ifdef CONFIG_X86_PAE
-+	int i;
-+	/* Init entries of the first-level page table to the zero page */
-+	for (i = 0; i < PTRS_PER_PGD; i++)
-+		set_pgd(resume_pg_dir + i,
-+			__pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
-+#endif
-+
-+	error = resume_physical_mapping_init(resume_pg_dir);
-+	if (error)
-+		return error;
-+
-+	/* We have got enough memory and from now on we cannot recover */
-+	restore_image();
-+	return 0;
-+}
-Index: linux-2.6.19-rc2-mm2/arch/i386/power/Makefile
-===================================================================
---- linux-2.6.19-rc2-mm2.orig/arch/i386/power/Makefile
-+++ linux-2.6.19-rc2-mm2/arch/i386/power/Makefile
-@@ -1,2 +1,2 @@
- obj-$(CONFIG_PM)		+= cpu.o
--obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o suspend.o
-Index: linux-2.6.19-rc2-mm2/kernel/power/Kconfig
-===================================================================
---- linux-2.6.19-rc2-mm2.orig/kernel/power/Kconfig
-+++ linux-2.6.19-rc2-mm2/kernel/power/Kconfig
-@@ -78,7 +78,7 @@ config PM_SYSFS_DEPRECATED
++	up(&nodemgr_ud_class.sem);
  
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend"
--	depends on PM && SWAP && ((X86 && (!SMP || SUSPEND_SMP) && !X86_PAE) || ((FRV || PPC32) && !SMP))
-+	depends on PM && SWAP && ((X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP))
- 	---help---
- 	  Enable the possibility of suspending the machine.
- 	  It doesn't need ACPI or APM.
+-		class_device_unregister(&ud->class_dev);
+-		device_unregister(&ud->device);
++	for (i = 0; i < count; i++) {
++		class_device_unregister(&unreg[i]->class_dev);
++		device_unregister(&unreg[i]->device);
+ 	}
++	kfree(unreg);
++
++	mutex_unlock(&nodemgr_serialize_remove_uds);
+ }
+ 
+ 
+@@ -879,12 +924,11 @@ fail_alloc:
+ 
+ static struct node_entry *find_entry_by_guid(u64 guid)
+ {
+-	struct class *class = &nodemgr_ne_class;
+ 	struct class_device *cdev;
+ 	struct node_entry *ne, *ret_ne = NULL;
+ 
+-	down_read(&class->subsys.rwsem);
+-	list_for_each_entry(cdev, &class->children, node) {
++	down(&nodemgr_ne_class.sem);
++	list_for_each_entry(cdev, &nodemgr_ne_class.children, node) {
+ 		ne = container_of(cdev, struct node_entry, class_dev);
+ 
+ 		if (ne->guid == guid) {
+@@ -892,20 +936,20 @@ static struct node_entry *find_entry_by_
+ 			break;
+ 		}
+ 	}
+-	up_read(&class->subsys.rwsem);
++	up(&nodemgr_ne_class.sem);
+ 
+         return ret_ne;
+ }
+ 
+ 
+-static struct node_entry *find_entry_by_nodeid(struct hpsb_host *host, nodeid_t nodeid)
++static struct node_entry *find_entry_by_nodeid(struct hpsb_host *host,
++					       nodeid_t nodeid)
+ {
+-	struct class *class = &nodemgr_ne_class;
+ 	struct class_device *cdev;
+ 	struct node_entry *ne, *ret_ne = NULL;
+ 
+-	down_read(&class->subsys.rwsem);
+-	list_for_each_entry(cdev, &class->children, node) {
++	down(&nodemgr_ne_class.sem);
++	list_for_each_entry(cdev, &nodemgr_ne_class.children, node) {
+ 		ne = container_of(cdev, struct node_entry, class_dev);
+ 
+ 		if (ne->host == host && ne->nodeid == nodeid) {
+@@ -913,7 +957,7 @@ static struct node_entry *find_entry_by_
+ 			break;
+ 		}
+ 	}
+-	up_read(&class->subsys.rwsem);
++	up(&nodemgr_ne_class.sem);
+ 
+ 	return ret_ne;
+ }
+@@ -1376,7 +1420,6 @@ static void nodemgr_node_scan(struct hos
+ }
+ 
+ 
+-/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader. */
+ static void nodemgr_suspend_ne(struct node_entry *ne)
+ {
+ 	struct class_device *cdev;
+@@ -1388,19 +1431,20 @@ static void nodemgr_suspend_ne(struct no
+ 	ne->in_limbo = 1;
+ 	WARN_ON(device_create_file(&ne->device, &dev_attr_ne_in_limbo));
+ 
+-	down_write(&ne->device.bus->subsys.rwsem);
++	down(&nodemgr_ud_class.sem);
+ 	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
+ 		ud = container_of(cdev, struct unit_directory, class_dev);
+-
+ 		if (ud->ne != ne)
+ 			continue;
+ 
++		down_write(&ieee1394_bus_type.subsys.rwsem);
+ 		if (ud->device.driver &&
+ 		    (!ud->device.driver->suspend ||
+ 		      ud->device.driver->suspend(&ud->device, PMSG_SUSPEND)))
+ 			device_release_driver(&ud->device);
++		up_write(&ieee1394_bus_type.subsys.rwsem);
+ 	}
+-	up_write(&ne->device.bus->subsys.rwsem);
++	up(&nodemgr_ud_class.sem);
+ }
+ 
+ 
+@@ -1412,45 +1456,47 @@ static void nodemgr_resume_ne(struct nod
+ 	ne->in_limbo = 0;
+ 	device_remove_file(&ne->device, &dev_attr_ne_in_limbo);
+ 
+-	down_read(&nodemgr_ud_class.subsys.rwsem);
+-	down_read(&ne->device.bus->subsys.rwsem);
++	down(&nodemgr_ud_class.sem);
+ 	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
+ 		ud = container_of(cdev, struct unit_directory, class_dev);
+-
+ 		if (ud->ne != ne)
+ 			continue;
+ 
++		down_read(&ieee1394_bus_type.subsys.rwsem);
+ 		if (ud->device.driver && ud->device.driver->resume)
+ 			ud->device.driver->resume(&ud->device);
++		up_read(&ieee1394_bus_type.subsys.rwsem);
+ 	}
+-	up_read(&ne->device.bus->subsys.rwsem);
+-	up_read(&nodemgr_ud_class.subsys.rwsem);
++	up(&nodemgr_ud_class.sem);
+ 
+ 	HPSB_DEBUG("Node resumed: ID:BUS[" NODE_BUS_FMT "]  GUID[%016Lx]",
+ 		   NODE_BUS_ARGS(ne->host, ne->nodeid), (unsigned long long)ne->guid);
+ }
+ 
+ 
+-/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader. */
+ static void nodemgr_update_pdrv(struct node_entry *ne)
+ {
+ 	struct unit_directory *ud;
+ 	struct hpsb_protocol_driver *pdrv;
+ 	struct class_device *cdev;
+ 
++	down(&nodemgr_ud_class.sem);
+ 	list_for_each_entry(cdev, &nodemgr_ud_class.children, node) {
+ 		ud = container_of(cdev, struct unit_directory, class_dev);
+-		if (ud->ne != ne || !ud->device.driver)
++		if (ud->ne != ne)
+ 			continue;
+ 
+-		pdrv = container_of(ud->device.driver, struct hpsb_protocol_driver, driver);
+-
+-		if (pdrv->update && pdrv->update(ud)) {
+-			down_write(&ud->device.bus->subsys.rwsem);
+-			device_release_driver(&ud->device);
+-			up_write(&ud->device.bus->subsys.rwsem);
++		down_write(&ieee1394_bus_type.subsys.rwsem);
++		if (ud->device.driver) {
++			pdrv = container_of(ud->device.driver,
++					    struct hpsb_protocol_driver,
++					    driver);
++			if (pdrv->update && pdrv->update(ud))
++				device_release_driver(&ud->device);
+ 		}
++		up_write(&ieee1394_bus_type.subsys.rwsem);
+ 	}
++	up(&nodemgr_ud_class.sem);
+ }
+ 
+ 
+@@ -1481,8 +1527,6 @@ static void nodemgr_irm_write_bc(struct 
+ }
+ 
+ 
+-/* Caller needs to hold nodemgr_ud_class.subsys.rwsem as reader because the
+- * calls to nodemgr_update_pdrv() and nodemgr_suspend_ne() here require it. */
+ static void nodemgr_probe_ne(struct host_info *hi, struct node_entry *ne, int generation)
+ {
+ 	struct device *dev;
+@@ -1515,7 +1559,6 @@ static void nodemgr_probe_ne(struct host
+ static void nodemgr_node_probe(struct host_info *hi, int generation)
+ {
+ 	struct hpsb_host *host = hi->host;
+-	struct class *class = &nodemgr_ne_class;
+ 	struct class_device *cdev;
+ 	struct node_entry *ne;
+ 
+@@ -1528,18 +1571,18 @@ static void nodemgr_node_probe(struct ho
+ 	 * while probes are time-consuming. (Well, those probes need some
+ 	 * improvement...) */
+ 
+-	down_read(&class->subsys.rwsem);
+-	list_for_each_entry(cdev, &class->children, node) {
++	down(&nodemgr_ne_class.sem);
++	list_for_each_entry(cdev, &nodemgr_ne_class.children, node) {
+ 		ne = container_of(cdev, struct node_entry, class_dev);
+ 		if (!ne->needs_probe)
+ 			nodemgr_probe_ne(hi, ne, generation);
+ 	}
+-	list_for_each_entry(cdev, &class->children, node) {
++	list_for_each_entry(cdev, &nodemgr_ne_class.children, node) {
+ 		ne = container_of(cdev, struct node_entry, class_dev);
+ 		if (ne->needs_probe)
+ 			nodemgr_probe_ne(hi, ne, generation);
+ 	}
+-        up_read(&class->subsys.rwsem);
++        up(&nodemgr_ne_class.sem);
+ 
+ 
+ 	/* If we had a bus reset while we were scanning the bus, it is
+@@ -1751,19 +1794,18 @@ exit:
+ 
+ int nodemgr_for_each_host(void *__data, int (*cb)(struct hpsb_host *, void *))
+ {
+-	struct class *class = &hpsb_host_class;
+ 	struct class_device *cdev;
+ 	struct hpsb_host *host;
+ 	int error = 0;
+ 
+-	down_read(&class->subsys.rwsem);
+-	list_for_each_entry(cdev, &class->children, node) {
++	down(&hpsb_host_class.sem);
++	list_for_each_entry(cdev, &hpsb_host_class.children, node) {
+ 		host = container_of(cdev, struct hpsb_host, class_dev);
+ 
+ 		if ((error = cb(host, __data)))
+ 			break;
+ 	}
+-	up_read(&class->subsys.rwsem);
++	up(&hpsb_host_class.sem);
+ 
+ 	return error;
+ }
+
+

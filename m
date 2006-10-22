@@ -1,78 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWJVLVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWJVLVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751771AbWJVLVb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 07:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWJVLVb
+	id S1750829AbWJVLVh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 07:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWJVLVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 07:21:31 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:108 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932386AbWJVLVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 07:21:30 -0400
-Date: Sun, 22 Oct 2006 07:20:59 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: WAS Re: 2.6.19-rc1, timebomb?, now -rc2 progress
-In-reply-to: <200610212011.37914.gene.heskett@verizon.net>
+	Sun, 22 Oct 2006 07:21:37 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:57242 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP
+	id S1750829AbWJVLVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 07:21:36 -0400
+Subject: [PATCH] [4th RESEND]  Remove logic error in
+	/Documentation/devices.txt
+From: Marcus Fischer <marcus-fischer@web.de>
+Reply-To: marcus-fischer@web.de
 To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>, Chris Largret <largret@gmail.com>
-Message-id: <200610220720.59531.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200610200130.44820.gene.heskett@verizon.net>
- <p731wp1mvhs.fsf@verdi.suse.de> <200610212011.37914.gene.heskett@verizon.net>
-User-Agent: KMail/1.7
+Cc: gregkh@suse.de
+Content-Type: text/plain
+Date: Sun, 22 Oct 2006 13:24:53 -0400
+Message-Id: <1161537893.3657.4.camel@mflaptop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 October 2006 20:11, Gene Heskett wrote:
->On Saturday 21 October 2006 13:25, Andi Kleen wrote:
->>Gene Heskett <gene.heskett@verizon.net> writes:
->>> ISTR that was the second time an un-logged powerdown has been done
->>> since that kernel became the default.
->>
->>It might be overheating. During a critical overheat condition the
->>ACPI code will just power off. It should still get console messages
->>out (but nothing on disk), so if you configure serial or net console
->>you would see a message.
->>
->>And check your fans are ok.
->>
->>-Andi
->>-
->
->Thanks Andi, but heating isn't a problem that I'm aware of, I'm no longer
->running a seti client since they moved it all to BOINC & refused to set
->priorities to reasonable values.  Cpu temps are pretty steady at 120F.
->
->I tried to build and boot to 2.6.19-rc2 twice today, but each time it
-> fails at the initrd read phase, saying no (mutter) or cpio magic.  And
-> this is with exactly the same command line as always generating the
-> initrd and then copying it to the /boot partition.  This works well for
-> 2.6.18, which I just rebuilt after having discovered I'd lost the himem
-> magic somehow.
+Hello all,
 
-Someplace along the line, either a make oldconfig screwed up, or my .config 
-chain of succession my scripts use got totally fubared when I was trying 
-to build 19-rc2.
+can someone please tell me what I'm doing wrong with this commit?
+I'm lacking experience, but I thought I understood the process correct.
 
-After 3 more rebuilds to add stuff like emu10k1 & the RAMFS bits, -rc2 has 
-now booted.  So now we wait for the other shoe to drop & see if the auto 
-powerdowns persist.
-[...]
->I haven't tried to setup a seriel console because both serial ports on
-> this box are already busy with other things.  I could free a serial port
-> if someone could tell me howto make the bulldog ups monitoring software
-> from belkin use a usb port instead.  Anyone have a clue to share on that
-> subject?
+Please send me some feedback that I can rework/modify the patch if required.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+
+Thanks,
+Marcus
+
+PS: Please CC me, I'm not on this list.
+
+
+
+commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
+Author: Marcus Fischer <linux@marcusfischer.com>
+Date:   Fri Sep 29 23:50:01 2006 +0200
+
+    I found an logic error in the following commit:
+    
+        author    Steven Haigh <netwiz@crc.id.au>
+                  Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
+        committer Greg Kroah-Hartman <gregkh@suse.de>
+                  Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
+        commit    03270634e242dd10cc8569d31a00659d25b2b8e7
+        tree      8f4665eb7b17386e733fcdc7d02e87c4a1592550
+        parent    8ac283ad415358f022498887811c35ac656b5222
+    
+Documentation/devices.txt may either say 
+../adutux10 11th OntrackADU device    or 
+../adutux9 10th Ontrack ADU device.
+
+Anyway, the original one makes no sense:
+   
++ 67 = /dev/usb/adutux0 1st Ontrak ADU device
++ ...
++ 76 = /dev/usb/adutux10 10th Ontrak ADU device
+
+This patch removes the logic error.
+
+However, I saw that MAX_DEVICES is 16.
+Thus, shouldn't this docu then say:
+"81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
+
+Best,
+Marcus
+
+
+
+Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
+---
+
+diff --git a/Documentation/devices.txt b/Documentation/devices.txt
+index addc67b..37efae8 100644
+--- a/Documentation/devices.txt
++++ b/Documentation/devices.txt
+@@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
+66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
+67 = /dev/usb/adutux0 1st Ontrak ADU device
+    ...
+- 76 = /dev/usb/adutux10 10th Ontrak ADU device
++ 76 = /dev/usb/adutux9 10th Ontrak ADU device
+96 = /dev/usb/hiddev0 1st USB HID device
+    ...
+111 = /dev/usb/hiddev15 16th USB HID device
+
+
+

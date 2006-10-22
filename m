@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWJVFMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422997AbWJVFNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422996AbWJVFMq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 01:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422997AbWJVFMq
+	id S1422997AbWJVFNs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 01:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422999AbWJVFNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 01:12:46 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:48513 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1422996AbWJVFMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 01:12:46 -0400
-Message-ID: <453AFE24.706@oracle.com>
-Date: Sat, 21 Oct 2006 22:14:12 -0700
-From: "Randy.Dunlap" <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Sun, 22 Oct 2006 01:13:48 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:27359 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422997AbWJVFNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 01:13:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=BTpeT5CiIkhsSYpUOtgbTpd5WoxScHvEdXy1cG/A8tQ3jf0gJbdX/u3fq4YIVS9FvD3nYKUvDHrAUwNFKLh4HHmtOoRlnK6sxRIlorUM2GHOXiuaNeD3o01fKOBvlTZI+FsHfJHajC5xsbwGd461pFjnrwZANRYkV3w/JovV2kE=
+Message-ID: <86802c440610212213g7998fefesc43da2438ad25f01@mail.gmail.com>
+Date: Sat, 21 Oct 2006 22:13:45 -0700
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Muli Ben-Yehuda" <muli@il.ibm.com>
+Subject: Re: [PATCH] x86-64: typo in __assign_irq_vector when updating pos for vector and offset
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andi Kleen" <ak@suse.de>
+In-Reply-To: <20061022035109.GM5211@rhun.haifa.ibm.com>
 MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] raid: fix printk format warnings
-References: <20061021113406.535d8243.randy.dunlap@oracle.com> <17722.60989.448470.587430@cse.unsw.edu.au>
-In-Reply-To: <17722.60989.448470.587430@cse.unsw.edu.au>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+References: <200610212100.k9LL0GtC018787@hera.kernel.org>
+	 <20061022035109.GM5211@rhun.haifa.ibm.com>
+X-Google-Sender-Auth: 475e2af3b85d4b3f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Saturday October 21, randy.dunlap@oracle.com wrote:
->> From: Randy Dunlap <randy.dunlap@oracle.com>
->>
->> Fix printk format warnings, seen on powerpc64:
->> drivers/md/raid1.c:1479: warning: long long unsigned int format, long unsigned int arg (arg 4)
->> drivers/md/raid10.c:1475: warning: long long unsigned int format, long unsigned int arg (arg 4)
->>
->> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
->> ---
->>
->>  drivers/md/raid1.c  |    4 ++--
->>  drivers/md/raid10.c |    4 ++--
->>  2 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff -Naurp linux-2619-rc2g4/drivers/md/raid1.c~raid_printk linux-2619-rc2g4/drivers/md/raid1.c
->> --- linux-2619-rc2g4/drivers/md/raid1.c~raid_printk	2006-10-21 11:16:30.066109000 -0700
->> +++ linux-2619-rc2g4/drivers/md/raid1.c	2006-10-21 11:20:57.288004000 -0700
->> @@ -1474,8 +1474,8 @@ static void fix_read_error(conf_t *conf,
->>  					       "raid1:%s: read error corrected "
->>  					       "(%d sectors at %llu on %s)\n",
->>  					       mdname(mddev), s,
->> -					       (unsigned long long)sect +
->> -					           rdev->data_offset,
->> +					       (unsigned long long)(sect +
->> +					           rdev->data_offset),
->>  					       bdevname(rdev->bdev,
->> b));
-> 
-> So you're saying that if you add an 'unsigned long long int' to an
-> 'unsigned long int', the result is an 'unsigned long int'???
-> That is not what I would have expected.
-> I'm happy with the patch, but I'm very surprised that it is needed.
-> Is this behaviour consistent across various versions of gcc (if it is
-> convenient to check)??
+On 10/21/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
+> On Sat, Oct 21, 2006 at 09:00:17PM +0000, Linux Kernel Mailing List wrote:
+> Booting processor 1/4 APIC 0x1
+> Initializing CPU#1
+> Calibrating delay using timer specific routine.. 6339.07 BogoMIPS (lpj=12678150)CPU: Trace cache: 12K uops, L1 D cache: Initializing CPU#2
+> Calibrating delay using timer specific routine.. 6339.11 BogoMIPS (lpj=12678228)CPU: Trace cache: 12K uops, L1 D cache: 16K
+> CPU: L2 cache: 1024K
+> CPU: Physical Processor ID: 3
+> CPU: Processor Core ID: 0
+> CPU2: Thermal monitoring enabled (TM1)
+>               Intel(R) Pentium(R) 4 CPU 3.16GHz stepping 09
+> lockdep: not fixing up alternatives.
+> Booting processor 3/4 APIC 0x7
+> Initializing CPU#3
+> Calibrating delay using timer specific routine.. 6339.20 BogoMIPS (lpj=12678401)CPU: Trace cache: 12K uops, L1 D cache: 16K
+> CPU: L2 cache: 1024K
+> CPU: Physical Processor ID: 3
+> CPU: Processor Core ID: 0
+> CPU3: Thermal monitoring enabled (TM1)
+>               Intel(R) Pentium(R) 4 CPU 3.16GHz stepping 09
+> Brought up 4 CPUs
 
-I've only seen it on powerpc64.  It could well be a gcc problem AFAICT.
-Feel free to drop it.  Thanks for the discussion.
+It seems it tried to initialize CPU2, before CPU1 is all set.
 
-gfs2 and DLM also produce about 10-12 of these warnings IIRC (still on
-powerpc64).
+current code still initialize CPU one by one, because there is some
+share data structure.
 
--- 
-~Randy
+YH

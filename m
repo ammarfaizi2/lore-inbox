@@ -1,70 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWJVPRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWJVPX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWJVPRr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 11:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWJVPRr
+	id S1750860AbWJVPX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 11:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWJVPX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 11:17:47 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:23057 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S1750796AbWJVPRq (ORCPT
+	Sun, 22 Oct 2006 11:23:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:8900 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750860AbWJVPX4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 11:17:46 -0400
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
-	<20061022122355.GC3502@stusta.de>
-	<200610221046.51464.gene.heskett@verizon.net>
-Date: Sun, 22 Oct 2006 08:17:36 -0700
-In-Reply-To: <200610221046.51464.gene.heskett@verizon.net> (message from Gene
-	Heskett on Sun, 22 Oct 2006 10:46:51 -0400)
-Message-ID: <87r6x09y7j.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Sun, 22 Oct 2006 11:23:56 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+Date: Sun, 22 Oct 2006 17:23:48 +0200
+User-Agent: KMail/1.9.5
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <4537818D.4060204@qumranet.com> <200610211816.27964.arnd@arndb.de> <453B2DDB.3010303@qumranet.com>
+In-Reply-To: <453B2DDB.3010303@qumranet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610221723.48646.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> writes:
-
-> On Sunday 22 October 2006 08:23, Adrian Bunk wrote:
->>This email lists some known unfixed regressions in 2.6.19-rc2 compared
->>to 2.6.18 that are not yet fixed Linus' tree.
->>
-> [...]
->>
->>Subject    : unable to rip cd
->>References : http://lkml.org/lkml/2006/10/13/100
->>Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
->>Status     : unknown
+On Sunday 22 October 2006 10:37, Avi Kivity wrote:
+> I like this.  Since we plan to support multiple vcpus per vm, the fs
+> structure might look like:
 >
-> FWIW Alex, I just ripped track 2 of a Trace Adkins CD using grip and 
-> cdparanoia, then listened to the track in mplayer, while running 
-> 2.6.19-rc2.  No problem at all.  This is however, an older FC2 system, so 
-> I'd be inclined to point the finger at cdparanoia's latest version.  Mine 
-> hasn't been updated for quite a while.  I have these installed:
+> /kvm/my_vm
+>     |
+>     +----memory          # mkdir to create memory slot.
+
+Note that the way spufs does it, every directory is a reference-counted
+object. Currently that includes single contexts and groups of
+contexts that are supposed to be scheduled simultaneously.
+
+The trick is that we use the special 'spu_create' syscall to
+add a new object, while naming it, and return an open file
+descriptor to it. When that file descriptor gets closed, the
+object gets garbage-collected automatically.
+
+This way you can simply kill a task, which also cleans up
+all the special objects it allocated.
+
+We ended up adding a lot more file than we initially planned,
+but the interface is really handy, especially if you want to
+create some procps-like tools for it.
+
+>     |     |              #    how to set size and offset?
+>     |     |
+>     |     +---0          # guest physical memory slot
+>     |         |
+>     |         +-- dirty_bitmap  # read to get and atomically reset
+>     |                           # the changed pages log
+
+Have you thought about simply defining your guest to be a section
+of the processes virtual address space? That way you could use
+an anonymous mapping in the host as your guest address space, or
+even use a file backed mapping in order to make the state persistant
+over multiple runs. Or you could map the guest kernel into the
+guest real address space with a private mapping and share the
+text segment over multiple guests to save L2 and RAM.
+
+>     |
+>     |
+>     +----cpu             # mkdir/rmdir to create/remove vcpu
+>           |
+
+I'd recommend not allowing mkdir or similar operations, although
+it's not that far off. One option would be to let the user specify
+the number of CPUs at kvm_create() time, another option might
+be to allow kvm_create with a special flag or yet another syscall
+to create the vcpu objects.
+
+>           +----0
+>           |     |
+>           |     +--- irq     # write to inject an irq
+>           |     |
+>           |     +--- regs    # read/write to get/set registers
+>           |     |
+>           |     +--- debugger   # write to set breakpoints/singlestep mode
+>           |
+>           +----1
+>                 [...]
 >
-> cdparanoia-alpha9.8-20.1
-> cdparanoia-libs-alpha9.8-20.1
-> cdparanoia-devel-alpha9.8-20.1
+> It's certainly a lot more code though, and requires new syscalls.  Since
+> this is a little esoteric does it warrant new syscalls?
 
-the system doesn't lock up all the time, but every time i start ripping
-i get this in syslog:
+We've gone through a number of iterations on the spufs design regarding this,
+and in the end decided that the garbage-collecting property of spu_create
+was superior to any other option, and adding the spu_run syscall was then
+the logical step. BTW, one inspiration for spu_run came from sys_vm86, which
+as you are probably aware of is already doing a lot of what you do, just
+not for protected mode guests.
 
-Oct 22 08:08:16 trinculo kernel: hdc: write_intr: wrong transfer direction!
-
-which didn't use to happen before 2.6.19-rc2 (the lockups did).
-anyway, i just gave it another try, grip wasn't able to rip the cd but
-i was able to eject the cd from the drive and then abort execution. i
-am using cdparanoia that came with grip, and this is a very old
-version (2.96, the last before they switched to gnome). i also tried
-with the recent version of cdparanoia but the same thing happens.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+	Arnd <><

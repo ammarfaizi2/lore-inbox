@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWJVSlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWJVSs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWJVSlN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWJVSlM
+	id S1750773AbWJVSs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 14:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWJVSs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:41:12 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:35738 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750786AbWJVSlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:41:11 -0400
-Message-ID: <453BBB41.4070905@qumranet.com>
-Date: Sun, 22 Oct 2006 20:41:05 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sun, 22 Oct 2006 14:48:59 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:55373 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750773AbWJVSs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 14:48:58 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:
+	subject:content-type:content-transfer-encoding;
+	b=WYTRLGZLYQ0nzfzNzP9ux20lAEFrhSXbzBV7j779mbNS61Pn6El3NkbzXqtKChEkm
+	P/919QggAYaqJHubufoiw==
+Message-ID: <453BBC9E.4040300@google.com>
+Date: Sun, 22 Oct 2006 11:46:54 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <20061022175609.GA28152@infradead.org> <453BB1B0.7040500@qumranet.com> <200610222036.03455.arnd@arndb.de>
-In-Reply-To: <200610222036.03455.arnd@arndb.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Strange errors from e1000 driver (2.6.18)
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2006 18:41:10.0533 (UTC) FILETIME=[A4B87B50:01C6F609]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Sunday 22 October 2006 20:00, Avi Kivity wrote:
->   
->> Existing installations?
->>
->> Dropping 32-bit host support would certainly kill a lot of #ifdefs and
->> reduce the amount of testing needed.  It would also force me to upgrade
->> my home machine.
->>     
->
-> Ok, but if you radically change the kernel<->user API, doesn't that mean
-> you have to upgrade in the same way? 
+I'm getting a lot of these type of errors if I run 2.6.18. If
+I run the standard Ubuntu Dapper kernel, I don't get them.
+What do they indicate?
 
-No, why? I'd just upgrade the userspace.  Am I misunderstanding you?
-
-> The 32 bit emulation mode in x86_64
-> is actually pretty complete, so it probably boils down to a kernel upgrade
-> for you, without having to touch any of the user space.
->   
-
-For me personally, I don't mind.  I don't know about others.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Oct 21 18:48:28 localhost kernel: buffer_info[next_to_clean]
+Oct 21 18:48:28 localhost kernel:   time_stamp           <7b79d33>
+Oct 21 18:48:28 localhost kernel:   next_to_watch        <3d>
+Oct 21 18:48:28 localhost kernel:   jiffies              <7b7a0c1>
+Oct 21 18:48:28 localhost kernel:   next_to_watch.status <0>
+Oct 21 18:48:30 localhost kernel:   Tx Queue             <0>
+Oct 21 18:48:30 localhost kernel:   TDH                  <3d>
+Oct 21 18:48:30 localhost kernel:   TDT                  <44>
+Oct 21 18:48:30 localhost kernel:   next_to_use          <44>
+Oct 21 18:48:30 localhost kernel:   next_to_clean        <39>
+Oct 21 18:48:30 localhost kernel: buffer_info[next_to_clean]
+Oct 21 18:48:30 localhost kernel:   time_stamp           <7b79d33>
+Oct 21 18:48:30 localhost kernel:   next_to_watch        <3d>
+Oct 21 18:48:30 localhost kernel:   jiffies              <7b7a2b5>
+Oct 21 18:48:30 localhost kernel:   next_to_watch.status <0>
+Oct 21 18:48:32 localhost kernel:   Tx Queue             <0>
+Oct 21 18:48:32 localhost kernel:   TDH                  <3d>
+Oct 21 18:48:32 localhost kernel:   TDT                  <44>
+Oct 21 18:48:32 localhost kernel:   next_to_use          <44>
+Oct 21 18:48:32 localhost kernel:   next_to_clean        <39>
+Oct 21 18:48:32 localhost kernel: buffer_info[next_to_clean]
+Oct 21 18:48:32 localhost kernel:   time_stamp           <7b79d33>
+Oct 21 18:48:32 localhost kernel:   next_to_watch        <3d>
+Oct 21 18:48:32 localhost kernel:   jiffies              <7b7a4a9>
+Oct 21 18:48:32 localhost kernel:   next_to_watch.status <0>
+Oct 21 18:48:34 localhost kernel:   Tx Queue             <0>
+Oct 21 18:48:34 localhost kernel:   TDH                  <3d>
+Oct 21 18:48:34 localhost kernel:   TDT                  <44>
+Oct 21 18:48:34 localhost kernel:   next_to_use          <44>
+Oct 21 18:48:34 localhost kernel:   next_to_clean        <39>
+Oct 21 18:48:34 localhost kernel: buffer_info[next_to_clean]
+Oct 21 18:48:34 localhost kernel:   time_stamp           <7b79d33>
+Oct 21 18:48:34 localhost kernel:   next_to_watch        <3d>
+Oct 21 18:48:34 localhost kernel:   jiffies              <7b7a69d>
+Oct 21 18:48:34 localhost kernel:   next_to_watch.status <0>
+Oct 21 18:48:35 localhost kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Oct 21 18:48:36 localhost kernel: e1000: eth0: e1000_watchdog: NIC Link 
+is Up 100 Mbps Full Duplex

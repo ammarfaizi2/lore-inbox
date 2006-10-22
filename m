@@ -1,111 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWJVMcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWJVMn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWJVMcd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 08:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWJVMcd
+	id S1750720AbWJVMn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 08:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWJVMn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 08:32:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:9386 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750863AbWJVMcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 08:32:32 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH] [4th RESEND]  Remove logic error in /Documentation/devices.txt
-Date: Sun, 22 Oct 2006 12:32:08 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnejmpii.30t.olecom@flower.upol.cz>
-References: <1161537893.3657.4.camel@mflaptop>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Sun, 22 Oct 2006 08:43:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:7661 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750720AbWJVMnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 08:43:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cSqilg854kMcdKTcoKuoO2hGlPiY4GgjgTyPNjgoytxO4l/QpgM59uSixbODlk9QlswtMg/GrRyMMRMe71sQbNonatLyrEVViW3cSKYK0TD88rYvuBorcjjrpMTMmU7MOL4SbR8iFuaSvELSfLtFlfN/EIkyj8qMMTEZ4YlkCsk=
+Message-ID: <ceccffee0610220542t422647e1of507047f6777649e@mail.gmail.com>
+Date: Sun, 22 Oct 2006 14:42:51 +0200
+From: "Linux Portal" <linportal@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: First benchmarks of the ext4 file system
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061021234923.defbfb1f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
+	 <20061021234923.defbfb1f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-10-22, Marcus Fischer wrote:
-> Hello all,
-
-Hallo, Marcus.
-
-> can someone please tell me what I'm doing wrong with this commit?
-> I'm lacking experience, but I thought I understood the process correct.
-
-Yes. I think there is an error with numbering of devices set. And your
-effort to fix it appreciated.
-
-> Please send me some feedback that I can rework/modify the patch if required.
-[]
-> PS: Please CC me, I'm not on this list.
-
-Add yourself there, you'll have a copy to check your patch again, or
-carefully construct "Mail-Followup-To" header.
-
-Also. If you've read top of devices.txt, you must have read about name and
-e-mail of the current maintainer of that file (i've added him).
-Finally one may think, this is a trivial fix, so <trivial@kernel.org>
-can be e-mailed also.
-
-> commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
-> Author: Marcus Fischer <linux@marcusfischer.com>
-> Date:   Fri Sep 29 23:50:01 2006 +0200
+On 10/22/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Sun, 22 Oct 2006 01:57:36 +0200
+> "Linux Portal" <linportal@gmail.com> wrote:
 >
->     I found an logic error in the following commit:
->     
->         author    Steven Haigh <netwiz@crc.id.au>
->                   Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
->         committer Greg Kroah-Hartman <gregkh@suse.de>
->                   Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
->         commit    03270634e242dd10cc8569d31a00659d25b2b8e7
->         tree      8f4665eb7b17386e733fcdc7d02e87c4a1592550
->         parent    8ac283ad415358f022498887811c35ac656b5222
->     
-> Documentation/devices.txt may either say 
-> ../adutux10 11th OntrackADU device    or 
-> ../adutux9 10th Ontrack ADU device.
+> > ext4 is 20 percent faster writer than ext3 or reiser4, probably thanks
+> > to extents and delayed allocation. On other tests it is either
+> > slightly faster or slightly slower. reiser4 comes as a nice surprise,
+> > winning few benchmarks. Both are very stable, no errors during
+> > testing.
+> >
+> > http://linux.inet.hr/first_benchmarks_of_the_ext4_file_system.html
 >
-> Anyway, the original one makes no sense:
->    
-> + 67 = /dev/usb/adutux0 1st Ontrak ADU device
-> + ...
-> + 76 = /dev/usb/adutux10 10th Ontrak ADU device
+> ext4 doesn't implement delayed allocation (yet).
 >
-> This patch removes the logic error.
+> I made some observations regarding comparative benchmarking of filesystems
+> when releasing 2.6.19-rc1-mm1.  They seem to have been ignored ;)  See
 >
-> However, I saw that MAX_DEVICES is 16.
-> Thus, shouldn't this docu then say:
-> "81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
->
-> Best,
-> Marcus
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc1/2.6.19-rc1-mm1/announce.txt
 >
 >
->
-> Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
-> ---
 
-I think format of the patch isn't like suggested in "tpp", please care
-to give a short view to it:
-<http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt>
-
-and if you're using git, adjust git's tools to generate needed form of a
-patch. 
-
-
-> diff --git a/Documentation/devices.txt b/Documentation/devices.txt
-> index addc67b..37efae8 100644
-> --- a/Documentation/devices.txt
-> +++ b/Documentation/devices.txt
-> @@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
-> 66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
-> 67 = /dev/usb/adutux0 1st Ontrak ADU device
->     ...
-> - 76 = /dev/usb/adutux10 10th Ontrak ADU device
-> + 76 = /dev/usb/adutux9 10th Ontrak ADU device
-> 96 = /dev/usb/hiddev0 1st USB HID device
->     ...
-> 111 = /dev/usb/hiddev15 16th USB HID device
-
-Good luck.
-____
-
+Yeah, and because of this: "Although this doesn't seem to make much
+difference with ext3" which is what I observed, too, in some other
+benchmarks.

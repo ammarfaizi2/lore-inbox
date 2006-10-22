@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWJVJQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWJVJWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWJVJQa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 05:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWJVJQa
+	id S932304AbWJVJWi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 05:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWJVJWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 05:16:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29334 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932310AbWJVJQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 05:16:29 -0400
-Date: Sun, 22 Oct 2006 02:16:19 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Cpuset: remove useless sched domain line
-Message-Id: <20061022021619.189cc02f.pj@sgi.com>
-In-Reply-To: <20061018172422.GA7885@in.ibm.com>
-References: <20061014045517.22007.863.sendpatchset@v0>
-	<20061018172422.GA7885@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Oct 2006 05:22:38 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:59025 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932304AbWJVJWh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 05:22:37 -0400
+Message-ID: <453B385A.60901@drzeus.cx>
+Date: Sun, 22 Oct 2006 11:22:34 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: pHilipp Zabel <philipp.zabel@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Use own work queue
+References: <20061001124240.16996.34557.stgit@poseidon.drzeus.cx>	 <74d0deb30610070717k17079940ybedbf94dc8af8460@mail.gmail.com>	 <452AB97B.5040309@drzeus.cx>	 <20061013075626.GB28654@flint.arm.linux.org.uk> <74d0deb30610150240y16d6ea92mc96705576b8f0824@mail.gmail.com>
+In-Reply-To: <74d0deb30610150240y16d6ea92mc96705576b8f0824@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  	if (!is_cpu_exclusive(cur)) {
-> > -		cpus_or(pspan, pspan, cur->cpus_allowed);
-> >  		if (cpus_equal(pspan, cur->cpus_allowed))
-> >  			return;
-> >  		cspan = CPU_MASK_NONE;
+pHilipp Zabel wrote:
 > 
+> Thanks, I can work around this by using the rootdelay kernel parameter.
+> So does that mean this is the expected behavior, or should I do anything
+> in the bootup sequence to make the init process wait for mmc detection?
 > 
-> I dont think this is a valid optimization. What we are checking here
-> is if a previously exclusive cpuset has been changed to a non-exclusive one
-> (echo 0 > cpu_exclusive), we then OR all the cpus in the current cpuset
-> to the parent cpuset. We then rebuild a sched domain to include all of the cpus
-> in the current cpuset and those in the parent not part of exclusive children
 
+USB, which has an almost identical problem, usually uses a "sleep" in
+initrd.
 
-Not that it matters, but I don't think you need to OR in the current cpuset
-cpus to the parents cpus (pspan) here, because they are already in pspan.
+If you want to be a bit more fancy, you could try to listen to hotplug
+events and look for the kernel creating the relevant block device.
 
-Look at the surrounding code:
-
-        pspan = par->cpus_allowed;
-        list_for_each_entry(c, &par->children, sibling) {
-                if (is_cpu_exclusive(c))
-                        cpus_andnot(pspan, pspan, c->cpus_allowed);
-        }
-        if (!is_cpu_exclusive(cur)) {
-		cpus_or(pspan, pspan, cur->cpus_allowed);
-                if (cpus_equal(pspan, cur->cpus_allowed))
-                        return;
-                cspan = CPU_MASK_NONE;
-
-'pspan' starts out with all the parents cpus, which must be a superset
-of currents cpus (cur->cpus_allowed.)
-
-Then we subtract (cpus_andnot) from pspan the cpus in the cpu_exclusive
-siblings of current.  Since current is not cpu_exclusive, and since the
-cpus of its cpu_exclusive sibling cpusets cannot overlap with currents
-cpus, we could not have subtracted any current cpu from pspan.
-
-So pspan is still a superset of currents cpus.
-
-So OR'ing in currents cpus to pspan is a no-op.
-
+Rgds
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

@@ -1,91 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWJVXiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWJVXlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWJVXiK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 19:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWJVXiJ
+	id S1750855AbWJVXlk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 19:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWJVXlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 19:38:09 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:14013 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750785AbWJVXiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 19:38:07 -0400
-Subject: [PATCH] Cleanup whitespace in freezer output.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 09:38:05 +1000
-Message-Id: <1161560285.7438.60.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Sun, 22 Oct 2006 19:41:40 -0400
+Received: from 81-174-19-108.f5.ngi.it ([81.174.19.108]:63423 "EHLO
+	develer.com") by vger.kernel.org with ESMTP id S1750855AbWJVXlj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 19:41:39 -0400
+Message-ID: <453C01AE.7060103@develer.com>
+Date: Mon, 23 Oct 2006 01:41:34 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l. - http://www.develer.com/
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+MIME-Version: 1.0
+To: Cristian Grigoriu <cristian.grigoriu@provus.ro>
+CC: b.innocenti@develer.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: NAT failure with TCP, too
+References: <4538B314.2020309@provus.ro>
+In-Reply-To: <4538B314.2020309@provus.ro>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor whitespace and formatting modifications for the freezer.
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-diff --git a/kernel/power/process.c b/kernel/power/process.c
-index b0edfc6..fedabad 100644
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -86,7 +86,7 @@ int freeze_processes(void)
- 	unsigned long start_time;
- 	struct task_struct *g, *p;
- 
--	printk( "Stopping tasks: " );
-+	printk("Stopping tasks... ");
- 	start_time = jiffies;
- 	user_frozen = 0;
- 	do {
-@@ -134,21 +134,21 @@ int freeze_processes(void)
- 	 * but it cleans up leftover PF_FREEZE requests.
- 	 */
- 	if (todo) {
--		printk( "\n" );
--		printk(KERN_ERR " stopping tasks timed out "
-+		printk("\n");
-+		printk(KERN_ERR "Stopping tasks timed out "
- 			"after %d seconds (%d tasks remaining):\n",
- 			TIMEOUT / HZ, todo);
- 		read_lock(&tasklist_lock);
- 		do_each_thread(g, p) {
- 			if (freezeable(p) && !frozen(p))
--				printk(KERN_ERR "  %s\n", p->comm);
-+				printk(KERN_ERR " %s\n", p->comm);
- 			cancel_freezing(p);
- 		} while_each_thread(g, p);
- 		read_unlock(&tasklist_lock);
- 		return todo;
- 	}
- 
--	printk( "|\n" );
-+	printk("done.\n");
- 	BUG_ON(in_atomic());
- 	return 0;
- }
-@@ -157,18 +157,18 @@ void thaw_processes(void)
- {
- 	struct task_struct *g, *p;
- 
--	printk( "Restarting tasks..." );
-+	printk("Restarting tasks... ");
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
- 		if (!freezeable(p))
- 			continue;
- 		if (!thaw_process(p))
--			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-+			printk(KERN_INFO "Strange, %s not stopped\n", p->comm);
- 	} while_each_thread(g, p);
- 
- 	read_unlock(&tasklist_lock);
- 	schedule();
--	printk( " done\n" );
-+	printk("done.\n");
- }
- 
- EXPORT_SYMBOL(refrigerator);
+Cristian Grigoriu wrote:
+> Hi,
+> 
+> I can confirm the same bug you reported here 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0509.2/0279.html
+> This time it happens with TCP connections originating from the same TCP 
+> port (1234) from multiple machines. The SNAT simply doesn't take place 
+> and the normal routing occurs.
+> 
+> Kernel is Debian stock 2.6.18-1.
+> 
+> Please let me know if you have find a workaround.
 
+It turned out that the real thing that was triggering the bug
+for me was unloading and reloading the ip_nat module without
+also reloading ip_conntrack.
+
+The connection tracking tuple would remain in the kernel, visible
+in /proc/net/ip_conntrack, but no longer linked to the SNAT rule.
+I'd consider this a bug, but very few users will ever be affected.
+
+The workaround for me was to remove my hand-cracted iptables
+rules from ppp's ip-up.local and move them to the distro-supplied
+iptables firewall instead.  The only downside is that I must now
+hardcode the destination ip of the SNAT rule because it's too early
+to read the interface address of ppp0.
+
+-- 
+   // Bernardo Innocenti - Develer S.r.l., R&D dept.
+ \X/  http://www.develer.com/
 

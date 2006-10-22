@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWJVOq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWJVO50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWJVOq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 10:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWJVOq6
+	id S1751122AbWJVO50 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 10:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWJVO50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 10:46:58 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:23877 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751031AbWJVOq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 10:46:57 -0400
-Date: Sun, 22 Oct 2006 10:46:51 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
-In-reply-to: <20061022122355.GC3502@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: Alex Romosan <romosan@sycorax.lbl.gov>, Adrian Bunk <bunk@stusta.de>
-Message-id: <200610221046.51464.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
- <20061022122355.GC3502@stusta.de>
-User-Agent: KMail/1.7
+	Sun, 22 Oct 2006 10:57:26 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:50705 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751122AbWJVO5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 10:57:25 -0400
+Date: Sun, 22 Oct 2006 15:57:18 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: [PATCH] Remove __must_check for device_for_each_child()
+Message-ID: <20061022145718.GA2156@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 October 2006 08:23, Adrian Bunk wrote:
->This email lists some known unfixed regressions in 2.6.19-rc2 compared
->to 2.6.18 that are not yet fixed Linus' tree.
->
-[...]
->
->Subject    : unable to rip cd
->References : http://lkml.org/lkml/2006/10/13/100
->Submitter  : Alex Romosan <romosan@sycorax.lbl.gov>
->Status     : unknown
+Eliminate more __must_check madness.
 
-FWIW Alex, I just ripped track 2 of a Trace Adkins CD using grip and 
-cdparanoia, then listened to the track in mplayer, while running 
-2.6.19-rc2.  No problem at all.  This is however, an older FC2 system, so 
-I'd be inclined to point the finger at cdparanoia's latest version.  Mine 
-hasn't been updated for quite a while.  I have these installed:
+The return code from device_for_each_child() depends on the values
+which the helper function returns.  If the helper function always
+returns zero, it's utterly pointless to check the return code from
+device_for_each_child().
 
-cdparanoia-alpha9.8-20.1
-cdparanoia-libs-alpha9.8-20.1
-cdparanoia-devel-alpha9.8-20.1
+The only code which knows if the return value should be checked is
+the caller itself, so forcing the return code to always be checked
+is silly.  Hence, remove the __must_check annotation.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 662e6a1..9d4f6a9 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -393,7 +393,7 @@ extern void device_unregister(struct dev
+ extern void device_initialize(struct device * dev);
+ extern int __must_check device_add(struct device * dev);
+ extern void device_del(struct device * dev);
+-extern int __must_check device_for_each_child(struct device *, void *,
++extern int device_for_each_child(struct device *, void *,
+ 		     int (*fn)(struct device *, void *));
+ extern int device_rename(struct device *dev, char *new_name);
+ 
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

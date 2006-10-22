@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWJVW0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWJVW2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWJVW0z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 18:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWJVW0z
+	id S1750807AbWJVW2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 18:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWJVW2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 18:26:55 -0400
-Received: from ns1.suse.de ([195.135.220.2]:22199 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750704AbWJVW0y (ORCPT
+	Sun, 22 Oct 2006 18:28:53 -0400
+Received: from xenotime.net ([66.160.160.81]:52203 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750807AbWJVW2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 18:26:54 -0400
-To: Avi Kivity <avi@qumranet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de>
-	<453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de>
-	<453BA3E9.4050907@qumranet.com> <20061022175609.GA28152@infradead.org>
-	<453BB1B0.7040500@qumranet.com>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Oct 2006 00:26:48 +0200
-In-Reply-To: <453BB1B0.7040500@qumranet.com>
-Message-ID: <p73ac3om1g7.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 22 Oct 2006 18:28:52 -0400
+Date: Sun, 22 Oct 2006 15:30:29 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Jeff Garzik <jeff@garzik.org>, kernel-janitors@lists.osdl.org,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [KJ] make pdfdocs broken in 2.6.19rc2 and needs fixes
+Message-Id: <20061022153029.af3b382b.rdunlap@xenotime.net>
+In-Reply-To: <20061022151600.a21859df.rdunlap@xenotime.net>
+References: <200610222347.42418.ak@suse.de>
+	<453BEA00.4000601@garzik.org>
+	<20061022151600.a21859df.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity <avi@qumranet.com> writes:
+On Sun, 22 Oct 2006 15:16:00 -0700 Randy Dunlap wrote:
 
-> Dropping 32-bit host support would certainly kill a lot of #ifdefs and
-> reduce the amount of testing needed.  
+> On Sun, 22 Oct 2006 18:00:32 -0400 Jeff Garzik wrote:
+> 
+> > Andi Kleen wrote:
+> > > When you do make pdfdocs  with 2.6.19rc2-git7 you get tons of error 
+> > > messages and  then some corrupted PDFs in the end.
+> > > 
+> > > Fixing that (I suppose it will just need comment fixes and
+> > > should not affect the code) should be a relatively easy task for 
+> > > a newbie and  would be useful for the 2.6.19 release.
+> > 
+> > What userland were you using?  Unfortunately with 'make *docs' that matters.
+> > 
+> > Unquestionably, there is breakage regardless of distro.
+> 
+> I find it easier to just use/check make htmldocs && make mandocs
+> to look for errors and to test fixes.  At least as a first pass.
 
-Sounds like a good thing.
+and those (htmldocs, mandocs) won't catch the errors that
+Andi is seeing.  :(
 
-> It would also force me to upgrade my home machine.
-
-Why? AFAIK there are no VT machines that don't support EM64T.
-
-If you mean you have 32bit userland you can certainly use a 64bit kernel
-with 32bit userland.
-
--Andi
+---
+~Randy

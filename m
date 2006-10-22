@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423026AbWJVFsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423034AbWJVG3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423026AbWJVFsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 01:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423000AbWJVFsJ
+	id S1423034AbWJVG3W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 02:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423037AbWJVG3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 01:48:09 -0400
-Received: from mms2.broadcom.com ([216.31.210.18]:53520 "EHLO
-	mms2.broadcom.com") by vger.kernel.org with ESMTP id S1423014AbWJVFsH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 01:48:07 -0400
-X-Server-Uuid: 79DB55DB-3CB4-423E-BEDB-D0F268247E63
-Content-class: urn:content-classes:message
+	Sun, 22 Oct 2006 02:29:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:29277 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1423034AbWJVG3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 02:29:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=J4qBcXdyveTczF/Bh81/dcoQIpfHzgIrNkxm1MsXQQiJNWarpa690fVO6TGFkdQattflWGwwid4o1xtrC2uATWLWIQOON5/p19HpWOp+ETMQFAUG2gViBdNMrxwyAyVHq6dx/R0eILex1D58bmv5foEhgkGIZcy3MGXWCUr2PT4=
+Message-ID: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com>
+Date: Sun, 22 Oct 2006 11:59:20 +0530
+From: "Sandeep Kumar" <sandeepksinha@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PAE and PSE ??
 MIME-Version: 1.0
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: Re: tg3 kernel bug in 2.6.18-mm3 and 2.6.19-rc2-mm2
-Date: Sat, 21 Oct 2006 22:47:52 -0700
-Message-ID: <1551EAE59135BE47B544934E30FC4FC093FC5D@NT-IRVA-0751.brcm.ad.broadcom.com>
-In-Reply-To: <20061021234107.GA12918@gamma.logic.tuwien.ac.at>
-Thread-Topic: tg3 kernel bug in 2.6.18-mm3 and 2.6.19-rc2-mm2
-Thread-Index: Acb1aodFdQyn8TwRR36Y39HJEPrifAAMqZbQ
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Norbert Preining" <preining@logic.at>, "Andrew Morton" <akpm@osdl.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, "David Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-X-WSS-ID: 6925D98038S1535194-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Preining wrote:
-> On Sam, 21 Okt 2006, Andrew Morton wrote:
-> > Can you test 2.6.19-rc2 plus the below?
-> 
-> 2.6.19-rc2	works
-> 2.6.19-rc2+patch does not work
-> 
-> So it is this patch.
-> 
-It doesn't make any sense.  This patch is totally benign and
-cannot cause the "No firmware running" and lockup that you
-reported.  Can you please double-check?
+Hi all,
+I have read in UTLK by bovet that the linux kernel does not uses the
+PSE bit on an x86
+machine. Then how come we have the hugetlbfs, which provides support
+for 4MB pages ?
 
+
+
+-- 
+Regards,
+Sandeep
+
+
+
+
+
+Winners expect to win in advance. Life is a self-fulfilling prophecy.

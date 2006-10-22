@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWJVVdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWJVVrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWJVVdi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 17:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWJVVdi
+	id S1750701AbWJVVrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 17:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWJVVrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 17:33:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45457 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750771AbWJVVdh (ORCPT
+	Sun, 22 Oct 2006 17:47:49 -0400
+Received: from ns1.suse.de ([195.135.220.2]:65200 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750701AbWJVVrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 17:33:37 -0400
+	Sun, 22 Oct 2006 17:47:48 -0400
 From: Andi Kleen <ak@suse.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Subject: Re: [PATCH] x86-64: typo in __assign_irq_vector when updating pos for vector and offset
-Date: Sun, 22 Oct 2006 23:33:31 +0200
+To: linux-kernel@vger.kernel.org
+Subject: make pdfdocs broken in 2.6.19rc2 and needs fixes
+Date: Sun, 22 Oct 2006 23:47:42 +0200
 User-Agent: KMail/1.9.5
-Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <200610212100.k9LL0GtC018787@hera.kernel.org> <86802c440610220902q648a7fc8p38fd9a3391f5bc5d@mail.gmail.com> <86802c440610220919h5e2fb98axb5ba4dd4d073171@mail.gmail.com>
-In-Reply-To: <86802c440610220919h5e2fb98axb5ba4dd4d073171@mail.gmail.com>
+Cc: kernel-janitors@lists.osdl.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610222333.31834.ak@suse.de>
+Message-Id: <200610222347.42418.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 October 2006 18:19, yhlu wrote:
-> andi,
-> 
-> the per_cpu only can be used with online cpus?
 
-It can be used for all possible cpus. This means some subsystems
-initialize their state only for online CPUs, but the compile
-time initialization is available for all possible ones.
+When you do make pdfdocs  with 2.6.19rc2-git7 you get tons of error 
+messages and  then some corrupted PDFs in the end.
+
+Fixing that (I suppose it will just need comment fixes and
+should not affect the code) should be a relatively easy task for 
+a newbie and  would be useful for the 2.6.19 release.
 
 -Andi

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWJVW2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWJVW2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWJVW2x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 18:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWJVW2x
+	id S1750757AbWJVW2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 18:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWJVW2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 18:28:53 -0400
-Received: from xenotime.net ([66.160.160.81]:52203 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750807AbWJVW2w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 18:28:52 -0400
-Date: Sun, 22 Oct 2006 15:30:29 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Jeff Garzik <jeff@garzik.org>, kernel-janitors@lists.osdl.org,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [KJ] make pdfdocs broken in 2.6.19rc2 and needs fixes
-Message-Id: <20061022153029.af3b382b.rdunlap@xenotime.net>
-In-Reply-To: <20061022151600.a21859df.rdunlap@xenotime.net>
-References: <200610222347.42418.ak@suse.de>
-	<453BEA00.4000601@garzik.org>
-	<20061022151600.a21859df.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Oct 2006 18:28:37 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2228 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750757AbWJVW2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 18:28:36 -0400
+Subject: Re: [PATCH 1/1] Char: mxsers, correct tty driver name
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <45395451.6090302@gmail.com>
+References: <3160912811766612133@muni.cz>
+	 <20061019150212.6c95f6bf.akpm@osdl.org>  <45395451.6090302@gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Oct 2006 23:31:29 +0100
+Message-Id: <1161556289.1919.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Oct 2006 15:16:00 -0700 Randy Dunlap wrote:
-
-> On Sun, 22 Oct 2006 18:00:32 -0400 Jeff Garzik wrote:
-> 
-> > Andi Kleen wrote:
-> > > When you do make pdfdocs  with 2.6.19rc2-git7 you get tons of error 
-> > > messages and  then some corrupted PDFs in the end.
-> > > 
-> > > Fixing that (I suppose it will just need comment fixes and
-> > > should not affect the code) should be a relatively easy task for 
-> > > a newbie and  would be useful for the 2.6.19 release.
+Ar Sad, 2006-10-21 am 00:56 +0159, ysgrifennodd Jiri Slaby:
+> Andrew Morton wrote:
+> > On Thu, 19 Oct 2006 16:10:10 +0200
+> > Jiri Slaby <jirislaby@gmail.com> wrote:
 > > 
-> > What userland were you using?  Unfortunately with 'make *docs' that matters.
+> >> Mxser tty driver name should be ttyMI, not ttyM. Correct this in both
+> >> drivers (mxser, mxser_new) to avoid conflicts with isicom driver, which is
+> >> ttyM.
 > > 
-> > Unquestionably, there is breakage regardless of distro.
+> > Is the mxser.c part needed in mainline?
 > 
-> I find it easier to just use/check make htmldocs && make mandocs
-> to look for errors and to test fixes.  At least as a first pass.
+> Anybody more responsible doesn't tell anything; I say "no", but it may be
+> irrelevant.
 
-and those (htmldocs, mandocs) won't catch the errors that
-Andi is seeing.  :(
+I think it should go into -mm for a first cut just in case it blows
+anything up. I don't think the hardware has many users any more so
+hopefully it wont be disruptive.
 
----
-~Randy

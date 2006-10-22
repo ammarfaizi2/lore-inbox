@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423086AbWJVGjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423079AbWJVGjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423086AbWJVGjL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 02:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423084AbWJVGjK
+	id S1423079AbWJVGjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 02:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423084AbWJVGjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 02:39:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38596 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423049AbWJVGjI (ORCPT
+	Sun, 22 Oct 2006 02:39:33 -0400
+Received: from smtp104.plus.mail.re2.yahoo.com ([206.190.53.29]:43663 "HELO
+	smtp104.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1423079AbWJVGjb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 02:39:08 -0400
-Date: Sat, 21 Oct 2006 23:39:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linuxraid@amcc.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: 3Ware delayed device mounting errors with newer 9500 series
- adapters
-Message-Id: <20061021233904.c2f40a5f.akpm@osdl.org>
-In-Reply-To: <453A52CE.80605@wolfmountaingroup.com>
-References: <453A52CE.80605@wolfmountaingroup.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Oct 2006 02:39:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:MIME-Version:Content-Type:Content-Disposition:User-Agent:Content-Transfer-Encoding;
+  b=MCkCBoSoF4Ry6cwUgQUzzDVM4WdVSOPEkW5m9YdN65TErQCvK8VgxjV5lONvFaJOpEg9b1k3HgDAheURQ3CbJFy+csGIe+ZYMRy28KkYoqIaMcCBzPmXkQpdcn9aisp/F2ynZocuNr0NNVYpHjti5aPaO3K4AJ82oMgc99tWtK4=  ;
+Date: Sun, 22 Oct 2006 08:39:24 +0200
+From: Borislav Petkov <bbpetkov@yahoo.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [PATCH] do not compile Sony Vaio extras as a module per default
+Message-ID: <20061022063924.GA7177@gollum.tnic>
+Reply-To: petkov@math.uni-muenster.de
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Oct 2006 11:03:10 -0600
-"Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com> wrote:
 
-> 
-> Adam,
-> 
-> We have been getting 3Ware 9500 series adapters in the past 60 days 
-> which exhibit a delayed behavior during mounting of FS from
-> /etc/fstab.   The adapters older than this do not exhibit this behavior. 
-> 
-> During bootup, if the driver is compiled as a module rather than in 
-> kernel, mount points such as /var in fstab fail to detect the devices
-> until the system fully boots, at which point the /dev/sdb etc. devices 
-> showup.  It happens on both ATA cabled drives and drives
-> cabled with multi-lane controller backplanes.
-> 
-> The problem is easy to reproduce.  Install ES4, point the /var directory 
-> during install to one of the array devices in disk druid, and after
-> the install completes, /var/ will not mount during bootup and all sorts 
-> of errors stream off the screen.  I can reproduce the problem
-> with several systems in our labs and upon investigating the adapter 
-> revisions, I find that adapters ordered in the past 60 days exhibit
-> the problem.   Compiling the driver in kernel gets around the problem, 
-> indicating its timing related.
-> 
+Signed-off-by: <petkov@math.uni-muenster.de>
 
-cc's added.
+--- current/drivers/acpi/Kconfig.orig	2006-10-21 10:02:23.000000000 +0200
++++ current/drivers/acpi/Kconfig	2006-10-21 10:02:30.000000000 +0200
+@@ -262,7 +262,6 @@ config ACPI_SONY
+ 	tristate "Sony Laptop Extras"
+ 	depends on X86 && ACPI
+ 	select BACKLIGHT_CLASS_DEVICE
+-	default m
+ 	  ---help---
+ 	  This mini-driver drives the ACPI SNC device present in the
+ 	  ACPI BIOS of the Sony Vaio laptops.
+
+-- 
+Regards/Gruß,
+    Boris.
+
+	
+
+	
+		
+___________________________________________________________ 
+Der frühe Vogel fängt den Wurm. Hier gelangen Sie zum neuen Yahoo! Mail: http://mail.yahoo.de

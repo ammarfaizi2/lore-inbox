@@ -1,76 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWJVSzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWJVTHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWJVSzl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 14:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWJVSzl
+	id S1750791AbWJVTHM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 15:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWJVTHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 14:55:41 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:31924 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750834AbWJVSzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 14:55:40 -0400
-Message-ID: <453BBEA6.7050402@qumranet.com>
-Date: Sun, 22 Oct 2006 20:55:34 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sun, 22 Oct 2006 15:07:12 -0400
+Received: from dvhart.com ([64.146.134.43]:23219 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750739AbWJVTHK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 15:07:10 -0400
+Message-ID: <453BC0E7.1060308@mbligh.org>
+Date: Sun, 22 Oct 2006 12:05:11 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <200610222036.03455.arnd@arndb.de> <453BBB41.4070905@qumranet.com> <200610222049.36338.arnd@arndb.de>
-In-Reply-To: <200610222049.36338.arnd@arndb.de>
+To: "Martin J. Bligh" <mbligh@google.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: Strange errors from e1000 driver (2.6.18)
+References: <453BBC9E.4040300@google.com>
+In-Reply-To: <453BBC9E.4040300@google.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2006 18:55:39.0956 (UTC) FILETIME=[AAEFE740:01C6F60B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Sunday 22 October 2006 20:41, Avi Kivity wrote:
->   
->>> Ok, but if you radically change the kernel<->user API, doesn't that mean
->>> you have to upgrade in the same way?
->>>       
->> No, why? I'd just upgrade the userspace.  Am I misunderstanding you?
->>     
->
-> If you change the kernel interface, you also have to change the kernel
-> itself, at least if you introduce new syscalls.
->
->   
+Martin J. Bligh wrote:
+> I'm getting a lot of these type of errors if I run 2.6.18. If
+> I run the standard Ubuntu Dapper kernel, I don't get them.
+> What do they indicate?
+> 
+> Oct 21 18:48:28 localhost kernel: buffer_info[next_to_clean]
+> Oct 21 18:48:28 localhost kernel:   time_stamp           <7b79d33>
+> Oct 21 18:48:28 localhost kernel:   next_to_watch        <3d>
+> Oct 21 18:48:28 localhost kernel:   jiffies              <7b7a0c1>
+> Oct 21 18:48:28 localhost kernel:   next_to_watch.status <0>
+> Oct 21 18:48:30 localhost kernel:   Tx Queue             <0>
+> Oct 21 18:48:30 localhost kernel:   TDH                  <3d>
+> Oct 21 18:48:30 localhost kernel:   TDT                  <44>
+> Oct 21 18:48:30 localhost kernel:   next_to_use          <44>
+> Oct 21 18:48:30 localhost kernel:   next_to_clean        <39>
+> Oct 21 18:48:30 localhost kernel: buffer_info[next_to_clean]
+> Oct 21 18:48:30 localhost kernel:   time_stamp           <7b79d33>
+> Oct 21 18:48:30 localhost kernel:   next_to_watch        <3d>
+> Oct 21 18:48:30 localhost kernel:   jiffies              <7b7a2b5>
+> Oct 21 18:48:30 localhost kernel:   next_to_watch.status <0>
+> Oct 21 18:48:32 localhost kernel:   Tx Queue             <0>
+> Oct 21 18:48:32 localhost kernel:   TDH                  <3d>
+> Oct 21 18:48:32 localhost kernel:   TDT                  <44>
+> Oct 21 18:48:32 localhost kernel:   next_to_use          <44>
+> Oct 21 18:48:32 localhost kernel:   next_to_clean        <39>
+> Oct 21 18:48:32 localhost kernel: buffer_info[next_to_clean]
+> Oct 21 18:48:32 localhost kernel:   time_stamp           <7b79d33>
+> Oct 21 18:48:32 localhost kernel:   next_to_watch        <3d>
+> Oct 21 18:48:32 localhost kernel:   jiffies              <7b7a4a9>
+> Oct 21 18:48:32 localhost kernel:   next_to_watch.status <0>
+> Oct 21 18:48:34 localhost kernel:   Tx Queue             <0>
+> Oct 21 18:48:34 localhost kernel:   TDH                  <3d>
+> Oct 21 18:48:34 localhost kernel:   TDT                  <44>
+> Oct 21 18:48:34 localhost kernel:   next_to_use          <44>
+> Oct 21 18:48:34 localhost kernel:   next_to_clean        <39>
+> Oct 21 18:48:34 localhost kernel: buffer_info[next_to_clean]
+> Oct 21 18:48:34 localhost kernel:   time_stamp           <7b79d33>
+> Oct 21 18:48:34 localhost kernel:   next_to_watch        <3d>
+> Oct 21 18:48:34 localhost kernel:   jiffies              <7b7a69d>
+> Oct 21 18:48:34 localhost kernel:   next_to_watch.status <0>
+> Oct 21 18:48:35 localhost kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Oct 21 18:48:36 localhost kernel: e1000: eth0: e1000_watchdog: NIC Link 
+> is Up 100 Mbps Full Duplex
 
-But I don't have to upgrade all my software to 64 bit [but 32-bit 
-emulation solves that].
+Actually, maybe this set is more helpful:
 
-Still, an upgrade to the next 32-bit kernel could be seen as less 
-threatening.
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+   Tx Queue             <0>
+   TDH                  <6>
+   TDT                  <1f>
+   next_to_use          <1f>
+   next_to_clean        <2>
+buffer_info[next_to_clean]
+   time_stamp           <2de8b54>
+   next_to_watch        <6>
+   jiffies              <2de8db7>
+   next_to_watch.status <0>
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+   Tx Queue             <0>
+   TDH                  <6>
+   TDT                  <1f>
+   next_to_use          <1f>
+   next_to_clean        <2>
+buffer_info[next_to_clean]
+   time_stamp           <2de8b54>
+   next_to_watch        <6>
+   jiffies              <2de8fab>
+   next_to_watch.status <0>
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+   Tx Queue             <0>
+   TDH                  <6>
+   TDT                  <1f>
+   next_to_use          <1f>
+   next_to_clean        <2>
+buffer_info[next_to_clean]
+   time_stamp           <2de8b54>
+   next_to_watch        <6>
+   jiffies              <2de919f>
+   next_to_watch.status <0>
+NETDEV WATCHDOG: eth0: transmit timed out
+e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
 
-
->>> The 32 bit emulation mode in x86_64
->>> is actually pretty complete, so it probably boils down to a kernel
->>> upgrade for you, without having to touch any of the user space.
->>>  
->>>       
->> For me personally, I don't mind.  I don't know about others.
->>     
->
-> I'd really love to see your code in get into the mainline kernel,
-> but I'd consider 32 bit host support an unnecessary burden for
-> long-term maintenance. Maybe you could maintain the 32 bit version
-> out of tree as long as there is still interest? I would expect that
-> at least the point where it works out of the box on x86_64
-> distros is when it becomes completely obsolete.
->   
-
-One of my motivations was to get testers who run 32-bit for historical 
-or flash plugin reasons.
-
-If there is a consensus that it should be dropped, though, I'll drop 
-it.  I certainly didn't have any fun getting it to run.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

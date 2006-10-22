@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWJVLVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWJVLqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWJVLVh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 07:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWJVLVh
+	id S1751776AbWJVLqz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 07:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWJVLqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 07:21:37 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:57242 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP
-	id S1750829AbWJVLVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 07:21:36 -0400
-Subject: [PATCH] [4th RESEND]  Remove logic error in
-	/Documentation/devices.txt
-From: Marcus Fischer <marcus-fischer@web.de>
-Reply-To: marcus-fischer@web.de
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@suse.de
-Content-Type: text/plain
-Date: Sun, 22 Oct 2006 13:24:53 -0400
-Message-Id: <1161537893.3657.4.camel@mflaptop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Sun, 22 Oct 2006 07:46:55 -0400
+Received: from as3.cineca.com ([130.186.84.211]:55184 "EHLO as3.cineca.com")
+	by vger.kernel.org with ESMTP id S1751776AbWJVLqz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 07:46:55 -0400
+From: Luca Risolia <luca.risolia@studio.unibo.it>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sn9c10x list corruption in 2.6.18.1
+Date: Sun, 22 Oct 2006 13:46:52 +0200
+User-Agent: KMail/1.9.1
+References: <20061022031145.GA24855@redhat.com>
+In-Reply-To: <20061022031145.GA24855@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610221346.53038.luca.risolia@studio.unibo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hello Dave.
 
-can someone please tell me what I'm doing wrong with this commit?
-I'm lacking experience, but I thought I understood the process correct.
+> I found one area in the driver where we do list manipulation without any locking,
+> but I'm not entirely convinced that this is the source of the bug yet.
 
-Please send me some feedback that I can rework/modify the patch if required.
+Spinlocks are not necessary there, becouse that piece of code is already
+isolated when running, to prevent concurrent accesses to the list from within 
+the irq handler. The bug should be elsewhere (probably not in the driver).
 
-
-Thanks,
-Marcus
-
-PS: Please CC me, I'm not on this list.
-
+Best regards
+Luca
 
 
-commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
-Author: Marcus Fischer <linux@marcusfischer.com>
-Date:   Fri Sep 29 23:50:01 2006 +0200
-
-    I found an logic error in the following commit:
-    
-        author    Steven Haigh <netwiz@crc.id.au>
-                  Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
-        committer Greg Kroah-Hartman <gregkh@suse.de>
-                  Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
-        commit    03270634e242dd10cc8569d31a00659d25b2b8e7
-        tree      8f4665eb7b17386e733fcdc7d02e87c4a1592550
-        parent    8ac283ad415358f022498887811c35ac656b5222
-    
-Documentation/devices.txt may either say 
-../adutux10 11th OntrackADU device    or 
-../adutux9 10th Ontrack ADU device.
-
-Anyway, the original one makes no sense:
-   
-+ 67 = /dev/usb/adutux0 1st Ontrak ADU device
-+ ...
-+ 76 = /dev/usb/adutux10 10th Ontrak ADU device
-
-This patch removes the logic error.
-
-However, I saw that MAX_DEVICES is 16.
-Thus, shouldn't this docu then say:
-"81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
-
-Best,
-Marcus
-
-
-
-Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
----
-
-diff --git a/Documentation/devices.txt b/Documentation/devices.txt
-index addc67b..37efae8 100644
---- a/Documentation/devices.txt
-+++ b/Documentation/devices.txt
-@@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
-66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
-67 = /dev/usb/adutux0 1st Ontrak ADU device
-    ...
-- 76 = /dev/usb/adutux10 10th Ontrak ADU device
-+ 76 = /dev/usb/adutux9 10th Ontrak ADU device
-96 = /dev/usb/hiddev0 1st USB HID device
-    ...
-111 = /dev/usb/hiddev15 16th USB HID device
-
-
-
+> > --- linux-2.6.18.noarch/drivers/media/video/sn9c102/sn9c102_core.c~	2006-10-21 22:57:32.000000000 -0400
+> +++ linux-2.6.18.noarch/drivers/media/video/sn9c102/sn9c102_core.c	2006-10-21 22:58:43.000000000 -0400
+> @@ -197,13 +197,16 @@ static void sn9c102_empty_framequeues(st
+>  static void sn9c102_requeue_outqueue(struct sn9c102_device* cam)
+>  {
+>  	struct sn9c102_frame_t *i;
+> +	unsigned long lock_flags;
+>  
+> +	spin_lock_irqsave(&cam->queue_lock, lock_flags);
+>  	list_for_each_entry(i, &cam->outqueue, frame) {
+>  		i->state = F_QUEUED;
+>  		list_add(&i->frame, &cam->inqueue);
+>  	}
+>  
+>  	INIT_LIST_HEAD(&cam->outqueue);
+> +	spin_unlock_irqrestore(&cam->queue_lock, lock_flags);
+>  }

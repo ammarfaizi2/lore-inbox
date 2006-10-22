@@ -1,110 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWJVT1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWJVToq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWJVT1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 15:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWJVT1Q
+	id S1751123AbWJVToq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 15:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWJVToq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 15:27:16 -0400
-Received: from mail.trixing.net ([87.230.125.58]:29634 "EHLO mail.trixing.net")
-	by vger.kernel.org with ESMTP id S1750966AbWJVT1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 15:27:15 -0400
-Message-ID: <453BC60E.8090907@l4x.org>
-Date: Sun, 22 Oct 2006 21:27:10 +0200
-From: Jan Dittmer <jdi@l4x.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060812 Thunderbird/1.5.0.5 Mnenhy/0.7.4.666
+	Sun, 22 Oct 2006 15:44:46 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:31366 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751123AbWJVTop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 15:44:45 -0400
+X-Sasl-enc: gxCnmGDiSGSvQ7dPRkcNrIwXaZRW79Dv259n5QwtuQxm 1161546283
+Message-ID: <453BCABB.6000204@imap.cc>
+Date: Sun, 22 Oct 2006 21:47:07 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.1.37
-X-SA-Exim-Mail-From: jdi@l4x.org
-Subject: Long IO pauses
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 14:12:04 +0200)
-X-SA-Exim-Scanned: Yes (on mail.trixing.net)
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: driver's tasklets stop being executed - how to debug?
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigED3FB83479335916BEDF2489"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doing 10*bonnie++ and a cp of a 1 gb taking ages (2+h), this interesting
-vmstat strace can be produced. Notice the ~28s of almost no i/o
-activity.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigED3FB83479335916BEDF2489
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Setup is ext3 on dm-crypt on loop on RAID5. Kernel 2.6.18, amd64,
-cfq io scheduler. Changing the scheduler to deadline leads to the
-same result. Seems to be seek bound would be my guess. But
-virtually _no_ io for 30s??
+I would like some advice on how to debug a strange problem with
+the Gigaset ISDN driver (drivers/isdn/gigaset). All of a sudden,
+both data streams as well as the input control stream experience
+over/underruns:
 
-Ideas?
+bas_gigaset: isochronous write buffer underrun
+bas_gigaset: isochronous read overrun, dropped URB with status: success, =
+64 bytes lost
+bas_gigaset: receive AT data overrun, 12 bytes lost
 
-Thanks,
+It looks as if my driver's tasklets aren't being executed anymore,
+and it doesn't receive URB callbacks anymore, either.
 
-Jan
+As the tasklets have separate spinlocks for synchronization, I
+think it somewhat unlikely (though of course not impossible) that
+this is a locking issue.
+
+Unfortunately, I can't reproduce the problem on any of my own
+machines, and the reporter only observes it irregularly. So my
+only chance is to add debugging output which would tell me, once
+the problem happens again, enough about the system state in order
+to figure out what's going on.
+
+Therefore my questions:
+- What could prevent a scheduled tasklet from executing?
+- What could prevent an URB callback from being delivered?
+- Is there a way to query the state of my tasklets and pending
+  URB callbacks in order to printk something that might provide
+  a clue when the problem strikes next time?
+
+Thanks in advance for any hints.
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
 
 
-procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa
-27  2      0  15948   7184 1671096    0    0    42   531   71   99 49  1 47  3
-24  2      0  15496   7168 1669868    0    0    28 85196 2596 3840 33 67  0  0
-26  2      0  14696   7212 1673868    0    0   104 71388 2384 7371 32 68  0  0
-26  1      0  16368   7216 1662732    0    0   412 79600 2258 6644 37 63  0  0
-26  0      0  16320   7232 1668900    0    0    40 97080 2212 9306 33 67  0  0
-25  0      0  15324   7212 1668804    0    0     4 109204 2290 8091 34 66  0  0
-27  0      0  16648   7232 1670416    0    0     0 100952 2329 10752 34 66  0  0
-23  2      0  15628   7292 1675568    0    0    92 88624 1595 1853 30 64  0  7
-26  1      0  16232   7356 1674360    0    0     0 101036 1926 5837 36 64  0  0
-28  1      0  16368   7432 1671596    0    0     4 99812 1601 12745 32 69  0  0
-27  2      0  15296   7460 1674416    0    0    20 101932 1641 4563 35 65  0  0
- 1 22      0  17924   7440 1677156    0    0   416 67320  990 4569 31 54  0 15
- 0 23      0  20668   7480 1677964    0    0   100 69324 2630 39412  0 23  4 73
- 0 23      0  24756   7480 1677992    0    0     8  3368 1609 15392  0  6  0 94
- 0 22      0  27740   7492 1678032    0    0    20  3840 1524 15311  0  4  1 95
- 0 23      0  28368   7508 1678048    0    0    16 10460 1545 16908  0  8  1 91
- 0 22      0  29368   7508 1678060    0    0    44 51828 2445 35456  0 18  4 77
- 0 22      0  30244   7508 1678112    0    0     0 53984 2020 32759  0 19  2 79
- 0 22      0  38400   7524 1678104    0    0     0 22644 3493 20678  0 14  3 83
- 0 22      0  39284   7524 1678104    0    0     0    16  474  403  0  0  0 100
- 0 22      0  40400   7524 1678112    0    0     0     0  458  310  0  0  0 100
-11 22      0  41532   7532 1678112    0    0     0    32  567  532  0  1  0 99
- 0 22      0  42540   7532 1678112    0    0     0    24  472  497  0  0  0 100
- 0 22      0  43544   7532 1678112    0    0     0     8  467  374  0  0  0 100
- 1 22      0  44668   7540 1678104    0    0    12     0  502  367  0  0  0 100
- 0 22      0  47716   7540 1678112    0    0     0     0  466  322  0  0  0 100
- 0 22      0  51932   7540 1678120    0    0     0     0  548  336  0  0  0 100
- 0 22      0  55360   7540 1678120    0    0     0     0  464  320  0  0  0 100
- 0 22      0  55492   7540 1678120    0    0     0     0  463  307  0  0 15 85
- 4 22      0  55492   7568 1678108    0    0    12   100  504  705  0  1 24 76
- 1 22      0  55616   7568 1678120    0    0     0     0  481  333  0  0 15 84
- 0 22      0  55748   7568 1678120    0    0     0     0  585  373  0  0 50 50
- 0 22      0  55872   7568 1678120    0    0     0    12  467  359  0  0 50 50
- 0 22      0  55872   7568 1678120    0    0     0     8  463  341  0  0 50 50
- 0 22      0  55996   7568 1678120    0    0     0     0  457  290  0  0 50 50
- 0 22      0  55996   7588 1678112    0    0     4    76  490  499  0  0 50 50
- 0 22      0  55988   7600 1678108    0    0     4    48  614  721  0  0 13 87
- 0 22      0  55988   7600 1678120    0    0     0     0  501  371  0  0  0 100
- 0 22      0  56112   7600 1678120    0    0     0     0  465  311  0  0  0 100
- 0 23      0  56064   7660 1678184    0    0   120     0  488  449  2  1  0 97
- 0 24      0  43684   7712 1682604    0    0  4416   104  600 1161  2  2  0 97
- 0 24      0  43692   7712 1682568    0    0     0     0  550  363  0  0  0 100
-25 19      0  26712   7752 1696056    0    0   264  5872  763  945 11  7  0 82
-26 12      0  16496   7800 1712788    0    0   632 44172  515 4054 38 53  0  9
-26 11      0  17012   7804 1712036    0    0    48 69440 1019 8243 38 61  0  1
-24  4      0  16884   7704 1709856    0    0   128 107284 2580 3877 32 68  0  0
-24  5      0  15908   7696 1713756    0    0   652 54496  810 7612 35 66  0  0
-25  0      0  15840   7648 1716956    0    0     4 47380  487 3883 40 60  0  0
-26  1      0  16592   7496 1714384    0    0   752 52372 1008 2668 40 60  0  0
-26  2      0  15952   7348 1712756    0    0    16 79500 1483 2703 35 65  0  0
-25  1      0  15888   7208 1710392    0    0   124 121924 1997 2713 35 65  0  0
-25  0      0  16900   7048 1707220    0    0     0 107020 1829 2865 33 67  0  0
-25  1      0  16804   6968 1715120    0    0   336 101068 1909 5316 33 65  0  2
-29  2      0  15628   6928 1720472    0    0   712 51644  710 6218 38 62  0  0
-26  0      0  15360   6708 1718540    0    0     0 78944  997 13772 30 70  1  0
-24  5      0  16996   6588 1714992    0    0    20 120532 2318 10112 32 68  0  0
-30  5      0  16972   6612 1712060    0    0   276 97880 1756 3526 37 63  0  0
-27  3      0  16312   6512 1718500    0    0    20 102096 1981 4503 34 66  0  0
-25 16      0  15672   6836 1712320    0    0  1324 29048  761 2265 39 36  0 25
-28  8      0  16704   6760 1709436    0    0   100 73980 1172 3956 36 64  0  0
-29  5      0  16640   6696 1707612    0    0     0 119576 2498 16484 31 69  0  0
-27  8      0  16316   6504 1706384    0    0    12 96948 2601 11700 32 68  0  0
-25  4      0  16100   6488 1714172    0    0    52 82184 1682 4525 33 67  0  0
-24 20      0  16744   6532 1712988    0    0   532 51036  560 4602 38 62  0  0
-29 14      0  17128   6528 1709740    0    0    32 74436 1342 5652 34 66  0  0
+--------------enigED3FB83479335916BEDF2489
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFO8q7MdB4Whm86/kRAqCQAJ40YE7Da/ZFMK6cGVrAF2PYorBWTACfclGT
+gHC9/wSkvEedD3c3Ue0voCI=
+=YfKG
+-----END PGP SIGNATURE-----
+
+--------------enigED3FB83479335916BEDF2489--

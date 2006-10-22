@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWJVQmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWJVQvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWJVQmk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 12:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWJVQmk
+	id S1751129AbWJVQvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 12:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWJVQvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 12:42:40 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:32851 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751163AbWJVQmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 12:42:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
-        b=MDoxqRVLlZe/2yZx8S89EP2sq8tBkH01BBCNhgwqPxMu8OT5UA3PNheBpPXmeO8K0V1zRZU0E8IFZDs9/rsnGF5ZXd8i8bLFNH6kznXzBjLDITnM54z/ZmUpYBhaW9BGtMeb7CU/HiGtLq9VmCqn9Ug79xa59hu2SG/b1pYbkfk=
-Message-ID: <86802c440610220942m4fc77edbi7b6d62a2b2b378c5@mail.gmail.com>
-Date: Sun, 22 Oct 2006 09:42:38 -0700
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, "Andi Kleen" <ak@muc.de>,
-       "Muli Ben-Yehuda" <muli@il.ibm.com>
-Subject: [PATCH] x86-64: using cpu_online_map instead of APIC_ALL_CPUS
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	Sun, 22 Oct 2006 12:51:22 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:23492 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751129AbWJVQvV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 12:51:21 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Avi Kivity <avi@qumranet.com>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+Date: Sun, 22 Oct 2006 18:51:06 +0200
+User-Agent: KMail/1.9.5
+Cc: Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de> <453B99D7.1050004@qumranet.com>
+In-Reply-To: <453B99D7.1050004@qumranet.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_150162_12435174.1161535358427"
-X-Google-Sender-Auth: 175bee80d3389469
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610221851.06530.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_150162_12435174.1161535358427
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sunday 22 October 2006 18:18, Avi Kivity wrote:
+> Arnd Bergmann wrote:
 
-Using cpu_online_map instead of APIC_ALL_CPUS for flat apic mode, So
-__assign_irq_vector can refer correct per_cpu data.
+> > We ended up adding a lot more file than we initially planned,
+> > but the interface is really handy, especially if you want to
+> > create some procps-like tools for it.
+>
+> I don't really see the need.  The cell dsps are a shared resource, while
+> virtual machines are just another execution mode of an existing resource
+> - the main cpu, which has a sharing mechanism (the scheduler and
+> priorities).
 
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>
-Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
+I don't think it's that different. The Cell SPU scheduler is also
+implemented in kernel space. Every application using an SPU program
+has its own contexts in spufs and doesn't look at the others.
 
-------=_Part_150162_12435174.1161535358427
-Content-Type: text/x-patch; name=vector_allocation_domain.diff; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_etl6ftub
-Content-Disposition: attachment; filename="vector_allocation_domain.diff"
+While we don't have it yet, we're thinking about adding a sputop
+or something similar that shows the utilization of spus. You don't
+need that one, since get exactly that with the regular top, but you
+might want to have a tool that prints statistics about how often
+your guests drop out of the virtualisation mode, or the number
+of interrupts delivered to them.
 
-ZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9nZW5hcGljX2ZsYXQuYyBiL2FyY2gveDg2
-XzY0L2tlcm5lbC9nZW5hcGljX2ZsYXQuYwppbmRleCA3YzAxZGI4Li40OTBkZjY5IDEwMDY0NAot
-LS0gYS9hcmNoL3g4Nl82NC9rZXJuZWwvZ2VuYXBpY19mbGF0LmMKKysrIGIvYXJjaC94ODZfNjQv
-a2VybmVsL2dlbmFwaWNfZmxhdC5jCkBAIC0zMiw4ICszMiw3IEBAIHN0YXRpYyBjcHVtYXNrX3Qg
-ZmxhdF92ZWN0b3JfYWxsb2NhdGlvbl8KIAkgKiBkZWxpdmVyIGludGVycnVwdHMgdG8gdGhlIHdy
-b25nIGh5cGVydGhyZWFkIHdoZW4gb25seSBvbmUKIAkgKiBoeXBlcnRocmVhZCB3YXMgc3BlY2lm
-aWVkIGluIHRoZSBpbnRlcnJ1cHQgZGVzaXRpbmF0aW9uLgogCSAqLwotCWNwdW1hc2tfdCBkb21h
-aW4gPSB7IHsgWzBdID0gQVBJQ19BTExfQ1BVUywgfSB9OwotCXJldHVybiBkb21haW47CisJcmV0
-dXJuIGNwdV9vbmxpbmVfbWFwOwogfQogCiAvKgo=
-------=_Part_150162_12435174.1161535358427--
+> > Have you thought about simply defining your guest to be a section
+> > of the processes virtual address space? That way you could use
+> > an anonymous mapping in the host as your guest address space, or
+> > even use a file backed mapping in order to make the state persistant
+> > over multiple runs. Or you could map the guest kernel into the
+> > guest real address space with a private mapping and share the
+> > text segment over multiple guests to save L2 and RAM.
+> >  
+>
+> I've thought of it but it can't work on i386 because guest physical
+> address space is larger than virtual address space on i386.  So we
+> mmap("/dev/kvm") with file offsets corresponding to guest physical
+> addresses.
+>
+> I still like that idea, since it allows using hugetlbfs and allowing
+> swapping.  Perhaps we'll just accept the limitation that guests on i386
+> are limited.
+
+What is the point of 32 bit hosts anyway? Isn't this only available
+on x86_64 type CPUs in the first place?
+
+	Arnd <><

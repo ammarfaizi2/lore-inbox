@@ -1,86 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWJVToq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWJVTti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWJVToq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 15:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWJVToq
+	id S1751036AbWJVTti (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 15:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWJVTti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 15:44:46 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:31366 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751123AbWJVTop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 15:44:45 -0400
-X-Sasl-enc: gxCnmGDiSGSvQ7dPRkcNrIwXaZRW79Dv259n5QwtuQxm 1161546283
-Message-ID: <453BCABB.6000204@imap.cc>
-Date: Sun, 22 Oct 2006 21:47:07 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: driver's tasklets stop being executed - how to debug?
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigED3FB83479335916BEDF2489"
+	Sun, 22 Oct 2006 15:49:38 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33759 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751022AbWJVTth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 15:49:37 -0400
+Subject: Re: [PATCH] pata_marvell: switch to pci_iomap as Jeff asked
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <453A7A4C.3090808@pobox.com>
+References: <1161192357.9363.101.camel@localhost.localdomain>
+	 <453A7A4C.3090808@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Oct 2006 20:51:13 +0100
+Message-Id: <1161546674.1919.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigED3FB83479335916BEDF2489
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Ar Sad, 2006-10-21 am 15:51 -0400, ysgrifennodd Jeff Garzik:
+> Please provide code that links successfully, and compiles without 
+> obvious warnings.  pci_ioremap() does not exist; you wanted pci_iomap().
 
-I would like some advice on how to debug a strange problem with
-the Gigaset ISDN driver (drivers/isdn/gigaset). All of a sudden,
-both data streams as well as the input control stream experience
-over/underruns:
-
-bas_gigaset: isochronous write buffer underrun
-bas_gigaset: isochronous read overrun, dropped URB with status: success, =
-64 bytes lost
-bas_gigaset: receive AT data overrun, 12 bytes lost
-
-It looks as if my driver's tasklets aren't being executed anymore,
-and it doesn't receive URB callbacks anymore, either.
-
-As the tasklets have separate spinlocks for synchronization, I
-think it somewhat unlikely (though of course not impossible) that
-this is a locking issue.
-
-Unfortunately, I can't reproduce the problem on any of my own
-machines, and the reporter only observes it irregularly. So my
-only chance is to add debugging output which would tell me, once
-the problem happens again, enough about the system state in order
-to figure out what's going on.
-
-Therefore my questions:
-- What could prevent a scheduled tasklet from executing?
-- What could prevent an URB callback from being delivered?
-- Is there a way to query the state of my tasklets and pending
-  URB callbacks in order to printk something that might provide
-  a clue when the problem strikes next time?
-
-Thanks in advance for any hints.
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
+Sent you the wrong diff, sorry
 
 
---------------enigED3FB83479335916BEDF2489
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFO8q7MdB4Whm86/kRAqCQAJ40YE7Da/ZFMK6cGVrAF2PYorBWTACfclGT
-gHC9/wSkvEedD3c3Ue0voCI=
-=YfKG
------END PGP SIGNATURE-----
-
---------------enigED3FB83479335916BEDF2489--

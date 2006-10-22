@@ -1,83 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWJVRTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWJVRkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWJVRTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 13:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWJVRTT
+	id S1751326AbWJVRkG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 13:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWJVRkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 13:19:19 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:29403 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751311AbWJVRTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 13:19:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QIfGV4cR1VG4+sfIi6ERVvYGw1/6enHq4VPfXPNKPWfPDCfEBcU+EsdQ3ERe+1bzcEazKhvTy7dgxi3AesWQIBLMiSfiQlZW4pOY4/YCV4aBVf7zFfwgSwgLkZwmwTJUFzeG/qJ4nlgkEvmRFYLcalTNGgtyf3A7UibrwYPdG4Q=
-Message-ID: <b1bc6a000610221019i47283722g3b8f4a79918c4825@mail.gmail.com>
-Date: Sun, 22 Oct 2006 10:19:16 -0700
-From: "adam radford" <aradford@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 3Ware delayed device mounting errors with newer 9500 series adapters
-Cc: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linuxraid@amcc.com,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20061021233904.c2f40a5f.akpm@osdl.org>
+	Sun, 22 Oct 2006 13:40:05 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:54419 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751326AbWJVRkE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 13:40:04 -0400
+Message-ID: <453BACEF.9010106@us.ibm.com>
+Date: Sun, 22 Oct 2006 12:39:59 -0500
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>
+CC: Arnd Bergmann <arnd@arndb.de>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <20061019173151.GD4957@rhun.haifa.ibm.com> <4537BD27.7050509@qumranet.com> <200610211816.27964.arnd@arndb.de> <453B2DDB.3010303@qumranet.com>
+In-Reply-To: <453B2DDB.3010303@qumranet.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <453A52CE.80605@wolfmountaingroup.com>
-	 <20061021233904.c2f40a5f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
-
-Can you reproduce with 2.6.18.1?  ES4 contains a custom 3ware driver.
-
-Also, you have included no error output with this email whatsoever.  Can
-you go to a virtual console during your ES4 install, run 'dmesg', and see if
-the errors are in there, or if they are a part of the ES4 anaconda installer?
-
-/dev/sdb, etc. having delayed appearances sounds like it is udev related.
-
-Are you running the latest firmware?  Do your controllers older than 60 days
-have different firmware?
-
-I will try to reproduce this.
-
--Adam
-
-On 10/21/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Sat, 21 Oct 2006 11:03:10 -0600
-> "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com> wrote:
+Avi Kivity wrote:
+> Arnd Bergmann wrote:
+>> This looks _a_lot_ like what we're doing for the SPUs in the cell 
+>> processor,
+>> except that we're using different calls into the kernel. Have you looked
+>> into what we have implemented there? The code is in
+>> arch/powerpc/platforms/cell/spufs. I think it would be a good 
+>> abstraction
+>> to use for you as well, maybe we could even move to a common 
+>> infrastructure,
+>> as I have heard from a few other projects that want to do similar 
+>> things.
+>>
+>> The main differences to your interface are:
+>>
+>> - A file system is used instead of a character device
+>> - Directories, not open file descriptors represent contexts
+>> - Two new syscalls were introduced (spu_create/spu_run)
+>> - instead of ioctls, files represent different bits of information,
+>>   you can read/write, poll or mmap them.
+>>
+>> Your example above could translate to something like:
+>>
+>>    int kvm_fd = kvm_create("/kvm/my_vcpu")
+>>    int mem_fd = openat(kvm_fd, "mem", O_RDWR);
+>>    void *mem = mmap(mem_fd, ...); // main memory
+>>    void *fbmem = mmap(mem_fd, ...); // frame buffer memory
+>>    int regs_fd = openat(kvm_fd, "regs", O_RDWR);
+>>    int irq_fd = openat(kvm_fd, "regs", O_WRONLY);
+>>
+>>    if (debugger) {
+>>      int fd = openat(fvm_fd, "debug", O_WRONLY);
+>>      write(fd, "1", 1);
+>>      close(fd);
+>>    }
+>>    while (1) {
+>>       int exit_reason = kvm_run(kvm_fd, &kvm_descriptor);
+>>       switch (exit reason) {
+>>           handle mmio, I/O etc. might call
+>>              write(irq_fd, &interrupt_packet, sizeof 
+>> (interrupt_packet));
+>>              pread(regs_fd, &rax, sizeof rax, KVM_REG_RAX);
+>>    }
+>>   
 >
-> >
-> > Adam,
-> >
-> > We have been getting 3Ware 9500 series adapters in the past 60 days
-> > which exhibit a delayed behavior during mounting of FS from
-> > /etc/fstab.   The adapters older than this do not exhibit this behavior.
-> >
-> > During bootup, if the driver is compiled as a module rather than in
-> > kernel, mount points such as /var in fstab fail to detect the devices
-> > until the system fully boots, at which point the /dev/sdb etc. devices
-> > showup.  It happens on both ATA cabled drives and drives
-> > cabled with multi-lane controller backplanes.
-> >
-> > The problem is easy to reproduce.  Install ES4, point the /var directory
-> > during install to one of the array devices in disk druid, and after
-> > the install completes, /var/ will not mount during bootup and all sorts
-> > of errors stream off the screen.  I can reproduce the problem
-> > with several systems in our labs and upon investigating the adapter
-> > revisions, I find that adapters ordered in the past 60 days exhibit
-> > the problem.   Compiling the driver in kernel gets around the problem,
-> > indicating its timing related.
-> >
+> [cc'ing some others to solicit their opinion]
 >
-> cc's added.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> I like this.  Since we plan to support multiple vcpus per vm, the fs 
+> structure might look like:
+
+I like the idea of a filesystem.  In particular, if you exposed the CPU 
+state as a mmap()'able file, you could read/write from userspace without 
+any syscall overhead.
+
+There are some clever ways that you could get around need that many 
+syscalls.  For instance, you could have a "paused" file that you could 
+write a "1" into in order to run the guest (assuming that the memory/CPU 
+state is setup properly).
+
+You could then have an "event" file that you could select() for read 
+on.  When "event" became readable, you could read the exit reason, do 
+whatever is needed, and then write a "1" into "paused" again.
+
+Perhaps an ioctl is better for pausing/unpausing but I do think it's 
+necessary to select() on something to wait for the next exit reason to 
+occur.
+
+Regards,
+
+Anthony Liguori
+
+> /kvm/my_vm
+>    |
+>    +----memory          # mkdir to create memory slot.
+>    |     |              #    how to set size and offset?
+>    |     |
+>    |     +---0          # guest physical memory slot
+>    |         |
+>    |         +-- dirty_bitmap  # read to get and atomically reset
+>    |                           # the changed pages log
+>    |
+>    |
+>    +----cpu             # mkdir/rmdir to create/remove vcpu
+>          |
+>          +----0
+>          |     |
+>          |     +--- irq     # write to inject an irq
+>          |     |
+>          |     +--- regs    # read/write to get/set registers
+>          |     |
+>          |     +--- debugger   # write to set breakpoints/singlestep mode
+>          |
+>          +----1
+>                [...]
 >
+> It's certainly a lot more code though, and requires new syscalls.  
+> Since this is a little esoteric does it warrant new syscalls?
+>
+

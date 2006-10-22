@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWJVXhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWJVXiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWJVXhv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 19:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWJVXhv
+	id S1750785AbWJVXiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 19:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWJVXiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 19:37:51 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:30929 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750764AbWJVXhv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 19:37:51 -0400
-Message-ID: <453C00B7.3040909@zytor.com>
-Date: Sun, 22 Oct 2006 16:37:27 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Sandeep Kumar <sandeepksinha@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: PAE and PSE ??
-References: <37d33d830610212329o420e0ee4i75e6bddfcf2fb772@mail.gmail.com> <200610221215.26525.rjw@sisk.pl>
-In-Reply-To: <200610221215.26525.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 22 Oct 2006 19:38:09 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:14013 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1750785AbWJVXiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 19:38:07 -0400
+Subject: [PATCH] Cleanup whitespace in freezer output.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Content-Type: text/plain
+Date: Mon, 23 Oct 2006 09:38:05 +1000
+Message-Id: <1161560285.7438.60.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Sunday, 22 October 2006 08:29, Sandeep Kumar wrote:
->> Hi all,
->> I have read in UTLK by bovet that the linux kernel does not uses the
->> PSE bit on an x86
->> machine. Then how come we have the hugetlbfs, which provides support
->> for 4MB pages ?
-> 
-> AFAIK, PSE is only used when PAE is not set and then it enables the 4 MB
-> pages.  If PAE is set, the 4 MB pages are impossible because there are only
-> 512 entries per page table, but 2 MB pages can be used instead (and you don't
-> need to set PSE to use them).
-> 
+Minor whitespace and formatting modifications for the freezer.
 
-You're wrong.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-PSE refers to 4 MB pages when PAE is not used, and 2 MB pages when PAE 
-is used.
+diff --git a/kernel/power/process.c b/kernel/power/process.c
+index b0edfc6..fedabad 100644
+--- a/kernel/power/process.c
++++ b/kernel/power/process.c
+@@ -86,7 +86,7 @@ int freeze_processes(void)
+ 	unsigned long start_time;
+ 	struct task_struct *g, *p;
+ 
+-	printk( "Stopping tasks: " );
++	printk("Stopping tasks... ");
+ 	start_time = jiffies;
+ 	user_frozen = 0;
+ 	do {
+@@ -134,21 +134,21 @@ int freeze_processes(void)
+ 	 * but it cleans up leftover PF_FREEZE requests.
+ 	 */
+ 	if (todo) {
+-		printk( "\n" );
+-		printk(KERN_ERR " stopping tasks timed out "
++		printk("\n");
++		printk(KERN_ERR "Stopping tasks timed out "
+ 			"after %d seconds (%d tasks remaining):\n",
+ 			TIMEOUT / HZ, todo);
+ 		read_lock(&tasklist_lock);
+ 		do_each_thread(g, p) {
+ 			if (freezeable(p) && !frozen(p))
+-				printk(KERN_ERR "  %s\n", p->comm);
++				printk(KERN_ERR " %s\n", p->comm);
+ 			cancel_freezing(p);
+ 		} while_each_thread(g, p);
+ 		read_unlock(&tasklist_lock);
+ 		return todo;
+ 	}
+ 
+-	printk( "|\n" );
++	printk("done.\n");
+ 	BUG_ON(in_atomic());
+ 	return 0;
+ }
+@@ -157,18 +157,18 @@ void thaw_processes(void)
+ {
+ 	struct task_struct *g, *p;
+ 
+-	printk( "Restarting tasks..." );
++	printk("Restarting tasks... ");
+ 	read_lock(&tasklist_lock);
+ 	do_each_thread(g, p) {
+ 		if (!freezeable(p))
+ 			continue;
+ 		if (!thaw_process(p))
+-			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
++			printk(KERN_INFO "Strange, %s not stopped\n", p->comm);
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
+ 	schedule();
+-	printk( " done\n" );
++	printk("done.\n");
+ }
+ 
+ EXPORT_SYMBOL(refrigerator);
 
-In theory, you could have PAE without PSE, which would only support 4K 
-pages.
 
-Linux uses PSE; it may or may not use PAE depending on the configuration.
-
-	-hpa

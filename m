@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWJVW2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWJVW3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWJVW2h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 18:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWJVW2h
+	id S1750811AbWJVW3D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 18:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWJVW3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 18:28:37 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2228 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750757AbWJVW2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 18:28:36 -0400
-Subject: Re: [PATCH 1/1] Char: mxsers, correct tty driver name
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <45395451.6090302@gmail.com>
-References: <3160912811766612133@muni.cz>
-	 <20061019150212.6c95f6bf.akpm@osdl.org>  <45395451.6090302@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 22 Oct 2006 23:31:29 +0100
-Message-Id: <1161556289.1919.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sun, 22 Oct 2006 18:29:01 -0400
+Received: from mail.suse.de ([195.135.220.2]:41143 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750811AbWJVW27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 18:28:59 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Avi Kivity <avi@qumranet.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de>
+	<453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de>
+	<1161547168.1919.38.camel@localhost.localdomain>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Oct 2006 00:28:58 +0200
+In-Reply-To: <1161547168.1919.38.camel@localhost.localdomain>
+Message-ID: <p7364ecm1cl.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-10-21 am 00:56 +0159, ysgrifennodd Jiri Slaby:
-> Andrew Morton wrote:
-> > On Thu, 19 Oct 2006 16:10:10 +0200
-> > Jiri Slaby <jirislaby@gmail.com> wrote:
-> > 
-> >> Mxser tty driver name should be ttyMI, not ttyM. Correct this in both
-> >> drivers (mxser, mxser_new) to avoid conflicts with isicom driver, which is
-> >> ttyM.
-> > 
-> > Is the mxser.c part needed in mainline?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> Ar Sul, 2006-10-22 am 18:51 +0200, ysgrifennodd Arnd Bergmann:
+> > What is the point of 32 bit hosts anyway? Isn't this only available
+> > on x86_64 type CPUs in the first place?
 > 
-> Anybody more responsible doesn't tell anything; I say "no", but it may be
-> irrelevant.
+> There are a small number of vt capable 32bit only processors.
 
-I think it should go into -mm for a first cut just in case it blows
-anything up. I don't think the hardware has many users any more so
-hopefully it wont be disruptive.
+Ah you're right. I forgot about the Yonahs. The number is probably
+not even that small (when Intel ships something x86 they tend to 
+do it in millions)
 
+-Andi

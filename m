@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWJVQuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWJVQwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWJVQuU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 12:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWJVQuU
+	id S1751292AbWJVQwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 12:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWJVQwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 12:50:20 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:22777 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751124AbWJVQuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 12:50:18 -0400
-Date: Sun, 22 Oct 2006 18:50:15 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86-64: using cpu_online_map instead of APIC_ALL_CPUS
-Message-ID: <20061022165015.GH4354@rhun.haifa.ibm.com>
-References: <86802c440610220942m4fc77edbi7b6d62a2b2b378c5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610220942m4fc77edbi7b6d62a2b2b378c5@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Sun, 22 Oct 2006 12:52:18 -0400
+Received: from web27408.mail.ukl.yahoo.com ([217.146.177.184]:61818 "HELO
+	web27408.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751292AbWJVQwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 12:52:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.uk;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bK3HY4PHXccjTk8yapJaDKUm2G7Uz8HpLBxEX95xWAi1UpKTHKdRy/KSBfKYXvu5ozoppvr2WNsyQkhjc0XWTKzNz/MC0QnlgtbGW1oAO+WN25QRVRTniYP3DJMsZ696ruR2J4Uhzv0pCsP38Jc+oN2Oyzx38B5Q5XWBqE2mybs=  ;
+Message-ID: <20061022165215.17075.qmail@web27408.mail.ukl.yahoo.com>
+Date: Sun, 22 Oct 2006 17:52:15 +0100 (BST)
+From: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
+Subject: CONFIG_MODVERSION
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 22, 2006 at 09:42:38AM -0700, Yinghai Lu wrote:
-> Using cpu_online_map instead of APIC_ALL_CPUS for flat apic mode, So
-> __assign_irq_vector can refer correct per_cpu data.
-> 
-> Cc: Muli Ben-Yehuda <muli@il.ibm.com>
-> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
+How to set config_modversion on/off.
 
-Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
+I am asking this question because I got the following
+error when I tried to insert a modeule which I wrote.
 
-Cheers,
-Muli
+deogiri:/users/pg05/ranjithk/Desktop/prg#   gcc -c 3.c
+deogiri:/users/pg05/ranjithk/Desktop/prg#   insmod
+./3.o
+insmod: error inserting './3.o': -1 Invalid module
+format
+
+Can any one help me?
+Thanks.
+
+Send instant messages to your online friends http://uk.messenger.yahoo.com 

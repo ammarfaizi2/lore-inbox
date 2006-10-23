@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWJWOWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWJWOZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbWJWOWG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 10:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWJWOWG
+	id S964882AbWJWOZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 10:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWJWOZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 10:22:06 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:40892 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964881AbWJWOWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 10:22:03 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Date: Mon, 23 Oct 2006 16:20:55 +0200
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231607.17525.rjw@sisk.pl> <453CCE75.20302@yahoo.com.au>
-In-Reply-To: <453CCE75.20302@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Oct 2006 10:25:58 -0400
+Received: from taganka54-host.corbina.net ([213.234.233.54]:61368 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S964882AbWJWOZ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 10:25:58 -0400
+Date: Mon, 23 Oct 2006 18:25:54 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] trivial, make set_special_pids() static
+Message-ID: <20061023142554.GA2246@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610231620.56459.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 23 October 2006 16:15, Nick Piggin wrote:
-> Rafael J. Wysocki wrote:
-> 
-> > This case is a bit special.  I don't think it would be right to require every
-> > device driver writer to avoid modifying RCU pages from the interrupt
-> > context, because that would break the suspend to disk ...
-> > 
-> > Besides, if there is an RCU page that we _know_ we can use to store the image
-> > in it, we can just include this page in the image without copying.  This
-> > already gives us one extra free page for the rest of the image and we can
-> > _avoid_ creating two images which suspend2 does and which adds a _lot_ of
-> > complexity to the code.
-> 
-> If you don't mind me asking... what are these RCU pages you speak of?
-> I couldn't work it out by grepping kernel/power/*
+make set_special_pids() static, the only caller is daemonize().
 
-Oops, s/RCU/LRU/g (shame, shame).
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Sorry for the confusion.
+--- rc2-mm2/include/linux/sched.h~ssp	2006-10-22 19:28:17.000000000 +0400
++++ rc2-mm2/include/linux/sched.h	2006-10-23 18:20:04.000000000 +0400
+@@ -1280,7 +1280,6 @@ extern struct   mm_struct init_mm;
+ 
+ #define find_task_by_pid(nr)	find_task_by_pid_type(PIDTYPE_PID, nr)
+ extern struct task_struct *find_task_by_pid_type(int type, int pid);
+-extern void set_special_pids(pid_t session, pid_t pgrp);
+ extern void __set_special_pids(pid_t session, pid_t pgrp);
+ 
+ /* per-UID process charging. */
+--- rc2-mm2/kernel/exit.c~ssp	2006-10-22 19:28:17.000000000 +0400
++++ rc2-mm2/kernel/exit.c	2006-10-23 18:19:39.000000000 +0400
+@@ -314,7 +314,7 @@ void __set_special_pids(pid_t session, p
+ 	}
+ }
+ 
+-void set_special_pids(pid_t session, pid_t pgrp)
++static void set_special_pids(pid_t session, pid_t pgrp)
+ {
+ 	write_lock_irq(&tasklist_lock);
+ 	__set_special_pids(session, pgrp);
 
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

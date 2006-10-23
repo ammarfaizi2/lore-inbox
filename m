@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWJWRef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWJWRfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWJWRef (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 13:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJWRef
+	id S932208AbWJWRfB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 13:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWJWRfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 13:34:35 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:29033 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932211AbWJWRee
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 13:34:34 -0400
-Date: Mon, 23 Oct 2006 19:34:30 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
-Message-ID: <20061023173430.GX4354@rhun.haifa.ibm.com>
-References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
+	Mon, 23 Oct 2006 13:35:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932228AbWJWRfA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 13:35:00 -0400
+Date: Mon, 23 Oct 2006 10:34:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-mm2: reproducible hang on shutdown on i386
+Message-Id: <20061023103448.7c35063b.akpm@osdl.org>
+In-Reply-To: <200610231643.32148.rjw@sisk.pl>
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+	<200610211930.05492.rjw@sisk.pl>
+	<200610231643.32148.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 12:02:44AM -0700, Yinghai Lu wrote:
-> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
-> one cpu to another,  _assign_irq_vector will get to increase last used
-> vector and get new vector. this will use up the vector if enough
-> set_xxx_irq_affintiy are called. and end with using same vector in
-> different cpu for different irq. (that is not what we want, we only
-> want to use same vector in different cpu for different irq when more
-> than 0x240 irq needed). To keep it simple, the vector should be resued
-> from one cpu to another instead of getting new vector.
+> On Mon, 23 Oct 2006 16:43:31 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> On Saturday, 21 October 2006 19:30, Rafael J. Wysocki wrote:
+> > On Friday, 20 October 2006 10:56, Andrew Morton wrote:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+> > > 
+> > > - Added the IOAT tree as git-ioat.patch (Chris Leech)
+> > > 
+> > > - I worked out the git magic to make the wireless tree work
+> > >   (git-wireless.patch).  Hopefully it will be in -mm more often now.
+> > 
+> > [Margin note: bcm43xx doesn't work on my test boxes although it used to on one
+> > of them, but I have to play with it a bit more.]
+> > 
+> > It looks like i386 cannot shut down cleanly with this kernel.  On my test
+> > boxes (2 of them) it hangs after killing all processes, 100% of the time.
 > 
-> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
+> I've carried out a binary search which shows that
+> 
+> add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
+> 
+> causes this to happen.
 
-> diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-> index b000017..3989fa5 100644
-> --- a/arch/x86_64/kernel/io_apic.c
-> +++ b/arch/x86_64/kernel/io_apic.c
-> @@ -624,11 +624,32 @@ static int __assign_irq_vector(int irq, 
->  	if (irq_vector[irq] > 0)
->  		old_vector = irq_vector[irq];
->  	if (old_vector > 0) {
-> +		cpumask_t domain, new_mask, old_mask;
-> +		int new_cpu, old_cpu;
->  		cpus_and(*result, irq_domain[irq], mask);
->  		if (!cpus_empty(*result))
->  			return old_vector;
-> +
-> +		/* try to reuse vector for phys flat */
-> +		domain = vector_allocation_domain(cpu);
+Thanks.  That patch had one bug - this will hopefully fi things up:
 
-cpu is used unitialized here. Please send an updated patch and I'll
-give it a spin.
+From: Jeff Dike <jdike@addtoit.com>
 
-Cheers,
-Muli
+add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
+in -mm causes UML to hang at shutdown - init is sitting in a select on the
+initctl socket.
+
+This patch fixes it for me.
+
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/proc/array.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix fs/proc/array.c
+--- a/fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
++++ a/fs/proc/array.c
+@@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
+ 			stime = cputime_add(stime, sig->stime);
+ 		}
+ 
+-		signal_session(sig);
++		sid = signal_session(sig);
+ 		pgid = process_group(task);
+ 		ppid = rcu_dereference(task->real_parent)->tgid;
+ 
+_
+

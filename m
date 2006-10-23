@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752051AbWJWWe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752050AbWJWWeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752051AbWJWWe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 18:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752052AbWJWWe3
+	id S1752050AbWJWWeF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 18:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWJWWeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 18:34:29 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:61188 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1752051AbWJWWe1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 18:34:27 -0400
-Date: Tue, 24 Oct 2006 08:33:58 +1000
-To: Patrick McHardy <kaber@trash.net>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, Zhu Yi <yi.zhu@intel.com>,
-       LKML <linux-kernel@vger.kernel.org>, jketreno@linux.intel.com
-Subject: Re: 2.6.19-rc2: ieee80211/ipw2200 regression
-Message-ID: <20061023223357.GA7461@gondor.apana.org.au>
-References: <200610230244.43948.s0348365@sms.ed.ac.uk> <453CE3A4.7030003@trash.net> <200610231653.48797.s0348365@sms.ed.ac.uk> <200610231703.17557.s0348365@sms.ed.ac.uk> <453CE924.4030604@trash.net>
+	Mon, 23 Oct 2006 18:34:05 -0400
+Received: from xenotime.net ([66.160.160.81]:8916 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1752050AbWJWWeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 18:34:03 -0400
+Date: Mon, 23 Oct 2006 15:35:40 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: sam@ravnborg.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: CHECK without C compile?
+Message-Id: <20061023153540.4d467a88.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453CE924.4030604@trash.net>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 06:09:08PM +0200, Patrick McHardy wrote:
-> 
-> I've added CONFIG_ECB to the ones you mentioned and CONFIG_CBC to
-> gssapi.
-> 
-> Signed-off-by: Patrick McHardy <kaber@trash.net>
+Hi Sam,
 
-Thanks a lot Patrick! I'll put this into crypto-2.6.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Is there an option/variant of CHECKSRC that does something like
+	make checkall
+i.e., runs CHECK=sparse on all source files, without also building them
+with the C compiler?
+
+Thanks,
+---
+~Randy

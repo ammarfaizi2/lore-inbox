@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWJWErf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWJWEvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWJWErf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 00:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWJWErf
+	id S1751490AbWJWEvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 00:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJWEvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 00:47:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:57475 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751471AbWJWErf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 00:47:35 -0400
-Subject: [PATCH] Call platform_notify_remove later
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <20061020061618.GA9432@kroah.com>
-References: <1161309350.10524.119.camel@localhost.localdomain>
-	 <20061020032624.GA7620@kroah.com>
-	 <1161318564.10524.131.camel@localhost.localdomain>
-	 <20061020044454.GA8627@kroah.com>
-	 <1161322979.10524.143.camel@localhost.localdomain>
-	 <20061020061618.GA9432@kroah.com>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 14:47:21 +1000
-Message-Id: <1161578841.10524.373.camel@localhost.localdomain>
+	Mon, 23 Oct 2006 00:51:38 -0400
+Received: from mga07.intel.com ([143.182.124.22]:48218 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751490AbWJWEvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 00:51:37 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,341,1157353200"; 
+   d="scan'208"; a="134539968:sNHT19714303"
+Date: Sun, 22 Oct 2006 21:31:05 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, dino@in.ibm.com,
+       nickpiggin@yahoo.com.au, mbligh@google.com, akpm@osdl.org,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       clameter@sgi.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+Message-ID: <20061022213052.A2526@unix-os.sc.intel.com>
+References: <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com> <4538F34A.7070703@yahoo.com.au> <20061020120005.61239317.pj@sgi.com> <20061020203016.GA26421@in.ibm.com> <20061020144153.b40b2cc9.pj@sgi.com> <20061020223553.GA14357@in.ibm.com> <20061020161403.C8481@unix-os.sc.intel.com> <20061020223738.2919264e.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061020223738.2919264e.pj@sgi.com>; from pj@sgi.com on Fri, Oct 20, 2006 at 10:37:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch moves the call to platform_notify_remove() to after the call
-to bus_remove_device(), where it belongs. It's bogus to notify the
-platform of removal while drivers are still attached to the device and
-possibly still operating since the platform might use this callback to
-tear down some resources used by the driver (ACPI bits, iommu
-table, ...)
+On Fri, Oct 20, 2006 at 10:37:38PM -0700, Paul Jackson wrote:
+> > And whenever a child cpuset sets this use_cpus_exclusive flag, remove
+> > those set of child cpuset cpus from parent cpuset and also from the
+> > tasks which were running in the parent cpuset. We can probably  allow this
+> > to happen as long as parent cpuset has atleast one cpu.
+> 
+> Why are you seeking out obfuscated means and gratuitous entanglements
+> with cpuset semantics, in order to accomplish a straight forward end -
+> defining the sched domain partitioning?
+> 
+> If we are going to add or modify the meaning of per-cpuset flags in
+> order to determine sched domain partitioning, then we should do so in
+> the most straight forward way possible, which by all accounts seems to
+> be adding a 'sched_domain' flag to each cpuset, indicating whether it
+> delineates a sched domain partition.  The kernel would enforce a rule
+> that the CPUs in the cpusets so marked could not overlap.  The kernel
+> in return would promise not to split the CPUs in any cpuset so marked
+> into more than one sched domain partition, with the consequence that
+> the kernel would be able to load balance across all the CPUs contained
+> within any such partition.
+> 
+> Why do something less straightforward than that?
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
----
+Ok. I went to implementation details(and ended up less straight forward..) but
+my main intention was to say that we need to retain some sort of hierarchical 
+shape too, while creating these domain partitions.
 
-Note that Len Browned wrote "AFAICS, your change is logical and should
-be fine." which I consider an ACK, though I didn't add an Acked-by
-line :)
+Like for example, a big system can be divided into different groups of
+cpus for each department in an organisation. And internally based
+on the needs, each department can divide its pool of cpus into sub groups
+and allocates to much smaller group. And based on the sub group creation/
+deletion, cpus will move from department to subgroups and viceversa.
 
-This patch should go in imho after 2.6.19 (it might even be considered a
-bug fix for 2.6.19 but it's probably not bad enough, so let's have it
-simmer in your tree and -mm for a little while).
+users probably want both flat and hierarchical partitions. And in this
+partition mechanism, we should never allow cpus being present in more than one
+partition.
 
-This is orthogonal to my other patch adding a notifier which we can
-continue discussing separately.
-
-Index: linux-cell/drivers/base/core.c
-===================================================================
---- linux-cell.orig/drivers/base/core.c	2006-10-06 13:48:02.000000000 +1000
-+++ linux-cell/drivers/base/core.c	2006-10-18 11:53:50.000000000 +1000
-@@ -608,12 +608,13 @@ void device_del(struct device * dev)
- 	device_remove_groups(dev);
- 	device_remove_attrs(dev);
- 
-+	bus_remove_device(dev);
-+
- 	/* Notify the platform of the removal, in case they
- 	 * need to do anything...
- 	 */
- 	if (platform_notify_remove)
- 		platform_notify_remove(dev);
--	bus_remove_device(dev);
- 	device_pm_remove(dev);
- 	kobject_uevent(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
- 
-
-
+thanks,
+suresh

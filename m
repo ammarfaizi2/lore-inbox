@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWJWCaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWJWCaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWJWCaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 22:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWJWCaE
+	id S1751198AbWJWCaU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 22:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWJWCaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 22:30:04 -0400
-Received: from webserve.ca ([69.90.47.180]:28124 "EHLO computersmith.org")
-	by vger.kernel.org with ESMTP id S1751188AbWJWCaD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 22:30:03 -0400
-Message-ID: <453C2903.1060906@wintersgift.com>
-Date: Sun, 22 Oct 2006 19:29:23 -0700
-From: teunis <teunis@wintersgift.com>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-git7 shutdown problem
-References: <20061022145210.n736g78k42e8ggkg@69.222.0.225> <Pine.LNX.4.64.0610221356440.3962@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610221356440.3962@g5.osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 22 Oct 2006 22:30:20 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:8500 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751198AbWJWCaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 22:30:18 -0400
+Date: Sun, 22 Oct 2006 19:31:50 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: dwmw2@infradead.org
+Subject: [PATCH] MTD: fix kernel-doc warnings
+Message-Id: <20061022193150.aea33ea6.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Linus Torvalds wrote:
-> 
-> On Sun, 22 Oct 2006, art@usfltd.com wrote:
->> 2.6.19-rc2-git7 shutdown problem
->>
->> below are last shutdown messages - system is hunging forever !
->> hda was mounted, hdb not
->> any clue ?
-> 
-> Noting springs to mind immediately.
-> 
-> Can you narrow this down more specifically? Did you test 2.6.19-rc2-git6, 
-> and that was fine? Or did you just happen to test -git7, and the previous 
-> kernel you did this on was some much older one?
+Fix MTD kernel-doc warnings:
+Warning(/var/linsrc/linux-2619-rc2g7//include/linux/mtd/nand.h:416): No description found for parameter 'write_page'
+Warning(/var/linsrc/linux-2619-rc2g7//drivers/mtd/nand/nand_base.c:1485): No description found for parameter 'raw'
 
-I'm seeing the same thing here between rc2-git6 and rc2-mm2 on intel
-945-based hardware and similar.   (rc2-git6 WORKS, rc2-mm2 FAILS)
-rc2-git6: for the most part works fine.
-rc2-mm2: Restart works - shutdown freezes.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/mtd/nand/nand_base.c |    1 +
+ include/linux/mtd/nand.h     |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-these units otherwise work almost completely: C3 mode doesn't work but
-C4 DOES (ACPI sleep if I remember names correctly).
+--- linux-2619-rc2g7.orig/drivers/mtd/nand/nand_base.c
++++ linux-2619-rc2g7/drivers/mtd/nand/nand_base.c
+@@ -1479,6 +1479,7 @@ static void nand_write_page_syndrome(str
+  * @buf:	the data to write
+  * @page:	page number to write
+  * @cached:	cached programming
++ * @raw:	use raw write mode
+  */
+ static int nand_write_page(struct mtd_info *mtd, struct nand_chip *chip,
+ 			   const uint8_t *buf, int page, int cached, int raw)
+--- linux-2619-rc2g7.orig/include/linux/mtd/nand.h
++++ linux-2619-rc2g7/include/linux/mtd/nand.h
+@@ -355,7 +355,7 @@ struct nand_buffers {
+  * @priv:		[OPTIONAL] pointer to private chip date
+  * @errstat:		[OPTIONAL] hardware specific function to perform additional error status checks
+  *			(determine if errors are correctable)
+- * @write_page		[REPLACEABLE] High-level page write function
++ * @write_page:		[REPLACEABLE] High-level page write function
+  */
+ 
+ struct nand_chip {
 
-I did not test -git7 (or later).   I could if that would help.
-- - Teunis
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFFPCjybFT/SAfwLKMRAo+tAJ0XE0/zXvsDQnnGikbcF6pvmlh+xACffOBh
-dUumPzGFGLxGb76mtvNtcQ4=
-=dvWQ
------END PGP SIGNATURE-----
+---

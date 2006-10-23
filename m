@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWJWEvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWJWFHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWJWEvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 00:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWJWEvi
+	id S1751496AbWJWFHy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 01:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWJWFHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 00:51:38 -0400
-Received: from mga07.intel.com ([143.182.124.22]:48218 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751490AbWJWEvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 00:51:37 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,341,1157353200"; 
-   d="scan'208"; a="134539968:sNHT19714303"
-Date: Sun, 22 Oct 2006 21:31:05 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+	Mon, 23 Oct 2006 01:07:54 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:31421 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751496AbWJWFHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 01:07:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=L3+DVLgAcpAOIHaIYrsQKucXmUWteDdDLKmUW9bY/bM8EN8gPpatbGw1VrT0Ev+qIOHrUE36Pszt94TfgShO1FYZqL7tOSjoDGOd5m3xuN8tX6OYvuD25DYC+OLzjz6hksBRL2YX57gGxfOdqly5leZ9emsNZLyKOZ3zLG4AELo=  ;
+Message-ID: <453C4E22.9000308@yahoo.com.au>
+Date: Mon, 23 Oct 2006 15:07:46 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Paul Jackson <pj@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, dino@in.ibm.com,
-       nickpiggin@yahoo.com.au, mbligh@google.com, akpm@osdl.org,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       clameter@sgi.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-Message-ID: <20061022213052.A2526@unix-os.sc.intel.com>
-References: <20061019120358.6d302ae9.pj@sgi.com> <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com> <4538F34A.7070703@yahoo.com.au> <20061020120005.61239317.pj@sgi.com> <20061020203016.GA26421@in.ibm.com> <20061020144153.b40b2cc9.pj@sgi.com> <20061020223553.GA14357@in.ibm.com> <20061020161403.C8481@unix-os.sc.intel.com> <20061020223738.2919264e.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061020223738.2919264e.pj@sgi.com>; from pj@sgi.com on Fri, Oct 20, 2006 at 10:37:38PM -0700
+CC: dino@in.ibm.com, akpm@osdl.org, mbligh@google.com, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, rohitseth@google.com,
+       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>	<20061020210422.GA29870@in.ibm.com> <20061022201824.267525c9.pj@sgi.com>
+In-Reply-To: <20061022201824.267525c9.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 20, 2006 at 10:37:38PM -0700, Paul Jackson wrote:
-> > And whenever a child cpuset sets this use_cpus_exclusive flag, remove
-> > those set of child cpuset cpus from parent cpuset and also from the
-> > tasks which were running in the parent cpuset. We can probably  allow this
-> > to happen as long as parent cpuset has atleast one cpu.
+Paul Jackson wrote:
+> Dinakar wrote:
 > 
-> Why are you seeking out obfuscated means and gratuitous entanglements
-> with cpuset semantics, in order to accomplish a straight forward end -
-> defining the sched domain partitioning?
+>>IMO this patch addresses just one of the requirements for partitionable
+>>sched domains
 > 
-> If we are going to add or modify the meaning of per-cpuset flags in
-> order to determine sched domain partitioning, then we should do so in
-> the most straight forward way possible, which by all accounts seems to
-> be adding a 'sched_domain' flag to each cpuset, indicating whether it
-> delineates a sched domain partition.  The kernel would enforce a rule
-> that the CPUs in the cpusets so marked could not overlap.  The kernel
-> in return would promise not to split the CPUs in any cpuset so marked
-> into more than one sched domain partition, with the consequence that
-> the kernel would be able to load balance across all the CPUs contained
-> within any such partition.
 > 
-> Why do something less straightforward than that?
+> Correct - this particular patch was just addressing one of these.
+> 
+> Nick raised the reasonable concern that this patch was adding something
+> to cpusets that was not especially related to cpusets.
 
-Ok. I went to implementation details(and ended up less straight forward..) but
-my main intention was to say that we need to retain some sort of hierarchical 
-shape too, while creating these domain partitions.
+Did you send resend the patch to remove sched-domain partitioning?
+After clearing up my confusion, IMO that is needed and could probably
+go into 2.6.19.
 
-Like for example, a big system can be divided into different groups of
-cpus for each department in an organisation. And internally based
-on the needs, each department can divide its pool of cpus into sub groups
-and allocates to much smaller group. And based on the sub group creation/
-deletion, cpus will move from department to subgroups and viceversa.
+> So I will not be sending this patch to Andrew for *-mm.
+> 
+> There are further opportunities for improvements in some of this code,
+> which my colleague Christoph Lameter may be taking an interest in.
+> Ideally kernel-user API's for isolating and partitioning sched domains
+> would arise from that work, though I don't know if we can wait that
+> long.
 
-users probably want both flat and hierarchical partitions. And in this
-partition mechanism, we should never allow cpus being present in more than one
-partition.
+The sched-domains code is all there and just ready to be used. IMO
+using the cpusets API (or a slight extension thereof) would be the
+best idea if we're going to use any explicit interface at all.
 
-thanks,
-suresh
+A cool option would be to determine the partitions according to the
+disjoint set of unions of cpus_allowed masks of all tasks. I see this
+getting computationally expensive though, probably O(tasks*CPUs)... I
+guess that isn't too bad.
+
+Might be better than a userspace interface.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

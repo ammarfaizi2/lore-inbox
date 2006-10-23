@@ -1,146 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWJWJaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751861AbWJWJjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751858AbWJWJaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 05:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWJWJaZ
+	id S1751861AbWJWJjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 05:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751862AbWJWJjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 05:30:25 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:15552 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751858AbWJWJaZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 05:30:25 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] vmalloc : optimization, cleanup, bugfixes
-Date: Mon, 23 Oct 2006 11:30:26 +0200
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <453C3A29.4010606@intel.com> <200610231036.10418.dada1@cosmosbay.com> <453C87A6.4060602@yahoo.com.au>
-In-Reply-To: <453C87A6.4060602@yahoo.com.au>
+	Mon, 23 Oct 2006 05:39:49 -0400
+Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:36833 "EHLO
+	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
+	id S1751861AbWJWJjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 05:39:49 -0400
+Message-ID: <453C8DDB.6090003@stud.feec.vutbr.cz>
+Date: Mon, 23 Oct 2006 11:39:39 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_yuIPFNg1DXXUs1I"
-Message-Id: <200610231130.26594.dada1@cosmosbay.com>
+To: Giridhar Pemmasani <pgiri@yahoo.com>
+CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
+In-Reply-To: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.177 () FROM_ENDS_IN_NUMS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_yuIPFNg1DXXUs1I
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Giridhar Pemmasani wrote:
+> --- Chase Venters <chase.venters@clientec.com> wrote:
+>> Are there even any examples of GPL-licensed NDIS drivers?
+> 
+> I don't remember off hand, but sometime back there was discussion on related
+> topic of weather ndiswrapper should be in debian-main or not, and someone
+> pointed out a GPL ndis driver. (BTW, after much discussion on debian devel
+> list, the developers agreed that ndiswrapper belongs in debian-main.)
 
-On Monday 23 October 2006 11:13, Nick Piggin wrote:
-> Eric Dumazet wrote:
-> > 3) Bugfixes in vmalloc_user() and vmalloc_32_user()
-> > NULL returns from __vmalloc() and __find_vm_area() were not tested.
->
-> Hmm, so they weren't. As far as testing the return of __find_vm_area,
-> you can just turn that into a BUG_ON(!area), because at that point,
-> we've established that the vmalloc succeeded.
+AFAIK, the only given example of a free NDIS driver was CIPE-Win32, 
+which is a port of CIPE from Linux to Windows. It's quite pointless to 
+use ndiswrapper for that.
 
-OK :) 
+Michal
 
-[PATCH] vmalloc : optimization, cleanup, bugfixes
-
-This patch does three things
-
-1) reorder 'struct vm_struct' to speedup lookups on CPUS with small cache 
-lines. The fields 'next,addr,size' should be now in the same cache line, to 
-speedup lookups.
-
-2) One minor cleanup in __get_vm_area_node()
-
-3) Bugfixes in vmalloc_user() and vmalloc_32_user()
-NULL returns from __vmalloc() and __find_vm_area() were not tested.
-
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
---Boundary-00=_yuIPFNg1DXXUs1I
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="vmalloc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="vmalloc.patch"
-
---- linux-2.6/include/linux/vmalloc.h	2006-10-23 10:09:48.000000000 +0200
-+++ linux-2.6-ed/include/linux/vmalloc.h	2006-10-23 10:26:37.000000000 +0200
-@@ -23,13 +23,14 @@
- #endif
- 
- struct vm_struct {
-+	/* keep next,addr,size together to speedup lookups */
-+	struct vm_struct	*next;
- 	void			*addr;
- 	unsigned long		size;
- 	unsigned long		flags;
- 	struct page		**pages;
- 	unsigned int		nr_pages;
- 	unsigned long		phys_addr;
--	struct vm_struct	*next;
- };
- 
- /*
---- linux-2.6/mm/vmalloc.c	2006-10-23 10:11:43.000000000 +0200
-+++ linux-2.6-ed/mm/vmalloc.c	2006-10-23 11:26:47.000000000 +0200
-@@ -180,15 +180,13 @@
- 	addr = ALIGN(start, align);
- 	size = PAGE_ALIGN(size);
- 
-+	if (unlikely(!size))
-+		return NULL;
-+
- 	area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
- 	if (unlikely(!area))
- 		return NULL;
- 
--	if (unlikely(!size)) {
--		kfree (area);
--		return NULL;
--	}
--
- 	/*
- 	 * We always allocate a guard page.
- 	 */
-@@ -528,11 +526,13 @@
- 	void *ret;
- 
- 	ret = __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO, PAGE_KERNEL);
--	write_lock(&vmlist_lock);
--	area = __find_vm_area(ret);
--	area->flags |= VM_USERMAP;
--	write_unlock(&vmlist_lock);
--
-+	if (ret) {
-+		write_lock(&vmlist_lock);
-+		area = __find_vm_area(ret);
-+		BUG_ON(!area);
-+		area->flags |= VM_USERMAP;
-+		write_unlock(&vmlist_lock);
-+	}
- 	return ret;
- }
- EXPORT_SYMBOL(vmalloc_user);
-@@ -601,11 +601,13 @@
- 	void *ret;
- 
- 	ret = __vmalloc(size, GFP_KERNEL | __GFP_ZERO, PAGE_KERNEL);
--	write_lock(&vmlist_lock);
--	area = __find_vm_area(ret);
--	area->flags |= VM_USERMAP;
--	write_unlock(&vmlist_lock);
--
-+	if (ret) {
-+		write_lock(&vmlist_lock);
-+		area = __find_vm_area(ret);
-+		BUG_ON(!area);
-+		area->flags |= VM_USERMAP;
-+		write_unlock(&vmlist_lock);
-+	}
- 	return ret;
- }
- EXPORT_SYMBOL(vmalloc_32_user);
-
---Boundary-00=_yuIPFNg1DXXUs1I--

@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751884AbWJWKkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751896AbWJWKkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751884AbWJWKkM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 06:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751888AbWJWKkM
+	id S1751896AbWJWKkz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 06:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751894AbWJWKkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 06:40:12 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:19654 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751884AbWJWKkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 06:40:10 -0400
-Date: Mon, 23 Oct 2006 19:39:33 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch](memory hotplug) __GFP_NOWARN is better for __kmalloc_section_memmap()
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
-Message-Id: <20061023192830.DDB2.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.27 [ja]
+	Mon, 23 Oct 2006 06:40:55 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13285 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751895AbWJWKky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 06:40:54 -0400
+Date: Mon, 23 Oct 2006 12:41:41 +0200
+From: Jan Kara <jack@suse.cz>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sct@redhat.com, adilger@clusterfs.com, linux-ext4@vger.kernel.org
+Subject: Re: 2.6.18-mm2: ext3 BUG?
+Message-ID: <20061023104141.GB3162@atrey.karlin.mff.cuni.cz>
+References: <45257A6C.3060804@gmail.com> <20061005145042.fd62289a.akpm@osdl.org> <4525925C.6060807@gmail.com> <20061005171428.636c087c.akpm@osdl.org> <20061008063330.GA30283@lug-owl.de> <20061010070933.GE30283@lug-owl.de> <20061011104201.GD6865@atrey.karlin.mff.cuni.cz> <20061023081354.GK26271@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061023081354.GK26271@lug-owl.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+  Hello,
 
-This patch adds __GFP_NOWARN flag to calling of __alloc_pages()
-in __kmalloc_section_memmap(). It can reduce noisy failure message.
+> On Wed, 2006-10-11 12:42:02 +0200, Jan Kara <jack@suse.cz> wrote:
+> > > On Sun, 2006-10-08 08:33:30 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> > > While I could reproduce it with a 200MB file, it seems I can't break
+> > > it with a 10MB file.
+> >   Hmm, I was running the test for several ours without any problem...
+> > The kernel is 2.6.17.6, ext3 in ordered data mode, standard SATA disk. I'm
+> > now running it again and trying my luck ;). What is your testing environment?
+> 
+> kolbe34-backup:/mnt# uname -a
+  Thanks for info. This looks pretty similar to what I have (only that
+I have Athlon).
 
-In ia64, section size is 1 GB, this means that order 8 pages are necessary
-for each section's memmap. It is often very hard requirement under
-heavy memory pressure as you know. So, __alloc_pages() gives up allocation
-and shows many noisy stack traces which means no page for each sections.
-(Current my environment shows 32 times of stack trace....)
+> Still running Debian's 2.6.17-2-686, I'm now tracking down the file
+> size when I start to see this type of corruption. Right now, it seems
+> I never get it with a 16384 KB (16 MB) large file, but I get it with a
+> 21504 KB (21 MB) file.
+> 
+> Is there something important that changes handling of file contents in
+> the 16..21 MB range?
+  Umm, I've checked and found nothing obvious. We already have to use
+double-indirect block at 16MB, maybe reservation code does some
+distiction. Could you mount the filesystem with -o 'noreservation' and
+see whether you can still reproduce the problem? Also it may be useful
+to find out, whether you see the failure also with some older kernels...
 
-But, __kmalloc_section_memmap() calls vmalloc() after failure of
-it, and it can succeed allocation of memmap. So, its stack trace
-warning becomes just noisy. I suppose it shouldn't be shown.
+								Honza
+> 
+> dumpe2fs output at http://lug-owl.de/~jbglaw/ext3-dumpe2fs.txt for
+> that filesystem.  I'll now run with a 18.5 MB file...
+> 
+> MfG, JBG
+> 
+> -- 
+>       Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+>   Signature of:                           Wenn ich wach bin, träume ich.
+>   the second  :
 
-This patch is for 2.6.19-rc2. And I tested this patch on PrimeQuest
-with high memory pressure environment.
-
-Please apply.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
----
- mm/sparse.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Index: disable_fail_message/mm/sparse.c
-===================================================================
---- disable_fail_message.orig/mm/sparse.c	2006-10-17 15:05:26.000000000 +0900
-+++ disable_fail_message/mm/sparse.c	2006-10-23 17:11:26.000000000 +0900
-@@ -211,7 +211,7 @@ static struct page *__kmalloc_section_me
- 	struct page *page, *ret;
- 	unsigned long memmap_size = sizeof(struct page) * nr_pages;
- 
--	page = alloc_pages(GFP_KERNEL, get_order(memmap_size));
-+	page = alloc_pages(GFP_KERNEL|__GFP_NOWARN, get_order(memmap_size));
- 	if (page)
- 		goto got_map_page;
- 
 
 -- 
-Yasunori Goto 
-
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

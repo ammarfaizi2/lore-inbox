@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWJWVB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWJWVC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWJWVB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 17:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751649AbWJWVB6
+	id S1751650AbWJWVC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 17:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751664AbWJWVC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 17:01:58 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:18625 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751638AbWJWVB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 17:01:57 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc2-mm2: reproducible hang on shutdown on i386
-Date: Mon, 23 Oct 2006 23:00:45 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20061020015641.b4ed72e5.akpm@osdl.org> <200610231643.32148.rjw@sisk.pl> <20061023103448.7c35063b.akpm@osdl.org>
-In-Reply-To: <20061023103448.7c35063b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 23 Oct 2006 17:02:28 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44444
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751649AbWJWVC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 17:02:27 -0400
+Date: Mon, 23 Oct 2006 14:02:28 -0700 (PDT)
+Message-Id: <20061023.140228.106266512.davem@davemloft.net>
+To: greg@kroah.com
+Cc: eiichiro.oiwa.nm@hitachi.com, alan@redhat.com, jesse.barnes@intel.com,
+       linux-kernel@vger.kernel.org, steven.c.cook@intel.com,
+       bjorn.helgaas@hp.com, tony.luck@intel.com
+Subject: Re: pci_fixup_video change blows up on sparc64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061023183949.GA13970@kroah.com>
+References: <XNM1$9$0$4$$3$3$7$A$9002718U453c5dab@hitachi.com>
+	<20061023.015353.30187350.davem@davemloft.net>
+	<20061023183949.GA13970@kroah.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610232300.45462.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 23 October 2006 19:34, Andrew Morton wrote:
-> > On Mon, 23 Oct 2006 16:43:31 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > On Saturday, 21 October 2006 19:30, Rafael J. Wysocki wrote:
-> > > On Friday, 20 October 2006 10:56, Andrew Morton wrote:
-> > > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
-> > > > 
-> > > > - Added the IOAT tree as git-ioat.patch (Chris Leech)
-> > > > 
-> > > > - I worked out the git magic to make the wireless tree work
-> > > >   (git-wireless.patch).  Hopefully it will be in -mm more often now.
+From: Greg KH <greg@kroah.com>
+Date: Mon, 23 Oct 2006 11:39:49 -0700
+
+> On Mon, Oct 23, 2006 at 01:53:53AM -0700, David Miller wrote:
+> > From: <eiichiro.oiwa.nm@hitachi.com>
+> > Date: Mon, 23 Oct 2006 15:14:07 +0900
+> > 
+> > > Ok, I fixed, and tested on x86, x86_64 and IA64 dig.
+> > > Thank you.
 > > > 
-> > > [Margin note: bcm43xx doesn't work on my test boxes although it used to on one
-> > > of them, but I have to play with it a bit more.]
-> > > 
-> > > It looks like i386 cannot shut down cleanly with this kernel.  On my test
-> > > boxes (2 of them) it hangs after killing all processes, 100% of the time.
+> > > From: David Miller <davem@davemloft.net>
+> > > Signed-off-by: Eiichiro Oiwa <eiichiro.oiwa.nm@hitachi.com>
 > > 
-> > I've carried out a binary search which shows that
-> > 
-> > add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
-> > 
-> > causes this to happen.
+> > Greg please apply.
 > 
-> Thanks.  That patch had one bug - this will hopefully fi things up:
+> Ok, but you didn't write this patch, Eiichiro did, right?
 > 
-> From: Jeff Dike <jdike@addtoit.com>
-> 
-> add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
-> in -mm causes UML to hang at shutdown - init is sitting in a select on the
-> initctl socket.
-> 
-> This patch fixes it for me.
-> 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
-> Cc: Cedric Le Goater <clg@fr.ibm.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  fs/proc/array.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -puN fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix fs/proc/array.c
-> --- a/fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
-> +++ a/fs/proc/array.c
-> @@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
->  			stime = cputime_add(stime, sig->stime);
->  		}
->  
-> -		signal_session(sig);
-> +		sid = signal_session(sig);
->  		pgid = process_group(task);
->  		ppid = rcu_dereference(task->real_parent)->tgid;
->  
-> _
-> 
+> Want to get the attribution correct here.
 
-Yes, this fixes the issue.  Thanks.
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Yes, Eiichiro did.

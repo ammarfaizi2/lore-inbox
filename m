@@ -1,110 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWJWP3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWJWP37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWJWP3s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWJWP3s
+	id S964941AbWJWP37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWJWP37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:29:48 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:31677 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964940AbWJWP3q (ORCPT
+	Mon, 23 Oct 2006 11:29:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55716 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964941AbWJWP36 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:29:46 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH -mm] Make swsusp work on i386 with PAE
-Date: Mon, 23 Oct 2006 17:29:10 +0200
-User-Agent: KMail/1.9.1
-Cc: Linux PM <linux-pm@osdl.org>, Dave Jones <davej@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-References: <200610221548.48204.rjw@sisk.pl> <20061023145033.GB31273@elf.ucw.cz>
-In-Reply-To: <20061023145033.GB31273@elf.ucw.cz>
+	Mon, 23 Oct 2006 11:29:58 -0400
+Date: Mon, 23 Oct 2006 17:29:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] swsusp: Improve handling of highmem
+Message-ID: <20061023152916.GA8418@elf.ucw.cz>
+References: <200610142156.05161.rjw@sisk.pl> <20061023150444.GC31273@elf.ucw.cz> <200610231722.57560.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610231729.10925.rjw@sisk.pl>
+In-Reply-To: <200610231722.57560.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Monday, 23 October 2006 16:50, Pavel Machek wrote:
-> Hi!
-> 
-> > The purpose of the appended patch is to make swsusp work on i386 with PAE,
-> > but it should also allow i386 systems without PSE to use swsusp.
+> > > Currently swsusp saves the contents of highmem pages by copying them to the
+> > > normal zone which is quite inefficient  (eg. it requires two normal pages to be
+> > > used for saving one highmem page).  This may be improved by using highmem
+> > > for saving the contents of saveable highmem pages.
+> > ...
+> > >  include/linux/suspend.h |    9 
+> > >  kernel/power/power.h    |    2 
+> > >  kernel/power/snapshot.c |  841 ++++++++++++++++++++++++++++++++++++------------
+> > >  kernel/power/swap.c     |    2 
+> > >  kernel/power/swsusp.c   |   53 +--
+> > >  kernel/power/user.c     |    2 
+> > >  mm/vmscan.c             |    3 
 > > 
-> > The patch creates temporary page tables located in resume-safe page frames
-> > during the resume and uses them for restoring the suspend image (the same
-> > approach is used on x86-64).
+> > Well, I just hoped that highmem would quietly die out...
 > > 
-> > It has been tested on an i386 system with PAE and survived several
-> > suspend-resume cycles in a row, but I have no systems without PSE, so that
-> > requires some testing.
+> > ...
+> > > +static struct page *alloc_image_page(gfp_t gfp_mask) {
+> > > +	struct page *page;
+> > 
+> > { should go on new line.
 > 
-> Thanks, looks okay to me. I guess Andi Kleen would be right person to
-> review it in detail?
+> Ah, yes, thanks.  I'll fix this later if you don't mind.
 
-Yes, I think so.
+Ok.
 
-> Lack of assembly modifications is good.
+> > >  	memory_bm_position_reset(orig_bm);
+> > >  	memory_bm_position_reset(copy_bm);
+> > >  	do {
+> > >  		pfn = memory_bm_next_pfn(orig_bm);
+> > > -		if (likely(pfn != BM_END_OF_MAP)) {
+1) ##############################################
+> > > -			struct page *page;
+> > > -			void *src;
+> > > -
+> > > -			page = pfn_to_page(pfn);
+> > > -			src = page_address(page);
+> > > -			page = pfn_to_page(memory_bm_next_pfn(copy_bm));
+> > > -			copy_data_page(page_address(page), src);
+> > > -		}
+> > > +		if (likely(pfn != BM_END_OF_MAP))
+2) ##############################################
+> > > +			copy_data_page(memory_bm_next_pfn(copy_bm), pfn);
+> > >  	} while (pfn != BM_END_OF_MAP);
+3) ####################################
+> > >  }
+> > 
+> > While(1) and "if (pfn != BM_END_OF_MAP) { ...break; } ? Why do you
+> > need to test pfn != BM_END_OF_MAP *three* times?
 > 
-> I guess this should be now removed? (include/asm-i386/suspend.h)
+> Why?  It's two times, and I don't like while(1) loops, really.
+
+I see three of them, and while(1) loop is probably best solution
+here... "Too scared of break; so I copy conditions"? ;-).
+
+> > > @@ -1233,6 +1233,9 @@ out:
+> > >  	}
+> > >  	if (!all_zones_ok) {
+> > >  		cond_resched();
+> > > +
+> > > +		try_to_freeze();
+> > > +
+> > >  		goto loop_again;
+> > >  	}
+> > 
+> > What is this?
 > 
-> arch_prepare_suspend(void)
-> {
->         /* If you want to make non-PSE machine work, turn off paging
->            in swsusp_arch_suspend. swsusp_pg_dir should have identity mapping, so
->            it could work...  */
->         if (!cpu_has_pse) {
->                 printk(KERN_ERR "PSE is required for swsusp.\n");
->                 return -EPERM;
->         }
-
-Yes, it should.  I though it went away when the Kconfig was changed ...
-
-> > +/*
-> > + * Create a middle page table on a resume-safe page and put a pointer to it in
-> > + * the given global directory entry.  This only returns the gd entry
-> > + * in non-PAE compilation mode, since the middle layer is folded.
-> > + */
-> > +static pmd_t *resume_one_md_table_init(pgd_t *pgd)
-> > +{
-> > +	pud_t *pud;
-> > +	pmd_t *pmd_table;
-> > +
-> > +#ifdef CONFIG_X86_PAE
-> > +	pmd_table = (pmd_t *)get_safe_page(GFP_ATOMIC);
-> > +	if (!pmd_table)
-> > +		return pmd_table;
+> :-)
 > 
-> I'd do plain old return NULL; here.
+> This is needed because during the resume there likely are no free pages in the
+> highmem zone which makes kswapd spin forever, but we have to freeze it before
+> the image is restored.
 
-OK
-
-> > +			/* Map with big pages if possible, otherwise create
-> > +			 * normal page tables.
-> > +			 * NOTE: We can mark everything as executable here
-> > +			 */
-> > +			if (cpu_has_pse) {
-> > +				set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE_EXEC));
-> > +				pfn += PTRS_PER_PTE;
-> 
-> Perhaps disabling PSE here can help getting some testing?
-
-Well, I don't really want to make everyone test the !PSE scenario. ;-)
-
-> Okay, I guess I should really test this one... Seems good enough for
-> -mm to me, but it should preferably stay there for a _long_ time.
-
-I think so too.
-
-Greetings,
-Rafael
-
-
+Could that happen with current code, too? (I'm trying to sense if this
+should be merged now as a separate patch).
+								Pavel
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

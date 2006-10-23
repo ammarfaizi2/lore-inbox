@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWJWSbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWJWScM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWJWSbO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 14:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWJWSbN
+	id S965003AbWJWScM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 14:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWJWScM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 14:31:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27078 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965001AbWJWSbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 14:31:12 -0400
-Date: Mon, 23 Oct 2006 11:30:48 -0700
-From: Greg KH <greg@kroah.com>
-To: David Woodhouse <dwmw2@infradead.org>, Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, olpc-dev@laptop.org, davidz@redhat.com,
-       mjg59@srcf.ucam.org, len.brown@intel.com, sfr@canb.auug.org.au,
-       benh@kernel.crashing.org
-Subject: Re: Battery class driver.
-Message-ID: <20061023183048.GA13804@kroah.com>
-References: <1161627633.19446.387.camel@pmac.infradead.org>
+	Mon, 23 Oct 2006 14:32:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:1456 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965002AbWJWScK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 14:32:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SSOmbEgW2AcKyjRFWGf45bWNrs/XLFvM3DGJ1NwgUv7L4o9rOA+pnuMtmgluHMxszXEs+D0ow3d4TiceF8G+ae8XTwpUtdinIGhlwNHfQc+k21gjRxlwHaFZza34/Eis55FxrEMbMUbTMZZG7TASTmVSZXXN3znJt8X3qhj+X8Q=
+Message-ID: <a63d67fe0610231132y3be74a77ha91a078f2b03bf62@mail.gmail.com>
+Date: Mon, 23 Oct 2006 11:32:08 -0700
+From: "Dan Carpenter" <error27@gmail.com>
+To: "Neil Horman" <nhorman@tuxdriver.com>
+Subject: Re: [KJ] [PATCH] Correct misc_register return code handling in several drivers
+Cc: kernel-janitors@lists.osdl.org, akpm@osdl.org, maxk@qualcomm.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       kjhall@us.ibm.com
+In-Reply-To: <20061023181329.GC23714@hmsreliant.homelinux.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1161627633.19446.387.camel@pmac.infradead.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	 <a63d67fe0610231101v2f407e7dv46adaf8dbb0fb4e@mail.gmail.com>
+	 <20061023181329.GC23714@hmsreliant.homelinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 07:20:33PM +0100, David Woodhouse wrote:
-> At git://git.infradead.org/battery-2.6.git there is an initial
-> implementation of a battery class, along with a driver which makes use
-> of it. The patch is below, and also viewable at 
-> http://git.infradead.org/?p=battery-2.6.git;a=commitdiff;h=master;hp=linus
-> 
-> I don't like the sysfs interaction much -- is it really necessary for me
-> to provide a separate function for each attribute, rather than a single
-> function which handles them all and is given the individual attribute as
-> an argument? That seems strange and bloated.
+On 10/23/06, Neil Horman <nhorman@tuxdriver.com> wrote:
+> On Mon, Oct 23, 2006 at 11:01:36AM -0700, Dan Carpenter wrote:
+> > On 10/23/06, Neil Horman <nhorman@tuxdriver.com> wrote:
+> > >+out3:
+> > >+       for_each_online_node(node) {
+> > >+               if(timers[node] != NULL)
+> > >+                       kfree(timers[node]);
+> > >+       }
+> >
+> > Tharindu is going to be unhappy out if he sees that.  There is a
+> > possibility that timers[node] is uninitialized.  if node[0] is null
+> > then node[1] is uninitialized and it's going to cause a crash.
+> >
+> > regards,
+> > dan carpenter
+>
+>
+> Theres a memset to ensure that all the timer pointers are initalized to NULL in
+> the patch:
+>
+> @@ -709,16 +710,18 @@ static int __init mmtimer_init(void)
+>         if (timers == NULL) {
+>                 printk(KERN_ERR "%s: failed to allocate memory for device\n",
+>                                 MMTIMER_NAME);
+> -               return -1;
+> +               goto out2;
+>         }
+>
+> +       memset(timers,0,(sizeof(mmtimer_t *)*maxn));
+> +
+>
+>
 
-It is, but no one has asked for it to be changed to be like the struct
-device attributes are.  In fact, why not just use the struct device
-attributes here instead?  That will be much easier and keep me from
-having to convert your code over to use it in the future :)
+Ah.  Great.  Sorry, didn't notice that you'd taken care of that
+already.  Looks good.
 
-> I'm half tempted to ditch the sysfs attributes and just use a single
-> seq_file, in fact.
+regards,
+dan carpenter
 
-Ick, no.  You should use the hwmon interface, and standardize on a
-proper battery api just like those developers have standardized on other
-sensor apis that are exported to userspace.  Take a look at
-Documentation/hwmon/sysfs-interface for an example of what it should
-look like.
-
-> The idea is that all batteries should be presented to userspace through
-> this class instead of through the existing mess of PMU/APM/ACPI and even
-> APM _emulation_.
-
-Yes, I agree this should be done in this manner.
-
-> I think I probably want to make AC power a separate 'device' too, rather
-> than an attribute of any given battery. And when there are multiple
-> power supplies, there should be multiple such devices. So maybe it
-> should be a 'power supply' class, not a battery class at all?
-
-That sounds good to me.
-
-Jean, I know you had some ideas with regards to this in the past.
-
-thanks,
-
-greg k-h
+> --
+> /***************************************************
+>  *Neil Horman
+>  *Software Engineer
+>  *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+>  ***************************************************/
+>

@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752050AbWJWWeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWJWWnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752050AbWJWWeF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 18:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWJWWeF
+	id S1750956AbWJWWnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 18:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWJWWnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 18:34:05 -0400
-Received: from xenotime.net ([66.160.160.81]:8916 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752050AbWJWWeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 18:34:03 -0400
-Date: Mon, 23 Oct 2006 15:35:40 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: sam@ravnborg.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: CHECK without C compile?
-Message-Id: <20061023153540.4d467a88.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Oct 2006 18:43:49 -0400
+Received: from mx1.cs.washington.edu ([128.208.5.52]:17297 "EHLO
+	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1750956AbWJWWns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 18:43:48 -0400
+Date: Mon, 23 Oct 2006 15:43:46 -0700 (PDT)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: thomas@winischhofer.net
+cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] video SiS: remove unnecessary variables in SiS_DDC2Delay
+Message-ID: <Pine.LNX.4.64N.0610231542130.5012@attu3.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+Remove unnecesary iteration and accumulator variables from SiS_DDC2Delay.
 
-Is there an option/variant of CHECKSRC that does something like
-	make checkall
-i.e., runs CHECK=sparse on all source files, without also building them
-with the C compiler?
+Originally spotted by Jesper Juhl <jesper.juhl@gmail.com>.
 
-Thanks,
+Cc: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Thomas Winischhofer <thomas@winischhofer.net>
+Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
 ---
-~Randy
+ drivers/video/sis/init301.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/video/sis/init301.c b/drivers/video/sis/init301.c
+index f13fadd..47e1896 100644
+--- a/drivers/video/sis/init301.c
++++ b/drivers/video/sis/init301.c
+@@ -445,11 +445,8 @@ #endif
+ void
+ SiS_DDC2Delay(struct SiS_Private *SiS_Pr, unsigned int delaytime)
+ {
+-   unsigned int i, j;
+-
+-   for(i = 0; i < delaytime; i++) {
+-      j += SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
+-   }
++   while (delaytime-- > 0)
++      SiS_GetReg(SiS_Pr->SiS_P3c4, 0x05);
+ }
+ 
+ #if defined(SIS300) || defined(SIS315H)

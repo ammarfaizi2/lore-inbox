@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWJWCN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWJWCaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWJWCN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 22:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWJWCN2
+	id S1751188AbWJWCaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 22:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWJWCaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 22:13:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14526 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751173AbWJWCN2 (ORCPT
+	Sun, 22 Oct 2006 22:30:04 -0400
+Received: from webserve.ca ([69.90.47.180]:28124 "EHLO computersmith.org")
+	by vger.kernel.org with ESMTP id S1751188AbWJWCaD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 22:13:28 -0400
-Date: Mon, 23 Oct 2006 12:12:03 +1000
-From: David Chinner <dgc@sgi.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Vasily Tarasov <vtaras@openvz.org>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
-       Dmitry Mishin <dim@openvz.org>, Vasily Averin <vvs@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>,
-       OpenVZ Developers List <devel@openvz.org>, xfs@oss.sgi.com
-Subject: Re: [PATCH] diskquota: 32bit quota tools on 64bit architectures
-Message-ID: <20061023021203.GH8394166@melbourne.sgi.com>
-References: <200610191232.k9JCW7CF015486@vass.7ka.mipt.ru> <20061019172948.GA30975@infradead.org> <200610200610.k9K6AXgP031789@vass.7ka.mipt.ru> <200610211828.33230.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610211828.33230.arnd@arndb.de>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 22 Oct 2006 22:30:03 -0400
+Message-ID: <453C2903.1060906@wintersgift.com>
+Date: Sun, 22 Oct 2006 19:29:23 -0700
+From: teunis <teunis@wintersgift.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc2-git7 shutdown problem
+References: <20061022145210.n736g78k42e8ggkg@69.222.0.225> <Pine.LNX.4.64.0610221356440.3962@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610221356440.3962@g5.osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 21, 2006 at 06:28:32PM +0200, Arnd Bergmann wrote:
-> On a related topic, I just noticed 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Linus Torvalds wrote:
 > 
-> typedef struct fs_qfilestat {
-> 	__u64		qfs_ino;	/* inode number */
-> 	__u64		qfs_nblks;	/* number of BBs 512-byte-blks */
-> 	__u32		qfs_nextents;	/* number of extents */
-> } fs_qfilestat_t;
+> On Sun, 22 Oct 2006, art@usfltd.com wrote:
+>> 2.6.19-rc2-git7 shutdown problem
+>>
+>> below are last shutdown messages - system is hunging forever !
+>> hda was mounted, hdb not
+>> any clue ?
 > 
-> typedef struct fs_quota_stat {
-> 	__s8		qs_version;	/* version number for future changes */
-> 	__u16		qs_flags;	/* XFS_QUOTA_{U,P,G}DQ_{ACCT,ENFD} */
-> 	__s8		qs_pad;		/* unused */
-> 	fs_qfilestat_t	qs_uquota;	/* user quota storage information */
-> 	fs_qfilestat_t	qs_gquota;	/* group quota storage information */
-> 	__u32		qs_incoredqs;	/* number of dquots incore */
-> 	__s32		qs_btimelimit;  /* limit for blks timer */	
-> 	__s32		qs_itimelimit;  /* limit for inodes timer */	
-> 	__s32		qs_rtbtimelimit;/* limit for rt blks timer */	
-> 	__u16		qs_bwarnlimit;	/* limit for num warnings */
-> 	__u16		qs_iwarnlimit;	/* limit for num warnings */
-> } fs_quota_stat_t;
+> Noting springs to mind immediately.
+> 
+> Can you narrow this down more specifically? Did you test 2.6.19-rc2-git6, 
+> and that was fine? Or did you just happen to test -git7, and the previous 
+> kernel you did this on was some much older one?
 
-Ah, the XFS quota structures.....
+I'm seeing the same thing here between rc2-git6 and rc2-mm2 on intel
+945-based hardware and similar.   (rc2-git6 WORKS, rc2-mm2 FAILS)
+rc2-git6: for the most part works fine.
+rc2-mm2: Restart works - shutdown freezes.
 
-> This one seems to have a more severe problem in x86_64 compat
-> mode. I haven't tried it, but isn't everything down from
-> gs_gquota aligned differently on i386?
+these units otherwise work almost completely: C3 mode doesn't work but
+C4 DOES (ACPI sleep if I remember names correctly).
 
-Yes - this is just one of several interfaces into XFS that need compat
-handling that don't have them right now.
+I did not test -git7 (or later).   I could if that would help.
+- - Teunis
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+iD8DBQFFPCjybFT/SAfwLKMRAo+tAJ0XE0/zXvsDQnnGikbcF6pvmlh+xACffOBh
+dUumPzGFGLxGb76mtvNtcQ4=
+=dvWQ
+-----END PGP SIGNATURE-----

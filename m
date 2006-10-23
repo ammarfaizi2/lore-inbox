@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWJWPpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWJWPrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWJWPpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWJWPpo
+	id S932152AbWJWPrx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWJWPrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:45:44 -0400
-Received: from stinky.trash.net ([213.144.137.162]:60056 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1751054AbWJWPpn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:45:43 -0400
-Message-ID: <453CE3A4.7030003@trash.net>
-Date: Mon, 23 Oct 2006 17:45:40 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Zhu Yi <yi.zhu@intel.com>, LKML <linux-kernel@vger.kernel.org>,
-       jketreno@linux.intel.com
-Subject: Re: 2.6.19-rc2: ieee80211/ipw2200 regression
-References: <200610230244.43948.s0348365@sms.ed.ac.uk> <200610231422.07647.s0348365@sms.ed.ac.uk> <200610231454.00238.s0348365@sms.ed.ac.uk> <200610231635.49869.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200610231635.49869.s0348365@sms.ed.ac.uk>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------000608080304000008000704"
+	Mon, 23 Oct 2006 11:47:53 -0400
+Received: from xenotime.net ([66.160.160.81]:6327 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751054AbWJWPrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 11:47:51 -0400
+Date: Mon, 23 Oct 2006 08:49:30 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [KJ] make pdfdocs broken in 2.6.19rc2 and needs fixes
+Message-Id: <20061023084930.8d33a996.rdunlap@xenotime.net>
+In-Reply-To: <1161601779.19388.20.camel@localhost.localdomain>
+References: <200610222347.42418.ak@suse.de>
+	<1161601779.19388.20.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000608080304000008000704
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On Mon, 23 Oct 2006 12:09:39 +0100 Alan Cox wrote:
 
-Alistair John Strachan wrote:
-> Tried compiling as a module too and the ieee80211 system doesn't load arc4.ko 
-> before bailing out. If I reboot, load it myself and try again, it still 
-> doesn't work.
+> Ar Sul, 2006-10-22 am 23:47 +0200, ysgrifennodd Andi Kleen:
+> > When you do make pdfdocs  with 2.6.19rc2-git7 you get tons of error 
+> > messages and  then some corrupted PDFs in the end.
 > 
+> Some vendor shipped pdf and TeX tools are problematic. It works
+> correctly on Red Hat except for kernel-api which has become too big for
+> the default settings when ext4 was added. The TeX hash size gets
+> exceeded, TeX emits
+> 
+> "! TeX capacity exceeded, sorry [hash size=60000].
+> If you really absolutely need more capacity,
+> you can ask a wizard to enlarge me."
 
-Do you have CONFIG_CRYPTO_ECB enabled? I think this patch is needed.
+I have a k-doc note to self which says something like "move all
+filesystems from kernel-api to filesystems-api".  That was just
+for compartmentalization or modularization, not to fix this tools
+problem, but it would do that as well.  So I can do that soon.
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+> Really it would be nice to find a more modern way from the input to pdf
+> without going via tex.
 
---------------000608080304000008000704
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+Agreed.
 
-diff --git a/net/ieee80211/Kconfig b/net/ieee80211/Kconfig
-index f7e84e9..dbf55d3 100644
---- a/net/ieee80211/Kconfig
-+++ b/net/ieee80211/Kconfig
-@@ -32,6 +32,7 @@ config IEEE80211_CRYPT_WEP
- 	depends on IEEE80211
- 	select CRYPTO
- 	select CRYPTO_ARC4
-+	select CRYPTO_ECB
- 	select CRC32
- 	---help---
- 	Include software based cipher suites in support of IEEE
+I've been thinking of exploring other transform tools, but I
+haven't taken the time to do that yet.
 
---------------000608080304000008000704--
+---
+~Randy

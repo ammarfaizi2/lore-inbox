@@ -1,71 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751615AbWJWGtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWJWGut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751615AbWJWGtz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 02:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbWJWGtz
+	id S1751621AbWJWGut (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 02:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWJWGus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 02:49:55 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:22418 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751614AbWJWGtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 02:49:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=4p3BuHpVwmvPSqWd9BZuHRy9bAE/m9ucFPBqx0smbXD8ylKax3/mWp/jPseENGYHXOJeoMFXt4he7iEShL5O2WmR8tbqfaTcMPF8RD6sUudYbQEqRF4CdZqcyqSPDLWo2TWUyEJeNtjO3woMdwwt0FvJN+w4G0Heqr0UAO94Mks=  ;
-Message-ID: <453C660A.1060405@yahoo.com.au>
-Date: Mon, 23 Oct 2006 16:49:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 23 Oct 2006 02:50:48 -0400
+Received: from adsl-ull-137-166.41-151.net24.it ([151.41.166.137]:55847 "EHLO
+	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
+	id S1751621AbWJWGus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 02:50:48 -0400
+Message-ID: <453C65AC.6050109@abinetworks.biz>
+Date: Mon, 23 Oct 2006 08:48:12 +0200
+From: Gianluca Alberici <gianluca@abinetworks.biz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: dino@in.ibm.com, akpm@osdl.org, mbligh@google.com, menage@google.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, rohitseth@google.com,
-       holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>	<20061020210422.GA29870@in.ibm.com>	<20061022201824.267525c9.pj@sgi.com>	<453C4E22.9000308@yahoo.com.au>	<20061022225108.21716614.pj@sgi.com>	<453C5E77.2050905@yahoo.com.au> <20061022234152.baaf4624.pj@sgi.com>
-In-Reply-To: <20061022234152.baaf4624.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Giridhar Pemmasani <pgiri@yahoo.com>
+CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+References: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
+In-Reply-To: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nick wrote:
-> 
->>These are both part of the same larger solution, which is to
->>partition domains. isolated CPUs are just the case of 1 CPU in
->>its own domain (and that's how they are implemented now).
-> 
-> 
-> and later, he also wrote:
-> 
->>I think this is much more of an automatic behind your back thing.
-> 
-> 
-> I got confused there.
-> 
-> I agree that if we can do a -good- job of it, then an implicit,
-> automatic solution is better for the problem of reducing sched domain
-> partition sizes on large systems than yet another manual knob.
+Hi again,
 
-OK, good.
+tainting apart, do you get to load ndiswrapper ? On what kernel exactly ?
+I cant on rc2-mm2
 
-> But I thought that it was good idea, with general agreement, to provide
-> an explicit control of isolated cpus for the real-time folks, even if
-> under the covers it use sched domain partitions of size 1 to implement
-> it.
+Thanks
 
-If they isolate it by setting the cpus_allowed masks of processes
-to reflect the way they'd like balancing to be carried out, then
-the partition will be made for them.
+Gianluca
 
-But an explicit control might be required anyway, and I wouldn't
-disagree with it. It might be required to do more than just sched
-partitioning (eg. pdflush and other kernel threads should probably
-be made to stay off isolated cpus as well, where possible).
+Giridhar Pemmasani wrote:
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+>--- Chase Venters <chase.venters@clientec.com> wrote:
+>
+>  
+>
+>>On Monday 23 October 2006 00:40, Giridhar Pemmasani wrote:
+>>    
+>>
+>>>It seems that the kernel module loader taints ndiswrapper module as
+>>>proprietary, but it is not - it is fully GPL: see
+>>>http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
+>>>      
+>>>
+>>Indeed. 'ndiswrapper' is intentionally tainted by kernel/module.c because
+>>it 
+>>is used to load and run unknown binary / proprietary code in kernel-space.
+>>If 
+>>this unknown binary / proprietary code were to contain a bug (which all
+>>code 
+>>of that complexity tends to), it might write to memory it doesn't own, or 
+>>coerce a device to do so on its behalf, making a kernel crash dump analysis
+>>
+>>into a wild goose chase (hence the reason for kernel taint).
+>>    
+>>
+>
+>Yes, I agree on the purpose of tainting the kernel.
+>
+>  
+>
+>>>Note that when a driver is loaded, ndiswrapper does taint the kernel (to
+>>>      
+>>>
+>>be
+>>    
+>>
+>>>more accurate, it should check if the driver being loaded is GPL or not,
+>>>but that is not done).
+>>>      
+>>>
+>>Are you saying ndiswrapper voluntarily calls add_taint() whenever it loads
+>>an 
+>>NDIS driver?
+>>    
+>>
+>
+>Exactly - the loader within ndiswrapper taints kernel versions 2.6.10 and
+>newer (older kernels don't have a way of tainting the kernel). The code is in
+>loader.c in ndiswrapper.
+>
+>  
+>
+>>Are there even any examples of GPL-licensed NDIS drivers?
+>>    
+>>
+>
+>I don't remember off hand, but sometime back there was discussion on related
+>topic of weather ndiswrapper should be in debian-main or not, and someone
+>pointed out a GPL ndis driver. (BTW, after much discussion on debian devel
+>list, the developers agreed that ndiswrapper belongs in debian-main.)
+>
+>Giri
+>
+>__________________________________________________
+>Do You Yahoo!?
+>Tired of spam?  Yahoo! Mail has the best spam protection around 
+>http://mail.yahoo.com 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWJWVSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbWJWVTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWJWVSf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 17:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWJWVSf
+	id S1751678AbWJWVTV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 17:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWJWVTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 17:18:35 -0400
-Received: from ns.suse.de ([195.135.220.2]:6584 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751226AbWJWVSe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 17:18:34 -0400
-Date: Mon, 23 Oct 2006 14:18:35 -0700
-From: Greg KH <gregkh@suse.de>
-To: Thomas Maier <balagi@justmail.de>
+	Mon, 23 Oct 2006 17:19:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14046
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751678AbWJWVTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 17:19:20 -0400
+Date: Mon, 23 Oct 2006 14:19:19 -0700 (PDT)
+Message-Id: <20061023.141919.115911218.davem@davemloft.net>
+To: jeff.chua.linux@gmail.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.19-rc2-mm2 sysfs: sysfs_write_file() writes zero terminated data
-Message-ID: <20061023211835.GA27613@suse.de>
-References: <op.tht1yneaiudtyh@master> <20061022183924.GA18032@suse.de> <op.thv4lpt0iudtyh@master>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <op.thv4lpt0iudtyh@master>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Subject: Re: linux-2.6.19-rc2 tg3 problem
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+References: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 10:02:03PM +0200, Thomas Maier wrote:
-> Hello,
-> 
-> Sorry, maybe i missed something, but according to the
-> code in fs/sysfs/file.c the "write" sequence is:
-> 
-> - call to sysfs_write_file(ubuf, count)
-> - if (!sysfsbuf->page)  alloc zeroed page
-> - copy count bytes from ubuf to sysfsbuf->page
-> - call store(sysfsbuf->page, count)
-> 
-> When you write again to the file before closing it
-> (possible?!), and count is less the the previous count
-> you may not pass a zero terminated string/data to store().
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+Date: Mon, 23 Oct 2006 23:24:14 +0800
 
-Yeah, that might happen, but writing to a sysfs file again after the
-first time is not the normal case here.  I'll add your patch to the
-queue to keep this from happening though, good catch.
+> I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
+> with patching to v3.66 ...
 
-greg k-h
+You've posted this about 4 times, you can be sure we've seen every one
+of them, please don't post it again ok? :-)  Just wait patiently for
+someone to look at this problem, thanks.
+
+FWIW, this looks like it has been caused by some platform specific
+or generic PCI layer changes.  It doesn't look like a tg3 driver
+bug at all, as it's just looking for the PCI resource for the
+register mapping which should always just work if the PCI layer
+is behaving.
+
+

@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWJWUhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWJWUjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWJWUhU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWJWUhT
+	id S1751161AbWJWUjr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWJWUjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:37:19 -0400
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:61574 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1750928AbWJWUhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:37:18 -0400
-Message-ID: <453D27F8.8020509@qumranet.com>
-Date: Mon, 23 Oct 2006 22:37:12 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/13] KVM: vcpu execution loop
-References: <453CC390.9080508@qumranet.com> <200610232141.45802.arnd@arndb.de> <453D230D.7070403@qumranet.com> <200610232229.41934.arnd@arndb.de>
-In-Reply-To: <200610232229.41934.arnd@arndb.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Oct 2006 20:37:17.0723 (UTC) FILETIME=[07E70EB0:01C6F6E3]
+	Mon, 23 Oct 2006 16:39:47 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:58782 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1751161AbWJWUjq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:39:46 -0400
+Date: Mon, 23 Oct 2006 21:39:44 +0100
+To: Damien Wyart <damien.wyart@free.fr>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc2-mm2 : empty files on vfat file system
+Message-ID: <20061023203944.GA17290@skynet.ie>
+References: <20061021104454.GA1996@localhost.localdomain> <87lkn9x0ly.fsf@duaron.myhome.or.jp> <20061021173849.GA1999@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20061021173849.GA1999@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Monday 23 October 2006 22:16, Avi Kivity wrote:
->   
->>> This looks like you should simply put it into a .S file.
->>>
->>>  
->>>       
->> Then I lose all the offsetof constants down the line.  Sure, I could do
->> the asm-offsets dance but it seems to me like needless obfuscation.
->>     
->
-> Ok, I see.
->
-> How if you pass &vcpu->regs and &vcpu->cr2 to the functions instead of 
-> kvm_vcpu?
->
->   
+On (21/10/06 19:38), Damien Wyart didst pronounce:
+> > > I have noticed something strange (and bad :) since using
+> > > 2.6.19-rc2-mm2 (the problem is NOT present on 2.6.19-rc2-mm1 ; do
+> > > not know for mainline, I have not been able to test yet, but I think
+> > > there have not been recent changes in this area) : writing a file to
+> > > a vfat fs (fat 32) writes it, but with size 0 and no content.
+> 
+> * OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> [2006-10-21 22:24]:
+> > diff -puN fs/fat/inode.c~fs-prepare_write-fixes fs/fat/inode.c
+> > --- a/fs/fat/inode.c~fs-prepare_write-fixes
+> > +++ a/fs/fat/inode.c
+> > @@ -150,7 +150,11 @@ static int fat_commit_write(struct file 
+> >  			    unsigned from, unsigned to)
+> >  {
+> >  	struct inode *inode = page->mapping->host;
+> > -	int err = generic_commit_write(file, page, from, to);
+> > +	int err;
+> > +	if (to - from > 0)
+> > +		return 0;
+> > +
+> > +	err = generic_commit_write(file, page, from, to);
+> >  	if (!err && !(MSDOS_I(inode)->i_attrs & ATTR_ARCH)) {
+> >  		inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+> >  		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
+> 
+> > This change does't update ->i_size. Could you just delete, and test
+> > it? Anyway, this seems wrong even if it's "if ((to - from) == 0)".
+> 
+> Reverting the change makes the problem go away. But I do not know if
+> this is safe wrt the fs-prepare_write-fixes patch.
+> 
 
-I could do that, but I feel that's more brittle.  I might need more (or 
-other) fields later on.  It will also cost me more  pushes on the stack 
-(no real performance or space impact, just C64-era frugality).
-
+I don't know about the fix, but the issue is pretty serious for IA64 and the
+EFI bootloader. On the IA64 I have access to, the bootloader and related
+files are stored on a VFAT file system so when an automated system ran a
+simple boot-test, the bootloader was blown away as a result.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbWJWUJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWJWUJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbWJWUJB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbWJWUJB
+	id S965025AbWJWUJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWJWUJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:09:01 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:29843 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965024AbWJWUJA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:09:00 -0400
-Date: Mon, 23 Oct 2006 15:24:56 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [RFC][PATCH 0/11] i386: Relocatable BzImage (V3)
-Message-ID: <20061023192456.GA13263@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Oct 2006 16:09:10 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:5401 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965025AbWJWUJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:09:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iPEGNwgyVkQMbhWuCs1rPE9n7K2SjPuOPoeaugLTBg2/Q1BCffPdpNo1B24QctvIebpFhGAQv2u61GijJJni6UUkmBJLJc+Lcyj4SqPhi2v36TRH4jY5162Ga+sWvGxftWgNCRfpU1Ib+Ikm69qmj9KbZIuCCtiVsOKI0GchCqE=
+Message-ID: <5bdc1c8b0610231309q246a8964g404c9edb5182a3c4@mail.gmail.com>
+Date: Mon, 23 Oct 2006 13:09:08 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: -rt7 announcement? (was Re: 2.6.18-rt6)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1161629955.22373.40.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <20061018083921.GA10993@elte.hu>
+	 <1161356444.15860.327.camel@mindpipe>
+	 <1161621286.2835.3.camel@mindpipe>
+	 <1161628539.22373.36.camel@localhost.localdomain>
+	 <5bdc1c8b0610231144s420c1523p43af2a8349bac04@mail.gmail.com>
+	 <1161629955.22373.40.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10/23/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Mon, 2006-10-23 at 11:44 -0700, Mark Knecht wrote:
+<SNIP>
+>
+> >    In 2.6.18-rt6 I turned on HRT support, left 1000 nanoseconds for
+> > the timing, but did not enable dynamic ticks since I wasn't sure it
+> > was OK on AMD64. Should I be using DynTicks with an AMD64 single
+> > processor? With a dual-processor?
+>
+> Should work
+>
+<SNIP>
 
-Here is the third attempt on implementing relocatable bzImage for i386.
-Eric has done all the ground work and I am just giving it final finish.
-Generated patches against (2.6.19-rc2-git7).
+I turned on DynTicks. When I rebooted with the new kernel I got a lot
+of fsck messages about file systems times being in the future and
+being fixed. Is this a 1-time deal?
 
-V2 ran into issues with lilo on Andrew's machine. I can't reproduce the
-problem. For the sake of simpilicity, I have dropped the bit which added
-and ELF header to bzImage. Instead, I have extended the bzImage protocol
-to enable boot loaders to load protected mode kernel at a non 1MB address.
-Hopefully this should not break any existing behaviour.
+Other than that no problems. dmesg appears to be clean so far.
 
-This functionality is especially useful for kdump where a single kernel
-can be used both as production kernel and dump capture kernel and distors
-don't have to maintain an additional kernel just for capturing the dump.
-
-I have tested it with grub (.97) and lilo (lilo 22.7.3). 
-
-Note: One has to upgrade the binutils if you want to use
-      CONFIG_RELOCATABLE=y. Previous ld version will make section relative
-      symbols absolute, if section containing the symbols has zero size.
-      These absolute symbols are not relocated. This issue has been fixed
-      in latest binutils. I am using the one built on 09th octoer 2006 and
-      it works fine for me.   
-
-Chages since version V2
-----------------------
-- Dropped adding and ELF header to bzImage.
-- Extended bzImage protocol for relocatable bzImage (version 2.05)
-- Added support to display warning message at compilation time if
-  relocations relative to absolute symbols are present.
-- Fixed a bug where some intermediate files were not being cleaned up
-  by "make clean"
-- Avoid building vmlinux.bin.all if CONFIG_RELOCATABLE is not set.
-
-Looking forward for your suggestions and any test results.
-
-Thanks
-Vivek
+- Mark

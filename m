@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751840AbWJWJQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751854AbWJWJXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751840AbWJWJQD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 05:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWJWJQD
+	id S1751854AbWJWJXb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 05:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWJWJXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 05:16:03 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:26575 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751840AbWJWJQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 05:16:01 -0400
-Message-ID: <453C877E.6090002@aitel.hist.no>
-Date: Mon, 23 Oct 2006 11:12:30 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Mon, 23 Oct 2006 05:23:31 -0400
+Received: from swan.nt.tuwien.ac.at ([128.131.67.158]:46528 "EHLO
+	swan.nt.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S1751854AbWJWJXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 05:23:31 -0400
+Date: Mon, 23 Oct 2006 11:23:29 +0200
+From: Thomas Zeitlhofer <tzeitlho+lkml@nt.tuwien.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: mkdir on read-only NFS is broken in 2.6.18
+Message-ID: <20061023092329.GA5231@swan.nt.tuwien.ac.at>
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Christopher Monty Montgomery <xiphmont@gmail.com>,
-       Paolo Ornati <ornati@fastwebnet.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
- from card reader
-References: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
->>> You could try putting a printk() just before the BUG() to display the 
->>> values of ehci->reclaim and qh->qh_state.  Maybe also change the BUG() to 
->>>   
->>>       
->> ehci->reclaim=0
->> qh->qh_state=5
->>     
->
-> 5 is QH_STATE_COMPLETING.  That explains why the BUG() fires.
->
-> At this point it's beyond me.  Monty will have to take it from here.
->
->   
->> During boot I get lots of those "Hardware error, end-of-data detected"
->> messages, but I've never seen it crash during bootup.
->>     
->
-> Those messages are from the card reader.  It doesn't seem to be working 
-> right.  It returns the "end-of-data" error in response to a PREVENT MEDIUM 
-> REMOVAL command
-Unlike a cdrom, it doesn't have the means to prevent media removal. :-)
->  and it returns a phase error in response to a READ 
-> command.  In spite of the fact that it claims to have a 256 MB card 
-> present.
->   
-It has slots for several different cards, all the other
-slots are empty. 
+Hello,
 
-Perhaps it is broken, but interesting as a "stress-test".
-Linux should not crash because of a bad usb thing, just complain.
+there is a problem in 2.6.18/.1 when mkdir is called for an existing
+directory on a read-only mounted NFS filesystem.
 
-Helge Hafting
+Lets consider a server that exports the directory /export which contains
+the directory-tree a/b/c:
 
+1) If /export is mounted ro and the first access to a, b, or c  is
+mkdir, then this directory and all directories underneath become
+inaccessible:
+
+  client:# mount server:/export /mnt -o ro
+  client:# mkdir /mnt/a/b
+  mkdir: cannot create directory `/mnt/a/b': Read-only file system
+  client:# find /mnt
+  /mnt
+  /mnt/a
+  find: /mnt/a/b: No such file or directory
+
+2) If /export is mounted ro and the first access to a, b, or c  is _not_
+by calling mkdir, then a following mkdir does not destroy the directory
+structure (and mkdir now returns EEXIST):
+
+  client:# mount server:/export /mnt -o ro
+  client:# find /mnt
+  /mnt
+  /mnt/a
+  /mnt/a/b
+  /mnt/a/b/c
+  client:# mkdir /mnt/a/b
+  mkdir: cannot create directory `/mnt/a/b': File exists
+  client:# find /mnt
+  /mnt
+  /mnt/a
+  /mnt/a/b
+  /mnt/a/b/c
+
+3) If /export is mounted rw (although exported ro), then mkdir does not
+destroy the directory structure:
+
+  client:# mount server:/export /mnt -o rw
+  client:# mkdir /mnt/a/b
+  mkdir: cannot create directory `/mnt/a/b': Read-only file system
+  client:# find /mnt
+  /mnt
+  /mnt/a
+  /mnt/a/b
+  /mnt/a/b/c
+
+As a consequence of 1), autofs does not work with mountpoints on NFS
+(ro) because the automount daemon calls mkdir for all directories in the
+path to the mountpoint. This seems related to the discussion [1], and,
+as suggested in [1], the issue is fixed by reverting the patch:
+
+http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
+
+So please consider this patch for the next -stable release:
+
+diff --git a/fs/namei.c b/fs/namei.c
+index 432d6bc..5201d77 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1774,8 +1774,6 @@ struct dentry *lookup_create(struct name
+ 	if (nd->last_type != LAST_NORM)
+ 		goto fail;
+ 	nd->flags &= ~LOOKUP_PARENT;
+-	nd->flags |= LOOKUP_CREATE;
+-	nd->intent.open.flags = O_EXCL;
+ 
+ 	/*
+ 	 * Do the final lookup.
+
+--
+[1] http://lkml.org/lkml/2006/9/22/182

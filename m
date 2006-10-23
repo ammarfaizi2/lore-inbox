@@ -1,204 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWJWRZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWJWRct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWJWRZP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 13:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJWRZP
+	id S932209AbWJWRct (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 13:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJWRct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 13:25:15 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:5646 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932205AbWJWRZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 13:25:13 -0400
-Date: Mon, 23 Oct 2006 13:19:10 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: kernel-janitors@lists.osdl.org
-Cc: kjhall@us.ibm.com, akpm@osdl.org, benh@kernel.crashing.org,
-       maxk@qualcomm.com, linux-kernel@vger.kernel.org, nhorman@tuxdriver.com
-Subject: [KJ][PATCH] Correct misc_register return code handling in several drivers
-Message-ID: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	Mon, 23 Oct 2006 13:32:49 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63129 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932209AbWJWRct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 13:32:49 -0400
+Subject: Re: [PATCH] do not compile AMD Geode's hwcrypto driver as a module
+	per default
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: petkov@math.uni-muenster.de
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       info-linux@geode.amd.com
+In-Reply-To: <20061023170931.GB21995@gollum.tnic>
+References: <20061021081745.GA6193@zmei.tnic>
+	 <1161602705.19388.22.camel@localhost.localdomain>
+	 <20061023170931.GB21995@gollum.tnic>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Oct 2006 18:35:34 +0100
+Message-Id: <1161624935.21701.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey All-
-	Janitor patch to clean up return code handling and exit from failed
-calls to misc_register accross several modules.
+Ar Llu, 2006-10-23 am 19:09 +0200, ysgrifennodd Borislav Petkov:
+> ... should the duration of the the kernel compilation be prolonged then by 
+> unneeded modules? Does the majority of people really use that crypto hardware or
+> is it a small percentage only, we don't know but it also doesn't seem pretty sensible to do
+> 'make oldconfig' and go and turn off all modules that I don't need/have by hand;
+> it gets quite annoying sometimes too.
 
-Thanks & Regards
-Neil
+Every person has a unique and individual definitionof "un-needed
+module". In addition developers want more to be compiled as it helps
+catch errors earlier. Thus there are reasons for things defaulting to
+"on" a lot of the time.
 
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Also bear in mind that you can copy ".config" files between releases and
+make oldconfig quite easily so you only have to turn it off once. 
 
+It would be far more productive IMHO to write a tool which generates
+a .config file by inspecting the kernel source and the machine upon
+which the script is run. This could use the extracted pci data tables in
+the modules to produce a correct minimal kernel for many systems.
 
- drivers/char/mmtimer.c          |   29 +++++++++++++++++++++++------
- drivers/char/tpm/tpm.c          |    1 +
- drivers/input/misc/hp_sdc_rtc.c |    6 +++++-
- drivers/macintosh/apm_emu.c     |    5 ++++-
- drivers/net/tun.c               |    2 ++
- fs/dlm/user.c                   |    1 +
- 6 files changed, 36 insertions(+), 8 deletions(-)
+Alan
 
-
-diff --git a/drivers/char/mmtimer.c b/drivers/char/mmtimer.c
---- a/drivers/char/mmtimer.c
-+++ b/drivers/char/mmtimer.c
-@@ -669,6 +669,7 @@ static struct k_clock sgi_clock = {
- static int __init mmtimer_init(void)
- {
- 	unsigned i;
-+	int err = -1;
- 	cnodeid_t node, maxn = -1;
- 
- 	if (!ia64_platform_is("sn2"))
-@@ -680,7 +681,7 @@ static int __init mmtimer_init(void)
- 	if (sn_rtc_cycles_per_second < 100000) {
- 		printk(KERN_ERR "%s: unable to determine clock frequency\n",
- 		       MMTIMER_NAME);
--		return -1;
-+		goto out;
- 	}
- 
- 	mmtimer_femtoperiod = ((unsigned long)1E15 + sn_rtc_cycles_per_second /
-@@ -689,13 +690,13 @@ static int __init mmtimer_init(void)
- 	if (request_irq(SGI_MMTIMER_VECTOR, mmtimer_interrupt, IRQF_PERCPU, MMTIMER_NAME, NULL)) {
- 		printk(KERN_WARNING "%s: unable to allocate interrupt.",
- 			MMTIMER_NAME);
--		return -1;
-+		goto out;
- 	}
- 
- 	if (misc_register(&mmtimer_miscdev)) {
- 		printk(KERN_ERR "%s: failed to register device\n",
- 		       MMTIMER_NAME);
--		return -1;
-+		goto out1;
- 	}
- 
- 	/* Get max numbered node, calculate slots needed */
-@@ -709,16 +710,18 @@ static int __init mmtimer_init(void)
- 	if (timers == NULL) {
- 		printk(KERN_ERR "%s: failed to allocate memory for device\n",
- 				MMTIMER_NAME);
--		return -1;
-+		goto out2;
- 	}
- 
-+	memset(timers,0,(sizeof(mmtimer_t *)*maxn));
-+
- 	/* Allocate mmtimer_t's for each online node */
- 	for_each_online_node(node) {
- 		timers[node] = kmalloc_node(sizeof(mmtimer_t)*NUM_COMPARATORS, GFP_KERNEL, node);
- 		if (timers[node] == NULL) {
- 			printk(KERN_ERR "%s: failed to allocate memory for device\n",
- 				MMTIMER_NAME);
--			return -1;
-+			goto out3;
- 		}
- 		for (i=0; i< NUM_COMPARATORS; i++) {
- 			mmtimer_t * base = timers[node] + i;
-@@ -738,7 +741,21 @@ static int __init mmtimer_init(void)
- 	printk(KERN_INFO "%s: v%s, %ld MHz\n", MMTIMER_DESC, MMTIMER_VERSION,
- 	       sn_rtc_cycles_per_second/(unsigned long)1E6);
- 
--	return 0;
-+	err = 0;
-+out:
-+	return err;
-+
-+out3:
-+	for_each_online_node(node) {
-+		if(timers[node] != NULL)
-+			kfree(timers[node]);
-+	}
-+out2:
-+	misc_deregister(&mmtimer_miscdev);
-+out1:
-+	free_irq(SGI_MMTIMER_VECTOR, NULL);
-+	goto out;
-+	
- }
- 
- module_init(mmtimer_init);
-diff --git a/drivers/char/tpm/tpm.c b/drivers/char/tpm/tpm.c
---- a/drivers/char/tpm/tpm.c
-+++ b/drivers/char/tpm/tpm.c
-@@ -1155,6 +1155,7 @@ #define DEVNAME_SIZE 7
- 
- 	if (sysfs_create_group(&dev->kobj, chip->vendor.attr_group)) {
- 		list_del(&chip->list);
-+		misc_deregister(&chip->vendor.miscdev);
- 		put_device(dev);
- 		clear_bit(chip->dev_num, dev_mask);
- 		kfree(chip);
-diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
---- a/drivers/input/misc/hp_sdc_rtc.c
-+++ b/drivers/input/misc/hp_sdc_rtc.c
-@@ -693,9 +693,13 @@ static int __init hp_sdc_rtc_init(void)
- 
- 	init_MUTEX(&i8042tregs);
- 
-+	INIT_LIST_HEAD(&hp_sdc_rtc_dev.list);
-+
- 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
- 		return ret;
--	misc_register(&hp_sdc_rtc_dev);
-+	if (misc_register(&hp_sdc_rtc_dev) != 0)
-+		printk(KERN_INFO "Could not register misc. dev for sdc\n");
-+
-         create_proc_read_entry ("driver/rtc", 0, NULL,
- 				hp_sdc_rtc_read_proc, NULL);
- 
-diff --git a/drivers/macintosh/apm_emu.c b/drivers/macintosh/apm_emu.c
---- a/drivers/macintosh/apm_emu.c
-+++ b/drivers/macintosh/apm_emu.c
-@@ -520,6 +520,8 @@ static int __init apm_emu_init(void)
- {
- 	struct proc_dir_entry *apm_proc;
- 
-+	INIT_LIST_HEAD(&apm_device.list);
-+
- 	if (sys_ctrler != SYS_CTRLER_PMU) {
- 		printk(KERN_INFO "apm_emu: Requires a machine with a PMU.\n");
- 		return -ENODEV;
-@@ -529,7 +531,8 @@ static int __init apm_emu_init(void)
- 	if (apm_proc)
- 		apm_proc->owner = THIS_MODULE;
- 
--	misc_register(&apm_device);
-+	if (misc_register(&apm_device) != 0)
-+		printk(KERN_INFO "Could not create misc. device for apm\n");
- 
- 	pmu_register_sleep_notifier(&apm_sleep_notifier);
- 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -856,6 +856,8 @@ static int __init tun_init(void)
- 	printk(KERN_INFO "tun: %s, %s\n", DRV_DESCRIPTION, DRV_VERSION);
- 	printk(KERN_INFO "tun: %s\n", DRV_COPYRIGHT);
- 
-+	INIT_LIST_HEAD(&tun_miscdev.list);
-+
- 	ret = misc_register(&tun_miscdev);
- 	if (ret)
- 		printk(KERN_ERR "tun: Can't register misc device %d\n", TUN_MINOR);
-diff --git a/fs/dlm/user.c b/fs/dlm/user.c
---- a/fs/dlm/user.c
-+++ b/fs/dlm/user.c
-@@ -773,6 +773,7 @@ int dlm_user_init(void)
- 	ctl_device.name = "dlm-control";
- 	ctl_device.fops = &ctl_device_fops;
- 	ctl_device.minor = MISC_DYNAMIC_MINOR;
-+	INIT_LIST_HEAD(&ctl_device.list);
- 
- 	error = misc_register(&ctl_device);
- 	if (error)
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/

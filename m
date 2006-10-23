@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751541AbWJWF4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWJWF7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751541AbWJWF4B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 01:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWJWF4A
+	id S1751542AbWJWF7v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 01:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWJWF7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 01:56:00 -0400
-Received: from adsl-ull-137-166.41-151.net24.it ([151.41.166.137]:20263 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S1751539AbWJWF4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 01:56:00 -0400
-Message-ID: <453C58D9.4070502@abinetworks.biz>
-Date: Mon, 23 Oct 2006 07:53:29 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Giridhar Pemmasani <pgiri@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-References: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
-In-Reply-To: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 23 Oct 2006 01:59:51 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17085 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751542AbWJWF7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 01:59:51 -0400
+Date: Sun, 22 Oct 2006 22:59:35 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: suresh.b.siddha@intel.com, dino@in.ibm.com, nickpiggin@yahoo.com.au,
+       mbligh@google.com, akpm@osdl.org, menage@google.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, rohitseth@google.com,
+       holt@sgi.com, dipankar@in.ibm.com, clameter@sgi.com
+Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
+Message-Id: <20061022225935.5baac180.pj@sgi.com>
+In-Reply-To: <20061022213052.A2526@unix-os.sc.intel.com>
+References: <20061019120358.6d302ae9.pj@sgi.com>
+	<4537D056.9080108@yahoo.com.au>
+	<4537D6E8.8020501@google.com>
+	<4538F34A.7070703@yahoo.com.au>
+	<20061020120005.61239317.pj@sgi.com>
+	<20061020203016.GA26421@in.ibm.com>
+	<20061020144153.b40b2cc9.pj@sgi.com>
+	<20061020223553.GA14357@in.ibm.com>
+	<20061020161403.C8481@unix-os.sc.intel.com>
+	<20061020223738.2919264e.pj@sgi.com>
+	<20061022213052.A2526@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Suresh wrote:
+> Ok. I went to implementation details(and ended up less straight forward..) but
+> my main intention was to say that we need to retain some sort of hierarchical 
+> shape too, while creating these domain partitions.
 
-Have got the same problem. I just add the following:
+Good points.
 
-1) dmesg claims __create_workqueue and __destroy_workqueue are undefined 
-(kernel syms)
-2) I've checked out System.map and they're of course present
-3) no problem under 2.6.18.1
-4) from ndiswrapper-1.15 to ndiswrapper-1.26
+Getting cpusets to work in a hierarchical organization managing a large
+system is a key goal of mine.
 
-By the way, i would like so much if someone explain me why, since 
-2.6.18, on my Acer Laptop i had to add irqpoll to correctly boot (had 
-already to use acpi=noirq) and still have strange errors on DVD 
-detection at boot which strangely has not any consequence later.
-The problem is there since 2.6.18.
+That means shaping the API's so that they fit the structure of various
+users, so that the right person or program can make the right decision
+at the right time, easily, and have it all work.
 
-Thanks,
+Take a look at my "no need to load balance" flag idea, in my post
+a few minutes ago responding to Nick.  That feels to me like it
+might be an API that fits the users space, understanding and needs
+well, while still giving us what we need to be able to reduce the
+size of sched domain partitions on huge systems, where possible.
 
-Gianluca
-
-
-Giridhar Pemmasani wrote:
-
->It seems that the kernel module loader taints ndiswrapper module as
->proprietary, but it is not - it is fully GPL: see
->http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
->
->Note that when a driver is loaded, ndiswrapper does taint the kernel (to be
->more accurate, it should check if the driver being loaded is GPL or not, but
->that is not done).
->
->Thanks,
->Giri
->
->__________________________________________________
->Do You Yahoo!?
->Tired of spam?  Yahoo! Mail has the best spam protection around 
->http://mail.yahoo.com 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

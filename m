@@ -1,105 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWJWUCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWJWUCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWJWUCX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWJWUCX
+	id S1030193AbWJWUCu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWJWUCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:02:23 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:61387 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030192AbWJWUCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:02:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m3r+Y4aREvKvTrb0gZ8UtR7rmSva8414b8ybUbUTb+WBjX56h9MpoUF7DFAeKJwR2y40WdLDJIcPMvfa9Y7uixZjHIz7hp1vw+tji+NBVq0Km87Gvx+JxwxANAJA/wpRCc5ypSd1AqHYYu5C8xYh4hSDECgWX11zGuppxh2J1Zk=
-Message-ID: <b637ec0b0610231302q700d0c79m65e73d16e21c06de@mail.gmail.com>
-Date: Mon, 23 Oct 2006 22:02:20 +0200
-From: "Fabio Comolli" <fabio.comolli@gmail.com>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.19-rc2-mm2] oops removing sd card
-Cc: drzeus-mmc@drzeus.cx, "Andrew Morton" <akpm@osdl.org>, oakad@yahoo.com
-In-Reply-To: <b637ec0b0610220917l5b0720e6l76d349f91038e086@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Oct 2006 16:02:50 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:49092 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030193AbWJWUCs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:02:48 -0400
+Date: Mon, 23 Oct 2006 14:02:42 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andre Noll <maan@systemlinux.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org, linux-ext4@vger.kernel.org
+Cc: Eric Sandeen <esandeen@redhat.com>
+Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
+Message-ID: <20061023200242.GA5015@schatzie.adilger.int>
+Mail-Followup-To: Andre Noll <maan@systemlinux.org>,
+	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+	linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
+References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <b637ec0b0610220917l5b0720e6l76d349f91038e086@mail.gmail.com>
+In-Reply-To: <20061023164416.GM3509@schatzie.adilger.int>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More info: I tried to use tifm_core.c and tifm_71xx.c from 2.6.18-mm3
-with 2.6.19-rc2-mm2 and the crash also happens.
+On Oct 23, 2006  10:44 -0600, Andreas Dilger wrote:
+> Hmm, this would appear to be a buglet in error handling.  If the block just
+> allocated above is in the system zone it should be marked in-use in the
+> bitmap but otherwise ignored.  We definitely should NOT be freeing it on
+> error.
+> 
+> Yikes!  It seems a patch I submitted to 2.4 that fixed the behaviour
+> of ext3_new_block() so that if we detect this block shouldn't be
+> allocated it is skipped instead of corrupting the filesystem if it
+> is running with errors=continue...
+> 
+> It looks like ext3_free_blocks() needs a similar fix - i.e. report an
+> error and don't actually free those blocks.
 
-Hope this helps.
-Fabio
+I found a URL for the 2.4 version of this patch, if some kind soul would
+update it for 2.6 it might save someone's data in the future.  It looks
+at the time I wasn't working on 2.5 kernels and nobody else took it on.
 
+http://lkml.org/lkml/2003/4/7/252
 
-On 10/22/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
-> Hi.
-> Removing an SD card from my TI FlashMedia controller triggers this:
->
->
-> Oct 22 18:07:32 tycho kernel: tifm_7xx1: demand removing card from socket 3
-> Oct 22 18:07:33 tycho kernel: PM: Removing info for mmc:mmc0:a95c
-> Oct 22 18:07:33 tycho kernel: PM: Removing info for tifm:tifm_sd0:3
-> Oct 22 18:07:33 tycho kernel: BUG: unable to handle kernel NULL
-> pointer dereference at virtual address 00000030
-> Oct 22 18:07:33 tycho kernel:  printing eip:
-> Oct 22 18:07:33 tycho kernel: c012cb0d
-> Oct 22 18:07:33 tycho kernel: *pde = 00000000
-> Oct 22 18:07:33 tycho kernel: Oops: 0000 [#1]
-> Oct 22 18:07:33 tycho kernel: SMP
-> Oct 22 18:07:33 tycho kernel: last sysfs file:
-> /class/net/eth1/statistics/tx_packets
-> Oct 22 18:07:33 tycho kernel: Modules linked in: hidp l2cap
-> cpufreq_performance bluetooth arc4 ecb blkcipher ieee80211_crypt_wep
-> video ac button ipw2200 ieee80211 ieee80211_crypt battery nls_utf8
-> ntfs speedstep_centrino cpufreq_conservative cpufreq_stats
-> cpufreq_powersave cpufreq_ondemand freq_table snd_intel8x0
-> snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss
-> snd_seq_midi_event snd_seq pcmcia snd_seq_device snd_pcm_oss
-> snd_mixer_oss snd_pcm snd_timer ohci1394 snd 8250_pci ieee1394 8250
-> soundcore serial_core snd_page_alloc 8139too ehci_hcd uhci_hcd
-> yenta_socket rsrc_nonstatic pcmcia_core tifm_7xx1 mii
-> Oct 22 18:07:33 tycho kernel: CPU:    0
-> Oct 22 18:07:33 tycho kernel: EIP:
-> 0060:[flush_cpu_workqueue+14/129]    Not tainted VLI
-> Oct 22 18:07:33 tycho kernel: EFLAGS: 00010282   (2.6.19-rc2-mm2 #2)
-> Oct 22 18:07:33 tycho kernel: EIP is at flush_cpu_workqueue+0xe/0x81
-> Oct 22 18:07:33 tycho kernel: Process tifm0 (pid: 506, ti=f6246000
-> task=f7f94550 task.ti=f62
-> Oct 22 18:07:33 tycho kernel: esi: f5111e20   edi: c03808a0   ebp:
-> f7f9a8c0   esp: f6247ec8
-> Oct 22 18:07:33 tycho kernel: ds: 007b   es: 007b   ss: 0068
-> Oct 22 18:07:33 tycho kernel:  [kobject_release+0/8] kobject_release+0x0/0x8
-> Oct 22 18:07:33 tycho kernel: Stack: 00000282 f3b44000 00000286
-> f7f9a8c0 c012cb89 f3b44000 c03808a0 c012cc29
-> Oct 22 18:07:33 tycho kernel:        f3b44000 c0380908 c03808a0
-> c02664ae f3b440a4 c025fdad f3b440bc f3b440a4
-> Oct 22 18:07:33 tycho kernel:        c0380908 c03808a0 c01df40f
-> f3b440bc c01df42f 00000286 f3b44000 c01dff14
-> Oct 22 18:07:33 tycho kernel: Call Trace:
-> Oct 22 18:07:33 tycho kernel:  [flush_workqueue+9/102] flush_workqueue+0x9/0x66
-> Oct 22 18:07:33 tycho kernel:  [destroy_workqueue+10/133]
-> destroy_workqueue+0xa/0x85
-> Oct 22 18:07:33 tycho kernel:  [tifm_free_device+16/24]
-> tifm_free_device+0x10/0x18
-> Oct 22 18:07:33 tycho kernel:  [device_release+38/107] device_release+0x26/0x6b
-> Oct 22 18:07:33 tycho kernel:  [kobject_cleanup+62/94] kobject_cleanup+0x3e/0x5e
-> Oct 22 18:07:33 tycho kernel:  [run_workqueue+127/193] run_workqueue+0x7f/0xc
-> Oct 22 18:07:33 tycho kernel:  [kref_put+124/140] kref_put+0x7c/0x8c
-> Oct 22 18:07:33 tycho kernel:  [pg0+943689914/1069286400]
-> tifm_7xx1_remove_media+0xba/0xfd [tifm_7xx1]
->
->
-> After that the system behaves normally but hangs solid during suspend-to-disk.
-> This bug didn't happen with 2.6.18-mm3 (last kernel used).
->
-> dmesg (with another subsequent bug) and .config attached.
->
-> Regards,
-> Fabio
->
->
->
+[patch is pasted, may not be free of whitespace munging, but then it will
+ need to be applied to 2.6 by hand anyways]
+======================= ext2-2.4.18-badalloc.diff ===========================
+--- linux-2.4.18.orig/fs/ext3/balloc.c	Wed Feb 27 10:31:59 2002
++++ linux-2.4.18-aed/fs/ext3/balloc.c	Mon Mar 18 17:15:46 2002
+@@ -276,7 +273,8 @@ void ext3_free_blocks
+ 	}
+ 	lock_super (sb);
+ 	es = sb->u.ext3_sb.s_es;
+-	if (block < le32_to_cpu(es->s_first_data_block) || 
++	if (block < le32_to_cpu(es->s_first_data_block) ||
++	    block + count < block ||
+ 	    (block + count) > le32_to_cpu(es->s_blocks_count)) {
+ 		ext3_error (sb, "ext3_free_blocks",
+ 			    "Freeing blocks not in datazone - "
+@@ -309,17 +307,6 @@ void ext3_free_blocks
+ 	if (!gdp)
+ 		goto error_return;
+ 
+-	if (in_range (le32_to_cpu(gdp->bg_block_bitmap), block, count) ||
+-	    in_range (le32_to_cpu(gdp->bg_inode_bitmap), block, count) ||
+-	    in_range (block, le32_to_cpu(gdp->bg_inode_table),
+-		      sb->u.ext3_sb.s_itb_per_group) ||
+-	    in_range (block + count - 1, le32_to_cpu(gdp->bg_inode_table),
+-		      sb->u.ext3_sb.s_itb_per_group))
+-		ext3_error (sb, "ext3_free_blocks",
+-			    "Freeing blocks in system zones - "
+-			    "Block = %lu, count = %lu",
+-			    block, count);
+-
+ 	/*
+ 	 * We are about to start releasing blocks in the bitmap,
+ 	 * so we need undo access.
+@@ -345,14 +332,24 @@ void ext3_free_blocks
+ 	if (err)
+ 		goto error_return;
+ 
+-	for (i = 0; i < count; i++) {
++	for (i = 0; i < count; i++, block++) {
++		if (block == le32_to_cpu(gdp->bg_block_bitmap) ||
++		    block == le32_to_cpu(gdp->bg_inode_bitmap) ||
++		    in_range(block, le32_to_cpu(gdp->bg_inode_table),
++			     EXT3_SB(sb)->s_itb_per_group)) {
++			ext3_error(sb, __FUNCTION__,
++				   "Freeing block in system zone - block =
+%lu",
++				   block);
++			continue;
++		}
++
+ 		/*
+ 		 * An HJ special.  This is expensive...
+ 		 */
+ #ifdef CONFIG_JBD_DEBUG
+ 		{
+ 			struct buffer_head *debug_bh;
+-			debug_bh = sb_get_hash_table(sb, block + i);
++			debug_bh = sb_get_hash_table(sb, block);
+ 			if (debug_bh) {
+ 				BUFFER_TRACE(debug_bh, "Deleted!");
+ 				if (!bh2jh(bitmap_bh)->b_committed_data)
+@@ -365,9 +362,8 @@ void ext3_free_blocks
+ #endif
+ 		BUFFER_TRACE(bitmap_bh, "clear bit");
+ 		if (!ext3_clear_bit (bit + i, bitmap_bh->b_data)) {
+-			ext3_error (sb, __FUNCTION__,
+-				      "bit already cleared for block %lu", 
+-				      block + i);
++			ext3_error(sb, __FUNCTION__,
++				   "bit already cleared for block %lu",
+block);
+ 			BUFFER_TRACE(bitmap_bh, "bit already cleared");
+ 		} else {
+ 			dquot_freed_blocks++;
+@@ -415,7 +411,6 @@ void ext3_free_blocks
+ 	if (!err) err = ret;
+ 
+ 	if (overflow && !err) {
+-		block += count;
+ 		count = overflow;
+ 		goto do_more;
+ 	}
+@@ -575,6 +574,7 @@ int ext3_new_block
+ 
+ 	ext3_debug ("goal=%lu.\n", goal);
+ 
++repeat:
+ 	/*
+ 	 * First, test whether the goal block is free.
+ 	 */
+@@ -684,10 +684,21 @@ int ext3_new_block
+ 	if (tmp == le32_to_cpu(gdp->bg_block_bitmap) ||
+ 	    tmp == le32_to_cpu(gdp->bg_inode_bitmap) ||
+ 	    in_range (tmp, le32_to_cpu(gdp->bg_inode_table),
+-		      sb->u.ext3_sb.s_itb_per_group))
+-		ext3_error (sb, "ext3_new_block",
+-			    "Allocating block in system zone - "
+-			    "block = %u", tmp);
++		      EXT3_SB(sb)->s_itb_per_group)) {
++		ext3_error(sb, __FUNCTION__,
++			   "Allocating block in system zone - block = %u",
+tmp);
++
++		/* Note: This will potentially use up one of the handle's
++		 * buffer credits.  Normally we have way too many credits,
++		 * so that is OK.  In _very_ rare cases it might not be OK.
++		 * We will trigger an assertion if we run out of credits,
++		 * and we will have to do a full fsck of the filesystem -
++		 * better than randomly corrupting filesystem metadata.
++		 */
++		ext3_set_bit(j, bh->b_data);
++		goto repeat;
++	}
++
+ 
+ 	/* The superblock lock should guard against anybody else beating
+ 	 * us to this point! */
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

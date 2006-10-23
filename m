@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWJWLLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751901AbWJWLLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751904AbWJWLLf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 07:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751903AbWJWLLe
+	id S1751901AbWJWLLr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 07:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWJWLLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 07:11:34 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:34708 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1751901AbWJWLLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 07:11:33 -0400
-Date: Mon, 23 Oct 2006 13:10:22 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pekka J Enberg <penberg@cs.helsinki.fi>,
-       Bryan Henderson <hbryan@us.ibm.com>, Andries Brouwer <aebr@win.tue.nl>,
-       "H. Peter Anvin" <hpa@zytor.com>, sct@redhat.com, adilger@clusterfs.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ext3: fsid for statvfs
-Message-ID: <20061023111022.GA8408@apps.cwi.nl>
-References: <Pine.LNX.4.64.0610101131001.10574@sbz-30.cs.Helsinki.FI> <20061010133636.6217a11b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061010133636.6217a11b.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Mon, 23 Oct 2006 07:11:47 -0400
+Received: from web32412.mail.mud.yahoo.com ([68.142.207.205]:43137 "HELO
+	web32412.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751901AbWJWLLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 07:11:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=nFaiJ040FrisoG+M6yJp3hAggZbr2s/2zpyM4IPdOtEv9zsEg9SF8iwidRQldQugtUCk+wagXZUz0dEutUXm1asqsLjWhjYAab5/QtSzIoIw0Pwm0tHJqnO/zcnK3nxL4FtY3jXm4gEnOvlqYt8V76BMaoorcxXcuOEjQOr2n6E=  ;
+Message-ID: <20061023111145.52479.qmail@web32412.mail.mud.yahoo.com>
+Date: Mon, 23 Oct 2006 04:11:45 -0700 (PDT)
+From: Giridhar Pemmasani <pgiri@yahoo.com>
+Subject: Re: __vmalloc with GFP_ATOMIC causes 'sleeping from invalid context'
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1161599894.19388.11.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 10, 2006 at 01:36:36PM -0700, Andrew Morton wrote:
-> On Tue, 10 Oct 2006 11:32:13 +0300 (EEST)
-> Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-> 
-> > From: Pekka Enberg <penberg@cs.helsinki.fi>
-> > 
-> > Update ext3_statfs to return an FSID that is a 64 bit XOR of the 128 bit
-> > filesystem UUID as suggested by Andreas Dilger.
-> 
-> Deja vu.  Gosh, has it really been four years?
-> 
-> Combatants cc'ed ;)
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Ha, you have a memory. To me this seems infinitely long ago.
-Google turned up some interesting discussions on dev_t, and the below exchange.
+> You are not allowed to call vmalloc in atomic context, especially in
+> interrupt paths. Vmalloc has to do TLB handling work and that can
+> involve cross calls and other stuff that isn't IRQ friendly on all
+> platforms.
 
-No, at first sight I have no objections to the suggested patch.
-(Although I think that fsid is used only for doubtful purposes.)
+This has been discussed before:
 
-Andries
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114831100404677&w=2
 
------
-Andries Brouwer wrote:
-> On Mon, Dec 09, 2002 at 02:15:12PM -0800, H. Peter Anvin wrote:
->
-> > > The general idea is that f_fsid contains some random stuff such that
-> > > the pair (f_fsid,ino) uniquely determines a file.
->
-> > This, of course, is the exact POSIX definition of the st_dev part of
-> > struct stat: (st_dev, st_ino) uniquely identifies the file.
->
-> Yes, but the difference is that (st_dev, st_ino) only identifies
-> the file within a single machine, and may stop working when you
-> have NFS mounts.
+The problem is not with calling vmalloc in atomic context, but __vmalloc,
+which can be. The proposed patch makes sure __vmalloc is not supposed to be
+called in interrupt context.
+
+Giri
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

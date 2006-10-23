@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWJWTsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWJWTrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbWJWTsL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWJWTsL
+	id S964984AbWJWTrt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 15:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWJWTrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:48:11 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:48586 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965020AbWJWTsC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:48:02 -0400
-Date: Mon, 23 Oct 2006 15:26:59 -0400
+	Mon, 23 Oct 2006 15:47:49 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:60805 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964984AbWJWTrs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 15:47:48 -0400
+Date: Mon, 23 Oct 2006 15:36:17 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 1/11] i386: Distinguish absolute symbols
-Message-ID: <20061023192659.GB13263@in.ibm.com>
+Subject: [PATCH 6/11] i386: CONFIG_PHYSICAL_START cleanup
+Message-ID: <20061023193617.GG13263@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061023192456.GA13263@in.ibm.com>
 Mime-Version: 1.0
@@ -28,284 +28,116 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ld knows about 2 kinds of symbols,  absolute and section
-relative.  Section relative symbols symbols change value
-when a section is moved and absolute symbols do not.
 
-Currently in the linker script we have several labels
-marking the beginning and ending of sections that
-are outside of sections, making them absolute symbols.
-Having a mixture of absolute and section relative
-symbols refereing to the same data is currently harmless
-but it is confusing.
-
-This must be done carefully as newer revs of ld do not place
-symbols that appear in sections without data and instead
-ld makes those symbols global :(
-
-My ultimate goal is to build a relocatable kernel.  The
-safest and least intrusive technique is to generate
-relocation entries so the kernel can be relocated at load
-time.  The only penalty would be an increase in the size
-of the kernel binary.  The problem is that if absolute and
-relocatable symbols are not properly specified absolute symbols
-will be relocated or section relative symbols won't be, which
-is fatal.
-
-The practical motivation is that when generating kernels that
-will run from a reserved area for analyzing what caused
-a kernel panic, it is simpler if you don't need to hard code
-the physical memory location they will run at, especially
-for the distributions.
+Defining __PHYSICAL_START and __KERNEL_START in asm-i386/page.h works but
+it triggers a full kernel rebuild for the silliest of reasons.  This
+modifies the users to directly use CONFIG_PHYSICAL_START and linux/config.h
+which prevents the full rebuild problem, which makes the code much
+more maintainer and hopefully user friendly.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/i386/kernel/vmlinux.lds.S    |  109 ++++++++++++++++++++------------------
- include/asm-generic/vmlinux.lds.h |   10 +--
- 2 files changed, 63 insertions(+), 56 deletions(-)
+ arch/i386/boot/compressed/head.S |    7 +++----
+ arch/i386/boot/compressed/misc.c |    7 +++----
+ arch/i386/kernel/vmlinux.lds.S   |    2 +-
+ include/asm-i386/page.h          |    3 ---
+ 4 files changed, 7 insertions(+), 12 deletions(-)
 
-diff -puN arch/i386/kernel/vmlinux.lds.S~i386-vmlinux.lds.S-Distinguish-absolute-symbols arch/i386/kernel/vmlinux.lds.S
---- linux-2.6.19-rc2-git7-reloc/arch/i386/kernel/vmlinux.lds.S~i386-vmlinux.lds.S-Distinguish-absolute-symbols	2006-10-23 12:55:12.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/kernel/vmlinux.lds.S	2006-10-23 15:09:04.000000000 -0400
-@@ -24,31 +24,32 @@ SECTIONS
-   . = __KERNEL_START;
+diff -puN arch/i386/boot/compressed/head.S~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/boot/compressed/head.S
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/head.S~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/head.S	2006-10-23 15:08:50.000000000 -0400
+@@ -25,7 +25,6 @@
+ 
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
+-#include <asm/page.h>
+ 
+ 	.globl startup_32
+ 	
+@@ -75,7 +74,7 @@ startup_32:
+ 	popl %esi	# discard address
+ 	popl %esi	# real mode pointer
+ 	xorl %ebx,%ebx
+-	ljmp $(__BOOT_CS), $__PHYSICAL_START
++	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
+ 
+ /*
+  * We come here, if we were loaded high.
+@@ -100,7 +99,7 @@ startup_32:
+ 	popl %ecx	# lcount
+ 	popl %edx	# high_buffer_start
+ 	popl %eax	# hcount
+-	movl $__PHYSICAL_START,%edi
++	movl $CONFIG_PHYSICAL_START,%edi
+ 	cli		# make sure we don't get interrupted
+ 	ljmp $(__BOOT_CS), $0x1000 # and jump to the move routine
+ 
+@@ -125,5 +124,5 @@ move_routine_start:
+ 	movsl
+ 	movl %ebx,%esi	# Restore setup pointer
+ 	xorl %ebx,%ebx
+-	ljmp $(__BOOT_CS), $__PHYSICAL_START
++	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
+ move_routine_end:
+diff -puN arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/boot/compressed/misc.c
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/misc.c	2006-10-23 15:08:50.000000000 -0400
+@@ -13,7 +13,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/screen_info.h>
+ #include <asm/io.h>
+-#include <asm/page.h>
+ 
+ /*
+  * gzip declarations
+@@ -303,7 +302,7 @@ static void setup_normal_output_buffer(v
+ #else
+ 	if ((RM_ALT_MEM_K > RM_EXT_MEM_K ? RM_ALT_MEM_K : RM_EXT_MEM_K) < 1024) error("Less than 2MB of memory");
+ #endif
+-	output_data = (unsigned char *)__PHYSICAL_START; /* Normally Points to 1M */
++	output_data = (unsigned char *)CONFIG_PHYSICAL_START; /* Normally Points to 1M */
+ 	free_mem_end_ptr = (long)real_mode;
+ }
+ 
+@@ -326,8 +325,8 @@ static void setup_output_buffer_if_we_ru
+ 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
+ 	high_loaded = 1;
+ 	free_mem_end_ptr = (long)high_buffer_start;
+-	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
+-		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
++	if ( (CONFIG_PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
++		high_buffer_start = (uch *)(CONFIG_PHYSICAL_START + low_buffer_size);
+ 		mv->hcount = 0; /* say: we need not to move high_buffer */
+ 	}
+ 	else mv->hcount = -1;
+diff -puN arch/i386/kernel/vmlinux.lds.S~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/kernel/vmlinux.lds.S
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/kernel/vmlinux.lds.S~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/kernel/vmlinux.lds.S	2006-10-23 15:08:45.000000000 -0400
+@@ -21,7 +21,7 @@ PHDRS {
+ }
+ SECTIONS
+ {
+-  . = __KERNEL_START;
++  . = LOAD_OFFSET + CONFIG_PHYSICAL_START;
    phys_startup_32 = startup_32 - LOAD_OFFSET;
    /* read-only */
--  _text = .;			/* Text and read-only data */
    .text : AT(ADDR(.text) - LOAD_OFFSET) {
-+  	_text = .;			/* Text and read-only data */
- 	*(.text)
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	KPROBES_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
--	} :text = 0x9090
--
--  _etext = .;			/* End of text section */
-+  	_etext = .;			/* End of text section */
-+  } :text = 0x9090
+diff -puN include/asm-i386/page.h~i386-CONFIG_PHYSICAL_START-cleanup include/asm-i386/page.h
+--- linux-2.6.19-rc2-git7-reloc/include/asm-i386/page.h~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/include/asm-i386/page.h	2006-10-23 13:15:21.000000000 -0400
+@@ -112,12 +112,9 @@ extern int page_is_ram(unsigned long pag
  
-   . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) { *(__ex_table) }
--  __stop___ex_table = .;
-+  __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) {
-+  	__start___ex_table = .;
-+	 *(__ex_table)
-+  	__stop___ex_table = .;
-+  }
+ #ifdef __ASSEMBLY__
+ #define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
+-#define __PHYSICAL_START	CONFIG_PHYSICAL_START
+ #else
+ #define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
+-#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+ #endif
+-#define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
  
-   RODATA
  
-   . = ALIGN(4);
--  __tracedata_start = .;
-   .tracedata : AT(ADDR(.tracedata) - LOAD_OFFSET) {
-+  	__tracedata_start = .;
- 	*(.tracedata)
-+  	__tracedata_end = .;
-   }
--  __tracedata_end = .;
- 
-   /* writeable */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
-@@ -57,10 +58,12 @@ SECTIONS
- 	} :data
- 
-   . = ALIGN(4096);
--  __nosave_begin = .;
--  .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) { *(.data.nosave) }
--  . = ALIGN(4096);
--  __nosave_end = .;
-+  .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) {
-+  	__nosave_begin = .;
-+	*(.data.nosave)
-+  	. = ALIGN(4096);
-+  	__nosave_end = .;
-+  }
- 
-   . = ALIGN(4096);
-   .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
-@@ -74,8 +77,10 @@ SECTIONS
- 
-   /* rarely changed data like cpu maps */
-   . = ALIGN(32);
--  .data.read_mostly : AT(ADDR(.data.read_mostly) - LOAD_OFFSET) { *(.data.read_mostly) }
--  _edata = .;			/* End of data section */
-+  .data.read_mostly : AT(ADDR(.data.read_mostly) - LOAD_OFFSET) {
-+	*(.data.read_mostly)
-+	_edata = .;		/* End of data section */
-+  }
- 
- #ifdef CONFIG_STACK_UNWIND
-   . = ALIGN(4);
-@@ -93,39 +98,41 @@ SECTIONS
- 
-   /* might get freed after init */
-   . = ALIGN(4096);
--  __smp_alt_begin = .;
--  __smp_alt_instructions = .;
-   .smp_altinstructions : AT(ADDR(.smp_altinstructions) - LOAD_OFFSET) {
-+	__smp_alt_begin = .;
-+	__smp_alt_instructions = .;
- 	*(.smp_altinstructions)
-+	__smp_alt_instructions_end = .;
-   }
--  __smp_alt_instructions_end = .;
-   . = ALIGN(4);
--  __smp_locks = .;
-   .smp_locks : AT(ADDR(.smp_locks) - LOAD_OFFSET) {
-+	__smp_locks = .;
- 	*(.smp_locks)
-+	__smp_locks_end = .;
-   }
--  __smp_locks_end = .;
-   .smp_altinstr_replacement : AT(ADDR(.smp_altinstr_replacement) - LOAD_OFFSET) {
- 	*(.smp_altinstr_replacement)
-+	. = ALIGN(4096);
-+	__smp_alt_end = .;
-   }
--  . = ALIGN(4096);
--  __smp_alt_end = .;
- 
-   /* will be freed after init */
-   . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
-   .init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
-+  	__init_begin = .;
- 	_sinittext = .;
- 	*(.init.text)
- 	_einittext = .;
-   }
-   .init.data : AT(ADDR(.init.data) - LOAD_OFFSET) { *(.init.data) }
-   . = ALIGN(16);
--  __setup_start = .;
--  .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) { *(.init.setup) }
--  __setup_end = .;
--  __initcall_start = .;
-+  .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) {
-+	__setup_start = .;
-+	*(.init.setup)
-+	__setup_end = .;
-+  }
-   .initcall.init : AT(ADDR(.initcall.init) - LOAD_OFFSET) {
-+	__initcall_start = .;
- 	*(.initcall1.init) 
- 	*(.initcall2.init) 
- 	*(.initcall3.init) 
-@@ -133,20 +140,20 @@ SECTIONS
- 	*(.initcall5.init) 
- 	*(.initcall6.init) 
- 	*(.initcall7.init)
-+	__initcall_end = .;
-   }
--  __initcall_end = .;
--  __con_initcall_start = .;
-   .con_initcall.init : AT(ADDR(.con_initcall.init) - LOAD_OFFSET) {
-+	__con_initcall_start = .;
- 	*(.con_initcall.init)
-+	__con_initcall_end = .;
-   }
--  __con_initcall_end = .;
-   SECURITY_INIT
-   . = ALIGN(4);
--  __alt_instructions = .;
-   .altinstructions : AT(ADDR(.altinstructions) - LOAD_OFFSET) {
-+	__alt_instructions = .;
- 	*(.altinstructions)
-+	__alt_instructions_end = .;
-   }
--  __alt_instructions_end = .; 
-   .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
- 	*(.altinstr_replacement)
-   }
-@@ -155,32 +162,32 @@ SECTIONS
-   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
-   .exit.data : AT(ADDR(.exit.data) - LOAD_OFFSET) { *(.exit.data) }
-   . = ALIGN(4096);
--  __initramfs_start = .;
--  .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
--  __initramfs_end = .;
-+  .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) {
-+	__initramfs_start = .;
-+	*(.init.ramfs)
-+	__initramfs_end = .;
-+  }
-   . = ALIGN(L1_CACHE_BYTES);
--  __per_cpu_start = .;
--  .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
--  __per_cpu_end = .;
-+  .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) {
-+	__per_cpu_start = .;
-+	*(.data.percpu)
-+	__per_cpu_end = .;
-+  }
-   . = ALIGN(4096);
--  __init_end = .;
-   /* freed after init ends here */
- 	
--  __bss_start = .;		/* BSS */
--  .bss.page_aligned : AT(ADDR(.bss.page_aligned) - LOAD_OFFSET) {
--	*(.bss.page_aligned)
--  }
-   .bss : AT(ADDR(.bss) - LOAD_OFFSET) {
-+	__init_end = .;
-+	__bss_start = .;		/* BSS */
-+	*(.bss.page_aligned)
- 	*(.bss)
-+	. = ALIGN(4);
-+	__bss_stop = .;
-+  	_end = . ;
-+	/* This is where the kernel creates the early boot page tables */
-+	. = ALIGN(4096);
-+	pg0 = . ;
-   }
--  . = ALIGN(4);
--  __bss_stop = .; 
--
--  _end = . ;
--
--  /* This is where the kernel creates the early boot page tables */
--  . = ALIGN(4096);
--  pg0 = .;
- 
-   /* Sections to be discarded */
-   /DISCARD/ : {
-diff -puN include/asm-generic/vmlinux.lds.h~i386-vmlinux.lds.S-Distinguish-absolute-symbols include/asm-generic/vmlinux.lds.h
---- linux-2.6.19-rc2-git7-reloc/include/asm-generic/vmlinux.lds.h~i386-vmlinux.lds.S-Distinguish-absolute-symbols	2006-10-23 12:55:12.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/include/asm-generic/vmlinux.lds.h	2006-10-23 13:15:14.000000000 -0400
-@@ -11,8 +11,8 @@
- 
- #define RODATA								\
- 	. = ALIGN(4096);						\
--	__start_rodata = .;						\
- 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
-+		VMLINUX_SYMBOL(__start_rodata) = .;			\
- 		*(.rodata) *(.rodata.*)					\
- 		*(__vermagic)		/* Kernel version magic */	\
- 	}								\
-@@ -119,17 +119,17 @@
- 		*(__ksymtab_strings)					\
- 	}								\
- 									\
-+	/* Unwind data binary search table */				\
-+	EH_FRAME_HDR							\
-+									\
- 	/* Built-in module parameters. */				\
- 	__param : AT(ADDR(__param) - LOAD_OFFSET) {			\
- 		VMLINUX_SYMBOL(__start___param) = .;			\
- 		*(__param)						\
- 		VMLINUX_SYMBOL(__stop___param) = .;			\
-+		VMLINUX_SYMBOL(__end_rodata) = .;			\
- 	}								\
- 									\
--	/* Unwind data binary search table */				\
--	EH_FRAME_HDR							\
--									\
--	__end_rodata = .;						\
- 	. = ALIGN(4096);
- 
- #define SECURITY_INIT							\
+ #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
 _

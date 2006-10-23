@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbWJWTsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWJWTtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbWJWTsv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbWJWTsX
+	id S1030180AbWJWTtz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 15:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWJWTsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:48:23 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:59570 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964996AbWJWTrt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:47:49 -0400
-Date: Mon, 23 Oct 2006 15:33:59 -0400
+	Mon, 23 Oct 2006 15:48:21 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:22475 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965011AbWJWTsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 15:48:01 -0400
+Date: Mon, 23 Oct 2006 15:29:23 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 5/11] i386: Reserve kernel memory starting from _text
-Message-ID: <20061023193359.GF13263@in.ibm.com>
+Subject: [PATCH 2/11] i386: Remove unnecessary ALIGN() in vmlinux.lds.S
+Message-ID: <20061023192923.GC13263@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061023192456.GA13263@in.ibm.com>
 Mime-Version: 1.0
@@ -29,34 +29,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Currently when we are reserving the memory the kernel text
-resides in we start at __PHYSICAL_START which happens to be
-correct but not very obvious.  In addition when we start relocating
-the kernel __PHYSICAL_START is the wrong value, as it is an
-absolute symbol that does not get relocated.
+o There seems to be one extra ALIGN(4096) before symbol __smp_alt_end. The
+  only usage of __smp_alt_end is to mark the end of smp alternative
+  sections so that this memory can be freed. As a physical page is freed
+  one has to just make sure that there is no other data on the same page
+  where __smp_alt_end is pointing. There is already a ALIGN(4096) after
+  this section which should take care of the above issue. Hence it looks
+  like the ALIGN(4096) before __smp_alt_end is redundant and not required.
 
-By starting the reservation at __pa_symbol(_text)
-the code is clearer and will be correct when relocated.
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/i386/kernel/setup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/i386/kernel/vmlinux.lds.S |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff -puN arch/i386/kernel/setup.c~i386-setup.c-Reserve-kernel-memory-starting-from-_text arch/i386/kernel/setup.c
---- linux-2.6.19-rc2-git7-reloc/arch/i386/kernel/setup.c~i386-setup.c-Reserve-kernel-memory-starting-from-_text	2006-10-23 13:15:21.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/kernel/setup.c	2006-10-23 13:15:21.000000000 -0400
-@@ -1118,8 +1118,8 @@ void __init setup_bootmem_allocator(void
- 	 * the (very unlikely) case of us accidentally initializing the
- 	 * bootmem allocator with an invalid RAM area.
- 	 */
--	reserve_bootmem(__PHYSICAL_START, (PFN_PHYS(min_low_pfn) +
--			 bootmap_size + PAGE_SIZE-1) - (__PHYSICAL_START));
-+	reserve_bootmem(__pa_symbol(_text), (PFN_PHYS(min_low_pfn) +
-+			 bootmap_size + PAGE_SIZE-1) - __pa_symbol(_text));
+diff -puN arch/i386/kernel/vmlinux.lds.S~i386-remove-unnecessary-align-option arch/i386/kernel/vmlinux.lds.S
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/kernel/vmlinux.lds.S~i386-remove-unnecessary-align-option	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/kernel/vmlinux.lds.S	2006-10-23 15:09:02.000000000 -0400
+@@ -112,11 +112,15 @@ SECTIONS
+   }
+   .smp_altinstr_replacement : AT(ADDR(.smp_altinstr_replacement) - LOAD_OFFSET) {
+ 	*(.smp_altinstr_replacement)
+-	. = ALIGN(4096);
+ 	__smp_alt_end = .;
+   }
  
- 	/*
- 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
+-  /* will be freed after init */
++  /* will be freed after init
++   * Following ALIGN() is required to make sure no other data falls on the
++   * same page where __smp_alt_end is pointing as that page might be freed
++   * after boot. Always make sure that ALIGN() directive is present after
++   * the section which contains __smp_alt_end.
++   */
+   . = ALIGN(4096);		/* Init code and data */
+   .init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
+   	__init_begin = .;
 _

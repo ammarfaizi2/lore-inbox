@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751947AbWJWMxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWJWM46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751947AbWJWMxv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 08:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWJWMxv
+	id S964791AbWJWM46 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 08:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWJWM46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 08:53:51 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:52429 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751947AbWJWMxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 08:53:50 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
+	Mon, 23 Oct 2006 08:56:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:26201 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964791AbWJWM45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 08:56:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PWsyQ9yxTTroerNlWGAYWqpxtI6eWzatfuRyFFmanYNlnwHRvHnvfXAsI71zylLf7OCPG6/VMX/vEWs3zR+L3nIuX7QOd3zJT4r3+XGet/SSIJTdrmNFX0e53wdzqq6CsAMceikIla7Og3eAalaElw485F7mRG9oYIE+OVgBVwc=
+Message-ID: <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
+Date: Mon, 23 Oct 2006 14:56:56 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: Franck <vagabon.xyz@gmail.com>
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20061023125318.2C4D983026@kleikamp.austin.ibm.com>
-Date: Mon, 23 Oct 2006 07:53:18 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+In-Reply-To: <453C8027.2000303@innova-card.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061013023218.31362830.maxextreme@gmail.com>
+	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+On 10/23/06, Franck Bui-Huu <vagabon.xyz@gmail.com> wrote:
+> Franck Bui-Huu wrote:
+> > Hi
+> >
+> >
+> > sorry for coming lately, I just noticed your patch in -mm tree.
+> >
+> > Did you took a look at drivers/video/arcfb.c driver ?
+> > It seems to be a fb driver for ks108 lcd controller. A lot of code
+> > is related to the platform though and the controller is driven
+> > through GPIO but have you tried to split the code for sharing
+> > controller specific code. Note, I don't say it's a good idea, it's
+> > just a question that comes in mind.
+> >
+> > Also you create driver/auxdisplay directory whereas drivers such
+> > the one I mentioned previously is located in drivers/video. Why
+> > not putting your driver in driver/video ?
+>
+> Is this driver is already no more maintained ?
+>
 
-git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
+The driver is waiting in the -mm tree (-mm2 right now) for being
+included in the mainline kernel sometime in the future. If it is
+included, I will maintain it as I coded it as it apears in the
+MAINTAINERS file. Why are you so worried about it if I can ask? Do you
+want some more features or something like that?
 
-This will update the following files:
+I missed the other two questions you wrote few days ago. About the
+second one, that was discussed a lot in the past and the people
+decided that (it wasn't my idea). About the first one, well, my ks0108
+code is the one for the wiring of an auxiliary LCD, so if you read the
+discussion you will find the people wanted to split video things and
+other auxiliary displays, so I think it is better to split it.
+(Anyway, I'm answering quickly, I haven't checked the code you talk
+about, but I will anyway).
 
- fs/jfs/jfs_imap.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-through these ChangeSets:
-
-Commit: 8f6cff98477edbcd8ae4976734ba7edd07bdd244 
-Author: Dave Kleikamp <shaggy@austin.ibm.com> Fri, 13 Oct 2006 12:42:36 -0500 
-
-    JFS: pageno needs to be long
-    
-    diRead and diWrite are representing the page number as an unsigned int.
-    This causes file system corruption on volumes larger than 16TB.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
+Thanks,
+     Miguel Ojeda

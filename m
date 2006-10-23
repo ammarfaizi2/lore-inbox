@@ -1,116 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWJWJNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751840AbWJWJQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751842AbWJWJNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 05:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWJWJNZ
+	id S1751840AbWJWJQD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 05:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWJWJQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 05:13:25 -0400
-Received: from adsl-ull-137-166.41-151.net24.it ([151.41.166.137]:34600 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S1751842AbWJWJNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 05:13:24 -0400
-Message-ID: <453C86ED.7070205@abinetworks.biz>
-Date: Mon, 23 Oct 2006 11:10:05 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Mon, 23 Oct 2006 05:16:03 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:26575 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751840AbWJWJQB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 05:16:01 -0400
+Message-ID: <453C877E.6090002@aitel.hist.no>
+Date: Mon, 23 Oct 2006 11:12:30 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-To: Giridhar Pemmasani <pgiri@yahoo.com>
-CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.com
-Subject: Re: incorrect taint of ndiswrapper
-References: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
-In-Reply-To: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Christopher Monty Montgomery <xiphmont@gmail.com>,
+       Paolo Ornati <ornati@fastwebnet.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
+ from card reader
+References: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Stern wrote:
+>>> You could try putting a printk() just before the BUG() to display the 
+>>> values of ehci->reclaim and qh->qh_state.  Maybe also change the BUG() to 
+>>>   
+>>>       
+>> ehci->reclaim=0
+>> qh->qh_state=5
+>>     
+>
+> 5 is QH_STATE_COMPLETING.  That explains why the BUG() fires.
+>
+> At this point it's beyond me.  Monty will have to take it from here.
+>
+>   
+>> During boot I get lots of those "Hardware error, end-of-data detected"
+>> messages, but I've never seen it crash during bootup.
+>>     
+>
+> Those messages are from the card reader.  It doesn't seem to be working 
+> right.  It returns the "end-of-data" error in response to a PREVENT MEDIUM 
+> REMOVAL command
+Unlike a cdrom, it doesn't have the means to prevent media removal. :-)
+>  and it returns a phase error in response to a READ 
+> command.  In spite of the fact that it claims to have a 256 MB card 
+> present.
+>   
+It has slots for several different cards, all the other
+slots are empty. 
 
-if that can help, the problem with the undefined syms in ndiswrapper is 
-that the module was tainted, and couldnt get EXPORT_SYMBOL_GPL'd 
-__create_workqueue...
+Perhaps it is broken, but interesting as a "stress-test".
+Linux should not crash because of a bad usb thing, just complain.
 
-I applied Chase patch...everything goes.
-
-In my opinion i would avoid tainting ndiswrapper.
-
-Gianluca
-
-Giridhar Pemmasani wrote:
-
->--- Chase Venters <chase.venters@clientec.com> wrote:
->
->  
->
->>On Monday 23 October 2006 00:40, Giridhar Pemmasani wrote:
->>    
->>
->>>It seems that the kernel module loader taints ndiswrapper module as
->>>proprietary, but it is not - it is fully GPL: see
->>>http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
->>>      
->>>
->>Indeed. 'ndiswrapper' is intentionally tainted by kernel/module.c because
->>it 
->>is used to load and run unknown binary / proprietary code in kernel-space.
->>If 
->>this unknown binary / proprietary code were to contain a bug (which all
->>code 
->>of that complexity tends to), it might write to memory it doesn't own, or 
->>coerce a device to do so on its behalf, making a kernel crash dump analysis
->>
->>into a wild goose chase (hence the reason for kernel taint).
->>    
->>
->
->Yes, I agree on the purpose of tainting the kernel.
->
->  
->
->>>Note that when a driver is loaded, ndiswrapper does taint the kernel (to
->>>      
->>>
->>be
->>    
->>
->>>more accurate, it should check if the driver being loaded is GPL or not,
->>>but that is not done).
->>>      
->>>
->>Are you saying ndiswrapper voluntarily calls add_taint() whenever it loads
->>an 
->>NDIS driver?
->>    
->>
->
->Exactly - the loader within ndiswrapper taints kernel versions 2.6.10 and
->newer (older kernels don't have a way of tainting the kernel). The code is in
->loader.c in ndiswrapper.
->
->  
->
->>Are there even any examples of GPL-licensed NDIS drivers?
->>    
->>
->
->I don't remember off hand, but sometime back there was discussion on related
->topic of weather ndiswrapper should be in debian-main or not, and someone
->pointed out a GPL ndis driver. (BTW, after much discussion on debian devel
->list, the developers agreed that ndiswrapper belongs in debian-main.)
->
->Giri
->
->__________________________________________________
->Do You Yahoo!?
->Tired of spam?  Yahoo! Mail has the best spam protection around 
->http://mail.yahoo.com 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Helge Hafting
 

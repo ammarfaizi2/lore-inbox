@@ -1,71 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWJWUak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWJWUd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWJWUak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWJWUak
+	id S1750739AbWJWUd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWJWUd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:30:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:63904 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751423AbWJWUaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:30:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=npWpOFPWG+Ey+aXpAolMj3UFpL2BNbY5/sxuDH4S/iIap/mBscwscJjMEVW19/bMGqjiB5Jd9iWFeqUb/WBNhksGLV5/dVqyv0UXoFeWH6RWsY1hTQrRtx9OWuj360586SSASG8j+LvUhftMjPn5EGuhzXp6sZVK0WxRDMOO+es=
-Message-ID: <9a8748490610231330y65f3e243pe1101d11a28dbbfa@mail.gmail.com>
-Date: Mon, 23 Oct 2006 22:30:36 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com>
-	 <Pine.LNX.4.64.0610062000281.3952@g5.osdl.org>
-	 <9a8748490610071402m4450365kedff5615d008fcd5@mail.gmail.com>
-	 <Pine.LNX.4.64.0610071408220.3952@g5.osdl.org>
-	 <9a8748490610081633k7bf011d1q131b2f9e06f2808d@mail.gmail.com>
-	 <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com>
-	 <Pine.LNX.4.64.0610161554140.3962@g5.osdl.org>
-	 <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com>
+	Mon, 23 Oct 2006 16:33:29 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:21726 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1750719AbWJWUd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:33:27 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ao8CACbDPEVThFhodGdsb2JhbACBTIkkgTI
+X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.129.202):SA:0(0.6/5.0):. Processed in 4.113106 secs Process 17422)
+Subject: Re: 2.6.18-rt6 and compile fail with rt7 on x86_64
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: john stultz <johnstul@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net,
+       Lee Revell <rlrevell@joe-job.com>
+In-Reply-To: <1161305999.6961.142.camel@localhost>
+References: <20061018083921.GA10993@elte.hu>
+	 <1161303812.3020.15.camel@localhost.portugal>
+	 <1161305999.6961.142.camel@localhost>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-pjPgORUnoiLiGRlFxiHH"
+Date: Mon, 23 Oct 2006 21:33:15 +0100
+Message-Id: <1161635595.2948.19.camel@localhost.portugal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-OriginalArrivalTime: 23 Oct 2006 20:33:26.0066 (UTC) FILETIME=[7DD30120:01C6F6E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/10/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 17/10/06, Linus Torvalds <torvalds@osdl.org> wrote:
-[...]
-> > and just run the resulting kernel version for a day or two. If an hour
-> > wasn't really good enough, it's not as repeatable as we'd have wished, but
-> > even if it takes a few days to narrow it down by just two bisections or
-> > so, it will cut things down from ten thousand commits to "just" 2500..
-> >
-> Ok, sure. I'll do a days run of 2.6.19-rc2 first, just to see if it's
-> been fixed in the mean time. If it's still there I'll try to get a
-> sysrq+t and post that, then I'll restart bisection and give each
-> kernel a full 24hrs of testing before concluding it is good.
->
-> I'll report back as soon as I have some results.
->
-Ok, I've been unable to do any testing for a few days, but today I had
-some spare time and set my box to run my test script while doing some
-other work. It was running latest git at the time of 2.6.19-rc2 + a
-day or two and it locked up after ~20min.
-So we are not so lucky that the problem has been fixed by some of the
-patches that have gone in recently :-(
 
-Since there was nothing in the system logs and the box was completely
-frozen (not even sysrq worked) I goess I'll have to try and restart
-the bisection.
+--=-pjPgORUnoiLiGRlFxiHH
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Just wanted to report the little data I had. I'll be back with more
-(hopefully soon).
+On Thu, 2006-10-19 at 17:59 -0700, john stultz wrote:
+> On Fri, 2006-10-20 at 01:23 +0100, Sergio Monteiro Basto wrote:
+> > I just test rt6 it in my problematic VIA Board with one PENTIUM D (DUAL=
+)
+> >=20
+> > 1. don't apply cleaning to 2.16.18.1 (on sparc arch )
+> > 2. I usual boot with notsc (because without it give me many lost time
+> > tickets)
+> >     I try 2.16.18.1-rt6 without notsc and freeze on boot.=20
+> >     I try with notsc and says=20
+> >         Time: acpi_pm clocksource has been installed.
+> >         Looks stable and don't show any lost timer ticket on dmesg.
+>=20
+> Out of curiosity, does 2.6.18.1 require notsc (or booting w/
+> clocksource=3Dacpi_pm) to be stable? Or is it just -rt6 that has this
+> problem?
+>=20
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+yes, 2.6.18.1 require notsc to work properly , but without notsc boots
+normally but with  many lost timer ticks=20
+    time.c: Lost 300 timer tick(s)! rip mwait_idle+0x3f/0x54)
+    psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost
+synchronization, throwing 2 bytes away.
+    time.c: Lost 300 timer tick(s)! rip mwait_idle+0x3f/0x54)
+
+booting with clocksource=3Dacpi_pm , don't find/use   acpi_pm
+cat /sys/devices/system/clocksource/clocksource0/available_clocksource
+jiffies
+
+> > But I want also work with Nvidia dri which is a close drive from NVIDIA=
+.
+> > I install that drive and I enable DRI, After a few minutes I got a
+> > spontaneous reboot.
+> > I will keep testing without nvidia close source.
+> >=20
+> > And I like to know if this rt6 patch make this new clocksource (acpi_pm=
+)
+> > or just found it and use it ?=20
+>=20
+> -rt6 includes a patch from Thomas Gleixner that disables the TSC if
+> dynticks are enabled in your config.
+
+I will try that=20
+
+Thanks,=20
+>=20
+> thanks
+> -john
+>=20
+
+compiles fails with rt7=20
++ KernelImage=3Darch/x86_64/boot/bzImage
++ make -s ARCH=3Dx86_64 oldconfig
++ make -s ARCH=3Dx86_64 -j2 bzImage
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  SYMLINK include/asm -> include/asm-x86_64
+  UPD     include/linux/utsrelease.h
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+kernel/rtmutex.c:938:48: error: macro "rt_release_bkl" passed 2
+arguments, but takes just 1
+kernel/rtmutex.c: In function 'rt_mutex_slowlock':
+kernel/rtmutex.c:938: error: 'rt_release_bkl' undeclared (first use in
+this function)
+kernel/rtmutex.c:938: error: (Each undeclared identifier is reported
+only once
+kernel/rtmutex.c:938: error: for each function it appears in.)
+make[1]: *** [kernel/rtmutex.o] Error 1
+make: *** [kernel] Error 2
+
+
+thanks=20
+--=20
+S=E9rgio M.B.
+
+--=-pjPgORUnoiLiGRlFxiHH
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjEwMjMyMDMzMTVaMCMGCSqGSIb3DQEJBDEWBBSnAAPa/xuHJsmHW2rEF62M
+9CgiADANBgkqhkiG9w0BAQEFAASCAQCJUCZFeVbcDqLaOktbTlvs2neIC0XLVPPVZGQ+iJPIxfqj
+juLccr+XcadqgJNqWC6PiovSEkuM4b8ImURHz5pU1w5LrU7ryDDLYlB/B3bUu4GgkR16OFYQvJc/
+fuW1fsnldrB4Ul0v0hgQ7AWiQwisAxs0m9izrtEt4C6qSni3lKDg8W/HysfVPa83uflJLDjpTiQO
+svj+5G4GGG4WvVCjf2s/ZVmhZxoT025o/I+bgThLemWYnhErk57ro148kcXP+cdnVxx+cJX0W+et
+/oZleW5x1asg0FU6kkyIXvpEJAVoTIdjZoWVFYVoGEtzGeBtSoANOqS9JZArtz7FJkK1AAAAAAAA
+
+
+
+--=-pjPgORUnoiLiGRlFxiHH--

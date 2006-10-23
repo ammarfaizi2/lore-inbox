@@ -1,90 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWJWPEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWJWPLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWJWPEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWJWPEw
+	id S964907AbWJWPLA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWJWPLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:04:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54159 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964913AbWJWPEv (ORCPT
+	Mon, 23 Oct 2006 11:11:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22975 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964907AbWJWPK7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:04:51 -0400
-Date: Mon, 23 Oct 2006 17:04:44 +0200
+	Mon, 23 Oct 2006 11:10:59 -0400
+Date: Mon, 23 Oct 2006 17:10:54 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] swsusp: Improve handling of highmem
-Message-ID: <20061023150444.GC31273@elf.ucw.cz>
-References: <200610142156.05161.rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Quieten Freezer if !CONFIG_PM_DEBUG
+Message-ID: <20061023151054.GA1994@elf.ucw.cz>
+References: <1161560140.7438.56.camel@nigel.suspend2.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610142156.05161.rjw@sisk.pl>
+In-Reply-To: <1161560140.7438.56.camel@nigel.suspend2.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI!
+Hi!
 
-> Currently swsusp saves the contents of highmem pages by copying them to the
-> normal zone which is quite inefficient  (eg. it requires two normal pages to be
-> used for saving one highmem page).  This may be improved by using highmem
-> for saving the contents of saveable highmem pages.
-...
->  include/linux/suspend.h |    9 
->  kernel/power/power.h    |    2 
->  kernel/power/snapshot.c |  841 ++++++++++++++++++++++++++++++++++++------------
->  kernel/power/swap.c     |    2 
->  kernel/power/swsusp.c   |   53 +--
->  kernel/power/user.c     |    2 
->  mm/vmscan.c             |    3 
+> The freezer currently prints an '=' for every process that is frozen.
+> This is pretty pointless, as the equals sign says nothing about which
+> process is frozen, and makes logs look messier (especially if there were
+> a large number of processes running). All we really need to know is that
+> we started trying to freeze processes and what processes (if any) failed
+> to freeze, or that we succeeded.
 
-Well, I just hoped that highmem would quietly die out...
+> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-...
-> +static struct page *alloc_image_page(gfp_t gfp_mask) {
-> +	struct page *page;
-
-{ should go on new line.
-
->  	memory_bm_position_reset(orig_bm);
->  	memory_bm_position_reset(copy_bm);
->  	do {
->  		pfn = memory_bm_next_pfn(orig_bm);
-> -		if (likely(pfn != BM_END_OF_MAP)) {
-> -			struct page *page;
-> -			void *src;
-> -
-> -			page = pfn_to_page(pfn);
-> -			src = page_address(page);
-> -			page = pfn_to_page(memory_bm_next_pfn(copy_bm));
-> -			copy_data_page(page_address(page), src);
-> -		}
-> +		if (likely(pfn != BM_END_OF_MAP))
-> +			copy_data_page(memory_bm_next_pfn(copy_bm), pfn);
->  	} while (pfn != BM_END_OF_MAP);
->  }
-
-While(1) and "if (pfn != BM_END_OF_MAP) { ...break; } ? Why do you
-need to test pfn != BM_END_OF_MAP *three* times?
-
-> Index: linux-2.6.18-mm3/mm/vmscan.c
-> ===================================================================
-> --- linux-2.6.18-mm3.orig/mm/vmscan.c
-> +++ linux-2.6.18-mm3/mm/vmscan.c
-> @@ -1233,6 +1233,9 @@ out:
->  	}
->  	if (!all_zones_ok) {
->  		cond_resched();
-> +
-> +		try_to_freeze();
-> +
->  		goto loop_again;
->  	}
-
-What is this?
+ACK.
 								Pavel
+
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWJWUJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWJWUKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWJWUJK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWJWUJK
+	id S1030188AbWJWUKi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWJWUKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:09:10 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:5401 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965025AbWJWUJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:09:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iPEGNwgyVkQMbhWuCs1rPE9n7K2SjPuOPoeaugLTBg2/Q1BCffPdpNo1B24QctvIebpFhGAQv2u61GijJJni6UUkmBJLJc+Lcyj4SqPhi2v36TRH4jY5162Ga+sWvGxftWgNCRfpU1Ib+Ikm69qmj9KbZIuCCtiVsOKI0GchCqE=
-Message-ID: <5bdc1c8b0610231309q246a8964g404c9edb5182a3c4@mail.gmail.com>
-Date: Mon, 23 Oct 2006 13:09:08 -0700
-From: "Mark Knecht" <markknecht@gmail.com>
-To: tglx@linutronix.de
-Subject: Re: -rt7 announcement? (was Re: 2.6.18-rt6)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1161629955.22373.40.camel@localhost.localdomain>
+	Mon, 23 Oct 2006 16:10:38 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:62995 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1030188AbWJWUKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:10:36 -0400
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Dan Williams <dcbw@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>
+Subject: Re: Battery class driver.
+X-Message-Flag: Warning: May contain useful information
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	<1161631091.16366.0.camel@localhost.localdomain>
+	<1161633509.4994.16.camel@hughsie-laptop>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 23 Oct 2006 13:10:25 -0700
+In-Reply-To: <1161633509.4994.16.camel@hughsie-laptop> (Richard Hughes's message of "Mon, 23 Oct 2006 20:58:29 +0100")
+Message-ID: <adairiaeqtq.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061018083921.GA10993@elte.hu>
-	 <1161356444.15860.327.camel@mindpipe>
-	 <1161621286.2835.3.camel@mindpipe>
-	 <1161628539.22373.36.camel@localhost.localdomain>
-	 <5bdc1c8b0610231144s420c1523p43af2a8349bac04@mail.gmail.com>
-	 <1161629955.22373.40.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 23 Oct 2006 20:10:26.0321 (UTC) FILETIME=[476EA010:01C6F6DF]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/23/06, Thomas Gleixner <tglx@linutronix.de> wrote:
-> On Mon, 2006-10-23 at 11:44 -0700, Mark Knecht wrote:
-<SNIP>
->
-> >    In 2.6.18-rt6 I turned on HRT support, left 1000 nanoseconds for
-> > the timing, but did not enable dynamic ticks since I wasn't sure it
-> > was OK on AMD64. Should I be using DynTicks with an AMD64 single
-> > processor? With a dual-processor?
->
-> Should work
->
-<SNIP>
+ > No, I think the distinction between batteries and ac_adapter is large
+ > enough to have different classes of devices. You may have many
+ > batteries, but you'll only ever have one ac_adapter. I'm not sure it's
+ > an obvious abstraction to make.
 
-I turned on DynTicks. When I rebooted with the new kernel I got a lot
-of fsck messages about file systems times being in the future and
-being fixed. Is this a 1-time deal?
-
-Other than that no problems. dmesg appears to be clean so far.
-
-- Mark
+Speaking from ignorance here, but what about (big) systems that have
+multiple power supplies and multiple rails of AC power?  Would it make
+sense to use the same abstraction for that as well as laptop AC adaptors?

@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWJWDUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWJWDbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWJWDUx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 23:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWJWDUx
+	id S1751372AbWJWDbT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 23:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWJWDbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 23:20:53 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:50615 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751317AbWJWDUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 23:20:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=aG9pGxnDTOw5kVMdk5pDQAQjqXyUv0PnfzdSz9Jyf35bxvDKSCSfOBtD34hZzMOGpzZvQ8MfWY88LzdNxq40d+wPjYid6sVkEvJiGEEKT/iepIHaPcH8uzFqUaEz3elJX5ebAZyKkJGQQU96w0lOzPuYphj14IBFqpAt4cGfyQQ=
-Message-ID: <b6a2187b0610222020o5ed1e463k7f5b7c133b804293@mail.gmail.com>
-Date: Mon, 23 Oct 2006 11:20:51 +0800
-From: "Jeff Chua" <jeff.chua.linux@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.19-rc2 tg3 cannot find proper pci device base address
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 22 Oct 2006 23:31:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32708 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751372AbWJWDbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 23:31:18 -0400
+Subject: Re: 2.6.19-rc2-mm2
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jiri Kosina <jikos@jikos.cz>, Gabriel C <nix.or.die@googlemail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061020154325.78c38ead.akpm@osdl.org>
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
+	 <4538BA2E.9040808@googlemail.com>
+	 <Pine.LNX.4.64.0610201403090.29022@twin.jikos.cz>
+	 <20061020154325.78c38ead.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 23 Oct 2006 00:29:54 -0300
+Message-Id: <1161574194.31784.23.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
-with patching to v3.66 ...
+Em Sex, 2006-10-20 às 15:43 -0700, Andrew Morton escreveu:
+> On Fri, 20 Oct 2006 14:04:09 +0200 (CEST)
+> Jiri Kosina <jikos@jikos.cz> wrote:
+> 
+> > On Fri, 20 Oct 2006, Gabriel C wrote:
+> > 
+> > > I got this on ' make silentoldconfig '
+> > > drivers/media/dvb/dvb-usb/Kconfig:72:warning: 'select' used by config
+> > > symbol 'DVB_USB_DIB0700' refer to undefined symbol 'DVB_DIB7000M'
+> > 
+> > This is not a new warning, and should already be fixed for some two weeks 
+> > or so in the v4l-dvb tree.
+> 
+> The -mm tree includes the dvb/v4l tree.  We've all been patiently waiting
+> for that warning to go away for a few weeks now.
+I've corrected it at the patches I sent to Linus. It seemed that I
+forgot to apply a similar patch to -devel branch.
 
-tg3.c:v3.67 (October 18, 2006)
-ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
-tg3: Cannot find proper PCI device base address, aborting.
-ACPI: PCI Interrupt for device 0000:02:00.0 disabled
+I've sent the proper fix to my -devel branch this weekend. 
 
-The last version 2.6.18-rc2 works fine.
+It should have solved this issue by adding the proper DIB7000M code.
+Those patches will probably be included into kernel 2.6.20.
 
-Jeff.
+Cheers, 
+Mauro.
+

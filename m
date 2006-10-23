@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752010AbWJWVWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752012AbWJWVWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752010AbWJWVWF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 17:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWJWVWF
+	id S1752012AbWJWVWc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 17:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWJWVWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 17:22:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:56784 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752010AbWJWVWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 17:22:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pawuuFYYtKrrrU5YQHv8XhCKnvNJdxNgy8Hc6NsY0hCgvmLpbA+bv89TMr0bL+YzdIofRmuhd8f+pYF9QWOWUMlD1sTeu4fP4oQkzQnA0yHsFfr8aBpDv83bccIGL/eSt7XU//2xmx0yYS19TJgL7Q0qmGsK51tVgYSMiKFaZCc=
-Message-ID: <c526a04b0610231422i8ed5432g71467ae26a99baa1@mail.gmail.com>
-Date: Mon, 23 Oct 2006 21:22:01 +0000
-From: "Adam Henley" <adamazing@gmail.com>
+	Mon, 23 Oct 2006 17:22:32 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:53468 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752012AbWJWVWb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 17:22:31 -0400
+Date: Mon, 23 Oct 2006 14:23:07 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: PC speaker listed as input device
-In-Reply-To: <ae7121c60610231153g4a55968gf2da729c13c8f18b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [RT] scheduling and oprofile
+Message-ID: <20061023212307.GA21498@monkey.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <ae7121c60610231153g4a55968gf2da729c13c8f18b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23/10/06, Panagiotis Issaris <panagiotis@gmail.com> wrote:
-> Hi,
->
-> While trying to get my Hauppauge's remote control working, I noticed that my
-> PC speaker is getting recognized as an input device. This seems very weird
-> to me, is there some logic behind this?
+I've been trying to use oprofile on an RT kernel to look at some
+performance issues.  While running I notice the following sent to
+the console:
 
-Simple, all speakers are microphones!
-(http://www.google.com/search?q=%22a+speaker+as+a+microphone%22)
+BUG: scheduling with irqs disabled: java/0x00000000/4521
+caller is rt_mutex_slowlock+0x156/0x1dd
+ [<c032051a>] schedule+0x65/0xd2 (8)
+ [<c0321338>] rt_mutex_slowlock+0x156/0x1dd (12)
+ [<c032142a>] rt_mutex_lock+0x24/0x28 (72)
+ [<c0134904>] rt_down_read+0x38/0x3b (20)
+ [<c0322a89>] do_page_fault+0xe3/0x52d (12)
+ [<c03229a6>] do_page_fault+0x0/0x52d (76)
+ [<c01033bb>] error_code+0x4f/0x54 (8)
+ [<c01ce6d0>] __copy_from_user_ll+0x55/0x7c (44)
+ [<f89be7ef>] dump_user_backtrace+0x2e/0x56 [oprofile] (24)
+ [<c0134869>] rt_up_read+0x3e/0x41 (20)
+ [<f89be864>] x86_backtrace+0x4a/0x5a [oprofile] (20)
+ [<f89bd53a>] oprofile_add_sample+0x73/0x89 [oprofile] (20)
+ [<f89beea3>] athlon_check_ctrs+0x22/0x4a [oprofile] (32)
+ [<f89be8c5>] nmi_callback+0x18/0x1b [oprofile] (28)
+ [<c01041ff>] do_nmi+0x24/0x33 (12)
+ [<c0103462>] nmi_stack_correct+0x1d/0x22 (16)
 
-Though I don't know the real reason for recognising a speaker as an
-input device, this could be a "logical" explanation :o)
+It seems strange to me that oprofile would be calling
+'__copy_from_user_ll' in this context.  I can see why the
+changes made for RT locking expose this.  But, doesn't this
+issue also exist on non-RT (default) kernels?  What happens
+when we generate a page fault in this context on non-RT kernels?
 
-regards,
-
-adam
-(should probably reply to lkml as well...)
+-- 
+Mike

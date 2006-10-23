@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWJWQFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751961AbWJWQGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751549AbWJWQFl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 12:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWJWQFl
+	id S1751961AbWJWQGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 12:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751963AbWJWQGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 12:05:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:46985 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751549AbWJWQFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 12:05:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=nkV9Cwxjh1icAd78AIpWs9AH0RtbIfzJBekpVVoFdboeif9f7f3Xodiz6d+rqDjQBkSk/Ko4JgU1KLfMkTORF101Mwm5UkM6TMQumULt6n5FszmylkH4iXZzTCGEqUy2ktB7OcQuxMuyhZF4G5ar+Tx88QTdXcbdet38sXSlODM=
-Message-ID: <453CE85B.2080702@innova-card.com>
-Date: Mon, 23 Oct 2006 18:05:47 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Miguel Ojeda <maxextreme@gmail.com>
-CC: Franck <vagabon.xyz@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
-References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com> <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
-In-Reply-To: <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 23 Oct 2006 12:06:41 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27333
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751961AbWJWQGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 12:06:40 -0400
+Message-Id: <453D050D.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 23 Oct 2006 17:08:13 +0100
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <vgoyal@in.ibm.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Magnus Damm" <magnus@valinux.co.jp>,
+       <linux-kernel@vger.kernel.org>, <patches@x86-64.org>,
+       <Ian.Campbell@XenSource.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [patches] [PATCH] [18/19] x86_64: Overlapping program
+	headers in physical addr space fix
+References: <20061021651.356252000@suse.de>
+ <20061021165138.B8B5E13C4D@wotan.suse.de>
+ <453C8966.76E4.0078.0@novell.com> <20061023144145.GB15532@in.ibm.com>
+In-Reply-To: <20061023144145.GB15532@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <vagabon.xyz@gmail.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Ojeda wrote:
-> The driver is waiting in the -mm tree (-mm2 right now) for being
-> included in the mainline kernel sometime in the future. If it is
-> included, I will maintain it as I coded it as it apears in the
-> MAINTAINERS file. Why are you so worried about it if I can ask? Do you
-> want some more features or something like that?
+>I think plain "init" also does not reflect the correct name as this section
+>is also mapping .data.init_task, .data.page_aligned and .data_nosave, which
+>will probably never get freed. It maps smp alternatives sections which will
+>not be freed if CPU_HOTPLUG is enabled. It also maps .bss, which will never
+>get freed.
+>
+>I think, the sections which are not being freed, should be moved up and
+>made part of 'data' segment. Then create a segment 'init' for all the init
+>text/data and finally create another segment say 'bss' to map bss at the
+>end. How does this sound?
 
-Are you sure the patch you sent to Andrew is your latest patch
-version ? For example I can't found any locks in the patch that
-you normally added during the V6 patch version; auxlcddisplay.c
-doesn't no exist...
+Superb. Though I guess .bss needs no extra segment, it should simply
+be the last thing in the data segment.
 
-		Franck
+Jan

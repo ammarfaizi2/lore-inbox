@@ -1,107 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWJWP37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWJWPcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbWJWP37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWJWP37
+	id S964942AbWJWPcX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWJWPcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:29:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55716 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964941AbWJWP36 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:29:58 -0400
-Date: Mon, 23 Oct 2006 17:29:16 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm] swsusp: Improve handling of highmem
-Message-ID: <20061023152916.GA8418@elf.ucw.cz>
-References: <200610142156.05161.rjw@sisk.pl> <20061023150444.GC31273@elf.ucw.cz> <200610231722.57560.rjw@sisk.pl>
+	Mon, 23 Oct 2006 11:32:23 -0400
+Received: from wx-out-0506.google.com ([66.249.82.236]:54708 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964942AbWJWPcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 11:32:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=F5XjkvMMdLbNWO1p2GYnccxMVtR9TjduavNqMMYlt0BrBFZIpqm1YeoCdJpf8H8ytyw7KDvDQid2e/NFPhGOf3C50HewfGzQJM3yHhlXB2YPdLN2tywkFs3dzE7ez9kU/GK29PdaPDY6G0YQNQRPu2/sSk0UAfeizTSdnDzlV2w=
+Message-ID: <ceccffee0610230832l4eb76b0dvd1c4c275ae462d3d@mail.gmail.com>
+Date: Mon, 23 Oct 2006 17:32:21 +0200
+From: "Linux Portal" <linportal@gmail.com>
+To: "Theodore Tso" <tytso@mit.edu>, "Linux Portal" <linportal@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: First benchmarks of the ext4 file system
+In-Reply-To: <20061023020731.GA486@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610231722.57560.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <ceccffee0610211657u66b758b7r78fbf1c75f5dea67@mail.gmail.com>
+	 <20061023020731.GA486@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 10/23/06, Theodore Tso <tytso@mit.edu> wrote:
+> On Sun, Oct 22, 2006 at 01:57:36AM +0200, Linux Portal wrote:
+> > ext4 is 20 percent faster writer than ext3 or reiser4, probably thanks
+> > to extents and delayed allocation. On other tests it is either
+> > slightly faster or slightly slower. reiser4 comes as a nice surprise,
+> > winning few benchmarks. Both are very stable, no errors during
+> > testing.
+>
+> As Andrew has already pointed out, we don't have delayed allocation
+> merged in into the -mm tree yet.
 
-> > > Currently swsusp saves the contents of highmem pages by copying them to the
-> > > normal zone which is quite inefficient  (eg. it requires two normal pages to be
-> > > used for saving one highmem page).  This may be improved by using highmem
-> > > for saving the contents of saveable highmem pages.
-> > ...
-> > >  include/linux/suspend.h |    9 
-> > >  kernel/power/power.h    |    2 
-> > >  kernel/power/snapshot.c |  841 ++++++++++++++++++++++++++++++++++++------------
-> > >  kernel/power/swap.c     |    2 
-> > >  kernel/power/swsusp.c   |   53 +--
-> > >  kernel/power/user.c     |    2 
-> > >  mm/vmscan.c             |    3 
-> > 
-> > Well, I just hoped that highmem would quietly die out...
-> > 
-> > ...
-> > > +static struct page *alloc_image_page(gfp_t gfp_mask) {
-> > > +	struct page *page;
-> > 
-> > { should go on new line.
-> 
-> Ah, yes, thanks.  I'll fix this later if you don't mind.
+OK.
 
-Ok.
+> If you have the
+> time/energy/interest, a very useful thing that would very much help
+> the filesystem developers of all filesystems to do would be to
+> automated your tesitng enough that you can do these tests on a
+> frequent basis, both to track regressions caused by changes in other
+> parts of the kernel, as well we to see what happens as various bits of
+> functionality get added to the filesystem.  This of course can become
+> an arbitrarily a huge amount of work, as you add more filesystems and
+> benchmarks, but it's the sort of thing which is incredibly useful
+> especially if the hardware is held constant across a large number of
+> filesystems, workloads/benchmarks, and kernel versions.
+>
 
-> > >  	memory_bm_position_reset(orig_bm);
-> > >  	memory_bm_position_reset(copy_bm);
-> > >  	do {
-> > >  		pfn = memory_bm_next_pfn(orig_bm);
-> > > -		if (likely(pfn != BM_END_OF_MAP)) {
-1) ##############################################
-> > > -			struct page *page;
-> > > -			void *src;
-> > > -
-> > > -			page = pfn_to_page(pfn);
-> > > -			src = page_address(page);
-> > > -			page = pfn_to_page(memory_bm_next_pfn(copy_bm));
-> > > -			copy_data_page(page_address(page), src);
-> > > -		}
-> > > +		if (likely(pfn != BM_END_OF_MAP))
-2) ##############################################
-> > > +			copy_data_page(memory_bm_next_pfn(copy_bm), pfn);
-> > >  	} while (pfn != BM_END_OF_MAP);
-3) ####################################
-> > >  }
-> > 
-> > While(1) and "if (pfn != BM_END_OF_MAP) { ...break; } ? Why do you
-> > need to test pfn != BM_END_OF_MAP *three* times?
-> 
-> Why?  It's two times, and I don't like while(1) loops, really.
+I agree completely. That was my original idea, to prepare some setup for
+thorough testing, but I soon discovered that would really be a huge project,
+because of so many parameters involved.
 
-I see three of them, and while(1) loop is probably best solution
-here... "Too scared of break; so I copy conditions"? ;-).
+So, at this time, I just satisfied my curiosity ;) with few simple tests of the
+early version of ext4. We'll see what the future brings (how much free
+time, in the first place ;)).
 
-> > > @@ -1233,6 +1233,9 @@ out:
-> > >  	}
-> > >  	if (!all_zones_ok) {
-> > >  		cond_resched();
-> > > +
-> > > +		try_to_freeze();
-> > > +
-> > >  		goto loop_again;
-> > >  	}
-> > 
-> > What is this?
-> 
-> :-)
-> 
-> This is needed because during the resume there likely are no free pages in the
-> highmem zone which makes kswapd spin forever, but we have to freeze it before
-> the image is restored.
-
-Could that happen with current code, too? (I'm trying to sense if this
-should be merged now as a separate patch).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Best regards,

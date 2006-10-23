@@ -1,63 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWJWIeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWJWIgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751818AbWJWIeX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 04:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWJWIeX
+	id S1751812AbWJWIgK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 04:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWJWIgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 04:34:23 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:15260 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751804AbWJWIeW (ORCPT
+	Mon, 23 Oct 2006 04:36:10 -0400
+Received: from pfx2.jmh.fr ([194.153.89.55]:13500 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1751812AbWJWIgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 04:34:22 -0400
-Date: Mon, 23 Oct 2006 10:34:16 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andi Kleen <ak@suse.de>
-cc: Matthew Wilcox <matthew@wil.cx>, Randy Dunlap <rdunlap@xenotime.net>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-In-Reply-To: <200610230341.23978.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0610231029240.1272@pademelon.sonytel.be>
-References: <20061018091944.GA5343@martell.zuzino.mipt.ru> <200610230331.16573.ak@suse.de>
- <20061023013604.GF25210@parisc-linux.org> <200610230341.23978.ak@suse.de>
+	Mon, 23 Oct 2006 04:36:09 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] vmalloc : optimization, cleanup, bugfixes
+Date: Mon, 23 Oct 2006 10:36:09 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <453C3A29.4010606@intel.com> <20061022214508.6c4f30c6.akpm@osdl.org>
+In-Reply-To: <20061022214508.6c4f30c6.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_67HPFkgkemdTTyT"
+Message-Id: <200610231036.10418.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006, Andi Kleen wrote:
-> > This needs annotations to fix, or a big bag of unreliable heuristics.
-> 
-> Ok you're right that case would need annotations.
+--Boundary-00=_67HPFkgkemdTTyT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Annotations are a different thing. Personally, I don't like adding them.
+[PATCH] vmalloc : optimization, cleanup, bugfixes
 
-> I retreat my earlier statement that self sufficient include files
-> are a good idea.  If it needs such hacks to do it it's probably not worth
-> it. After all it won't fix a single bug.
+This patch does three things
 
-  - It will fix bugs of the type: add #include <x.h> to y.c because on some
-    architectures x.h isn't automatically pulled in by z.h.
+1) reorder 'struct vm_struct' to speedup lookups on CPUS with small cache 
+lines. The fields 'next,addr,size' should be now in the same cache line, to 
+speedup lookups.
 
-  - It would help in cleaning up the zillions of includes in the .c files,
-    decreasing compile time.
+2) One minor cleanup in __get_vm_area_node()
 
-  - It would make it easier for developers, since if you need something, you
-    just have to explicitly include the header file that defines it, and not
-    have to find out the hard way what other stuff to include.
+3) Bugfixes in vmalloc_user() and vmalloc_32_user()
+NULL returns from __vmalloc() and __find_vm_area() were not tested.
 
-I agree, that's not that many `real bugs'.
 
-Gr{oetje,eeting}s,
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-						Geert
+--Boundary-00=_67HPFkgkemdTTyT
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="vmalloc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="vmalloc.patch"
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--- linux-2.6/include/linux/vmalloc.h	2006-10-23 10:09:48.000000000 +0200
++++ linux-2.6-ed/include/linux/vmalloc.h	2006-10-23 10:26:37.000000000 +0200
+@@ -23,13 +23,14 @@
+ #endif
+ 
+ struct vm_struct {
++	/* keep next,addr,size together to speedup lookups */
++	struct vm_struct	*next;
+ 	void			*addr;
+ 	unsigned long		size;
+ 	unsigned long		flags;
+ 	struct page		**pages;
+ 	unsigned int		nr_pages;
+ 	unsigned long		phys_addr;
+-	struct vm_struct	*next;
+ };
+ 
+ /*
+--- linux-2.6/mm/vmalloc.c	2006-10-23 10:11:43.000000000 +0200
++++ linux-2.6-ed/mm/vmalloc.c	2006-10-23 10:17:52.000000000 +0200
+@@ -180,15 +180,13 @@
+ 	addr = ALIGN(start, align);
+ 	size = PAGE_ALIGN(size);
+ 
++	if (unlikely(!size))
++		return NULL;
++
+ 	area = kmalloc_node(sizeof(*area), GFP_KERNEL, node);
+ 	if (unlikely(!area))
+ 		return NULL;
+ 
+-	if (unlikely(!size)) {
+-		kfree (area);
+-		return NULL;
+-	}
+-
+ 	/*
+ 	 * We always allocate a guard page.
+ 	 */
+@@ -528,11 +526,13 @@
+ 	void *ret;
+ 
+ 	ret = __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO, PAGE_KERNEL);
+-	write_lock(&vmlist_lock);
+-	area = __find_vm_area(ret);
+-	area->flags |= VM_USERMAP;
+-	write_unlock(&vmlist_lock);
+-
++	if (ret) {
++		write_lock(&vmlist_lock);
++		area = __find_vm_area(ret);
++		if (area)
++			area->flags |= VM_USERMAP;
++		write_unlock(&vmlist_lock);
++	}
+ 	return ret;
+ }
+ EXPORT_SYMBOL(vmalloc_user);
+@@ -601,11 +601,13 @@
+ 	void *ret;
+ 
+ 	ret = __vmalloc(size, GFP_KERNEL | __GFP_ZERO, PAGE_KERNEL);
+-	write_lock(&vmlist_lock);
+-	area = __find_vm_area(ret);
+-	area->flags |= VM_USERMAP;
+-	write_unlock(&vmlist_lock);
+-
++	if (ret) {
++		write_lock(&vmlist_lock);
++		area = __find_vm_area(ret);
++		if (area)
++			area->flags |= VM_USERMAP;
++		write_unlock(&vmlist_lock);
++	}
+ 	return ret;
+ }
+ EXPORT_SYMBOL(vmalloc_32_user);
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--Boundary-00=_67HPFkgkemdTTyT--

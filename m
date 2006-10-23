@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWJWTrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWJWTrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWJWTrt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWJWTrt
+	id S964978AbWJWTrp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 15:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWJWTrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:47:49 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60805 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964984AbWJWTrs
+	Mon, 23 Oct 2006 15:47:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:26034 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964978AbWJWTro
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:47:48 -0400
-Date: Mon, 23 Oct 2006 15:36:17 -0400
+	Mon, 23 Oct 2006 15:47:44 -0400
+Date: Mon, 23 Oct 2006 15:40:41 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 6/11] i386: CONFIG_PHYSICAL_START cleanup
-Message-ID: <20061023193617.GG13263@in.ibm.com>
+Subject: [PATCH 9/11] i386: Warn upon absolute relocations being present
+Message-ID: <20061023194041.GJ13263@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061023192456.GA13263@in.ibm.com>
 Mime-Version: 1.0
@@ -29,115 +29,175 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Defining __PHYSICAL_START and __KERNEL_START in asm-i386/page.h works but
-it triggers a full kernel rebuild for the silliest of reasons.  This
-modifies the users to directly use CONFIG_PHYSICAL_START and linux/config.h
-which prevents the full rebuild problem, which makes the code much
-more maintainer and hopefully user friendly.
+o Relocations generated w.r.t absolute symbols are not processed as by 
+  definition, absolute symbols are not to be relocated. Explicitly warn
+  user about absolutions relocations present at compile time. 
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+o These relocations get introduced either due to linker optimizations or
+  some programming oversights.
+
+o Also create a list of symbols which have been audited to be safe and 
+  don't emit warnings for these.
+
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/i386/boot/compressed/head.S |    7 +++----
- arch/i386/boot/compressed/misc.c |    7 +++----
- arch/i386/kernel/vmlinux.lds.S   |    2 +-
- include/asm-i386/page.h          |    3 ---
- 4 files changed, 7 insertions(+), 12 deletions(-)
+ arch/i386/boot/compressed/Makefile |    2 
+ arch/i386/boot/compressed/relocs.c |   82 ++++++++++++++++++++++++++++++++-----
+ 2 files changed, 73 insertions(+), 11 deletions(-)
 
-diff -puN arch/i386/boot/compressed/head.S~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/boot/compressed/head.S
---- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/head.S~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/head.S	2006-10-23 15:08:50.000000000 -0400
-@@ -25,7 +25,6 @@
+diff -puN arch/i386/boot/compressed/Makefile~i386-explicitly-warn-about-absolute-symbols-during-compile arch/i386/boot/compressed/Makefile
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/Makefile~i386-explicitly-warn-about-absolute-symbols-during-compile	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/Makefile	2006-10-23 13:15:21.000000000 -0400
+@@ -20,7 +20,7 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+ 	$(call if_changed,objcopy)
  
- #include <linux/linkage.h>
- #include <asm/segment.h>
--#include <asm/page.h>
+ quiet_cmd_relocs = RELOCS  $@
+-      cmd_relocs = $(obj)/relocs $< > $@
++      cmd_relocs = $(obj)/relocs $< > $@;$(obj)/relocs --abs-relocs $<
+ $(obj)/vmlinux.relocs: vmlinux $(obj)/relocs FORCE
+ 	$(call if_changed,relocs)
  
- 	.globl startup_32
- 	
-@@ -75,7 +74,7 @@ startup_32:
- 	popl %esi	# discard address
- 	popl %esi	# real mode pointer
- 	xorl %ebx,%ebx
--	ljmp $(__BOOT_CS), $__PHYSICAL_START
-+	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
+diff -puN arch/i386/boot/compressed/relocs.c~i386-explicitly-warn-about-absolute-symbols-during-compile arch/i386/boot/compressed/relocs.c
+--- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/relocs.c~i386-explicitly-warn-about-absolute-symbols-during-compile	2006-10-23 13:15:21.000000000 -0400
++++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/relocs.c	2006-10-23 13:15:21.000000000 -0400
+@@ -19,6 +19,33 @@ static char *strtab[MAX_SHDRS];
+ static unsigned long reloc_count, reloc_idx;
+ static unsigned long *relocs;
  
- /*
-  * We come here, if we were loaded high.
-@@ -100,7 +99,7 @@ startup_32:
- 	popl %ecx	# lcount
- 	popl %edx	# high_buffer_start
- 	popl %eax	# hcount
--	movl $__PHYSICAL_START,%edi
-+	movl $CONFIG_PHYSICAL_START,%edi
- 	cli		# make sure we don't get interrupted
- 	ljmp $(__BOOT_CS), $0x1000 # and jump to the move routine
- 
-@@ -125,5 +124,5 @@ move_routine_start:
- 	movsl
- 	movl %ebx,%esi	# Restore setup pointer
- 	xorl %ebx,%ebx
--	ljmp $(__BOOT_CS), $__PHYSICAL_START
-+	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
- move_routine_end:
-diff -puN arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/boot/compressed/misc.c
---- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/compressed/misc.c	2006-10-23 15:08:50.000000000 -0400
-@@ -13,7 +13,6 @@
- #include <linux/vmalloc.h>
- #include <linux/screen_info.h>
- #include <asm/io.h>
--#include <asm/page.h>
- 
- /*
-  * gzip declarations
-@@ -303,7 +302,7 @@ static void setup_normal_output_buffer(v
- #else
- 	if ((RM_ALT_MEM_K > RM_EXT_MEM_K ? RM_ALT_MEM_K : RM_EXT_MEM_K) < 1024) error("Less than 2MB of memory");
- #endif
--	output_data = (unsigned char *)__PHYSICAL_START; /* Normally Points to 1M */
-+	output_data = (unsigned char *)CONFIG_PHYSICAL_START; /* Normally Points to 1M */
- 	free_mem_end_ptr = (long)real_mode;
- }
- 
-@@ -326,8 +325,8 @@ static void setup_output_buffer_if_we_ru
- 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
- 	high_loaded = 1;
- 	free_mem_end_ptr = (long)high_buffer_start;
--	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
--		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
-+	if ( (CONFIG_PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(CONFIG_PHYSICAL_START + low_buffer_size);
- 		mv->hcount = 0; /* say: we need not to move high_buffer */
- 	}
- 	else mv->hcount = -1;
-diff -puN arch/i386/kernel/vmlinux.lds.S~i386-CONFIG_PHYSICAL_START-cleanup arch/i386/kernel/vmlinux.lds.S
---- linux-2.6.19-rc2-git7-reloc/arch/i386/kernel/vmlinux.lds.S~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/kernel/vmlinux.lds.S	2006-10-23 15:08:45.000000000 -0400
-@@ -21,7 +21,7 @@ PHDRS {
- }
- SECTIONS
++/*
++ * Following symbols have been audited. There values are constant and do
++ * not change if bzImage is loaded at a different physical address than
++ * the address for which it has been compiled. Don't warn user about
++ * absolute relocations present w.r.t these symbols.
++ */
++static const char* safe_abs_relocs[] = {
++		"__kernel_vsyscall",
++		"__kernel_rt_sigreturn",
++		"__kernel_sigreturn",
++		"SYSENTER_RETURN",
++};
++
++static int is_safe_abs_reloc(const char* sym_name)
++{
++	int i, array_size;
++
++	array_size = sizeof(safe_abs_relocs)/sizeof(char*);
++
++	for(i = 0; i < array_size; i++) {
++		if (!strcmp(sym_name, safe_abs_relocs[i]))
++			/* Match found */
++			return 1;
++	}
++	return 0;
++}
++
+ static void die(char *fmt, ...)
  {
--  . = __KERNEL_START;
-+  . = LOAD_OFFSET + CONFIG_PHYSICAL_START;
-   phys_startup_32 = startup_32 - LOAD_OFFSET;
-   /* read-only */
-   .text : AT(ADDR(.text) - LOAD_OFFSET) {
-diff -puN include/asm-i386/page.h~i386-CONFIG_PHYSICAL_START-cleanup include/asm-i386/page.h
---- linux-2.6.19-rc2-git7-reloc/include/asm-i386/page.h~i386-CONFIG_PHYSICAL_START-cleanup	2006-10-23 13:15:21.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/include/asm-i386/page.h	2006-10-23 13:15:21.000000000 -0400
-@@ -112,12 +112,9 @@ extern int page_is_ram(unsigned long pag
+ 	va_list ap;
+@@ -359,9 +386,8 @@ static void print_absolute_symbols(void)
  
- #ifdef __ASSEMBLY__
- #define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
--#define __PHYSICAL_START	CONFIG_PHYSICAL_START
- #else
- #define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
--#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
- #endif
--#define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
+ static void print_absolute_relocs(void)
+ {
+-	int i;
+-	printf("Absolute relocations\n");
+-	printf("Offset     Info     Type     Sym.Value Sym.Name\n");
++	int i, printed = 0;
++
+ 	for(i = 0; i < ehdr.e_shnum; i++) {
+ 		char *sym_strtab;
+ 		Elf32_Sym *sh_symtab;
+@@ -387,6 +413,31 @@ static void print_absolute_relocs(void)
+ 			if (sym->st_shndx != SHN_ABS) {
+ 				continue;
+ 			}
++
++			/* Absolute symbols are not relocated if bzImage is
++			 * loaded at a non-compiled address. Display a warning
++			 * to user at compile time about the absolute
++			 * relocations present.
++			 *
++			 * User need to audit the code to make sure
++			 * some symbols which should have been section
++			 * relative have not become absolute because of some
++			 * linker optimization or wrong programming usage.
++			 *
++			 * Before warning check if this absolute symbol
++			 * relocation is harmless.
++			 */
++			if (is_safe_abs_reloc(name))
++				continue;
++
++			if (!printed) {
++				printf("WARNING: Absolute relocations"
++					" present\n");
++				printf("Offset     Info     Type     Sym.Value "
++					"Sym.Name\n");
++				printed = 1;
++			}
++
+ 			printf("%08x %08x %10s %08x  %s\n",
+ 				rel->r_offset,
+ 				rel->r_info,
+@@ -395,7 +446,9 @@ static void print_absolute_relocs(void)
+ 				name);
+ 		}
+ 	}
+-	printf("\n");
++
++	if (printed)
++		printf("\n");
+ }
  
+ static void walk_relocs(void (*visit)(Elf32_Rel *rel, Elf32_Sym *sym))
+@@ -508,25 +561,31 @@ static void emit_relocs(int as_text)
  
- #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
+ static void usage(void)
+ {
+-	die("i386_reloc [--abs | --text] vmlinux\n");
++	die("relocs [--abs-syms |--abs-relocs | --text] vmlinux\n");
+ }
+ 
+ int main(int argc, char **argv)
+ {
+-	int show_absolute;
++	int show_absolute_syms, show_absolute_relocs;
+ 	int as_text;
+ 	const char *fname;
+ 	FILE *fp;
+ 	int i;
+ 
+-	show_absolute = 0;
++	show_absolute_syms = 0;
++	show_absolute_relocs = 0;
+ 	as_text = 0;
+ 	fname = NULL;
+ 	for(i = 1; i < argc; i++) {
+ 		char *arg = argv[i];
+ 		if (*arg == '-') {
+-			if (strcmp(argv[1], "--abs") == 0) {
+-				show_absolute = 1;
++			if (strcmp(argv[1], "--abs-syms") == 0) {
++				show_absolute_syms = 1;
++				continue;
++			}
++
++			if (strcmp(argv[1], "--abs-relocs") == 0) {
++				show_absolute_relocs = 1;
+ 				continue;
+ 			}
+ 			else if (strcmp(argv[1], "--text") == 0) {
+@@ -553,8 +612,11 @@ int main(int argc, char **argv)
+ 	read_strtabs(fp);
+ 	read_symtabs(fp);
+ 	read_relocs(fp);
+-	if (show_absolute) {
++	if (show_absolute_syms) {
+ 		print_absolute_symbols();
++		return 0;
++	}
++	if (show_absolute_relocs) {
+ 		print_absolute_relocs();
+ 		return 0;
+ 	}
 _

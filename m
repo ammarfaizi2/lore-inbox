@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWJWNOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWJWNWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWJWNOa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 09:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWJWNOa
+	id S964839AbWJWNWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 09:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWJWNWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 09:14:30 -0400
-Received: from swan.nt.tuwien.ac.at ([128.131.67.158]:47520 "EHLO
-	swan.nt.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S964806AbWJWNO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 09:14:29 -0400
-Date: Mon, 23 Oct 2006 15:14:25 +0200
-From: Thomas Zeitlhofer <tzeitlho+lkml@nt.tuwien.ac.at>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mkdir on read-only NFS is broken in 2.6.18
-Message-ID: <20061023131425.GA6127@swan.nt.tuwien.ac.at>
-References: <20061023092329.GA5231@swan.nt.tuwien.ac.at> <1161599622.5755.16.camel@lade.trondhjem.org>
+	Mon, 23 Oct 2006 09:22:09 -0400
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:63762 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S964826AbWJWNWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 09:22:08 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Zhu Yi <yi.zhu@intel.com>
+Subject: Re: 2.6.19-rc2: ieee80211/ipw2200 regression
+Date: Mon, 23 Oct 2006 14:22:07 +0100
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>, jketreno@linux.intel.com
+References: <200610230244.43948.s0348365@sms.ed.ac.uk> <1161574972.19188.42.camel@debian.sh.intel.com>
+In-Reply-To: <1161574972.19188.42.camel@debian.sh.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1161599622.5755.16.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610231422.07647.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 06:33:42AM -0400, Trond Myklebust wrote:
-> On Mon, 2006-10-23 at 11:23 +0200, Thomas Zeitlhofer wrote:
-> > Hello,
-> > 
-> > there is a problem in 2.6.18/.1 when mkdir is called for an existing
-> > directory on a read-only mounted NFS filesystem.
-> > 
-> > Lets consider a server that exports the directory /export which contains
-> > the directory-tree a/b/c:
-> > 
-> > 1) If /export is mounted ro and the first access to a, b, or c  is
-> > mkdir, then this directory and all directories underneath become
-> > inaccessible:
-> > 
-> >   client:# mount server:/export /mnt -o ro
-> >   client:# mkdir /mnt/a/b
-> >   mkdir: cannot create directory `/mnt/a/b': Read-only file system
-> >   client:# find /mnt
-> >   /mnt
-> >   /mnt/a
-> >   find: /mnt/a/b: No such file or directory
-[...]
-> > As a consequence of 1), autofs does not work with mountpoints on NFS
-> > (ro) because the automount daemon calls mkdir for all directories in the
-> > path to the mountpoint. This seems related to the discussion [1], and,
-> > as suggested in [1], the issue is fixed by reverting the patch:
-> 
-> There should already be a fix for this issue in 2.6.19-rc1. See
-> 
->   http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=fd6840714d9cf6e93f1d42b904860a94df316b85
+On Monday 23 October 2006 04:42, Zhu Yi wrote:
+> On Mon, 2006-10-23 at 02:44 +0100, Alistair John Strachan wrote:
+> > [alistair] 02:42 [~/linux-git] cat /boot/System.map-`uname -r` | grep
+> > arc4
+> > c01f7970 t arc4_crypt
+> > c01f7a10 t arc4_set_key
+> > c0341be0 d arc4_alg
+> > c0390cc0 t arc4_init
+> > c03a393c t __initcall_arc4_init
+> > c03a6380 t arc4_exit
+>
+> It should be OK if you configured ARC4 and CRC32 in kernel. Can you also
+> see the symbols in /proc/kallsyms? (In case /boot/System.map-`uname -r`
+> differs with the currently running kernel.)
 
-Yes, this patch fixes the issue for 2.6.18 too. 
+You're right, they're not there. However the files were built at the same 
+time!
 
-Just a note, there still seems to be some inconsistency regarding the
-errno returned by mkdir:
+[alistair] 14:20 [~] ls -lah /boot/*2.6.19-rc2*
+-rw-r--r--  1 root root  36K 2006-10-13 21:46 /boot/config-2.6.19-rc2
+-rw-r--r--  1 root root 798K 2006-10-13 21:46 /boot/System.map-2.6.19-rc2
+-rw-r--r--  1 root root 1.7M 2006-10-13 21:46 /boot/vmlinuz-2.6.19-rc2
 
-   client:# mount server:/export /mnt -o ro                         
-   client:# mkdir /mnt/a/b
-   mkdir: cannot create directory `/mnt/a/b': Read-only file system
-   client:# find /mnt
-   /mnt
-   /mnt/a
-   /mnt/a/b
-   /mnt/a/b/c
-   client:# mkdir /mnt/a/b
-   mkdir: cannot create directory `/mnt/a/b': File exists
+Maybe it's a problem with the crypto subsystem?
 
-Depending on the context, mkdir returns EROFS or EEXIST - shouldn't we
-get always the same errno?  Using the patch from my previous mail (or a
-2.6.17 kernel), mkdir will always return EEXIST in this case. 
+-- 
+Cheers,
+Alistair.
 
-Thanks,
- Thomas
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWJWGmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWJWGsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWJWGmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 02:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbWJWGmQ
+	id S1750897AbWJWGsU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 02:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWJWGsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 02:42:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64970 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751613AbWJWGmP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 02:42:15 -0400
-Date: Sun, 22 Oct 2006 23:41:52 -0700
+	Mon, 23 Oct 2006 02:48:19 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38591 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750878AbWJWGsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 02:48:19 -0400
+Date: Sun, 22 Oct 2006 23:48:07 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: dino@in.ibm.com, akpm@osdl.org, mbligh@google.com, menage@google.com,
        Simon.Derr@bull.net, linux-kernel@vger.kernel.org, rohitseth@google.com,
        holt@sgi.com, dipankar@in.ibm.com, suresh.b.siddha@intel.com
 Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061022234152.baaf4624.pj@sgi.com>
+Message-Id: <20061022234807.2000c888.pj@sgi.com>
 In-Reply-To: <453C5E77.2050905@yahoo.com.au>
 References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
 	<20061020210422.GA29870@in.ibm.com>
@@ -32,24 +32,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> These are both part of the same larger solution, which is to
-> partition domains. isolated CPUs are just the case of 1 CPU in
-> its own domain (and that's how they are implemented now).
+> It would be trivial to make such a script to parse the root cpuset and
+> do exactly this, wouldn't it?
 
-and later, he also wrote:
-> I think this is much more of an automatic behind your back thing.
+Ah - yes - that's doable.  A certain company I work for ships pretty
+much that exact script, to its customers.  It works well to remove
+all the unpinned tasks from the top level cpuset and put them in what
+we call the 'boot' cpuset, where the classic Unix load (init, cron,
+daemons, sysadmin login) is confined.  This frees up the rest of the
+system to run "real" work.  It works quite well, if I do say so.
 
-I got confused there.
+Perhaps I'm being overly pessimistic about the potential of driving
+this partitioning off the cpus_allowed masks of the tasks.  As you
+noted, it would be a cute trick to avoid some combinatorial explosion
+of the computational costs.  But there are enough practical constraints
+on this problem - that should be quite doable.
 
-I agree that if we can do a -good- job of it, then an implicit,
-automatic solution is better for the problem of reducing sched domain
-partition sizes on large systems than yet another manual knob.
-
-But I thought that it was good idea, with general agreement, to provide
-an explicit control of isolated cpus for the real-time folks, even if
-under the covers it use sched domain partitions of size 1 to implement
-it.
+Hmmm ...
 
 -- 
                   I won't rest till it's the best ...

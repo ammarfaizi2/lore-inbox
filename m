@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWJWT7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWJWUAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWJWT7m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWJWT7m
+	id S965022AbWJWUAY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbWJWUAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:59:42 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:22242 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S1030189AbWJWT7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:59:41 -0400
-Date: Mon, 23 Oct 2006 22:02:03 +0200
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: [PATCH] 2.6.19-rc2-mm2 sysfs: sysfs_write_file() writes zero terminated data
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
+	Mon, 23 Oct 2006 16:00:24 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:37037 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S965022AbWJWUAW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:00:22 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: David Hollis <dhollis@davehollis.com>
+Subject: Re: 2.6.19-rc2-mm2: D-Link DUB-E100 Rev. B broken
+Date: Mon, 23 Oct 2006 21:59:39 +0200
+User-Agent: KMail/1.9.4
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=iso-8859-15
+References: <200610232041.48998.bero@arklinux.org> <1161630300.4824.7.camel@dhollis-lnx.sunera.com> <200610232145.23819.bero@arklinux.org>
+In-Reply-To: <200610232145.23819.bero@arklinux.org>
 MIME-Version: 1.0
-References: <op.tht1yneaiudtyh@master> <20061022183924.GA18032@suse.de>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.thv4lpt0iudtyh@master>
-In-Reply-To: <20061022183924.GA18032@suse.de>
-User-Agent: Opera Mail/9.02 (Win32)
+Content-Disposition: inline
+Message-Id: <200610232159.40022.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Monday, 23. October 2006 21:45, Bernhard Rosenkraenzer wrote:
+> Looks like the USB port is acting up (only with the new kernel -- so this
+> is probably triggered by a USB driver or possibly APIC change [will try
+> with pci=noapic next])
 
-Sorry, maybe i missed something, but according to the
-code in fs/sysfs/file.c the "write" sequence is:
-
-- call to sysfs_write_file(ubuf, count)
-- if (!sysfsbuf->page)  alloc zeroed page
-- copy count bytes from ubuf to sysfsbuf->page
-- call store(sysfsbuf->page, count)
-
-When you write again to the file before closing it
-(possible?!), and count is less the the previous count
-you may not pass a zero terminated string/data to store().
-
--Thomas
-
-
-Am 22.10.2006, 20:39 Uhr, schrieb Greg KH <gregkh@suse.de>:
-
-> On Sun, Oct 22, 2006 at 07:17:47PM +0200, Thomas Maier wrote:
->> Hello,
->>
->> since most of the files in sysfs are text files,
->> it would be nice, if the "store" function called
->> during sysfs_write_file() gets a zero terminated
->> string / data.
->> The current implementation seems not to ensure this.
->> (But only if it is the first time the zeroed buffer
->> page is allocated.)
->
-> Have you seen sysfs buffers being passed to the store() function in a
-> non-null terminated manner?  How?
->
-> Are you seeking backward and then writing again to the file somehow?
->
-> thanks,
->
-> greg k-h
->
->
-
-
+pci=noapic doesn't change anything, but I remember having weird IRQ problems 
+on identical boxes before (in particular, a normal 8139too network card 
+doesn't work if ACPI 2.0 support is disabled in the BIOS), so this is a 
+likely candidate for "severely broken BIOS needs workarounds and happened to 
+work earlier by coincidence"

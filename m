@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWJWDSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWJWDTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWJWDSp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 23:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWJWDSp
+	id S1751302AbWJWDTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 23:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWJWDTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 23:18:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751308AbWJWDSo (ORCPT
+	Sun, 22 Oct 2006 23:19:14 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:22428 "EHLO
+	asav11.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751302AbWJWDTM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 23:18:44 -0400
-Message-ID: <453C3488.2050401@redhat.com>
-Date: Sun, 22 Oct 2006 22:18:32 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Sun, 22 Oct 2006 23:19:12 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Ah4FAFHQO0VKhRUUXWdsb2JhbACBTIpLLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: =?iso-8859-2?q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: Re: [PATCH] input: init struct serio_bus at compile time
+Date: Sun, 22 Oct 2006 23:19:00 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <453C1946.1080803@freemail.hu>
+In-Reply-To: <453C1946.1080803@freemail.hu>
 MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: Eric Sandeen <sandeen@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] more helpful WARN_ON and BUG_ON messages
-References: <4538F81A.2070007@redhat.com> <45393CBD.8000400@goop.org>
-In-Reply-To: <45393CBD.8000400@goop.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610222319.00675.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
-
-> This seems like a generally useful idea - certainly more valuable than 
-> storing+printing the function name.
+On Sunday 22 October 2006 21:22, Németh Márton wrote:
+> From: Márton Németh <nm127@freemail.hu>
 > 
-> You might want to look at the BUG patches I wrote, which are currently 
-> in -mm.  I added general machinery to allow architectures to easily 
-> implement BUG() efficiently (ie, with a minimal amount of BUG-related 
-> icache pollution).  If you were to store the BUG_ON expression, it would 
-> be best to extend struct bug_entry and store it there - doing it in 
-> asm-generic BUG_ON() means you still end up with code to set up the 
-> printk in the mainline code path, and it also won't honour 
-> CONFIG_DEBUG_BUGVERBOSE being disabled.
+> Initialize serio_bus structure at compile time instead of at runtime in serio_init().
+> This will speed up startup a little bit and also reduce code size.
+> 
+> Signed-off-by: Márton Németh <nm127@freemail.hu>
+> 
 
-Thanks, I missed that change... I'll look into it.
+Will apply, thank you.
 
--Eric
+-- 
+Dmitry

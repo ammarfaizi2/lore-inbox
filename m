@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWJWEpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWJWEov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWJWEpN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 00:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWJWEpM
+	id S1751482AbWJWEov (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 00:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWJWEov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 00:45:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43910 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751485AbWJWEpK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 00:45:10 -0400
-Date: Sun, 22 Oct 2006 21:45:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "bibo,mao" <bibo.mao@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix minor error about efi memory_present
-Message-Id: <20061022214508.6c4f30c6.akpm@osdl.org>
-In-Reply-To: <453C3A29.4010606@intel.com>
-References: <453C3A29.4010606@intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 23 Oct 2006 00:44:51 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:18061 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751482AbWJWEou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 00:44:50 -0400
+Subject: Patches in git tree.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 23 Oct 2006 14:44:45 +1000
+Message-Id: <1161578685.3466.17.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006 11:42:33 +0800
-"bibo,mao" <bibo.mao@intel.com> wrote:
+Hi.
 
-> Hi, 
->    Function efi_memory_present_wrapper parameter start/end is physical address,
-> but function memory_present parameter is PFN, this patch converts physical
-> address to PFN.
-> 
->   Signed-off-by: bibo, mao <bibo.mao@intel.com>
-> 
-> thanks
-> bibo,mao
-> 
-> diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
-> index 519e63c..141041d 100644
-> --- a/arch/i386/kernel/setup.c
-> +++ b/arch/i386/kernel/setup.c
-> @@ -846,7 +846,7 @@ efi_find_max_pfn(unsigned long start, un
->  static int __init
->  efi_memory_present_wrapper(unsigned long start, unsigned long end, void *arg)
->  {
-> -	memory_present(0, start, end);
-> +	memory_present(0, PFN_UP(start), PFN_DOWN(end));
->  	return 0;
->  }
->  
+Just to let you know, these patches are in a git tree you can pull from
+if you so desire:
 
-It doesn't _seem_ like a "minor error".  How come people's machines haven't
-been crashing all over the place?
+http://git.kernel.org/git/?p=linux/kernel/git/nigelc/suspend2-merge.git;a=summary
+
+Regards,
+
+Nigel
 

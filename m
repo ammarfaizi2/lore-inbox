@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWJWAjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWJWAnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWJWAjy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 20:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWJWAjy
+	id S1750990AbWJWAnS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 20:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWJWAnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 20:39:54 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:6566 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750967AbWJWAjx (ORCPT
+	Sun, 22 Oct 2006 20:43:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:38054 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750990AbWJWAnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 20:39:53 -0400
+	Sun, 22 Oct 2006 20:43:16 -0400
 From: Andi Kleen <ak@suse.de>
-To: Roland Dreier <rdreier@cisco.com>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-Date: Mon, 23 Oct 2006 02:39:44 +0200
+To: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: dealing with excessive includes
+Date: Mon, 23 Oct 2006 02:42:58 +0200
 User-Agent: KMail/1.9.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Avi Kivity <avi@qumranet.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>
-References: <4537818D.4060204@qumranet.com> <p7364ecm1cl.fsf@verdi.suse.de> <adahcxvj2pq.fsf@cisco.com>
-In-Reply-To: <adahcxvj2pq.fsf@cisco.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+References: <20061018091944.GA5343@martell.zuzino.mipt.ru> <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be> <20061023003111.GD25210@parisc-linux.org>
+In-Reply-To: <20061023003111.GD25210@parisc-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610230239.44764.ak@suse.de>
+Message-Id: <200610230242.58647.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 October 2006 02:27, Roland Dreier wrote:
->  > Ah you're right. I forgot about the Yonahs. The number is probably
->  > not even that small (when Intel ships something x86 they tend to 
->  > do it in millions)
-> 
-> Right, it's quite a mainstream CPU -- for example every current
-> Thinkpad has one I think. 
 
-The question is if they all enable VT in the BIOS though. A lot of
-systems don't and without BIOS support it doesn't work.
+> /*+
+>  * Provides: struct sched
+>  * Provides: total_forks, nr_threads, process_counts, nr_processes()
+>  * Provides: nr_running(), nr_uninterruptible(), nr_active(), nr_iowait(), weighted_cpuload()
+>  */
+
+That's ugly.  If it needs that i don't think it's a good idea.
+We really want standard C, not some Linux dialect.
+
+In theory it is even to do it automated without comments
+just based on the referenced symbols, except if stuff is hidden in macros 
+(but then the include defining the macro should have the right includes
+anyways). Another issue would be different name spaces - if there is both
+typedef foo and struct foo and nested local foo a script might have a little trouble 
+distingushing them, but i suspect that won't be a big issue.
 
 -Andi
+
+

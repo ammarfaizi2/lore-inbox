@@ -1,276 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWJWNaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWJWNaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWJWNaq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 09:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWJWNaq
+	id S964845AbWJWNaP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 09:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWJWNaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 09:30:46 -0400
-Received: from il.qumranet.com ([62.219.232.206]:27605 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S964852AbWJWNaj (ORCPT
+	Mon, 23 Oct 2006 09:30:15 -0400
+Received: from il.qumranet.com ([62.219.232.206]:26069 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S964845AbWJWNaH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 09:30:39 -0400
-Subject: [PATCH 6/13] KVM: memory slot management
+	Mon, 23 Oct 2006 09:30:07 -0400
+Subject: [PATCH 3/13] KVM: kvm data structures
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 23 Oct 2006 13:30:36 -0000
+Date: Mon, 23 Oct 2006 13:30:06 -0000
 To: avi@qumranet.com, linux-kernel@vger.kernel.org
 References: <453CC390.9080508@qumranet.com>
 In-Reply-To: <453CC390.9080508@qumranet.com>
-Message-Id: <20061023133036.9F3C9250143@cleopatra.q>
+Message-Id: <20061023133006.5D70F250143@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kvm defines memory in "slots", more or less corresponding to the DIMM slots.
-
-this allows us to:
- - avoid the VGA hole at 640K
- - add a pci framebuffer at runtime
- - hotplug memory
+Define data structures and some constants for a virtual machine.
 
 Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/kvm_main.c
+Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -675,6 +675,211 @@ static void vcpu_put_rsp_rip(struct kvm_
- 	vmcs_writel(GUEST_RIP, vcpu->rip);
- }
- 
+--- /dev/null
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -0,0 +1,206 @@
++#ifndef __KVM_H
++#define __KVM_H
++
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/mutex.h>
++#include <linux/spinlock.h>
++#include <linux/mm.h>
++
++#define INVALID_PAGE (~(hpa_t)0)
++#define UNMAPPED_GVA (~(gpa_t)0)
++
++#define KVM_MAX_VCPUS 1
++#define KVM_MEMORY_SLOTS 4
++#define KVM_NUM_MMU_PAGES 256
++
++#define FX_IMAGE_SIZE 512
++#define FX_IMAGE_ALIGN 16
++#define FX_BUF_SIZE (2 * FX_IMAGE_SIZE + FX_IMAGE_ALIGN)
++
 +/*
-+ * Allocate some memory and give it an address in the guest physical address
-+ * space.
++ * Address types:
 + *
-+ * Discontiguous memory is allowed, mostly for framebuffers.
++ *  gva - guest virtual address
++ *  gpa - guest physical address
++ *  gfn - guest frame number
++ *  hva - host virtual address
++ *  hpa - host physical address
++ *  hfn - host frame number
 + */
-+static int kvm_dev_ioctl_set_memory_region(struct kvm *kvm,
-+					   struct kvm_memory_region *mem)
-+{
-+	int r;
++
++typedef unsigned long  gva_t;
++typedef u64            gpa_t;
++typedef unsigned long  gfn_t;
++
++typedef unsigned long  hva_t;
++typedef u64            hpa_t;
++typedef unsigned long  hfn_t;
++
++struct kvm_mmu_page {
++	struct list_head link;
++	hpa_t page_hpa;
++	unsigned long slot_bitmap; /* One bit set per slot which has memory
++				    * in this shadow page.
++				    */
++	int global;              /* Set if all ptes in this page are global */
++	u64 *parent_pte;
++};
++
++struct vmcs {
++	u32 revision_id;
++	u32 abort;
++	char data[0];
++};
++
++struct vmx_msr_entry {
++	u32 index;
++	u32 reserved;
++	u64 data;
++};
++
++struct kvm_vcpu;
++
++/*
++ * x86 supports 3 paging modes (4-level 64-bit, 3-level 64-bit, and 2-level
++ * 32-bit).  The kvm_mmu structure abstracts the details of the current mmu
++ * mode.
++ */
++struct kvm_mmu {
++	void (*new_cr3)(struct kvm_vcpu *vcpu);
++	int (*page_fault)(struct kvm_vcpu *vcpu, gva_t gva, u32 err);
++	void (*inval_page)(struct kvm_vcpu *vcpu, gva_t gva);
++	void (*free)(struct kvm_vcpu *vcpu);
++	gpa_t (*gva_to_gpa)(struct kvm_vcpu *vcpu, gva_t gva);
++	hpa_t root_hpa;
++	int root_level;
++	int shadow_root_level;
++};
++
++struct kvm_guest_debug {
++	int enabled;
++	unsigned long bp[4];
++	int singlestep;
++};
++
++enum {
++	VCPU_REGS_RAX = 0,
++	VCPU_REGS_RCX = 1,
++	VCPU_REGS_RDX = 2,
++	VCPU_REGS_RBX = 3,
++	VCPU_REGS_RSP = 4,
++	VCPU_REGS_RBP = 5,
++	VCPU_REGS_RSI = 6,
++	VCPU_REGS_RDI = 7,
++#ifdef __x86_64__
++	VCPU_REGS_R8 = 8,
++	VCPU_REGS_R9 = 9,
++	VCPU_REGS_R10 = 10,
++	VCPU_REGS_R11 = 11,
++	VCPU_REGS_R12 = 12,
++	VCPU_REGS_R13 = 13,
++	VCPU_REGS_R14 = 14,
++	VCPU_REGS_R15 = 15,
++#endif
++	NR_VCPU_REGS
++};
++
++struct kvm_vcpu {
++	struct kvm *kvm;
++	struct vmcs *vmcs;
++	struct mutex mutex;
++	int   cpu;
++	int   launched;
++	unsigned long irq_summary; /* bit vector: 1 per word in irq_pending */
++#define NR_IRQ_WORDS (256 / BITS_PER_LONG)
++	unsigned long irq_pending[NR_IRQ_WORDS];
++	unsigned long regs[NR_VCPU_REGS]; /* for rsp: vcpu_load_rsp_rip() */
++	unsigned long rip;      /* needs vcpu_load_rsp_rip() */
++
++	unsigned long cr2;
++	unsigned long cr3;
++	unsigned long cr8;
++	u64 shadow_efer;
++	u64 apic_base;
++	struct vmx_msr_entry *guest_msrs;
++	struct vmx_msr_entry *host_msrs;
++
++	struct list_head free_pages;
++	struct kvm_mmu_page page_header_buf[KVM_NUM_MMU_PAGES];
++	struct kvm_mmu mmu;
++
++	struct kvm_guest_debug guest_debug;
++
++	char fx_buf[FX_BUF_SIZE];
++	char *host_fx_image;
++	char *guest_fx_image;
++
++	int mmio_needed;
++	int mmio_read_completed;
++	int mmio_is_write;
++	int mmio_size;
++	unsigned char mmio_data[8];
++	gpa_t mmio_phys_addr;
++
++	struct{
++		int active;
++		u8 save_iopl;
++		struct {
++			unsigned long base;
++			u32 limit;
++			u32 ar;
++		} tr;
++	} rmode;
++};
++
++struct kvm_memory_slot {
 +	gfn_t base_gfn;
 +	unsigned long npages;
-+	unsigned long i;
-+	struct kvm_memory_slot *memslot;
-+	struct kvm_memory_slot old, new;
++	unsigned long flags;
++	struct page **phys_mem;
++	unsigned long *dirty_bitmap;
++};
++
++struct kvm {
++	spinlock_t lock; /* protects everything except vcpus */
++	int nmemslots;
++	struct kvm_memory_slot memslots[KVM_MEMORY_SLOTS];
++	struct list_head active_mmu_pages;
++	struct kvm_vcpu vcpus[KVM_MAX_VCPUS];
 +	int memory_config_version;
++	int busy;
++};
 +
-+	r = -EINVAL;
-+	/* General sanity checks */
-+	if (mem->memory_size & (PAGE_SIZE - 1))
-+		goto out;
-+	if (mem->guest_phys_addr & (PAGE_SIZE - 1))
-+		goto out;
-+	if (mem->slot >= KVM_MEMORY_SLOTS)
-+		goto out;
-+	if (mem->guest_phys_addr + mem->memory_size < mem->guest_phys_addr)
-+		goto out;
++struct kvm_stat {
++	u32 pf_fixed;
++	u32 pf_guest;
++	u32 tlb_flush;
++	u32 invlpg;
 +
-+	memslot = &kvm->memslots[mem->slot];
-+	base_gfn = mem->guest_phys_addr >> PAGE_SHIFT;
-+	npages = mem->memory_size >> PAGE_SHIFT;
++	u32 exits;
++	u32 io_exits;
++	u32 mmio_exits;
++	u32 signal_exits;
++	u32 irq_exits;
++};
 +
-+	if (!npages)
-+		mem->flags &= ~KVM_MEM_LOG_DIRTY_PAGES;
++extern struct kvm_stat kvm_stat;
 +
-+raced:
-+	spin_lock(&kvm->lock);
++#define kvm_printf(kvm, fmt ...) printk(KERN_DEBUG fmt)
++#define vcpu_printf(vcpu, fmt...) kvm_printf(vcpu->kvm, fmt)
 +
-+	memory_config_version = kvm->memory_config_version;
-+	new = old = *memslot;
++void kvm_mmu_destroy(struct kvm_vcpu *vcpu);
++int kvm_mmu_init(struct kvm_vcpu *vcpu);
 +
-+	new.base_gfn = base_gfn;
-+	new.npages = npages;
-+	new.flags = mem->flags;
++int kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
++void kvm_mmu_slot_remove_write_access(struct kvm *kvm, int slot);
 +
-+	/* Disallow changing a memory slot's size. */
-+	r = -EINVAL;
-+	if (npages && old.npages && npages != old.npages)
-+		goto out_unlock;
++hpa_t gpa_to_hpa(struct kvm_vcpu *vcpu, gpa_t gpa);
++#define HPA_MSB ((sizeof(hpa_t) * 8) - 1)
++#define HPA_ERR_MASK ((hpa_t)1 << HPA_MSB)
++static inline int is_error_hpa(hpa_t hpa) { return hpa >> HPA_MSB; }
++hpa_t gva_to_hpa(struct kvm_vcpu *vcpu, gva_t gva);
 +
-+	/* Check for overlaps */
-+	r = -EEXIST;
-+	for (i = 0; i < KVM_MEMORY_SLOTS; ++i) {
-+		struct kvm_memory_slot *s = &kvm->memslots[i];
++extern hpa_t bad_page_address;
 +
-+		if (s == memslot)
-+			continue;
-+		if (!((base_gfn + npages <= s->base_gfn) ||
-+		      (base_gfn >= s->base_gfn + s->npages)))
-+			goto out_unlock;
-+	}
-+	/*
-+	 * Do memory allocations outside lock.  memory_config_version will
-+	 * detect any races.
-+	 */
-+	spin_unlock(&kvm->lock);
-+
-+	/* Deallocate if slot is being removed */
-+	if (!npages)
-+		new.phys_mem = 0;
-+
-+	/* Free page dirty bitmap if unneeded */
-+	if (!(new.flags & KVM_MEM_LOG_DIRTY_PAGES))
-+		new.dirty_bitmap = 0;
-+
-+	r = -ENOMEM;
-+
-+	/* Allocate if a slot is being created */
-+	if (npages && !new.phys_mem) {
-+		new.phys_mem = vmalloc(npages * sizeof(struct page *));
-+
-+		if (!new.phys_mem)
-+			goto out_free;
-+
-+		memset(new.phys_mem, 0, npages * sizeof(struct page *));
-+		for (i = 0; i < npages; ++i) {
-+			new.phys_mem[i] = alloc_page(GFP_HIGHUSER);
-+			if (!new.phys_mem[i])
-+				goto out_free;
-+		}
-+	}
-+
-+	/* Allocate page dirty bitmap if needed */
-+	if ((new.flags & KVM_MEM_LOG_DIRTY_PAGES) && !new.dirty_bitmap) {
-+		unsigned dirty_bytes = ALIGN(npages, BITS_PER_LONG) / 8;
-+
-+		new.dirty_bitmap = vmalloc(dirty_bytes);
-+		if (!new.dirty_bitmap)
-+			goto out_free;
-+		memset(new.dirty_bitmap, 0, dirty_bytes);
-+	}
-+
-+	spin_lock(&kvm->lock);
-+
-+	if (memory_config_version != kvm->memory_config_version) {
-+		spin_unlock(&kvm->lock);
-+		kvm_free_physmem_slot(&new, &old);
-+		goto raced;
-+	}
-+
-+	r = -EAGAIN;
-+	if (kvm->busy)
-+		goto out_unlock;
-+
-+	if (mem->slot >= kvm->nmemslots)
-+		kvm->nmemslots = mem->slot + 1;
-+
-+	*memslot = new;
-+	++kvm->memory_config_version;
-+
-+	spin_unlock(&kvm->lock);
-+
-+	for (i = 0; i < KVM_MAX_VCPUS; ++i) {
-+		struct kvm_vcpu *vcpu;
-+
-+		vcpu = vcpu_load(kvm, i);
-+		if (!vcpu)
-+			continue;
-+		kvm_mmu_reset_context(vcpu);
-+		vcpu_put(vcpu);
-+	}
-+
-+	kvm_free_physmem_slot(&old, &new);
-+	return 0;
-+
-+out_unlock:
-+	spin_unlock(&kvm->lock);
-+out_free:
-+	kvm_free_physmem_slot(&new, &old);
-+out:
-+	return r;
-+}
-+
-+/*
-+ * Get (and clear) the dirty memory log for a memory slot.
-+ */
-+static int kvm_dev_ioctl_get_dirty_log(struct kvm *kvm,
-+				       struct kvm_dirty_log *log)
-+{
-+	struct kvm_memory_slot *memslot;
-+	int r, i;
-+	int n;
-+	unsigned long any = 0;
-+
-+	spin_lock(&kvm->lock);
-+
-+	/*
-+	 * Prevent changes to guest memory configuration even while the lock
-+	 * is not taken.
-+	 */
-+	++kvm->busy;
-+	spin_unlock(&kvm->lock);
-+	r = -EINVAL;
-+	if (log->slot >= KVM_MEMORY_SLOTS)
-+		goto out;
-+
-+	memslot = &kvm->memslots[log->slot];
-+	r = -ENOENT;
-+	if (!memslot->dirty_bitmap)
-+		goto out;
-+
-+	n = ALIGN(memslot->npages, 8) / 8;
-+
-+	for (i = 0; !any && i < n; ++i)
-+		any = memslot->dirty_bitmap[i];
-+
-+	r = -EFAULT;
-+	if (copy_to_user(log->dirty_bitmap, memslot->dirty_bitmap, n))
-+		goto out;
-+
-+
-+	if (any) {
-+		spin_lock(&kvm->lock);
-+		kvm_mmu_slot_remove_write_access(kvm, log->slot);
-+		spin_unlock(&kvm->lock);
-+		memset(memslot->dirty_bitmap, 0, n);
-+		for (i = 0; i < KVM_MAX_VCPUS; ++i) {
-+			struct kvm_vcpu *vcpu = vcpu_load(kvm, i);
-+
-+			if (!vcpu)
-+				continue;
-+			flush_guest_tlb(vcpu);
-+			vcpu_put(vcpu);
-+		}
-+	}
-+
-+	r = 0;
-+
-+out:
-+	spin_lock(&kvm->lock);
-+	--kvm->busy;
-+	spin_unlock(&kvm->lock);
-+	return r;
-+}
-+
- struct kvm_memory_slot *gfn_to_memslot(struct kvm *kvm, gfn_t gfn)
- {
- 	int i;
-@@ -1086,6 +1291,28 @@ static long kvm_dev_ioctl(struct file *f
- 	int r = -EINVAL;
- 
- 	switch (ioctl) {
-+	case KVM_SET_MEMORY_REGION: {
-+		struct kvm_memory_region kvm_mem;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&kvm_mem, (void *)arg, sizeof kvm_mem))
-+			goto out;
-+		r = kvm_dev_ioctl_set_memory_region(kvm, &kvm_mem);
-+		if (r)
-+			goto out;
-+		break;
-+	}
-+	case KVM_GET_DIRTY_LOG: {
-+		struct kvm_dirty_log log;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&log, (void *)arg, sizeof log))
-+			goto out;
-+		r = kvm_dev_ioctl_get_dirty_log(kvm, &log);
-+		if (r)
-+			goto out;
-+		break;
-+	}
- 	default:
- 		;
- 	}
++#endif

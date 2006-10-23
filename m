@@ -1,145 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWJWUBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWJWUCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWJWUBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWJWUBP
+	id S1030192AbWJWUCX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWJWUCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:01:15 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:45072 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S965100AbWJWUBO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:01:14 -0400
-Date: Mon, 23 Oct 2006 22:02:21 +0200
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/5] I/O statistics through request queues
-Message-ID: <20061023200220.GB4281@kernel.dk>
-References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Oct 2006 16:02:23 -0400
+Received: from wr-out-0506.google.com ([64.233.184.232]:61387 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030192AbWJWUCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:02:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m3r+Y4aREvKvTrb0gZ8UtR7rmSva8414b8ybUbUTb+WBjX56h9MpoUF7DFAeKJwR2y40WdLDJIcPMvfa9Y7uixZjHIz7hp1vw+tji+NBVq0Km87Gvx+JxwxANAJA/wpRCc5ypSd1AqHYYu5C8xYh4hSDECgWX11zGuppxh2J1Zk=
+Message-ID: <b637ec0b0610231302q700d0c79m65e73d16e21c06de@mail.gmail.com>
+Date: Mon, 23 Oct 2006 22:02:20 +0200
+From: "Fabio Comolli" <fabio.comolli@gmail.com>
+To: "kernel list" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.19-rc2-mm2] oops removing sd card
+Cc: drzeus-mmc@drzeus.cx, "Andrew Morton" <akpm@osdl.org>, oakad@yahoo.com
+In-Reply-To: <b637ec0b0610220917l5b0720e6l76d349f91038e086@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <453D05C3.7040104@de.ibm.com>
+References: <b637ec0b0610220917l5b0720e6l76d349f91038e086@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23 2006, Martin Peschke wrote:
-> Jens Axboe wrote:
-> >On Sat, Oct 21 2006, Martin Peschke wrote:
-> >>This patch set makes the block layer maintain statistics for request
-> >>queues. Resulting data closely resembles the actual I/O traffic to a
-> >>device, as the block layer takes hints from block device drivers when a
-> >>request is being issued as well as when it is about to complete.
-> >>
-> >>It is crucial (for us) to be able to look at such kernel level data in
-> >>case of customer situations. It allows us to determine what kind of
-> >>requests might be involved in performance situations. This information
-> >>helps to understand whether one faces a device issue or a Linux issue.
-> >>Not being able to tap into performance data is regarded as a big minus
-> >>by some enterprise customers, who are reluctant to use Linux SCSI
-> >>support or Linux.
-> >>
-> >>Statistics data includes:
-> >>- request sizes (read + write),
-> >>- residual bytes of partially completed requests (read + write),
-> >>- request latencies (read + write),
-> >>- request retries (read + write),
-> >>- request concurrency,
-> >
-> >Question - what part of this does blktrace currently not do?
-> 
-> The Dispatch / Complete events of blktrace aren't as accurate as
-> the additional "markers" introduced by my patch. A request might have
-> been dispatched (to the block device driver) from the block layer's
-> point of view, although this request still lingers in the low level
-> device driver.
-> 
-> For example, the s390 DASD driver accepts a small batch of requests
-> from the block layer and translates them into DASD requests. Such DASD
-> requests stay in an internal queue until an interrupt triggers the DASD
-> driver to issue the next ready-made DASD request without further delay.
-> Saving on latency.
-> 
-> For SCSI, the accuracy of the Dispatch / Complete events of blktrace
-> is not such an issue, since SCSI doesn't queue stuff on its own, but
-> reverts to queues implemented in SCSI devices. Anyway, command pre-
-> and postprocessing in the SCSI stack adds to the latency that can be
-> observed through the Dispatch / Complete events of blktrace.
-> 
-> Of course, the addition of two events to blktrace could fix that.
+More info: I tried to use tifm_core.c and tifm_71xx.c from 2.6.18-mm3
+with 2.6.19-rc2-mm2 and the crash also happens.
 
-Right, that's pretty close to what I am thinking :-)
+Hope this helps.
+Fabio
 
-> > In case it's missing something, why not add it there instead of
-> > putting new trace code in?
-> 
-> The question is:
-> Is blktrace a performance tool? Or a development tool, or what?
 
-I hope it's flexible enough to do both. I certainly have used it for
-both. Others use it as a performance tool.
-
-> Our tests indicate that the blktrace approach is fine for performance
-> analysis as long as the system to be analysed isn't too busy.
-> But once the system faces a consirable amount of non-sequential I/O
-> workload, the plenty of blktrace-generated data starts to get painful.
-
-Why haven't you done an analysis and posted it here? I surely cannot fix
-what nobody tells me is broken or suboptimal. I have to say it's news to
-me that it's performance intensive, tests I did with Alan Brunelle a
-year or so ago showed it to be quite low impact. We don't even do any
-sort of locking in the log path and everything is per-CPU.
-
-> The majority of the scenarios that are likely to become subject of a
-> performance analysis due to some customer complaint fit into the
-> category of workloads that will be affected by the activation of
-> blktrace.
-
-Any sort of change will impact the running system, that's a given.
-
-> If the system runs I/O-bound, how to write out traces without
-> stealing bandwith and causing side effects?
-
-You'd be silly to locally store traces, send them out over the network.
-
-> And if CPU utilisation is high, how to make sure that blktrace
-> tools get the required share without seriously impacting
-> applications which are responsible for the workload to be analysed?
-
-The only tool running locally is blktrace, and if you run in remote mode
-it doesn't even touch the data. So far I see a lot of hand waving,
-please show me some real evidence of problems you are seeing. First of
-all, you probably need to investigate doing remote logging.
-
-> How much memory is reqired for per-cpu and per-device relay buffers
-> and for the processing done by blktrace tools at run time?
-
-That's a tough problem, I agree. There's really no way to answer that
-without doing tests. The defaults should be good enough for basically
-anything you throw at it, if you lose events they are not.
-
-> What if other subsystems get rigged with relay-based traces,
-> following the blktrace example? I think that's okay - much better
-> than cluttering the printk buffer with data that doesn't necessarily
-> require user attention. I am advocating the renovation of
-> arch/s390/kernel/debug.c - a tracing facility widely used throughout
-> the s390 code - so that it is switched over to blktrace-like techniques,
-> (and ideally shares code and is slimmed down).
-> 
-> With blktrace-like (utt-based?) tracing facilities the data
-> stream will swell. But if those were required to get an overview
-> about the performance of subsystems or drivers...
-> 
-> In my opinion, neither trace events relayed to user space nor
-> performance counters maintained in the kernel are the sole answer
-> to all information needs. The trick is to deliberate about 'when to
-> use which approach what for'. Performance counters should give
-> directions for further investigation. Traces are fine for debugging
-> a specific subsystem.
-
-Your problem seems dasd specific so far, so probably the best solution
-(if you can't/won't use blktrace) is to keep it there.
-
--- 
-Jens Axboe
-
+On 10/22/06, Fabio Comolli <fabio.comolli@gmail.com> wrote:
+> Hi.
+> Removing an SD card from my TI FlashMedia controller triggers this:
+>
+>
+> Oct 22 18:07:32 tycho kernel: tifm_7xx1: demand removing card from socket 3
+> Oct 22 18:07:33 tycho kernel: PM: Removing info for mmc:mmc0:a95c
+> Oct 22 18:07:33 tycho kernel: PM: Removing info for tifm:tifm_sd0:3
+> Oct 22 18:07:33 tycho kernel: BUG: unable to handle kernel NULL
+> pointer dereference at virtual address 00000030
+> Oct 22 18:07:33 tycho kernel:  printing eip:
+> Oct 22 18:07:33 tycho kernel: c012cb0d
+> Oct 22 18:07:33 tycho kernel: *pde = 00000000
+> Oct 22 18:07:33 tycho kernel: Oops: 0000 [#1]
+> Oct 22 18:07:33 tycho kernel: SMP
+> Oct 22 18:07:33 tycho kernel: last sysfs file:
+> /class/net/eth1/statistics/tx_packets
+> Oct 22 18:07:33 tycho kernel: Modules linked in: hidp l2cap
+> cpufreq_performance bluetooth arc4 ecb blkcipher ieee80211_crypt_wep
+> video ac button ipw2200 ieee80211 ieee80211_crypt battery nls_utf8
+> ntfs speedstep_centrino cpufreq_conservative cpufreq_stats
+> cpufreq_powersave cpufreq_ondemand freq_table snd_intel8x0
+> snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss
+> snd_seq_midi_event snd_seq pcmcia snd_seq_device snd_pcm_oss
+> snd_mixer_oss snd_pcm snd_timer ohci1394 snd 8250_pci ieee1394 8250
+> soundcore serial_core snd_page_alloc 8139too ehci_hcd uhci_hcd
+> yenta_socket rsrc_nonstatic pcmcia_core tifm_7xx1 mii
+> Oct 22 18:07:33 tycho kernel: CPU:    0
+> Oct 22 18:07:33 tycho kernel: EIP:
+> 0060:[flush_cpu_workqueue+14/129]    Not tainted VLI
+> Oct 22 18:07:33 tycho kernel: EFLAGS: 00010282   (2.6.19-rc2-mm2 #2)
+> Oct 22 18:07:33 tycho kernel: EIP is at flush_cpu_workqueue+0xe/0x81
+> Oct 22 18:07:33 tycho kernel: Process tifm0 (pid: 506, ti=f6246000
+> task=f7f94550 task.ti=f62
+> Oct 22 18:07:33 tycho kernel: esi: f5111e20   edi: c03808a0   ebp:
+> f7f9a8c0   esp: f6247ec8
+> Oct 22 18:07:33 tycho kernel: ds: 007b   es: 007b   ss: 0068
+> Oct 22 18:07:33 tycho kernel:  [kobject_release+0/8] kobject_release+0x0/0x8
+> Oct 22 18:07:33 tycho kernel: Stack: 00000282 f3b44000 00000286
+> f7f9a8c0 c012cb89 f3b44000 c03808a0 c012cc29
+> Oct 22 18:07:33 tycho kernel:        f3b44000 c0380908 c03808a0
+> c02664ae f3b440a4 c025fdad f3b440bc f3b440a4
+> Oct 22 18:07:33 tycho kernel:        c0380908 c03808a0 c01df40f
+> f3b440bc c01df42f 00000286 f3b44000 c01dff14
+> Oct 22 18:07:33 tycho kernel: Call Trace:
+> Oct 22 18:07:33 tycho kernel:  [flush_workqueue+9/102] flush_workqueue+0x9/0x66
+> Oct 22 18:07:33 tycho kernel:  [destroy_workqueue+10/133]
+> destroy_workqueue+0xa/0x85
+> Oct 22 18:07:33 tycho kernel:  [tifm_free_device+16/24]
+> tifm_free_device+0x10/0x18
+> Oct 22 18:07:33 tycho kernel:  [device_release+38/107] device_release+0x26/0x6b
+> Oct 22 18:07:33 tycho kernel:  [kobject_cleanup+62/94] kobject_cleanup+0x3e/0x5e
+> Oct 22 18:07:33 tycho kernel:  [run_workqueue+127/193] run_workqueue+0x7f/0xc
+> Oct 22 18:07:33 tycho kernel:  [kref_put+124/140] kref_put+0x7c/0x8c
+> Oct 22 18:07:33 tycho kernel:  [pg0+943689914/1069286400]
+> tifm_7xx1_remove_media+0xba/0xfd [tifm_7xx1]
+>
+>
+> After that the system behaves normally but hangs solid during suspend-to-disk.
+> This bug didn't happen with 2.6.18-mm3 (last kernel used).
+>
+> dmesg (with another subsequent bug) and .config attached.
+>
+> Regards,
+> Fabio
+>
+>
+>

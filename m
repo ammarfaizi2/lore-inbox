@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWJWRct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWJWRef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWJWRct (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 13:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJWRct
+	id S964909AbWJWRef (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 13:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWJWRef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 13:32:49 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63129 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932209AbWJWRct
+	Mon, 23 Oct 2006 13:34:35 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:29033 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932211AbWJWRee
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 13:32:49 -0400
-Subject: Re: [PATCH] do not compile AMD Geode's hwcrypto driver as a module
-	per default
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: petkov@math.uni-muenster.de
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       info-linux@geode.amd.com
-In-Reply-To: <20061023170931.GB21995@gollum.tnic>
-References: <20061021081745.GA6193@zmei.tnic>
-	 <1161602705.19388.22.camel@localhost.localdomain>
-	 <20061023170931.GB21995@gollum.tnic>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 23 Oct 2006 18:35:34 +0100
-Message-Id: <1161624935.21701.14.camel@localhost.localdomain>
+	Mon, 23 Oct 2006 13:34:34 -0400
+Date: Mon, 23 Oct 2006 19:34:30 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
+Message-ID: <20061023173430.GX4354@rhun.haifa.ibm.com>
+References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-23 am 19:09 +0200, ysgrifennodd Borislav Petkov:
-> ... should the duration of the the kernel compilation be prolonged then by 
-> unneeded modules? Does the majority of people really use that crypto hardware or
-> is it a small percentage only, we don't know but it also doesn't seem pretty sensible to do
-> 'make oldconfig' and go and turn off all modules that I don't need/have by hand;
-> it gets quite annoying sometimes too.
+On Mon, Oct 23, 2006 at 12:02:44AM -0700, Yinghai Lu wrote:
+> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
+> one cpu to another,  _assign_irq_vector will get to increase last used
+> vector and get new vector. this will use up the vector if enough
+> set_xxx_irq_affintiy are called. and end with using same vector in
+> different cpu for different irq. (that is not what we want, we only
+> want to use same vector in different cpu for different irq when more
+> than 0x240 irq needed). To keep it simple, the vector should be resued
+> from one cpu to another instead of getting new vector.
+> 
+> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
 
-Every person has a unique and individual definitionof "un-needed
-module". In addition developers want more to be compiled as it helps
-catch errors earlier. Thus there are reasons for things defaulting to
-"on" a lot of the time.
+> diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+> index b000017..3989fa5 100644
+> --- a/arch/x86_64/kernel/io_apic.c
+> +++ b/arch/x86_64/kernel/io_apic.c
+> @@ -624,11 +624,32 @@ static int __assign_irq_vector(int irq, 
+>  	if (irq_vector[irq] > 0)
+>  		old_vector = irq_vector[irq];
+>  	if (old_vector > 0) {
+> +		cpumask_t domain, new_mask, old_mask;
+> +		int new_cpu, old_cpu;
+>  		cpus_and(*result, irq_domain[irq], mask);
+>  		if (!cpus_empty(*result))
+>  			return old_vector;
+> +
+> +		/* try to reuse vector for phys flat */
+> +		domain = vector_allocation_domain(cpu);
 
-Also bear in mind that you can copy ".config" files between releases and
-make oldconfig quite easily so you only have to turn it off once. 
+cpu is used unitialized here. Please send an updated patch and I'll
+give it a spin.
 
-It would be far more productive IMHO to write a tool which generates
-a .config file by inspecting the kernel source and the machine upon
-which the script is run. This could use the extracted pci data tables in
-the modules to produce a correct minimal kernel for many systems.
-
-Alan
-
+Cheers,
+Muli

@@ -1,65 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWJWW6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWJWW67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWJWW6a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 18:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752048AbWJWW6a
+	id S932292AbWJWW67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 18:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752056AbWJWW66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 18:58:30 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:38069 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750820AbWJWW6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 18:58:30 -0400
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl, linux-kernel@vger.kernel.org
-In-Reply-To: <20061023105022.8b1dc75d.akpm@osdl.org>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-	 <200610231236.54317.rjw@sisk.pl>
-	 <1161605379.3315.23.camel@nigel.suspend2.net>
-	 <200610231607.17525.rjw@sisk.pl> <20061023095522.e837ad89.akpm@osdl.org>
-	 <20061023171450.GA3766@elf.ucw.cz>  <20061023105022.8b1dc75d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 24 Oct 2006 08:58:26 +1000
-Message-Id: <1161644306.7033.18.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 23 Oct 2006 18:58:58 -0400
+Received: from smtp121.iad.emailsrvr.com ([207.97.245.121]:62358 "EHLO
+	smtp121.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S1752055AbWJWW65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 18:58:57 -0400
+Message-ID: <453D48E5.8040100@gentoo.org>
+Date: Mon, 23 Oct 2006 18:57:41 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+MIME-Version: 1.0
+To: Holden Karau <holden@pigscanfly.ca>
+CC: zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
+       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com, Ulrich Kunitz <kune@deine-taler.de>
+Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
+ rather than hardcoded value of 11
+References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>
+In-Reply-To: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Mon, 2006-10-23 at 10:50 -0700, Andrew Morton wrote:
-> > On Mon, 23 Oct 2006 19:14:50 +0200 Pavel Machek <pavel@ucw.cz> wrote:
-> > On Mon 2006-10-23 09:55:22, Andrew Morton wrote:
-> > > > On Mon, 23 Oct 2006 16:07:16 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > > > I'm trying to prepare the patches to make swsusp into suspend2.
-> > > > 
-> > > > Oh, I see.  Please don't do that.
-> > > 
-> > > Why not?
-> > 
-> > Last time I checked, suspend2 was 15000 lines of code, including its
-> > own plugin system and special user-kernel protocol for drawing
-> > progress bar (netlink based). It also did parts of user interface from
+Holden Karau wrote:
+> From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
 > 
-> That's different.
+> I have made a small patch for the zd1211rw driver which uses the
+> boundry channels of the regulatory domain, rather than the hard coded
+> values of 1 & 11.
+> Signed-off-by: Holden Karau <holden@pigscanfly.ca> 
+> http://www.holdenkarau.com
 
-Let's judge those bits when we see them, rather than going on rumour and
-inuendo :)
+Thanks for the patch! Please always look up the MAINTAINERS entry for 
+the code you are modifying and CC the developers on patches.
 
-> I don't know where these patches are leading, but thus far they look like
-> reasonable cleanups and generalisations.  So I suggest we just take them
-> one at a time.
+Comments below, all minor points.
 
-I am seeking to produce patches to merge Suspend2 one bit at a time, as
-has been requested in the past. I'd therefore ask that you do that,
-because even if Pavel and Rafael don't like the overall thrust, it
-doesn't mean you can't cherry pick what is good and useful along the
-way.
+> I'm not entirely sure how useful this patch is, but it seems like a
+> good idea. If its totally misguided, let me know :-) In case the patch
+> gets mangled I've put it up at
+> http://www.holdenkarau.com/~holden/projects/zd1211rw/zd1211rw-use-geo-for-channels.patch 
 
-Regards,
+Your mailer ate tabs and wrapped long lines. You're going to need to fix 
+that.
 
-Nigel
+> --- a/drivers/net/wireless/zd1211rw/zd_chip.c    2006-10-23
+> 10:07:39.000000000 -0400
+> +++ b/drivers/net/wireless/zd1211rw/zd_chip.c    2006-10-23
+> 10:41:51.000000000 -0400
+> @@ -38,6 +38,8 @@ void zd_chip_init(struct zd_chip *chip,
+>     mutex_init(&chip->mutex);
+>     zd_usb_init(&chip->usb, netdev, intf);
+>     zd_rf_init(&chip->rf);
+> +    /* The chip needs to know which geo it is in */
+> +    chip->geo = 
+> ieee80211_get_geo(zd_mac_to_ieee80211(zd_netdev_mac(netdev)));
+
+There is no need to store a geo reference here. You can use 
+zd_chip_to_mac() to go from chip to mac, then mac-to-ieee80211 is easy.
+
+> }
+> 
+> void zd_chip_clear(struct zd_chip *chip)
+> @@ -606,14 +608,17 @@ static int patch_6m_band_edge(struct zd_
+>         { CR128, 0x14 }, { CR129, 0x12 }, { CR130, 0x10 },
+>         { CR47,  0x1e },
+>     };
+> +    struct ieee80211_geo *geo = chip->geo;
+> 
+>     if (!chip->patch_6m_band_edge || !chip->rf.patch_6m_band_edge)
+>         return 0;
+> 
+> -    /* FIXME: Channel 11 is not the edge for all regulatory domains. */
+> -    if (channel == 1 || channel == 11)
+> +    /* Checks the channel boundry of the region */
+> +    dev_dbg_f("checking boundry == %d || %d\n" , 1 , geo->bg_channels);
+> +    if (channel == 1 || channel == geo->bg_channels)
+
+Typo, you mean boundary. Also, I think the debug message can go once 
+you're confident it's working correctly.
+
+>         ioreqs[0].value = 0x12;
+> 
+> +
+
+This added line could go as well.
+
+>     dev_dbg_f(zd_chip_dev(chip), "patching for channel %d\n", channel);
+>     return zd_iowrite16a_locked(chip, ioreqs, ARRAY_SIZE(ioreqs));
+> }
+
+I think that after the above changes, your modifications to zd_chip.h 
+can be removed.
+
+> --- a/drivers/net/wireless/zd1211rw/zd_chip.h    2006-10-23
+> 10:07:39.000000000 -0400
+> +++ b/drivers/net/wireless/zd1211rw/zd_chip.h    2006-10-23
+> 10:39:08.000000000 -0400
+> @@ -21,6 +21,8 @@
+> #include "zd_types.h"
+> #include "zd_rf.h"
+> #include "zd_usb.h"
+> +#include "zd_ieee80211.h"
+> +#include <linux/wireless.h>
+> 
+> /* Header for the Media Access Controller (MAC) and the Baseband Processor
+>  * (BBP). It appears that the ZD1211 wraps the old ZD1205 with USB glue and
+> @@ -669,6 +671,7 @@ struct zd_chip {
+>     /* SetPointOFDM in the vendor driver */
+>     u8 ofdm_cal_values[3][E2P_CHANNEL_COUNT];
+>     u16 link_led;
+> +      struct ieee80211_geo* geo;
+>     unsigned int pa_type:4,
+>         patch_cck_gain:1, patch_cr157:1, patch_6m_band_edge:1,
+>         new_phy_layout:1,
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 

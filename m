@@ -1,150 +1,716 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWJWTGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWJWTR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWJWTGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWJWTEv
+	id S965047AbWJWTR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 15:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWJWTR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:04:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48805 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965067AbWJWTEr (ORCPT
+	Mon, 23 Oct 2006 15:17:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25542 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965047AbWJWTRZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:04:47 -0400
-Date: Mon, 23 Oct 2006 12:02:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] netpoll: use sk_buff_head for txq
-Message-ID: <20061023120253.5dd146d2@dxpl.pdx.osdl.net>
-In-Reply-To: <20061022.204220.78710782.davem@davemloft.net>
-References: <20061020134826.75dd1cba@freekitty>
- <20061020.140149.125893169.davem@davemloft.net>
- <20061020153027.3bed8c86@dxpl.pdx.osdl.net>
- <20061022.204220.78710782.davem@davemloft.net>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Mon, 23 Oct 2006 15:17:25 -0400
+Subject: Re: Battery class driver.
+From: Dan Williams <dcbw@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>, Richard Hughes <hughsient@gmail.com>
+In-Reply-To: <1161628327.19446.391.camel@pmac.infradead.org>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 Oct 2006 15:18:11 -0400
+Message-Id: <1161631091.16366.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the 3rd version of the netpoll patches. The first patch
-switches from open-coded skb list to using a skb_buff_head.
-It also flushes packets from queue when device is removed from
-netpoll.
+Adding Richard Hughes and David Zeuthen, since they will actually have
+to talk to your batter class and driver.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+On Mon, 2006-10-23 at 19:32 +0100, David Woodhouse wrote:
+> At git://git.infradead.org/battery-2.6.git there is an initial
+> implementation of a battery class, along with a driver which makes use
+> of it. The patch is below, and also viewable at 
+> http://git.infradead.org/?p=battery-2.6.git;a=commitdiff;h=master;hp=linus
+> 
+> I don't like the sysfs interaction much -- is it really necessary for me
+> to provide a separate function for each attribute, rather than a single
+> function which handles them all and is given the individual attribute as
+> an argument? That seems strange and bloated.
+> 
+> I'm half tempted to ditch the sysfs attributes and just use a single
+> seq_file, in fact.
+> 
+> The idea is that all batteries should be presented to userspace through
+> this class instead of through the existing mess of PMU/APM/ACPI and even
+> APM _emulation_.
+> 
+> I think I probably want to make AC power a separate 'device' too, rather
+> than an attribute of any given battery. And when there are multiple
+> power supplies, there should be multiple such devices. So maybe it
+> should be a 'power supply' class, not a battery class at all?
+> 
+> Comments? 
+> 
+> 
+> commit 42fe507a262b2a2879ca62740c5312778ae78627
+> Author: David Woodhouse <dwmw2@infradead.org>
+> Date:   Mon Oct 23 18:14:54 2006 +0100
+> 
+>     [BATTERY] Add support for OLPC battery
+>     
+>     Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+> 
+> commit 6cbec3b84e3ce737b4217788841ea10a28a5e340
+> Author: David Woodhouse <dwmw2@infradead.org>
+> Date:   Mon Oct 23 18:14:14 2006 +0100
+> 
+>     [BATTERY] Add initial implementation of battery class
+>     
+>     I really don't like the sysfs interaction, and I don't much like the
+>     internal interaction with the battery drivers either. In fact, there
+>     isn't much I _do_ like, but it's good enough as a straw man.
+>     
+>     Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+> 
+> --- drivers/Makefile~	2006-10-19 19:51:32.000000000 +0100
+> +++ drivers/Makefile	2006-10-23 15:27:47.000000000 +0100
+> @@ -30,6 +30,7 @@ obj-$(CONFIG_PARPORT)		+= parport/
+>  obj-y				+= base/ block/ misc/ mfd/ net/ media/
+>  obj-$(CONFIG_NUBUS)		+= nubus/
+>  obj-$(CONFIG_ATM)		+= atm/
+> +obj-$(CONFIG_BATTERY_CLASS)	+= battery/
+>  obj-$(CONFIG_PPC_PMAC)		+= macintosh/
+>  obj-$(CONFIG_XEN)		+= xen/
+>  obj-$(CONFIG_IDE)		+= ide/
+> --- drivers/Kconfig~	2006-09-20 04:42:06.000000000 +0100
+> +++ drivers/Kconfig	2006-10-23 15:27:42.000000000 +0100
+> @@ -28,6 +28,8 @@ source "drivers/ieee1394/Kconfig"
+>  
+>  source "drivers/message/i2o/Kconfig"
+>  
+> +source "drivers/battery/Kconfig"
+> +
+>  source "drivers/macintosh/Kconfig"
+>  
+>  source "drivers/net/Kconfig"
+> --- /dev/null	2006-10-01 17:20:05.827666723 +0100
+> +++ drivers/battery/Makefile	2006-10-23 16:53:20.000000000 +0100
+> @@ -0,0 +1,4 @@
+> +# Battery code
+> +obj-$(CONFIG_BATTERY_CLASS)		+= battery-class.o
+> +
+> +obj-$(CONFIG_OLPC_BATTERY)		+= olpc-battery.o
+> --- /dev/null	2006-10-01 17:20:05.827666723 +0100
+> +++ drivers/battery/Kconfig	2006-10-23 16:52:42.000000000 +0100
+> @@ -0,0 +1,22 @@
+> +
+> +menu "Battery support"
+> +
+> +config BATTERY_CLASS
+> +       tristate "Battery support"
+> +       help
+> +         Say Y to enable battery class support. This allows a battery
+> +	 information to be presented in a uniform manner for all types
+> +	 of batteries.
+> +
+> +	 Battery information from APM and ACPI is not yet available by
+> +	 this method, but should soon be. If you use APM or ACPI, say
+> +	 'N', although saying 'Y' would be harmless.
+> +
+> +config OLPC_BATTERY
+> +       tristate "One Laptop Per Child battery"
+> +       depends on BATTERY_CLASS && X86_32
+> +       help
+> +         Say Y to enable support for the battery on the $100 laptop.
+> +
+> +
+> +endmenu
+> --- /dev/null	2006-10-01 17:20:05.827666723 +0100
+> +++ drivers/battery/battery-class.c	2006-10-23 17:59:04.000000000 +0100
+> @@ -0,0 +1,286 @@
+> +/*
+> + * Battery class core
+> + *
+> + *	© 2006 David Woodhouse <dwmw2@infradead.org>
+> + *
+> + * Based on LED Class support, by John Lenz and Richard Purdie:
+> + *
+> + *	© 2005 John Lenz <lenz@cs.wisc.edu>
+> + *	© 2005-2006 Richard Purdie <rpurdie@openedhand.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/device.h>
+> +#include <linux/battery.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/err.h>
+> +
+> +static struct class *battery_class;
+> +
+> +/* OMFG we can't just have a single 'show' routine which is given the
+> +   'class_attribute' as an argument -- we have to have 20-odd copies
+> +   of almost identical routines */
+> +
+> +static ssize_t battery_attribute_show_int(struct class_device *dev, char *buf, int attr)
+> +{
+> +        struct battery_classdev *battery_cdev = class_get_devdata(dev);
+> +        ssize_t ret = 0;
+> +	long value;
+> +
+> +	ret =  battery_cdev->query_long(battery_cdev, attr, &value);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sprintf(buf, "%ld\n", value);
+> +        ret = strlen(buf) + 1;
+> +
+> +        return ret;
+> +}  
+> +
+> +static ssize_t battery_attribute_show_milli(struct class_device *dev, char *buf, int attr)
+> +{
+> +        struct battery_classdev *battery_cdev = class_get_devdata(dev);
+> +        ssize_t ret = 0;
+> +	long value;
+> +
+> +	ret = battery_cdev->query_long(battery_cdev, attr, &value);
+> +	if (ret)
+> +		return ret;
+> +
+> +	sprintf(buf, "%ld.%03ld\n", value/1000, value % 1000);
+> +        ret = strlen(buf) + 1;
+> +        return ret;
+> +}  
+> +
+> +static ssize_t battery_attribute_show_string(struct class_device *dev, char *buf, int attr)
+> +{
+> +        struct battery_classdev *battery_cdev = class_get_devdata(dev);
+> +        ssize_t ret = 0;
+> +
+> +	ret = battery_cdev->query_str(battery_cdev, attr, buf, PAGE_SIZE-1);
+> +	if (ret)
+> +		return ret;
+> +
+> +	strcat(buf, "\n");
+> +        ret = strlen(buf) + 1;
+> +        return ret;
+> +}  
+> +
+> +static ssize_t battery_attribute_show_status(struct class_device *dev, char *buf)
+> +{
+> +        struct battery_classdev *battery_cdev = class_get_devdata(dev);
+> +        ssize_t ret = 0;
+> +	unsigned long status;
+> +
+> +	status = battery_cdev->status(battery_cdev, ~BAT_STAT_AC);
+> +	if (status & BAT_STAT_ERROR)
+> +		return -EIO;
+> +
+> +	if (status & BAT_STAT_PRESENT)
+> +		sprintf(buf, "present");
+> +	else
+> +		sprintf(buf, "absent");
+> +
+> +	if (status & BAT_STAT_LOW)
+> +		strcat(buf, ",low");
+> +
+> +	if (status & BAT_STAT_FULL)
+> +		strcat(buf, ",full");
+> +
+> +	if (status & BAT_STAT_CHARGING)
+> +		strcat(buf, ",charging");
+> +
+> +	if (status & BAT_STAT_DISCHARGING)
+> +		strcat(buf, ",discharging");
+> +
+> +	if (status & BAT_STAT_OVERTEMP)
+> +		strcat(buf, ",overtemp");
+> +
+> +	if (status & BAT_STAT_FIRE)
+> +		strcat(buf, ",on-fire");
+> +
+> +	if (status & BAT_STAT_CHARGE_DONE)
+> +		strcat(buf, ",charge-done");
+> +
+> +	strcat(buf, "\n");
+> +        ret = strlen(buf) + 1;
+> +        return ret;
+> +}
+> +
+> +static ssize_t battery_attribute_show_ac_status(struct class_device *dev, char *buf)
+> +{
+> +        struct battery_classdev *battery_cdev = class_get_devdata(dev);
+> +        ssize_t ret = 0;
+> +	unsigned long status;
+> +
+> +	status = battery_cdev->status(battery_cdev, BAT_STAT_AC);
+> +	if (status & BAT_STAT_ERROR)
+> +		return -EIO;
+> +
+> +	if (status & BAT_STAT_AC)
+> +		sprintf(buf, "on-line");
+> +	else
+> +		sprintf(buf, "off-line");
+> +
+> +	strcat(buf, "\n");
+> +        ret = strlen(buf) + 1;
+> +        return ret;
+> +}  
+> +
+> +/* Ew. We can't even use CLASS_DEVICE_ATTR() if we want one named 'current' */
+> +#define BATTERY_DEVICE_ATTR(_name, _attr, _type) \
+> +static ssize_t battery_attr_show_##_attr(struct class_device *dev, char *buf)	\
+> +{										\
+> +	return battery_attribute_show_##_type(dev, buf, BAT_INFO_##_attr);	\
+> +}										\
+> +static struct class_device_attribute class_device_attr_##_attr  = {		\
+> +        .attr = { .name = _name, .mode = 0444, .owner = THIS_MODULE },		\
+> +	.show = battery_attr_show_##_attr };
+> +
+> +static CLASS_DEVICE_ATTR(status,0444,battery_attribute_show_status, NULL);
+> +static CLASS_DEVICE_ATTR(ac,0444,battery_attribute_show_ac_status, NULL);
+> +BATTERY_DEVICE_ATTR("temp1",TEMP1,milli);
+> +BATTERY_DEVICE_ATTR("temp1_name",TEMP1_NAME,string);
+> +BATTERY_DEVICE_ATTR("temp2",TEMP2,milli);
+> +BATTERY_DEVICE_ATTR("temp2_name",TEMP2_NAME,string);
+> +BATTERY_DEVICE_ATTR("voltage",VOLTAGE,milli);
+> +BATTERY_DEVICE_ATTR("voltage_design",VOLTAGE_DESIGN,milli);
+> +BATTERY_DEVICE_ATTR("current",CURRENT,milli);
+> +BATTERY_DEVICE_ATTR("charge_rate",CHARGE_RATE,milli);
+> +BATTERY_DEVICE_ATTR("charge_max",CHARGE_MAX,milli);
+> +BATTERY_DEVICE_ATTR("charge_last",CHARGE_LAST,milli);
+> +BATTERY_DEVICE_ATTR("charge_low",CHARGE_LOW,milli);
+> +BATTERY_DEVICE_ATTR("charge_warn",CHARGE_WARN,milli);
+> +BATTERY_DEVICE_ATTR("charge_unit",CHARGE_UNITS,string);
+> +BATTERY_DEVICE_ATTR("charge_percent",CHARGE_PCT,int);
+> +BATTERY_DEVICE_ATTR("time_remaining",TIME_REMAINING,int);
+> +BATTERY_DEVICE_ATTR("manufacturer",MANUFACTURER,string);
+> +BATTERY_DEVICE_ATTR("technology",TECHNOLOGY,string);
+> +BATTERY_DEVICE_ATTR("model",MODEL,string);
+> +BATTERY_DEVICE_ATTR("serial",SERIAL,string);
+> +BATTERY_DEVICE_ATTR("type",TYPE,string);
+> +BATTERY_DEVICE_ATTR("oem_info",OEM_INFO,string);
+> +
+> +#define REGISTER_ATTR(_attr)							\
+> +	if (battery_cdev->capabilities & (1<<BAT_INFO_##_attr))			\
+> +		class_device_create_file(battery_cdev->class_dev,		\
+> +					 &class_device_attr_##_attr);
+> +#define UNREGISTER_ATTR(_attr)							\
+> +	if (battery_cdev->capabilities & (1<<BAT_INFO_##_attr))			\
+> +		class_device_remove_file(battery_cdev->class_dev,		\
+> +					 &class_device_attr_##_attr);
+> +/**
+> + * battery_classdev_register - register a new object of battery_classdev class.
+> + * @dev: The device to register.
+> + * @battery_cdev: the battery_classdev structure for this device.
+> + */
+> +int battery_classdev_register(struct device *parent, struct battery_classdev *battery_cdev)
+> +{
+> +        battery_cdev->class_dev = class_device_create(battery_class, NULL, 0,
+> +						      parent, "%s", battery_cdev->name);
+> +
+> +        if (unlikely(IS_ERR(battery_cdev->class_dev)))
+> +                return PTR_ERR(battery_cdev->class_dev);
+> +
+> +        class_set_devdata(battery_cdev->class_dev, battery_cdev);
+> +
+> +        /* register the attributes */
+> +        class_device_create_file(battery_cdev->class_dev,
+> +                                &class_device_attr_status);
+> +
+> +        if (battery_cdev->status_cap & (1<<BAT_STAT_AC))
+> +		class_device_create_file(battery_cdev->class_dev, &class_device_attr_ac);
+> +
+> +	REGISTER_ATTR(TEMP1);
+> +	REGISTER_ATTR(TEMP1_NAME);
+> +	REGISTER_ATTR(TEMP2);
+> +	REGISTER_ATTR(TEMP2_NAME);
+> +	REGISTER_ATTR(VOLTAGE);
+> +	REGISTER_ATTR(VOLTAGE_DESIGN);
+> +	REGISTER_ATTR(CHARGE_PCT);
+> +	REGISTER_ATTR(CURRENT);
+> +	REGISTER_ATTR(CHARGE_RATE);
+> +	REGISTER_ATTR(CHARGE_MAX);
+> +	REGISTER_ATTR(CHARGE_LAST);
+> +	REGISTER_ATTR(CHARGE_LOW);
+> +	REGISTER_ATTR(CHARGE_WARN);
+> +	REGISTER_ATTR(CHARGE_UNITS);
+> +	REGISTER_ATTR(TIME_REMAINING);
+> +	REGISTER_ATTR(MANUFACTURER);
+> +	REGISTER_ATTR(TECHNOLOGY);
+> +	REGISTER_ATTR(MODEL);
+> +	REGISTER_ATTR(SERIAL);
+> +	REGISTER_ATTR(TYPE);
+> +	REGISTER_ATTR(OEM_INFO);
+> +
+> +        printk(KERN_INFO "Registered battery device: %s\n",
+> +                        battery_cdev->class_dev->class_id);
+> +
+> +        return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(battery_classdev_register);
+> +
+> +/**
+> + * battery_classdev_unregister - unregisters a object of battery_properties class.
+> + * @battery_cdev: the battery device to unreigister
+> + *
+> + * Unregisters a previously registered via battery_classdev_register object.
+> + */
+> +void battery_classdev_unregister(struct battery_classdev *battery_cdev)
+> +{
+> +        class_device_remove_file(battery_cdev->class_dev,
+> +				 &class_device_attr_status);
+> +
+> +        if (battery_cdev->status_cap & (1<<BAT_STAT_AC))
+> +		class_device_remove_file(battery_cdev->class_dev, &class_device_attr_ac);
+> +
+> +	UNREGISTER_ATTR(TEMP1);
+> +	UNREGISTER_ATTR(TEMP1_NAME);
+> +	UNREGISTER_ATTR(TEMP2);
+> +	UNREGISTER_ATTR(TEMP2_NAME);
+> +	UNREGISTER_ATTR(VOLTAGE);
+> +	UNREGISTER_ATTR(VOLTAGE_DESIGN);
+> +	UNREGISTER_ATTR(CHARGE_PCT);
+> +	UNREGISTER_ATTR(CURRENT);
+> +	UNREGISTER_ATTR(CHARGE_RATE);
+> +	UNREGISTER_ATTR(CHARGE_MAX);
+> +	UNREGISTER_ATTR(CHARGE_LAST);
+> +	UNREGISTER_ATTR(CHARGE_LOW);
+> +	UNREGISTER_ATTR(CHARGE_WARN);
+> +	UNREGISTER_ATTR(CHARGE_UNITS);
+> +	UNREGISTER_ATTR(TIME_REMAINING);
+> +	UNREGISTER_ATTR(MANUFACTURER);
+> +	UNREGISTER_ATTR(TECHNOLOGY);
+> +	UNREGISTER_ATTR(MODEL);
+> +	UNREGISTER_ATTR(SERIAL);
+> +	UNREGISTER_ATTR(TYPE);
+> +	UNREGISTER_ATTR(OEM_INFO);
+> +
+> +        class_device_unregister(battery_cdev->class_dev);
+> +}
+> +EXPORT_SYMBOL_GPL(battery_classdev_unregister);
+> +
+> +static int __init battery_init(void)
+> +{
+> +        battery_class = class_create(THIS_MODULE, "battery");
+> +        if (IS_ERR(battery_class))
+> +                return PTR_ERR(battery_class);
+> +        return 0;
+> +}
+> +
+> +static void __exit battery_exit(void)
+> +{
+> +        class_destroy(battery_class);
+> +}
+> +
+> +subsys_initcall(battery_init);
+> +module_exit(battery_exit);
+> +
+> +MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Battery class interface");
+> --- /dev/null	2006-10-01 17:20:05.827666723 +0100
+> +++ drivers/battery/olpc-battery.c	2006-10-23 17:56:38.000000000 +0100
+> @@ -0,0 +1,198 @@
+> +/*
+> + * Battery driver for One Laptop Per Child ($100 laptop) board.
+> + *
+> + *	© 2006 David Woodhouse <dwmw2@infradead.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/device.h>
+> +#include <linux/battery.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/err.h>
+> +#include <asm/io.h>
+> +
+> +#define wBAT_VOLTAGE		0xf900 /* *9.76/32,    mV */
+> +#define wBAT_CURRENT		0xf902 /* *15.625/120, mA */
+> +#define wBAT_TEMP		0xf906 /* *256/1000,   °C */
+> +#define wAMB_TEMP		0xf908 /* *256/1000,   °C */
+> +#define SOC			0xf910 /*      percentage */
+> +#define sMBAT_STATUS		0xfaa4
+> +#define		sBAT_PRESENT		1
+> +#define		sBAT_FULL		2
+> +#define		sBAT_DESTROY		4
+> +#define		sBAT_LOW			32
+> +#define		sBAT_DISCHG		64
+> +#define sMCHARGE_STATUS		0xfaa5
+> +#define		sBAT_CHARGE		1
+> +#define		sBAT_OVERTEMP		4
+> +#define		sBAT_NiMH		8
+> +#define sPOWER_FLAG		0xfa40
+> +#define		ADAPTER_IN		1
+> +
+> +static int lock_ec(void)
+> +{
+> +	unsigned long timeo = jiffies + HZ/20;
+> +
+> +	while (1) {
+> +                unsigned char lock = inb(0x6c) & 0x80;
+> +                if (!lock)
+> +                        return 0;
+> +		if (time_after(jiffies, timeo))
+> +			return 1;
+> +                yield();
+> +        }
+> +}
+> +
+> +static void unlock_ec(void)
+> +{
+> +        outb(0xff, 0x6c);
+> +}
+> +
+> +unsigned char read_ec_byte(unsigned short adr)
+> +{
+> +        outb(adr >> 8, 0x381);
+> +        outb(adr, 0x382);
+> +        return inb(0x383);
+> +}
+> +
+> +unsigned short read_ec_word(unsigned short adr)
+> +{
+> +        return (read_ec_byte(adr) << 8) | read_ec_byte(adr+1);
+> +}
+> +
+> +unsigned long olpc_bat_status(struct battery_classdev *cdev, unsigned long mask)
+> +{
+> +	unsigned long result = 0;
+> +	unsigned short tmp;
+> +
+> +	if (lock_ec()) {
+> +		printk(KERN_ERR "Failed to lock EC for battery access\n");
+> +		return BAT_STAT_ERROR;
+> +	}
+> +
+> +	if (mask & BAT_STAT_AC) {
+> +		if (read_ec_byte(sPOWER_FLAG) & ADAPTER_IN)
+> +			result |= BAT_STAT_AC;
+> +	}
+> +	if (mask & (BAT_STAT_PRESENT|BAT_STAT_FULL|BAT_STAT_FIRE|BAT_STAT_LOW|BAT_STAT_DISCHARGING)) {
+> +		tmp = read_ec_byte(sMBAT_STATUS);
+> +		
+> +		if (tmp & sBAT_PRESENT)
+> +			result |= BAT_STAT_PRESENT;
+> +		if (tmp & sBAT_FULL)
+> +			result |= BAT_STAT_FULL;
+> +		if (tmp & sBAT_DESTROY)
+> +			result |= BAT_STAT_FIRE;
+> +		if (tmp & sBAT_LOW)
+> +			result |= BAT_STAT_LOW;
+> +		if (tmp & sBAT_DISCHG)
+> +			result |= BAT_STAT_DISCHARGING;
+> +	}
+> +	if (mask & (BAT_STAT_CHARGING|BAT_STAT_OVERTEMP)) {
+> +		tmp = read_ec_byte(sMCHARGE_STATUS);
+> +		if (tmp & sBAT_CHARGE)
+> +			result |= BAT_STAT_CHARGING;
+> +		if (tmp & sBAT_OVERTEMP)
+> +			result |= BAT_STAT_OVERTEMP;
+> +	}
+> +	unlock_ec();
+> +	return result;
+> +}
+> +
+> +int olpc_bat_query_long(struct battery_classdev *dev, int attr, long *result)
+> +{
+> +	int ret = 0;
+> +
+> +	if (lock_ec())
+> +		return -EIO;
+> +
+> +	if (!(read_ec_byte(sMBAT_STATUS) & sBAT_PRESENT)) {
+> +		ret = -ENODEV;
+> +	} else if (attr == BAT_INFO_VOLTAGE) {
+> +		*result = read_ec_word(wBAT_VOLTAGE) * 9760 / 32000;
+> +	} else if (attr == BAT_INFO_CURRENT) {
+> +		*result = read_ec_word(wBAT_CURRENT) * 15625 / 120000;
+> +	} else if (attr == BAT_INFO_TEMP1) {
+> +		*result = read_ec_word(wBAT_TEMP) * 1000 / 256;
+> +	} else if (attr == BAT_INFO_TEMP2) {
+> +		*result = read_ec_word(wAMB_TEMP) * 1000 / 256;
+> +	} else if (attr == BAT_INFO_CHARGE_PCT) {
+> +		*result = read_ec_byte(SOC);
+> +	} else 
+> +		ret = -EINVAL;
+> +
+> +	unlock_ec();
+> +	return ret;
+> +}
+> +
+> +int olpc_bat_query_str(struct battery_classdev *dev, int attr, char *str, int len)
+> +{
+> +	int ret = 0;
+> +
+> +	if (attr == BAT_INFO_TYPE) {
+> +		snprintf(str, len, "OLPC");
+> +	} else if (attr == BAT_INFO_TEMP1_NAME) {
+> +		snprintf(str, len, "battery");
+> +	} else if (attr == BAT_INFO_TEMP2_NAME) {
+> +		snprintf(str, len, "ambient");
+> +	} else if (!(read_ec_byte(sMBAT_STATUS) & sBAT_PRESENT)) {
+> +		ret = -ENODEV;
+> +	} else if (attr == BAT_INFO_TECHNOLOGY) {
+> +		if (lock_ec())
+> +			ret = -EIO;
+> +		else {
+> +			unsigned short tmp = read_ec_byte(sMCHARGE_STATUS);
+> +			if (tmp & sBAT_NiMH)
+> +				snprintf(str, len, "NiMH");
+> +			else
+> +				snprintf(str, len, "unknown");
+> +		}
+> +		unlock_ec();
+> +	} else {
+> +		ret = -EINVAL;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static struct battery_classdev olpc_bat = {
+> +	.name = "OLPC",
+> +	.capabilities = (1<<BAT_INFO_VOLTAGE) |
+> +			(1<<BAT_INFO_CURRENT) |
+> +			(1<<BAT_INFO_TEMP1) |
+> +			(1<<BAT_INFO_TEMP2) |
+> +			(1<<BAT_INFO_CHARGE_PCT) |
+> +			(1<<BAT_INFO_TYPE) |
+> +			(1<<BAT_INFO_TECHNOLOGY) |
+> +			(1<<BAT_INFO_TEMP1_NAME) |
+> +			(1<<BAT_INFO_TEMP2_NAME),
+> +	.status_cap = BAT_STAT_AC | BAT_STAT_PRESENT | BAT_STAT_LOW | 
+> +		      BAT_STAT_FULL | BAT_STAT_CHARGING| BAT_STAT_DISCHARGING |
+> +		      BAT_STAT_OVERTEMP | BAT_STAT_FIRE,
+> +	.status = olpc_bat_status,
+> +	.query_long = olpc_bat_query_long,
+> +	.query_str = olpc_bat_query_str,
+> +};
+> +
+> +void __exit olpc_bat_exit(void)
+> +{
+> +	battery_classdev_unregister(&olpc_bat);
+> +}
+> +
+> +int __init olpc_bat_init(void)
+> +{
+> +	battery_classdev_register(NULL, &olpc_bat);
+> +	return 0;
+> +}
+> +
+> +module_init(olpc_bat_init);
+> +module_exit(olpc_bat_exit);
+> +
+> +MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Battery class interface");
+> --- /dev/null	2006-10-01 17:20:05.827666723 +0100
+> +++ include/linux/battery.h	2006-10-23 17:11:28.000000000 +0100
+> @@ -0,0 +1,84 @@
+> +/*
+> + * Driver model for batteries
+> + *
+> + *	© 2006 David Woodhouse <dwmw2@infradead.org>
+> + *
+> + * Based on LED Class support, by John Lenz and Richard Purdie:
+> + *
+> + *	© 2005 John Lenz <lenz@cs.wisc.edu>
+> + *	© 2005-2006 Richard Purdie <rpurdie@openedhand.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + */
+> +#ifndef __LINUX_BATTERY_H__
+> +#define __LINUX_BATTERY_H__
+> +
+> +struct device;
+> +struct class_device;
+> +
+> +/*
+> + * Battery Core
+> + */
+> +#define BAT_STAT_AC		(1<<0)
+> +#define BAT_STAT_PRESENT	(1<<1)
+> +#define BAT_STAT_LOW		(1<<2)
+> +#define BAT_STAT_FULL		(1<<3)
+> +#define BAT_STAT_CHARGING	(1<<4)
+> +#define BAT_STAT_DISCHARGING	(1<<5)
+> +#define BAT_STAT_OVERTEMP	(1<<6)
+> +#define BAT_STAT_FIRE		(1<<7)
+> +#define BAT_STAT_CHARGE_DONE	(1<<8)
+> +
+> +#define BAT_STAT_ERROR		(1<<31)
+> +
+> +#define BAT_INFO_TEMP1		(0) /* °C/1000 */
+> +#define BAT_INFO_TEMP1_NAME	(1) /* string */
+> +
+> +#define BAT_INFO_TEMP2		(2) /* °C/1000 */
+> +#define BAT_INFO_TEMP2_NAME	(3) /* string */
+> +
+> +#define BAT_INFO_VOLTAGE	(4) /* mV */
+> +#define BAT_INFO_VOLTAGE_DESIGN	(5) /* mV */
+> +
+> +#define BAT_INFO_CURRENT	(6) /* mA */
+> +
+> +#define BAT_INFO_CHARGE_RATE	(7) /* BAT_INFO_CHARGE_UNITS */
+> +#define BAT_INFO_CHARGE		(8) /* BAT_INFO_CHARGE_UNITS */
+> +#define BAT_INFO_CHARGE_MAX	(9) /* BAT_INFO_CHARGE_UNITS  */
+> +#define BAT_INFO_CHARGE_LAST	(10) /* BAT_INFO_CHARGE_UNITS  */
+> +#define BAT_INFO_CHARGE_LOW	(11) /* BAT_INFO_CHARGE_UNITS  */
+> +#define BAT_INFO_CHARGE_WARN	(12) /* BAT_INFO_CHARGE_UNITS  */
+> +#define BAT_INFO_CHARGE_UNITS	(13) /* string */
+> +#define BAT_INFO_CHARGE_PCT	(14) /* % */
+> +
+> +#define BAT_INFO_TIME_REMAINING	(15) /* seconds */
+> +
+> +#define BAT_INFO_MANUFACTURER	(16) /* string */
+> +#define BAT_INFO_TECHNOLOGY	(17) /* string */
+> +#define BAT_INFO_MODEL		(18) /* string */
+> +#define BAT_INFO_SERIAL		(19) /* string */
+> +#define BAT_INFO_TYPE		(20) /* string */
+> +#define BAT_INFO_OEM_INFO	(21) /* string */
+> +
+> +struct battery_classdev {
+> +	const char		*name;
+> +	/* Capabilities of this battery driver */
+> +	unsigned long		 capabilities, status_cap;
+> +
+> +	/* Query functions */
+> +	unsigned long		(*status)(struct battery_classdev *, unsigned long mask);
+> +	int			(*query_long)(struct battery_classdev *, int attr, long *result);
+> +	int			(*query_str)(struct battery_classdev *, int attr, char *str, ssize_t len);
+> +
+> +	struct class_device	*class_dev;
+> +	struct list_head	 node;	/* Battery Device list */
+> +};
+> +
+> +extern int battery_classdev_register(struct device *parent,
+> +				     struct battery_classdev *battery_cdev);
+> +extern void battery_classdev_unregister(struct battery_classdev *battery_cdev);
+> +
+> +#endif /* __LINUX_BATTERY_H__ */
+> 
+> 
+> -- 
+> dwmw2
+> _______________________________________________
+> Devel mailing list
+> Devel@laptop.org
+> http://mailman.laptop.org/mailman/listinfo/devel
 
---- netpoll.orig/net/core/netpoll.c
-+++ netpoll/net/core/netpoll.c
-@@ -37,10 +37,7 @@
- #define MAX_RETRIES 20000
- 
- static struct sk_buff_head netpoll_pool;
--	
--static DEFINE_SPINLOCK(queue_lock);
--static int queue_depth;
--static struct sk_buff *queue_head, *queue_tail;
-+static struct sk_buff_head netpoll_txq;
- 
- static atomic_t trapped;
- 
-@@ -56,44 +53,35 @@ static void arp_reply(struct sk_buff *sk
- 
- static void queue_process(void *p)
- {
--	unsigned long flags;
- 	struct sk_buff *skb;
- 
--	while (queue_head) {
--		spin_lock_irqsave(&queue_lock, flags);
--
--		skb = queue_head;
--		queue_head = skb->next;
--		if (skb == queue_tail)
--			queue_head = NULL;
-+	while ((skb = skb_dequeue(&netpoll_txq)))
-+		dev_queue_xmit(skb);
- 
--		queue_depth--;
-+}
- 
--		spin_unlock_irqrestore(&queue_lock, flags);
-+static void queue_purge(struct net_device *dev)
-+{
-+	struct sk_buff *skb, *next;
-+	unsigned long flags;
- 
--		dev_queue_xmit(skb);
-+	spin_lock_irqsave(&netpoll_txq.lock, flags);
-+	for (skb = (struct sk_buff *)netpoll_txq.next;
-+	     skb != (struct sk_buff *)&netpoll_txq; skb = next) {
-+		next = skb->next;
-+		if (skb->dev == dev) {
-+			skb_unlink(skb, &netpoll_txq);
-+			kfree_skb(skb);
-+		}
- 	}
-+	spin_unlock_irqrestore(&netpoll_txq.lock, flags);
- }
- 
- static DECLARE_WORK(send_queue, queue_process, NULL);
- 
- void netpoll_queue(struct sk_buff *skb)
- {
--	unsigned long flags;
--
--	if (queue_depth == MAX_QUEUE_DEPTH) {
--		__kfree_skb(skb);
--		return;
--	}
--
--	spin_lock_irqsave(&queue_lock, flags);
--	if (!queue_head)
--		queue_head = skb;
--	else
--		queue_tail->next = skb;
--	queue_tail = skb;
--	queue_depth++;
--	spin_unlock_irqrestore(&queue_lock, flags);
-+	skb_queue_tail(&netpoll_txq, skb);
- 
- 	schedule_work(&send_queue);
- }
-@@ -745,6 +733,7 @@ int netpoll_setup(struct netpoll *np)
- }
- 
- static int __init netpoll_init(void) {
-+	skb_queue_head_init(&netpoll_txq);
- 	skb_queue_head_init(&netpoll_pool);
- 	return 0;
- }
-@@ -752,20 +741,22 @@ core_initcall(netpoll_init);
- 
- void netpoll_cleanup(struct netpoll *np)
- {
--	struct netpoll_info *npinfo;
-+	struct net_device *dev = np->dev;
- 	unsigned long flags;
- 
--	if (np->dev) {
--		npinfo = np->dev->npinfo;
-+	if (dev) {
-+		struct netpoll_info *npinfo = dev->npinfo;
-+
- 		if (npinfo && npinfo->rx_np == np) {
- 			spin_lock_irqsave(&npinfo->rx_lock, flags);
- 			npinfo->rx_np = NULL;
- 			npinfo->rx_flags &= ~NETPOLL_RX_ENABLED;
- 			spin_unlock_irqrestore(&npinfo->rx_lock, flags);
- 		}
--		dev_put(np->dev);
--	}
-+		dev_put(dev);
- 
-+		queue_purge(dev);
-+	}
- 	np->dev = NULL;
- }
- 

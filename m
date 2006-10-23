@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWJWBIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWJWBWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWJWBIP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 21:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWJWBIP
+	id S1751017AbWJWBWT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 21:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWJWBWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 21:08:15 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:40859 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1750984AbWJWBIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 21:08:14 -0400
-Date: Sun, 22 Oct 2006 19:08:12 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andi Kleen <ak@suse.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-Message-ID: <20061023010812.GE25210@parisc-linux.org>
-References: <20061018091944.GA5343@martell.zuzino.mipt.ru> <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be> <20061023003111.GD25210@parisc-linux.org> <200610230242.58647.ak@suse.de>
+	Sun, 22 Oct 2006 21:22:19 -0400
+Received: from viefep15-int.chello.at ([213.46.255.20]:2096 "EHLO
+	viefep18-int.chello.at") by vger.kernel.org with ESMTP
+	id S1751016AbWJWBWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 21:22:19 -0400
+Message-ID: <453C1946.1080803@freemail.hu>
+Date: Mon, 23 Oct 2006 03:22:14 +0200
+From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en, hu, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610230242.58647.ak@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH] input: init struct serio_bus at compile time
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 02:42:58AM +0200, Andi Kleen wrote:
-> 
-> > /*+
-> >  * Provides: struct sched
-> >  * Provides: total_forks, nr_threads, process_counts, nr_processes()
-> >  * Provides: nr_running(), nr_uninterruptible(), nr_active(), nr_iowait(), weighted_cpuload()
-> >  */
-> 
-> That's ugly.  If it needs that i don't think it's a good idea.
-> We really want standard C, not some Linux dialect.
+From: Márton Németh <nm127@freemail.hu>
 
-Um, that's a comment.  It's standard C.
+Initialize serio_bus structure at compile time instead of at runtime in serio_init().
+This will speed up startup a little bit and also reduce code size.
 
-> In theory it is even to do it automated without comments
-> just based on the referenced symbols, except if stuff is hidden in macros 
-> (but then the include defining the macro should have the right includes
-> anyways). Another issue would be different name spaces - if there is both
-> typedef foo and struct foo and nested local foo a script might have a little trouble 
-> distingushing them, but i suspect that won't be a big issue.
+Signed-off-by: Márton Németh <nm127@freemail.hu>
 
-Sorry, I assumed you'd've spent some time thinking about the problem.
+---
+Patch against Linux kernel 2.6.19-rc2.
 
-Here's the problem.  If a file needs canonicalize_irq(), it should
-include <linux/interrupt.h> (which eventually ends up including
-asm/irq,h), and not <asm/irq.h> (where it's defined).
-If a file needs add_wait_queue(), it should include <linux/wait.h>
-(where it's defined) and not <linux/fs.h> (which directly includes
-linux/wait.h>.
 
-Please define an algorithm which distinguishes the two cases.
+--- linux-2.6.19-rc2.orig/drivers/input/serio/serio.c	2006-10-13 18:25:04.000000000 +0200
++++ linux-2.6.19-rc2/drivers/input/serio/serio.c	2006-10-16 18:05:31.000000000 +0200
+@@ -768,12 +768,6 @@ static int serio_driver_remove(struct de
+  	return 0;
+  }
+
+-static struct bus_type serio_bus = {
+-	.name =	"serio",
+-	.probe = serio_driver_probe,
+-	.remove = serio_driver_remove,
+-};
+-
+  static void serio_add_driver(struct serio_driver *drv)
+  {
+  	int error;
+@@ -930,15 +924,21 @@ irqreturn_t serio_interrupt(struct serio
+  	return ret;
+  }
+
++static struct bus_type serio_bus = {
++	.name =	"serio",
++	.dev_attrs = serio_device_attrs,
++	.drv_attrs = serio_driver_attrs,
++	.match = serio_bus_match,
++	.uevent = serio_uevent,
++	.probe = serio_driver_probe,
++	.remove = serio_driver_remove,
++	.resume = serio_resume,
++};
++
+  static int __init serio_init(void)
+  {
+  	int error;
+
+-	serio_bus.dev_attrs = serio_device_attrs;
+-	serio_bus.drv_attrs = serio_driver_attrs;
+-	serio_bus.match = serio_bus_match;
+-	serio_bus.uevent = serio_uevent;
+-	serio_bus.resume = serio_resume;
+  	error = bus_register(&serio_bus);
+  	if (error) {
+  		printk(KERN_ERR "serio: failed to register serio bus, error: %d\n", error);

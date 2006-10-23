@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWJWQfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWJWQme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752000AbWJWQfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 12:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWJWQfM
+	id S1752005AbWJWQme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 12:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWJWQme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 12:35:12 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20461 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1752000AbWJWQfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 12:35:11 -0400
-Subject: -rt7 announcement? (was Re: 2.6.18-rt6)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net
-In-Reply-To: <1161356444.15860.327.camel@mindpipe>
-References: <20061018083921.GA10993@elte.hu>
-	 <1161356444.15860.327.camel@mindpipe>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 12:34:46 -0400
-Message-Id: <1161621286.2835.3.camel@mindpipe>
+	Mon, 23 Oct 2006 12:42:34 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4370 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1752005AbWJWQmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 12:42:33 -0400
+Date: Mon, 23 Oct 2006 17:42:21 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paul Mundt <lethal@linux-sh.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ata: Generic platform_device libata driver, take 2.
+Message-ID: <20061023164220.GA24471@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20061023065907.GA22029@linux-sh.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061023065907.GA22029@linux-sh.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-10-20 at 11:00 -0400, Lee Revell wrote:
-> On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
-> > i've released the 2.6.18-rt6 tree, which can be downloaded from the 
-> > usual place:
-> > 
-> >   http://redhat.com/~mingo/realtime-preempt/
+On Mon, Oct 23, 2006 at 03:59:07PM +0900, Paul Mundt wrote:
+> This is the second attempt at a generic platform_device libata driver,
+> attempting to take in to account issues raised by Matthias Fuchs and rmk.
 > 
-> This does not work here.  It boots but then wants to fsck my disks, and
-> dies with a sig 11 in fsck.ext3.  This is 100% reproducible and booting
-> 2.6.18-rt5 works and does not want to fsck the disks. 
+> Changes in this version include adding a small pata_platform.h header for
+> the private data (which at the moment is limited to a register shift
+> that's needed by ARM), though other things can be added in here if
+> platforms start having other needs.
 
-I see that -rt7 is posted.  The patch is a huge diff from -rt6.  Where
-are the release notes?
+Thanks, this will enable me to use this code on ARM.
 
-Lee
+Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

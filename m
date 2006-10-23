@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWJWPxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWJWPxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751833AbWJWPxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751886AbWJWPxK
+	id S964879AbWJWPxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWJWPxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:53:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:48831 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751833AbWJWPxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:53:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ATsmRplm30cHasW15zFudfv6ej15LuBA0I51750V7gIGhXWyw+6CYfNCABxEzOw2oiyoY2hKukaE8b2dLT7C0czm1OeH2KXjE+CiXsJq6A9xVl/mEEw4TDCv9oa+2GyT/X5orZO+m/cif/eitz0L/PJ25QMDuDGbYpqPuqdcc5Y=
-Message-ID: <86802c440610230853l31cd1e87ya7234f8bf44feffa@mail.gmail.com>
-Date: Mon, 23 Oct 2006 08:53:06 -0700
-From: yhlu <yhlu.kernel@gmail.com>
-To: "Muli Ben-Yehuda" <muli@il.ibm.com>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
-Cc: "Andi Kleen" <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>
-In-Reply-To: <20061023081515.GQ4354@rhun.haifa.ibm.com>
+	Mon, 23 Oct 2006 11:53:47 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:52488 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S964879AbWJWPxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 11:53:46 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: 2.6.19-rc2: ieee80211/ipw2200 regression
+Date: Mon, 23 Oct 2006 16:53:48 +0100
+User-Agent: KMail/1.9.5
+Cc: Zhu Yi <yi.zhu@intel.com>, LKML <linux-kernel@vger.kernel.org>,
+       jketreno@linux.intel.com
+References: <200610230244.43948.s0348365@sms.ed.ac.uk> <200610231635.49869.s0348365@sms.ed.ac.uk> <453CE3A4.7030003@trash.net>
+In-Reply-To: <453CE3A4.7030003@trash.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
-	 <20061023081515.GQ4354@rhun.haifa.ibm.com>
+Message-Id: <200610231653.48797.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/23/06, Muli Ben-Yehuda <muli@il.ibm.com> wrote:
-> Should I give this a spin? with or without Eric's two patches?
+On Monday 23 October 2006 16:45, Patrick McHardy wrote:
+> Alistair John Strachan wrote:
+> > Tried compiling as a module too and the ieee80211 system doesn't load
+> > arc4.ko before bailing out. If I reboot, load it myself and try again, it
+> > still doesn't work.
 >
-should be with Eric's patch with cpu_online... consistent.
+> Do you have CONFIG_CRYPTO_ECB enabled? I think this patch is needed.
 
-It should be helpful to phys_flat. and that code should be reached by
-flat (logical) mode.
+Good catch, I did need this and it wasn't enabled.
 
-YH
+Thanks Patrick. From a quick grep of the tree for ecb(, I think 
+CONFIG_PPP_MPPE and IEEE80211_CRYPT_TKIP will also need a similar patch.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

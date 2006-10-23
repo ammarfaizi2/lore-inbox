@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbWJWVET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751828AbWJWVEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751726AbWJWVET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 17:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWJWVET
+	id S1751828AbWJWVEW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 17:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWJWVEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 17:04:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5850 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751726AbWJWVES convert rfc822-to-8bit
+	Mon, 23 Oct 2006 17:04:21 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:9234 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751828AbWJWVEU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 17:04:18 -0400
-Date: Mon, 23 Oct 2006 14:04:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Magnus =?ISO-8859-1?B?TeTkdHTk?= <novell@kiruna.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-mm2
-Message-Id: <20061023140403.03fee371.akpm@osdl.org>
-In-Reply-To: <200610232254.15638.novell@kiruna.se>
-References: <20061020015641.b4ed72e5.akpm@osdl.org>
-	<200610232254.15638.novell@kiruna.se>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+	Mon, 23 Oct 2006 17:04:20 -0400
+Date: Mon, 23 Oct 2006 23:04:17 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       olpc-dev@laptop.org, davidz@redhat.com, mjg59@srcf.ucam.org,
+       len.brown@intel.com, sfr@canb.auug.org.au, benh@kernel.crashing.org
+Subject: Re: Battery class driver.
+Message-Id: <20061023230417.bab67907.khali@linux-fr.org>
+In-Reply-To: <20061023183048.GA13804@kroah.com>
+References: <1161627633.19446.387.camel@pmac.infradead.org>
+	<20061023183048.GA13804@kroah.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 23 Oct 2006 22:54:15 +0200 Magnus M‰‰tt‰ <novell@kiruna.se> wrote:
-> On Friday 20 October 2006 10:56, Andrew Morton wrote:
+On Mon, 23 Oct 2006 11:30:48 -0700, Greg KH wrote:
+> On Mon, Oct 23, 2006 at 07:20:33PM +0100, David Woodhouse wrote:
+> > At git://git.infradead.org/battery-2.6.git there is an initial
+> > implementation of a battery class, along with a driver which makes use
+> > of it. The patch is below, and also viewable at 
+> > http://git.infradead.org/?p=battery-2.6.git;a=commitdiff;h=master;hp=linus
 > > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
-> > 
-> > - Added the IOAT tree as git-ioat.patch (Chris Leech)
-> > 
-> > - I worked out the git magic to make the wireless tree work
-> >   (git-wireless.patch).  Hopefully it will be in -mm more often now.
-> > 
+> > I don't like the sysfs interaction much -- is it really necessary for me
+> > to provide a separate function for each attribute, rather than a single
+> > function which handles them all and is given the individual attribute as
+> > an argument? That seems strange and bloated.
 > 
-> I get this BUG and oops everytime I try to start kmail, so I had to fall back to 2.6.18-mm2
-> to send this mail:
+> It is, but no one has asked for it to be changed to be like the struct
+> device attributes are.  In fact, why not just use the struct device
+> attributes here instead?  That will be much easier and keep me from
+> having to convert your code over to use it in the future :)
 > 
-> [  316.283343] BUG: sleeping function called from invalid context at mm/slab.c:3014
-> [  316.305500] in_atomic():0, irqs_disabled():1
+> > I'm half tempted to ditch the sysfs attributes and just use a single
+> > seq_file, in fact.
+> 
+> Ick, no.  You should use the hwmon interface, and standardize on a
+> proper battery api just like those developers have standardized on other
+> sensor apis that are exported to userspace.  Take a look at
+> Documentation/hwmon/sysfs-interface for an example of what it should
+> look like.
+> 
+> > The idea is that all batteries should be presented to userspace through
+> > this class instead of through the existing mess of PMU/APM/ACPI and even
+> > APM _emulation_.
+> 
+> Yes, I agree this should be done in this manner.
+> 
+> > I think I probably want to make AC power a separate 'device' too, rather
+> > than an attribute of any given battery. And when there are multiple
+> > power supplies, there should be multiple such devices. So maybe it
+> > should be a 'power supply' class, not a battery class at all?
+> 
+> That sounds good to me.
+> 
+> Jean, I know you had some ideas with regards to this in the past.
 
-Someone disabled local interrupts then forgot to turn them on again.  I
-wonder what kmail is doing to trigger this?
+Did I? I don't remember 8]
 
-Please send your .config and I'll see if I can reproduce it.
+Anyway I don't have much to add over what you said. The hwmon interface
+proved to be good, so the battery interface should look the same. Sysfs
+files, one integer value per file, using standard names and units, with
+"small units" (mV, mW etc...) so that you have enough resolution in all
+present and future cases.
 
-If not, and if the next -mm is still doing this, it'd be good if
-you could run a bisection search, find the buggy patch.
-
-Thanks.
+-- 
+Jean Delvare

@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWJWEAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWJWEMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWJWEAY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 00:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWJWEAY
+	id S1751444AbWJWEMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 00:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWJWEMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 00:00:24 -0400
-Received: from web55602.mail.re4.yahoo.com ([206.190.58.226]:62846 "HELO
-	web55602.mail.re4.yahoo.com") by vger.kernel.org with SMTP
-	id S1751404AbWJWEAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 00:00:24 -0400
+	Mon, 23 Oct 2006 00:12:09 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:11248 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751444AbWJWEMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 00:12:06 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=GcoDwmyksJn0PmmPe2aDxP9FfBsLdQeBN3I5NObLXokLa/PmGVx7iyDoCYqJeaT8sKnRZcDw/Nlgm05AdF3x3Aw9BU9O1QXcdXyW6yCDX/Q9e+OKSzqMLX7Y/hj5LniCW56feJrnFOEZP5x0fYt/70/tYRUSjwi9OY74JPL/VNM=  ;
-Message-ID: <20061023040018.28823.qmail@web55602.mail.re4.yahoo.com>
-Date: Sun, 22 Oct 2006 21:00:17 -0700 (PDT)
-From: Amit Choudhary <amit2030@yahoo.com>
-Subject: Re: Hopefully, kmalloc() will always succeed, but if it doesn't then....
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <adalkn7j2th.fsf@cisco.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J6HUjOJV5A7+dPoAV7L8SqPNlxJQtxKMz+C4DyFiCKrM6Pzj72UCiF2rpSPM8kCvoBKzePFi+AdBcx5TQQZb3oIsGZsfpJkEi1+hMJUkYtDcR0H6vrWfiw5cWkv5CvtCpAx+j8EHL+1EOAhqqdukSIq/FDTx7nlmdhEIzZm35DU=
+Message-ID: <b6a2187b0610222112mc6450c4jbda57b1ed7727878@mail.gmail.com>
+Date: Mon, 23 Oct 2006 12:12:05 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.19-rc2 tg3 cannot find proper pci device base address
+In-Reply-To: <b6a2187b0610222020o5ed1e463k7f5b7c133b804293@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <b6a2187b0610222020o5ed1e463k7f5b7c133b804293@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
+with patching to v3.66 ...
 
+tg3.c:v3.67 (October 18, 2006)
+ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+tg3: Cannot find proper PCI device base address, aborting.
+ACPI: PCI Interrupt for device 0000:02:00.0 disabled
 
---- Roland Dreier <rdreier@cisco.com> wrote:
+The last version 2.6.18-rc2 works fine.
 
->  >         struct mixart_enum_connector_resp *connector;
->  >         struct mixart_audio_info_req  *audio_info_req;
->  >         struct mixart_audio_info_resp *audio_info;
->  > 
->  >         connector = kmalloc(sizeof(*connector), GFP_KERNEL);
->  >         audio_info_req = kmalloc(sizeof(*audio_info_req), GFP_KERNEL);
->  >         audio_info = kmalloc(sizeof(*audio_info), GFP_KERNEL);
->  >         if (! connector || ! audio_info_req || ! audio_info) {
->  >                 err = -ENOMEM;
->  >                 goto __error;
->  >         }
-> 
-> This is not a bug.  All of the pointers are initialized, and if
-
-Yes, this is not a bug. Although the case for arrays go unnoticed by gcc. Something like this:
-
-        char *abcd[20];
-        int i;
-
-        for (i = 0; i < 20; i++) {
-                abcd[i] = kmalloc(10, GFP_KERNEL);
-                if (!abcd[i])
-                        goto error;
-        }
- error:
-        for (i = 0; i < 20; i++)
-                kfree(abcd[i]);
-
--Amit
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Jeff.

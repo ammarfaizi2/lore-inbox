@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWJWRO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWJWRPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWJWRO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 13:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWJWRO4
+	id S964973AbWJWRPM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 13:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWJWRPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 13:14:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44508 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964965AbWJWROy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 13:14:54 -0400
-Date: Mon, 23 Oct 2006 19:14:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, ncunningham@linuxmail.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061023171450.GA3766@elf.ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <1161605379.3315.23.camel@nigel.suspend2.net> <200610231607.17525.rjw@sisk.pl> <20061023095522.e837ad89.akpm@osdl.org>
+	Mon, 23 Oct 2006 13:15:11 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:33050 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964973AbWJWRPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 13:15:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=epXyt3BewuzxtZ4ZmyKjyhXLzIa5bodvqKKEqfUwzY7cBB8MVOZLaR1CSaMK+lFPNXMvwKIVEUfXJovYa7eIX7hI5/K3mQ4XtxkMxYaGtKBavwVnaB+bh4Dk9weRFLhfVn/n7LlQhPR7pcWHyPoZznwvZ8UrkZ9yYtDaW97Fp6k=
+Message-ID: <cda58cb80610231015i4b59a571kaea5711ae1659f0d@mail.gmail.com>
+Date: Mon, 23 Oct 2006 19:15:07 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "Miguel Ojeda" <maxextreme@gmail.com>
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061023095522.e837ad89.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20061013023218.31362830.maxextreme@gmail.com>
+	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com>
+	 <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
+	 <453CE85B.2080702@innova-card.com>
+	 <653402b90610230908y2be5007dga050c78ee3993d81@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-10-23 09:55:22, Andrew Morton wrote:
-> > On Mon, 23 Oct 2006 16:07:16 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > I'm trying to prepare the patches to make swsusp into suspend2.
-> > 
-> > Oh, I see.  Please don't do that.
-> 
-> Why not?
+On 10/23/06, Miguel Ojeda <maxextreme@gmail.com> wrote:
+> Yes, we are sure. AFAIK there is no need to lock when it is a fbdev.
+> The older version were "alone" drivers: they needed to lock because
+> they used fops and they exported functions.
+>
 
-Last time I checked, suspend2 was 15000 lines of code, including its
-own plugin system and special user-kernel protocol for drawing
-progress bar (netlink based). It also did parts of user interface from
-kernel.
+ok, so no other driver than fb could use 'cfag12864b_buffer'. Maybe
+I'm missing something but why did you split your fb driver into
+cfag12864b.c and cfag12864fb.c ?
 
-OTOH, that was half a year ago, but given that uswsusp can now do most
-of the stuff suspend2 does (and without that 15000 lines of code), I
-do not think we want to do complete rewrite of swsusp now.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+BTW, 'cfag12864b_cache' could have been static...
+
+                Franck

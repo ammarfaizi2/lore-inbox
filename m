@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWJWPSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWJWPYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWJWPSx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWJWPSx
+	id S964936AbWJWPYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWJWPYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:18:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30675 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964932AbWJWPSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:18:52 -0400
-Date: Mon, 23 Oct 2006 17:18:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Thaw userspace and kernel space separately.
-Message-ID: <20061023151845.GB8414@elf.ucw.cz>
-References: <1161560896.7438.67.camel@nigel.suspend2.net>
+	Mon, 23 Oct 2006 11:24:15 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:39589 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964936AbWJWPYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 11:24:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nejv9IHGtl8860VN/2kk61r3hIqYIk6ZsJcgCwEsm5/X8FFPxij3gxSm/NWHsotDZgZlNSl1THni63dzq01pKgfWj/nb+/RHcxXdegUquvZ/BVtjUutGoC1QhM7QXKEA4rMoC0wV9nNK7K//7LyYeTbMhoQT/oNhsSKJX6wwp2w=
+Message-ID: <b6a2187b0610230824m38ce6fb2j65cd26099e982449@mail.gmail.com>
+Date: Mon, 23 Oct 2006 23:24:14 +0800
+From: "Jeff Chua" <jeff.chua.linux@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.19-rc2 tg3 problem
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1161560896.7438.67.camel@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm getting this error on with linux 2.6.19-rc2 with tg3 module, even
+with patching to v3.66 ...
 
-> Modify process thawing so that we can thaw kernel space without thawing
-> userspace, and thaw kernelspace first. This will be useful in later
-> patches, where I intend to get swsusp thawing kernel threads only before
-> seeking to free memory.
-> 
-> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+tg3.c:v3.67 (October 18, 2006)
+ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
+tg3: Cannot find proper PCI device base address, aborting.
+ACPI: PCI Interrupt for device 0000:02:00.0 disabled
 
-NAK. "May be useful in future" is not good reason to merge it now. (If
-you did not want it merged, just mark it so).
-							Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The last version 2.6.18-rc2 works fine. h/w is Dell Optiplex GX620.
+
+Jeff.

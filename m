@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWJWIPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWJWIYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751814AbWJWIPV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 04:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWJWIPV
+	id S1751815AbWJWIYL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 04:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWJWIYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 04:15:21 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12813 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751814AbWJWIPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 04:15:19 -0400
-Date: Mon, 23 Oct 2006 10:15:15 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
-Message-ID: <20061023081515.GQ4354@rhun.haifa.ibm.com>
-References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
+	Mon, 23 Oct 2006 04:24:11 -0400
+Received: from ns.firmix.at ([62.141.48.66]:11241 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751815AbWJWIYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 04:24:09 -0400
+Subject: Re: incorrect taint of ndiswrapper
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Giridhar Pemmasani <pgiri@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
+References: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 23 Oct 2006 10:24:06 +0200
+Message-Id: <1161591846.12449.4.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.397 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 12:02:44AM -0700, Yinghai Lu wrote:
-> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
-> one cpu to another,  _assign_irq_vector will get to increase last used
-> vector and get new vector. this will use up the vector if enough
-> set_xxx_irq_affintiy are called. and end with using same vector in
-> different cpu for different irq. (that is not what we want, we only
-> want to use same vector in different cpu for different irq when more
-> than 0x240 irq needed). To keep it simple, the vector should be resued
-> from one cpu to another instead of getting new vector.
+On Sun, 2006-10-22 at 22:41 -0700, Giridhar Pemmasani wrote:
+> It seems that the kernel module loader taints ndiswrapper module as
+> proprietary, but it is not - it is fully GPL: see
+> http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
 > 
-> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
+> Note that when a driver is loaded, ndiswrapper does taint the kernel (to be
+> more accurate, it should check if the driver being loaded is GPL or not, but
+> that is not done).
 
-Should I give this a spin? with or without Eric's two patches?
+There is no reason (apart from "it hasn't been done yet2 which is a very
+weak reason) to use ndiswrapper with a GPL-module - just port the
+GPL-module over.
 
-Cheers,
-Muli
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

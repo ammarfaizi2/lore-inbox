@@ -1,234 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWJWNdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWJWNcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWJWNdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 09:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWJWNdK
+	id S964856AbWJWNcA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 09:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWJWNb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 09:33:10 -0400
-Received: from il.qumranet.com ([62.219.232.206]:29653 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S964859AbWJWNbT (ORCPT
+	Mon, 23 Oct 2006 09:31:59 -0400
+Received: from il.qumranet.com ([62.219.232.206]:31189 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S964862AbWJWNbs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 09:31:19 -0400
-Subject: [PATCH 10/13] KVM: less common exit handlers
+	Mon, 23 Oct 2006 09:31:48 -0400
+Subject: [PATCH 13/13] KVM: plumbing
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 23 Oct 2006 13:31:16 -0000
+Date: Mon, 23 Oct 2006 13:31:47 -0000
 To: avi@qumranet.com, linux-kernel@vger.kernel.org
 References: <453CC390.9080508@qumranet.com>
 In-Reply-To: <453CC390.9080508@qumranet.com>
-Message-Id: <20061023133116.CB16C250143@cleopatra.q>
+Message-Id: <20061023133147.067DF250143@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add exit handlers for msrs, debug registers, and cpuid.
+Add a config entry and a Makefile for KVM.
 
-Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/kvm_main.c
+Index: linux-2.6/drivers/kvm/Makefile
 ===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -2122,6 +2122,113 @@ static int handle_cr(struct kvm_vcpu *vc
- 	return 0;
- }
+--- /dev/null
++++ linux-2.6/drivers/kvm/Makefile
+@@ -0,0 +1,6 @@
++#
++# Makefile for Kernel-based Virtual Machine module
++#
++
++kvm-objs := kvm_main.o mmu.o x86_emulate.o
++obj-$(CONFIG_KVM) += kvm.o
+Index: linux-2.6/drivers/kvm/Kconfig
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/kvm/Kconfig
+@@ -0,0 +1,22 @@
++
++menu "Virtualization"
++#
++# KVM configuration
++#
++config KVM
++	tristate "Kernel-based Virtual Machine (KVM) support"
++	depends on X86 && EXPERIMENTAL
++	---help---
++	  Support hosting fully virtualized guest machines using hardware
++	  virtualization extensions.  You will need a fairly recent Intel
++	  processor equipped with VT extensions.
++
++	  This module provides access to the hardware capabilities through
++	  a character device node named /dev/kvm.
++
++	  To compile this as a module, choose M here: the module
++	  will be called kvm.
++
++	  If unsure, say N.
++
++endmenu
+Index: linux-2.6/drivers/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/Kconfig
++++ linux-2.6/drivers/Kconfig
+@@ -78,4 +78,6 @@ source "drivers/rtc/Kconfig"
  
-+static int handle_dr(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	u64 exit_qualification;
-+	unsigned long val;
-+	int dr, reg;
-+
-+	/*
-+	 * FIXME: this code assumes the host is debugging the guest.
-+	 *        need to deal with guest debugging itself too.
-+	 */
-+	exit_qualification = vmcs_read64(EXIT_QUALIFICATION);
-+	dr = exit_qualification & 7;
-+	reg = (exit_qualification >> 8) & 15;
-+	vcpu_load_rsp_rip(vcpu);
-+	if (exit_qualification & 16) {
-+		/* mov from dr */
-+		switch (dr) {
-+		case 6:
-+			val = 0xffff0ff0;
-+			break;
-+		case 7:
-+			val = 0x400;
-+			break;
-+		default:
-+			val = 0;
-+		}
-+		vcpu->regs[reg] = val;
-+	} else {
-+		/* mov to dr */
-+	}
-+	vcpu_put_rsp_rip(vcpu);
-+	skip_emulated_instruction(vcpu);
-+	return 1;
-+}
-+
-+static int handle_cpuid(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	kvm_run->exit_reason = KVM_EXIT_CPUID;
-+	return 0;
-+}
-+
-+static int handle_rdmsr(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	u32 ecx = vcpu->regs[VCPU_REGS_RCX];
-+	struct vmx_msr_entry *msr = find_msr_entry(vcpu, ecx);
-+	u64 data;
-+
-+#ifdef KVM_DEBUG
-+	if (guest_cpl() != 0) {
-+		vcpu_printf(vcpu, "%s: not supervisor\n", __FUNCTION__);
-+		inject_gp(vcpu);
-+		return 1;
-+	}
-+#endif
-+
-+	switch (ecx) {
-+#ifdef __x86_64__
-+	case MSR_FS_BASE:
-+		data = vmcs_readl(GUEST_FS_BASE);
-+		break;
-+	case MSR_GS_BASE:
-+		data = vmcs_readl(GUEST_GS_BASE);
-+		break;
-+#endif
-+	case MSR_IA32_SYSENTER_CS:
-+		data = vmcs_read32(GUEST_SYSENTER_CS);
-+		break;
-+	case MSR_IA32_SYSENTER_EIP:
-+		data = vmcs_read32(GUEST_SYSENTER_EIP);
-+		break;
-+	case MSR_IA32_SYSENTER_ESP:
-+		data = vmcs_read32(GUEST_SYSENTER_ESP);
-+		break;
-+	case MSR_IA32_MC0_CTL:
-+	case MSR_IA32_MCG_STATUS:
-+	case MSR_IA32_MCG_CAP:
-+	case MSR_IA32_MC0_MISC:
-+	case MSR_IA32_MC0_MISC+4:
-+	case MSR_IA32_MC0_MISC+8:
-+	case MSR_IA32_MC0_MISC+12:
-+	case MSR_IA32_MC0_MISC+16:
-+	case MSR_IA32_UCODE_REV:
-+		/* MTRR registers */
-+	case 0xfe:
-+	case 0x200 ... 0x2ff:
-+		data = 0;
-+		break;
-+	case MSR_IA32_APICBASE:
-+		data = vcpu->apic_base;
-+		break;
-+	default:
-+		if (msr) {
-+			data = msr->data;
-+			break;
-+		}
-+		printk(KERN_ERR "kvm: unhandled rdmsr: %x\n", ecx);
-+		inject_gp(vcpu);
-+		return 1;
-+	}
-+
-+	/* FIXME: handling of bits 32:63 of rax, rdx */
-+	vcpu->regs[VCPU_REGS_RAX] = data & -1u;
-+	vcpu->regs[VCPU_REGS_RDX] = (data >> 32) & -1u;
-+	skip_emulated_instruction(vcpu);
-+	return 1;
-+}
-+
- #ifdef __x86_64__
- #define EFER_RESERVED_BITS 0xfffffffffffff2fe
+ source "drivers/dma/Kconfig"
  
-@@ -2175,6 +2282,78 @@ static void __set_efer(struct kvm_vcpu *
- }
- #endif
- 
-+#define MSR_IA32_TIME_STAMP_COUNTER 0x10
++source "drivers/kvm/Kconfig"
 +
-+static int handle_wrmsr(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	u32 ecx = vcpu->regs[VCPU_REGS_RCX];
-+	struct vmx_msr_entry *msr;
-+	u64 data = (vcpu->regs[VCPU_REGS_RAX] & -1u)
-+		| ((u64)(vcpu->regs[VCPU_REGS_RDX] & -1u) << 32);
-+
-+#ifdef KVM_DEBUG
-+	if (guest_cpl() != 0) {
-+		vcpu_printf(vcpu, "%s: not supervisor\n", __FUNCTION__);
-+		inject_gp(vcpu);
-+		return 1;
-+	}
-+#endif
-+
-+	switch (ecx) {
-+#ifdef __x86_64__
-+	case MSR_FS_BASE:
-+		vmcs_writel(GUEST_FS_BASE, data);
-+		break;
-+	case MSR_GS_BASE:
-+		vmcs_writel(GUEST_GS_BASE, data);
-+		break;
-+#endif
-+	case MSR_IA32_SYSENTER_CS:
-+		vmcs_write32(GUEST_SYSENTER_CS, data);
-+		break;
-+	case MSR_IA32_SYSENTER_EIP:
-+		vmcs_write32(GUEST_SYSENTER_EIP, data);
-+		break;
-+	case MSR_IA32_SYSENTER_ESP:
-+		vmcs_write32(GUEST_SYSENTER_ESP, data);
-+		break;
-+#ifdef __x86_64
-+	case MSR_EFER:
-+		set_efer(vcpu, data);
-+		return 1;
-+	case MSR_IA32_MC0_STATUS:
-+		printk(KERN_WARNING "%s: MSR_IA32_MC0_STATUS 0x%llx, nop\n"
-+			    , __FUNCTION__, data);
-+		break;
-+#endif
-+	case MSR_IA32_TIME_STAMP_COUNTER: {
-+		u64 tsc;
-+
-+		rdtscll(tsc);
-+		vmcs_write64(TSC_OFFSET, data - tsc);
-+		break;
-+	}
-+	case MSR_IA32_UCODE_REV:
-+	case MSR_IA32_UCODE_WRITE:
-+	case 0x200 ... 0x2ff: /* MTRRs */
-+		break;
-+	case MSR_IA32_APICBASE:
-+		vcpu->apic_base = data;
-+		break;
-+	default:
-+		msr = find_msr_entry(vcpu, ecx);
-+		if (msr) {
-+			msr->data = data;
-+			break;
-+		}
-+		printk(KERN_ERR "kvm: unhandled wrmsr: %x\n", ecx);
-+		inject_gp(vcpu);
-+		return 1;
-+	}
-+	skip_emulated_instruction(vcpu);
-+	return 1;
-+}
-+
- static int handle_interrupt_window(struct kvm_vcpu *vcpu,
- 				   struct kvm_run *kvm_run)
- {
-@@ -2207,6 +2386,10 @@ static int (*kvm_vmx_exit_handlers[])(st
- 	[EXIT_REASON_IO_INSTRUCTION]          = handle_io,
- 	[EXIT_REASON_INVLPG]                  = handle_invlpg,
- 	[EXIT_REASON_CR_ACCESS]               = handle_cr,
-+	[EXIT_REASON_DR_ACCESS]               = handle_dr,
-+	[EXIT_REASON_CPUID]                   = handle_cpuid,
-+	[EXIT_REASON_MSR_READ]                = handle_rdmsr,
-+	[EXIT_REASON_MSR_WRITE]               = handle_wrmsr,
- 	[EXIT_REASON_PENDING_INTERRUPT]       = handle_interrupt_window,
- 	[EXIT_REASON_HLT]                     = handle_halt,
- };
+ endmenu
+Index: linux-2.6/drivers/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/Makefile
++++ linux-2.6/drivers/Makefile
+@@ -77,3 +77,4 @@ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
+ obj-$(CONFIG_GENERIC_TIME)	+= clocksource/
+ obj-$(CONFIG_DMA_ENGINE)	+= dma/
++obj-$(CONFIG_KVM)		+= kvm/

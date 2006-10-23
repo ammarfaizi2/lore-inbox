@@ -1,99 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWJWTsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbWJWTul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWJWTsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 15:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWJWTs2
+	id S965090AbWJWTul (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 15:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWJWTul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 15:48:28 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:24736 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965000AbWJWTr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 15:47:57 -0400
-Date: Mon, 23 Oct 2006 15:44:03 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 11/11] i386: Extend bzImage protocol for relocatable protected mode kernel
-Message-ID: <20061023194403.GL13263@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061023192456.GA13263@in.ibm.com>
+	Mon, 23 Oct 2006 15:50:41 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:59581 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932129AbWJWTuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 15:50:32 -0400
+Date: Tue, 24 Oct 2006 01:20:11 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, mbligh@google.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+Message-ID: <20061023195011.GB1542@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com> <20061020210422.GA29870@in.ibm.com> <20061022201824.267525c9.pj@sgi.com> <453C4E22.9000308@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061023192456.GA13263@in.ibm.com>
+In-Reply-To: <453C4E22.9000308@yahoo.com.au>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 23, 2006 at 03:07:46PM +1000, Nick Piggin wrote:
+> Paul Jackson wrote:
+> >Dinakar wrote:
+> >
+> >>IMO this patch addresses just one of the requirements for partitionable
+> >>sched domains
+> >Correct - this particular patch was just addressing one of these.
+> >
+> >Nick raised the reasonable concern that this patch was adding something
+> >to cpusets that was not especially related to cpusets.
+> 
+> Did you send resend the patch to remove sched-domain partitioning?
+> After clearing up my confusion, IMO that is needed and could probably
+> go into 2.6.19.
+> 
+> >So I will not be sending this patch to Andrew for *-mm.
+> >
+> >There are further opportunities for improvements in some of this code,
+> >which my colleague Christoph Lameter may be taking an interest in.
+> >Ideally kernel-user API's for isolating and partitioning sched domains
+> >would arise from that work, though I don't know if we can wait that
+> >long.
+> 
+> The sched-domains code is all there and just ready to be used. IMO
+> using the cpusets API (or a slight extension thereof) would be the
+> best idea if we're going to use any explicit interface at all.
 
+Ok I am getting lost in all of the mails here, so let me try to summaize
 
-o Extend bzImage protocol to enable bootloaders to load a completely
-  relocatable bzImage. Now protected mode component of kernel is also 
-  relocatable and a boot-loader can load the protected mode component
-  at a differnt physical address than 1MB. (If kernel was built with
-  CONFIG_RELOCATABLE)
+The existing cpuset code that partitioned sched domains at the
+back of a exclusive cpuset has one major problem. Administrators
+will find that tasks assigned to top level cpusets, that contain
+child cpusets that are exclusive, can no longer be rebalanced across
+the entire cpus_allowed mask.
+This as far as I can tell is the only problem with the current code.
+So I dont see why we need a major rewrite that involves a complete change
+in the approach to the dynamic sched domain implementation.
 
-o Kexec can make use of it to load this kernel at a different physical
-  address to capture kernel crash dumps. 
+I really think all we need is to have a new flag (say sched_domain)
+that can be used by the admin to create a sched domain. Since this is
+in addition to the cpu_exclusive flag, the admin realizes that the tasks
+associated with the parent cpuset may need to be moved around to better
+reflect the cpus that will actually run on. Thats it.
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+Can somebody tell me why this approach is not good enough ?
 
- Documentation/i386/boot.txt |    4 ++++
- arch/i386/boot/setup.S      |   13 ++++++++++++-
- 2 files changed, 16 insertions(+), 1 deletion(-)
+I am testing this patch currently and will post it shortly for review
 
-diff -puN arch/i386/boot/setup.S~extend-bzImage-protocol-for-relocatable-protected-mode-kernel arch/i386/boot/setup.S
---- linux-2.6.19-rc2-git7-reloc/arch/i386/boot/setup.S~extend-bzImage-protocol-for-relocatable-protected-mode-kernel	2006-10-23 15:09:28.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/arch/i386/boot/setup.S	2006-10-23 15:09:28.000000000 -0400
-@@ -81,7 +81,7 @@ start:
- # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
- 
- 		.ascii	"HdrS"		# header signature
--		.word	0x0204		# header version number (>= 0x0105)
-+		.word	0x0205		# header version number (>= 0x0105)
- 					# or else old loadlin-1.5 will fail)
- realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
- start_sys_seg:	.word	SYSSEG
-@@ -160,6 +160,17 @@ ramdisk_max:	.long (-__PAGE_OFFSET-(512 
- 					# The highest safe address for
- 					# the contents of an initrd
- 
-+kernel_alignment:  .long CONFIG_PHYSICAL_ALIGN 	#physical addr alignment
-+						#required for protected mode
-+						#kernel
-+#ifdef CONFIG_RELOCATABLE
-+relocatable_kernel:    .byte 1
-+#else
-+relocatable_kernel:    .byte 0
-+#endif
-+pad2:			.byte 0
-+pad3:			.word 0
-+
- trampoline:	call	start_of_setup
- 		.align 16
- 					# The offset at this point is 0x240
-diff -puN Documentation/i386/boot.txt~extend-bzImage-protocol-for-relocatable-protected-mode-kernel Documentation/i386/boot.txt
---- linux-2.6.19-rc2-git7-reloc/Documentation/i386/boot.txt~extend-bzImage-protocol-for-relocatable-protected-mode-kernel	2006-10-23 15:09:28.000000000 -0400
-+++ linux-2.6.19-rc2-git7-reloc-root/Documentation/i386/boot.txt	2006-10-23 15:09:28.000000000 -0400
-@@ -35,6 +35,8 @@ Protocol 2.03:	(Kernel 2.4.18-pre1) Expl
- 		initrd address available to the bootloader.
- 
- Protocol 2.04:	(Kernel 2.6.14) Extend the syssize field to four bytes.
-+Protocol 2.05:	(Kernel 2.6.20) Make protected mode kernel relocatable.
-+		Introduce relocatable_kernel and kernel_alignment fields.
- 
- 
- **** MEMORY LAYOUT
-@@ -129,6 +131,8 @@ Offset	Proto	Name		Meaning
- 0226/2	N/A	pad1		Unused
- 0228/4	2.02+	cmd_line_ptr	32-bit pointer to the kernel command line
- 022C/4	2.03+	initrd_addr_max	Highest legal initrd address
-+0230/4	2.04+	kernel_alignment Physical addr alignment required for kernel
-+0234/1	2.04+	relocatable_kernel Whether kernel is relocatable or not
- 
- (1) For backwards compatibility, if the setup_sects field contains 0, the
-     real value is 4.
-_
+	-Dinakar
+
+> 
+> A cool option would be to determine the partitions according to the
+> disjoint set of unions of cpus_allowed masks of all tasks. I see this
+> getting computationally expensive though, probably O(tasks*CPUs)... I
+> guess that isn't too bad.
+> 
+> Might be better than a userspace interface.
+> 
+> -- 
+> SUSE Labs, Novell Inc.
+> Send instant messages to your online friends http://au.messenger.yahoo.com 

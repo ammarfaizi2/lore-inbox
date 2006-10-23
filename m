@@ -1,108 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWJWPYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWJWP2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWJWPYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWJWPYK
+	id S964905AbWJWP2c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWJWP2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:24:10 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:29373 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964934AbWJWPYJ (ORCPT
+	Mon, 23 Oct 2006 11:28:31 -0400
+Received: from math.ut.ee ([193.40.36.2]:57284 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S964905AbWJWP2b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:24:09 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: Improve handling of highmem
-Date: Mon, 23 Oct 2006 17:22:57 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200610142156.05161.rjw@sisk.pl> <20061023150444.GC31273@elf.ucw.cz>
-In-Reply-To: <20061023150444.GC31273@elf.ucw.cz>
+	Mon, 23 Oct 2006 11:28:31 -0400
+Date: Mon, 23 Oct 2006 18:20:18 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       paulus@samba.org, linuxppc-dev@ozlabs.org
+Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
+In-Reply-To: <20061022122355.GC3502@stusta.de>
+Message-ID: <Pine.SOC.4.61.0610231757590.27929@math.ut.ee>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org>
+ <20061022122355.GC3502@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610231722.57560.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Subject    : ppc prep boot hang
+> References : http://lkml.org/lkml/2006/10/14/58
+> Submitter  : Meelis Roos <mroos@linux.ee>
+> Status     : unknown
 
-On Monday, 23 October 2006 17:04, Pavel Machek wrote:
-> HI!
-> 
-> > Currently swsusp saves the contents of highmem pages by copying them to the
-> > normal zone which is quite inefficient  (eg. it requires two normal pages to be
-> > used for saving one highmem page).  This may be improved by using highmem
-> > for saving the contents of saveable highmem pages.
-> ...
-> >  include/linux/suspend.h |    9 
-> >  kernel/power/power.h    |    2 
-> >  kernel/power/snapshot.c |  841 ++++++++++++++++++++++++++++++++++++------------
-> >  kernel/power/swap.c     |    2 
-> >  kernel/power/swsusp.c   |   53 +--
-> >  kernel/power/user.c     |    2 
-> >  mm/vmscan.c             |    3 
-> 
-> Well, I just hoped that highmem would quietly die out...
-> 
-> ...
-> > +static struct page *alloc_image_page(gfp_t gfp_mask) {
-> > +	struct page *page;
-> 
-> { should go on new line.
-
-Ah, yes, thanks.  I'll fix this later if you don't mind.
-
-> >  	memory_bm_position_reset(orig_bm);
-> >  	memory_bm_position_reset(copy_bm);
-> >  	do {
-> >  		pfn = memory_bm_next_pfn(orig_bm);
-> > -		if (likely(pfn != BM_END_OF_MAP)) {
-> > -			struct page *page;
-> > -			void *src;
-> > -
-> > -			page = pfn_to_page(pfn);
-> > -			src = page_address(page);
-> > -			page = pfn_to_page(memory_bm_next_pfn(copy_bm));
-> > -			copy_data_page(page_address(page), src);
-> > -		}
-> > +		if (likely(pfn != BM_END_OF_MAP))
-> > +			copy_data_page(memory_bm_next_pfn(copy_bm), pfn);
-> >  	} while (pfn != BM_END_OF_MAP);
-> >  }
-> 
-> While(1) and "if (pfn != BM_END_OF_MAP) { ...break; } ? Why do you
-> need to test pfn != BM_END_OF_MAP *three* times?
-
-Why?  It's two times, and I don't like while(1) loops, really.
-
-> > Index: linux-2.6.18-mm3/mm/vmscan.c
-> > ===================================================================
-> > --- linux-2.6.18-mm3.orig/mm/vmscan.c
-> > +++ linux-2.6.18-mm3/mm/vmscan.c
-> > @@ -1233,6 +1233,9 @@ out:
-> >  	}
-> >  	if (!all_zones_ok) {
-> >  		cond_resched();
-> > +
-> > +		try_to_freeze();
-> > +
-> >  		goto loop_again;
-> >  	}
-> 
-> What is this?
-
-:-)
-
-This is needed because during the resume there likely are no free pages in the
-highmem zone which makes kswapd spin forever, but we have to freeze it before
-the image is restored.
-
-Greetings,
-Rafael
-
+Seems to be fixed in 2.6.19-rc2+git as of 20061022.
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Meelis Roos

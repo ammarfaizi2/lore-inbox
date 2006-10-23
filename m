@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWJWSmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWJWSon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965010AbWJWSmf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 14:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWJWSmf
+	id S965019AbWJWSon (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 14:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbWJWSon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 14:42:35 -0400
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:49027 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S965010AbWJWSme
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 14:42:34 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc2-mm2: D-Link DUB-E100 Rev. B broken
-Date: Mon, 23 Oct 2006 20:41:48 +0200
-User-Agent: KMail/1.9.4
-Cc: dhollis@davehollis.com
+	Mon, 23 Oct 2006 14:44:43 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:4226 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965019AbWJWSom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 14:44:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YcI2fkD0Keb3faoOAAb7DnkBM8+TkUQoTtot5FHtIgKiwKBuQt9fjt7kI1bRP28z3UT4I3JYlUIwfUUnOZXzL7pR5bDkTSkNa4bfepjaRgY279qtQXhB+KXuAaismxA3jXG3okZ9HQsxf3d56U7PjSFZYGxqwsnnfNnAbNLh+fk=
+Message-ID: <5bdc1c8b0610231144s420c1523p43af2a8349bac04@mail.gmail.com>
+Date: Mon, 23 Oct 2006 11:44:40 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: -rt7 announcement? (was Re: 2.6.18-rt6)
+Cc: "Lee Revell" <rlrevell@joe-job.com>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, "John Stultz" <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Dipankar Sarma" <dipankar@in.ibm.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Mike Galbraith" <efault@gmx.de>, "Daniel Walker" <dwalker@mvista.com>,
+       "Manish Lachwani" <mlachwani@mvista.com>, bastien.dugue@bull.net
+In-Reply-To: <1161628539.22373.36.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610232041.48998.bero@arklinux.org>
+References: <20061018083921.GA10993@elte.hu>
+	 <1161356444.15860.327.camel@mindpipe>
+	 <1161621286.2835.3.camel@mindpipe>
+	 <1161628539.22373.36.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-D-Link DUB-E100 Rev. B USB Ethernet adapters have worked ok in some recent 
-kernels - in rc2-mm2, they're broken again; they're detected correctly and 
-the asix module is autoloaded, but after "ifconfig eth0 192.168.0.15 netmask 
-255.255.255.0", the box becomes unresponsive and keeps repeating
+On 10/23/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> On Mon, 2006-10-23 at 12:34 -0400, Lee Revell wrote:
+> > On Fri, 2006-10-20 at 11:00 -0400, Lee Revell wrote:
+> > > On Wed, 2006-10-18 at 10:39 +0200, Ingo Molnar wrote:
+> > > > i've released the 2.6.18-rt6 tree, which can be downloaded from the
+> > > > usual place:
+> > > >
+> > > >   http://redhat.com/~mingo/realtime-preempt/
+> > >
+> > > This does not work here.  It boots but then wants to fsck my disks, and
+> > > dies with a sig 11 in fsck.ext3.  This is 100% reproducible and booting
+> > > 2.6.18-rt5 works and does not want to fsck the disks.
+> >
+> > I see that -rt7 is posted.  The patch is a huge diff from -rt6.  Where
+> > are the release notes?
+>
+> Basically we merged the latest hrt-dyntick queue into -rt.
+>
+>         tglx
 
-eth0: Failed to enable software MII access
-eth0: Failed to enable hardware MII access
-eth0: Failed to enable software MII access
-eth0: Failed to enable hardware MII access
-eth0: Failed to enable software MII access
-eth0: Failed to enable hardware MII access
-eth0: Failed to enable software MII access
-eth0: Failed to enable hardware MII access
-eth0: Failed to enable software MII access
-eth0: Failed to enable hardware MII access
-eth0: Failed to write Medium Mode to 0x0334: ffffff92
+Hi Thomas,
+   Some differences/questions between 2.6.18-rt6 and 2.6.18-rt7:
 
-This loops infinitely.
+   In 2.6.18-rt6, using make menuconfig, there were options on the
+front page for HRT Support. This seems to have moved under Processor
+Type with 2.6.18-rt7. Was that on purpose?
 
-Last known working is 2.6.17 with a patch to bring the asix driver up to the 
-14-Jun-2006 revision, first known broken is 2.6.19-rc1-mm1. (I'll try to 
-figure out what exact change broke it, but this will take forever on this 
-hw).
+   In 2.6.18-rt6 I turned on HRT support, left 1000 nanoseconds for
+the timing, but did not enable dynamic ticks since I wasn't sure it
+was OK on AMD64. Should I be using DynTicks with an AMD64 single
+processor? With a dual-processor?
+
+   On 2.6.18-rt7 it seems there is no time value setting or it's been
+moved somewhere I haven't found. does that 1000 nanosecond time
+setting still apply?
+
+Thanks,
+Mark

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751946AbWJWQDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWJWQFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751946AbWJWQDp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 12:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWJWQDp
+	id S1751549AbWJWQFl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 12:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWJWQFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 12:03:45 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51425 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751946AbWJWQDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 12:03:44 -0400
-Date: Mon, 23 Oct 2006 09:03:30 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Paul Jackson <pj@sgi.com>, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       mbligh@google.com, akpm@osdl.org, menage@google.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, dino@in.ibm.com,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com
-Subject: Re: [RFC] cpuset: remove sched domain hooks from cpusets
-In-Reply-To: <453C5AF4.8070707@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0610230901470.27654@schroedinger.engr.sgi.com>
-References: <20061019092358.17547.51425.sendpatchset@sam.engr.sgi.com>
- <4537527B.5050401@yahoo.com.au> <20061019120358.6d302ae9.pj@sgi.com>
- <4537D056.9080108@yahoo.com.au> <4537D6E8.8020501@google.com>
- <20061022035135.2c450147.pj@sgi.com> <20061022222652.B2526@unix-os.sc.intel.com>
- <20061022225456.6adfd0be.pj@sgi.com> <453C5AF4.8070707@yahoo.com.au>
+	Mon, 23 Oct 2006 12:05:41 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:46985 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751549AbWJWQFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 12:05:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=nkV9Cwxjh1icAd78AIpWs9AH0RtbIfzJBekpVVoFdboeif9f7f3Xodiz6d+rqDjQBkSk/Ko4JgU1KLfMkTORF101Mwm5UkM6TMQumULt6n5FszmylkH4iXZzTCGEqUy2ktB7OcQuxMuyhZF4G5ar+Tx88QTdXcbdet38sXSlODM=
+Message-ID: <453CE85B.2080702@innova-card.com>
+Date: Mon, 23 Oct 2006 18:05:47 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Miguel Ojeda <maxextreme@gmail.com>
+CC: Franck <vagabon.xyz@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc1 full] drivers: add LCD support
+References: <20061013023218.31362830.maxextreme@gmail.com>	 <45364049.3030404@innova-card.com> <453C8027.2000303@innova-card.com> <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
+In-Reply-To: <653402b90610230556y56ef2f1blc923887f049094d4@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006, Nick Piggin wrote:
+Miguel Ojeda wrote:
+> The driver is waiting in the -mm tree (-mm2 right now) for being
+> included in the mainline kernel sometime in the future. If it is
+> included, I will maintain it as I coded it as it apears in the
+> MAINTAINERS file. Why are you so worried about it if I can ask? Do you
+> want some more features or something like that?
 
-> It is somewhat improved. The load balancing will now retry other CPUs,
-> but this is pretty costly in terms of latency and rq lock hold time.
-> And the algorithm itself still breaks down if you have lots of pinned
-> tasks, even if the load balancer is willing to try lesser loaded cpus.
+Are you sure the patch you sent to Andrew is your latest patch
+version ? For example I can't found any locks in the patch that
+you normally added during the V6 patch version; auxlcddisplay.c
+doesn't no exist...
 
-We would need to have a way of traversing the processors by load in order 
-to avoid it. John Hawkes solves that issue earlier in 2.4.X by managing a 
-list of processors according to their load.
-
-
+		Franck

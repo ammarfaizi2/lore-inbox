@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWJWUKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWJWUQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbWJWUKi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWJWUKi
+	id S1750766AbWJWUQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJWUQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:10:38 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:62995 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1030188AbWJWUKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:10:36 -0400
-To: Richard Hughes <hughsient@gmail.com>
-Cc: Dan Williams <dcbw@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
-       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
-       len.brown@intel.com, greg@kroah.com, benh@kernel.crashing.org,
-       David Zeuthen <davidz@redhat.com>
-Subject: Re: Battery class driver.
-X-Message-Flag: Warning: May contain useful information
-References: <1161628327.19446.391.camel@pmac.infradead.org>
-	<1161631091.16366.0.camel@localhost.localdomain>
-	<1161633509.4994.16.camel@hughsie-laptop>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 23 Oct 2006 13:10:25 -0700
-In-Reply-To: <1161633509.4994.16.camel@hughsie-laptop> (Richard Hughes's message of "Mon, 23 Oct 2006 20:58:29 +0100")
-Message-ID: <adairiaeqtq.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 23 Oct 2006 16:16:27 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:29489 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1750766AbWJWUQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:16:27 -0400
+Message-ID: <453D230D.7070403@qumranet.com>
+Date: Mon, 23 Oct 2006 22:16:13 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 Oct 2006 20:10:26.0321 (UTC) FILETIME=[476EA010:01C6F6DF]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/13] KVM: vcpu execution loop
+References: <453CC390.9080508@qumranet.com> <20061023133056.B3615250143@cleopatra.q> <200610232141.45802.arnd@arndb.de>
+In-Reply-To: <200610232141.45802.arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Oct 2006 20:16:18.0668 (UTC) FILETIME=[197282C0:01C6F6E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > No, I think the distinction between batteries and ac_adapter is large
- > enough to have different classes of devices. You may have many
- > batteries, but you'll only ever have one ac_adapter. I'm not sure it's
- > an obvious abstraction to make.
+Arnd Bergmann wrote:
+> On Monday 23 October 2006 15:30, Avi Kivity wrote:
+>   
+>> +       asm (
+>> +               /* Store host registers */
+>> +               "pushf \n\t"
+>> +#ifdef __x86_64__
+>> +               "push %%rax; push %%rbx; push %%rdx;"
+>> +               "push %%rsi; push %%rdi; push %%rbp;"
+>> +               "push %%r8;  push %%r9;  push %%r10; push %%r11;"
+>> +               "push %%r12; push %%r13; push %%r14; push %%r15;"
+>> +               "push %%rcx \n\t"
+>> +               "vmwrite %%rsp, %2 \n\t"
+>> +#else
+>> +               "pusha; push %%ecx \n\t"
+>> +               "vmwrite %%esp, %2 \n\t"
+>> +#endif
+>> +               /* Check if vmlaunch of vmresume is needed */
+>> +               "cmp $0, %1 \n\t"
+>> +               /* Load guest registers.  Don't clobber flags. */
+>> +#ifdef __x86_64__
+>> +               "mov %c[cr2](%3), %%rax \n\t"
+>> +               "mov %%rax, %%cr2 \n\t"
+>> +               "mov %c[rax](%3), %%rax \n\t"
+>> +               "mov %c[rbx](%3), %%rbx \n\t"
+>> +               "mov %c[rdx](%3), %%rdx \n\t"
+>> +               "mov %c[rsi](%3), %%rsi \n\t"
+>> +               "mov %c[rdi](%3), %%rdi \n\t"
+>> +               "mov %c[rbp](%3), %%rbp \n\t"
+>> ...
+>>     
+>
+> This looks like you should simply put it into a .S file.
+>
+>   
 
-Speaking from ignorance here, but what about (big) systems that have
-multiple power supplies and multiple rails of AC power?  Would it make
-sense to use the same abstraction for that as well as laptop AC adaptors?
+Then I lose all the offsetof constants down the line.  Sure, I could do 
+the asm-offsets dance but it seems to me like needless obfuscation.
+
+
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

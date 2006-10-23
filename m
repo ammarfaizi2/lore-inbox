@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWJWSc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWJWSdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWJWSc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 14:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWJWSc5
+	id S965006AbWJWSdq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 14:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWJWSdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 14:32:57 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:34231 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965002AbWJWSc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 14:32:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kMiM1vXu4cbb6pedt8CthS7jvfM82cqvVwEN74/nTZIfJIHyq0vKdyAbCoegvtTjZC3f576Y2Zm2i1utO3vQiEyimk/UuZ8MJi5u+iZ+xlluP9SHQxyJULtVovTnlU6v5oqXz+9GT1Cgg/IxW8OfyP5jlxR4bqMj5V2OQXyOC/A=
-Message-ID: <ae7121c60610231132w4e8b13c8y30865682e815b00c@mail.gmail.com>
-Date: Mon, 23 Oct 2006 20:32:55 +0200
-From: "Panagiotis Issaris" <panagiotis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PC speaker listed as input device
+	Mon, 23 Oct 2006 14:33:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:13767 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965006AbWJWSdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 14:33:45 -0400
+Date: Mon, 23 Oct 2006 11:32:51 -0700
+From: Greg KH <greg@kroah.com>
+To: David Woodhouse <dwmw2@infradead.org>, Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, olpc-dev@laptop.org, davidz@redhat.com,
+       mjg59@srcf.ucam.org, len.brown@intel.com, sfr@canb.auug.org.au,
+       benh@kernel.crashing.org
+Subject: Re: Battery class driver.
+Message-ID: <20061023183251.GB13804@kroah.com>
+References: <1161627633.19446.387.camel@pmac.infradead.org> <20061023183048.GA13804@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061023183048.GA13804@kroah.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 23, 2006 at 11:30:48AM -0700, Greg KH wrote:
+> On Mon, Oct 23, 2006 at 07:20:33PM +0100, David Woodhouse wrote:
+> > I'm half tempted to ditch the sysfs attributes and just use a single
+> > seq_file, in fact.
+> 
+> Ick, no.  You should use the hwmon interface, and standardize on a
+> proper battery api just like those developers have standardized on other
+> sensor apis that are exported to userspace.  Take a look at
+> Documentation/hwmon/sysfs-interface for an example of what it should
+> look like.
 
-While trying to get my Hauppauge's remote control working, I noticed that my
-PC speaker is getting recognized as an input device. This seems very weird
-to me, is there some logic behind this?
+Ok, nevermind, it looks like your code does do something much like this,
+which is great.  Just make sure your units are the same as the other
+hwmon drivers and everything should be fine.
 
- takis@aether:~$ cat /proc/bus/input/devices
-I: Bus=0010 Vendor=001f Product=0001 Version=0100
-N: Name="PC Speaker"
-P: Phys=isa0061/input0
-S: Sysfs=/class/input/input0
-H: Handlers=kbd event0
-B: EV=40001
-B: SND=6
-...
+thanks,
 
-I'm using the 2.6.17 kernel (it is an Ubuntu kernel though).
-
-With friendly regards,
-Takis
+greg k-h

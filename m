@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWJWNcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWJWNmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWJWNcA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 09:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWJWNb7
+	id S1751952AbWJWNmM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 09:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751955AbWJWNmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 09:31:59 -0400
-Received: from il.qumranet.com ([62.219.232.206]:31189 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S964862AbWJWNbs (ORCPT
+	Mon, 23 Oct 2006 09:42:12 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:7868 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751952AbWJWNmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 09:31:48 -0400
-Subject: [PATCH 13/13] KVM: plumbing
-From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 23 Oct 2006 13:31:47 -0000
-To: avi@qumranet.com, linux-kernel@vger.kernel.org
-References: <453CC390.9080508@qumranet.com>
-In-Reply-To: <453CC390.9080508@qumranet.com>
-Message-Id: <20061023133147.067DF250143@cleopatra.q>
+	Mon, 23 Oct 2006 09:42:11 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Thaw userspace and kernel space separately.
+Date: Mon, 23 Oct 2006 15:41:20 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <1161560896.7438.67.camel@nigel.suspend2.net> <200610231226.03718.rjw@sisk.pl> <1161604811.3315.12.camel@nigel.suspend2.net>
+In-Reply-To: <1161604811.3315.12.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610231541.21541.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a config entry and a Makefile for KVM.
+On Monday, 23 October 2006 14:00, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Mon, 2006-10-23 at 12:26 +0200, Rafael J. Wysocki wrote:
+> > On Monday, 23 October 2006 01:48, Nigel Cunningham wrote:
+> > > Modify process thawing so that we can thaw kernel space without thawing
+> > > userspace, and thaw kernelspace first. This will be useful in later
+> > > patches, where I intend to get swsusp thawing kernel threads only before
+> > > seeking to free memory.
+> > 
+> > Please explain why you think it will be necessary/useful.
+> > 
+> > I remember a discussion about it some time ago that didn't indicate
+> > we would need/want to do this.
+> 
+> This is needed to make suspending faster and more reliable when the
+> system is in a low memory situation. Imagine that you have a number of
+> processes trying to allocate memory at the time you're trying to
+> suspend. They want so much memory that when you come to prepare the
+> image, you find that you need to free pages. But your swapfile is on
+> ext3, and you've just frozen all processes, so any attempt to free
+> memory could result in a deadlock while the vm tries to swap out pages
+> using the frozen kjournald.
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+This is not true, sorry.
 
-Index: linux-2.6/drivers/kvm/Makefile
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/kvm/Makefile
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for Kernel-based Virtual Machine module
-+#
-+
-+kvm-objs := kvm_main.o mmu.o x86_emulate.o
-+obj-$(CONFIG_KVM) += kvm.o
-Index: linux-2.6/drivers/kvm/Kconfig
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/kvm/Kconfig
-@@ -0,0 +1,22 @@
-+
-+menu "Virtualization"
-+#
-+# KVM configuration
-+#
-+config KVM
-+	tristate "Kernel-based Virtual Machine (KVM) support"
-+	depends on X86 && EXPERIMENTAL
-+	---help---
-+	  Support hosting fully virtualized guest machines using hardware
-+	  virtualization extensions.  You will need a fairly recent Intel
-+	  processor equipped with VT extensions.
-+
-+	  This module provides access to the hardware capabilities through
-+	  a character device node named /dev/kvm.
-+
-+	  To compile this as a module, choose M here: the module
-+	  will be called kvm.
-+
-+	  If unsure, say N.
-+
-+endmenu
-Index: linux-2.6/drivers/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/Kconfig
-+++ linux-2.6/drivers/Kconfig
-@@ -78,4 +78,6 @@ source "drivers/rtc/Kconfig"
- 
- source "drivers/dma/Kconfig"
- 
-+source "drivers/kvm/Kconfig"
-+
- endmenu
-Index: linux-2.6/drivers/Makefile
-===================================================================
---- linux-2.6.orig/drivers/Makefile
-+++ linux-2.6/drivers/Makefile
-@@ -77,3 +77,4 @@ obj-$(CONFIG_CRYPTO)		+= crypto/
- obj-$(CONFIG_SUPERH)		+= sh/
- obj-$(CONFIG_GENERIC_TIME)	+= clocksource/
- obj-$(CONFIG_DMA_ENGINE)	+= dma/
-+obj-$(CONFIG_KVM)		+= kvm/
+Swapfiles are handled at the block device level.  The filesystem is only
+needed when you run swapon, to create swap extents that are used later
+to handle the swap file.
+
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

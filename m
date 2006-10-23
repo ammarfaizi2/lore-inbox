@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWJWSkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbWJWSmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbWJWSkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 14:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbWJWSkf
+	id S965010AbWJWSmf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 14:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWJWSmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 14:40:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44745 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965012AbWJWSke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 14:40:34 -0400
-Date: Mon, 23 Oct 2006 11:39:49 -0700
-From: Greg KH <greg@kroah.com>
-To: David Miller <davem@davemloft.net>
-Cc: eiichiro.oiwa.nm@hitachi.com, alan@redhat.com, jesse.barnes@intel.com,
-       linux-kernel@vger.kernel.org, steven.c.cook@intel.com,
-       bjorn.helgaas@hp.com, tony.luck@intel.com
-Subject: Re: pci_fixup_video change blows up on sparc64
-Message-ID: <20061023183949.GA13970@kroah.com>
-References: <XNM1$9$0$4$$3$3$7$A$9002717U4538db22@hitachi.com> <20061020.123140.48805752.davem@davemloft.net> <XNM1$9$0$4$$3$3$7$A$9002718U453c5dab@hitachi.com> <20061023.015353.30187350.davem@davemloft.net>
+	Mon, 23 Oct 2006 14:42:35 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:49027 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S965010AbWJWSme
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 14:42:34 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.19-rc2-mm2: D-Link DUB-E100 Rev. B broken
+Date: Mon, 23 Oct 2006 20:41:48 +0200
+User-Agent: KMail/1.9.4
+Cc: dhollis@davehollis.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061023.015353.30187350.davem@davemloft.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200610232041.48998.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 01:53:53AM -0700, David Miller wrote:
-> From: <eiichiro.oiwa.nm@hitachi.com>
-> Date: Mon, 23 Oct 2006 15:14:07 +0900
-> 
-> > Ok, I fixed, and tested on x86, x86_64 and IA64 dig.
-> > Thank you.
-> > 
-> > From: David Miller <davem@davemloft.net>
-> > Signed-off-by: Eiichiro Oiwa <eiichiro.oiwa.nm@hitachi.com>
-> 
-> Greg please apply.
+Hi,
+D-Link DUB-E100 Rev. B USB Ethernet adapters have worked ok in some recent 
+kernels - in rc2-mm2, they're broken again; they're detected correctly and 
+the asix module is autoloaded, but after "ifconfig eth0 192.168.0.15 netmask 
+255.255.255.0", the box becomes unresponsive and keeps repeating
 
-Ok, but you didn't write this patch, Eiichiro did, right?
+eth0: Failed to enable software MII access
+eth0: Failed to enable hardware MII access
+eth0: Failed to enable software MII access
+eth0: Failed to enable hardware MII access
+eth0: Failed to enable software MII access
+eth0: Failed to enable hardware MII access
+eth0: Failed to enable software MII access
+eth0: Failed to enable hardware MII access
+eth0: Failed to enable software MII access
+eth0: Failed to enable hardware MII access
+eth0: Failed to write Medium Mode to 0x0334: ffffff92
 
-Want to get the attribution correct here.
+This loops infinitely.
 
-thanks,
-
-greg k-h
+Last known working is 2.6.17 with a patch to bring the asix driver up to the 
+14-Jun-2006 revision, first known broken is 2.6.19-rc1-mm1. (I'll try to 
+figure out what exact change broke it, but this will take forever on this 
+hw).

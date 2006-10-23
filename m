@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWJWQme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWJWQoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752005AbWJWQme (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 12:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752007AbWJWQme
+	id S932175AbWJWQoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 12:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWJWQoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 12:42:34 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4370 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1752005AbWJWQmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 12:42:33 -0400
-Date: Mon, 23 Oct 2006 17:42:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Mundt <lethal@linux-sh.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ata: Generic platform_device libata driver, take 2.
-Message-ID: <20061023164220.GA24471@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Matthias Fuchs <matthias.fuchs@esd-electronics.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20061023065907.GA22029@linux-sh.org>
+	Mon, 23 Oct 2006 12:44:19 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:43677 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932161AbWJWQoS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 12:44:18 -0400
+Date: Mon, 23 Oct 2006 10:44:16 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andre Noll <maan@systemlinux.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       linux-ext4@vger.kernel.org
+Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
+Message-ID: <20061023164416.GM3509@schatzie.adilger.int>
+Mail-Followup-To: Andre Noll <maan@systemlinux.org>,
+	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+	linux-ext4@vger.kernel.org
+References: <20061023144556.GY22487@skl-net.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061023065907.GA22029@linux-sh.org>
+In-Reply-To: <20061023144556.GY22487@skl-net.de>
 User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 03:59:07PM +0900, Paul Mundt wrote:
-> This is the second attempt at a generic platform_device libata driver,
-> attempting to take in to account issues raised by Matthias Fuchs and rmk.
+On Oct 23, 2006  16:45 +0200, Andre Noll wrote:
+> stress tests on a 6.3T ext3 filesystem which runs on top of software
+> raid 6 revealed the following:
 > 
-> Changes in this version include adding a small pata_platform.h header for
-> the private data (which at the moment is limited to a register shift
-> that's needed by ARM), though other things can be added in here if
-> platforms start having other needs.
+> [663594.224641] init_special_inode: bogus i_mode (4412)
+> [663596.355652] init_special_inode: bogus i_mode (5123)
+> [663596.355832] init_special_inode: bogus i_mode (71562)
 
-Thanks, this will enable me to use this code on ARM.
+This would appear to be inode table corruption.
 
-Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> [663763.319514] EXT3-fs error (device md0): ext3_new_block: Allocating block in system zone - blocks from 517570560, length 1
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This is bitmap corruption.
+
+> [663763.339423] EXT3-fs error (device md0): ext3_free_blocks: Freeing blocks in system zones - Block = 517570560, count = 1
+
+Hmm, this would appear to be a buglet in error handling.  If the block just
+allocated above is in the system zone it should be marked in-use in the
+bitmap but otherwise ignored.  We definitely should NOT be freeing it on
+error.
+
+Yikes!  It seems a patch I submitted to 2.4 that fixed the behaviour
+of ext3_new_block() so that if we detect this block shouldn't be
+allocated it is skipped instead of corrupting the filesystem if it
+is running with errors=continue...
+
+It looks like ext3_free_blocks() needs a similar fix - i.e. report an
+error and don't actually free those blocks.
+
+> This system is currently not in production use, so I can use it for tests ATM.
+
+I would suggest that you give this a try on RAID5, just for starters.
+I'm not aware of any problems in the existing ext3 code for anything
+below 8TB.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

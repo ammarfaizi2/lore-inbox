@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbWJWG0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751598AbWJWGeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751595AbWJWG0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 02:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWJWG0Y
+	id S1751598AbWJWGeh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 02:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWJWGeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 02:26:24 -0400
-Received: from relay00.pair.com ([209.68.5.9]:25362 "HELO relay00.pair.com")
-	by vger.kernel.org with SMTP id S1751058AbWJWG0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 02:26:23 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-To: Giridhar Pemmasani <pgiri@yahoo.com>
-Subject: Re: incorrect taint of ndiswrapper
-Date: Mon, 23 Oct 2006 01:25:47 -0500
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
-In-Reply-To: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com>
-Organization: Clientec, Inc.
+	Mon, 23 Oct 2006 02:34:37 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:14221 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751597AbWJWGeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 02:34:36 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <453C6260.7060609@s5r6.in-berlin.de>
+Date: Mon, 23 Oct 2006 08:34:08 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Matthew Wilcox <matthew@wil.cx>, Andi Kleen <ak@suse.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Al Viro <viro@ftp.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: dealing with excessive includes
+References: <20061018091944.GA5343@martell.zuzino.mipt.ru> <200610230242.58647.ak@suse.de> <20061023010812.GE25210@parisc-linux.org> <200610230331.16573.ak@suse.de> <20061023013604.GF25210@parisc-linux.org> <453C1FB5.9070007@yahoo.com.au>
+In-Reply-To: <453C1FB5.9070007@yahoo.com.au>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610230126.10773.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 October 2006 00:40, Giridhar Pemmasani wrote:
-> It seems that the kernel module loader taints ndiswrapper module as
-> proprietary, but it is not - it is fully GPL: see
-> http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
+Nick Piggin wrote:
+...
+> If you have an
+> 
+> #ifndef _LINUX_INTERRUPT_H
+> #error ...
+> 
+> That almost explicitly tells you which is the correct file to include to
+> get all definitions from this file. Wouldn't that help?
 
-Indeed. 'ndiswrapper' is intentionally tainted by kernel/module.c because it 
-is used to load and run unknown binary / proprietary code in kernel-space. If 
-this unknown binary / proprietary code were to contain a bug (which all code 
-of that complexity tends to), it might write to memory it doesn't own, or 
-coerce a device to do so on its behalf, making a kernel crash dump analysis 
-into a wild goose chase (hence the reason for kernel taint).
-
-> Note that when a driver is loaded, ndiswrapper does taint the kernel (to be
-> more accurate, it should check if the driver being loaded is GPL or not,
-> but that is not done).
-
-Are you saying ndiswrapper voluntarily calls add_taint() whenever it loads an 
-NDIS driver?
-
-Are there even any examples of GPL-licensed NDIS drivers?
-
-> Thanks,
-> Giri
->
-
-Thanks,
-Chase
+This can even be evaluated by a script that searches for required header
+files, except if more than one of such clauses appear in a file.
+-- 
+Stefan Richter
+-=====-=-==- =-=- =-===
+http://arcgraph.de/sr/

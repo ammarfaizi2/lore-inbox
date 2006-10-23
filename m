@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752023AbWJWVkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752020AbWJWVkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752023AbWJWVkg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 17:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWJWVkg
+	id S1752020AbWJWVkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 17:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752023AbWJWVkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 17:40:36 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:33775 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752023AbWJWVkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 17:40:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=rctAPoKz92t7e+hkjC0gcrNiS1b2sIYowaamVeXCu0/c1ff4xjGGm1PfCRRhg5QdMf2RAV+I26d5FMKzdOranbs92zj1wHgNjSlBrO4WXavjXON6rHmjX7G0lVmVefd5X3WySQOaF6vS8vgpo8TO7Bi3cuYdmBFMPXdhNti7pVA=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [PATCH] Fix use of uninitialized variable in drivers/video/sis/init301.c::SiS_DDC2Delay()
-Date: Mon, 23 Oct 2006 23:42:07 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org,
-       Thomas Winischhofer <thomas@winischhofer.net>
-References: <200610232326.11288.jesper.juhl@gmail.com> <Pine.LNX.4.64N.0610231425510.9588@attu2.cs.washington.edu>
-In-Reply-To: <Pine.LNX.4.64N.0610231425510.9588@attu2.cs.washington.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Oct 2006 17:40:23 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:38602 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1752020AbWJWVkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 17:40:22 -0400
+Date: Mon, 23 Oct 2006 22:39:44 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl, ncunningham@linuxmail.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061023213943.GA21361@srcf.ucam.org>
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <1161605379.3315.23.camel@nigel.suspend2.net> <200610231607.17525.rjw@sisk.pl> <20061023095522.e837ad89.akpm@osdl.org> <20061023171450.GA3766@elf.ucw.cz> <20061023105022.8b1dc75d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610232342.07458.jesper.juhl@gmail.com>
+In-Reply-To: <20061023105022.8b1dc75d.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 October 2006 23:26, David Rientjes wrote:
-> On Mon, 23 Oct 2006, Jesper Juhl wrote:
-> 
-> > The variable 'j' is used uninitialized in the loop. Fix by initializing it to zero.
-> > 
-[snip]
-> 
-> I doubt this patch compile tested.
-> 
-You are right. I hang my head in shame and admit I did not compile test this one.
-Fixed patch below.
+On Mon, Oct 23, 2006 at 10:50:22AM -0700, Andrew Morton wrote:
 
+> Apparently uswsusp has gained support for S3 while the in-kernel driver
+> does not support S3.  That's disappointing.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+I'm still not sure why that's an especially desirable feature. Every 
+laptop I've played with will automatically resume from S3 when the 
+battery level becomes critical, which gives you the opportunity to 
+suspend to disk. And when it doesn't, you can generally emulate it using 
+the ACPI alarm to wake up. Is there really a significant quantity of 
+hardware out there that doesn't support either of these?
 
- drivers/video/sis/init301.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/video/sis/init301.c b/drivers/video/sis/init301.c
-index f13fadd..45a5969 100644
---- a/drivers/video/sis/init301.c
-+++ b/drivers/video/sis/init301.c
-@@ -445,7 +445,8 @@ #endif
- void
- SiS_DDC2Delay(struct SiS_Private *SiS_Pr, unsigned int delaytime)
- {
--   unsigned int i, j;
-+   unsigned int i;
-+   unsigned int j = 0;
- 
-    for(i = 0; i < delaytime; i++) {
-       j += SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

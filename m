@@ -1,162 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWJWI47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWJWJNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751839AbWJWI47 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 04:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751843AbWJWI47
+	id S1751852AbWJWJNX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 05:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWJWJNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 04:56:59 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:44765 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751839AbWJWI46 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 04:56:58 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 1/5] Char: sx, convert to pci probing
-Date: Mon, 23 Oct 2006 10:56:46 +0200
-User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       R.E.Wolff@bitwizard.nl, support@specialix.co.uk
-References: <651531477799512100@wsc.cz>
-In-Reply-To: <651531477799512100@wsc.cz>
+	Mon, 23 Oct 2006 05:13:23 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:13962 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751852AbWJWJNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 05:13:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=FmepfrgaU5/0BCWnp3pKEiHVaxbuZx7EdfiqJ/avqop50+LHWQ1EXw0LYqZPPD+gbHhW8MtLznVwEJxciXDENB5QsXobhCJUrMOKlmkK7v5jXkMINUz5VtgEYFRfDEHSD8gYlA5kIzWSzltvppPMRd1R+Y/QZ6SrGlawWNDZiDw=  ;
+Message-ID: <453C87A6.4060602@yahoo.com.au>
+Date: Mon, 23 Oct 2006 19:13:10 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3381071.43Zgq6DPTb";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vmalloc : optimization, cleanup, bugfixes
+References: <453C3A29.4010606@intel.com> <20061022214508.6c4f30c6.akpm@osdl.org> <200610231036.10418.dada1@cosmosbay.com>
+In-Reply-To: <200610231036.10418.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200610231056.47011.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3381071.43Zgq6DPTb
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Eric Dumazet wrote:
+> [PATCH] vmalloc : optimization, cleanup, bugfixes
+> 
+> This patch does three things
+> 
+> 1) reorder 'struct vm_struct' to speedup lookups on CPUS with small cache 
+> lines. The fields 'next,addr,size' should be now in the same cache line, to 
+> speedup lookups.
+> 
+> 2) One minor cleanup in __get_vm_area_node()
+> 
+> 3) Bugfixes in vmalloc_user() and vmalloc_32_user()
+> NULL returns from __vmalloc() and __find_vm_area() were not tested.
 
-Jiri Slaby wrote:
-> sx, convert to pci probing
->
-> convert old pci code to pci probing.
->
-> Cc: <R.E.Wolff@BitWizard.nl>
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
->
-> ---
-> commit 56b6b52313a48cbda4c84bd35252337063269d88
-> tree 1f32778374ad0eb5d2671cc94674753d1198dbff
-> parent d8e4a1a052b460b07936030bc99d8d9fe2b4bbf9
-> author Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 01:51:54 +0200
-> committer Jiri Slaby <jirislaby@gmail.com> Sun, 22 Oct 2006 01:51:54 +0200
->
->  drivers/char/sx.c |  183
-> ++++++++++++++++++++++++++++++----------------------- 1 files changed, 105
-> insertions(+), 78 deletions(-)
->
-> diff --git a/drivers/char/sx.c b/drivers/char/sx.c
-> index cf08be7..9b800bd 100644
-> --- a/drivers/char/sx.c
-> +++ b/drivers/char/sx.c
-> @@ -246,14 +246,6 @@ #ifndef PCI_DEVICE_ID_SPECIALIX_SX_XIO_I
->  #define PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8 0x2000
->  #endif
->
-> -#ifdef CONFIG_PCI
-> -static struct pci_device_id sx_pci_tbl[] = {
-> -	{ PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8,
-> PCI_ANY_ID, PCI_ANY_ID }, -	{ 0 }
-> -};
-> -MODULE_DEVICE_TABLE(pci, sx_pci_tbl);
-> -#endif /* CONFIG_PCI */
-> -
->  /* Configurable options:
->     (Don't be too sure that it'll work if you toggle them) */
->
-> @@ -2373,7 +2365,6 @@ static void __exit sx_release_drivers(vo
->  	func_exit();
->  }
->
-> -#ifdef CONFIG_PCI
->   /********************************************************
->   * Setting bit 17 in the CNTRL register of the PLX 9050  *
->   * chip forces a retry on writes while a read is pending.*
-> @@ -2404,22 +2395,112 @@ #define CNTRL_REG_GOODVALUE     0x182600
->  	}
->  	iounmap(rebase);
->  }
-> -#endif
->
-> +static int __devinit sx_pci_probe(struct pci_dev *pdev,
-> +	const struct pci_device_id *ent)
-> +{
-> +	struct sx_board *board;
-> +	unsigned int i;
-> +	int retval = -EIO;
-> +
-> +	for (i = 0; i < SX_NBOARDS; i++)
-> +		if (!(boards[i].flags & SX_BOARD_PRESENT))
-> +			break;
-> +
-> +	if (i == SX_NBOARDS)
-> +		goto err;
-> +
-> +	retval = pci_enable_device(pdev);
-> +	if (retval)
-> +		goto err;
-> +
-> +	board = &boards[i];
+Hmm, so they weren't. As far as testing the return of __find_vm_area,
+you can just turn that into a BUG_ON(!area), because at that point,
+we've established that the vmalloc succeeded.
 
-I'm rather sure you need some type of locking here.
-
-> +
-> +	board->flags &= ~SX_BOARD_TYPE;
-> +	board->flags |= (pdev->subsystem_vendor == 0x200) ? SX_PCI_BOARD :
-> +				SX_CFPCI_BOARD;
-> +
-> +	/* CF boards use base address 3.... */
-> +	if (IS_CF_BOARD (board))
-> +		board->hw_base = pci_resource_start(pdev, 3);
-> +	else
-> +		board->hw_base = pci_resource_start(pdev, 2);
-> +	board->base2 =
-> +	board->base = ioremap(board->hw_base, WINDOW_LEN (board));
-> +	if (!board->base) {
-> +		dev_err(&pdev->dev, "ioremap failed\n");
-> +		goto err;
-> +	}
-
-pci_iomap() or something?
-
-> +
-> +	/* Most of the stuff on the CF board is offset by 0x18000 ....  */
-> +	if (IS_CF_BOARD (board))
-> +		board->base += 0x18000;
-> +
-> +	board->irq = pdev->irq;
-
-Is this extra copy of the IRQ number needed?
-
-
-> @@ -2585,6 +2611,7 @@ static void __exit sx_exit (void)
->  	struct sx_board *board;
->
->  	func_enter();
-> +	pci_unregister_driver(&sx_pcidriver);
->  	for (i = 0; i < SX_NBOARDS; i++) {
->  		board = &boards[i];
->  		if (board->flags & SX_BOARD_INITIALIZED) {
-
-Locking?
-
---nextPart3381071.43Zgq6DPTb
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFPIPOXKSJPmm5/E4RApuUAKCU6zEEW1gMgAxT/7LoFssLbVA7cwCfRMsj
-NVx5/SexmwrT+we35RmaJeY=
-=yL8M
------END PGP SIGNATURE-----
-
---nextPart3381071.43Zgq6DPTb--
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

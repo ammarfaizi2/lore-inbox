@@ -1,80 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWJWSGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWJWSLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWJWSGt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 14:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWJWSGt
+	id S964983AbWJWSLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 14:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWJWSLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 14:06:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51601 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964981AbWJWSGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 14:06:48 -0400
-Date: Mon, 23 Oct 2006 20:06:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rjw@sisk.pl, ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061023180638.GB3766@elf.ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <1161605379.3315.23.camel@nigel.suspend2.net> <200610231607.17525.rjw@sisk.pl> <20061023095522.e837ad89.akpm@osdl.org> <20061023171450.GA3766@elf.ucw.cz> <20061023105022.8b1dc75d.akpm@osdl.org>
+	Mon, 23 Oct 2006 14:11:20 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:7586 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S964983AbWJWSLT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 14:11:19 -0400
+Message-ID: <453D05C3.7040104@de.ibm.com>
+Date: Mon, 23 Oct 2006 20:11:15 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061023105022.8b1dc75d.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk>
+In-Reply-To: <20061023113728.GM8251@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > > I'm trying to prepare the patches to make swsusp into suspend2.
-> > > > 
-> > > > Oh, I see.  Please don't do that.
-> > > 
-> > > Why not?
-> > 
-> > Last time I checked, suspend2 was 15000 lines of code, including its
-> > own plugin system and special user-kernel protocol for drawing
-> > progress bar (netlink based). It also did parts of user interface from
+Jens Axboe wrote:
+> On Sat, Oct 21 2006, Martin Peschke wrote:
+>> This patch set makes the block layer maintain statistics for request
+>> queues. Resulting data closely resembles the actual I/O traffic to a
+>> device, as the block layer takes hints from block device drivers when a
+>> request is being issued as well as when it is about to complete.
+>>
+>> It is crucial (for us) to be able to look at such kernel level data in
+>> case of customer situations. It allows us to determine what kind of
+>> requests might be involved in performance situations. This information
+>> helps to understand whether one faces a device issue or a Linux issue.
+>> Not being able to tap into performance data is regarded as a big minus
+>> by some enterprise customers, who are reluctant to use Linux SCSI
+>> support or Linux.
+>>
+>> Statistics data includes:
+>> - request sizes (read + write),
+>> - residual bytes of partially completed requests (read + write),
+>> - request latencies (read + write),
+>> - request retries (read + write),
+>> - request concurrency,
 > 
-> That's different.
-> 
-> I don't know where these patches are leading, but thus far they look like
-> reasonable cleanups and generalisations.  So I suggest we just take them
-> one at a time.
+> Question - what part of this does blktrace currently not do?
 
-Well, some do look okay, but for example this one complicates
-freezing... and gains nothing now. It would allow some badly-designed
-parts of suspend2 to be merged in future, but I doubt we want them.
+The Dispatch / Complete events of blktrace aren't as accurate as
+the additional "markers" introduced by my patch. A request might have
+been dispatched (to the block device driver) from the block layer's
+point of view, although this request still lingers in the low level
+device driver.
 
-> > OTOH, that was half a year ago, but given that uswsusp can now do most
-> > of the stuff suspend2 does (and without that 15000 lines of code), I
-> > do not think we want to do complete rewrite of swsusp now.
-> 
-> uswsusp seems like a bad idea to me.  We'd be better off concentrating on a
-> simple, clean in-kernel thing which *works*.  Right now the main problems
-> with swsusp are that it's slow and that there are driver problems. 
-> 
-> Fiddling with the top-level interfaces doesn't address either of these core
-> problems.
+For example, the s390 DASD driver accepts a small batch of requests
+from the block layer and translates them into DASD requests. Such DASD
+requests stay in an internal queue until an interrupt triggers the DASD
+driver to issue the next ready-made DASD request without further delay.
+Saving on latency.
 
-No ammount of changes in kernel/power will fix driver problems, that's right.
+For SCSI, the accuracy of the Dispatch / Complete events of blktrace
+is not such an issue, since SCSI doesn't queue stuff on its own, but
+reverts to queues implemented in SCSI devices. Anyway, command pre-
+and postprocessing in the SCSI stack adds to the latency that can be
+observed through the Dispatch / Complete events of blktrace.
 
-> Apparently uswsusp has gained support for S3 while the in-kernel driver
-> does not support S3.  That's disappointing.
+Of course, the addition of two events to blktrace could fix that.
 
-Well, uswsusp also gained support for compression, splash screen and
-RSA-encryption. While S3 support for (kernel) swsusp would be
-reasonably easy/non-intrusive, is there a point? I'd really prefer
-people wanting to do swsusp+S3 to use uswsusp.
+And it would be some effort to teach the blktrace tools family to
+calculate the set of statistics I have proposed. But that's not a
+reason to do things in the kernel...
 
-My goal is to keep in-kernel swsusp simple and reliable. fast would be
-nice, too. But having all the features is not the goal.
+ > In case it's missing something, why not add it there instead of
+ > putting new trace code in?
 
-[swsusp+S3 would need some userland support, anyway, because userland
-is needed for video card re-initialization. So you'd need utility
-similar to s2ram...]
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The question is:
+Is blktrace a performance tool? Or a development tool, or what?
+
+Our tests indicate that the blktrace approach is fine for performance
+analysis as long as the system to be analysed isn't too busy.
+But once the system faces a consirable amount of non-sequential I/O
+workload, the plenty of blktrace-generated data starts to get painful.
+
+The majority of the scenarios that are likely to become subject of a
+performance analysis due to some customer complaint fit into the
+category of workloads that will be affected by the activation of
+blktrace.
+
+If the system runs I/O-bound, how to write out traces without
+stealing bandwith and causing side effects?
+And if CPU utilisation is high, how to make sure that blktrace
+tools get the required share without seriously impacting
+applications which are responsible for the workload to be analysed?
+How much memory is reqired for per-cpu and per-device relay buffers
+and for the processing done by blktrace tools at run time?
+
+What if other subsystems get rigged with relay-based traces,
+following the blktrace example? I think that's okay - much better
+than cluttering the printk buffer with data that doesn't necessarily
+require user attention. I am advocating the renovation of
+arch/s390/kernel/debug.c - a tracing facility widely used throughout
+the s390 code - so that it is switched over to blktrace-like techniques,
+(and ideally shares code and is slimmed down).
+
+With blktrace-like (utt-based?) tracing facilities the data
+stream will swell. But if those were required to get an overview
+about the performance of subsystems or drivers...
+
+In my opinion, neither trace events relayed to user space nor
+performance counters maintained in the kernel are the sole answer
+to all information needs. The trick is to deliberate about 'when to
+use which approach what for'. Performance counters should give
+directions for further investigation. Traces are fine for debugging
+a specific subsystem.
+

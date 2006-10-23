@@ -1,123 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJWUrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWJWUse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWJWUrx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWJWUrx
+	id S1751382AbWJWUse (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWJWUse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:47:53 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:31115 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751359AbWJWUrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:47:52 -0400
-Date: Mon, 23 Oct 2006 13:47:30 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
-       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
-       suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061023134730.62e791a2.pj@sgi.com>
-In-Reply-To: <20061023195011.GB1542@in.ibm.com>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<20061020210422.GA29870@in.ibm.com>
-	<20061022201824.267525c9.pj@sgi.com>
-	<453C4E22.9000308@yahoo.com.au>
-	<20061023195011.GB1542@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Mon, 23 Oct 2006 16:48:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:58806 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751382AbWJWUsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:48:33 -0400
+Subject: Re: Battery class driver.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Dan Williams <dcbw@redhat.com>, linux-kernel@vger.kernel.org,
+       devel@laptop.org, sfr@canb.auug.org.au, len.brown@intel.com,
+       greg@kroah.com, benh@kernel.crashing.org,
+       David Zeuthen <davidz@redhat.com>
+In-Reply-To: <1161633509.4994.16.camel@hughsie-laptop>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161631091.16366.0.camel@localhost.localdomain>
+	 <1161633509.4994.16.camel@hughsie-laptop>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 Oct 2006 21:48:33 +0100
+Message-Id: <1161636514.27622.30.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar wrote:
-> This as far as I can tell is the only problem with the current code.
-> So I dont see why we need a major rewrite that involves a complete change
-> in the approach to the dynamic sched domain implementation.
+On Mon, 2006-10-23 at 20:58 +0100, Richard Hughes wrote:
+> No, I think the distinction between batteries and ac_adapter is large
+> enough to have different classes of devices. You may have many
+> batteries, but you'll only ever have one ac_adapter. I'm not sure it's
+> an obvious abstraction to make.
 
-Nick and I agree that if we can get an adequate automatic partition of
-sched domains, without any such explicit 'sched_domain' API, then that
-would be better.
+∃ machines with more than one individual AC adapter. Which want
+individual notification when one of them goes down.
 
-Nick keeps hoping we can do this automatically, and I have been fading
-in and out of agreement.  I have doubts we can do an automatic
-partition that is adequate.
+You're right that they don't necessarily fit into the 'battery' class,
+but I'm not entirely sure if it's worth putting them elsewhere, because
+the information about them is usually available in the same place as the
+information about the batteries, at least in the laptop case.
 
-Last night, Nick suggested we could do this by partitioning based on
-the cpus_allowed masks of the tasks in the system, instead of based on
-selected cpusets in the system.  We could create a partition any place
-that didn't cut across some tasks cpus_allowed. This would seem to have
-a better chance than basing it on the cpus masks in cpusets - for
-example a task in top cpuset that was pinned to a single CPU (many
-kernel threads fit this description) would no longer impede
-partitioning.
+The simple case of AC adapters, where we have only 'present' or
+'absent', is a subset of what batteries can do. If you have more
+complicated monitoring, then it's _also_ going to bear a remarkable
+similarity to what you get from batteries -- you'll be able to monitor
+temperatures, voltage, current, etc. So they're not _that_ much out of
+place in a 'power supply' class.
 
-Right now, I am working on a posting that spells out an algorithm
-to compute such a partitioning, based on all task cpus_allowed masks
-in the system.  I think that's doable.
+It makes _less_ sense, imho, to have 'ac present' as a property of a
+battery -- which is what I've done for now.
 
-But I doubt it works.  I afraid it will result in useful partitions
-only in the cases we seem to need them least, on systems using cpusets
-to nicely carve up a system.
+> How are battery change notifications delivered to userspace? I know acpi
+> is using the input layer for buttons in the future (very sane IMO), so
+> using sysfs events for each property changing would probably be nice.
 
-==
+For selected properties, yes. I wouldn't want it happening every time
+the current draw changes by a millivolt but for 'battery removed' or 'ac
+power applied' events it makes some sense.
 
-Why the heck are we doing this partitioning in the first place?
+For sane hardware where we get an interrupt on such changes, that's fine
+-- but I'm wary of having to implement that by making the kernel poll
+for them; especially if/when there's nothing in userspace which cares. 
 
-Putting aside for a moment the specialized needs of the real-time folks
-who want to isolate some nodes from any source of jitter, aren't these
-sched domain partitions just a workaround for performance issues, that
-arise from trying to load balance across big sched domains?
+> Comments on your patch:
+> 
+> > +#define BAT_INFO_TEMP2		(2) /* °C/1000 */
+> Temperature expressed in degrees C/1000? - what if the temperature goes
+> below 0? 
 
-Granted, there may be no better way to address this performance issue.
-And granted, it may well be my own employers big honkin NUMA boxes
-that are most in need of this, and I just don't realize it.
+It's signed.
 
-But could someone whack me upside the head with a clear cut instance
-where we know we need this partitioning?
+> What about just using mK (kelvin / 1000) - I don't know what is
+> used in the kernel elsewhere tho. Also, are you allowed the ° sign in
+> kernel source now?
 
-In particular, if (extreme example) I have 1024 threads on a 1024 CPU
-system, each compute bound and each pinned to a separate CPU, and
-nothing else, then do I still need these sched partitions?  Or does the
-scheduler efficiently handle this case, quickly recognizing that it has
-no useful balancing work worth doing?
+Welcome to the 21st century.
 
-==
+> > +#define BAT_INFO_CURRENT	(6) /* mA */
+> Can't this also be expressed in mW according to the ACPI spec?
 
-As it stands right now, if I had to place my "final answer" in Jeopardy
-on this, I'd vote for something like the patch you describe, which I
-take it is much like the sched_domain patch with which I started this
-scrum a week ago, minus the 'sched_domain_enabled' flag that I had in
-for backwards compatibility.  I suspect we agree that we can do without
-that flag, and that a single clean long term API outweighs perfect
-backward compatibility, in this case.
+No, it can't. The Watt is not a unit of current.
 
-==
+I intended the ACPI 'present rate' to map to the 'charge_rate' property,
+which is why we have the 'charge_unit' property. I don't like that much,
+but it seems necessary unless we're going to do something like separate
+'charge_rate_mA' and 'charge_rate_mW' properties.
 
-The only twist to your patch I would like you to consider - instead
-of a 'sched_domain' flag marking where the partitions go, how about
-a flag that tells the kernel it is ok not to load balance tasks in
-a cpuset?
+Actually, I suspect that on reflection I would prefer that latter
+option. DavidZ?
 
-Then lower level cpusets could set such a flag, without immediate and
-brutal affects on the partitioning of all their parent cpusets.  But if
-the big top level non-overlapping cpusets were so marked, then we could
-partition all the way down to where we were no longer able to do so,
-because we hit a cpuset that didn't have this flag set.
+> > +#define BAT_STAT_FIRE		(1<<7)
+> I know there is precedent for "FIRE" but maybe CRITICAL or DANGER might
+> be better chosen words. We can reserve the word FIRE for when the faulty
+> battery really is going to explode...
 
-I think such a "ok not to load balance tasks in this cpuset" flag
-better fits what the users see here.  They are being asked to let us
-turn off some automatic load balancing, in return for which they get
-better performance. I doubt that the phrase "dynamic scheduler domain
-partitions" is in the vocabulary of most of our users.  More of them
-will understand the concept of load balancing automatically moving
-tasks to underutilized CPUs, and more of them would be prepared to
-make the choice between turning off load balancing in some top cpusets,
-and better kernel scheduler performance.
+Yes, feasibly. I don't quite know what the 'destroy' bit in the OLPC
+embedded controller is supposed to mean, and 'FIRE' seemed as good as
+anything else.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+dwmw2
+

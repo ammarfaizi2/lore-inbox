@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751988AbWJWQNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWJWQVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751988AbWJWQNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 12:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751987AbWJWQNx
+	id S1751913AbWJWQVd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 12:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWJWQVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 12:13:53 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:55202 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751984AbWJWQNw (ORCPT
+	Mon, 23 Oct 2006 12:21:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16602 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751913AbWJWQVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 12:13:52 -0400
-Date: Mon, 23 Oct 2006 18:13:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andi Kleen <ak@suse.de>, Randy Dunlap <rdunlap@xenotime.net>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Al Viro <viro@ftp.linux.org.uk>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: dealing with excessive includes
-In-Reply-To: <Pine.LNX.4.64.0610230908570.3962@g5.osdl.org>
-Message-ID: <Pine.LNX.4.62.0610231812290.1841@pademelon.sonytel.be>
-References: <20061017005025.GF29920@ftp.linux.org.uk>
- <20061020091302.a2a85fb1.rdunlap@xenotime.net>
- <Pine.LNX.4.62.0610221956380.29899@pademelon.sonytel.be> <200610230059.23806.ak@suse.de>
- <Pine.LNX.4.62.0610231027130.1272@pademelon.sonytel.be>
- <Pine.LNX.4.64.0610230908570.3962@g5.osdl.org>
+	Mon, 23 Oct 2006 12:21:32 -0400
+Message-ID: <453CEBFB.9010409@redhat.com>
+Date: Mon, 23 Oct 2006 11:21:15 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: time warp on 2.6.18-rt6 (2nd try)
+References: <4539158C.2090801@redhat.com> <20061020210821.GA28420@elte.hu>
+In-Reply-To: <20061020210821.GA28420@elte.hu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Oct 2006, Linus Torvalds wrote:
-> On Mon, 23 Oct 2006, Geert Uytterhoeven wrote:
-> > > Would be a worthy goal imho. Can it be done with scripts? 
-> > 
-> > Making them self-contained or checking whether they are? :-)
-> > 
-> > The latter is simple, just compile each of them into dummy object files, which
-> > should give no compile errors.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Ingo Molnar wrote:
+> * Clark Williams <williams@redhat.com> wrote:
 > 
-> It's _not_ simple. Not at all.
+>> I'm still seeing the time warp ("It's just a jump to the left!" :))* 
+>> being triggered on both my Athlon64x2 (32-bit kernel) and my Athlon64 
+>> up box (64-bit kernel). [...]
 > 
-> We have tons of issues that depend on config variables and architecture 
-> details. 
+> that was most likely a false positive - every time settimeofday is done. 
+> I've just uploaded -rt7, could you check it whether the time warp 
+> messages are gone?
+> 
+> 	Ingo
 
-Indeed, so the config variables and architecture details should be handled in
-the include files, not in the (multiple) users of those include files.
+I ran pi_stress on both the 32-bit kernel (Athlon64x2) and a 64-bit
+kernel (Athlon64 up) and am still getting a time warp bug.
 
-Gr{oetje,eeting}s,
+I'm rebuilding now with a bit more debug info turned on and I'm trying
+to track down an Intel box that I can try this on to see if somehow I'm
+exercising a code path that hasn't been touched much. Hopefully I'll be
+able to test on a P3/P4 box this afternoon and can confirm or deny
+whether this is AMD specific.
 
-						Geert
+Clark
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+iD8DBQFFPOv6Hyuj/+TTEp0RAo2SAJ4iKMHJeYY8KHkK+cR9DdjW5caZbwCdHE+U
+J2N4AuipJwzZJi0n31BXFYE=
+=VIvH
+-----END PGP SIGNATURE-----

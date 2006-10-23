@@ -1,127 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWJWW67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWJWXA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWJWW67 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 18:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752056AbWJWW66
+	id S932300AbWJWXA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 19:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWJWXA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 18:58:58 -0400
-Received: from smtp121.iad.emailsrvr.com ([207.97.245.121]:62358 "EHLO
-	smtp121.iad.emailsrvr.com") by vger.kernel.org with ESMTP
-	id S1752055AbWJWW65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 18:58:57 -0400
-Message-ID: <453D48E5.8040100@gentoo.org>
-Date: Mon, 23 Oct 2006 18:57:41 -0400
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+	Mon, 23 Oct 2006 19:00:56 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63930 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932300AbWJWXAz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 19:00:55 -0400
+Date: Mon, 23 Oct 2006 15:59:05 -0700
+From: Greg KH <greg@kroah.com>
+To: David Zeuthen <davidz@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       olpc-dev@laptop.org, mjg59@srcf.ucam.org, len.brown@intel.com,
+       sfr@canb.auug.org.au, benh@kernel.crashing.org
+Subject: Re: Battery class driver.
+Message-ID: <20061023225905.GA10977@kroah.com>
+References: <1161627633.19446.387.camel@pmac.infradead.org> <1161641703.2597.115.camel@zelda.fubar.dk>
 MIME-Version: 1.0
-To: Holden Karau <holden@pigscanfly.ca>
-CC: zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
-       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       holdenk@xandros.com, Ulrich Kunitz <kune@deine-taler.de>
-Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
- rather than hardcoded value of 11
-References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>
-In-Reply-To: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1161641703.2597.115.camel@zelda.fubar.dk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holden Karau wrote:
-> From: Holden Karau <holden@pigscanfly.ca> http://www.holdenkarau.com
+On Mon, Oct 23, 2006 at 06:15:03PM -0400, David Zeuthen wrote:
 > 
-> I have made a small patch for the zd1211rw driver which uses the
-> boundry channels of the regulatory domain, rather than the hard coded
-> values of 1 & 11.
-> Signed-off-by: Holden Karau <holden@pigscanfly.ca> 
-> http://www.holdenkarau.com
-
-Thanks for the patch! Please always look up the MAINTAINERS entry for 
-the code you are modifying and CC the developers on patches.
-
-Comments below, all minor points.
-
-> I'm not entirely sure how useful this patch is, but it seems like a
-> good idea. If its totally misguided, let me know :-) In case the patch
-> gets mangled I've put it up at
-> http://www.holdenkarau.com/~holden/projects/zd1211rw/zd1211rw-use-geo-for-channels.patch 
-
-Your mailer ate tabs and wrapped long lines. You're going to need to fix 
-that.
-
-> --- a/drivers/net/wireless/zd1211rw/zd_chip.c    2006-10-23
-> 10:07:39.000000000 -0400
-> +++ b/drivers/net/wireless/zd1211rw/zd_chip.c    2006-10-23
-> 10:41:51.000000000 -0400
-> @@ -38,6 +38,8 @@ void zd_chip_init(struct zd_chip *chip,
->     mutex_init(&chip->mutex);
->     zd_usb_init(&chip->usb, netdev, intf);
->     zd_rf_init(&chip->rf);
-> +    /* The chip needs to know which geo it is in */
-> +    chip->geo = 
-> ieee80211_get_geo(zd_mac_to_ieee80211(zd_netdev_mac(netdev)));
-
-There is no need to store a geo reference here. You can use 
-zd_chip_to_mac() to go from chip to mac, then mac-to-ieee80211 is easy.
-
-> }
+> Hi,
 > 
-> void zd_chip_clear(struct zd_chip *chip)
-> @@ -606,14 +608,17 @@ static int patch_6m_band_edge(struct zd_
->         { CR128, 0x14 }, { CR129, 0x12 }, { CR130, 0x10 },
->         { CR47,  0x1e },
->     };
-> +    struct ieee80211_geo *geo = chip->geo;
+> On Mon, 2006-10-23 at 19:20 +0100, David Woodhouse wrote:
+> > The idea is that all batteries should be presented to userspace through
+> > this class instead of through the existing mess of PMU/APM/ACPI and even
+> > APM _emulation_.
 > 
->     if (!chip->patch_6m_band_edge || !chip->rf.patch_6m_band_edge)
->         return 0;
+> Yea, that would be nice, we've got code in HAL to handle all these three
+> (and more) and provide one coherent interface. The battery class
+> abstraction should probably be flexible enough to handle things such as
 > 
-> -    /* FIXME: Channel 11 is not the edge for all regulatory domains. */
-> -    if (channel == 1 || channel == 11)
-> +    /* Checks the channel boundry of the region */
-> +    dev_dbg_f("checking boundry == %d || %d\n" , 1 , geo->bg_channels);
-> +    if (channel == 1 || channel == geo->bg_channels)
-
-Typo, you mean boundary. Also, I think the debug message can go once 
-you're confident it's working correctly.
-
->         ioreqs[0].value = 0x12;
+>  - UPS's
+>  - Bluetooth devices with batteries
+>  - USB wireless mice / keyboards
+>  - ... and so on.
 > 
-> +
-
-This added line could go as well.
-
->     dev_dbg_f(zd_chip_dev(chip), "patching for channel %d\n", channel);
->     return zd_iowrite16a_locked(chip, ioreqs, ARRAY_SIZE(ioreqs));
-> }
-
-I think that after the above changes, your modifications to zd_chip.h 
-can be removed.
-
-> --- a/drivers/net/wireless/zd1211rw/zd_chip.h    2006-10-23
-> 10:07:39.000000000 -0400
-> +++ b/drivers/net/wireless/zd1211rw/zd_chip.h    2006-10-23
-> 10:39:08.000000000 -0400
-> @@ -21,6 +21,8 @@
-> #include "zd_types.h"
-> #include "zd_rf.h"
-> #include "zd_usb.h"
-> +#include "zd_ieee80211.h"
-> +#include <linux/wireless.h>
+> if someone wants to write a kernel-space driver for these some day. We
+> handle the latter in HAL using some user space code and to me it's still
+> an open question (and not really a very interesting one) whether you
+> want the code kernel- or user-side.
 > 
-> /* Header for the Media Access Controller (MAC) and the Baseband Processor
->  * (BBP). It appears that the ZD1211 wraps the old ZD1205 with USB glue and
-> @@ -669,6 +671,7 @@ struct zd_chip {
->     /* SetPointOFDM in the vendor driver */
->     u8 ofdm_cal_values[3][E2P_CHANNEL_COUNT];
->     u16 link_led;
-> +      struct ieee80211_geo* geo;
->     unsigned int pa_type:4,
->         patch_cck_gain:1, patch_cr157:1, patch_6m_band_edge:1,
->         new_phy_layout:1,
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> As an aside, you probably want some kind of device symlink for the
+> "battery class" instance in sysfs such that it points to the "physical"
+> device. For ACPI/PMU/APM etc. I guess it points to somewhere
+> in /sys/devices/platform; for a Bluetooth device it might point to the
+> Bluetooth device in sysfs (cf. Marcel's patch to do this) and so on.
+> Otherwise it's hard for user space to figure out what the battery is
+> used for. Perhaps the driver itself can contribute with some kind of
+> sysfs file 'usage' that can assume values "laptop_battery", "ups" etc.,
+> dunno if that's a good idea.
 
+By using a real device for the battery, you will get this for free,
+along with a symlink back from the sysfs class if you so desire.  I know
+HAL can handle this properly, as we are doing this in the next opensuse
+release (10.2) for almost all class devices.
+
+Actually, using the hwmon class is probably the best, as you are doing
+much the same thing.  I don't think a new class is probably needed here.
+
+> I think that it requires some degree of documentation for the files you
+> export including docs on the ranges. Probably worth sticking to *some*
+> convention such as if you can't provide a given value then the file
+> simply isn't there instead of just providing some magic value like
+> charge=0 if you don't know the charge. That probably means you need some
+> kind of 'sentinel' for each value that will make the generic battery
+> class code omit presenting the file. 
+
+Documentation/hwmon/sysfs-interface is the proper format for documenting
+this to start with.  Documentation/ABI is probably the best place for it
+to end up in eventually.
+
+> (I'm not sure whether there are any general sysfs guidelines on this so
+> forgive me if there is already.)
+
+Yes, see above :)
+
+> Please also avoid putting more than on value in a single file, e.g. I
+> think we want to avoid e.g. this
+> 
+>  # cat /sys/class/battery/OLPC/state
+>  present,low,charging
+> 
+> and rather have is_present, is_charging, is_discharging and so on; i.e.
+> one value per file even if we're talking about flags. It's just less
+> messy this way.
+
+Agreed.
+
+> > I think I probably want to make AC power a separate 'device' too, rather
+> > than an attribute of any given battery. And when there are multiple
+> > power supplies, there should be multiple such devices. So maybe it
+> > should be a 'power supply' class, not a battery class at all?
+> 
+> So I happen to think they are different beasts. Some batteries may not
+> be rechargable by the host / device (think USB wireless mice with normal
+> AAA batteries) and some power supply units may not have a battery (think
+> big iron with multiple PSU's). I think, in general, they have different
+> characteristics (they share some though) so perhaps it would be good to
+> have different abstractions? I'm not a domain expert here though.
+> 
+> How do we plan to get updates to user space? The ACPI code today
+> provides updates via the ACPI socket but that is broken on some hardware
+> so essentially HAL polls by reading /proc/acpi/battery/BAT0/state some
+> every 30 secs on, and, on some boxen, that generates a SMBIOS trap or
+> some other expensive operation. That's wrong.
+> 
+> So I think the generic battery class code should cache everything which
+> has the nice side effect that any stupid user space app doesn't bring
+> the system to it's knees just because it's re-reading the same file over
+> and over again. 
+> 
+> So, perhaps the battery class should provide a file called 'timestamp'
+> or something that is only writable by the super user. If you read from
+> that file it gives the time when the information was last updated. If
+> you write to the file it will force the driver query the hardware and
+> update the other files. Reading any other file than 'timestamp' will
+> just read cached information. 
+
+You can poll the sysfs file, which means you just sleep until something
+changes in it and then you wake up and read it.  Sound accepatble?
+
+thanks,
+
+greg k-h

@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWJWXFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWJWXMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWJWXFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 19:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWJWXFZ
+	id S932368AbWJWXMA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 19:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWJWXMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 19:05:25 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21943 "HELO
+	Mon, 23 Oct 2006 19:12:00 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33976 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932367AbWJWXFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 19:05:24 -0400
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+	id S932368AbWJWXMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 19:12:00 -0400
+Subject: Re: [PATCH] Move swap allocation routines to swap.c
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200610231620.56459.rjw@sisk.pl>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-	 <200610231607.17525.rjw@sisk.pl> <453CCE75.20302@yahoo.com.au>
-	 <200610231620.56459.rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200610231607.56028.rjw@sisk.pl>
+References: <1161576964.3466.12.camel@nigel.suspend2.net>
+	 <200610231247.09113.rjw@sisk.pl>
+	 <1161604186.3315.0.camel@nigel.suspend2.net>
+	 <200610231607.56028.rjw@sisk.pl>
 Content-Type: text/plain
-Date: Tue, 24 Oct 2006 09:05:19 +1000
-Message-Id: <1161644719.7033.25.camel@nigel.suspend2.net>
+Date: Tue, 24 Oct 2006 09:11:56 +1000
+Message-Id: <1161645116.7033.29.camel@nigel.suspend2.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
@@ -29,29 +30,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-On Mon, 2006-10-23 at 16:20 +0200, Rafael J. Wysocki wrote:
-> On Monday, 23 October 2006 16:15, Nick Piggin wrote:
-> > Rafael J. Wysocki wrote:
+On Mon, 2006-10-23 at 16:07 +0200, Rafael J. Wysocki wrote:
+> On Monday, 23 October 2006 13:49, Nigel Cunningham wrote:
+> > Hi.
 > > 
-> > > This case is a bit special.  I don't think it would be right to require every
-> > > device driver writer to avoid modifying RCU pages from the interrupt
-> > > context, because that would break the suspend to disk ...
+> > On Mon, 2006-10-23 at 12:47 +0200, Rafael J. Wysocki wrote:
+> > > On Monday, 23 October 2006 06:16, Nigel Cunningham wrote:
+> > > > Move swap allocation routines from swsusp.c to swap.c, so that all of
+> > > > the swap related stuff really is in swap.c.
 > > > 
-> > > Besides, if there is an RCU page that we _know_ we can use to store the image
-> > > in it, we can just include this page in the image without copying.  This
-> > > already gives us one extra free page for the rest of the image and we can
-> > > _avoid_ creating two images which suspend2 does and which adds a _lot_ of
-> > > complexity to the code.
+> > > The original idea was to keep that in swsusp.c because it was also used by
+> > > some code in user.c.
+> > > 
+> > > I'd like it to stay as is.
 > > 
-> > If you don't mind me asking... what are these RCU pages you speak of?
-> > I couldn't work it out by grepping kernel/power/*
+> > The other code in swap.c is also used by user.c.
 > 
-> Oops, s/RCU/LRU/g (shame, shame).
-> 
-> Sorry for the confusion.
+> Er, which one?
 
-Ah. I wondered where RCU came into the picture, but was willing to go
-with the theory that you knew something I didn't :)
+(Looks more)... ah. Maybe I'm confused. I'm still getting to grips with
+your code and it's complicated :)
+
+Regards,
 
 Nigel
 

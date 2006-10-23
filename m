@@ -1,66 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWJWUqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWJWUrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWJWUqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWJWUql
+	id S1751359AbWJWUrx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWJWUrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:46:41 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:9965 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751175AbWJWUql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:46:41 -0400
-Date: Mon, 23 Oct 2006 22:45:19 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Yinghai Lu <yinghai.lu@amd.com>, Andi Kleen <ak@muc.de>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
-Message-ID: <20061023204519.GJ3502@stusta.de>
-References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com> <m1ac3nvyhi.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ac3nvyhi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 23 Oct 2006 16:47:53 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31115 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751359AbWJWUrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:47:52 -0400
+Date: Mon, 23 Oct 2006 13:47:30 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, mbligh@google.com,
+       menage@google.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, holt@sgi.com, dipankar@in.ibm.com,
+       suresh.b.siddha@intel.com
+Subject: Re: [RFC] cpuset: add interface to isolated cpus
+Message-Id: <20061023134730.62e791a2.pj@sgi.com>
+In-Reply-To: <20061023195011.GB1542@in.ibm.com>
+References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
+	<20061020210422.GA29870@in.ibm.com>
+	<20061022201824.267525c9.pj@sgi.com>
+	<453C4E22.9000308@yahoo.com.au>
+	<20061023195011.GB1542@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 09:32:57AM -0600, Eric W. Biederman wrote:
-> "Yinghai Lu" <yinghai.lu@amd.com> writes:
-> 
-> > in phys flat mode, when using set_xxx_irq_affinity to irq balance from
-> > one cpu to another,  _assign_irq_vector will get to increase last used
-> > vector and get new vector. this will use up the vector if enough
-> > set_xxx_irq_affintiy are called. and end with using same vector in
-> > different cpu for different irq. (that is not what we want, we only
-> > want to use same vector in different cpu for different irq when more
-> > than 0x240 irq needed). To keep it simple, the vector should be resued
-> > from one cpu to another instead of getting new vector.
-> >
-> > Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
-> 
-> YH.  I think the concept is sound.  I don't think this is a bug fix, just
-> an optimization so this may not be 2.6.19 material.  But we are thrashing
-> things so much it may make sense to include it, and it likely to keeps
-> us from running into problems, so it can be called a bug preventative :)
->...
+Dinakar wrote:
+> This as far as I can tell is the only problem with the current code.
+> So I dont see why we need a major rewrite that involves a complete change
+> in the approach to the dynamic sched domain implementation.
 
-Is this patch intended as fix for the 2.6.19-rc regression described 
-in [1]?
+Nick and I agree that if we can get an adequate automatic partition of
+sched domains, without any such explicit 'sched_domain' API, then that
+would be better.
 
-> Eric
+Nick keeps hoping we can do this automatically, and I have been fading
+in and out of agreement.  I have doubts we can do an automatic
+partition that is adequate.
 
-cu
-Adrian
+Last night, Nick suggested we could do this by partitioning based on
+the cpus_allowed masks of the tasks in the system, instead of based on
+selected cpusets in the system.  We could create a partition any place
+that didn't cut across some tasks cpus_allowed. This would seem to have
+a better chance than basing it on the cpus masks in cpusets - for
+example a task in top cpuset that was pinned to a single CPU (many
+kernel threads fit this description) would no longer impede
+partitioning.
 
-[1] http://lkml.org/lkml/2006/10/21/227
+Right now, I am working on a posting that spells out an algorithm
+to compute such a partitioning, based on all task cpus_allowed masks
+in the system.  I think that's doable.
+
+But I doubt it works.  I afraid it will result in useful partitions
+only in the cases we seem to need them least, on systems using cpusets
+to nicely carve up a system.
+
+==
+
+Why the heck are we doing this partitioning in the first place?
+
+Putting aside for a moment the specialized needs of the real-time folks
+who want to isolate some nodes from any source of jitter, aren't these
+sched domain partitions just a workaround for performance issues, that
+arise from trying to load balance across big sched domains?
+
+Granted, there may be no better way to address this performance issue.
+And granted, it may well be my own employers big honkin NUMA boxes
+that are most in need of this, and I just don't realize it.
+
+But could someone whack me upside the head with a clear cut instance
+where we know we need this partitioning?
+
+In particular, if (extreme example) I have 1024 threads on a 1024 CPU
+system, each compute bound and each pinned to a separate CPU, and
+nothing else, then do I still need these sched partitions?  Or does the
+scheduler efficiently handle this case, quickly recognizing that it has
+no useful balancing work worth doing?
+
+==
+
+As it stands right now, if I had to place my "final answer" in Jeopardy
+on this, I'd vote for something like the patch you describe, which I
+take it is much like the sched_domain patch with which I started this
+scrum a week ago, minus the 'sched_domain_enabled' flag that I had in
+for backwards compatibility.  I suspect we agree that we can do without
+that flag, and that a single clean long term API outweighs perfect
+backward compatibility, in this case.
+
+==
+
+The only twist to your patch I would like you to consider - instead
+of a 'sched_domain' flag marking where the partitions go, how about
+a flag that tells the kernel it is ok not to load balance tasks in
+a cpuset?
+
+Then lower level cpusets could set such a flag, without immediate and
+brutal affects on the partitioning of all their parent cpusets.  But if
+the big top level non-overlapping cpusets were so marked, then we could
+partition all the way down to where we were no longer able to do so,
+because we hit a cpuset that didn't have this flag set.
+
+I think such a "ok not to load balance tasks in this cpuset" flag
+better fits what the users see here.  They are being asked to let us
+turn off some automatic load balancing, in return for which they get
+better performance. I doubt that the phrase "dynamic scheduler domain
+partitions" is in the vocabulary of most of our users.  More of them
+will understand the concept of load balancing automatically moving
+tasks to underutilized CPUs, and more of them would be prepared to
+make the choice between turning off load balancing in some top cpusets,
+and better kernel scheduler performance.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

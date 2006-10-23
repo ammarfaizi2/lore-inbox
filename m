@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWJWPe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWJWPfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWJWPe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 11:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWJWPe3
+	id S964959AbWJWPfp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 11:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWJWPfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 11:34:29 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43405 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964918AbWJWPe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 11:34:28 -0400
-Date: Mon, 23 Oct 2006 17:32:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-Message-ID: <20061023153257.GC8414@elf.ucw.cz>
-References: <1161576857.3466.9.camel@nigel.suspend2.net>
+	Mon, 23 Oct 2006 11:35:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45953 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964959AbWJWPfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 11:35:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Yinghai Lu" <yinghai.lu@amd.com>
+Cc: "Andi Kleen" <ak@muc.de>, "Muli Ben-Yehuda" <muli@il.ibm.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [PATCH] x86_64 irq: reuse vector for set_xxx_irq_affinity in phys flat mode
+References: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
+Date: Mon, 23 Oct 2006 09:32:57 -0600
+In-Reply-To: <86802c440610230002x340e3f95pa8ee98caa02e7e@mail.gmail.com>
+	(Yinghai Lu's message of "Mon, 23 Oct 2006 00:02:44 -0700")
+Message-ID: <m1ac3nvyhi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161576857.3466.9.camel@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Yinghai Lu" <yinghai.lu@amd.com> writes:
 
-> Switch from bitmaps to using extents to record what swap is allocated;
-> they make more efficient use of memory, particularly where the allocated
-> storage is small and the swap space is large.
+> in phys flat mode, when using set_xxx_irq_affinity to irq balance from
+> one cpu to another,  _assign_irq_vector will get to increase last used
+> vector and get new vector. this will use up the vector if enough
+> set_xxx_irq_affintiy are called. and end with using same vector in
+> different cpu for different irq. (that is not what we want, we only
+> want to use same vector in different cpu for different irq when more
+> than 0x240 irq needed). To keep it simple, the vector should be resued
+> from one cpu to another instead of getting new vector.
+>
+> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com>
 
-> This is also part of the ground work for implementing support for
-> supporting multiple swap devices.
+YH.  I think the concept is sound.  I don't think this is a bug fix, just
+an optimization so this may not be 2.6.19 material.  But we are thrashing
+things so much it may make sense to include it, and it likely to keeps
+us from running into problems, so it can be called a bug preventative :)
 
-bitmaps were more efficient and longer than original code... I did not
-_like_ them, but they are in now. I'd hate to change the code again,
-for what, 0.5% gain?
+Beyond that I have a few nits to pick with the patch.
+- We duplicate the code that claims a new vector which makes
+  maintenance a pain.
+- The comments are specific to phys_flat but the code is not.
+- The test for being able to use the old_vector in the new domain
+  should be: ...[old_vector] == vector || ...[old_vector] == -1
 
-...and this is still longer than bitmaps.
-
-And SNAPSHOT_GET_SWAP_PAGE seems to support multiple swap spaces
-already.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Eric

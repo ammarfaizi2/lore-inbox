@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751939AbWJWMb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751930AbWJWMca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751939AbWJWMb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 08:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWJWMb5
+	id S1751930AbWJWMca (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 08:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWJWMca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 08:31:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15272 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751937AbWJWMbh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 08:31:37 -0400
-Date: Sat, 21 Oct 2006 14:42:25 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
-       suspend2-devel <suspend2-devel@lists.suspend2.net>
-Subject: Re: [linux-pm] [PATCH] Add include/linux/freezer.h and move definitions from	sched.h
-Message-ID: <20061021124225.GA10892@elf.ucw.cz>
-References: <1161433266.7644.7.camel@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161433266.7644.7.camel@nigel.suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 23 Oct 2006 08:32:30 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:45275 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751913AbWJWMcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 08:32:09 -0400
+Date: Mon, 23 Oct 2006 14:32:54 +0200
+From: Michael Holzheu <holzheu@de.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com
+Subject: How to document dimension units for virtual files?
+Message-Id: <20061023143254.496420f7.holzheu@de.ibm.com>
+Organization: IBM
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+For the s390 hypervisor filesystem (s390_hypfs) we export performance
+and status information to user space. In order to make parsing for
+programs as easy as possilbe, we export exactly one value in one file
+without adding the dimension unit to the output string.
 
-> Move process freezing functions from include/linux/sched.h to freezer.h,
-> so that modifications to the freezer or the kernel configuration don't
-> require recompiling just about everything.
+For example:
 
-Well, I'm not sure if freezer changes often enough for this to
-matter. ..
+cat /hypfs/cpus/onlinetime
+476362365
 
-Patch is pretty much okay (provided it does not change any code)
-"is it worth the change" is up-to Andrew.
+cat /hypfs/memory
+900620
 
-> --- /dev/null
-> +++ b/include/linux/freezer.h
-> @@ -0,0 +1,84 @@
-> +/* Freezer declarations */
-> +
+As far as I know that is the recommended way of exporting such data
+to user space, right?
 
-Needs copyright/GPL at least.
+The question is how to provide the dimension unit information to
+the user.
 
-> +#ifdef CONFIG_PM
-> +/*
-> + * Check if a process has been frozen
-> + */
-> +static inline int frozen(struct task_struct *p)
-> +{
-> +	return p->flags & PF_FROZEN;
-> +}
+I see three possibilites:
 
-And switch it to kerneldoc while you are at it...
+1. Write dimension unit into the output string (e.g. "476362365 kB"),
+which makes parsing a bit more complicated.
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+2. Encode dimension unit into filename (e.g. onlinetime_ms or memory_kb)
+
+3. Document dimension unit somewhere. In that case we need some central
+place to provide such information. E.g. in the Documentation directory of
+the linux kernel.
+
+So, what is the recommended way?
+
+Thanks!
+
+Michael

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWJWUga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWJWUhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbWJWUga (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 16:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWJWUga
+	id S1750835AbWJWUhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 16:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWJWUhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 16:36:30 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:738 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751076AbWJWUg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 16:36:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=byDJGDq1iXuUcoVkTfRPt1vqzVTs0ip6dzRq4IT7hGAEkzaCNd8V4fKqHnRw/HeCb7Mds2gX333hAR3n4NL+ZZk7kAtSvUdWfACszQoPiaT6Ard7TfFyKxuENrcDHWl5f9IWiQR5TxEPP2DiesBDGZHHB19c3G3nOojcph/iOnI=
-Message-ID: <806dafc20610231336s58d64ad8s3bf47b922601ca38@mail.gmail.com>
-Date: Mon, 23 Oct 2006 16:36:27 -0400
-From: "Christopher \"Monty\" Montgomery" <xiphmont@gmail.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M" from card reader
-Cc: "Helge Hafting" <helge.hafting@aitel.hist.no>,
-       "Paolo Ornati" <ornati@fastwebnet.it>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>,
-       "USB development list" <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
+	Mon, 23 Oct 2006 16:37:19 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:61574 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1750928AbWJWUhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 16:37:18 -0400
+Message-ID: <453D27F8.8020509@qumranet.com>
+Date: Mon, 23 Oct 2006 22:37:12 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/13] KVM: vcpu execution loop
+References: <453CC390.9080508@qumranet.com> <200610232141.45802.arnd@arndb.de> <453D230D.7070403@qumranet.com> <200610232229.41934.arnd@arndb.de>
+In-Reply-To: <200610232229.41934.arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4538B689.2020909@aitel.hist.no>
-	 <Pine.LNX.4.44L0.0610201133110.7060-100000@iolanthe.rowland.org>
+X-OriginalArrivalTime: 23 Oct 2006 20:37:17.0723 (UTC) FILETIME=[07E70EB0:01C6F6E3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/20/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> At this point it's beyond me.  Monty will have to take it from here.
+Arnd Bergmann wrote:
+> On Monday 23 October 2006 22:16, Avi Kivity wrote:
+>   
+>>> This looks like you should simply put it into a .S file.
+>>>
+>>>  
+>>>       
+>> Then I lose all the offsetof constants down the line.  Sure, I could do
+>> the asm-offsets dance but it seems to me like needless obfuscation.
+>>     
+>
+> Ok, I see.
+>
+> How if you pass &vcpu->regs and &vcpu->cr2 to the functions instead of 
+> kvm_vcpu?
+>
+>   
 
-I will look more closely at what might have changed there.  Despite
-the code refactoring (and a hand-resolved patch collision at that
-point) the async disable handling *should* have been functionally
-unchanged from 2.6.18.  I will revisit that closely.
+I could do that, but I feel that's more brittle.  I might need more (or 
+other) fields later on.  It will also cost me more  pushes on the stack 
+(no real performance or space impact, just C64-era frugality).
 
-Has it actually been demonstrated that this does not crash 2.6.18
-(pre-my-patches) kernels?  If it crashes earlier, that doesn't mean
-I'm uninterested in fixing it, I just want to know.  I don't think
-that had been explicitly answered earlier in the thread.
 
-Monty
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

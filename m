@@ -1,112 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWJWGut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWJWHAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWJWGut (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 02:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWJWGus
+	id S1751632AbWJWHAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 03:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWJWHAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 02:50:48 -0400
-Received: from adsl-ull-137-166.41-151.net24.it ([151.41.166.137]:55847 "EHLO
-	zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S1751621AbWJWGus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 02:50:48 -0400
-Message-ID: <453C65AC.6050109@abinetworks.biz>
-Date: Mon, 23 Oct 2006 08:48:12 +0200
-From: Gianluca Alberici <gianluca@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Giridhar Pemmasani <pgiri@yahoo.com>
-CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
-Subject: Re: incorrect taint of ndiswrapper
-References: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
-In-Reply-To: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 23 Oct 2006 03:00:17 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:1138 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751628AbWJWHAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 03:00:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=oSioR5r73FeuoX9gtmpaIstvasJSsdb6yfjHm/hn3hAceeVk+KBBudsGvKTYvm+B1Oraao8FtMWivKln0QnP7eWKQJvzJ50+LFlHA/4/bpkaldZjPGYKjdHuPZc12iQyCg3h2PcaTmFIpcpc4i1MOw3SWc/vK3+F//dnhKFZqSc=
+Date: Sun, 22 Oct 2006 23:59:58 -0700
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Cc: netdev@vger.kernel.org
+Subject: [PATCH 2.6.19-rc2] [REVISED] net/ipv4/multipath_wrandom.c: check
+ kmalloc() return value.
+Message-Id: <20061022235958.b31d7529.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+Description: Check the return value of kmalloc() in function wrandom_set_nhinfo(), in file net/ipv4/multipath_wrandom.c.
 
-tainting apart, do you get to load ndiswrapper ? On what kernel exactly ?
-I cant on rc2-mm2
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
-Thanks
-
-Gianluca
-
-Giridhar Pemmasani wrote:
-
->--- Chase Venters <chase.venters@clientec.com> wrote:
->
->  
->
->>On Monday 23 October 2006 00:40, Giridhar Pemmasani wrote:
->>    
->>
->>>It seems that the kernel module loader taints ndiswrapper module as
->>>proprietary, but it is not - it is fully GPL: see
->>>http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
->>>      
->>>
->>Indeed. 'ndiswrapper' is intentionally tainted by kernel/module.c because
->>it 
->>is used to load and run unknown binary / proprietary code in kernel-space.
->>If 
->>this unknown binary / proprietary code were to contain a bug (which all
->>code 
->>of that complexity tends to), it might write to memory it doesn't own, or 
->>coerce a device to do so on its behalf, making a kernel crash dump analysis
->>
->>into a wild goose chase (hence the reason for kernel taint).
->>    
->>
->
->Yes, I agree on the purpose of tainting the kernel.
->
->  
->
->>>Note that when a driver is loaded, ndiswrapper does taint the kernel (to
->>>      
->>>
->>be
->>    
->>
->>>more accurate, it should check if the driver being loaded is GPL or not,
->>>but that is not done).
->>>      
->>>
->>Are you saying ndiswrapper voluntarily calls add_taint() whenever it loads
->>an 
->>NDIS driver?
->>    
->>
->
->Exactly - the loader within ndiswrapper taints kernel versions 2.6.10 and
->newer (older kernels don't have a way of tainting the kernel). The code is in
->loader.c in ndiswrapper.
->
->  
->
->>Are there even any examples of GPL-licensed NDIS drivers?
->>    
->>
->
->I don't remember off hand, but sometime back there was discussion on related
->topic of weather ndiswrapper should be in debian-main or not, and someone
->pointed out a GPL ndis driver. (BTW, after much discussion on debian devel
->list, the developers agreed that ndiswrapper belongs in debian-main.)
->
->Giri
->
->__________________________________________________
->Do You Yahoo!?
->Tired of spam?  Yahoo! Mail has the best spam protection around 
->http://mail.yahoo.com 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
-
+diff --git a/net/ipv4/multipath_wrandom.c b/net/ipv4/multipath_wrandom.c
+index 92b0482..bcdb1f1 100644
+--- a/net/ipv4/multipath_wrandom.c
++++ b/net/ipv4/multipath_wrandom.c
+@@ -242,6 +242,9 @@ static void wrandom_set_nhinfo(__be32 ne
+ 		target_route = (struct multipath_route *)
+ 			kmalloc(size_rt, GFP_ATOMIC);
+ 
++		if (!target_route)
++			goto error;
++
+ 		target_route->gw = nh->nh_gw;
+ 		target_route->oif = nh->nh_oif;
+ 		memset(&target_route->rcu, 0, sizeof(struct rcu_head));
+@@ -263,6 +266,9 @@ static void wrandom_set_nhinfo(__be32 ne
+ 		target_dest = (struct multipath_dest*)
+ 			kmalloc(size_dst, GFP_ATOMIC);
+ 
++		if (!target_dest)
++			goto error;
++
+ 		target_dest->nh_info = nh;
+ 		target_dest->network = network;
+ 		target_dest->netmask = netmask;
+@@ -275,6 +281,7 @@ static void wrandom_set_nhinfo(__be32 ne
+ 	 * we are finished
+ 	 */
+ 
++ error:
+ 	spin_unlock_bh(&state[state_idx].lock);
+ }
+ 

@@ -1,32 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWJWW3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752042AbWJWWav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWJWW3J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 18:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJWW3J
+	id S1752042AbWJWWav (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 18:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752044AbWJWWav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 18:29:09 -0400
-Received: from gw.goop.org ([64.81.55.164]:49041 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932259AbWJWW3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 18:29:06 -0400
-Message-ID: <453D4230.8020505@goop.org>
-Date: Mon, 23 Oct 2006 15:29:04 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Avi Kivity <avi@qumranet.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
-References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de>	<453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de>	<453BA3E9.4050907@qumranet.com> <20061022175609.GA28152@infradead.org>	<453BB1B0.7040500@qumranet.com> <p73ac3om1g7.fsf@verdi.suse.de>
-In-Reply-To: <p73ac3om1g7.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 23 Oct 2006 18:30:51 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:62895 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1752042AbWJWWav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 18:30:51 -0400
+Subject: Re: Patches in git tree.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061023153543.GD8414@elf.ucw.cz>
+References: <1161578685.3466.17.camel@nigel.suspend2.net>
+	 <20061023153543.GD8414@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 24 Oct 2006 08:30:46 +1000
+Message-Id: <1161642646.7033.0.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Why? AFAIK there are no VT machines that don't support EM64T.
->   
-Core Duo has VT but no 64-bit.
+Hi.
 
-    J
+On Mon, 2006-10-23 at 17:35 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Just to let you know, these patches are in a git tree you can pull from
+> > if you so desire:
+> > 
+> > http://git.kernel.org/git/?p=linux/kernel/git/nigelc/suspend2-merge.git;a=summary
+> 
+> Neither me nor Rafael use git for merges (*), and I do not think these
+> should go into -mm... I think plain patches are easier for now.
+
+I'm doing it anyway because I'm using stgit to make it easier to rebase
+them.
+
+Regards,
+
+Nigel
+

@@ -1,83 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWJWRfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWJWRh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWJWRfB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 13:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWJWRfB
+	id S932210AbWJWRh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 13:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWJWRh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 13:35:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61569 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932228AbWJWRfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 13:35:00 -0400
-Date: Mon, 23 Oct 2006 10:34:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Mon, 23 Oct 2006 13:37:29 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:53583 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932210AbWJWRh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 13:37:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=XOFo6D1v/msdZ2HFTcl/4TZzsriJn265dfFwv/Ze1gYJFY+bNEfbynOT5IJlqdnfYrJcjrQ83TD3XqwOLhlwFpbm8QJCfdFNXtR2AhNaBNcSl/gtETW1FwrLrPZjM5vCw4dEARWtpnNJRZHJnIgb27PixygCSvRYKdvquKuv0wE=
+Date: Mon, 23 Oct 2006 21:37:28 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc2-mm2: reproducible hang on shutdown on i386
-Message-Id: <20061023103448.7c35063b.akpm@osdl.org>
-In-Reply-To: <200610231643.32148.rjw@sisk.pl>
-References: <20061020015641.b4ed72e5.akpm@osdl.org>
-	<200610211930.05492.rjw@sisk.pl>
-	<200610231643.32148.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Subject: [PATCH v2] Enforce "unsigned long flags;" when spinlocking
+Message-ID: <20061023173728.GB18128@martell.zuzino.mipt.ru>
+References: <20061020131544.GC17199@martell.zuzino.mipt.ru> <20061020114640.9231b18f.akpm@osdl.org> <20061020233803.GA5344@martell.zuzino.mipt.ru> <20061020173233.ad9fcda8.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061020173233.ad9fcda8.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 23 Oct 2006 16:43:31 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> On Saturday, 21 October 2006 19:30, Rafael J. Wysocki wrote:
-> > On Friday, 20 October 2006 10:56, Andrew Morton wrote:
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
-> > > 
-> > > - Added the IOAT tree as git-ioat.patch (Chris Leech)
-> > > 
-> > > - I worked out the git magic to make the wireless tree work
-> > >   (git-wireless.patch).  Hopefully it will be in -mm more often now.
-> > 
-> > [Margin note: bcm43xx doesn't work on my test boxes although it used to on one
-> > of them, but I have to play with it a bit more.]
-> > 
-> > It looks like i386 cannot shut down cleanly with this kernel.  On my test
-> > boxes (2 of them) it hangs after killing all processes, 100% of the time.
-> 
-> I've carried out a binary search which shows that
-> 
-> add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
-> 
-> causes this to happen.
+Make it break or warn if you pass to spin_lock_irqsave() and friends
+something different from "unsigned long flags;". Suprisingly large amount of
+these was caught by recent commit c53421b18f205c5f97c604ae55c6a921f034b0f6
+and others.
 
-Thanks.  That patch had one bug - this will hopefully fi things up:
+Idea is largely from FRV typechecking. Suggestions from Andrew Morton.
+All stupid typos in first version fixed.
 
-From: Jeff Dike <jdike@addtoit.com>
+Passes allmodconfig on i386, x86_64, alpha, arm as well as my usual config.
 
-add-process_session-helper-routine-deprecate-old-field-fix-warnings.patch
-in -mm causes UML to hang at shutdown - init is sitting in a select on the
-initctl socket.
+Note #1: checking with sparse is still needed, because a driver can save
+	 and pass around flags or something. So far patch is very intrusive.
+Note #2: techically, we should break only if
+		sizeof(flags) < sizeof(unsigned long),
+	 however, the more pain for getting suspicious code into kernel,
+	 the better.
 
-This patch fixes it for me.
-
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- fs/proc/array.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ include/linux/irqflags.h |   37 ++++++++++++++++++++++++++++----
+ include/linux/spinlock.h |   53 +++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 76 insertions(+), 14 deletions(-)
 
-diff -puN fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix fs/proc/array.c
---- a/fs/proc/array.c~add-process_session-helper-routine-deprecate-old-field-fix-warnings-fix
-+++ a/fs/proc/array.c
-@@ -388,7 +388,7 @@ static int do_task_stat(struct task_stru
- 			stime = cputime_add(stime, sig->stime);
- 		}
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -11,6 +11,12 @@
+ #ifndef _LINUX_TRACE_IRQFLAGS_H
+ #define _LINUX_TRACE_IRQFLAGS_H
  
--		signal_session(sig);
-+		sid = signal_session(sig);
- 		pgid = process_group(task);
- 		ppid = rcu_dereference(task->real_parent)->tgid;
++#define BUILD_CHECK_IRQ_FLAGS(flags)					\
++	do {								\
++		BUILD_BUG_ON(sizeof(flags) != sizeof(unsigned long));	\
++		typecheck(unsigned long, flags);			\
++	} while (0)
++
+ #ifdef CONFIG_TRACE_IRQFLAGS
+   extern void trace_hardirqs_on(void);
+   extern void trace_hardirqs_off(void);
+@@ -50,10 +56,15 @@ #define local_irq_enable() \
+ #define local_irq_disable() \
+ 	do { raw_local_irq_disable(); trace_hardirqs_off(); } while (0)
+ #define local_irq_save(flags) \
+-	do { raw_local_irq_save(flags); trace_hardirqs_off(); } while (0)
++	do {					\
++		BUILD_CHECK_IRQ_FLAGS(flags);	\
++		raw_local_irq_save(flags);	\
++		trace_hardirqs_off();		\
++	} while (0)
  
-_
+ #define local_irq_restore(flags)				\
+ 	do {							\
++		BUILD_CHECK_IRQ_FLAGS(flags);			\
+ 		if (raw_irqs_disabled_flags(flags)) {		\
+ 			raw_local_irq_restore(flags);		\
+ 			trace_hardirqs_off();			\
+@@ -69,8 +80,16 @@ #else /* !CONFIG_TRACE_IRQFLAGS_SUPPORT 
+  */
+ # define raw_local_irq_disable()	local_irq_disable()
+ # define raw_local_irq_enable()		local_irq_enable()
+-# define raw_local_irq_save(flags)	local_irq_save(flags)
+-# define raw_local_irq_restore(flags)	local_irq_restore(flags)
++# define raw_local_irq_save(flags)		\
++	do {					\
++		BUILD_CHECK_IRQ_FLAGS(flags);	\
++		local_irq_save(flags);		\
++	} while (0)
++# define raw_local_irq_restore(flags)		\
++	do {					\
++		BUILD_CHECK_IRQ_FLAGS(flags);	\
++		local_irq_restore(flags);	\
++	} while (0)
+ #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+@@ -80,7 +99,11 @@ #define safe_halt()						\
+ 		raw_safe_halt();				\
+ 	} while (0)
+ 
+-#define local_save_flags(flags)		raw_local_save_flags(flags)
++#define local_save_flags(flags)			\
++	do {					\
++		BUILD_CHECK_IRQ_FLAGS(flags);	\
++		raw_local_save_flags(flags);	\
++	} while (0)
+ 
+ #define irqs_disabled()						\
+ ({								\
+@@ -90,7 +113,11 @@ ({								\
+ 	raw_irqs_disabled_flags(flags);				\
+ })
+ 
+-#define irqs_disabled_flags(flags)	raw_irqs_disabled_flags(flags)
++#define irqs_disabled_flags(flags)	\
++({					\
++	BUILD_CHECK_IRQ_FLAGS(flags);	\
++	raw_irqs_disabled_flags(flags);	\
++})
+ #endif		/* CONFIG_X86 */
+ 
+ #endif
+--- a/include/linux/spinlock.h
++++ b/include/linux/spinlock.h
+@@ -52,6 +52,7 @@ #include <linux/compiler.h>
+ #include <linux/thread_info.h>
+ #include <linux/kernel.h>
+ #include <linux/stringify.h>
++#include <linux/irqflags.h>
+ 
+ #include <asm/system.h>
+ 
+@@ -183,13 +184,37 @@ #define write_lock(lock)		_write_lock(lo
+ #define read_lock(lock)			_read_lock(lock)
+ 
+ #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
+-#define spin_lock_irqsave(lock, flags)	flags = _spin_lock_irqsave(lock)
+-#define read_lock_irqsave(lock, flags)	flags = _read_lock_irqsave(lock)
+-#define write_lock_irqsave(lock, flags)	flags = _write_lock_irqsave(lock)
++#define spin_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		flags = _spin_lock_irqsave(lock);	\
++	} while (0)
++#define read_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		flags = _read_lock_irqsave(lock);	\
++	} while (0)
++#define write_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		flags = _write_lock_irqsave(lock);	\
++	} while (0)
+ #else
+-#define spin_lock_irqsave(lock, flags)	_spin_lock_irqsave(lock, flags)
+-#define read_lock_irqsave(lock, flags)	_read_lock_irqsave(lock, flags)
+-#define write_lock_irqsave(lock, flags)	_write_lock_irqsave(lock, flags)
++#define spin_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_spin_lock_irqsave(lock, flags);	\
++	} while (0)
++#define read_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_read_lock_irqsave(lock, flags);	\
++	} while (0)
++#define write_lock_irqsave(lock, flags)			\
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_write_lock_irqsave(lock, flags);	\
++	} while (0)
+ #endif
+ 
+ #define spin_lock_irq(lock)		_spin_lock_irq(lock)
+@@ -225,15 +250,24 @@ # define write_unlock_irq(lock) \
+ #endif
+ 
+ #define spin_unlock_irqrestore(lock, flags) \
+-					_spin_unlock_irqrestore(lock, flags)
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_spin_unlock_irqrestore(lock, flags);	\
++	} while (0)
+ #define spin_unlock_bh(lock)		_spin_unlock_bh(lock)
+ 
+ #define read_unlock_irqrestore(lock, flags) \
+-					_read_unlock_irqrestore(lock, flags)
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_read_unlock_irqrestore(lock, flags);	\
++	} while (0)
+ #define read_unlock_bh(lock)		_read_unlock_bh(lock)
+ 
+ #define write_unlock_irqrestore(lock, flags) \
+-					_write_unlock_irqrestore(lock, flags)
++	do {						\
++		BUILD_CHECK_IRQ_FLAGS(flags);		\
++		_write_unlock_irqrestore(lock, flags);	\
++	} while (0)
+ #define write_unlock_bh(lock)		_write_unlock_bh(lock)
+ 
+ #define spin_trylock_bh(lock)	__cond_lock(lock, _spin_trylock_bh(lock))
+@@ -247,6 +281,7 @@ ({ \
+ 
+ #define spin_trylock_irqsave(lock, flags) \
+ ({ \
++	BUILD_CHECK_IRQ_FLAGS(flags); \
+ 	local_irq_save(flags); \
+ 	spin_trylock(lock) ? \
+ 	1 : ({ local_irq_restore(flags); 0; }); \
 

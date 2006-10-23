@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWJWA1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWJWAZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWJWA1t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 20:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWJWA1s
+	id S1750954AbWJWAZe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 20:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWJWAZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 20:27:48 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:62041 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1750955AbWJWA1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 20:27:47 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Avi Kivity <avi@qumranet.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine
+	Sun, 22 Oct 2006 20:25:34 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:36430 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1750953AbWJWAZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 20:25:33 -0400
+To: Amit Choudhary <amit2030@yahoo.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Hopefully, kmalloc() will always succeed, but if it doesn't then....
 X-Message-Flag: Warning: May contain useful information
-References: <4537818D.4060204@qumranet.com> <200610221723.48646.arnd@arndb.de>
-	<453B99D7.1050004@qumranet.com> <200610221851.06530.arnd@arndb.de>
-	<1161547168.1919.38.camel@localhost.localdomain>
-	<p7364ecm1cl.fsf@verdi.suse.de>
+References: <20061022230957.78480.qmail@web55615.mail.re4.yahoo.com>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 22 Oct 2006 17:27:45 -0700
-In-Reply-To: <p7364ecm1cl.fsf@verdi.suse.de> (Andi Kleen's message of "23 Oct 2006 00:28:58 +0200")
-Message-ID: <adahcxvj2pq.fsf@cisco.com>
+Date: Sun, 22 Oct 2006 17:25:30 -0700
+In-Reply-To: <20061022230957.78480.qmail@web55615.mail.re4.yahoo.com> (Amit Choudhary's message of "Sun, 22 Oct 2006 16:09:56 -0700 (PDT)")
+Message-ID: <adalkn7j2th.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 Oct 2006 00:27:45.0750 (UTC) FILETIME=[0FA2C760:01C6F63A]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+X-OriginalArrivalTime: 23 Oct 2006 00:25:31.0467 (UTC) FILETIME=[BF98D1B0:01C6F639]
+Authentication-Results: sj-dkim-8.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
 	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Ah you're right. I forgot about the Yonahs. The number is probably
- > not even that small (when Intel ships something x86 they tend to 
- > do it in millions)
+ >         struct mixart_enum_connector_resp *connector;
+ >         struct mixart_audio_info_req  *audio_info_req;
+ >         struct mixart_audio_info_resp *audio_info;
+ > 
+ >         connector = kmalloc(sizeof(*connector), GFP_KERNEL);
+ >         audio_info_req = kmalloc(sizeof(*audio_info_req), GFP_KERNEL);
+ >         audio_info = kmalloc(sizeof(*audio_info), GFP_KERNEL);
+ >         if (! connector || ! audio_info_req || ! audio_info) {
+ >                 err = -ENOMEM;
+ >                 goto __error;
+ >         }
 
-Right, it's quite a mainstream CPU -- for example every current
-Thinkpad has one I think.  And lots of kernel hackers tend to care
-about making things work on a Thinkpad (except for akpm and his
-precious vaio :).
+This is not a bug.  All of the pointers are initialized, and if
+kmalloc() fails, then one of them will be set to NULL.  However,
+kfree(NULL) is a perfectly fine thing to do (kfree just returns
+immediately in this case).
+
+So this is just a way of saving some tests and optimizing for the
+common case when all allocations succeed.  In other words, this is
+good code -- although the spacing is slightly bogus: it should be
+
+        if (!connector || !audio_info_req || !audio_info) {
+
+and also using __error as a label is slightly silly -- why not just
+make it "error"?
 
  - R.

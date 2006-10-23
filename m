@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWJWGiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWJWGlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751605AbWJWGiP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 02:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWJWGiP
+	id S1751604AbWJWGlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 02:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWJWGlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 02:38:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:13007 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751604AbWJWGiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 02:38:14 -0400
+	Mon, 23 Oct 2006 02:41:16 -0400
+Received: from web32403.mail.mud.yahoo.com ([68.142.207.196]:62869 "HELO
+	web32403.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751604AbWJWGlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 02:41:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=RLoKc7c9P7MkA7vF5MaUypcthNnAbrLge0Up5NAbx9HHRTREy6W/ob60HqO72/8RFXBaH9PERlCv/ALMSLQyRzC84DP/yb1FX5SqWWRamP0Uz3rPuxLSC+ZZNEfgpSxYqUZCSXOI8QkP2JiGQ/iXhaWMaysrGa+WDx3uSb+aEiA=
-Message-ID: <84144f020610222338j69a7f58ak859e1d8e4a5b4526@mail.gmail.com>
-Date: Mon, 23 Oct 2006 09:38:12 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Amit Choudhary" <amit2030@gmail.com>
-Subject: Re: [PATCH 2.6.19-rc2] mm/slab.c: check kmalloc() return value.
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <20061022133751.5f1d8281.amit2030@gmail.com>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=X9UG4furSC1JTQfmZR2iN0Fz0QpO7K4bszCc8xnWNCj06qSwnEfz/UBHFcrKJaP3FIi9srLF1e6ksDkaH44MLkh9a7T8ED7SQ3nCsCSxEKHZ4beSvqR6Iy/S1S0F9o3mGMV9nW7m7sSPVd7lNPd89bblLWEQx7eY/D7uYT7tpAU=  ;
+Message-ID: <20061023064114.49794.qmail@web32403.mail.mud.yahoo.com>
+Date: Sun, 22 Oct 2006 23:41:14 -0700 (PDT)
+From: Giridhar Pemmasani <pgiri@yahoo.com>
+Subject: Re: incorrect taint of ndiswrapper
+To: Chase Venters <chase.venters@clientec.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200610230126.10773.chase.venters@clientec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061022133751.5f1d8281.amit2030@gmail.com>
-X-Google-Sender-Auth: e6180d9590a28221
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/22/06, Amit Choudhary <amit2030@gmail.com> wrote:
-> diff --git a/mm/slab.c b/mm/slab.c
-> index 84c631f..613ae61 100644
-> --- a/mm/slab.c
-> +++ b/mm/slab.c
-> @@ -2021,6 +2021,7 @@ static int setup_cpu_cache(struct kmem_c
->         } else {
->                 cachep->array[smp_processor_id()] =
->                         kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
-> +               BUG_ON(!cachep->array[smp_processor_id()]);
->
->                 if (g_cpucache_up == PARTIAL_AC) {
->                         set_up_list3s(cachep, SIZE_L3);
+--- Chase Venters <chase.venters@clientec.com> wrote:
 
-Looks good. You might want to send this to akpm@osdl.org directly.
+> On Monday 23 October 2006 00:40, Giridhar Pemmasani wrote:
+> > It seems that the kernel module loader taints ndiswrapper module as
+> > proprietary, but it is not - it is fully GPL: see
+> > http://directory.fsf.org/sysadmin/hookup/ndiswrapper.html
+> 
+> Indeed. 'ndiswrapper' is intentionally tainted by kernel/module.c because
+> it 
+> is used to load and run unknown binary / proprietary code in kernel-space.
+> If 
+> this unknown binary / proprietary code were to contain a bug (which all
+> code 
+> of that complexity tends to), it might write to memory it doesn't own, or 
+> coerce a device to do so on its behalf, making a kernel crash dump analysis
+> 
+> into a wild goose chase (hence the reason for kernel taint).
+
+Yes, I agree on the purpose of tainting the kernel.
+
+> > Note that when a driver is loaded, ndiswrapper does taint the kernel (to
+> be
+> > more accurate, it should check if the driver being loaded is GPL or not,
+> > but that is not done).
+> 
+> Are you saying ndiswrapper voluntarily calls add_taint() whenever it loads
+> an 
+> NDIS driver?
+
+Exactly - the loader within ndiswrapper taints kernel versions 2.6.10 and
+newer (older kernels don't have a way of tainting the kernel). The code is in
+loader.c in ndiswrapper.
+
+> Are there even any examples of GPL-licensed NDIS drivers?
+
+I don't remember off hand, but sometime back there was discussion on related
+topic of weather ndiswrapper should be in debian-main or not, and someone
+pointed out a GPL ndis driver. (BTW, after much discussion on debian devel
+list, the developers agreed that ndiswrapper belongs in debian-main.)
+
+Giri
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

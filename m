@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWJWDSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWJWDSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWJWDSk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Oct 2006 23:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWJWDSk
+	id S1751308AbWJWDSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Oct 2006 23:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWJWDSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Oct 2006 23:18:40 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:49590 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751306AbWJWDSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Oct 2006 23:18:39 -0400
-Date: Sun, 22 Oct 2006 20:18:24 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: akpm@osdl.org, mbligh@google.com, menage@google.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, holt@sgi.com,
-       dipankar@in.ibm.com, nickpiggin@yahoo.com.au, suresh.b.siddha@intel.com
-Subject: Re: [RFC] cpuset: add interface to isolated cpus
-Message-Id: <20061022201824.267525c9.pj@sgi.com>
-In-Reply-To: <20061020210422.GA29870@in.ibm.com>
-References: <20061019092607.17547.68979.sendpatchset@sam.engr.sgi.com>
-	<20061020210422.GA29870@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Oct 2006 23:18:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59539 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751308AbWJWDSo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Oct 2006 23:18:44 -0400
+Message-ID: <453C3488.2050401@redhat.com>
+Date: Sun, 22 Oct 2006 22:18:32 -0500
+From: Eric Sandeen <esandeen@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Eric Sandeen <sandeen@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] more helpful WARN_ON and BUG_ON messages
+References: <4538F81A.2070007@redhat.com> <45393CBD.8000400@goop.org>
+In-Reply-To: <45393CBD.8000400@goop.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar wrote:
-> IMO this patch addresses just one of the requirements for partitionable
-> sched domains
+Jeremy Fitzhardinge wrote:
 
-Correct - this particular patch was just addressing one of these.
+> This seems like a generally useful idea - certainly more valuable than 
+> storing+printing the function name.
+> 
+> You might want to look at the BUG patches I wrote, which are currently 
+> in -mm.  I added general machinery to allow architectures to easily 
+> implement BUG() efficiently (ie, with a minimal amount of BUG-related 
+> icache pollution).  If you were to store the BUG_ON expression, it would 
+> be best to extend struct bug_entry and store it there - doing it in 
+> asm-generic BUG_ON() means you still end up with code to set up the 
+> printk in the mainline code path, and it also won't honour 
+> CONFIG_DEBUG_BUGVERBOSE being disabled.
 
-Nick raised the reasonable concern that this patch was adding something
-to cpusets that was not especially related to cpusets.
+Thanks, I missed that change... I'll look into it.
 
-So I will not be sending this patch to Andrew for *-mm.
-
-There are further opportunities for improvements in some of this code,
-which my colleague Christoph Lameter may be taking an interest in.
-Ideally kernel-user API's for isolating and partitioning sched domains
-would arise from that work, though I don't know if we can wait that
-long.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Eric

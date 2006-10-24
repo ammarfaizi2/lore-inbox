@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWJXM37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWJXMbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWJXM37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 08:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbWJXM37
+	id S1161029AbWJXMbN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161033AbWJXMbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 08:29:59 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:9418 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161022AbWJXM36 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 08:29:58 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 1/2] x86_64 irq: Simplify the vector allocator.
-Date: Mon, 23 Oct 2006 22:29:05 -0700
-User-Agent: KMail/1.9.1
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, Yinghai Lu <yinghai.lu@amd.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200610212100.k9LL0GtC018787@hera.kernel.org> <20061022085216.GQ5211@rhun.haifa.ibm.com> <m1ods3y7nc.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1ods3y7nc.fsf_-_@ebiederm.dsl.xmission.com>
+	Tue, 24 Oct 2006 08:31:12 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:29668 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161029AbWJXMbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 08:31:10 -0400
+Date: Tue, 24 Oct 2006 14:31:06 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [patch -mm] optional ZONE_DMA for s390
+Message-ID: <20061024123106.GA7118@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610232229.06240.ak@suse.de>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 October 2006 21:32, Eric W. Biederman wrote:
-> There is no reason to remember a per cpu position of which vector
-> to try.  Keeping a global position is simpler and more likely to
-> result in a global vector allocation even if I don't need or require
-> it.  For level triggered interrupts this means we are less likely to
-> acknowledge another cpus irq, and cause the level triggered irq to
-> harmlessly refire.
->
-> This simplification makes it easier to only access data structures
-> of  online cpus, by having fewer special cases to deal with.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Shouldn't this and the following patch be done on i386 too? 
+For non-64BIT systems all memory is DMA capable.
 
--Andi
+Cc: Christoph Lameter <clameter@sgi.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ arch/s390/Kconfig   |    4 ++--
+ arch/s390/mm/init.c |    1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
+Index: linux-2.6.19-rc2-mm2/arch/s390/Kconfig
+===================================================================
+--- linux-2.6.19-rc2-mm2.orig/arch/s390/Kconfig	2006-10-24 14:19:18.000000000 +0200
++++ linux-2.6.19-rc2-mm2/arch/s390/Kconfig	2006-10-24 14:19:40.000000000 +0200
+@@ -8,8 +8,8 @@
+ 	default y
+ 
+ config ZONE_DMA
+-	bool
+-	default y
++	def_bool y
++	depends on 64BIT
+ 
+ config LOCKDEP_SUPPORT
+ 	bool
+Index: linux-2.6.19-rc2-mm2/arch/s390/mm/init.c
+===================================================================
+--- linux-2.6.19-rc2-mm2.orig/arch/s390/mm/init.c	2006-10-24 14:19:32.000000000 +0200
++++ linux-2.6.19-rc2-mm2/arch/s390/mm/init.c	2006-10-24 14:19:52.000000000 +0200
+@@ -106,7 +106,6 @@
+ 	ro_end_pfn = PFN_UP((unsigned long)&__end_rodata);
+ 
+ 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+-	max_zone_pfns[ZONE_DMA] = max_low_pfn;
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+ 	free_area_init_nodes(max_zone_pfns);
+ 

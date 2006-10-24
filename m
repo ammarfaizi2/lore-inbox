@@ -1,64 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWJXJI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWJXJPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbWJXJI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 05:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWJXJI6
+	id S1030217AbWJXJPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 05:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWJXJPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 05:08:58 -0400
-Received: from mx1.suse.de ([195.135.220.2]:23473 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030246AbWJXJI6 (ORCPT
+	Tue, 24 Oct 2006 05:15:10 -0400
+Received: from systemlinux.org ([83.151.29.59]:60641 "EHLO m18s25.vlinux.de")
+	by vger.kernel.org with ESMTP id S965101AbWJXJPJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 05:08:58 -0400
-Date: Tue, 24 Oct 2006 11:08:55 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>,
-       akpm@osdl.org
-Subject: Re: [PATCH -mm] isdn/gigaset: use bitrev8
-Message-ID: <20061024090855.GA32294@pingi.kke.suse.de>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai.germaschewski@gmx.de>,
-	Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>,
-	akpm@osdl.org
-References: <20061024085657.GD7703@localhost>
+	Tue, 24 Oct 2006 05:15:09 -0400
+Date: Tue, 24 Oct 2006 11:14:49 +0200
+From: Andre Noll <maan@systemlinux.org>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
+Subject: Re: ext3: bogus i_mode errors with 2.6.18.1
+Message-ID: <20061024091449.GZ22487@skl-net.de>
+References: <20061023144556.GY22487@skl-net.de> <20061023164416.GM3509@schatzie.adilger.int> <20061023200242.GA5015@schatzie.adilger.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="o/BvujNCPFVhiGON"
 Content-Disposition: inline
-In-Reply-To: <20061024085657.GD7703@localhost>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
+In-Reply-To: <20061023200242.GA5015@schatzie.adilger.int>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 05:56:57PM +0900, Akinobu Mita wrote:
 
-OK from my side.
+--o/BvujNCPFVhiGON
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Use bitrev8 for gigaset isdn driver.
-> 
-> Cc: Karsten Keil <kkeil@suse.de>
+On 14:02, Andreas Dilger wrote:
 
-Acked-by: Karsten Keil <kkeil@suse.de>
+> I found a URL for the 2.4 version of this patch, if some kind soul would
+> update it for 2.6 it might save someone's data in the future.
 
-> Cc: Kai Germaschewski <kai.germaschewski@gmx.de>
-> Cc: Hansjoerg Lipp <hjlipp@web.de>
-> Cc: Tilman Schmidt <tilman@imap.cc>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> 
->  drivers/isdn/gigaset/Kconfig     |    1 +
->  drivers/isdn/gigaset/asyncdata.c |    5 +++--
->  drivers/isdn/gigaset/common.c    |   37 -------------------------------------
->  drivers/isdn/gigaset/gigaset.h   |    4 ----
->  drivers/isdn/gigaset/isocdata.c  |    5 +++--
->  5 files changed, 7 insertions(+), 45 deletions(-)
-> 
-> Index: work-fault-inject/drivers/isdn/gigaset/common.c
-...
+Something like the this? (only compile tested). And no, I do _not_ know,
+what I'm doing ;)
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Thanks
+Andre
+
+
+diff --git a/fs/ext3/balloc.c b/fs/ext3/balloc.c
+index 063d994..da2bd51 100644
+--- a/fs/ext3/balloc.c
++++ b/fs/ext3/balloc.c
+@@ -359,17 +359,6 @@ do_more:
+ 	if (!desc)
+ 		goto error_return;
+=20
+-	if (in_range (le32_to_cpu(desc->bg_block_bitmap), block, count) ||
+-	    in_range (le32_to_cpu(desc->bg_inode_bitmap), block, count) ||
+-	    in_range (block, le32_to_cpu(desc->bg_inode_table),
+-		      sbi->s_itb_per_group) ||
+-	    in_range (block + count - 1, le32_to_cpu(desc->bg_inode_table),
+-		      sbi->s_itb_per_group))
+-		ext3_error (sb, "ext3_free_blocks",
+-			    "Freeing blocks in system zones - "
+-			    "Block =3D "E3FSBLK", count =3D %lu",
+-			    block, count);
+-
+ 	/*
+ 	 * We are about to start releasing blocks in the bitmap,
+ 	 * so we need undo access.
+@@ -392,7 +381,17 @@ do_more:
+=20
+ 	jbd_lock_bh_state(bitmap_bh);
+=20
+-	for (i =3D 0, group_freed =3D 0; i < count; i++) {
++	for (i =3D 0, group_freed =3D 0; i < count; i++, block++) {
++		struct ext3_group_desc *gdp =3D ext3_get_group_desc(sb, i, NULL);
++		if (block =3D=3D le32_to_cpu(gdp->bg_block_bitmap) ||
++			block =3D=3D le32_to_cpu(gdp->bg_inode_bitmap) ||
++			in_range(block, le32_to_cpu(gdp->bg_inode_table),
++				EXT3_SB(sb)->s_itb_per_group)) {
++			ext3_error(sb, __FUNCTION__,
++				"Freeing block in system zone - block =3D %lu",
++				block);
++			continue;
++		}
+ 		/*
+ 		 * An HJ special.  This is expensive...
+ 		 */
+@@ -400,7 +399,7 @@ #ifdef CONFIG_JBD_DEBUG
+ 		jbd_unlock_bh_state(bitmap_bh);
+ 		{
+ 			struct buffer_head *debug_bh;
+-			debug_bh =3D sb_find_get_block(sb, block + i);
++			debug_bh =3D sb_find_get_block(sb, block);
+ 			if (debug_bh) {
+ 				BUFFER_TRACE(debug_bh, "Deleted!");
+ 				if (!bh2jh(bitmap_bh)->b_committed_data)
+@@ -452,7 +451,7 @@ #endif
+ 			jbd_unlock_bh_state(bitmap_bh);
+ 			ext3_error(sb, __FUNCTION__,
+ 				"bit already cleared for block "E3FSBLK,
+-				 block + i);
++				block);
+ 			jbd_lock_bh_state(bitmap_bh);
+ 			BUFFER_TRACE(bitmap_bh, "bit already cleared");
+ 		} else {
+@@ -479,7 +478,6 @@ #endif
+ 	*pdquot_freed_blocks +=3D group_freed;
+=20
+ 	if (overflow && !err) {
+-		block +=3D count;
+ 		count =3D overflow;
+ 		goto do_more;
+ 	}
+@@ -1260,7 +1258,7 @@ #endif
+ 		*errp =3D -ENOSPC;
+ 		goto out;
+ 	}
+-
++repeat:
+ 	/*
+ 	 * First, test whether the goal block is free.
+ 	 */
+@@ -1372,12 +1370,24 @@ allocated:
+ 	    in_range(ret_block, le32_to_cpu(gdp->bg_inode_table),
+ 		      EXT3_SB(sb)->s_itb_per_group) ||
+ 	    in_range(ret_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
+-		      EXT3_SB(sb)->s_itb_per_group))
+-		ext3_error(sb, "ext3_new_block",
++		      EXT3_SB(sb)->s_itb_per_group)) {
++		int j;
++		ext3_error(sb, __FUNCTION__,
+ 			    "Allocating block in system zone - "
+ 			    "blocks from "E3FSBLK", length %lu",
+ 			     ret_block, num);
+-
++		/* Note: This will potentially use up one of the handle's
++		 * buffer credits.  Normally we have way too many credits,
++		 * so that is OK.  In _very_ rare cases it might not be OK.
++		 * We will trigger an assertion if we run out of credits,
++		 * and we will have to do a full fsck of the filesystem -
++		 * better than randomly corrupting filesystem metadata.
++		 */
++		j =3D find_next_usable_block(-1, gdp, EXT3_BLOCKS_PER_GROUP(sb));
++		if (j >=3D 0)
++			ext3_set_bit(j, gdp_bh->b_data);
++		goto repeat;
++	}
+ 	performed_allocation =3D 1;
+=20
+ #ifdef CONFIG_JBD_DEBUG
+--=20
+The only person who always got his work done by Friday was Robinson Crusoe
+
+--o/BvujNCPFVhiGON
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFPdmJWto1QDEAkw8RAvzzAJkB9TdRRg7VPrm/F0cm3Zq3Y9Qg5wCfU20S
+KHGvyUh48aymT8sTvS/4wH0=
+=Jlp3
+-----END PGP SIGNATURE-----
+
+--o/BvujNCPFVhiGON--

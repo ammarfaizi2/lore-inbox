@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965207AbWJXVYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161216AbWJXV06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965207AbWJXVYw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWJXVYw
+	id S1161216AbWJXV06 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbWJXV06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:24:52 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57528 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965205AbWJXVYv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:24:51 -0400
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       John Partridge <johnip@sgi.com>
-In-Reply-To: <adafyddcysw.fsf@cisco.com>
-References: <adafyddcysw.fsf@cisco.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Oct 2006 22:24:23 +0100
-Message-Id: <1161725063.22348.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 24 Oct 2006 17:26:58 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26788 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965208AbWJXV05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:26:57 -0400
+Date: Tue, 24 Oct 2006 23:26:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       David Chinner <dgc@sgi.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061024212648.GB5662@elf.ucw.cz>
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024170633.GA17956@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024170633.GA17956@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-10-24 am 12:13 -0700, ysgrifennodd Roland Dreier:
->  1) Is this something that should be fixed in the driver?  The PCI
->     spec allows MMIO cycles to start before an earlier config cycle
->     completed, but do we want to expose this fact to drivers?  Would
->     it be better for ia64 to use some sort of barrier to make sure
->     pci_write_config_xxx() is strongly ordered with MMIO?
+Hi!
 
-It is good to be conservative in this area. Some AMD chipsets at least
-had ordering problems with some configurations in the K7 era.
+On Tue 2006-10-24 18:06:33, Christoph Hellwig wrote:
+> On Tue, Oct 24, 2006 at 05:29:59PM +0200, Rafael J. Wysocki wrote:
+> > Do you mean calling sys_sync() after the userspace has been frozen
+> > may not be sufficient?
+> 
+> No, that's definitly not enough.  You need to freeze_bdev to make sure
+> data is on disk in the place it's expected by the filesystem without
+> starting a log recovery.
 
+I believe log recovery is okay in this case.
 
+It can only happen when kernel dies during suspend or during
+resume... And log recovery seems okay in that case. We even guarantee
+that user did not loose any data -- by using sys_sync() after userland
+is stopped -- but let's not overdo over protections.
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

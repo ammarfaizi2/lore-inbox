@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWJXVnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWJXVpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbWJXVnk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWJXVnk
+	id S1422642AbWJXVpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWJXVpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:43:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55760 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161247AbWJXVnj (ORCPT
+	Tue, 24 Oct 2006 17:45:12 -0400
+Received: from webserve.ca ([69.90.47.180]:15061 "EHLO computersmith.org")
+	by vger.kernel.org with ESMTP id S1161252AbWJXVpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:43:39 -0400
-Date: Tue, 24 Oct 2006 23:43:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       David Chinner <dgc@sgi.com>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061024214322.GA5652@elf.ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024170633.GA17956@infradead.org> <20061024212648.GB5662@elf.ucw.cz> <20061024213342.GA22552@infradead.org>
+	Tue, 24 Oct 2006 17:45:11 -0400
+Message-ID: <453E8921.2090406@wintersgift.com>
+Date: Tue, 24 Oct 2006 14:44:01 -0700
+From: teunis <teunis@wintersgift.com>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061024213342.GA22552@infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc3: known unfixed regressions: confirmations
+References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org> <20061024202104.GF27968@stusta.de>
+In-Reply-To: <20061024202104.GF27968@stusta.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue 2006-10-24 22:33:42, Christoph Hellwig wrote:
-> On Tue, Oct 24, 2006 at 11:26:48PM +0200, Pavel Machek wrote:
-> > > No, that's definitly not enough.  You need to freeze_bdev to make sure
-> > > data is on disk in the place it's expected by the filesystem without
-> > > starting a log recovery.
-> > 
-> > I believe log recovery is okay in this case.
-> > 
-> > It can only happen when kernel dies during suspend or during
-> > resume... And log recovery seems okay in that case. We even guarantee
-> > that user did not loose any data -- by using sys_sync() after userland
-> > is stopped -- but let's not overdo over protections.
-> 
-> You're still entirely missing the problem.
-> 
-> Take a look at http://www.opengroup.org/onlinepubs/007908799/xsh/sync.html
-> and the linux sync(2) manpage.  The only thing sync guarantees is writing
-> out all in-memory data to disk.  It doesn't even gurantee completion,
-> although we've been synchronous in Linux for a while.
+Adrian Bunk wrote:
+> This email lists some known unfixed regressions in 2.6.19-rc3 compared 
+> to 2.6.18.
+...
 
-Ok, I assume sys_sync is synchronous, but that's okay.
+I'm not directly testing -rc3 as yet...  rc2-mm2 + a few modifications
+works on the equipment I'm testing and as I can't afford more lost time
+due to faults - I'm keeping to that build for the short term.
 
-> What it does not gurantee is where on disk the data is located.  Now for
-> a journaling filesystem pushing everything to the log is the easiest way
-> to complete sync, and it's perfectly valid - if the system crashes after
-> the sync and before data is written back to it's normal place on disk
-> the system notices it's not been unmounted cleanly and will do a log
-> recovery.  In the suspend case however the system neither crashes nor
-> is unmounted - thus the filesystem doesn't know it has to recover the
-> log.  We have to choices to fix this:
-> 
->  (1) force a log recovery of an already mounted and in use filesystem
->  (2) make sure data is in the right place before suspending
-> 
-> (1) is pretty nasty, and hard to do across filesystems.  (2) is already
-> implemented and easily useable by the suspend code.
+> Subject    : shutdown problem
+> References : http://lkml.org/lkml/2006/10/22/140
+> Submitter  : art@usfltd.com
+>              teunis@wintersgift.com
+>              Jiri Slaby <jirislaby@gmail.com>
+> Status     : unknown
 
-No, there's no need to do either (1) or (2) in "machine suspended and
-resumed successfully". In that case, machine just continues as if no
-suspend has happened.
+repaired by Jeff Dike's patch to fs/proc/array.c
 
-In fact I could remove sys_sync() from freezer. suspend code would
-still be correct.
 
-That sys_sync() only matters in case of suspend but machine died
-during resume... and in that case we know we crashed, and journal
-recovery is okay.
+VFAT failure: inode.c patch worked.   Has this been fixed in -rc3?
+(email I've reviewed implies no)
 
-I do know how journaling works (from 10000feet, anyway), and it is
-okay in this case.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+HP nx6110 and nx6310 (i945G chipsets) - ACPI S3 and S4 (is that right?)
+now fully operational.  speedstep not yet operational on nx6310 (Yonah).
+
+synaptic driver: does not recover in S3 mode on nx7400 () or Acer
+TravelMate 8000 (Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
+USB UHCI)
+Suspect USB host problem as synaptic driver DOES recover on nx6130.
+This IS a regression as these worked fine in kernels where S3 formerly
+worked.    Video does not yet fully recover on nx7400 - but it never has
+so that's not a regression  (backlight fails to recover).
+
+Any idea when Yonah (family 6/model 14/stepping 8) will be supported by
+either speedstep, P4 or ACPI driver?   NONE of these work.  P4 did work
+briefly (-rc1-git4 and -rc1-git6) but I'm not sure that it's optimal.
+acpi-cpufreq hasn't loaded since 2.6.18  (which didn't work properly
+with other parts of the laptops so went with 2.6.19 rc series).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFPokhbFT/SAfwLKMRAgFrAKCS/3jAVs12uk2LWhAcN/vFZe7nvACfeLr2
+EJOWO0HZ4hVk3UXZoxe4BbQ=
+=wO+m
+-----END PGP SIGNATURE-----

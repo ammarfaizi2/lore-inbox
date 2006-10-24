@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWJXTxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWJXT6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161123AbWJXTxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 15:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWJXTxg
+	id S1161119AbWJXT6b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 15:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161211AbWJXT6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 15:53:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62356 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161116AbWJXTxf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 15:53:35 -0400
-Subject: Re: [PATCH 2/3] spufs: fix another off-by-one bug in mbox_read
-From: Will Schmidt <will_schmidt@vnet.ibm.com>
-Reply-To: will_schmidt@vnet.ibm.com
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linuxppc-dev@ozlabs.org,
-       Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200610242107.44115.arnd@arndb.de>
-References: <20061024160140.452484000@arndb.de>
-	 <20061024160406.923275000@arndb.de>
-	 <84144f020610241142y2c86485dj898f555174803577@mail.gmail.com>
-	 <200610242107.44115.arnd@arndb.de>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 24 Oct 2006 14:53:22 -0500
-Message-Id: <1161719603.8946.84.camel@farscape>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 15:58:31 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30222 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161119AbWJXT6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 15:58:31 -0400
+Date: Tue, 24 Oct 2006 21:58:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Prakash Punnoor <prakash@punnoor.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
+Message-ID: <20061024195829.GE27968@stusta.de>
+References: <Pine.LNX.4.64.0610130941550.3952@g5.osdl.org> <20061022122355.GC3502@stusta.de> <200610241927.48374.prakash@punnoor.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610241927.48374.prakash@punnoor.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-24-10 at 21:07 +0200, Arnd Bergmann wrote:
-> On Tuesday 24 October 2006 20:42, Pekka Enberg wrote:
-> > On 10/24/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> > >         spu_acquire(ctx);
-> > > -       for (count = 0; count <= len; count += 4, udata++) {
-> > > +       for (count = 0; (count + 4) <= len; count += 4, udata++) {
-> >
-> > Wouldn't this be more obvious as
-> >
-> >   for (count = 0, count < (len / 4); count++, udata++) {
-> >
-> > And then do count * 4 if you need the actual index somewhere. Hmm?
+On Tue, Oct 24, 2006 at 07:27:48PM +0200, Prakash Punnoor wrote:
+> Am Sonntag 22 Oktober 2006 14:23 schrieben Sie:
+> > Subject    : snd-hda-intel <-> forcedeth MSI problem
+> > References : http://lkml.org/lkml/2006/10/5/40
+> >              http://lkml.org/lkml/2006/10/7/164
+> > Submitter  : Prakash Punnoor <prakash@punnoor.de>
+> > Status     : patches are being discussed
 > 
-> Count is the return value from a write() file operation. I find it
-> more readable to update that every time I do one put_user(), to
-> the exact value, than calculating the return code later.
+> 2.6.19-rc3 contains a work-around. Case closed. :-)
 
-Hey Arnd, 
-   just curiosity..   What was the behavior before this patch?   just
-leaving a few (0 - 3) characters behind?
+Thanks for the confirmation.
 
+cu
+Adrian
 
-> 
-> 	Arnd <>< 
-> _______________________________________________
-> Linuxppc-dev mailing list
-> Linuxppc-dev@ozlabs.org
-> https://ozlabs.org/mailman/listinfo/linuxppc-dev
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

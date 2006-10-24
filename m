@@ -1,88 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWJXLU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWJXL1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbWJXLU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 07:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWJXLU7
+	id S1030317AbWJXL1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 07:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWJXL1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 07:20:59 -0400
-Received: from alpha.ccii.co.za ([196.30.62.4]:40418 "HELO alpha.ccii.co.za")
-	by vger.kernel.org with SMTP id S1030309AbWJXLU7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 07:20:59 -0400
-Message-Id: <5.0.0.25.2.20061024131939.05e4de70@alpha.ccii.co.za>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Tue, 24 Oct 2006 13:19:59 +0200
-To: linux-kernel@vger.kernel.org
-From: Wouter de Waal <wrm@ccii.co.za>
-Subject: FDDI on Linux kernel 2.6
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed; x-avg-checked=avg-ok-460531B1
+	Tue, 24 Oct 2006 07:27:20 -0400
+Received: from mail.phnxsoft.com ([195.227.45.4]:36356 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S1030317AbWJXL1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 07:27:19 -0400
+Message-ID: <453DF87F.8010009@imap.cc>
+Date: Tue, 24 Oct 2006 13:26:55 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
+       Karsten Keil <kkeil@suse.de>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>,
+       Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>,
+       akpm@osdl.org
+Subject: Re: [PATCH -mm] isdn/gigaset: use bitrev8
+References: <20061024085657.GD7703@localhost>
+In-Reply-To: <20061024085657.GD7703@localhost>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA7B5A7B1667D87ABE3FC6059"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006-10-24
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA7B5A7B1667D87ABE3FC6059
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Hi
+On Tue, 24 Oct 2006 17:56:57 +0900, Akinobu Mita wrote:
+> Use bitrev8 for gigaset isdn driver.
 
-We here at CCII Systems are probably the only company in the world still
-actively involved with FDDI. The Linux Syskonnect FDDI driver needs a
-patch. I have no idea who to speak to, but the guys over at osdl said I
-must ask here.
+Great. Thanks.
 
-We recently had two separate customers ask us why the FDDI driver in
-the Linux kernel version 2.6.x does not work properly.
+> Cc: Karsten Keil <kkeil@suse.de>
+> Cc: Kai Germaschewski <kai.germaschewski@gmx.de>
+> Cc: Hansjoerg Lipp <hjlipp@web.de>
+> Cc: Tilman Schmidt <tilman@imap.cc>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-The first customer eventually found that the driver does not work when
-the kernel is configured to use 64 bit memory addressing. This would
-obviously have to do with the pointer sizes used by the driver structure.
+Acked-by: Tilman Schmidt <tilman@imap.cc>
+Acked-by: Hansjoerg Lipp <hjlipp@web.de>
 
-They did not need 64 bit addressing, and solved their problem by
-reconfiguring their kernel for 32 bit addressing.
+>  drivers/isdn/gigaset/Kconfig     |    1 +
+>  drivers/isdn/gigaset/asyncdata.c |    5 +++--
+>  drivers/isdn/gigaset/common.c    |   37 ------------------------------=
+-------
+>  drivers/isdn/gigaset/gigaset.h   |    4 ----
+>  drivers/isdn/gigaset/isocdata.c  |    5 +++--
+>  5 files changed, 7 insertions(+), 45 deletions(-)
 
-Is it possible to configure things so that this issue is highlighted
-when the kernel is built?
-
-The second customer's problem could not be solved by the above. They
-eventually found that kernel 2.6 (specifically, 2.6.8) uses memory
-mapping, and that a check in the driver caused an exception because
-of the length of the PCI region being 2048 and not 16384 (0x4000).
+--=20
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
 
->//2.6.8 version from skfddi.c
->
->#ifdef MEM_MAPPED_IO
->
->if (!(pci_resource_flags(pdev, 0) & IORESOURCE_MEM)) {
->   printk(KERN_ERR "skfp: region is not an MMIO resource\n");
->   err = -EIO;
->   goto err_out1;
->}
->
->port = pci_resource_start(pdev, 0);
->len = pci_resource_len(pdev, 0);
->if (len < 0x4000) {
->   printk(KERN_ERR "skfp: Invalid PCI region size: %lu\n", len);
->   err = -EIO;
->   goto err_out1;
->}
->
->#else
+--------------enigA7B5A7B1667D87ABE3FC6059
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-The customer reports that changing the compare to
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
->if (len < 2048) {
+iD4DBQFFPfh/MdB4Whm86/kRAllvAJ9K8pL1jZQw1wWGa0QPJvvh2gZlxACVHF8K
+mM4Y6kdeo+qazp5iQRKvDg==
+=82XI
+-----END PGP SIGNATURE-----
 
-fixed the problem for them.
-
-Can this patch be applied to the kernel please?
-
-Regards
-
-Wouter
-
--- 
-
-Wouter de Waal                              Cell  : +27 82 893 8042
-Development Manager - Board-Level Products  Phone : +27 21 683 5490
-CCII Systems, Kenilworth, South Africa      Fax   : +27 21 683 5435
-
+--------------enigA7B5A7B1667D87ABE3FC6059--

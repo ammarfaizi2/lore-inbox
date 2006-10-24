@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752070AbWJXFp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752074AbWJXFta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752070AbWJXFp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 01:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752071AbWJXFp0
+	id S1752074AbWJXFta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 01:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWJXFta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 01:45:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27885 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1752070AbWJXFpZ (ORCPT
+	Tue, 24 Oct 2006 01:49:30 -0400
+Received: from DENETHOR.UNI-MUENSTER.DE ([128.176.180.180]:32990 "EHLO
+	denethor.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S1752074AbWJXFt3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 01:45:25 -0400
-Subject: Re: Battery class driver.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       David Zeuthen <davidz@redhat.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       olpc-dev@laptop.org, greg@kroah.com, len.brown@intel.com,
-       sfr@canb.auug.org.au
-In-Reply-To: <20061024035346.GA24538@srcf.ucam.org>
-References: <1161627633.19446.387.camel@pmac.infradead.org>
-	 <1161641703.2597.115.camel@zelda.fubar.dk>
-	 <41840b750610231956ib1c7204tafb23ecd76f5d9d2@mail.gmail.com>
-	 <20061024032704.GA24320@srcf.ucam.org>
-	 <1161661707.10524.547.camel@localhost.localdomain>
-	 <20061024035346.GA24538@srcf.ucam.org>
-Content-Type: text/plain
-Date: Tue, 24 Oct 2006 15:43:42 +1000
-Message-Id: <1161668623.10524.579.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 01:49:29 -0400
+Date: Tue, 24 Oct 2006 07:49:09 +0200
+From: Borislav Petkov <petkov@math.uni-muenster.de>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, info-linux@geode.amd.com
+Subject: Re: [PATCH] do not compile AMD Geode's hwcrypto driver as a module per default
+Message-ID: <20061024054909.GB6694@gollum.tnic>
+Reply-To: petkov@math.uni-muenster.de
+References: <20061021081745.GA6193@zmei.tnic> <1161602705.19388.22.camel@localhost.localdomain> <200610232221.14265.mb@bu3sch.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200610232221.14265.mb@bu3sch.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-24 at 04:53 +0100, Matthew Garrett wrote:
-> On Tue, Oct 24, 2006 at 01:48:27PM +1000, Benjamin Herrenschmidt wrote:
-> > On Tue, 2006-10-24 at 04:27 +0100, Matthew Garrett wrote:
+On Mon, Oct 23, 2006 at 10:21:14PM +0200, Michael Buesch wrote:
+> On Monday 23 October 2006 13:25, Alan Cox wrote:
+> > Ar Sad, 2006-10-21 am 10:17 +0200, ysgrifennodd Borislav Petkov:
+> > > This one should be probably made dependent on some #define saying that the cpu
+> > > is an AMD and has the LX Geode crypto hardware built in. Turn it off for now.
+> > 
+> > That makes no real sense. Most kernel selections are "run on lots of
+> > processor types", we thus want as much as possible modular, built and
+> > available.
+> > 
+> > The existing defaults seem quite sane.
 > 
-> > > Reading the battery status has the potential to call an SMI that might 
-> > > take an arbitrary period of time to return, and we found that having 
-> > > querying at around the 1 second mark tended to result in noticable 
-> > > system performace degredation.
-> 
-> > I think it's up to the backend to poll more slowly and cache the results
-> > on those machines then.
-> 
-> The kernel backend or the userspace backend? We need to decide on 
-> terminology :) 
+> I can only second that.
+> Building it as a module does not hurt, except few k disk space.
+> But that does not really hurt, given today's disk sizes. ;)
+> And if you have a small disk, you can still disable it.
 
-The kernel. Userspace don't have to know the details of how hard it is
-for the backend to fetch the data imho.
+I get that, but my concern was primarily with the increasing build durations of
+the kernel whenever new modules get added in and people want them to be built on
+as many systems as possible so as to catch as more bugs as possible. But since
+we _want_ that, diskspace is not an issue. 
 
-> There's no good programmatic way of determining how long 
-> a query will take other than doing it and looking at the result. I guess 
-> we could do that at boot time.
+However, it still does not help that much since I can only test-build the module 
+but not test-use it for I don't have the hardware.
 
-Ben.
-
-
+-- 
+Regards/Gruﬂ,
+    Boris.

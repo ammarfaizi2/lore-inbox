@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422764AbWJXWxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422794AbWJXXAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422764AbWJXWxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWJXWxk
+	id S1422794AbWJXXAR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 19:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWJXXAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:53:40 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:47492 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1422764AbWJXWxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:53:39 -0400
-Date: Tue, 24 Oct 2006 18:52:22 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: Andi Kleen <ak@muc.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Muli Ben-Yehuda <muli@il.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64 irq: reset more to default when clear irq_vector for destroy_irq
-Message-ID: <20061024225222.GA7241@filer.fsl.cs.sunysb.edu>
-References: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+	Tue, 24 Oct 2006 19:00:17 -0400
+Received: from quartz.orcorp.ca ([142.179.161.236]:3802 "EHLO quartz.orcorp.ca")
+	by vger.kernel.org with ESMTP id S1422778AbWJXXAP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 19:00:15 -0400
+Date: Tue, 24 Oct 2006 16:59:35 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-ia64@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [openib-general] Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061024225935.GK4054@obsidianresearch.com>
+References: <adafyddcysw.fsf@cisco.com> <20061024192210.GE2043@havoc.gtf.org> <20061024214724.GS25210@parisc-linux.org> <adar6wxbcwt.fsf@cisco.com> <20061024223631.GT25210@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061024223631.GT25210@parisc-linux.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 02:33:08PM -0700, Lu, Yinghai wrote:
->  
-> Clear the irq releated entries in irq_vector, irq_domain and vector_irq 
-> instead of clearing irq_vector only. So when new irq is created, it 
-> could get that vector.
-> 
-> Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
-> 
-> --- linux-2.6/arch/x86_64/kernel/io_apic.c	2006-10-24
-> 13:40:48.000000000 -0700
-> +++ linux-2.6.xx/arch/x86_64/kernel/io_apic.c	2006-10-24
-> 14:03:08.000000000 -0700
-> @@ -716,6 +716,22 @@
+On Tue, Oct 24, 2006 at 04:36:32PM -0600, Matthew Wilcox wrote:
+> On Tue, Oct 24, 2006 at 02:51:30PM -0700, Roland Dreier wrote:
+> >  > I think the right way to fix this is to ensure mmio write ordering in
+> >  > the pci_write_config_*() implementations.  Like this.
+> > 
+> > I'm happy to fix this in the PCI core and not force drivers to worry
+> > about this.
+> > 
+> > John, can you confirm that this patch fixes the issue for you?
+ 
+> Hang on.  I wasn't thinking clearly.  mmiowb() only ensures the write
+> has got as far as the shub.  There's no way to fix this in the pci core
 
-Your patch got mangled up.
+What about shifting the requirement down to the platform? Ie on ia64
+it would seem that inb/outb already solve this problem via mf.a.
 
-Josef "Jeff" Sipek.
+All platforms that support inb/outb correctly must have a
+synchronizing primitive for outb..
 
--- 
-Linux, n.:
-  Generous programmers from around the world all join forces to help
-  you shoot yourself in the foot for free. 
+> This is only really a problem for setup (when we program the BARs), so
+> it seems silly to enforce an ordering at any other time.  Reluctantly, I
+> must disagree with Jeff -- drivers need to fix this.
+
+I'm not sure that can work either. The PCI-X spec is very clear, you
+must wait for a non-posted completion if you care about order. Doing a
+config read in the driver as a surrogate flush is not good enough in
+the general case. Like you say, a pci bridge is free to reorder all
+in flight non-posted operations.
+
+Jason

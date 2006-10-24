@@ -1,100 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWJXCYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWJXCp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWJXCYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 22:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWJXCYz
+	id S1030197AbWJXCp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 22:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWJXCp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 22:24:55 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:40622 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965042AbWJXCYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 22:24:54 -0400
-Subject: oprofile can cause an NMI to schedule (was: [RT] scheduling and
-	oprofile)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, phil.el@wanadoo.fr,
-       oprofile-list@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20061023212307.GA21498@monkey.beaverton.ibm.com>
-References: <20061023212307.GA21498@monkey.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 23 Oct 2006 22:24:34 -0400
-Message-Id: <1161656674.13276.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Mon, 23 Oct 2006 22:45:58 -0400
+Received: from mx7.mail.ru ([194.67.23.27]:12314 "EHLO mx7.mail.ru")
+	by vger.kernel.org with ESMTP id S1030197AbWJXCp5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 22:45:57 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Ordering hotplug scripts vs. udev device node creation
+Date: Tue, 24 Oct 2006 06:45:38 +0400
+User-Agent: KMail/1.9.5
+Cc: "Aaron Cohen" <aaron@assonance.org>, linux-kernel@vger.kernel.org
+References: <727e50150610231226p42b95cc4j686b31332c1d1c6e@mail.gmail.com>
+In-Reply-To: <727e50150610231226p42b95cc4j686b31332c1d1c6e@mail.gmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610240645.44542.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-23 at 14:23 -0700, Mike Kravetz wrote:
-> I've been trying to use oprofile on an RT kernel to look at some
-> performance issues.  While running I notice the following sent to
-> the console:
-> 
-> BUG: scheduling with irqs disabled: java/0x00000000/4521
-> caller is rt_mutex_slowlock+0x156/0x1dd
->  [<c032051a>] schedule+0x65/0xd2 (8)
->  [<c0321338>] rt_mutex_slowlock+0x156/0x1dd (12)
->  [<c032142a>] rt_mutex_lock+0x24/0x28 (72)
->  [<c0134904>] rt_down_read+0x38/0x3b (20)
->  [<c0322a89>] do_page_fault+0xe3/0x52d (12)
->  [<c03229a6>] do_page_fault+0x0/0x52d (76)
->  [<c01033bb>] error_code+0x4f/0x54 (8)
->  [<c01ce6d0>] __copy_from_user_ll+0x55/0x7c (44)
->  [<f89be7ef>] dump_user_backtrace+0x2e/0x56 [oprofile] (24)
->  [<c0134869>] rt_up_read+0x3e/0x41 (20)
->  [<f89be864>] x86_backtrace+0x4a/0x5a [oprofile] (20)
->  [<f89bd53a>] oprofile_add_sample+0x73/0x89 [oprofile] (20)
->  [<f89beea3>] athlon_check_ctrs+0x22/0x4a [oprofile] (32)
->  [<f89be8c5>] nmi_callback+0x18/0x1b [oprofile] (28)
->  [<c01041ff>] do_nmi+0x24/0x33 (12)
->  [<c0103462>] nmi_stack_correct+0x1d/0x22 (16)
-> 
-> It seems strange to me that oprofile would be calling
-> '__copy_from_user_ll' in this context.  I can see why the
-> changes made for RT locking expose this.  But, doesn't this
-> issue also exist on non-RT (default) kernels?  What happens
-> when we generate a page fault in this context on non-RT kernels?
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-As Mike has pointed out here, oprofile _can_ cause the nmi to schedule.
-Here's the path: (looking at vanilla 2.6.18).
+On Monday 23 October 2006 23:26, Aaron Cohen wrote:
+> Adding a USB device seems to work correctly (more or less, my script
+> is invoked a few too many times but I think I can figure out how to
+> adjust my rule) using this.  I'm having trouble now with removal
+> though.  By the time my script runs the device file has been removed
+> by udev and I can't look it up through udevinfo any longer.  I need to
+> know what the name of the device file was so I can tell gpsd to stop
+> monitoring it.
+>
+> Any ideas?
 
-arch/i386/oprofile/nmi_int.c: nmi_callback
+udev sets DEVNAME and DEVLINKS environment before calling RUN program. You can 
+either pass them directly like
 
-	return model->check_ctrs(regs, &cpu_msrs[cpu]);
+RUN+="/your/program env{DEVNAME} env{DEVLINKS}"
 
-if model == &op_athlon_spec
- (could be a problem with others, but I'm only looking here).
-   
-op_athlon_spec.check_ctrs =  &athlon_check_ctrs
+or your program can get them from environment. It unfortunately seems to be 
+not documented.
 
+HTH
 
-Here's the calling path:
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-  athlon_check_ctrs
-
-   ==> oprofile_add_sample
-
-   ==> oprofile_add_ext_sample
-
-   ==> oprofile_ops.backtrace
-           == x86_backtrace
-
-   ==> dump_user_backtrace
-
-   ==> __copy_from_user_inatomic
-
-   Don't let the name fool you, this _can_ schedule! (and says so in the
-comments above it).
-
-Now perhaps on a vanilla kernel opfile_add_ext_sample is not likely to
-have log_sample fail. I don't know, but this path exits, so we can
-indeed schedule in a NMI interrupt.
-
-Mike, thanks for pointing this out.
-
--- Steve
-
-
-
+iD8DBQFFPX5YR6LMutpd94wRAsDrAJ92kOTrofNo3kg/5xW0C6bzm5TlDACg0/NG
+K4R+tBQzCHJSN+XW5WBPghE=
+=ZIet
+-----END PGP SIGNATURE-----

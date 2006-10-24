@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161289AbWJXWa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422758AbWJXWge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161289AbWJXWa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWJXWa2
+	id S1422758AbWJXWge (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422760AbWJXWge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:30:28 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4268 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161289AbWJXWa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:30:27 -0400
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061024221950.GB5851@elf.ucw.cz>
-References: <1161576857.3466.9.camel@nigel.suspend2.net>
-	 <200610242208.34426.rjw@sisk.pl> <20061024213402.GC5662@elf.ucw.cz>
-	 <1161728153.22729.22.camel@nigel.suspend2.net>
-	 <20061024221950.GB5851@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 08:30:27 +1000
-Message-Id: <1161729027.22729.37.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 18:36:34 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:61162 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1422758AbWJXWgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:36:33 -0400
+Date: Tue, 24 Oct 2006 16:36:32 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, John Partridge <johnip@sgi.com>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061024223631.GT25210@parisc-linux.org>
+References: <adafyddcysw.fsf@cisco.com> <20061024192210.GE2043@havoc.gtf.org> <20061024214724.GS25210@parisc-linux.org> <adar6wxbcwt.fsf@cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <adar6wxbcwt.fsf@cisco.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2006-10-25 at 00:19 +0200, Pavel Machek wrote:
-> Hi!
+On Tue, Oct 24, 2006 at 02:51:30PM -0700, Roland Dreier wrote:
+>  > I think the right way to fix this is to ensure mmio write ordering in
+>  > the pci_write_config_*() implementations.  Like this.
 > 
-> > > > > Switch from bitmaps to using extents to record what swap is allocated;
-> > > > > they make more efficient use of memory, particularly where the allocated
-> > > > > storage is small and the swap space is large.
-> > > > 
-> > > > As I said before, I like the overall idea, but I have a bunch of
-> > > > comments.
-> > > 
-> > > Okay, if Rafael likes it... lets take a look.
-> > > 
-> > > First... what is the _worst case_ overhead? AFAICT extents are very
-> > > good at the best case, but tend to suck for the worst case...?
-> > 
-> > That's right. In using this, we're relying on the fact that the swap
-> > allocator tries to act sensibly. I've only seen worse case performance
-> > when a user had two swap devices with the same priority (striped), but
-> > that was a bug. :)
+> I'm happy to fix this in the PCI core and not force drivers to worry
+> about this.
 > 
-> Ok, but if the allocator somehow manages to stripe between two swap
-> devices, what happens?
-> 
-> IIRC original code was something like .1% overhead (8bytes per 4K, or
-> something?), bitmaps should be even better. If it is 1% in worst case,
-> that's probably okay, but it would be bad if it had overhead bigger
-> than 10times original code (worst case).
+> John, can you confirm that this patch fixes the issue for you?
 
-With the code I have in Suspend2 (which is what I'm working towards),
-the value includes the swap_type, so there's no overlap. Assuming the
-swap allocator does it's normal thing and swap allocated is contiguous,
-you'll probably end up with two extents: one containing the swap
-allocated on the first device, and the other containing the swap
-allocated on the second device. So (with the current version), striping
-would use 6 * sizeof(unsigned long) instead of 3 * sizeof(unsigned
-long).
+Hang on.  I wasn't thinking clearly.  mmiowb() only ensures the write
+has got as far as the shub.  There's no way to fix this in the pci core
+-- any PCI-PCI bridge can reorder the two.
 
-Regards,
-
-Nigel
-
+This is only really a problem for setup (when we program the BARs), so
+it seems silly to enforce an ordering at any other time.  Reluctantly, I
+must disagree with Jeff -- drivers need to fix this.

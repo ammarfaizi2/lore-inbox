@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWJXEsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752070AbWJXFp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751998AbWJXEsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 00:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWJXEsA
+	id S1752070AbWJXFp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 01:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752071AbWJXFp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 00:48:00 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:53409 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751998AbWJXEr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 00:47:59 -0400
-Date: Mon, 23 Oct 2006 21:43:30 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: bcasavan@sgi.com, akpm <akpm@osdl.org>
-Subject: [PATCH] ioc4: fix printk format warning
-Message-Id: <20061023214330.04657b3c.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 24 Oct 2006 01:45:26 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27885 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1752070AbWJXFpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 01:45:25 -0400
+Subject: Re: Battery class driver.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       David Zeuthen <davidz@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       olpc-dev@laptop.org, greg@kroah.com, len.brown@intel.com,
+       sfr@canb.auug.org.au
+In-Reply-To: <20061024035346.GA24538@srcf.ucam.org>
+References: <1161627633.19446.387.camel@pmac.infradead.org>
+	 <1161641703.2597.115.camel@zelda.fubar.dk>
+	 <41840b750610231956ib1c7204tafb23ecd76f5d9d2@mail.gmail.com>
+	 <20061024032704.GA24320@srcf.ucam.org>
+	 <1161661707.10524.547.camel@localhost.localdomain>
+	 <20061024035346.GA24538@srcf.ucam.org>
+Content-Type: text/plain
+Date: Tue, 24 Oct 2006 15:43:42 +1000
+Message-Id: <1161668623.10524.579.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Tue, 2006-10-24 at 04:53 +0100, Matthew Garrett wrote:
+> On Tue, Oct 24, 2006 at 01:48:27PM +1000, Benjamin Herrenschmidt wrote:
+> > On Tue, 2006-10-24 at 04:27 +0100, Matthew Garrett wrote:
+> 
+> > > Reading the battery status has the potential to call an SMI that might 
+> > > take an arbitrary period of time to return, and we found that having 
+> > > querying at around the 1 second mark tended to result in noticable 
+> > > system performace degredation.
+> 
+> > I think it's up to the backend to poll more slowly and cache the results
+> > on those machines then.
+> 
+> The kernel backend or the userspace backend? We need to decide on 
+> terminology :) 
 
-Fix printk format warning:
-drivers/misc/ioc4.c:213: warning: long long int format, u64 arg (arg 3)
+The kernel. Userspace don't have to know the details of how hard it is
+for the backend to fetch the data imho.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
+> There's no good programmatic way of determining how long 
+> a query will take other than doing it and looking at the result. I guess 
+> we could do that at boot time.
 
- drivers/misc/ioc4.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2619-rc3-pv.orig/drivers/misc/ioc4.c
-+++ linux-2619-rc3-pv/drivers/misc/ioc4.c
-@@ -209,8 +209,8 @@ ioc4_clock_calibrate(struct ioc4_driver_
- 
- 		do_div(ns, IOC4_EXTINT_COUNT_DIVISOR);
- 		printk(KERN_DEBUG
--		       "IOC4 %s: PCI clock is %lld ns.\n",
--		       pci_name(idd->idd_pdev), ns);
-+		       "IOC4 %s: PCI clock is %llu ns.\n",
-+		       pci_name(idd->idd_pdev), (unsigned long long)ns);
- 	}
- 
- 	/* Remember results.  We store the extint clock period rather
+Ben.
 
 
----

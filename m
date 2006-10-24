@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161255AbWJXWNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWJXWPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161255AbWJXWNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWJXWNE
+	id S1161266AbWJXWPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWJXWPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:13:04 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16549 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161255AbWJXWNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:13:02 -0400
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200610242208.34426.rjw@sisk.pl>
-References: <1161576857.3466.9.camel@nigel.suspend2.net>
-	 <200610242208.34426.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 08:13:01 +1000
-Message-Id: <1161727981.22729.18.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 24 Oct 2006 18:15:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2713 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161259AbWJXWPD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:15:03 -0400
+Message-ID: <453E8FB7.9090001@sgi.com>
+Date: Tue, 24 Oct 2006 17:12:07 -0500
+From: John Partridge <johnip@sgi.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Jeff Garzik <jeff@garzik.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+References: <adafyddcysw.fsf@cisco.com> <20061024192210.GE2043@havoc.gtf.org>	<20061024214724.GS25210@parisc-linux.org> <adar6wxbcwt.fsf@cisco.com>
+In-Reply-To: <adar6wxbcwt.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Tue, 2006-10-24 at 22:08 +0200, Rafael J. Wysocki wrote:
-> On Monday, 23 October 2006 06:14, Nigel Cunningham wrote:
-> > Switch from bitmaps to using extents to record what swap is allocated;
-> > they make more efficient use of memory, particularly where the allocated
-> > storage is small and the swap space is large.
+Roland Dreier wrote:
+>  > I think the right way to fix this is to ensure mmio write ordering in
+>  > the pci_write_config_*() implementations.  Like this.
 > 
-> As I said before, I like the overall idea, but I have a bunch of comments.
-
-Thanks for them. Just a quick reply for the moment to say they're
-appreciated and I will revise accordingly.
-
-I should also mention that this isn't the only use of these functions in
-Suspend2. There I also use extents to record the blocks to which the
-image will be written. I hope to submit modifications to swsusp to do
-that too in the near future.
-
-> > +/* Simplify iterating through all the values in an extent chain */
-> > +#define suspend_extent_for_each(extent_chain, extentpointer, value) \
-> > +if ((extent_chain)->first) \
-> > +	for ((extentpointer) = (extent_chain)->first, (value) = \
-> > +			(extentpointer)->minimum; \
-> > +	     ((extentpointer) && ((extentpointer)->next || (value) <= \
-> > +				 (extentpointer)->maximum)); \
-> > +	     (((value) == (extentpointer)->maximum) ? \
-> > +		((extentpointer) = (extentpointer)->next, (value) = \
-> > +		 ((extentpointer) ? (extentpointer)->minimum : 0)) : \
-> > +			(value)++))
+> I'm happy to fix this in the PCI core and not force drivers to worry
+> about this.
 > 
-> This macro doesn't look very nice and is used only once, so I think you
-> can drop it and just write the loop where it belongs.
-
-With the modifications I mentioned just above, this would also be used
-for getting the blocks which match each swap extent. I can remove the
-macro, but just want to make you aware that it does serve a purpose,
-you're just not seeing it fully yet.
-
-> > +
-> > +void suspend_put_extent_chain(struct extent_chain *chain);
-> > +int suspend_add_to_extent_chain(struct extent_chain *chain, 
-> > +		unsigned long minimum, unsigned long maximum);
-> > +
-> > +/* swap_entry_to_extent_val & extent_val_to_swap_entry: 
-> > + * We are putting offset in the low bits so consecutive swap entries
-> > + * make consecutive extent values */
-> > +#define swap_entry_to_extent_val(swp_entry) (swp_entry.val)
-> > +#define extent_val_to_swap_entry(val) (swp_entry_t) { (val) }
+> John, can you confirm that this patch fixes the issue for you?
 > 
-> These two macros are also used only once each.  I'd just use the values
-> directly.
+> Thanks,
+>   Roland
 
-Ok. Thanks. I think they're a leftover from 2.4 support :)
+I'll give it a try and get back to you.
 
-Nigel
+John
 
+-- 
+John Partridge
+
+Silicon Graphics Inc
+Tel:  651-683-3428
+Vnet: 233-3428
+E-Mail: johnip@sgi.com

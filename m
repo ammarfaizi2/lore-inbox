@@ -1,168 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWJXQo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWJXQoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbWJXQo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWJXQkd
+	id S1161095AbWJXQoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJXQkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:40:33 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:36037 "EHLO
+	Tue, 24 Oct 2006 12:40:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:2037 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030422AbWJXQkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:40:12 -0400
-Message-Id: <20061024163816.043835000@arndb.de>
+	id S1030423AbWJXQkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:40:07 -0400
+Message-Id: <20061024163814.209789000@arndb.de>
 References: <20061024163113.694643000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Tue, 24 Oct 2006 18:31:23 +0200
+Date: Tue, 24 Oct 2006 18:31:19 +0200
 From: arnd@arndb.de
 To: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
        linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: [PATCH 10/16] cell: add support for registering sysfs attributes to spus
-Content-Disposition: inline; filename=spu-add-attributes-2.diff
-Cc: Christian Krafft <krafft@de.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [PATCH 06/16] spufs: Add isolated-mode SPE recycling support
+Content-Disposition: inline; filename=spufs-recycle-isolated.diff
+Cc: Jeremy Kerr <jk@ozlabs.org>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christian Krafft <krafft@de.ibm.com>
+From: Jeremy Kerr <jeremy@au1.ibm.com>
 
-In order to add sysfs attributes to all spu's, there is a
-need for a list of all available spu's. Adding the device_node
-makes also sense, as it is needed for proper register access.
-This patch also adds two functions to create and remove sysfs
-attributes and attribute_groups to all spus.
-That allows to group spu attributes in a subdirectory like:
-/sys/devices/system/spu/spuX/group_name/what_ever
-This will be used by cbe_thermal to group all attributes dealing with
-thermal support in one directory.
+When in isolated mode, SPEs have access to an area of persistent
+storage, which is per-SPE. In order for isolated-mode apps to
+communicate arbitrary data through this storage, we need to ensure that
+isolated physical SPEs can be reused for subsequent applications.
 
-Signed-off-by: Christian Krafft <krafft@de.ibm.com>
+Add a file ("recycle") in a spethread dir to enable isolated-mode
+recycling. By writing to this file, the kernel will reload the
+isolated-mode loader kernel, allowing a new app to be run on the same
+physical SPE.
+
+This requires the spu_acquire_exclusive function to enforce exclusive
+access to the SPE while the loader is initialised.
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-Index: linux-2.6/include/asm-powerpc/spu.h
+---
+Update: clarify locking, remove unnecessary yield, require >0 bytes
+        when writing to recycle file.
+
+ arch/powerpc/platforms/cell/spufs/context.c |   27 +++++++++++++++++++++++
+ arch/powerpc/platforms/cell/spufs/file.c    |   32 ++++++++++++++++++++++++++++
+ arch/powerpc/platforms/cell/spufs/inode.c   |   23 +++++++++++++-------
+ arch/powerpc/platforms/cell/spufs/spufs.h   |    7 ++++++
+ 4 files changed, 81 insertions(+), 8 deletions(-)
+
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
 ===================================================================
---- linux-2.6.orig/include/asm-powerpc/spu.h
-+++ linux-2.6/include/asm-powerpc/spu.h
-@@ -115,6 +115,7 @@ struct spu {
- 	struct spu_priv2 __iomem *priv2;
- 	struct list_head list;
- 	struct list_head sched_list;
-+	struct list_head full_list;
- 	int number;
- 	int nid;
- 	unsigned int irqs[3];
-@@ -143,6 +144,8 @@ struct spu {
- 	char irq_c1[8];
- 	char irq_c2[8];
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/context.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
+@@ -120,6 +120,33 @@ void spu_unmap_mappings(struct spu_conte
+ 		unmap_mapping_range(ctx->signal2, 0, 0x4000, 1);
+ }
  
-+	struct device_node *devnode;
++int spu_acquire_exclusive(struct spu_context *ctx)
++{
++       int ret = 0;
 +
- 	struct sys_device sysdev;
++       down_write(&ctx->state_sema);
++       /* ctx is about to be freed, can't acquire any more */
++       if (!ctx->owner) {
++               ret = -EINVAL;
++               goto out;
++       }
++
++       if (ctx->state == SPU_STATE_SAVED) {
++               ret = spu_activate(ctx, 0);
++               if (ret)
++                       goto out;
++               ctx->state = SPU_STATE_RUNNABLE;
++       } else {
++               /* We need to exclude userspace access to the context. */
++               spu_unmap_mappings(ctx);
++       }
++
++out:
++       if (ret)
++               up_write(&ctx->state_sema);
++       return ret;
++}
++
+ int spu_acquire_runnable(struct spu_context *ctx)
+ {
+ 	int ret = 0;
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+@@ -1343,6 +1343,37 @@ static struct file_operations spufs_mfc_
+ 	.mmap	 = spufs_mfc_mmap,
  };
  
-@@ -200,6 +203,12 @@ static inline void unregister_spu_syscal
++
++static int spufs_recycle_open(struct inode *inode, struct file *file)
++{
++	file->private_data = SPUFS_I(inode)->i_ctx;
++	return nonseekable_open(inode, file);
++}
++
++static ssize_t spufs_recycle_write(struct file *file,
++		const char __user *buffer, size_t size, loff_t *pos)
++{
++	struct spu_context *ctx = file->private_data;
++	int ret;
++
++	if (!(ctx->flags & SPU_CREATE_ISOLATE))
++		return -EINVAL;
++
++	if (size < 1)
++		return -EINVAL;
++
++	ret = spu_recycle_isolated(ctx);
++
++	if (ret)
++		return ret;
++	return size;
++}
++
++static struct file_operations spufs_recycle_fops = {
++	.open	 = spufs_recycle_open,
++	.write	 = spufs_recycle_write,
++};
++
+ static void spufs_npc_set(void *data, u64 val)
+ {
+ 	struct spu_context *ctx = data;
+@@ -1551,5 +1582,6 @@ struct tree_descr spufs_dir_nosched_cont
+ 	{ "psmap", &spufs_psmap_fops, 0666, },
+ 	{ "phys-id", &spufs_id_ops, 0666, },
+ 	{ "object-id", &spufs_object_id_ops, 0666, },
++	{ "recycle", &spufs_recycle_fops, 0222, },
+ 	{},
+ };
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/inode.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
+@@ -248,7 +248,7 @@ static int spu_setup_isolated(struct spu
+ 	if (!isolated_loader)
+ 		return -ENODEV;
+ 
+-	if ((ret = spu_acquire_runnable(ctx)) != 0)
++	if ((ret = spu_acquire_exclusive(ctx)) != 0)
+ 		return ret;
+ 
+ 	mfc_cntl = &ctx->spu->priv2->mfc_control_RW;
+@@ -314,10 +314,16 @@ out_drop_priv:
+ 	spu_mfc_sr1_set(ctx->spu, sr1);
+ 
+ out_unlock:
+-	up_write(&ctx->state_sema);
++	spu_release_exclusive(ctx);
+ 	return ret;
  }
- #endif /* MODULE */
  
-+int spu_add_sysdev_attr(struct sysdev_attribute *attr);
-+void spu_remove_sysdev_attr(struct sysdev_attribute *attr);
++int spu_recycle_isolated(struct spu_context *ctx)
++{
++	ctx->ops->runcntl_stop(ctx);
++	return spu_setup_isolated(ctx);
++}
 +
-+int spu_add_sysdev_attr_group(struct attribute_group *attrs);
-+void spu_remove_sysdev_attr_group(struct attribute_group *attrs);
-+
+ static int
+ spufs_mkdir(struct inode *dir, struct dentry *dentry, unsigned int flags,
+ 		int mode)
+@@ -341,12 +347,6 @@ spufs_mkdir(struct inode *dir, struct de
+ 		goto out_iput;
  
+ 	ctx->flags = flags;
+-	if (flags & SPU_CREATE_ISOLATE) {
+-		ret = spu_setup_isolated(ctx);
+-		if (ret)
+-			goto out_iput;
+-	}
+-
+ 	inode->i_op = &spufs_dir_inode_operations;
+ 	inode->i_fop = &simple_dir_operations;
+ 	if (flags & SPU_CREATE_NOSCHED)
+@@ -432,6 +432,13 @@ static int spufs_create_context(struct i
+ out_unlock:
+ 	mutex_unlock(&inode->i_mutex);
+ out:
++	if (ret >= 0 && (flags & SPU_CREATE_ISOLATE)) {
++		int setup_err = spu_setup_isolated(
++				SPUFS_I(dentry->d_inode)->i_ctx);
++		if (setup_err)
++			ret = setup_err;
++	}
++
+ 	dput(dentry);
+ 	return ret;
+ }
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/spufs.h
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
+@@ -163,6 +163,12 @@ void spu_acquire(struct spu_context *ctx
+ void spu_release(struct spu_context *ctx);
+ int spu_acquire_runnable(struct spu_context *ctx);
+ void spu_acquire_saved(struct spu_context *ctx);
++int spu_acquire_exclusive(struct spu_context *ctx);
++
++static inline void spu_release_exclusive(struct spu_context *ctx)
++{
++	up_write(&ctx->state_sema);
++}
+ 
+ int spu_activate(struct spu_context *ctx, u64 flags);
+ void spu_deactivate(struct spu_context *ctx);
+@@ -170,6 +176,7 @@ void spu_yield(struct spu_context *ctx);
+ int __init spu_sched_init(void);
+ void __exit spu_sched_exit(void);
+ 
++int spu_recycle_isolated(struct spu_context *ctx);
  /*
-  * Notifier blocks:
-Index: linux-2.6/arch/powerpc/platforms/cell/spu_base.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spu_base.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spu_base.c
-@@ -333,6 +333,7 @@ static void spu_free_irqs(struct spu *sp
- }
- 
- static struct list_head spu_list[MAX_NUMNODES];
-+static LIST_HEAD(spu_full_list);
- static DEFINE_MUTEX(spu_mutex);
- 
- static void spu_init_channels(struct spu *spu)
-@@ -744,6 +745,57 @@ struct sysdev_class spu_sysdev_class = {
- 	set_kset_name("spu")
- };
- 
-+int spu_add_sysdev_attr(struct sysdev_attribute *attr)
-+{
-+	struct spu *spu;
-+	mutex_lock(&spu_mutex);
-+
-+	list_for_each_entry(spu, &spu_full_list, full_list)
-+		sysdev_create_file(&spu->sysdev, attr);
-+
-+	mutex_unlock(&spu_mutex);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(spu_add_sysdev_attr);
-+
-+int spu_add_sysdev_attr_group(struct attribute_group *attrs)
-+{
-+	struct spu *spu;
-+	mutex_lock(&spu_mutex);
-+
-+	list_for_each_entry(spu, &spu_full_list, full_list)
-+		sysfs_create_group(&spu->sysdev.kobj, attrs);
-+
-+	mutex_unlock(&spu_mutex);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(spu_add_sysdev_attr_group);
-+
-+
-+void spu_remove_sysdev_attr(struct sysdev_attribute *attr)
-+{
-+	struct spu *spu;
-+	mutex_lock(&spu_mutex);
-+
-+	list_for_each_entry(spu, &spu_full_list, full_list)
-+		sysdev_remove_file(&spu->sysdev, attr);
-+
-+	mutex_unlock(&spu_mutex);
-+}
-+EXPORT_SYMBOL_GPL(spu_remove_sysdev_attr);
-+
-+void spu_remove_sysdev_attr_group(struct attribute_group *attrs)
-+{
-+	struct spu *spu;
-+	mutex_lock(&spu_mutex);
-+
-+	list_for_each_entry(spu, &spu_full_list, full_list)
-+		sysfs_remove_group(&spu->sysdev.kobj, attrs);
-+
-+	mutex_unlock(&spu_mutex);
-+}
-+EXPORT_SYMBOL_GPL(spu_remove_sysdev_attr_group);
-+
- static int spu_create_sysdev(struct spu *spu)
- {
- 	int ret;
-@@ -817,6 +869,9 @@ static int __init create_spu(struct devi
- 		goto out_free_irqs;
- 
- 	list_add(&spu->list, &spu_list[spu->node]);
-+	list_add(&spu->full_list, &spu_full_list);
-+	spu->devnode = of_node_get(spe);
-+
- 	mutex_unlock(&spu_mutex);
- 
- 	pr_debug(KERN_DEBUG "Using SPE %s %p %p %p %p %d\n",
-@@ -839,6 +894,9 @@ out:
- static void destroy_spu(struct spu *spu)
- {
- 	list_del_init(&spu->list);
-+	list_del_init(&spu->full_list);
-+
-+	of_node_put(spu->devnode);
- 
- 	spu_destroy_sysdev(spu);
- 	spu_free_irqs(spu);
+  * spufs_wait
+  * 	Same as wait_event_interruptible(), except that here
 
 --
 

@@ -1,157 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWJXUQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWJXUSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbWJXUQm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 16:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWJXUQm
+	id S965174AbWJXUSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 16:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbWJXUSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 16:16:42 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:7884 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965173AbWJXUQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 16:16:41 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Date: Tue, 24 Oct 2006 22:16:05 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net>
-In-Reply-To: <1161576735.3466.7.camel@nigel.suspend2.net>
+	Tue, 24 Oct 2006 16:18:15 -0400
+Received: from mx3.cs.washington.edu ([128.208.3.132]:27029 "EHLO
+	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S965174AbWJXUSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 16:18:14 -0400
+Date: Tue, 24 Oct 2006 13:18:04 -0700 (PDT)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: Re: [PATCH] appletalk: prevent unregister_sysctl_table() with a NULL
+ argument
+In-Reply-To: <20061024101940.GA10575@localhost>
+Message-ID: <Pine.LNX.4.64N.0610241313310.8933@attu4.cs.washington.edu>
+References: <20061024085357.GB7703@localhost>
+ <Pine.LNX.4.64N.0610240229140.10760@attu4.cs.washington.edu>
+ <20061024101940.GA10575@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610242216.05949.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 23 October 2006 06:12, Nigel Cunningham wrote:
-> XFS can continue to submit I/O from a timer routine, even after
-> freezeable kernel and userspace threads are frozen. This doesn't seem to
-> be an issue for current swsusp code, but is definitely an issue for
-> Suspend2, where the pages being written could be overwritten by
-> Suspend2's atomic copy.
->     
-> We can address this issue by freezing bdevs after stopping userspace
-> threads, and thawing them prior to thawing userspace.
+On Tue, 24 Oct 2006, Akinobu Mita wrote:
 
-Okay, it turns out we'll probably need this, so a couple of comments follow.
-
-> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> On Tue, Oct 24, 2006 at 02:38:24AM -0700, David Rientjes wrote:
 > 
-> diff --git a/kernel/power/process.c b/kernel/power/process.c
-> index 4a001fe..ddeeb50 100644
-> --- a/kernel/power/process.c
-> +++ b/kernel/power/process.c
-> @@ -13,6 +13,7 @@ #include <linux/interrupt.h>
->  #include <linux/suspend.h>
->  #include <linux/module.h>
->  #include <linux/syscalls.h>
-> +#include <linux/buffer_head.h>
->  #include <linux/freezer.h>
->  
->  /* 
-> @@ -20,6 +21,58 @@ #include <linux/freezer.h>
->   */
->  #define TIMEOUT	(20 * HZ)
->  
-> +struct frozen_fs
-> +{
-> +	struct list_head fsb_list;
-> +	struct super_block *sb;
-> +};
-> +
-> +LIST_HEAD(frozen_fs_list);
-> +
-> +void freezer_make_fses_rw(void)
-
-I'd call it thaw_filesystems()
-
-> +{
-> +	struct frozen_fs *fs, *next_fs;
-> +
-> +	list_for_each_entry_safe(fs, next_fs, &frozen_fs_list, fsb_list) {
-> +		thaw_bdev(fs->sb->s_bdev, fs->sb);
-> +
-> +		list_del(&fs->fsb_list);
-> +		kfree(fs);
-> +	}
-> +}
-> +
-> +/* 
-> + * Done after userspace is frozen, so there should be no danger of
-> + * fses being unmounted while we're in here.
-> + */
-> +int freezer_make_fses_ro(void)
-
-I'd call it freeze_filesystems()
-
-> +{
-> +	struct frozen_fs *fs;
-> +	struct super_block *sb;
-> +
-> +	/* Generate the list */
-> +	list_for_each_entry(sb, &super_blocks, s_list) {
-> +		if (!sb->s_root || !sb->s_bdev ||
-> +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-> +		    (sb->s_flags & MS_RDONLY))
-> +			continue;
-> +
-> +		fs = kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
-> +		if (!fs)
-> +			return 1;
-
-return -ENOMEM
-
-> +		fs->sb = sb;
-> +		list_add_tail(&fs->fsb_list, &frozen_fs_list);
-> +	};
-> +
-> +	/* Do the freezing in reverse order so filesystems dependant
-> +	 * upon others are frozen in the right order. (Eg loopback
-> +	 * on ext3). */
-> +	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
-> +		freeze_bdev(fs->sb->s_bdev);
-> +
-> +	return 0;
-> +}
-> +
->  
->  static inline int freezeable(struct task_struct * p)
->  {
-> @@ -119,7 +172,7 @@ int freeze_processes(void)
->  		read_unlock(&tasklist_lock);
->  		todo += nr_user;
->  		if (!user_frozen && !nr_user) {
-> -			sys_sync();
-> +			freezer_make_fses_ro();
->  			start_time = jiffies;
->  		}
->  		user_frozen = !nr_user;
-> @@ -174,6 +227,12 @@ void thaw_some_processes(int all)
->  					"Strange, %s not stopped\n", p->comm );
->  		} while_each_thread(g, p);
->  
-> +		if (!pass) {
-> +			read_unlock(&tasklist_lock);
-> +			freezer_make_fses_rw();
-> +			read_lock(&tasklist_lock);
-> +		}
-> +
->  		pass++;
->  	} while (pass < 2 && all);
->  
+> > The only way this would happen at atalk_unregister_sysctl is if the 
+> > kmalloc failed on register_sysctl_table during init.  In that case there 
+> > is no need to unregister atalk in the first place since it never came up, 
 > 
-> 
-> 
+> Yes. this patch doesn't cause failure if sysctl registration failed.
+> It aims to avoid that minor possible NULL pointer dereference.
 > 
 
-Greetings,
-Rafael
+That dereference should never be possible.  If sysctl registration fails, 
+it should not be left partially initialized so that it would ever need to 
+be cleaned up later; it should just fail to register.  So the fix, if 
+indeed one is required in this instance that you have witnessed, should be 
+an immediate response to an -ENOMEM on register_sysctl_table.  Adding this 
+to atalk_unregister_sysctl is incorrect because that function should only 
+be entered given the condition that the register was successful, which in 
+this case it was not.
 
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+		David

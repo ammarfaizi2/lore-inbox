@@ -1,207 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWJXDkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWJXDlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWJXDkV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 23:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWJXDkU
+	id S1030183AbWJXDlt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 23:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWJXDlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 23:40:20 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7312 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932419AbWJXDkT (ORCPT
+	Mon, 23 Oct 2006 23:41:49 -0400
+Received: from gate.crashing.org ([63.228.1.57]:22223 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965077AbWJXDlq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 23:40:19 -0400
-Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
-	several drivers
+	Mon, 23 Oct 2006 23:41:46 -0400
+Subject: Re: Battery class driver.
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, akpm@osdl.org,
-       maxk@qualcomm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20061023171910.GA23714@hmsreliant.homelinux.net>
-References: <20061023171910.GA23714@hmsreliant.homelinux.net>
-Content-Type: text/plain
-Date: Tue, 24 Oct 2006 13:34:34 +1000
-Message-Id: <1161660875.10524.535.camel@localhost.localdomain>
+To: Richard Hughes <hughsient@gmail.com>
+Cc: Dan Williams <dcbw@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
+       linux-kernel@vger.kernel.org, devel@laptop.org, sfr@canb.auug.org.au,
+       len.brown@intel.com, greg@kroah.com, David Zeuthen <davidz@redhat.com>
+In-Reply-To: <1161633509.4994.16.camel@hughsie-laptop>
+References: <1161628327.19446.391.camel@pmac.infradead.org>
+	 <1161631091.16366.0.camel@localhost.localdomain>
+	 <1161633509.4994.16.camel@hughsie-laptop>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 24 Oct 2006 13:41:27 +1000
+Message-Id: <1161661288.10524.542.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-23 at 13:19 -0400, Neil Horman wrote:
-> Hey All-
-> 	Janitor patch to clean up return code handling and exit from failed
-> calls to misc_register accross several modules.
+> No, I think the distinction between batteries and ac_adapter is large
+> enough to have different classes of devices. You may have many
+> batteries, but you'll only ever have one ac_adapter. I'm not sure it's
+> an obvious abstraction to make.
 
-The patch doesn't match the description... What are those INIT_LIST_HEAD
-things ? Is this something I've missed or is this a new requirement for
-all misc devices ? Can't it be statically initialized instead ?
+No you won't :) You can have several power supplies, you can have UPS
+too, and limited power budget depending on the "status" of these things
+(for example, on some blades, we slow things down when one of the power
+supply fails to limit our load on the remaining one(s), though that's
+currently done outside of linux).
 
-> Thanks & Regards
-> Neil
+Ben.
+
+> > > Comments? 
 > 
-> Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+> How are battery change notifications delivered to userspace? I know acpi
+> is using the input layer for buttons in the future (very sane IMO), so
+> using sysfs events for each property changing would probably be nice.
 > 
+> Comments on your patch:
 > 
->  drivers/char/mmtimer.c          |   29 +++++++++++++++++++++++------
->  drivers/char/tpm/tpm.c          |    1 +
->  drivers/input/misc/hp_sdc_rtc.c |    6 +++++-
->  drivers/macintosh/apm_emu.c     |    5 ++++-
->  drivers/net/tun.c               |    2 ++
->  fs/dlm/user.c                   |    1 +
->  6 files changed, 36 insertions(+), 8 deletions(-)
+> > +#define BAT_INFO_TEMP2		(2) /* °C/1000 */
+> Temperature expressed in degrees C/1000? - what if the temperature goes
+> below 0? What about just using mK (kelvin / 1000) - I don't know what is
+> used in the kernel elsewhere tho. Also, are you allowed the ° sign in
+> kernel source now?
 > 
+> > +#define BAT_INFO_CURRENT	(6) /* mA */
+> Can't this also be expressed in mW according to the ACPI spec?
 > 
-> diff --git a/drivers/char/mmtimer.c b/drivers/char/mmtimer.c
-> --- a/drivers/char/mmtimer.c
-> +++ b/drivers/char/mmtimer.c
-> @@ -669,6 +669,7 @@ static struct k_clock sgi_clock = {
->  static int __init mmtimer_init(void)
->  {
->  	unsigned i;
-> +	int err = -1;
->  	cnodeid_t node, maxn = -1;
->  
->  	if (!ia64_platform_is("sn2"))
-> @@ -680,7 +681,7 @@ static int __init mmtimer_init(void)
->  	if (sn_rtc_cycles_per_second < 100000) {
->  		printk(KERN_ERR "%s: unable to determine clock frequency\n",
->  		       MMTIMER_NAME);
-> -		return -1;
-> +		goto out;
->  	}
->  
->  	mmtimer_femtoperiod = ((unsigned long)1E15 + sn_rtc_cycles_per_second /
-> @@ -689,13 +690,13 @@ static int __init mmtimer_init(void)
->  	if (request_irq(SGI_MMTIMER_VECTOR, mmtimer_interrupt, IRQF_PERCPU, MMTIMER_NAME, NULL)) {
->  		printk(KERN_WARNING "%s: unable to allocate interrupt.",
->  			MMTIMER_NAME);
-> -		return -1;
-> +		goto out;
->  	}
->  
->  	if (misc_register(&mmtimer_miscdev)) {
->  		printk(KERN_ERR "%s: failed to register device\n",
->  		       MMTIMER_NAME);
-> -		return -1;
-> +		goto out1;
->  	}
->  
->  	/* Get max numbered node, calculate slots needed */
-> @@ -709,16 +710,18 @@ static int __init mmtimer_init(void)
->  	if (timers == NULL) {
->  		printk(KERN_ERR "%s: failed to allocate memory for device\n",
->  				MMTIMER_NAME);
-> -		return -1;
-> +		goto out2;
->  	}
->  
-> +	memset(timers,0,(sizeof(mmtimer_t *)*maxn));
-> +
->  	/* Allocate mmtimer_t's for each online node */
->  	for_each_online_node(node) {
->  		timers[node] = kmalloc_node(sizeof(mmtimer_t)*NUM_COMPARATORS, GFP_KERNEL, node);
->  		if (timers[node] == NULL) {
->  			printk(KERN_ERR "%s: failed to allocate memory for device\n",
->  				MMTIMER_NAME);
-> -			return -1;
-> +			goto out3;
->  		}
->  		for (i=0; i< NUM_COMPARATORS; i++) {
->  			mmtimer_t * base = timers[node] + i;
-> @@ -738,7 +741,21 @@ static int __init mmtimer_init(void)
->  	printk(KERN_INFO "%s: v%s, %ld MHz\n", MMTIMER_DESC, MMTIMER_VERSION,
->  	       sn_rtc_cycles_per_second/(unsigned long)1E6);
->  
-> -	return 0;
-> +	err = 0;
-> +out:
-> +	return err;
-> +
-> +out3:
-> +	for_each_online_node(node) {
-> +		if(timers[node] != NULL)
-> +			kfree(timers[node]);
-> +	}
-> +out2:
-> +	misc_deregister(&mmtimer_miscdev);
-> +out1:
-> +	free_irq(SGI_MMTIMER_VECTOR, NULL);
-> +	goto out;
-> +	
->  }
->  
->  module_init(mmtimer_init);
-> diff --git a/drivers/char/tpm/tpm.c b/drivers/char/tpm/tpm.c
-> --- a/drivers/char/tpm/tpm.c
-> +++ b/drivers/char/tpm/tpm.c
-> @@ -1155,6 +1155,7 @@ #define DEVNAME_SIZE 7
->  
->  	if (sysfs_create_group(&dev->kobj, chip->vendor.attr_group)) {
->  		list_del(&chip->list);
-> +		misc_deregister(&chip->vendor.miscdev);
->  		put_device(dev);
->  		clear_bit(chip->dev_num, dev_mask);
->  		kfree(chip);
-> diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
-> --- a/drivers/input/misc/hp_sdc_rtc.c
-> +++ b/drivers/input/misc/hp_sdc_rtc.c
-> @@ -693,9 +693,13 @@ static int __init hp_sdc_rtc_init(void)
->  
->  	init_MUTEX(&i8042tregs);
->  
-> +	INIT_LIST_HEAD(&hp_sdc_rtc_dev.list);
-> +
->  	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
->  		return ret;
-> -	misc_register(&hp_sdc_rtc_dev);
-> +	if (misc_register(&hp_sdc_rtc_dev) != 0)
-> +		printk(KERN_INFO "Could not register misc. dev for sdc\n");
-> +
->          create_proc_read_entry ("driver/rtc", 0, NULL,
->  				hp_sdc_rtc_read_proc, NULL);
->  
-> diff --git a/drivers/macintosh/apm_emu.c b/drivers/macintosh/apm_emu.c
-> --- a/drivers/macintosh/apm_emu.c
-> +++ b/drivers/macintosh/apm_emu.c
-> @@ -520,6 +520,8 @@ static int __init apm_emu_init(void)
->  {
->  	struct proc_dir_entry *apm_proc;
->  
-> +	INIT_LIST_HEAD(&apm_device.list);
-> +
->  	if (sys_ctrler != SYS_CTRLER_PMU) {
->  		printk(KERN_INFO "apm_emu: Requires a machine with a PMU.\n");
->  		return -ENODEV;
-> @@ -529,7 +531,8 @@ static int __init apm_emu_init(void)
->  	if (apm_proc)
->  		apm_proc->owner = THIS_MODULE;
->  
-> -	misc_register(&apm_device);
-> +	if (misc_register(&apm_device) != 0)
-> +		printk(KERN_INFO "Could not create misc. device for apm\n");
->  
->  	pmu_register_sleep_notifier(&apm_sleep_notifier);
->  
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -856,6 +856,8 @@ static int __init tun_init(void)
->  	printk(KERN_INFO "tun: %s, %s\n", DRV_DESCRIPTION, DRV_VERSION);
->  	printk(KERN_INFO "tun: %s\n", DRV_COPYRIGHT);
->  
-> +	INIT_LIST_HEAD(&tun_miscdev.list);
-> +
->  	ret = misc_register(&tun_miscdev);
->  	if (ret)
->  		printk(KERN_ERR "tun: Can't register misc device %d\n", TUN_MINOR);
-> diff --git a/fs/dlm/user.c b/fs/dlm/user.c
-> --- a/fs/dlm/user.c
-> +++ b/fs/dlm/user.c
-> @@ -773,6 +773,7 @@ int dlm_user_init(void)
->  	ctl_device.name = "dlm-control";
->  	ctl_device.fops = &ctl_device_fops;
->  	ctl_device.minor = MISC_DYNAMIC_MINOR;
-> +	INIT_LIST_HEAD(&ctl_device.list);
->  
->  	error = misc_register(&ctl_device);
->  	if (error)
+> > +#define BAT_STAT_FIRE		(1<<7)
+> I know there is precedent for "FIRE" but maybe CRITICAL or DANGER might
+> be better chosen words. We can reserve the word FIRE for when the faulty
+> battery really is going to explode...
+> 
+> Richard.
+> 
+> > > commit 42fe507a262b2a2879ca62740c5312778ae78627
+> > > Author: David Woodhouse <dwmw2@infradead.org>
+> > > Date:   Mon Oct 23 18:14:54 2006 +0100
+> > > 
+> > >     [BATTERY] Add support for OLPC battery
+> > >     
+> > >     Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+> > > 
+> > > commit 6cbec3b84e3ce737b4217788841ea10a28a5e340
+> > > Author: David Woodhouse <dwmw2@infradead.org>
+> > > Date:   Mon Oct 23 18:14:14 2006 +0100
+> > > 
+> > >     [BATTERY] Add initial implementation of battery class
+> > >     
+> > >     I really don't like the sysfs interaction, and I don't much like the
+> > >     internal interaction with the battery drivers either. In fact, there
+> > >     isn't much I _do_ like, but it's good enough as a straw man.
+> > >     
+> > >     Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+> 
 

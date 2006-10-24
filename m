@@ -1,70 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbWJXVBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbWJXVCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbWJXVBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbWJXVBI
+	id S965200AbWJXVCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWJXVCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:01:08 -0400
-Received: from [87.201.200.205] ([87.201.200.205]:5333 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S965198AbWJXVBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:01:06 -0400
-Message-ID: <453E7F07.9010804@0Bits.COM>
-Date: Wed, 25 Oct 2006 01:00:55 +0400
-From: Mitch <Mitch@0Bits.COM>
-User-Agent: Thunderbird 3.0a1 (X11/20061017)
-MIME-Version: 1.0
-To: jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 17:02:32 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:25488 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965200AbWJXVCb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:02:31 -0400
+Date: Tue, 24 Oct 2006 17:01:40 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@muc.de>, Jan Beulich <jbeulich@novell.com>,
+       Ian Campbell <Ian.Campbell@xensource.com>
+Subject: [PATCH] x86_64: Some vmlinux.lds.S cleanups
+Message-ID: <20061024210140.GB14225@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've definetly not done any such change on my machine. Remember with the 
-same compile, same environment, if i go back to 2.6.18 i can build uml 
-fine. If i move to 2.6.18.1 or above it breaks...
-
-I do notice my gcc stddef does have this defined
-
-% grep offsetof /usr/lib/gcc/i686-linux/4.0.3/include/stddef.h
-#define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
-
-And i notice my compiler has it inbuilt, so maybe this is a gcc 4.0.3 
-issue ?
-
-% strings /usr/libexec/gcc/i686-linux/4.0.3/cc1|grep offsetof
-offsetof_member_designator
-__builtin_offsetof
-fold_offsetof_1
--Winvalid-offsetof
-Warn about invalid uses of the "offsetof" macro
 
 
--------- Original Message --------
-Subject: Re: More uml build failures on 2.16.19-rc3 and 2.6.18.1
-Date: Tue, 24 Oct 2006 09:20:25 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Mitch <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <453DC147.2020508@0Bits.COM>
+o Some cleanups based on Jan Beulich's suggestions. It boots on my box. Hope
+  does not break anything else.
 
-On Tue, Oct 24, 2006 at 11:31:19AM +0400, Mitch wrote:
-> I'm still having build failures on 2.6.18.1 and even the latest -rc3
-> 
-> home /usr/src/sources/kernel/linux-2.6.18% !ma
-> make ARCH=um
->   SYMLINK arch/um/include/kern_constants.h
->   CC      arch/um/sys-i386/user-offsets.s
-> arch/um/sys-i386/user-offsets.c: In function 'foo':
-> arch/um/sys-i386/user-offsets.c:19: warning: implicit declaration of 
-> function 'offsetof'
+o Renamed program header name data.init to init. "init" is now supposed
+  to contain init text/data.
 
-The last time I saw this, someone had replaced the glibc kernel
-headers with a link to include/ within a kernel pool.  There, offsetof
-is wrapped in #ifdef __KERNEL__, and inaccessible to userspace.
+o Moved sections ".data.init_task" and ".data.page_aligned" into program
+  header "data" as they don't fit logically into "init".
 
-The glibc headers have a usable offsetof, so fix that, and UML should
-build.
+o Got rid of "R" permission for "note" phdr as only boot loaer is supposed
+  to look at note phdr.
 
-				Jeff
+o Got rid of "E" permission for "data" phdr.  
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/x86_64/kernel/vmlinux.lds.S |   32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff -puN arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup arch/x86_64/kernel/vmlinux.lds.S
+--- linux-2.6.19-rc3/arch/x86_64/kernel/vmlinux.lds.S~x86_64-vmlinux-lds-S-cleanup	2006-10-24 15:58:23.000000000 -0400
++++ linux-2.6.19-rc3-root/arch/x86_64/kernel/vmlinux.lds.S	2006-10-24 16:35:56.000000000 -0400
+@@ -15,10 +15,10 @@ ENTRY(phys_startup_64)
+ jiffies_64 = jiffies;
+ PHDRS {
+ 	text PT_LOAD FLAGS(5);	/* R_E */
+-	data PT_LOAD FLAGS(7);	/* RWE */
++	data PT_LOAD FLAGS(6);	/* RW_ */
+ 	user PT_LOAD FLAGS(7);	/* RWE */
+-	data.init PT_LOAD FLAGS(7);	/* RWE */
+-	note PT_NOTE FLAGS(4);	/* R__ */
++	init PT_LOAD FLAGS(7);	/* RWE */
++	note PT_NOTE FLAGS(0);	/* None */
+ }
+ SECTIONS
+ {
+@@ -78,9 +78,19 @@ SECTIONS
+   	*(.data.read_mostly)
+   }
+ 
++  . = ALIGN(8192);		/* init_task */
++  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
++	*(.data.init_task)
++  }
++
++  . = ALIGN(4096);
++  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
++	*(.data.page_aligned)
++  }
++
+ #define VSYSCALL_ADDR (-10*1024*1024)
+-#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
+-#define VSYSCALL_VIRT_ADDR ((ADDR(.data.read_mostly) + SIZEOF(.data.read_mostly) + 4095) & ~(4095))
++#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
++#define VSYSCALL_VIRT_ADDR ((ADDR(.data.page_aligned) + SIZEOF(.data.page_aligned) + 4095) & ~(4095))
+ 
+ #define VLOAD_OFFSET (VSYSCALL_ADDR - VSYSCALL_PHYS_ADDR)
+ #define VLOAD(x) (ADDR(x) - VLOAD_OFFSET)
+@@ -129,23 +139,13 @@ SECTIONS
+ #undef VVIRT_OFFSET
+ #undef VVIRT
+ 
+-  . = ALIGN(8192);		/* init_task */
+-  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
+-	*(.data.init_task)
+-  }:data.init
+-
+-  . = ALIGN(4096);
+-  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
+-	*(.data.page_aligned)
+-  }
+-
+   /* might get freed after init */
+   . = ALIGN(4096);
+   __smp_alt_begin = .;
+   __smp_alt_instructions = .;
+   .smp_altinstructions : AT(ADDR(.smp_altinstructions) - LOAD_OFFSET) {
+ 	*(.smp_altinstructions)
+-  }
++  }:init
+   __smp_alt_instructions_end = .;
+   . = ALIGN(8);
+   __smp_locks = .;
+_

@@ -1,93 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWJXXFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422799AbWJXXFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422805AbWJXXFH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 19:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422802AbWJXXFG
+	id S1422799AbWJXXFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 19:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422802AbWJXXFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 19:05:06 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:7093 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1422805AbWJXXFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 19:05:05 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:27002 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1422799AbWJXXFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 24 Oct 2006 19:05:02 -0400
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200610250045.38812.rjw@sisk.pl>
-References: <1161576857.3466.9.camel@nigel.suspend2.net>
-	 <200610242208.34426.rjw@sisk.pl>
-	 <1161727981.22729.18.camel@nigel.suspend2.net>
-	 <200610250045.38812.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 09:05:01 +1000
-Message-Id: <1161731101.22729.44.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Message-ID: <453E9C18.70803@de.ibm.com>
+Date: Wed, 25 Oct 2006 01:04:56 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Jens Axboe <jens.axboe@oracle.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/5] I/O statistics through request queues
+References: <1161435423.3054.111.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20061023113728.GM8251@kernel.dk> <453D05C3.7040104@de.ibm.com> <20061023200220.GB4281@kernel.dk> <453E38FE.1020306@de.ibm.com> <20061024162050.GK4281@kernel.dk>
+In-Reply-To: <20061024162050.GK4281@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2006-10-25 at 00:45 +0200, Rafael J. Wysocki wrote:
-> Hi,
+Jens Axboe wrote:
+> On Tue, Oct 24 2006, Martin Peschke wrote:
+>> Jens Axboe wrote:
+>>>> Our tests indicate that the blktrace approach is fine for performance
+>>>> analysis as long as the system to be analysed isn't too busy.
+>>>> But once the system faces a consirable amount of non-sequential I/O
+>>>> workload, the plenty of blktrace-generated data starts to get painful.
+>>> Why haven't you done an analysis and posted it here? I surely cannot fix
+>>> what nobody tells me is broken or suboptimal.
+>> Fair enough. We have tried out the silly way of blktrace-ing, storing
+>> data locally. So, it's probably not worthwhile discussing that.
 > 
-> On Wednesday, 25 October 2006 00:13, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Tue, 2006-10-24 at 22:08 +0200, Rafael J. Wysocki wrote:
-> > > On Monday, 23 October 2006 06:14, Nigel Cunningham wrote:
-> > > > Switch from bitmaps to using extents to record what swap is allocated;
-> > > > they make more efficient use of memory, particularly where the allocated
-> > > > storage is small and the swap space is large.
-> > > 
-> > > As I said before, I like the overall idea, but I have a bunch of comments.
-> > 
-> > Thanks for them. Just a quick reply for the moment to say they're
-> > appreciated and I will revise accordingly.
-> > 
-> > I should also mention that this isn't the only use of these functions in
-> > Suspend2.
+> You'd probably never want to do local traces for performance analysis.
+> It may be handy for other purposes, though.
+
+"...probably not worthwhile discussing that" in the context of performance
+analysis.
+
+>>> I have to say it's news to
+>>> me that it's performance intensive, tests I did with Alan Brunelle a
+>>> year or so ago showed it to be quite low impact.
+>> I found some discussions on linux-btrace (Feburary 2006).
+>> There is little information on how the alleged 2 percent impact has
+>> been determined. Test cases seem to comprise formatting disks ...hmm.
 > 
-> Could we please focus on things that are on the table _now_?.  You are
-> submitting the patch aganist the current code and I can only review it
-> in this context.  I can't say if I like your _future_ patches at this moment! :-)
+> It may sound strange, but formatting a large drive generates a huge
+> flood of block layer events from lots of io queued and merged. So it's
+> not a bad benchmark for this type of thing. And it's easy to test :-)
 
-I understand that, but some things won't make sense or seem as useful if
-I don't give you the extra information.
+Just wondering to what degree this might resemble I/O workloads run
+by customers in their data centers.
 
-> > There I also use extents to record the blocks to which the 
-> > image will be written. I hope to submit modifications to swsusp to do
-> > that too in the near future.
-> > 
-> > > > +/* Simplify iterating through all the values in an extent chain */
-> > > > +#define suspend_extent_for_each(extent_chain, extentpointer, value) \
-> > > > +if ((extent_chain)->first) \
-> > > > +	for ((extentpointer) = (extent_chain)->first, (value) = \
-> > > > +			(extentpointer)->minimum; \
-> > > > +	     ((extentpointer) && ((extentpointer)->next || (value) <= \
-> > > > +				 (extentpointer)->maximum)); \
-> > > > +	     (((value) == (extentpointer)->maximum) ? \
-> > > > +		((extentpointer) = (extentpointer)->next, (value) = \
-> > > > +		 ((extentpointer) ? (extentpointer)->minimum : 0)) : \
-> > > > +			(value)++))
-> > > 
-> > > This macro doesn't look very nice and is used only once, so I think you
-> > > can drop it and just write the loop where it belongs.
-> > 
-> > With the modifications I mentioned just above, this would also be used
-> > for getting the blocks which match each swap extent. I can remove the
-> > macro, but just want to make you aware that it does serve a purpose,
-> > you're just not seeing it fully yet.
+>>> You'd be silly to locally store traces, send them out over the network.
+>> Will try this next and post complaints, if any, along with numbers.
 > 
-> Can we just assume there are no other patches and proceed under this
-> assumption?
+> Thanks! Also note that you do not need to log every event, just register
+> a mask of interesting ones to decrease the output logging rate. We could
+> so with some better setup for that though, but at least you should be
+> able to filter out some unwanted events.
+
+...and consequently try to scale down relay buffers, reducing the risk of
+memory constraints caused by blktrace activation.
+
+>> However, a fast network connection plus a second system for blktrace
+>> data processing are serious requirements. Think of servers secured
+>> by firewalls. Reading some counters in debugfs, sysfs or whatever
+>> might be more appropriate for some one who has noticed an unexpected
+>> I/O slowdown and needs directions for further investigation.
 > 
-> Could you please remove the macro for now?  You can introduce it with the
-> other patches when you submit them (if it's still needed at that time).
+> It's hard to make something that will suit everybody. Maintaining some
+> counters in sysfs is of course less expensive when your POV is cpu
+> cycles.
 
-Ok.
+Counters are also cheaper with regard to memory consumption. Counters
+are probably cause less side effects, but are less flexible than
+full-blown traces.
 
-Nigel
 

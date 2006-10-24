@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWJXEhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752008AbWJXEsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751550AbWJXEhW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 00:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWJXEhV
+	id S1752008AbWJXEsG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 00:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbWJXEsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 00:37:21 -0400
-Received: from www.osadl.org ([213.239.205.134]:50924 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751550AbWJXEhU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 00:37:20 -0400
-Subject: Re: -rt7 announcement? (was Re: 2.6.18-rt6) and more info about a
-	compile error
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: sergio@sergiomb.no-ip.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Mike Galbraith <efault@gmx.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Manish Lachwani <mlachwani@mvista.com>, bastien.dugue@bull.net
-In-Reply-To: <1161653206.2996.17.camel@localhost.portugal>
-References: <20061018083921.GA10993@elte.hu>
-	 <1161356444.15860.327.camel@mindpipe>  <1161621286.2835.3.camel@mindpipe>
-	 <1161628539.22373.36.camel@localhost.localdomain>
-	 <1161635161.2948.12.camel@localhost.portugal>
-	 <1161636049.3982.18.camel@mindpipe>
-	 <1161653206.2996.17.camel@localhost.portugal>
-Content-Type: text/plain
-Date: Tue, 24 Oct 2006 06:38:25 +0200
-Message-Id: <1161664706.22373.48.camel@localhost.localdomain>
+	Tue, 24 Oct 2006 00:48:06 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:61601 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1752008AbWJXEsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 00:48:04 -0400
+Date: Mon, 23 Oct 2006 21:46:08 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: iss_storagedev@hp.com, lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH cciss: fix printk format warning
+Message-Id: <20061023214608.f09074e9.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-24 at 02:26 +0100, Sergio Monteiro Basto wrote:
-> On Mon, 2006-10-23 at 16:40 -0400, Lee Revell wrote:
-> > On Mon, 2006-10-23 at 21:26 +0100, Sergio Monteiro Basto wrote:
-> > > rt7 should be to be applied on 2.6.18.1 
-> > > still for 2.6.18 
-> > > 
-> > 
-> > The -rt patch has always been against the most recent base kernel.  It
-> > could be rebased against -stable but that would be more work for the
-> > maintainers...
->  
-> For me the most recent stable kernel is 2.6.18.1. 
-> Normally change for .1 are very small but in this case I got 1, just 1,
-> reject which I don't know to fix and prefer don't try it. My luck is the
-> rej in a sparc arch and I can ignore it.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
--rtXX is always against 2.6.X, never against the .stable versions.
+Fix printk format warnings:
+drivers/block/cciss.c:2000: warning: long long int format, long unsigned int arg (arg 2)
+drivers/block/cciss.c:2035: warning: long long int format, long unsigned int arg (arg 2)
 
-> I got this compile error if I don't use CONFIG_PREEMPT_BKL in .config
-> 
-> kernel/rtmutex.c:938:48: error: macro "rt_release_bkl" passed 2
-> arguments, but takes just 1
-> kernel/rtmutex.c: In function 'rt_mutex_slowlock':
-> kernel/rtmutex.c:938: error: 'rt_release_bkl' undeclared (first use in
-> this function)
-> kernel/rtmutex.c:938: error: (Each undeclared identifier is reported
-> only once
-> kernel/rtmutex.c:938: error: for each function it appears in.)
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
 
-Fix below.
+ drivers/block/cciss.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-	tglx
-
-Index: linux-2.6.18/kernel/rtmutex.c
-===================================================================
---- linux-2.6.18.orig/kernel/rtmutex.c	2006-10-24 06:33:02.000000000 +0200
-+++ linux-2.6.18/kernel/rtmutex.c	2006-10-24 06:31:55.000000000 +0200
-@@ -902,7 +902,10 @@ static inline void rt_reacquire_bkl(int 
+--- linux-2619-rc3-pv.orig/drivers/block/cciss.c
++++ linux-2619-rc3-pv/drivers/block/cciss.c
+@@ -1992,8 +1992,8 @@ cciss_read_capacity(int ctlr, int logvol
+ 		*block_size = BLOCK_SIZE;
+ 	}
+ 	if (*total_size != (__u32) 0)
+-		printk(KERN_INFO "      blocks= %lld block_size= %d\n",
+-		*total_size, *block_size);
++		printk(KERN_INFO "      blocks= %llu block_size= %d\n",
++		(unsigned long long)*total_size, *block_size);
+ 	kfree(buf);
+ 	return;
  }
- 
- #else
--# define rt_release_bkl(x)	(-1)
-+static inline int rt_release_bkl(struct rt_mutex *lock, unsigned long flags)
-+{
-+	return -1;
-+}
- # define rt_reacquire_bkl(x)	do { } while (0)
- #endif
- 
+@@ -2027,8 +2027,8 @@ cciss_read_capacity_16(int ctlr, int log
+ 		*total_size = 0;
+ 		*block_size = BLOCK_SIZE;
+ 	}
+-	printk(KERN_INFO "      blocks= %lld block_size= %d\n",
+-	       *total_size, *block_size);
++	printk(KERN_INFO "      blocks= %llu block_size= %d\n",
++	       (unsigned long long)*total_size, *block_size);
+ 	kfree(buf);
+ 	return;
+ }
 
 
+---

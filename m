@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbWJXPHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWJXPKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbWJXPHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 11:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbWJXPHJ
+	id S965150AbWJXPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 11:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWJXPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 11:07:09 -0400
-Received: from dev.mellanox.co.il ([194.90.237.44]:52624 "EHLO
-	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S965054AbWJXPHH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 11:07:07 -0400
-Date: Tue, 24 Oct 2006 17:00:51 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Re: 2.6.19-rc2: known unfixed regressions (v3)
-Message-ID: <20061024150050.GA8766@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20061022122355.GC3502@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061022122355.GC3502@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 24 Oct 2006 11:10:16 -0400
+Received: from smtp111.iad.emailsrvr.com ([207.97.245.111]:62920 "EHLO
+	smtp111.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S965153AbWJXPKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 11:10:14 -0400
+Message-ID: <453E2C9A.7010604@gentoo.org>
+Date: Tue, 24 Oct 2006 11:09:14 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+MIME-Version: 1.0
+To: Holden Karau <holden@pigscanfly.ca>
+CC: zd1211-devs@lists.sourceforge.net, linville@tuxdriver.com,
+       netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       holdenk@xandros.com, Ulrich Kunitz <kune@deine-taler.de>
+Subject: Re: [PATCH] wireless-2.6 zd1211rw check against regulatory domain
+ rather than hardcoded value of 11
+References: <f46018bb0610231121s4fb48f88l28a6e7d4f31d40bb@mail.gmail.com>	 <453D48E5.8040100@gentoo.org> <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>
+In-Reply-To: <f46018bb0610240709y203d8cdbw95cdf66db23aa1ce@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Adrian Bunk <bunk@stusta.de>:
-> Subject: 2.6.19-rc2: known unfixed regressions (v3)
-> 
-> This email lists some known unfixed regressions in 2.6.19-rc2 compared 
-> to 2.6.18 that are not yet fixed Linus' tree.
-> 
-> If you find your name in the Cc header, you are either submitter of one
-> of the bugs, maintainer of an affectected subsystem or driver, a patch
-> of you caused a breakage or I'm considering you in any other way possibly
-> involved with one or more of these issues.
-> 
-> Due to the huge amount of recipients, please trim the Cc when answering.
->
+Holden Karau wrote:
+> I've changed the patch based on your suggestions :-)
 
-skip, hope I didn't trim too much.
+Thanks, looks fine. Let's just wait for an OK from Ulrich, then you can 
+send it to John, without broken tabs/lines, with signoff and description.
 
->
-> Subject    : T60 stops triggering any ACPI events
-> References : http://lkml.org/lkml/2006/10/4/425
->              http://lkml.org/lkml/2006/10/16/262
-> Submitter  : "Michael S. Tsirkin" <mst@mellanox.co.il>
-> Status     : unknown
+Daniel
 
-Just retested with 2.6.19-rc3 - it's still there:
-e.g. after I do a full kernel compile, my T60 stops triggering any ACPI events:
-tail -f /var/log/acpid does not show anything, even on Fn/F4 which is supposed
-to be always enabled.  Restarting the acpid doesn't do anything either - ACPI
-starts working again, for a while, only after reboot.
 
-Works fine in 2.6.18 ( + this patch http://lkml.org/lkml/2006/7/20/56).
-
--- 
-MST

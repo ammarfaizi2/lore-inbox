@@ -1,226 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWJXQoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWJXQkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbWJXQoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWJXQkm
+	id S1030429AbWJXQkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWJXQkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:40:42 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:2037 "EHLO
+	Tue, 24 Oct 2006 12:40:40 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:50141 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030423AbWJXQkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:40:07 -0400
-Message-Id: <20061024163814.209789000@arndb.de>
+	id S1030424AbWJXQkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:40:11 -0400
+Message-Id: <20061024163816.851732000@arndb.de>
 References: <20061024163113.694643000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Tue, 24 Oct 2006 18:31:19 +0200
+Date: Tue, 24 Oct 2006 18:31:25 +0200
 From: arnd@arndb.de
 To: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
        linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: [PATCH 06/16] spufs: Add isolated-mode SPE recycling support
-Content-Disposition: inline; filename=spufs-recycle-isolated.diff
-Cc: Jeremy Kerr <jk@ozlabs.org>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [PATCH 12/16] cell: add temperature to SPU and CPU sysfs entries
+Content-Disposition: inline; filename=cell-thermal-support-3.diff
+Cc: Christian Krafft <krafft@de.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeremy Kerr <jeremy@au1.ibm.com>
+From: Christian Krafft <krafft@de.ibm.com>
 
-When in isolated mode, SPEs have access to an area of persistent
-storage, which is per-SPE. In order for isolated-mode apps to
-communicate arbitrary data through this storage, we need to ensure that
-isolated physical SPEs can be reused for subsequent applications.
+This patch adds a module that registers sysfs attributes to CPU and SPU
+containing the temperature of the CBE.
 
-Add a file ("recycle") in a spethread dir to enable isolated-mode
-recycling. By writing to this file, the kernel will reload the
-isolated-mode loader kernel, allowing a new app to be run on the same
-physical SPE.
+They can be found under
+/sys/devices/system/spu/cpuX/thermal/temperature[0|1]
+/sys/devices/system/spu/spuX/thermal/temperature
 
-This requires the spu_acquire_exclusive function to enforce exclusive
-access to the SPE while the loader is initialised.
+The temperature is read from the on-chip temperature sensors.
 
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: Christian Krafft <krafft@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
----
-Update: clarify locking, remove unnecessary yield, require >0 bytes
-        when writing to recycle file.
-
- arch/powerpc/platforms/cell/spufs/context.c |   27 +++++++++++++++++++++++
- arch/powerpc/platforms/cell/spufs/file.c    |   32 ++++++++++++++++++++++++++++
- arch/powerpc/platforms/cell/spufs/inode.c   |   23 +++++++++++++-------
- arch/powerpc/platforms/cell/spufs/spufs.h   |    7 ++++++
- 4 files changed, 81 insertions(+), 8 deletions(-)
-
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
+Index: linux-2.6/arch/powerpc/platforms/cell/Kconfig
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/context.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
-@@ -120,6 +120,33 @@ void spu_unmap_mappings(struct spu_conte
- 		unmap_mapping_range(ctx->signal2, 0, 0x4000, 1);
- }
+--- linux-2.6.orig/arch/powerpc/platforms/cell/Kconfig
++++ linux-2.6/arch/powerpc/platforms/cell/Kconfig
+@@ -20,4 +20,9 @@ config CBE_RAS
+ 	bool "RAS features for bare metal Cell BE"
+ 	default y
  
-+int spu_acquire_exclusive(struct spu_context *ctx)
-+{
-+       int ret = 0;
++config CBE_THERM
++	tristate "CBE thermal support"
++	default m
++	depends on CBE_RAS
 +
-+       down_write(&ctx->state_sema);
-+       /* ctx is about to be freed, can't acquire any more */
-+       if (!ctx->owner) {
-+               ret = -EINVAL;
-+               goto out;
-+       }
-+
-+       if (ctx->state == SPU_STATE_SAVED) {
-+               ret = spu_activate(ctx, 0);
-+               if (ret)
-+                       goto out;
-+               ctx->state = SPU_STATE_RUNNABLE;
-+       } else {
-+               /* We need to exclude userspace access to the context. */
-+               spu_unmap_mappings(ctx);
-+       }
-+
-+out:
-+       if (ret)
-+               up_write(&ctx->state_sema);
-+       return ret;
-+}
-+
- int spu_acquire_runnable(struct spu_context *ctx)
- {
- 	int ret = 0;
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+ endmenu
+Index: linux-2.6/arch/powerpc/platforms/cell/Makefile
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
-@@ -1343,6 +1343,37 @@ static struct file_operations spufs_mfc_
- 	.mmap	 = spufs_mfc_mmap,
- };
+--- linux-2.6.orig/arch/powerpc/platforms/cell/Makefile
++++ linux-2.6/arch/powerpc/platforms/cell/Makefile
+@@ -3,6 +3,8 @@ obj-$(CONFIG_PPC_CELL_NATIVE)		+= interr
+ 					   pmu.o
+ obj-$(CONFIG_CBE_RAS)			+= ras.o
  
++obj-$(CONFIG_CBE_THERM)			+= cbe_thermal.o
 +
-+static int spufs_recycle_open(struct inode *inode, struct file *file)
+ ifeq ($(CONFIG_SMP),y)
+ obj-$(CONFIG_PPC_CELL_NATIVE)		+= smp.o
+ endif
+Index: linux-2.6/arch/powerpc/configs/cell_defconfig
+===================================================================
+--- linux-2.6.orig/arch/powerpc/configs/cell_defconfig
++++ linux-2.6/arch/powerpc/configs/cell_defconfig
+@@ -149,6 +149,7 @@ CONFIG_MMIO_NVRAM=y
+ CONFIG_SPU_FS=m
+ CONFIG_SPU_BASE=y
+ CONFIG_CBE_RAS=y
++CONFIG_CBE_THERM=m
+ 
+ #
+ # Kernel options
+Index: linux-2.6/arch/powerpc/platforms/cell/cbe_thermal.c
+===================================================================
+--- /dev/null
++++ linux-2.6/arch/powerpc/platforms/cell/cbe_thermal.c
+@@ -0,0 +1,225 @@
++/*
++ * thermal support for the cell processor
++ *
++ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
++ *
++ * Author: Christian Krafft <krafft@de.ibm.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/module.h>
++#include <linux/sysdev.h>
++#include <linux/kernel.h>
++#include <linux/cpu.h>
++#include <asm/spu.h>
++#include <asm/io.h>
++#include <asm/prom.h>
++
++#include "cbe_regs.h"
++
++static struct cbe_pmd_regs __iomem *get_pmd_regs(struct sys_device *sysdev)
 +{
-+	file->private_data = SPUFS_I(inode)->i_ctx;
-+	return nonseekable_open(inode, file);
++	struct spu *spu;
++
++	spu = container_of(sysdev, struct spu, sysdev);
++
++	return cbe_get_pmd_regs(spu->devnode);
 +}
 +
-+static ssize_t spufs_recycle_write(struct file *file,
-+		const char __user *buffer, size_t size, loff_t *pos)
++/* returns the value for a given spu in a given register */
++static u8 spu_read_register_value(struct sys_device *sysdev, union spe_reg __iomem *reg)
 +{
-+	struct spu_context *ctx = file->private_data;
-+	int ret;
++	unsigned int *id;
++	union spe_reg value;
++	struct spu *spu;
 +
-+	if (!(ctx->flags & SPU_CREATE_ISOLATE))
-+		return -EINVAL;
++	/* getting the id from the reg attribute will not work on future device-tree layouts
++	 * in future we should store the id to the spu struct and use it here */
++	spu = container_of(sysdev, struct spu, sysdev);
++	id = (unsigned int *)get_property(spu->devnode, "reg", NULL);
++	value.val = in_be64(&reg->val);
 +
-+	if (size < 1)
-+		return -EINVAL;
-+
-+	ret = spu_recycle_isolated(ctx);
-+
-+	if (ret)
-+		return ret;
-+	return size;
++	return value.spe[*id];
 +}
 +
-+static struct file_operations spufs_recycle_fops = {
-+	.open	 = spufs_recycle_open,
-+	.write	 = spufs_recycle_write,
++static ssize_t spu_show_temp(struct sys_device *sysdev, char *buf)
++{
++	int value;
++	struct cbe_pmd_regs __iomem *pmd_regs;
++
++	pmd_regs = get_pmd_regs(sysdev);
++
++	value = spu_read_register_value(sysdev, &pmd_regs->ts_ctsr1);
++	/* clear all other bits */
++	value &= 0x3F;
++	/* temp is stored in steps of 2 degrees */
++	value *= 2;
++	/* base temp is 65 degrees */
++	value += 65;
++
++	return sprintf(buf, "%d\n", (int) value);
++}
++
++static ssize_t ppe_show_temp(struct sys_device *sysdev, char *buf, int pos)
++{
++	struct cbe_pmd_regs __iomem *pmd_regs;
++	u64 value;
++
++	pmd_regs = cbe_get_cpu_pmd_regs(sysdev->id);
++	value = in_be64(&pmd_regs->ts_ctsr2);
++
++	/* access the corresponding byte */
++	value >>= pos;
++	/* clear all other bits */
++	value &= 0x3F;
++	/* temp is stored in steps of 2 degrees */
++	value *= 2;
++	/* base temp is 65 degrees */
++	value += 65;
++
++	return sprintf(buf, "%d\n", (int) value);
++}
++
++
++/* shows the temperature of the DTS on the PPE,
++ * located near the linear thermal sensor */
++static ssize_t ppe_show_temp0(struct sys_device *sysdev, char *buf)
++{
++	return ppe_show_temp(sysdev, buf, 32);
++}
++
++/* shows the temperature of the second DTS on the PPE */
++static ssize_t ppe_show_temp1(struct sys_device *sysdev, char *buf)
++{
++	return ppe_show_temp(sysdev, buf, 0);
++}
++
++static struct sysdev_attribute attr_spu_temperature = {
++	.attr = {.name = "temperature", .mode = 0400 },
++	.show = spu_show_temp,
 +};
 +
- static void spufs_npc_set(void *data, u64 val)
- {
- 	struct spu_context *ctx = data;
-@@ -1551,5 +1582,6 @@ struct tree_descr spufs_dir_nosched_cont
- 	{ "psmap", &spufs_psmap_fops, 0666, },
- 	{ "phys-id", &spufs_id_ops, 0666, },
- 	{ "object-id", &spufs_object_id_ops, 0666, },
-+	{ "recycle", &spufs_recycle_fops, 0222, },
- 	{},
- };
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/inode.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -248,7 +248,7 @@ static int spu_setup_isolated(struct spu
- 	if (!isolated_loader)
- 		return -ENODEV;
- 
--	if ((ret = spu_acquire_runnable(ctx)) != 0)
-+	if ((ret = spu_acquire_exclusive(ctx)) != 0)
- 		return ret;
- 
- 	mfc_cntl = &ctx->spu->priv2->mfc_control_RW;
-@@ -314,10 +314,16 @@ out_drop_priv:
- 	spu_mfc_sr1_set(ctx->spu, sr1);
- 
- out_unlock:
--	up_write(&ctx->state_sema);
-+	spu_release_exclusive(ctx);
- 	return ret;
- }
- 
-+int spu_recycle_isolated(struct spu_context *ctx)
-+{
-+	ctx->ops->runcntl_stop(ctx);
-+	return spu_setup_isolated(ctx);
-+}
++static struct attribute *spu_attributes[] = {
++	&attr_spu_temperature.attr,
++};
 +
- static int
- spufs_mkdir(struct inode *dir, struct dentry *dentry, unsigned int flags,
- 		int mode)
-@@ -341,12 +347,6 @@ spufs_mkdir(struct inode *dir, struct de
- 		goto out_iput;
- 
- 	ctx->flags = flags;
--	if (flags & SPU_CREATE_ISOLATE) {
--		ret = spu_setup_isolated(ctx);
--		if (ret)
--			goto out_iput;
--	}
--
- 	inode->i_op = &spufs_dir_inode_operations;
- 	inode->i_fop = &simple_dir_operations;
- 	if (flags & SPU_CREATE_NOSCHED)
-@@ -432,6 +432,13 @@ static int spufs_create_context(struct i
- out_unlock:
- 	mutex_unlock(&inode->i_mutex);
- out:
-+	if (ret >= 0 && (flags & SPU_CREATE_ISOLATE)) {
-+		int setup_err = spu_setup_isolated(
-+				SPUFS_I(dentry->d_inode)->i_ctx);
-+		if (setup_err)
-+			ret = setup_err;
++static struct attribute_group spu_attribute_group = {
++	.name	= "thermal",
++	.attrs	= spu_attributes,
++};
++
++static struct sysdev_attribute attr_ppe_temperature0 = {
++	.attr = {.name = "temperature0", .mode = 0400 },
++	.show = ppe_show_temp0,
++};
++
++static struct sysdev_attribute attr_ppe_temperature1 = {
++	.attr = {.name = "temperature1", .mode = 0400 },
++	.show = ppe_show_temp1,
++};
++
++static struct attribute *ppe_attributes[] = {
++	&attr_ppe_temperature0.attr,
++	&attr_ppe_temperature1.attr,
++};
++
++static struct attribute_group ppe_attribute_group = {
++	.name	= "thermal",
++	.attrs	= ppe_attributes,
++};
++
++/*
++ * initialize throttling with default values
++ */
++static void __init init_default_values(void)
++{
++	int cpu;
++	struct cbe_pmd_regs __iomem *pmd_regs;
++	struct sys_device *sysdev;
++	union ppe_spe_reg tpr;
++	union spe_reg str1;
++	u64 str2;
++	union spe_reg cr1;
++	u64 cr2;
++
++	/* TPR defaults */
++	/* ppe
++	 *	1F - no full stop
++	 *	08 - dynamic throttling starts if over 80 degrees
++	 *	03 - dynamic throttling ceases if below 70 degrees */
++	tpr.ppe = 0x1F0803;
++	/* spe
++	 *	10 - full stopped when over 96 degrees
++	 *	08 - dynamic throttling starts if over 80 degrees
++	 *	03 - dynamic throttling ceases if below 70 degrees
++	 */
++	tpr.spe = 0x100803;
++
++	/* STR defaults */
++	/* str1
++	 *	10 - stop 16 of 32 cycles
++	 */
++	str1.val = 0x1010101010101010ull;
++	/* str2
++	 *	10 - stop 16 of 32 cycles
++	 */
++	str2 = 0x10;
++
++	/* CR defaults */
++	/* cr1
++	 *	4 - normal operation
++	 */
++	cr1.val = 0x0404040404040404ull;
++	/* cr2
++	 *	4 - normal operation
++	 */
++	cr2 = 0x04;
++
++	for_each_possible_cpu (cpu) {
++		pr_debug("processing cpu %d\n", cpu);
++		sysdev = get_cpu_sysdev(cpu);
++		pmd_regs = cbe_get_cpu_pmd_regs(sysdev->id);
++
++		out_be64(&pmd_regs->tm_str2, str2);
++		out_be64(&pmd_regs->tm_str1.val, str1.val);
++		out_be64(&pmd_regs->tm_tpr.val, tpr.val);
++		out_be64(&pmd_regs->tm_cr1.val, cr1.val);
++		out_be64(&pmd_regs->tm_cr2, cr2);
 +	}
-+
- 	dput(dentry);
- 	return ret;
- }
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/spufs.h
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
-@@ -163,6 +163,12 @@ void spu_acquire(struct spu_context *ctx
- void spu_release(struct spu_context *ctx);
- int spu_acquire_runnable(struct spu_context *ctx);
- void spu_acquire_saved(struct spu_context *ctx);
-+int spu_acquire_exclusive(struct spu_context *ctx);
-+
-+static inline void spu_release_exclusive(struct spu_context *ctx)
-+{
-+	up_write(&ctx->state_sema);
 +}
- 
- int spu_activate(struct spu_context *ctx, u64 flags);
- void spu_deactivate(struct spu_context *ctx);
-@@ -170,6 +176,7 @@ void spu_yield(struct spu_context *ctx);
- int __init spu_sched_init(void);
- void __exit spu_sched_exit(void);
- 
-+int spu_recycle_isolated(struct spu_context *ctx);
- /*
-  * spufs_wait
-  * 	Same as wait_event_interruptible(), except that here
++
++
++static int __init thermal_init(void)
++{
++	init_default_values();
++
++	spu_add_sysdev_attr_group(&spu_attribute_group);
++	cpu_add_sysdev_attr_group(&ppe_attribute_group);
++
++	return 0;
++}
++module_init(thermal_init);
++
++static void __exit thermal_exit(void)
++{
++	spu_remove_sysdev_attr_group(&spu_attribute_group);
++	cpu_remove_sysdev_attr_group(&ppe_attribute_group);
++}
++module_exit(thermal_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Christian Krafft <krafft@de.ibm.com>");
++
 
 --
 

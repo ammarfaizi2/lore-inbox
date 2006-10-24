@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWJXMBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWJXMBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbWJXMBV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 08:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWJXMBV
+	id S1030364AbWJXMBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWJXMBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 08:01:21 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:5064 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030372AbWJXMBU (ORCPT
+	Tue, 24 Oct 2006 08:01:04 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:4515 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030364AbWJXMBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 08:01:20 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: pci_set_power_state() failure and breaking suspend
-Date: Tue, 24 Oct 2006 14:00:04 +0200
-User-Agent: KMail/1.9.1
-Cc: linux1394-devel@lists.sourceforge.net,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Pavel Machek <pavel@ucw.cz>
-References: <1161672898.10524.596.camel@localhost.localdomain>
-In-Reply-To: <1161672898.10524.596.camel@localhost.localdomain>
+	Tue, 24 Oct 2006 08:01:02 -0400
+Date: Tue, 24 Oct 2006 13:59:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Zan Lynx <zlynx@acm.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Giridhar Pemmasani <pgiri@yahoo.com>
+Subject: Re: incorrect taint of ndiswrapper
+In-Reply-To: <1161628581.8901.30.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0610241354280.11608@yvahk01.tjqt.qr>
+References: <20061023054119.75745.qmail@web32415.mail.mud.yahoo.com> 
+ <1161600064.19388.14.camel@localhost.localdomain> <1161628581.8901.30.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610241400.06047.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 24 October 2006 08:54, Benjamin Herrenschmidt wrote:
-> So I noticed a small regression that I think might uncover a deeper
-> issue...
-> 
-> Recently, ohci1394 grew some "proper" error handling in its suspend
-> function, something that looks like:
-> 
->         err = pci_set_power_state(pdev, pci_choose_state(pdev, state));
->         if (err)
->                 goto out;
-> 
-> First, it breaks some old PowerBooks where the internal OHCI had PM
-> feature exposed on PCI (the pmac specific code that follows those lines
-> is enough on those machines).
-> 
-> That can easily be fixed by removing the if (err) goto out; statement
-> and having the pmac code set err to 0 in certain conditions, and I'll be
-> happy to submit a patch for this.
-> 
-> However, this raises the question of do we actually want to prevent
-> machines to suspend when they have a PCI device that don't have the PCI
-> PM capability ? I'm asking that because I can easily imagine that sort
-> of construct growing into more drivers (sounds logical if you don't
-> think) and I can even imagine somebody thinking it's a good idea to slap
-> a __must_check on pci_set_power_state() ... 
+>
+>The kernel itself links GPL code to non-GPL via the Posix API (the
+>syscall layer).  The kernel also links GPL code to non-GPL via the PCI
+>layer (all that proprietary firmware on the other side).  The
+>ndiswrapper links GPL code to non-GPL via the NDIS API.
+>
+>No difference, really.
 
-As far as the suspend to RAM is concerned, I don't know.
+Behind the syscall layer is userspace (the well known ring 3), which, all bugs
+and problems aside, and exceptions like ioperm ruled out, cannot crash the
+kernel.
 
-For the suspend to disk we can ignore the error if we know that the device
-in question won't do anything like a DMA transfer into memory while we're
-creating the suspend image.
+I am not too aware about firmware and how it affects the running kernel, but
+usually it is a binary blob that gets loaded into the PCI device. May or may
+not crash the kernel - as said, I am not too aware of how it can tamper with
+the kernel.
 
-Greetings,
-Rafael
+NDIS code however is, unlike the above, run unconditionally in superprivileged
+level (ring 0), which quite distinct from userspace or firmwarespace[note
+warning above].
 
+Lastly, there is the new IIO code, which sounds like it is a well-defined (you
+name it) interface, to userspace however.
 
+If Windows drivers could run in userspace, there would not be a problem, would
+there be?
+
+>  Implementing a well-defined interface
+>abstraction layer doesn't make either side of it derived from the other.
+>(Exactly how well-defined, how abstract, and how derived are all
+>arguments for the lawyers.)
+>-- 
+>Zan Lynx <zlynx@acm.org>
+>
+
+	-`J'
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

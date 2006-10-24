@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030177AbWJXOIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWJXOJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030177AbWJXOIR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWJXOIQ
+	id S1030318AbWJXOJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbWJXOJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:08:16 -0400
-Received: from solarneutrino.net ([66.199.224.43]:6673 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1030177AbWJXOIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:08:16 -0400
-Date: Tue, 24 Oct 2006 10:07:51 -0400
-To: Avi Kivity <avi@argo.co.il>
-Cc: Keith Whitwell <keith@tungstengraphics.com>,
-       Keith Packard <keithp@keithp.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel 965G: i915_dispatch_cmdbuffer failed (2.6.19-rc2)
-Message-ID: <20061024140751.GA686@tau.solarneutrino.net>
-References: <20061020164008.GA29810@tau.solarneutrino.net> <453E0556.4050301@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <453E0556.4050301@argo.co.il>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Tue, 24 Oct 2006 10:09:08 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:29201 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030337AbWJXOJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 10:09:06 -0400
+Date: Tue, 24 Oct 2006 10:09:05 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+cc: "Christopher \"Monty\" Montgomery" <xiphmont@gmail.com>,
+       Paolo Ornati <ornati@fastwebnet.it>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.19-rc1-mm1 - locks when using "dd bs=1M"
+ from card reader
+In-Reply-To: <453DE80E.8090607@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44L0.0610241006160.6426-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 02:21:42PM +0200, Avi Kivity wrote:
-> Ryan Richter wrote:
-> >
-> >I had heard something previously about i965_dri.so maybe getting
-> >miscompiled, but I hadn't followed up on it until now.  I rebuilt it
-> >with an older gcc, and now it's all working great!  Sorry for the wild
-> >goose chase.
-> >
-> 
-> It was probably me.  I had the same experience, except that I recompiled 
-> using the system compiler.  Possibly it got updated between the distro 
-> compilation of the driver and my own.
-> 
-> So I don't think there's a need to try to reproduce it as it was 
-> probably fixed in gcc already.
-> 
-> https://bugs.freedesktop.org/show_bug.cgi?id=8384
+On Tue, 24 Oct 2006, Helge Hafting wrote:
 
-It worked for me when I recompiled with -fno-strict-aliasing (or with an
-older gcc - 3.4 rather than 4.1).
+> I just tested this. 2.6.18 does not crash. I still get tons of errors,
+> and no data. Copying using 1MB chunks or 4kB chunks
+> don't matter, it doesn't work.  So card, reader or driver must be faulty.
+> The card works in a windows machine though.
+> 
+> 2.6.19-rc1 gets data with 4kB chunks, and BUGs with 1M chunks.
 
--ryan
+It would be interesting to compare 2.6.18 with 2.6.19-rc to see why the 
+first gets only errors while the second is able to transfer some data 
+using 4 KB chunks.
+
+(By the way, what do you mean by 4 KB chunks or 1 MB chunks?  Does this 
+refer to the bs= option for dd?  That has almost nothing to do with the 
+size of the transfers actually sent to the device.)
+
+But the log will be useless unless you turn on CONFIG_USB_STORAGE_DEBUG.
+
+Alan Stern
+

@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751999AbWJXDFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWJXDJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751999AbWJXDFU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 23:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752019AbWJXDFU
+	id S932337AbWJXDJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 23:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWJXDJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 23:05:20 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:6538 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751999AbWJXDFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 23:05:18 -0400
-Date: Mon, 23 Oct 2006 20:06:45 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Ankita Garg <ankita@in.ibm.com>, akpm <akpm@osdl.org>
-Subject: [PATCH] lkdtm: cleanup headers and module_param/MODULE_PARM_DESC
-Message-Id: <20061023200645.1657b7ab.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
+	Mon, 23 Oct 2006 23:09:57 -0400
+Received: from xenotime.net ([66.160.160.81]:21724 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932321AbWJXDJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 23:09:56 -0400
+Date: Mon, 23 Oct 2006 20:11:35 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Giridhar Pemmasani <pgiri@yahoo.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: incorrect taint of ndiswrapper
+Message-Id: <20061023201135.0d8766c9.rdunlap@xenotime.net>
+In-Reply-To: <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+References: <1161608452.19388.31.camel@localhost.localdomain>
+	<20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
+Organization: YPO4
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Mon, 23 Oct 2006 19:43:47 -0700 (PDT) Giridhar Pemmasani wrote:
 
-Fix module_param/sysfs file permission typo.
+> --- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > Taint is used to identify situations where debug data may not be good,
+> > that may be proprietary or other dubiously legal code, it may be forcing
+> > SMP active on non SMP suitable systems, it may be overriding certain
+> > options in a potentially hazardous fashion. Taint exists primarily to
+> > help debugging data analysis.
+> 
+> I have read the history of the patch that marked ndiswrapper as "proprietary
+> module", which is not correct (and that was the point of my original post).
+> All the posts realted to this referred to issues with loading binary code
+> into kernel (and since ndiswrapper does taint the kernel when a driver is
+> loaded, this again is misplaced).
 
-Clean up MODULE_PARM_DESC strings to avoid fancy (and incorrect)
-formatting.
+The kernel should not depend on a not-in-tree kernel module to
+taint the kernel.  The kernel can and should do that itself.
 
-Fix header includes for lkdtm; add some needed ones, remove unused ones;
-and fix this gcc warning:
-drivers/misc/lkdtm.c:150: warning: 'struct buffer_head' declared inside parameter list
-drivers/misc/lkdtm.c:150: warning: its scope is only this definition or declaration, which is probably not what you want
+(big) If ndiswrapper were ever added to the kernel tree, then that would
+be a reasonable place to do/add the tainting.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/misc/lkdtm.c |   24 +++++++++++++-----------
- 1 files changed, 13 insertions(+), 11 deletions(-)
-
---- linux-2619-rc2g8.orig/drivers/misc/lkdtm.c
-+++ linux-2619-rc2g8/drivers/misc/lkdtm.c
-@@ -44,12 +44,14 @@
-  */
- 
- #include <linux/kernel.h>
-+#include <linux/fs.h>
- #include <linux/module.h>
-+#include <linux/buffer_head.h>
- #include <linux/kprobes.h>
--#include <linux/kallsyms.h>
-+#include <linux/list.h>
- #include <linux/init.h>
--#include <linux/irq.h>
- #include <linux/interrupt.h>
-+#include <linux/hrtimer.h>
- #include <scsi/scsi_cmnd.h>
- 
- #ifdef CONFIG_IDE
-@@ -116,16 +118,16 @@ static enum ctype cptype = NONE;
- static int count = DEFAULT_COUNT;
- 
- module_param(recur_count, int, 0644);
--MODULE_PARM_DESC(recur_count, "Recurcion level for the stack overflow test,\
--				 default is 10");
-+MODULE_PARM_DESC(recur_count, " Recursion level for the stack overflow test, "\
-+				 "default is 10");
- module_param(cpoint_name, charp, 0644);
--MODULE_PARM_DESC(cpoint_name, "Crash Point, where kernel is to be crashed");
--module_param(cpoint_type, charp, 06444);
--MODULE_PARM_DESC(cpoint_type, "Crash Point Type, action to be taken on\
--				hitting the crash point");
--module_param(cpoint_count, int, 06444);
--MODULE_PARM_DESC(cpoint_count, "Crash Point Count, number of times the \
--				crash point is to be hit to trigger action");
-+MODULE_PARM_DESC(cpoint_name, " Crash Point, where kernel is to be crashed");
-+module_param(cpoint_type, charp, 0644);
-+MODULE_PARM_DESC(cpoint_type, " Crash Point Type, action to be taken on "\
-+				"hitting the crash point");
-+module_param(cpoint_count, int, 0644);
-+MODULE_PARM_DESC(cpoint_count, " Crash Point Count, number of times the "\
-+				"crash point is to be hit to trigger action");
- 
- unsigned int jp_do_irq(unsigned int irq)
- {
-
+> > EXPORT_SYMBOL_GPL() is used to assert that the symbol is absolutely
+> > definitely not a public symbol. EXPORT_SYMBOL exports symbols which
+> > might be but even then the GPL derivative work rules apply. When you
+> > mark a driver GPL it is permitted to use _GPL symbols, but if it does so
+> > it cannot then go and load other non GPL symbols and expect people not
+> > to question its validity.
+> 
+> I was not fully aware of this issue until now (I have read posts related to
+> this issue now). Does this mean that any module that loads binary code can't
+> be GPL, even those that load firmware files? How is
+> non-GPL-due-to-transitivity going to be checked? Why does module loader mark
+> only couple of modules as non-GPL, when there are other drivers that load
+> some sort of binary code? It is understandable to mark a module as non-GPL if
+> it is lying about its license, but as far as that is concerned, ndiswrapper
+> (alone) is GPL.
 
 ---
 ~Randy

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWJXTNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751949AbWJXTWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161203AbWJXTNl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 15:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161205AbWJXTNl
+	id S1751949AbWJXTWN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 15:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751942AbWJXTWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 15:13:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48647 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161203AbWJXTNb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 15:13:31 -0400
-Date: Tue, 24 Oct 2006 08:40:03 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: David Miller <davem@davemloft.net>
-Cc: torvalds@osdl.org, ctpm@ist.utl.pt, linux-kernel@vger.kernel.org
-Subject: Re: Unintended commit?
-Message-ID: <20061024084002.GB4299@ucw.cz>
-References: <200610231809.09238.ctpm@ist.utl.pt> <Pine.LNX.4.64.0610231013340.3962@g5.osdl.org> <20061023.141040.59654407.davem@davemloft.net>
+	Tue, 24 Oct 2006 15:22:13 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:7634 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751798AbWJXTWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 15:22:12 -0400
+Date: Tue, 24 Oct 2006 15:22:10 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       John Partridge <johnip@sgi.com>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061024192210.GE2043@havoc.gtf.org>
+References: <adafyddcysw.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061023.141040.59654407.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <adafyddcysw.fsf@cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Oct 24, 2006 at 12:13:19PM -0700, Roland Dreier wrote:
+>  1) Is this something that should be fixed in the driver?  The PCI
+>     spec allows MMIO cycles to start before an earlier config cycle
+>     completed, but do we want to expose this fact to drivers?  Would
+>     it be better for ia64 to use some sort of barrier to make sure
+>     pci_write_config_xxx() is strongly ordered with MMIO?
 
-> Perhaps it would be cool if you could tell GIT "Look, I know I have
-> a change to foo.c, but it's a local hack and please act like it's
-> not there unless I try to do an operation where ignoring that change
-> is impossible, such as a merge."
+The PCI config APIs have traditionally enforced very strong ordering.
+Heck, the PCI config APIs often take a spinlock on each read or write;
+so they are definitely not intended to be as fast as MMIO.
 
-When  I was solving that problem, I ended up with two repositories:
+	Jeff
 
-clean-linus <-> linux-pavels-hacks <-> linux.
 
-That behaves mostly as you want it...
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.

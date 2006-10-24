@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWJXL1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbWJXLmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbWJXL1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 07:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWJXL1U
+	id S1030369AbWJXLmb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 07:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWJXLmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 07:27:20 -0400
-Received: from mail.phnxsoft.com ([195.227.45.4]:36356 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S1030317AbWJXL1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 07:27:19 -0400
-Message-ID: <453DF87F.8010009@imap.cc>
-Date: Tue, 24 Oct 2006 13:26:55 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5 Mnenhy/0.7.4.666
+	Tue, 24 Oct 2006 07:42:31 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:65241 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030369AbWJXLmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 07:42:31 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <453DFBFF.8040001@s5r6.in-berlin.de>
+Date: Tue, 24 Oct 2006 13:41:51 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Karsten Keil <kkeil@suse.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>,
-       akpm@osdl.org
-Subject: Re: [PATCH -mm] isdn/gigaset: use bitrev8
-References: <20061024085657.GD7703@localhost>
-In-Reply-To: <20061024085657.GD7703@localhost>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linux1394-devel@lists.sourceforge.net,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: pci_set_power_state() failure and breaking suspend
+References: <1161672898.10524.596.camel@localhost.localdomain>	 <1161675611.10524.598.camel@localhost.localdomain>	 <453DCB17.6050304@s5r6.in-berlin.de> <1161678557.10524.602.camel@localhost.localdomain>
+In-Reply-To: <1161678557.10524.602.camel@localhost.localdomain>
 X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA7B5A7B1667D87ABE3FC6059"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA7B5A7B1667D87ABE3FC6059
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Benjamin Herrenschmidt wrote:
+> Well, the question is wether we want to make the whole machine suspend
+> fail because there is a 1394 chip that doesn't do PCI PM in or not...
+> 
+> I can send patches "fixing" it both ways (just ignoring the result from
+> pci_set_power_state in general, or just ignoring that result on Apple
+> cells).
 
-On Tue, 24 Oct 2006 17:56:57 +0900, Akinobu Mita wrote:
-> Use bitrev8 for gigaset isdn driver.
+Yes, what would be the correct way to do this? And if it the latter
+option, should that be implemented in ohci1394 or in pci_set_power_state?
 
-Great. Thanks.
+grep says that almost nobody checks the return code of
+pci_set_power_state. But e.g. usb/core/hcd-pci.c does...
 
-> Cc: Karsten Keil <kkeil@suse.de>
-> Cc: Kai Germaschewski <kai.germaschewski@gmx.de>
-> Cc: Hansjoerg Lipp <hjlipp@web.de>
-> Cc: Tilman Schmidt <tilman@imap.cc>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-
-Acked-by: Tilman Schmidt <tilman@imap.cc>
-Acked-by: Hansjoerg Lipp <hjlipp@web.de>
-
->  drivers/isdn/gigaset/Kconfig     |    1 +
->  drivers/isdn/gigaset/asyncdata.c |    5 +++--
->  drivers/isdn/gigaset/common.c    |   37 ------------------------------=
--------
->  drivers/isdn/gigaset/gigaset.h   |    4 ----
->  drivers/isdn/gigaset/isocdata.c  |    5 +++--
->  5 files changed, 7 insertions(+), 45 deletions(-)
-
---=20
-Tilman Schmidt                    E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enigA7B5A7B1667D87ABE3FC6059
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD4DBQFFPfh/MdB4Whm86/kRAllvAJ9K8pL1jZQw1wWGa0QPJvvh2gZlxACVHF8K
-mM4Y6kdeo+qazp5iQRKvDg==
-=82XI
------END PGP SIGNATURE-----
-
---------------enigA7B5A7B1667D87ABE3FC6059--
+(Side note: The sole function that ohci1394's suspend and resume hooks
+fulfill right now in mainline is to change power consumption of the
+chip. The IEEE 1394 stack as a whole does not survive suspend + resume
+yet. A still incomplete solution is in linux1394-2.6.git.)
+-- 
+Stefan Richter
+-=====-=-==- =-=- ==---
+http://arcgraph.de/sr/

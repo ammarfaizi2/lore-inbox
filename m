@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWJXObq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWJXOdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbWJXObq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWJXObq
+	id S1030403AbWJXOdp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWJXOdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:31:46 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:41650 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1030398AbWJXObp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:31:45 -0400
-Date: Tue, 24 Oct 2006 16:31:44 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.17.13 on i386: tg3 related slab corruption
-Message-ID: <20061024143144.GB12781@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-BotBait: val@frankvm.com, kuil@frankvm.com
+	Tue, 24 Oct 2006 10:33:45 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:9349 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1030403AbWJXOdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 10:33:44 -0400
+Message-Id: <200610241421.k9OELHj6005788@laptop13.inf.utfsm.cl>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: video4linux-list@redhat.com, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, isely@pobox.com, slts@free.fr
+Subject: Re: [PATCH] pvrusb2: use NULL instead of 0 
+In-Reply-To: Message from Randy Dunlap <randy.dunlap@oracle.com> 
+   of "Mon, 23 Oct 2006 20:28:13 PDT." <20061023202813.ff01fc74.randy.dunlap@oracle.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Tue, 24 Oct 2006 11:21:17 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 24 Oct 2006 11:21:20 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On three different machine I catched this:
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> Fix sparse NULL usage warnings:
+> drivers/media/video/pvrusb2/pvrusb2-v4l2.c:714:14: warning: Using plain integer as NULL pointer
+> drivers/media/video/pvrusb2/pvrusb2-v4l2.c:715:16: warning: Using plain integer as NULL pointer
+> drivers/media/video/pvrusb2/pvrusb2-v4l2.c:1079:10: warning: Using plain integer as NULL pointer
+> drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c:224:58: warning: Using plain integer as NULL pointer
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c |    2 +-
+>  drivers/media/video/pvrusb2/pvrusb2-v4l2.c        |    6 +++---
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> --- linux-2.6.19-rc2-git8.orig/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c
+> +++ linux-2.6.19-rc2-git8/drivers/media/video/pvrusb2/pvrusb2-cx2584x-v4l.c
+> @@ -221,7 +221,7 @@ static unsigned int decoder_describe(str
+>  static void decoder_reset(struct pvr2_v4l_cx2584x *ctxt)
+>  {
+>  	int ret;
+> -	ret = pvr2_i2c_client_cmd(ctxt->client,VIDIOC_INT_RESET,0);
+> +	ret = pvr2_i2c_client_cmd(ctxt->client,VIDIOC_INT_RESET,NULL);
 
-2.6.17.13:
-Oct 24 08:26:41 lahti kernel: Slab corruption: start=c2750ef8, len=2048
-Oct 24 08:26:41 lahti kernel: Redzone: 0x5a2cf071/0x5a2cf071.
-Oct 24 08:26:41 lahti kernel: Last user: [release_mem+232/496](release_mem+0xe8/0x1f0)
-Oct 24 08:26:41 lahti kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff
-Oct 24 08:26:41 lahti kernel: 0c0: 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Oct 24 08:26:41 lahti kernel: Prev obj: start=c27506ec, len=2048
-Oct 24 08:26:41 lahti kernel: Redzone: 0x170fc2a5/0x170fc2a5.
-Oct 24 08:26:41 lahti kernel: Last user: [tg3_alloc_rx_skb+123/368](tg3_alloc_rx_skb+0x7b/0x170)
-Oct 24 08:26:41 lahti kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct 24 08:26:41 lahti kernel: 010: 5a 5a 00 13 72 ad 5b ba 00 50 56 00 02 d6 08 06
-Oct 24 08:26:41 lahti kernel: Next obj: start=c2751704, len=2048
-Oct 24 08:26:41 lahti kernel: Redzone: 0x170fc2a5/0x170fc2a5.
-Oct 24 08:26:41 lahti kernel: Last user: [tg3_alloc_rx_skb+123/368](tg3_alloc_rx_skb+0x7b/0x170)
-Oct 24 08:26:41 lahti kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct 24 08:26:41 lahti kernel: 010: 5a 5a 00 13 72 ad 5b ba 00 0e 0c bc 74 a5 08 00
+Should be, per Coding-style:
 
-2.6.17.8:
-Oct 24 16:06:20 jaala kernel: Slab corruption: start=e582d0c4, len=2048
-Oct 24 16:06:20 jaala kernel: Redzone: 0x5a2cf071/0x5a2cf071.
-Oct 24 16:06:20 jaala kernel: Last user: [release_mem+232/496](release_mem+0xe8/0x1f0)
-Oct 24 16:06:20 jaala kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff
-Oct 24 16:06:20 jaala kernel: 0c0: 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Oct 24 16:06:20 jaala kernel: Prev obj: start=e582c8b8, len=2048
-Oct 24 16:06:20 jaala kernel: Redzone: 0x170fc2a5/0x170fc2a5.
-Oct 24 16:06:20 jaala kernel: Last user: [tg3_alloc_rx_skb+123/368](tg3_alloc_rx_skb+0x7b/0x170)
-Oct 24 16:06:20 jaala kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct 24 16:06:20 jaala kernel: 010: 5a 5a 00 14 22 4c b1 01 00 12 3f 84 84 fe 08 00
+        ret = pvr2_i2c_client_cmd(ctxt->client, VIDIOC_INT_RESET, NULL);
 
-2.6.17.13:
-Oct  5 18:02:28 espoo kernel: Slab corruption: start=c221cb78, len=2048
-Oct  5 18:02:28 espoo kernel: Redzone: 0x5a2cf071/0x5a2cf071.
-Oct  5 18:02:28 espoo kernel: Last user: [release_mem+232/496](release_mem+0xe8/0x1f0)
-Oct  5 18:02:28 espoo kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff
-Oct  5 18:02:28 espoo kernel: 0c0: 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Oct  5 18:02:28 espoo kernel: Prev obj: start=c221c36c, len=2048
-Oct  5 18:02:28 espoo kernel: Redzone: 0x170fc2a5/0x170fc2a5.
-Oct  5 18:02:28 espoo kernel: Last user: [tg3_alloc_rx_skb+123/368](tg3_alloc_rx_skb+0x7b/0x170)
-Oct  5 18:02:28 espoo kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct  5 18:02:28 espoo kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct  5 18:02:28 espoo kernel: Next obj: start=c221d384, len=2048
-Oct  5 18:02:28 espoo kernel: Redzone: 0x170fc2a5/0x170fc2a5.
-Oct  5 18:02:28 espoo kernel: Last user: [tg3_alloc_rx_skb+123/368](tg3_alloc_rx_skb+0x7b/0x170)
-Oct  5 18:02:28 espoo kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-Oct  5 18:02:28 espoo kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-
-
-Since I saw some other discussions regarding TSO: According to ethtool it is off.
-
+There is more similar stuff in the patch. Why not clean that up in the
+same sweep?
 -- 
-Frank
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

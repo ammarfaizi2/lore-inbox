@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWJXWnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWJXWna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422777AbWJXWnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422776AbWJXWnp
+	id S1422771AbWJXWna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422772AbWJXWna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:43:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65511
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1422772AbWJXWnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:43:43 -0400
-Date: Tue, 24 Oct 2006 15:43:47 -0700 (PDT)
-Message-Id: <20061024.154347.77057163.davem@davemloft.net>
-To: matthew@wil.cx
-Cc: rdreier@cisco.com, jeff@garzik.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, johnip@sgi.com
-Subject: Re: Ordering between PCI config space writes and MMIO reads?
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061024223631.GT25210@parisc-linux.org>
-References: <20061024214724.GS25210@parisc-linux.org>
-	<adar6wxbcwt.fsf@cisco.com>
-	<20061024223631.GT25210@parisc-linux.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 24 Oct 2006 18:43:30 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27604 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1422771AbWJXWn3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 18:43:29 -0400
+Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
+	several drivers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, akpm@osdl.org,
+       maxk@qualcomm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20061024125306.GA1608@hmsreliant.homelinux.net>
+References: <20061023171910.GA23714@hmsreliant.homelinux.net>
+	 <1161660875.10524.535.camel@localhost.localdomain>
+	 <20061024125306.GA1608@hmsreliant.homelinux.net>
+Content-Type: text/plain
+Date: Wed, 25 Oct 2006 08:42:42 +1000
+Message-Id: <1161729762.10524.660.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matthew Wilcox <matthew@wil.cx>
-Date: Tue, 24 Oct 2006 16:36:32 -0600
+On Tue, 2006-10-24 at 08:53 -0400, Neil Horman wrote:
+> On Tue, Oct 24, 2006 at 01:34:34PM +1000, Benjamin Herrenschmidt wrote:
+> > On Mon, 2006-10-23 at 13:19 -0400, Neil Horman wrote:
+> > > Hey All-
+> > > 	Janitor patch to clean up return code handling and exit from failed
+> > > calls to misc_register accross several modules.
+> > 
+> > The patch doesn't match the description... What are those INIT_LIST_HEAD
+> > things ? Is this something I've missed or is this a new requirement for
+> > all misc devices ? Can't it be statically initialized instead ?
+> > 
+> 
+> The INIT_LIST_HEAD is there to prevent a potential oops on module removal.
+> misc_register, if it fails, leaves miscdevice.list unchanged.  That means its
+> next and prev pointers contain NULL or garbage, when both pointers should contain
+> &miscdevice.list. If we don't do that, then there is a chance we will oops on
+> module removal when we do a list_del in misc_deregister on the moudule_exit
+> routine.  I could have done this statically, but I thought it looked cleaner to
+> do it with the macro in the code.
 
-> This is only really a problem for setup (when we program the BARs), so
-> it seems silly to enforce an ordering at any other time.  Reluctantly, I
-> must disagree with Jeff -- drivers need to fix this.
+Hrm... I see, but I still for some reason don't like it that much.. I'd
+rather have misc_register() do the initialisation unconditionally before
+it can fail, don't you think ?
 
-One thing is that we definitely don't want to fix this by,
-for example, reading back the PCI_COMMAND register or something
-like that.  That causes two problems:
+We would theorically have a similar problem with any driver that does
 
-1) Some PCI config writes shut the device down and make it
-   no respond to some kinds of PCI config transactions.
-   One example is putting the device into D3 or similar
-   power state, another is performing a device reset.
 
-2) Several drivers use PCI config space accesses to touch the
-   main registers in order to workaround bugs in the PCI-X
-   implementation of their chip or similar (tg3 has a few
-   cases like this), doing a PCI config space readback will
-   kill performance quite a bit for an already slow situation.
+xxxx_register(&static_struct)
 
-In fact, I do recall that one of the x86 PCI config space access
-implementations did a readback like this, and we had to remove
-it because it caused problems when doing a reset on tg3 chips
-when using PCI config space register write to do the reset.
+and
+
+xxxx_unregister(&static_struct)
+
+(pci, usb, etc...)
+
+As long as there are list heads involved. I think the proper solution
+here is to have either the unregister be smart and test for NULL/NULL or
+the register initialize those fields before it has a chance to fail.
+
+Ben.
+
+

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbWJXLmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWJXMBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030369AbWJXLmb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 07:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWJXLmb
+	id S1030372AbWJXMBV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 08:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWJXMBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 07:42:31 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:65241 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1030369AbWJXLmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 07:42:31 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <453DFBFF.8040001@s5r6.in-berlin.de>
-Date: Tue, 24 Oct 2006 13:41:51 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 08:01:21 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:5064 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030372AbWJXMBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 08:01:20 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linux1394-devel@lists.sourceforge.net,
+Subject: Re: pci_set_power_state() failure and breaking suspend
+Date: Tue, 24 Oct 2006 14:00:04 +0200
+User-Agent: KMail/1.9.1
+Cc: linux1394-devel@lists.sourceforge.net,
        linuxppc-dev list <linuxppc-dev@ozlabs.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: pci_set_power_state() failure and breaking suspend
-References: <1161672898.10524.596.camel@localhost.localdomain>	 <1161675611.10524.598.camel@localhost.localdomain>	 <453DCB17.6050304@s5r6.in-berlin.de> <1161678557.10524.602.camel@localhost.localdomain>
-In-Reply-To: <1161678557.10524.602.camel@localhost.localdomain>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+       Greg KH <greg@kroah.com>, Pavel Machek <pavel@ucw.cz>
+References: <1161672898.10524.596.camel@localhost.localdomain>
+In-Reply-To: <1161672898.10524.596.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610241400.06047.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> Well, the question is wether we want to make the whole machine suspend
-> fail because there is a 1394 chip that doesn't do PCI PM in or not...
+On Tuesday, 24 October 2006 08:54, Benjamin Herrenschmidt wrote:
+> So I noticed a small regression that I think might uncover a deeper
+> issue...
 > 
-> I can send patches "fixing" it both ways (just ignoring the result from
-> pci_set_power_state in general, or just ignoring that result on Apple
-> cells).
+> Recently, ohci1394 grew some "proper" error handling in its suspend
+> function, something that looks like:
+> 
+>         err = pci_set_power_state(pdev, pci_choose_state(pdev, state));
+>         if (err)
+>                 goto out;
+> 
+> First, it breaks some old PowerBooks where the internal OHCI had PM
+> feature exposed on PCI (the pmac specific code that follows those lines
+> is enough on those machines).
+> 
+> That can easily be fixed by removing the if (err) goto out; statement
+> and having the pmac code set err to 0 in certain conditions, and I'll be
+> happy to submit a patch for this.
+> 
+> However, this raises the question of do we actually want to prevent
+> machines to suspend when they have a PCI device that don't have the PCI
+> PM capability ? I'm asking that because I can easily imagine that sort
+> of construct growing into more drivers (sounds logical if you don't
+> think) and I can even imagine somebody thinking it's a good idea to slap
+> a __must_check on pci_set_power_state() ... 
 
-Yes, what would be the correct way to do this? And if it the latter
-option, should that be implemented in ohci1394 or in pci_set_power_state?
+As far as the suspend to RAM is concerned, I don't know.
 
-grep says that almost nobody checks the return code of
-pci_set_power_state. But e.g. usb/core/hcd-pci.c does...
+For the suspend to disk we can ignore the error if we know that the device
+in question won't do anything like a DMA transfer into memory while we're
+creating the suspend image.
 
-(Side note: The sole function that ohci1394's suspend and resume hooks
-fulfill right now in mainline is to change power consumption of the
-chip. The IEEE 1394 stack as a whole does not survive suspend + resume
-yet. A still incomplete solution is in linux1394-2.6.git.)
+Greetings,
+Rafael
+
+
 -- 
-Stefan Richter
--=====-=-==- =-=- ==---
-http://arcgraph.de/sr/
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

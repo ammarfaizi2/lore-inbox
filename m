@@ -1,57 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWJXCYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWJXCYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWJXCYS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Oct 2006 22:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWJXCYS
+	id S965042AbWJXCYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Oct 2006 22:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWJXCYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Oct 2006 22:24:18 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:34764 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S965045AbWJXCYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Oct 2006 22:24:17 -0400
-Date: Mon, 23 Oct 2006 22:24:06 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux 2.6.19-rc3
-In-reply-to: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Message-id: <200610232224.06909.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0610231618510.3962@g5.osdl.org>
-User-Agent: KMail/1.7
+	Mon, 23 Oct 2006 22:24:55 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:40622 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965042AbWJXCYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Oct 2006 22:24:54 -0400
+Subject: oprofile can cause an NMI to schedule (was: [RT] scheduling and
+	oprofile)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, phil.el@wanadoo.fr,
+       oprofile-list@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20061023212307.GA21498@monkey.beaverton.ibm.com>
+References: <20061023212307.GA21498@monkey.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 23 Oct 2006 22:24:34 -0400
+Message-Id: <1161656674.13276.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 October 2006 19:22, Linus Torvalds wrote:
->Ok,
-> a few days late, because I'm a retard and didn't think of doing a
-> release when I should have.
+On Mon, 2006-10-23 at 14:23 -0700, Mike Kravetz wrote:
+> I've been trying to use oprofile on an RT kernel to look at some
+> performance issues.  While running I notice the following sent to
+> the console:
+> 
+> BUG: scheduling with irqs disabled: java/0x00000000/4521
+> caller is rt_mutex_slowlock+0x156/0x1dd
+>  [<c032051a>] schedule+0x65/0xd2 (8)
+>  [<c0321338>] rt_mutex_slowlock+0x156/0x1dd (12)
+>  [<c032142a>] rt_mutex_lock+0x24/0x28 (72)
+>  [<c0134904>] rt_down_read+0x38/0x3b (20)
+>  [<c0322a89>] do_page_fault+0xe3/0x52d (12)
+>  [<c03229a6>] do_page_fault+0x0/0x52d (76)
+>  [<c01033bb>] error_code+0x4f/0x54 (8)
+>  [<c01ce6d0>] __copy_from_user_ll+0x55/0x7c (44)
+>  [<f89be7ef>] dump_user_backtrace+0x2e/0x56 [oprofile] (24)
+>  [<c0134869>] rt_up_read+0x3e/0x41 (20)
+>  [<f89be864>] x86_backtrace+0x4a/0x5a [oprofile] (20)
+>  [<f89bd53a>] oprofile_add_sample+0x73/0x89 [oprofile] (20)
+>  [<f89beea3>] athlon_check_ctrs+0x22/0x4a [oprofile] (32)
+>  [<f89be8c5>] nmi_callback+0x18/0x1b [oprofile] (28)
+>  [<c01041ff>] do_nmi+0x24/0x33 (12)
+>  [<c0103462>] nmi_stack_correct+0x1d/0x22 (16)
+> 
+> It seems strange to me that oprofile would be calling
+> '__copy_from_user_ll' in this context.  I can see why the
+> changes made for RT locking expose this.  But, doesn't this
+> issue also exist on non-RT (default) kernels?  What happens
+> when we generate a page fault in this context on non-RT kernels?
+> 
 
-A couple of things noted in a dmesg report after booting it.
+As Mike has pointed out here, oprofile _can_ cause the nmi to schedule.
+Here's the path: (looking at vanilla 2.6.18).
 
-drivers/rtc/hctosys.c: unable to open rtc device (rtc0)
------
-warning: process `date' used the removed sysctl system call
------
-warning: process `date' used the removed sysctl system call
------
-warning: process `quotaon' used the removed sysctl system call
-------
-warning: process `kudzu' used the removed sysctl system call
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00d0035600a886d8]
-warning: process `kudzu' used the removed sysctl system call
+arch/i386/oprofile/nmi_int.c: nmi_callback
 
-The system seems to be ok so far.
+	return model->check_ctrs(regs, &cpu_msrs[cpu]);
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+if model == &op_athlon_spec
+ (could be a problem with others, but I'm only looking here).
+   
+op_athlon_spec.check_ctrs =  &athlon_check_ctrs
+
+
+Here's the calling path:
+
+  athlon_check_ctrs
+
+   ==> oprofile_add_sample
+
+   ==> oprofile_add_ext_sample
+
+   ==> oprofile_ops.backtrace
+           == x86_backtrace
+
+   ==> dump_user_backtrace
+
+   ==> __copy_from_user_inatomic
+
+   Don't let the name fool you, this _can_ schedule! (and says so in the
+comments above it).
+
+Now perhaps on a vanilla kernel opfile_add_ext_sample is not likely to
+have log_sample fail. I don't know, but this path exits, so we can
+indeed schedule in a NMI interrupt.
+
+Mike, thanks for pointing this out.
+
+-- Steve
+
+
+

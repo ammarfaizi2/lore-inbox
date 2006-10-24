@@ -1,46 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbWJXVcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161234AbWJXVd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbWJXVcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161229AbWJXVcN
+	id S1161234AbWJXVd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161235AbWJXVd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:32:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:26414 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161228AbWJXVcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:32:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NKB9dW05fNAVqmDE/ZjWcgaSlUBjaZcxNbPgbXQ9RCXlGamWEFr96AqukX85E6hZqvF2SEGlPVWYcAQshSB2M2rgwR00qoVHw48nAV7gH4rrBWbntKPVAHcN30pNytAJDBDdbVnrgMixr/y9YHt9oOe9c25xcIvdLfx/VrZXXqU=
-Message-ID: <21d7e9970610241431j38c59ec5rac17f780813e6f05@mail.gmail.com>
-Date: Tue, 24 Oct 2006 14:31:41 -0700
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Nick Piggin" <npiggin@suse.de>
-Subject: Re: [patch 3/3] mm: fault handler to replace nopage and populate
-Cc: "Linux Memory Management" <linux-mm@kvack.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061007105853.14024.95383.sendpatchset@linux.site>
+	Tue, 24 Oct 2006 17:33:27 -0400
+Received: from outbound-red.frontbridge.com ([216.148.222.49]:23527 "EHLO
+	outbound1-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1161234AbWJXVd0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:33:26 -0400
+X-BigFish: VP
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061007105758.14024.70048.sendpatchset@linux.site>
-	 <20061007105853.14024.95383.sendpatchset@linux.site>
+Subject: [PATCH] x86_64 irq: reset more to default when clear irq_vector
+ for destroy_irq
+Date: Tue, 24 Oct 2006 14:33:08 -0700
+Message-ID: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64 irq: reset more to default when clear
+ irq_vector for destroy_irq
+Thread-Index: Acb29PZqiQrjMhYqRXOk2C3vtxTWVwApoRYQAAVpBDA=
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@muc.de>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Muli Ben-Yehuda" <muli@il.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Oct 2006 21:33:09.0946 (UTC)
+ FILETIME=[006571A0:01C6F7B4]
+X-WSS-ID: 6920591F1AO236771-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/7/06, Nick Piggin <npiggin@suse.de> wrote:
-> Nonlinear mappings are (AFAIKS) simply a virtual memory concept that
-> encodes the virtual address -> file offset differently from linear
-> mappings.
->
+ 
+Clear the irq releated entries in irq_vector, irq_domain and vector_irq 
+instead of clearing irq_vector only. So when new irq is created, it 
+could get that vector.
 
-Hi Nick,
+Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
 
-what is the status of this patch? I'm just trying to line up a kernel
-tree for the new DRM memory management code, which really would like
-this...
+--- linux-2.6/arch/x86_64/kernel/io_apic.c	2006-10-24
+13:40:48.000000000 -0700
++++ linux-2.6.xx/arch/x86_64/kernel/io_apic.c	2006-10-24
+14:03:08.000000000 -0700
+@@ -716,6 +716,22 @@
+ 	return vector;
+ }
+ 
++static void __clear_irq_vector(int irq)
++{
++	int old_vector = -1;
++	if (irq_vector[irq] > 0)
++		old_vector = irq_vector[irq];
++	if (old_vector >= 0) {
++		cpumask_t old_mask;
++		int old_cpu;
++		cpus_and(old_mask, irq_domain[irq], cpu_online_map);
++		for_each_cpu_mask(old_cpu, old_mask)
++			per_cpu(vector_irq, old_cpu)[old_vector] = -1;
++	}
++	irq_vector[irq] = 0;
++	irq_domain[irq] = CPU_MASK_NONE;
++}
++
+ void __setup_vector_irq(int cpu)
+ {
+ 	/* Initialize vector_irq on a new cpu */
+@@ -1803,7 +1819,7 @@
+ 	dynamic_irq_cleanup(irq);
+ 
+ 	spin_lock_irqsave(&vector_lock, flags);
+-	irq_vector[irq] = 0;
++	__clear_irq_vector(irq);
+ 	spin_unlock_irqrestore(&vector_lock, flags);
+ }
+ 
 
-Dave.
+

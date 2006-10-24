@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWJXKTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWJXKTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWJXKTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 06:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWJXKTo
+	id S965126AbWJXKTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 06:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWJXKTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 06:19:44 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:38137 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030254AbWJXKTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 06:19:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=Gi2Hu2Ru0MhXRIJRmHreeZgLPEg6oDLBRUrrGpJehJVATc1vDqAJdEzfROQ5BOKdsUAI/t1cmhDAcH3P0n6eTrAyt8XDWb7zFTw7aGsZO7ypVZgsCrwxr3iUsj982Cg81p6OIR1Aq34JY8JA93fg1FLw799wIoZZ1JaxrPn9Eiw=
-Date: Tue, 24 Oct 2006 19:19:40 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: Re: [PATCH] appletalk: prevent unregister_sysctl_table() with a NULL argument
-Message-ID: <20061024101940.GA10575@localhost>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	David Rientjes <rientjes@cs.washington.edu>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-References: <20061024085357.GB7703@localhost> <Pine.LNX.4.64N.0610240229140.10760@attu4.cs.washington.edu>
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 06:19:04 -0400
+Received: from rubidium.solidboot.com ([81.22.244.175]:61571 "EHLO
+	mail.solidboot.com") by vger.kernel.org with ESMTP id S965126AbWJXKTD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 06:19:03 -0400
+Date: Tue, 24 Oct 2006 13:14:58 +0300
+From: Timo Teras <timo.teras@solidboot.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Timo Teras <timo.teras@solidboot.com>, linux-kernel@vger.kernel.org
+Subject: Re: MMC: When rescanning cards check existing cards after mmc_setup()
+Message-ID: <20061024101458.GA17024@mail.solidboot.com>
+References: <20061016090609.GB17596@mail.solidboot.com> <453B4005.8080501@drzeus.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64N.0610240229140.10760@attu4.cs.washington.edu>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <453B4005.8080501@drzeus.cx>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2006 at 02:38:24AM -0700, David Rientjes wrote:
+On Sun, Oct 22, 2006 at 11:55:17AM +0200, Pierre Ossman wrote:
+> Timo Teras wrote:
+> > Some broken cards seem to process CMD1 even in stand-by state. The result is
+> > that the card replies with ILLEGAL_COMMAND error for the next command sent
+> > after rescanning. Currently the next command is select card, which would
+> > return the error. But the CMD7 does actually succeed and retries of the
+> > command will timeout. The solution is to poll card status after the CMD1
+> > which clears the cached error.
+>
+> I take it these cards do not reply to CMD2?
 
-> The only way this would happen at atalk_unregister_sysctl is if the 
-> kmalloc failed on register_sysctl_table during init.  In that case there 
-> is no need to unregister atalk in the first place since it never came up, 
+No. It just caches the error and fails the next command sent.
 
-Yes. this patch doesn't cause failure if sysctl registration failed.
-It aims to avoid that minor possible NULL pointer dereference.
+> This change is ok right now, but might come back to bite us in the
+> future if we implement more intelligent voltage selection (right now new
+> cards will have to make due with what's already selected).
 
-> so this doesn't appear to be the correct fix.  Even if it were possible, 
-> this check should be done at atalk_exit instead of 
-> atalk_unregister_sysctl.
+I see. The voltage selection is done in mmc_setup() based on what cards are
+present.
 
-Are there any difference?
-Because atalk_unregister_sysctl() is only called from atalk_exit(). And
-atalk_table_header is static variable. So there is no way to know
-whether sysclt registration was succeeded or not. Or is it better to
-export atalk_table_header for that check from atalk_exit()?
+> If we check cards on both sides of mmc_setup(), then we should be covered.
+
+Should I update my patch to do this already? Or is the code fine as is?
+
+> Also, please add some comments about why we do this. Otherwise it will
+> run the risk of getting removed in the future.
+
+Will do.
+
+I'll send updated patch later on.
+
+-- Timo
 

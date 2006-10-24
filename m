@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWJXOFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbWJXOFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbWJXOFB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWJXOFB
+	id S1161098AbWJXOFw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWJXOFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:05:01 -0400
-Received: from ns2.suse.de ([195.135.220.15]:63448 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161092AbWJXOFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:05:00 -0400
-From: Andi Kleen <ak@suse.de>
-To: vgoyal@in.ibm.com
-Subject: Re: [RFC][PATCH 0/11] i386: Relocatable BzImage (V3)
-Date: Tue, 24 Oct 2006 06:44:20 -0700
-User-Agent: KMail/1.9.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, maneesh@in.ibm.com
-References: <20061023192456.GA13263@in.ibm.com>
-In-Reply-To: <20061023192456.GA13263@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 24 Oct 2006 10:05:52 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61420 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161094AbWJXOFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 10:05:51 -0400
+Subject: Re: 2.6.19-rc2 - Cable detection problem in pata_amd
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Walt H <walt_h@lorettotel.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+In-Reply-To: <453D5067.9070407@lorettotel.net>
+References: <453D5067.9070407@lorettotel.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610240644.20940.ak@suse.de>
+Date: Tue, 24 Oct 2006 15:08:59 +0100
+Message-Id: <1161698939.22348.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 October 2006 12:24, Vivek Goyal wrote:
-> Hi,
->
-> Here is the third attempt on implementing relocatable bzImage for i386.
-> Eric has done all the ground work and I am just giving it final finish.
-> Generated patches against (2.6.19-rc2-git7).
+Ar Llu, 2006-10-23 am 18:29 -0500, ysgrifennodd Walt H:
+> On bootup, the pata_amd driver mis-detects the cable connected to the
+> 2nd port on my system as 40 wire and sets UDMA/33 for this drive. Prior
 
-I merged them now. Didn't see anything that i didn't like, but I admit
-i haven't read everything closely
+Can you stick it in bugzilla.kernel.org and assign it to me. Also attach
+an lspci -vxxx. There is a bug or two somewhere in this area still but
+I'm very busy at the moment with other stuff so don't want your report
+to go in one ear and out of the other in a couple of days then get
+forgotten.
 
--Andi
+

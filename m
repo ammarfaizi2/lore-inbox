@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWJXICD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWJXIFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWJXICD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 04:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWJXICB
+	id S932428AbWJXIFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 04:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWJXIFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 04:02:01 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22788 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932408AbWJXICA
+	Tue, 24 Oct 2006 04:05:21 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:20417 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932428AbWJXIE7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 04:02:00 -0400
-Date: Tue, 24 Oct 2006 08:01:31 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061024080130.GB4211@ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <1161605379.3315.23.camel@nigel.suspend2.net> <200610231607.17525.rjw@sisk.pl> <20061023095522.e837ad89.akpm@osdl.org> <20061023171450.GA3766@elf.ucw.cz> <20061023105022.8b1dc75d.akpm@osdl.org> <1161644306.7033.18.camel@nigel.suspend2.net>
+	Tue, 24 Oct 2006 04:04:59 -0400
+Date: Tue, 24 Oct 2006 09:04:56 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: WARNING: Do not use with EFI-based (e.g. IA64) systems. Bootloader may get eaten
+Message-ID: <20061024080456.GA30505@skynet.ie>
+References: <20061020015641.b4ed72e5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1161644306.7033.18.camel@nigel.suspend2.net>
+In-Reply-To: <20061020015641.b4ed72e5.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Last time I checked, suspend2 was 15000 lines of code, including its
-> > > own plugin system and special user-kernel protocol for drawing
-> > > progress bar (netlink based). It also did parts of user interface from
-> > 
-> > That's different.
+On (20/10/06 01:56), Andrew Morton didst pronounce:
 > 
-> Let's judge those bits when we see them, rather than going on rumour and
-> inuendo :)
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc2/2.6.19-rc2-mm2/
+> 
 
-Ok, but lets not merge patches 'because shiny great future patch may
-depend on them'.
+Due to the issue described here (http://lkml.org/lkml/2006/10/21/61),
+any system based on EFI may have issues with their bootloader. As the boot
+partition is FAT32 any alteration of files in the EFI partition will
+effectively delete them and the machine will need to be recovered via
+CD or by booting over the network.
 
-> I am seeking to produce patches to merge Suspend2 one bit at a time, as
-> has been requested in the past. I'd therefore ask that you do that,
-> because even if Pavel and Rafael don't like the overall thrust, it
-> doesn't mean you can't cherry pick what is good and useful along the
-> way.
-
-Yep, this is indeed way to go.
-							Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

@@ -1,129 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbWJXNhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbWJXNnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbWJXNhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 09:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWJXNhS
+	id S965138AbWJXNnk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 09:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWJXNnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 09:37:18 -0400
-Received: from mail.tmr.com ([64.65.253.246]:10160 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S965136AbWJXNhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 09:37:16 -0400
-Message-ID: <453E1701.9010403@tmr.com>
-Date: Tue, 24 Oct 2006 09:37:05 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060910 SeaMonkey/1.0.5
+	Tue, 24 Oct 2006 09:43:40 -0400
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:37244 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S965138AbWJXNnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 09:43:39 -0400
+Message-ID: <453E1886.8010608@qumranet.com>
+Date: Tue, 24 Oct 2006 15:43:34 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Andrew Lyon <andrew.lyon@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SATA CD/DVDRW Support in 2.6.18?
-References: <f4527be0610010740r662f8d8at4dbbf68d1543040f@mail.gmail.com> <f4527be0610101628h2aea0d80sda94e1431cb82f14@mail.gmail.com>
-In-Reply-To: <f4527be0610101628h2aea0d80sda94e1431cb82f14@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andi Kleen <ak@suse.de>
+CC: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] x86: Extract segment descriptor definitions for use outside
+ of x86_64
+References: <453CC390.9080508@qumranet.com> <200610232235.29287.arnd@arndb.de> <453E0108.3080502@qumranet.com> <200610232219.46369.ak@suse.de>
+In-Reply-To: <200610232219.46369.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2006 13:43:38.0924 (UTC) FILETIME=[69289EC0:01C6F772]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Code that wants to use struct desc_struct cannot do so on i386 because
+desc.h contains other code that will only compile on x86_64.
 
-Andrew Lyon wrote:
->> Hi,
->>
->> I have a Samsung SH-W163A SATA CD/DVDRW connected to jmicron
->> 20360/20363 onboard sata controller, running kernel 2.6.18 with sr_mod
->> loaded I can mount recorded/original disks and read them, but if I try
->> to burn a cd or dvd using cdrecord, and somtimes when mounting media I
->> get loads of errors in dmesg and the burn fails:
+So extract the structure definitions into a asm-x86_64/desc_defs.h.
 
-Not having any SATA CD burners, I can only go by my experience using USB 
-and Firewire burners, which also appear to be SCSI. They work fine using 
-the device name rather than playing with the ATA or ATAPI stuff. And if 
-you're using ProDVD I suggest you download the latest cdrecord from the 
-usual site and build that, DVD support is now in the cdrecord source, as 
-it is in most distributions.
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-I use multiple PATA and USB burners on several systems, and haven't had 
-problems. I actually do have SCSI devices, they have always worked and 
-continue to (slowly) do so.
+ include/asm-x86_64/desc.h      |   53 +------------------------------
+ include/asm-x86_64/desc_defs.h |   69 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+), 52 deletions(-)
 
-If you post again after trying the current source, please include the 
-command used as well as the output from the log. By using the latest you 
-at least MIGHT get some help from the author, instead of the usual 
-"don't bother me with obsolete versions" reply.
->>
->> ata2.00: speed down requested but no transfer mode left
->> ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
->> ata2.00: (irq_stat 0x48000000, interface fatal error)
->> ata2.00: tag 0 cmd 0xa0 Emask 0x50 stat 0x51 err 0x30 (ATA bus error)
->> ata2: soft resetting port
->> ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
->> ata2.00: configured for PIO0
->> ata2: EH complete
->> ata2.00: speed down requested but no transfer mode left
->> ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
->> ata2.00: (irq_stat 0x48000000, interface fatal error)
->> ata2.00: tag 0 cmd 0xa0 Emask 0x50 stat 0x51 err 0x30 (ATA bus error)
->> ata2: soft resetting port
->> ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
->> ata2.00: configured for PIO0
->> ata2: EH complete
->> ata2.00: speed down requested but no transfer mode left
->> ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
->> ata2.00: (irq_stat 0x48000000, interface fatal error)
->>
->>
->> It looks like the interface is trying to run at 1.5Gbps which is
->> obviously too fast for this drive, is there any way to set the
->> interface speed ? I have a WD Raptor on the other sata port of the
->> jmicron and that works perfectly (as long as NCQ is disabled - drive
->> firmware bug).
->>
->> What is the status of sata cd/dvdrw support? It is getting hard to buy
->> machines with IDE writers, most of our workstations are dell and have
->> only sata devices, we have similar problems with those.
->>
->> Andy
->>
-> 
-> I've done some more testing, I do not get the errors above when
-> reading a cd or dvd, only when I try to record using cdrecord (or
-> other apps) using ATAPI, here is some info from cdrecord:
-> 
-> cdrecord dev=ATAPI:0,0,0 -checkdrive
-> Cdrecord-ProDVD-Clone 2.01.01a10 (i686-pc-linux-gnu) Copyright (C)
-> 1995-2006 Jörg Schilling
-> scsidev: 'ATAPI:0,0,0'
-> devname: 'ATAPI'
-> scsibus: 0 target: 0 lun: 0
-> Warning: Using ATA Packet interface.
-> Warning: The related Linux kernel interface code seems to be unmaintained.
-> Warning: There is absolutely NO DMA, operations thus are slow.
-> Using libscg version 'schily-0.8'.
-> Device type    : Removable CD-ROM
-> Version        : 5
-> Response Format: 2
-> Capabilities   :
-> Vendor_info    : 'TSSTcorp'
-> Identifikation : 'CD/DVDW SH-W163A'
-> Revision       : 'TS01'
-> Device seems to be: Generic mmc2 DVD-R/DVD-RW.
-> Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
-> Driver flags   : DVD MMC-3 SWABAUDIO BURNFREE
-> Supported modes: PACKET SAO
-> 
-> 
-> Are these codes: Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen , from
-> the kernel? or from the sata chip? if they are from the chip does
-> anybody know where I might find datasheets for  JMicron 20360/20363
-> AHCI Controller (rev 02) ? perhaps I might find a clue there..
-> 
-> Read speeds seem ok, 15MB/sec from a original dvd.
-> 
-> andy
+diff --git a/include/asm-x86_64/desc.h b/include/asm-x86_64/desc.h
+index eb7723a..913d6ac 100644
+--- a/include/asm-x86_64/desc.h
++++ b/include/asm-x86_64/desc.h
+@@ -9,64 +9,13 @@ #ifndef __ASSEMBLY__
+ 
+ #include <linux/string.h>
+ #include <linux/smp.h>
++#include <asm/desc_defs.h>
+ 
+ #include <asm/segment.h>
+ #include <asm/mmu.h>
+ 
+-// 8 byte segment descriptor
+-struct desc_struct { 
+-	u16 limit0;
+-	u16 base0;
+-	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;
+-	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 : 8;
+-} __attribute__((packed)); 
+-
+-struct n_desc_struct { 
+-	unsigned int a,b;
+-}; 	
+-
+ extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+ 
+-enum { 
+-	GATE_INTERRUPT = 0xE, 
+-	GATE_TRAP = 0xF, 	
+-	GATE_CALL = 0xC,
+-}; 	
+-
+-// 16byte gate
+-struct gate_struct {          
+-	u16 offset_low;
+-	u16 segment; 
+-	unsigned ist : 3, zero0 : 5, type : 5, dpl : 2, p : 1;
+-	u16 offset_middle;
+-	u32 offset_high;
+-	u32 zero1; 
+-} __attribute__((packed));
+-
+-#define PTR_LOW(x) ((unsigned long)(x) & 0xFFFF) 
+-#define PTR_MIDDLE(x) (((unsigned long)(x) >> 16) & 0xFFFF)
+-#define PTR_HIGH(x) ((unsigned long)(x) >> 32)
+-
+-enum { 
+-	DESC_TSS = 0x9,
+-	DESC_LDT = 0x2,
+-}; 
+-
+-// LDT or TSS descriptor in the GDT. 16 bytes.
+-struct ldttss_desc { 
+-	u16 limit0;
+-	u16 base0;
+-	unsigned base1 : 8, type : 5, dpl : 2, p : 1;
+-	unsigned limit1 : 4, zero0 : 3, g : 1, base2 : 8;
+-	u32 base3;
+-	u32 zero1; 
+-} __attribute__((packed)); 
+-
+-struct desc_ptr {
+-	unsigned short size;
+-	unsigned long address;
+-} __attribute__((packed)) ;
+-
+ #define load_TR_desc() asm volatile("ltr %w0"::"r" (GDT_ENTRY_TSS*8))
+ #define load_LDT_desc() asm volatile("lldt %w0"::"r" (GDT_ENTRY_LDT*8))
+ #define clear_LDT()  asm volatile("lldt %w0"::"r" (0))
+diff --git a/include/asm-x86_64/desc_defs.h b/include/asm-x86_64/desc_defs.h
+new file mode 100644
+index 0000000..7408266
+--- /dev/null
++++ b/include/asm-x86_64/desc_defs.h
+@@ -0,0 +1,69 @@
++/* Written 2000 by Andi Kleen */ 
++#ifndef __ARCH_DESC_DEFS_H
++#define __ARCH_DESC_DEFS_H
++
++/*
++ * Segment descriptor structure definitions, usable from both x86_64 and i386
++ * archs.
++ */
++
++#ifndef __ASSEMBLY__
++
++#include <linux/types.h>
++
++// 8 byte segment descriptor
++struct desc_struct { 
++	u16 limit0;
++	u16 base0;
++	unsigned base1 : 8, type : 4, s : 1, dpl : 2, p : 1;
++	unsigned limit : 4, avl : 1, l : 1, d : 1, g : 1, base2 : 8;
++} __attribute__((packed)); 
++
++struct n_desc_struct { 
++	unsigned int a,b;
++}; 	
++
++enum { 
++	GATE_INTERRUPT = 0xE, 
++	GATE_TRAP = 0xF, 	
++	GATE_CALL = 0xC,
++}; 	
++
++// 16byte gate
++struct gate_struct {          
++	u16 offset_low;
++	u16 segment; 
++	unsigned ist : 3, zero0 : 5, type : 5, dpl : 2, p : 1;
++	u16 offset_middle;
++	u32 offset_high;
++	u32 zero1; 
++} __attribute__((packed));
++
++#define PTR_LOW(x) ((unsigned long)(x) & 0xFFFF) 
++#define PTR_MIDDLE(x) (((unsigned long)(x) >> 16) & 0xFFFF)
++#define PTR_HIGH(x) ((unsigned long)(x) >> 32)
++
++enum { 
++	DESC_TSS = 0x9,
++	DESC_LDT = 0x2,
++}; 
++
++// LDT or TSS descriptor in the GDT. 16 bytes.
++struct ldttss_desc { 
++	u16 limit0;
++	u16 base0;
++	unsigned base1 : 8, type : 5, dpl : 2, p : 1;
++	unsigned limit1 : 4, zero0 : 3, g : 1, base2 : 8;
++	u32 base3;
++	u32 zero1; 
++} __attribute__((packed)); 
++
++struct desc_ptr {
++	unsigned short size;
++	unsigned long address;
++} __attribute__((packed)) ;
++
++
++#endif /* !__ASSEMBLY__ */
++
++#endif
+
 
 
 -- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+error compiling committee.c: too many arguments to function
+

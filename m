@@ -1,130 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWJXINI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWJXING@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbWJXINI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 04:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWJXINH
+	id S932411AbWJXING (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 04:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWJXING
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 04:13:07 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:50930 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S932429AbWJXINF (ORCPT
+	Tue, 24 Oct 2006 04:13:06 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:30971 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932411AbWJXIND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 04:13:05 -0400
+	Tue, 24 Oct 2006 04:13:03 -0400
 From: Haavard Skinnemoen <hskinnemoen@atmel.com>
 To: torvalds@osdl.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: [PATCH 1/8] AVR32: Minor Makefile cleanup
+Subject: [PATCH 7/8] AVR32: Use __raw MMIO access for internal peripherals
 Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Tue, 24 Oct 2006 10:12:39 +0200
-Message-Id: <11616775663220-git-send-email-hskinnemoen@atmel.com>
+Date: Tue, 24 Oct 2006 10:12:45 +0200
+Message-Id: <11616775664128-git-send-email-hskinnemoen@atmel.com>
 X-Mailer: git-send-email 1.4.1.1
-In-Reply-To: <1161677566706-git-send-email-hskinnemoen@atmel.com>
-References: <1161677566706-git-send-email-hskinnemoen@atmel.com>
+In-Reply-To: <11616775662032-git-send-email-hskinnemoen@atmel.com>
+References: <1161677566706-git-send-email-hskinnemoen@atmel.com> <11616775663220-git-send-email-hskinnemoen@atmel.com> <11616775662194-git-send-email-hskinnemoen@atmel.com> <11616775661390-git-send-email-hskinnemoen@atmel.com> <11616775661978-git-send-email-hskinnemoen@atmel.com> <1161677566524-git-send-email-hskinnemoen@atmel.com> <11616775662032-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't generate listing by default, remove unused LIBGCC variable and
-rename generated disassembly and listing files to vmlinux.{s,lst}.
+The read[bwl] and write[bwl] functions are meant for accessing PCI
+devices. How this is achieved on AVR32 is unknown, as there are no
+systems with a PCI bridge available yet.
 
-Also make sure that files generated during the build are actually
-removed with make clean.
+On-chip peripheral access, however, should not depend on how we end
+up implementing PCI access, so using __raw_read[bwl]/__raw_write[bwl]
+is the right thing to do for on-chip peripherals. This patch converts
+the drivers for the static memory controller, interrupt controller,
+PIO controller and system manager to use __raw MMIO access.
 
 Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 ---
- arch/avr32/Makefile             |   21 +++++++++++++--------
- arch/avr32/boot/images/Makefile |    4 +---
- 2 files changed, 14 insertions(+), 11 deletions(-)
+ arch/avr32/mach-at32ap/hsmc.h |    4 ++--
+ arch/avr32/mach-at32ap/intc.h |    6 ++++--
+ arch/avr32/mach-at32ap/pio.h  |    6 ++++--
+ arch/avr32/mach-at32ap/sm.h   |    6 ++++--
+ 4 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/avr32/Makefile b/arch/avr32/Makefile
-index cefc95a..7b842e9 100644
---- a/arch/avr32/Makefile
-+++ b/arch/avr32/Makefile
-@@ -7,7 +7,7 @@ # Copyright (C) 2004-2006 Atmel Corporat
+diff --git a/arch/avr32/mach-at32ap/hsmc.h b/arch/avr32/mach-at32ap/hsmc.h
+index 5681276..d1d48e2 100644
+--- a/arch/avr32/mach-at32ap/hsmc.h
++++ b/arch/avr32/mach-at32ap/hsmc.h
+@@ -120,8 +120,8 @@ #define HSMC_BFINS(name,value,old)					\
  
- # Default target when executing plain make
- .PHONY: all
--all: uImage vmlinux.elf linux.lst
-+all: uImage vmlinux.elf
+ /* Register access macros */
+ #define hsmc_readl(port,reg)						\
+-	readl((port)->regs + HSMC_##reg)
++	__raw_readl((port)->regs + HSMC_##reg)
+ #define hsmc_writel(port,reg,value)					\
+-	writel((value), (port)->regs + HSMC_##reg)
++	__raw_writel((value), (port)->regs + HSMC_##reg)
  
- KBUILD_DEFCONFIG	:= atstk1002_defconfig
+ #endif /* __ASM_AVR32_HSMC_H__ */
+diff --git a/arch/avr32/mach-at32ap/intc.h b/arch/avr32/mach-at32ap/intc.h
+index d289ca2..4d3664e 100644
+--- a/arch/avr32/mach-at32ap/intc.h
++++ b/arch/avr32/mach-at32ap/intc.h
+@@ -321,7 +321,9 @@ #define INTC_BIT(name)               (1 
+ #define INTC_MKBF(name, value)       (((value) & ((1 << INTC_##name##_SIZE) - 1)) << INTC_##name##_OFFSET)
+ #define INTC_GETBF(name, value)      (((value) >> INTC_##name##_OFFSET) & ((1 << INTC_##name##_SIZE) - 1))
  
-@@ -21,9 +21,7 @@ cpuflags-$(CONFIG_CPU_AP7000)	+= -mcpu=a
- CFLAGS		+= $(cpuflags-y)
- AFLAGS		+= $(cpuflags-y)
+-#define intc_readl(port,reg)         readl((port)->regs + INTC_##reg)
+-#define intc_writel(port,reg,value)  writel((value), (port)->regs + INTC_##reg)
++#define intc_readl(port,reg)					\
++	__raw_readl((port)->regs + INTC_##reg)
++#define intc_writel(port,reg,value)				\
++	__raw_writel((value), (port)->regs + INTC_##reg)
  
--CHECKFLAGS	+= -D__avr32__
--
--LIBGCC		:= $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
-+CHECKFLAGS	+= -D__avr32__ -D__BIG_ENDIAN
+ #endif /* __ASM_AVR32_PERIHP_INTC_H__ */
+diff --git a/arch/avr32/mach-at32ap/pio.h b/arch/avr32/mach-at32ap/pio.h
+index cfea123..50fa3ac 100644
+--- a/arch/avr32/mach-at32ap/pio.h
++++ b/arch/avr32/mach-at32ap/pio.h
+@@ -170,8 +170,10 @@ #define PIO_BFEXT(name,value)           
+ #define PIO_BFINS(name,value,old)              (((old) & ~(((1 << PIO_##name##_SIZE) - 1) << PIO_##name##_OFFSET)) | PIO_BF(name,value))
  
- head-$(CONFIG_LOADER_U_BOOT)		+= arch/avr32/boot/u-boot/head.o
- head-y					+= arch/avr32/kernel/head.o
-@@ -32,7 +30,7 @@ core-$(CONFIG_BOARD_ATSTK1000)		+= arch/
- core-$(CONFIG_LOADER_U_BOOT)		+= arch/avr32/boot/u-boot/
- core-y					+= arch/avr32/kernel/
- core-y					+= arch/avr32/mm/
--libs-y					+= arch/avr32/lib/ #$(LIBGCC)
-+libs-y					+= arch/avr32/lib/
+ /* Register access macros */
+-#define pio_readl(port,reg)                    readl((port)->regs + PIO_##reg)
+-#define pio_writel(port,reg,value)             writel((value), (port)->regs + PIO_##reg)
++#define pio_readl(port,reg)					\
++	__raw_readl((port)->regs + PIO_##reg)
++#define pio_writel(port,reg,value)				\
++	__raw_writel((value), (port)->regs + PIO_##reg)
  
- archincdir-$(CONFIG_PLATFORM_AT32AP)	:= arch-at32ap
+ void at32_init_pio(struct platform_device *pdev);
  
-@@ -48,6 +46,8 @@ endif
+diff --git a/arch/avr32/mach-at32ap/sm.h b/arch/avr32/mach-at32ap/sm.h
+index 2756582..cad02b5 100644
+--- a/arch/avr32/mach-at32ap/sm.h
++++ b/arch/avr32/mach-at32ap/sm.h
+@@ -234,7 +234,9 @@ #define SM_BFEXT(name,value)            
+ #define SM_BFINS(name,value,old)                (((old) & ~(((1 << SM_##name##_SIZE) - 1) << SM_##name##_OFFSET)) | SM_BF(name,value))
  
- archprepare: include/asm-avr32/.arch
+ /* Register access macros */
+-#define sm_readl(port,reg)                      readl((port)->regs + SM_##reg)
+-#define sm_writel(port,reg,value)               writel((value), (port)->regs + SM_##reg)
++#define sm_readl(port,reg)					\
++	__raw_readl((port)->regs + SM_##reg)
++#define sm_writel(port,reg,value)				\
++	__raw_writel((value), (port)->regs + SM_##reg)
  
-+CLEAN_FILES += include/asm-avr32/.arch include/asm-avr32/arch
-+
- BOOT_TARGETS := vmlinux.elf vmlinux.bin uImage uImage.srec
- 
- .PHONY: $(BOOT_TARGETS) install
-@@ -71,14 +71,19 @@ vmlinux.elf vmlinux.bin uImage.srec uIma
- install: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) $@
- 
--linux.s: vmlinux
-+vmlinux.s: vmlinux
- 	$(call if_changed,disasm)
- 
--linux.lst: vmlinux
-+vmlinux.lst: vmlinux
- 	$(call if_changed,listing)
- 
-+CLEAN_FILES += vmlinux.s vmlinux.lst
-+
-+archclean:
-+	$(Q)$(MAKE) $(clean)=$(boot)
-+
- define archhelp
-   @echo '* vmlinux.elf		- ELF image with load address 0'
-   @echo '  vmlinux.cso		- PathFinder CSO image'
--  @echo '  uImage		- Create a bootable image for U-Boot'
-+  @echo '* uImage		- Create a bootable image for U-Boot'
- endef
-diff --git a/arch/avr32/boot/images/Makefile b/arch/avr32/boot/images/Makefile
-index ccd74ee..219720a 100644
---- a/arch/avr32/boot/images/Makefile
-+++ b/arch/avr32/boot/images/Makefile
-@@ -37,14 +37,12 @@ OBJCOPYFLAGS_vmlinux.elf := --change-sec
- 			    --change-section-lma .data-0x80000000 \
- 			    --change-section-lma .init-0x80000000 \
- 			    --change-section-lma .bss-0x80000000 \
--			    --change-section-lma .initrd-0x80000000 \
- 			    --change-section-lma __param-0x80000000 \
- 			    --change-section-lma __ksymtab-0x80000000 \
- 			    --change-section-lma __ksymtab_gpl-0x80000000 \
- 			    --change-section-lma __kcrctab-0x80000000 \
- 			    --change-section-lma __kcrctab_gpl-0x80000000 \
- 			    --change-section-lma __ksymtab_strings-0x80000000 \
--			    --change-section-lma .got-0x80000000 \
- 			    --set-start 0xa0000000
- $(obj)/vmlinux.elf: vmlinux FORCE
- 	$(call if_changed,objcopy)
-@@ -59,4 +57,4 @@ install: $(BOOTIMAGE)
- 	sh $(srctree)/install-kernel.sh $<
- 
- # Generated files to be removed upon make clean
--clean-files	:= vmlinux* uImage uImage.srec
-+clean-files	:= vmlinux.elf vmlinux.bin vmlinux.gz uImage uImage.srec
+ #endif /* __ASM_AVR32_SM_H__ */
 -- 
 1.4.1.1
 

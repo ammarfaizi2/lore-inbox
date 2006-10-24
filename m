@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422626AbWJXViD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWJXVix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422626AbWJXViD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422629AbWJXViB
+	id S1422638AbWJXVix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWJXViw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:38:01 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15540 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1422626AbWJXViA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:38:00 -0400
-Date: Tue, 24 Oct 2006 23:37:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061024213737.GD5662@elf.ucw.cz>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024163345.GG11034@melbourne.sgi.com>
-MIME-Version: 1.0
+	Tue, 24 Oct 2006 17:38:52 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:3632 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S1422634AbWJXViv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:38:51 -0400
+Date: Tue, 24 Oct 2006 14:38:50 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Avi Kivity <avi@qumranet.com>, Muli Ben-Yehuda <muli@il.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kvm_create() (was Re: [PATCH 0/7] KVM: Kernel-based Virtual Machine)
+Message-ID: <20061024213850.GA7529@hexapodia.org>
+References: <4537818D.4060204@qumranet.com> <20061019173151.GD4957@rhun.haifa.ibm.com> <4537BD27.7050509@qumranet.com> <200610211816.27964.arnd@arndb.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061024163345.GG11034@melbourne.sgi.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200610211816.27964.arnd@arndb.de>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I don't have much clue what the context of this is, but one chunk caught
+my eye:
 
-> > Do you mean calling sys_sync() after the userspace has been frozen
-> > may not be sufficient?
+On Sat, Oct 21, 2006 at 06:16:27PM +0200, Arnd Bergmann wrote:
+> Your example above could translate to something like:
 > 
-> In most cases it probably is, but sys_sync() doesn't provide any
-> guarantees that the filesystem is not being used or written to after
-> it completes. Given that every so often I hear about an XFS filesystem
-> that was corrupted by suspend, I don't think this is sufficient...
+>    int kvm_fd = kvm_create("/kvm/my_vcpu")
+>    int mem_fd = openat(kvm_fd, "mem", O_RDWR);
 
-Userspace is frozen. There's noone that can write to the XFS
-filesystem.
+Based just on this snippet, it seems to me that kvm_create() could be
+simply:
+    open("/kvm/my_vcpu", O_CREAT | O_EXCL | O_DIRECTORY, 0777);
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+(Which currently seems to silently mask out O_DIRECTORY, but seems to me
+should be a synonym for mkdir().)
+
+-andy

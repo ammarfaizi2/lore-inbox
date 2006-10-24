@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWJXKBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbWJXKJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWJXKBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 06:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWJXKBI
+	id S965125AbWJXKJY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 06:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbWJXKJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 06:01:08 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:43258 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030269AbWJXKBF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 06:01:05 -0400
-Date: Tue, 24 Oct 2006 03:00:32 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] x86_64 add missing enter_idle() calls
-Message-ID: <20061024100032.GA7085@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20061006081607.GB8793@frankl.hpl.hp.com> <200610161636.52721.ak@suse.de> <20061021091837.GA24670@frankl.hpl.hp.com> <200610211522.53938.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610211522.53938.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Tue, 24 Oct 2006 06:09:24 -0400
+Received: from smtp2-g19.free.fr ([212.27.42.28]:1670 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S965125AbWJXKJX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 06:09:23 -0400
+Message-ID: <453DE64A.4040507@ruault.com>
+Date: Tue, 24 Oct 2006 12:09:14 +0200
+From: Charles-Edouard Ruault <ce@ruault.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] PPC suspend to ram broken on 2.6.18.1
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Hi All,
+i'm running Fedora core 5 on my Powerbook G4 laptop, i'm using the 
+Fedora provided kernels and since version 2.6.17 i'm unable to have the 
+laptop suspend to ram as it used to do before.
+I'm unplugging the network cable, the usb mouse and the power cord. Then 
+i close the lid. I don't see the blinking led
+When i open the lid nothing happens, black screen. The only way out is a 
+hard reboot.
+Here are the last logs i see in /var/log/messages:
 
-On Sat, Oct 21, 2006 at 03:22:53PM +0200, Andi Kleen wrote:
-> 
-> > I finally found the culprit for this. The current code is wrong for the
-> > simple reason that the cpu_idle() function is NOT always the lowest level
-> > idle loop function. For enter_idle()/__exit_idle() to work correctly they
-> > must be placed in the lowest-level idle loop. The cpu_idle() eventually ends
-> > up in the idle() function, but this one may have a loop in it! This is the
-> > case when idle()=cpu_default_idle() and idle()=poll_idle(), for instance. 
-> 
-> Ah now I remember - i had actually fixed that (it was the cleanup-idle-loops
-> patch) that moved the loops one level up. But then I disabled the patch
-> at the request of Andrew because it conflicted with some ACPI idle changes.
-> 
-> I'll readd it for .20, then things should be ok.
-> 
+Oct 24 11:37:22 kaluha pmud[2262]: running /etc/power/pwrctl minimum battery
+Oct 24 11:37:22 kaluha pwrctl: calling /etc/power/pwrctl-local minimum 
+battery
+Oct 24 11:37:22 kaluha pwrctl-local: minimum power battery
+Oct 24 11:37:30 kaluha kernel: usb 2-1: USB disconnect, address 4
+Oct 24 11:37:43 kaluha pmud[2262]: running /etc/power/pwrctl lid-closed 
+battery
+Oct 24 11:37:43 kaluha pwrctl: calling /etc/power/pwrctl-local 
+lid-closed battery
+Oct 24 11:37:43 kaluha pwrctl-local: lid-closed battery
+Oct 24 11:37:43 kaluha pmud[2262]: lid closed: request sleep
+Oct 24 11:37:43 kaluha pmud[2262]: running /etc/power/pwrctl sleep battery
+Oct 24 11:37:43 kaluha pwrctl: calling /etc/power/pwrctl-local sleep battery
+Oct 24 11:37:43 kaluha pwrctl-local: sleep battery
+Oct 24 11:37:43 kaluha pmud[2262]: going to sleep
+Oct 24 11:37:45 kaluha kernel:  usbdev3.1_ep81: PM: suspend 0->2, parent 
+3-0:1.0 already 1
+Oct 24 11:37:45 kaluha kernel:  usbdev2.1_ep81: PM: suspend 0->2, parent 
+2-0:1.0 already 1
 
-Ok, that's good. In the meantime, I need to produce the i386 equivalent.
-Given how poll_idle() works (tight loop), I don't think we can just add
-enter_idle()/exit_idle() around the loop, we also need to cover the interrupt
-handlers, because that is the only place where we can catch activity considered
-useful.
+here's my hardware info:
+
+processor       : 0
+cpu             : 7447/7457, altivec supported
+clock           : 612.000000MHz
+revision        : 0.1 (pvr 8002 0101)
+bogomips        : 36.73
+timebase        : 18432000
+platform        : PowerMac
+machine         : PowerBook5,2
+motherboard     : PowerBook5,2 MacRISC3 Power Macintosh
+detected as     : 287 (PowerBook G4 15")
+pmac flags      : 0000001b
+L2 cache        : 512K unified
+pmac-generation : NewWorld
+ 
+uname -a
+Linux kaluha 2.6.18-1.2200.fc5 #1 Sat Oct 14 17:05:22 EDT 2006 ppc ppc 
+ppc GNU/Linux
+
+Any help would be greatly appreciated !
+Regards.
+Please CC me since i do not subscribe to the list.
+
 
 -- 
--Stephane
+Charles-Edouard Ruault
+GPG key Id E4D2B80C
+

@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWJXOD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbWJXOFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbWJXOD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWJXOD5
+	id S1161092AbWJXOFB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWJXOFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:03:57 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63202 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161002AbWJXOD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:03:57 -0400
-Subject: Re: incorrect taint of ndiswrapper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Giridhar Pemmasani <pgiri@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
-References: <20061024024347.57840.qmail@web32414.mail.mud.yahoo.com>
-Content-Type: text/plain
+	Tue, 24 Oct 2006 10:05:01 -0400
+Received: from ns2.suse.de ([195.135.220.15]:63448 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161092AbWJXOFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 10:05:00 -0400
+From: Andi Kleen <ak@suse.de>
+To: vgoyal@in.ibm.com
+Subject: Re: [RFC][PATCH 0/11] i386: Relocatable BzImage (V3)
+Date: Tue, 24 Oct 2006 06:44:20 -0700
+User-Agent: KMail/1.9.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, maneesh@in.ibm.com
+References: <20061023192456.GA13263@in.ibm.com>
+In-Reply-To: <20061023192456.GA13263@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Oct 2006 15:07:10 +0100
-Message-Id: <1161698830.22348.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200610240644.20940.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-23 am 19:43 -0700, ysgrifennodd Giridhar Pemmasani:
-> I was not fully aware of this issue until now (I have read posts related to
-> this issue now). Does this mean that any module that loads binary code can't
-> be GPL, even those that load firmware files? How is
+On Monday 23 October 2006 12:24, Vivek Goyal wrote:
+> Hi,
+>
+> Here is the third attempt on implementing relocatable bzImage for i386.
+> Eric has done all the ground work and I am just giving it final finish.
+> Generated patches against (2.6.19-rc2-git7).
 
-Firmware is usually more clearly separated (the problem ultimately is
-that "derived work" is a legal not a technical distinction).
+I merged them now. Didn't see anything that i didn't like, but I admit
+i haven't read everything closely
 
-> non-GPL-due-to-transitivity going to be checked? Why does module loader mark
-> only couple of modules as non-GPL, when there are other drivers that load
-> some sort of binary code? It is understandable to mark a module as non-GPL if
-> it is lying about its license, but as far as that is concerned, ndiswrapper
-> (alone) is GPL.
-
-Yes. I don't think the current situation is neccessarily correct, but if
-it uses EXPORT_SYMBOL_GPL then the "now taint me" ought to fail and the
-driver ought to refuse to load a non GPL windows driver.
-
-Alan
-
+-Andi

@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWJXVql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbWJXVr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWJXVql (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWJXVql
+	id S1422675AbWJXVr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWJXVr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:46:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33507 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422658AbWJXVqk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:46:40 -0400
-Date: Tue, 24 Oct 2006 14:46:20 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: driver-support@fabric7.com
-Cc: schidambaram@fabric7.com, Jeff Garzik <jeff@garzik.org>,
-       KERNEL Linux <linux-kernel@vger.kernel.org>,
-       NETDEV Linux <netdev@vger.kernel.org>
-Subject: Re: [PATCH 1/1] Fabric7 VIOC: Ethtool
-Message-ID: <20061024144620.4c9892f6@dxpl.pdx.osdl.net>
-In-Reply-To: <1161725441.8112.11.camel@rh234.mv.fabric7.com>
-References: <1161725441.8112.11.camel@rh234.mv.fabric7.com>
-X-Mailer: Sylpheed-Claws 2.5.5 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Oct 2006 17:47:27 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:45453 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1422671AbWJXVrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:47:25 -0400
+Date: Tue, 24 Oct 2006 15:47:24 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, John Partridge <johnip@sgi.com>
+Subject: Re: Ordering between PCI config space writes and MMIO reads?
+Message-ID: <20061024214724.GS25210@parisc-linux.org>
+References: <adafyddcysw.fsf@cisco.com> <20061024192210.GE2043@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024192210.GE2043@havoc.gtf.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Oct 2006 14:30:41 -0700
-Sriram Chidambaram <schidambaram@fabric7.com> wrote:
+On Tue, Oct 24, 2006 at 03:22:10PM -0400, Jeff Garzik wrote:
+> The PCI config APIs have traditionally enforced very strong ordering.
+> Heck, the PCI config APIs often take a spinlock on each read or write;
+> so they are definitely not intended to be as fast as MMIO.
 
-> Ethtool patch for Fabric7 VIOC Device Driver.
-> 
-> Signed-off-by: Fabric7 Driver-Support <driver-support@fabric7.com>
-> ---
->  Makefile.am    |    2 +-
->  ethtool-util.h |    2 ++
->  ethtool.c      |    1 +
->  vioc.c         |   35 +++++++++++++++++++++++++++++++++++
->  4 files changed, 39 insertions(+), 1 deletions(-)
-> 
-> diff --git a/Makefile.am b/Makefile.am
-> index 97ad512..240979e 100644
-> --- a/Makefile.am
-> +++ b/Makefile.am
-> @@ -7,7 +7,7 @@ sbin_PROGRAMS = ethtool
->  ethtool_SOURCES = ethtool.c ethtool-copy.h ethtool-util.h	\
->  		  amd8111e.c de2104x.c e100.c e1000.c		\
->  		  fec_8xx.c ibm_emac.c ixgb.c natsemi.c		\
-> -		  pcnet32.c realtek.c tg3.c marvell.c
-> +		  pcnet32.c realtek.c tg3.c marvell.c vioc.c
->  
->  dist-hook:
->  	cp $(top_srcdir)/ethtool.spec $(distdir)
-> diff --git a/ethtool-util.h b/ethtool-util.h
-> index 0909a5a..dcb0c1c 100644
-> --- a/ethtool-util.h
-> +++ b/ethtool-util.h
-> @@ -54,4 +54,6 @@ int skge_dump_regs(struct ethtool_drvinf
->  /* SysKonnect Gigabit (Yukon2) */
->  int sky2_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs);
->  
-> +/* Fabric7 VIOC */
-> +int vioc_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs);
->  #endif
-> diff --git a/ethtool.c b/ethtool.c
-> index b783248..6e68009 100644
-> --- a/ethtool.c
-> +++ b/ethtool.c
-> @@ -958,6 +958,7 @@ static struct {
->  	{ "tg3", tg3_dump_regs },
->  	{ "skge", skge_dump_regs },
->  	{ "sky2", sky2_dump_regs },
-> +        { "vioc", vioc_dump_regs },
->  };
->  
->  static int dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs)
-> diff --git a/vioc.c b/vioc.c
-> new file mode 100644
-> index 0000000..b58dd40
-> --- /dev/null
-> +++ b/vioc.c
-> @@ -0,0 +1,35 @@
-> +/* Copyright 2006 Fabric7 Systems, Inc */
-> +
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include "ethtool-util.h"
-> +
-> +struct regs_line {
-> +		u32	addr;
-> +		u32	data;
-> +};
-> +
-> +#define VIOC_REGS_LINE_SIZE	sizeof(struct regs_line)
-> +
-> +int vioc_dump_regs(struct ethtool_drvinfo *info, struct ethtool_regs *regs)
-> +{
-> +	unsigned int	i;
-> +	unsigned int	num_regs;
-> +	struct regs_line *reg_info = (struct regs_line *) regs->data;
-> +
-> +	printf("%s: Enter\n", __FUNCTION__);
+s/often/always/.  It's implemented in drivers/pci/access.c.
 
-Leftover debug?
+I think the right way to fix this is to ensure mmio write ordering in
+the pci_write_config_*() implementations.  Like this.
+
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+
+diff --git a/drivers/pci/access.c b/drivers/pci/access.c
+index ea16805..c80f1ba 100644
+--- a/drivers/pci/access.c
++++ b/drivers/pci/access.c
+@@ -1,6 +1,6 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+-#include <linux/ioport.h>
++#include <linux/io.h>
+ 
+ #include "pci.h"
+ 
+@@ -45,6 +45,7 @@ int pci_bus_write_config_##size \
+ 	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
+ 	spin_lock_irqsave(&pci_lock, flags);				\
+ 	res = bus->ops->write(bus, devfn, pos, len, value);		\
++	mmiowb();							\
+ 	spin_unlock_irqrestore(&pci_lock, flags);			\
+ 	return res;							\
+ }
+@@ -102,6 +103,7 @@ int pci_user_write_config_##size					\
+ 	if (likely(!dev->block_ucfg_access))				\
+ 		ret = dev->bus->ops->write(dev->bus, dev->devfn,	\
+ 					pos, sizeof(type), val);	\
++	mmiowb();							\
+ 	spin_unlock_irqrestore(&pci_lock, flags);			\
+ 	return ret;							\
+ }

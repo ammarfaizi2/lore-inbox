@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWJXJo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWJXJrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWJXJo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 05:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWJXJo5
+	id S1030257AbWJXJrg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 05:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWJXJrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 05:44:57 -0400
-Received: from www.osadl.org ([213.239.205.134]:33154 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030226AbWJXJo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 05:44:56 -0400
-Subject: Re: rtmutex's wait_lock in 2.6.18-rt7
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0610231150500.12557@frodo.shire>
-References: <Pine.LNX.4.64.0610231150500.12557@frodo.shire>
+	Tue, 24 Oct 2006 05:47:36 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:64737 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1030257AbWJXJrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 05:47:35 -0400
+Subject: Re: [PATCH] do_acct_process: don't take tty_mutex
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061023135644.GA1501@oleg>
+References: <20061023135644.GA1501@oleg>
 Content-Type: text/plain
-Date: Tue, 24 Oct 2006 11:46:03 +0200
-Message-Id: <1161683163.22373.68.camel@localhost.localdomain>
+Date: Tue, 24 Oct 2006 11:48:15 +0200
+Message-Id: <1161683295.24143.12.camel@taijtu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-23 at 11:55 +0200, Esben Nielsen wrote:
-> Hi,
->   I see that in 2.6.18-rt7 the rtmutex's wait_lock is sudden interrupt 
-> disabling. I don't see the need as no (hard) interrupt-handlers should be 
-> touching any mutex.
+On Mon, 2006-10-23 at 17:56 +0400, Oleg Nesterov wrote:
+> Depends on
+> 	tty-signal-tty-locking.patch
+> 
+> No need to take the global tty_mutex, signal->tty->driver can't go away
+> while we are holding ->siglock.
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-It does not touch mutexes, but the dynamic priority adjustment of the
-hrtimer softirq needs it. 
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl
 
-The correct solution will be moving the timer callback into the process
-context, as it will be woken up anyway, but that's more complex to do
-than it looks in the first place.
-
-	tglx
-
+> --- rc2-mm2/kernel/acct.c~	2006-10-22 19:28:17.000000000 +0400
+> +++ rc2-mm2/kernel/acct.c	2006-10-23 17:09:12.000000000 +0400
+> @@ -484,12 +484,9 @@ static void do_acct_process(struct file 
+>  	ac.ac_ppid = current->parent->tgid;
+>  #endif
+>  
+> -	mutex_lock(&tty_mutex);
+> -	tty = get_current_tty();
+> -	ac.ac_tty = tty ? old_encode_dev(tty_devnum(tty)) : 0;
+> -	mutex_unlock(&tty_mutex);
+> -
+>  	spin_lock_irq(&current->sighand->siglock);
+> +	tty = current->signal->tty;
+> +	ac.ac_tty = tty ? old_encode_dev(tty_devnum(tty)) : 0;
+>  	ac.ac_utime = encode_comp_t(jiffies_to_AHZ(cputime_to_jiffies(pacct->ac_utime)));
+>  	ac.ac_stime = encode_comp_t(jiffies_to_AHZ(cputime_to_jiffies(pacct->ac_stime)));
+>  	ac.ac_flag = pacct->ac_flag;
+> 
 

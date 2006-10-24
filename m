@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWJXQ67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbWJXRBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWJXQ67 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWJXQ66
+	id S1030443AbWJXRBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 13:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWJXRBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:58:58 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:18578 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030320AbWJXQ66
+	Tue, 24 Oct 2006 13:01:08 -0400
+Received: from ns1.heckrath.net ([213.239.192.68]:44996 "EHLO
+	mail.heckrath.net") by vger.kernel.org with ESMTP id S1030434AbWJXRBG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:58:58 -0400
-Message-ID: <453E4654.1030809@drzeus.cx>
-Date: Tue, 24 Oct 2006 18:59:00 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
-MIME-Version: 1.0
-To: Timo Teras <timo.teras@solidboot.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: MMC: When rescanning cards check existing cards after mmc_setup()
-References: <20061016090609.GB17596@mail.solidboot.com> <453B4005.8080501@drzeus.cx> <20061024101458.GA17024@mail.solidboot.com>
-In-Reply-To: <20061024101458.GA17024@mail.solidboot.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 24 Oct 2006 13:01:06 -0400
+Date: Tue, 24 Oct 2006 19:01:04 +0200
+From: Sebastian =?ISO-8859-15?Q?K=E4rgel?= <mailing@wodkahexe.de>
+To: Sebastian Kemper <sebastian_ml@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Radeon DRI, mtrr overlaps, wrong RAM value
+Message-Id: <20061024190104.58d6b964.mailing@wodkahexe.de>
+In-Reply-To: <20061015013824.GA26893@section_eight>
+References: <20061015013824.GA26893@section_eight>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timo Teras wrote:
-> On Sun, Oct 22, 2006 at 11:55:17AM +0200, Pierre Ossman wrote:
->   
->> If we check cards on both sides of mmc_setup(), then we should be covered.
->>     
->
-> Should I update my patch to do this already? Or is the code fine as is?
->
->   
+Hi,
 
-Please include it in your revised patch.
+> I get the following warnings once my X server starts:
+> 
+> mtrr: 0xd0000000,0x10000000 overlaps existing 0xd0000000,0x8000000
+> mtrr: 0xd0000000,0x10000000 overlaps existing 0xd0000000,0x8000000
+> mtrr: 0xd0000000,0x10000000 overlaps existing 0xd0000000,0x8000000
+> mtrr: 0xd0000000,0x10000000 overlaps existing 0xd0000000,0x8000000
+> mtrr: 0xd0000000,0x10000000 overlaps existing 0xd0000000,0x8000000
 
->> Also, please add some comments about why we do this. Otherwise it will
->> run the risk of getting removed in the future.
->>     
->
-> Will do.
->
-> I'll send updated patch later on.
->
->   
+Same here:
 
-Looking forward to it. :)
+mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x4000000
+mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x4000000
+mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x4000000
 
-Rgds
+> In Xorg.0.log I get these warnings:
+> 
+> (WW) RADEON(0): DRI init changed memory map, adjusting ...
+> (WW) RADEON(0):   MC_FB_LOCATION  was: 0xd7ffd000 is: 0xd7ffd000
+> (WW) RADEON(0):   MC_AGP_LOCATION was: 0xffffffc0 is: 0xe07fe000
+> (**) RADEON(0): GRPH_BUFFER_CNTL from 20205c5c to 203e5c5c
 
--- 
-     -- Pierre Ossman
+XOrg Version: 6.8.2: No such messages here.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+> /proc/mtrr holds these values:
+> reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+> reg01: base=0xe0000000 (3584MB), size=  32MB: write-combining, count=2
+> reg02: base=0xd0000000 (3328MB), size= 128MB: write-combining, count=1
 
+reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
+reg01: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
+reg05: base=0xe0000000 (3584MB), size= 128MB: write-combining, count=2
+
+Kernel: 2.6.18.1
+
+take care,
+sebastian

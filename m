@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161234AbWJXVd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWJXVd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161234AbWJXVd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 17:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161235AbWJXVd1
+	id S1161236AbWJXVd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 17:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWJXVd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 17:33:27 -0400
-Received: from outbound-red.frontbridge.com ([216.148.222.49]:23527 "EHLO
-	outbound1-red-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1161234AbWJXVd0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 17:33:26 -0400
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: [PATCH] x86_64 irq: reset more to default when clear irq_vector
- for destroy_irq
-Date: Tue, 24 Oct 2006 14:33:08 -0700
-Message-ID: <5986589C150B2F49A46483AC44C7BCA412D75C@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64 irq: reset more to default when clear
- irq_vector for destroy_irq
-Thread-Index: Acb29PZqiQrjMhYqRXOk2C3vtxTWVwApoRYQAAVpBDA=
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Andi Kleen" <ak@muc.de>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Muli Ben-Yehuda" <muli@il.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 Oct 2006 21:33:09.0946 (UTC)
- FILETIME=[006571A0:01C6F7B4]
-X-WSS-ID: 6920591F1AO236771-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Tue, 24 Oct 2006 17:33:56 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1687 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161236AbWJXVdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 17:33:55 -0400
+Date: Tue, 24 Oct 2006 22:33:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       David Chinner <dgc@sgi.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       xfs@oss.sgi.com
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Message-ID: <20061024213342.GA22552@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+	David Chinner <dgc@sgi.com>,
+	Nigel Cunningham <ncunningham@linuxmail.org>,
+	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+	xfs@oss.sgi.com
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl> <20061024144446.GD11034@melbourne.sgi.com> <200610241730.00488.rjw@sisk.pl> <20061024170633.GA17956@infradead.org> <20061024212648.GB5662@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061024212648.GB5662@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Clear the irq releated entries in irq_vector, irq_domain and vector_irq 
-instead of clearing irq_vector only. So when new irq is created, it 
-could get that vector.
+On Tue, Oct 24, 2006 at 11:26:48PM +0200, Pavel Machek wrote:
+> > No, that's definitly not enough.  You need to freeze_bdev to make sure
+> > data is on disk in the place it's expected by the filesystem without
+> > starting a log recovery.
+> 
+> I believe log recovery is okay in this case.
+> 
+> It can only happen when kernel dies during suspend or during
+> resume... And log recovery seems okay in that case. We even guarantee
+> that user did not loose any data -- by using sys_sync() after userland
+> is stopped -- but let's not overdo over protections.
 
-Signed-off-By: Yinghai Lu <yinghai.lu@amd.com>
+You're still entirely missing the problem.
 
---- linux-2.6/arch/x86_64/kernel/io_apic.c	2006-10-24
-13:40:48.000000000 -0700
-+++ linux-2.6.xx/arch/x86_64/kernel/io_apic.c	2006-10-24
-14:03:08.000000000 -0700
-@@ -716,6 +716,22 @@
- 	return vector;
- }
- 
-+static void __clear_irq_vector(int irq)
-+{
-+	int old_vector = -1;
-+	if (irq_vector[irq] > 0)
-+		old_vector = irq_vector[irq];
-+	if (old_vector >= 0) {
-+		cpumask_t old_mask;
-+		int old_cpu;
-+		cpus_and(old_mask, irq_domain[irq], cpu_online_map);
-+		for_each_cpu_mask(old_cpu, old_mask)
-+			per_cpu(vector_irq, old_cpu)[old_vector] = -1;
-+	}
-+	irq_vector[irq] = 0;
-+	irq_domain[irq] = CPU_MASK_NONE;
-+}
-+
- void __setup_vector_irq(int cpu)
- {
- 	/* Initialize vector_irq on a new cpu */
-@@ -1803,7 +1819,7 @@
- 	dynamic_irq_cleanup(irq);
- 
- 	spin_lock_irqsave(&vector_lock, flags);
--	irq_vector[irq] = 0;
-+	__clear_irq_vector(irq);
- 	spin_unlock_irqrestore(&vector_lock, flags);
- }
- 
+Take a look at http://www.opengroup.org/onlinepubs/007908799/xsh/sync.html
+and the linux sync(2) manpage.  The only thing sync guarantees is writing
+out all in-memory data to disk.  It doesn't even gurantee completion,
+although we've been synchronous in Linux for a while.
 
+What it does not gurantee is where on disk the data is located.  Now for
+a journaling filesystem pushing everything to the log is the easiest way
+to complete sync, and it's perfectly valid - if the system crashes after
+the sync and before data is written back to it's normal place on disk
+the system notices it's not been unmounted cleanly and will do a log
+recovery.  In the suspend case however the system neither crashes nor
+is unmounted - thus the filesystem doesn't know it has to recover the
+log.  We have to choices to fix this:
+
+ (1) force a log recovery of an already mounted and in use filesystem
+ (2) make sure data is in the right place before suspending
+
+(1) is pretty nasty, and hard to do across filesystems.  (2) is already
+implemented and easily useable by the suspend code.
 

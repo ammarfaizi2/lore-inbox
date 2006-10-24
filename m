@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWJXQGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWJXQKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWJXQGK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 12:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWJXQGK
+	id S1030411AbWJXQKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 12:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWJXQKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 12:06:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:53107 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030223AbWJXQGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 12:06:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QA/GjcLBOjpuxnKdV2qSy6DtLOqsA/yX4cZ9oo+r4NytxYto7Reibn1On9g5YMZNABYWg1mOM7DJHDKI/DPTl8TYwFu94JJD8emoTjDbdtDeZjCb1yJlFi0+9M5pP1p/mJJJp/DhsfsKGceVMroq4b+WODx2hqrBYFuCRuaJxfo=
-Message-ID: <c43b2e150610240906r9faeed7id3a0ea2c8a02b0f0@mail.gmail.com>
-Date: Tue, 24 Oct 2006 18:06:07 +0200
-From: wixor <wixorpeek@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VCD not readable under 2.6.18
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1161349545.26440.19.camel@localhost.localdomain>
+	Tue, 24 Oct 2006 12:10:25 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:61577 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1030411AbWJXQKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 12:10:25 -0400
+Message-ID: <453E3AAC.9040403@freescale.com>
+Date: Tue, 24 Oct 2006 11:09:16 -0500
+From: Scott Wood <scottwood@freescale.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       linux1394-devel@lists.sourceforge.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>
+Subject: Re: pci_set_power_state() failure and breaking suspend
+References: <1161672898.10524.596.camel@localhost.localdomain> <200610241400.06047.rjw@sisk.pl>
+In-Reply-To: <200610241400.06047.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <c43b2e150610161153x28fef90bw4922f808714b93fd@mail.gmail.com>
-	 <1161040345.24237.135.camel@localhost.localdomain>
-	 <c43b2e150610171116w2d13e47ancbea07c09bd5ffbf@mail.gmail.com>
-	 <1161124732.5014.20.camel@localhost.localdomain>
-	 <c43b2e150610190935tefd11eev510c7dee36c15a51@mail.gmail.com>
-	 <1161276178.17335.100.camel@localhost.localdomain>
-	 <c43b2e150610191039h504b6000u242cadf8d146de9@mail.gmail.com>
-	 <1161349545.26440.19.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I'm sorry for troubling you - it is indeed a xine problem - i've
-ripped the whole vcd with vcdxrip, and even the executable file - just
-everything, and it worked fine. Thanks for paying attention.
+Rafael J. Wysocki wrote:
+> On Tuesday, 24 October 2006 08:54, Benjamin Herrenschmidt wrote:
+>>However, this raises the question of do we actually want to prevent
+>>machines to suspend when they have a PCI device that don't have the PCI
+>>PM capability ? I'm asking that because I can easily imagine that sort
+>>of construct growing into more drivers (sounds logical if you don't
+>>think) and I can even imagine somebody thinking it's a good idea to slap
+>>a __must_check on pci_set_power_state() ... 
+> 
+> 
+> As far as the suspend to RAM is concerned, I don't know.
+> 
+> For the suspend to disk we can ignore the error if we know that the device
+> in question won't do anything like a DMA transfer into memory while we're
+> creating the suspend image.
 
---
-wixor
+I think it should be ignored for suspend-to-RAM as well; even if a 
+device or two is consuming unnecessary power, it's better than not being 
+able to suspend at all, causing more things to consume unnecessary power.
+
+At most, a warning should be issued so the user knows what's going on, 
+and can choose whether to suspend to disk instead (or choose to complain 
+to the device manufacturer).
+
+-Scott

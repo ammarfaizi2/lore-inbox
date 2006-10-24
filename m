@@ -1,113 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752114AbWJXHxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752112AbWJXH6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752114AbWJXHxx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 03:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752113AbWJXHxx
+	id S1752112AbWJXH6f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 03:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWJXH6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 03:53:53 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:7843 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752110AbWJXHxv (ORCPT
+	Tue, 24 Oct 2006 03:58:34 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:48581 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752112AbWJXH6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 03:53:51 -0400
-Message-ID: <453DC65C.8000408@sw.ru>
-Date: Tue, 24 Oct 2006 11:53:00 +0400
-From: Vasily Averin <vvs@sw.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Tue, 24 Oct 2006 03:58:34 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Freeze bdevs when freezing processes.
+Date: Tue, 24 Oct 2006 09:57:38 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610232119.25373.rjw@sisk.pl> <1161643965.7033.12.camel@nigel.suspend2.net>
+In-Reply-To: <1161643965.7033.12.camel@nigel.suspend2.net>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, devel@openvz.org
-Subject: Re: [Q] ide cdrom in native mode leads to irq storm?
-References: <453DC2A9.8000507@sw.ru>
-In-Reply-To: <453DC2A9.8000507@sw.ru>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=KOI8-R
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610240957.38965.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vasily Averin wrote:
-> there is node with Intel 7520-based motherboard (MSI-9136), IDE cdrom (hda) and
-> SATA disc and 2.6.19-rc3 linux kernel.
+Hi,
+
+On Tuesday, 24 October 2006 00:52, Nigel Cunningham wrote:
+> Hi.
 > 
-> When I set IDE controller into the native mode, I get irq storm on the node and
-> this interrupt is disabled. If this interrupt is shared, the other subsystems
-> are stop working too.
+> On Mon, 2006-10-23 at 21:19 +0200, Rafael J. Wysocki wrote:
+> > On Monday, 23 October 2006 19:50, Andrew Morton wrote:
+> > > > On Mon, 23 Oct 2006 19:14:50 +0200 Pavel Machek <pavel@ucw.cz> wrote:
+> > > > On Mon 2006-10-23 09:55:22, Andrew Morton wrote:
+> > > > > > On Mon, 23 Oct 2006 16:07:16 +0200 "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > > > I'm trying to prepare the patches to make swsusp into suspend2.
+> > > > > > 
+> > > > > > Oh, I see.  Please don't do that.
+> > > > > 
+> > > > > Why not?
+> > 
+> > Generally, we already do many things that suspend2 just duplicates and there's
+> > one thing in suspend2 I really don't like, which is the use of LRU pages as
+> > temporary storage.
 > 
-> When I switch the IDE controller into legacy mode, all works correctly.
+> The duplicated things obviously won't be merged (unless they're doing it
+> better somehow), so there's no issue there.
+
+OK (as long as there are no doubts the new code is doing things better ;-))
+
+> As to the use of LRU pages, this can be disabled with a simple sysfs
+> setting, so it doesn't need to be a big issue.
+
+I'm sorry, but I don't think it can be merged at all as long as we are not
+100% sure it's safe.  Currently, we aren't.
+
+> > > > Last time I checked, suspend2 was 15000 lines of code, including its
+> > > > own plugin system and special user-kernel protocol for drawing
+> > > > progress bar (netlink based). It also did parts of user interface from
+> > > 
+> > > That's different.
+> > > 
+> > > I don't know where these patches are leading, but thus far they look like
+> > > reasonable cleanups and generalisations.  So I suggest we just take them
+> > > one at a time.
+> > 
+> > Well, the patch for the freezeing of bdevs contains a memory leak that I have
+> > already pointed to Nigel for three times, it leads to some problems in the
+> > error paths, AFAICT, and "solves" a problem that doesn't really exist in the
+> > current code.
 > 
-> I've tried to use noapic, acpi=off, pci=routeirq, irqpoll options but it does
-> not help.
+> There's no memory leak. In Suspend2 (and I believe swsusp, but will
+> admit I haven't carefully checked), every call to freeze processes has a
+> matching call to thaw them. The thaw call will invoke make_fses_rw,
+> which will free the memory that was allocated. If there's an issue, it's
+> that in the failure path thaw_bdev can be called when freeze_bdev was
+> never invoked. Having just realised that, I've just fixed it.
 
-When I use irqpoll option I get the following oops in create_empty_buffers():
-it is not expected that alloc_page_buffers(page, blocksize, 1) can return NULL,
-but it does it because of requested blocksize is more than PAGE_SIZE.
+I was talking about the leak in the error path, where you exit the function
+without freeing the already allocated objects.
 
-Unfortunately I have not any ideas how to fix this issue correctly.
+> Regarding the problem not existing, I'll try to find time to reproduce
+> it later in the day. Maybe the XFS guys have fixed it since I last
+> checked, but I do know there was a real issue (even if you haven't seen
+> it). That said, yesterday was my Red Hat day, so I'm not promising that
+> I'll be quick.
 
-thank you,
-	Vasily Averin
+Of course if you are able to show there is a problem, I won't be against this
+patch.
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0191790
-*pde = 37b31001
-Oops: 0002 [#1]
-SMP
-Modules linked in: thermal processor fan button battery asus_acpi ac lp
-parport_pc parport floppy ehci_hcd uhci_hcd sg e1000 i2c_i801 i2c_core ide_cd
-cdrom shpchp usbcore
-CPU:    0
-EIP:    0060:[<c0191790>]    Not tainted VLI
-EFLAGS: 00010296   (2.6.19-rc3 #1)
-EIP is at create_empty_buffers+0x30/0xb0
-eax: 00000000   ebx: c16e1360   ecx: c16e1360   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: f7a720ac   esp: f7f3bc5c
-ds: 007b   es: 007b   ss: 0068
-Process lvm.static (pid: 2249, ti=f7f3a000 task=f7bce550 task.ti=f7f3a000)
-Stack: c16e1360 00010000 00000001 00010000 00000000 f7a72150 c0192491 c16e1360
-       00010000 00000000 00000011 f7f3bcb8 c01059fe 00000000 00000000 00000001
-       00000440 00010000 00000003 c16e0740 f7a72150 00000004 c0103ace 00000000
-Call Trace:
- [<c0192491>] block_read_full_page+0x251/0x3a0
- [<c01059fe>] do_IRQ+0x6e/0xd0
- [<c0103ace>] common_interrupt+0x1a/0x20
- [<c0147cac>] add_to_page_cache+0x9c/0xc0
- [<c014f515>] read_pages+0x45/0x100
- [<c0195a10>] blkdev_get_block+0x0/0x80
- [<c014d035>] __alloc_pages+0x55/0x320
- [<c014f73d>] __do_page_cache_readahead+0x16d/0x180
- [<c014f8b9>] blockable_page_cache_readahead+0x59/0xd0
- [<c014fb3e>] page_cache_readahead+0x13e/0x1f0
- [<c0148980>] do_generic_mapping_read+0x4c0/0x600
- [<c0148de4>] generic_file_aio_read+0x214/0x250
- [<c0148ac0>] file_read_actor+0x0/0x110
- [<c016bbee>] do_sync_read+0xde/0x130
- [<c0136e60>] autoremove_wake_function+0x0/0x60
- [<f8846d08>] usb_hcd_irq+0x28/0x70 [usbcore]
- [<c0145e48>] misrouted_irq+0xd8/0x150
- [<c0146016>] note_interrupt+0x96/0xe0
- [<c016bcfe>] vfs_read+0xbe/0x1a0
- [<c016c101>] sys_read+0x51/0x80
- [<c0103147>] syscall_call+0x7/0xb
- =======================
-Code: 00 00 53 83 ec 0c 8b 5c 24 1c 89 74 24 08 8b 44 24 20 8b 7c 24 24 89 1c 24
-89 44 24 04 e8 69 f4 ff ff 89 c6 89 c2 90 8d 74 26 00 <09> 3a 89 d0 8b 52 04 85
-d2 75 f5 89 70 04 8b 43 10 83 c0 44 e8
-EIP: [<c0191790>] create_empty_buffers+0x30/0xb0 SS:ESP 0068:f7f3bc5c
- <3>irq 17: nobody cared (try booting with the "irqpoll" option)
- [<c0145eea>] __report_bad_irq+0x2a/0xa0
- [<c014602f>] note_interrupt+0xaf/0xe0
- [<c0146888>] handle_fasteoi_irq+0xc8/0xe0
- [<c01059f9>] do_IRQ+0x69/0xd0
- [<c0103ace>] common_interrupt+0x1a/0x20
- [<c0101082>] mwait_idle_with_hints+0x32/0x40
- [<c01010a8>] mwait_idle+0x18/0x30
- [<c0100ef3>] cpu_idle+0x73/0x90
- [<c0552a5a>] start_kernel+0x1ca/0x220
- [<c0552370>] unknown_bootoption+0x0/0x1e0
- =======================
-handlers:
-[<c02b30c0>] (ide_intr+0x0/0x170)
-Disabling IRQ #17
+> > Some time ago I posted a very similar patch and we discussed it with the XFS
+> > people.  In conclusion we decided not to apply it.
+> > 
+> > The patch that causes kernel threads to be thawed temporarily before we
+> > attempt to free some memory doesn't look bad, but it's not needed for the
+> > reason given by Nigel.  It may be needed for another reason, but I think we
+> > should know why we apply it before we do so.
+> 
+> I'll seek to address this too.
+> 
+> > I have no specific objections with respect to the other patches except I'd
+> > like to understand the patch that adds extents for the handling of swap before
+> > I say I like it or not.
+> > 
+> > > > OTOH, that was half a year ago, but given that uswsusp can now do most
+> > > > of the stuff suspend2 does (and without that 15000 lines of code), I
+> > > > do not think we want to do complete rewrite of swsusp now.
+> > > 
+> > > uswsusp seems like a bad idea to me.
+> > 
+> > Could you please explain why exactly?
+> > 
+> > > We'd be better off concentrating on a simple, clean in-kernel thing which
+> > > *works*. 
+> > 
+> > This depends on the point of view.  I test both swsusp and uswsusp on a regular
+> > basis on 5 different boxes and they both work flawlessly (except when some
+> > rogue patch breaks them, but that's a different story).
+> > 
+> > > Right now the main problems with swsusp are that it's slow and that there
+> > > are driver problems.  (Actually these are both driver problems).
+> > 
+> > Well, suspend2 is not about drivers.  It's all about the "core", ie. memory
+> > management, saving/restoring the image etc.
+> > 
+> > As far as the drivers are concerned, we (I, Pavel, Nigel and even you) can't
+> > fix all of them and it really is a challenge to do something that will cause
+> > them to be fixed.
+> > 
+> > In the meantime we fix some things that _we_ can address, like the handling
+> > of highmem, the PAE-related issue on i386 etc.
+> 
+> Agreed.
+> 
+> > > Fiddling with the top-level interfaces doesn't address either of these core
+> > > problems.
+> > 
+> > No, it doesn't, but for example it's the correct way of handling the resume
+> > from an initrd image, IMHO.
+> > 
+> > > Apparently uswsusp has gained support for S3 while the in-kernel driver
+> > > does not support S3.  That's disappointing.
+> > 
+> > The problem with that is on _many_ boxes we have to handle the video in a
+> > special way before and after S3, and it is only possible from the user
+> > space.  This was one of the reasons why we decided to develop the userland
+> > suspend.
+> 
+> But that's a different issue - uswsusp is suspend to disk. Your s2ram
+> thing is suspend to ram (although I guess you're somehow invoking it as
+> a library or something for suspend to disk + ram).
+
+Yes, we support the suspend to disk+RAM which also needs the video-related
+black magic.
+
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

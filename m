@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbWJXSUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWJXSbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161134AbWJXSUt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 14:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbWJXSUt
+	id S1161148AbWJXSbX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 14:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWJXSbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 14:20:49 -0400
-Received: from hera.kernel.org ([140.211.167.34]:61676 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1161134AbWJXSUs (ORCPT
+	Tue, 24 Oct 2006 14:31:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8842 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161148AbWJXSbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 14:20:48 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH 1/5] netpoll: use sk_buff_head for txq
-Date: Tue, 24 Oct 2006 07:14:51 -0700
-Organization: OSDL
-Message-ID: <20061024071451.2ba1b79c@freekitty>
-References: <20061020153027.3bed8c86@dxpl.pdx.osdl.net>
-	<20061022.204220.78710782.davem@davemloft.net>
-	<20061023120253.5dd146d2@dxpl.pdx.osdl.net>
-	<20061023.230350.05157566.davem@davemloft.net>
-	<20061024075130.6e4cf8d2@dads-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1161714016 20273 10.8.0.54 (24 Oct 2006 18:20:16 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 24 Oct 2006 18:20:16 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Tue, 24 Oct 2006 14:31:22 -0400
+Date: Tue, 24 Oct 2006 11:31:09 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Message-Id: <20061024183109.4530.3647.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
+References: <20061024183104.4530.29183.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 1/5] Disable interrupts for locking in load_balance()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Oct 2006 07:51:30 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+scheduler: Disable interrupts for locking in load_balance()
 
-> On Mon, 23 Oct 2006 23:03:50 -0700 (PDT)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > From: Stephen Hemminger <shemminger@osdl.org>
-> > Date: Mon, 23 Oct 2006 12:02:53 -0700
-> > 
-> > > +	spin_lock_irqsave(&netpoll_txq.lock, flags);
-> > > +	for (skb = (struct sk_buff *)netpoll_txq.next;
-> > > +	     skb != (struct sk_buff *)&netpoll_txq; skb = next) {
-> > > +		next = skb->next;
-> > > +		if (skb->dev == dev) {
-> > > +			skb_unlink(skb, &netpoll_txq);
-> > > +			kfree_skb(skb);
-> > > +		}
-> > >  	}
-> > > +	spin_unlock_irqrestore(&netpoll_txq.lock, flags);
-> > 
-> > IRQ's are disabled, I think we can't call kfree_skb() in such a
-> > context.
-> 
-> It is save since the skb's only come from this code (no destructors).
-> 
-Actually it does use destructors... I am doing a better version (per-device).
+Interrupts must be disabled for request queue locks if we want
+to run load_balance() with interrupts enabled.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.19-rc2-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.19-rc2-mm2.orig/kernel/sched.c	2006-10-23 19:35:19.615025838 -0500
++++ linux-2.6.19-rc2-mm2/kernel/sched.c	2006-10-23 19:36:26.208865512 -0500
+@@ -2530,8 +2530,6 @@ static inline unsigned long minus_1_or_z
+ /*
+  * Check this_cpu to ensure it is balanced within domain. Attempt to move
+  * tasks if there is an imbalance.
+- *
+- * Called with this_rq unlocked.
+  */
+ static int load_balance(int this_cpu, struct rq *this_rq,
+ 			struct sched_domain *sd, enum idle_type idle)
+@@ -2541,6 +2539,7 @@ static int load_balance(int this_cpu, st
+ 	unsigned long imbalance;
+ 	struct rq *busiest;
+ 	cpumask_t cpus = CPU_MASK_ALL;
++	unsigned long flags;
+ 
+ 	/*
+ 	 * When power savings policy is enabled for the parent domain, idle
+@@ -2580,11 +2579,13 @@ redo:
+ 		 * still unbalanced. nr_moved simply stays zero, so it is
+ 		 * correctly treated as an imbalance.
+ 		 */
++		local_irq_save(flags);
+ 		double_rq_lock(this_rq, busiest);
+ 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
+ 				      minus_1_or_zero(busiest->nr_running),
+ 				      imbalance, sd, idle, &all_pinned);
+ 		double_rq_unlock(this_rq, busiest);
++		local_irq_restore(flags);
+ 
+ 		/* All tasks on this runqueue were pinned by CPU affinity */
+ 		if (unlikely(all_pinned)) {
+@@ -2601,13 +2602,13 @@ redo:
+ 
+ 		if (unlikely(sd->nr_balance_failed > sd->cache_nice_tries+2)) {
+ 
+-			spin_lock(&busiest->lock);
++			spin_lock_irqsave(&busiest->lock, flags);
+ 
+ 			/* don't kick the migration_thread, if the curr
+ 			 * task on busiest cpu can't be moved to this_cpu
+ 			 */
+ 			if (!cpu_isset(this_cpu, busiest->curr->cpus_allowed)) {
+-				spin_unlock(&busiest->lock);
++				spin_unlock_irqrestore(&busiest->lock, flags);
+ 				all_pinned = 1;
+ 				goto out_one_pinned;
+ 			}
+@@ -2617,7 +2618,7 @@ redo:
+ 				busiest->push_cpu = this_cpu;
+ 				active_balance = 1;
+ 			}
+-			spin_unlock(&busiest->lock);
++			spin_unlock_irqrestore(&busiest->lock, flags);
+ 			if (active_balance)
+ 				wake_up_process(busiest->migration_thread);
+ 

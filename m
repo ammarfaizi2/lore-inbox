@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWJXOqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWJXOvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWJXOqe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 10:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWJXOqe
+	id S932430AbWJXOvi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 10:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWJXOvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 10:46:34 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36839 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932288AbWJXOqd (ORCPT
+	Tue, 24 Oct 2006 10:51:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8116 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932295AbWJXOvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 10:46:33 -0400
-Date: Wed, 25 Oct 2006 00:44:46 +1000
-From: David Chinner <dgc@sgi.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, xfs@oss.sgi.com
-Subject: Re: [PATCH] Freeze bdevs when freezing processes.
-Message-ID: <20061024144446.GD11034@melbourne.sgi.com>
-References: <1161576735.3466.7.camel@nigel.suspend2.net> <200610231236.54317.rjw@sisk.pl>
+	Tue, 24 Oct 2006 10:51:37 -0400
+Date: Tue, 24 Oct 2006 07:51:30 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] netpoll: use sk_buff_head for txq
+Message-ID: <20061024075130.6e4cf8d2@dads-laptop>
+In-Reply-To: <20061023.230350.05157566.davem@davemloft.net>
+References: <20061020153027.3bed8c86@dxpl.pdx.osdl.net>
+	<20061022.204220.78710782.davem@davemloft.net>
+	<20061023120253.5dd146d2@dxpl.pdx.osdl.net>
+	<20061023.230350.05157566.davem@davemloft.net>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610231236.54317.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 12:36:53PM +0200, Rafael J. Wysocki wrote:
-> On Monday, 23 October 2006 06:12, Nigel Cunningham wrote:
-> > XFS can continue to submit I/O from a timer routine, even after
-> > freezeable kernel and userspace threads are frozen. This doesn't seem to
-> > be an issue for current swsusp code,
+On Mon, 23 Oct 2006 23:03:50 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
+
+> From: Stephen Hemminger <shemminger@osdl.org>
+> Date: Mon, 23 Oct 2006 12:02:53 -0700
 > 
-> So it doesn't look like we need the patch _now_.
+> > +	spin_lock_irqsave(&netpoll_txq.lock, flags);
+> > +	for (skb = (struct sk_buff *)netpoll_txq.next;
+> > +	     skb != (struct sk_buff *)&netpoll_txq; skb = next) {
+> > +		next = skb->next;
+> > +		if (skb->dev == dev) {
+> > +			skb_unlink(skb, &netpoll_txq);
+> > +			kfree_skb(skb);
+> > +		}
+> >  	}
+> > +	spin_unlock_irqrestore(&netpoll_txq.lock, flags);
 > 
-> > but is definitely an issue for Suspend2, where the pages being written could
-> > be overwritten by Suspend2's atomic copy.
+> IRQ's are disabled, I think we can't call kfree_skb() in such a
+> context.
+
+It is save since the skb's only come from this code (no destructors).
+
 > 
-> And IMO that's a good reason why we shouldn't use RCU pages for storing the
-> image.  XFS is one known example that breaks things if we do so and
-> there may be more such things that we don't know of.  The fact that they
-> haven't appeared in testing so far doesn't mean they don't exist and
-> moreover some things like that may appear in the future.
+> That's why zap_completion_queue() has all of these funny
+> skb->destructor checks and such, all of this stuff potentially runs in
+> IRQ context.
 
-Could you please tell us which XFS bits are broken so we can get
-them fixed?  The XFS daemons should all be checking if they are
-supposed to freeze (i.e. they call try_to_freeze() after they wake
-up due to timer expiry) so I thought they were doing the right
-thing.
-
-However, I have to say that I agree with freezing the filesystems
-before suspend - at least XFS will be in a consistent state that can
-be recovered from without corruption if your machine fails to
-resume....
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+It should use __kfree_skb in the purge routine (like other places).

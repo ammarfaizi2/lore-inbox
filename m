@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWJXUmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWJXUn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161225AbWJXUmn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 16:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161226AbWJXUmn
+	id S965186AbWJXUn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 16:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWJXUn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 16:42:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59558 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161225AbWJXUmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 16:42:42 -0400
-Date: Tue, 24 Oct 2006 21:42:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use extents for recording what swap is allocated.
-Message-ID: <20061024204239.GA15689@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1161576857.3466.9.camel@nigel.suspend2.net>
+	Tue, 24 Oct 2006 16:43:29 -0400
+Received: from xenotime.net ([66.160.160.81]:54170 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965186AbWJXUn2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 16:43:28 -0400
+Date: Tue, 24 Oct 2006 13:45:08 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [patch, rfc] kbuild: implement checksrc without building
+ Cources  (was Re: CHECK without C compile?)
+Message-Id: <20061024134508.adb14be6.rdunlap@xenotime.net>
+In-Reply-To: <slrnejsrjq.93p.olecom@flower.upol.cz>
+References: <20061023153540.4d467a88.rdunlap@xenotime.net>
+	<slrnejscd5.93p.olecom@flower.upol.cz>
+	<slrnejsrjq.93p.olecom@flower.upol.cz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1161576857.3466.9.camel@nigel.suspend2.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 23, 2006 at 02:14:17PM +1000, Nigel Cunningham wrote:
-> Switch from bitmaps to using extents to record what swap is allocated;
-> they make more efficient use of memory, particularly where the allocated
-> storage is small and the swap space is large.
->     
-> This is also part of the ground work for implementing support for
-> supporting multiple swap devices.
+On Tue, 24 Oct 2006 19:43:40 +0000 (UTC) Oleg Verych wrote:
 
-In addition to the very useful comments from Rafael there's some observations
-of my own:
+> On 2006-10-24, Oleg Verych wrote:
+> > On 2006-10-23, Randy Dunlap wrote:
+> >> Hi Sam,
+> >
+> * It seems*
+> >
+> > +     $(call if_changed_rule,cc_o_c) || \
+> > +     { echo $(@:.o=.ko); echo $@; } > $(MODVERDIR)/$(@F:.o=.mod)
+> 
+> This doesn't work, use ifs instead. Updated.
+> I have no idea what to do with generated sources and headers.
+> One may be: check target `if_changed' to be %.c or %.h and let it be
+> built.
 
- - there's an awful lot of opencoded list manipulation, any chance you
-   could use list.h instead?
- - what unit are the extent values in?  The usage of unsigned long rings
-   warning bells for me, shouldn't this be something like pgoff_t or
-   sector_t depending on what you describe with it?
+Hi Oleg,
+
+Yes, it works for me, with the exception of host-generated
+files, as you mentioned.  I ran into those with:
+IKCONFIG (the one that you mentioned), ATM_FORE200E firmware,
+IEEE 1394 OUI database (which I sent a patch for -- it should
+not be generated when the config option is not enabled),
+RAID456 tables, VIDEO_LOGO files, and CRC32 table.
+
+Thanks for your time and effort.  Maybe Sam will have some ideas.
+
+> ____
+> From: Oleg Verych <olecom@flower.upol.cz>
+> Subject: [patch, rfc] kbuild: implement checksrc without building Cources
+> 
+>   Implementation of configured source chacking without actual building.
+> 
+> Cc: Randy Dunlap <rdunlap@xenotime.net>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Signed-off-by: Oleg Verych <olecom@flower.upol.cz>
+> ---
+> 
+>   Configured sources means, some config target must be run already.
+>   After that
+>   ,-<shell>
+>   | make prepare
+>   | make C=something_not_0,1,2 _target_
+>   `--
+>   should run _target_ with checking and without building.
+> 
+> -o--=O`C  /. .\
+>  #oo'L O      o
+> <___=E M    ^--
+> 
+>  scripts/Kbuild.include |    6 +++---
+>  scripts/Makefile.build |   25 ++++++++++++++++---------
+>  2 files changed, 19 insertions(+), 12 deletions(-)
+
+
+---
+~Randy

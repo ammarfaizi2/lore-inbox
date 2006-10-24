@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422771AbWJXWna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWJXWqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422771AbWJXWna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 18:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422772AbWJXWna
+	id S1422768AbWJXWqr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 18:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422778AbWJXWqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 18:43:30 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27604 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1422771AbWJXWn3 (ORCPT
+	Tue, 24 Oct 2006 18:46:47 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:52941 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1422768AbWJXWqq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 18:43:29 -0400
-Subject: Re: [KJ][PATCH] Correct misc_register return code handling in
-	several drivers
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: kernel-janitors@lists.osdl.org, kjhall@us.ibm.com, akpm@osdl.org,
-       maxk@qualcomm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20061024125306.GA1608@hmsreliant.homelinux.net>
-References: <20061023171910.GA23714@hmsreliant.homelinux.net>
-	 <1161660875.10524.535.camel@localhost.localdomain>
-	 <20061024125306.GA1608@hmsreliant.homelinux.net>
-Content-Type: text/plain
-Date: Wed, 25 Oct 2006 08:42:42 +1000
-Message-Id: <1161729762.10524.660.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 24 Oct 2006 18:46:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Date: Wed, 25 Oct 2006 00:45:38 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <200610242208.34426.rjw@sisk.pl> <1161727981.22729.18.camel@nigel.suspend2.net>
+In-Reply-To: <1161727981.22729.18.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610250045.38812.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-24 at 08:53 -0400, Neil Horman wrote:
-> On Tue, Oct 24, 2006 at 01:34:34PM +1000, Benjamin Herrenschmidt wrote:
-> > On Mon, 2006-10-23 at 13:19 -0400, Neil Horman wrote:
-> > > Hey All-
-> > > 	Janitor patch to clean up return code handling and exit from failed
-> > > calls to misc_register accross several modules.
-> > 
-> > The patch doesn't match the description... What are those INIT_LIST_HEAD
-> > things ? Is this something I've missed or is this a new requirement for
-> > all misc devices ? Can't it be statically initialized instead ?
-> > 
+Hi,
+
+On Wednesday, 25 October 2006 00:13, Nigel Cunningham wrote:
+> Hi.
 > 
-> The INIT_LIST_HEAD is there to prevent a potential oops on module removal.
-> misc_register, if it fails, leaves miscdevice.list unchanged.  That means its
-> next and prev pointers contain NULL or garbage, when both pointers should contain
-> &miscdevice.list. If we don't do that, then there is a chance we will oops on
-> module removal when we do a list_del in misc_deregister on the moudule_exit
-> routine.  I could have done this statically, but I thought it looked cleaner to
-> do it with the macro in the code.
+> On Tue, 2006-10-24 at 22:08 +0200, Rafael J. Wysocki wrote:
+> > On Monday, 23 October 2006 06:14, Nigel Cunningham wrote:
+> > > Switch from bitmaps to using extents to record what swap is allocated;
+> > > they make more efficient use of memory, particularly where the allocated
+> > > storage is small and the swap space is large.
+> > 
+> > As I said before, I like the overall idea, but I have a bunch of comments.
+> 
+> Thanks for them. Just a quick reply for the moment to say they're
+> appreciated and I will revise accordingly.
+> 
+> I should also mention that this isn't the only use of these functions in
+> Suspend2.
 
-Hrm... I see, but I still for some reason don't like it that much.. I'd
-rather have misc_register() do the initialisation unconditionally before
-it can fail, don't you think ?
+Could we please focus on things that are on the table _now_?.  You are
+submitting the patch aganist the current code and I can only review it
+in this context.  I can't say if I like your _future_ patches at this moment! :-)
 
-We would theorically have a similar problem with any driver that does
+> There I also use extents to record the blocks to which the 
+> image will be written. I hope to submit modifications to swsusp to do
+> that too in the near future.
+> 
+> > > +/* Simplify iterating through all the values in an extent chain */
+> > > +#define suspend_extent_for_each(extent_chain, extentpointer, value) \
+> > > +if ((extent_chain)->first) \
+> > > +	for ((extentpointer) = (extent_chain)->first, (value) = \
+> > > +			(extentpointer)->minimum; \
+> > > +	     ((extentpointer) && ((extentpointer)->next || (value) <= \
+> > > +				 (extentpointer)->maximum)); \
+> > > +	     (((value) == (extentpointer)->maximum) ? \
+> > > +		((extentpointer) = (extentpointer)->next, (value) = \
+> > > +		 ((extentpointer) ? (extentpointer)->minimum : 0)) : \
+> > > +			(value)++))
+> > 
+> > This macro doesn't look very nice and is used only once, so I think you
+> > can drop it and just write the loop where it belongs.
+> 
+> With the modifications I mentioned just above, this would also be used
+> for getting the blocks which match each swap extent. I can remove the
+> macro, but just want to make you aware that it does serve a purpose,
+> you're just not seeing it fully yet.
+
+Can we just assume there are no other patches and proceed under this
+assumption?
+
+Could you please remove the macro for now?  You can introduce it with the
+other patches when you submit them (if it's still needed at that time).
+
+Greetings,
+Rafael
 
 
-xxxx_register(&static_struct)
-
-and
-
-xxxx_unregister(&static_struct)
-
-(pci, usb, etc...)
-
-As long as there are list heads involved. I think the proper solution
-here is to have either the unregister be smart and test for NULL/NULL or
-the register initialize those fields before it has a chance to fail.
-
-Ben.
-
-
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

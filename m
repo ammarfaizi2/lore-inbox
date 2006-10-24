@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbWJXU4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWJXU7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965196AbWJXU4d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Oct 2006 16:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbWJXU4d
+	id S965194AbWJXU7d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Oct 2006 16:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWJXU7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Oct 2006 16:56:33 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:4028 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965196AbWJXU4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Oct 2006 16:56:32 -0400
-Date: Tue, 24 Oct 2006 22:55:03 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, Dominik Brodowski <linux@brodo.de>,
-       Harald Welte <laforge@netfilter.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: feature-removal-schedule obsoletes
-Message-ID: <20061024205503.GA23078@wohnheim.fh-wedel.de>
-References: <45324658.1000203@gmail.com> <20061016133352.GA23391@lst.de> <200610242124.49911.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 24 Oct 2006 16:59:33 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:33740 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965194AbWJXU7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Oct 2006 16:59:32 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] Use extents for recording what swap is allocated.
+Date: Tue, 24 Oct 2006 22:58:33 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <1161576857.3466.9.camel@nigel.suspend2.net> <20061024204239.GA15689@infradead.org>
+In-Reply-To: <20061024204239.GA15689@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200610242124.49911.arnd@arndb.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610242258.34352.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 October 2006 21:24:49 +0200, Arnd Bergmann wrote:
->
-> ./drivers/mtd/mtd_blkdevs.c:    ret = kernel_thread(mtd_blktrans_thread, tr, CLONE_KERNEL);
+On Tuesday, 24 October 2006 22:42, Christoph Hellwig wrote:
+> On Mon, Oct 23, 2006 at 02:14:17PM +1000, Nigel Cunningham wrote:
+> > Switch from bitmaps to using extents to record what swap is allocated;
+> > they make more efficient use of memory, particularly where the allocated
+> > storage is small and the swap space is large.
+> >     
+> > This is also part of the ground work for implementing support for
+> > supporting multiple swap devices.
+> 
+> In addition to the very useful comments from Rafael there's some observations
+> of my own:
+> 
+>  - there's an awful lot of opencoded list manipulation, any chance you
+>    could use list.h instead?
+>  - what unit are the extent values in?  The usage of unsigned long rings
+>    warning bells for me, shouldn't this be something like pgoff_t or
+>    sector_t depending on what you describe with it?
 
-This one should be ripped out.  I did it as part of a bugfix for a
-customer kernel not too long ago.
-
-Jörn
-
--- 
-Joern's library part 3:
-http://inst.eecs.berkeley.edu/~cs152/fa05/handouts/clark-test.pdf
+These are swap offsets as returned by swp_offset().
